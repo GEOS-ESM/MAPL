@@ -30,7 +30,7 @@
   use MAPL_LocStreamMod
   use MAPL_CFIOMod
   use MAPL_GenericCplCompMod
-  use MAPL_NewArthParserMod
+  use MAPL_StateUtils
   use MAPL_SortMod
   use MAPL_ShmemMod
   use MAPL_StringGridMapMod
@@ -53,10 +53,10 @@
   use pFIO_ConstantsMod
   use HistoryTrajectoryMod
   use StationSamplerMod
-  use MaskSamplerGeosatMod
+  use MaskSamplerMod
   use MAPL_StringTemplate
   use regex_module
-  use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
+  use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date, MAPL_UndefInt
   use gFTL_StringStringMap
   !use ESMF_CFIOMOD
   use MAPL_EpochSwathMod
@@ -577,7 +577,7 @@ contains
 
              nlist = nlist + 1
              allocate( list(nlist), _STAT )
-             list(1:nlist-1)=IntState%list
+             if (nlist > 1) list(1:nlist-1)=IntState%list
              list(nlist)%collection = tmpstring
              list(nlist)%filename = list(nlist)%collection
              deallocate(IntState%list)
@@ -811,16 +811,19 @@ contains
                                       label=trim(string) // 'ref_time:',_RC )
        _ASSERT(is_valid_time(list(n)%ref_time),'Invalid ref_time')
 
-       call ESMF_ConfigGetAttribute ( cfg, list(n)%end_date, default=-999, &
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%start_date, default=MAPL_UndefInt, &
+                                      label=trim(string) // 'start_date:',_RC )
+       _ASSERT(is_valid_date(list(n)%start_date),'Invalid start_date')
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%start_time, default=MAPL_UndefInt, &
+                                      label=trim(string) // 'start_time:',_RC )
+       _ASSERT(is_valid_time(list(n)%start_time),'Invalid start_time')
+
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%end_date, default=MAPL_UndefInt, &
                                       label=trim(string) // 'end_date:',_RC )
-       if (list(n)%end_date /= -999) then
-          _ASSERT(is_valid_date(list(n)%end_date),'Invalid end_date')
-       end if
-       call ESMF_ConfigGetAttribute ( cfg, list(n)%end_time, default=-999, &
+       _ASSERT(is_valid_date(list(n)%end_date),'Invalid end_date')
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%end_time, default=MAPL_UndefInt, &
                                       label=trim(string) // 'end_time:',_RC )
-       if (list(n)%end_time /= -999) then
-          _ASSERT(is_valid_time(list(n)%end_time),'Invalid end_time')
-       end if
+       _ASSERT(is_valid_time(list(n)%end_time),'Invalid end_time')
 
        call ESMF_ConfigGetAttribute ( cfg, list(n)%duration, default=list(n)%frequency, &
                                       label=trim(string) // 'duration:'  ,_RC )
@@ -1349,9 +1352,41 @@ contains
           intState%stampOffset(n) = Frequency ! we go to the beginning of the month
        end if
 
+! End Alarm based on start_date and start_time
+! ----------------------------------------
+       if( list(n)%start_date.ne.MAPL_UndefInt .and. list(n)%start_time.ne.MAPL_UndefInt ) then
+          REF_TIME(1) =     list(n)%start_date/10000
+          REF_TIME(2) = mod(list(n)%start_date,10000)/100
+          REF_TIME(3) = mod(list(n)%start_date,100)
+          REF_TIME(4) =     list(n)%start_time/10000
+          REF_TIME(5) = mod(list(n)%start_time,10000)/100
+          REF_TIME(6) = mod(list(n)%start_time,100)
+
+          call ESMF_TimeSet( RingTime, YY = REF_TIME(1), &
+                                       MM = REF_TIME(2), &
+                                       DD = REF_TIME(3), &
+                                       H  = REF_TIME(4), &
+                                       M  = REF_TIME(5), &
+                                       S  = REF_TIME(6), calendar=cal, rc=rc )
+       else
+          RingTime = CurrTime
+       end if
+       list(n)%start_alarm = ESMF_AlarmCreate( clock=clock, RingTime=RingTime, sticky=.false., _RC )
+
+       list(n)%skipWriting = .true.
+       if (RingTime == CurrTime) then
+          call  ESMF_AlarmRingerOn(list(n)%start_alarm, _RC )
+          list(n)%skipWriting = .false.
+       else
+          if (RingTime < CurrTime .NEQV. list(n)%backwards) then
+             list(n)%skipWriting = .false.
+          endif
+       end if
+
+
 ! End Alarm based on end_date and end_time
 ! ----------------------------------------
-       if( list(n)%end_date.ne.-999 .and. list(n)%end_time.ne.-999 ) then
+       if( list(n)%end_date.ne.MAPL_UndefInt .and. list(n)%end_time.ne.MAPL_UndefInt ) then
            REF_TIME(1) =     list(n)%end_date/10000
            REF_TIME(2) = mod(list(n)%end_date,10000)/100
            REF_TIME(3) = mod(list(n)%end_date,100)
@@ -2453,8 +2488,16 @@ ENDDO PARSER
              IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
           elseif (list(n)%sampler_spec == 'mask') then
              call MAPL_TimerOn(GENSTATE,"mask_init")
-             list(n)%mask_sampler = MaskSamplerGeosat(cfg,string,clock,genstate=GENSTATE,_RC)
-             call list(n)%mask_sampler%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
+             global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
+             list(n)%mask_sampler = MaskSampler(cfg,string,clock,genstate=GENSTATE,_RC)
+             ! initialize : create grid / metadata
+             call list(n)%mask_sampler%set_param(oClients=o_Clients)
+             call list(n)%mask_sampler%set_param(itemOrder=intState%fileOrderAlphabetical,_RC)
+             call list(n)%mask_sampler%initialize(list(n)%duration,list(n)%frequency,items=list(n)%items,&
+                  bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+
+             collection_id = o_Clients%add_hist_collection(list(n)%mask_sampler%metadata, mode = create_mode)
+             call list(n)%mask_sampler%set_param(write_collection_id=collection_id)
              call MAPL_TimerOff(GENSTATE,"mask_init")
           elseif (list(n)%sampler_spec == 'station') then
              list(n)%station_sampler = StationSampler (list(n)%bundle, trim(list(n)%stationIdFile), nskip_line=list(n)%stationSkipLine, genstate=GENSTATE, _RC)
@@ -2527,9 +2570,13 @@ ENDDO PARSER
          else
             print *, '    Duration: ',       list(n)%duration
          end if
-         if( list(n)%end_date.ne.-999 ) then
-         print *, '    End_Date: ',       list(n)%end_date
-         print *, '    End_Time: ',       list(n)%end_time
+         if( list(n)%start_date.ne.MAPL_UndefInt ) then
+            print *, '    Start_Date: ',       list(n)%start_date
+            print *, '    Start_Time: ',       list(n)%start_time
+         endif
+         if( list(n)%end_date.ne.MAPL_UndefInt ) then
+            print *, '    End_Date: ',       list(n)%end_date
+            print *, '    End_Time: ',       list(n)%end_time
          endif
          if (trim(list(n)%output_grid_label)/='') then
             print *, ' Regrid Mthd: ',       regrid_method_int_to_string(list(n)%regrid_method)
@@ -3127,7 +3174,14 @@ ENDDO PARSER
           usable_collection_name = "unknown"
        end if
        call ESMF_ConfigFindLabel ( cfg, label=label//':', _RC)
-
+       m = ESMF_ConfigGetLen(cfg, _RC)
+       call ESMF_ConfigFindLabel ( cfg, label=label//':', _RC)
+       if (m == 0) then
+          ! allow for no entries on the fields: line
+          call ESMF_ConfigNextLine  ( cfg,tableEnd=table_end,_RC )
+          _ASSERT(.not.table_end, 'Premature end of fields list')
+       end if
+ 
        table_end = .false.
        m = 0
        do while (.not.table_end)
@@ -3428,6 +3482,14 @@ ENDDO PARSER
   ! decide if we are writing based on alarms
 
    do n=1,nlist
+      if (list(n)%skipWriting) then
+         if (ESMF_AlarmIsRinging(list(n)%start_alarm)) then
+            list(n)%skipWriting = .false.
+         endif
+      endif
+   end do
+
+   do n=1,nlist
       if (list(n)%disabled .or. ESMF_AlarmIsRinging(list(n)%end_alarm) ) then
          list(n)%disabled = .true.
          Writing(n) = .false.
@@ -3453,6 +3515,8 @@ ENDDO PARSER
             call ESMF_AlarmRingerOff( list(n)%seg_alarm,_RC )
          end if
       end if
+
+      if (list(n)%skipWriting) writing(n) = .false.
 
        if (writing(n) .and. .not.IntState%average(n)) then
           ! R8 to R4 copy (if needed!)
@@ -3494,7 +3558,7 @@ ENDDO PARSER
             if (intState%allow_overwrite) create_mode = PFIO_CLOBBER
             ! add time to items
             ! true metadata comes here from mGriddedIO%metadata
-            ! the mGriddedIO below only touches metadata, collection_id etc., it is safe.
+            ! the list(n)%mGriddedIO below only touches metadata, collection_id etc.
             !
             if (.NOT. list(n)%xsampler%have_initalized) then
                list(n)%xsampler%have_initalized = .true.
@@ -3587,13 +3651,18 @@ ENDDO PARSER
                list(n)%unit = -1
             end if
          elseif (list(n)%sampler_spec == 'mask') then
-            if (list(n)%unit.eq.0) then
-               call lgr%debug('%a %a',&
-                    "Mask_data output to new file:",trim(filename(n)))
-               call list(n)%mask_sampler%close_file_handle(_RC)
-               call list(n)%mask_sampler%create_file_handle(filename(n),_RC)
-               list(n)%currentFile = filename(n)
-               list(n)%unit = -1
+            if( list(n)%unit.eq.0 ) then
+               if (list(n)%format == 'CFIO') then
+                  if (.not.intState%allow_overwrite) then
+                     inquire (file=trim(filename(n)),exist=file_exists)
+                     _ASSERT(.not.file_exists,trim(filename(n))//" being created for History output already exists")
+                  end if
+!!                  call list(n)%mask_sampler%modifyTime(oClients=o_Clients,_RC)
+                  list(n)%currentFile = filename(n)
+                  list(n)%unit = -1
+               else
+                  list(n)%unit = GETFILE( trim(filename(n)),all_pes=.true.)
+               end if
             end if
          else
             if( list(n)%unit.eq.0 ) then
@@ -3738,10 +3807,13 @@ ENDDO PARSER
          elseif (list(n)%sampler_spec == 'mask') then
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
             call MAPL_TimerOn(GENSTATE,"Mask_append")
-            call list(n)%mask_sampler%append_file(current_time,_RC)
+            if (list(n)%unit < 0) then    ! CFIO
+               call list(n)%mask_sampler%regrid_append_file(current_time,&
+                    list(n)%currentFile,oClients=o_Clients,_RC)
+               call lgr%debug('%a %a', 'mask sampler list(n)%currentFile: ', trim(list(n)%currentFile))
+            end if
             call MAPL_TimerOff(GENSTATE,"Mask_append")
          endif
-
 
       endif OUTTIME
 
@@ -3763,6 +3835,7 @@ ENDDO PARSER
       call o_Clients%post_wait()
    endif
    call MAPL_TimerOff(GENSTATE,"Done Wait")
+
 
   ! destroy ogrid/RH/acc_bundle, regenerate them
   ! swath only
@@ -3870,6 +3943,12 @@ ENDDO PARSER
     IntState => wrap%ptr
     list => IntState%list
     nlist = size(list)
+
+    do n=1,nlist
+       if (list(n)%sampler_spec == 'mask') then
+          call list(n)%mask_sampler%finalize(_RC)
+       end if
+    end do
 
 ! Close UNITs of GEOSgcm History Data
 ! -----------------------------------
@@ -5384,8 +5463,6 @@ ENDDO PARSER
   ! __ for each collection: find union fields, write to collection.rcx
   ! __ note: this subroutine is called by MPI root only
   !
-  ! __ note: this subroutine is called by MPI root only
-  !
   subroutine regen_rcx_for_obs_platform (config, nlist, list, rc)
     use  MAPL_scan_pattern_in_file
     use MAPL_ObsUtilMod, only : obs_platform, union_platform
@@ -5417,7 +5494,7 @@ ENDDO PARSER
     integer :: nseg
     integer :: nseg_ub
     integer :: nfield, nplatform
-    integer :: nentry_name
+    integer :: nfield_name_max
     logical :: obs_flag
     integer, allocatable :: map(:)
     type(Logger), pointer          :: lgr
@@ -5443,7 +5520,6 @@ ENDDO PARSER
     ! __ global set for call split_string by space
     length_mx = ESMF_MAXSTR2
     mxseg = 100
-
 
     ! __ s1. scan get  platform name + index_name_x  var_name_lat/lon/time
     do k=1, nplf
@@ -5508,7 +5584,7 @@ ENDDO PARSER
 
 
 
-    ! __ s2.1 scan fields: only determine ngeoval / nentry_name = nword
+    ! __ s2.1 scan fields: only determine ngeoval / nfield_name_max = nword
     allocate (str_piece(mxseg))
     rewind(unitr)
     do k=1, nplf
@@ -5532,10 +5608,10 @@ ENDDO PARSER
           end if
        enddo
        PLFS(k)%ngeoval = ngeoval
-       PLFS(k)%nentry_name = nseg_ub
+       nseg_ub = PLFS(k)%nfield_name_mx
        allocate ( PLFS(k)%field_name (nseg_ub, ngeoval) )
        PLFS(k)%field_name = ''
-       !! print*, 'k, ngeoval, nentry_name', k, ngeoval, nseg_ub
+       !! print*, 'k, ngeoval, nfield_name_max', k, ngeoval, nseg_ub
     end do
 
 
@@ -5633,12 +5709,12 @@ ENDDO PARSER
           call split_string_by_space (line, length_mx, mxseg, &
                nplatform, str_piece, status)
 
-          !! to do: add debug
-          !write(6,*) 'line for obsplatforms=', trim(line)
-          !write(6,*) 'split string,  nplatform=', nplatform
-          !write(6,*) 'nplf=', nplf
-          !write(6,*) 'str_piece=', str_piece(1:nplatform)
-
+          call lgr%debug('%a %a', 'line for obsplatforms=', trim(line))
+          call lgr%debug('%a %i6', 'split string,  nplatform=', nplatform)
+          call lgr%debug('%a %i6', 'nplf=', nplf)
+          !if (mapl_am_i_root()) then
+          !   write(6,*)  '     str_piece=', str_piece(1:nplatform)
+          !end if
 
           !
           !   a) union the platform
@@ -5654,7 +5730,10 @@ ENDDO PARSER
              end do
           end do
           deallocate(str_piece)
-          !! write(6,*) 'collection n=',n, 'map(:)=', map(:)
+          !if (mapl_am_i_root()) then
+          !   write(6,*) 'collection n=',n, 'map(:)=', map(:)
+          !end if
+
 
           ! __ write common nc_index,time,lon,lat
           k=map(1)   ! plat form # 1
@@ -5673,10 +5752,10 @@ ENDDO PARSER
           end do
 
           nfield = p1%ngeoval
-          nentry_name = p1%nentry_name
+          nfield_name_max = p1%nfield_name_mx
           do j=1, nfield
              line=''
-             do i=1, nentry_name
+             do i=1, nfield_name_max
                 line = trim(line)//' '//trim(p1%field_name(i,j))
              enddo
               if (j==1) then
@@ -5695,7 +5774,7 @@ ENDDO PARSER
              write(unitw, '(a)') trim(adjustl(PLFS(k)%file_name_template))
              do j=1, PLFS(k)%ngeoval
                 line=''
-                do i=1, nentry_name
+                do i=1, nfield_name_max
                    line = trim(line)//' '//trim(adjustl(PLFS(k)%field_name(i,j)))
                 enddo
                 write(unitw, '(a)') trim(adjustl(line))

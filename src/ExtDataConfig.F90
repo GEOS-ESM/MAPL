@@ -15,7 +15,7 @@ module MAPL_ExtDataConfig
    use MAPL_ExtDataTimeSample
    use MAPL_ExtDataTimeSampleMap
    use MAPL_TimeStringConversion
-   use MAPL_ExtDataMask
+
    implicit none
    private
 

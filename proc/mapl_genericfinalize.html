@@ -12,14 +12,29 @@
 
     <title>MAPL_GenericFinalize &ndash; MAPL</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <link href="../css/pygments.css" rel="stylesheet">
-    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
     <link href="../css/local.css" rel="stylesheet">
-      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
-
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <link href="../css/pygments.css" rel="stylesheet">
     <script src="../js/svg-pan-zoom.min.js"></script>
   </head>
 
@@ -56,11 +71,6 @@
                   <a class="nav-link" href="../lists/programs.html">Programs</a>
                 </li>
             </ul>
-              <div class="d-flex align-items-end flex-grow-1">
-                <form action="../search.html" role="search" class="ms-auto">
-                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
-                </form>
-              </div>
           </div><!--/.nav-collapse -->
         </div>
       </nav>
@@ -79,7 +89,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.4% of total for procedures.">213 statements</a>
+                 title=" 0.4% of total for procedures.">214 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -100,9 +110,11 @@
     </div>
   </div>
   <script>
-    $(function () {
-    $('[data-bs-toggle="tooltip"]').tooltip()
-    })
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
   </script>
 
   </div>
@@ -163,7 +175,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-gc~9"></span>
+              <span class="anchor" id="variable-gc~32"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
             </td>
 <td>intent(inout)</td>
@@ -178,7 +190,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-import~6"></span>
+              <span class="anchor" id="variable-import~19"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
             </td>
 <td>intent(inout)</td>
@@ -193,7 +205,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-export~6"></span>
+              <span class="anchor" id="variable-export~18"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
             </td>
 <td>intent(inout)</td>
@@ -208,7 +220,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-clock~7"></span>
+              <span class="anchor" id="variable-clock~46"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
             </td>
 <td>intent(inout)</td>
@@ -223,7 +235,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~16"></span>
+              <span class="anchor" id="variable-rc~295"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -239,203 +251,6 @@
     </tbody>
   </table>
 
-    <br>
-    <div class="card">
-      <div class="card-header">
-  <h3 class="card-title">Calls</h3>
-      </div>
-      <div class="card-body">
-  <table class="graph">
-<tr><td class="root" rowspan="109">MAPL_GenericFinalize</td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/arrdescrcreatereadercomm.html">ArrDescrCreateReaderComm</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/arrdescrcreatewritercomm.html">ArrDescrCreateWriterComm</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/arrdescrset.html">ArrDescrSet</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../type/compositecomponent.html#boundprocedure-get_num_children~2">CompositeComponent%get_num_children</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../type/distributedprofiler.html#boundprocedure-reduce">DistributedProfiler%reduce</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="https://mathomp4.github.io/esmf/interface/esmf_attributeget.html">ESMF_AttributeGet</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="https://mathomp4.github.io/esmf/proc/esmf_clockget.html">ESMF_ClockGet</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="https://mathomp4.github.io/esmf/proc/esmf_gridcompfinalize.html">ESMF_GridCompFinalize</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="https://mathomp4.github.io/esmf/proc/esmf_gridcompget.html">ESMF_GridCompGet</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="https://mathomp4.github.io/esmf/interface/esmf_gridget.html">ESMF_GridGet</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">esmf_statedestroy</td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">esmf_stateget</td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">esmf_stateiscreated</td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="https://mathomp4.github.io/esmf/proc/esmf_timeget.html">ESMF_TimeGet</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d94e8f"><a href="https://mathomp4.github.io/esmf/proc/esmf_utilstringlowercase.html">ESMF_UtilStringLowerCase</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="https://mathomp4.github.io/esmf/proc/esmf_vmgetcurrent.html">ESMF_VMGetCurrent</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/fill_grads_template.html">fill_grads_template</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/free_file.html">FREE_FILE</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d94e8f"><a href="../proc/get_global_time_profiler.html">get_global_time_profiler</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d94e8f"><a href="../proc/getfile.html">GETFILE</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../type/logger.html#boundprocedure-info~10">Logger%info</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../type/logger.html#boundprocedure-warning">Logger%warning</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_am_i_root.html">MAPL_Am_I_Root</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_assert.html">MAPL_Assert</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_getlogger.html">MAPL_GetLogger</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_getobjectfromgc.html">MAPL_GetObjectFromGC</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_getresource.html">MAPL_GetResource</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/mapl_gridget.html">MAPL_GridGet</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/mapl_internalstateretrieve.html">MAPL_InternalStateRetrieve</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/mapl_locstreamget.html">MAPL_LocStreamGet</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d94e8f"><a href="../proc/mapl_locstreamisassociated.html">MAPL_LocStreamIsAssociated</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../type/mapl_metacomp.html#boundprocedure-get_child_export_state">MAPL_MetaComp%get_child_export_state</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../type/mapl_metacomp.html#boundprocedure-get_child_gridcomp">MAPL_MetaComp%get_child_gridcomp</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../type/mapl_metacomp.html#boundprocedure-get_child_import_state">MAPL_MetaComp%get_child_import_state</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d94e8f"><a href="../proc/mapl_profisdisabled.html">MAPL_ProfIsDisabled</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/mapl_return.html">MAPL_Return</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/mapl_sunorbitdestroy.html">MAPL_SunOrbitDestroy</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_timeroff.html">MAPL_TimerOff</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_timeron.html">MAPL_TimerOn</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_varspecdestroy.html">MAPL_VarSpecDestroy</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_varwrite~2.html">MAPL_VarWrite</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_varwritencpar.html">MAPL_VarWriteNCPar</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d94e8f"><a href="../proc/mapl_verify.html">MAPL_Verify</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../type/maplgenericcomponent.html#boundprocedure-get_internal_state~3">MaplGenericComponent%get_internal_state</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">mpi_barrier</td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">mpi_comm_rank</td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">mpi_file_close</td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">mpi_file_open</td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">mpi_info_create</td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">mpi_info_free</td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">mpi_info_set</td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../type/multicolumn.html#boundprocedure-add_column">MultiColumn%add_column</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../type/profilereporter.html#boundprocedure-generate_report">ProfileReporter%generate_report</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/write_parallel.html">WRITE_PARALLEL</a></td></tr>
-<tr><td class="solidTop">w</td></tr>
-</table>
-          <div>
-            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
-          </div>
-          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-lg" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-<p>Nodes of different colours represent the following: </p>
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: Graph Key Pages: 1 -->
-<svg width="641pt" height="28pt"
- viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
-<title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
-<!-- Subroutine -->
-<g id="node1" class="node">
-<title>Subroutine</title>
-<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
-<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
-</g>
-<!-- Function -->
-<g id="node2" class="node">
-<title>Function</title>
-<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
-<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
-</g>
-<!-- Interface -->
-<g id="node3" class="node">
-<title>Interface</title>
-<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
-<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
-</g>
-<!-- Type Bound Procedure -->
-<g id="node4" class="node">
-<title>Type Bound Procedure</title>
-<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
-<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
-</g>
-<!-- Unknown Procedure Type -->
-<g id="node5" class="node">
-<title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
-<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
-</g>
-<!-- Program -->
-<g id="node6" class="node">
-<title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
-<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
-</g>
-<!-- This Page&#39;s Entity -->
-<g id="node7" class="node">
-<title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
-<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
-</g>
-</g>
-</svg>
-
-<p>Solid arrows point from a procedure to one which it calls. Dashed 
-arrows point from an interface to procedures which implement that interface.
-This could include the module procedures in a generic interface or the
-implementation in a submodule of an interface in a parent module.
-</p>
- Where possible, edges connecting nodes are
-given different colours to make them easier to distinguish in
-large graphs.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
     <br>
 
 
@@ -496,6 +311,7 @@ large graphs.</div>
 <span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child_import_state</span>
 <span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child_export_state</span>
 <span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">internal_state</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clobber_file</span>
 <span class="w">      </span><span class="c">!=============================================================================</span>
 
 <span class="w">      </span><span class="c">!  Begin...</span>
@@ -512,6 +328,8 @@ large graphs.</div>
 <span class="w">      </span><span class="c">!----------------------------------</span>
 <span class="w">      </span><span class="k">call </span><span class="n">MAPL_InternalStateRetrieve</span><span class="p">(</span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">STATE</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
 <span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_GetResource</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">clobber_file</span><span class="p">,</span><span class="w"> </span><span class="n">LABEL</span><span class="o">=</span><span class="s2">&quot;overwrite_checkpoint:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
 <span class="w">      </span><span class="c">! Finalize the children</span>
 <span class="w">      </span><span class="c">! ---------------------</span>
@@ -614,7 +432,8 @@ large graphs.</div>
 <span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 <span class="w">            </span><span class="n">internal_state</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">state</span><span class="p">%</span><span class="n">get_internal_state</span><span class="p">()</span>
 <span class="w">            </span><span class="k">call </span><span class="n">MAPL_ESMFStateWriteToFile</span><span class="p">(</span><span class="n">internal_state</span><span class="p">,</span><span class="n">CLOCK</span><span class="p">,</span><span class="n">FILENAME</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">                 </span><span class="n">FILETYPE</span><span class="p">,</span><span class="w"> </span><span class="n">STATE</span><span class="p">,</span><span class="w"> </span><span class="n">hdr</span><span class="o">/=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">write_restart_by_oserver</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                 </span><span class="n">FILETYPE</span><span class="p">,</span><span class="w"> </span><span class="n">STATE</span><span class="p">,</span><span class="w"> </span><span class="n">hdr</span><span class="o">/=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">clobber</span><span class="o">=</span><span class="n">clobber_file</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">write_with_oserver</span><span class="o">=</span><span class="n">state</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">write_restart_by_oserver</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
 <span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 <span class="w">         </span><span class="k">endif</span>
 
@@ -638,7 +457,8 @@ large graphs.</div>
 <span class="w">            </span><span class="k">endif</span>
 <span class="cp">#endif</span>
 <span class="w">            </span><span class="k">call </span><span class="n">MAPL_ESMFStateWriteToFile</span><span class="p">(</span><span class="k">IMPORT</span><span class="p">,</span><span class="n">CLOCK</span><span class="p">,</span><span class="n">FILENAME</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">                 </span><span class="n">FILETYPE</span><span class="p">,</span><span class="w"> </span><span class="n">STATE</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.,</span><span class="w"> </span><span class="n">state</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">write_restart_by_oserver</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                 </span><span class="n">FILETYPE</span><span class="p">,</span><span class="w"> </span><span class="n">STATE</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.,</span><span class="w"> </span><span class="n">clobber</span><span class="o">=</span><span class="n">clobber_file</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">write_with_oserver</span><span class="o">=</span><span class="n">state</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">write_restart_by_oserver</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
 <span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 <span class="w">         </span><span class="k">endif</span>
 
@@ -658,8 +478,6 @@ large graphs.</div>
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">MAPL_ProfIsDisabled</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
 <span class="k">         call </span><span class="n">report_generic_profile</span><span class="p">()</span>
 <span class="w">      </span><span class="k">end if</span>
-
-<span class="k">      call </span><span class="n">t_p</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">state</span><span class="p">%</span><span class="n">compname</span><span class="p">),</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
 <span class="w">      </span><span class="c">! Clean-up</span>
 <span class="w">      </span><span class="c">!---------</span>
@@ -693,7 +511,8 @@ large graphs.</div>
 <span class="w">            </span><span class="k">endif</span>
 <span class="cp">#endif</span>
 <span class="w">            </span><span class="k">call </span><span class="n">MAPL_ESMFStateWriteToFile</span><span class="p">(</span><span class="n">EXPORT</span><span class="p">,</span><span class="n">CLOCK</span><span class="p">,</span><span class="n">FILENAME</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">                 </span><span class="n">FILETYPE</span><span class="p">,</span><span class="w"> </span><span class="n">STATE</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.,</span><span class="w"> </span><span class="n">state</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">write_restart_by_oserver</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                 </span><span class="n">FILETYPE</span><span class="p">,</span><span class="w"> </span><span class="n">STATE</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.,</span><span class="w"> </span><span class="n">clobber</span><span class="o">=</span><span class="n">clobber_file</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">write_with_oserver</span><span class="o">=</span><span class="n">state</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">write_restart_by_oserver</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
 <span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 <span class="w">         </span><span class="k">endif</span>
 <span class="k">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
@@ -792,33 +611,11 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2025-01-07T13:41:21.015380+0000             </p>
+ on 2025-05-29T13:40:13.393381+0000             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
-
-    <!-- Bootstrap core JavaScript -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
-
-    <!-- MathJax JavaScript
-             ================================================== -->
-             <!-- Placed at the end of the document so the pages load faster -->
-        <script type="text/x-mathjax-config">
-          MathJax.Hub.Config({
-          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
-          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
-          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
-          });
-        </script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-          <script src="../tipuesearch/tipuesearch_content.js"></script>
-          <script src="../tipuesearch/tipuesearch_set.js"></script>
-          <script src="../tipuesearch/tipuesearch.js"></script>
-
   </body>
 </html>

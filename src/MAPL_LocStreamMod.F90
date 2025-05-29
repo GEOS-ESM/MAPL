@@ -69,8 +69,8 @@ end type MAPL_LocStreamXform
 
 !EOP
 
-integer, parameter :: NumGlobalVars=4
-integer, parameter :: NumLocalVars =4
+!integer, parameter :: NumGlobalVars=4
+!integer, parameter :: NumLocalVars =4
 
 
 type MAPL_GeoLocation
@@ -343,18 +343,19 @@ contains
     integer                           :: UNIT
     integer                           :: N, I, K, L, NT
     type(MAPL_LocStreamType), pointer :: STREAM
-    real,    pointer                  :: AVR(:,:), AVR_transpose(:,:)
+    real,    pointer                  :: AVR(:,:)
     logical, pointer                  :: MSK(:)
     real                              :: X, Y, X0, Y0, XE, DX, DY
     integer                           :: II, JJ
     logical                           :: DoCoeffs
     character(len=MAPL_TileNameLength):: gname
-
+    character(len=MAPL_TileNameLength):: GridNames(2)
+    integer                           :: IMs(2), JMs(2)
     integer                           :: irec
     integer(kind=1)                   :: byte(4)
-    integer                           :: I1, IN, J1, JN
-    integer                           :: iostat
-    logical                           :: isascii
+    integer                           :: I1, IN, J1, JN, N_Grids, N_PfafCat
+    integer                           :: iostat, filetype
+    logical                           :: isascii, isnc4, isbinary
     logical                           :: read_always
     logical, pointer                  :: ISMINE(:)
     type(MAPL_Tiling       ), pointer :: TILING
@@ -404,93 +405,62 @@ contains
 
 ! Use some heuristics to determine filetype (choices are BINARY and ASCII)
 !------------------------------------------------------------------------
-    ! just get the unit
-    UNIT = GETFILE(FILENAME, DO_OPEN=0, ALL_PES=.true., RC=STATUS)
-    _VERIFY(STATUS)
+    call MAPL_NCIOGetFileType(FILENAME, filetype, _RC)
 
-    INQUIRE(IOLENGTH=IREC) BYTE
-    open (UNIT=UNIT, FILE=FILENAME, FORM='unformatted', ACCESS='DIRECT', RECL=IREC, IOSTAT=status)
-    _VERIFY(STATUS)
-    read (UNIT, REC=1, ERR=100) BYTE
-    call FREE_FILE(UNIT)
+    isnc4   = (filetype == MAPL_FILETYPE_NC4)
+    isascii = (filetype == MAPL_FILETYPE_TXT)
+    isbinary= (filetype == MAPL_FILETYPE_BIN)
 
-    isascii = .true.
-    do i=1,size(byte)
-       if (BYTE(I) < 7) then
-          isascii = .false.
-          exit
-       end if
-    end do
-
-    if (isascii) then
+    if ( .not. isbinary) then
 ! Open file and read header info
 !-------------------------------
 
-       UNIT = GETFILE(FILENAME, form='FORMATTED', RC=status)
-       _VERIFY(STATUS)
+       if (isnc4) then
+          if (MAPL_AM_I_root()) then
+            call MAPL_ReadTilingNC4(FILENAME, GridName=GridNames, IM=IMs, JM=JMs, N_Grids=N_Grids, N_PfafCat=N_PfafCat, AVR=AVR, _RC)
+            NT = size(AVR,1)
+          endif
+          call MAPL_CommsBcast(layout, NT,        1,    MAPL_Root, status)
+          call MAPL_CommsBcast(layout, N_Grids,   1,    MAPL_Root, status)
+          call MAPL_CommsBcast(layout, IMs,       2,    MAPL_Root, status)
+          call MAPL_CommsBcast(layout, JMs,       2,    MAPL_Root, status)
 
-! Total number of tiles in exchange grid
-!---------------------------------------
+          if (use_pfaf_) then
+            call MAPL_CommsBcast(layout, N_PfafCat, 1,    MAPL_Root, status)
+          endif
 
-       if (use_pfaf_) then
-          call READ_PARALLEL(layout, hdr, UNIT=UNIT, rc=status)
-          _VERIFY(STATUS)
-          nt=hdr(1)
-          stream%pfafstetter_catchments=hdr(2)
-       else
-          call READ_PARALLEL(layout, nt, UNIT=UNIT, rc=status)
-          _VERIFY(STATUS)
-       end if
+          do N = 1, N_Grids
+            call MAPL_CommsBcast(layout, GridNames(N), MAPL_TileNameLength, MAPL_Root, status)
+          enddo
 
-! Number of grids that can be attached
-!-------------------------------------
+          if (.not. MAPL_AM_I_root()) then
+            allocate(AVR(NT, NumGlobalVars+NumLocalVars*N_GRIDS))
+          endif         
+          call MAPL_CommsBcast(layout, AVR, NT*(NumGlobalVars+NumLocalVars*N_GRIDS), MAPL_Root, status)
+       endif
 
-       call READ_PARALLEL(layout, STREAM%N_GRIDS, unit=UNIT, rc=status)
-       _VERIFY(STATUS)
+       if (isascii) then
+          call MAPL_ReadTilingASCII(layout, FILENAME, GridNames, NT, IMs, JMs, N_Grids, N_PfafCat, AVR, _RC)
+       endif
 
-! The exchange grid is used to tile each attached grid
-!-----------------------------------------------------
-
+       STREAM%N_GRIDS = N_Grids
        allocate(STREAM%TILING(STREAM%N_GRIDS), STAT=STATUS)
        _VERIFY(STATUS)
 
-! The names and sizes of the grids to be tiled
-!---------------------------------------------
-
-       do N=1,STREAM%N_GRIDS
-          call READ_PARALLEL(layout, STREAM%TILING(N)%NAME, unit=UNIT, rc=status)
-          _VERIFY(STATUS)
+       do N = 1, N_Grids
+          STREAM%TILING(N)%NAME = GridNames(N)
           if (NewGridNames_) then
-             call GenOldGridName_(STREAM%TILING(N)%NAME)
+              call GenOldGridName_(STREAM%TILING(N)%NAME)
           end if
-          call READ_PARALLEL(layout, STREAM%TILING(N)%IM, unit=UNIT, rc=status)
-          _VERIFY(STATUS)
-          call READ_PARALLEL(layout, STREAM%TILING(N)%JM, unit=UNIT, rc=status)
-          _VERIFY(STATUS)
+          STREAM%TILING(N)%IM   = IMs(N)
+          STREAM%TILING(N)%JM   = JMs(N)
        enddo
        if (use_pfaf_) then
+          stream%pfafstetter_catchments = N_PfafCat
           STREAM%TILING(2)%IM = stream%pfafstetter_catchments
           STREAM%TILING(2)%JM = 1
           STREAM%TILING(2)%name = "CATCHMENT_GRID"
        end if
-
-
-! Read location stream file into AVR
-!---------------------------------------
-       if(index(STREAM%TILING(1)%NAME,'EASE') /=0 ) then
-          allocate(AVR(NT,9), STAT=STATUS) ! 9 columns for EASE grid
-          _VERIFY(STATUS)
-          allocate(AVR_transpose(9,NT))
-       else
-          allocate(AVR(NT,NumGlobalVars+NumLocalVars*STREAM%N_GRIDS), STAT=STATUS)
-          _VERIFY(STATUS)
-          allocate(AVR_transpose(NumGlobalVars+NumLocalVars*STREAM%N_GRIDS,NT), STAT=STATUS)
-          _VERIFY(STATUS)
-       endif
-
-       call READ_PARALLEL(layout, AVR_transpose(:,:), unit=UNIT, rc=status)
-       AVR= transpose(AVR_transpose)
-       deallocate(AVR_transpose)
 
        ! adjust EASE grid starting index.  Internally, the starting index is 1 instead of 0.
        do N=1,STREAM%N_GRIDS
@@ -499,12 +469,11 @@ contains
              AVR(:,NumGlobalVars+2+NumLocalVars*(N-1)) = AVR(:,NumGlobalVars+2+NumLocalVars*(N-1))+1
          endif
        enddo
-
+     
        !if (use_pfaf_) then
           !AVR(:,NumGlobalVars+2+NumLocalVars) = 1
        !end if
 
-       call FREE_FILE(UNIT)
 
 ! Allocate msk for which tiles to include in the stream being created.
 !--------------------------------------------------------------------
@@ -880,7 +849,7 @@ contains
 !   and are expensive to reread.
 !------------------------------------------------------------------
 
-    if(.not.isascii) then
+    if( isbinary ) then
 
        if ( MAPL_am_I_root() ) then
          rewind(UNIT)

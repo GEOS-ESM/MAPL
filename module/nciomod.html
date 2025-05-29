@@ -12,14 +12,29 @@
 
     <title>NCIOMod &ndash; MAPL</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <link href="../css/pygments.css" rel="stylesheet">
-    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
     <link href="../css/local.css" rel="stylesheet">
-      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
-
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <link href="../css/pygments.css" rel="stylesheet">
     <script src="../js/svg-pan-zoom.min.js"></script>
   </head>
 
@@ -56,11 +71,6 @@
                   <a class="nav-link" href="../lists/programs.html">Programs</a>
                 </li>
             </ul>
-              <div class="d-flex align-items-end flex-grow-1">
-                <form action="../search.html" role="search" class="ms-auto">
-                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
-                </form>
-              </div>
           </div><!--/.nav-collapse -->
         </div>
       </nav>
@@ -79,7 +89,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 2.1% of total for modules and submodules.">4148 statements</a>
+                 title=" 2.3% of total for modules and submodules.">4593 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -99,9 +109,11 @@
     </div>
   </div>
   <script>
-    $(function () {
-    $('[data-bs-toggle="tooltip"]').tooltip()
-    })
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
   </script>
 
   </div>
@@ -111,7 +123,19 @@
         <div id="sidebar">
       <h3>Contents</h3>
   
-  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/nciomod.html#variable-numglobalvars">NumGlobalVars</a>
+            <a class="list-group-item" href="../module/nciomod.html#variable-numlocalvars">NumLocalVars</a>
+        </div>
+      </div>
+    </div>
+
   
   
   
@@ -161,6 +185,9 @@
             <a class="list-group-item" href="../module/nciomod.html#proc-mapl_iogettime">MAPL_IOGetTime</a>
             <a class="list-group-item" href="../module/nciomod.html#proc-mapl_nciogetfiletype">MAPL_NCIOGetFileType</a>
             <a class="list-group-item" href="../module/nciomod.html#proc-mapl_ncioparsetimeunits">MAPL_NCIOParseTimeUnits</a>
+            <a class="list-group-item" href="../module/nciomod.html#proc-mapl_readtilingascii">MAPL_ReadTilingASCII</a>
+            <a class="list-group-item" href="../module/nciomod.html#proc-mapl_readtilingnc4">MAPL_ReadTilingNC4</a>
+            <a class="list-group-item" href="../module/nciomod.html#proc-mapl_writetilingnc4">MAPL_WriteTilingNC4</a>
         </div>
       </div>
     </div>
@@ -186,589 +213,83 @@
         <ul class="list-group list-group-flush">
             <li class="list-group-item">
               <ul class="list-inline">
+                  <li class="list-inline-item"><a href='http://fortranwiki.org/fortran/show/iso_fortran_env'>iso_fortran_env</a></li>
+                  <li class="list-inline-item"><a href='http://fortranwiki.org/fortran/show/iso_c_binding'>iso_c_binding</a></li>
+                  <li class="list-inline-item"><a href='mapl_basemod.html'>MAPL_BaseMod</a></li>
+                  <li class="list-inline-item"><a href='http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm'>mpi</a></li>
                   <li class="list-inline-item"><a href='mapl_exceptionhandling.html'>MAPL_ExceptionHandling</a></li>
                   <li class="list-inline-item">netcdf</li>
-                  <li class="list-inline-item"><a href='http://fortranwiki.org/fortran/show/iso_c_binding'>iso_c_binding</a></li>
-                  <li class="list-inline-item"><a href='http://fortranwiki.org/fortran/show/iso_fortran_env'>iso_fortran_env</a></li>
-                  <li class="list-inline-item"><a href='mapl_sortmod.html'>MAPL_SortMod</a></li>
-                  <li class="list-inline-item">gFTL_StringVector</li>
-                  <li class="list-inline-item"><a href='mapl_basemod.html'>MAPL_BaseMod</a></li>
                   <li class="list-inline-item"><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
-                  <li class="list-inline-item"><a href='fileiosharedmod.html'>FileIOSharedMod</a></li>
-                  <li class="list-inline-item">gFTL_StringIntegerMap</li>
-                  <li class="list-inline-item"><a href='http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm'>mpi</a></li>
-                  <li class="list-inline-item"><a href='mapl_shmemmod.html'>MAPL_ShmemMod</a></li>
-                  <li class="list-inline-item"><a href='pfio.html'>pFIO</a></li>
+                  <li class="list-inline-item"><a href='biniomod.html'>BinIOMod</a></li>
                   <li class="list-inline-item"><a href='mapl_commsmod.html'>MAPL_CommsMod</a></li>
+                  <li class="list-inline-item">gFTL_StringIntegerMap</li>
+                  <li class="list-inline-item"><a href='mapl_sortmod.html'>MAPL_SortMod</a></li>
+                  <li class="list-inline-item"><a href='mapl_constants.html'>MAPL_Constants</a></li>
+                  <li class="list-inline-item">gFTL_StringVector</li>
+                  <li class="list-inline-item"><a href='pfio.html'>pFIO</a></li>
+                  <li class="list-inline-item"><a href='fileiosharedmod.html'>FileIOSharedMod</a></li>
+                  <li class="list-inline-item"><a href='mapl_shmemmod.html'>MAPL_ShmemMod</a></li>
               </ul>
             </li>
-            <li class="list-group-item">
-              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: module~~nciomod~~UsesGraph Pages: 1 -->
-<svg id="modulenciomodUsesGraph" width="252pt" height="578pt"
- viewBox="0.00 0.00 252.00 578.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="module~~nciomod~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 574)">
-<title>module~~nciomod~~UsesGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-574 248,-574 248,4 -4,4"/>
-<!-- module~nciomod -->
-<g id="module~~nciomod~~UsesGraph_node1" class="node">
-<title>module~nciomod</title>
-<polygon fill="none" stroke="black" points="244,-297 183,-297 183,-273 244,-273 244,-297"/>
-<text text-anchor="middle" x="213.5" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50">NCIOMod</text>
-</g>
-<!-- ESMF -->
-<g id="module~~nciomod~~UsesGraph_node2" class="node">
-<title>ESMF</title>
-<g id="a_module~~nciomod~~UsesGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/module/esmf.html" xlink:title="ESMF">
-<polygon fill="#337ab7" stroke="#337ab7" points="100.5,-570 46.5,-570 46.5,-546 100.5,-546 100.5,-570"/>
-<text text-anchor="middle" x="73.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
-</a>
-</g>
-</g>
-<!-- module~nciomod&#45;&gt;ESMF -->
-<g id="module~~nciomod~~UsesGraph_edge1" class="edge">
-<title>module~nciomod&#45;&gt;ESMF</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M210.95,-297.05C204.91,-342.32 181.51,-501.52 147,-537 137.48,-546.78 123.71,-552.08 110.72,-554.93"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="109.8,-551.53 100.56,-556.72 111.02,-558.43 109.8,-551.53"/>
-</g>
-<!-- gFTL_StringIntegerMap -->
-<g id="module~~nciomod~~UsesGraph_node3" class="node">
-<title>gFTL_StringIntegerMap</title>
-<polygon fill="#337ab7" stroke="#337ab7" points="141.5,-528 5.5,-528 5.5,-504 141.5,-504 141.5,-528"/>
-<text text-anchor="middle" x="73.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">gFTL_StringIntegerMap</text>
-</g>
-<!-- module~nciomod&#45;&gt;gFTL_StringIntegerMap -->
-<g id="module~~nciomod~~UsesGraph_edge2" class="edge">
-<title>module~nciomod&#45;&gt;gFTL_StringIntegerMap</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M212.47,-297.21C211.7,-333.02 204.42,-438.74 147,-495 145.89,-496.09 144.72,-497.12 143.51,-498.1"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="141.31,-495.36 134.94,-503.83 145.2,-501.18 141.31,-495.36"/>
-</g>
-<!-- gFTL_StringVector -->
-<g id="module~~nciomod~~UsesGraph_node4" class="node">
-<title>gFTL_StringVector</title>
-<polygon fill="#337ab7" stroke="#337ab7" points="128,-486 19,-486 19,-462 128,-462 128,-486"/>
-<text text-anchor="middle" x="73.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">gFTL_StringVector</text>
-</g>
-<!-- module~nciomod&#45;&gt;gFTL_StringVector -->
-<g id="module~~nciomod~~UsesGraph_edge3" class="edge">
-<title>module~nciomod&#45;&gt;gFTL_StringVector</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M211.38,-297.19C207.88,-328.02 194.37,-409.7 147,-453 144.04,-455.71 140.75,-458.07 137.25,-460.13"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="135.58,-457.05 128.19,-464.64 138.7,-463.31 135.58,-457.05"/>
-</g>
-<!-- iso_c_binding -->
-<g id="module~~nciomod~~UsesGraph_node5" class="node">
-<title>iso_c_binding</title>
-<g id="a_module~~nciomod~~UsesGraph_node5"><a xlink:href="http://fortranwiki.org/fortran/show/iso_c_binding" xlink:title="iso_c_binding">
-<polygon fill="#337ab7" stroke="#337ab7" points="115.5,-444 31.5,-444 31.5,-420 115.5,-420 115.5,-444"/>
-<text text-anchor="middle" x="73.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_c_binding</text>
-</a>
-</g>
-</g>
-<!-- module~nciomod&#45;&gt;iso_c_binding -->
-<g id="module~~nciomod~~UsesGraph_edge4" class="edge">
-<title>module~nciomod&#45;&gt;iso_c_binding</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M209.65,-297.09C203.1,-322.19 184.56,-380.21 147,-411 140.66,-416.2 133.09,-420.11 125.27,-423.05"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="124.09,-419.75 115.67,-426.18 126.26,-426.41 124.09,-419.75"/>
-</g>
-<!-- iso_fortran_env -->
-<g id="module~~nciomod~~UsesGraph_node6" class="node">
-<title>iso_fortran_env</title>
-<g id="a_module~~nciomod~~UsesGraph_node6"><a xlink:href="http://fortranwiki.org/fortran/show/iso_fortran_env" xlink:title="iso_fortran_env">
-<polygon fill="#337ab7" stroke="#337ab7" points="120.5,-402 26.5,-402 26.5,-378 120.5,-378 120.5,-402"/>
-<text text-anchor="middle" x="73.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_fortran_env</text>
-</a>
-</g>
-</g>
-<!-- module~nciomod&#45;&gt;iso_fortran_env -->
-<g id="module~~nciomod~~UsesGraph_edge5" class="edge">
-<title>module~nciomod&#45;&gt;iso_fortran_env</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M206.23,-297.27C196.22,-315.63 174.87,-350.13 147,-369 141.8,-372.52 136.01,-375.46 130.03,-377.91"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="128.73,-374.66 120.53,-381.37 131.13,-381.23 128.73,-374.66"/>
-</g>
-<!-- module~fileiosharedmod -->
-<g id="module~~nciomod~~UsesGraph_node7" class="node">
-<title>module~fileiosharedmod</title>
-<g id="a_module~~nciomod~~UsesGraph_node7"><a xlink:href="../module/fileiosharedmod.html" xlink:title="FileIOSharedMod">
-<polygon fill="#337ab7" stroke="#337ab7" points="124.5,-360 22.5,-360 22.5,-336 124.5,-336 124.5,-360"/>
-<text text-anchor="middle" x="73.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileIOSharedMod</text>
-</a>
-</g>
-</g>
-<!-- module~nciomod&#45;&gt;module~fileiosharedmod -->
-<g id="module~~nciomod~~UsesGraph_edge6" class="edge">
-<title>module~nciomod&#45;&gt;module~fileiosharedmod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M196.56,-297.08C183.74,-306.33 164.96,-318.85 147,-327 142.61,-328.99 137.98,-330.85 133.27,-332.56"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="131.89,-329.34 123.56,-335.88 134.15,-335.96 131.89,-329.34"/>
-</g>
-<!-- module~mapl_basemod -->
-<g id="module~~nciomod~~UsesGraph_node8" class="node">
-<title>module~mapl_basemod</title>
-<g id="a_module~~nciomod~~UsesGraph_node8"><a xlink:href="../module/mapl_basemod.html" xlink:title="MAPL_BaseMod">
-<polygon fill="#337ab7" stroke="#337ab7" points="121,-318 26,-318 26,-294 121,-294 121,-318"/>
-<text text-anchor="middle" x="73.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_BaseMod</text>
-</a>
-</g>
-</g>
-<!-- module~nciomod&#45;&gt;module~mapl_basemod -->
-<g id="module~~nciomod~~UsesGraph_edge7" class="edge">
-<title>module~nciomod&#45;&gt;module~mapl_basemod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M182.9,-289.51C167.87,-291.79 149.09,-294.65 131.41,-297.34"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="130.52,-293.94 121.16,-298.9 131.57,-300.86 130.52,-293.94"/>
-</g>
-<!-- module~mapl_commsmod -->
-<g id="module~~nciomod~~UsesGraph_node9" class="node">
-<title>module~mapl_commsmod</title>
-<g id="a_module~~nciomod~~UsesGraph_node9"><a xlink:href="../module/mapl_commsmod.html" xlink:title="MAPL_CommsMod">
-<polygon fill="#337ab7" stroke="#337ab7" points="128,-276 19,-276 19,-252 128,-252 128,-276"/>
-<text text-anchor="middle" x="73.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsMod</text>
-</a>
-</g>
-</g>
-<!-- module~nciomod&#45;&gt;module~mapl_commsmod -->
-<g id="module~~nciomod~~UsesGraph_edge8" class="edge">
-<title>module~nciomod&#45;&gt;module~mapl_commsmod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M182.9,-280.49C169.84,-278.51 153.95,-276.09 138.41,-273.72"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="138.69,-270.23 128.28,-272.18 137.63,-277.15 138.69,-270.23"/>
-</g>
-<!-- module~mapl_exceptionhandling -->
-<g id="module~~nciomod~~UsesGraph_node10" class="node">
-<title>module~mapl_exceptionhandling</title>
-<g id="a_module~~nciomod~~UsesGraph_node10"><a xlink:href="../module/mapl_exceptionhandling.html" xlink:title="MAPL_ExceptionHandling">
-<polygon fill="#337ab7" stroke="#337ab7" points="147,-234 0,-234 0,-210 147,-210 147,-234"/>
-<text text-anchor="middle" x="73.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling</text>
-</a>
-</g>
-</g>
-<!-- module~nciomod&#45;&gt;module~mapl_exceptionhandling -->
-<g id="module~~nciomod~~UsesGraph_edge9" class="edge">
-<title>module~nciomod&#45;&gt;module~mapl_exceptionhandling</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M196.56,-272.92C183.74,-263.67 164.96,-251.15 147,-243 142.61,-241.01 137.98,-239.15 133.27,-237.44"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="134.15,-234.04 123.56,-234.12 131.89,-240.66 134.15,-234.04"/>
-</g>
-<!-- module~mapl_shmemmod -->
-<g id="module~~nciomod~~UsesGraph_node11" class="node">
-<title>module~mapl_shmemmod</title>
-<g id="a_module~~nciomod~~UsesGraph_node11"><a xlink:href="../module/mapl_shmemmod.html" xlink:title="MAPL_ShmemMod">
-<polygon fill="#337ab7" stroke="#337ab7" points="128.5,-192 18.5,-192 18.5,-168 128.5,-168 128.5,-192"/>
-<text text-anchor="middle" x="73.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ShmemMod</text>
-</a>
-</g>
-</g>
-<!-- module~nciomod&#45;&gt;module~mapl_shmemmod -->
-<g id="module~~nciomod~~UsesGraph_edge10" class="edge">
-<title>module~nciomod&#45;&gt;module~mapl_shmemmod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M206.23,-272.73C196.22,-254.37 174.87,-219.87 147,-201 144.23,-199.13 141.3,-197.42 138.26,-195.86"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="139.42,-192.55 128.87,-191.62 136.54,-198.93 139.42,-192.55"/>
-</g>
-<!-- module~mapl_sortmod -->
-<g id="module~~nciomod~~UsesGraph_node12" class="node">
-<title>module~mapl_sortmod</title>
-<g id="a_module~~nciomod~~UsesGraph_node12"><a xlink:href="../module/mapl_sortmod.html" xlink:title="MAPL_SortMod">
-<polygon fill="#337ab7" stroke="#337ab7" points="119,-150 28,-150 28,-126 119,-126 119,-150"/>
-<text text-anchor="middle" x="73.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod</text>
-</a>
-</g>
-</g>
-<!-- module~nciomod&#45;&gt;module~mapl_sortmod -->
-<g id="module~~nciomod~~UsesGraph_edge11" class="edge">
-<title>module~nciomod&#45;&gt;module~mapl_sortmod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M209.65,-272.91C203.1,-247.81 184.56,-189.79 147,-159 141.62,-154.59 135.36,-151.11 128.8,-148.35"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="129.66,-144.94 119.07,-144.82 127.27,-151.52 129.66,-144.94"/>
-</g>
-<!-- module~pfio -->
-<g id="module~~nciomod~~UsesGraph_node13" class="node">
-<title>module~pfio</title>
-<g id="a_module~~nciomod~~UsesGraph_node13"><a xlink:href="../module/pfio.html" xlink:title="pFIO">
-<polygon fill="#337ab7" stroke="#337ab7" points="100.5,-108 46.5,-108 46.5,-84 100.5,-84 100.5,-108"/>
-<text text-anchor="middle" x="73.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO</text>
-</a>
-</g>
-</g>
-<!-- module~nciomod&#45;&gt;module~pfio -->
-<g id="module~~nciomod~~UsesGraph_edge12" class="edge">
-<title>module~nciomod&#45;&gt;module~pfio</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M211.38,-272.81C207.88,-241.98 194.37,-160.3 147,-117 137.08,-107.93 123.47,-102.76 110.72,-99.82"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="111.24,-96.35 100.76,-97.9 109.92,-103.23 111.24,-96.35"/>
-</g>
-<!-- mpi -->
-<g id="module~~nciomod~~UsesGraph_node14" class="node">
-<title>mpi</title>
-<g id="a_module~~nciomod~~UsesGraph_node14"><a xlink:href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm" xlink:title="mpi">
-<polygon fill="#337ab7" stroke="#337ab7" points="100.5,-66 46.5,-66 46.5,-42 100.5,-42 100.5,-66"/>
-<text text-anchor="middle" x="73.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
-</a>
-</g>
-</g>
-<!-- module~nciomod&#45;&gt;mpi -->
-<g id="module~~nciomod~~UsesGraph_edge13" class="edge">
-<title>module~nciomod&#45;&gt;mpi</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M212.47,-272.79C211.7,-236.98 204.42,-131.26 147,-75 137.32,-65.52 123.64,-60.27 110.77,-57.38"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="111.17,-53.9 100.71,-55.54 109.91,-60.79 111.17,-53.9"/>
-</g>
-<!-- netcdf -->
-<g id="module~~nciomod~~UsesGraph_node15" class="node">
-<title>netcdf</title>
-<polygon fill="#337ab7" stroke="#337ab7" points="100.5,-24 46.5,-24 46.5,0 100.5,0 100.5,-24"/>
-<text text-anchor="middle" x="73.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">netcdf</text>
-</g>
-<!-- module~nciomod&#45;&gt;netcdf -->
-<g id="module~~nciomod~~UsesGraph_edge14" class="edge">
-<title>module~nciomod&#45;&gt;netcdf</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M210.95,-272.95C204.91,-227.68 181.51,-68.48 147,-33 137.48,-23.22 123.71,-17.92 110.72,-15.07"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="111.02,-11.57 100.56,-13.28 109.8,-18.47 111.02,-11.57"/>
-</g>
-</g>
-</svg>
-</div>          <div>
-            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
-          </div>
-          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-lg" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-<p>Nodes of different colours represent the following: </p>
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: Graph Key Pages: 1 -->
-<svg width="518pt" height="32pt"
- viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
-<title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
-<!-- Module -->
-<g id="node1" class="node">
-<title>Module</title>
-<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
-<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
-</g>
-<!-- Submodule -->
-<g id="node2" class="node">
-<title>Submodule</title>
-<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
-<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
-</g>
-<!-- Subroutine -->
-<g id="node3" class="node">
-<title>Subroutine</title>
-<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
-<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
-</g>
-<!-- Function -->
-<g id="node4" class="node">
-<title>Function</title>
-<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
-<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
-</g>
-<!-- Program -->
-<g id="node5" class="node">
-<title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
-<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
-</g>
-<!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
-<title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
-<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
-</g>
-</g>
-</svg>
-
-<p>Solid arrows point from a submodule to the (sub)module which it is
-descended from. Dashed arrows point from a module or program unit to 
-modules which it uses.
-</p>
- Where possible, edges connecting nodes are
-given different colours to make them easier to distinguish in
-large graphs.</div>
-            </div>
-          </div>
-        </div>
-            </li>
         </ul>
       </div>
     </div>
 
-          <div class="card">
-      <h3 class="card-header card-title bg-light">Used by</h3>
-      <div class="card-body">
-        <ul class="list-group list-group-flush">
-            <li class="list-group-item">
-              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: module~~nciomod~~UsedByGraph Pages: 1 -->
-<svg id="modulenciomodUsedByGraph" width="386pt" height="410pt"
- viewBox="0.00 0.00 386.00 410.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="module~~nciomod~~UsedByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 406)">
-<title>module~~nciomod~~UsedByGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-406 382,-406 382,4 -4,4"/>
-<!-- module~nciomod -->
-<g id="module~~nciomod~~UsedByGraph_node1" class="node">
-<title>module~nciomod</title>
-<polygon fill="none" stroke="black" points="61,-213 0,-213 0,-189 61,-189 61,-213"/>
-<text text-anchor="middle" x="30.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50">NCIOMod</text>
-</g>
-<!-- module~mapl_iomod -->
-<g id="module~~nciomod~~UsedByGraph_node2" class="node">
-<title>module~mapl_iomod</title>
-<g id="a_module~~nciomod~~UsedByGraph_node2"><a xlink:href="../module/mapl_iomod.html" xlink:title="MAPL_IOMod">
-<polygon fill="#337ab7" stroke="#337ab7" points="177,-213 97,-213 97,-189 177,-189 177,-213"/>
-<text text-anchor="middle" x="137" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_IOMod</text>
-</a>
-</g>
-</g>
-<!-- module~mapl_iomod&#45;&gt;module~nciomod -->
-<g id="module~~nciomod~~UsedByGraph_edge1" class="edge">
-<title>module~mapl_iomod&#45;&gt;module~nciomod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M96.79,-201C88.48,-201 79.71,-201 71.38,-201"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="71.13,-197.5 61.13,-201 71.13,-204.5 71.13,-197.5"/>
-</g>
-<!-- module~mapl_capgridcompmod -->
-<g id="module~~nciomod~~UsedByGraph_node3" class="node">
-<title>module~mapl_capgridcompmod</title>
-<g id="a_module~~nciomod~~UsedByGraph_node3"><a xlink:href="../module/mapl_capgridcompmod.html" xlink:title="MAPL_CapGridCompMod">
-<polygon fill="#337ab7" stroke="#337ab7" points="367.5,-402 223.5,-402 223.5,-378 367.5,-378 367.5,-402"/>
-<text text-anchor="middle" x="295.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridCompMod</text>
-</a>
-</g>
-</g>
-<!-- module~mapl_capgridcompmod&#45;&gt;module~mapl_iomod -->
-<g id="module~~nciomod~~UsedByGraph_edge2" class="edge">
-<title>module~mapl_capgridcompmod&#45;&gt;module~mapl_iomod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M226.68,-377.85C221.77,-375.41 217.13,-372.49 213,-369 167.67,-330.7 148.64,-259.51 141.6,-223.34"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="145.01,-222.53 139.79,-213.31 138.12,-223.78 145.01,-222.53"/>
-</g>
-<!-- module~mapl_cfiomod -->
-<g id="module~~nciomod~~UsedByGraph_node4" class="node">
-<title>module~mapl_cfiomod</title>
-<g id="a_module~~nciomod~~UsedByGraph_node4"><a xlink:href="../module/mapl_cfiomod.html" xlink:title="MAPL_CFIOMod">
-<polygon fill="#337ab7" stroke="#337ab7" points="342.5,-360 248.5,-360 248.5,-336 342.5,-336 342.5,-360"/>
-<text text-anchor="middle" x="295.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOMod</text>
-</a>
-</g>
-</g>
-<!-- module~mapl_cfiomod&#45;&gt;module~mapl_iomod -->
-<g id="module~~nciomod~~UsedByGraph_edge3" class="edge">
-<title>module~mapl_cfiomod&#45;&gt;module~mapl_iomod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M248.14,-342.59C235.84,-339.49 223.17,-334.62 213,-327 177.41,-300.34 155.47,-251.39 145.12,-222.99"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="148.31,-221.5 141.72,-213.2 141.7,-223.8 148.31,-221.5"/>
-</g>
-<!-- module~mapl_extdatagridcompmod -->
-<g id="module~~nciomod~~UsedByGraph_node5" class="node">
-<title>module~mapl_extdatagridcompmod</title>
-<g id="a_module~~nciomod~~UsedByGraph_node5"><a xlink:href="../module/mapl_extdatagridcompmod.html" xlink:title="MAPL_ExtDataGridCompMod">
-<polygon fill="#337ab7" stroke="#337ab7" points="378,-318 213,-318 213,-294 378,-294 378,-318"/>
-<text text-anchor="middle" x="295.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataGridCompMod</text>
-</a>
-</g>
-</g>
-<!-- module~mapl_extdatagridcompmod&#45;&gt;module~mapl_iomod -->
-<g id="module~~nciomod~~UsedByGraph_edge4" class="edge">
-<title>module~mapl_extdatagridcompmod&#45;&gt;module~mapl_iomod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M231.54,-293.85C225.05,-291.41 218.74,-288.5 213,-285 186.62,-268.93 164.24,-240.71 150.96,-221.45"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="153.83,-219.43 145.36,-213.06 148,-223.32 153.83,-219.43"/>
-</g>
-<!-- module~mapl_genericcplcompmod -->
-<g id="module~~nciomod~~UsedByGraph_node6" class="node">
-<title>module~mapl_genericcplcompmod</title>
-<g id="a_module~~nciomod~~UsedByGraph_node6"><a xlink:href="../module/mapl_genericcplcompmod.html" xlink:title="MAPL_GenericCplCompMod">
-<polygon fill="#337ab7" stroke="#337ab7" points="375.5,-276 215.5,-276 215.5,-252 375.5,-252 375.5,-276"/>
-<text text-anchor="middle" x="295.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericCplCompMod</text>
-</a>
-</g>
-</g>
-<!-- module~mapl_genericcplcompmod&#45;&gt;module~mapl_iomod -->
-<g id="module~~nciomod~~UsedByGraph_edge5" class="edge">
-<title>module~mapl_genericcplcompmod&#45;&gt;module~mapl_iomod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M239.51,-251.91C230.52,-249.34 221.41,-246.37 213,-243 196.41,-236.35 178.93,-226.73 165.02,-218.37"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="166.79,-215.36 156.44,-213.11 163.13,-221.32 166.79,-215.36"/>
-</g>
-<!-- module~mapl_genericmod -->
-<g id="module~~nciomod~~UsedByGraph_node7" class="node">
-<title>module~mapl_genericmod</title>
-<g id="a_module~~nciomod~~UsedByGraph_node7"><a xlink:href="../module/mapl_genericmod.html" xlink:title="MAPL_GenericMod">
-<polygon fill="#337ab7" stroke="#337ab7" points="351,-234 240,-234 240,-210 351,-210 351,-234"/>
-<text text-anchor="middle" x="295.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod</text>
-</a>
-</g>
-</g>
-<!-- module~mapl_genericmod&#45;&gt;module~mapl_iomod -->
-<g id="module~~nciomod~~UsedByGraph_edge6" class="edge">
-<title>module~mapl_genericmod&#45;&gt;module~mapl_iomod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M239.76,-214.66C222.68,-212.36 203.95,-209.85 187.27,-207.61"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="187.56,-204.12 177.18,-206.26 186.63,-211.06 187.56,-204.12"/>
-</g>
-<!-- module~mapl_historygridcompmod -->
-<g id="module~~nciomod~~UsedByGraph_node8" class="node">
-<title>module~mapl_historygridcompmod</title>
-<g id="a_module~~nciomod~~UsedByGraph_node8"><a xlink:href="../module/mapl_historygridcompmod.html" xlink:title="MAPL_HistoryGridCompMod">
-<polygon fill="#337ab7" stroke="#337ab7" points="375.5,-192 215.5,-192 215.5,-168 375.5,-168 375.5,-192"/>
-<text text-anchor="middle" x="295.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryGridCompMod</text>
-</a>
-</g>
-</g>
-<!-- module~mapl_historygridcompmod&#45;&gt;module~mapl_iomod -->
-<g id="module~~nciomod~~UsedByGraph_edge7" class="edge">
-<title>module~mapl_historygridcompmod&#45;&gt;module~mapl_iomod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M215.33,-190.62C205.85,-191.9 196.39,-193.17 187.5,-194.36"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="186.81,-190.92 177.36,-195.72 187.74,-197.86 186.81,-190.92"/>
-</g>
-<!-- module~mapl_locstreammod -->
-<g id="module~~nciomod~~UsedByGraph_node9" class="node">
-<title>module~mapl_locstreammod</title>
-<g id="a_module~~nciomod~~UsedByGraph_node9"><a xlink:href="../module/mapl_locstreammod.html" xlink:title="MAPL_LocStreamMod">
-<polygon fill="#337ab7" stroke="#337ab7" points="358.5,-150 232.5,-150 232.5,-126 358.5,-126 358.5,-150"/>
-<text text-anchor="middle" x="295.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_LocStreamMod</text>
-</a>
-</g>
-</g>
-<!-- module~mapl_locstreammod&#45;&gt;module~mapl_iomod -->
-<g id="module~~nciomod~~UsedByGraph_edge8" class="edge">
-<title>module~mapl_locstreammod&#45;&gt;module~mapl_iomod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M239.51,-150.09C230.52,-152.66 221.41,-155.63 213,-159 196.41,-165.65 178.93,-175.27 165.02,-183.63"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="163.13,-180.68 156.44,-188.89 166.79,-186.64 163.13,-180.68"/>
-</g>
-<!-- module~mapl_memutilsmod -->
-<g id="module~~nciomod~~UsedByGraph_node10" class="node">
-<title>module~mapl_memutilsmod</title>
-<g id="a_module~~nciomod~~UsedByGraph_node10"><a xlink:href="../module/mapl_memutilsmod.html" xlink:title="MAPL_MemUtilsMod">
-<polygon fill="#337ab7" stroke="#337ab7" points="354.5,-108 236.5,-108 236.5,-84 354.5,-84 354.5,-108"/>
-<text text-anchor="middle" x="295.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MemUtilsMod</text>
-</a>
-</g>
-</g>
-<!-- module~mapl_memutilsmod&#45;&gt;module~mapl_iomod -->
-<g id="module~~nciomod~~UsedByGraph_edge9" class="edge">
-<title>module~mapl_memutilsmod&#45;&gt;module~mapl_iomod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M236.22,-106.49C228.1,-109.22 220.11,-112.67 213,-117 186.62,-133.07 164.24,-161.29 150.96,-180.55"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="148,-178.68 145.36,-188.94 153.83,-182.57 148,-178.68"/>
-</g>
-<!-- module~mapl_sunmod -->
-<g id="module~~nciomod~~UsedByGraph_node11" class="node">
-<title>module~mapl_sunmod</title>
-<g id="a_module~~nciomod~~UsedByGraph_node11"><a xlink:href="../module/mapl_sunmod.html" xlink:title="MAPL_SunMod">
-<polygon fill="#337ab7" stroke="#337ab7" points="340,-66 251,-66 251,-42 340,-42 340,-66"/>
-<text text-anchor="middle" x="295.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SunMod</text>
-</a>
-</g>
-</g>
-<!-- module~mapl_sunmod&#45;&gt;module~mapl_iomod -->
-<g id="module~~nciomod~~UsedByGraph_edge10" class="edge">
-<title>module~mapl_sunmod&#45;&gt;module~mapl_iomod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M250.68,-58.79C237.6,-61.85 223.87,-66.85 213,-75 177.41,-101.66 155.47,-150.61 145.12,-179.01"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="141.7,-178.2 141.72,-188.8 148.31,-180.5 141.7,-178.2"/>
-</g>
-<!-- module~maplbase_mod -->
-<g id="module~~nciomod~~UsedByGraph_node12" class="node">
-<title>module~maplbase_mod</title>
-<g id="a_module~~nciomod~~UsedByGraph_node12"><a xlink:href="../module/maplbase_mod.html" xlink:title="MAPLBase_Mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="343,-24 248,-24 248,0 343,0 343,-24"/>
-<text text-anchor="middle" x="295.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPLBase_Mod</text>
-</a>
-</g>
-</g>
-<!-- module~maplbase_mod&#45;&gt;module~mapl_iomod -->
-<g id="module~~nciomod~~UsedByGraph_edge11" class="edge">
-<title>module~maplbase_mod&#45;&gt;module~mapl_iomod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M247.96,-16.54C235.52,-19.63 222.82,-24.7 213,-33 167.67,-71.3 148.64,-142.49 141.6,-178.66"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="138.12,-178.22 139.79,-188.69 145.01,-179.47 138.12,-178.22"/>
-</g>
-</g>
-</svg>
-</div>          <div>
-            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsedByGraph-help-text">Help</a>
-          </div>
-          <div class="modal fade" id="UsedByGraph-help-text" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-lg" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-<p>Nodes of different colours represent the following: </p>
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: Graph Key Pages: 1 -->
-<svg width="518pt" height="32pt"
- viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
-<title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
-<!-- Module -->
-<g id="node1" class="node">
-<title>Module</title>
-<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
-<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
-</g>
-<!-- Submodule -->
-<g id="node2" class="node">
-<title>Submodule</title>
-<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
-<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
-</g>
-<!-- Subroutine -->
-<g id="node3" class="node">
-<title>Subroutine</title>
-<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
-<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
-</g>
-<!-- Function -->
-<g id="node4" class="node">
-<title>Function</title>
-<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
-<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
-</g>
-<!-- Program -->
-<g id="node5" class="node">
-<title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
-<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
-</g>
-<!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
-<title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
-<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
-</g>
-</g>
-</svg>
-
-<p>Solid arrows point from a submodule to the (sub)module which it is
-descended from. Dashed arrows point from a module or program unit to 
-modules which it uses.
-</p>
- Where possible, edges connecting nodes are
-given different colours to make them easier to distinguish in
-large graphs.</div>
-            </div>
-          </div>
-        </div>
-            </li>
-        </ul>
-      </div>
-    </div>
-
+      
       <br>
 
 
+        <section>
+          <h2>Variables</h2>
+            <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-numglobalvars"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>NumGlobalVars</strong></td>
+<td> =</td>
+                <td>4</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-numlocalvars"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>NumLocalVars</strong></td>
+<td> =</td>
+                <td>4</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+        </section>
+        <br>
 
 
         <section>
@@ -800,7 +321,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-formatter~13"></span>
+              <span class="anchor" id="variable-formatter~15"></span>
               type(<a href='../type/netcdf4_fileformatter.html'>NetCDF4_FileFormatter</a>),
             </td>
 <td>intent(in)</td>
@@ -815,7 +336,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~41"></span>
+              <span class="anchor" id="variable-name~40"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -830,7 +351,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-a~13"></span>
+              <span class="anchor" id="variable-a~11"></span>
               real(kind=ESMF_KIND_R4),
             </td>
 <td>intent(inout)</td>
@@ -845,7 +366,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-layout~12"></span>
+              <span class="anchor" id="variable-layout~7"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_delayout.html'>ESMF_DELayout</a>),
             </td>
 <td>intent(in),</td>
@@ -860,7 +381,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-arrdes~20"></span>
+              <span class="anchor" id="variable-arrdes~13"></span>
               type(<a href='../type/arrdescr.html'>ArrDescr</a>),
             </td>
 <td>intent(inout),</td>
@@ -920,7 +441,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~123"></span>
+              <span class="anchor" id="variable-rc~20"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -958,7 +479,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-formatter~10"></span>
+              <span class="anchor" id="variable-formatter~12"></span>
               type(<a href='../type/netcdf4_fileformatter.html'>NetCDF4_FileFormatter</a>),
             </td>
 <td>intent(in)</td>
@@ -973,7 +494,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~38"></span>
+              <span class="anchor" id="variable-name~37"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -988,7 +509,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-a~10"></span>
+              <span class="anchor" id="variable-a~8"></span>
               real(kind=ESMF_KIND_R4),
             </td>
 <td>intent(inout)</td>
@@ -1003,7 +524,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-arrdes~17"></span>
+              <span class="anchor" id="variable-arrdes~10"></span>
               type(<a href='../type/arrdescr.html'>ArrDescr</a>),
             </td>
 <td>intent(inout),</td>
@@ -1018,7 +539,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-lev~5"></span>
+              <span class="anchor" id="variable-lev~3"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -1048,7 +569,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~120"></span>
+              <span class="anchor" id="variable-rc~17"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1086,7 +607,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-formatter~6"></span>
+              <span class="anchor" id="variable-formatter~8"></span>
               type(<a href='../type/netcdf4_fileformatter.html'>NetCDF4_FileFormatter</a>),
             </td>
 <td>intent(in)</td>
@@ -1101,7 +622,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~34"></span>
+              <span class="anchor" id="variable-name~33"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -1116,7 +637,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-a~6"></span>
+              <span class="anchor" id="variable-a~4"></span>
               real(kind=ESMF_KIND_R4),
             </td>
 <td>intent(inout)</td>
@@ -1131,7 +652,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-arrdes~13"></span>
+              <span class="anchor" id="variable-arrdes~6"></span>
               type(<a href='../type/arrdescr.html'>ArrDescr</a>),
             </td>
 <td>intent(inout),</td>
@@ -1146,7 +667,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~116"></span>
+              <span class="anchor" id="variable-rc~13"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1184,7 +705,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-formatter~14"></span>
+              <span class="anchor" id="variable-formatter~16"></span>
               type(<a href='../type/netcdf4_fileformatter.html'>NetCDF4_FileFormatter</a>),
             </td>
 <td>intent(in)</td>
@@ -1199,7 +720,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~42"></span>
+              <span class="anchor" id="variable-name~41"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -1214,7 +735,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-a~14"></span>
+              <span class="anchor" id="variable-a~12"></span>
               real(kind=ESMF_KIND_R8),
             </td>
 <td>intent(out)</td>
@@ -1229,7 +750,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-layout~13"></span>
+              <span class="anchor" id="variable-layout~8"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_delayout.html'>ESMF_DELayout</a>),
             </td>
 <td>intent(in),</td>
@@ -1244,7 +765,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-arrdes~21"></span>
+              <span class="anchor" id="variable-arrdes~14"></span>
               type(<a href='../type/arrdescr.html'>ArrDescr</a>),
             </td>
 <td>intent(inout),</td>
@@ -1304,7 +825,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~124"></span>
+              <span class="anchor" id="variable-rc~21"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1342,7 +863,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-formatter~16"></span>
+              <span class="anchor" id="variable-formatter~18"></span>
               type(<a href='../type/netcdf4_fileformatter.html'>NetCDF4_FileFormatter</a>),
             </td>
 <td>intent(in)</td>
@@ -1357,7 +878,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~44"></span>
+              <span class="anchor" id="variable-name~43"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -1372,7 +893,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-a~16"></span>
+              <span class="anchor" id="variable-a~14"></span>
               real(kind=ESMF_KIND_R8),
             </td>
 <td>intent(inout)</td>
@@ -1387,7 +908,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-arrdes~23"></span>
+              <span class="anchor" id="variable-arrdes~16"></span>
               type(<a href='../type/arrdescr.html'>ArrDescr</a>),
             </td>
 <td>intent(inout),</td>
@@ -1402,7 +923,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-lev~7"></span>
+              <span class="anchor" id="variable-lev~5"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -1432,7 +953,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~126"></span>
+              <span class="anchor" id="variable-rc~23"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1470,7 +991,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-formatter~8"></span>
+              <span class="anchor" id="variable-formatter~10"></span>
               type(<a href='../type/netcdf4_fileformatter.html'>NetCDF4_FileFormatter</a>),
             </td>
 <td>intent(in)</td>
@@ -1485,7 +1006,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~36"></span>
+              <span class="anchor" id="variable-name~35"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -1500,7 +1021,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-a~8"></span>
+              <span class="anchor" id="variable-a~6"></span>
               real(kind=ESMF_KIND_R8),
             </td>
 <td>intent(inout)</td>
@@ -1515,7 +1036,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-arrdes~15"></span>
+              <span class="anchor" id="variable-arrdes~8"></span>
               type(<a href='../type/arrdescr.html'>ArrDescr</a>),
             </td>
 <td>intent(inout)</td>
@@ -1530,7 +1051,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~118"></span>
+              <span class="anchor" id="variable-rc~15"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1578,7 +1099,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-filename~12"></span>
+              <span class="anchor" id="variable-filename~4"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -1593,7 +1114,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-state~60"></span>
+              <span class="anchor" id="variable-state"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
             </td>
 <td>intent(inout)</td>
@@ -1608,7 +1129,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-arrdes~24"></span>
+              <span class="anchor" id="variable-arrdes~17"></span>
               type(<a href='../type/arrdescr.html'>ArrDescr</a>),
             </td>
 <td>intent(inout)</td>
@@ -1623,7 +1144,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-bootstrapable~2"></span>
+              <span class="anchor" id="variable-bootstrapable"></span>
               logical,
             </td>
 <td>intent(in)</td>
@@ -1638,7 +1159,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~24"></span>
+              <span class="anchor" id="variable-name~2"></span>
               character(len=*),
             </td>
 <td>intent(in),</td>
@@ -1653,7 +1174,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~127"></span>
+              <span class="anchor" id="variable-rc~24"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1691,7 +1212,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-bundle~2"></span>
+              <span class="anchor" id="variable-bundle"></span>
               type(ESMF_FieldBundle),
             </td>
 <td>intent(inout)</td>
@@ -1706,7 +1227,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-arrdes~3"></span>
+              <span class="anchor" id="variable-arrdes"></span>
               type(<a href='../type/arrdescr.html'>ArrDescr</a>),
             </td>
 <td>intent(inout)</td>
@@ -1721,7 +1242,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-filename~11"></span>
+              <span class="anchor" id="variable-filename~3"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -1736,7 +1257,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~233"></span>
+              <span class="anchor" id="variable-rc~147"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1789,7 +1310,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-filename~13"></span>
+              <span class="anchor" id="variable-filename~5"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -1834,7 +1355,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~235"></span>
+              <span class="anchor" id="variable-rc~149"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1887,7 +1408,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-filename~14"></span>
+              <span class="anchor" id="variable-filename~6"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -1932,7 +1453,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~236"></span>
+              <span class="anchor" id="variable-rc~150"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1985,7 +1506,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-filename~15"></span>
+              <span class="anchor" id="variable-filename~7"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -2030,7 +1551,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~237"></span>
+              <span class="anchor" id="variable-rc~151"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -2078,7 +1599,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-formatter~11"></span>
+              <span class="anchor" id="variable-formatter~13"></span>
               type(<a href='../type/netcdf4_fileformatter.html'>NetCDF4_FileFormatter</a>),
             </td>
 <td>intent(in)</td>
@@ -2093,7 +1614,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~39"></span>
+              <span class="anchor" id="variable-name~38"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -2108,7 +1629,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-a~11"></span>
+              <span class="anchor" id="variable-a~9"></span>
               real(kind=ESMF_KIND_R4),
             </td>
 <td>intent(in)</td>
@@ -2123,7 +1644,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-layout~10"></span>
+              <span class="anchor" id="variable-layout~5"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_delayout.html'>ESMF_DELayout</a>),
             </td>
 <td>intent(in),</td>
@@ -2138,7 +1659,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-arrdes~18"></span>
+              <span class="anchor" id="variable-arrdes~11"></span>
               type(<a href='../type/arrdescr.html'>ArrDescr</a>),
             </td>
 <td>intent(inout),</td>
@@ -2198,7 +1719,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~121"></span>
+              <span class="anchor" id="variable-rc~18"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -2236,7 +1757,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-formatter~9"></span>
+              <span class="anchor" id="variable-formatter~11"></span>
               type(<a href='../type/netcdf4_fileformatter.html'>NetCDF4_FileFormatter</a>),
             </td>
 <td>intent(in)</td>
@@ -2251,7 +1772,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~37"></span>
+              <span class="anchor" id="variable-name~36"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -2266,7 +1787,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-a~9"></span>
+              <span class="anchor" id="variable-a~7"></span>
               real(kind=ESMF_KIND_R4),
             </td>
 <td>intent(in)</td>
@@ -2281,7 +1802,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-arrdes~16"></span>
+              <span class="anchor" id="variable-arrdes~9"></span>
               type(<a href='../type/arrdescr.html'>ArrDescr</a>),
             </td>
 <td>intent(inout),</td>
@@ -2296,7 +1817,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-lev~4"></span>
+              <span class="anchor" id="variable-lev~2"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -2341,7 +1862,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~119"></span>
+              <span class="anchor" id="variable-rc~16"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -2379,7 +1900,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-formatter~5"></span>
+              <span class="anchor" id="variable-formatter~7"></span>
               type(<a href='../type/netcdf4_fileformatter.html'>NetCDF4_FileFormatter</a>),
             </td>
 <td>intent(in)</td>
@@ -2394,7 +1915,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~33"></span>
+              <span class="anchor" id="variable-name~32"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -2409,7 +1930,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-a~5"></span>
+              <span class="anchor" id="variable-a~3"></span>
               real(kind=ESMF_KIND_R4),
             </td>
 <td>intent(in)</td>
@@ -2424,7 +1945,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-arrdes~12"></span>
+              <span class="anchor" id="variable-arrdes~5"></span>
               type(<a href='../type/arrdescr.html'>ArrDescr</a>),
             </td>
 <td>intent(inout),</td>
@@ -2454,7 +1975,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~115"></span>
+              <span class="anchor" id="variable-rc~12"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -2492,7 +2013,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-formatter~3"></span>
+              <span class="anchor" id="variable-formatter~5"></span>
               type(<a href='../type/netcdf4_fileformatter.html'>NetCDF4_FileFormatter</a>),
             </td>
 <td>intent(in)</td>
@@ -2507,7 +2028,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~31"></span>
+              <span class="anchor" id="variable-name~30"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -2522,7 +2043,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-a~3"></span>
+              <span class="anchor" id="variable-a"></span>
               real(kind=ESMF_KIND_R4),
             </td>
 <td>intent(in)</td>
@@ -2537,7 +2058,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-arrdes~10"></span>
+              <span class="anchor" id="variable-arrdes~3"></span>
               type(<a href='../type/arrdescr.html'>ArrDescr</a>),
             </td>
 <td>intent(inout),</td>
@@ -2567,7 +2088,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~113"></span>
+              <span class="anchor" id="variable-rc~10"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -2605,7 +2126,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-formatter~12"></span>
+              <span class="anchor" id="variable-formatter~14"></span>
               type(<a href='../type/netcdf4_fileformatter.html'>NetCDF4_FileFormatter</a>),
             </td>
 <td>intent(in)</td>
@@ -2620,7 +2141,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~40"></span>
+              <span class="anchor" id="variable-name~39"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -2635,7 +2156,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-a~12"></span>
+              <span class="anchor" id="variable-a~10"></span>
               real(kind=ESMF_KIND_R8),
             </td>
 <td>intent(in)</td>
@@ -2650,7 +2171,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-layout~11"></span>
+              <span class="anchor" id="variable-layout~6"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_delayout.html'>ESMF_DELayout</a>),
             </td>
 <td>intent(in),</td>
@@ -2665,7 +2186,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-arrdes~19"></span>
+              <span class="anchor" id="variable-arrdes~12"></span>
               type(<a href='../type/arrdescr.html'>ArrDescr</a>),
             </td>
 <td>intent(inout),</td>
@@ -2725,7 +2246,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~122"></span>
+              <span class="anchor" id="variable-rc~19"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -2763,7 +2284,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-formatter~15"></span>
+              <span class="anchor" id="variable-formatter~17"></span>
               type(<a href='../type/netcdf4_fileformatter.html'>NetCDF4_FileFormatter</a>),
             </td>
 <td>intent(in)</td>
@@ -2778,7 +2299,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~43"></span>
+              <span class="anchor" id="variable-name~42"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -2793,7 +2314,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-a~15"></span>
+              <span class="anchor" id="variable-a~13"></span>
               real(kind=ESMF_KIND_R8),
             </td>
 <td>intent(in)</td>
@@ -2808,7 +2329,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-arrdes~22"></span>
+              <span class="anchor" id="variable-arrdes~15"></span>
               type(<a href='../type/arrdescr.html'>ArrDescr</a>),
             </td>
 <td>intent(inout),</td>
@@ -2823,7 +2344,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-lev~6"></span>
+              <span class="anchor" id="variable-lev~4"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -2868,7 +2389,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~125"></span>
+              <span class="anchor" id="variable-rc~22"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -2906,7 +2427,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-formatter~7"></span>
+              <span class="anchor" id="variable-formatter~9"></span>
               type(<a href='../type/netcdf4_fileformatter.html'>NetCDF4_FileFormatter</a>),
             </td>
 <td>intent(in)</td>
@@ -2921,7 +2442,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~35"></span>
+              <span class="anchor" id="variable-name~34"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -2936,7 +2457,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-a~7"></span>
+              <span class="anchor" id="variable-a~5"></span>
               real(kind=ESMF_KIND_R8),
             </td>
 <td>intent(in)</td>
@@ -2951,7 +2472,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-arrdes~14"></span>
+              <span class="anchor" id="variable-arrdes~7"></span>
               type(<a href='../type/arrdescr.html'>ArrDescr</a>),
             </td>
 <td>intent(inout)</td>
@@ -2981,7 +2502,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~117"></span>
+              <span class="anchor" id="variable-rc~14"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -3019,7 +2540,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-formatter~4"></span>
+              <span class="anchor" id="variable-formatter~6"></span>
               type(<a href='../type/netcdf4_fileformatter.html'>NetCDF4_FileFormatter</a>),
             </td>
 <td>intent(in)</td>
@@ -3034,7 +2555,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~32"></span>
+              <span class="anchor" id="variable-name~31"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -3049,7 +2570,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-a~4"></span>
+              <span class="anchor" id="variable-a~2"></span>
               real(kind=ESMF_KIND_R8),
             </td>
 <td>intent(in)</td>
@@ -3064,7 +2585,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-arrdes~11"></span>
+              <span class="anchor" id="variable-arrdes~4"></span>
               type(<a href='../type/arrdescr.html'>ArrDescr</a>),
             </td>
 <td>intent(inout)</td>
@@ -3094,7 +2615,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~114"></span>
+              <span class="anchor" id="variable-rc~11"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -3124,7 +2645,7 @@ large graphs.</div>
     <ul class="list-group">
           <li class="list-group-item">
                 <h3>
-    private  subroutine MAPL_StateVarWriteNCPar(filename, STATE, ARRDES, CLOCK, NAME, forceWriteNoRestart, oClients, RC)  
+    private  subroutine MAPL_StateVarWriteNCPar(filename, STATE, ARRDES, CLOCK, NAME, forceWriteNoRestart, clobber, oClients, RC)  
 
     </h3>
   
@@ -3142,7 +2663,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-filename~17"></span>
+              <span class="anchor" id="variable-filename~9"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -3157,7 +2678,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-state~61"></span>
+              <span class="anchor" id="variable-state~2"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
             </td>
 <td>intent(in)</td>
@@ -3172,7 +2693,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-arrdes~25"></span>
+              <span class="anchor" id="variable-arrdes~18"></span>
               type(<a href='../type/arrdescr.html'>ArrDescr</a>),
             </td>
 <td>intent(inout)</td>
@@ -3187,7 +2708,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-clock~21"></span>
+              <span class="anchor" id="variable-clock~2"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
             </td>
 <td>intent(in)</td>
@@ -3202,7 +2723,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~25"></span>
+              <span class="anchor" id="variable-name~3"></span>
               character(len=*),
             </td>
 <td>intent(in),</td>
@@ -3232,6 +2753,21 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
+              <span class="anchor" id="variable-clobber~2"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>clobber</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
               <span class="anchor" id="variable-oclients~9"></span>
               type(<a href='../type/clientmanager.html'>ClientManager</a>),
             </td>
@@ -3247,7 +2783,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~128"></span>
+              <span class="anchor" id="variable-rc~25"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -3267,7 +2803,7 @@ large graphs.</div>
           </li>
           <li class="list-group-item">
                 <h3>
-    private  subroutine MAPL_BundleWriteNCPar(Bundle, arrdes, CLOCK, filename, oClients, rc)  
+    private  subroutine MAPL_BundleWriteNCPar(Bundle, arrdes, CLOCK, filename, clobber, oClients, rc)  
 
     </h3>
   
@@ -3285,7 +2821,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-bundle~3"></span>
+              <span class="anchor" id="variable-bundle~2"></span>
               type(ESMF_FieldBundle),
             </td>
 <td>intent(inout)</td>
@@ -3300,7 +2836,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-arrdes~4"></span>
+              <span class="anchor" id="variable-arrdes~2"></span>
               type(<a href='../type/arrdescr.html'>ArrDescr</a>),
             </td>
 <td>intent(inout)</td>
@@ -3315,7 +2851,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-clock~20"></span>
+              <span class="anchor" id="variable-clock"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
             </td>
 <td>intent(in)</td>
@@ -3330,7 +2866,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-filename~16"></span>
+              <span class="anchor" id="variable-filename~8"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -3339,6 +2875,21 @@ large graphs.</div>
             </td>
             <td>::</td>
             <td><strong>filename</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clobber"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>clobber</strong></td>
             <td>
                 
             </td>
@@ -3360,7 +2911,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~238"></span>
+              <span class="anchor" id="variable-rc~152"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -3423,7 +2974,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rank~10"></span>
+              <span class="anchor" id="variable-rank~7"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -3468,7 +3019,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-cf~12"></span>
+              <span class="anchor" id="variable-cf~5"></span>
               type(<a href='../type/filemetadata.html'>FileMetadata</a>),
             </td>
 <td>intent(inout)</td>
@@ -3483,7 +3034,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~244"></span>
+              <span class="anchor" id="variable-rc~158"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -3593,7 +3144,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~240"></span>
+              <span class="anchor" id="variable-rc~154"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -3633,7 +3184,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-cf~13"></span>
+              <span class="anchor" id="variable-cf~6"></span>
               type(<a href='../type/filemetadata.html'>FileMetadata</a>),
             </td>
 <td>intent(inout)</td>
@@ -3663,7 +3214,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~245"></span>
+              <span class="anchor" id="variable-rc~159"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -3703,7 +3254,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-cf~11"></span>
+              <span class="anchor" id="variable-cf~4"></span>
               type(<a href='../type/filemetadata.html'>FileMetadata</a>),
             </td>
 <td>intent(inout)</td>
@@ -3733,7 +3284,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~243"></span>
+              <span class="anchor" id="variable-rc~157"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -3773,7 +3324,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-cf~14"></span>
+              <span class="anchor" id="variable-cf~7"></span>
               type(<a href='../type/filemetadata.html'>FileMetadata</a>),
             </td>
 <td>intent(inout)</td>
@@ -3788,7 +3339,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-nymd~2"></span>
+              <span class="anchor" id="variable-nymd~3"></span>
               integer,
             </td>
 <td>intent(out)</td>
@@ -3818,7 +3369,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~246"></span>
+              <span class="anchor" id="variable-rc~160"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -3858,7 +3409,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-filename~18"></span>
+              <span class="anchor" id="variable-filename~10"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -3873,7 +3424,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-filetype~6"></span>
+              <span class="anchor" id="variable-filetype"></span>
               integer,
             </td>
 <td>intent(inout)</td>
@@ -3888,7 +3439,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~129"></span>
+              <span class="anchor" id="variable-rc~26"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -3943,7 +3494,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-year~4"></span>
+              <span class="anchor" id="variable-year~6"></span>
               integer
             </td>
 <td></td>
@@ -3958,7 +3509,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-month~4"></span>
+              <span class="anchor" id="variable-month~5"></span>
               integer
             </td>
 <td></td>
@@ -3973,7 +3524,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-day~4"></span>
+              <span class="anchor" id="variable-day~6"></span>
               integer
             </td>
 <td></td>
@@ -3988,7 +3539,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-hour~2"></span>
+              <span class="anchor" id="variable-hour~7"></span>
               integer
             </td>
 <td></td>
@@ -4003,7 +3554,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-min~3"></span>
+              <span class="anchor" id="variable-min~7"></span>
               integer
             </td>
 <td></td>
@@ -4018,7 +3569,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-sec~3"></span>
+              <span class="anchor" id="variable-sec~8"></span>
               integer
             </td>
 <td></td>
@@ -4033,11 +3584,581 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~247"></span>
+              <span class="anchor" id="variable-rc~161"></span>
               integer
             </td>
 <td></td>
               <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-mapl_readtilingascii"></span> <h3>public  subroutine <a href='../proc/mapl_readtilingascii.html'>MAPL_ReadTilingASCII</a>(LAYOUT, FileName, GridName, NT, IM, JM, n_Grids, N_PfafCat, AVR, rc)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-layout"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_delayout.html'>ESMF_DELayout</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>LAYOUT</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-filename"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>FileName</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gridname~3"></span>
+              character(len=*),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>GridName</strong>(:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nt"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>NT</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-im~3"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>IM</strong>(:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-jm~3"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>JM</strong>(:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n_grids~2"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n_Grids</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n_pfafcat~3"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>N_PfafCat</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-avr~2"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>AVR</strong>(:,:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~167"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-mapl_readtilingnc4"></span> <h3>public  subroutine <a href='../proc/mapl_readtilingnc4.html'>MAPL_ReadTilingNC4</a>(File, GridName, IM, JM, nx, ny, n_Grids, n_tiles, iTable, rTable, N_PfafCat, AVR, rc)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-file"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>File</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gridname"></span>
+              character(len=*),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>GridName</strong>(:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-im"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>IM</strong>(:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-jm"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>JM</strong>(:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nx~9"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nx</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ny~7"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ny</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n_grids"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n_Grids</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n_tiles"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n_tiles</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-itable"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional,</td>            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>iTable</strong>(:,:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rtable"></span>
+              real(kind=REAL64),
+            </td>
+<td>intent(out),</td>
+              <td>optional,</td>            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>rTable</strong>(:,:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n_pfafcat"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>N_PfafCat</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-avr"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>AVR</strong>(:,:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~165"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-mapl_writetilingnc4"></span> <h3>public  subroutine <a href='../proc/mapl_writetilingnc4.html'>MAPL_WriteTilingNC4</a>(File, GridName, IM, JM, nx, ny, iTable, rTable, N_PfafCat, rc)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-file~2"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>File</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gridname~2"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>GridName</strong>(:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-im~2"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>IM</strong>(:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-jm~2"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>JM</strong>(:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nx~10"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nx</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ny~8"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ny</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-itable~2"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>iTable</strong>(:,0:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rtable~2"></span>
+              real(kind=REAL64),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rTable</strong>(:,:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n_pfafcat~2"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>N_PfafCat</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~166"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
               
             </td>
             <td>::</td>
@@ -4076,33 +4197,11 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2025-01-07T13:41:21.015380+0000             </p>
+ on 2025-05-29T13:40:13.393381+0000             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
-
-    <!-- Bootstrap core JavaScript -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
-
-    <!-- MathJax JavaScript
-             ================================================== -->
-             <!-- Placed at the end of the document so the pages load faster -->
-        <script type="text/x-mathjax-config">
-          MathJax.Hub.Config({
-          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
-          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
-          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
-          });
-        </script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-          <script src="../tipuesearch/tipuesearch_content.js"></script>
-          <script src="../tipuesearch/tipuesearch_set.js"></script>
-          <script src="../tipuesearch/tipuesearch.js"></script>
-
   </body>
 </html>

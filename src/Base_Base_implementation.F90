@@ -169,8 +169,13 @@ contains
 
     call ESMF_VMGet(vm, ssiSharedMemoryEnabledFlag=ssiSharedMemoryEnabled, _RC)
 
-    _ASSERT(ssiSharedMemoryEnabled, 'SSI shared memory is NOT supported')
-    pinflag=ESMF_PIN_DE_TO_SSI_CONTIG  ! requires support for SSI shared memory
+    ! call pinflag getter
+    pinflag = MAPL_PinFlagGet()
+    
+    if (any(pinflag == [ESMF_PIN_DE_TO_SSI,ESMF_PIN_DE_TO_SSI_CONTIG])) then
+       _ASSERT(ssiSharedMemoryEnabled, 'SSI shared memory is NOT supported')
+    end if
+
 ! SSI
 
     Dimensionality: select case(DIMS)
@@ -1270,6 +1275,7 @@ contains
     integer                 :: lbnds(ESMF_MAXDIM), ubnds(ESMF_MAXDIM)
     character(len=ESMF_MAXSTR) :: newName_
     character(len=ESMF_MAXSTR), parameter :: Iam='MAPL_FieldCreateNewgrid'
+    real, pointer :: ptr1d(:)
 
     call ESMF_FieldGet(FIELD, grid=fgrid, _RC)
 
@@ -1354,6 +1360,9 @@ contains
     ! we are saving DIMS attribute in case the FIELD did not contain one
     ! otherwise we will overwrite it
     call ESMF_AttributeSet(F, NAME='DIMS', VALUE=DIMS, _RC)
+
+    call assign_fptr(f, ptr1d, _RC)
+    ptr1d = 0.0    
 
     _RETURN(ESMF_SUCCESS)
   end function MAPL_FieldCreateNewgrid
@@ -1557,11 +1566,28 @@ contains
     integer                               :: gridRank
     integer,               allocatable    :: localDeToDeMap(:)
     integer :: rc
+    logical :: isPresent
+    integer, allocatable  :: global_grid_info(:)
+    integer :: itemCount
 
     i1=-1
     j1=-1
     in=-1
     jn=-1
+
+    call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", isPresent=isPresent, _RC)
+    if (isPresent) then
+      call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", itemCount=itemCount, _RC)
+      allocate(global_grid_info(itemCount), _STAT)
+      call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", valueList=global_grid_info, _RC)
+      I1 = global_grid_info(7)
+      IN = global_grid_info(8)
+      j1 = global_grid_info(9)
+      JN = global_grid_info(10)
+      deallocate(global_grid_info, _STAT)
+      _RETURN(_SUCCESS)
+    end if
+
     call ESMF_GridGet    (GRID, dimCount=gridRank, distGrid=distGrid, _RC)
     call ESMF_DistGridGet(distGRID, delayout=layout, _RC)
     call ESMF_DELayoutGet(layout, deCount = nDEs, localDeCount=localDeCount,_RC)
@@ -2138,6 +2164,28 @@ contains
     integer                               :: deId
     integer                               :: gridRank
     integer                               :: rc
+    logical                               :: isPresent
+    integer, allocatable                  :: global_grid_info(:)
+    integer                               :: itemCount
+
+    i1=-1
+    j1=-1
+    in=-1
+    jn=-1
+
+    call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", isPresent=isPresent, _RC)
+    if (isPresent) then
+      call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", itemCount=itemCount, _RC)
+      allocate(global_grid_info(itemCount), _STAT)
+      call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", valueList=global_grid_info, _RC)
+      I1 = global_grid_info(7)
+      IN = global_grid_info(8)
+      j1 = global_grid_info(9)
+      JN = global_grid_info(10)
+      deallocate(global_grid_info, _STAT)
+      _RETURN(_SUCCESS)
+    end if
+
 
     call ESMF_GridGet    (GRID, dimCount=gridRank, distGrid=distGrid, _RC)
     call ESMF_DistGridGet(distGRID, delayout=layout, _RC)
@@ -2601,7 +2649,6 @@ contains
     type(ESMF_CoordSys_Flag) :: coordSys
     character(len=ESMF_MAXSTR) :: grid_type
 
-    _RETURN_IF(npts == 0 )
     ! if the grid is present then we can just get the prestored edges and the dimensions of the grid
     ! this also means we are running on a distributed grid
     ! if grid not present then the we just be running outside of ESMF and the user must
@@ -2627,9 +2674,7 @@ contains
        tmp_lats = latR8
     end if
 
-!AOO change tusing GridType atribute    if (im_world*6==jm_world) then
-    call ESMF_AttributeGet(grid, name='GridType', value=grid_type, _RC)
-    if(trim(grid_type) == "Cubed-Sphere") then
+    if (im_world*6==jm_world) then
 
       call MAPL_GetGlobalHorzIJIndex(npts, II, JJ, lon=lon, lat=lat, lonR8=lonR8, latR8=latR8, Grid=Grid, _RC)
 
@@ -2760,9 +2805,6 @@ contains
 
     logical :: good_grid, stretched
 
-    ! Return if no local points
-    _RETURN_IF(npts == 0)
-
     if ( .not. present(grid)) then
       _FAIL("need a cubed-sphere grid")
     endif
@@ -2772,17 +2814,18 @@ contains
     _ASSERT( IM_WORLD*6 == JM_WORLD, "It only works for cubed-sphere grid")
 
     allocate(lons(npts),lats(npts))
-    
-    call MAPL_Reverse_Schmidt(Grid, stretched, npts, lon=lon, lat=lat, lonR8=lonR8, latR8=latR8, lonRe=lons, latRe=lats, _RC) 
+
+    call MAPL_Reverse_Schmidt(Grid, stretched, npts, lon=lon, lat=lat, lonR8=lonR8, latR8=latR8, lonRe=lons, latRe=lats, _RC)
 
     dalpha = 2.0d0*alpha/IM_WORLD
 
     ! make sure the grid can be used in this subroutine
     good_grid = grid_is_ok(grid)
-
     if ( .not. good_grid ) then
        _FAIL( "MAPL_GetGlobalHorzIJIndex cannot handle this grid")
     endif
+    ! Return if no local points
+    _RETURN_IF(npts==0)
 
     ! shift the grid away from Japan Fuji Mt.
     shift0 = shift
@@ -2868,28 +2911,33 @@ contains
        type(ESMF_Grid), intent(inout) :: grid
        logical :: OK
        integer :: I1, I2, J1, J2, j
-       real(ESMF_KIND_R8), pointer :: corner_lons(:,:), corner_lats(:,:)
+       real(ESMF_KIND_R8), allocatable :: corner_lons(:,:), corner_lats(:,:)
        real(ESMF_KIND_R8), allocatable :: lonRe(:), latRe(:)
        real(ESMF_KIND_R8), allocatable :: accurate_lat(:), accurate_lon(:)
        real(ESMF_KIND_R8) :: stretch_factor, target_lon, target_lat, shift0
        real :: tolerance
+       integer :: local_dims(3)
 
        tolerance = epsilon(1.0)
        call MAPL_GridGetInterior(grid,I1,I2,J1,J2)
+       call MAPL_GridGet(grid, localCellCountPerDim=local_dims, _RC)
        OK = .true.
        ! check the edge of face 1 along longitude
-       call ESMF_GridGetCoord(grid,localDE=0,coordDim=1,staggerloc=ESMF_STAGGERLOC_CORNER, &
-            farrayPtr=corner_lons, rc=status)
-       call ESMF_GridGetCoord(grid,localDE=0,coordDim=2,staggerloc=ESMF_STAGGERLOC_CORNER, &
-            farrayPtr=corner_lats, rc=status)
+       !call ESMF_GridGetCoord(grid,localDE=0,coordDim=1,staggerloc=ESMF_STAGGERLOC_CORNER, &
+       !     farrayPtr=corner_lons, _RC)
+       !call ESMF_GridGetCoord(grid,localDE=0,coordDim=2,staggerloc=ESMF_STAGGERLOC_CORNER, &
+       !     farrayPtr=corner_lats, _RC)
+       allocate(corner_lons(local_dims(1)+1, local_dims(2)+1))
+       allocate(corner_lats(local_dims(1)+1, local_dims(2)+1))
+       call MAPL_GridGetCorners(grid, corner_lons, corner_lats, _RC)
 
 
        if ( I1 == 1 .and. J1 == 1 ) then
-          allocate(lonRe(j2-j1+1),      latRe(j2-j1+1))
-          call MAPL_Reverse_Schmidt(grid, stretched, J2-J1+1, lonR8=corner_lons(1,:), &
-                                   latR8=corner_lats(1,:), lonRe=lonRe, latRe=latRe, _RC)  
+          allocate(lonRe(local_dims(2)),      latRe(local_dims(2)))
+          call MAPL_Reverse_Schmidt(grid, stretched, local_dims(2), lonR8=corner_lons(1,1:local_dims(2)), &
+                                   latR8=corner_lats(1,1:local_dims(2)), lonRe=lonRe, latRe=latRe, _RC)
 
-          allocate(accurate_lon(j2-j1+1), accurate_lat(j2-j1+1))
+          allocate(accurate_lon(local_dims(2)), accurate_lat(local_dims(2)))
 
           shift0 = shift
           if (stretched) shift0 = 0
@@ -3382,32 +3430,32 @@ contains
   end function MAPL_GetCorrectedPhase
 
   module subroutine MAPL_Reverse_Schmidt(Grid, stretched, npts, lon, lat, lonR8, latR8, lonRe, latRe, rc)
-     type(ESMF_Grid), intent(inout) :: Grid 
+     type(ESMF_Grid), intent(inout) :: Grid
      logical, intent(out)           :: stretched
      integer,                      intent(in   ) :: npts        ! number of points in lat and lon arrays
      real, optional,               intent(in   ) :: lon(npts)   ! array of longitudes in radians
      real, optional,               intent(in   ) :: lat(npts)   ! array of latitudes in radians
      real(ESMF_KIND_R8), optional, intent(in   ) :: lonR8(npts) ! array of longitudes in radians
-     real(ESMF_KIND_R8), optional, intent(in   ) :: latR8(npts) !     
-     real(ESMF_KIND_R8), optional, intent(out  ) :: lonRe(npts) ! 
-     real(ESMF_KIND_R8), optional, intent(out  ) :: latRe(npts) ! 
+     real(ESMF_KIND_R8), optional, intent(in   ) :: latR8(npts) !
+     real(ESMF_KIND_R8), optional, intent(out  ) :: lonRe(npts) !
+     real(ESMF_KIND_R8), optional, intent(out  ) :: latRe(npts) !
      integer, optional, intent(out) :: rc
 
      logical :: factorPresent, lonPresent, latPresent
      integer :: status
      real(ESMF_KIND_R8) :: c2p1, c2m1, half_pi, two_pi, stretch_factor, target_lon, target_lat
-     real(ESMF_KIND_R8), dimension(npts) :: x,y,z, Xx, Yy, Zz  
+     real(ESMF_KIND_R8), dimension(npts) :: x,y,z, Xx, Yy, Zz
      logical, dimension(npts) :: n_s
 
      _RETURN_IF( npts == 0 )
- 
+
      call ESMF_AttributeGet(grid, name='STRETCH_FACTOR', isPresent= factorPresent, _RC)
      call ESMF_AttributeGet(grid, name='TARGET_LON',     isPresent= lonPresent,    _RC)
      call ESMF_AttributeGet(grid, name='TARGET_LAT',     isPresent= latPresent,    _RC)
 
      if ( factorPresent .and. lonPresent .and. latPresent) then
         stretched = .true.
-     else 
+     else
         stretched = .false.
      endif
 
@@ -3433,7 +3481,7 @@ contains
      call ESMF_AttributeGet(grid, name='TARGET_LON',     value=target_lon,     _RC)
      call ESMF_AttributeGet(grid, name='TARGET_LAT',     value=target_lat,     _RC)
 
-     c2p1 = 1 + stretch_factor*stretch_factor 
+     c2p1 = 1 + stretch_factor*stretch_factor
      c2m1 = 1 - stretch_factor*stretch_factor
 
      half_pi = MAPL_PI_R8/2
@@ -3441,7 +3489,7 @@ contains
 
      target_lon = target_lon*MAPL_DEGREES_TO_RADIANS_R8
      target_lat = target_lat*MAPL_DEGREES_TO_RADIANS_R8
-  
+
      x = cos(latRe)*cos(lonRe - target_lon)
      y = cos(latRe)*sin(lonRe - target_lon)
      z = sin(latRe)

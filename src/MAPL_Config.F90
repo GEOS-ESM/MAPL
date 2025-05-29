@@ -60,14 +60,6 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      character, parameter :: EOB = achar(00)   !! end of buffer mark (null)
-#if defined(__NAG_COMPILER_BUILD) && defined(__DARWIN)
-      character, parameter :: EOL = achar(12)   !! end of line mark (cr)
-#else
-      character, parameter :: EOL = achar(10)   !! end of line mark (newline)
-#endif
-      character, parameter :: NUL = achar(00)   !! what it says
-
       config = ESMF_ConfigCreate(rc=rc)
       config%cptr%buffer(1:1) = EOL
       config%cptr%buffer(2:2) = EOB

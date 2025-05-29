@@ -1883,8 +1883,8 @@ contains
             call state%t_profiler%stop(trim(sbrtn),_RC)
             call state%t_profiler%stop(_RC)
          end if
-         call t_p%stop(trim(state%compname),_RC)
       endif
+      call t_p%stop(trim(state%compname),_RC)
 
 
       _RETURN(ESMF_SUCCESS)
@@ -1956,10 +1956,13 @@ contains
      integer :: hdr
      type(ESMF_Time) :: start_time, curr_time, target_time
      character(len=1) :: phase_
+     logical :: clobber_file
+
 
      call ESMF_GridCompGet(GC, NAME=comp_name, _RC)
      call MAPL_InternalStateGet (GC, STATE, _RC)
 
+     call MAPL_GetResource(state, clobber_file, LABEL="overwrite_checkpoint:", default = .false., _RC)
      call ESMF_ClockGet(clock, startTime=start_time, currTime=curr_time, _RC)
 
      call MAPL_GetResource(STATE, time_label, label='TARGET_TIME:', default='')
@@ -1979,12 +1982,15 @@ contains
         write(phase_, '(i1)') phase
 
         call MAPL_ESMFStateWriteToFile(import, CLOCK, trim(FILENAME)//"import_"//trim(POS)//"_runPhase"//phase_, &
-             FILETYPE, STATE, .false., state%grid%write_restart_by_oserver, _RC)
+             FILETYPE, STATE, .false., clobber=clobber_file, &
+             write_with_oserver=state%grid%write_restart_by_oserver, _RC)
         call MAPL_ESMFStateWriteToFile(export, CLOCK, trim(FILENAME)//"export_"//trim(POS)//"_runPhase"//phase_, &
-             FILETYPE, STATE, .false., state%grid%write_restart_by_oserver, _RC)
+             FILETYPE, STATE, .false., clobber=clobber_file, &
+             write_with_oserver=state%grid%write_restart_by_oserver, _RC)
         call MAPL_GetResource(STATE, hdr, default=0, LABEL="INTERNAL_HEADER:", _RC)
         call MAPL_ESMFStateWriteToFile(internal, CLOCK, trim(FILENAME)//"internal_"//trim(POS)//"_runPhase"//phase_, &
-             FILETYPE, STATE, hdr/=0, state%grid%write_restart_by_oserver, _RC)
+             FILETYPE, STATE, hdr/=0, clobber=clobber_file, &
+             write_with_oserver=state%grid%write_restart_by_oserver, _RC)
      end if
      _RETURN(_SUCCESS)
    end subroutine capture
@@ -2247,6 +2253,7 @@ contains
       type(ESMF_State), pointer :: child_import_state
       type(ESMF_State), pointer :: child_export_state
       type(ESMF_State), pointer :: internal_state
+      logical :: clobber_file
       !=============================================================================
 
       !  Begin...
@@ -2263,6 +2270,8 @@ contains
       !----------------------------------
       call MAPL_InternalStateRetrieve(GC, STATE, RC=status)
       _VERIFY(status)
+
+      call MAPL_GetResource(state, clobber_file, LABEL="overwrite_checkpoint:", default = .false., _RC)
 
       ! Finalize the children
       ! ---------------------
@@ -2365,7 +2374,8 @@ contains
             _VERIFY(status)
             internal_state => state%get_internal_state()
             call MAPL_ESMFStateWriteToFile(internal_state,CLOCK,FILENAME, &
-                 FILETYPE, STATE, hdr/=0, state%grid%write_restart_by_oserver, RC=status)
+                 FILETYPE, STATE, hdr/=0, clobber=clobber_file, &
+                 write_with_oserver=state%grid%write_restart_by_oserver, RC=status)
             _VERIFY(status)
          endif
 
@@ -2389,7 +2399,8 @@ contains
             endif
 #endif
             call MAPL_ESMFStateWriteToFile(IMPORT,CLOCK,FILENAME, &
-                 FILETYPE, STATE, .FALSE., state%grid%write_restart_by_oserver, RC=status)
+                 FILETYPE, STATE, .FALSE., clobber=clobber_file, &
+                 write_with_oserver=state%grid%write_restart_by_oserver, RC=status)
             _VERIFY(status)
          endif
 
@@ -2409,8 +2420,6 @@ contains
       if (.not. MAPL_ProfIsDisabled()) then
          call report_generic_profile()
       end if
-
-      call t_p%stop(trim(state%compname),_RC)
 
       ! Clean-up
       !---------
@@ -2444,7 +2453,8 @@ contains
             endif
 #endif
             call MAPL_ESMFStateWriteToFile(EXPORT,CLOCK,FILENAME, &
-                 FILETYPE, STATE, .FALSE., state%grid%write_restart_by_oserver, RC=status)
+                 FILETYPE, STATE, .FALSE., clobber=clobber_file, &
+                 write_with_oserver=state%grid%write_restart_by_oserver, RC=status)
             _VERIFY(status)
          endif
          _RETURN(_SUCCESS)
@@ -2700,6 +2710,7 @@ contains
       integer                                     :: hdr
       character(len=ESMF_MAXSTR)                  :: FILETYPE
       type(ESMF_State), pointer :: internal_state
+      logical :: clobber_file
       !=============================================================================
 
       !  Begin...
@@ -2718,6 +2729,7 @@ contains
       call MAPL_InternalStateRetrieve(GC, STATE, RC=status)
       _VERIFY(status)
 
+      call MAPL_GetResource(state, clobber_file, LABEL="overwrite_checkpoint:", default = .false., _RC)
       if (.not.associated(STATE%RECORD)) then
          _RETURN(ESMF_SUCCESS)
       end if
@@ -2730,7 +2742,8 @@ contains
          end if
          call MAPL_ESMFStateWriteToFile(IMPORT, CLOCK, &
               STATE%RECORD%IMP_FNAME, &
-              FILETYPE, STATE, .FALSE., state%grid%write_restart_by_oserver, &
+              FILETYPE, STATE, .FALSE., clobber=clobber_file, &
+              write_with_oserver=state%grid%write_restart_by_oserver, &
               RC=status)
          _VERIFY(status)
       end if
@@ -2747,7 +2760,8 @@ contains
          internal_state => STATE%get_internal_state()
          call MAPL_ESMFStateWriteToFile(internal_state, CLOCK, &
               STATE%RECORD%INT_FNAME, &
-              FILETYPE, STATE, hdr/=0, state%grid%write_restart_by_oserver, &
+              FILETYPE, STATE, hdr/=0, clobber=clobber_file, &
+              write_with_oserver=state%grid%write_restart_by_oserver, &
               RC=status)
          _VERIFY(status)
       end if
@@ -5714,7 +5728,7 @@ contains
    !=============================================================================
    !=============================================================================
 
-   subroutine MAPL_ESMFStateWriteToFile(STATE,CLOCK,FILENAME,FILETYPE,MPL,HDR, write_with_oserver,RC)
+   subroutine MAPL_ESMFStateWriteToFile(STATE,CLOCK,FILENAME,FILETYPE,MPL,HDR, write_with_oserver,clobber,RC)
       type(ESMF_State),                 intent(INOUT) :: STATE
       type(ESMF_Clock),                 intent(IN   ) :: CLOCK
       character(len=*),                 intent(IN   ) :: FILENAME
@@ -5722,6 +5736,7 @@ contains
       type(MAPL_MetaComp),              intent(INOUT) :: MPL
       logical,                          intent(IN   ) :: HDR
       logical, optional,                intent(in   ) :: write_with_oserver
+      logical, optional,                intent(in   ) :: clobber
       integer, optional,                intent(  OUT) :: RC
 
       character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_ESMFStateWriteToFile"
@@ -5742,10 +5757,12 @@ contains
       integer                               :: attr
       character(len=MPI_MAX_INFO_VAL )      :: romio_cb_write
       logical                               :: nwrgt1
-      logical :: empty, local_write_with_oserver
+      logical :: empty, local_write_with_oserver, local_clobber
 
       local_write_with_oserver=.false.
       if (present(write_with_oserver)) local_write_with_oserver = write_with_oserver
+      local_clobber = .false.
+      if (present(clobber)) local_clobber = clobber
 
       ! Check if state is empty. If "yes", simply return
       empty = MAPL_IsStateEmpty(state, _RC)
@@ -5913,7 +5930,7 @@ contains
 
 
       if(filetype=='pbinary' ) then
-         arrdes%ycomm = mpl%grid%Ycomm
+         call MPI_Comm_Dup(mpl%grid%Ycomm,ArrDes%Ycomm, status)
          call MAPL_VarWrite(UNIT=UNIT, STATE=STATE, arrdes=arrdes, rc=status)
          _VERIFY(status)
 
@@ -5926,9 +5943,9 @@ contains
       elseif(filetype=='pnc4') then
 
          if (local_write_with_oserver) then
-            call MAPL_VarWriteNCPar(filename,STATE,ArrDes,CLOCK, oClients=o_clients, _RC)
+            call MAPL_VarWriteNCPar(filename,STATE,ArrDes,CLOCK, clobber=local_clobber, oClients=o_clients, _RC)
          else
-            call MAPL_VarWriteNCPar(filename,STATE,ArrDes,CLOCK, _RC)
+            call MAPL_VarWriteNCPar(filename,STATE,ArrDes,CLOCK, clobber=local_clobber, _RC)
          end if
 
       elseif(UNIT/=0) then
@@ -5943,6 +5960,7 @@ contains
          _VERIFY(status)
       endif
 
+      call ArrDescrCommFree(arrdes, _RC)
       _RETURN(ESMF_SUCCESS)
    end subroutine MAPL_ESMFStateWriteToFile
 
@@ -6041,7 +6059,7 @@ contains
 
       nwrgt1 = (mpl%grid%num_readers > 1)
 
-      isNC4 = -100
+      isNC4 = MAPL_FILETYPE_UNK 
       if (on_tiles) mpl%grid%split_restart = .false.
       if(INDEX(FNAME,'*') == 0) then
          if (AmIRoot) then
@@ -6091,7 +6109,7 @@ contains
          !end if
 
          if (FileExists) then
-            if (isNC4 == 0) then
+            if (isNC4 == MAPL_FILETYPE_NC4) then
                filetype = 'pnc4'
             else
                if (.not.nwrgt1) then
@@ -6235,7 +6253,7 @@ contains
 
       if(filetype=='pbinary') then
          call ArrDescrSet(arrdes, offset)
-         arrdes%Ycomm = mpl%grid%Ycomm
+         call MPI_Comm_Dup(mpl%grid%Ycomm,ArrDes%Ycomm, status)
          call MAPL_VarRead(UNIT=UNIT, STATE=STATE, arrdes=arrdes, RC=status)
          _VERIFY(status)
          if (AmReader) then
@@ -6266,6 +6284,7 @@ contains
       call MAPL_AttributeSet(STATE, NAME="MAPL_InitStatus", VALUE=MAPL_InitialRestart, RC=status)
       _VERIFY(status)
 
+      call ArrDescrCommFree(arrdes, _RC)
       _RETURN(ESMF_SUCCESS)
 
      contains
@@ -9837,7 +9856,7 @@ contains
                     im_world = mpl%grid%im_world,           &
                     jm_world = mpl%grid%jm_world)
             endif
-            arrdes%Ycomm = mpl%grid%Ycomm
+            call MPI_Comm_Dup(mpl%grid%Ycomm,ArrDes%Ycomm, status)
 
             if (AmReader) then
                call MPI_COMM_RANK(mpl%grid%readers_comm, io_rank, status)
@@ -10023,6 +10042,7 @@ contains
       type (ESMF_Grid)                      :: GRID
       integer                               :: nn,ny
       character(len=ESMF_MAXSTR)            :: GridName
+      character(len=ESMF_MAXSTR)            :: Prefix
       character(len=2)                      :: dateline
 #ifdef CREATE_REGULAR_GRIDS
       logical                               :: isRegular
@@ -10032,21 +10052,20 @@ contains
       !---------
 
       Iam='MAPL_GridCreate'
+      Prefix = ''
       if(present(GC)) then
-         call ESMF_GridCompGet( GC, name=Comp_Name,   rc = status )
-         _VERIFY(status)
+         call ESMF_GridCompGet( GC, name=Comp_Name,   _RC)
          Iam = trim(Comp_Name)//Iam
+         Prefix = trim(comp_name)//MAPL_CF_COMPONENT_SEPARATOR
       endif
 
       ! New option to get grid from existing component
       !-----------------------------------------------
 
       if(present(srcGC)) then
-         call ESMF_GridCompGet ( srcGC, grid=Grid, RC=status )
-         _VERIFY(status)
+         call ESMF_GridCompGet ( srcGC, grid=Grid, _RC)
          if(present(GC)) then
-            call ESMF_GridCompSet(GC, GRID=GRID, RC=status)
-            _VERIFY(status)
+            call ESMF_GridCompSet(GC, GRID=GRID, _RC)
          end if
          if(present(ESMFGRID)) then
             ESMFGRID=GRID
@@ -10056,46 +10075,40 @@ contains
 
 
 
-      call ESMF_VMGetCurrent(vm, rc=status)
-      _VERIFY(status)
+      call ESMF_VMGetCurrent(vm, _RC)
 
       ! Get MAPL object
       !----------------
 
       if(present(GC)) then
          _ASSERT(.not. present(MAPLOBJ),'needs informative message')
-         call MAPL_InternalStateGet(GC, STATE, RC=status)
-         _VERIFY(status)
+         call MAPL_InternalStateGet(GC, STATE, _RC)
       elseif(present(MAPLOBJ)) then
          STATE => MAPLOBJ
       else
          _FAIL('needs informative message')
       endif
 
-      call MAPL_ConfigPrepend(state%cf,trim(comp_name),MAPL_CF_COMPONENT_SEPARATOR,'NX:',rc=status)
-      _VERIFY(status)
-      call MAPL_ConfigPrepend(state%cf,trim(comp_name),MAPL_CF_COMPONENT_SEPARATOR,'NY:',rc=status)
-      _VERIFY(status)
+      if (trim(Prefix) /= '') then
+         call MAPL_ConfigPrepend(state%cf,trim(comp_name),MAPL_CF_COMPONENT_SEPARATOR,'NX:', _RC)
+         call MAPL_ConfigPrepend(state%cf,trim(comp_name),MAPL_CF_COMPONENT_SEPARATOR,'NY:', _RC)
+      endif
 
-      call ESMF_ConfigGetAttribute(state%cf,gridname,label=trim(comp_name)//MAPL_CF_COMPONENT_SEPARATOR//'GRIDNAME:',rc=status)
-      _VERIFY(status)
+      call ESMF_ConfigGetAttribute(state%cf,gridname,label=trim(Prefix)//'GRIDNAME:', _RC)
       nn = len_trim(gridname)
       dateline = gridname(nn-1:nn)
       if (dateline == 'CF') then
-         call ESMF_ConfigGetAttribute(state%CF,ny,label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//'NY:',rc=status)
-         _VERIFY(status)
-         call MAPL_ConfigSetAttribute(state%CF, value=ny/6, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//'NY:',rc=status)
-         _VERIFY(status)
+         ! convert global NY to a local NY for each face
+         call ESMF_ConfigGetAttribute(state%CF,ny,label=trim(Prefix)//'NY:', _RC)
+         call MAPL_ConfigSetAttribute(state%CF, value=ny/6, label=trim(Prefix)//'NY:', _RC)
       end if
 
-      grid = grid_manager%make_grid(state%CF, prefix=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR, rc=status)
-      _VERIFY(status)
+      grid = grid_manager%make_grid(state%CF, prefix=trim(Prefix), _RC)
 
       call state%grid%set(grid, _RC)
 
       if(present(GC)) then
-         call ESMF_GridCompSet(GC, GRID=GRID, RC=status)
-         _VERIFY(status)
+         call ESMF_GridCompSet(GC, GRID=GRID, _RC)
       end if
 
       if(present(ESMFGRID)) then
@@ -10106,9 +10119,9 @@ contains
 
    contains
 
-      subroutine MAPL_ConfigPrepend(cf,prefix,separator,label,rc)
+      subroutine MAPL_ConfigPrepend(cf, comp_name,separator,label,rc)
          type(ESMF_Config), intent(inout) :: cf
-         character(len=*) , intent(in   ) :: prefix
+         character(len=*) , intent(in   ) :: comp_name
          character(len=*) , intent(in   ) :: separator
          character(len=*) , intent(in   ) :: label
          integer, optional , intent(out  ) :: rc
@@ -10117,12 +10130,10 @@ contains
          character(len=ESMF_MAXSTR) :: Iam = "MAPL_ConfigPrepend"
          integer  :: val
 
-         call ESMF_ConfigGetAttribute( cf, val, label=trim(prefix)//trim(separator)//trim(label), rc = status )
+         call ESMF_ConfigGetAttribute( cf, val, label=trim(comp_name)//trim(separator)//trim(label), rc = status )
          if (status /= ESMF_SUCCESS) then
-            call ESMF_ConfigGetAttribute(CF,val,label=trim(label),rc=status)
-            _VERIFY(status)
-            call MAPL_ConfigSetAttribute(CF, val, label=trim(prefix)//trim(separator)//trim(label),rc=status)
-            _VERIFY(status)
+            call ESMF_ConfigGetAttribute(CF,val,label=trim(label), _RC)
+            call MAPL_ConfigSetAttribute(CF, val, label=trim(comp_name)//trim(separator)//trim(label), _RC)
          end if
 
          _RETURN(ESMF_SUCCESS)
@@ -10318,10 +10329,13 @@ contains
       type(ESMF_State), pointer :: child_import_state
       type(ESMF_State), pointer :: child_export_state
       type (ESMF_State), pointer :: internal_state
+      logical :: clobber_file
 
       _UNUSED_DUMMY(EXPORT)
       call MAPL_InternalStateRetrieve(GC, STATE, RC=status)
       _VERIFY(status)
+
+      call MAPL_GetResource(state, clobber_file, LABEL="overwrite_checkpoint:", default = .false., _RC)
 
       call MAPL_GetResource( STATE, FILENAME,         &
            LABEL="IMPORT_CHECKPOINT_FILE:", &
@@ -10406,7 +10420,7 @@ contains
          end if
          call MAPL_ESMFStateWriteToFile(IMPORT, CLOCK, &
               STATE%initial_state%IMP_FNAME, &
-              CFILETYPE, STATE, .FALSE.,  write_with_oserver = state%grid%write_restart_by_oserver, &
+              CFILETYPE, STATE, .FALSE.,  clobber=clobber_file, write_with_oserver = state%grid%write_restart_by_oserver, &
               RC=status)
          _VERIFY(status)
       end if
@@ -10422,7 +10436,7 @@ contains
          internal_state => STATE%get_internal_state()
          call MAPL_ESMFStateWriteToFile(internal_state, CLOCK, &
               STATE%initial_state%INT_FNAME, &
-              CFILETYPE, STATE, hdr/=0, write_with_oserver = state%grid%write_restart_by_oserver, &
+              CFILETYPE, STATE, hdr/=0, clobber=clobber_file, write_with_oserver = state%grid%write_restart_by_oserver, &
               RC=status)
          _VERIFY(status)
       end if
@@ -11017,10 +11031,14 @@ contains
          arrdes%NX0   = mpl%grid%NX0
          arrdes%tile=.true.
          arrdes%grid=tilegrid
-         call ArrDescrCreateWriterComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
-         call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_readers,_RC)
-         arrdes%iogathercomm = mpl%grid%comm
-         arrdes%ioscattercomm = mpl%grid%comm
+         if (present(num_writers)) then
+            call ArrDescrCreateWriterComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
+         end if
+         if (present(num_readers)) then
+            call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_readers,_RC)
+         end if
+         call MPI_Comm_Dup(mpl%grid%comm,ArrDes%iogathercomm, status)
+         call MPI_Comm_Dup(mpl%grid%comm,ArrDes%ioscattercomm, status)
          arrdes%split_restart = .false.
          arrdes%split_checkpoint = .false.
       else
@@ -11045,8 +11063,12 @@ contains
          arrdes%NX0   = mpl%grid%NX0
          arrdes%tile=.false.
          arrdes%grid=MPL%GRID%ESMFGRID
-         call ArrDescrCreateWriterComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
-         call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_readers,_RC)
+         if (present(num_writers)) then
+            call ArrDescrCreateWriterComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
+         end if
+         if (present(num_readers)) then
+            call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_readers,_RC)
+         end if
          call mpi_comm_rank(arrdes%ycomm,arrdes%myrow,status)
          _VERIFY(status)
          arrdes%split_restart = mpl%grid%split_restart

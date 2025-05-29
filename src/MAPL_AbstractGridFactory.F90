@@ -323,25 +323,32 @@ contains
 
    end function clone
 
-   function make_grid(this, unusable, rc) result(grid)
+   function make_grid(this, unusable, force_new_grid, rc) result(grid)
       use esmf
       use MAPL_KeywordEnforcerMod
       type (ESMF_Grid) :: grid
       class (AbstractGridFactory), intent(inout) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(in)  :: force_new_grid
       integer, optional, intent(out) :: rc
       
       integer :: status
       character(len=*), parameter :: Iam= MOD_NAME // 'make_grid'
+      logical :: new_grid
 
       _UNUSED_DUMMY(unusable)
-
-      if (allocated(this%grid)) then
-         grid = this%grid
+     
+      new_grid = .false.
+      if (present(force_new_grid)) new_grid = force_new_grid
+      if (new_grid) then
+         grid = this%make_new_grid(_RC)
       else
-         this%grid = this%make_new_grid(rc=status)
-         _VERIFY(status)
-         grid = this%grid
+         if (allocated(this%grid)) then
+            grid = this%grid
+         else
+            this%grid = this%make_new_grid(_RC)
+            grid = this%grid
+         end if
       end if
 
       _RETURN(_SUCCESS)

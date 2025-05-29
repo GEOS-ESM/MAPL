@@ -6,6 +6,7 @@
 
    Program utCFIO
 
+   use, intrinsic :: iso_fortran_env, only: REAL64
    use ESMF
 
    use MAPL_BaseMod
@@ -332,7 +333,7 @@ CONTAINS
 
     type(ESMF_Array)       :: eARRAY(2)
 
-    real(KIND=8), pointer  :: R8D2(:,:)
+    real(KIND=REAL64), pointer  :: R8D2(:,:)
     real, pointer          :: lons2d(:,:), lats2d(:,:)
     real, pointer          :: LONSLocal(:,:), LATSlocal(:,:)
     integer                :: IM_WORLD, JM_WORLD, dims(3)

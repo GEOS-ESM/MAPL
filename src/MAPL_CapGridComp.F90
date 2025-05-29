@@ -151,6 +151,7 @@ contains
     call MAPL_InternalStateCreate(cap%gc, meta, _RC)
     call MAPL_Set(meta, CF=cap%config, _RC)
 
+
     call MAPL_Set(meta, name=cap_name, component=stub_component, _RC)
 
     cap_wrapper%ptr => cap
@@ -228,7 +229,7 @@ contains
     _UNUSED_DUMMY(export_state)
     _UNUSED_DUMMY(clock)
 
-    cap => get_CapGridComp_from_gc(gc)
+    cap => get_CapGridComp_from_gc(gc, _RC)
     call MAPL_InternalStateRetrieve(gc, maplobj, _RC)
 
     t_p => get_global_time_profiler()
@@ -767,7 +768,7 @@ contains
     _UNUSED_DUMMY(export_state)
     _UNUSED_DUMMY(clock)
 
-    cap => get_CapGridComp_from_gc(gc)
+    cap => get_CapGridComp_from_gc(gc, _RC)
     call MAPL_GetObjectFromGC(gc, maplobj, _RC)
 
     t_p => get_global_time_profiler()
@@ -823,7 +824,7 @@ contains
     integer :: status, phase
     type(MAPL_CapGridComp), pointer :: cap
 
-    cap => get_CapGridComp_from_gc(gc)
+    cap => get_CapGridComp_from_gc(gc, _RC)
     call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, userRoutine = initialize_gc, _RC)
 
     do phase = 1, cap%n_run_phases
@@ -955,13 +956,19 @@ contains
     step_counter = this%step_counter
   end function get_step_counter
 
-  function get_CapGridComp_from_gc(gc) result(cap)
+  function get_CapGridComp_from_gc(gc, rc) result(cap)
     type(ESMF_GridComp), intent(inout) :: gc
+    integer, optional, intent(out) :: rc
     type(MAPL_CapGridComp), pointer :: cap
+
     type(MAPL_CapGridComp_Wrapper) :: cap_wrapper
-    integer :: rc
-    call ESMF_UserCompGetInternalState(gc, internal_cap_name, cap_wrapper, rc)
+    integer :: status
+
+    call ESMF_UserCompGetInternalState(gc, internal_cap_name, cap_wrapper, status)
+    _VERIFY(status)
+
     cap => cap_wrapper%ptr
+    _RETURN(_SUCCESS)
   end function get_CapGridComp_from_gc
 
 
@@ -1024,7 +1031,7 @@ contains
     type (MAPL_MetaComp), pointer :: MAPLOBJ
     procedure(), pointer :: root_set_services
 
-    cap => get_CapGridComp_from_gc(gc)
+    cap => get_CapGridComp_from_gc(gc, _RC)
     call MAPL_GetObjectFromGC(gc, maplobj, _RC)
 
     phase_ = 1

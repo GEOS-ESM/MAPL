@@ -145,6 +145,7 @@ contains
     class(BaseProfiler), pointer :: t_p
     logical :: use_extdata2g
     integer :: useShmem
+    type(ESMF_StateItem_Flag) :: item_type
 
     _UNUSED_DUMMY(import_state)
     _UNUSED_DUMMY(export_state)
@@ -403,6 +404,12 @@ contains
              _VERIFY(status)
           end if
        END DO
+       ! now add PS from Root if available
+       call ESMF_StateGet(cap%exports(cap%root_id), 'PLE', item_type, _RC)
+       if (item_type == ESMF_STATEITEM_FIELD) then
+          call ESMF_StateGet(cap%exports(cap%root_id), 'PLE', field, _RC)
+          call MAPL_StateAdd(cap%imports(cap%extdata_id), field, _RC)
+       end if
        deallocate(itemtypes)
        deallocate(itemnames)
 

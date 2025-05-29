@@ -5,8 +5,8 @@ contains
       use MAPL_ThrowMod, only: MAPL_set_throw_method
       use MAPL_pFUnit_ThrowMod
       use pflogger, only: pfl_initialize => initialize
-   
-      call ESMF_Initialize(logKindFlag=ESMF_LOGKIND_MULTI)
+
+      call ESMF_Initialize(logKindFlag=ESMF_LOGKIND_MULTI,defaultCalKind=ESMF_CALKIND_GREGORIAN)
       call MAPL_set_throw_method(throw)
       call pfl_initialize()
 

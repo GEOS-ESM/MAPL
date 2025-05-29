@@ -607,11 +607,13 @@ module MAPL_GridManagerMod
    public :: get_instance
    public :: get_factory_id
    public :: get_factory
+   public :: factory_id_attribute_public
 
    ! singleton instance
    type (GridManager), target, save :: grid_manager
 
    character(len=*), parameter :: MOD_NAME = 'MAPL_GridManager::'
+   character(len=*), parameter :: factory_id_attribute_public = 'MAPL_grid_factory_id'
 
 contains
 

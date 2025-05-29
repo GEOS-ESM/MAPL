@@ -1037,6 +1037,9 @@ contains
       mask = MAPL_MASK_IN
       where(fptr==MAPL_UNDEF) mask = MAPL_MASK_OUT
 
+      call ESMF_AttributeSet(grid, name=MAPL_DESTINATIONMASK, &
+           itemCount=1, valueList=[MAPL_MASK_OUT], _RC)
+
       _RETURN(_SUCCESS)
     end subroutine add_mask
 

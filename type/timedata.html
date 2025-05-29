@@ -12,14 +12,29 @@
 
     <title>timeData &ndash; MAPL </title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <link href="../css/pygments.css" rel="stylesheet">
-    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
     <link href="../css/local.css" rel="stylesheet">
-      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
-
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <link href="../css/pygments.css" rel="stylesheet">
     <script src="../js/svg-pan-zoom.min.js"></script>
   </head>
 
@@ -56,11 +71,6 @@
                   <a class="nav-link" href="../lists/programs.html">Programs</a>
                 </li>
             </ul>
-              <div class="d-flex align-items-end flex-grow-1">
-                <form action="../search.html" role="search" class="ms-auto">
-                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
-                </form>
-              </div>
           </div><!--/.nav-collapse -->
         </div>
       </nav>
@@ -100,9 +110,11 @@
     </div>
   </div>
   <script>
-    $(function () {
-    $('[data-bs-toggle="tooltip"]').tooltip()
-    })
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
   </script>
 
   </div>
@@ -120,13 +132,13 @@
       <div id="vars-0" class="collapse">
         <div class="list-group list-group-flush">
             <a class="list-group-item" href="../type/timedata.html#variable-funits">funits</a>
-            <a class="list-group-item" href="../type/timedata.html#variable-frequency~4">frequency</a>
-            <a class="list-group-item" href="../type/timedata.html#variable-ntime~3">ntime</a>
+            <a class="list-group-item" href="../type/timedata.html#variable-frequency~5">frequency</a>
+            <a class="list-group-item" href="../type/timedata.html#variable-ntime~2">ntime</a>
             <a class="list-group-item" href="../type/timedata.html#variable-tcount~2">tcount</a>
-            <a class="list-group-item" href="../type/timedata.html#variable-integer_time~3">integer_time</a>
+            <a class="list-group-item" href="../type/timedata.html#variable-integer_time">integer_time</a>
             <a class="list-group-item" href="../type/timedata.html#variable-is_initialized">is_initialized</a>
-            <a class="list-group-item" href="../type/timedata.html#variable-clock~52">clock</a>
-            <a class="list-group-item" href="../type/timedata.html#variable-offset~40">offset</a>
+            <a class="list-group-item" href="../type/timedata.html#variable-clock~33">clock</a>
+            <a class="list-group-item" href="../type/timedata.html#variable-offset~29">offset</a>
             <a class="list-group-item" href="../type/timedata.html#variable-tvec">tvec</a>
         </div>
       </div>
@@ -169,7 +181,7 @@
             <a class="list-group-item" href="../type/timedata.html#boundprocedure-am_i_initialized">am_i_initialized</a>
             <a class="list-group-item" href="../type/timedata.html#boundprocedure-compute_time_vector">compute_time_vector</a>
             <a class="list-group-item" href="../type/timedata.html#boundprocedure-define_time_variable">define_time_variable</a>
-            <a class="list-group-item" href="../type/timedata.html#boundprocedure-get~147">get</a>
+            <a class="list-group-item" href="../type/timedata.html#boundprocedure-get~140">get</a>
             <a class="list-group-item" href="../type/timedata.html#boundprocedure-get_start_time">get_start_time</a>
             <a class="list-group-item" href="../type/timedata.html#boundprocedure-setfrequency">setFrequency</a>
         </div>
@@ -194,547 +206,6 @@
       <h2 id="type-def-statement">
         type, public :: timeData</h2>
     
-<br>      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">Inherits</h3>
-        </div>
-        <div class="card-body">
-          <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: type~~timedata~~InheritsGraph Pages: 1 -->
-<svg id="typetimedataInheritsGraph" width="402pt" height="116pt"
- viewBox="0.00 0.00 402.00 116.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="type~~timedata~~InheritsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 112)">
-<title>type~~timedata~~InheritsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 398,-112 398,4 -4,4"/>
-<!-- type~timedata -->
-<g id="type~~timedata~~InheritsGraph_node1" class="node">
-<title>type~timedata</title>
-<polygon fill="none" stroke="black" points="394,-66 332,-66 332,-42 394,-42 394,-66"/>
-<text text-anchor="middle" x="363" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">timeData</text>
-</g>
-<!-- ESMF_Clock -->
-<g id="type~~timedata~~InheritsGraph_node2" class="node">
-<title>ESMF_Clock</title>
-<g id="a_type~~timedata~~InheritsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/type/esmf_clock.html" xlink:title="ESMF_Clock">
-<polygon fill="#5cb85c" stroke="#5cb85c" points="249.5,-108 173.5,-108 173.5,-84 249.5,-84 249.5,-108"/>
-<text text-anchor="middle" x="211.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_Clock</text>
-</a>
-</g>
-</g>
-<!-- type~timedata&#45;&gt;ESMF_Clock -->
-<g id="type~~timedata~~InheritsGraph_edge1" class="edge">
-<title>type~timedata&#45;&gt;ESMF_Clock</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M331.81,-62.88C325.91,-64.59 319.76,-66.37 314,-68 296.21,-73.05 276.64,-78.48 259.46,-83.2"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="258.37,-79.87 249.66,-85.89 260.23,-86.62 258.37,-79.87"/>
-<text text-anchor="middle" x="300" y="-77.4" font-family="Helvetica,sans-Serif" font-size="9.50">clock</text>
-</g>
-<!-- ESMF_TimeInterval -->
-<g id="type~~timedata~~InheritsGraph_node3" class="node">
-<title>ESMF_TimeInterval</title>
-<g id="a_type~~timedata~~InheritsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/type/esmf_timeinterval.html" xlink:title="ESMF_TimeInterval">
-<polygon fill="#5cb85c" stroke="#5cb85c" points="268,-66 155,-66 155,-42 268,-42 268,-66"/>
-<text text-anchor="middle" x="211.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeInterval</text>
-</a>
-</g>
-</g>
-<!-- type~timedata&#45;&gt;ESMF_TimeInterval -->
-<g id="type~~timedata~~InheritsGraph_edge3" class="edge">
-<title>type~timedata&#45;&gt;ESMF_TimeInterval</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M331.75,-54C316.34,-54 296.97,-54 278.35,-54"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="278.11,-50.5 268.11,-54 278.11,-57.5 278.11,-50.5"/>
-<text text-anchor="middle" x="300" y="-56.4" font-family="Helvetica,sans-Serif" font-size="9.50">offset</text>
-</g>
-<!-- type~esmftimevector -->
-<g id="type~~timedata~~InheritsGraph_node4" class="node">
-<title>type~esmftimevector</title>
-<g id="a_type~~timedata~~InheritsGraph_node4"><a xlink:href="../type/esmftimevector.html" xlink:title="ESMFTimeVector">
-<polygon fill="#5cb85c" stroke="#5cb85c" points="262,-24 161,-24 161,0 262,0 262,-24"/>
-<text text-anchor="middle" x="211.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFTimeVector</text>
-</a>
-</g>
-</g>
-<!-- type~timedata&#45;&gt;type~esmftimevector -->
-<g id="type~~timedata~~InheritsGraph_edge2" class="edge">
-<title>type~timedata&#45;&gt;type~esmftimevector</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M331.81,-45.12C325.91,-43.41 319.76,-41.63 314,-40 298.64,-35.64 281.94,-31 266.61,-26.77"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="267.33,-23.34 256.75,-24.06 265.47,-30.09 267.33,-23.34"/>
-<text text-anchor="middle" x="300" y="-42.4" font-family="Helvetica,sans-Serif" font-size="9.50">tvec</text>
-</g>
-<!-- ESMF_Time -->
-<g id="type~~timedata~~InheritsGraph_node5" class="node">
-<title>ESMF_Time</title>
-<g id="a_type~~timedata~~InheritsGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/type/esmf_time.html" xlink:title="ESMF_Time">
-<polygon fill="#5cb85c" stroke="#5cb85c" points="73,-24 0,-24 0,0 73,0 73,-24"/>
-<text text-anchor="middle" x="36.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_Time</text>
-</a>
-</g>
-</g>
-<!-- type~esmftimevector&#45;&gt;ESMF_Time -->
-<g id="type~~timedata~~InheritsGraph_edge4" class="edge">
-<title>type~esmftimevector&#45;&gt;ESMF_Time</title>
-<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M160.93,-12C136.49,-12 107.2,-12 83.3,-12"/>
-<polygon fill="#0000ff" stroke="#0000ff" points="83.07,-8.5 73.07,-12 83.07,-15.5 83.07,-8.5"/>
-<text text-anchor="middle" x="114" y="-14.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
-</g>
-</g>
-</svg>
-</div>          <div>
-            <a type="button" class="graph-help" data-bs-toggle="modal" href="#InheritsGraph-help-text">Help</a>
-          </div>
-          <div class="modal fade" id="InheritsGraph-help-text" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-lg" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-<p>Nodes of different colours represent the following: </p>
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: Graph Key Pages: 1 -->
-<svg width="186pt" height="32pt"
- viewBox="0.00 0.00 185.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
-<title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 181.5,-28 181.5,4 -4,4"/>
-<!-- Type -->
-<g id="node1" class="node">
-<title>Type</title>
-<polygon fill="#5cb85c" stroke="#5cb85c" points="54,-24 0,-24 0,0 54,0 54,-24"/>
-<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type</text>
-</g>
-<!-- This Page&#39;s Entity -->
-<g id="node2" class="node">
-<title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="177.5,-24 72.5,-24 72.5,0 177.5,0 177.5,-24"/>
-<text text-anchor="middle" x="125" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
-</g>
-</g>
-</svg>
-
-<p>Solid arrows point from a derived type to the parent type which it
-extends. Dashed arrows point from a derived type to the other
-types it contains as a components, with a label listing the name(s) of
-said component(s).
-</p>
- Where possible, edges connecting nodes are
-given different colours to make them easier to distinguish in
-large graphs.</div>
-            </div>
-          </div>
-        </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">Inherited by</h3>
-        </div>
-        <div class="card-body">
-          <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: type~~timedata~~InheritedByGraph Pages: 1 -->
-<svg id="typetimedataInheritedByGraph" width="641pt" height="369pt"
- viewBox="0.00 0.00 641.00 368.76" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="type~~timedata~~InheritedByGraph" class="graph" transform="scale(0.82 0.82) rotate(0) translate(4 443)">
-<title>type~~timedata~~InheritedByGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-443 773,-443 773,4 -4,4"/>
-<!-- type~timedata -->
-<g id="type~~timedata~~InheritedByGraph_node1" class="node">
-<title>type~timedata</title>
-<polygon fill="none" stroke="black" points="62,-128 0,-128 0,-104 62,-104 62,-128"/>
-<text text-anchor="middle" x="31" y="-113.6" font-family="Helvetica,sans-Serif" font-size="10.50">timeData</text>
-</g>
-<!-- type~historycollection~2 -->
-<g id="type~~timedata~~InheritedByGraph_node2" class="node">
-<title>type~historycollection~2</title>
-<g id="a_type~~timedata~~InheritedByGraph_node2"><a xlink:href="../type/historycollection~2.html" xlink:title="HistoryCollection">
-<polygon fill="#5cb85c" stroke="#5cb85c" points="492.5,-120 389.5,-120 389.5,-96 492.5,-96 492.5,-120"/>
-<text text-anchor="middle" x="441" y="-105.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollection</text>
-</a>
-</g>
-</g>
-<!-- type~historycollection~2&#45;&gt;type~timedata -->
-<g id="type~~timedata~~InheritedByGraph_edge5" class="edge">
-<title>type~historycollection~2&#45;&gt;type~timedata</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M414.88,-120.09C399.6,-127.04 379.51,-135.46 361,-141 267.86,-168.85 239.28,-172.48 143,-159 114.16,-154.96 107.05,-151.78 80,-141 74.04,-138.63 67.85,-135.74 61.97,-132.79"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="63.56,-129.66 53.07,-128.15 60.32,-135.87 63.56,-129.66"/>
-<text text-anchor="middle" x="204" y="-168.4" font-family="Helvetica,sans-Serif" font-size="9.50">timeInfo</text>
-</g>
-<!-- type~historytrajectory -->
-<g id="type~~timedata~~InheritedByGraph_node3" class="node">
-<title>type~historytrajectory</title>
-<g id="a_type~~timedata~~InheritedByGraph_node3"><a xlink:href="../type/historytrajectory.html" xlink:title="HistoryTrajectory">
-<polygon fill="#5cb85c" stroke="#5cb85c" points="255.5,-150 152.5,-150 152.5,-126 255.5,-126 255.5,-150"/>
-<text text-anchor="middle" x="204" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryTrajectory</text>
-</a>
-</g>
-</g>
-<!-- type~historycollection~2&#45;&gt;type~historytrajectory -->
-<g id="type~~timedata~~InheritedByGraph_edge10" class="edge">
-<title>type~historycollection~2&#45;&gt;type~historytrajectory</title>
-<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M389.3,-114.47C353.01,-119.11 303.99,-125.36 265.62,-130.26"/>
-<polygon fill="#ffff00" stroke="#ffff00" points="265.09,-126.8 255.61,-131.54 265.97,-133.74 265.09,-126.8"/>
-<text text-anchor="middle" x="322" y="-129.4" font-family="Helvetica,sans-Serif" font-size="9.50">trajectory</text>
-</g>
-<!-- type~mapl_griddedio -->
-<g id="type~~timedata~~InheritedByGraph_node4" class="node">
-<title>type~mapl_griddedio</title>
-<g id="a_type~~timedata~~InheritedByGraph_node4"><a xlink:href="../type/mapl_griddedio.html" xlink:title="MAPL_GriddedIO">
-<polygon fill="#5cb85c" stroke="#5cb85c" points="254,-264 154,-264 154,-240 254,-240 254,-264"/>
-<text text-anchor="middle" x="204" y="-249.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIO</text>
-</a>
-</g>
-</g>
-<!-- type~historycollection~2&#45;&gt;type~mapl_griddedio -->
-<g id="type~~timedata~~InheritedByGraph_edge12" class="edge">
-<title>type~historycollection~2&#45;&gt;type~mapl_griddedio</title>
-<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M432.25,-120.13C419.56,-139.09 392.55,-175.79 361,-197 331.75,-216.66 294.7,-230.11 264.04,-238.79"/>
-<polygon fill="#00ff00" stroke="#00ff00" points="263.06,-235.43 254.33,-241.44 264.9,-242.18 263.06,-235.43"/>
-<text text-anchor="middle" x="322" y="-234.4" font-family="Helvetica,sans-Serif" font-size="9.50">mGriddedIO</text>
-</g>
-<!-- type~masksamplergeosat -->
-<g id="type~~timedata~~InheritedByGraph_node5" class="node">
-<title>type~masksamplergeosat</title>
-<g id="a_type~~timedata~~InheritedByGraph_node5"><a xlink:href="../type/masksamplergeosat.html" xlink:title="MaskSamplerGeosat">
-<polygon fill="#5cb85c" stroke="#5cb85c" points="265,-108 143,-108 143,-84 265,-84 265,-108"/>
-<text text-anchor="middle" x="204" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaskSamplerGeosat</text>
-</a>
-</g>
-</g>
-<!-- type~historycollection~2&#45;&gt;type~masksamplergeosat -->
-<g id="type~~timedata~~InheritedByGraph_edge15" class="edge">
-<title>type~historycollection~2&#45;&gt;type~masksamplergeosat</title>
-<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M389.45,-103.88C380,-103.19 370.2,-102.53 361,-102 332.93,-100.39 301.99,-99.11 275.11,-98.14"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="275.15,-94.64 265.03,-97.78 274.9,-101.63 275.15,-94.64"/>
-<text text-anchor="middle" x="322" y="-104.4" font-family="Helvetica,sans-Serif" font-size="9.50">mask_sampler</text>
-</g>
-<!-- type~sampler -->
-<g id="type~~timedata~~InheritedByGraph_node6" class="node">
-<title>type~sampler</title>
-<g id="a_type~~timedata~~InheritedByGraph_node6"><a xlink:href="../type/sampler.html" xlink:title="sampler">
-<polygon fill="#5cb85c" stroke="#5cb85c" points="232,-66 176,-66 176,-42 232,-42 232,-66"/>
-<text text-anchor="middle" x="204" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sampler</text>
-</a>
-</g>
-</g>
-<!-- type~historycollection~2&#45;&gt;type~sampler -->
-<g id="type~~timedata~~InheritedByGraph_edge16" class="edge">
-<title>type~historycollection~2&#45;&gt;type~sampler</title>
-<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M403.25,-95.96C390.01,-91.86 374.91,-87.44 361,-84 320.83,-74.06 274.16,-65.47 242.41,-60.06"/>
-<polygon fill="#0000ff" stroke="#0000ff" points="242.69,-56.56 232.24,-58.35 241.52,-63.46 242.69,-56.56"/>
-<text text-anchor="middle" x="322" y="-86.4" font-family="Helvetica,sans-Serif" font-size="9.50">xsampler</text>
-</g>
-<!-- type~stationsampler -->
-<g id="type~~timedata~~InheritedByGraph_node7" class="node">
-<title>type~stationsampler</title>
-<g id="a_type~~timedata~~InheritedByGraph_node7"><a xlink:href="../type/stationsampler.html" xlink:title="StationSampler">
-<polygon fill="#5cb85c" stroke="#5cb85c" points="251.5,-24 156.5,-24 156.5,0 251.5,0 251.5,-24"/>
-<text text-anchor="middle" x="204" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StationSampler</text>
-</a>
-</g>
-</g>
-<!-- type~historycollection~2&#45;&gt;type~stationsampler -->
-<g id="type~~timedata~~InheritedByGraph_edge17" class="edge">
-<title>type~historycollection~2&#45;&gt;type~stationsampler</title>
-<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M425.81,-95.79C410.69,-83.36 385.58,-64.35 361,-53 329.48,-38.44 291.9,-28.37 261.52,-21.85"/>
-<polygon fill="#ff00ff" stroke="#ff00ff" points="262.02,-18.38 251.52,-19.78 260.6,-25.23 262.02,-18.38"/>
-<text text-anchor="middle" x="322" y="-55.4" font-family="Helvetica,sans-Serif" font-size="9.50">station_sampler</text>
-</g>
-<!-- type~historytrajectory&#45;&gt;type~timedata -->
-<g id="type~~timedata~~InheritedByGraph_edge6" class="edge">
-<title>type~historytrajectory&#45;&gt;type~timedata</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M152.16,-131.46C126.6,-128.17 96.07,-124.24 72.18,-121.17"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="72.42,-117.67 62.05,-119.87 71.52,-124.61 72.42,-117.67"/>
-<text text-anchor="middle" x="102.5" y="-129.4" font-family="Helvetica,sans-Serif" font-size="9.50">time_info</text>
-</g>
-<!-- type~mapl_griddedio&#45;&gt;type~timedata -->
-<g id="type~~timedata~~InheritedByGraph_edge1" class="edge">
-<title>type~mapl_griddedio&#45;&gt;type~timedata</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M155.47,-239.9C130.79,-231.77 101.42,-219 80,-200 60.81,-182.97 47.44,-156.37 39.77,-137.67"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="42.97,-136.26 36.09,-128.21 36.45,-138.8 42.97,-136.26"/>
-<text text-anchor="middle" x="102.5" y="-229.4" font-family="Helvetica,sans-Serif" font-size="9.50">timeInfo</text>
-</g>
-<!-- type~masksamplergeosat&#45;&gt;type~timedata -->
-<g id="type~~timedata~~InheritedByGraph_edge3" class="edge">
-<title>type~masksamplergeosat&#45;&gt;type~timedata</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M142.98,-96.92C122.87,-97.89 100.37,-99.7 80,-103 77.34,-103.43 74.61,-103.95 71.87,-104.53"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="70.94,-101.16 62.01,-106.85 72.54,-107.97 70.94,-101.16"/>
-<text text-anchor="middle" x="102.5" y="-105.4" font-family="Helvetica,sans-Serif" font-size="9.50">time_info</text>
-</g>
-<!-- type~sampler&#45;&gt;type~timedata -->
-<g id="type~~timedata~~InheritedByGraph_edge2" class="edge">
-<title>type~sampler&#45;&gt;type~timedata</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M175.73,-57.85C150.2,-62.09 111.4,-70.22 80,-84 71.56,-87.7 62.99,-92.88 55.47,-97.99"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="53.32,-95.22 47.2,-103.86 57.38,-100.93 53.32,-95.22"/>
-<text text-anchor="middle" x="102.5" y="-86.4" font-family="Helvetica,sans-Serif" font-size="9.50">timeInfo</text>
-</g>
-<!-- type~stationsampler&#45;&gt;type~timedata -->
-<g id="type~~timedata~~InheritedByGraph_edge4" class="edge">
-<title>type~stationsampler&#45;&gt;type~timedata</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M156.23,-21.66C131.92,-28.27 102.64,-38.83 80,-55 65.18,-65.59 52.62,-82 44.08,-95.14"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="40.88,-93.65 38.59,-104 46.83,-97.34 40.88,-93.65"/>
-<text text-anchor="middle" x="102.5" y="-57.4" font-family="Helvetica,sans-Serif" font-size="9.50">time_info</text>
-</g>
-<!-- type~extdata_iobundle -->
-<g id="type~~timedata~~InheritedByGraph_node8" class="node">
-<title>type~extdata_iobundle</title>
-<g id="a_type~~timedata~~InheritedByGraph_node8"><a xlink:href="../type/extdata_iobundle.html" xlink:title="ExtData_IoBundle">
-<polygon fill="#5cb85c" stroke="#5cb85c" points="494.5,-366 387.5,-366 387.5,-342 494.5,-342 494.5,-366"/>
-<text text-anchor="middle" x="441" y="-351.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtData_IoBundle</text>
-</a>
-</g>
-</g>
-<!-- type~extdata_iobundle&#45;&gt;type~mapl_griddedio -->
-<g id="type~~timedata~~InheritedByGraph_edge11" class="edge">
-<title>type~extdata_iobundle&#45;&gt;type~mapl_griddedio</title>
-<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M407.8,-341.97C375.84,-329.82 325.59,-310.15 283,-291 267.74,-284.14 251.12,-275.93 237.16,-268.82"/>
-<polygon fill="#00ff00" stroke="#00ff00" points="238.46,-265.56 227.97,-264.11 235.27,-271.79 238.46,-265.56"/>
-<text text-anchor="middle" x="322" y="-325.4" font-family="Helvetica,sans-Serif" font-size="9.50">cfio</text>
-</g>
-<!-- type~extdatang_iobundle -->
-<g id="type~~timedata~~InheritedByGraph_node9" class="node">
-<title>type~extdatang_iobundle</title>
-<g id="a_type~~timedata~~InheritedByGraph_node9"><a xlink:href="../type/extdatang_iobundle.html" xlink:title="ExtDataNG_IOBundle">
-<polygon fill="#5cb85c" stroke="#5cb85c" points="503,-303 379,-303 379,-279 503,-279 503,-303"/>
-<text text-anchor="middle" x="441" y="-288.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataNG_IOBundle</text>
-</a>
-</g>
-</g>
-<!-- type~extdatang_iobundle&#45;&gt;type~mapl_griddedio -->
-<g id="type~~timedata~~InheritedByGraph_edge13" class="edge">
-<title>type~extdatang_iobundle&#45;&gt;type~mapl_griddedio</title>
-<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M378.87,-280.86C343.59,-275 299.43,-267.67 264.45,-261.87"/>
-<polygon fill="#00ff00" stroke="#00ff00" points="264.81,-258.38 254.37,-260.19 263.66,-265.28 264.81,-258.38"/>
-<text text-anchor="middle" x="322" y="-279.4" font-family="Helvetica,sans-Serif" font-size="9.50">grid_io</text>
-</g>
-<!-- type~fieldbundlewriter -->
-<g id="type~~timedata~~InheritedByGraph_node10" class="node">
-<title>type~fieldbundlewriter</title>
-<g id="a_type~~timedata~~InheritedByGraph_node10"><a xlink:href="../type/fieldbundlewriter.html" xlink:title="FieldBundleWriter">
-<polygon fill="#5cb85c" stroke="#5cb85c" points="494.5,-261 387.5,-261 387.5,-237 494.5,-237 494.5,-261"/>
-<text text-anchor="middle" x="441" y="-246.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleWriter</text>
-</a>
-</g>
-</g>
-<!-- type~fieldbundlewriter&#45;&gt;type~mapl_griddedio -->
-<g id="type~~timedata~~InheritedByGraph_edge14" class="edge">
-<title>type~fieldbundlewriter&#45;&gt;type~mapl_griddedio</title>
-<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M387.26,-249.67C350.9,-250.14 302.49,-250.76 264.71,-251.24"/>
-<polygon fill="#00ff00" stroke="#00ff00" points="264.31,-247.74 254.35,-251.37 264.39,-254.74 264.31,-247.74"/>
-<text text-anchor="middle" x="322" y="-252.4" font-family="Helvetica,sans-Serif" font-size="9.50">cfio</text>
-</g>
-<!-- type~historycollectionvectoriterator~2 -->
-<g id="type~~timedata~~InheritedByGraph_node11" class="node">
-<title>type~historycollectionvectoriterator~2</title>
-<g id="a_type~~timedata~~InheritedByGraph_node11"><a xlink:href="../type/historycollectionvectoriterator~2.html" xlink:title="HistoryCollectionVectorIterator">
-<polygon fill="#5cb85c" stroke="#5cb85c" points="765.5,-162 588.5,-162 588.5,-138 765.5,-138 765.5,-162"/>
-<text text-anchor="middle" x="677" y="-147.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionVectorIterator</text>
-</a>
-</g>
-</g>
-<!-- type~historycollectionvectoriterator~2&#45;&gt;type~historycollection~2 -->
-<g id="type~~timedata~~InheritedByGraph_edge8" class="edge">
-<title>type~historycollectionvectoriterator~2&#45;&gt;type~historycollection~2</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M608.94,-137.96C575.41,-131.95 535.14,-124.72 502.55,-118.87"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="503.16,-115.42 492.7,-117.1 501.92,-122.31 503.16,-115.42"/>
-<text text-anchor="middle" x="544" y="-132.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
-</g>
-<!-- type~historycollectionvectorriterator~2 -->
-<g id="type~~timedata~~InheritedByGraph_node12" class="node">
-<title>type~historycollectionvectorriterator~2</title>
-<g id="a_type~~timedata~~InheritedByGraph_node12"><a xlink:href="../type/historycollectionvectorriterator~2.html" xlink:title="HistoryCollectionVectorRIterator">
-<polygon fill="#5cb85c" stroke="#5cb85c" points="769,-120 585,-120 585,-96 769,-96 769,-120"/>
-<text text-anchor="middle" x="677" y="-105.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionVectorRIterator</text>
-</a>
-</g>
-</g>
-<!-- type~historycollectionvectorriterator~2&#45;&gt;type~historycollection~2 -->
-<g id="type~~timedata~~InheritedByGraph_edge9" class="edge">
-<title>type~historycollectionvectorriterator~2&#45;&gt;type~historycollection~2</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M584.86,-108C557.34,-108 527.81,-108 502.78,-108"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="502.71,-104.5 492.71,-108 502.71,-111.5 502.71,-104.5"/>
-<text text-anchor="middle" x="544" y="-110.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
-</g>
-<!-- type~historycollectionvector~2 -->
-<g id="type~~timedata~~InheritedByGraph_node13" class="node">
-<title>type~historycollectionvector~2</title>
-<g id="a_type~~timedata~~InheritedByGraph_node13"><a xlink:href="../type/historycollectionvector~2.html" xlink:title="HistoryCollectionVector">
-<polygon fill="#5cb85c" stroke="#5cb85c" points="745.5,-78 608.5,-78 608.5,-54 745.5,-54 745.5,-78"/>
-<text text-anchor="middle" x="677" y="-63.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionVector</text>
-</a>
-</g>
-</g>
-<!-- type~historycollectionvector~2&#45;&gt;type~historycollection~2 -->
-<g id="type~~timedata~~InheritedByGraph_edge7" class="edge">
-<title>type~historycollectionvector~2&#45;&gt;type~historycollection~2</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M608.94,-78.04C575.41,-84.05 535.14,-91.28 502.55,-97.13"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="501.92,-93.69 492.7,-98.9 503.16,-100.58 501.92,-93.69"/>
-<text text-anchor="middle" x="544" y="-95.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
-</g>
-<!-- type~iobundlengvector -->
-<g id="type~~timedata~~InheritedByGraph_node14" class="node">
-<title>type~iobundlengvector</title>
-<g id="a_type~~timedata~~InheritedByGraph_node14"><a xlink:href="../type/iobundlengvector.html" xlink:title="IoBundleNGVector">
-<polygon fill="#5cb85c" stroke="#5cb85c" points="731.5,-313 622.5,-313 622.5,-289 731.5,-289 731.5,-313"/>
-<text text-anchor="middle" x="677" y="-298.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IoBundleNGVector</text>
-</a>
-</g>
-</g>
-<!-- type~iobundlengvector&#45;&gt;type~extdatang_iobundle -->
-<g id="type~~timedata~~InheritedByGraph_edge21" class="edge">
-<title>type~iobundlengvector&#45;&gt;type~extdatang_iobundle</title>
-<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M622.32,-298.71C590.02,-297.33 548.51,-295.55 513.46,-294.05"/>
-<polygon fill="#ffff00" stroke="#ffff00" points="513.42,-290.55 503.28,-293.62 513.12,-297.54 513.42,-290.55"/>
-<text text-anchor="middle" x="544" y="-298.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
-</g>
-<!-- type~iobundlengvectoriterator -->
-<g id="type~~timedata~~InheritedByGraph_node15" class="node">
-<title>type~iobundlengvectoriterator</title>
-<g id="a_type~~timedata~~InheritedByGraph_node15"><a xlink:href="../type/iobundlengvectoriterator.html" xlink:title="IoBundleNGVectorIterator">
-<polygon fill="#5cb85c" stroke="#5cb85c" points="751.5,-271 602.5,-271 602.5,-247 751.5,-247 751.5,-271"/>
-<text text-anchor="middle" x="677" y="-256.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IoBundleNGVectorIterator</text>
-</a>
-</g>
-</g>
-<!-- type~iobundlengvectoriterator&#45;&gt;type~extdatang_iobundle -->
-<g id="type~~timedata~~InheritedByGraph_edge22" class="edge">
-<title>type~iobundlengvectoriterator&#45;&gt;type~extdatang_iobundle</title>
-<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M602.27,-268.93C576.55,-272.41 547.5,-276.36 521,-280 518.48,-280.35 515.91,-280.7 513.32,-281.06"/>
-<polygon fill="#ffff00" stroke="#ffff00" points="512.67,-277.61 503.24,-282.45 513.62,-284.55 512.67,-277.61"/>
-<text text-anchor="middle" x="544" y="-282.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
-</g>
-<!-- type~iobundlengvectorriterator -->
-<g id="type~~timedata~~InheritedByGraph_node16" class="node">
-<title>type~iobundlengvectorriterator</title>
-<g id="a_type~~timedata~~InheritedByGraph_node16"><a xlink:href="../type/iobundlengvectorriterator.html" xlink:title="IoBundleNGVectorRIterator">
-<polygon fill="#5cb85c" stroke="#5cb85c" points="755.5,-229 598.5,-229 598.5,-205 755.5,-205 755.5,-229"/>
-<text text-anchor="middle" x="677" y="-214.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IoBundleNGVectorRIterator</text>
-</a>
-</g>
-</g>
-<!-- type~iobundlengvectorriterator&#45;&gt;type~extdatang_iobundle -->
-<g id="type~~timedata~~InheritedByGraph_edge23" class="edge">
-<title>type~iobundlengvectorriterator&#45;&gt;type~extdatang_iobundle</title>
-<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M616.79,-229.06C587.28,-236.15 551.48,-246.42 521,-260 512.64,-263.72 511.36,-266.27 503,-270 498.86,-271.85 494.5,-273.63 490.11,-275.33"/>
-<polygon fill="#ffff00" stroke="#ffff00" points="488.63,-272.15 480.47,-278.91 491.06,-278.71 488.63,-272.15"/>
-<text text-anchor="middle" x="544" y="-262.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
-</g>
-<!-- type~iobundlevector -->
-<g id="type~~timedata~~InheritedByGraph_node17" class="node">
-<title>type~iobundlevector</title>
-<g id="a_type~~timedata~~InheritedByGraph_node17"><a xlink:href="../type/iobundlevector.html" xlink:title="IoBundleVector">
-<polygon fill="#5cb85c" stroke="#5cb85c" points="724,-439 630,-439 630,-415 724,-415 724,-439"/>
-<text text-anchor="middle" x="677" y="-424.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IoBundleVector</text>
-</a>
-</g>
-</g>
-<!-- type~iobundlevector&#45;&gt;type~extdata_iobundle -->
-<g id="type~~timedata~~InheritedByGraph_edge18" class="edge">
-<title>type~iobundlevector&#45;&gt;type~extdata_iobundle</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M629.93,-417.35C615.47,-414.06 599.5,-410.15 585,-406 556.08,-397.72 549.29,-394.23 521,-384 508.48,-379.47 494.91,-374.39 482.61,-369.7"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="483.65,-366.35 473.06,-366.06 481.15,-372.89 483.65,-366.35"/>
-<text text-anchor="middle" x="544" y="-402.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
-</g>
-<!-- type~iobundlevectoriterator -->
-<g id="type~~timedata~~InheritedByGraph_node18" class="node">
-<title>type~iobundlevectoriterator</title>
-<g id="a_type~~timedata~~InheritedByGraph_node18"><a xlink:href="../type/iobundlevectoriterator.html" xlink:title="IoBundleVectorIterator">
-<polygon fill="#5cb85c" stroke="#5cb85c" points="743.5,-397 610.5,-397 610.5,-373 743.5,-373 743.5,-397"/>
-<text text-anchor="middle" x="677" y="-382.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IoBundleVectorIterator</text>
-</a>
-</g>
-</g>
-<!-- type~iobundlevectoriterator&#45;&gt;type~extdata_iobundle -->
-<g id="type~~timedata~~InheritedByGraph_edge19" class="edge">
-<title>type~iobundlevectoriterator&#45;&gt;type~extdata_iobundle</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M610.2,-376.28C577.26,-371.92 537.59,-366.66 505.04,-362.35"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="505.12,-358.83 494.74,-360.99 504.2,-365.77 505.12,-358.83"/>
-<text text-anchor="middle" x="544" y="-372.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
-</g>
-<!-- type~iobundlevectorriterator -->
-<g id="type~~timedata~~InheritedByGraph_node19" class="node">
-<title>type~iobundlevectorriterator</title>
-<g id="a_type~~timedata~~InheritedByGraph_node19"><a xlink:href="../type/iobundlevectorriterator.html" xlink:title="IoBundleVectorRIterator">
-<polygon fill="#5cb85c" stroke="#5cb85c" points="747.5,-355 606.5,-355 606.5,-331 747.5,-331 747.5,-355"/>
-<text text-anchor="middle" x="677" y="-340.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IoBundleVectorRIterator</text>
-</a>
-</g>
-</g>
-<!-- type~iobundlevectorriterator&#45;&gt;type~extdata_iobundle -->
-<g id="type~~timedata~~InheritedByGraph_edge20" class="edge">
-<title>type~iobundlevectorriterator&#45;&gt;type~extdata_iobundle</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M606.43,-346.27C574.23,-347.78 536.27,-349.57 504.93,-351.04"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="504.4,-347.56 494.58,-351.53 504.73,-354.55 504.4,-347.56"/>
-<text text-anchor="middle" x="544" y="-352.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
-</g>
-</g>
-</svg>
-</div>                <script>
-                  var pantypetimedataInheritedByGraph = svgPanZoom('#typetimedataInheritedByGraph',
-                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
-                  );
-                </script>          <div>
-            <a type="button" class="graph-help" data-bs-toggle="modal" href="#InheritedByGraph-help-text">Help</a>
-          </div>
-          <div class="modal fade" id="InheritedByGraph-help-text" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-lg" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-<p>Nodes of different colours represent the following: </p>
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: Graph Key Pages: 1 -->
-<svg width="186pt" height="32pt"
- viewBox="0.00 0.00 185.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
-<title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 181.5,-28 181.5,4 -4,4"/>
-<!-- Type -->
-<g id="node1" class="node">
-<title>Type</title>
-<polygon fill="#5cb85c" stroke="#5cb85c" points="54,-24 0,-24 0,0 54,0 54,-24"/>
-<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type</text>
-</g>
-<!-- This Page&#39;s Entity -->
-<g id="node2" class="node">
-<title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="177.5,-24 72.5,-24 72.5,0 177.5,0 177.5,-24"/>
-<text text-anchor="middle" x="125" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
-</g>
-</g>
-</svg>
-
-<p>Solid arrows point from a derived type to the parent type which it
-extends. Dashed arrows point from a derived type to the other
-types it contains as a components, with a label listing the name(s) of
-said component(s).
-</p>
- Where possible, edges connecting nodes are
-given different colours to make them easier to distinguish in
-large graphs.</div>
-            </div>
-          </div>
-        </div>
-        </div>
-      </div>
     <br>
 
     <section>
@@ -768,7 +239,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-frequency~4"></span>
+              <span class="anchor" id="variable-frequency~5"></span>
               integer,
             </td>
               <td>public</td>
@@ -785,7 +256,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ntime~3"></span>
+              <span class="anchor" id="variable-ntime~2"></span>
               integer,
             </td>
               <td>public</td>
@@ -819,7 +290,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-integer_time~3"></span>
+              <span class="anchor" id="variable-integer_time"></span>
               logical,
             </td>
               <td>public</td>
@@ -853,7 +324,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-clock~52"></span>
+              <span class="anchor" id="variable-clock~33"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
             </td>
               <td>public</td>
@@ -870,7 +341,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-offset~40"></span>
+              <span class="anchor" id="variable-offset~29"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
             </td>
               <td>public</td>
@@ -937,7 +408,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-clock~53"></span>
+              <span class="anchor" id="variable-clock~34"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
             </td>
 <td>intent(inout)</td>
@@ -952,7 +423,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ntime~4"></span>
+              <span class="anchor" id="variable-ntime~3"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -967,7 +438,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-frequency~5"></span>
+              <span class="anchor" id="variable-frequency~6"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -982,7 +453,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-offset~41"></span>
+              <span class="anchor" id="variable-offset~30"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>)
             </td>
 <td></td>
@@ -1012,7 +483,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-integer_time~4"></span>
+              <span class="anchor" id="variable-integer_time~2"></span>
               logical,
             </td>
 <td>intent(in),</td>
@@ -1027,7 +498,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1626"></span>
+              <span class="anchor" id="variable-rc~1286"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1069,9 +540,9 @@ large graphs.</div>
         
       </h3>
     </div>
-    <ul class="list-group">
-        <li class="list-group-item">
-                  <h3>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
     private  subroutine add_time_to_metadata(this, metadata, rc)  
 </h3>
 
@@ -1137,8 +608,8 @@ large graphs.</div>
   </table>
 
 
-        </li>
-    </ul>
+          </li>
+      </ul>
   </div>
 
           </div>
@@ -1152,9 +623,9 @@ large graphs.</div>
         
       </h3>
     </div>
-    <ul class="list-group">
-        <li class="list-group-item">
-                  <h3>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
     private  function am_i_initialized(this) result(logical_temp)  
 </h3>
 
@@ -1195,8 +666,8 @@ large graphs.</div>
     </h4>
     
 
-        </li>
-    </ul>
+          </li>
+      </ul>
   </div>
 
           </div>
@@ -1210,9 +681,9 @@ large graphs.</div>
         
       </h3>
     </div>
-    <ul class="list-group">
-        <li class="list-group-item">
-                  <h3>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
     private  function compute_time_vector(this, metadata, rc) result(times)  
 </h3>
 
@@ -1283,8 +754,8 @@ large graphs.</div>
     </h4>
     
 
-        </li>
-    </ul>
+          </li>
+      </ul>
   </div>
 
           </div>
@@ -1298,9 +769,9 @@ large graphs.</div>
         
       </h3>
     </div>
-    <ul class="list-group">
-        <li class="list-group-item">
-                  <h3>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
     private  function define_time_variable(this, rc) result(v)  
 </h3>
 
@@ -1356,24 +827,24 @@ large graphs.</div>
     </h4>
     
 
-        </li>
-    </ul>
+          </li>
+      </ul>
   </div>
 
           </div>
           <div class="row">
               <div class="card mt-3">
     <div class="card-header codesum">
-      <span class="anchor" id="boundprocedure-get~147"></span>
+      <span class="anchor" id="boundprocedure-get~140"></span>
       <h3>
           procedure, public ::
   <strong>get</strong>
         
       </h3>
     </div>
-    <ul class="list-group">
-        <li class="list-group-item">
-                  <h3>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
     private  subroutine get(this, clock, rc)  
 </h3>
 
@@ -1439,8 +910,8 @@ large graphs.</div>
   </table>
 
 
-        </li>
-    </ul>
+          </li>
+      </ul>
   </div>
 
           </div>
@@ -1454,9 +925,9 @@ large graphs.</div>
         
       </h3>
     </div>
-    <ul class="list-group">
-        <li class="list-group-item">
-                  <h3>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
     private  function get_start_time(this, metadata, rc) result(startTime)  
 </h3>
 
@@ -1527,8 +998,8 @@ large graphs.</div>
     </h4>
     
 
-        </li>
-    </ul>
+          </li>
+      </ul>
   </div>
 
           </div>
@@ -1542,9 +1013,9 @@ large graphs.</div>
         
       </h3>
     </div>
-    <ul class="list-group">
-        <li class="list-group-item">
-                  <h3>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
     private  subroutine setFrequency(this, frequency, rc)  
 </h3>
 
@@ -1610,8 +1081,8 @@ large graphs.</div>
   </table>
 
 
-        </li>
-    </ul>
+          </li>
+      </ul>
   </div>
 
           </div>
@@ -1660,33 +1131,11 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2025-01-07T13:41:21.015380+0000             </p>
+ on 2025-05-29T13:40:13.393381+0000             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
-
-    <!-- Bootstrap core JavaScript -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
-
-    <!-- MathJax JavaScript
-             ================================================== -->
-             <!-- Placed at the end of the document so the pages load faster -->
-        <script type="text/x-mathjax-config">
-          MathJax.Hub.Config({
-          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
-          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
-          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
-          });
-        </script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-          <script src="../tipuesearch/tipuesearch_content.js"></script>
-          <script src="../tipuesearch/tipuesearch_set.js"></script>
-          <script src="../tipuesearch/tipuesearch.js"></script>
-
   </body>
 </html>
