@@ -1,0 +1,948 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>get_actual_timer_name &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>get_actual_timer_name
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">5 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_Generic.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_generic.f90.html'>MAPL_Generic.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_genericmod.html'>MAPL_GenericMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">get_actual_timer_name</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/get_actual_timer_name.html#src">get_actual_timer_name</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  function get_actual_timer_name(name) result(actual_name)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-name~211"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-actual_name"></span>
+          character(len=:), allocatable
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_actual_timer_name~~CalledByGraph Pages: 1 -->
+<svg id="procget_actual_timer_nameCalledByGraph" width="641pt" height="661pt"
+ viewBox="0.00 0.00 641.00 661.47" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_actual_timer_name~~CalledByGraph" class="graph" transform="scale(0.66 0.66) rotate(0) translate(4 1002.13)">
+<title>proc~~get_actual_timer_name~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-1002.13 971,-1002.13 971,4 -4,4"/>
+<!-- proc~get_actual_timer_name -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node1" class="node">
+<title>proc~get_actual_timer_name</title>
+<polygon fill="none" stroke="black" points="967,-591 829,-591 829,-567 967,-567 967,-591"/>
+<text text-anchor="middle" x="898" y="-576.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_actual_timer_name</text>
+</g>
+<!-- proc~mapl_genericstateclockoff -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node2" class="node">
+<title>proc~mapl_genericstateclockoff</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node2"><a xlink:href="../proc/mapl_genericstateclockoff.html" xlink:title="MAPL_GenericStateClockOff">
+<polygon fill="#d9534f" stroke="#d9534f" points="793,-643 632,-643 632,-619 793,-619 793,-643"/>
+<text text-anchor="middle" x="712.5" y="-628.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericStateClockOff</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericstateclockoff&#45;&gt;proc~get_actual_timer_name -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge1" class="edge">
+<title>proc~mapl_genericstateclockoff&#45;&gt;proc~get_actual_timer_name</title>
+<path fill="none" stroke="#ff0000" d="M756.06,-618.94C782.48,-611.45 816.64,-601.77 844.7,-593.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="845.69,-597.18 854.35,-591.09 843.78,-590.44 845.69,-597.18"/>
+</g>
+<!-- proc~mapl_genericstateclockon -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node3" class="node">
+<title>proc~mapl_genericstateclockon</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node3"><a xlink:href="../proc/mapl_genericstateclockon.html" xlink:title="MAPL_GenericStateClockOn">
+<polygon fill="#d9534f" stroke="#d9534f" points="792.5,-570 632.5,-570 632.5,-546 792.5,-546 792.5,-570"/>
+<text text-anchor="middle" x="712.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericStateClockOn</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericstateclockon&#45;&gt;proc~get_actual_timer_name -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_genericstateclockon&#45;&gt;proc~get_actual_timer_name</title>
+<path fill="none" stroke="#ff0000" d="M792.65,-567.06C801.3,-568.05 810.09,-569.05 818.73,-570.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="818.44,-573.53 828.77,-571.19 819.23,-566.58 818.44,-573.53"/>
+</g>
+<!-- interface~mapl_timeroff -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node4" class="node">
+<title>interface~mapl_timeroff</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node4"><a xlink:href="../interface/mapl_timeroff.html" xlink:title="MAPL_TimerOff">
+<polygon fill="#a7506f" stroke="#a7506f" points="596,-659 503,-659 503,-635 596,-635 596,-659"/>
+<text text-anchor="middle" x="549.5" y="-644.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TimerOff</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_timeroff&#45;&gt;proc~mapl_genericstateclockoff -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge3" class="edge">
+<title>interface~mapl_timeroff&#45;&gt;proc~mapl_genericstateclockoff</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M596.21,-642.46C604.31,-641.65 613,-640.79 621.84,-639.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="622.25,-643.39 631.85,-638.92 621.56,-636.42 622.25,-643.39"/>
+</g>
+<!-- interface~mapl_timeron -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node5" class="node">
+<title>interface~mapl_timeron</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node5"><a xlink:href="../interface/mapl_timeron.html" xlink:title="MAPL_TimerOn">
+<polygon fill="#a7506f" stroke="#a7506f" points="595.5,-507 503.5,-507 503.5,-483 595.5,-483 595.5,-507"/>
+<text text-anchor="middle" x="549.5" y="-492.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TimerOn</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_timeron&#45;&gt;proc~mapl_genericstateclockon -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge4" class="edge">
+<title>interface~mapl_timeron&#45;&gt;proc~mapl_genericstateclockon</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M581.54,-507.15C607.13,-517.16 643.59,-531.43 671.39,-542.3"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="670.24,-545.61 680.83,-546 672.79,-539.09 670.24,-545.61"/>
+</g>
+<!-- proc~append_file~2 -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node6" class="node">
+<title>proc~append_file~2</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node6"><a xlink:href="../proc/append_file~2.html" xlink:title="StationSampler%append_file">
+<polygon fill="#d9534f" stroke="#d9534f" points="463,-841 296,-841 296,-817 463,-817 463,-841"/>
+<text text-anchor="middle" x="379.5" y="-826.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StationSampler%append_file</text>
+</a>
+</g>
+</g>
+<!-- proc~append_file~2&#45;&gt;interface~mapl_timeroff -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge5" class="edge">
+<title>proc~append_file~2&#45;&gt;interface~mapl_timeroff</title>
+<path fill="none" stroke="#ff0000" d="M442.66,-816.98C451.43,-813.45 459.87,-808.89 467,-803 510.14,-767.34 533.27,-702.84 542.94,-669.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="546.37,-669.78 545.61,-659.21 539.61,-667.94 546.37,-669.78"/>
+</g>
+<!-- proc~append_file~2&#45;&gt;interface~mapl_timeron -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge21" class="edge">
+<title>proc~append_file~2&#45;&gt;interface~mapl_timeron</title>
+<path fill="none" stroke="#00ffff" d="M407.9,-816.92C427.24,-807.01 452.24,-791.18 467,-770 504.72,-715.87 484.16,-689.22 503,-626 514.6,-587.06 530.68,-542.54 540.29,-516.71"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="543.64,-517.75 543.87,-507.16 537.08,-515.3 543.64,-517.75"/>
+</g>
+<!-- proc~create_geosat_grid_find_mask -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node7" class="node">
+<title>proc~create_geosat_grid_find_mask</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node7"><a xlink:href="../proc/create_geosat_grid_find_mask.html" xlink:title="create_Geosat_grid_find_mask">
+<polygon fill="#d9534f" stroke="#d9534f" points="467,-411 292,-411 292,-387 467,-387 467,-411"/>
+<text text-anchor="middle" x="379.5" y="-396.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">create_Geosat_grid_find_mask</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;interface~mapl_timeroff -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge6" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;interface~mapl_timeroff</title>
+<path fill="none" stroke="#ff0000" d="M405.73,-411.19C424.71,-421.44 450.23,-437.67 467,-458 489.26,-485 525.16,-581.31 540.8,-625.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="537.6,-626.51 544.24,-634.76 544.2,-624.16 537.6,-626.51"/>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;interface~mapl_timeron -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge22" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;interface~mapl_timeron</title>
+<path fill="none" stroke="#00ffff" d="M433.61,-411.14C444.99,-414.78 456.68,-419.35 467,-425 491.24,-438.27 514.73,-459.63 530.21,-475.27"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="528.07,-478.09 537.53,-482.85 533.1,-473.23 528.07,-478.09"/>
+</g>
+<!-- proc~initialize_ -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node8" class="node">
+<title>proc~initialize_</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node8"><a xlink:href="../proc/initialize_.html" xlink:title="Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="159,-360 97,-360 97,-336 159,-336 159,-360"/>
+<text text-anchor="middle" x="128" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_&#45;&gt;interface~mapl_timeroff -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge7" class="edge">
+<title>proc~initialize_&#45;&gt;interface~mapl_timeroff</title>
+<path fill="none" stroke="#ff0000" d="M159.04,-343.48C188.35,-340.95 231.95,-342.54 256,-369 334.37,-455.2 206.84,-812.5 292,-892 320.43,-918.54 435.46,-914.75 467,-892 539.84,-839.47 548.59,-719.1 548.95,-669.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="552.45,-669.2 548.91,-659.21 545.45,-669.23 552.45,-669.2"/>
+</g>
+<!-- proc~initialize_&#45;&gt;interface~mapl_timeron -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge23" class="edge">
+<title>proc~initialize_&#45;&gt;interface~mapl_timeron</title>
+<path fill="none" stroke="#00ffff" d="M159.05,-345.72C231.83,-340.76 415.41,-331.69 467,-362 508.77,-386.54 531.96,-441.74 542.14,-472.76"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="538.9,-474.12 545.21,-482.63 545.59,-472.04 538.9,-474.12"/>
+</g>
+<!-- proc~mapl_genericinitialize -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node12" class="node">
+<title>proc~mapl_genericinitialize</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node12"><a xlink:href="../proc/mapl_genericinitialize.html" xlink:title="MAPL_GenericInitialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="446,-255 313,-255 313,-231 446,-231 446,-255"/>
+<text text-anchor="middle" x="379.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericInitialize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge43" class="edge">
+<title>proc~initialize_&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#00ff1e" d="M159.25,-346.7C185.62,-344.7 224.49,-339.68 256,-327 276.69,-318.68 325.32,-283.27 354.71,-261.17"/>
+<polygon fill="#00ff1e" stroke="#00ff1e" points="356.94,-263.87 362.8,-255.05 352.72,-258.29 356.94,-263.87"/>
+</g>
+<!-- proc~initialize_~3 -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node9" class="node">
+<title>proc~initialize_~3</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node9"><a xlink:href="../proc/initialize_~3.html" xlink:title="Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="159,-402 97,-402 97,-378 159,-378 159,-402"/>
+<text text-anchor="middle" x="128" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_~3&#45;&gt;interface~mapl_timeroff -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge8" class="edge">
+<title>proc~initialize_~3&#45;&gt;interface~mapl_timeroff</title>
+<path fill="none" stroke="#ff0000" d="M159.03,-385.49C188.34,-382.96 231.93,-384.56 256,-411 333.07,-495.68 208.25,-846.91 292,-925 348.89,-978.04 404.75,-971.62 467,-925 508.88,-893.64 536.52,-729.64 545.4,-669.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="548.88,-669.7 546.84,-659.3 541.95,-668.7 548.88,-669.7"/>
+</g>
+<!-- proc~initialize_~3&#45;&gt;interface~mapl_timeron -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge24" class="edge">
+<title>proc~initialize_~3&#45;&gt;interface~mapl_timeron</title>
+<path fill="none" stroke="#00ffff" d="M159.13,-385.2C231.7,-374.24 414.04,-350.35 467,-378 505.33,-398.01 529.3,-445.19 540.66,-473.14"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="537.53,-474.75 544.4,-482.82 544.06,-472.23 537.53,-474.75"/>
+</g>
+<!-- proc~initialize_~3&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge44" class="edge">
+<title>proc~initialize_~3&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#00ff1e" d="M159.15,-390.24C185.99,-389.28 225.6,-384.89 256,-369 304.31,-343.75 344.85,-292.37 364.94,-263.64"/>
+<polygon fill="#00ff1e" stroke="#00ff1e" points="367.98,-265.39 370.73,-255.16 362.2,-261.45 367.98,-265.39"/>
+</g>
+<!-- proc~initialize~2 -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node10" class="node">
+<title>proc~initialize~2</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node10"><a xlink:href="../proc/initialize~2.html" xlink:title="Initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="156.5,-318 99.5,-318 99.5,-294 156.5,-294 156.5,-318"/>
+<text text-anchor="middle" x="128" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize~2&#45;&gt;interface~mapl_timeroff -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge9" class="edge">
+<title>proc~initialize~2&#45;&gt;interface~mapl_timeroff</title>
+<path fill="none" stroke="#ff0000" d="M156.53,-301.76C185.76,-298.99 231.1,-299.95 256,-327 322.89,-399.67 219.39,-703.05 292,-770 349.18,-822.72 398.48,-806.8 467,-770 506.8,-748.63 530.44,-698.34 541.3,-669.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="544.7,-669.98 544.73,-659.38 538.1,-667.65 544.7,-669.98"/>
+</g>
+<!-- proc~initialize~2&#45;&gt;interface~mapl_timeron -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge25" class="edge">
+<title>proc~initialize~2&#45;&gt;interface~mapl_timeron</title>
+<path fill="none" stroke="#00ffff" d="M156.88,-300.26C218.7,-289.17 369.51,-271.3 467,-337 514.55,-369.05 536.01,-437.79 544.2,-473.09"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="540.79,-473.87 546.33,-482.9 547.63,-472.38 540.79,-473.87"/>
+</g>
+<!-- proc~initialize~2&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge47" class="edge">
+<title>proc~initialize~2&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#00ff1e" d="M156.71,-303.47C182.75,-300.61 222.6,-295 256,-285 272.77,-279.98 275.58,-275.09 292,-269 302.47,-265.12 313.81,-261.38 324.72,-258.02"/>
+<polygon fill="#00ff1e" stroke="#00ff1e" points="326.02,-261.28 334.58,-255.03 324,-254.58 326.02,-261.28"/>
+</g>
+<!-- proc~mapl_genericfinalize -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node11" class="node">
+<title>proc~mapl_genericfinalize</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node11"><a xlink:href="../proc/mapl_genericfinalize.html" xlink:title="MAPL_GenericFinalize">
+<polygon fill="#d9534f" stroke="#d9534f" points="443.5,-150 315.5,-150 315.5,-126 443.5,-126 443.5,-150"/>
+<text text-anchor="middle" x="379.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericFinalize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericfinalize&#45;&gt;interface~mapl_timeroff -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge10" class="edge">
+<title>proc~mapl_genericfinalize&#45;&gt;interface~mapl_timeroff</title>
+<path fill="none" stroke="#ff0000" d="M398.96,-150.05C419.38,-164.48 451.45,-190.69 467,-222 525.55,-339.9 473.24,-387.77 503,-516 512.19,-555.58 529.03,-599.9 539.45,-625.51"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="536.3,-627.06 543.35,-634.97 542.77,-624.4 536.3,-627.06"/>
+</g>
+<!-- proc~mapl_genericfinalize&#45;&gt;interface~mapl_timeron -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge26" class="edge">
+<title>proc~mapl_genericfinalize&#45;&gt;interface~mapl_timeron</title>
+<path fill="none" stroke="#00ffff" d="M397.33,-150.03C416.84,-164.83 448.66,-191.75 467,-222 518.04,-306.17 538.97,-424.44 545.77,-472.94"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="542.31,-473.51 547.11,-482.96 549.25,-472.58 542.31,-473.51"/>
+</g>
+<!-- proc~mapl_genericinitialize&#45;&gt;interface~mapl_timeroff -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge11" class="edge">
+<title>proc~mapl_genericinitialize&#45;&gt;interface~mapl_timeroff</title>
+<path fill="none" stroke="#ff0000" d="M390.28,-255.27C408.03,-278.12 445.68,-329.29 467,-378 492.41,-436.07 484.59,-455.35 503,-516 514.8,-554.88 530.82,-599.42 540.36,-625.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="537.15,-626.67 543.91,-634.82 543.71,-624.23 537.15,-626.67"/>
+</g>
+<!-- proc~mapl_genericinitialize&#45;&gt;interface~mapl_timeron -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge27" class="edge">
+<title>proc~mapl_genericinitialize&#45;&gt;interface~mapl_timeron</title>
+<path fill="none" stroke="#00ffff" d="M445.59,-255.14C453.45,-258.65 460.85,-263.18 467,-269 526.32,-325.19 542.58,-427.72 546.94,-472.77"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="543.47,-473.26 547.81,-482.92 550.44,-472.66 543.47,-473.26"/>
+</g>
+<!-- proc~mapl_genericrecord -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node13" class="node">
+<title>proc~mapl_genericrecord</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node13"><a xlink:href="../proc/mapl_genericrecord.html" xlink:title="MAPL_GenericRecord">
+<polygon fill="#d9534f" stroke="#d9534f" points="442.5,-617 316.5,-617 316.5,-593 442.5,-593 442.5,-617"/>
+<text text-anchor="middle" x="379.5" y="-602.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericRecord</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericrecord&#45;&gt;interface~mapl_timeroff -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge12" class="edge">
+<title>proc~mapl_genericrecord&#45;&gt;interface~mapl_timeroff</title>
+<path fill="none" stroke="#ff0000" d="M430.84,-617.1C442.71,-619.98 455.31,-623.07 467,-626 475.44,-628.11 484.37,-630.38 493.1,-632.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="492.28,-636.02 502.84,-635.11 494.02,-629.24 492.28,-636.02"/>
+</g>
+<!-- proc~mapl_genericrecord&#45;&gt;interface~mapl_timeron -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge28" class="edge">
+<title>proc~mapl_genericrecord&#45;&gt;interface~mapl_timeron</title>
+<path fill="none" stroke="#00ffff" d="M442.75,-594.64C451.22,-591.88 459.55,-588.4 467,-584 496.07,-566.82 520.83,-536 535.2,-515.52"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="538.14,-517.43 540.87,-507.19 532.35,-513.49 538.14,-517.43"/>
+</g>
+<!-- proc~mapl_genericrefresh -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node14" class="node">
+<title>proc~mapl_genericrefresh</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node14"><a xlink:href="../proc/mapl_genericrefresh.html" xlink:title="MAPL_GenericRefresh">
+<polygon fill="#d9534f" stroke="#d9534f" points="443.5,-743 315.5,-743 315.5,-719 443.5,-719 443.5,-743"/>
+<text text-anchor="middle" x="379.5" y="-728.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericRefresh</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericrefresh&#45;&gt;interface~mapl_timeroff -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge13" class="edge">
+<title>proc~mapl_genericrefresh&#45;&gt;interface~mapl_timeroff</title>
+<path fill="none" stroke="#ff0000" d="M443.95,-718.88C451.89,-716.42 459.76,-713.48 467,-710 490.33,-698.78 513.34,-680.11 528.93,-665.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="531.41,-668.46 536.36,-659.09 526.65,-663.33 531.41,-668.46"/>
+</g>
+<!-- proc~mapl_genericrefresh&#45;&gt;interface~mapl_timeron -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge29" class="edge">
+<title>proc~mapl_genericrefresh&#45;&gt;interface~mapl_timeron</title>
+<path fill="none" stroke="#00ffff" d="M443.63,-723.39C452.17,-720.25 460.28,-715.93 467,-710 474.66,-703.23 522.24,-569.64 540.96,-516.51"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="544.28,-517.62 544.29,-507.02 537.67,-515.3 544.28,-517.62"/>
+</g>
+<!-- proc~mapl_genericrefresh&#45;&gt;proc~mapl_genericrefresh -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge49" class="edge">
+<title>proc~mapl_genericrefresh&#45;&gt;proc~mapl_genericrefresh</title>
+<path fill="none" stroke="#00ffd1" d="M351.39,-743.01C341.58,-751.97 350.95,-761 379.5,-761 397.35,-761 407.7,-757.47 410.56,-752.64"/>
+<polygon fill="#00ffd1" stroke="#00ffd1" points="413.88,-751.55 407.61,-743.01 407.19,-753.6 413.88,-751.55"/>
+</g>
+<!-- proc~mapl_genericrunchildren -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node15" class="node">
+<title>proc~mapl_genericrunchildren</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node15"><a xlink:href="../proc/mapl_genericrunchildren.html" xlink:title="MAPL_GenericRunChildren">
+<polygon fill="#d9534f" stroke="#d9534f" points="456,-701 303,-701 303,-677 456,-677 456,-701"/>
+<text text-anchor="middle" x="379.5" y="-686.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericRunChildren</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericrunchildren&#45;&gt;interface~mapl_timeroff -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge14" class="edge">
+<title>proc~mapl_genericrunchildren&#45;&gt;interface~mapl_timeroff</title>
+<path fill="none" stroke="#ff0000" d="M430.84,-676.9C442.71,-674.02 455.31,-670.93 467,-668 475.44,-665.89 484.37,-663.62 493.1,-661.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="494.02,-664.76 502.84,-658.89 492.28,-657.98 494.02,-664.76"/>
+</g>
+<!-- proc~mapl_genericrunchildren&#45;&gt;interface~mapl_timeron -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge30" class="edge">
+<title>proc~mapl_genericrunchildren&#45;&gt;interface~mapl_timeron</title>
+<path fill="none" stroke="#00ffff" d="M452.8,-676.92C457.88,-674.46 462.69,-671.52 467,-668 515.23,-628.65 536.53,-554.14 544.48,-517.08"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="547.91,-517.77 546.45,-507.27 541.05,-516.38 547.91,-517.77"/>
+</g>
+<!-- proc~mapl_genericstaterestore -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node16" class="node">
+<title>proc~mapl_genericstaterestore</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node16"><a xlink:href="../proc/mapl_genericstaterestore.html" xlink:title="MAPL_GenericStateRestore">
+<polygon fill="#d9534f" stroke="#d9534f" points="457.5,-57 301.5,-57 301.5,-33 457.5,-33 457.5,-57"/>
+<text text-anchor="middle" x="379.5" y="-42.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericStateRestore</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericstaterestore&#45;&gt;interface~mapl_timeron -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge31" class="edge">
+<title>proc~mapl_genericstaterestore&#45;&gt;interface~mapl_timeron</title>
+<path fill="none" stroke="#00ffff" d="M402.17,-57.2C422.18,-69.62 451.11,-90.76 467,-117 539.35,-236.47 547.93,-411.42 548.61,-472.76"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="545.11,-472.87 548.66,-482.85 552.11,-472.84 545.11,-472.87"/>
+</g>
+<!-- proc~mapl_genericstaterestore&#45;&gt;proc~mapl_genericstaterestore -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge50" class="edge">
+<title>proc~mapl_genericstaterestore&#45;&gt;proc~mapl_genericstaterestore</title>
+<path fill="none" stroke="#0078ff" d="M351.39,-57.01C341.58,-65.97 350.95,-75 379.5,-75 397.35,-75 407.7,-71.47 410.56,-66.64"/>
+<polygon fill="#0078ff" stroke="#0078ff" points="413.88,-65.55 407.61,-57.01 407.19,-67.6 413.88,-65.55"/>
+</g>
+<!-- proc~mapl_genericwrapper -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node17" class="node">
+<title>proc~mapl_genericwrapper</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node17"><a xlink:href="../proc/mapl_genericwrapper.html" xlink:title="MAPL_GenericWrapper">
+<polygon fill="#d9534f" stroke="#d9534f" points="446.5,-491 312.5,-491 312.5,-467 446.5,-467 446.5,-491"/>
+<text text-anchor="middle" x="379.5" y="-476.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericWrapper</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericwrapper&#45;&gt;interface~mapl_timeroff -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge15" class="edge">
+<title>proc~mapl_genericwrapper&#45;&gt;interface~mapl_timeroff</title>
+<path fill="none" stroke="#ff0000" d="M446.89,-488.98C454.09,-491.81 460.98,-495.41 467,-500 509.12,-532.11 532.48,-592.57 542.51,-625.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="539.23,-626.3 545.41,-634.91 545.95,-624.33 539.23,-626.3"/>
+</g>
+<!-- proc~mapl_genericwrapper&#45;&gt;interface~mapl_timeron -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge32" class="edge">
+<title>proc~mapl_genericwrapper&#45;&gt;interface~mapl_timeron</title>
+<path fill="none" stroke="#00ffff" d="M446.9,-485.32C462.25,-486.79 478.42,-488.33 493.24,-489.74"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="492.96,-493.23 503.25,-490.69 493.63,-486.26 492.96,-493.23"/>
+</g>
+<!-- proc~regrid_append_file -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node18" class="node">
+<title>proc~regrid_append_file</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node18"><a xlink:href="../proc/regrid_append_file.html" xlink:title="regrid_append_file">
+<polygon fill="#d9534f" stroke="#d9534f" points="435.5,-883 323.5,-883 323.5,-859 435.5,-859 435.5,-883"/>
+<text text-anchor="middle" x="379.5" y="-868.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">regrid_append_file</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_append_file&#45;&gt;interface~mapl_timeroff -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge16" class="edge">
+<title>proc~regrid_append_file&#45;&gt;interface~mapl_timeroff</title>
+<path fill="none" stroke="#ff0000" d="M435.94,-865.73C447.19,-862.53 458.24,-857.59 467,-850 522.35,-802.08 540.55,-711.22 546.17,-669.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="549.65,-669.6 547.39,-659.25 542.71,-668.75 549.65,-669.6"/>
+</g>
+<!-- proc~regrid_append_file&#45;&gt;interface~mapl_timeron -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge33" class="edge">
+<title>proc~regrid_append_file&#45;&gt;interface~mapl_timeron</title>
+<path fill="none" stroke="#00ffff" d="M435.94,-867.5C447.59,-864.26 458.82,-858.85 467,-850 535.44,-775.95 478.36,-723.78 503,-626 512.93,-586.6 529.54,-542.22 539.71,-516.55"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="543.04,-517.65 543.51,-507.06 536.54,-515.04 543.04,-517.65"/>
+</g>
+<!-- proc~run_ -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node19" class="node">
+<title>proc~run_</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node19"><a xlink:href="../proc/run_.html" xlink:title="Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="406.5,-533 352.5,-533 352.5,-509 406.5,-509 406.5,-533"/>
+<text text-anchor="middle" x="379.5" y="-518.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;interface~mapl_timeroff -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge17" class="edge">
+<title>proc~run_&#45;&gt;interface~mapl_timeroff</title>
+<path fill="none" stroke="#ff0000" d="M406.89,-522.84C425.02,-525.14 448.97,-530.33 467,-542 499.52,-563.05 524.44,-601.64 537.74,-625.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="534.77,-627.59 542.56,-634.76 540.94,-624.29 534.77,-627.59"/>
+</g>
+<!-- proc~run_&#45;&gt;interface~mapl_timeron -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge34" class="edge">
+<title>proc~run_&#45;&gt;interface~mapl_timeron</title>
+<path fill="none" stroke="#00ffff" d="M406.75,-516.94C429.86,-513.36 464.29,-508.03 493.42,-503.52"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="494.13,-506.96 503.48,-501.97 493.06,-500.04 494.13,-506.96"/>
+</g>
+<!-- proc~run_~3 -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node20" class="node">
+<title>proc~run_~3</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node20"><a xlink:href="../proc/run_~3.html" xlink:title="Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="406.5,-659 352.5,-659 352.5,-635 406.5,-635 406.5,-659"/>
+<text text-anchor="middle" x="379.5" y="-644.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_~3&#45;&gt;interface~mapl_timeroff -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge18" class="edge">
+<title>proc~run_~3&#45;&gt;interface~mapl_timeroff</title>
+<path fill="none" stroke="#ff0000" d="M406.75,-647C429.7,-647 463.8,-647 492.8,-647"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="492.82,-650.5 502.82,-647 492.82,-643.5 492.82,-650.5"/>
+</g>
+<!-- proc~run_~3&#45;&gt;interface~mapl_timeron -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge35" class="edge">
+<title>proc~run_~3&#45;&gt;interface~mapl_timeron</title>
+<path fill="none" stroke="#00ffff" d="M406.89,-645.78C425.24,-643.77 449.47,-638.68 467,-626 505.44,-598.2 529.7,-546.16 541,-516.73"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="544.29,-517.93 544.46,-507.34 537.72,-515.51 544.29,-517.93"/>
+</g>
+<!-- proc~run_~5 -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node21" class="node">
+<title>proc~run_~5</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node21"><a xlink:href="../proc/run_~5.html" xlink:title="Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="406.5,-575 352.5,-575 352.5,-551 406.5,-551 406.5,-575"/>
+<text text-anchor="middle" x="379.5" y="-560.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_~5&#45;&gt;interface~mapl_timeroff -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge19" class="edge">
+<title>proc~run_~5&#45;&gt;interface~mapl_timeroff</title>
+<path fill="none" stroke="#ff0000" d="M406.83,-566.45C424.49,-569.46 447.92,-574.83 467,-584 490.33,-595.22 513.34,-613.89 528.93,-628.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="526.65,-630.67 536.36,-634.91 531.41,-625.54 526.65,-630.67"/>
+</g>
+<!-- proc~run_~5&#45;&gt;interface~mapl_timeron -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge36" class="edge">
+<title>proc~run_~5&#45;&gt;interface~mapl_timeron</title>
+<path fill="none" stroke="#00ffff" d="M406.84,-558.63C424.29,-555.25 447.49,-549.81 467,-542 486.4,-534.24 506.75,-522.5 522.27,-512.7"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="524.3,-515.56 530.8,-507.19 520.5,-509.67 524.3,-515.56"/>
+</g>
+<!-- proc~run~2 -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node22" class="node">
+<title>proc~run~2</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node22"><a xlink:href="../proc/run~2.html" xlink:title="Run">
+<polygon fill="#d9534f" stroke="#d9534f" points="155,-841 101,-841 101,-817 155,-817 155,-841"/>
+<text text-anchor="middle" x="128" y="-826.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run</text>
+</a>
+</g>
+</g>
+<!-- proc~run~2&#45;&gt;interface~mapl_timeroff -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge20" class="edge">
+<title>proc~run~2&#45;&gt;interface~mapl_timeroff</title>
+<path fill="none" stroke="#ff0000" d="M155.16,-825.93C183.41,-824.13 228.11,-825.88 256,-850 295.87,-884.48 249.45,-931.9 292,-963 354.79,-1008.9 405.52,-1010.64 467,-963 514.31,-926.34 539.04,-734.96 546.24,-669.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="549.74,-669.43 547.31,-659.11 542.77,-668.68 549.74,-669.43"/>
+</g>
+<!-- proc~run~2&#45;&gt;interface~mapl_timeron -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge37" class="edge">
+<title>proc~run~2&#45;&gt;interface~mapl_timeron</title>
+<path fill="none" stroke="#00ffff" d="M129.85,-816.74C134.33,-762.61 160.34,-543.96 292,-458 362.4,-412.04 466.69,-452.89 517.89,-478.31"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="516.31,-481.43 526.81,-482.85 519.49,-475.19 516.31,-481.43"/>
+</g>
+<!-- proc~run~2&#45;&gt;proc~append_file~2 -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge38" class="edge">
+<title>proc~run~2&#45;&gt;proc~append_file~2</title>
+<path fill="none" stroke="#ff0000" d="M155.23,-829C186.12,-829 239.13,-829 285.75,-829"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="285.9,-832.5 295.9,-829 285.9,-825.5 285.9,-832.5"/>
+</g>
+<!-- interface~create_geosat_grid_find_mask -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node23" class="node">
+<title>interface~create_geosat_grid_find_mask</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node23"><a xlink:href="../interface/create_geosat_grid_find_mask.html" xlink:title="MaskSampler%create_Geosat_grid_find_mask">
+<polygon fill="#a7506f" stroke="#a7506f" points="256,-444 0,-444 0,-420 256,-420 256,-444"/>
+<text text-anchor="middle" x="128" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaskSampler%create_Geosat_grid_find_mask</text>
+</a>
+</g>
+</g>
+<!-- interface~create_geosat_grid_find_mask&#45;&gt;proc~create_geosat_grid_find_mask -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge39" class="edge">
+<title>interface~create_geosat_grid_find_mask&#45;&gt;proc~create_geosat_grid_find_mask</title>
+<path fill="none" stroke="#ff5900" stroke-dasharray="5,2" d="M219.78,-419.99C240.02,-417.32 261.54,-414.47 282,-411.76"/>
+<polygon fill="#ff5900" stroke="#ff5900" points="282.49,-415.23 291.95,-410.45 281.57,-408.29 282.49,-415.23"/>
+</g>
+<!-- interface~regrid_append_file -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node24" class="node">
+<title>interface~regrid_append_file</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node24"><a xlink:href="../interface/regrid_append_file.html" xlink:title="MaskSampler%regrid_append_file">
+<polygon fill="#a7506f" stroke="#a7506f" points="224.5,-883 31.5,-883 31.5,-859 224.5,-859 224.5,-883"/>
+<text text-anchor="middle" x="128" y="-868.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaskSampler%regrid_append_file</text>
+</a>
+</g>
+</g>
+<!-- interface~regrid_append_file&#45;&gt;proc~regrid_append_file -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge52" class="edge">
+<title>interface~regrid_append_file&#45;&gt;proc~regrid_append_file</title>
+<path fill="none" stroke="#3c00ff" stroke-dasharray="5,2" d="M224.75,-871C254.36,-871 286.28,-871 313.32,-871"/>
+<polygon fill="#3c00ff" stroke="#3c00ff" points="313.43,-874.5 323.43,-871 313.43,-867.5 313.43,-874.5"/>
+</g>
+<!-- proc~finalize_ -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node25" class="node">
+<title>proc~finalize_</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node25"><a xlink:href="../proc/finalize_.html" xlink:title="Finalize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="157,-66 99,-66 99,-42 157,-42 157,-66"/>
+<text text-anchor="middle" x="128" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Finalize_</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize_&#45;&gt;proc~mapl_genericfinalize -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge40" class="edge">
+<title>proc~finalize_&#45;&gt;proc~mapl_genericfinalize</title>
+<path fill="none" stroke="#3cff00" d="M157.1,-56.12C183.24,-58.68 223.01,-64.09 256,-75 290.23,-86.32 326.62,-106.15 350.76,-120.55"/>
+<polygon fill="#3cff00" stroke="#3cff00" points="349.02,-123.58 359.38,-125.77 352.64,-117.6 349.02,-123.58"/>
+</g>
+<!-- proc~finalize_~3 -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node26" class="node">
+<title>proc~finalize_~3</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node26"><a xlink:href="../proc/finalize_~3.html" xlink:title="Finalize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="157,-150 99,-150 99,-126 157,-126 157,-150"/>
+<text text-anchor="middle" x="128" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Finalize_</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize_~3&#45;&gt;proc~mapl_genericfinalize -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge41" class="edge">
+<title>proc~finalize_~3&#45;&gt;proc~mapl_genericfinalize</title>
+<path fill="none" stroke="#3cff00" d="M157.14,-138C192.84,-138 255.77,-138 305.42,-138"/>
+<polygon fill="#3cff00" stroke="#3cff00" points="305.48,-141.5 315.48,-138 305.48,-134.5 305.48,-141.5"/>
+</g>
+<!-- proc~finalize~2 -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node27" class="node">
+<title>proc~finalize~2</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node27"><a xlink:href="../proc/finalize~2.html" xlink:title="Finalize">
+<polygon fill="#d9534f" stroke="#d9534f" points="155,-108 101,-108 101,-84 155,-84 155,-108"/>
+<text text-anchor="middle" x="128" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Finalize</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize~2&#45;&gt;proc~mapl_genericfinalize -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge42" class="edge">
+<title>proc~finalize~2&#45;&gt;proc~mapl_genericfinalize</title>
+<path fill="none" stroke="#3cff00" d="M155.28,-100.3C180.96,-104.51 221.18,-111.14 256,-117 271.95,-119.69 289.06,-122.6 305.28,-125.38"/>
+<polygon fill="#3cff00" stroke="#3cff00" points="304.8,-128.84 315.25,-127.08 305.98,-121.94 304.8,-128.84"/>
+</g>
+<!-- proc~initialize_~4 -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node28" class="node">
+<title>proc~initialize_~4</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node28"><a xlink:href="../proc/initialize_~4.html" xlink:title="Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="159,-276 97,-276 97,-252 159,-252 159,-276"/>
+<text text-anchor="middle" x="128" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_~4&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge45" class="edge">
+<title>proc~initialize_~4&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#00ff1e" d="M159.1,-261.47C194.43,-258.49 254.34,-253.45 302.63,-249.39"/>
+<polygon fill="#00ff1e" stroke="#00ff1e" points="303.08,-252.86 312.75,-248.53 302.49,-245.89 303.08,-252.86"/>
+</g>
+<!-- proc~initialize_~5 -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node29" class="node">
+<title>proc~initialize_~5</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node29"><a xlink:href="../proc/initialize_~5.html" xlink:title="Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="159,-234 97,-234 97,-210 159,-210 159,-234"/>
+<text text-anchor="middle" x="128" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_~5&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge46" class="edge">
+<title>proc~initialize_~5&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#00ff1e" d="M159.1,-224.53C194.43,-227.51 254.34,-232.55 302.63,-236.61"/>
+<polygon fill="#00ff1e" stroke="#00ff1e" points="302.49,-240.11 312.75,-237.47 303.08,-233.14 302.49,-240.11"/>
+</g>
+<!-- proc~initialize~5 -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node30" class="node">
+<title>proc~initialize~5</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node30"><a xlink:href="../proc/initialize~5.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="156.5,-192 99.5,-192 99.5,-168 156.5,-168 156.5,-192"/>
+<text text-anchor="middle" x="128" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize~5&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge48" class="edge">
+<title>proc~initialize~5&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#00ff1e" d="M156.52,-183.21C182.43,-186.54 222.2,-192.47 256,-201 284.07,-208.08 314.89,-218.66 338.6,-227.43"/>
+<polygon fill="#00ff1e" stroke="#00ff1e" points="337.37,-230.71 347.97,-230.94 339.83,-224.16 337.37,-230.71"/>
+</g>
+<!-- proc~refresh_state -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_node31" class="node">
+<title>proc~refresh_state</title>
+<g id="a_proc~~get_actual_timer_name~~CalledByGraph_node31"><a xlink:href="../proc/refresh_state.html" xlink:title="MAPL_CapGridComp%refresh_state">
+<polygon fill="#d9534f" stroke="#d9534f" points="227.5,-24 28.5,-24 28.5,0 227.5,0 227.5,-24"/>
+<text text-anchor="middle" x="128" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridComp%refresh_state</text>
+</a>
+</g>
+</g>
+<!-- proc~refresh_state&#45;&gt;proc~mapl_genericstaterestore -->
+<g id="proc~~get_actual_timer_name~~CalledByGraph_edge51" class="edge">
+<title>proc~refresh_state&#45;&gt;proc~mapl_genericstaterestore</title>
+<path fill="none" stroke="#0078ff" d="M219.78,-24.01C243.08,-27.09 268.1,-30.4 291.22,-33.46"/>
+<polygon fill="#0078ff" stroke="#0078ff" points="290.98,-36.95 301.35,-34.8 291.9,-30.01 290.98,-36.95"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocget_actual_timer_nameCalledByGraph = svgPanZoom('#procget_actual_timer_nameCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">get_actual_timer_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">actual_name</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">actual_name</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+
+<span class="w">      </span><span class="n">actual_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">name</span><span class="p">(</span><span class="nb">verify</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">):))</span>
+<span class="w">   </span><span class="k">end function </span><span class="n">get_actual_timer_name</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-05-30T17:24:42.905909+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

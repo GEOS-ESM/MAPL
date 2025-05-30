@@ -1,0 +1,1070 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>driver_GetHorzIJIndex &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>driver_GetHorzIJIndex      <small>Program</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.2% of total for programs.">15 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/driver.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/driver.f90.html'>driver.F90</a></li>
+            <li class="breadcrumb-item active" aria-current="page">driver_GetHorzIJIndex</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../program/driver_gethorzijindex.html#variable-status~53">status</a>
+            <a class="list-group-item" href="../program/driver_gethorzijindex.html#variable-cap">cap</a>
+            <a class="list-group-item" href="../program/driver_gethorzijindex.html#variable-cap_options">cap_options</a>
+            <a class="list-group-item" href="../program/driver_gethorzijindex.html#variable-cli~4">cli</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../program/driver_gethorzijindex.html#src">driver_GetHorzIJIndex</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+        <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='../module/gridcomp.html'>GridComp</a></li>
+                  <li class="list-inline-item"><a href='../module/mapl.html'>MAPL</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: program~~driver_gethorzijindex~~UsesGraph Pages: 1 -->
+<svg id="programdriver_gethorzijindexUsesGraph" width="529pt" height="536pt"
+ viewBox="0.00 0.00 529.00 536.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="program~~driver_gethorzijindex~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 532)">
+<title>program~~driver_gethorzijindex~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-532 525,-532 525,4 -4,4"/>
+<!-- program~driver_gethorzijindex -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_node1" class="node">
+<title>program~driver_gethorzijindex</title>
+<polygon fill="none" stroke="black" points="521,-256 394,-256 394,-232 521,-232 521,-256"/>
+<text text-anchor="middle" x="457.5" y="-241.6" font-family="Helvetica,sans-Serif" font-size="10.50">driver_GetHorzIJIndex</text>
+</g>
+<!-- module~gridcomp -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_node2" class="node">
+<title>module~gridcomp</title>
+<g id="a_program~~driver_gethorzijindex~~UsesGraph_node2"><a xlink:href="../module/gridcomp.html" xlink:title="GridComp">
+<polygon fill="#337ab7" stroke="#337ab7" points="358,-236 291,-236 291,-212 358,-212 358,-236"/>
+<text text-anchor="middle" x="324.5" y="-221.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GridComp</text>
+</a>
+</g>
+</g>
+<!-- program~driver_gethorzijindex&#45;&gt;module~gridcomp -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_edge1" class="edge">
+<title>program~driver_gethorzijindex&#45;&gt;module~gridcomp</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M393.69,-234.41C385.01,-233.08 376.26,-231.75 368.07,-230.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="368.44,-227.02 358.03,-228.97 367.38,-233.94 368.44,-227.02"/>
+</g>
+<!-- module~mapl -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_node3" class="node">
+<title>module~mapl</title>
+<g id="a_program~~driver_gethorzijindex~~UsesGraph_node3"><a xlink:href="../module/mapl.html" xlink:title="MAPL">
+<polygon fill="#337ab7" stroke="#337ab7" points="255,-276 201,-276 201,-252 255,-252 255,-276"/>
+<text text-anchor="middle" x="228" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL</text>
+</a>
+</g>
+</g>
+<!-- program~driver_gethorzijindex&#45;&gt;module~mapl -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_edge2" class="edge">
+<title>program~driver_gethorzijindex&#45;&gt;module~mapl</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M393.73,-249.52C352.37,-253.15 299.68,-257.79 265.17,-260.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="264.73,-257.34 255.08,-261.71 265.35,-264.32 264.73,-257.34"/>
+</g>
+<!-- module~gridcomp&#45;&gt;module~mapl -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_edge4" class="edge">
+<title>module~gridcomp&#45;&gt;module~mapl</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M295.15,-236C285.51,-240.08 274.61,-244.69 264.48,-248.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="262.92,-245.84 255.07,-252.96 265.65,-252.29 262.92,-245.84"/>
+</g>
+<!-- ESMF -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_node4" class="node">
+<title>ESMF</title>
+<g id="a_program~~driver_gethorzijindex~~UsesGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/module/esmf.html" xlink:title="ESMF">
+<polygon fill="#337ab7" stroke="#337ab7" points="255,-234 201,-234 201,-210 255,-210 255,-234"/>
+<text text-anchor="middle" x="228" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
+</a>
+</g>
+</g>
+<!-- module~gridcomp&#45;&gt;ESMF -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_edge3" class="edge">
+<title>module~gridcomp&#45;&gt;ESMF</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M290.98,-223.31C282.63,-223.13 273.6,-222.94 265.08,-222.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="265.09,-219.26 255.02,-222.55 264.95,-226.26 265.09,-219.26"/>
+</g>
+<!-- module~esmf_cfiomod -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_node5" class="node">
+<title>module~esmf_cfiomod</title>
+<g id="a_program~~driver_gethorzijindex~~UsesGraph_node5"><a xlink:href="../module/esmf_cfiomod.html" xlink:title="ESMF_CFIOMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="129.5,-528 35.5,-528 35.5,-504 129.5,-504 129.5,-528"/>
+<text text-anchor="middle" x="82.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~esmf_cfiomod -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_edge5" class="edge">
+<title>module~mapl&#45;&gt;module~esmf_cfiomod</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M227.66,-276.1C229.04,-314.18 227.85,-432.77 165,-495 157.91,-502.02 148.81,-506.78 139.28,-510"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="138.32,-506.64 129.65,-512.73 140.23,-513.37 138.32,-506.64"/>
+</g>
+<!-- module~mapl_esmffieldbundleread -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_node6" class="node">
+<title>module~mapl_esmffieldbundleread</title>
+<g id="a_program~~driver_gethorzijindex~~UsesGraph_node6"><a xlink:href="../module/mapl_esmffieldbundleread.html" xlink:title="MAPL_ESMFFieldBundleRead">
+<polygon fill="#337ab7" stroke="#337ab7" points="164.5,-486 0.5,-486 0.5,-462 164.5,-462 164.5,-486"/>
+<text text-anchor="middle" x="82.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFFieldBundleRead</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~mapl_esmffieldbundleread -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_edge6" class="edge">
+<title>module~mapl&#45;&gt;module~mapl_esmffieldbundleread</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M226.81,-276.26C225.58,-309.81 217.41,-403.88 165,-453 163.72,-454.2 162.38,-455.34 160.98,-456.41"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="159,-453.52 152.5,-461.89 162.8,-459.4 159,-453.52"/>
+</g>
+<!-- module~mapl_esmffieldbundlewrite -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_node7" class="node">
+<title>module~mapl_esmffieldbundlewrite</title>
+<g id="a_program~~driver_gethorzijindex~~UsesGraph_node7"><a xlink:href="../module/mapl_esmffieldbundlewrite.html" xlink:title="MAPL_ESMFFieldBundleWrite">
+<polygon fill="#337ab7" stroke="#337ab7" points="165,-444 0,-444 0,-420 165,-420 165,-444"/>
+<text text-anchor="middle" x="82.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFFieldBundleWrite</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~mapl_esmffieldbundlewrite -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_edge7" class="edge">
+<title>module~mapl&#45;&gt;module~mapl_esmffieldbundlewrite</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M225.48,-276.4C221.33,-304.75 207.15,-374.63 165,-411 163.47,-412.32 161.86,-413.57 160.19,-414.73"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="158.22,-411.83 151.4,-419.94 161.79,-417.85 158.22,-411.83"/>
+</g>
+<!-- module~mapl_fieldutils -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_node8" class="node">
+<title>module~mapl_fieldutils</title>
+<g id="a_program~~driver_gethorzijindex~~UsesGraph_node8"><a xlink:href="../module/mapl_fieldutils.html" xlink:title="MAPL_FieldUtils">
+<polygon fill="#337ab7" stroke="#337ab7" points="129.5,-402 35.5,-402 35.5,-378 129.5,-378 129.5,-402"/>
+<text text-anchor="middle" x="82.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_FieldUtils</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~mapl_fieldutils -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_edge8" class="edge">
+<title>module~mapl&#45;&gt;module~mapl_fieldutils</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M223.29,-276.17C215.92,-298.21 197.32,-344.7 165,-369 157.54,-374.61 148.73,-378.73 139.7,-381.75"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="138.5,-378.46 129.88,-384.62 140.46,-385.18 138.5,-378.46"/>
+</g>
+<!-- module~mapl_genericmod -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_node9" class="node">
+<title>module~mapl_genericmod</title>
+<g id="a_program~~driver_gethorzijindex~~UsesGraph_node9"><a xlink:href="../module/mapl_genericmod.html" xlink:title="MAPL_GenericMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="138,-360 27,-360 27,-336 138,-336 138,-360"/>
+<text text-anchor="middle" x="82.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~mapl_genericmod -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_edge9" class="edge">
+<title>module~mapl&#45;&gt;module~mapl_genericmod</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M218.36,-276.14C207.53,-290.47 187.6,-313.97 165,-327 159.6,-330.11 153.74,-332.77 147.71,-335.04"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="146.5,-331.75 138.16,-338.29 148.76,-338.38 146.5,-331.75"/>
+</g>
+<!-- module~mapl_gridcompsmod -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_node10" class="node">
+<title>module~mapl_gridcompsmod</title>
+<g id="a_program~~driver_gethorzijindex~~UsesGraph_node10"><a xlink:href="../module/mapl_gridcompsmod.html" xlink:title="MAPL_GridCompsMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="146.5,-318 18.5,-318 18.5,-294 146.5,-294 146.5,-318"/>
+<text text-anchor="middle" x="82.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridCompsMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~mapl_gridcompsmod -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_edge10" class="edge">
+<title>module~mapl&#45;&gt;module~mapl_gridcompsmod</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M200.89,-273.32C189.87,-277.13 176.87,-281.47 165,-285 157.79,-287.15 150.19,-289.28 142.65,-291.31"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="141.56,-287.98 132.79,-293.93 143.36,-294.75 141.56,-287.98"/>
+</g>
+<!-- module~mapl_openmp_support -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_node11" class="node">
+<title>module~mapl_openmp_support</title>
+<g id="a_program~~driver_gethorzijindex~~UsesGraph_node11"><a xlink:href="../module/mapl_openmp_support.html" xlink:title="MAPL_OpenMP_Support">
+<polygon fill="#337ab7" stroke="#337ab7" points="151,-276 14,-276 14,-252 151,-252 151,-276"/>
+<text text-anchor="middle" x="82.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OpenMP_Support</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~mapl_openmp_support -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_edge11" class="edge">
+<title>module~mapl&#45;&gt;module~mapl_openmp_support</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M200.68,-264C189.42,-264 175.61,-264 161.49,-264"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="161.18,-260.5 151.18,-264 161.18,-267.5 161.18,-260.5"/>
+</g>
+<!-- module~mapl_profiler -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_node12" class="node">
+<title>module~mapl_profiler</title>
+<g id="a_program~~driver_gethorzijindex~~UsesGraph_node12"><a xlink:href="../module/mapl_profiler.html" xlink:title="mapl_Profiler">
+<polygon fill="#337ab7" stroke="#337ab7" points="123.5,-234 41.5,-234 41.5,-210 123.5,-210 123.5,-234"/>
+<text text-anchor="middle" x="82.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_Profiler</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~mapl_profiler -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_edge12" class="edge">
+<title>module~mapl&#45;&gt;module~mapl_profiler</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M200.89,-254.68C189.87,-250.87 176.87,-246.53 165,-243 154.92,-240 144.06,-237.02 133.66,-234.3"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="134.43,-230.88 123.87,-231.77 132.68,-237.66 134.43,-230.88"/>
+</g>
+<!-- module~mapl_stateutils -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_node13" class="node">
+<title>module~mapl_stateutils</title>
+<g id="a_program~~driver_gethorzijindex~~UsesGraph_node13"><a xlink:href="../module/mapl_stateutils.html" xlink:title="MAPL_StateUtils">
+<polygon fill="#337ab7" stroke="#337ab7" points="131,-192 34,-192 34,-168 131,-168 131,-192"/>
+<text text-anchor="middle" x="82.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StateUtils</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~mapl_stateutils -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_edge13" class="edge">
+<title>module~mapl&#45;&gt;module~mapl_stateutils</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M210.93,-251.79C207.55,-249.01 204.08,-245.99 201,-243 183.36,-225.87 185.87,-214 165,-201 157.61,-196.4 149.25,-192.8 140.76,-189.99"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="141.76,-186.63 131.18,-187.14 139.76,-193.34 141.76,-186.63"/>
+</g>
+<!-- module~mapl_stubcomponent -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_node14" class="node">
+<title>module~mapl_stubcomponent</title>
+<g id="a_program~~driver_gethorzijindex~~UsesGraph_node14"><a xlink:href="../module/mapl_stubcomponent.html" xlink:title="MAPL_StubComponent">
+<polygon fill="#337ab7" stroke="#337ab7" points="149,-150 16,-150 16,-126 149,-126 149,-150"/>
+<text text-anchor="middle" x="82.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StubComponent</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~mapl_stubcomponent -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_edge14" class="edge">
+<title>module~mapl&#45;&gt;module~mapl_stubcomponent</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M209.65,-251.98C206.51,-249.28 203.45,-246.24 201,-243 176.48,-210.62 195.83,-185.45 165,-159 162.96,-157.25 160.8,-155.65 158.53,-154.17"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="159.82,-150.88 149.37,-149.11 156.44,-157.01 159.82,-150.88"/>
+</g>
+<!-- module~mapl_varspecmiscmod -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_node15" class="node">
+<title>module~mapl_varspecmiscmod</title>
+<g id="a_program~~driver_gethorzijindex~~UsesGraph_node15"><a xlink:href="../module/mapl_varspecmiscmod.html" xlink:title="MAPL_VarSpecMiscMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="150.5,-108 14.5,-108 14.5,-84 150.5,-84 150.5,-108"/>
+<text text-anchor="middle" x="82.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecMiscMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~mapl_varspecmiscmod -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_edge15" class="edge">
+<title>module~mapl&#45;&gt;module~mapl_varspecmiscmod</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M209.05,-251.98C206.03,-249.31 203.18,-246.29 201,-243 168.85,-194.44 206.72,-157.64 165,-117 163.3,-115.34 161.49,-113.81 159.58,-112.4"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="161.06,-109.19 150.71,-106.91 157.38,-115.15 161.06,-109.19"/>
+</g>
+<!-- module~maplbase_mod -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_node16" class="node">
+<title>module~maplbase_mod</title>
+<g id="a_program~~driver_gethorzijindex~~UsesGraph_node16"><a xlink:href="../module/maplbase_mod.html" xlink:title="MAPLBase_Mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="130,-66 35,-66 35,-42 130,-42 130,-66"/>
+<text text-anchor="middle" x="82.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPLBase_Mod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~maplbase_mod -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_edge16" class="edge">
+<title>module~mapl&#45;&gt;module~maplbase_mod</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M208.61,-251.86C205.71,-249.24 203.01,-246.26 201,-243 161.01,-177.95 217.88,-130.09 165,-75 158.24,-67.96 149.46,-63.16 140.18,-59.92"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="140.96,-56.5 130.38,-57.07 139,-63.22 140.96,-56.5"/>
+</g>
+<!-- module~pfio -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_node17" class="node">
+<title>module~pfio</title>
+<g id="a_program~~driver_gethorzijindex~~UsesGraph_node17"><a xlink:href="../module/pfio.html" xlink:title="pFIO">
+<polygon fill="#337ab7" stroke="#337ab7" points="109.5,-24 55.5,-24 55.5,0 109.5,0 109.5,-24"/>
+<text text-anchor="middle" x="82.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~pfio -->
+<g id="program~~driver_gethorzijindex~~UsesGraph_edge17" class="edge">
+<title>module~mapl&#45;&gt;module~pfio</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M208.5,-251.93C205.6,-249.3 202.94,-246.3 201,-243 153.08,-161.32 229.14,-102.66 165,-33 153.55,-20.57 135.81,-15.08 119.8,-12.81"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="119.93,-9.3 109.61,-11.73 119.19,-16.26 119.93,-9.3"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+    
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: program~~driver_gethorzijindex~~CallsGraph Pages: 1 -->
+<svg id="programdriver_gethorzijindexCallsGraph" width="641pt" height="272pt"
+ viewBox="0.00 0.00 641.00 272.32" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="program~~driver_gethorzijindex~~CallsGraph" class="graph" transform="scale(0.62 0.62) rotate(0) translate(4 434)">
+<title>program~~driver_gethorzijindex~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-434 1027,-434 1027,4 -4,4"/>
+<!-- program~driver_gethorzijindex -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_node1" class="node">
+<title>program~driver_gethorzijindex</title>
+<polygon fill="none" stroke="black" points="127,-368 0,-368 0,-344 127,-344 127,-368"/>
+<text text-anchor="middle" x="63.5" y="-353.6" font-family="Helvetica,sans-Serif" font-size="10.50">driver_GetHorzIJIndex</text>
+</g>
+<!-- mapl_fargparsecli -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_node2" class="node">
+<title>mapl_fargparsecli</title>
+<polygon fill="#777777" stroke="#777777" points="272,-430 163,-430 163,-406 272,-406 272,-430"/>
+<text text-anchor="middle" x="217.5" y="-415.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_fargparsecli</text>
+</g>
+<!-- program~driver_gethorzijindex&#45;&gt;mapl_fargparsecli -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_edge1" class="edge">
+<title>program~driver_gethorzijindex&#45;&gt;mapl_fargparsecli</title>
+<path fill="none" stroke="#ff0000" d="M93.31,-368.18C112.92,-376.41 139.47,-387.49 163,-397 167.17,-398.69 171.53,-400.43 175.89,-402.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="174.75,-405.47 185.34,-405.89 177.32,-398.96 174.75,-405.47"/>
+</g>
+<!-- proc~mapl_abort -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_node3" class="node">
+<title>proc~mapl_abort</title>
+<g id="a_program~~driver_gethorzijindex~~CallsGraph_node3"><a xlink:href="../proc/mapl_abort.html" xlink:title="MAPL_abort">
+<polygon fill="#d9534f" stroke="#d9534f" points="255,-388 180,-388 180,-364 255,-364 255,-388"/>
+<text text-anchor="middle" x="217.5" y="-373.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_abort</text>
+</a>
+</g>
+</g>
+<!-- program~driver_gethorzijindex&#45;&gt;proc~mapl_abort -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_edge2" class="edge">
+<title>program~driver_gethorzijindex&#45;&gt;proc~mapl_abort</title>
+<path fill="none" stroke="#ff0000" d="M127.2,-364.25C141.41,-366.12 156.25,-368.07 169.67,-369.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="169.25,-373.31 179.62,-371.15 170.16,-366.37 169.25,-373.31"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_node4" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_program~~driver_gethorzijindex~~CallsGraph_node4"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="667,-360 591,-360 591,-336 667,-336 667,-360"/>
+<text text-anchor="middle" x="629" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- program~driver_gethorzijindex&#45;&gt;proc~mapl_verify -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_edge3" class="edge">
+<title>program~driver_gethorzijindex&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M127.23,-355.11C241.1,-353.49 479.41,-350.11 580.76,-348.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="581.04,-352.17 590.99,-348.53 580.94,-345.17 581.04,-352.17"/>
+</g>
+<!-- proc~run~6 -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_node5" class="node">
+<title>proc~run~6</title>
+<g id="a_program~~driver_gethorzijindex~~CallsGraph_node5"><a xlink:href="../proc/run~6.html" xlink:title="MAPL_Cap%run">
+<polygon fill="#d9534f" stroke="#d9534f" points="265,-234 170,-234 170,-210 265,-210 265,-234"/>
+<text text-anchor="middle" x="217.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap%run</text>
+</a>
+</g>
+</g>
+<!-- program~driver_gethorzijindex&#45;&gt;proc~run~6 -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_edge4" class="edge">
+<title>program~driver_gethorzijindex&#45;&gt;proc~run~6</title>
+<path fill="none" stroke="#ff0000" d="M78.26,-343.87C104.82,-320.45 163.35,-268.85 195.07,-240.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="197.7,-243.24 202.88,-234 193.07,-237.99 197.7,-243.24"/>
+</g>
+<!-- mpi_abort -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_node6" class="node">
+<title>mpi_abort</title>
+<polygon fill="#777777" stroke="#777777" points="418,-388 351,-388 351,-364 418,-364 418,-388"/>
+<text text-anchor="middle" x="384.5" y="-373.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_abort</text>
+</g>
+<!-- proc~mapl_abort&#45;&gt;mpi_abort -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_abort&#45;&gt;mpi_abort</title>
+<path fill="none" stroke="#7fff00" d="M255.12,-376C280.43,-376 314.19,-376 340.74,-376"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="340.9,-379.5 350.9,-376 340.9,-372.5 340.9,-379.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_node9" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_program~~driver_gethorzijindex~~CallsGraph_node9"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="930,-255 797,-255 797,-231 930,-231 930,-255"/>
+<text text-anchor="middle" x="863.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M667.07,-347.24C694.16,-345.48 731.2,-340.49 761,-327 794.7,-311.74 826.33,-282.24 845.05,-262.58"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="847.78,-264.78 852.03,-255.08 842.66,-260.02 847.78,-264.78"/>
+</g>
+<!-- proc~run~6&#45;&gt;proc~mapl_verify -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_edge9" class="edge">
+<title>proc~run~6&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#7f00ff" d="M245.18,-234.14C294.1,-255.92 401.87,-301.72 497,-327 524.39,-334.28 555.72,-339.41 580.86,-342.78"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="580.51,-346.26 590.88,-344.07 581.41,-339.32 580.51,-346.26"/>
+</g>
+<!-- proc~finalize_mpi -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_node7" class="node">
+<title>proc~finalize_mpi</title>
+<g id="a_program~~driver_gethorzijindex~~CallsGraph_node7"><a xlink:href="../proc/finalize_mpi.html" xlink:title="MAPL_Cap%finalize_mpi">
+<polygon fill="#d9534f" stroke="#d9534f" points="455,-67 314,-67 314,-43 455,-43 455,-67"/>
+<text text-anchor="middle" x="384.5" y="-52.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap%finalize_mpi</text>
+</a>
+</g>
+</g>
+<!-- proc~run~6&#45;&gt;proc~finalize_mpi -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_edge7" class="edge">
+<title>proc~run~6&#45;&gt;proc~finalize_mpi</title>
+<path fill="none" stroke="#7f00ff" d="M229.23,-209.77C245.74,-191.1 278.55,-154.52 308,-125 325.85,-107.11 347,-87.64 362.37,-73.78"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="364.73,-76.37 369.84,-67.08 360.06,-71.16 364.73,-76.37"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_node8" class="node">
+<title>proc~mapl_return</title>
+<g id="a_program~~driver_gethorzijindex~~CallsGraph_node8"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="670,-108 588,-108 588,-84 670,-84 670,-108"/>
+<text text-anchor="middle" x="629" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~run~6&#45;&gt;proc~mapl_return -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_edge8" class="edge">
+<title>proc~run~6&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#7f00ff" d="M245.18,-209.86C294.1,-188.08 401.87,-142.28 497,-117 523.2,-110.04 552.99,-105.04 577.54,-101.67"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="578.26,-105.1 587.72,-100.32 577.35,-98.17 578.26,-105.1"/>
+</g>
+<!-- proc~run_ensemble -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_node10" class="node">
+<title>proc~run_ensemble</title>
+<g id="a_program~~driver_gethorzijindex~~CallsGraph_node10"><a xlink:href="../proc/run_ensemble.html" xlink:title="MAPL_Cap%run_ensemble">
+<polygon fill="#d9534f" stroke="#d9534f" points="461,-234 308,-234 308,-210 461,-210 461,-234"/>
+<text text-anchor="middle" x="384.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap%run_ensemble</text>
+</a>
+</g>
+</g>
+<!-- proc~run~6&#45;&gt;proc~run_ensemble -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_edge10" class="edge">
+<title>proc~run~6&#45;&gt;proc~run_ensemble</title>
+<path fill="none" stroke="#7f00ff" d="M265.34,-222C275.48,-222 286.51,-222 297.62,-222"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="297.82,-225.5 307.82,-222 297.82,-218.5 297.82,-225.5"/>
+</g>
+<!-- proc~finalize_mpi&#45;&gt;proc~mapl_return -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_edge13" class="edge">
+<title>proc~finalize_mpi&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#cbff00" d="M451.5,-67.05C466.45,-69.72 482.26,-72.5 497,-75 523.63,-79.52 553.34,-84.31 577.73,-88.17"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="577.41,-91.66 587.83,-89.76 578.5,-84.74 577.41,-91.66"/>
+</g>
+<!-- mpi_finalize -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_node11" class="node">
+<title>mpi_finalize</title>
+<polygon fill="#777777" stroke="#777777" points="667,-24 591,-24 591,0 667,0 667,-24"/>
+<text text-anchor="middle" x="629" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_finalize</text>
+</g>
+<!-- proc~finalize_mpi&#45;&gt;mpi_finalize -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_edge11" class="edge">
+<title>proc~finalize_mpi&#45;&gt;mpi_finalize</title>
+<path fill="none" stroke="#cbff00" d="M444.45,-42.96C461.39,-39.61 479.91,-36.06 497,-33 524.8,-28.03 556.02,-23 581.01,-19.12"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="581.61,-22.56 590.95,-17.58 580.54,-15.65 581.61,-22.56"/>
+</g>
+<!-- proc~mapl_finalize -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_node18" class="node">
+<title>proc~mapl_finalize</title>
+<g id="a_program~~driver_gethorzijindex~~CallsGraph_node18"><a xlink:href="../proc/mapl_finalize.html" xlink:title="MAPL_Finalize">
+<polygon fill="#d9534f" stroke="#d9534f" points="672,-66 586,-66 586,-42 672,-42 672,-66"/>
+<text text-anchor="middle" x="629" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Finalize</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize_mpi&#45;&gt;proc~mapl_finalize -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_edge12" class="edge">
+<title>proc~finalize_mpi&#45;&gt;proc~mapl_finalize</title>
+<path fill="none" stroke="#cbff00" d="M455.32,-54.71C493.65,-54.55 540.4,-54.36 575.59,-54.22"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="575.66,-57.72 585.65,-54.17 575.63,-50.72 575.66,-57.72"/>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff66" d="M670.02,-95.09C697.33,-96.15 733.41,-100.99 761,-117 804.22,-142.08 836.38,-193.15 851.99,-221.97"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="848.89,-223.6 856.64,-230.83 855.09,-220.35 848.89,-223.6"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_node15" class="node">
+<title>proc~get_error_message</title>
+<g id="a_program~~driver_gethorzijindex~~CallsGraph_node15"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="921,-108 806,-108 806,-84 921,-84 921,-108"/>
+<text text-anchor="middle" x="863.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ff66" d="M670.23,-96C704.74,-96 755.16,-96 795.71,-96"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="795.79,-99.5 805.79,-96 795.79,-92.5 795.79,-99.5"/>
+</g>
+<!-- proc~initialize~10 -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_node17" class="node">
+<title>proc~initialize~10</title>
+<g id="a_program~~driver_gethorzijindex~~CallsGraph_node17"><a xlink:href="../proc/initialize~10.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1023,-255 966,-255 966,-231 1023,-231 1023,-255"/>
+<text text-anchor="middle" x="994.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~10 -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~10</title>
+<path fill="none" stroke="#0066ff" d="M930.13,-243C938.88,-243 947.59,-243 955.63,-243"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="955.77,-246.5 965.77,-243 955.77,-239.5 955.77,-246.5"/>
+</g>
+<!-- proc~run_ensemble&#45;&gt;proc~mapl_verify -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_edge22" class="edge">
+<title>proc~run_ensemble&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#cc00ff" d="M408.74,-234.08C424.66,-243.1 445.59,-256.51 461,-272 481.6,-292.71 472.48,-311.11 497,-327 521.66,-342.98 554.27,-348.25 580.79,-349.51"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="580.89,-353.02 590.99,-349.82 581.1,-346.02 580.89,-353.02"/>
+</g>
+<!-- proc~run_ensemble&#45;&gt;proc~mapl_return -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_edge21" class="edge">
+<title>proc~run_ensemble&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#cc00ff" d="M399.03,-209.96C414.27,-196.33 439.69,-173.37 461,-153 477.36,-137.36 476.85,-127.29 497,-117 521.79,-104.34 552.37,-98.95 577.75,-96.79"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="578.18,-100.27 587.91,-96.07 577.69,-93.29 578.18,-100.27"/>
+</g>
+<!-- proc~create_member_subcommunicator -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_node12" class="node">
+<title>proc~create_member_subcommunicator</title>
+<g id="a_program~~driver_gethorzijindex~~CallsGraph_node12"><a xlink:href="../proc/create_member_subcommunicator.html" xlink:title="MAPL_Cap%create_member_subcommunicator">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="761,-150 497,-150 497,-126 761,-126 761,-150"/>
+<text text-anchor="middle" x="629" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap%create_member_subcommunicator</text>
+</a>
+</g>
+</g>
+<!-- proc~run_ensemble&#45;&gt;proc~create_member_subcommunicator -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_edge17" class="edge">
+<title>proc~run_ensemble&#45;&gt;proc~create_member_subcommunicator</title>
+<path fill="none" stroke="#cc00ff" d="M402.35,-209.93C423.42,-195.45 461.11,-171.56 497,-159 504.03,-156.54 511.37,-154.37 518.84,-152.45"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="519.81,-155.81 528.71,-150.07 518.17,-149.01 519.81,-155.81"/>
+</g>
+<!-- proc~finalize_io_clients_servers -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_node13" class="node">
+<title>proc~finalize_io_clients_servers</title>
+<g id="a_program~~driver_gethorzijindex~~CallsGraph_node13"><a xlink:href="../proc/finalize_io_clients_servers.html" xlink:title="MAPL_Cap%finalize_io_clients_servers">
+<polygon fill="#d9534f" stroke="#d9534f" points="736,-318 522,-318 522,-294 736,-294 736,-318"/>
+<text text-anchor="middle" x="629" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap%finalize_io_clients_servers</text>
+</a>
+</g>
+</g>
+<!-- proc~run_ensemble&#45;&gt;proc~finalize_io_clients_servers -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_edge18" class="edge">
+<title>proc~run_ensemble&#45;&gt;proc~finalize_io_clients_servers</title>
+<path fill="none" stroke="#cc00ff" d="M402.35,-234.07C423.42,-248.55 461.11,-272.44 497,-285 504.03,-287.46 511.37,-289.63 518.84,-291.55"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="518.17,-294.99 528.71,-293.93 519.81,-288.19 518.17,-294.99"/>
+</g>
+<!-- proc~free_sub_comm -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_node14" class="node">
+<title>proc~free_sub_comm</title>
+<g id="a_program~~driver_gethorzijindex~~CallsGraph_node14"><a xlink:href="../proc/free_sub_comm.html" xlink:title="SimpleCommSplitter%free_sub_comm">
+<polygon fill="#d9534f" stroke="#d9534f" points="737.5,-276 520.5,-276 520.5,-252 737.5,-252 737.5,-276"/>
+<text text-anchor="middle" x="629" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SimpleCommSplitter%free_sub_comm</text>
+</a>
+</g>
+</g>
+<!-- proc~run_ensemble&#45;&gt;proc~free_sub_comm -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_edge19" class="edge">
+<title>proc~run_ensemble&#45;&gt;proc~free_sub_comm</title>
+<path fill="none" stroke="#cc00ff" d="M447.66,-234.02C463.72,-237.04 480.99,-240.21 497,-243 511.1,-245.46 526.08,-247.96 540.68,-250.34"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="540.27,-253.82 550.71,-251.97 541.4,-246.91 540.27,-253.82"/>
+</g>
+<!-- proc~initialize_io_clients_servers -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_node16" class="node">
+<title>proc~initialize_io_clients_servers</title>
+<g id="a_program~~driver_gethorzijindex~~CallsGraph_node16"><a xlink:href="../proc/initialize_io_clients_servers.html" xlink:title="MAPL_Cap%initialize_io_clients_servers">
+<polygon fill="#d9534f" stroke="#d9534f" points="739,-234 519,-234 519,-210 739,-210 739,-234"/>
+<text text-anchor="middle" x="629" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap%initialize_io_clients_servers</text>
+</a>
+</g>
+</g>
+<!-- proc~run_ensemble&#45;&gt;proc~initialize_io_clients_servers -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_edge20" class="edge">
+<title>proc~run_ensemble&#45;&gt;proc~initialize_io_clients_servers</title>
+<path fill="none" stroke="#cc00ff" d="M461.23,-222C476.31,-222 492.48,-222 508.61,-222"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="508.64,-225.5 518.64,-222 508.64,-218.5 508.64,-225.5"/>
+</g>
+<!-- proc~run_member -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_node19" class="node">
+<title>proc~run_member</title>
+<g id="a_program~~driver_gethorzijindex~~CallsGraph_node19"><a xlink:href="../proc/run_member.html" xlink:title="MAPL_Cap%run_member">
+<polygon fill="#d9534f" stroke="#d9534f" points="702,-192 556,-192 556,-168 702,-168 702,-192"/>
+<text text-anchor="middle" x="629" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap%run_member</text>
+</a>
+</g>
+</g>
+<!-- proc~run_ensemble&#45;&gt;proc~run_member -->
+<g id="program~~driver_gethorzijindex~~CallsGraph_edge23" class="edge">
+<title>proc~run_ensemble&#45;&gt;proc~run_member</title>
+<path fill="none" stroke="#cc00ff" d="M447.66,-209.98C463.72,-206.96 480.99,-203.79 497,-201 512.78,-198.25 529.66,-195.44 545.88,-192.81"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="546.55,-196.25 555.87,-191.2 545.44,-189.34 546.55,-196.25"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprogramdriver_gethorzijindexCallsGraph = svgPanZoom('#programdriver_gethorzijindexCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+<br>
+
+    <section>
+    <h2>Variables</h2>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-status~53"></span>
+              integer
+            </td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>status</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cap"></span>
+              type(<a href='../type/mapl_cap.html'>MAPL_Cap</a>)
+            </td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>cap</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cap_options"></span>
+              type(<a href='../type/mapl_capoptions.html'>MAPL_CapOptions</a>)
+            </td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>cap_options</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cli~4"></span>
+              type(MAPL_FargparseCLI)
+            </td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>cli</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </section>
+    <br>
+    
+    
+    
+
+    
+
+
+    
+
+    <section>
+    <h2 id="src">Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="k">program </span><span class="n">driver_GetHorzIJIndex</span>
+<span class="w">   </span><span class="k">use </span><span class="n">MAPL</span>
+<span class="w">   </span><span class="k">use </span><span class="n">GridComp</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">SetServices</span>
+<span class="w">   </span><span class="k">implicit none</span>
+
+<span class="k">   type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_Cap</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cap</span>
+<span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_FargparseCLI</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cli</span>
+<span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_CapOptions</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cap_options</span>
+<span class="w">   </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">   </span><span class="n">cli</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_FargparseCLI</span><span class="p">()</span>
+<span class="w">   </span><span class="n">cap_options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_CapOptions</span><span class="p">(</span><span class="n">cli</span><span class="p">)</span>
+<span class="w">   </span><span class="n">cap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_Cap</span><span class="p">(</span><span class="s1">&#39;GetHorzIJIndex&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">SetServices</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap_options</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">cap</span><span class="p">%</span><span class="n">run</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="k">end program </span><span class="n">driver_GetHorzIJIndex</span>
+</pre></div>
+
+    </section>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-05-30T17:24:42.905909+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>
