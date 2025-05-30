@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed issue so that if ExtData cannot find a file and fail on missing is false, just set collection to /dev/null
+
 ### Added
 
 ### Changed
