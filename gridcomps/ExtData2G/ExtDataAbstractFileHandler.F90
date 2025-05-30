@@ -199,8 +199,6 @@ contains
         if (file_found) exit
      enddo
 
-     !if (mapl_am_i_root()) write(*,*)'bmaa ',trim(this%file_template), file_found, allow_failure
-     write(*,*)'bmaa ',trim(this%file_template), file_found, fail_on_missing 
      if (fail_on_missing) then
         _ASSERT(file_found,"Could not find any file to open to determine metadata after multiple trials")
         filename = trial_file

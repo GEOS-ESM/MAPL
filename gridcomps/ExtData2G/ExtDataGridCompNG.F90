@@ -1449,14 +1449,27 @@ CONTAINS
      integer :: status
      type(ESMF_Field) :: field
 
+     if (mapl_am_i_root()) write(*,*)"bmaa itemname ",trim(item%name)
      if (item%vartype == MAPL_FieldItem) then
         call ESMF_StateGet(ExtDataState,trim(item%name),field,_RC)
-        call FieldSet(field, item%const, _RC)
+        if (item%modelGridFields%comp1%exact) then
+           call FieldSet(field, MAPL_UNDEF, _RC)
+        else
+           call FieldSet(field, item%const, _RC)
+        end if
      else if (item%vartype == MAPL_VectorField) then
         call ESMF_StateGet(ExtDataState,trim(item%vcomp1),field,_RC)
-        call FieldSet(field, item%const, _RC)
+        if (item%modelGridFields%comp1%exact) then
+           call FieldSet(field, MAPL_UNDEF, _RC)
+        else
+           call FieldSet(field, item%const, _RC)
+        end if
         call ESMF_StateGet(ExtDataState,trim(item%vcomp2),field,_RC)
-        call FieldSet(field, item%const, _RC)
+        if (item%modelGridFields%comp2exact) then
+           call FieldSet(field, MAPL_UNDEF, _RC)
+        else
+           call FieldSet(field, item%const, _RC)
+        end if
       end if
 
      _RETURN(_SUCCESS)
