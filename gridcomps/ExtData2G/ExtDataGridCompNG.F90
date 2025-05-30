@@ -882,6 +882,8 @@ CONTAINS
         end if
         filename = item%filestream%find_any_file(current_time, item%fail_on_missing_file, _RC)
         if (.not.(item%fail_on_missing_file) .and. filename == 'NONE') then
+           item%file_template = "/dev/null"
+           item%isConst = .true.
            _RETURN(_SUCCESS)
         end if
         collection => DataCollections%at(item%pfioCollection_id)
