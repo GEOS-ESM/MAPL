@@ -15,6 +15,7 @@ module MAPL_ExtdataAbstractFileHandler
    use MAPL_FileMetadataUtilsMod
    use MAPL_TimeStringConversion
    use MAPL_StringTemplate
+   use MAPL_CommsMod
    implicit none
    private
    public :: ExtDataAbstractFileHandler
@@ -168,10 +169,11 @@ contains
 
   end subroutine make_metadata
 
-  function find_any_file(this, current_time, rc) result(filename)
+  function find_any_file(this, current_time, fail_on_missing, rc) result(filename)
      character(len=:), allocatable :: filename
      class(ExtDataAbstractFileHandler), intent(inout) :: this
      type(ESMF_Time), intent(in) :: current_time
+     logical, intent(in) :: fail_on_missing 
      integer, optional, intent(out) :: rc
 
      integer :: status, i
@@ -197,8 +199,12 @@ contains
         if (file_found) exit
      enddo
 
-     _ASSERT(file_found,"Could not find any file to open to determine metadata after multiple trials")
-     filename = trial_file
+     if (fail_on_missing) then
+        _ASSERT(file_found,"Could not find any file to open to determine metadata after multiple trials")
+        filename = trial_file
+     else
+        filename = 'NONE'
+     end if
      _RETURN(_SUCCESS) 
 
    end function find_any_file
