@@ -365,7 +365,7 @@ class MAPL_DataSpec:
         other_args = [(option.name, self.spec_values[option]) for option in other_options]
         args.extend(other_args)
         delimiter = MAPL_DataSpec.DELIMITER
-        procedure_call = make_procedure_call("StateFilterItem", delimiter=delimiter,
+        procedure_call = make_procedure_call("MAPL_StateFilterItem", delimiter=delimiter,
             terminator=MAPL_DataSpec.TERMINATOR, **dict(args))
         return ''.join([self.emit_header(), procedure_call, self.emit_trailer()])
 
