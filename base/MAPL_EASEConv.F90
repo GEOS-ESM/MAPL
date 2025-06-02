@@ -3,7 +3,7 @@ module MAPL_EASEConvMod
   
   ! =====================================================================================
   !
-  ! EASE_conv.F90 - FORTRAN routines for conversion of Equal-Area Scalable Earth (EASE)
+  ! EASE_conv.F90 - Fortran routines for conversion of Equal-Area Scalable Earth (EASE)
   !                 grid coordinates (lat/lon <--> row/col indices)
   !
   !                 Implemented for global cylindrical ('Mxx') EASE grids only. 
