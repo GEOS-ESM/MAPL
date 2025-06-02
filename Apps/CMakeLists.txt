@@ -33,6 +33,6 @@ ecbuild_add_executable (TARGET time_ave_util.x SOURCES time_ave_util.F90)
 target_link_libraries (time_ave_util.x PRIVATE MAPL MPI::MPI_Fortran ESMF::ESMF OpenMP::OpenMP_Fortran)
 target_include_directories (time_ave_util.x PRIVATE $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
-ecbuild_add_executable (TARGET Comp_Testing_Driver.x SOURCES Comp_Testing_Driver.F90)
+ecbuild_add_executable (TARGET Comp_Testing_Driver.x SOURCES Component_Testing/Comp_Testing_Driver.F90)
 target_link_libraries (Comp_Testing_Driver.x PRIVATE MAPL MPI::MPI_Fortran ESMF::ESMF OpenMP::OpenMP_Fortran)
 target_include_directories (Comp_Testing_Driver.x PRIVATE $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
