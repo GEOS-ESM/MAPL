@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- `StateFilterItem` => `MAPL_StateFilterItem` in **ACG**
 
 ### Added
 
@@ -16,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.56.1] - 2025-05-30
+
+### Fixed
+
+- Fixed issue so that if ExtData cannot find a file and fail on missing is false, just set collection to /dev/null
 
 ## [2.56.0] - 2025-05-23
 
