@@ -25,7 +25,7 @@ install(
   PROGRAMS forcing_converter/utilities.py
   DESTINATION bin/forcing_converter)
 
-ecbuild_add_executable (TARGET Regrid_Util.x SOURCES Regrid_Util.F90)
+ecbuild_add_executable (TARGET Regrid_Util.x SOURCES Regrid_Util/Regrid_Util.F90)
 target_link_libraries (Regrid_Util.x PRIVATE MAPL MPI::MPI_Fortran ESMF::ESMF OpenMP::OpenMP_Fortran)
 target_include_directories (Regrid_Util.x PRIVATE $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
