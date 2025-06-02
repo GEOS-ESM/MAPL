@@ -15,7 +15,7 @@ module MAPL_EASEConvMod
   ! CHANGELOG (easeV1_conv.F90):
   ! ============================
   !
-  ! easeV1_conv.F90 - FORTRAN routines for conversion of azimuthal 
+  ! easeV1_conv.F90 - Fortran routines for conversion of azimuthal 
   !                   equal area and equal area cylindrical grid coordinates
   ! 
   ! 30-Jan-1992 H.Maybee
