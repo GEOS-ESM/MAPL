@@ -4,8 +4,8 @@
 ! Document Pole :: XY
 !          Date :: DE
 
-! This module generates ESMF_Grids corresponding to _regular_ lat-lon coordinate grids.
-! I.e., spacing between lats (lons) is constant.
+! This module generates ESMF_Grids that have equal grid areas.
+! spacing between lons is unformed and between lats is non-uniformed.
 
 module MAPL_EASEGridFactoryMod
    use MAPL_AbstractGridFactoryMod
