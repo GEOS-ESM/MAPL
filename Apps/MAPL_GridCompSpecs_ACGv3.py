@@ -146,6 +146,7 @@ def get_options(args):
              'N': 'VERTICAL_STAGGER_NONE'}},
         ALIAS: {FLAGS: {STORE}}, 
         ALLOC: {FLAGS: {STORE}}, 
+        'add2export': {MAPPING: LOGICAL},
         'attributes' : {MAPPING: STRINGVECTOR}, 
         CONDITION: {FLAGS: {STORE}}, 
         'dependencies': {MAPPING: STRINGVECTOR}, 
@@ -451,6 +452,8 @@ count_not_empty = lambda s, d: count_true(split_bracketed(s, d), lambda p: len(p
 construct_string_vector = lambda value: f"{TO_STRING_VECTOR}({add_quotes(value)})" if value else None
 
 def convert_to_fortran_logical(b):
+     if b is None:
+         return FALSE_VALUE
      return TRUE_VALUE if b.strip().strip('.').lower() in TRUE_VALUES else FALSE_VALUE 
 
 def compute_rank(dims, ungridded):
@@ -533,7 +536,8 @@ NAMED_MAPPINGS = {
         MANGLED: lambda name: f"'{rm_quotes(name).replace("*","'//trim(comp_name)//'")}'" if name else None,
         STANDARD_NAME: mangle_standard_name,
         RANK: compute_rank, 
-        MAKE_BLOCK: lambda value: partial(make_block, value)
+        MAKE_BLOCK: lambda value: partial(make_block, value),
+        LOGICAL: lambda value: convert_to_fortran_logical
         }
 
 def fetch_mapping_function(m, func_dict=NAMED_MAPPINGS):
