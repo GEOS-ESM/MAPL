@@ -3,13 +3,13 @@
 module MAPL_EASEConversion
   
   ! =====================================================================================
+  ! This file is moved from 
+  ! GEOSgcm_GridComp/GEOSagcm_GridComp/GEOSphysics_GridComp/GEOSsurface_GridComp/Utils/Raster/makebcs/EASE_conv.F90
+  !  - Fortran routines for conversion of Equal-Area Scalable Earth (EASE)
+  !    grid coordinates (lat/lon <--> row/col indices)
+  !    Implemented for global cylindrical ('Mxx') EASE grids only. 
   !
-  ! EASE_conv.F90 - Fortran routines for conversion of Equal-Area Scalable Earth (EASE)
-  !                 grid coordinates (lat/lon <--> row/col indices)
-  !
-  !                 Implemented for global cylindrical ('Mxx') EASE grids only. 
-  !
-  !                 Works for EASE[v1] and EASEv2 grids. 
+  !    Works for EASE[v1] and EASEv2 grids. 
   ! 
   ! -------------------------------------------------------------------------------------
   ! 

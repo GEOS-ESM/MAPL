@@ -28,7 +28,7 @@ module MAPL_EASEGridFactoryMod
 
    type, extends(AbstractGridFactory) :: EASEGridFactory
       private
-      logical :: is_regular = .false.
+      logical :: is_evenspaced = .false.
       character(len=:), allocatable :: grid_name
       ! Grid dimensions
       integer :: im_world = MAPL_UNDEFINED_INTEGER
@@ -141,7 +141,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      factory%is_regular = .false.
+      factory%is_evenspaced = .false.
       call set_with_default(factory%grid_name, grid_name, MAPL_GRID_NAME_DEFAULT)
 
       call set_with_default(factory%nx, nx, MAPL_UNDEFINED_INTEGER)
@@ -605,7 +605,7 @@ contains
       end if
 
       ! Cannot assume that lats and lons are evenly spaced
-      this%is_regular = .false.
+      this%is_evenspaced = .false.
 
       associate (im => this%im_world, jm => this%jm_world, lm => this%lm)
          lon_name = 'lon'
@@ -776,10 +776,10 @@ contains
             delij=this%lat_centers(i)-this%lat_centers(i-1)
             if ((del12-delij)>epsilon(1.0)) regLat=.false.
          end do
-         this%is_regular = (regLat .and. regLon)
+         this%is_evenspaced = (regLat .and. regLon)
 
          if (use_file_coords) then
-            this%is_regular = .false.
+            this%is_evenspaced = .false.
             this%lon_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lon_centers
             this%lat_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lat_centers
             this%lon_corners = MAPL_DEGREES_TO_RADIANS_R8 * this%lon_corners
@@ -848,7 +848,7 @@ contains
 
       call ESMF_VmGetCurrent(VM, _RC)
 
-      this%is_regular = .false.
+      this%is_evenspaced = .false.
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDNAME:', default=MAPL_GRID_NAME_DEFAULT)
       this%grid_name = trim(tmp)
 
@@ -1185,7 +1185,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      this%is_regular = .false.
+      this%is_evenspaced = .false.
       call ESMF_DistGridGet(dist_grid, dimCount=dim_count, tileCount=tile_count)
       allocate(max_index(dim_count, tile_count))
       call ESMF_DistGridGet(dist_grid, maxindexPTile=max_index)
@@ -1266,10 +1266,10 @@ contains
          equal = (a%im_world == this%im_world) .and. (a%jm_world == this%jm_world)
          if (.not. equal) return
 
-         equal = (a%is_regular .eqv. this%is_regular)
+         equal = (a%is_evenspaced .eqv. this%is_evenspaced)
          if (.not. equal) return
 
-         if (a%is_regular) then
+         if (a%is_evenspaced) then
             equal = (a%pole == this%pole)
             if (.not. equal) return
 
