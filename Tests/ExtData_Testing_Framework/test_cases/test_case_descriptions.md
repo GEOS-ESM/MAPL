@@ -43,3 +43,4 @@ path_to_script/run_extdatadriver_cases.py --builddir path_to_geos_install/bin --
 36. Case1 with zstandard compression and NetCDF granular_bitround quantization (only enabled if netcdf built with quantization
     support and zstandard support)
 37. Test that when time interpolation is off, missing files is allowed, that the last read value is persisted during the period of the missing file
+38. Test when there are no files available, but the collection is not /dev/null, set fail_on_missing_file false, and exact so that the pointer is set ot MAPL_UNDEF 
