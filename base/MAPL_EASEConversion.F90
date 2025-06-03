@@ -364,7 +364,9 @@ contains
     else if (grid(1:1).eq.'M') then
        r = r0 + Rg * lam * easeV1_COS_PHI1
        s = s0 - Rg * sin(phi) / easeV1_COS_PHI1
-       
+
+    else
+       _FAIL('Unsupported v1 convert')       
     endif
         
     _RETURN(_SUCCESS)
@@ -466,6 +468,8 @@ contains
        lam = x/easeV1_COS_PHI1/Rg
        lat = phi*180./PI   ! convert from radians to degree
        lon = lam*180./PI   ! convert from radians to degree
+    else
+       _FAIL('Unsupported v1 grid')
     endif
 
     _RETURN(_SUCCESS)    
