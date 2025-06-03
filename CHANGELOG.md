@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added EASE grid Factory so the regridder can use it easily
+
 ### Changed
 
 ### Removed
