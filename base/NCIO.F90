@@ -17,7 +17,7 @@ module NCIOMod
   use MAPL_BaseMod
   use MAPL_CommsMod
   use MAPL_SortMod
-  use MAPL_EASEConversion, only:  ease_grid_name
+  use MAPL_EASEConversion, only:  get_ease_gridname_by_cols
   !use MAPL_RangeMod
   use MAPL_ShmemMod
   use MAPL_ExceptionHandling
@@ -5574,7 +5574,7 @@ contains
           ! WY note: In the old tile file, 
           ! EASE grid name is in the form of SMAP-EASEvx-Mxx
           ! It is changed to a standard form as EASEvx_Mxx
-          Correct_ease_name = ease_grid_name(IM(1))
+          Correct_ease_name = get_ease_gridname_by_cols(IM(1))
           GridNAME(1) = Correct_ease_name
       else
          allocate(AVR(NT,NumGlobalVars+NumLocalVars*N_GRIDS), STAT=STATUS)

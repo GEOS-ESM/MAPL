@@ -78,7 +78,6 @@ module MAPL_EASEConversion
   !
   ! ==========================================================================
   use, intrinsic :: iso_fortran_env, only: REAL64
-  use MAPL_Constants, only: PI => MAPL_PI_r8
   use mapl_ErrorHandlingMod
 
   implicit none
@@ -88,7 +87,7 @@ module MAPL_EASEConversion
   public :: ease_convert
   public :: ease_inverse
   public :: ease_extent
-  public :: ease_grid_name
+  public :: get_ease_gridname_by_cols
 
   ! =======================================================================
   !
@@ -98,12 +97,14 @@ module MAPL_EASEConversion
     
   ! radius of the earth (km), authalic sphere based on International datum 
   
-  real(kind=REAL64), parameter :: easeV1_RE_km                    = 6371.228D0
+  real(kind=REAL64), parameter :: easeV1_RE_km                    = 6371.228
   
   ! scale factor for standard paralles at +/-30.00 degrees
   
-  real(kind=REAL64), parameter :: easeV1_COS_PHI1                 = .866025403D0
+  real(kind=REAL64), parameter :: easeV1_COS_PHI1                 = .866025403
   
+  real(kind=REAL64), parameter :: easeV2_PI                       = 3.14159265358979323846
+  real(kind=REAL64), parameter :: easeV1_PI                       = 3.141592653589793
  
   ! =======================================================================
   !
@@ -113,9 +114,9 @@ module MAPL_EASEConversion
   
   ! radius of the earth (m) and map eccentricity
   
-  real(kind=REAL64), parameter :: map_equatorial_radius_m         = 6378137.0d0 
+  real(kind=REAL64), parameter :: map_equatorial_radius_m         = 6378137.0 
   
-  real(kind=REAL64), parameter :: map_eccentricity                = 0.081819190843d0
+  real(kind=REAL64), parameter :: map_eccentricity                = 0.081819190843
   
   
   real(kind=REAL64), parameter :: e2      = map_eccentricity * map_eccentricity
@@ -123,24 +124,24 @@ module MAPL_EASEConversion
   real(kind=REAL64), parameter :: e6      = e2 * e4
   
   
-  real(kind=REAL64), parameter :: map_reference_longitude         =   0.0d0  ! 'M', 'N', 'S'
+  real(kind=REAL64), parameter :: map_reference_longitude         =   0.0  ! 'M', 'N', 'S'
   
   ! constants for 'N' and 'S' (azimuthal) projections
   
-  real(kind=REAL64), parameter :: N_map_reference_latitude        =  90.0d0
-  real(kind=REAL64), parameter :: S_map_reference_latitude        = -90.0d0
+  real(kind=REAL64), parameter :: N_map_reference_latitude        =  90.0
+  real(kind=REAL64), parameter :: S_map_reference_latitude        = -90.0
   
   ! constants for 'M' (cylindrical) projection
   
-  real(kind=REAL64), parameter :: M_map_reference_latitude        =   0.0d0
-  real(kind=REAL64), parameter :: M_map_second_reference_latitude =  30.0d0
+  real(kind=REAL64), parameter :: M_map_reference_latitude        =   0.0
+  real(kind=REAL64), parameter :: M_map_second_reference_latitude =  30.0
   
-  real(kind=REAL64), parameter :: M_sin_phi1 = sin(M_map_second_reference_latitude*PI/180.0d0)
-  real(kind=REAL64), parameter :: M_cos_phi1 = cos(M_map_second_reference_latitude*PI/180.0d0)
+  real(kind=REAL64), parameter :: M_sin_phi1 = sin(M_map_second_reference_latitude*easeV2_PI/180.0)
+  real(kind=REAL64), parameter :: M_cos_phi1 = cos(M_map_second_reference_latitude*easeV2_PI/180.0)
   
-  real(kind=REAL64), parameter :: M_kz = M_cos_phi1/sqrt(1.0d0-e2*M_sin_phi1*M_sin_phi1)
+  real(kind=REAL64), parameter :: M_kz = M_cos_phi1/sqrt(1.0-e2*M_sin_phi1*M_sin_phi1)
   
-  
+ 
 contains  
   
   ! *******************************************************************
@@ -343,13 +344,14 @@ contains
     
     integer :: cols, rows, status
     real(kind=REAL64)  :: Rg, phi, lam, rho, CELL_km, r0, s0
-    
+   
+    real(kind=REAL64), parameter :: PI = easeV1_PI 
     ! ---------------------------------------------------------------------
     
     call easeV1_get_params( grid, CELL_km, cols, rows, r0, s0, Rg, _RC)
     
-    phi = lat*PI/180.d0   ! convert from degree to radians
-    lam = lon*PI/180.d0   ! convert from degree to radians
+    phi = lat*PI/180.   ! convert from degree to radians
+    lam = lon*PI/180.   ! convert from degree to radians
     
     if (grid(1:1).eq.'N') then
        rho = 2 * Rg * sin(PI/4. - phi/2.)
@@ -405,6 +407,8 @@ contains
     real(kind=REAL64)    :: Rg, phi, lam, rho, CELL_km, r0, s0
     real(kind=REAL64)    :: gamma, beta, epsilon, x, y, c
     real(kind=REAL64)    :: sinphi1, cosphi1
+
+    real(kind=REAL64), parameter :: PI = easeV1_PI
 
     ! ---------------------------------------------------------------------
     
@@ -505,39 +509,39 @@ contains
     else if (grid(1:1).eq.'M') then
 
        if      (grid .eq. 'M36') then ! SMAP 36 km grid
-          CELL_km = 36.00040279063d0   ! nominal cell size in kilometers
+          CELL_km = 36.00040279063   ! nominal cell size in kilometers
           cols = 963
           rows = 408
-          r0 = 481.0d0
-          s0 = 203.5d0
+          r0 = 481.0
+          s0 = 203.5
        
        else if (grid .eq. 'M25') then ! SSM/I, AMSR-E 25 km grid
-          CELL_km = 25.067525d0         ! nominal cell size in kilometers
+          CELL_km = 25.067525         ! nominal cell size in kilometers
           cols = 1383
           rows = 586
-          r0 = 691.0d0
-          s0 = 292.5d0
+          r0 = 691.0
+          s0 = 292.5
        
        else if (grid .eq. 'M09') then ! SMAP  9 km grid
-          CELL_km = 9.00010069766d0     ! nominal cell size in kilometers
+          CELL_km = 9.00010069766     ! nominal cell size in kilometers
           cols = 3852
           rows = 1632
-          r0 = 1925.5d0
-          s0 = 815.5d0
+          r0 = 1925.5
+          s0 = 815.5
        
        else if (grid .eq. 'M03') then ! SMAP  3 km grid
-          CELL_km = 3.00003356589d0     ! nominal cell size in kilometers
+          CELL_km = 3.00003356589     ! nominal cell size in kilometers
           cols = 11556
           rows = 4896
-          r0 = 5777.5d0
-          s0 = 2447.5d0
+          r0 = 5777.5
+          s0 = 2447.5
        
        else if (grid .eq. 'M01') then ! SMAP  1 km grid
-          CELL_km = 1.00001118863d0     ! nominal cell size in kilometers
+          CELL_km = 1.00001118863     ! nominal cell size in kilometers
           cols = 34668
           rows = 14688
-          r0 = 17333.5d0
-          s0 = 7343.5d0
+          r0 = 17333.5
+          s0 = 7343.5
        
        else
           _FAIL( 'easeV1_get_params(): unknown resolution: ' // grid)
@@ -586,8 +590,11 @@ contains
     
     integer :: cols, rows, status
     real(kind=REAL64)  :: dlon, phi, lam, map_scale_m, r0, s0, ms, x, y, sin_phi, q
-     
+
+    real(kind=REAL64), parameter :: PI = easeV2_PI
+ 
     real :: epsilon 
+
     ! ---------------------------------------------------------------------
     
     call easeV2_get_params( grid, map_scale_m, cols, rows, r0, s0, _RC)
@@ -604,8 +611,8 @@ contains
     if (dlon .lt. -180.0) dlon = dlon + 360.0
     if (dlon .gt.  180.0) dlon = dlon - 360.0
     
-    phi =  lat*PI/180.0d0   ! convert from degree to radians
-    lam = dlon*PI/180.0d0   ! convert from degree to radians
+    phi =  lat*PI/180.0   ! convert from degree to radians
+    lam = dlon*PI/180.0   ! convert from degree to radians
     
     sin_phi = sin(phi)
     
@@ -668,7 +675,8 @@ contains
     
     integer   :: cols, rows, status
     real(kind=REAL64)    :: phi, lam, map_scale_m, r0, s0, beta, x, y, qp
-    
+    real(kind=REAL64), parameter :: PI = easeV2_PI   
+ 
     ! ---------------------------------------------------------------------
     
     call easeV2_get_params( grid, map_scale_m, cols, rows, r0, s0, _RC)
@@ -727,43 +735,43 @@ contains
        
        if      (grid .eq. 'M36') then      ! SMAP 36 km grid
           
-          map_scale_m = 36032.220840584d0   ! nominal cell size in meters
+          map_scale_m = 36032.220840584   ! nominal cell size in meters
           cols = 964
           rows = 406
-          r0 = (cols-1)/2.0d0
-          s0 = (rows-1)/2.0d0
+          r0 = (cols-1)/2.0
+          s0 = (rows-1)/2.0
 
        else if (grid .eq. 'M25') then      ! 25 km grid  
 
-          map_scale_m = 25025.2600000d0      ! nominal cell size in meters (see doi:10.3390/ijgi3031154)
+          map_scale_m = 25025.2600000      ! nominal cell size in meters (see doi:10.3390/ijgi3031154)
           cols = 1388
           rows =  584
-          r0 = (cols-1)/2.0d0
-          s0 = (rows-1)/2.0d0
+          r0 = (cols-1)/2.0
+          s0 = (rows-1)/2.0
 
        else if (grid .eq. 'M09') then      ! SMAP  9 km grid
 
-          map_scale_m = 9008.055210146d0     ! nominal cell size in meters
+          map_scale_m = 9008.055210146     ! nominal cell size in meters
           cols = 3856
           rows = 1624
-          r0 = (cols-1)/2.0d0
-          s0 = (rows-1)/2.0d0
+          r0 = (cols-1)/2.0
+          s0 = (rows-1)/2.0
           
        else if (grid .eq. 'M03') then      ! SMAP  3 km grid
 
-          map_scale_m = 3002.6850700487d0    ! nominal cell size in meters
+          map_scale_m = 3002.6850700487    ! nominal cell size in meters
           cols = 11568
           rows = 4872
-          r0 = (cols-1)/2.0d0
-          s0 = (rows-1)/2.0d0
+          r0 = (cols-1)/2.0
+          s0 = (rows-1)/2.0
           
        else if (grid .eq. 'M01') then      ! SMAP  1 km grid
 
-          map_scale_m = 1000.89502334956d0   ! nominal cell size in meters
+          map_scale_m = 1000.89502334956   ! nominal cell size in meters
           cols = 34704
           rows = 14616
-          r0 = (cols-1)/2.0d0
-          s0 = (rows-1)/2.0d0
+          r0 = (cols-1)/2.0
+          s0 = (rows-1)/2.0
        
        else
           
@@ -785,7 +793,7 @@ contains
 
   end subroutine easeV2_get_params
 
-  function ease_grid_name(cols, rc) result(name)
+  function get_ease_gridname_by_cols(cols, rc) result(name)
       integer,           intent(in) :: cols
       integer, optional, intent(out):: rc
 

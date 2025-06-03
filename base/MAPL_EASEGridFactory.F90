@@ -645,7 +645,7 @@ contains
             end if
          end if
 
-         grid_name = ease_grid_name(im)
+         grid_name = get_ease_gridname_by_cols(im)
          this%grid_name = grid_name
 
          lat_name = 'lat'
@@ -1229,7 +1229,7 @@ contains
       call MAPL_ConfigSetAttribute(config, max_index(2,1), 'JM_WORLD:', _RC)
       call MAPL_ConfigSetAttribute(config, max_index(3,1), 'LM:', _RC)
 
-      grid_name = ease_grid_name(max_index(1,1))
+      grid_name = get_ease_gridname_by_cols(max_index(1,1))
       call MAPL_ConfigSetAttribute(config, grid_name, 'GRIDNAME:', _RC)
 
       lon => null()
@@ -1359,7 +1359,7 @@ contains
       character(len=:), allocatable :: name
       class (EASEGridFactory), intent(in) :: this
       
-      name = ease_grid_name(this%im_world)
+      name = get_ease_gridname_by_cols(this%im_world)
    
    end function generate_grid_name
 
