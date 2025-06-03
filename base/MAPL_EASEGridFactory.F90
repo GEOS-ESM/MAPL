@@ -1,7 +1,8 @@
 #include "MAPL_ErrLog.h"
 
 ! overload set interfaces in legacy
-! Document PE, PC, DC, DE, GC
+! Document Pole :: XY
+!          Date :: DE
 
 ! This module generates ESMF_Grids corresponding to _regular_ lat-lon coordinate grids.
 ! I.e., spacing between lats (lons) is constant.
@@ -343,20 +344,8 @@ contains
          max_coord = this%lon_range%max - delta/2
       else
          delta = 360.d0 / this%im_world
-         select case (dateline)
-         case ('DC')
-            min_coord = -180.d0
-            max_coord = +180.d0 - delta
-         case ('DE')
-            min_coord = -180.d0 + delta/2
-            max_coord = +180.d0 - delta/2
-         case ('GC')
-            min_coord = 0.d0
-            max_coord = 360.d0 - delta
-         case ('GE')
-            min_coord = delta/2
-            max_coord = 360.d0 - delta/2
-         end select
+         min_coord = -180.d0 + delta/2
+         max_coord = +180.d0 - delta/2
       end if
 
       if (local_convert_to_radians) then
@@ -393,20 +382,8 @@ contains
          max_coord = this%lon_range%max
       else
          delta = 360.d0 / this%im_world
-         select case (dateline)
-         case ('DC')
-            min_coord = -180.d0 - delta/2
-            max_coord = +180.d0 - delta/2
-         case ('DE')
-            min_coord = -180.d0
-            max_coord = +180.d0
-         case ('GC')
-            min_coord = 0.d0-delta/2
-            max_coord = 360.d0-delta/2
-         case ('GE')
-            min_coord = 0.d0
-            max_coord = 360.d0 - delta
-         end select
+         min_coord = -180.d0
+         max_coord = +180.d0
       end if
 
       lon_corners = MAPL_Range(min_coord, max_coord, this%im_world+1, &
@@ -766,14 +743,8 @@ contains
          end if
 
          ! This section about pole/dateline is probably not needed in file data case.
-         if (abs(this%lon_centers(1) + 180) < 1000*epsilon(1.0)) then
-            this%dateline = 'DC'
-         else if (abs(this%lon_centers(1)) < 1000*epsilon(1.0)) then
-            this%dateline = 'GC'
-         else if (abs(this%lon_corners(1) + 180) < 1000*epsilon(1.0)) then
+         if (abs(this%lon_corners(1) + 180) < 1000*epsilon(1.0)) then
             this%dateline = 'DE'
-         else if (abs(this%lon_corners(1)) < 1000*epsilon(1.0)) then
-            this%dateline = 'GE'
          else ! assume 'XY'
             this%dateline = 'XY'
             this%lon_range = RealMinMax(this%lon_centers(1), this%lon_centers(jm))
@@ -786,14 +757,9 @@ contains
             this%lat_corners(jm+1) = this%lat_centers(jm) - (this%lat_centers(jm-1)-this%lat_centers(jm))/2
          end if
 
-         if (abs(this%lat_centers(1) + 90) < 1000*epsilon(1.0)) then
-            this%pole = 'PC'
-         else if (abs(this%lat_corners(1) + 90) < 1000*epsilon(1.0)) then
-            this%pole = 'PE'
-         else ! assume XY
-            this%pole = 'XY'
-            this%lat_range = RealMinMax(this%lat_centers(1), this%lat_centers(jm))
-         end if
+         this%pole = 'XY'
+         this%lat_range = RealMinMax(this%lat_centers(1), this%lat_centers(jm))
+
          if (this%lat_corners(1) < -90) this%lat_corners(1)=-90
          if (this%lat_corners(jm+1) > 90) this%lat_corners(jm+1)=90
 
