@@ -339,9 +339,10 @@ contains
 
       regional  = (dateline == 'XY')
       if (regional) then
-         delta = (this%lon_range%max - this%lon_range%min) / this%im_world
-         min_coord = this%lon_range%min + delta/2
-         max_coord = this%lon_range%max - delta/2
+         _FAIL('Not supported reginal lons')
+        ! delta = (this%lon_range%max - this%lon_range%min) / this%im_world
+        ! min_coord = this%lon_range%min + delta/2
+        ! max_coord = this%lon_range%max - delta/2
       else
          delta = 360.d0 / this%im_world
          min_coord = -180.d0 + delta/2
@@ -377,9 +378,10 @@ contains
 
       regional  = (dateline == 'XY')
       if (regional) then
-         delta = (this%lon_range%max - this%lon_range%min) / this%im_world
-         min_coord = this%lon_range%min
-         max_coord = this%lon_range%max
+         _FAIL('Not supported reginal lons')
+         !delta = (this%lon_range%max - this%lon_range%min) / this%im_world
+         !min_coord = this%lon_range%min
+         !max_coord = this%lon_range%max
       else
          delta = 360.d0 / this%im_world
          min_coord = -180.d0
