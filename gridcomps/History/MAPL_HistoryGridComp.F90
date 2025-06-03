@@ -422,9 +422,10 @@ contains
     character(len=ESMF_MAXSTR), allocatable :: regexList(:)
     type(StringStringMap) :: global_attributes
     character(len=ESMF_MAXSTR) :: name,regrid_method
-    logical :: has_conservative_keyword, has_regrid_keyword, has_extrap_keyword
+    logical :: has_conservative_keyword, has_regrid_keyword, has_extrap_keyword, phis_in_collection, ts_in_collection
+    logical :: has_levels, has_xlevels
     integer :: create_mode
-    character(len=:), allocatable :: uppercase_algorithm
+    character(len=:), allocatable :: uppercase_algorithm, level_key
     character(len=2) :: tmpchar
 
 ! Begin
@@ -903,11 +904,8 @@ contains
        call ESMF_ConfigGetAttribute ( cfg, list(n)%tm, default=tm_default, &
                                       label=trim(string) // 'tm:', _RC )
 
-       call ESMF_ConfigFindLabel ( cfg, label=trim(string) // 'ecmwf_extrap:',isPresent=has_extrap_keyword,_RC)
-       if (has_extrap_keyword) then
-          call ESMF_ConfigGetAttribute ( cfg, list(n)%extrap_below_surf, &
-                                         label=trim(string) // 'ecmwf_extrap:'  ,_RC )
-       end if
+       call ESMF_ConfigFindLabel ( cfg, label=trim(string) // 'xlevels:',isPresent=has_extrap_keyword,_RC)
+       list(n)%extrap_below_surf = has_extrap_keyword
 
        call ESMF_ConfigFindLabel ( cfg, label=trim(string) // 'conservative:',isPresent=has_conservative_keyword,_RC)
        call ESMF_ConfigFindLabel ( cfg, label=trim(string) // 'regrid_method:',isPresent=has_regrid_keyword,_RC)
@@ -991,10 +989,17 @@ contains
 
        list(n)%vvars = ""
 
-       len = ESMF_ConfigGetLen( cfg, label=trim(trim(string) // 'levels:'), rc = status )
+       call ESMF_ConfigFindLabel ( cfg, label=trim(string) // 'levels:',isPresent=has_levels,_RC)
+       call ESMF_ConfigFindLabel ( cfg, label=trim(string) // 'xlevels:',isPresent=has_xlevels,_RC)
+       if (has_levels .and. has_xlevels) then
+          _FAIL("specified both levels and xlevels")
+       end if
+       if (has_levels) level_key = "levels:"
+       if (has_xlevels) level_key = "xlevels:"
 
-       LEVS: if( status == ESMF_SUCCESS ) then
-          call ESMF_ConfigFindLabel( cfg, label=trim(trim(string) // 'levels:'),_RC)
+       LEVS: if( has_levels .or. has_xlevels ) then
+          len = ESMF_ConfigGetLen( cfg, label=trim(trim(string) // level_key), _RC)
+          call ESMF_ConfigFindLabel( cfg, label=trim(trim(string) // level_key),_RC)
              j = 0
           do i = 1, len
              call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,_RC)
@@ -1136,18 +1141,45 @@ contains
        endif LEVS ! selected levels
 
        if (list(n)%extrap_below_surf) then
-          list(n)%field_set%nfields = list(n)%field_set%nfields + 1
-          allocate( fields(4,  list(n)%field_set%nfields), _STAT )
-          fields(1,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(1,:)
-          fields(2,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(2,:)
-          fields(3,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(3,:)
-          fields(4,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(4,:)
-          fields(1,  list(n)%field_set%nfields  ) = "PHIS"
-          fields(2,  list(n)%field_set%nfields  ) = "DYN"
-          fields(3,  list(n)%field_set%nfields  ) = "PHIS"
-          fields(4,  list(n)%field_set%nfields  ) = BLANK
-          deallocate( list(n)%field_set%fields, _STAT )
-          list(n)%field_set%fields => fields
+          phis_in_collection = .false.
+          do i=1,list(n)%field_set%nfields 
+             if (trim(fields(1,i)) == 'PHIS') phis_in_collection = .true.
+          enddo
+
+          if (.not.phis_in_collection) then
+             list(n)%field_set%nfields = list(n)%field_set%nfields + 1
+             allocate( fields(4,  list(n)%field_set%nfields), _STAT )
+             fields(1,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(1,:)
+             fields(2,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(2,:)
+             fields(3,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(3,:)
+             fields(4,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(4,:)
+             fields(1,  list(n)%field_set%nfields  ) = "PHIS"
+             fields(2,  list(n)%field_set%nfields  ) = "DYN"
+             fields(3,  list(n)%field_set%nfields  ) = "PHIS"
+             fields(4,  list(n)%field_set%nfields  ) = BLANK
+             deallocate( list(n)%field_set%fields, _STAT )
+             list(n)%field_set%fields => fields
+          end if
+
+          ts_in_collection = .false.
+          do i=1,list(n)%field_set%nfields 
+             if (trim(fields(1,i)) == 'TS') ts_in_collection = .true.
+          enddo
+
+          if (.not.ts_in_collection) then
+             list(n)%field_set%nfields = list(n)%field_set%nfields + 1
+             allocate( fields(4,  list(n)%field_set%nfields), _STAT )
+             fields(1,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(1,:)
+             fields(2,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(2,:)
+             fields(3,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(3,:)
+             fields(4,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(4,:)
+             fields(1,  list(n)%field_set%nfields  ) = "TS"
+             fields(2,  list(n)%field_set%nfields  ) = "SURFACE"
+             fields(3,  list(n)%field_set%nfields  ) = "TS"
+             fields(4,  list(n)%field_set%nfields  ) = BLANK
+             deallocate( list(n)%field_set%fields, _STAT )
+             list(n)%field_set%fields => fields
+          end if
        end if
 
        vvarn(n) = vvar
@@ -2463,7 +2495,7 @@ ENDDO PARSER
        if (list(n)%format == 'CFIO') then
           call Get_Tdim (list(n), clock, tm)
           if (associated(list(n)%levels) .and. list(n)%vvars(1) /= "") then
-             list(n)%vdata = VerticalData(levels=list(n)%levels,vcoord=list(n)%vvars(1),vscale=list(n)%vscale,vunit=list(n)%vunit,_RC)
+             list(n)%vdata = VerticalData(levels=list(n)%levels,vcoord=list(n)%vvars(1),vscale=list(n)%vscale,vunit=list(n)%vunit,extrap_below_surf=list(n)%extrap_below_surf, _RC)
           else if (associated(list(n)%levels) .and. list(n)%vvars(1) == "") then
              list(n)%vdata = VerticalData(levels=list(n)%levels,_RC)
           else
