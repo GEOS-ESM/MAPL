@@ -165,7 +165,6 @@ contains
       integer :: ni, dir
       type(Vertex), pointer :: v_1, v_2, v_new
 
-
       v_1 => this%vertices%of(ivs(1))
       v_2 => this%vertices%of(ivs(2))
       dir = v_1%get_direction_to(v_2, shape(this%pixels), _RC)
@@ -180,10 +179,10 @@ contains
       v_1 => this%vertices%of(ivs(1))
       v_2 => this%vertices%of(ivs(2))
       dir = v_1%get_direction_to(v_2, shape(this%pixels), _RC)
-      call v_1%replace_connection(new_ivs(1), dir=dir, _RC)
-      call v_2%replace_connection(new_ivs(1), dir=reverse(dir), _RC)
+      call v_1%replace_connection(new_ivs, dir=dir, _RC)
+      call v_2%replace_connection(new_ivs, dir=reverse(dir), _RC)
 
-      v_new => this%get_vertex(new_ivs(1))
+      v_new => this%get_vertex(new_ivs)
       call v_new%insert_connection(ivs(1), reverse(dir), _RC)
       call v_new%insert_connection(ivs(2), dir, _RC)
 
@@ -256,7 +255,7 @@ contains
 
       integer :: status
 
-      _HERE, refine_i, refine_j
+!#      _HERE, refine_i, refine_j
       _ASSERT((refine_i == 1) .neqv. (refine_j == 1), 'Must refine exactly one direction at a time.')
 
       if (refine_i == 1) then
@@ -266,6 +265,9 @@ contains
       end if
 
       !_HERE, 'E/W'
+      if (refine_i <=1) then
+         _HERE, refine_i, refine_j
+      end if
       call this%refine_east_west(e, refine_i, _RC)
 
       _RETURN(_SUCCESS)

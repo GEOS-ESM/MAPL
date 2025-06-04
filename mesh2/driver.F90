@@ -64,8 +64,8 @@ program main
    level = 0
    lon_level = 0
    lat_level = 0
-   n_lon_level = n_lon
-   n_lat_level = n_lat
+   n_lon_level = ni
+   n_lat_level = nj
 
    print*,' level: ', level, '(', num_levels, ') # cells: ', m%num_elements()
    levels: do level = 1, num_levels
@@ -82,7 +82,7 @@ program main
          n_lat_level = n_lat_level / lat_factors(lat_level)
       end if
 
-      _HERE
+      print*
       n = m%num_elements()
       do i = 1, n
          e => m%get_element(i)
@@ -103,7 +103,8 @@ program main
    counters = 0
    do i = 1, m%num_elements()
       e => m%get_element(i)
-      _ASSERT(e%is_fully_refined(), 'hmm algorithm did not complete')
+      _ASSERT(.not. e%do_refine(), 'hmm algorithm did not complete')
+
       p => e%pixels(1,1)
       catch_index = p
       select case (catch_index)
