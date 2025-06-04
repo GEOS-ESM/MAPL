@@ -538,7 +538,7 @@ NAMED_MAPPINGS = {
         STANDARD_NAME: mangle_standard_name,
         RANK: compute_rank, 
         MAKE_BLOCK: lambda value: partial(make_block, value),
-        LOGICAL: lambda value: convert_to_fortran_logical
+        LOGICAL: convert_to_fortran_logical
         }
 
 def fetch_mapping_function(m, func_dict=NAMED_MAPPINGS):
