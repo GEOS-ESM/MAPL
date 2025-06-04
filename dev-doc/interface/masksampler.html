@@ -1,0 +1,615 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MaskSampler &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MaskSampler
+      <small>Interface</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title="<p> 0.0% of total for procedures.</p>Including implementation: 86 statements,  0.0% of total for procedures.">3 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_MaskMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_maskmod.f90.html'>MAPL_MaskMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/masksamplermod.html'>MaskSamplerMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MaskSampler</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#modprocs-0"
+         aria-expanded="false" aria-controls="modprocs-0">
+         <h4 class="card-header bg-primary text-white">Module Procedures</h4>
+      </a>
+      <div id="modprocs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../interface/masksampler.html#moduleprocedure-masksampler_from_config">MaskSampler_from_config</a>
+        </div>
+      </div>
+    </div>
+
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      <h2>public interface MaskSampler</h2>
+      
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Calls</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: interface~~masksampler~~CallsGraph Pages: 1 -->
+<svg id="interfacemasksamplerCallsGraph" width="641pt" height="268pt"
+ viewBox="0.00 0.00 641.00 268.35" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="interface~~masksampler~~CallsGraph" class="graph" transform="scale(0.61 0.61) rotate(0) translate(4 436)">
+<title>interface~~masksampler~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-436 1047,-436 1047,4 -4,4"/>
+<!-- interface~masksampler -->
+<g id="interface~~masksampler~~CallsGraph_node1" class="node">
+<title>interface~masksampler</title>
+<polygon fill="none" stroke="black" points="85,-248 0,-248 0,-224 85,-224 85,-248"/>
+<text text-anchor="middle" x="42.5" y="-233.6" font-family="Helvetica,sans-Serif" font-size="10.50">MaskSampler</text>
+</g>
+<!-- interface~masksampler_from_config -->
+<g id="interface~~masksampler~~CallsGraph_node2" class="node">
+<title>interface~masksampler_from_config</title>
+<g id="a_interface~~masksampler~~CallsGraph_node2"><a xlink:href="../interface/masksampler_from_config.html" xlink:title="MaskSampler_from_config">
+<polygon fill="#a7506f" stroke="#a7506f" points="274,-248 121,-248 121,-224 274,-224 274,-248"/>
+<text text-anchor="middle" x="197.5" y="-233.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaskSampler_from_config</text>
+</a>
+</g>
+</g>
+<!-- interface~masksampler&#45;&gt;interface~masksampler_from_config -->
+<g id="interface~~masksampler~~CallsGraph_edge1" class="edge">
+<title>interface~masksampler&#45;&gt;interface~masksampler_from_config</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M85.31,-236C93.34,-236 102.03,-236 110.88,-236"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="110.91,-239.5 120.91,-236 110.91,-232.5 110.91,-239.5"/>
+</g>
+<!-- proc~masksampler_from_config -->
+<g id="interface~~masksampler~~CallsGraph_node3" class="node">
+<title>proc~masksampler_from_config</title>
+<g id="a_interface~~masksampler~~CallsGraph_node3"><a xlink:href="../proc/masksampler_from_config.html" xlink:title="MaskSampler_from_config">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="463,-248 310,-248 310,-224 463,-224 463,-248"/>
+<text text-anchor="middle" x="386.5" y="-233.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaskSampler_from_config</text>
+</a>
+</g>
+</g>
+<!-- interface~masksampler_from_config&#45;&gt;proc~masksampler_from_config -->
+<g id="interface~~masksampler~~CallsGraph_edge2" class="edge">
+<title>interface~masksampler_from_config&#45;&gt;proc~masksampler_from_config</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M274.02,-236C282.47,-236 291.13,-236 299.7,-236"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="299.7,-239.5 309.7,-236 299.7,-232.5 299.7,-239.5"/>
+</g>
+<!-- ESMF_ClockGet -->
+<g id="interface~~masksampler~~CallsGraph_node4" class="node">
+<title>ESMF_ClockGet</title>
+<g id="a_interface~~masksampler~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_clockget.html" xlink:title="ESMF_ClockGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="641.5,-432 547.5,-432 547.5,-408 641.5,-408 641.5,-432"/>
+<text text-anchor="middle" x="594.5" y="-417.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ClockGet</text>
+</a>
+</g>
+</g>
+<!-- proc~masksampler_from_config&#45;&gt;ESMF_ClockGet -->
+<g id="interface~~masksampler~~CallsGraph_edge3" class="edge">
+<title>proc~masksampler_from_config&#45;&gt;ESMF_ClockGet</title>
+<path fill="none" stroke="#ff0000" d="M392.08,-248.14C404.3,-278.78 440.78,-359.62 499,-399 510.31,-406.65 523.97,-411.56 537.34,-414.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="536.97,-418.2 547.47,-416.77 538.37,-411.34 536.97,-418.2"/>
+</g>
+<!-- ESMF_ConfigGetAttribute -->
+<g id="interface~~masksampler~~CallsGraph_node5" class="node">
+<title>ESMF_ConfigGetAttribute</title>
+<g id="a_interface~~masksampler~~CallsGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_configgetattribute.html" xlink:title="ESMF_ConfigGetAttribute">
+<polygon fill="#a7506f" stroke="#a7506f" points="667,-390 522,-390 522,-366 667,-366 667,-390"/>
+<text text-anchor="middle" x="594.5" y="-375.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ConfigGetAttribute</text>
+</a>
+</g>
+</g>
+<!-- proc~masksampler_from_config&#45;&gt;ESMF_ConfigGetAttribute -->
+<g id="interface~~masksampler~~CallsGraph_edge4" class="edge">
+<title>proc~masksampler_from_config&#45;&gt;ESMF_ConfigGetAttribute</title>
+<path fill="none" stroke="#ff0000" d="M395.01,-248.22C410.9,-272.98 450.48,-329.06 499,-357 503.15,-359.39 507.55,-361.51 512.09,-363.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="510.97,-366.71 521.57,-366.91 513.41,-360.14 510.97,-366.71"/>
+</g>
+<!-- ESMF_TimeGet -->
+<g id="interface~~masksampler~~CallsGraph_node6" class="node">
+<title>ESMF_TimeGet</title>
+<g id="a_interface~~masksampler~~CallsGraph_node6"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_timeget.html" xlink:title="ESMF_TimeGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="640,-348 549,-348 549,-324 640,-324 640,-348"/>
+<text text-anchor="middle" x="594.5" y="-333.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeGet</text>
+</a>
+</g>
+</g>
+<!-- proc~masksampler_from_config&#45;&gt;ESMF_TimeGet -->
+<g id="interface~~masksampler~~CallsGraph_edge5" class="edge">
+<title>proc~masksampler_from_config&#45;&gt;ESMF_TimeGet</title>
+<path fill="none" stroke="#ff0000" d="M402.46,-248.2C423.04,-264.43 461.79,-293.06 499,-310 511.46,-315.67 525.43,-320.35 538.73,-324.1"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="538.16,-327.57 548.72,-326.78 539.97,-320.81 538.16,-327.57"/>
+</g>
+<!-- ESMF_TimeIntervalSet -->
+<g id="interface~~masksampler~~CallsGraph_node7" class="node">
+<title>ESMF_TimeIntervalSet</title>
+<g id="a_interface~~masksampler~~CallsGraph_node7"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeintervalset.html" xlink:title="ESMF_TimeIntervalSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="865,-300 735,-300 735,-276 865,-276 865,-300"/>
+<text text-anchor="middle" x="800" y="-285.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeIntervalSet</text>
+</a>
+</g>
+</g>
+<!-- proc~masksampler_from_config&#45;&gt;ESMF_TimeIntervalSet -->
+<g id="interface~~masksampler~~CallsGraph_edge6" class="edge">
+<title>proc~masksampler_from_config&#45;&gt;ESMF_TimeIntervalSet</title>
+<path fill="none" stroke="#ff0000" d="M413.41,-248.19C435.58,-257.97 468.65,-271.02 499,-277 574.77,-291.93 663.34,-293.26 724.5,-291.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="724.93,-295.22 734.83,-291.44 724.74,-288.23 724.93,-295.22"/>
+</g>
+<!-- ESMF_TimeSet -->
+<g id="interface~~masksampler~~CallsGraph_node8" class="node">
+<title>ESMF_TimeSet</title>
+<g id="a_interface~~masksampler~~CallsGraph_node8"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeset.html" xlink:title="ESMF_TimeSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="639.5,-150 549.5,-150 549.5,-126 639.5,-126 639.5,-150"/>
+<text text-anchor="middle" x="594.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeSet</text>
+</a>
+</g>
+</g>
+<!-- proc~masksampler_from_config&#45;&gt;ESMF_TimeSet -->
+<g id="interface~~masksampler~~CallsGraph_edge7" class="edge">
+<title>proc~masksampler_from_config&#45;&gt;ESMF_TimeSet</title>
+<path fill="none" stroke="#ff0000" d="M402.87,-223.89C423.61,-208.07 462.2,-180.48 499,-164 511.75,-158.29 526.03,-153.57 539.56,-149.79"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="540.49,-153.17 549.25,-147.21 538.68,-146.41 540.49,-153.17"/>
+</g>
+<!-- interface~mapl_am_i_root -->
+<g id="interface~~masksampler~~CallsGraph_node9" class="node">
+<title>interface~mapl_am_i_root</title>
+<g id="a_interface~~masksampler~~CallsGraph_node9"><a xlink:href="../interface/mapl_am_i_root.html" xlink:title="MAPL_Am_I_Root">
+<polygon fill="#a7506f" stroke="#a7506f" points="645.5,-108 543.5,-108 543.5,-84 645.5,-84 645.5,-108"/>
+<text text-anchor="middle" x="594.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root</text>
+</a>
+</g>
+</g>
+<!-- proc~masksampler_from_config&#45;&gt;interface~mapl_am_i_root -->
+<g id="interface~~masksampler~~CallsGraph_edge8" class="edge">
+<title>proc~masksampler_from_config&#45;&gt;interface~mapl_am_i_root</title>
+<path fill="none" stroke="#ff0000" d="M395.06,-223.98C411.05,-199.64 450.8,-144.49 499,-117 509.49,-111.02 521.54,-106.74 533.45,-103.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="534.42,-107.04 543.38,-101.38 532.85,-100.22 534.42,-107.04"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="interface~~masksampler~~CallsGraph_node10" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_interface~~masksampler~~CallsGraph_node10"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="634,-66 555,-66 555,-42 634,-42 634,-66"/>
+<text text-anchor="middle" x="594.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~masksampler_from_config&#45;&gt;interface~mapl_assert -->
+<g id="interface~~masksampler~~CallsGraph_edge9" class="edge">
+<title>proc~masksampler_from_config&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M392.31,-223.56C404.81,-192.96 441.44,-113.7 499,-75 512.39,-66 529.02,-60.8 544.58,-57.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="545.31,-61.24 554.61,-56.15 544.17,-54.33 545.31,-61.24"/>
+</g>
+<!-- proc~convert_twostring_2_esmfinterval -->
+<g id="interface~~masksampler~~CallsGraph_node11" class="node">
+<title>proc~convert_twostring_2_esmfinterval</title>
+<g id="a_interface~~masksampler~~CallsGraph_node11"><a xlink:href="../proc/convert_twostring_2_esmfinterval.html" xlink:title="convert_twostring_2_esmfinterval">
+<polygon fill="#d9534f" stroke="#d9534f" points="690,-268 499,-268 499,-244 690,-244 690,-268"/>
+<text text-anchor="middle" x="594.5" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">convert_twostring_2_esmfinterval</text>
+</a>
+</g>
+</g>
+<!-- proc~masksampler_from_config&#45;&gt;proc~convert_twostring_2_esmfinterval -->
+<g id="interface~~masksampler~~CallsGraph_edge10" class="edge">
+<title>proc~masksampler_from_config&#45;&gt;proc~convert_twostring_2_esmfinterval</title>
+<path fill="none" stroke="#ff0000" d="M463.04,-243.33C471.37,-244.14 479.97,-244.98 488.58,-245.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="488.39,-249.31 498.68,-246.79 489.07,-242.34 488.39,-249.31"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="interface~~masksampler~~CallsGraph_node12" class="node">
+<title>proc~mapl_return</title>
+<g id="a_interface~~masksampler~~CallsGraph_node12"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="841,-242 759,-242 759,-218 841,-218 841,-242"/>
+<text text-anchor="middle" x="800" y="-227.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~masksampler_from_config&#45;&gt;proc~mapl_return -->
+<g id="interface~~masksampler~~CallsGraph_edge11" class="edge">
+<title>proc~masksampler_from_config&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M463.45,-234.89C546.57,-233.68 677.44,-231.77 748.7,-230.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="748.81,-234.23 758.76,-230.59 748.71,-227.23 748.81,-234.23"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="interface~~masksampler~~CallsGraph_node13" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_interface~~masksampler~~CallsGraph_node13"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="838,-200 762,-200 762,-176 838,-176 838,-200"/>
+<text text-anchor="middle" x="800" y="-185.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~masksampler_from_config&#45;&gt;proc~mapl_verify -->
+<g id="interface~~masksampler~~CallsGraph_edge12" class="edge">
+<title>proc~masksampler_from_config&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M463.45,-227.14C547.72,-217.31 681.09,-201.75 751.63,-193.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="752.46,-196.95 761.98,-192.32 751.64,-190 752.46,-196.95"/>
+</g>
+<!-- proc~mapl_am_i_root_layout -->
+<g id="interface~~masksampler~~CallsGraph_node15" class="node">
+<title>proc~mapl_am_i_root_layout</title>
+<g id="a_interface~~masksampler~~CallsGraph_node15"><a xlink:href="../proc/mapl_am_i_root_layout.html" xlink:title="MAPL_Am_I_Root_Layout">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="871.5,-108 728.5,-108 728.5,-84 871.5,-84 871.5,-108"/>
+<text text-anchor="middle" x="800" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root_Layout</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_layout -->
+<g id="interface~~masksampler~~CallsGraph_edge13" class="edge">
+<title>interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_layout</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M645.54,-96C667.47,-96 693.76,-96 718.34,-96"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="718.38,-99.5 728.38,-96 718.38,-92.5 718.38,-99.5"/>
+</g>
+<!-- proc~mapl_am_i_root_vm -->
+<g id="interface~~masksampler~~CallsGraph_node16" class="node">
+<title>proc~mapl_am_i_root_vm</title>
+<g id="a_interface~~masksampler~~CallsGraph_node16"><a xlink:href="../proc/mapl_am_i_root_vm.html" xlink:title="MAPL_Am_I_Root_Vm">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="862.5,-150 737.5,-150 737.5,-126 862.5,-126 862.5,-150"/>
+<text text-anchor="middle" x="800" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root_Vm</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_vm -->
+<g id="interface~~masksampler~~CallsGraph_edge14" class="edge">
+<title>interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_vm</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M645.54,-106.33C671.22,-111.63 702.88,-118.16 730.77,-123.92"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="730.35,-127.41 740.85,-126 731.77,-120.55 730.35,-127.41"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="interface~~masksampler~~CallsGraph_node17" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_interface~~masksampler~~CallsGraph_node17"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="867,-24 733,-24 733,0 867,0 867,-24"/>
+<text text-anchor="middle" x="800" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="interface~~masksampler~~CallsGraph_edge15" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M634.26,-46C661.53,-40.37 698.77,-32.69 730.94,-26.05"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="731.66,-29.47 740.74,-24.02 730.24,-22.62 731.66,-29.47"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="interface~~masksampler~~CallsGraph_node18" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_interface~~masksampler~~CallsGraph_node18"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="874,-66 726,-66 726,-42 874,-42 874,-66"/>
+<text text-anchor="middle" x="800" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="interface~~masksampler~~CallsGraph_edge16" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M634.26,-54C657.26,-54 687.35,-54 715.51,-54"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="715.78,-57.5 725.78,-54 715.78,-50.5 715.78,-57.5"/>
+</g>
+<!-- proc~convert_twostring_2_esmfinterval&#45;&gt;ESMF_TimeIntervalSet -->
+<g id="interface~~masksampler~~CallsGraph_edge17" class="edge">
+<title>proc~convert_twostring_2_esmfinterval&#45;&gt;ESMF_TimeIntervalSet</title>
+<path fill="none" stroke="#3200ff" d="M671.85,-268.01C689.2,-270.73 707.6,-273.63 724.85,-276.34"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="724.44,-279.82 734.86,-277.91 725.53,-272.9 724.44,-279.82"/>
+</g>
+<!-- proc~convert_twostring_2_esmfinterval&#45;&gt;proc~mapl_return -->
+<g id="interface~~masksampler~~CallsGraph_edge18" class="edge">
+<title>proc~convert_twostring_2_esmfinterval&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#3200ff" d="M689.51,-243.99C709.97,-241.37 730.86,-238.71 748.83,-236.41"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="749.29,-239.88 758.77,-235.14 748.4,-232.94 749.29,-239.88"/>
+</g>
+<!-- proc~convert_twostring_2_esmfinterval&#45;&gt;proc~mapl_verify -->
+<g id="interface~~masksampler~~CallsGraph_edge19" class="edge">
+<title>proc~convert_twostring_2_esmfinterval&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#3200ff" d="M627.21,-243.92C653.51,-234.06 691.98,-220.01 726,-209 734.39,-206.29 743.37,-203.56 752.07,-201.01"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="753.09,-204.36 761.72,-198.21 751.14,-197.63 753.09,-204.36"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="interface~~masksampler~~CallsGraph_node14" class="node">
+<title>proc~get_error_message</title>
+<g id="a_interface~~masksampler~~CallsGraph_node14"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1034,-242 919,-242 919,-218 1034,-218 1034,-242"/>
+<text text-anchor="middle" x="976.5" y="-227.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="interface~~masksampler~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#cc00ff" d="M841.03,-230C861.02,-230 885.73,-230 908.49,-230"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="908.79,-233.5 918.79,-230 908.79,-226.5 908.79,-233.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="interface~~masksampler~~CallsGraph_node19" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_interface~~masksampler~~CallsGraph_node19"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1043,-200 910,-200 910,-176 1043,-176 1043,-200"/>
+<text text-anchor="middle" x="976.5" y="-185.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="interface~~masksampler~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#cc00ff" d="M841.03,-220.36C863.05,-215.06 890.82,-208.38 915.39,-202.47"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="916.44,-205.82 925.34,-200.07 914.8,-199.01 916.44,-205.82"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="interface~~masksampler~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff0098" d="M838.01,-188C855.97,-188 878.25,-188 899.6,-188"/>
+<polygon fill="#ff0098" stroke="#ff0098" points="899.65,-191.5 909.65,-188 899.65,-184.5 899.65,-191.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var paninterfacemasksamplerCallsGraph = svgPanZoom('#interfacemasksamplerCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+
+
+        <h2>Module Procedures</h2>
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="interface-masksampler_from_config"></span> <h3>private  interface <a href='masksampler_from_config.html'>MaskSampler_from_config</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+</div>
+  </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-04T14:18:41.963139+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

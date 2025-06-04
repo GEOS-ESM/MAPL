@@ -1,0 +1,1337 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>mapl_MaplComponent &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>mapl_MaplComponent
+      <small>Module</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for modules and submodules.">57 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MaplComponent.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/maplcomponent.f90.html'>MaplComponent.F90</a></li>
+            <li class="breadcrumb-item active" aria-current="page">mapl_MaplComponent</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#types-0"
+         aria-expanded="false" aria-controls="types-0">
+         <h4 class="card-header bg-primary text-white">Derived Types</h4>
+      </a>
+      <div id="types-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_maplcomponent.html#type-maplcomponent">MaplComponent</a>
+        </div>
+      </div>
+    </div>
+
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#funcs-0"
+         aria-expanded="false" aria-controls="funcs-0">
+         <h4 class="card-header bg-primary text-white">Functions</h4>
+      </a>
+      <div id="funcs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_maplcomponent.html#proc-get_logger">get_logger</a>
+            <a class="list-group-item" href="../module/mapl_maplcomponent.html#proc-get_framework">get_framework</a>
+        </div>
+      </div>
+    </div>
+
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#subs-0"
+         aria-expanded="false" aria-controls="subs-0">
+         <h4 class="card-header bg-primary text-white">Subroutines</h4>
+      </a>
+      <div id="subs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_maplcomponent.html#proc-run_child">run_child</a>
+            <a class="list-group-item" href="../module/mapl_maplcomponent.html#proc-set_framework">set_framework</a>
+            <a class="list-group-item" href="../module/mapl_maplcomponent.html#proc-set_logger">set_logger</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
+                  <li class="list-inline-item"><a href='mapl_keywordenforcermod.html'>MAPL_KeywordEnforcerMod</a></li>
+                  <li class="list-inline-item"><a href='pflogger.html'>pflogger</a></li>
+                  <li class="list-inline-item"><a href='mapl_basecomponent.html'>mapl_BaseComponent</a></li>
+                  <li class="list-inline-item"><a href='mapl_errorhandlingmod.html'>MAPL_ErrorHandlingMod</a></li>
+                  <li class="list-inline-item"><a href='mapl_surrogateframeworkcomponent.html'>mapl_SurrogateFrameworkComponent</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~mapl_maplcomponent~~UsesGraph Pages: 1 -->
+<svg id="modulemapl_maplcomponentUsesGraph" width="641pt" height="140pt"
+ viewBox="0.00 0.00 641.00 140.17" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl_maplcomponent~~UsesGraph" class="graph" transform="scale(0.57 0.57) rotate(0) translate(4 242.44)">
+<title>module~~mapl_maplcomponent~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-242.44 1123,-242.44 1123,4 -4,4"/>
+<!-- module~mapl_maplcomponent -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_node1" class="node">
+<title>module~mapl_maplcomponent</title>
+<polygon fill="none" stroke="black" points="1119,-113.44 986,-113.44 986,-89.44 1119,-89.44 1119,-113.44"/>
+<text text-anchor="middle" x="1052.5" y="-99.04" font-family="Helvetica,sans-Serif" font-size="10.50">mapl_MaplComponent</text>
+</g>
+<!-- ESMF -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_node2" class="node">
+<title>ESMF</title>
+<g id="a_module~~mapl_maplcomponent~~UsesGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/module/esmf.html" xlink:title="ESMF">
+<polygon fill="#337ab7" stroke="#337ab7" points="867.5,-218.44 813.5,-218.44 813.5,-194.44 867.5,-194.44 867.5,-218.44"/>
+<text text-anchor="middle" x="840.5" y="-204.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_maplcomponent&#45;&gt;ESMF -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_edge1" class="edge">
+<title>module~mapl_maplcomponent&#45;&gt;ESMF</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1040.68,-113.67C1023.45,-132.32 987.85,-167.56 950,-185.44 927.34,-196.14 899.55,-201.39 877.78,-203.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="877.2,-200.51 867.61,-205.03 877.92,-207.47 877.2,-200.51"/>
+</g>
+<!-- module~mapl_basecomponent -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_node3" class="node">
+<title>module~mapl_basecomponent</title>
+<g id="a_module~~mapl_maplcomponent~~UsesGraph_node3"><a xlink:href="../module/mapl_basecomponent.html" xlink:title="mapl_BaseComponent">
+<polygon fill="#337ab7" stroke="#337ab7" points="907,-176.44 774,-176.44 774,-152.44 907,-152.44 907,-176.44"/>
+<text text-anchor="middle" x="840.5" y="-162.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_BaseComponent</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_maplcomponent&#45;&gt;module~mapl_basecomponent -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_edge2" class="edge">
+<title>module~mapl_maplcomponent&#45;&gt;module~mapl_basecomponent</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1026.15,-113.6C1005.93,-122.9 976.67,-135.43 950,-143.44 939.52,-146.59 928.32,-149.38 917.25,-151.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="916.2,-148.45 907.14,-153.94 917.64,-155.3 916.2,-148.45"/>
+</g>
+<!-- module~mapl_errorhandlingmod -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_node4" class="node">
+<title>module~mapl_errorhandlingmod</title>
+<g id="a_module~~mapl_maplcomponent~~UsesGraph_node4"><a xlink:href="../module/mapl_errorhandlingmod.html" xlink:title="MAPL_ErrorHandlingMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="912,-134.44 769,-134.44 769,-110.44 912,-110.44 912,-134.44"/>
+<text text-anchor="middle" x="840.5" y="-120.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_maplcomponent&#45;&gt;module~mapl_errorhandlingmod -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_edge3" class="edge">
+<title>module~mapl_maplcomponent&#45;&gt;module~mapl_errorhandlingmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M985.92,-108C965.75,-110.01 943.31,-112.26 922.25,-114.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="921.64,-110.91 912.04,-115.39 922.34,-117.87 921.64,-110.91"/>
+</g>
+<!-- module~mapl_keywordenforcermod -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_node5" class="node">
+<title>module~mapl_keywordenforcermod</title>
+<g id="a_module~~mapl_maplcomponent~~UsesGraph_node5"><a xlink:href="../module/mapl_keywordenforcermod.html" xlink:title="MAPL_KeywordEnforcerMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="920,-92.44 761,-92.44 761,-68.44 920,-68.44 920,-92.44"/>
+<text text-anchor="middle" x="840.5" y="-78.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_KeywordEnforcerMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_maplcomponent&#45;&gt;module~mapl_keywordenforcermod -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_edge4" class="edge">
+<title>module~mapl_maplcomponent&#45;&gt;module~mapl_keywordenforcermod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M985.92,-94.88C968.27,-93.12 948.88,-91.18 930.2,-89.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="930.51,-85.82 920.21,-88.31 929.82,-92.79 930.51,-85.82"/>
+</g>
+<!-- module~mapl_surrogateframeworkcomponent -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_node6" class="node">
+<title>module~mapl_surrogateframeworkcomponent</title>
+<g id="a_module~~mapl_maplcomponent~~UsesGraph_node6"><a xlink:href="../module/mapl_surrogateframeworkcomponent.html" xlink:title="mapl_SurrogateFrameworkComponent">
+<polygon fill="#337ab7" stroke="#337ab7" points="950,-50.44 731,-50.44 731,-26.44 950,-26.44 950,-50.44"/>
+<text text-anchor="middle" x="840.5" y="-36.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_SurrogateFrameworkComponent</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_maplcomponent&#45;&gt;module~mapl_surrogateframeworkcomponent -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_edge5" class="edge">
+<title>module~mapl_maplcomponent&#45;&gt;module~mapl_surrogateframeworkcomponent</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1026.15,-89.28C1005.93,-79.98 976.67,-67.45 950,-59.44 941.72,-56.95 933,-54.69 924.24,-52.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="924.89,-49.21 914.36,-50.45 923.36,-56.04 924.89,-49.21"/>
+</g>
+<!-- module~pflogger -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_node7" class="node">
+<title>module~pflogger</title>
+<g id="a_module~~mapl_maplcomponent~~UsesGraph_node7"><a xlink:href="../module/pflogger.html" xlink:title="pflogger">
+<polygon fill="#337ab7" stroke="#337ab7" points="508,-176.44 450,-176.44 450,-152.44 508,-152.44 508,-176.44"/>
+<text text-anchor="middle" x="479" y="-162.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pflogger</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_maplcomponent&#45;&gt;module~pflogger -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_edge6" class="edge">
+<title>module~mapl_maplcomponent&#45;&gt;module~pflogger</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1041.86,-89.27C1025.47,-69.67 990.03,-31.86 950,-17.44 858.42,15.54 827.74,-6.71 731,-17.44 646.34,-26.83 613.22,-9.8 544,-59.44 515.14,-80.14 496.76,-118.29 487.43,-142.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="484.02,-141.57 483.87,-152.17 490.6,-143.98 484.02,-141.57"/>
+</g>
+<!-- module~mapl_basecomponent&#45;&gt;module~pflogger -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_edge8" class="edge">
+<title>module~mapl_basecomponent&#45;&gt;module~pflogger</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M780.84,-176.47C720.97,-186.91 625.51,-198.47 544,-185.44 535.37,-184.06 526.32,-181.7 517.84,-179.04"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="518.79,-175.67 508.19,-175.83 516.58,-182.31 518.79,-175.67"/>
+</g>
+<!-- module~mapl_abstractcomponent -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_node8" class="node">
+<title>module~mapl_abstractcomponent</title>
+<g id="a_module~~mapl_maplcomponent~~UsesGraph_node8"><a xlink:href="../module/mapl_abstractcomponent.html" xlink:title="mapl_AbstractComponent">
+<polygon fill="#337ab7" stroke="#337ab7" points="695,-176.44 544,-176.44 544,-152.44 695,-152.44 695,-176.44"/>
+<text text-anchor="middle" x="619.5" y="-162.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_AbstractComponent</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_basecomponent&#45;&gt;module~mapl_abstractcomponent -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_edge7" class="edge">
+<title>module~mapl_basecomponent&#45;&gt;module~mapl_abstractcomponent</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M773.79,-164.44C752.38,-164.44 728.29,-164.44 705.66,-164.44"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="705.38,-160.94 695.38,-164.44 705.38,-167.94 705.38,-160.94"/>
+</g>
+<!-- module~mapl_throwmod -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_node9" class="node">
+<title>module~mapl_throwmod</title>
+<g id="a_module~~mapl_maplcomponent~~UsesGraph_node9"><a xlink:href="../module/mapl_throwmod.html" xlink:title="MAPL_ThrowMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="670,-134.44 569,-134.44 569,-110.44 670,-110.44 670,-134.44"/>
+<text text-anchor="middle" x="619.5" y="-120.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_errorhandlingmod&#45;&gt;module~mapl_throwmod -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_edge9" class="edge">
+<title>module~mapl_errorhandlingmod&#45;&gt;module~mapl_throwmod</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M768.7,-122.44C740.22,-122.44 707.73,-122.44 680.45,-122.44"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="680.27,-118.94 670.27,-122.44 680.27,-125.94 680.27,-118.94"/>
+</g>
+<!-- mpi -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_node15" class="node">
+<title>mpi</title>
+<g id="a_module~~mapl_maplcomponent~~UsesGraph_node15"><a xlink:href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm" xlink:title="mpi">
+<polygon fill="#337ab7" stroke="#337ab7" points="646.5,-92.44 592.5,-92.44 592.5,-68.44 646.5,-68.44 646.5,-92.44"/>
+<text text-anchor="middle" x="619.5" y="-78.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_errorhandlingmod&#45;&gt;mpi -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_edge10" class="edge">
+<title>module~mapl_errorhandlingmod&#45;&gt;mpi</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M776.74,-110.4C737.85,-102.95 689.28,-93.63 656.7,-87.38"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="657.2,-83.91 646.72,-85.47 655.88,-90.79 657.2,-83.91"/>
+</g>
+<!-- module~pfl_keywordenforcermod -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_node10" class="node">
+<title>module~pfl_keywordenforcermod</title>
+<g id="a_module~~mapl_maplcomponent~~UsesGraph_node10"><a xlink:href="../module/pfl_keywordenforcermod.html" xlink:title="PFL_KeywordEnforcerMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="148,-238.44 0,-238.44 0,-214.44 148,-214.44 148,-238.44"/>
+<text text-anchor="middle" x="74" y="-224.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_KeywordEnforcerMod</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_keywordenforcermod -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_edge11" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_keywordenforcermod</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M352.5,-224.44C287.79,-234.11 213.65,-234.08 158.29,-231.93"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="158.32,-228.43 148.18,-231.5 158.02,-235.42 158.32,-228.43"/>
+</g>
+<!-- module~pfl_logger -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_node11" class="node">
+<title>module~pfl_logger</title>
+<g id="a_module~~mapl_maplcomponent~~UsesGraph_node11"><a xlink:href="../module/pfl_logger.html" xlink:title="PFL_Logger">
+<polygon fill="#337ab7" stroke="#337ab7" points="257,-196.44 184,-196.44 184,-172.44 257,-172.44 257,-196.44"/>
+<text text-anchor="middle" x="220.5" y="-182.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_Logger</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_logger -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_edge12" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_logger</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M461.84,-176.47C449.3,-185.39 431.2,-197.36 414,-205.44 388.88,-217.25 381.96,-220.34 354.5,-224.44"/>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M352.5,-224.44C316.47,-229.82 276.65,-214.44 250.48,-201.22"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="251.97,-198.05 241.49,-196.49 248.71,-204.24 251.97,-198.05"/>
+</g>
+<!-- module~pfl_loggermanager -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_node12" class="node">
+<title>module~pfl_loggermanager</title>
+<g id="a_module~~mapl_maplcomponent~~UsesGraph_node12"><a xlink:href="../module/pfl_loggermanager.html" xlink:title="PFL_LoggerManager">
+<polygon fill="#337ab7" stroke="#337ab7" points="414,-196.44 293,-196.44 293,-172.44 414,-172.44 414,-196.44"/>
+<text text-anchor="middle" x="353.5" y="-182.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_LoggerManager</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_loggermanager -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_edge13" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_loggermanager</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M449.98,-168.98C442.14,-170.25 433.25,-171.69 424.13,-173.16"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="423.5,-169.72 414.18,-174.77 424.61,-176.63 423.5,-169.72"/>
+</g>
+<!-- module~pfl_severitylevels -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_node13" class="node">
+<title>module~pfl_severitylevels</title>
+<g id="a_module~~mapl_maplcomponent~~UsesGraph_node13"><a xlink:href="../module/pfl_severitylevels.html" xlink:title="PFL_SeverityLevels">
+<polygon fill="#337ab7" stroke="#337ab7" points="130.5,-154.44 17.5,-154.44 17.5,-130.44 130.5,-130.44 130.5,-154.44"/>
+<text text-anchor="middle" x="74" y="-140.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_SeverityLevels</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_severitylevels -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_edge14" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_severitylevels</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M449.98,-162.91C386.47,-159.44 230.16,-150.91 140.68,-146.03"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="140.82,-142.53 130.64,-145.48 140.44,-149.52 140.82,-142.53"/>
+</g>
+<!-- module~pfl_wraparray -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_node14" class="node">
+<title>module~pfl_wraparray</title>
+<g id="a_module~~mapl_maplcomponent~~UsesGraph_node14"><a xlink:href="../module/pfl_wraparray.html" xlink:title="PFL_WrapArray">
+<polygon fill="#337ab7" stroke="#337ab7" points="400,-116.44 307,-116.44 307,-92.44 400,-92.44 400,-116.44"/>
+<text text-anchor="middle" x="353.5" y="-102.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_WrapArray</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_wraparray -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_edge15" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_wraparray</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M456.29,-152.38C444,-145.68 428.27,-137.34 414,-130.44 407.23,-127.17 399.95,-123.84 392.89,-120.7"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="394.02,-117.37 383.45,-116.56 391.21,-123.78 394.02,-117.37"/>
+</g>
+<!-- module~mapl_abstractcomponent&#45;&gt;module~pflogger -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_edge16" class="edge">
+<title>module~mapl_abstractcomponent&#45;&gt;module~pflogger</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M543.98,-164.44C535.08,-164.44 526.29,-164.44 518.21,-164.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="518.05,-160.94 508.05,-164.44 518.05,-167.94 518.05,-160.94"/>
+</g>
+<!-- module~pfl_logger&#45;&gt;module~pfl_keywordenforcermod -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_edge18" class="edge">
+<title>module~pfl_logger&#45;&gt;module~pfl_keywordenforcermod</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M183.87,-194.95C172.42,-198.31 159.68,-202.05 148,-205.44 141.12,-207.44 133.88,-209.54 126.73,-211.6"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="125.73,-208.24 117.09,-214.38 127.67,-214.97 125.73,-208.24"/>
+</g>
+<!-- module~pfl_logger&#45;&gt;module~pfl_severitylevels -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_edge19" class="edge">
+<title>module~pfl_logger&#45;&gt;module~pfl_severitylevels</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M183.87,-173.93C172.42,-170.57 159.68,-166.83 148,-163.44 141.12,-161.44 133.88,-159.34 126.73,-157.28"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="127.67,-153.91 117.09,-154.5 125.73,-160.64 127.67,-153.91"/>
+</g>
+<!-- gFTL_StringUnlimitedMap -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_node16" class="node">
+<title>gFTL_StringUnlimitedMap</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="148,-196.44 0,-196.44 0,-172.44 148,-172.44 148,-196.44"/>
+<text text-anchor="middle" x="74" y="-182.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">gFTL_StringUnlimitedMap</text>
+</g>
+<!-- module~pfl_logger&#45;&gt;gFTL_StringUnlimitedMap -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_edge17" class="edge">
+<title>module~pfl_logger&#45;&gt;gFTL_StringUnlimitedMap</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M183.78,-184.44C175.89,-184.44 167.2,-184.44 158.29,-184.44"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="158.16,-180.94 148.16,-184.44 158.16,-187.94 158.16,-180.94"/>
+</g>
+<!-- module~pfl_loggermanager&#45;&gt;module~pfl_logger -->
+<g id="module~~mapl_maplcomponent~~UsesGraph_edge20" class="edge">
+<title>module~pfl_loggermanager&#45;&gt;module~pfl_logger</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M292.75,-184.44C284.21,-184.44 275.54,-184.44 267.32,-184.44"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="267.2,-180.94 257.2,-184.44 267.2,-187.94 267.2,-180.94"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panmodulemapl_maplcomponentUsesGraph = svgPanZoom('#modulemapl_maplcomponentUsesGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+          <div class="card">
+      <h3 class="card-header card-title bg-light">Used by</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~mapl_maplcomponent~~UsedByGraph Pages: 1 -->
+<svg id="modulemapl_maplcomponentUsedByGraph" width="641pt" height="185pt"
+ viewBox="0.00 0.00 641.00 185.26" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl_maplcomponent~~UsedByGraph" class="graph" transform="scale(0.93 0.93) rotate(0) translate(4 196)">
+<title>module~~mapl_maplcomponent~~UsedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 688,-196 688,4 -4,4"/>
+<!-- module~mapl_maplcomponent -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_node1" class="node">
+<title>module~mapl_maplcomponent</title>
+<polygon fill="none" stroke="black" points="133,-107 0,-107 0,-83 133,-83 133,-107"/>
+<text text-anchor="middle" x="66.5" y="-92.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl_MaplComponent</text>
+</g>
+<!-- module~mapl_decoratorcomponent -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_node2" class="node">
+<title>module~mapl_decoratorcomponent</title>
+<g id="a_module~~mapl_maplcomponent~~UsedByGraph_node2"><a xlink:href="../module/mapl_decoratorcomponent.html" xlink:title="mapl_DecoratorComponent">
+<polygon fill="#337ab7" stroke="#337ab7" points="337,-189 176,-189 176,-165 337,-165 337,-189"/>
+<text text-anchor="middle" x="256.5" y="-174.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_DecoratorComponent</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_decoratorcomponent&#45;&gt;module~mapl_maplcomponent -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_edge1" class="edge">
+<title>module~mapl_decoratorcomponent&#45;&gt;module~mapl_maplcomponent</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M195.65,-164.99C186.58,-162.45 177.43,-159.46 169,-156 141.29,-144.62 112.25,-126.44 92.36,-112.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="94.12,-109.84 83.91,-107.02 90.13,-115.59 94.12,-109.84"/>
+</g>
+<!-- module~mapl_maplgenericcomponent -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_node3" class="node">
+<title>module~mapl_maplgenericcomponent</title>
+<g id="a_module~~mapl_maplcomponent~~UsedByGraph_node3"><a xlink:href="../module/mapl_maplgenericcomponent.html" xlink:title="mapl_MaplGenericComponent">
+<polygon fill="#337ab7" stroke="#337ab7" points="344,-67 169,-67 169,-43 344,-43 344,-67"/>
+<text text-anchor="middle" x="256.5" y="-52.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_MaplGenericComponent</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_maplgenericcomponent&#45;&gt;module~mapl_maplcomponent -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_edge2" class="edge">
+<title>module~mapl_maplgenericcomponent&#45;&gt;module~mapl_maplcomponent</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M199.09,-67C178.65,-71.35 155.36,-76.31 134.11,-80.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="133.24,-77.43 124.19,-82.94 134.7,-84.28 133.24,-77.43"/>
+</g>
+<!-- module~mapl_stubcomponent -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_node4" class="node">
+<title>module~mapl_stubcomponent</title>
+<g id="a_module~~mapl_maplcomponent~~UsedByGraph_node4"><a xlink:href="../module/mapl_stubcomponent.html" xlink:title="MAPL_StubComponent">
+<polygon fill="#337ab7" stroke="#337ab7" points="323,-147 190,-147 190,-123 323,-123 323,-147"/>
+<text text-anchor="middle" x="256.5" y="-132.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StubComponent</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_stubcomponent&#45;&gt;module~mapl_maplcomponent -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_edge3" class="edge">
+<title>module~mapl_stubcomponent&#45;&gt;module~mapl_maplcomponent</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M199.09,-123C178.65,-118.65 155.36,-113.69 134.11,-109.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="134.7,-105.72 124.19,-107.06 133.24,-112.57 134.7,-105.72"/>
+</g>
+<!-- module~maplgeneric -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_node5" class="node">
+<title>module~maplgeneric</title>
+<g id="a_module~~mapl_maplcomponent~~UsedByGraph_node5"><a xlink:href="../module/maplgeneric.html" xlink:title="MaplGeneric">
+<polygon fill="#337ab7" stroke="#337ab7" points="498.5,-108 418.5,-108 418.5,-84 498.5,-84 498.5,-108"/>
+<text text-anchor="middle" x="458.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGeneric</text>
+</a>
+</g>
+</g>
+<!-- module~maplgeneric&#45;&gt;module~mapl_maplcomponent -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_edge4" class="edge">
+<title>module~maplgeneric&#45;&gt;module~mapl_maplcomponent</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M418.32,-95.9C354.16,-95.74 225.61,-95.41 143.2,-95.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="143.15,-91.69 133.14,-95.17 143.13,-98.69 143.15,-91.69"/>
+</g>
+<!-- module~maplgeneric&#45;&gt;module~mapl_maplgenericcomponent -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_edge6" class="edge">
+<title>module~maplgeneric&#45;&gt;module~mapl_maplgenericcomponent</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M418.46,-88C392.2,-82.61 356.87,-75.37 326,-69.04"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="326.65,-65.6 316.16,-67.02 325.25,-72.46 326.65,-65.6"/>
+</g>
+<!-- module~maplgeneric&#45;&gt;module~mapl_stubcomponent -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_edge10" class="edge">
+<title>module~maplgeneric&#45;&gt;module~mapl_stubcomponent</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M418.46,-103.61C393.13,-108.55 359.37,-115.14 329.3,-121"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="328.41,-117.61 319.27,-122.96 329.75,-124.48 328.41,-117.61"/>
+</g>
+<!-- module~usercomponent_mod -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_node6" class="node">
+<title>module~usercomponent_mod</title>
+<g id="a_module~~mapl_maplcomponent~~UsedByGraph_node6"><a xlink:href="../module/usercomponent_mod.html" xlink:title="UserComponent_mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="320.5,-25 192.5,-25 192.5,-1 320.5,-1 320.5,-25"/>
+<text text-anchor="middle" x="256.5" y="-10.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UserComponent_mod</text>
+</a>
+</g>
+</g>
+<!-- module~usercomponent_mod&#45;&gt;module~mapl_maplcomponent -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_edge5" class="edge">
+<title>module~usercomponent_mod&#45;&gt;module~mapl_maplcomponent</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M195.65,-25.01C186.58,-27.55 177.43,-30.54 169,-34 141.29,-45.38 112.25,-63.56 92.36,-77.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="90.13,-74.41 83.91,-82.98 94.12,-80.16 90.13,-74.41"/>
+</g>
+<!-- module~mapl -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_node7" class="node">
+<title>module~mapl</title>
+<g id="a_module~~mapl_maplcomponent~~UsedByGraph_node7"><a xlink:href="../module/mapl.html" xlink:title="MAPL">
+<polygon fill="#337ab7" stroke="#337ab7" points="485.5,-192 431.5,-192 431.5,-168 485.5,-168 485.5,-192"/>
+<text text-anchor="middle" x="458.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~mapl_stubcomponent -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_edge9" class="edge">
+<title>module~mapl&#45;&gt;module~mapl_stubcomponent</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M431.35,-174.12C403.46,-167.84 358.24,-157.67 320.91,-149.27"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="321.63,-145.84 311.11,-147.06 320.1,-152.67 321.63,-145.84"/>
+</g>
+<!-- module~mapl_genericmod -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_node8" class="node">
+<title>module~mapl_genericmod</title>
+<g id="a_module~~mapl_maplcomponent~~UsedByGraph_node8"><a xlink:href="../module/mapl_genericmod.html" xlink:title="MAPL_GenericMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="684,-108 573,-108 573,-84 684,-84 684,-108"/>
+<text text-anchor="middle" x="628.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_genericmod&#45;&gt;module~maplgeneric -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_edge12" class="edge">
+<title>module~mapl_genericmod&#45;&gt;module~maplgeneric</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M572.96,-96C552.31,-96 528.95,-96 508.82,-96"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="508.62,-92.5 498.62,-96 508.62,-99.5 508.62,-92.5"/>
+</g>
+<!-- module~test_concretecomposite -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_node9" class="node">
+<title>module~test_concretecomposite</title>
+<g id="a_module~~mapl_maplcomponent~~UsedByGraph_node9"><a xlink:href="../module/test_concretecomposite.html" xlink:title="Test_ConcreteComposite">
+<polygon fill="#337ab7" stroke="#337ab7" points="530,-66 387,-66 387,-42 530,-42 530,-66"/>
+<text text-anchor="middle" x="458.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ConcreteComposite</text>
+</a>
+</g>
+</g>
+<!-- module~test_concretecomposite&#45;&gt;module~mapl_maplgenericcomponent -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_edge7" class="edge">
+<title>module~test_concretecomposite&#45;&gt;module~mapl_maplgenericcomponent</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M386.99,-54.35C376.4,-54.41 365.32,-54.46 354.3,-54.52"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="354.19,-51.02 344.2,-54.57 354.22,-58.02 354.19,-51.02"/>
+</g>
+<!-- proc~mapl_capgridcompcreate -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_node10" class="node">
+<title>proc~mapl_capgridcompcreate</title>
+<g id="a_module~~mapl_maplcomponent~~UsedByGraph_node10"><a xlink:href="../proc/mapl_capgridcompcreate.html" xlink:title="MAPL_CapGridCompCreate">
+<polygon fill="#d9534f" stroke="#d9534f" points="537,-150 380,-150 380,-126 537,-126 537,-150"/>
+<text text-anchor="middle" x="458.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridCompCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_capgridcompcreate&#45;&gt;module~mapl_stubcomponent -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_edge11" class="edge">
+<title>proc~mapl_capgridcompcreate&#45;&gt;module~mapl_stubcomponent</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M379.89,-136.84C364.63,-136.61 348.64,-136.37 333.44,-136.14"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="333.12,-132.63 323.07,-135.98 333.01,-139.63 333.12,-132.63"/>
+</g>
+<!-- program~main -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_node11" class="node">
+<title>program~main</title>
+<g id="a_module~~mapl_maplcomponent~~UsedByGraph_node11"><a xlink:href="../program/main.html" xlink:title="main">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="485.5,-24 431.5,-24 431.5,0 485.5,0 485.5,-24"/>
+<text text-anchor="middle" x="458.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
+</a>
+</g>
+</g>
+<!-- program~main&#45;&gt;module~mapl_maplgenericcomponent -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_edge8" class="edge">
+<title>program~main&#45;&gt;module~mapl_maplgenericcomponent</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M431.35,-17.62C404.16,-23.47 360.49,-32.86 323.73,-40.76"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="322.61,-37.42 313.56,-42.95 324.08,-44.27 322.61,-37.42"/>
+</g>
+<!-- program~main&#45;&gt;module~usercomponent_mod -->
+<g id="module~~mapl_maplcomponent~~UsedByGraph_edge13" class="edge">
+<title>program~main&#45;&gt;module~usercomponent_mod</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M431.35,-12.13C405.91,-12.26 366.06,-12.46 330.93,-12.63"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="330.66,-9.13 320.68,-12.68 330.7,-16.13 330.66,-9.13"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panmodulemapl_maplcomponentUsedByGraph = svgPanZoom('#modulemapl_maplcomponentUsedByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsedByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsedByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+      <br>
+
+
+
+
+
+
+        <section>
+          <h2>Derived Types</h2>
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-maplcomponent"></span>
+      <h3>
+        type, public, abstract, extends(<a href='../type/basecomponent.html'>BaseComponent</a>)&nbsp;::&nbsp;
+        <a href='../type/maplcomponent.html'>MaplComponent</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      
+
+        <h4>Components</h4>
+          <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-internal_state"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>internal_state</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-logger"></span>
+              class(<a href='../type/logger.html'>Logger</a>),
+            </td>
+              <td>private,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>logger</strong></td>
+<td>=&gt; </td>
+                <td>null()</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-framework"></span>
+              class(<a href='../type/surrogateframeworkcomponent.html'>SurrogateFrameworkComponent</a>),
+            </td>
+              <td>private,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>framework</strong></td>
+<td>=&gt; </td>
+                <td>null()</td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+
+        <h4>Type-Bound Procedures</h4>
+        <table class="table table-striped varlist">
+          <tbody>
+              <tr>
+                <td>  procedure(<a href='../interface/i_run~2.html'>i_Run</a>), public, deferred ::
+  <strong><a href='../type/abstractcomponent.html#boundprocedure-finalize~2'>finalize</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/maplcomponent.html#boundprocedure-get_framework'>get_framework</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/maplcomponent.html#boundprocedure-get_logger'>get_logger</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/basecomponent.html#boundprocedure-get_name~7'>get_name</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure(<a href='../interface/i_run~2.html'>i_Run</a>), public, deferred ::
+  <strong><a href='../type/abstractcomponent.html#boundprocedure-initialize~4'>initialize</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure(<a href='../interface/i_run~2.html'>i_Run</a>), public, deferred ::
+  <strong><a href='../type/abstractcomponent.html#boundprocedure-run~4'>run</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/maplcomponent.html#boundprocedure-run_child'>run_child</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/maplcomponent.html#boundprocedure-set_framework'>set_framework</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/maplcomponent.html#boundprocedure-set_logger'>set_logger</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/basecomponent.html#boundprocedure-set_name~3'>set_name</a></strong></td>
+                  <td></td>
+              </tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+        <section>
+          <h2>Functions</h2>
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_logger"></span> <h3>private  function <a href='../proc/get_logger.html'>get_logger</a>(this) result(logger)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~593"></span>
+              class(<a href='../type/maplcomponent.html'>MaplComponent</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>class(<a href='../type/logger.html'>Logger</a>), pointer</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_framework"></span> <h3>private  function <a href='../proc/get_framework.html'>get_framework</a>(this) result(framework)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~590"></span>
+              class(<a href='../type/maplcomponent.html'>MaplComponent</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>class(<a href='../type/surrogateframeworkcomponent.html'>SurrogateFrameworkComponent</a>), pointer</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+        <section>
+          <h2>Subroutines</h2>
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-run_child"></span> <h3>private  subroutine <a href='../proc/run_child.html'>run_child</a>(this, name, clock, phase, unusable, rc)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~591"></span>
+              class(<a href='../type/maplcomponent.html'>MaplComponent</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-name~15"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>name</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~8"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>clock</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-phase~3"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>phase</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~22"></span>
+              class(<a href='../type/keywordenforcer~57.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~299"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-set_framework"></span> <h3>private  subroutine <a href='../proc/set_framework.html'>set_framework</a>(this, framework)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~589"></span>
+              class(<a href='../type/maplcomponent.html'>MaplComponent</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-framework~2"></span>
+              class(<a href='../type/surrogateframeworkcomponent.html'>SurrogateFrameworkComponent</a>),
+            </td>
+<td></td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>framework</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-set_logger"></span> <h3>private  subroutine <a href='../proc/set_logger.html'>set_logger</a>(this, logger)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~592"></span>
+              class(<a href='../type/maplcomponent.html'>MaplComponent</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-logger~2"></span>
+              class(<a href='../type/logger.html'>Logger</a>),
+            </td>
+<td></td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>logger</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+
+
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-04T14:18:41.963139+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,217 @@
+module Test_String
+   use MAPL_String
+   use funit
+   implicit none
+
+contains
+
+
+   @test
+   subroutine test_assign()
+      type(String) :: str
+      character(:), allocatable :: s
+      character(8) :: s8
+
+      str = 'abcd'
+      @assert_that(str == 'abcd', is(true()))
+
+      s = str
+      @assert_that(s, is(equal_to('abcd')))
+
+      call str%get(s8)
+      @assert_that(trim(s8), is(equal_to('abcd')))
+
+   end subroutine test_assign
+
+
+   @test
+   subroutine test_equals()
+      type(String) :: s
+      type(String) :: s2
+
+      s = String('abcd')
+      s2 = String('abcde')
+
+      @assert_that(s == s, is(true()))
+      @assert_that(s == s2, is(false()))
+
+      @assert_that(s == 'abcd', is(true()))
+      @assert_that('abcd' == s, is(true()))
+
+      @assert_that(s == 'aaa', is(false()))
+      @assert_that('aaa' == s, is(false()))
+
+      @assert_that(s /= 'abcd', is(false()))
+      @assert_that('abcd' /= s, is(false()))
+
+      @assert_that(s /= 'aaa', is(true()))
+      @assert_that('aaa' /= s, is(true()))
+
+
+   end subroutine test_equals
+   
+
+   @test
+   subroutine test_less_than()
+      type(String) :: s
+      type(String) :: s2
+
+      s = String('abcd')
+      s2 = String('abce')
+      @assert_that(s < s, is(false()))
+      @assert_that(s < s2, is(true()))
+      @assert_that(s2 < s, is(false()))
+
+      @assert_that(s < 'abcd', is(false()))
+      @assert_that(s < 'abce', is(true()))
+      @assert_that('abcd' < s, is(false()))
+      @assert_that('abce' < s, is(false()))
+
+   end subroutine test_less_than
+   
+   @test
+   subroutine test_less_than_or_equal()
+      type(String) :: s
+      type(String) :: s2
+
+      s = String('abcd')
+      s2 = String('abce')
+      @assert_that(s <= s, is(true()))
+      @assert_that(s <= s2, is(true()))
+      @assert_that(s2 <= s, is(false()))
+
+      @assert_that(s <= 'abcd', is(true()))
+      @assert_that(s <= 'abce', is(true()))
+      @assert_that('abcd' <= s, is(true()))
+      @assert_that('abce' <= s, is(false()))
+
+   end subroutine test_less_than_or_equal
+   
+   @test
+   subroutine test_greater_than()
+      type(String) :: s
+      type(String) :: s2
+
+      s = String('abcd')
+      s2 = String('abce')
+      @assert_that(s > s, is(false()))
+      @assert_that(s > s2, is(true()))
+      @assert_that(s2 > s, is(false()))
+
+      @assert_that(s > 'abcd', is(false()))
+      @assert_that(s > 'abce', is(true()))
+      @assert_that('abcd' > s, is(false()))
+      @assert_that('abce' > s, is(false()))
+
+   end subroutine test_greater_than
+   
+   @test
+   subroutine test_greater_than_or_equal()
+      type(String) :: s
+      type(String) :: s2
+
+      s = String('abcd')
+      s2 = String('abce')
+      @assert_that(s >= s, is(true()))
+      @assert_that(s >= s2, is(true()))
+      @assert_that(s2 >= s, is(false()))
+
+      @assert_that(s >= 'abcd', is(true()))
+      @assert_that(s >= 'abce', is(true()))
+      @assert_that('abcd' >= s, is(true()))
+      @assert_that('abce' >= s, is(false()))
+
+   end subroutine test_greater_than_or_equal
+   
+   @test
+   subroutine test_concatenate()
+      type(String) :: s1, s2
+
+      s1 = String('abc')
+      s2 = String('1')
+      @assert_that(s1 // s2 == 'abc1', is(true()))
+      @assert_that(s1 // '1' == 'abc1', is(true()))
+      @assert_that('abc' // s2 == 'abc1', is(true()))
+
+   end subroutine test_concatenate
+
+   @test
+   subroutine test_dtio()
+      type(String) :: s
+
+      s = String('abc')
+   end subroutine test_dtio
+
+   @test
+   subroutine test_index()
+      type(String) :: s, substring
+
+      s = 'abcdabcd'
+      @assert_that(s%index('b'), is(equal_to(2)))
+      @assert_that(s%index('b', back=.true.), is(equal_to(6)))
+
+      substring = 'bc'
+      @assert_that(s%index(substring), is(equal_to(2)))
+      @assert_that(s%index(substring, back=.true.), is(equal_to(6)))
+      
+   end subroutine test_index
+
+
+   @test
+   subroutine test_scan()
+      type(String) :: s, set
+
+      s = 'abcdabcd'
+      @assert_that(s%scan('da'), is(equal_to(1)))
+      @assert_that(s%scan('da', back=.true.), is(equal_to(8)))
+
+      set = 'da'
+      @assert_that(s%scan(set), is(equal_to(1)))
+      @assert_that(s%scan(set, back=.true.), is(equal_to(8)))
+      
+   end subroutine test_scan
+
+
+   @test
+   subroutine test_verify()
+      type(String) :: s, set
+
+      s = 'abcdabcd'
+      @assert_that(s%verify('da'), is(equal_to(2)))
+      @assert_that(s%verify('da', back=.true.), is(equal_to(7)))
+
+      set = 'da'
+      @assert_that(s%verify(set), is(equal_to(2)))
+      @assert_that(s%verify(set, back=.true.), is(equal_to(7)))
+      
+   end subroutine test_verify
+
+
+   @test
+   subroutine test_lower()
+      type(String) :: s
+
+      s = 'aAbBcC'
+      @assert_that(s%lower() == 'aabbcc', is(true()))
+      
+   end subroutine test_lower
+
+   @test
+   subroutine test_upper()
+      type(String) :: s
+
+      s = 'aAbBcC'
+      @assert_that(s%upper() == 'AABBCC', is(true()))
+      
+   end subroutine test_upper
+
+   @test
+   subroutine test_capitalize()
+      type(String) :: s
+
+      s = 'aAbBcC'
+      @assert_that(s%capitalize() == 'Aabbcc', is(true()))
+      
+   end subroutine test_capitalize
+
+end module Test_String

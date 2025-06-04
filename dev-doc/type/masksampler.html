@@ -1,0 +1,3144 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MaskSampler &ndash; MAPL </title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MaskSampler
+      <small>Derived Type</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title="<p> 0.6% of total for derived types.</p>Including implementation: 79 statements,  0.1% of total for derived types.">82 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_MaskMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_maskmod.f90.html'>MAPL_MaskMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/masksamplermod.html'>MaskSamplerMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MaskSampler</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../type/masksampler.html#variable-att_name_proj">att_name_proj</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-grid_file_name">grid_file_name</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-index_name_lat~2">index_name_lat</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-index_name_loc">index_name_loc</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-index_name_location">index_name_location</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-index_name_lon~2">index_name_lon</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-index_name_x~4">index_name_x</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-index_name_y">index_name_y</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-ofile~2">ofile</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-var_name_lat~4">var_name_lat</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-var_name_lon~4">var_name_lon</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-var_name_proj">var_name_proj</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-var_name_time~4">var_name_time</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-var_name_x">var_name_x</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-var_name_y">var_name_y</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-epoch_index~2">epoch_index</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-displs~47">displs</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-epoch~2">epoch</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-global_count~14">global_count</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-global_start~14">global_start</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-i1~22">i1</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-in~18">in</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-index_mask">index_mask</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-local_start~8">local_start</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-nobs~2">nobs</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-nobs_dur">nobs_dur</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-nobs_dur_sum">nobs_dur_sum</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-npt_mask">npt_mask</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-npt_mask_tot">npt_mask_tot</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-obs_written~2">obs_written</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-obsfile_te_index~4">obsfile_Te_index</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-obsfile_ts_index~4">obsfile_Ts_index</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-recvcounts~20">recvcounts</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-thin_factor">thin_factor</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-tmax">tmax</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-write_collection_id~4">write_collection_id</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-xdim_true">xdim_true</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-ydim_true">ydim_true</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-do_vertical_regrid~4">do_vertical_regrid</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-is_valid~4">is_valid</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-itemorderalphabetical~2">itemOrderAlphabetical</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-use_pfio">use_pfio</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-obstime~2">obsTime</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-t_alongtrack">t_alongtrack</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-lats_deg">lats_deg</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-lons_deg">lons_deg</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-rtime~4">rtime</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-lats~28">lats</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-lons~28">lons</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-array_scalar_1d">array_scalar_1d</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-array_scalar_2d">array_scalar_2d</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-array_scalar_3d">array_scalar_3d</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-clock~36">clock</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-ringtime~3">RingTime</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-obsfile_end_time~4">obsfile_end_time</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-obsfile_start_time~5">obsfile_start_time</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-epoch_frequency~5">epoch_frequency</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-obsfile_interval~5">obsfile_interval</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-bundle~34">bundle</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-metadata~24">metadata</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-items~24">items</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-genstate~8">GENSTATE</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-formatter~15">formatter</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-timeinfo">timeinfo</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-var2d~2">var2d</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-var3d">var3d</a>
+            <a class="list-group-item" href="../type/masksampler.html#variable-vdata~8">vdata</a>
+        </div>
+      </div>
+    </div>
+
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#cons-0"
+         aria-expanded="false" aria-controls="cons-0">
+         <h4 class="card-header bg-primary text-white">Constructor</h4>
+      </a>
+      <div id="cons-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../type/masksampler.html#interface-masksampler">MaskSampler</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#boundprocs-0"
+         aria-expanded="false" aria-controls="boundprocs-0">
+         <h4 class="card-header bg-primary text-white">Type-Bound Procedures</h4>
+      </a>
+      <div id="boundprocs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../type/masksampler.html#boundprocedure-alphabatize_variables~2">alphabatize_variables</a>
+            <a class="list-group-item" href="../type/masksampler.html#boundprocedure-compute_time_for_current~2">compute_time_for_current</a>
+            <a class="list-group-item" href="../type/masksampler.html#boundprocedure-create_geosat_grid_find_mask">create_Geosat_grid_find_mask</a>
+            <a class="list-group-item" href="../type/masksampler.html#boundprocedure-create_metadata">create_metadata</a>
+            <a class="list-group-item" href="../type/masksampler.html#boundprocedure-finalize~9">finalize</a>
+            <a class="list-group-item" href="../type/masksampler.html#boundprocedure-initialize~11">initialize</a>
+            <a class="list-group-item" href="../type/masksampler.html#boundprocedure-modifytime">modifytime</a>
+            <a class="list-group-item" href="../type/masksampler.html#boundprocedure-regrid_append_file">regrid_append_file</a>
+            <a class="list-group-item" href="../type/masksampler.html#boundprocedure-set_param~2">set_param</a>
+            <a class="list-group-item" href="../type/masksampler.html#boundprocedure-stage2dlatlon">stage2dlatlon</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../type/masksampler.html#src">MaskSampler</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+      <h2 id="type-def-statement">
+        type, public :: MaskSampler</h2>
+    
+<br>      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Inherits</h3>
+        </div>
+        <div class="card-body">
+          <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: type~~masksampler~~InheritsGraph Pages: 1 -->
+<svg id="typemasksamplerInheritsGraph" width="489pt" height="531pt"
+ viewBox="0.00 0.00 489.00 530.59" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="type~~masksampler~~InheritsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 526.59)">
+<title>type~~masksampler~~InheritsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-526.59 485,-526.59 485,4 -4,4"/>
+<!-- type~masksampler -->
+<g id="type~~masksampler~~InheritsGraph_node1" class="node">
+<title>type~masksampler</title>
+<polygon fill="none" stroke="black" points="481,-272.59 396,-272.59 396,-248.59 481,-248.59 481,-272.59"/>
+<text text-anchor="middle" x="438.5" y="-258.19" font-family="Helvetica,sans-Serif" font-size="10.50">MaskSampler</text>
+</g>
+<!-- ESMF_Clock -->
+<g id="type~~masksampler~~InheritsGraph_node2" class="node">
+<title>ESMF_Clock</title>
+<g id="a_type~~masksampler~~InheritsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/type/esmf_clock.html" xlink:title="ESMF_Clock">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="106,-503.59 30,-503.59 30,-479.59 106,-479.59 106,-503.59"/>
+<text text-anchor="middle" x="68" y="-489.19" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_Clock</text>
+</a>
+</g>
+</g>
+<!-- type~masksampler&#45;&gt;ESMF_Clock -->
+<g id="type~~masksampler~~InheritsGraph_edge7" class="edge">
+<title>type~masksampler&#45;&gt;ESMF_Clock</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M435.79,-272.8C429.89,-313.18 408.99,-441.27 378,-466.59 303.63,-527.37 182.79,-515.56 116.41,-502.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="116.73,-499.33 106.24,-500.79 115.36,-506.19 116.73,-499.33"/>
+<text text-anchor="middle" x="266" y="-514.99" font-family="Helvetica,sans-Serif" font-size="9.50">clock</text>
+</g>
+<!-- ESMF_FieldBundle -->
+<g id="type~~masksampler~~InheritsGraph_node3" class="node">
+<title>ESMF_FieldBundle</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="122.5,-461.59 13.5,-461.59 13.5,-437.59 122.5,-437.59 122.5,-461.59"/>
+<text text-anchor="middle" x="68" y="-447.19" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_FieldBundle</text>
+</g>
+<!-- type~masksampler&#45;&gt;ESMF_FieldBundle -->
+<g id="type~~masksampler~~InheritsGraph_edge1" class="edge">
+<title>type~masksampler&#45;&gt;ESMF_FieldBundle</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M437.23,-273.04C435.82,-304.42 427.36,-386.93 378,-424.59 340.89,-452.91 212.2,-454.33 133.08,-452.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="132.83,-448.79 122.73,-452.01 132.63,-455.79 132.83,-448.79"/>
+<text text-anchor="middle" x="266" y="-454.99" font-family="Helvetica,sans-Serif" font-size="9.50">bundle</text>
+</g>
+<!-- ESMF_Time -->
+<g id="type~~masksampler~~InheritsGraph_node4" class="node">
+<title>ESMF_Time</title>
+<g id="a_type~~masksampler~~InheritsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/type/esmf_time.html" xlink:title="ESMF_Time">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="104.5,-419.59 31.5,-419.59 31.5,-395.59 104.5,-395.59 104.5,-419.59"/>
+<text text-anchor="middle" x="68" y="-405.19" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_Time</text>
+</a>
+</g>
+</g>
+<!-- type~masksampler&#45;&gt;ESMF_Time -->
+<g id="type~~masksampler~~InheritsGraph_edge8" class="edge">
+<title>type~masksampler&#45;&gt;ESMF_Time</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M435.77,-272.8C431.4,-298.66 417.31,-358.77 378,-385.59 336.37,-414 190.05,-412.6 114.67,-409.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="114.65,-406.31 104.52,-409.42 114.37,-413.31 114.65,-406.31"/>
+<text text-anchor="middle" x="266" y="-412.99" font-family="Helvetica,sans-Serif" font-size="9.50">RingTime, obsfile_start_time, obsfile_end_time</text>
+</g>
+<!-- ESMF_TimeInterval -->
+<g id="type~~masksampler~~InheritsGraph_node5" class="node">
+<title>ESMF_TimeInterval</title>
+<g id="a_type~~masksampler~~InheritsGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/type/esmf_timeinterval.html" xlink:title="ESMF_TimeInterval">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="124.5,-377.59 11.5,-377.59 11.5,-353.59 124.5,-353.59 124.5,-377.59"/>
+<text text-anchor="middle" x="68" y="-363.19" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeInterval</text>
+</a>
+</g>
+</g>
+<!-- type~masksampler&#45;&gt;ESMF_TimeInterval -->
+<g id="type~~masksampler~~InheritsGraph_edge9" class="edge">
+<title>type~masksampler&#45;&gt;ESMF_TimeInterval</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M431.83,-272.72C423.02,-290.02 404.28,-321.29 378,-335.59 302.28,-376.8 200.56,-378.23 134.88,-373.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="134.91,-369.99 124.66,-372.69 134.36,-376.97 134.91,-369.99"/>
+<text text-anchor="middle" x="266" y="-376.99" font-family="Helvetica,sans-Serif" font-size="9.50">epoch_frequency, obsfile_interval</text>
+</g>
+<!-- type~filemetadata -->
+<g id="type~~masksampler~~InheritsGraph_node6" class="node">
+<title>type~filemetadata</title>
+<g id="a_type~~masksampler~~InheritsGraph_node6"><a xlink:href="../type/filemetadata.html" xlink:title="FileMetadata">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="108.5,-335.59 27.5,-335.59 27.5,-311.59 108.5,-311.59 108.5,-335.59"/>
+<text text-anchor="middle" x="68" y="-321.19" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadata</text>
+</a>
+</g>
+</g>
+<!-- type~masksampler&#45;&gt;type~filemetadata -->
+<g id="type~~masksampler~~InheritsGraph_edge10" class="edge">
+<title>type~masksampler&#45;&gt;type~filemetadata</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M417.27,-272.61C406.08,-278.7 391.69,-285.63 378,-289.59 289.29,-315.25 181.13,-321.8 119.14,-323.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="118.79,-319.83 108.86,-323.54 118.93,-326.82 118.79,-319.83"/>
+<text text-anchor="middle" x="266" y="-323.99" font-family="Helvetica,sans-Serif" font-size="9.50">metadata</text>
+</g>
+<!-- type~griddedioitemvector -->
+<g id="type~~masksampler~~InheritsGraph_node7" class="node">
+<title>type~griddedioitemvector</title>
+<g id="a_type~~masksampler~~InheritsGraph_node7"><a xlink:href="../type/griddedioitemvector.html" xlink:title="GriddedIOitemVector">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="130,-293.59 6,-293.59 6,-269.59 130,-269.59 130,-293.59"/>
+<text text-anchor="middle" x="68" y="-279.19" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedIOitemVector</text>
+</a>
+</g>
+</g>
+<!-- type~masksampler&#45;&gt;type~griddedioitemvector -->
+<g id="type~~masksampler~~InheritsGraph_edge2" class="edge">
+<title>type~masksampler&#45;&gt;type~griddedioitemvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M395.94,-262.96C334.01,-266.49 216.66,-273.18 140.69,-277.51"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="140.04,-274.04 130.26,-278.1 140.44,-281.03 140.04,-274.04"/>
+<text text-anchor="middle" x="266" y="-277.99" font-family="Helvetica,sans-Serif" font-size="9.50">items</text>
+</g>
+<!-- type~mapl_metacomp -->
+<g id="type~~masksampler~~InheritsGraph_node8" class="node">
+<title>type~mapl_metacomp</title>
+<g id="a_type~~masksampler~~InheritsGraph_node8"><a xlink:href="../type/mapl_metacomp.html" xlink:title="MAPL_MetaComp">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="120,-251.59 16,-251.59 16,-227.59 120,-227.59 120,-251.59"/>
+<text text-anchor="middle" x="68" y="-237.19" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MetaComp</text>
+</a>
+</g>
+</g>
+<!-- type~masksampler&#45;&gt;type~mapl_metacomp -->
+<g id="type~~masksampler~~InheritsGraph_edge12" class="edge">
+<title>type~masksampler&#45;&gt;type~mapl_metacomp</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M395.68,-252.04C389.77,-251.07 383.74,-250.21 378,-249.59 292.32,-240.34 192.56,-238.76 130.09,-238.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="130,-235.37 120.01,-238.9 130.03,-242.37 130,-235.37"/>
+<text text-anchor="middle" x="266" y="-251.99" font-family="Helvetica,sans-Serif" font-size="9.50">GENSTATE</text>
+</g>
+<!-- type~netcdf4_fileformatter -->
+<g id="type~~masksampler~~InheritsGraph_node9" class="node">
+<title>type~netcdf4_fileformatter</title>
+<g id="a_type~~masksampler~~InheritsGraph_node9"><a xlink:href="../type/netcdf4_fileformatter.html" xlink:title="NetCDF4_FileFormatter">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="136,-209.59 0,-209.59 0,-185.59 136,-185.59 136,-209.59"/>
+<text text-anchor="middle" x="68" y="-195.19" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NetCDF4_FileFormatter</text>
+</a>
+</g>
+</g>
+<!-- type~masksampler&#45;&gt;type~netcdf4_fileformatter -->
+<g id="type~~masksampler~~InheritsGraph_edge11" class="edge">
+<title>type~masksampler&#45;&gt;type~netcdf4_fileformatter</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M421.82,-248.35C410.36,-240.11 394.07,-229.84 378,-224.59 301.99,-199.77 210.2,-194.66 146.51,-194.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="146.12,-191.25 136.14,-194.8 146.16,-198.25 146.12,-191.25"/>
+<text text-anchor="middle" x="266" y="-226.99" font-family="Helvetica,sans-Serif" font-size="9.50">formatter</text>
+</g>
+<!-- type~timedata -->
+<g id="type~~masksampler~~InheritsGraph_node10" class="node">
+<title>type~timedata</title>
+<g id="a_type~~masksampler~~InheritsGraph_node10"><a xlink:href="../type/timedata.html" xlink:title="timeData">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="99,-167.59 37,-167.59 37,-143.59 99,-143.59 99,-167.59"/>
+<text text-anchor="middle" x="68" y="-153.19" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">timeData</text>
+</a>
+</g>
+</g>
+<!-- type~masksampler&#45;&gt;type~timedata -->
+<g id="type~~masksampler~~InheritsGraph_edge6" class="edge">
+<title>type~masksampler&#45;&gt;type~timedata</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M432.5,-248.53C424.21,-230.23 405.71,-195.94 378,-180.59 292.11,-133 171.7,-140.54 109.6,-148.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="108.84,-145.38 99.42,-150.24 109.81,-152.31 108.84,-145.38"/>
+<text text-anchor="middle" x="266" y="-182.99" font-family="Helvetica,sans-Serif" font-size="9.50">timeinfo</text>
+</g>
+<!-- type~var2d_unit -->
+<g id="type~~masksampler~~InheritsGraph_node11" class="node">
+<title>type~var2d_unit</title>
+<g id="a_type~~masksampler~~InheritsGraph_node11"><a xlink:href="../type/var2d_unit.html" xlink:title="var2d_unit">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="102.5,-125.59 33.5,-125.59 33.5,-101.59 102.5,-101.59 102.5,-125.59"/>
+<text text-anchor="middle" x="68" y="-111.19" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">var2d_unit</text>
+</a>
+</g>
+</g>
+<!-- type~masksampler&#45;&gt;type~var2d_unit -->
+<g id="type~~masksampler~~InheritsGraph_edge4" class="edge">
+<title>type~masksampler&#45;&gt;type~var2d_unit</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M436.17,-248.47C432.5,-221.54 419.55,-156.89 378,-128.59 297.73,-73.92 176.69,-89 112.52,-102.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="111.74,-99.16 102.73,-104.72 113.24,-105.99 111.74,-99.16"/>
+<text text-anchor="middle" x="266" y="-130.99" font-family="Helvetica,sans-Serif" font-size="9.50">var2d</text>
+</g>
+<!-- type~var3d_unit -->
+<g id="type~~masksampler~~InheritsGraph_node12" class="node">
+<title>type~var3d_unit</title>
+<g id="a_type~~masksampler~~InheritsGraph_node12"><a xlink:href="../type/var3d_unit.html" xlink:title="var3d_unit">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="102.5,-83.59 33.5,-83.59 33.5,-59.59 102.5,-59.59 102.5,-83.59"/>
+<text text-anchor="middle" x="68" y="-69.19" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">var3d_unit</text>
+</a>
+</g>
+</g>
+<!-- type~masksampler&#45;&gt;type~var3d_unit -->
+<g id="type~~masksampler~~InheritsGraph_edge5" class="edge">
+<title>type~masksampler&#45;&gt;type~var3d_unit</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M437.95,-248.41C438.48,-214.28 434.71,-117.49 378,-75.59 337.15,-45.41 187.69,-57.69 112.63,-66.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="112.08,-62.66 102.55,-67.29 112.88,-69.62 112.08,-62.66"/>
+<text text-anchor="middle" x="266" y="-77.99" font-family="Helvetica,sans-Serif" font-size="9.50">var3d</text>
+</g>
+<!-- type~verticaldata -->
+<g id="type~~masksampler~~InheritsGraph_node13" class="node">
+<title>type~verticaldata</title>
+<g id="a_type~~masksampler~~InheritsGraph_node13"><a xlink:href="../type/verticaldata.html" xlink:title="verticalData">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="107,-41.59 29,-41.59 29,-17.59 107,-17.59 107,-41.59"/>
+<text text-anchor="middle" x="68" y="-27.19" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">verticalData</text>
+</a>
+</g>
+</g>
+<!-- type~masksampler&#45;&gt;type~verticaldata -->
+<g id="type~~masksampler~~InheritsGraph_edge3" class="edge">
+<title>type~masksampler&#45;&gt;type~verticaldata</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M436.07,-248.46C430.85,-206.42 411.37,-68.15 378,-41.59 303.28,17.87 183.22,0.5 116.9,-15.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="115.96,-12.27 107.12,-18.11 117.67,-19.06 115.96,-12.27"/>
+<text text-anchor="middle" x="266" y="-43.99" font-family="Helvetica,sans-Serif" font-size="9.50">vdata</text>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#InheritsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="InheritsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="186pt" height="32pt"
+ viewBox="0.00 0.00 185.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 181.5,-28 181.5,4 -4,4"/>
+<!-- Type -->
+<g id="node1" class="node">
+<title>Type</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="177.5,-24 72.5,-24 72.5,0 177.5,0 177.5,-24"/>
+<text text-anchor="middle" x="125" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a derived type to the parent type which it
+extends. Dashed arrows point from a derived type to the other
+types it contains as a components, with a label listing the name(s) of
+said component(s).
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Inherited by</h3>
+        </div>
+        <div class="card-body">
+          <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: type~~masksampler~~InheritedByGraph Pages: 1 -->
+<svg id="typemasksamplerInheritedByGraph" width="641pt" height="103pt"
+ viewBox="0.00 0.00 641.00 102.67" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="type~~masksampler~~InheritedByGraph" class="graph" transform="scale(0.71 0.71) rotate(0) translate(4 140)">
+<title>type~~masksampler~~InheritedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-140 895,-140 895,4 -4,4"/>
+<!-- type~masksampler -->
+<g id="type~~masksampler~~InheritedByGraph_node1" class="node">
+<title>type~masksampler</title>
+<polygon fill="none" stroke="black" points="85,-87 0,-87 0,-63 85,-63 85,-87"/>
+<text text-anchor="middle" x="42.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">MaskSampler</text>
+</g>
+<!-- type~historycollection~2 -->
+<g id="type~~masksampler~~InheritedByGraph_node2" class="node">
+<title>type~historycollection~2</title>
+<g id="a_type~~masksampler~~InheritedByGraph_node2"><a xlink:href="../type/historycollection~2.html" xlink:title="HistoryCollection">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="294,-87 191,-87 191,-63 294,-63 294,-87"/>
+<text text-anchor="middle" x="242.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollection</text>
+</a>
+</g>
+</g>
+<!-- type~historycollection~2&#45;&gt;type~masksampler -->
+<g id="type~~masksampler~~InheritedByGraph_edge1" class="edge">
+<title>type~historycollection~2&#45;&gt;type~masksampler</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M190.77,-75C161.45,-75 124.67,-75 95.19,-75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="95.09,-71.5 85.09,-75 95.09,-78.5 95.09,-71.5"/>
+<text text-anchor="middle" x="138" y="-77.4" font-family="Helvetica,sans-Serif" font-size="9.50">mask_sampler</text>
+</g>
+<!-- type~history_state -->
+<g id="type~~masksampler~~InheritedByGraph_node3" class="node">
+<title>type~history_state</title>
+<g id="a_type~~masksampler~~InheritedByGraph_node3"><a xlink:href="../type/history_state.html" xlink:title="HISTORY_STATE">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="745,-132 649,-132 649,-108 745,-108 745,-132"/>
+<text text-anchor="middle" x="697" y="-117.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HISTORY_STATE</text>
+</a>
+</g>
+</g>
+<!-- type~history_state&#45;&gt;type~historycollection~2 -->
+<g id="type~~masksampler~~InheritedByGraph_edge2" class="edge">
+<title>type~history_state&#45;&gt;type~historycollection~2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M648.82,-124.87C642.83,-125.34 636.77,-125.73 631,-126 549.43,-129.76 384.38,-118.28 376,-117 343.43,-112.01 307.9,-100.39 281.85,-90.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="282.94,-87.31 272.35,-87.01 280.44,-93.85 282.94,-87.31"/>
+<text text-anchor="middle" x="468" y="-128.4" font-family="Helvetica,sans-Serif" font-size="9.50">list</text>
+</g>
+<!-- type~historycollectionvector~2 -->
+<g id="type~~masksampler~~InheritedByGraph_node6" class="node">
+<title>type~historycollectionvector~2</title>
+<g id="a_type~~masksampler~~InheritedByGraph_node6"><a xlink:href="../type/historycollectionvector~2.html" xlink:title="HistoryCollectionVector">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="536.5,-108 399.5,-108 399.5,-84 536.5,-84 536.5,-108"/>
+<text text-anchor="middle" x="468" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionVector</text>
+</a>
+</g>
+</g>
+<!-- type~history_state&#45;&gt;type~historycollectionvector~2 -->
+<g id="type~~masksampler~~InheritedByGraph_edge7" class="edge">
+<title>type~history_state&#45;&gt;type~historycollectionvector~2</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M648.97,-115.03C619.54,-111.92 580.92,-107.83 547,-104.25"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="546.95,-100.72 536.64,-103.15 546.22,-107.68 546.95,-100.72"/>
+<text text-anchor="middle" x="604.5" y="-114.4" font-family="Helvetica,sans-Serif" font-size="9.50">collections</text>
+</g>
+<!-- type~historycollectionvectoriterator~2 -->
+<g id="type~~masksampler~~InheritedByGraph_node4" class="node">
+<title>type~historycollectionvectoriterator~2</title>
+<g id="a_type~~masksampler~~InheritedByGraph_node4"><a xlink:href="../type/historycollectionvectoriterator~2.html" xlink:title="HistoryCollectionVectorIterator">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="556.5,-66 379.5,-66 379.5,-42 556.5,-42 556.5,-66"/>
+<text text-anchor="middle" x="468" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionVectorIterator</text>
+</a>
+</g>
+</g>
+<!-- type~historycollectionvectoriterator~2&#45;&gt;type~historycollection~2 -->
+<g id="type~~masksampler~~InheritedByGraph_edge4" class="edge">
+<title>type~historycollectionvectoriterator~2&#45;&gt;type~historycollection~2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M379.27,-61.74C357.3,-63.73 333.78,-65.9 312,-68 309.5,-68.24 306.95,-68.49 304.38,-68.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="303.97,-65.26 294.37,-69.73 304.66,-72.23 303.97,-65.26"/>
+<text text-anchor="middle" x="335" y="-70.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~historycollectionvectorriterator~2 -->
+<g id="type~~masksampler~~InheritedByGraph_node5" class="node">
+<title>type~historycollectionvectorriterator~2</title>
+<g id="a_type~~masksampler~~InheritedByGraph_node5"><a xlink:href="../type/historycollectionvectorriterator~2.html" xlink:title="HistoryCollectionVectorRIterator">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="560,-24 376,-24 376,0 560,0 560,-24"/>
+<text text-anchor="middle" x="468" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionVectorRIterator</text>
+</a>
+</g>
+</g>
+<!-- type~historycollectionvectorriterator~2&#45;&gt;type~historycollection~2 -->
+<g id="type~~masksampler~~InheritedByGraph_edge5" class="edge">
+<title>type~historycollectionvectorriterator~2&#45;&gt;type~historycollection~2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M410.19,-24.08C380.66,-30.83 344.11,-39.9 312,-50 302.95,-52.85 293.34,-56.17 284.26,-59.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="282.86,-56.23 274.67,-62.95 285.26,-62.8 282.86,-56.23"/>
+<text text-anchor="middle" x="335" y="-52.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~historycollectionvector~2&#45;&gt;type~historycollection~2 -->
+<g id="type~~masksampler~~InheritedByGraph_edge3" class="edge">
+<title>type~historycollectionvector~2&#45;&gt;type~historycollection~2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M399.34,-89.64C369.11,-86.8 333.76,-83.48 304.37,-80.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="304.53,-77.22 294.25,-79.77 303.88,-84.19 304.53,-77.22"/>
+<text text-anchor="middle" x="335" y="-88.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~history_wrap -->
+<g id="type~~masksampler~~InheritedByGraph_node7" class="node">
+<title>type~history_wrap</title>
+<g id="a_type~~masksampler~~InheritedByGraph_node7"><a xlink:href="../type/history_wrap.html" xlink:title="HISTORY_wrap">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="891,-132 800,-132 800,-108 891,-108 891,-132"/>
+<text text-anchor="middle" x="845.5" y="-117.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HISTORY_wrap</text>
+</a>
+</g>
+</g>
+<!-- type~history_wrap&#45;&gt;type~history_state -->
+<g id="type~~masksampler~~InheritedByGraph_edge6" class="edge">
+<title>type~history_wrap&#45;&gt;type~history_state</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M799.75,-120C785.67,-120 769.92,-120 755.1,-120"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="755.01,-116.5 745.01,-120 755.01,-123.5 755.01,-116.5"/>
+<text text-anchor="middle" x="772.5" y="-122.4" font-family="Helvetica,sans-Serif" font-size="9.50">PTR</text>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pantypemasksamplerInheritedByGraph = svgPanZoom('#typemasksamplerInheritedByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#InheritedByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="InheritedByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="186pt" height="32pt"
+ viewBox="0.00 0.00 185.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 181.5,-28 181.5,4 -4,4"/>
+<!-- Type -->
+<g id="node1" class="node">
+<title>Type</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="177.5,-24 72.5,-24 72.5,0 177.5,0 177.5,-24"/>
+<text text-anchor="middle" x="125" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a derived type to the parent type which it
+extends. Dashed arrows point from a derived type to the other
+types it contains as a components, with a label listing the name(s) of
+said component(s).
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    <br>
+
+    <section>
+    <h2>Components</h2>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-att_name_proj"></span>
+              character(len=ESMF_MAXSTR),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>att_name_proj</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid_file_name"></span>
+              character(len=ESMF_MAXSTR),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>grid_file_name</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-index_name_lat~2"></span>
+              character(len=ESMF_MAXSTR),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>index_name_lat</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-index_name_loc"></span>
+              character(len=ESMF_MAXSTR),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>index_name_loc</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-index_name_location"></span>
+              character(len=ESMF_MAXSTR),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>index_name_location</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-index_name_lon~2"></span>
+              character(len=ESMF_MAXSTR),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>index_name_lon</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-index_name_x~4"></span>
+              character(len=ESMF_MAXSTR),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>index_name_x</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-index_name_y"></span>
+              character(len=ESMF_MAXSTR),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>index_name_y</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ofile~2"></span>
+              character(len=ESMF_MAXSTR),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ofile</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-var_name_lat~4"></span>
+              character(len=ESMF_MAXSTR),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>var_name_lat</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-var_name_lon~4"></span>
+              character(len=ESMF_MAXSTR),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>var_name_lon</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-var_name_proj"></span>
+              character(len=ESMF_MAXSTR),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>var_name_proj</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-var_name_time~4"></span>
+              character(len=ESMF_MAXSTR),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>var_name_time</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-var_name_x"></span>
+              character(len=ESMF_MAXSTR),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>var_name_x</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-var_name_y"></span>
+              character(len=ESMF_MAXSTR),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>var_name_y</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-epoch_index~2"></span>
+              integer(kind=ESMF_KIND_I8),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>epoch_index</strong>(2)</td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-displs~47"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>displs</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-epoch~2"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>epoch</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-global_count~14"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>global_count</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-global_start~14"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>global_start</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i1~22"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>i1</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-in~18"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>in</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-index_mask"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>index_mask</strong>(:,:)</td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-local_start~8"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>local_start</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nobs~2"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nobs</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nobs_dur"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nobs_dur</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nobs_dur_sum"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nobs_dur_sum</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-npt_mask"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>npt_mask</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-npt_mask_tot"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>npt_mask_tot</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-obs_written~2"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>obs_written</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-obsfile_te_index~4"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>obsfile_Te_index</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-obsfile_ts_index~4"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>obsfile_Ts_index</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-recvcounts~20"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>recvcounts</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-thin_factor"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>thin_factor</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tmax"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>tmax</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-write_collection_id~4"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>write_collection_id</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-xdim_true"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>xdim_true</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ydim_true"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ydim_true</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-do_vertical_regrid~4"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>do_vertical_regrid</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-is_valid~4"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>is_valid</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-itemorderalphabetical~2"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>itemOrderAlphabetical</strong></td>
+<td> =</td>
+                <td>.true.</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-use_pfio"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>use_pfio</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-obstime~2"></span>
+              real(kind=ESMF_KIND_R8),
+            </td>
+              <td>public,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>obsTime</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-t_alongtrack"></span>
+              real(kind=ESMF_KIND_R8),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>t_alongtrack</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lats_deg"></span>
+              real(kind=REAL32),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>lats_deg</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lons_deg"></span>
+              real(kind=REAL32),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>lons_deg</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rtime~4"></span>
+              real(kind=REAL32),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rtime</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lats~28"></span>
+              real(kind=REAL64),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>lats</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lons~28"></span>
+              real(kind=REAL64),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>lons</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-array_scalar_1d"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>array_scalar_1d</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-array_scalar_2d"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>array_scalar_2d</strong>(:,:)</td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-array_scalar_3d"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>array_scalar_3d</strong>(:,:,:)</td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~36"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>clock</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ringtime~3"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RingTime</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-obsfile_end_time~4"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>obsfile_end_time</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-obsfile_start_time~5"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>obsfile_start_time</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-epoch_frequency~5"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>epoch_frequency</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-obsfile_interval~5"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>obsfile_interval</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bundle~34"></span>
+              type(ESMF_FieldBundle),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>bundle</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-metadata~24"></span>
+              type(<a href='filemetadata.html'>FileMetadata</a>),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>metadata</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-items~24"></span>
+              type(<a href='griddedioitemvector.html'>GriddedIOitemVector</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>items</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-genstate~8"></span>
+              type(<a href='mapl_metacomp.html'>MAPL_MetaComp</a>),
+            </td>
+              <td>public,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>GENSTATE</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-formatter~15"></span>
+              type(<a href='netcdf4_fileformatter.html'>NetCDF4_FileFormatter</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>formatter</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-timeinfo"></span>
+              type(<a href='timedata.html'>timeData</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>timeinfo</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-var2d~2"></span>
+              type(<a href='var2d_unit.html'>var2d_unit</a>),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>var2d</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-var3d"></span>
+              type(<a href='var3d_unit.html'>var3d_unit</a>),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>var3d</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vdata~8"></span>
+              type(<a href='verticaldata.html'>verticalData</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vdata</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </section>
+    <br>
+    
+      <section>
+        <h2>Constructor</h2>
+            <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-masksampler"></span>
+      <h3>public        interface <a href='../interface/masksampler.html'>MaskSampler</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  interface <a href='../interface/masksampler_from_config.html'>MaskSampler_from_config</a>()  
+
+    </h3>
+    
+  
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+          </li>
+    </ul>
+  </div>
+
+      </section>
+      <br>
+
+
+      <section>
+        <h2>Type-Bound Procedures</h2>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-alphabatize_variables~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>alphabatize_variables</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                <h3>interface </h3>
+                    <h3>
+    private module subroutine alphabatize_variables(this, nFixedVars, rc)  
+    <a href="../proc/alphabatize_variables~3.html"><button type="button" class="btn btn-info depwarn">Implementation &rarr;</button></a>
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='masksampler.html'>MaskSampler</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nFixedVars</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-compute_time_for_current~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>compute_time_for_current</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                <h3>interface </h3>
+                    <h3>
+    private module function compute_time_for_current(this, current_time, rc) result(rtime)  
+    <a href="../proc/compute_time_for_current~2.html"><button type="button" class="btn btn-info depwarn">Implementation &rarr;</button></a>
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='masksampler.html'>MaskSampler</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>current_time</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>real(kind=ESMF_KIND_R8)</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-create_geosat_grid_find_mask"></span>
+      <h3>
+          procedure, public ::
+  <strong>create_Geosat_grid_find_mask</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                <h3>interface </h3>
+                    <h3>
+    private module subroutine create_Geosat_grid_find_mask(this, rc)  
+    <a href="../proc/create_geosat_grid_find_mask.html"><button type="button" class="btn btn-info depwarn">Implementation &rarr;</button></a>
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='masksampler.html'>MaskSampler</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-create_metadata"></span>
+      <h3>
+          procedure, public ::
+  <strong>create_metadata</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                <h3>interface </h3>
+                    <h3>
+    private module subroutine create_metadata(this, global_attributes, rc)  
+    <a href="../proc/create_metadata.html"><button type="button" class="btn btn-info depwarn">Implementation &rarr;</button></a>
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='masksampler.html'>MaskSampler</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(StringStringMap),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>global_attributes</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-finalize~9"></span>
+      <h3>
+          procedure, public ::
+  <strong>finalize</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                <h3>interface </h3>
+                    <h3>
+    private module subroutine finalize(this, rc)  
+    <a href="../proc/finalize~17.html"><button type="button" class="btn btn-info depwarn">Implementation &rarr;</button></a>
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='masksampler.html'>MaskSampler</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-initialize~11"></span>
+      <h3>
+          procedure, public ::
+  <strong>initialize</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                <h3>interface </h3>
+                    <h3>
+    private module subroutine initialize(this, duration, frequency, items, bundle, timeInfo, vdata, global_attributes, reinitialize, rc)  
+    <a href="../proc/initialize~18.html"><button type="button" class="btn btn-info depwarn">Implementation &rarr;</button></a>
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='masksampler.html'>MaskSampler</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>duration</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>frequency</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='griddedioitemvector.html'>GriddedIOitemVector</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>items</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(ESMF_FieldBundle),
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>bundle</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='timedata.html'>timeData</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>timeInfo</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='verticaldata.html'>verticalData</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vdata</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(StringStringMap),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>global_attributes</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>reinitialize</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-modifytime"></span>
+      <h3>
+          procedure, public ::
+  <strong>modifytime</strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/interface/modifytime.html'>modifyTime</a>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                <h3>interface </h3>
+                    <h3>
+    private module subroutine modifyTime(this, oClients, rc)  
+    <a href="../proc/modifytime~2.html"><button type="button" class="btn btn-info depwarn">Implementation &rarr;</button></a>
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='masksampler.html'>MaskSampler</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='clientmanager.html'>ClientManager</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>oClients</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-regrid_append_file"></span>
+      <h3>
+          procedure, public ::
+  <strong>regrid_append_file</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                <h3>interface </h3>
+                    <h3>
+    private module subroutine regrid_append_file(this, current_time, filename, oClients, rc)  
+    <a href="../proc/regrid_append_file.html"><button type="button" class="btn btn-info depwarn">Implementation &rarr;</button></a>
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='masksampler.html'>MaskSampler</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>current_time</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>filename</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='clientmanager.html'>ClientManager</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>oClients</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-set_param~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>set_param</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                <h3>interface </h3>
+                    <h3>
+    private module subroutine set_param(this, deflation, quantize_algorithm, quantize_level, chunking, nbits_to_keep, regrid_method, itemOrder, write_collection_id, regrid_hints, oClients, rc)  
+    <a href="../proc/set_param~3.html"><button type="button" class="btn btn-info depwarn">Implementation &rarr;</button></a>
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='masksampler.html'>MaskSampler</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>deflation</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>quantize_algorithm</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>quantize_level</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>chunking</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nbits_to_keep</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>regrid_method</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>itemOrder</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>write_collection_id</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>regrid_hints</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='clientmanager.html'>ClientManager</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>oClients</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-stage2dlatlon"></span>
+      <h3>
+          procedure, public ::
+  <strong>stage2dlatlon</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                <h3>interface </h3>
+                    <h3>
+    private module subroutine stage2dlatlon(this, fileName, oClients, rc)  
+    <a href="../proc/stage2dlatlon.html"><button type="button" class="btn btn-info depwarn">Implementation &rarr;</button></a>
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='masksampler.html'>MaskSampler</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fileName</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='clientmanager.html'>ClientManager</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>oClients</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+      </section>
+
+    <section>
+    <h3><span class="anchor" id="src"></span>Source Code</h3>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">type</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MaskSampler</span>
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid_file_name</span>
+<span class="w">     </span><span class="c">!     we need on each PET</span>
+<span class="w">     </span><span class="c">!     npt_mask, index_mask(1:2,npt_mask)=[i,j]</span>
+<span class="w">     </span><span class="c">!</span>
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">npt_mask</span>
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">npt_mask_tot</span>
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i1</span><span class="p">,</span><span class="w"> </span><span class="n">in</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">index_mask</span><span class="p">(:,:)</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">GriddedIOitemVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">items</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">VerticalData</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vdata</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">var2d_unit</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var2d</span><span class="p">(:)</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">var3d_unit</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var3d</span><span class="p">(:)</span>
+<span class="w">     </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">do_vertical_regrid</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">TimeData</span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">timeinfo</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">RingTime</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">epoch_frequency</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">FileMetadata</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">public</span><span class="kd">::</span><span class="w"> </span><span class="n">metadata</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">NetCDF4_FileFormatter</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">formatter</span>
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">ofile</span>
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">write_collection_id</span>
+<span class="w">     </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">use_pfio</span>
+<span class="w">     </span><span class="c">!</span>
+<span class="w">     </span><span class="kt">integer</span><span class="w">                        </span><span class="kd">::</span><span class="w"> </span><span class="n">nobs</span>
+<span class="w">     </span><span class="kt">integer</span><span class="w">                        </span><span class="kd">::</span><span class="w"> </span><span class="n">obs_written</span>
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">index_name_x</span>
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">index_name_y</span>
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">index_name_location</span>
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">index_name_lon</span>
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">index_name_lat</span>
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">index_name_loc</span>
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name_time</span>
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name_lat</span>
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name_lon</span>
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name_x</span>
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name_y</span>
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name_proj</span>
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">att_name_proj</span>
+
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">xdim_true</span>
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ydim_true</span>
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">thin_factor</span>
+
+<span class="w">     </span><span class="kt">integer</span><span class="w">                        </span><span class="kd">::</span><span class="w"> </span><span class="n">epoch</span><span class="w">        </span><span class="c">! unit: second</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_I8</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">epoch_index</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">     </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lons</span><span class="p">(:)</span>
+<span class="w">     </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lats</span><span class="p">(:)</span>
+<span class="w">     </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lons_deg</span><span class="p">(:)</span>
+<span class="w">     </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lats_deg</span><span class="p">(:)</span>
+
+<span class="w">     </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rtime</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">recvcounts</span><span class="p">(:)</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">displs</span><span class="p">(:)</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_MetaComp</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GENSTATE</span>
+
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">local_start</span><span class="p">(:)</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">global_start</span><span class="p">(:)</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">global_count</span><span class="p">(:)</span>
+
+<span class="w">     </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">array_scalar_1d</span><span class="p">(:)</span>
+<span class="w">     </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">array_scalar_2d</span><span class="p">(:,:)</span>
+<span class="w">     </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">array_scalar_3d</span><span class="p">(:,:,:)</span>
+<span class="w">     </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">itemOrderAlphabetical</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tmax</span><span class="w">     </span><span class="c">! duration / freq</span>
+
+<span class="w">     </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="kd">::</span><span class="w"> </span><span class="n">obsTime</span><span class="p">(:)</span>
+<span class="w">     </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="kd">::</span><span class="w"> </span><span class="n">t_alongtrack</span><span class="p">(:)</span>
+<span class="w">     </span><span class="kt">integer</span><span class="w">                        </span><span class="kd">::</span><span class="w"> </span><span class="n">nobs_dur</span>
+<span class="w">     </span><span class="kt">integer</span><span class="w">                        </span><span class="kd">::</span><span class="w"> </span><span class="n">nobs_dur_sum</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w">                </span><span class="kd">::</span><span class="w"> </span><span class="n">obsfile_start_time</span><span class="w">   </span><span class="c">! user specify</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w">                </span><span class="kd">::</span><span class="w"> </span><span class="n">obsfile_end_time</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">obsfile_interval</span>
+<span class="w">     </span><span class="kt">integer</span><span class="w">                        </span><span class="kd">::</span><span class="w"> </span><span class="n">obsfile_Ts_index</span><span class="w">     </span><span class="c">! for epoch</span>
+<span class="w">     </span><span class="kt">integer</span><span class="w">                        </span><span class="kd">::</span><span class="w"> </span><span class="n">obsfile_Te_index</span>
+<span class="w">     </span><span class="kt">logical</span><span class="w">                        </span><span class="kd">::</span><span class="w"> </span><span class="n">is_valid</span>
+<span class="w">   </span><span class="k">contains</span>
+
+<span class="k">     procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">initialize</span>
+<span class="w">     </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">finalize</span>
+<span class="w">     </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">create_metadata</span>
+<span class="w">     </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regrid_append_file</span>
+<span class="w">     </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">create_Geosat_grid_find_mask</span>
+<span class="w">     </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">compute_time_for_current</span>
+<span class="w">     </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_param</span>
+<span class="w">     </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">stage2dlatlon</span>
+<span class="w">     </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">modifytime</span>
+<span class="w">     </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">alphabatize_variables</span>
+<span class="w">  </span><span class="k">end type </span><span class="n">MaskSampler</span>
+</pre></div>
+
+    </section>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-04T14:18:41.963139+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

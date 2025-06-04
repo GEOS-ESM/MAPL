@@ -1,0 +1,974 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>DimSpec.F90 &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>DimSpec.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">45 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/DimSpec.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">DimSpec.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/oomph_dimsspec.html">oomph_DimsSpec</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/dimspec.f90.html#src">DimSpec.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~dimspec.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefiledimspecf90EfferentGraph" width="278pt" height="116pt"
+ viewBox="0.00 0.00 278.00 116.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~dimspec.f90~~EfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 112)">
+<title>sourcefile~~dimspec.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 274,-112 274,4 -4,4"/>
+<!-- sourcefile~dimspec.f90 -->
+<g id="sourcefile~~dimspec.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~dimspec.f90</title>
+<polygon fill="none" stroke="black" points="270,-66 187,-66 187,-42 270,-42 270,-66"/>
+<text text-anchor="middle" x="228.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">DimSpec.F90</text>
+</g>
+<!-- sourcefile~horizontalstaggerloc.f90 -->
+<g id="sourcefile~~dimspec.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~horizontalstaggerloc.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/horizontalstaggerloc.f90.html" xlink:title="HorizontalStaggerLoc.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="151,-108 0,-108 0,-84 151,-84 151,-108"/>
+<text text-anchor="middle" x="75.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HorizontalStaggerLoc.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~dimspec.f90&#45;&gt;sourcefile~horizontalstaggerloc.f90 -->
+<g id="sourcefile~~dimspec.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~dimspec.f90&#45;&gt;sourcefile~horizontalstaggerloc.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M186.64,-65.37C169.09,-70.25 148.36,-76.01 129.64,-81.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="128.47,-77.91 119.77,-83.96 130.35,-84.66 128.47,-77.91"/>
+</g>
+<!-- sourcefile~ungriddeddimspec.f90 -->
+<g id="sourcefile~~dimspec.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~ungriddeddimspec.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/ungriddeddimspec.f90.html" xlink:title="UngriddedDimSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="145,-66 6,-66 6,-42 145,-42 145,-66"/>
+<text text-anchor="middle" x="75.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDimSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~dimspec.f90&#45;&gt;sourcefile~ungriddeddimspec.f90 -->
+<g id="sourcefile~~dimspec.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~dimspec.f90&#45;&gt;sourcefile~ungriddeddimspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M186.64,-54C176.81,-54 165.98,-54 155.06,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="155.04,-50.5 145.04,-54 155.04,-57.5 155.04,-50.5"/>
+</g>
+<!-- sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~dimspec.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~verticalstaggerloc.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/verticalstaggerloc.f90.html" xlink:title="VerticalStaggerLoc.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="143.5,-24 7.5,-24 7.5,0 143.5,0 143.5,-24"/>
+<text text-anchor="middle" x="75.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalStaggerLoc.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~dimspec.f90&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~dimspec.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~dimspec.f90&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M186.64,-42.63C169.09,-37.75 148.36,-31.99 129.64,-26.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="130.35,-23.34 119.77,-24.04 128.47,-30.09 130.35,-23.34"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~dimspec.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefiledimspecf90AfferentGraph" width="641pt" height="329pt"
+ viewBox="0.00 0.00 641.00 329.11" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~dimspec.f90~~AfferentGraph" class="graph" transform="scale(0.47 0.47) rotate(0) translate(4 694.26)">
+<title>sourcefile~~dimspec.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-694.26 1356,-694.26 1356,4 -4,4"/>
+<!-- sourcefile~dimspec.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~dimspec.f90</title>
+<polygon fill="none" stroke="black" points="83,-478.51 0,-478.51 0,-454.51 83,-454.51 83,-478.51"/>
+<text text-anchor="middle" x="41.5" y="-464.11" font-family="Helvetica,sans-Serif" font-size="10.50">DimSpec.F90</text>
+</g>
+<!-- sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~fieldspec.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/fieldspec.f90.html" xlink:title="FieldSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="205,-498.51 119,-498.51 119,-474.51 205,-474.51 205,-498.51"/>
+<text text-anchor="middle" x="162" y="-484.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~dimspec.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~dimspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M118.89,-479.41C110.57,-478 101.76,-476.51 93.19,-475.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="93.73,-471.61 83.28,-473.4 92.56,-478.51 93.73,-471.61"/>
+</g>
+<!-- sourcefile~oomph.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~oomph.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/oomph.f90.html" xlink:title="oomph.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="314,-478.51 241,-478.51 241,-454.51 314,-454.51 314,-478.51"/>
+<text text-anchor="middle" x="277.5" y="-464.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">oomph.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~oomph.f90&#45;&gt;sourcefile~dimspec.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~oomph.f90&#45;&gt;sourcefile~dimspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M240.86,-465.92C229.41,-465.75 216.67,-465.59 205,-465.51 166.78,-465.25 157.22,-465.26 119,-465.51 110.78,-465.57 102.07,-465.65 93.59,-465.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="93.35,-462.25 83.39,-465.88 93.43,-469.25 93.35,-462.25"/>
+</g>
+<!-- sourcefile~oomph.f90&#45;&gt;sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~oomph.f90&#45;&gt;sourcefile~fieldspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M240.9,-472.79C232.77,-474.22 223.96,-475.77 215.3,-477.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="214.48,-473.89 205.23,-479.07 215.69,-480.78 214.48,-473.89"/>
+</g>
+<!-- sourcefile~varconnpoint.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~varconnpoint.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/varconnpoint.f90.html" xlink:title="VarConnPoint.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="456,-538.51 350,-538.51 350,-514.51 456,-514.51 456,-538.51"/>
+<text text-anchor="middle" x="403" y="-524.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarConnPoint.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varconnpoint.f90&#45;&gt;sourcefile~oomph.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~varconnpoint.f90&#45;&gt;sourcefile~oomph.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M377.01,-514.37C358.51,-505.38 333.09,-493.04 312.71,-483.13"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="313.98,-479.86 303.45,-478.64 310.92,-486.15 313.98,-479.86"/>
+</g>
+<!-- sourcefile~varspectype.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~varspectype.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/varspectype.f90.html" xlink:title="VarSpecType.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="454.5,-457.51 351.5,-457.51 351.5,-433.51 454.5,-433.51 454.5,-457.51"/>
+<text text-anchor="middle" x="403" y="-443.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarSpecType.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varspectype.f90&#45;&gt;sourcefile~oomph.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~varspectype.f90&#45;&gt;sourcefile~oomph.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M351.41,-454.11C342.41,-455.65 333.08,-457.23 324.23,-458.74"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="323.37,-455.33 314.09,-460.46 324.54,-462.23 323.37,-455.33"/>
+</g>
+<!-- sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~mapl_generic.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/mapl_generic.f90.html" xlink:title="MAPL_Generic.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="743.5,-273.51 632.5,-273.51 632.5,-249.51 743.5,-249.51 743.5,-273.51"/>
+<text text-anchor="middle" x="688" y="-259.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Generic.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~varspectype.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~varspectype.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M684.96,-249.26C676.16,-200.46 637.64,-23.93 545,-52.51"/>
+</g>
+<!-- sourcefile~varspec.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~varspec.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/varspec.f90.html" xlink:title="VarSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="583.5,-437.51 504.5,-437.51 504.5,-413.51 583.5,-413.51 583.5,-437.51"/>
+<text text-anchor="middle" x="544" y="-423.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~varspec.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge34" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~varspec.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M669.64,-273.52C658.28,-281.81 643.48,-293.48 632,-305.51 601.77,-337.22 573.27,-379.83 557.57,-404.81"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="554.5,-403.12 552.2,-413.47 560.45,-406.81 554.5,-403.12"/>
+</g>
+<!-- sourcefile~statespecification.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~statespecification.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/statespecification.f90.html" xlink:title="StateSpecification.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1136,-434.51 1004,-434.51 1004,-410.51 1136,-410.51 1136,-434.51"/>
+<text text-anchor="middle" x="1070" y="-420.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateSpecification.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~statespecification.f90&#45;&gt;sourcefile~varspectype.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~statespecification.f90&#45;&gt;sourcefile~varspectype.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1069.44,-410.49C1070.59,-359.27 1067.56,-157.89 954,-71.51 809.17,38.66 718.88,1.14 545,-52.51"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M543,-52.51C469,-79.13 420.47,-343.75 407.49,-423.12"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="403.97,-423.01 405.84,-433.44 410.88,-424.12 403.97,-423.01"/>
+</g>
+<!-- sourcefile~varspecmiscmod.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~varspecmiscmod.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/varspecmiscmod.f90.html" xlink:title="VarSpecMiscMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="929,-558.51 805,-558.51 805,-534.51 929,-534.51 929,-558.51"/>
+<text text-anchor="middle" x="867" y="-544.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarSpecMiscMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~statespecification.f90&#45;&gt;sourcefile~varspecmiscmod.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge44" class="edge">
+<title>sourcefile~statespecification.f90&#45;&gt;sourcefile~varspecmiscmod.f90</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M1003.61,-434.63C998.72,-437.07 994.1,-440 990,-443.51 959.78,-469.41 984.49,-499.92 954,-525.51 949.4,-529.37 944.2,-532.55 938.69,-535.15"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="937.13,-532.01 929.18,-539.01 939.76,-538.49 937.13,-532.01"/>
+</g>
+<!-- sourcefile~varconn.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~varconn.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/varconn.f90.html" xlink:title="VarConn.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="728,-578.51 648,-578.51 648,-554.51 728,-554.51 728,-578.51"/>
+<text text-anchor="middle" x="688" y="-564.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarConn.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varconn.f90&#45;&gt;sourcefile~varconnpoint.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~varconn.f90&#45;&gt;sourcefile~varconnpoint.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M647.74,-561.57C608.33,-556.55 545.9,-548.39 492,-540.51 483.64,-539.29 474.84,-537.95 466.17,-536.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="466.5,-533.11 456.08,-535.02 465.42,-540.03 466.5,-533.11"/>
+</g>
+<!-- sourcefile~varconntype.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~varconntype.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/varconntype.f90.html" xlink:title="VarConnType.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="596,-618.51 492,-618.51 492,-594.51 596,-594.51 596,-618.51"/>
+<text text-anchor="middle" x="544" y="-604.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarConnType.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varconn.f90&#45;&gt;sourcefile~varconntype.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge29" class="edge">
+<title>sourcefile~varconn.f90&#45;&gt;sourcefile~varconntype.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M647.82,-577.55C632.39,-581.9 614.43,-586.96 597.88,-591.62"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="596.46,-588.38 587.79,-594.46 598.36,-595.12 596.46,-588.38"/>
+</g>
+<!-- sourcefile~varconn.f90&#45;&gt;sourcefile~varspec.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge36" class="edge">
+<title>sourcefile~varconn.f90&#45;&gt;sourcefile~varspec.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M674.89,-554.49C650.39,-530.16 594.72,-474.88 564.83,-445.21"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="567.04,-442.47 557.48,-437.91 562.11,-447.44 567.04,-442.47"/>
+</g>
+<!-- sourcefile~varconntype.f90&#45;&gt;sourcefile~varconnpoint.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~varconntype.f90&#45;&gt;sourcefile~varconnpoint.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M519.49,-594.42C510.8,-589.85 500.9,-584.54 492,-579.51 471.83,-568.11 449.46,-554.63 432.33,-544.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="433.74,-540.88 423.39,-538.61 430.07,-546.84 433.74,-540.88"/>
+</g>
+<!-- sourcefile~varspec.f90&#45;&gt;sourcefile~varspectype.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~varspec.f90&#45;&gt;sourcefile~varspectype.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M504.28,-431.08C492.05,-432.84 478.24,-434.83 464.85,-436.76"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="464.13,-433.32 454.73,-438.21 465.13,-440.25 464.13,-433.32"/>
+</g>
+<!-- sourcefile~varspecmiscmod.f90&#45;&gt;sourcefile~varconnpoint.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~varspecmiscmod.f90&#45;&gt;sourcefile~varconnpoint.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M543,-526.51C518.01,-523 490.25,-522.35 466.14,-522.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="465.96,-519.32 456.06,-523.08 466.14,-526.32 465.96,-519.32"/>
+</g>
+<!-- sourcefile~varspecmiscmod.f90&#45;&gt;sourcefile~varspectype.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~varspecmiscmod.f90&#45;&gt;sourcefile~varspectype.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M804.78,-545.52C739.97,-543.81 634.85,-539.16 545,-526.51"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M543,-526.51C496.63,-517.84 450.94,-485.35 425.22,-464.25"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="427.19,-461.34 417.29,-457.58 422.69,-466.69 427.19,-461.34"/>
+</g>
+<!-- sourcefile~varspecmiscmod.f90&#45;&gt;sourcefile~varconn.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge27" class="edge">
+<title>sourcefile~varspecmiscmod.f90&#45;&gt;sourcefile~varconn.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M804.59,-553.45C782.9,-555.9 758.8,-558.63 738.24,-560.95"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="737.7,-557.49 728.15,-562.09 738.48,-564.44 737.7,-557.49"/>
+</g>
+<!-- sourcefile~varspecmiscmod.f90&#45;&gt;sourcefile~varconntype.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge31" class="edge">
+<title>sourcefile~varspecmiscmod.f90&#45;&gt;sourcefile~varconntype.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M836.45,-558.57C812.07,-568 776.35,-580.63 744,-587.51 698.41,-597.22 645.88,-601.97 606.24,-604.29"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="605.99,-600.8 596.2,-604.85 606.38,-607.79 605.99,-600.8"/>
+</g>
+<!-- sourcefile~varspecmiscmod.f90&#45;&gt;sourcefile~varspec.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge37" class="edge">
+<title>sourcefile~varspecmiscmod.f90&#45;&gt;sourcefile~varspec.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M804.57,-537.9C795.8,-534.91 787.3,-530.89 780,-525.51 754.96,-507.07 768.15,-485.1 744,-465.51 723.91,-449.22 713.85,-453.67 689,-446.51"/>
+</g>
+<!-- sourcefile~comp_testing_driver.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~comp_testing_driver.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/comp_testing_driver.f90.html" xlink:title="Comp_Testing_Driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="939.5,-394.51 794.5,-394.51 794.5,-370.51 939.5,-370.51 939.5,-394.51"/>
+<text text-anchor="middle" x="867" y="-380.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Comp_Testing_Driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M795.9,-370.33C790.27,-367.9 784.88,-364.99 780,-361.51 755.91,-344.33 763.81,-327.49 744,-305.51 735.51,-296.1 724.88,-287.1 715.24,-279.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="717.21,-276.82 707.09,-273.68 713.04,-282.44 717.21,-276.82"/>
+</g>
+<!-- sourcefile~componentspecification.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~componentspecification.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/componentspecification.f90.html" xlink:title="ComponentSpecification.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1352,-434.51 1186,-434.51 1186,-410.51 1352,-410.51 1352,-434.51"/>
+<text text-anchor="middle" x="1269" y="-420.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpecification.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecification.f90&#45;&gt;sourcefile~statespecification.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~componentspecification.f90&#45;&gt;sourcefile~statespecification.f90</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M1185.88,-422.51C1172.8,-422.51 1159.33,-422.51 1146.41,-422.51"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="1146.19,-419.01 1136.19,-422.51 1146.19,-426.01 1146.19,-419.01"/>
+</g>
+<!-- sourcefile~extdatagridcompmod.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~extdatagridcompmod.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/extdatagridcompmod.f90.html" xlink:title="ExtDataGridCompMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="944,-516.51 790,-516.51 790,-492.51 944,-492.51 944,-516.51"/>
+<text text-anchor="middle" x="867" y="-502.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataGridCompMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M791.13,-492.32C787.06,-489.86 783.3,-486.95 780,-483.51 724.08,-425.31 786.04,-374.41 744,-305.51 737.81,-295.36 728.38,-286.58 719.08,-279.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="720.86,-276.55 710.66,-273.67 716.84,-282.28 720.86,-276.55"/>
+</g>
+<!-- sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~varspec.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge32" class="edge">
+<title>sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~varspec.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M809.02,-492.51C799.23,-489.91 789.23,-486.9 780,-483.51 763.21,-477.35 760.49,-472.45 744,-465.51 720.16,-455.49 713.85,-453.67 689,-446.51"/>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M687,-446.51C656.63,-437.77 621.51,-432.54 593.79,-429.48"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="593.87,-425.97 583.56,-428.41 593.14,-432.93 593.87,-425.97"/>
+</g>
+<!-- sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~extdatagridcompng.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/extdatagridcompng.f90.html" xlink:title="ExtDataGridCompNG.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="940.5,-474.51 793.5,-474.51 793.5,-450.51 940.5,-450.51 940.5,-474.51"/>
+<text text-anchor="middle" x="867" y="-460.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataGridCompNG.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M799.99,-450.36C792.57,-446.84 785.66,-442.32 780,-436.51 737.85,-393.28 777.2,-355.95 744,-305.51 737.29,-295.32 727.46,-286.39 717.95,-279.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="719.97,-276.42 709.77,-273.53 715.94,-282.15 719.97,-276.42"/>
+</g>
+<!-- sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~varspec.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge33" class="edge">
+<title>sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~varspec.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M807.1,-450.43C797.52,-446.9 788.1,-442.35 780,-436.51 757.5,-420.28 768.63,-398.28 744,-385.51 688.38,-356.69 614.06,-387.18 573.82,-408.51"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="571.92,-405.56 564.83,-413.43 575.28,-411.7 571.92,-405.56"/>
+</g>
+<!-- sourcefile~genericcplcomp.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~genericcplcomp.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node16"><a xlink:href="../sourcefile/genericcplcomp.f90.html" xlink:title="GenericCplComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1133,-598.51 1007,-598.51 1007,-574.51 1133,-574.51 1133,-598.51"/>
+<text text-anchor="middle" x="1070" y="-584.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GenericCplComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~genericcplcomp.f90&#45;&gt;sourcefile~varspecmiscmod.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge40" class="edge">
+<title>sourcefile~genericcplcomp.f90&#45;&gt;sourcefile~varspecmiscmod.f90</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M1008.69,-574.51C986.63,-570.12 961.48,-565.12 938.6,-560.56"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="939.1,-557.09 928.61,-558.57 937.74,-563.96 939.1,-557.09"/>
+</g>
+<!-- sourcefile~mapl.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~mapl.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node17"><a xlink:href="../sourcefile/mapl.f90.html" xlink:title="MAPL.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1102,-518.51 1038,-518.51 1038,-494.51 1102,-494.51 1102,-518.51"/>
+<text text-anchor="middle" x="1070" y="-504.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~mapl.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1037.92,-502.84C1022.57,-499.93 1004.32,-494.74 990,-485.51 968.76,-471.83 975.54,-454.72 954,-441.51 886.52,-400.14 839.67,-455.52 780,-403.51 745.02,-373.03 771.11,-343.17 744,-305.51 736.82,-295.53 726.79,-286.61 717.26,-279.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="719.28,-276.58 709.1,-273.62 715.21,-282.28 719.28,-276.58"/>
+</g>
+<!-- sourcefile~mapl.f90&#45;&gt;sourcefile~varspecmiscmod.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge41" class="edge">
+<title>sourcefile~mapl.f90&#45;&gt;sourcefile~varspecmiscmod.f90</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M1037.59,-512.76C1011.06,-518.04 972.08,-525.8 938.18,-532.55"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="937.43,-529.13 928.31,-534.51 938.8,-535.99 937.43,-529.13"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~mapl_capgridcomp.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node18"><a xlink:href="../sourcefile/mapl_capgridcomp.f90.html" xlink:title="MAPL_CapGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="939,-352.51 795,-352.51 795,-328.51 939,-328.51 939,-352.51"/>
+<text text-anchor="middle" x="867" y="-338.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M805.5,-328.41C796.79,-325.9 788.06,-322.95 780,-319.51 755.79,-309.18 730.74,-292.72 713.07,-279.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="714.67,-276.8 704.54,-273.69 710.52,-282.44 714.67,-276.8"/>
+</g>
+<!-- sourcefile~mapl_historycollection.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node19" class="node">
+<title>sourcefile~mapl_historycollection.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node19"><a xlink:href="../sourcefile/mapl_historycollection.f90.html" xlink:title="MAPL_HistoryCollection.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="947,-310.51 787,-310.51 787,-286.51 947,-286.51 947,-310.51"/>
+<text text-anchor="middle" x="867" y="-296.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryCollection.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M808.53,-286.5C790.99,-282.83 771.58,-278.77 753.6,-275.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="754.28,-271.58 743.77,-272.96 752.84,-278.43 754.28,-271.58"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node20" class="node">
+<title>sourcefile~mapl_historygridcomp.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node20"><a xlink:href="../sourcefile/mapl_historygridcomp.f90.html" xlink:title="MAPL_HistoryGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1150,-476.51 990,-476.51 990,-452.51 1150,-452.51 1150,-476.51"/>
+<text text-anchor="middle" x="1070" y="-462.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1001.33,-452.4C997.17,-449.94 993.33,-447 990,-443.51 937.87,-388.91 1011.31,-326.65 954,-277.51 925.04,-252.69 822.77,-253.27 754.08,-256.79"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="753.57,-253.31 743.78,-257.35 753.95,-260.3 753.57,-253.31"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~varspecmiscmod.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge42" class="edge">
+<title>sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~varspecmiscmod.f90</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M1008.8,-476.54C1002.22,-479 995.81,-481.96 990,-485.51 969.6,-497.99 974.53,-513.24 954,-525.51 949.22,-528.37 944.07,-530.84 938.74,-532.98"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="937.25,-529.79 929.03,-536.47 939.62,-536.38 937.25,-529.79"/>
+</g>
+<!-- sourcefile~mapl_maskmod.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node21" class="node">
+<title>sourcefile~mapl_maskmod.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node21"><a xlink:href="../sourcefile/mapl_maskmod.f90.html" xlink:title="MAPL_MaskMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="926,-188.51 808,-188.51 808,-164.51 926,-164.51 926,-188.51"/>
+<text text-anchor="middle" x="867" y="-174.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MaskMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_maskmod.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~mapl_maskmod.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M807.64,-187.63C798.19,-190.31 788.68,-193.57 780,-197.51 754.31,-209.18 728.3,-228.37 710.71,-242.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="708.24,-240.21 702.79,-249.29 712.71,-245.59 708.24,-240.21"/>
+</g>
+<!-- sourcefile~mapl_orbgridcompmod.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node22" class="node">
+<title>sourcefile~mapl_orbgridcompmod.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node22"><a xlink:href="../sourcefile/mapl_orbgridcompmod.f90.html" xlink:title="MAPL_OrbGridCompMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="949.5,-146.51 784.5,-146.51 784.5,-122.51 949.5,-122.51 949.5,-146.51"/>
+<text text-anchor="middle" x="867" y="-132.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OrbGridCompMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_orbgridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~mapl_orbgridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M798.61,-146.59C792.09,-149.03 785.76,-151.98 780,-155.51 745.14,-176.9 716.73,-216.1 701.39,-240.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="698.23,-238.81 695.98,-249.17 704.2,-242.48 698.23,-238.81"/>
+</g>
+<!-- sourcefile~mapl_stationsamplermod.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node23" class="node">
+<title>sourcefile~mapl_stationsamplermod.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node23"><a xlink:href="../sourcefile/mapl_stationsamplermod.f90.html" xlink:title="MAPL_StationSamplerMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="954,-104.51 780,-104.51 780,-80.51 954,-80.51 954,-104.51"/>
+<text text-anchor="middle" x="867" y="-90.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StationSamplerMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_stationsamplermod.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~mapl_stationsamplermod.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M795.82,-104.59C790.21,-107.04 784.85,-109.98 780,-113.51 735.56,-145.88 708.27,-207.19 696.24,-239.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="692.91,-238.73 692.86,-249.32 699.51,-241.07 692.91,-238.73"/>
+</g>
+<!-- sourcefile~mapl_trajectorymod.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node24" class="node">
+<title>sourcefile~mapl_trajectorymod.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node24"><a xlink:href="../sourcefile/mapl_trajectorymod.f90.html" xlink:title="MAPL_TrajectoryMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="939,-230.51 795,-230.51 795,-206.51 939,-206.51 939,-230.51"/>
+<text text-anchor="middle" x="867" y="-216.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TrajectoryMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_trajectorymod.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~mapl_trajectorymod.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M816.22,-230.6C795.12,-235.73 770.36,-241.75 748.32,-247.1"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="747.29,-243.75 738.4,-249.51 748.95,-250.55 747.29,-243.75"/>
+</g>
+<!-- sourcefile~maplgeneric.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node25" class="node">
+<title>sourcefile~maplgeneric.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node25"><a xlink:href="../sourcefile/maplgeneric.f90.html" xlink:title="MaplGeneric.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1320.5,-558.51 1217.5,-558.51 1217.5,-534.51 1320.5,-534.51 1320.5,-558.51"/>
+<text text-anchor="middle" x="1269" y="-544.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGeneric.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplgeneric.f90&#45;&gt;sourcefile~statespecification.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge25" class="edge">
+<title>sourcefile~maplgeneric.f90&#45;&gt;sourcefile~statespecification.f90</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M1257.61,-534.34C1238.52,-512.76 1195.62,-467.77 1150,-443.51 1146.26,-441.53 1142.33,-439.72 1138.29,-438.07"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="1139.31,-434.72 1128.72,-434.52 1136.88,-441.28 1139.31,-434.72"/>
+</g>
+<!-- sourcefile~maplgeneric.f90&#45;&gt;sourcefile~varconn.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge26" class="edge">
+<title>sourcefile~maplgeneric.f90&#45;&gt;sourcefile~varconn.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M1251.78,-558.63C1198.51,-597 1023.4,-711.86 868,-686.51"/>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M866,-686.51C830.58,-683.8 749.19,-618.08 710.37,-585.07"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="712.63,-582.4 702.76,-578.56 708.08,-587.72 712.63,-582.4"/>
+</g>
+<!-- sourcefile~maplgeneric.f90&#45;&gt;sourcefile~varconntype.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge28" class="edge">
+<title>sourcefile~maplgeneric.f90&#45;&gt;sourcefile~varconntype.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M866,-686.51C761.96,-678.55 730.15,-702.92 632,-667.51 606.73,-658.4 582.06,-639.91 565.48,-625.67"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="567.4,-622.69 557.59,-618.68 562.76,-627.93 567.4,-622.69"/>
+</g>
+<!-- sourcefile~maplgeneric.f90&#45;&gt;sourcefile~varspecmiscmod.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge43" class="edge">
+<title>sourcefile~maplgeneric.f90&#45;&gt;sourcefile~varspecmiscmod.f90</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M1217.34,-546.51C1147.02,-546.51 1019.49,-546.51 939.5,-546.51"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="939.03,-543.01 929.03,-546.51 939.03,-550.01 939.03,-543.01"/>
+</g>
+<!-- sourcefile~test_varspec.pf -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node26" class="node">
+<title>sourcefile~test_varspec.pf</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node26"><a xlink:href="../sourcefile/test_varspec.pf.html" xlink:title="Test_VarSpec.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="735.5,-338.51 640.5,-338.51 640.5,-314.51 735.5,-314.51 735.5,-338.51"/>
+<text text-anchor="middle" x="688" y="-324.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_VarSpec.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_varspec.pf&#45;&gt;sourcefile~varspec.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge35" class="edge">
+<title>sourcefile~test_varspec.pf&#45;&gt;sourcefile~varspec.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M657.99,-338.53C649.38,-342.54 640.09,-347.33 632,-352.51 607.32,-368.33 581.96,-390.39 565.04,-406.12"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="562.33,-403.87 557.45,-413.27 567.13,-408.96 562.33,-403.87"/>
+</g>
+<!-- sourcefile~varconnvector.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node27" class="node">
+<title>sourcefile~varconnvector.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node27"><a xlink:href="../sourcefile/varconnvector.f90.html" xlink:title="VarConnVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="744,-658.51 632,-658.51 632,-634.51 744,-634.51 744,-658.51"/>
+<text text-anchor="middle" x="688" y="-644.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarConnVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varconnvector.f90&#45;&gt;sourcefile~varconntype.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge30" class="edge">
+<title>sourcefile~varconnvector.f90&#45;&gt;sourcefile~varconntype.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M644.4,-634.51C629.79,-630.4 613.26,-625.74 597.93,-621.42"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="598.64,-617.99 588.07,-618.64 596.74,-624.72 598.64,-617.99"/>
+</g>
+<!-- sourcefile~varspecptr.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node28" class="node">
+<title>sourcefile~varspecptr.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node28"><a xlink:href="../sourcefile/varspecptr.f90.html" xlink:title="VarSpecPtr.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="733.5,-498.51 642.5,-498.51 642.5,-474.51 733.5,-474.51 733.5,-498.51"/>
+<text text-anchor="middle" x="688" y="-484.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarSpecPtr.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varspecptr.f90&#45;&gt;sourcefile~varspec.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge38" class="edge">
+<title>sourcefile~varspecptr.f90&#45;&gt;sourcefile~varspec.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M658.95,-474.46C637.07,-465.06 606.47,-451.92 582.49,-441.62"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="583.57,-438.27 573,-437.54 580.8,-444.7 583.57,-438.27"/>
+</g>
+<!-- sourcefile~varspecvector.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_node29" class="node">
+<title>sourcefile~varspecvector.f90</title>
+<g id="a_sourcefile~~dimspec.f90~~AfferentGraph_node29"><a xlink:href="../sourcefile/varspecvector.f90.html" xlink:title="VarSpecVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="743.5,-418.51 632.5,-418.51 632.5,-394.51 743.5,-394.51 743.5,-418.51"/>
+<text text-anchor="middle" x="688" y="-404.11" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarSpecVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varspecvector.f90&#45;&gt;sourcefile~varspec.f90 -->
+<g id="sourcefile~~dimspec.f90~~AfferentGraph_edge39" class="edge">
+<title>sourcefile~varspecvector.f90&#45;&gt;sourcefile~varspec.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M632.1,-413.86C619.54,-415.54 606.27,-417.31 593.98,-418.96"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="593.37,-415.51 583.92,-420.31 594.29,-422.45 593.37,-415.51"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefiledimspecf90AfferentGraph = svgPanZoom('#sourcefiledimspecf90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="k">module </span><span class="n">oomph_DimsSpec</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="w">   </span><span class="k">use </span><span class="n">oomph_UngriddedDimSpec</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="w">   </span><span class="k">use </span><span class="n">oomph_HorizontalStaggerLoc</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">oomph_VerticalStaggerLoc</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="k">   private</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">DimsSpec</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">DimsSpec</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">HorizontalStaggerLoc</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">horz_stagger_loc</span><span class="w">  </span><span class="c">!  NONE, CENTER, TILE</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">VerticalStaggerLoc</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vert_stagger_loc</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">UngriddedDimSpec</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ungridded_dim_specs</span><span class="p">(:)</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">halo_width</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="k">end type </span><span class="n">DimsSpec</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">   </span><span class="k">interface </span><span class="n">DimsSpec</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">      </span><span class="k">module procedure </span><span class="n">new_DimsSpec_simple</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">      </span><span class="k">module procedure </span><span class="n">new_DimsSpec_w_ungridded</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">      </span><span class="k">module procedure </span><span class="n">new_DimsSpec_w_halo</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="k">end interface </span><span class="n">DimsSpec</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="k">contains</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="k">   pure function </span><span class="n">new_DimsSpec_simple</span><span class="p">(</span><span class="n">horz_stagger_loc</span><span class="p">,</span><span class="w"> </span><span class="n">vert_stagger_loc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">DimsSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">HorizontalStaggerLoc</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">horz_stagger_loc</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">VerticalStaggerLoc</span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vert_stagger_loc</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">UngriddedDimSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">no_ungridded</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="n">spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DimsSpec</span><span class="p">(</span><span class="n">horz_stagger_loc</span><span class="p">,</span><span class="w"> </span><span class="n">vert_stagger_loc</span><span class="p">,</span><span class="w"> </span><span class="n">ungridded_dim_specs</span><span class="o">=</span><span class="n">no_ungridded</span><span class="p">,</span><span class="w"> </span><span class="n">halo_width</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">   </span><span class="k">end function </span><span class="n">new_DimsSpec_simple</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a>
+<a id="ln-33" name="ln-33" href="#ln-33"></a>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">   </span><span class="k">pure function </span><span class="n">new_DimsSpec_w_ungridded</span><span class="p">(</span><span class="n">horz_stagger_loc</span><span class="p">,</span><span class="w"> </span><span class="n">vert_stagger_loc</span><span class="p">,</span><span class="w"> </span><span class="n">ungridded_dim_specs</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">DimsSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">HorizontalStaggerLoc</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">horz_stagger_loc</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">VerticalStaggerLoc</span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vert_stagger_loc</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">UngriddedDimSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ungridded_dim_specs</span><span class="p">(:)</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">      </span><span class="n">spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DimsSpec</span><span class="p">(</span><span class="n">horz_stagger_loc</span><span class="p">,</span><span class="w"> </span><span class="n">vert_stagger_loc</span><span class="p">,</span><span class="w"> </span><span class="n">ungridded_dim_specs</span><span class="p">,</span><span class="w"> </span><span class="n">halo_width</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">   </span><span class="k">end function </span><span class="n">new_DimsSpec_w_ungridded</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a>
+<a id="ln-42" name="ln-42" href="#ln-42"></a>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">   </span><span class="k">pure function </span><span class="n">new_DimsSpec_w_halo</span><span class="p">(</span><span class="n">horz_stagger_loc</span><span class="p">,</span><span class="w"> </span><span class="n">vert_stagger_loc</span><span class="p">,</span><span class="w"> </span><span class="n">ungridded_dim_specs</span><span class="p">,</span><span class="w"> </span><span class="n">halo_width</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">DimsSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">HorizontalStaggerLoc</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">horz_stagger_loc</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">VerticalStaggerLoc</span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vert_stagger_loc</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">UngriddedDimSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ungridded_dim_specs</span><span class="p">(:)</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">halo_width</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="n">spec</span><span class="p">%</span><span class="n">horz_stagger_loc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">horz_stagger_loc</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="n">spec</span><span class="p">%</span><span class="n">vert_stagger_loc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vert_stagger_loc</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="n">spec</span><span class="p">%</span><span class="n">ungridded_dim_specs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ungridded_dim_specs</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="n">spec</span><span class="p">%</span><span class="n">halo_width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">halo_width</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">   </span><span class="k">end function </span><span class="n">new_DimsSpec_w_halo</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="k">end module </span><span class="n">oomph_DimsSpec</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-04T14:18:41.963139+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>
