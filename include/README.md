@@ -84,7 +84,7 @@ the `_VERIFY` macro will check that status is the "good" value, if it is executi
 
 We can take the `_VERIFY` a step further. This is valid Fortran:
 ```fortran
-call foo(...,rc=status); `_VERIFY`(status)
+call foo(...,rc=status); _VERIFY(status)
 ```
 note that everything is nicely on one line, but wouldn't it be nice if there was a macro so you didn't have to type the `rc=status); _VERIFY(status)` there is, it is `_RC`. The code above can be replaced with:
 ```fortran
