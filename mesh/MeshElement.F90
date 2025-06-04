@@ -17,24 +17,48 @@ module sf_MeshElement
    type :: MeshElement
       real(kind=WP) :: lon_1, lon_2, lat_1, lat_2
       type(Pixel), pointer :: pixels(:,:) => null()
+      logical :: done = .false.
    end type MeshElement
 
 contains
 
    logical function do_refine(element)
-      type(MeshElement), intent(in) :: element
+      type(MeshElement), intent(inout) :: element
 
-      integer :: min_idx, max_idx
+!#      integer :: min_idx, max_idx
+      integer :: idx_0
+      integer :: i, j
 
       if (size(element%pixels) == 0) then
          print*,'failure - have refined too far somehow'
          do_refine = .false.
       end if
 
-      min_idx = maxval(element%pixels%catch_index)
-      max_idx = minval(element%pixels%catch_index)
+      if (element%done) then
+         do_refine = .false.
+         return
+      end if
 
-      do_refine = (max_idx /= min_idx)
+      idx_0 = element%pixels(1,1)%catch_index
+
+      ! Swap loops to avoid long stretch over ocean/antarctica
+      do i = 1, size(element%pixels,1)
+         do j = 1, size(element%pixels,2)
+
+            if (element%pixels(i,j)%catch_index /= idx_0) then
+               do_refine = .true.
+               return
+            end if
+
+         end do
+      end do
+
+      element%done = .true.
+      
+!#      min_idx = maxval(element%pixels%catch_index)
+!#      max_idx = minval(element%pixels%catch_index)
+!#
+!#      do_refine = (max_idx /= min_idx)
 
    end function do_refine
 
