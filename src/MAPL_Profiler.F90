@@ -1,76 +1,53 @@
+! Package exporter
+module mapl_Profiler
+   use mapl_AbstractMeter
+   use mapl_AbstractMeterNode
+   use mapl_AbstractMeterFactory
+   use mapl_MeterNodeVector
+   use mapl_MeterNode
+   use mapl_BaseProfiler
+   
+   use mapl_AdvancedMeter
+   use mapl_MpiTimerGauge
+   use mapl_FortranTimerGauge
+   use mapl_RssMemoryGauge
+   use mapl_VmstatMemoryGauge
 
+   use mapl_TimeProfiler
+   use mapl_MemoryProfiler
+   use mapl_DistributedMeter
+   use mapl_DistributedProfiler
 
-#include "MAPL_ErrLog.h"
+   use mapl_ProfileReporter
+   use mapl_AbstractColumn
+   use mapl_SimpleColumn
+   use mapl_TextColumn
+   use mapl_SimpleTextColumn
+   use mapl_FormattedTextColumn
+   use mapl_MemoryTextColumn
+   use mapl_NameColumn
+   use mapl_NumCyclesColumn
+   use mapl_InclusiveColumn
+   use mapl_ExclusiveColumn
+   use mapl_StdDevColumn
+   use mapl_MinCycleColumn
+   use mapl_MaxCycleColumn
+   use mapl_MeanCycleColumn
+   use mapl_PercentageColumn
+   use mapl_TextColumnVector
+   use mapl_MultiColumn
+   use mapl_SeparatorColumn
+   
+   implicit none
+contains 
 
-!BOP
+   subroutine initialize(comm)
+      integer, optional, intent(in) :: comm
+      call initialize_global_time_profiler(comm = comm)
+   end subroutine initialize
 
-! !MODULE: MAPL_Profiler -- A Module to instrument codes for profiling
+   subroutine finalize()
+      call finalize_global_time_profiler()
+   end subroutine finalize
 
-
-! !INTERFACE:
-
-  module MAPL_ProfMod
-
-! !USES:
-
-  use ESMF
-  use MAPL_ExceptionHandling
-  implicit none
-  private
-
-! !PUBLIC TYPES:
-
-! !PUBLIC MEMBER FUNCTIONS:
-  public MAPL_ProfDisable
-  public MAPL_ProfEnable
-  public MAPL_ProfIsDisabled
-
-!EOP
-
-  logical,       save :: DISABLED  = .false.
-
-
-  contains
-
-!********************************************************
-    logical function MAPL_ProfIsDisabled()
-      !$omp master
-      MAPL_ProfIsDisabled = DISABLED
-      !$omp end master
-
-    end function MAPL_ProfIsDisabled
-
-!********************************************************
-
-!********************************************************
-
-    subroutine MAPL_ProfDisable(RC)
-      integer, optional, intent(OUT)   :: RC
-
-      character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_ProfDisable"
-
-      !$omp master
-      DISABLED = .true.
-      !$omp end master
-
-      _RETURN(ESMF_SUCCESS)
-      
-    end subroutine MAPL_ProfDisable
-
-!********************************************************
-
-    subroutine MAPL_ProfEnable(RC)
-      integer, optional, intent(OUT)   :: RC
-
-      character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_ProfEnable"
-
-      !$omp master
-      DISABLED = .false.
-      !$omp end master
-
-      _RETURN(ESMF_SUCCESS)
-      
-    end subroutine MAPL_ProfEnable
-
-  end module MAPL_ProfMod
-
+end module mapl_Profiler
