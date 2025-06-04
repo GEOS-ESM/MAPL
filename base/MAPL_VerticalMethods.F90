@@ -425,9 +425,9 @@ module MAPL_VerticalDataMod
         do i=1,im
            do j=1,jm
               if (mid_level) then
-                 call extrap_column(data_in(i,j,:),data_out(i,j,:),pmid(i,j,:),ple(i,j,lm),lev_out_bars, this%ks(i,j,:), var_flag, phis(i,j), ts(i,j), i,j, _RC)
+                 call extrap_column(data_in(i,j,:),data_out(i,j,:),pmid(i,j,:),ple(i,j,lm),lev_out_bars, this%ks(i,j,:), var_flag, phis(i,j), ts(i,j), _RC)
               else
-                 call extrap_column(data_in(i,j,:),data_out(i,j,:),ple(i,j,:),ple(i,j,lm),lev_out_bars, this%ks_e(i,j,:), var_flag, phis(i,j), ts(i,j), i, j, _RC)
+                 call extrap_column(data_in(i,j,:),data_out(i,j,:),ple(i,j,:),ple(i,j,lm),lev_out_bars, this%ks_e(i,j,:), var_flag, phis(i,j), ts(i,j), _RC)
               end if
            enddo
         enddo
@@ -436,7 +436,7 @@ module MAPL_VerticalDataMod
 
         contains
 
-        subroutine extrap_column(data_in, data_out, plevs_in, ps, plevs_out, ks, var_flag, phis_ij, ts_ij, i,j ,rc)
+        subroutine extrap_column(data_in, data_out, plevs_in, ps, plevs_out, ks, var_flag, phis_ij, ts_ij,i rc)
            real, intent(in) :: data_in(:)
            real, intent(out) :: data_out(:)
            real, intent(in) :: plevs_in(:)
@@ -446,7 +446,6 @@ module MAPL_VerticalDataMod
            integer, intent(in) :: var_flag
            real, intent(in) :: phis_ij
            real, intent(in) :: ts_ij
-           integer, intent(in) :: i,j
            integer, intent(out), optional :: rc
 
            integer :: d_in_lb, d_in_ub
