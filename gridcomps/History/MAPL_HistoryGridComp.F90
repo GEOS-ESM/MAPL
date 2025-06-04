@@ -422,7 +422,7 @@ contains
     character(len=ESMF_MAXSTR), allocatable :: regexList(:)
     type(StringStringMap) :: global_attributes
     character(len=ESMF_MAXSTR) :: name,regrid_method
-    logical :: has_conservative_keyword, has_regrid_keyword, has_extrap_keyword, phis_in_collection, ts_in_collection
+    logical :: has_conservative_keyword, has_regrid_keyword, has_extrap_keyword, phis_in_collection
     logical :: has_levels, has_xlevels
     integer :: create_mode
     character(len=:), allocatable :: uppercase_algorithm, level_key
@@ -1122,16 +1122,21 @@ contains
                 enddo
 
                 if( .not.found ) then
-                   list(n)%field_set%nfields = list(n)%field_set%nfields + 1
-                   allocate( fields(4,  list(n)%field_set%nfields), _STAT )
-                   fields(1,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(1,:)
-                   fields(2,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(2,:)
-                   fields(3,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(3,:)
-                   fields(4,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(4,:)
-                   fields(1,  list(n)%field_set%nfields  ) = Vvar
-                   fields(2,  list(n)%field_set%nfields  ) = list(n)%vvars (2)
-                   fields(3,  list(n)%field_set%nfields  ) = Vvar
-                   fields(4,  list(n)%field_set%nfields  ) = BLANK
+                   associate (f_set => list(n)%field_set)
+                   associate (nf =>f_set%nfields, fs_set => f_set%fields)
+                      nf = nf + 1 
+                      allocate( fields(4,  nf), _STAT )
+                      fields(1,1:nf-1) = fs_set(1,:)
+                      fields(2,1:nf-1) = fs_set(2,:)
+                      fields(3,1:nf-1) = fs_set(3,:)
+                      fields(4,1:nf-1) = fs_set(4,:)
+                      fields(1,  nf  ) = Vvar
+                      fields(2,  nf  ) = list(n)%vvars(2)
+                      fields(3,  nf  ) = Vvar
+                      fields(4,  nf  ) = BLANK
+
+                   end associate
+                   end associate
                    deallocate( list(n)%field_set%fields, _STAT )
                    list(n)%field_set%fields => fields
                 endif
@@ -1147,39 +1152,24 @@ contains
           enddo
 
           if (.not.phis_in_collection) then
-             list(n)%field_set%nfields = list(n)%field_set%nfields + 1
-             allocate( fields(4,  list(n)%field_set%nfields), _STAT )
-             fields(1,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(1,:)
-             fields(2,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(2,:)
-             fields(3,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(3,:)
-             fields(4,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(4,:)
-             fields(1,  list(n)%field_set%nfields  ) = "PHIS"
-             fields(2,  list(n)%field_set%nfields  ) = "DYN"
-             fields(3,  list(n)%field_set%nfields  ) = "PHIS"
-             fields(4,  list(n)%field_set%nfields  ) = BLANK
+             associate (f_set => list(n)%field_set)
+             associate (nf =>f_set%nfields, fs_set => f_set%fields)
+                nf = nf + 1 
+                allocate( fields(4,  nf), _STAT )
+                fields(1,1:nf-1) = fs_set(1,:)
+                fields(2,1:nf-1) = fs_set(2,:)
+                fields(3,1:nf-1) = fs_set(3,:)
+                fields(4,1:nf-1) = fs_set(4,:)
+                fields(1,  nf  ) = "PHIS"
+                fields(2,  nf  ) = "DYN"
+                fields(3,  nf  ) = "PHIS"
+                fields(4,  nf  ) = BLANK
+             end associate
+             end associate
              deallocate( list(n)%field_set%fields, _STAT )
              list(n)%field_set%fields => fields
           end if
 
-          ts_in_collection = .false.
-          do i=1,list(n)%field_set%nfields 
-             if (trim(fields(1,i)) == 'TS') ts_in_collection = .true.
-          enddo
-
-          if (.not.ts_in_collection) then
-             list(n)%field_set%nfields = list(n)%field_set%nfields + 1
-             allocate( fields(4,  list(n)%field_set%nfields), _STAT )
-             fields(1,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(1,:)
-             fields(2,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(2,:)
-             fields(3,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(3,:)
-             fields(4,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(4,:)
-             fields(1,  list(n)%field_set%nfields  ) = "TS"
-             fields(2,  list(n)%field_set%nfields  ) = "SURFACE"
-             fields(3,  list(n)%field_set%nfields  ) = "TS"
-             fields(4,  list(n)%field_set%nfields  ) = BLANK
-             deallocate( list(n)%field_set%fields, _STAT )
-             list(n)%field_set%fields => fields
-          end if
        end if
 
        vvarn(n) = vvar
