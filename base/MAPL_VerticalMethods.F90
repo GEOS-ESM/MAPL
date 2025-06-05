@@ -7,6 +7,7 @@ module MAPL_VerticalDataMod
   use pFIO
   use MAPL_AbstractRegridderMod
   use MAPL_ExceptionHandling
+  use MAPL_Constants
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
@@ -23,6 +24,13 @@ module MAPL_VerticalDataMod
      enumerator :: VERTICAL_METHOD_ETA2LEV
      enumerator :: VERTICAL_METHOD_FLIP
   end enum
+
+  enum, bind(c)
+     enumerator :: VFLAG_GEOT
+     enumerator :: VFLAG_GEOZ
+     enumerator :: VFLAG_GENERIC
+  end enum
+  real, parameter :: alpha = 0.0065*MAPL_RDRY/MAPL_GRAV
 
   type, public :: verticalData
      character(len=:), allocatable :: vunit
@@ -43,12 +51,14 @@ module MAPL_VerticalDataMod
      integer :: lm = 0
      integer :: regrid_type
      type(ESMF_Field) :: interp_var
+     type(ESMF_Field) :: phis_var
      logical :: ascending
      integer              :: nedge       ! number of edge
      integer, allocatable :: ks(:,:,:)
      integer, allocatable :: ks_e(:,:,:) ! edge
      real,    allocatable :: weight(:,:,:)
      real,    allocatable :: weight_e(:,:,:) !edge
+     logical :: extrap_below_surf = .false.
      contains
         procedure :: append_vertical_metadata
         procedure :: get_interpolating_variable
@@ -58,6 +68,7 @@ module MAPL_VerticalDataMod
         procedure :: correct_topo
         procedure :: setup_eta_to_pressure
         procedure :: flip_levels
+        procedure :: do_below_surf_extrap
   end type verticalData
 
   interface verticalData
@@ -66,7 +77,7 @@ module MAPL_VerticalDataMod
 
   contains
 
-     function newVerticalData(levels,vcoord,vscale,vunit,positive,long_name,standard_name,force_no_regrid,rc) result(vdata)
+     function newVerticalData(levels,vcoord,vscale,vunit,positive,long_name,standard_name,force_no_regrid,extrap_below_surf,rc) result(vdata)
         type(VerticalData) :: vData
         real, pointer, intent(in), optional :: levels(:)
         real, intent(in), optional :: vscale
@@ -76,6 +87,7 @@ module MAPL_VerticalDataMod
         character(len=*), optional, intent(in) :: long_name
         character(len=*), optional, intent(in) :: standard_name
         logical, optional, intent(in) :: force_no_regrid
+        logical, optional, intent(in) :: extrap_below_surf
         integer, optional, intent(Out) :: rc
 
         logical :: local_force_no_regrid
@@ -114,6 +126,8 @@ module MAPL_VerticalDataMod
         else
            local_force_no_regrid = .false.
         end if
+
+        if(present(extrap_below_surf)) vdata%extrap_below_surf = extrap_below_surf
 
         if (.not.present(levels)) then
            if (trim(vdata%positive)=='down') then
@@ -322,10 +336,11 @@ module MAPL_VerticalDataMod
 
      end subroutine setup_eta_to_pressure
 
-     subroutine regrid_eta_to_pressure(this,ptrin,ptrout,rc)
+     subroutine regrid_eta_to_pressure(this,ptrin,ptrout,var_name,rc)
         class(verticaldata), target, intent(inout) :: this
         real, intent(inout) :: ptrin(:,:,:)
         real, intent(inout) :: ptrout(:,:,:)
+        character(len=*), optional, intent(in) :: var_name 
         integer, optional, intent(out) :: rc
         real :: weight
 
@@ -333,7 +348,7 @@ module MAPL_VerticalDataMod
         integer :: i,j,k,lev,levo, D1,D2, km
         integer, pointer :: ks_(:,:,:)
         real, pointer    :: weights_(:,:,:)
-
+        
         km = size(ptrin,3)
         if (km == this%nedge -1) then
            ks_ => this%ks
@@ -352,10 +367,6 @@ module MAPL_VerticalDataMod
             do i = 1, D1
                k = ks_(i,j,lev)
                if (k == -1) cycle
-               !if (k == km) then
-               !   ptrout(i,j,lev) = ptrin(i,j,k)
-               !   cycle
-               !endif
                weight = weights_(i,j,lev)
                if (ptrin(i,j,k)   == MAPL_UNDEF) then
                   ptrout(i,j,lev) = ptrin(i,j,k+1)
@@ -369,9 +380,129 @@ module MAPL_VerticalDataMod
             enddo
           enddo
         enddo
+        if (this%extrap_below_surf) then
+           call this%do_below_surf_extrap(ptrin, ptrout, var_name=var_name, _RC) 
+        end if
         _RETURN(_SUCCESS)
 
      end subroutine regrid_eta_to_pressure
+
+     subroutine do_below_surf_extrap(this, data_in, data_out, var_name, rc)
+        class(verticaldata), target, intent(inout) :: this
+        real, intent(inout) :: data_in(:,:,:)
+        real, intent(inout) :: data_out(:,:,:)
+        character(len=*), optional, intent(in) :: var_name
+        integer, optional, intent(out) :: rc
+
+        integer :: status,i, j, k, im, jm, lm, lm_out, var_flag
+        real, pointer :: ple(:,:,:), phis(:,:), ts(:,:)
+        real, allocatable :: pmid(:,:,:), lev_out_bars(:)
+        logical :: mid_level
+
+        var_flag = VFLAG_GENERIC
+        if (present(var_name)) then
+           if (index(var_name,"temperature")/=0) var_flag = VFLAG_GEOT
+        end if 
+        allocate(lev_out_bars,source=this%scaled_levels,_STAT)
+        lev_out_bars=lev_out_bars*0.01
+        call ESMF_FieldGet(this%interp_var, 0, farrayPtr=ple, _RC) 
+        call ESMF_FieldGet(this%phis_var, 0, farrayPtr=phis, _RC)
+        mid_level = size(data_in,3) == size(ple,3)-1
+        im = size(ple,1)
+        jm = size(ple,2)
+        lm = size(ple,3)-1
+        lm_out = size(this%scaled_levels)
+        if (mid_level) then
+           allocate(pmid(im,jm,lm),_STAT)
+           do k=1,lm
+              pmid(:,:,k) = (ple(:,:,k)+ple(:,:,k-1))/2.0
+           enddo
+        end if
+
+        do i=1,im
+           do j=1,jm
+              if (mid_level) then
+                 call extrap_column(data_in(i,j,:),data_out(i,j,:),pmid(i,j,:),ple(i,j,lm),lev_out_bars, this%ks(i,j,:), var_flag, phis(i,j),  _RC)
+              else
+                 call extrap_column(data_in(i,j,:),data_out(i,j,:),ple(i,j,:),ple(i,j,lm),lev_out_bars, this%ks_e(i,j,:), var_flag, phis(i,j), _RC)
+              end if
+           enddo
+        enddo
+
+        _RETURN(_SUCCESS)
+
+        contains
+
+        subroutine extrap_column(data_in, data_out, plevs_in, ps, plevs_out, ks, var_flag, phis_ij, rc)
+           real, intent(in) :: data_in(:)
+           real, intent(out) :: data_out(:)
+           real, intent(in) :: plevs_in(:)
+           real, intent(in) :: plevs_out(:)
+           real, intent(in) :: ps
+           integer, intent(in) :: ks(:)
+           integer, intent(in) :: var_flag
+           real, intent(in) :: phis_ij
+           integer, intent(out), optional :: rc
+
+           integer :: d_in_lb, d_in_ub
+           integer :: d_out_lb, d_out_ub
+           integer :: p_in_lb, p_in_ub
+           integer :: p_out_lb, p_out_ub
+           integer :: k_bottom, ii
+           real  :: ps_in_mb, hgt, tstar, t0, alph, alnp, tplat, tprime0
+
+           d_in_lb = lbound(data_in,1)
+           d_in_ub = ubound(data_in,1)
+           d_out_lb = lbound(data_out,1)
+           d_out_ub = ubound(data_out,1)
+           p_in_lb = lbound(plevs_in,1)
+           p_in_ub = ubound(plevs_in,1)
+           p_out_lb = lbound(plevs_out,1)
+           p_out_ub = ubound(plevs_out,1)
+
+           if (any(plevs_out > plevs_in(p_in_ub)*0.01)) then
+              k_bottom = -1
+              do ii=p_out_lb,p_out_ub
+                 if (ks(ii) /= -1) then
+                    k_bottom = ii
+                    exit
+                 end if
+              enddo
+              if (k_bottom == -1) k_bottom = size(plevs_out)
+              select case(var_flag)
+              case(VFLAG_GENERIC)
+                 do ii=1,k_bottom
+                    data_out(ii)=data_in(ks(k_bottom))
+                 enddo
+              case(VFLAG_GEOT)
+                 ps_in_mb = ps*0.01
+                 tstar = data_in(d_in_ub)*(1.0+alpha*(ps_in_mb/(plevs_in(p_in_ub)*0.01)-1.0))
+                 hgt = phis_ij/MAPL_GRAV
+                 do ii=1,k_bottom
+                    if (hgt < 2000.0) then
+                       alnp = alpha*log(plevs_out(ii)/ps_in_mb)
+                    else
+                       t0 = tstar +0.0065*hgt
+                       tplat = min(t0,298.0)
+                       if (hgt <= 2500.0) then
+                          tprime0 = 0.002*((2500.0-hgt)*t0+(hgt-2000.0)*tplat)
+                       else
+                          tprime0 = tplat
+                       end if
+                       if (tprime0 < tstar) then
+                          alnp = 0.0
+                       else 
+                          alnp = MAPL_RDRY*(tprime0-tstar)/phis_ij*log(plevs_out(ii)/ps_in_mb)
+                       end if
+                    end if
+                    data_out(ii) = tstar*(1.0+alnp+0.5*alnp**2+1.0/6.0*alnp**3) 
+                 enddo
+              end select
+           end if
+
+        end subroutine
+
+     end subroutine do_below_surf_extrap
 
      subroutine flip_levels(this,ptrin,ptrout,rc)
         class(verticaldata), intent(inout) :: this
@@ -447,6 +578,10 @@ module MAPL_VerticalDataMod
         integer :: status
 
         call ESMF_FieldBundleGet(bundle,fieldName=trim(this%vvar),field=this%interp_var,_RC)
+        if (this%extrap_below_surf) then
+           call ESMF_FieldBundleGet(bundle,fieldName='PHIS',field=this%phis_var,_RC)
+        end if
+ 
 
      end subroutine get_interpolating_variable
 

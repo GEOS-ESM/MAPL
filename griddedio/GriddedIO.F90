@@ -639,7 +639,7 @@ module MAPL_GriddedIOMod
               _VERIFY(status)
               call ESMF_FieldBundleGet(this%output_bundle,item%xname,field=outField,rc=status)
               _VERIFY(status)
-              if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+              if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV .and. (this%vdata%extrap_below_surf .eqv. .false.)) then
                  call this%vdata%correct_topo(outField,rc=status)
                  _VERIFY(status)
               end if
@@ -686,11 +686,13 @@ module MAPL_GriddedIOMod
         real, allocatable, target :: ptr3d_inter(:,:,:)
         type(ESMF_Grid) :: gridIn,gridOut
         logical :: hasDE_in, hasDE_out
+        character(len=ESMF_MAXSTR) :: long_name
 
         ptr3d => null()
 
         call ESMF_FieldBundleGet(this%output_bundle,itemName,field=outField,rc=status)
         _VERIFY(status)
+        call ESMF_AttributeGet(outField, name='LONG_NAME', value=long_name, _RC)
         call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
         _VERIFY(status)
         call ESMF_FieldBundleGet(this%output_bundle,grid=gridOut,rc=status)
@@ -718,7 +720,7 @@ module MAPL_GriddedIOMod
                  call this%vdata%regrid_select_level(ptr3d,ptr3d_inter,rc=status)
                  _VERIFY(status)
               else if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-                 call this%vdata%regrid_eta_to_pressure(ptr3d,ptr3d_inter,rc=status)
+                 call this%vdata%regrid_eta_to_pressure(ptr3d,ptr3d_inter,var_name=long_name,rc=status)
                  _VERIFY(status)
               else if (this%vdata%regrid_type==VERTICAL_METHOD_FLIP) then
                  call this%vdata%flip_levels(ptr3d,ptr3d_inter,rc=status)
@@ -804,9 +806,11 @@ module MAPL_GriddedIOMod
         real, allocatable, target :: yptr3d_inter(:,:,:)
         type(ESMF_Grid) :: gridIn, gridOut
         logical :: hasDE_in, hasDE_out
+        character(len=ESMF_MAXSTR) :: long_name
 
         call ESMF_FieldBundleGet(this%output_bundle,xName,field=xoutField,rc=status)
         _VERIFY(status)
+        call ESMF_AttributeGet(xoutField, name='LONG_NAME', value=long_name, _RC)
         call ESMF_FieldBundleGet(this%output_bundle,yName,field=youtField,rc=status)
         _VERIFY(status)
         call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
@@ -836,7 +840,7 @@ module MAPL_GriddedIOMod
                  call this%vdata%regrid_select_level(xptr3d,xptr3d_inter,rc=status)
                  _VERIFY(status)
               else if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-                 call this%vdata%regrid_eta_to_pressure(xptr3d,xptr3d_inter,rc=status)
+                 call this%vdata%regrid_eta_to_pressure(xptr3d,xptr3d_inter,var_name=long_name,rc=status)
                  _VERIFY(status)
               else if (this%vdata%regrid_type==VERTICAL_METHOD_FLIP) then
                  call this%vdata%flip_levels(xptr3d,xptr3d_inter,rc=status)
@@ -861,7 +865,7 @@ module MAPL_GriddedIOMod
                  call this%vdata%regrid_select_level(yptr3d,yptr3d_inter,rc=status)
                  _VERIFY(status)
               else if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-                 call this%vdata%regrid_eta_to_pressure(yptr3d,yptr3d_inter,rc=status)
+                 call this%vdata%regrid_eta_to_pressure(yptr3d,yptr3d_inter,var_name=long_name,rc=status)
                  _VERIFY(status)
               else if (this%vdata%regrid_type==VERTICAL_METHOD_FLIP) then
                  call this%vdata%flip_levels(yptr3d,yptr3d_inter,rc=status)
