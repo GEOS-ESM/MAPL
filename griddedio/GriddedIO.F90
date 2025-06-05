@@ -797,9 +797,11 @@ module MAPL_GriddedIOMod
         type(ESMF_Grid) :: gridIn, gridOut
         logical :: hasDE_in, hasDE_out, isPresent
         character(len=ESMF_MAXSTR) :: long_name
+        type(ESMF_Info) :: infoh
 
         call ESMF_FieldBundleGet(this%output_bundle,xName,field=xoutField,rc=status)
         _VERIFY(status)
+
         long_name = 'unknown'
         call ESMF_InfoGetFromHost(xoutField,infoh,_RC)
         isPresent = ESMF_InfoIsPresent(infoh,"LONG_NAME",_RC)
