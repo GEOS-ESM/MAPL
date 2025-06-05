@@ -5,6 +5,8 @@ target_sources(MAPL.generic3g PRIVATE
 
   FieldClassAspect.F90
   FieldClassAspect_smod.F90
+  FieldBundleClassAspect.F90
+  StateClassAspect.F90
 
   VectorClassAspect.F90
   ActualPtFieldAspectMap.F90
@@ -38,5 +40,4 @@ target_sources(MAPL.generic3g PRIVATE
   ChildSpecMap.F90
 
   ComponentSpec.F90
-
 )
