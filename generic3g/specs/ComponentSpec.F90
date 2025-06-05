@@ -130,7 +130,7 @@ contains
       if (present(src_intent)) then
          select case (to_lower(src_intent))
          case ('export')
-            src_intent_ = ESMF_STATEINTENT_INTERNAL
+            src_intent_ = ESMF_STATEINTENT_EXPORT
          case ('internal')
             src_intent_ = ESMF_STATEINTENT_INTERNAL
          case default
