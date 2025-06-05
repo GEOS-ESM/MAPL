@@ -670,6 +670,7 @@ module MAPL_GriddedIOMod
         type(ESMF_Grid) :: gridIn,gridOut
         logical :: hasDE_in, hasDE_out, isPresent
         character(len=ESMF_MAXSTR) :: long_name
+        type(ESMF_Info) :: infoh
 
         ptr3d => null()
 
