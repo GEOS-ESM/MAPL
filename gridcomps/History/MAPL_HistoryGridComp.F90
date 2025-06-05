@@ -1176,16 +1176,20 @@ contains
           enddo
 
           if (.not.ts_in_collection) then
-             list(n)%field_set%nfields = list(n)%field_set%nfields + 1
-             allocate( fields(4,  list(n)%field_set%nfields), _STAT )
-             fields(1,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(1,:)
-             fields(2,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(2,:)
-             fields(3,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(3,:)
-             fields(4,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(4,:)
-             fields(1,  list(n)%field_set%nfields  ) = "TS"
-             fields(2,  list(n)%field_set%nfields  ) = "SURFACE"
-             fields(3,  list(n)%field_set%nfields  ) = "TS"
-             fields(4,  list(n)%field_set%nfields  ) = BLANK
+             associate (f_set => list(n)%field_set)
+             associate (nf =>f_set%nfields, fs_set => f_set%fields)
+                nf = nf + 1
+                allocate( fields(4,  nf), _STAT )
+                fields(1,1:nf-1) = fs_set(1,:)
+                fields(2,1:nf-1) = fs_set(2,:)
+                fields(3,1:nf-1) = fs_set(3,:)
+                fields(4,1:nf-1) = fs_set(4,:)
+                fields(1,  nf  ) = "TS"
+                fields(2,  nf  ) = "SURFACE"
+                fields(3,  nf  ) = "TS"
+                fields(4,  nf  ) = BLANK
+             end associate
+             end associate
              deallocate( list(n)%field_set%fields, _STAT )
              list(n)%field_set%fields => fields
           end if
