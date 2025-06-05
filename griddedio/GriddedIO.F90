@@ -685,14 +685,18 @@ module MAPL_GriddedIOMod
         real, pointer :: ptr2d(:,:), outptr2d(:,:)
         real, allocatable, target :: ptr3d_inter(:,:,:)
         type(ESMF_Grid) :: gridIn,gridOut
-        logical :: hasDE_in, hasDE_out
+        logical :: hasDE_in, hasDE_out, isPresent
         character(len=ESMF_MAXSTR) :: long_name
 
         ptr3d => null()
 
         call ESMF_FieldBundleGet(this%output_bundle,itemName,field=outField,rc=status)
         _VERIFY(status)
-        call ESMF_AttributeGet(outField, name='LONG_NAME', value=long_name, _RC)
+        long_name = 'unknown'
+        call ESMF_AttributeGet(outField, name="LONG_NAME", isPresent=isPresent, _RC)
+        if ( isPresent ) then
+           call ESMF_AttributeGet(outField, name="LONG_NAME",value=long_name, _RC)
+        endif
         call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
         _VERIFY(status)
         call ESMF_FieldBundleGet(this%output_bundle,grid=gridOut,rc=status)
@@ -805,12 +809,16 @@ module MAPL_GriddedIOMod
         real, pointer :: yptr2d(:,:), youtptr2d(:,:)
         real, allocatable, target :: yptr3d_inter(:,:,:)
         type(ESMF_Grid) :: gridIn, gridOut
-        logical :: hasDE_in, hasDE_out
+        logical :: hasDE_in, hasDE_out, isPresent
         character(len=ESMF_MAXSTR) :: long_name
 
         call ESMF_FieldBundleGet(this%output_bundle,xName,field=xoutField,rc=status)
         _VERIFY(status)
-        call ESMF_AttributeGet(xoutField, name='LONG_NAME', value=long_name, _RC)
+        long_name = 'unknown'
+        call ESMF_AttributeGet(xoutField, name="LONG_NAME", isPresent=isPresent, _RC)
+        if ( isPresent ) then
+           call ESMF_AttributeGet(xoutField, name="LONG_NAME",value=long_name, _RC)
+        endif
         call ESMF_FieldBundleGet(this%output_bundle,yName,field=youtField,rc=status)
         _VERIFY(status)
         call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
