@@ -52,6 +52,7 @@ module MAPL_VerticalDataMod
      integer :: regrid_type
      type(ESMF_Field) :: interp_var
      type(ESMF_Field) :: phis_var
+     type(ESMF_Field) :: ts_var
      logical :: ascending
      integer              :: nedge       ! number of edge
      integer, allocatable :: ks(:,:,:)
@@ -402,11 +403,13 @@ module MAPL_VerticalDataMod
         var_flag = VFLAG_GENERIC
         if (present(var_name)) then
            if (index(var_name,"temperature")/=0) var_flag = VFLAG_GEOT
+           if (index(var_name,"height")/=0) var_flag = VFLAG_GEOZ
         end if 
         allocate(lev_out_bars,source=this%scaled_levels,_STAT)
         lev_out_bars=lev_out_bars*0.01
         call ESMF_FieldGet(this%interp_var, 0, farrayPtr=ple, _RC) 
         call ESMF_FieldGet(this%phis_var, 0, farrayPtr=phis, _RC)
+        call ESMF_FieldGet(this%ts_var, 0, farrayPtr=ts, _RC)
         mid_level = size(data_in,3) == size(ple,3)-1
         im = size(ple,1)
         jm = size(ple,2)
@@ -422,9 +425,9 @@ module MAPL_VerticalDataMod
         do i=1,im
            do j=1,jm
               if (mid_level) then
-                 call extrap_column(data_in(i,j,:),data_out(i,j,:),pmid(i,j,:),ple(i,j,lm),lev_out_bars, this%ks(i,j,:), var_flag, phis(i,j),  _RC)
+                 call extrap_column(data_in(i,j,:),data_out(i,j,:),pmid(i,j,:),ple(i,j,lm),lev_out_bars, this%ks(i,j,:), var_flag, phis(i,j), ts(i,j),  _RC)
               else
-                 call extrap_column(data_in(i,j,:),data_out(i,j,:),ple(i,j,:),ple(i,j,lm),lev_out_bars, this%ks_e(i,j,:), var_flag, phis(i,j), _RC)
+                 call extrap_column(data_in(i,j,:),data_out(i,j,:),ple(i,j,:),ple(i,j,lm),lev_out_bars, this%ks_e(i,j,:), var_flag, phis(i,j), ts(i,j), _RC)
               end if
            enddo
         enddo
@@ -433,7 +436,7 @@ module MAPL_VerticalDataMod
 
         contains
 
-        subroutine extrap_column(data_in, data_out, plevs_in, ps, plevs_out, ks, var_flag, phis_ij, rc)
+        subroutine extrap_column(data_in, data_out, plevs_in, ps, plevs_out, ks, var_flag, phis_ij, ts_ij ,rc)
            real, intent(in) :: data_in(:)
            real, intent(out) :: data_out(:)
            real, intent(in) :: plevs_in(:)
@@ -442,6 +445,7 @@ module MAPL_VerticalDataMod
            integer, intent(in) :: ks(:)
            integer, intent(in) :: var_flag
            real, intent(in) :: phis_ij
+           real, intent(in) :: ts_ij
            integer, intent(out), optional :: rc
 
            integer :: d_in_lb, d_in_ub
@@ -473,6 +477,28 @@ module MAPL_VerticalDataMod
               case(VFLAG_GENERIC)
                  do ii=1,k_bottom
                     data_out(ii)=data_in(ks(k_bottom))
+                 enddo
+              case(VFLAG_GEOZ)
+                 ps_in_mb = ps*0.01
+                 hgt = phis_ij/MAPL_GRAV
+                 tstar = ts_ij*(1.0+alpha*(ps_in_mb/(plevs_in(d_in_ub)*0.01)-1.0))
+                 t0 = tstar + 0.0065*hgt 
+
+                 if (tstar <= 290.5 .and. t0 > 290.5) then
+                    alph = MAPL_RDRY/phis_ij*(290.5-tstar)
+                 else if (tstar > 290.5 .and. t0 > 290.5) then
+                    alph = 0
+                    tstar = 0.5*(290.5 + tstar)
+                 else
+                    alph = alpha
+                 end if
+                 
+                 if (tstar < 255.0) then
+                    tstar = 0.5*(tstar+255.0)
+                 end if
+                 do ii=1,k_bottom
+                    alnp = alph*log(plevs_out(ii)/ps_in_mb)
+                    data_out(ii) = hgt - MAPL_RDRY*tstar*(1.0/MAPL_GRAV)*log(plevs_out(ii)/ps_in_mb)*(1.0+ 0.5*alnp+1.0/6.0*alnp**2)
                  enddo
               case(VFLAG_GEOT)
                  ps_in_mb = ps*0.01
@@ -580,6 +606,7 @@ module MAPL_VerticalDataMod
         call ESMF_FieldBundleGet(bundle,fieldName=trim(this%vvar),field=this%interp_var,_RC)
         if (this%extrap_below_surf) then
            call ESMF_FieldBundleGet(bundle,fieldName='PHIS',field=this%phis_var,_RC)
+           call ESMF_FieldBundleGet(bundle,fieldName='TS',field=this%ts_var,_RC)
         end if
  
 
