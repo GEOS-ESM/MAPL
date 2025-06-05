@@ -154,10 +154,16 @@ def get_options(args):
         'itemtype': {}, 
         'orientation': {}, 
         'regrid_method': {}, 
-        'restart': {MAPPING: dict(
-                [(b, TRUE_VALUE) for b in 'T t TRUE true True SKIP Skip skip'.split()] + 
-                [(b, FALSE_VALUE) for b in 'F FALSE false f False'.split()]
-            )},
+        'restart': {MAPPING: {
+            'OPTIONAL': 'MAPL_RESTART_OPTIONAL',
+            'SKIP': 'MAPL_RESTART_SKIP',
+            'REQUIRED': 'MAPL_RESTART_REQUIRED',
+            'BOOT': 'MAPL_RESTART_BOOT',
+            'SKIP_INITIAL': 'MAPL_RESTART_SKIP_INITIAL'}},
+#        'restart': {MAPPING: dict(
+#                [(b, TRUE_VALUE) for b in 'T t TRUE true True SKIP Skip skip'.split()] + 
+#                [(b, FALSE_VALUE) for b in 'F FALSE false f False'.split()]
+#            )},
         STATE: {FLAGS: {MANDATORY, STORE}}, 
         'typekind': {MAPPING: { 
             'R4': 'ESMF_Typekind_R4',
