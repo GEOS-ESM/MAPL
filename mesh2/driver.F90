@@ -14,7 +14,6 @@ program main
    character(:), allocatable :: in_filename
    character(:), allocatable :: out_filename
 
-   integer :: n_lon, n_lat
    integer(kind=PIXEL_KIND), target, allocatable :: pixels(:,:)
    integer(kind=PIXEL_KIND), pointer :: pixels2(:,:)
    integer(kind=PIXEL_KIND), pointer :: p
@@ -23,11 +22,6 @@ program main
    logical :: done
    integer :: level, num_levels
    
-   integer :: n_lon_level, n_lat_level
-   integer :: lon_level, lat_level
-   integer, allocatable :: lat_factors(:)
-   integer, allocatable :: lon_factors(:)
-
    type(Mesh), target :: m
    type(Element), pointer :: e
    integer :: ni, nj
@@ -45,48 +39,18 @@ program main
    call fill_pixels(pixels, in_filename, _RC)
    _HERE, 'raster shape: ', shape(pixels)
 
-   n_lon = size(pixels, 1)
-   n_lat = size(pixels, 2)
-
-!#   call m%initialize(pixels, [-180.d0,+180.d0], [-90.d0, +90.d0])
    call m%initialize(pixels, [-180.d0,+180.d0], [-90.d0, +90.d0])
-!#   pixels2 => pixels(2::3,2::3)
-!#   call m%initialize(pixels2, [-180.d0,+180.d0], [-90.d0, +90.d0])
    e => m%get_element(1) ! archetype
 
-   ni = size(e%pixels,1)
-   nj = size(e%pixels,2)
-   _HERE, 'equatorial shape: ', ni, nj
-
-   lon_factors = get_factors(ni)
-   lat_factors = get_factors(nj)
-   _HERE, 'lon_factors: ', lon_factors
-   _HERE, 'lat_factors: ', lat_factors
-
-   num_levels = size(lat_factors) + size(lon_factors)
    level = 0
-   lon_level = 0
-   lat_level = 0
-   n_lon_level = ni
-   n_lat_level = nj
 
    print*,' level: ', level, '(', num_levels, ') # cells: ', m%num_elements()
    levels: do while (.not. done)
       level = level + 1
-      if (level > 10) exit
+ 
       done = .true. ! unless
       call system_clock(c0, crate)
-!#      if (n_lon_level >= n_lat_level) then ! refine east-west
-!#         lon_level = lon_level + 1
-!#         refine_lon = lon_factors(lon_level)
-!#         n_lon_level = n_lon_level / lon_factors(lon_level)
-!#         refine_lat = 1
-!#      else ! refine north-south
-!#         lat_level = lat_level + 1
-!#         refine_lon = 1
-!#         refine_lat = lat_factors(lat_level)
-!#         n_lat_level = n_lat_level / lat_factors(lat_level)
-!#      end if
+
       n = m%num_elements()
       do i = 1, n
          e => m%get_element(i)
@@ -156,7 +120,6 @@ contains
       n_lat = filemd%get_dimension('N_lat')
 !!$      n_lon = filemd%get_dimension('longitude')
 !!$      n_lat = filemd%get_dimension('latitude')
-      _HERE, n_lon, n_lat
 
       allocate(longitudes(n_lon), latitudes(n_lat))
       allocate(pixels(n_lon,n_lat))
@@ -216,66 +179,4 @@ contains
 !#      
 !#   end subroutine write_to_file
 
-   function get_factors(n) result(factors)
-      integer, allocatable :: factors(:)
-      integer, intent(in) :: n
-
-      integer :: i, m, p
-
-      ! We want factors of 3 last to keep 3x3 catchments "together".  So "3" is the last prime we check.
-      integer, parameter :: PRIMES(*) = [31, 29, 23, 19, 17, 13, 11, 7, 5, 2, 3]
-
-      factors = [integer :: ] ! empty
-      m = n
-
-      do while (m /= 1)
-         do i = 1, size(PRIMES)
-            p = PRIMES(i)
-            if (mod(m, p) == 0) then
-               factors = [factors, p]
-               m = m / p
-               exit
-            end if
-         end do
-         if (i > size(PRIMES)) then
-            error stop "Exceeded permitted prime factors"
-         end if
-      end do
-
-   end function get_factors
-
-!#   subroutine create_mesh(elements, mesh, rc)
-!#      type(MeshElementMap), intent(in) :: elements
-!#      type(ESMF_Mesh), intent(out) :: mesh
-!#      integer, optional, intent(out) :: rc
-!#
-!#      integer :: status
-!#
-!#      integer, allocatable :: nodeIds(:)
-!#      real(kind=ESMF_KIND_R8), allocatable :: nodeCoords(:)
-!#      integer :: nodeMask(4)
-!#      integer, allocatable :: elementIds(:)
-!#      integer, allocatable :: elementTypes(:)
-!#      integer, allocatable :: elementConn(:)
-!#
-!#      integer :: num_elements
-!#      integer :: i
-!#
-!#      num_elements = elements%size()
-!#      allocate(elementIds(num_elements)
-!#      allocate(elementTypes(num_elements), source=ESMF_MESHELEMTYPE_QUAD)
-!#      allocate(elementConn(4*num_elements))
-!#      do i = 1, num_elements
-!#         e => ...
-!#         elementIds(i) = i
-!#         elementConn(i+0:i+3) = [e_node(1), e_node(2), e_node(3), e_node(4), MESH_POLYBREAK_IND]
-!#      end do
-!#      elementMask = [OCEAN_MASK, LAND_MASK, LAKE_MASK, LANDICE_MASK]
-!#      
-!#      mesh = ESMF_MeshCreate1Part(parametricDim=2, spatialDim=2, &
-!#           nodeIds, nodeCoords, &
-!#           elementIds, elementTypes, elementConn, elementMask&
-!#           _RC)
-!#      
-!#   end subroutine create_mesh
 end program main

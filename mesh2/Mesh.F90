@@ -33,7 +33,6 @@ module sf_Mesh
       procedure :: element_degree
       procedure :: connect
       procedure :: split ! as even as possible
-      procedure :: split_connection
       procedure :: refine
       procedure :: refine_north_south
       procedure :: refine_east_west
@@ -67,12 +66,6 @@ contains
       v_2 => this%get_vertex(iv_2)
       _ASSERT(associated(v_2), 'uh oh')
 
-      !print*
-      !_HERE, 'connecting vertices: ', iv_1, iv_2
-      !_HERE, '  v1 loc: ', v_1%loc
-      !_HERE, '  v2 loc: ', v_2%loc
-      !print*
-
       dir = v_1%get_direction_to(v_2, shape(this%pixels), _RC)
       call v_1%insert_connection(iv_2, dir, _RC)
       call v_2%insert_connection(iv_1, reverse(dir), _RC)
@@ -102,7 +95,6 @@ contains
 
       j_s = 1 + nj_cap
       j_n = 1 + (nj - nj_cap)
-      !_HERE, 'caps: ', j_s, j_n
 
       m%longitude_range = longitude_range
       m%latitude_range = latitude_range
@@ -169,12 +161,10 @@ contains
       v_1 => this%vertices%of(ivs(1))
       v_2 => this%vertices%of(ivs(2))
       dir = v_1%get_direction_to(v_2, shape(this%pixels), _RC)
-!#      _HERE, 'split: ', v_1%loc, v_2%loc
       ni = size(this%pixels,1)
       d_loc = delta_loc(v_1%loc, v_2%loc, ni)
 
       new_loc = add_loc(v_1%loc, (d_loc+1)/2, ni)
-!#      _HERE, '   new_loc: ', new_loc
       new_iv = this%add_vertex(Vertex(new_loc))
 
       ! v_1 and v_2 might now be dangling ...
@@ -191,62 +181,6 @@ contains
       _RETURN(_SUCCESS)
    end function split
 
-   recursive function split_connection(this, ivs, n_split, rc) result(new_ivs)
-      integer, intent(in) :: n_split
-      integer(kind=INT64) :: new_ivs(n_split-1)
-      class(Mesh), target, intent(inout) :: this
-      integer(kind=INT64), intent(in) :: ivs(2) ! from and 2
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      integer :: d_loc(2)
-      integer :: new_loc(2)
-      integer :: ni, dir
-      type(Vertex), pointer :: v_1, v_2, v_new
-
-
-      _ASSERT(n_split >= 2, 'Must have n_split >= 2 for when splitting a connection')
-
-      v_1 => this%vertices%of(ivs(1))
-      v_2 => this%vertices%of(ivs(2))
-      dir = v_1%get_direction_to(v_2, shape(this%pixels), _RC)
-
-      ni = size(this%pixels,1)
-      d_loc = delta_loc(v_1%loc, v_2%loc, ni)
-      _ASSERT(all(modulo(d_loc, n_split) == 0), 'expected split to be even')
-
-      new_loc = add_loc(v_1%loc, d_loc/n_split, ni)
-      new_ivs(1) = this%add_vertex(Vertex(new_loc))
-
-      ! v_1 and v_2 might now be dangling ...
-      v_1 => this%vertices%of(ivs(1))
-      v_2 => this%vertices%of(ivs(2))
-      dir = v_1%get_direction_to(v_2, shape(this%pixels), _RC)
-      !print*
-      !_HERE, new_ivs(1), ivs, 'split connection in direction: ', dir_string(dir), ' n_split:  ', n_split
-      !_HERE, 'new loc: ', new_loc
-      !_HERE, '  d loc: ', d_loc
-      !_HERE, '  d loc: ', d_loc/n_split
-      !_HERE, 'orig loc v_1 ', v_1%loc
-      !_HERE, 'orig loc v_2', v_2%loc
-      !_HERE, 'orig loc v_2', v_2%loc - v_1%loc
-      !print*
-      call v_1%replace_connection(new_ivs(1), dir=dir, _RC)
-      call v_2%replace_connection(new_ivs(1), dir=reverse(dir), _RC)
-      !_HERE
-      v_new => this%get_vertex(new_ivs(1))
-      call v_new%insert_connection(ivs(1), reverse(dir), _RC)
-      call v_new%insert_connection(ivs(2), dir, _RC)
-
-      !_HERE
-      if (n_split > 2) then
-         new_ivs(2:) = this%split_connection([new_ivs(1),ivs(2)], n_split-1, _RC)
-      end if
-      !_HERE
-
-     
-      _RETURN(_SUCCESS)
-   end function split_connection
 
    ! Refine element e ...
    subroutine refine(this, e, rc)
@@ -368,11 +302,9 @@ contains
       _ASSERT(any(k_ne - k_se == [1, 2]), 'mismatched refinement')
       _ASSERT(any(k_sw - k_nw == [1, 2]), 'mismatched refinement')
 
-      !_HERE
       if (k_ne - k_se == 1) then !
          iv_se = vertices%of(k_se)
          iv_ne = vertices%of(k_ne)
-!#         _HERE, 'splitting north south? ', iv_se, iv_ne
          iv_east = this%split([iv_se, iv_ne], _RC)
       else
          iv_east = vertices%of(k_se+1)
@@ -436,20 +368,13 @@ contains
       ne_corner = add_loc(sw_corner, [ni,nj], ni_glob)
       nw_corner = add_loc(sw_corner, [ 0,nj], ni_glob)
 
-!#       call describe_element(this, e)
-!#     _HERE, 'sw: ', sw_corner
-!#      _HERE, 'se: ', se_corner
-!#      _HERE, 'ne: ', ne_corner
-!#      _HERE, 'nw: ', nw_corner
       k_sw = 1
       k_se = -1 ! not found unless
       k_ne = -1
       k_nw = -1
 
-!#      _HERE, vertices%size()
       do k = 1, vertices%size()
          v => this%get_vertex(vertices%of(k))
-!#         _HERE, k, v%loc
          if (all(v%loc == se_corner)) then
             k_se = k
          elseif (all(v%loc == ne_corner)) then
@@ -461,8 +386,6 @@ contains
       end do
 
       ! Check that all intermediates exist, or none.
-!#      _HERE, k_se, k_sw
-!#      _HERE, k_nw, k_ne
       _ASSERT(any(k_se - k_sw == [1,2]), 'mismatched refinement')
       _ASSERT(any(k_nw - k_ne == [1,2]), 'mismatched refinement')
       
@@ -659,8 +582,6 @@ contains
       allocate(nodeIds(n_nodes))
       allocate(nodeCoords(2*n_nodes))
 
-      _HERE, this%longitude_range
-      _HERE, this%latitude_range
       do k = 1, n_nodes
          k64 = k
          v => this%get_vertex(k64)
