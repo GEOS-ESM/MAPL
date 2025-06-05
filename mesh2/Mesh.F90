@@ -6,6 +6,7 @@ module sf_Mesh
    use sf_Element
    use sf_ElementVector
    use mapl_ErrorHandling
+   use mapl_constants, only: MAPL_DEGREES_TO_RADIANS_R8, MAPL_PI_R8
    use gFTL2_Integer64Vector
    use esmf
    use, intrinsic :: iso_fortran_env, only: INT64, REAL64
@@ -32,7 +33,8 @@ module sf_Mesh
       procedure :: get_perimeter
       procedure :: element_degree
       procedure :: connect
-      procedure :: split ! as even as possible
+      procedure :: split_north_south ! evenly by area
+      procedure :: split_east_west ! easy case
       procedure :: refine
       procedure :: refine_north_south
       procedure :: refine_east_west
@@ -145,8 +147,8 @@ contains
       _RETURN(_SUCCESS)
    end subroutine initialize
 
-   ! Split interval in 2 as evenly as possible
-   function split(this, ivs, rc) result(new_iv)
+   ! Split interval in 2  as evenly as possible
+   function split_east_west(this, ivs, rc) result(new_iv)
       integer(kind=INT64) :: new_iv
       class(Mesh), target, intent(inout) :: this
       integer(kind=INT64), intent(in) :: ivs(2) ! from and 2
@@ -162,7 +164,8 @@ contains
       v_2 => this%vertices%of(ivs(2))
       dir = v_1%get_direction_to(v_2, shape(this%pixels), _RC)
       ni = size(this%pixels,1)
-      d_loc = delta_loc(v_1%loc, v_2%loc, ni)
+      d_loc(1) = delta_loc(v_1%loc(1), v_2%loc(1), ni)
+      d_loc(2) = 0
 
       new_loc = add_loc(v_1%loc, (d_loc+1)/2, ni)
       new_iv = this%add_vertex(Vertex(new_loc))
@@ -179,8 +182,61 @@ contains
       call v_new%insert_connection(ivs(2), dir, _RC)
 
       _RETURN(_SUCCESS)
-   end function split
+   end function split_east_west
 
+   function split_north_south(this, ivs, rc) result(new_iv)
+      integer(kind=INT64) :: new_iv
+      class(Mesh), target, intent(inout) :: this
+      integer(kind=INT64), intent(in) :: ivs(2) ! from and 2
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: d_loc(2)
+      integer :: new_loc(2)
+      integer :: nj, dir
+      type(Vertex), pointer :: v_1, v_2, v_new
+      real(kind=REAL64) :: lat_1, lat_2, new_lat ! radians
+      real(kind=REAL64) :: frac
+
+      v_1 => this%vertices%of(ivs(1))
+      v_2 => this%vertices%of(ivs(2))
+      dir = v_1%get_direction_to(v_2, shape(this%pixels), _RC)
+      nj = size(this%pixels,1)
+
+      d_loc(1) = 0
+      d_loc(2) = v_2%loc(2) - v_1%loc(2)
+
+      associate (lat_sp => this%latitude_range(1), lat_np => this%latitude_range(2))
+        lat_1 = lat_sp + (v_1%loc(2)) * (lat_np - lat_sp) / nj
+        lat_2 = lat_sp + (v_2%loc(2)) * (lat_np - lat_sp) / nj
+        
+        lat_1 = MAPL_DEGREES_TO_RADIANS_R8 * lat_1
+        lat_2 = MAPL_DEGREES_TO_RADIANS_R8 * lat_2
+      end associate
+
+      new_lat = asin((sin(lat_1) + sin(lat_2))/2)
+      frac = (new_lat-lat_1)/(lat_2-lat_1)
+!#      _HERE, 'lats: ', lat_1, lat_2, new_lat
+!#      _HERE, 'cos lats: ', sin(lat_1), sin(lat_2), sin(new_lat)
+!#      _HERE, 'frac: ', d_loc(2), frac
+      
+      new_loc(1) = v_1%loc(1)
+      new_loc(2) = v_1%loc(2) + max(1, floor(frac * d_loc(2)))
+      new_iv = this%add_vertex(Vertex(new_loc))
+
+      ! v_1 and v_2 might now be dangling ...
+      v_1 => this%vertices%of(ivs(1))
+      v_2 => this%vertices%of(ivs(2))
+      dir = v_1%get_direction_to(v_2, shape(this%pixels), _RC)
+      call v_1%replace_connection(new_iv, dir=dir, _RC)
+      call v_2%replace_connection(new_iv, dir=reverse(dir), _RC)
+
+      v_new => this%get_vertex(new_iv)
+      call v_new%insert_connection(ivs(1), reverse(dir), _RC)
+      call v_new%insert_connection(ivs(2), dir, _RC)
+
+      _RETURN(_SUCCESS)
+   end function split_north_south
 
    ! Refine element e ...
    subroutine refine(this, e, rc)
@@ -305,7 +361,7 @@ contains
       if (k_ne - k_se == 1) then !
          iv_se = vertices%of(k_se)
          iv_ne = vertices%of(k_ne)
-         iv_east = this%split([iv_se, iv_ne], _RC)
+         iv_east = this%split_north_south([iv_se, iv_ne], _RC)
       else
          iv_east = vertices%of(k_se+1)
       end if
@@ -313,7 +369,7 @@ contains
       if (k_sw - k_nw == 1) then !
          iv_sw = vertices%of(1) ! k_sw happens at both ends of polygon
          iv_nw = vertices%of(k_nw)
-         iv_west = this%split([iv_sw, iv_nw], _RC)
+         iv_west = this%split_north_south([iv_sw, iv_nw], _RC)
       else
          iv_west = vertices%of(k_nw+1)
       end if
@@ -322,7 +378,9 @@ contains
 
      ! Modify original element
       pixels => e%pixels
-      j_mid = 1 + (nj-1)/2 
+      v => this%get_vertex(iv_east)
+      j_mid = v%loc(2) - sw_corner(2)
+
       e%pixels => pixels(:,:j_mid)
 !#      call describe_element(this, e)
 
@@ -358,6 +416,7 @@ contains
       ni = size(e%pixels, 1)
       nj = size(e%pixels, 2)
 
+!#      call describe_element(this, e)
       vertices = this%get_perimeter(e)
 
       ! Find corners include wrapping around dateline
@@ -388,11 +447,11 @@ contains
       ! Check that all intermediates exist, or none.
       _ASSERT(any(k_se - k_sw == [1,2]), 'mismatched refinement')
       _ASSERT(any(k_nw - k_ne == [1,2]), 'mismatched refinement')
-      
+
       if (k_se - k_sw == 1) then
          iv_se = vertices%of(k_se)
          iv_sw = vertices%of(k_sw)
-         iv_south = this%split([iv_sw, iv_se], _RC)
+         iv_south = this%split_east_west([iv_sw, iv_se], _RC)
       else
          iv_south = vertices%of(k_sw+1)
       end if
@@ -400,7 +459,7 @@ contains
       if (k_nw - k_ne == 1) then !
          iv_ne = vertices%of(k_ne)
          iv_nw = vertices%of(k_nw)
-         iv_north = this%split([iv_nw, iv_ne], _RC)
+         iv_north = this%split_east_west([iv_nw, iv_ne], _RC)
       else
          ! Careful need to step bacwwards on northern edge
          iv_north = vertices%of(k_nw-1)
@@ -409,8 +468,10 @@ contains
       call this%connect(iv_south, iv_north, _RC)
 
       pixels => e%pixels
-      i_mid = 1 + (ni-1)/2
+      v => this%get_vertex(iv_south)
+      i_mid = v%loc(1) - sw_corner(1)
       e%pixels => pixels(:i_mid,:)
+!#      call describe_element(this, e)
 
       new_element = Element(pixels(i_mid+1:,:), iv_south, dir=EAST)
 !#      call describe_element(this, new_element)
@@ -511,13 +572,13 @@ contains
       
    end function add_loc
 
-   function delta_loc(loc_1, loc_2, ni) result(delta)
-      integer :: delta(2)
-      integer, intent(in) :: loc_1(2), loc_2(2)
+   function delta_loc(lon_1, lon_2, ni) result(delta)
+      integer :: delta
+      integer, intent(in) :: lon_1, lon_2
       integer, intent(in) :: ni
 
-      delta = loc_2 - loc_1
-      delta(1) = modulo(delta(1) + ni/2, ni) - ni/2 ! periodic
+      delta = lon_2 - lon_1
+      delta = modulo(delta + ni/2, ni) - ni/2 ! periodic
       
    end function delta_loc
 
@@ -528,6 +589,7 @@ contains
       type(Vertex), pointer :: v
       type(Integer64Vector) :: nodes
       integer :: k
+      real(kind=REAL64) :: lon, lat
       
       print*
       print*,'****************************'
@@ -545,9 +607,12 @@ contains
       _HERE
       _HERE, '      perimeter: '
       _HERE, '        # nodes: ', nodes%size()
+
       do k = 1, nodes%size()
          v => this%get_vertex(nodes%of(k))
-         _HERE,'      corner: ', k, nodes%of(k), v%loc
+         lon = this%longitude_range(1) + (v%loc(1)-1) * (this%longitude_range(2) - this%longitude_range(1)) / size(this%pixels,1)
+         lat = this%latitude_range(1) + (v%loc(2)-1) * (this%latitude_range(2) - this%latitude_range(1)) / size(this%pixels,2)
+         _HERE,'      corner: ', k, nodes%of(k), v%loc, lon, lat
       end do
       print*,'****************************'
       print*
@@ -564,7 +629,8 @@ contains
       real(kind=REAL64), allocatable :: nodeCoords(:)
       integer :: i, k, kk, i0
       integer(kind=INT64) :: k64
-      integer :: np, n_elements, n_conn
+      integer :: np, n_elements
+      integer(kind=INT64) :: n_conn
       type(Element), pointer :: e
       type(Vertex), pointer :: v
       type(Integer64Vector), target :: p
@@ -574,6 +640,7 @@ contains
       integer :: ni, nj
 
       msh = ESMF_MeshCreate(parametricDim=2, spatialDim=2, coordSys=ESMF_COORDSYS_SPH_DEG, _RC)
+      
 
       n_nodes = this%vertices%size()
       ni = size(this%pixels,1)
@@ -586,8 +653,8 @@ contains
          k64 = k
          v => this%get_vertex(k64)
          nodeIds(k) = k
-         nodeCoords(1 + (k-1)*2) = this%longitude_range(1) + (v%loc(1)-1) * (this%longitude_range(2) - this%longitude_range(1)) / ni
-         nodeCoords(2 + (k-1)*2) = this%latitude_range(1) + (v%loc(2)-1) * (this%latitude_range(2) - this%latitude_range(1)) / nj
+         nodeCoords(1 + (k-1)*2) = this%longitude_range(1) + (v%loc(1)) * (this%longitude_range(2) - this%longitude_range(1)) / ni
+         nodeCoords(2 + (k-1)*2) = this%latitude_range(1) + (v%loc(2)) * (this%latitude_range(2) - this%latitude_range(1)) / nj
       end do
 
       call ESMF_MeshAddNodes(msh, nodeIds, nodeCoords, _RC)
@@ -605,6 +672,7 @@ contains
          p = this%get_perimeter(e)
          n_conn = n_conn + p%size()
       end do
+      _HERE,'total connection :', n_conn
 
       allocate(elementConn(n_conn))
 
@@ -615,12 +683,16 @@ contains
       do k = 1, n_elements
          kk = kk + 1
          e => this%get_element(k)
+         if (any(k == [2597,2598,2599])) then
+            call describe_element(this, e)
+         end if
          elementIds(kk) = kk
          p = this%get_perimeter(e)
          np = p%size()
          elementTypes(kk) = np
          elementConn(i0+1:i0+np) = [(p%of(i),i=1,np)]
          i0 = i0 + np
+
 
 !#         elementArea(k) = ...
       end do

@@ -47,7 +47,8 @@ program main
    print*,' level: ', level, '(', num_levels, ') # cells: ', m%num_elements()
    levels: do while (.not. done)
       level = level + 1
- 
+
+!#      if (level > 18) exit
       done = .true. ! unless
       call system_clock(c0, crate)
 
