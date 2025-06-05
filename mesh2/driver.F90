@@ -20,7 +20,9 @@ program main
    integer(kind=PIXEL_KIND), pointer :: p
 
    integer :: refine_lat, refine_lon
+   logical :: done
    integer :: level, num_levels
+   
    integer :: n_lon_level, n_lat_level
    integer :: lon_level, lat_level
    integer, allocatable :: lat_factors(:)
@@ -36,6 +38,7 @@ program main
 
    integer(kind=INT64) :: c0, c1, crate
    integer :: i, n
+   type(ESMF_Mesh) :: msh
 
    call MPI_Init(status)
    in_filename = 'GEOS5_10arcsec_mask.nc'
@@ -68,34 +71,35 @@ program main
    n_lat_level = nj
 
    print*,' level: ', level, '(', num_levels, ') # cells: ', m%num_elements()
-   levels: do level = 1, num_levels
+   levels: do while (.not. done)
+      level = level + 1
+      if (level > 10) exit
+      done = .true. ! unless
       call system_clock(c0, crate)
-      if (n_lon_level >= n_lat_level) then ! refine east-west
-         lon_level = lon_level + 1
-         refine_lon = lon_factors(lon_level)
-         n_lon_level = n_lon_level / lon_factors(lon_level)
-         refine_lat = 1
-      else ! refine north-south
-         lat_level = lat_level + 1
-         refine_lon = 1
-         refine_lat = lat_factors(lat_level)
-         n_lat_level = n_lat_level / lat_factors(lat_level)
-      end if
-
-      print*
+!#      if (n_lon_level >= n_lat_level) then ! refine east-west
+!#         lon_level = lon_level + 1
+!#         refine_lon = lon_factors(lon_level)
+!#         n_lon_level = n_lon_level / lon_factors(lon_level)
+!#         refine_lat = 1
+!#      else ! refine north-south
+!#         lat_level = lat_level + 1
+!#         refine_lon = 1
+!#         refine_lat = lat_factors(lat_level)
+!#         n_lat_level = n_lat_level / lat_factors(lat_level)
+!#      end if
       n = m%num_elements()
       do i = 1, n
          e => m%get_element(i)
          if (e%do_refine()) then
-            call m%refine(e, refine_lon, refine_lat, _RC)
+            call m%refine(e, _RC)
+            done = .false.
          else
             call e%set_fully_refined()
          end if
       end do
 
       call system_clock(c1, crate)
-      print '(a,i2,2x,a,i10,1x,i2,1x,i2,3x,f5.3,5x,f8.2)',' level: ', level, '# cells: ', m%num_elements(), &
-           refine_lon, refine_lat, real(m%num_elements()-2)/(4*real(n_lon/n_lon_level) * real(n_lat/n_lat_level)), &
+      print '(a,i2,2x,a,i10,1x,3x,5x,f8.2)',' level: ', level, '# cells: ', m%num_elements(), &
            real(c1-c0)/crate
    end do levels
 
@@ -103,7 +107,7 @@ program main
    counters = 0
    do i = 1, m%num_elements()
       e => m%get_element(i)
-      _ASSERT(.not. e%do_refine(), 'hmm algorithm did not complete')
+!#      _ASSERT(.not. e%do_refine(), 'hmm algorithm did not complete')
 
       p => e%pixels(1,1)
       catch_index = p
@@ -121,7 +125,7 @@ program main
    _HERE,'counts: ocean: ', counters(1), 'land: ', counters(2), 'lake: ', counters(3), 'landice: ', counters(4)
 
    call ESMF_Initialize(_RC)
-!#   call create_mesh(elements, m, _RC)
+   msh = m%make_esmf_mesh(_RC)
 !#   call write_to_file(elements, out_filename)
    call ESMF_Finalize(_RC)
 
@@ -171,6 +175,9 @@ contains
 
       call formatter%close(_RC)
 
+      where (pixels >= 1 .and. pixels < 300000)
+         pixels=1
+      end where
       _RETURN(_SUCCESS)
    end subroutine fill_pixels
 

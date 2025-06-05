@@ -7,6 +7,7 @@ module sf_Mesh
    use sf_ElementVector
    use mapl_ErrorHandling
    use gFTL2_Integer64Vector
+   use esmf
    use, intrinsic :: iso_fortran_env, only: INT64, REAL64
    implicit none(type,external)
    private
@@ -36,7 +37,7 @@ module sf_Mesh
       procedure :: refine
       procedure :: refine_north_south
       procedure :: refine_east_west
-!#      procedure :: make_esmf_mesh
+      procedure :: make_esmf_mesh
    end type Mesh
       
 
@@ -153,8 +154,8 @@ contains
    end subroutine initialize
 
    ! Split interval in 2 as evenly as possible
-   function split(this, ivs, rc) result(new_ivs)
-      integer(kind=INT64) :: new_ivs
+   function split(this, ivs, rc) result(new_iv)
+      integer(kind=INT64) :: new_iv
       class(Mesh), target, intent(inout) :: this
       integer(kind=INT64), intent(in) :: ivs(2) ! from and 2
       integer, optional, intent(out) :: rc
@@ -168,21 +169,22 @@ contains
       v_1 => this%vertices%of(ivs(1))
       v_2 => this%vertices%of(ivs(2))
       dir = v_1%get_direction_to(v_2, shape(this%pixels), _RC)
-
+!#      _HERE, 'split: ', v_1%loc, v_2%loc
       ni = size(this%pixels,1)
       d_loc = delta_loc(v_1%loc, v_2%loc, ni)
 
-      new_loc = add_loc(v_1%loc, 1 + (d_loc-1)/2, ni)
-      new_ivs = this%add_vertex(Vertex(new_loc))
+      new_loc = add_loc(v_1%loc, (d_loc+1)/2, ni)
+!#      _HERE, '   new_loc: ', new_loc
+      new_iv = this%add_vertex(Vertex(new_loc))
 
       ! v_1 and v_2 might now be dangling ...
       v_1 => this%vertices%of(ivs(1))
       v_2 => this%vertices%of(ivs(2))
       dir = v_1%get_direction_to(v_2, shape(this%pixels), _RC)
-      call v_1%replace_connection(new_ivs, dir=dir, _RC)
-      call v_2%replace_connection(new_ivs, dir=reverse(dir), _RC)
+      call v_1%replace_connection(new_iv, dir=dir, _RC)
+      call v_2%replace_connection(new_iv, dir=reverse(dir), _RC)
 
-      v_new => this%get_vertex(new_ivs)
+      v_new => this%get_vertex(new_iv)
       call v_new%insert_connection(ivs(1), reverse(dir), _RC)
       call v_new%insert_connection(ivs(2), dir, _RC)
 
@@ -247,28 +249,25 @@ contains
    end function split_connection
 
    ! Refine element e ...
-   subroutine refine(this, e, refine_i, refine_j, rc)
+   subroutine refine(this, e, rc)
       class(Mesh), target, intent(inout) :: this
       type(Element), intent(inout) :: e
-      integer, intent(in) :: refine_i, refine_j
       integer, optional, intent(out) :: rc
 
+      integer :: ni, nj
       integer :: status
 
-!#      _HERE, refine_i, refine_j
-      _ASSERT((refine_i == 1) .neqv. (refine_j == 1), 'Must refine exactly one direction at a time.')
+      ni = size(e%pixels, 1)
+      nj = size(e%pixels, 2)
 
-      if (refine_i == 1) then
-         !_HERE, 'N/S'
-         call this%refine_north_south(e, refine_j, _RC)
+      _ASSERT(ni*nj > 1, 'No need to refine - should not reach here.')
+
+      if (nj > ni) then
+         call this%refine_north_south(e, _RC)
          _RETURN(_SUCCESS)
       end if
 
-      !_HERE, 'E/W'
-      if (refine_i <=1) then
-         _HERE, refine_i, refine_j
-      end if
-      call this%refine_east_west(e, refine_i, _RC)
+      call this%refine_east_west(e, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine refine
@@ -317,10 +316,9 @@ contains
    ! proceeding to the next level.
 
    
-   subroutine refine_north_south(this, e, n_refine, rc)
+   subroutine refine_north_south(this, e, rc)
       class(Mesh), target, intent(inout) :: this
       type(Element), intent(inout) :: e
-      integer, intent(in) :: n_refine
       integer, optional, intent(out) :: rc
 
       integer :: ni, nj
@@ -329,45 +327,33 @@ contains
       integer, dimension(2) :: sw_corner, se_corner, ne_corner, nw_corner
       integer :: k
       type(Integer64Vector), target :: vertices
-      integer(kind=INT64) :: ivs_east(n_refine-1), ivs_west(n_refine-1)
+      integer(kind=INT64) :: iv_east, iv_west
       integer(kind=PIXEL_KIND), pointer :: pixels(:,:)
       type(Vertex), pointer :: v
-      integer :: j_0, j_1
       integer :: status
       integer :: ni_glob
+      integer :: j_mid
       type(Element) :: new_element
-
-      _ASSERT(n_refine > 1, 'n_refine < 2 not supported')
 
       ni = size(e%pixels, 1)
       nj = size(e%pixels, 2)
-
-      !_HERE, 'ni,nj = ', ni, nj, n_refine
-      _ASSERT(modulo(nj, n_refine) == 0, 'refinement must divide pixels evenly')
+!#      call describe_element(this, e)
 
       ! Find corners
       v => this%get_vertex(e%iv_0)
-      !_HERE,' iv_0: ', e%iv_0,  v%loc
       ni_glob = size(this%pixels,1)
       sw_corner = v%loc
       se_corner = add_loc(sw_corner, [ni, 0], ni_glob)
       ne_corner = add_loc(sw_corner, [ni,nj], ni_glob)
       nw_corner = add_loc(sw_corner, [ 0,nj], ni_glob)
 
-      !_HERE, 'sw_corner: ', sw_corner
-      !_HERE, 'se_corner: ', se_corner
-      !_HERE, 'ne_corner: ', ne_corner
-      !_HERE, 'nw_corner: ', nw_corner
-
       vertices = this%get_perimeter(e)
       k_sw = vertices%size() + 1
       k_se = -1 ! not found unless
       k_ne = -1
       k_nw = -1
-      !_HERE, '# vertices: ', vertices%size()
       do k = 1, vertices%size()
          v => this%get_vertex(vertices%of(k))
-         !_HERE, k, 'ivs(k): ', vertices%of(k), ' loc: ', v%loc
          if (all(v%loc == se_corner)) then
             k_se = k
          elseif (all(v%loc == ne_corner)) then
@@ -378,101 +364,69 @@ contains
          end if
       end do
 
-      !_HERE, n_refine
-      !_HERE, k_ne, k_se
-      !_HERE, k_sw, k_nw
-
       ! Check that all intermediates exist, or none.
-      _ASSERT(any(k_ne - k_se == [1, n_refine]), 'mismatched refinement')
-      _ASSERT(any(k_sw - k_nw == [1, n_refine]), 'mismatched refinement')
+      _ASSERT(any(k_ne - k_se == [1, 2]), 'mismatched refinement')
+      _ASSERT(any(k_sw - k_nw == [1, 2]), 'mismatched refinement')
 
       !_HERE
       if (k_ne - k_se == 1) then !
          iv_se = vertices%of(k_se)
          iv_ne = vertices%of(k_ne)
-         !_HERE
-         ivs_east = this%split_connection([iv_se, iv_ne], n_refine, _RC)
-         !_HERE
+!#         _HERE, 'splitting north south? ', iv_se, iv_ne
+         iv_east = this%split([iv_se, iv_ne], _RC)
       else
-         !_HERE
-         ivs_east = [(vertices%of(k), k=k_se+1,k_ne-1)]
-         !_HERE
+         iv_east = vertices%of(k_se+1)
       end if
 
-      !_HERE
       if (k_sw - k_nw == 1) then !
-         !_HERE
-!#         iv_sw = vertices%of(k_sw)
          iv_sw = vertices%of(1) ! k_sw happens at both ends of polygon
-         !_HERE
          iv_nw = vertices%of(k_nw)
-         !_HERE
-         ivs_west = this%split_connection([iv_sw, iv_nw], n_refine, _RC)
-         !_HERE
+         iv_west = this%split([iv_sw, iv_nw], _RC)
       else
-         !_HERE, vertices%size(), k_nw+1, -1
-         !_HERE, n_refine
-         !_HERE, size(ivs_west)
-         !_HERE, vertices%size() - (k_nw+1) + 1
-         ivs_west = [(vertices%of(k), k=vertices%size(),k_nw+1,-1)]
-         !_HERE
+         iv_west = vertices%of(k_nw+1)
       end if
 
-      !_HERE
-     do k = 1, n_refine - 1
-        call this%connect(ivs_west(k), ivs_east(k), _RC)
-     end do
-      !_HERE
+      call this%connect(iv_west, iv_east, _RC)
 
      ! Modify original element
-     pixels => e%pixels
-     e%pixels => pixels(:,:nj/n_refine)
+      pixels => e%pixels
+      j_mid = 1 + (nj-1)/2 
+      e%pixels => pixels(:,:j_mid)
+!#      call describe_element(this, e)
 
-     ! Add new elements
-     do k = 1, n_refine - 1
-        j_0 = 1 + (k+0)*(nj/n_refine)
-        j_1 = 0 + (k+1)*(nj/n_refine)
-        new_element = Element(pixels(:,j_0:j_1), ivs_west(k), dir=EAST)
-        call describe_element(this, new_element)
-        call this%elements%push_back(new_element)
-     end do
-     _RETURN(_SUCCESS)
+      ! Add new element
+      new_element = Element(pixels(:,j_mid+1:), iv_west, dir=EAST)
+!#      call describe_element(this, new_element)
+      call this%elements%push_back(new_element)
+
+      _RETURN(_SUCCESS)
 
    end subroutine refine_north_south
 
-   subroutine refine_east_west(this, e, n_refine, rc)
+   subroutine refine_east_west(this, e, rc)
       class(Mesh), target, intent(inout) :: this
       type(Element), intent(inout) :: e
-      integer, intent(in) :: n_refine
       integer, optional, intent(out) :: rc
 
       integer :: ni, nj
+      integer :: i_mid
       integer(kind=INT64) :: iv_sw, iv_se, iv_ne, iv_nw
       integer :: k_sw, k_se, k_ne, k_nw
       integer, dimension(2) :: sw_corner, se_corner, ne_corner, nw_corner
       integer :: k
       type(Vertex), pointer :: v
       type(Integer64Vector), target :: vertices
-      integer(kind=INT64) :: ivs_south(n_refine-1), ivs_north(n_refine-1)
+      integer(kind=INT64) :: iv_south, iv_north
       integer(kind=PIXEL_KIND), pointer :: pixels(:,:)
       integer :: i_0, i_1
       integer :: status
       type(Element) :: new_element
       integer :: ni_glob
 
-      _ASSERT(n_refine > 1, 'n_refine < 2 not supported')
-
-      !print*
-      !_HERE, 'refine element'
-      !print*
       ni = size(e%pixels, 1)
       nj = size(e%pixels, 2)
 
-      _ASSERT(modulo(nj, n_refine) == 0, 'refinement must divide pixels evenly')
-
-      !_HERE
       vertices = this%get_perimeter(e)
-      !_HERE, '# verts: ', vertices%size()
 
       ! Find corners include wrapping around dateline
       v => this%get_vertex(e%iv_0)
@@ -482,21 +436,20 @@ contains
       ne_corner = add_loc(sw_corner, [ni,nj], ni_glob)
       nw_corner = add_loc(sw_corner, [ 0,nj], ni_glob)
 
-      !_HERE, 'sw_corner: ', sw_corner, nj
-      !_HERE, 'se_corner: ', se_corner
-      !_HERE, 'ne_corner: ', ne_corner
-      !_HERE, 'nw_corner: ', nw_corner
+!#       call describe_element(this, e)
+!#     _HERE, 'sw: ', sw_corner
+!#      _HERE, 'se: ', se_corner
+!#      _HERE, 'ne: ', ne_corner
+!#      _HERE, 'nw: ', nw_corner
       k_sw = 1
       k_se = -1 ! not found unless
       k_ne = -1
       k_nw = -1
-      !print*
-      !_HERE, 'searching for corners'
+
+!#      _HERE, vertices%size()
       do k = 1, vertices%size()
          v => this%get_vertex(vertices%of(k))
-
-         !_HERE, k, vertices%of(k), v%loc
-
+!#         _HERE, k, v%loc
          if (all(v%loc == se_corner)) then
             k_se = k
          elseif (all(v%loc == ne_corner)) then
@@ -507,71 +460,39 @@ contains
          end if
       end do
 
-      !_HERE, 'found: '
-      !_HERE, '   ', k_sw, k_se
-      !_HERE, '   ',k_ne, k_nw
-      !print*
-
       ! Check that all intermediates exist, or none.
-      _ASSERT(any(k_se - k_sw == [n_refine,1]), 'mismatched refinement')
-      _ASSERT(any(k_nw - k_ne == [n_refine,1]), 'mismatched refinement')
+!#      _HERE, k_se, k_sw
+!#      _HERE, k_nw, k_ne
+      _ASSERT(any(k_se - k_sw == [1,2]), 'mismatched refinement')
+      _ASSERT(any(k_nw - k_ne == [1,2]), 'mismatched refinement')
       
       if (k_se - k_sw == 1) then
-         !print*
-         !_HERE,' need to split southern edge'
          iv_se = vertices%of(k_se)
          iv_sw = vertices%of(k_sw)
-         !_HERE, 'split? '
-         block
-           type(Vertex), pointer :: v
-           !_HERE, 'split interval between nodes: ', iv_sw, iv_se
-           v => this%get_vertex(iv_sw)
-           !_HERE, '   connections: ', v%connections
-           !_HERE, '   loc:         ', v%loc
-         end block
-         ivs_south = this%split_connection([iv_sw, iv_se], n_refine, _RC)
-         !_HERE
-           
+         iv_south = this%split([iv_sw, iv_se], _RC)
       else
-         !_HERE,'already split'
-         ivs_south = [(vertices%of(k), k=k_sw+1,k_se-1)]
+         iv_south = vertices%of(k_sw+1)
       end if
 
-      !print*
-      !_HERE
       if (k_nw - k_ne == 1) then !
-         !print*
-         !_HERE,' need to split northern edge'
          iv_ne = vertices%of(k_ne)
          iv_nw = vertices%of(k_nw)
-         ivs_north = this%split_connection([iv_nw, iv_ne], n_refine, _RC)
+         iv_north = this%split([iv_nw, iv_ne], _RC)
       else
-         !_HERE,'already split'
          ! Careful need to step bacwwards on northern edge
-         ivs_north = [(vertices%of(k), k=k_nw-1,k_ne+1,-1)]
+         iv_north = vertices%of(k_nw-1)
       end if
 
-      do k = 1, n_refine - 1
-         !_HERE,'corners: ', sw_corner, ' :: ', ne_corner
-         !_HERE,'connecting:  ', ivs_south(k), ivs_north(k)
-         call this%connect(ivs_south(k), ivs_north(k), _RC)
-     end do
+      call this%connect(iv_south, iv_north, _RC)
 
-      !_HERE
-     ! Modify original element
-     pixels => e%pixels
-     e%pixels => pixels(:ni/n_refine,:nj)
+      pixels => e%pixels
+      i_mid = 1 + (ni-1)/2
+      e%pixels => pixels(:i_mid,:)
 
-     ! Add new elements
-     do k = 1, n_refine - 1
-        i_0 = 1 + (k+0)*(ni/n_refine)
-        i_1 = 0 + (k+1)*(ni/n_refine)
-        new_element = Element(pixels(i_0:i_1,:), ivs_south(k), dir=EAST)
-        call describe_element(this, new_element)
+      new_element = Element(pixels(i_mid+1:,:), iv_south, dir=EAST)
+!#      call describe_element(this, new_element)
           
-        call this%elements%push_back(new_element)
-     end do
-     !_HERE
+      call this%elements%push_back(new_element)
 
      _RETURN(_SUCCESS)
 
@@ -683,24 +604,119 @@ contains
 
       type(Vertex), pointer :: v
       type(Integer64Vector) :: nodes
+      integer :: k
       
-      !print*
-      !print*,'****************************'
-      !_HERE, 'describe element: '
-      !_HERE, '    iv_0: ', e%iv_0
-      !_HERE, '     dir: ', dir_string(e%dir)
-      !_HERE
-      !_HERE, '     root verex: '
+      print*
+      print*,'****************************'
+      _HERE, 'describe element: '
+      _HERE, '            shp: ', shape(e%pixels)
+      _HERE, '           iv_0: ', e%iv_0
+      _HERE, '            dir: ', dir_string(e%dir)
+      _HERE
+      _HERE, '     root vertex: '
       v => this%get_vertex(e%iv_0)
-      !_HERE, '         root vertex: '
-      !_HERE, '              loc:    ', v%loc
-      !_HERE, '              conns:  ', v%connections
+      _HERE, '            loc: ', v%loc
+      _HERE, '          conns: ', v%connections
 
       nodes = this%get_perimeter(e)
-      !_HERE
-      !_HERE, '     perimeter: '
-      !_HERE, '       # nodes: ', nodes%size()
-      !print*,'****************************'
-      !print*
+      _HERE
+      _HERE, '      perimeter: '
+      _HERE, '        # nodes: ', nodes%size()
+      do k = 1, nodes%size()
+         v => this%get_vertex(nodes%of(k))
+         _HERE,'      corner: ', k, nodes%of(k), v%loc
+      end do
+      print*,'****************************'
+      print*
    end subroutine describe_element
+
+   function make_esmf_mesh(this, rc) result(msh)
+      type(ESMF_Mesh), target :: msh
+      class(Mesh), intent(in) :: this
+      integer, optional, intent(out):: rc
+
+      integer :: status
+      integer :: n_nodes
+      integer, allocatable :: nodeIds(:)
+      real(kind=REAL64), allocatable :: nodeCoords(:)
+      integer :: i, k, kk, i0
+      integer(kind=INT64) :: k64
+      integer :: np, n_elements, n_conn
+      type(Element), pointer :: e
+      type(Vertex), pointer :: v
+      type(Integer64Vector), target :: p
+      integer, allocatable :: elementConn(:)
+      integer, allocatable :: elementIds(:)
+      integer, allocatable :: elementTypes(:)
+      integer :: ni, nj
+
+      msh = ESMF_MeshCreate(parametricDim=2, spatialDim=2, coordSys=ESMF_COORDSYS_SPH_DEG, _RC)
+
+      n_nodes = this%vertices%size()
+      ni = size(this%pixels,1)
+      nj = size(this%pixels,2)
+
+      allocate(nodeIds(n_nodes))
+      allocate(nodeCoords(2*n_nodes))
+
+      _HERE, this%longitude_range
+      _HERE, this%latitude_range
+      do k = 1, n_nodes
+         k64 = k
+         v => this%get_vertex(k64)
+         nodeIds(k) = k
+         nodeCoords(1 + (k-1)*2) = this%longitude_range(1) + (v%loc(1)-1) * (this%longitude_range(2) - this%longitude_range(1)) / ni
+         nodeCoords(2 + (k-1)*2) = this%latitude_range(1) + (v%loc(2)-1) * (this%latitude_range(2) - this%latitude_range(1)) / nj
+      end do
+
+      call ESMF_MeshAddNodes(msh, nodeIds, nodeCoords, _RC)
+      deallocate(nodeCoords, nodeIds)
+
+      n_elements = this%elements%size()
+      allocate(elementIds(n_elements))
+      allocate(elementTypes(n_elements))
+
+      n_conn = 0
+      kk = 0
+      do k = 1, n_elements
+         kk = kk + 1
+         e => this%get_element(k)
+         p = this%get_perimeter(e)
+         n_conn = n_conn + p%size()
+      end do
+
+      allocate(elementConn(n_conn))
+
+      i0 = 0
+      kk = 0
+      elementIds = huge(1)
+      
+      do k = 1, n_elements
+         kk = kk + 1
+         e => this%get_element(k)
+         elementIds(kk) = kk
+         p = this%get_perimeter(e)
+         np = p%size()
+         elementTypes(kk) = np
+         elementConn(i0+1:i0+np) = [(p%of(i),i=1,np)]
+         i0 = i0 + np
+
+!#         elementArea(k) = ...
+      end do
+         
+      call ESMF_MeshAddElements(msh, &
+           elementIds, elementTypes, elementConn, &
+!#           elementMask, &
+!#           elementArea, &
+!#           elementCoords, &
+!#           elementDistgrid, &
+           _RC)
+
+      deallocate(elementConn, elementTypes, elementIds)
+      _RETURN(_SUCCESS)
+   end function make_esmf_mesh
+      
+
+
 end module sf_Mesh
+
