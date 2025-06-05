@@ -676,9 +676,11 @@ module MAPL_GriddedIOMod
         call ESMF_FieldBundleGet(this%output_bundle,itemName,field=outField,rc=status)
         _VERIFY(status)
         long_name = 'unknown'
-        call ESMF_AttributeGet(outField, name="LONG_NAME", isPresent=isPresent, _RC)
+
+        call ESMF_InfoGetFromHost(outField,infoh,_RC)
+        isPresent = ESMF_InfoIsPresent(infoh,"LONG_NAME",_RC)
         if ( isPresent ) then
-           call ESMF_AttributeGet(outField, name="LONG_NAME",value=long_name, _RC)
+           call ESMF_InfoGet(infoh,'LONG_NAME',long_name,_RC)
         endif
         call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
         _VERIFY(status)
@@ -798,9 +800,10 @@ module MAPL_GriddedIOMod
         call ESMF_FieldBundleGet(this%output_bundle,xName,field=xoutField,rc=status)
         _VERIFY(status)
         long_name = 'unknown'
-        call ESMF_AttributeGet(xoutField, name="LONG_NAME", isPresent=isPresent, _RC)
+        call ESMF_InfoGetFromHost(xoutField,infoh,_RC)
+        isPresent = ESMF_InfoIsPresent(infoh,"LONG_NAME",_RC)
         if ( isPresent ) then
-           call ESMF_AttributeGet(xoutField, name="LONG_NAME",value=long_name, _RC)
+           call ESMF_InfoGet(infoh,'LONG_NAME',long_name,_RC)
         endif
         call ESMF_FieldBundleGet(this%output_bundle,yName,field=youtField,rc=status)
         _VERIFY(status)
