@@ -78,7 +78,7 @@ GC_VARIABLE = 'gridcomp_variable'
 GC_VARIABLE_DEFAULT = 'gc'
 STANDARD_NAME_PREFIX = "standard_name_prefix"
 # procedure names
-ADDSPEC = "MAPL_GridCompAddSpec"
+ADDSPEC = "MAPL_GridCompAddFieldSpec"
 GETPOINTER = "MAPL_StateGetPointer"
 TO_STRING_VECTOR = "toStringVector"
 # Fortran keywords
@@ -180,7 +180,7 @@ def get_options(args):
         'name': SHORT_NAME,
         'prec': PRECISION,
         'vloc': VSTAGGER,
-        'vlocation': VSTAGGER
+        'vlocation': VSTAGGER,
         'add2export': ADD_TO_EXPORT
     }
 
