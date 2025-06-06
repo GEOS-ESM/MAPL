@@ -38,8 +38,11 @@
      !$omp critical
 #if (_VARTYPE == 0)
 
+#if (_RANK == 0)
+    status = pfio_nf90_get_var_string(ncid, varid, values)
+#endif
+
 #if (_RANK == 1)
-    ! only support rank 1 of string
     status = pfio_nf90_get_var_string(ncid, varid, values, start, count)
 #endif
 
