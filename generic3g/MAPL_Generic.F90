@@ -450,7 +450,7 @@ contains
         unusable, &
         units, &
         restart, &
-        item_type, &
+        itemType, &
         add2export, &
         rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
@@ -490,7 +490,7 @@ contains
            short_name, &
            standard_name=standard_name, &
            units=units_, &
-           itemtype=item_type, &
+           itemType=itemType, &
            vertical_stagger=vstagger, &
            ungridded_dims=dim_specs_vec, &
            horizontal_dims_spec=horizontal_dims_spec, &
