@@ -616,6 +616,45 @@ contains
 
    end subroutine validate_variable_spec
    
+   logical function is_digit(c)
+      character, intent(in) :: c
+      character(len=*), parameter :: DIGITS = '0123456789'
+
+      is_digit(c) = index(c, DIGITS) > 0
+
+   end function is_digit
+
+   logical function is_upper(c)
+      character, intent(in) :: c
+      character(len=*), parameter :: UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+      
+      is_upper = index(c, UPPER)
+
+   end function is_upper
+
+   logical function is_lower(c)
+      character, intent(in) :: c
+      character(len=*), parameter :: LOWER = 'abcdefghijklmnopqrstuvwxyz'
+      
+      is_lower = index(c, lower)
+
+   end function is_lower
+   
+   logical function is_alpha(c)
+      character, intent(in) :: c
+
+      is_alpha = is_upper(c) .or. is_lower(c)
+
+   end function is_alpha
+
+   logical function is_alphanumeric(c)
+      character, intent(in) :: c
+      
+      is_alphanumeric = is_digit(c) .or. is_alpha(c)
+
+   end function is_alphanumeric
+
+   
    logical function is_valid_string(c, first_alpha) result(lval)
       character(len=*), intent(in) :: c
       logical, optional, intent(in) :: first_alpha
