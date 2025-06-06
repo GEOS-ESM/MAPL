@@ -636,17 +636,6 @@ module MAPL_GriddedIOMod
               end if
               call this%stageData(outField,filename,tIndex, oClients=oClients, _RC)
            else if (item%itemType == ItemTypeVector) then
-<<<<<<< HEAD
-              call this%RegridVector(item%xname,item%yname, _RC)
-              call ESMF_FieldBundleGet(this%output_bundle,item%xname,field=outField, _RC)
-              if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-                 call this%vdata%correct_topo(outField, _RC)
-              end if
-              call this%stageData(outField,filename,tIndex,oClients=oClients, _RC)
-              call ESMF_FieldBundleGet(this%output_bundle,item%yname,field=outField, _RC)
-              if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-                 call this%vdata%correct_topo(outField, _RC)
-=======
               call this%RegridVector(item%xname,item%yname,rc=status)
               _VERIFY(status)
               call ESMF_FieldBundleGet(this%output_bundle,item%xname,field=outField,rc=status)
@@ -662,7 +651,6 @@ module MAPL_GriddedIOMod
               if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV .and. (this%vdata%extrap_below_surf .eqv. .false.)) then
                  call this%vdata%correct_topo(outField,rc=status)
                  _VERIFY(status)
->>>>>>> develop
               end if
               call this%stageData(outField,filename,tIndex,oClients=oClients, _RC)
            end if
