@@ -52,6 +52,7 @@ module mapl3g_Generic
    use esmf, only: ESMF_State, ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD
    use esmf, only: operator(==)
    use mapl3g_hconfig_get
+   use mapl3g_RestartHandler
    use pflogger, only: logger_t => logger
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
@@ -463,7 +464,7 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: ungridded_dims(:)
       character(*), optional, intent(in) :: units
-      logical, optional, intent(in) :: restart
+      integer(kind=kind(MAPL_RESTART)), optional, intent(in) :: restart
       type(ESMF_StateItem_Flag), optional, intent(in) :: itemType
       logical, optional, intent(in) :: add2export
       integer, optional, intent(out) :: rc

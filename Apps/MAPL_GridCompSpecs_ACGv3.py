@@ -50,6 +50,7 @@ STRING = 'string'
 VALUES_NOT_FOUND = 'values_not_found'
 
 #could be read from YAML list
+ADD_TO_EXPORT = 'add_to_export'
 ALIAS = 'alias'
 ALLOC = 'alloc'
 ARRAY = 'array'
@@ -147,17 +148,19 @@ def get_options(args):
              'N': 'VERTICAL_STAGGER_NONE'}},
         ALIAS: {FLAGS: {STORE}}, 
         ALLOC: {FLAGS: {STORE}}, 
-        'add2export': {MAPPING: LOGICAL},
+        ADD_TO_EXPORT: {MAPPING: LOGICAL},
         'attributes' : {MAPPING: STRINGVECTOR}, 
         CONDITION: {FLAGS: {STORE}}, 
         'dependencies': {MAPPING: STRINGVECTOR}, 
         'itemtype': {}, 
         'orientation': {}, 
         'regrid_method': {}, 
-        'restart': {MAPPING: dict(
-                [(b, TRUE_VALUE) for b in 'T t TRUE true True SKIP Skip skip'.split()] + 
-                [(b, FALSE_VALUE) for b in 'F FALSE false f False'.split()]
-            )},
+        'restart': {MAPPING: {
+            'OPTIONAL': 'MAPL_RESTART_OPTIONAL',
+            'SKIP': 'MAPL_RESTART_SKIP',
+            'REQUIRED': 'MAPL_RESTART_REQUIRED',
+            'BOOT': 'MAPL_RESTART_BOOT',
+            'SKIP_INITIAL': 'MAPL_RESTART_SKIP_INITIAL'}},
         STATE: {FLAGS: {MANDATORY, STORE}}, 
         'typekind': {MAPPING: { 
             'R4': 'ESMF_Typekind_R4',
@@ -177,7 +180,8 @@ def get_options(args):
         'name': SHORT_NAME,
         'prec': PRECISION,
         'vloc': VSTAGGER,
-        'vlocation': VSTAGGER
+        'vlocation': VSTAGGER,
+        'add2export': ADD_TO_EXPORT
     }
 
     options[CONTROLS] = {MAKE_BLOCK: {MAPPING: MAKE_BLOCK, FLAGS: CONTROL, FROM: CONDITION}} 
