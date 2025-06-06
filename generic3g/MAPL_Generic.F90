@@ -16,6 +16,7 @@
 !---------------------------------------------------------------------
 
 module mapl3g_Generic
+
    use mapl3g_InnerMetaComponent, only: InnerMetaComponent
    use mapl3g_InnerMetaComponent, only: get_inner_meta
    use mapl3g_OuterMetaComponent, only: OuterMetaComponent
@@ -32,6 +33,8 @@ module mapl3g_Generic
    use mapl_InternalConstantsMod
    use mapl3g_HorizontalDimsSpec, only: HorizontalDimsSpec, HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_GEOM
    use mapl3g_UngriddedDims, only: UngriddedDims
+   use mapl3g_StateItem, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
+   use mapl3g_ESMF_Utilities, only: esmf_state_intent_to_string
    use esmf, only: ESMF_Info
    use esmf, only: ESMF_InfoGetFromHost
    use esmf, only: ESMF_InfoGet
@@ -42,15 +45,17 @@ module mapl3g_Generic
    use esmf, only: ESMF_STAGGERLOC_INVALID
    use esmf, only: ESMF_HConfig
    use esmf, only: ESMF_Method_Flag
-   use esmf, only: ESMF_StateIntent_Flag
+   use esmf, only: ESMF_StateIntent_Flag, ESMF_STATEINTENT_INTERNAL
    use esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
    use esmf, only: ESMF_KIND_R8, ESMF_KIND_R4
    use esmf, only: ESMF_Time, ESMF_TimeInterval
    use esmf, only: ESMF_State, ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD
+   use esmf, only: operator(==)
    use mapl3g_hconfig_get
    use pflogger, only: logger_t => logger
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
+
    implicit none
    private
 
@@ -92,6 +97,8 @@ module mapl3g_Generic
    public :: MAPL_GridCompReexport
    public :: MAPL_GridCompConnectAll
 
+   ! Spec types
+   public :: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
 
    ! Interfaces
 
@@ -443,9 +450,11 @@ contains
         unusable, &
         units, &
         restart, &
+        item_type, &
+        add2export, &
         rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
-      type(Esmf_StateIntent_Flag), intent(in) :: state_intent
+      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
       character(*), intent(in) :: standard_name
       character(*), intent(in) :: dims
@@ -455,9 +464,10 @@ contains
       integer, optional, intent(in) :: ungridded_dims(:)
       character(*), optional, intent(in) :: units
       logical, optional, intent(in) :: restart
+      type(ESMF_StateItem_Flag), optional, intent(in) :: item_type
+      logical, optional, intent(in) :: add2export
       integer, optional, intent(out) :: rc
 
-      type(ESMF_StateItem_Flag), parameter :: itemtype = ESMF_STATEITEM_FIELD
       type(VariableSpec) :: var_spec
       type(HorizontalDimsSpec) :: horizontal_dims_spec
       type(OuterMetaComponent), pointer :: outer_meta
@@ -480,7 +490,7 @@ contains
            short_name, &
            standard_name=standard_name, &
            units=units_, &
-           itemtype=itemtype, &
+           itemtype=item_type, &
            vertical_stagger=vstagger, &
            ungridded_dims=dim_specs_vec, &
            horizontal_dims_spec=horizontal_dims_spec, &
@@ -488,6 +498,18 @@ contains
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
       call component_spec%var_specs%push_back(var_spec)
+
+      if (present(add2export)) then
+         if (add2export) then
+            _ASSERT((state_intent==ESMF_STATEINTENT_INTERNAL), "cannot reexport a non-internal spec")
+            call gridcomp_reexport( &
+                 gridcomp=gridcomp, &
+                 src_comp="<self>", &
+                 src_name=short_name, &
+                 src_intent=esmf_state_intent_to_string(state_intent), &
+                 _RC)
+         end if
+      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -933,6 +955,7 @@ contains
       call component_spec%add_connectivity(src_comp=src_comp, src_names=src_names, dst_comp=dst_comp, dst_names=dst_names, _RC)
       
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_add_simple_connectivity
 
 
@@ -955,6 +978,7 @@ contains
            new_name=new_name, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_reexport
 
 end module mapl3g_Generic
