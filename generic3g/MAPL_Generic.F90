@@ -451,7 +451,7 @@ contains
         unusable, &
         units, &
         restart, &
-        item_type, &
+        itemType, &
         add2export, &
         rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
@@ -465,7 +465,7 @@ contains
       integer, optional, intent(in) :: ungridded_dims(:)
       character(*), optional, intent(in) :: units
       integer(kind=kind(MAPL_RESTART)), optional, intent(in) :: restart
-      type(ESMF_StateItem_Flag), optional, intent(in) :: item_type
+      type(ESMF_StateItem_Flag), optional, intent(in) :: itemType
       logical, optional, intent(in) :: add2export
       integer, optional, intent(out) :: rc
 
@@ -491,7 +491,7 @@ contains
            short_name, &
            standard_name=standard_name, &
            units=units_, &
-           itemtype=item_type, &
+           itemType=itemType, &
            vertical_stagger=vstagger, &
            ungridded_dims=dim_specs_vec, &
            horizontal_dims_spec=horizontal_dims_spec, &
