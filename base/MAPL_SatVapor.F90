@@ -22,7 +22,7 @@
 !#### File Used
 ! The main computations are done in the following include files:
 !```
-!      eqsat.H esatlqu.H esatice.H qsatlqu.H qsatice.H. 
+!      eqsat.H esatlqu.H esatice.H qsatlqu.H qsatice.H.
 !```
 !
 ! @bug
@@ -33,30 +33,28 @@
 !
 module MAPL_SatVaporMod
 
-
+! !USES:
+!
 #ifdef MAPL_MODE
   use MAPL_Constants
 #endif
-
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
-
-! !USES:
-!
-!  use MAPL_Constants
 !
   implicit none
   private
 !
 ! !PUBLIC MEMBER FUNCTIONS:
 !
-! 
-    public MAPL_EQsatSET ! A subroutine to set parameters that control 
+!
+    public MAPL_EQsatSET ! A subroutine to set parameters that control
                          ! the behavior of MAPL\_EQsat
 !
     public MAPL_EQsat    ! The working function.
 !
 ! !PUBLIC DATA MEMBERS:
 !
+! Enumeration values for the saturation vapor pressure formulation to be used.
+
   interface MAPL_EQsat
      module procedure QSAT0
      module procedure QSAT1
@@ -79,7 +77,7 @@ module MAPL_SatVaporMod
 ! Physical parameters
 
   real(kind=REAL64),    parameter :: MINPFAC    = 2.0
-  real(kind=REAL64),    parameter :: MAX_RS     = 1.0/(MINPFAC-1.0)  
+  real(kind=REAL64),    parameter :: MAX_RS     = 1.0/(MINPFAC-1.0)
   real(kind=REAL64),    parameter :: MAX_QS     = MAX_RS/(1.0+MAX_RS)
 
 ! Table parameters
@@ -90,9 +88,9 @@ module MAPL_SatVaporMod
 ! Some limits
 
   real(kind=REAL64),    parameter :: TMINICE    =  ZEROC - 95.
-  real(kind=REAL64),    parameter :: TMAXICE    =  ZEROC      
+  real(kind=REAL64),    parameter :: TMAXICE    =  ZEROC
   real(kind=REAL64),    parameter :: TMINLQU    =  ZEROC - 40.
-  real(kind=REAL64),    parameter :: TMAXLQU    =  TMAXTBL    
+  real(kind=REAL64),    parameter :: TMAXLQU    =  TMAXTBL
 
 ! Starr parameters
 
@@ -140,7 +138,7 @@ module MAPL_SatVaporMod
   real(kind=REAL64),    parameter :: TS      = 373.16
 
 ! Murphy and Koop Parameters
- 
+
   real(kind=REAL64),    parameter :: CL(0:9) = (/ 54.842763, -6763.22, -4.21000, .000367, &
                                        0.0415, 218.8,  53.878000, -1331.22,    &
                                       -9.44523, 0.014025                      /)
@@ -148,11 +146,9 @@ module MAPL_SatVaporMod
 
 ! Enumeration for formulation type
 
-  integer,   parameter :: Starr      = 1 
-  integer,   parameter :: GoffGratch = 2 
-  integer,   parameter :: MurphyKoop = 3 
-
-
+  integer,   parameter :: Starr      = MAPL_UseStarrQsat
+  integer,   parameter :: GoffGratch = MAPL_UseGoffGratchQsat
+  integer,   parameter :: MurphyKoop = MAPL_UseMurphyKoopQsat
 
 ! Tables and other Global variables
 
@@ -177,7 +173,13 @@ module MAPL_SatVaporMod
   integer,   parameter :: ICE     = 2
 
   real(kind=REAL64),    save      :: TMIN(2) = (/ TMINLQU, TMINICE /)
-  real(kind=REAL64),    save      :: TMAX(2) = (/ TMAXLQU, TMAXICE /) 
+  real(kind=REAL64),    save      :: TMAX(2) = (/ TMAXLQU, TMAXICE /)
+
+! New variables to emulate ramping a la GEOS_Utilities
+
+  real(kind=REAL64), allocatable, save :: ESTBLX(:)
+  real(kind=REAL64), parameter         :: TMIX = -20.
+  real(kind=REAL64), parameter         :: DefaultRamp = TMIX
 
 contains
 
@@ -196,8 +198,8 @@ contains
 ! **Formulation** sets the saturation vapor pressure function to use
 ! to use in generating tables or for `exact` calculations.
 ! Three formulations of saturation vapor pressure are supported:
-!- the Starr code, as was used in NSIPP-1 (MAPL_UseStarrQsat), 
-!- the Goff-Gratch formulation, as used in CAM (MAPL_UseGoffGratchQsat), and 
+!- the Starr code, as was used in NSIPP-1 (MAPL_UseStarrQsat),
+!- the Goff-Gratch formulation, as used in CAM (MAPL_UseGoffGratchQsat), and
 !- Murphy and Koop (2005, QJRMS) (MAPL_UseMurphyKoopQsat).
 !
 ! If it has not been set, the formulation is Starr (MAPL_UseStarrQsat).
@@ -208,7 +210,7 @@ contains
 !
 ! **MixingRatio** sets whether MAPL_EQsat will return saturation mixing ratio (true)
 ! or saturation specific humidity (false) when the pressure is present
-! (see MAPL_EQsat documentation). If never set, it is false; 
+! (see MAPL_EQsat documentation). If never set, it is false;
 ! if not specified, it is left unmodified.
 !
 ! MAPL_EQsatSET also initializes the tables. If MAPL_EQsatSET is
@@ -237,14 +239,14 @@ contains
        DELTA_T    =  1.0 / DEGSUBS
     endif
 
-    if(TYPE/=Starr .and. TYPE/=GOFFGRATCH .and. TYPE/=MurphyKoop) then
+    if(TYPE/=Starr .and. TYPE/=GoffGratch .and. TYPE/=MurphyKoop) then
        print *, 'Bad argument to MAPL_EQsatSET: FORMULATION=',TYPE
-       print *, 'Must be one of: ', Starr, GOFFGRATCH, MurphyKoop
+       print *, 'Must be one of: ', Starr, GoffGratch, MurphyKoop
        stop 999
     end if
 
 ! Set the formulation dependent limits
-    
+
     if(TYPE==MurphyKoop)  then
        TMIN(ICE  ) =  max(TMINTBL,110._REAL64)
        TMIN(WATER) =  max(TMINTBL,123._REAL64)
@@ -257,9 +259,11 @@ contains
 
     if(allocated(ESTBLE)) deallocate(ESTBLE)
     if(allocated(ESTBLW)) deallocate(ESTBLW)
+    if(allocated(ESTBLX)) deallocate(ESTBLX)
 
     allocate(ESTBLE(TABLESIZE))
     allocate(ESTBLW(TABLESIZE))
+    allocate(ESTBLX(TABLESIZE))
 
     call ESINIT
 
@@ -270,10 +274,10 @@ contains
 
     subroutine ESINIT
 
-! Saturation vapor pressure table initialization. This is invoked if UTBL is true 
-! on the first call to any qsat routine or whenever MAPL_QsatSet is called 
+! Saturation vapor pressure table initialization. This is invoked if UTBL is true
+! on the first call to any qsat routine or whenever MAPL_QsatSet is called
 ! N.B.--Tables are in Pa
- 
+
       integer :: I
       real(kind=REAL64)  :: T
       logical :: UT
@@ -287,17 +291,33 @@ contains
 ! The size of the table and its resolution are currently hardwired.
 
       do I=1,TABLESIZE
-       
+
          T = (I-1)*DELTA_T + TMINTBL
 
 ! The two standard tables. ESTBLW contains saturation vapor pressures over liquid
-! for all temperatures. ESTBLE contains saturation vapor pressures over ice for 
+! for all temperatures. ESTBLE contains saturation vapor pressures over ice for
 ! temperatures below 0C and over water above 0C.
-       
+
          ESTBLW(I) = QSATD0(T,OverIce=.false.)
          ESTBLE(I) = QSATD0(T,OverIce=.true. )
 
+! Now, like GEOS_Utilities, create ESTBLX which is a table created
+! using the TMIX value above as a default Ramp
+
+         T = T - ZEROC
+
+         if (T >= TMIX .and. T < 0.0 ) then
+            ESTBLX(I) = ( T/TMIX )* ( ESTBLE(I) - ESTBLW(I) ) + ESTBLW(I)
+         else
+            ESTBLX(I) = ESTBLE(I)
+         end if
+
       end do
+
+! Set ESTFRZ and ESTLQU (a la GEOS_Utilities)
+
+      ESTFRZ = QSATD0(ZEROC  ,OverIce=.false.)
+      ESTLQU = QSATD0(TMINLQU,OverIce=.false.)
 
 ! Reset UTBL to what it was on entry.
 
@@ -306,26 +326,32 @@ contains
 ! Mark table as initialized
 
       TableReady = .true.
-    
+
     end subroutine ESINIT
 
   end subroutine MAPL_EQsatSET
 
 !=========================================================================
-!
+
 ! !IROUTINE: MAPL_EQsat - Computes saturation vapor pressure or specific humidity
 
 ! !INTERFACE:
 
-!    function MAPL_EQsat(TL,PL,DQ,OverIce) result(QS)
+!    function MAPL_EQsat(TL,PL,DQ,OverIce,UseRamp,Ramp) result(QS)
 !
 ! !ARGUMENTS:
 !
 !      real,               intent(IN)  :: TL      ! Temperature in Kelvins.
-!      real,     optional, intent(IN)  :: PL      ! Air pressure in Pascals.
+!      real,     optional, intent(IN)  :: PL      ! Air pressure in Pascals
 !      real,     optional, intent(OUT) :: DQ      ! Derivative of result wrt TL.
 !      logical,  optional, intent(IN)  :: OverIce ! If set, result is over ice;
                                                   ! otherwise it is over liquid
+!      logical,  optional, intent(IN)  :: UseRamp ! If set, use the Ramp/linear
+                                                  ! interpolation method a la GEOS_QSAT
+!      real,     optional, intent(IN)  :: Ramp    ! If set, use this value (in degrees
+                                                  ! *Celsius*) below which an ice calculation
+                                                  ! is done, ramping to 0°C where liquid
+                                                  ! is used. This setting overrides OverIce.
 !      real                            :: QS      ! Result is in Pascals for pressure
                                                   ! otherwise, nondimensional.
 !
@@ -334,18 +360,30 @@ contains
 !      TL, PL, QL, and QS must all be of the same kind and shape.
 !      Overloads exist for kinds 4 and 8 and for ranks 0, 1, 2, and 3.
 !
-!            
+!      Also, Ramp must match the kind of TL, PL, QL, and QS
+!
+!
 ! !DESCRIPTION:  MAPL\_EQsat uses various formulations of the saturation
-!                vapor pressure to compute the saturated specific 
+!                vapor pressure to compute the saturated specific
 !    humidity and, optionally, its derivative with respect to temperature
 !    for temperature TL and pressure PL. If PL is not present
-!    it returns the saturation vapor pressure and, optionally, 
+!    it returns the saturation vapor pressure and, optionally,
 !    its derivative with respect to temperature.
-!    If MixingRation has been set using MAPL\_EQsatSet and PL is present, it returns saturated
+!    If MixingRatio has been set using MAPL\_EQsatSet and PL is present, it returns saturated
 !    mixing ratio instead of saturated specific humidity.
 ! \newline
 
-!    All pressures are in Pascals and all temperatures in Kelvins.
+!    If UseRamp is provided, a linear interpolation method is used.
+!    If a Ramp value is supplied, then for temperatures <= Ramp (Default = -20°C, set in this module)
+!    the calculation is done over ice; for temperatures >= ZEROC (0°C) the calculation
+!    is done over liquid water; and in between these values,
+!    it interpolates linearly between the two. Use of this setting overrides
+!    OverIce (\textit{vide infra}).
+! \newline
+
+!    Pressures are in Pascals
+!    All temperatures in Kelvins, except Ramp which is
+!    supplied in degrees Celsius.
 ! \newline
 
 !    The choice of saturation vapor pressure formulation is set with MAPL\_EQsatSET.
@@ -360,10 +398,10 @@ contains
 !    The logical argument OverIce determines whether the saturation vapor pressure
 !    is computed over liquid or frozen water. If T is above 273.16K, OverIce is ignored
 !    the value returned is always over liquid.
-!    All three formulations are valid up to 333K. 
+!    All three formulations are valid up to 333K.
 !    Murphy and Koop is valid down to 150K, for both liquid and ice.
-!    The other two are valid down to 178K for ice and 233K for super-cooled liquid. 
-!    Outside these ranges, the nearest valid value is used for vapor pressure, 
+!    The other two are valid down to 178K for ice and 233K for super-cooled liquid.
+!    Outside these ranges, the nearest valid value is used for vapor pressure,
 !    and the derivatives with respect to temperature are set to zero.
 ! \newline
 
@@ -394,35 +432,61 @@ contains
 !   saturation specific humidity at $\frac{1}{2}$. In either case the derivative is set to zero.
 ! \newline
 !
-!EOPI
-  
+
 #define TX TL
 #define PX PL
 #define EX QS
 #define DX DQ
 #define KIND_ 4
-  recursive function QSAT0(TL,PL,DQ,OverIce) result(QS)
-    real(kind=REAL32),              intent(IN) :: TL
-    real(kind=REAL32), optional,    intent(IN) :: PL
-    real(kind=REAL32), optional,    intent(OUT):: DQ
-    logical,optional,    intent(IN) :: OverIce
-    real(kind=REAL32)                          :: QS
+  recursive function QSAT0(TL,PL,DQ,OverIce,UseRamp,Ramp) result(QS)
+    real(kind=REAL32),           intent(IN)  :: TL
+    real(kind=REAL32), optional, intent(IN)  :: PL
+    real(kind=REAL32), optional, intent(OUT) :: DQ
+    logical,           optional, intent(IN)  :: OverIce
+    logical,           optional, intent(IN)  :: UseRamp
+    real(kind=REAL32), optional, intent(IN)  :: Ramp
+    real(kind=REAL32)                        :: QS
 
 
-    real(kind=REAL32)    :: TI,W
-    real(kind=REAL32)    :: DD, TT, EF
-    real(kind=REAL32)    :: DDQ
-    integer   :: IT
-    logical   :: OverLqu
+    real(kind=REAL32) :: TI,W
+    real(kind=REAL32) :: DD, TT, EF
+    real(kind=REAL32) :: DDQ
+    integer           :: IT
+    logical           :: OverLqu
+
+    logical           :: UseRamp_
+    real(kind=REAL32) :: Ramp_
+    real(kind=REAL32) :: PP, URAMP, QQ, QI, DQQ, DQI
+
+    if(present(UseRamp)) then
+       UseRamp_ = UseRamp
+    else
+       UseRamp_ = .false.
+    end if
+
+    if(present(Ramp)) then
+       UseRamp_=.true.
+       Ramp_=Ramp
+    else
+       if(UseRamp_) Ramp_=DefaultRamp
+    end if
 
     OverLqu = .true.
     if(present(OverIce)) OverLqu=.not.OverIce
 
-    if(OverLqu) then
-#include "qsatlqu.H"
-    else
-#include "qsatice.H"
+    if (present(PL)) then
+       PP = PX
     end if
+
+    if(UseRamp_) then
+#include "qsatramp.H"
+    else
+      if(OverLqu) then
+#include "qsatlqu.H"
+      else
+#include "qsatice.H"
+      end if
+   end if
 
     return
   end function QSAT0
@@ -430,28 +494,55 @@ contains
 #undef  KIND_
 #define KIND_ 8
 
-  recursive function QSATD0(TL,PL,DQ,OverIce) result(QS)
-    real(kind=REAL64),              intent(IN) :: TL
-    real(kind=REAL64), optional,    intent(IN) :: PL
-    real(kind=REAL64), optional,    intent(OUT):: DQ
-    logical,optional,    intent(IN) :: OverIce
-    real(kind=REAL64)                          :: QS
+  recursive function QSATD0(TL,PL,DQ,OverIce,UseRamp,Ramp) result(QS)
+    real(kind=REAL64),           intent(IN)  :: TL
+    real(kind=REAL64), optional, intent(IN)  :: PL
+    real(kind=REAL64), optional, intent(OUT) :: DQ
+    logical,           optional, intent(IN)  :: OverIce
+    logical,           optional, intent(IN)  :: UseRamp
+    real(kind=REAL64), optional, intent(IN)  :: Ramp
+    real(kind=REAL64)                        :: QS
 
 
-    real(kind=REAL64)    :: TI,W
-    real(kind=REAL64)    :: DD, TT, EF
-    real(kind=REAL64)    :: DDQ
-    integer   :: IT
-    logical   :: OverLqu
+    real(kind=REAL64) :: TI,W
+    real(kind=REAL64) :: DD, TT, EF
+    real(kind=REAL64) :: DDQ
+    integer           :: IT
+    logical           :: OverLqu
+
+    logical           :: UseRamp_
+    real(kind=REAL64) :: Ramp_
+    real(kind=REAL64) :: PP, URAMP, QQ, QI, DQQ, DQI
+
+    if(present(UseRamp)) then
+       UseRamp_ = UseRamp
+    else
+       UseRamp_ = .false.
+    end if
+
+    if(present(Ramp)) then
+       UseRamp_=.true.
+       Ramp_=Ramp
+    else
+       if(UseRamp_) Ramp_=DefaultRamp
+    end if
 
     OverLqu = .true.
     if(present(OverIce)) OverLqu=.not.OverIce
 
-    if(OverLqu) then
-#include "qsatlqu.H"
-    else
-#include "qsatice.H"
+    if (present(PL)) then
+       PP = PX
     end if
+
+    if(UseRamp_) then
+#include "qsatramp.H"
+    else
+      if(OverLqu) then
+#include "qsatlqu.H"
+      else
+#include "qsatice.H"
+      end if
+   end if
 
     return
   end function QSATD0
@@ -469,29 +560,57 @@ contains
 #undef  KIND_
 #define KIND_ 4
 
-   function QSAT1(TL,PL,DQ,OverIce) result(QS)
-    real(kind=REAL32),              intent(IN) :: TL(:)
-    real(kind=REAL32), optional,    intent(IN) :: PL(:)
-    real(kind=REAL32), optional,    intent(OUT):: DQ(:)
-    logical,optional,    intent(IN) :: OverIce
-    real(kind=REAL32)                          :: QS(SIZE(TL,1))
+   function QSAT1(TL,PL,DQ,OverIce,UseRamp,Ramp) result(QS)
+    real(kind=REAL32),           intent(IN)  :: TL(:)
+    real(kind=REAL32), optional, intent(IN)  :: PL(:)
+    real(kind=REAL32), optional, intent(OUT) :: DQ(:)
+    logical,           optional, intent(IN)  :: OverIce
+    logical,           optional, intent(IN)  :: UseRamp
+    real(kind=REAL32), optional, intent(IN)  :: Ramp
+    real(kind=REAL32)                        :: QS(SIZE(TL,1))
 
-    integer   :: I
-    real(kind=REAL32)    :: TI,W  
-    real(kind=REAL32)    :: DD, TT, EF
-    real(kind=REAL32)    :: DDQ
-    integer   :: IT
-    logical   :: OverLqu
+    integer           :: I
+    real(kind=REAL32) :: TI,W
+    real(kind=REAL32) :: DD, TT, EF
+    real(kind=REAL32) :: DDQ
+    integer           :: IT
+    logical           :: OverLqu
+
+    logical           :: UseRamp_
+    real(kind=REAL32) :: Ramp_
+    real(kind=REAL32) :: PP, URAMP, QQ, QI, DQQ, DQI
+
+    if(present(UseRamp)) then
+       UseRamp_ = UseRamp
+    else
+       UseRamp_ = .false.
+    end if
+
+    if(present(Ramp)) then
+       UseRamp_=.true.
+       Ramp_=Ramp
+    else
+       if(UseRamp_) Ramp_=DefaultRamp
+    end if
 
     OverLqu = .true.
     if(present(OverIce)) OverLqu=.not.OverIce
 
     do I=1,size(TL,1)
-       if(OverLqu) then
-#include "qsatlqu.H"
-       else
-#include "qsatice.H"
+
+       if (present(PL)) then
+          PP = PX
        end if
+
+       if(UseRamp_) then
+#include "qsatramp.H"
+       else
+         if(OverLqu) then
+#include "qsatlqu.H"
+         else
+#include "qsatice.H"
+         end if
+      end if
     end do
 
     return
@@ -500,29 +619,57 @@ contains
 #undef  KIND_
 #define KIND_ 8
 
-   function QSATD1(TL,PL,DQ, OverIce) result(QS)
-    real(kind=REAL64),              intent(IN) :: TL(:)
-    real(kind=REAL64), optional,    intent(IN) :: PL(:)
-    real(kind=REAL64), optional,    intent(OUT):: DQ(:)
-    logical,optional,    intent(IN) :: OverIce
-    real(kind=REAL64)                          :: QS(SIZE(TL,1))
+   function QSATD1(TL,PL,DQ,OverIce,UseRamp,Ramp) result(QS)
+    real(kind=REAL64),           intent(IN)  :: TL(:)
+    real(kind=REAL64), optional, intent(IN)  :: PL(:)
+    real(kind=REAL64), optional, intent(OUT) :: DQ(:)
+    logical,           optional, intent(IN)  :: OverIce
+    logical,           optional, intent(IN)  :: UseRamp
+    real(kind=REAL64), optional, intent(IN)  :: Ramp
+    real(kind=REAL64)                        :: QS(SIZE(TL,1))
 
-    integer   :: I
-    real(kind=REAL64)    :: TI,W  
-    real(kind=REAL64)    :: DDQ
-    real(kind=REAL64)    :: DD, TT, EF
-    integer   :: IT
-    logical   :: OverLqu
+    integer           :: I
+    real(kind=REAL64) :: TI,W
+    real(kind=REAL64) :: DDQ
+    real(kind=REAL64) :: DD, TT, EF
+    integer           :: IT
+    logical           :: OverLqu
+
+    logical           :: UseRamp_
+    real(kind=REAL64) :: Ramp_
+    real(kind=REAL64) :: PP, URAMP, QQ, QI, DQQ, DQI
+
+    if(present(UseRamp)) then
+       UseRamp_ = UseRamp
+    else
+       UseRamp_ = .false.
+    end if
+
+    if(present(Ramp)) then
+       UseRamp_=.true.
+       Ramp_=Ramp
+    else
+       if(UseRamp_) Ramp_=DefaultRamp
+    end if
 
     OverLqu = .true.
     if(present(OverIce)) OverLqu=.not.OverIce
 
     do I=1,size(TL,1)
-       if(OverLqu) then
-#include "qsatlqu.H"
-       else
-#include "qsatice.H"
+
+       if (present(PL)) then
+          PP = PX
        end if
+
+       if(UseRamp_) then
+#include "qsatramp.H"
+       else
+         if(OverLqu) then
+#include "qsatlqu.H"
+         else
+#include "qsatice.H"
+         end if
+      end if
     end do
 
     return
@@ -541,30 +688,58 @@ contains
 #undef  KIND_
 #define KIND_ 4
 
-   function QSAT2(TL,PL,DQ,OverIce) result(QS)
-    real(kind=REAL32),              intent(IN) :: TL(:,:)
-    real(kind=REAL32), optional,    intent(IN) :: PL(:,:)
-    real(kind=REAL32), optional,    intent(OUT):: DQ(:,:)
-    logical,optional,    intent(IN) :: OverIce
-    real(kind=REAL32)    :: QS(SIZE(TL,1),SIZE(TL,2))
+   function QSAT2(TL,PL,DQ,OverIce,UseRamp,Ramp) result(QS)
+    real(kind=REAL32),           intent(IN)  :: TL(:,:)
+    real(kind=REAL32), optional, intent(IN)  :: PL(:,:)
+    real(kind=REAL32), optional, intent(OUT) :: DQ(:,:)
+    logical,           optional, intent(IN)  :: OverIce
+    logical,           optional, intent(IN)  :: UseRamp
+    real(kind=REAL32), optional, intent(IN)  :: Ramp
+    real(kind=REAL32)                        :: QS(SIZE(TL,1),SIZE(TL,2))
 
-    integer   :: I, J
-    real(kind=REAL32)    :: TI,W  
-    real(kind=REAL32)    :: DDQ
-    real(kind=REAL32)    :: DD, TT, EF
-    integer   :: IT
-    logical   :: OverLqu
+    integer           :: I, J
+    real(kind=REAL32) :: TI,W
+    real(kind=REAL32) :: DDQ
+    real(kind=REAL32) :: DD, TT, EF
+    integer           :: IT
+    logical           :: OverLqu
+
+    logical           :: UseRamp_
+    real(kind=REAL32) :: Ramp_
+    real(kind=REAL32) :: PP, URAMP, QQ, QI, DQQ, DQI
+
+    if(present(UseRamp)) then
+       UseRamp_ = UseRamp
+    else
+       UseRamp_ = .false.
+    end if
+
+    if(present(Ramp)) then
+       UseRamp_=.true.
+       Ramp_=Ramp
+    else
+       if(UseRamp_) Ramp_=DefaultRamp
+    end if
 
     OverLqu = .true.
     if(present(OverIce)) OverLqu=.not.OverIce
 
     do J=1,size(TL,2)
        do I=1,size(TL,1)
-          if(OverLqu) then
-#include "qsatlqu.H"
-          else
-#include "qsatice.H"
+
+          if (present(PL)) then
+             PP = PX
           end if
+
+          if(UseRamp_) then
+#include "qsatramp.H"
+          else
+            if(OverLqu) then
+#include "qsatlqu.H"
+            else
+#include "qsatice.H"
+            end if
+         end if
        end do
     end do
 
@@ -574,30 +749,58 @@ contains
 #undef  KIND_
 #define KIND_ 8
 
-   function QSATD2(TL,PL,DQ,OverIce) result(QS)
-    real(kind=REAL64),              intent(IN) :: TL(:,:)
-    real(kind=REAL64), optional,    intent(IN) :: PL(:,:)
-    real(kind=REAL64), optional,    intent(OUT):: DQ(:,:)
-    logical,optional,    intent(IN) :: OverIce
-    real(kind=REAL64)    :: QS(SIZE(TL,1),SIZE(TL,2))
+   function QSATD2(TL,PL,DQ,OverIce,UseRamp,Ramp) result(QS)
+    real(kind=REAL64),           intent(IN)  :: TL(:,:)
+    real(kind=REAL64), optional, intent(IN)  :: PL(:,:)
+    real(kind=REAL64), optional, intent(OUT) :: DQ(:,:)
+    logical,           optional, intent(IN)  :: OverIce
+    logical,           optional, intent(IN)  :: UseRamp
+    real(kind=REAL64), optional, intent(IN)  :: Ramp
+    real(kind=REAL64)                        :: QS(SIZE(TL,1),SIZE(TL,2))
 
-    integer   :: I, J
-    real(kind=REAL64)    :: TI,W  
-    real(kind=REAL64)    :: DDQ
-    real(kind=REAL64)    :: DD, TT, EF
-    integer   :: IT
-    logical   :: OverLqu
+    integer           :: I, J
+    real(kind=REAL64) :: TI,W
+    real(kind=REAL64) :: DDQ
+    real(kind=REAL64) :: DD, TT, EF
+    integer           :: IT
+    logical           :: OverLqu
+
+    logical           :: UseRamp_
+    real(kind=REAL64) :: Ramp_
+    real(kind=REAL64) :: PP, URAMP, QQ, QI, DQQ, DQI
+
+    if(present(UseRamp)) then
+       UseRamp_ = UseRamp
+    else
+       UseRamp_ = .false.
+    end if
+
+    if(present(Ramp)) then
+       UseRamp_=.true.
+       Ramp_=Ramp
+    else
+       if(UseRamp_) Ramp_=DefaultRamp
+    end if
 
     OverLqu = .true.
     if(present(OverIce)) OverLqu=.not.OverIce
 
     do J=1,size(TL,2)
        do I=1,size(TL,1)
-          if(OverLqu) then
-#include "qsatlqu.H"
-          else
-#include "qsatice.H"
+
+          if (present(PL)) then
+             PP = PX
           end if
+
+          if(UseRamp_) then
+#include "qsatramp.H"
+          else
+            if(OverLqu) then
+#include "qsatlqu.H"
+            else
+#include "qsatice.H"
+            end if
+         end if
        end do
     end do
 
@@ -617,19 +820,38 @@ contains
 #undef  KIND_
 #define KIND_ 4
 
-   function QSAT3(TL,PL,DQ, OverIce) result(QS)
-    real(kind=REAL32),              intent(IN) :: TL(:,:,:)
-    real(kind=REAL32), optional,    intent(IN) :: PL(:,:,:)
-    real(kind=REAL32), optional,    intent(OUT):: DQ(:,:,:)
-    logical,optional,    intent(IN) :: OverIce
-    real(kind=REAL32)    :: QS(SIZE(TL,1),SIZE(TL,2),SIZE(TL,3))
+   function QSAT3(TL,PL,DQ,OverIce,UseRamp,Ramp) result(QS)
+    real(kind=REAL32),           intent(IN)  :: TL(:,:,:)
+    real(kind=REAL32), optional, intent(IN)  :: PL(:,:,:)
+    real(kind=REAL32), optional, intent(OUT) :: DQ(:,:,:)
+    logical,           optional, intent(IN)  :: OverIce
+    logical,           optional, intent(IN)  :: UseRamp
+    real(kind=REAL32), optional, intent(IN)  :: Ramp
+    real(kind=REAL32)                        :: QS(SIZE(TL,1),SIZE(TL,2),SIZE(TL,3))
 
-    integer   :: I, J, K
-    real(kind=REAL32)    :: TI,W  
-    real(kind=REAL32)    :: DDQ
-    real(kind=REAL32)    :: DD, TT, EF
-    integer   :: IT
-    logical   :: OverLqu
+    integer           :: I, J, K
+    real(kind=REAL32) :: TI,W
+    real(kind=REAL32) :: DDQ
+    real(kind=REAL32) :: DD, TT, EF
+    integer           :: IT
+    logical           :: OverLqu
+
+    logical           :: UseRamp_
+    real(kind=REAL32) :: Ramp_
+    real(kind=REAL32) :: PP, URAMP, QQ, QI, DQQ, DQI
+
+    if(present(UseRamp)) then
+       UseRamp_ = UseRamp
+    else
+       UseRamp_ = .false.
+    end if
+
+    if(present(Ramp)) then
+       UseRamp_=.true.
+       Ramp_=Ramp
+    else
+       if(UseRamp_) Ramp_=DefaultRamp
+    end if
 
     OverLqu = .true.
     if(present(OverIce)) OverLqu=.not.OverIce
@@ -637,11 +859,20 @@ contains
     do K=1,size(TL,3)
        do J=1,size(TL,2)
           do I=1,size(TL,1)
-             if(OverLqu) then
-#include "qsatlqu.H"
-             else
-#include "qsatice.H"
+
+             if (present(PL)) then
+                PP = PX
              end if
+
+             if(UseRamp_) then
+#include "qsatramp.H"
+             else
+               if(OverLqu) then
+#include "qsatlqu.H"
+               else
+#include "qsatice.H"
+               end if
+            end if
           end do
        end do
     end do
@@ -652,19 +883,38 @@ contains
 #undef  KIND_
 #define KIND_ 8
 
-   function QSATD3(TL,PL,DQ, OverIce) result(QS)
-    real(kind=REAL64),              intent(IN) :: TL(:,:,:)
-    real(kind=REAL64), optional,    intent(IN) :: PL(:,:,:)
-    real(kind=REAL64), optional,    intent(OUT):: DQ(:,:,:)
-    logical,optional,    intent(IN) :: OverIce
-    real(kind=REAL64)    :: QS(SIZE(TL,1),SIZE(TL,2),SIZE(TL,3))
+   function QSATD3(TL,PL,DQ,OverIce,UseRamp,Ramp) result(QS)
+    real(kind=REAL64),           intent(IN)  :: TL(:,:,:)
+    real(kind=REAL64), optional, intent(IN)  :: PL(:,:,:)
+    real(kind=REAL64), optional, intent(OUT) :: DQ(:,:,:)
+    logical,           optional, intent(IN)  :: OverIce
+    logical,           optional, intent(IN)  :: UseRamp
+    real(kind=REAL64), optional, intent(IN)  :: Ramp
+    real(kind=REAL64)                        :: QS(SIZE(TL, 1),SIZE(TL,2),SIZE(TL,3))
 
-    integer   :: I, J, K
-    real(kind=REAL64)    :: TI,W  
-    real(kind=REAL64)    :: DDQ
-    real(kind=REAL64)    :: DD, TT, EF
-    integer   :: IT
-    logical   :: OverLqu
+    integer           :: I, J, K
+    real(kind=REAL64) :: TI,W
+    real(kind=REAL64) :: DDQ
+    real(kind=REAL64) :: DD, TT, EF
+    integer           :: IT
+    logical           :: OverLqu
+
+    logical           :: UseRamp_
+    real(kind=REAL64) :: Ramp_
+    real(kind=REAL64) :: PP, URAMP, QQ, QI, DQQ, DQI
+
+    if(present(UseRamp)) then
+       UseRamp_ = UseRamp
+    else
+       UseRamp_ = .false.
+    end if
+
+    if(present(Ramp)) then
+       UseRamp_=.true.
+       Ramp_=Ramp
+    else
+       if(UseRamp_) Ramp_=DefaultRamp
+    end if
 
     OverLqu = .true.
     if(present(OverIce)) OverLqu=.not.OverIce
@@ -672,11 +922,20 @@ contains
     do K=1,size(TL,3)
        do J=1,size(TL,2)
           do I=1,size(TL,1)
-             if(OverLqu) then
-#include "qsatlqu.H"
-             else
-#include "qsatice.H"
+
+             if (present(PL)) then
+                PP = PX
              end if
+
+             if(UseRamp_) then
+#include "qsatramp.H"
+             else
+               if(OverLqu) then
+#include "qsatlqu.H"
+               else
+#include "qsatice.H"
+               end if
+            end if
           end do
        end do
     end do
