@@ -51,9 +51,9 @@ module mapl3g_CSR_SparseMatrix
       procedure CONCAT(new_csr_matrix_,kz)                     ;\
    end interface T(kz)
 
-CSR_SPARSEMATRIX(sp)   
+CSR_SPARSEMATRIX(sp)
 
-CSR_SPARSEMATRIX(dp)   
+CSR_SPARSEMATRIX(dp)
 
 contains
 
@@ -108,7 +108,7 @@ contains
                                                                      \
       integer :: i, j                                               ;\
                                                                      \
-      do concurrent (i = 1:A%n_rows)                                ;\
+      do i = 1, A%n_rows                                            ;\
                                                                      \
          y(i) = 0                                                   ;\
          associate (n => A%run_lengths(i))                           ;\
@@ -137,7 +137,7 @@ contains
       real(kx), intent(in) :: x(:,:)                                ;\
       real(kx) :: b(size(A,1),A(1)%n_rows)                          ;\
       integer :: i                                                  ;\
-      do concurrent (i=1:size(A))                                   ;\
+      do i = 1, size(A)                                             ;\
          b(i,:) = matmul(A(i), x(i,:))                              ;\
       end do                                                        ;\
    end function

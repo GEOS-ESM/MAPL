@@ -54,6 +54,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added handling of array brackets in array-valued columns for ACG3
 - Add ALIAS column for ACG for MAPL3
 - Add time accumulation to History3G
+- Add unit tests for ACG3
+- Add enumerators for RESTART setting
+- Add `add2export` to ACG3
 
 ### Changed
 
@@ -85,41 +88,75 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Change macro in field/undo_function_overload.macro
 - Fixed bug with AccumulatorAction and subtypes
 - Added a check to assign_fptr that verifies that the pointer type/kind matches the Field typekind
+- Workaround for GCC 15 bug (see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=120179)
+- Fixed handling of invalid value for RESTART column in ACG3
 
 ## [Unreleased]
 
 ### Fixed
+- `StateFilterItem` => `MAPL_StateFilterItem` in **ACG**
 
+### Added
+
+- Added new option to History, if you specify xlevels instead of levels, it will perform extrapolation below the surface, using ECMWF formulas for height and temperature, otherwise use lowest model level
+- Added `_USERRC` macro for use with ESMF commands that return both `rc` and `userrc`
+
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.56.1] - 2025-05-30
+
+### Fixed
+
+- Fixed issue so that if ExtData cannot find a file and fail on missing is false, just set collection to /dev/null
+
+## [2.56.0] - 2025-05-23
+
+### Fixed
+
+- Fixed sampler history output
+- Fixed bug with dervied exports in ExtData in filter function
 - define `comp_name` in `MAPL_GridCreate` when GC is not present
 - Fixed bug in profiler demo
+- Fixed uninitialized `num_levels` bug causing gcc14 to crash a node due to allocating enormous amount of memory
+- Fix for GNU + MVAPICH 4 disabling ieee halting around `MPI_Init_thread()`
+- Test if `GridCornerLons:` and `GridCornerLats:` attributes are present before removing
+- Fixed ExtData bug causing time interpolation to be skipped if no current reads
 
 ### Added
 
 - Added logging prints for `MAPL_read_bundle`
-- Added a new `StateFilterItem` funtion to apply a mask or extra using a combination of variables from a state and return an array with the result
+- Added a new `StateFilterItem` funtion to apply a mask or extra using a combination of variables from a state and return an array with the result, can specify default
 - Implemented a new feature in to allow users to select the appropriate [`ESMF_PIN`](https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node6.html#const:pin_flag) values. Users control this via `CAP.rc` and the choices are:
   - `ESMF_PINFLAG: PET` --> `ESMF_PIN_DE_TO_PET`
   - `ESMF_PINFLAG: VAS` --> `ESMF_PIN_DE_TO_VAS`
   - `ESMF_PINFLAG: SSI` --> `ESMF_PIN_DE_TO_SSI`
   - `ESMF_PINFLAG: SSI_CONTIG` --> `ESMF_PIN_DE_TO_SSI_CONTIG` (default with no setting)
+- Added a new column to the ACG (MAPL2), FILTER, which generates declarations and allocations of arrays (StateFilterItem)
+- Add `BUILD_INFO.rc` file that contains build info filled in by CMake
 
 ### Changed
 
 - Update `components.yaml`
-  - `ESMA_env` v4.37.0
+  - `ESMA_env` v4.38.0
     - Update to Baselibs 7.33.0
       - ESMF 8.8.1 (needed for MAPL3)
       - Fixes for CMake 4
-  - `ESMA_cmake` v3.59.0
+    - Cache `ENVIRONMENT_MODULES`
+  - `ESMA_cmake` v3.62.1
     - Fix for XCode 16.3
     - Fixes for f2py with MPT
-
+    - Fixes for f2py on various machines
+    - Cache `proc_description`
+    - Support for ecbuild updates
+    - Enforce our allowed `CMAKE_BUILD_TYPE`
 - Update documentation on ACG in repo
 - Update CI to use ifx 2025.1
-
-### Removed
-
-### Deprecated
+- Update Tests to ExtData1G tests are ESSENTIAL and run by default again
 
 ## [2.55.1] - 2025-04-23
 
