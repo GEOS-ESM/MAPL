@@ -160,10 +160,6 @@ def get_options(args):
             'REQUIRED': 'MAPL_RESTART_REQUIRED',
             'BOOT': 'MAPL_RESTART_BOOT',
             'SKIP_INITIAL': 'MAPL_RESTART_SKIP_INITIAL'}},
-#        'restart': {MAPPING: dict(
-#                [(b, TRUE_VALUE) for b in 'T t TRUE true True SKIP Skip skip'.split()] + 
-#                [(b, FALSE_VALUE) for b in 'F FALSE false f False'.split()]
-#            )},
         STATE: {FLAGS: {MANDATORY, STORE}}, 
         'typekind': {MAPPING: { 
             'R4': 'ESMF_Typekind_R4',
