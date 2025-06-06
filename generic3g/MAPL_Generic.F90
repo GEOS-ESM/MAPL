@@ -464,7 +464,7 @@ contains
       integer, optional, intent(in) :: ungridded_dims(:)
       character(*), optional, intent(in) :: units
       logical, optional, intent(in) :: restart
-      type(ESMF_StateItem_Flag), optional, intent(in) :: item_type
+      type(ESMF_StateItem_Flag), optional, intent(in) :: itemType
       logical, optional, intent(in) :: add2export
       integer, optional, intent(out) :: rc
 
