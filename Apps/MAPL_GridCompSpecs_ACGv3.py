@@ -50,6 +50,7 @@ STRING = 'string'
 VALUES_NOT_FOUND = 'values_not_found'
 
 #could be read from YAML list
+ADD_TO_EXPORT = 'add_to_export'
 ALIAS = 'alias'
 ALLOC = 'alloc'
 ARRAY = 'array'
@@ -77,7 +78,7 @@ GC_VARIABLE = 'gridcomp_variable'
 GC_VARIABLE_DEFAULT = 'gc'
 STANDARD_NAME_PREFIX = "standard_name_prefix"
 # procedure names
-ADDSPEC = "MAPL_GridCompAddFieldSpec"
+ADDSPEC = "MAPL_GridCompAddSpec"
 GETPOINTER = "MAPL_StateGetPointer"
 TO_STRING_VECTOR = "toStringVector"
 # Fortran keywords
@@ -147,7 +148,7 @@ def get_options(args):
              'N': 'VERTICAL_STAGGER_NONE'}},
         ALIAS: {FLAGS: {STORE}}, 
         ALLOC: {FLAGS: {STORE}}, 
-        'add2export': {MAPPING: LOGICAL},
+        ADD_TO_EXPORT: {MAPPING: LOGICAL},
         'attributes' : {MAPPING: STRINGVECTOR}, 
         CONDITION: {FLAGS: {STORE}}, 
         'dependencies': {MAPPING: STRINGVECTOR}, 
@@ -180,6 +181,7 @@ def get_options(args):
         'prec': PRECISION,
         'vloc': VSTAGGER,
         'vlocation': VSTAGGER
+        'add2export': ADD_TO_EXPORT
     }
 
     options[CONTROLS] = {MAKE_BLOCK: {MAPPING: MAKE_BLOCK, FLAGS: CONTROL, FROM: CONDITION}} 
