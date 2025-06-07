@@ -78,6 +78,10 @@ contains
 
       integer :: status
 
+!#      if (product(v%loc - this%loc) /= 0) then
+!#         _HERE, v%loc
+!#         _HERE, this%loc
+!#      end if
       _ASSERT(product(v%loc - this%loc) == 0, 'Illegal direction.')
       _ASSERT(.not. all(v%loc == this%loc), 'Cannot connect to self - indeterminate direction')
 
@@ -115,26 +119,6 @@ contains
 
    end subroutine insert_connection_dir
 
-!#   subroutine insert_connection_vertex(this, iv, v, rc)
-!#      class(Vertex), intent(inout) :: this
-!#      integer(kind=INT64), intent(in) :: iv
-!#      type(Vertex), intent(in) :: v
-!#      integer, optional, intent(out) :: rc
-!#
-!#      integer :: status
-!#      integer :: dir
-!#
-!#      _HERE
-!#      dir = this%get_direction_to(v)
-!#      _HERE, 'dir = ', dir 
-!#      
-!#      _ASSERT(this%connections(dir) == -1, 'connection in direction already exists')
-!#      this%connections(dir) = iv
-!#
-!#      _HERE
-!#      _RETURN(_SUCCESS)
-!#
-!#   end subroutine insert_connection_vertex
 
 
    ! [1] ----------- [2]

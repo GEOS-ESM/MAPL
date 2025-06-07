@@ -33,6 +33,9 @@ program main
    integer(kind=INT64) :: c0, c1, crate
    integer :: i, n
    type(ESMF_Mesh) :: msh
+   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/4 ! C360
+!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/8 ! C720
+!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/16 ! C1440
 
    call MPI_Init(status)
    in_filename = 'GEOS5_10arcsec_mask.nc'
@@ -44,18 +47,15 @@ program main
 
    level = 0
 
-   print*,' level: ', level, '(', num_levels, ') # cells: ', m%num_elements()
    levels: do while (.not. done)
       level = level + 1
-
-!#      if (level > 18) exit
       done = .true. ! unless
       call system_clock(c0, crate)
 
       n = m%num_elements()
       do i = 1, n
          e => m%get_element(i)
-         if (e%do_refine()) then
+         if (e%do_refine() .and. m%resolution(e) > MIN_RESOLUTION ) then
             call m%refine(e, _RC)
             done = .false.
          else
@@ -90,11 +90,14 @@ program main
    _HERE,'counts: ocean: ', counters(1), 'land: ', counters(2), 'lake: ', counters(3), 'landice: ', counters(4)
 
    call ESMF_Initialize(_RC)
+   call system_clock(c0)
    msh = m%make_esmf_mesh(_RC)
+   call system_clock(c1)
+   _HERE, 'time to create ESMF mesh is: ', real(c1-c0)/crate
 !#   call write_to_file(elements, out_filename)
    call ESMF_Finalize(_RC)
 
-   call MPI_Finalize(status)
+!#   call MPI_Finalize(status)
 contains
 #undef I_AM_MAIN
 #include "MAPL_ErrLog.h"

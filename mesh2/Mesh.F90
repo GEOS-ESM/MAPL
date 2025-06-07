@@ -15,6 +15,7 @@ module sf_Mesh
 
    public :: mesh
    public :: initialize
+   public :: describe_element
    
 
    type :: Mesh
@@ -33,12 +34,18 @@ module sf_Mesh
       procedure :: get_perimeter
       procedure :: element_degree
       procedure :: connect
+      procedure :: split_loc_north_south
+      procedure :: split_loc_east_west
       procedure :: split_north_south ! evenly by area
       procedure :: split_east_west ! easy case
       procedure :: refine
       procedure :: refine_north_south
       procedure :: refine_east_west
       procedure :: make_esmf_mesh
+      procedure :: to_lon
+      procedure :: to_lat
+      procedure :: aspect_ratio
+      procedure :: resolution
    end type Mesh
       
 
@@ -147,18 +154,16 @@ contains
       _RETURN(_SUCCESS)
    end subroutine initialize
 
-   ! Split interval in 2  as evenly as possible
-   function split_east_west(this, ivs, rc) result(new_iv)
-      integer(kind=INT64) :: new_iv
+   function split_loc_east_west(this, ivs, rc) result(new_loc)
+      integer :: new_loc(2)
       class(Mesh), target, intent(inout) :: this
       integer(kind=INT64), intent(in) :: ivs(2) ! from and 2
       integer, optional, intent(out) :: rc
 
       integer :: status
       integer :: d_loc(2)
-      integer :: new_loc(2)
       integer :: ni, dir
-      type(Vertex), pointer :: v_1, v_2, v_new
+      type(Vertex), pointer :: v_1, v_2
 
       v_1 => this%vertices%of(ivs(1))
       v_2 => this%vertices%of(ivs(2))
@@ -168,9 +173,58 @@ contains
       d_loc(2) = 0
 
       new_loc = add_loc(v_1%loc, (d_loc+1)/2, ni)
+
+      _RETURN(_SUCCESS)
+   end function split_loc_east_west
+
+   function split_loc_north_south(this, ivs, rc) result(new_loc)
+      integer :: new_loc(2)
+      class(Mesh), target, intent(inout) :: this
+      integer(kind=INT64), intent(in) :: ivs(2) ! from and 2
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: d_loc(2)
+      integer :: dir
+      type(Vertex), pointer :: v_1, v_2
+
+      real(kind=REAL64) :: lat_1, lat_2, new_lat ! radians
+      real(kind=REAL64) :: frac
+
+      v_1 => this%vertices%of(ivs(1))
+      v_2 => this%vertices%of(ivs(2))
+      dir = v_1%get_direction_to(v_2, shape(this%pixels), _RC)
+
+      d_loc(1) = 0
+      d_loc(2) = v_2%loc(2) - v_1%loc(2)
+
+      lat_1 = MAPL_DEGREES_TO_RADIANS_R8 * this%to_lat(v_1%loc)
+      lat_2 = MAPL_DEGREES_TO_RADIANS_R8 * this%to_lat(v_2%loc)
+
+      new_lat = asin((sin(lat_1) + sin(lat_2))/2)
+      frac = (new_lat-lat_1)/(lat_2-lat_1)
+      
+      new_loc(1) = v_1%loc(1)
+      new_loc(2) = v_1%loc(2) + max(1, floor(frac * d_loc(2)))
+
+      _RETURN(_SUCCESS)
+   end function split_loc_north_south
+
+   ! Split interval in 2  as evenly as possible
+   function split_east_west(this, ivs, rc) result(new_iv)
+      integer(kind=INT64) :: new_iv
+      class(Mesh), target, intent(inout) :: this
+      integer(kind=INT64), intent(in) :: ivs(2) ! from and 2
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: dir
+      integer :: new_loc(2)
+      type(Vertex), pointer :: v_1, v_2, v_new
+
+      new_loc = this%split_loc_east_west(ivs, _RC)
       new_iv = this%add_vertex(Vertex(new_loc))
 
-      ! v_1 and v_2 might now be dangling ...
       v_1 => this%vertices%of(ivs(1))
       v_2 => this%vertices%of(ivs(2))
       dir = v_1%get_direction_to(v_2, shape(this%pixels), _RC)
@@ -191,40 +245,13 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      integer :: d_loc(2)
       integer :: new_loc(2)
-      integer :: nj, dir
+      integer :: dir
       type(Vertex), pointer :: v_1, v_2, v_new
-      real(kind=REAL64) :: lat_1, lat_2, new_lat ! radians
-      real(kind=REAL64) :: frac
 
-      v_1 => this%vertices%of(ivs(1))
-      v_2 => this%vertices%of(ivs(2))
-      dir = v_1%get_direction_to(v_2, shape(this%pixels), _RC)
-      nj = size(this%pixels,1)
-
-      d_loc(1) = 0
-      d_loc(2) = v_2%loc(2) - v_1%loc(2)
-
-      associate (lat_sp => this%latitude_range(1), lat_np => this%latitude_range(2))
-        lat_1 = lat_sp + (v_1%loc(2)) * (lat_np - lat_sp) / nj
-        lat_2 = lat_sp + (v_2%loc(2)) * (lat_np - lat_sp) / nj
-        
-        lat_1 = MAPL_DEGREES_TO_RADIANS_R8 * lat_1
-        lat_2 = MAPL_DEGREES_TO_RADIANS_R8 * lat_2
-      end associate
-
-      new_lat = asin((sin(lat_1) + sin(lat_2))/2)
-      frac = (new_lat-lat_1)/(lat_2-lat_1)
-!#      _HERE, 'lats: ', lat_1, lat_2, new_lat
-!#      _HERE, 'cos lats: ', sin(lat_1), sin(lat_2), sin(new_lat)
-!#      _HERE, 'frac: ', d_loc(2), frac
-      
-      new_loc(1) = v_1%loc(1)
-      new_loc(2) = v_1%loc(2) + max(1, floor(frac * d_loc(2)))
+      new_loc = this%split_loc_north_south(ivs, _RC)
       new_iv = this%add_vertex(Vertex(new_loc))
 
-      ! v_1 and v_2 might now be dangling ...
       v_1 => this%vertices%of(ivs(1))
       v_2 => this%vertices%of(ivs(2))
       dir = v_1%get_direction_to(v_2, shape(this%pixels), _RC)
@@ -247,16 +274,14 @@ contains
       integer :: ni, nj
       integer :: status
 
-      ni = size(e%pixels, 1)
-      nj = size(e%pixels, 2)
-
-      _ASSERT(ni*nj > 1, 'No need to refine - should not reach here.')
-
-      if (nj > ni) then
+      ! It is possible to end up with region near pole that is 4x1 for
+      ! pixels but still has an aspect ration < 1.
+      if (aspect_ratio(this, e) < 1 .and. size(e%pixels,2) > 1) then
          call this%refine_north_south(e, _RC)
          _RETURN(_SUCCESS)
       end if
 
+      _ASSERT(size(e%pixels,1) > 1, 'uh oh')
       call this%refine_east_west(e, _RC)
 
       _RETURN(_SUCCESS)
@@ -322,6 +347,7 @@ contains
       type(Vertex), pointer :: v
       integer :: status
       integer :: ni_glob
+      integer :: mid_loc(2)
       integer :: j_mid
       type(Element) :: new_element
 
@@ -354,24 +380,41 @@ contains
          end if
       end do
 
-      ! Check that all intermediates exist, or none.
-      _ASSERT(any(k_ne - k_se == [1, 2]), 'mismatched refinement')
-      _ASSERT(any(k_sw - k_nw == [1, 2]), 'mismatched refinement')
-
+      iv_se = vertices%of(k_se)
+      iv_ne = vertices%of(k_ne)
       if (k_ne - k_se == 1) then !
-         iv_se = vertices%of(k_se)
-         iv_ne = vertices%of(k_ne)
          iv_east = this%split_north_south([iv_se, iv_ne], _RC)
       else
-         iv_east = vertices%of(k_se+1)
+         mid_loc = this%split_loc_north_south([iv_se, iv_ne], _RC)
+         iv_east = -1
+         do k = k_se+1, k_ne-1
+            v => this%get_vertex(vertices%of(k))
+            if (all(v%loc == mid_loc)) then
+               iv_east = vertices%of(k)
+               exit
+            end if
+         end do
+         _ASSERT(iv_east /= -1, 'split point should exist')
       end if
 
+      iv_sw = vertices%of(1) ! k_sw happens at both ends of polygon
+      iv_nw = vertices%of(k_nw)
       if (k_sw - k_nw == 1) then !
-         iv_sw = vertices%of(1) ! k_sw happens at both ends of polygon
-         iv_nw = vertices%of(k_nw)
          iv_west = this%split_north_south([iv_sw, iv_nw], _RC)
       else
-         iv_west = vertices%of(k_nw+1)
+         mid_loc = this%split_loc_north_south([iv_sw, iv_nw], _RC)
+         iv_west = -1
+         do k = k_sw - 1, k_nw + 1, -1
+            v => this%get_vertex(vertices%of(k))
+            if (all(v%loc == mid_loc)) then
+               iv_west = vertices%of(k)
+               exit
+            end if
+         end do
+         if (iv_west == -1) then
+            call describe_element(this, e)
+         end if
+         _ASSERT(iv_west /= -1, 'split point should exist')
       end if
 
       call this%connect(iv_west, iv_east, _RC)
@@ -402,13 +445,12 @@ contains
       integer :: i_mid
       integer(kind=INT64) :: iv_sw, iv_se, iv_ne, iv_nw
       integer :: k_sw, k_se, k_ne, k_nw
-      integer, dimension(2) :: sw_corner, se_corner, ne_corner, nw_corner
+      integer, dimension(2) :: sw_corner, se_corner, ne_corner, nw_corner, mid_loc
       integer :: k
       type(Vertex), pointer :: v
       type(Integer64Vector), target :: vertices
       integer(kind=INT64) :: iv_south, iv_north
       integer(kind=PIXEL_KIND), pointer :: pixels(:,:)
-      integer :: i_0, i_1
       integer :: status
       type(Element) :: new_element
       integer :: ni_glob
@@ -444,25 +486,41 @@ contains
          end if
       end do
 
-      ! Check that all intermediates exist, or none.
-      _ASSERT(any(k_se - k_sw == [1,2]), 'mismatched refinement')
-      _ASSERT(any(k_nw - k_ne == [1,2]), 'mismatched refinement')
-
+      iv_se = vertices%of(k_se)
+      iv_sw = vertices%of(k_sw)
       if (k_se - k_sw == 1) then
-         iv_se = vertices%of(k_se)
-         iv_sw = vertices%of(k_sw)
          iv_south = this%split_east_west([iv_sw, iv_se], _RC)
       else
-         iv_south = vertices%of(k_sw+1)
+          mid_loc = this%split_loc_east_west([iv_sw, iv_se], _RC)
+         iv_south = -1
+         do k = k_sw+1, k_se-1
+            v => this%get_vertex(vertices%of(k))
+            if (all(v%loc == mid_loc)) then
+               iv_south = vertices%of(k)
+               exit
+            end if
+         end do
+         _ASSERT(iv_south /= -1, 'split point should exist')
       end if
 
+      iv_ne = vertices%of(k_ne)
+      iv_nw = vertices%of(k_nw)
       if (k_nw - k_ne == 1) then !
-         iv_ne = vertices%of(k_ne)
-         iv_nw = vertices%of(k_nw)
          iv_north = this%split_east_west([iv_nw, iv_ne], _RC)
       else
-         ! Careful need to step bacwwards on northern edge
-         iv_north = vertices%of(k_nw-1)
+         mid_loc = this%split_loc_east_west([iv_nw, iv_ne], _RC)
+         iv_north = -1
+         do k = k_nw-1, k_ne+1, -1
+            v => this%get_vertex(vertices%of(k))
+            if (all(v%loc == mid_loc)) then
+               iv_north = vertices%of(k)
+               exit
+            end if
+         end do
+         if (iv_north == -1) then
+            call describe_element(this, e)
+         end if
+         _ASSERT(iv_north /= -1, 'split point should exist')
       end if
 
       call this%connect(iv_south, iv_north, _RC)
@@ -597,6 +655,8 @@ contains
       _HERE, '            shp: ', shape(e%pixels)
       _HERE, '           iv_0: ', e%iv_0
       _HERE, '            dir: ', dir_string(e%dir)
+      _HERE, '        min/max: ', minval(e%pixels), maxval(e%pixels)
+      _HERE, '   aspect ratio: ', this%aspect_ratio(e)
       _HERE
       _HERE, '     root vertex: '
       v => this%get_vertex(e%iv_0)
@@ -610,9 +670,9 @@ contains
 
       do k = 1, nodes%size()
          v => this%get_vertex(nodes%of(k))
-         lon = this%longitude_range(1) + (v%loc(1)-1) * (this%longitude_range(2) - this%longitude_range(1)) / size(this%pixels,1)
-         lat = this%latitude_range(1) + (v%loc(2)-1) * (this%latitude_range(2) - this%latitude_range(1)) / size(this%pixels,2)
-         _HERE,'      corner: ', k, nodes%of(k), v%loc, lon, lat
+         lon = this%to_lon(v%loc)
+         lat = this%to_lat(v%loc)
+         write(*,'(a,2x,3(i8.0,1x),2x,2(g15.7,1x))') '      corner: ', k, nodes%of(k), v%loc, lon, lat
       end do
       print*,'****************************'
       print*
@@ -627,7 +687,7 @@ contains
       integer :: n_nodes
       integer, allocatable :: nodeIds(:)
       real(kind=REAL64), allocatable :: nodeCoords(:)
-      integer :: i, k, kk, i0
+      integer :: i, k, i0
       integer(kind=INT64) :: k64
       integer :: np, n_elements
       integer(kind=INT64) :: n_conn
@@ -637,14 +697,10 @@ contains
       integer, allocatable :: elementConn(:)
       integer, allocatable :: elementIds(:)
       integer, allocatable :: elementTypes(:)
-      integer :: ni, nj
 
       msh = ESMF_MeshCreate(parametricDim=2, spatialDim=2, coordSys=ESMF_COORDSYS_SPH_DEG, _RC)
-      
 
       n_nodes = this%vertices%size()
-      ni = size(this%pixels,1)
-      nj = size(this%pixels,2)
 
       allocate(nodeIds(n_nodes))
       allocate(nodeCoords(2*n_nodes))
@@ -653,8 +709,8 @@ contains
          k64 = k
          v => this%get_vertex(k64)
          nodeIds(k) = k
-         nodeCoords(1 + (k-1)*2) = this%longitude_range(1) + (v%loc(1)) * (this%longitude_range(2) - this%longitude_range(1)) / ni
-         nodeCoords(2 + (k-1)*2) = this%latitude_range(1) + (v%loc(2)) * (this%latitude_range(2) - this%latitude_range(1)) / nj
+         nodeCoords(1 + (k-1)*2) = this%to_lon(v%loc)
+         nodeCoords(2 + (k-1)*2) = this%to_lat(v%loc)
       end do
 
       call ESMF_MeshAddNodes(msh, nodeIds, nodeCoords, _RC)
@@ -665,9 +721,10 @@ contains
       allocate(elementTypes(n_elements))
 
       n_conn = 0
-      kk = 0
       do k = 1, n_elements
-         kk = kk + 1
+         if (mod(k, 10000) == 0) then
+            _HERE, k
+         end if
          e => this%get_element(k)
          p = this%get_perimeter(e)
          n_conn = n_conn + p%size()
@@ -677,23 +734,22 @@ contains
       allocate(elementConn(n_conn))
 
       i0 = 0
-      kk = 0
       elementIds = huge(1)
       
       do k = 1, n_elements
-         kk = kk + 1
+         if (mod(k, 10000) == 0) then
+            _HERE, k
+         end if
          e => this%get_element(k)
          if (any(k == [2597,2598,2599])) then
             call describe_element(this, e)
          end if
-         elementIds(kk) = kk
+         elementIds(k) = k
          p = this%get_perimeter(e)
          np = p%size()
-         elementTypes(kk) = np
+         elementTypes(k) = np
          elementConn(i0+1:i0+np) = [(p%of(i),i=1,np)]
          i0 = i0 + np
-
-
 !#         elementArea(k) = ...
       end do
          
@@ -708,8 +764,136 @@ contains
       deallocate(elementConn, elementTypes, elementIds)
       _RETURN(_SUCCESS)
    end function make_esmf_mesh
-      
 
+   function to_lat(this, loc) result(lat)
+      real(kind=REAL64) :: lat
+      class(Mesh), target, intent(in) :: this
+      integer, intent(in) :: loc(2)
+
+      integer :: nj
+
+      nj = size(this%pixels,2)
+      associate (lat_sp => this%latitude_range(1), lat_np => this%latitude_range(2))
+        lat = lat_sp + loc(2) * (lat_np - lat_sp) / (nj+1)
+      end associate
+
+   end function to_lat
+
+   function to_lon(this, loc) result(lon)
+      real(kind=REAL64) :: lon
+      class(Mesh), target, intent(in) :: this
+      integer, intent(in) :: loc(2)
+
+      integer :: ni
+
+      ni = size(this%pixels,1)
+      associate (lon_0 => this%longitude_range(1), lon_1 => this%longitude_range(2))
+        lon = lon_0 + (loc(1)-1) * (lon_1 - lon_0) / ni
+      end associate
+
+   end function to_lon
+
+   function aspect_ratio(this, e)
+      real(kind=REAL64) :: aspect_ratio
+      class(Mesh), target, intent(in) :: this
+      type(Element), intent(in) :: e
+      
+      integer :: loc_sw(2), loc_ne(2)
+      integer(kind=INT64) :: iv_0
+      type(Vertex), pointer :: v
+
+      real(kind=REAL64) :: lon_sw, lat_sw
+      real(kind=REAL64) :: lon_ne, lat_ne
+      real(kind=REAL64) :: lat_mid, dx, dy, d_lon
+      integer :: ni, nj
+
+      ni = size(e%pixels, 1)
+      nj = size(e%pixels, 2)
+
+      iv_0 = e%iv_0
+      v => this%get_vertex(iv_0)
+
+      loc_sw = v%loc
+      loc_ne = add_loc(loc_sw, [ni,nj], size(this%pixels,1))
+
+      lon_sw = this%to_lon(loc_sw)
+      lon_ne = this%to_lon(loc_ne)
+      lat_sw = this%to_lat(loc_sw)
+      lat_ne = this%to_lat(loc_ne)
+
+      lat_mid = asin((sin(lat_sw) + sin(lat_ne))/2)
+      d_lon = abs(lon_ne - lon_sw)
+      if (d_lon > 180) d_lon = 360 - d_lon
+      dx = d_lon*cos(lat_mid)
+      dy = (lat_ne - lat_sw)
+      aspect_ratio = dx/dy
+
+!#      print*
+!#      _HERE, lon_sw, lon_ne
+!#      _HERE, lat_sw, lat_ne
+!#      _HERE, dx, dy, aspect_ratio
+
+   end function aspect_ratio
+
+!#   function area(this, e)
+!#      real(kind=REAL64) :: area
+!#      class(Mesh), target, intent(in) :: this
+!#      type(Element), intent(in) :: e
+!#      
+!#      real(kind=REAL64) :: lon_sw, lat_sw
+!#      real(kind=REAL64) :: lon_ne, lat_ne
+!#      real(kind=REAL64) :: lat_mid, dx, dy
+!#
+!#      lon_sw = this%to_lon(loc_sw)
+!#      lon_ne = this%to_lon(loc_ne)
+!#      lat_sw = this%to_lat(loc_sw)
+!#      lat_ne = this%to_lat(loc_ne)
+!#
+!#      lat_mid = asin((sin(lat_sw) + sin(lat_ne))/2)
+!#
+!#      dx = (lon_ne - lon_sw)*cos(lat_mid)
+!#      dy = (lat_ne - lat_sw)
+!#      aspect_ratio = dx/dy
+!#
+!#   end function area
+
+   function resolution(this, e)
+      real(kind=REAL64) :: resolution
+      class(Mesh), target, intent(in) :: this
+      type(Element), intent(in) :: e
+
+      integer :: loc_sw(2), loc_ne(2)
+      integer(kind=INT64) :: iv_0
+      type(Vertex), pointer :: v
+
+      real(kind=REAL64) :: lon_sw, lat_sw
+      real(kind=REAL64) :: lon_ne, lat_ne
+      real(kind=REAL64) :: lat_mid, dx, dy, d_lon
+      integer :: ni, nj
+
+      ni = size(e%pixels, 1)
+      nj = size(e%pixels, 2)
+
+      iv_0 = e%iv_0
+      v => this%get_vertex(iv_0)
+
+      loc_sw = v%loc
+      loc_ne = add_loc(loc_sw, [ni,nj], size(this%pixels,1))
+
+      lon_sw = this%to_lon(loc_sw)
+      lon_ne = this%to_lon(loc_ne)
+      lat_sw = this%to_lat(loc_sw)
+      lat_ne = this%to_lat(loc_ne)
+
+      lat_mid = asin((sin(lat_sw) + sin(lat_ne))/2)
+      d_lon = abs(lon_ne - lon_sw)
+      if (d_lon > 180) d_lon = 360 - d_lon
+      dx = d_lon*cos(lat_mid)
+      dy = (lat_ne - lat_sw)
+
+      resolution = max(dx, dy)
+
+   end function resolution
 
 end module sf_Mesh
 
