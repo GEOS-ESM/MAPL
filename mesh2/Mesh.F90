@@ -14,7 +14,6 @@ module sf_Mesh
    private
 
    public :: mesh
-   public :: initialize
    public :: describe_element
    
 
@@ -45,6 +44,7 @@ module sf_Mesh
       procedure :: to_lon
       procedure :: to_lat
       procedure :: aspect_ratio
+      procedure :: get_centroid
       procedure :: resolution
    end type Mesh
       
@@ -139,18 +139,19 @@ contains
       call m%connect(iv_3, iv_7, _RC)
       call m%connect(iv_4, iv_8, _RC)
 
-      ! Quadrants
-      call m%elements%push_back(Element(m%pixels(1+0*(ni/4):1*(ni/4),j_s:j_n-1), iv_1, dir=EAST))
-      call m%elements%push_back(Element(m%pixels(1+1*(ni/4):2*(ni/4),j_s:j_n-1), iv_2, dir=EAST))
-      call m%elements%push_back(Element(m%pixels(1+2*(ni/4):3*(ni/4),j_s:j_n-1), iv_3, dir=EAST))
-      call m%elements%push_back(Element(m%pixels(1+3*(ni/4):4*(ni/4),j_s:j_n-1), iv_4, dir=EAST))
-
       ! Elements
       ! South cap
       call m%elements%push_back(Element(m%pixels(:,1:j_s-1), iv_1, dir=WEST))
       ! North cap - careful with orientation (corner is not SW)
       call m%elements%push_back(Element(m%pixels(:,j_n:), iv_5, dir=EAST))
 
+     ! Quadrants
+      call m%elements%push_back(Element(m%pixels(1+0*(ni/4):1*(ni/4),j_s:j_n-1), iv_1, dir=EAST))
+      call m%elements%push_back(Element(m%pixels(1+1*(ni/4):2*(ni/4),j_s:j_n-1), iv_2, dir=EAST))
+      call m%elements%push_back(Element(m%pixels(1+2*(ni/4):3*(ni/4),j_s:j_n-1), iv_3, dir=EAST))
+      call m%elements%push_back(Element(m%pixels(1+3*(ni/4):4*(ni/4),j_s:j_n-1), iv_4, dir=EAST))
+
+ 
       _RETURN(_SUCCESS)
    end subroutine initialize
 
@@ -687,9 +688,9 @@ contains
       integer :: n_nodes
       integer, allocatable :: nodeIds(:)
       real(kind=REAL64), allocatable :: nodeCoords(:)
-      integer :: i, k, i0
+      integer :: i, k, kk, i0
       integer(kind=INT64) :: k64
-      integer :: np, n_elements
+      integer :: np, n_elements, n_vertices, n_esmf_elements
       integer(kind=INT64) :: n_conn
       type(Element), pointer :: e
       type(Vertex), pointer :: v
@@ -700,12 +701,16 @@ contains
 
       msh = ESMF_MeshCreate(parametricDim=2, spatialDim=2, coordSys=ESMF_COORDSYS_SPH_DEG, _RC)
 
-      n_nodes = this%vertices%size()
+      ! As a workaround to ESMF issue, we create an additional node at the
+      ! center of each element and perform our own triangulation.
+      n_vertices = this%vertices%size()
+      n_elements = this%elements%size()
+      n_nodes = n_vertices + n_elements
 
       allocate(nodeIds(n_nodes))
       allocate(nodeCoords(2*n_nodes))
 
-      do k = 1, n_nodes
+      do k = 1, n_vertices
          k64 = k
          v => this%get_vertex(k64)
          nodeIds(k) = k
@@ -713,29 +718,42 @@ contains
          nodeCoords(2 + (k-1)*2) = this%to_lat(v%loc)
       end do
 
+      kk = n_vertices
+      do k = 1, n_elements
+         kk = kk + 1
+         e => this%get_element(k)
+         nodeIds(kk) = kk
+         nodeCoords(1 + (kk-1)*2: 2 + (kk-1)*2) = this%get_centroid(e)
+      end do
+         
       call ESMF_MeshAddNodes(msh, nodeIds, nodeCoords, _RC)
       deallocate(nodeCoords, nodeIds)
 
-      n_elements = this%elements%size()
-      allocate(elementIds(n_elements))
-      allocate(elementTypes(n_elements))
-
+      
       n_conn = 0
+      n_esmf_elements = 0
       do k = 1, n_elements
          if (mod(k, 10000) == 0) then
             _HERE, k
          end if
          e => this%get_element(k)
          p = this%get_perimeter(e)
-         n_conn = n_conn + p%size()
+         np = p%size()
+         ! triangulate
+         n_conn = n_conn + 3*np
+         n_esmf_elements = n_esmf_elements + np
       end do
       _HERE,'total connection :', n_conn
 
+      allocate(elementIds(n_esmf_elements))
+      allocate(elementTypes(n_esmf_elements))
       allocate(elementConn(n_conn))
+      elementTypes = ESMF_MESHELEMTYPE_TRI
 
       i0 = 0
       elementIds = huge(1)
-      
+
+      kk = 0
       do k = 1, n_elements
          if (mod(k, 10000) == 0) then
             _HERE, k
@@ -747,10 +765,13 @@ contains
          elementIds(k) = k
          p = this%get_perimeter(e)
          np = p%size()
-         elementTypes(k) = np
-         elementConn(i0+1:i0+np) = [(p%of(i),i=1,np)]
-         i0 = i0 + np
-!#         elementArea(k) = ...
+         do i = 1, np
+            elementConn(kk+1) = n_vertices + k
+            elementConn(kk+2) = p%of(1+mod(i-1,np))
+            elementConn(kk+3) = p%of(1 + mod(i-1+1,np))
+!#            elementArea(k) = ...
+            kk = kk + 3
+         end do
       end do
          
       call ESMF_MeshAddElements(msh, &
@@ -764,6 +785,52 @@ contains
       deallocate(elementConn, elementTypes, elementIds)
       _RETURN(_SUCCESS)
    end function make_esmf_mesh
+
+   function get_centroid(this, e) result(centroid)
+      real(kind=REAL64) :: centroid(2)
+      class(Mesh), target, intent(in) :: this
+      type(Element), intent(in) :: e
+
+      real(kind=REAL64) :: xyz(3), lon, lat
+      integer :: i
+      type(Vertex), pointer :: v
+      type(Integer64Vector) :: p
+
+      p = this%get_perimeter(e)
+
+      xyz = 0
+      do i = 1, p%size()
+         v => this%get_vertex(p%of(i))
+         lon = this%to_lon(v%loc)
+         lat = this%to_lat(v%loc)
+
+         xyz = xyz + to_cartesian(lon, lat)
+      end do
+
+      ! normalize
+      xyz = xyz / sqrt(sum(xyz**2))
+      centroid = to_lon_lat(xyz)
+         
+   end function get_centroid
+
+   function to_cartesian(lon, lat) result(xyz)
+      real(kind=REAL64) :: xyz(3)
+      real(kind=REAL64), intent(in) :: lon, lat
+
+      xyz(1) = cos(lon) * cos(lat)
+      xyz(2) = sin(lon) * cos(lat)
+      xyz(3) = sin(lat)
+
+   end function to_cartesian
+
+   function to_lon_lat(xyz) result(lon_lat)
+      real(kind=REAL64), intent(in) :: xyz(3)
+      real(kind=REAL64)  :: lon_lat(2)
+
+      lon_lat(1) = atan2(xyz(1), xyz(2)) ! lon
+      lon_lat(2) = asin(xyz(3))          ! lat
+
+   end function to_lon_lat
 
    function to_lat(this, loc) result(lat)
       real(kind=REAL64) :: lat
@@ -827,11 +894,6 @@ contains
       dx = d_lon*cos(lat_mid)
       dy = (lat_ne - lat_sw)
       aspect_ratio = dx/dy
-
-!#      print*
-!#      _HERE, lon_sw, lon_ne
-!#      _HERE, lat_sw, lat_ne
-!#      _HERE, dx, dy, aspect_ratio
 
    end function aspect_ratio
 

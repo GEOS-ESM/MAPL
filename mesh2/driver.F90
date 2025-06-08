@@ -33,9 +33,12 @@ program main
    integer(kind=INT64) :: c0, c1, crate
    integer :: i, n
    type(ESMF_Mesh) :: msh
-   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/4 ! C360
+!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/4 ! C360
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/8 ! C720
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/16 ! C1440
+!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/32 ! C2880
+!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/64 ! C5760
+   real(kind=REAL64), parameter :: MIN_RESOLUTION = 0. ! fully resolved
 
    call MPI_Init(status)
    in_filename = 'GEOS5_10arcsec_mask.nc'
