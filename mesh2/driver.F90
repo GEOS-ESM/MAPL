@@ -33,12 +33,13 @@ program main
    integer(kind=INT64) :: c0, c1, crate
    integer :: i, n
    type(ESMF_Mesh) :: msh
+   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/2 ! C180
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/4 ! C360
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/8 ! C720
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/16 ! C1440
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/32 ! C2880
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/64 ! C5760
-   real(kind=REAL64), parameter :: MIN_RESOLUTION = 0. ! fully resolved
+!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 0. ! fully resolved
 
    call MPI_Init(status)
    in_filename = 'GEOS5_10arcsec_mask.nc'
@@ -95,6 +96,7 @@ program main
    call ESMF_Initialize(_RC)
    call system_clock(c0)
    msh = m%make_esmf_mesh(_RC)
+   call write_to_file(msh, 'surface_types.nc', _RC)
    call system_clock(c1)
    _HERE, 'time to create ESMF mesh is: ', real(c1-c0)/crate
 !#   call write_to_file(elements, out_filename)

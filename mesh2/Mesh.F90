@@ -15,6 +15,7 @@ module sf_Mesh
 
    public :: mesh
    public :: describe_element
+   public :: write_to_file
    
 
    type :: Mesh
@@ -729,8 +730,7 @@ contains
       call ESMF_MeshAddNodes(msh, nodeIds, nodeCoords, _RC)
       deallocate(nodeCoords, nodeIds)
 
-      
-      n_conn = 0
+       n_conn = 0
       n_esmf_elements = 0
       do k = 1, n_elements
          if (mod(k, 10000) == 0) then
@@ -956,6 +956,93 @@ contains
       resolution = max(dx, dy)
 
    end function resolution
+
+   subroutine write_to_file(m, filename, rc)
+      use pfio
+      type(ESMF_Mesh), intent(in) :: m
+      character(*), intent(in) :: filename
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(NetCDF4_FileFormatter) :: formatter
+      type(FileMetadata), target :: filemd
+      integer :: nodeCount, elementCount
+      integer :: maxNodePElement
+      real(Kind=ESMF_KIND_R8), allocatable :: nodeCoords(:)
+      integer, allocatable :: elementConn(:)
+      integer, allocatable :: numElementConn(:)
+      type(Variable) :: var
+
+      call formatter%create(file=filename, _RC)
+!#      call formatter%open(file=filename, mode=PFIO_WRITE, _RC)
+
+      call ESMF_MeshGet(m, nodeCount=nodeCount, elementCount=ElementCount, _RC)
+      maxNodePElement = 3
+
+      filemd = FileMetadata()
+      call filemd%add_dimension('nodeCount', nodeCount, _RC)
+      call filemd%add_dimension('elementCount', elementCount, _RC)
+      call filemd%add_dimension('maxNodePElement', maxNodePElement, _RC)
+      call filemd%add_dimension('coordDim', 2, _RC)
+      
+     !
+     var = Variable(type=pFIO_REAL64, dimensions='coordDim,nodeCount', _RC)
+     call var%add_attribute('units', Attribute('degrees'), _RC)
+     call filemd%add_variable('nodeCoords', var, _RC)
+
+     var = Variable(type=pFIO_INT32, dimensions='maxNodePElement,elementCount', _RC)
+     call var%add_attribute('long_name', Attribute("Node Indices that define the element connectivity"), _RC)
+     call var%add_attribute('_FillValue', Attribute(-1), _RC)
+     call var%add_attribute('start_indx', Attribute(1), _RC)
+     call filemd%add_variable('elementConn', var, _RC)
+
+     var = Variable(type=pFIO_INT32, dimensions='elementCount', _RC)
+     call var%add_attribute('long_name', Attribute("Number of nodes per elemennt"))
+     call filemd%add_variable('numElementConn', var, _RC)
+
+!#     var = Variable(type=???, dimensions='coordDim,elementCount', _RC)
+!#     call var%add_attribute('units', Attribute('degrees'), _RC)
+!#     call filemd%add_variable('centerCoords' var, _RC)
+
+!#     var = Variable(type=???, dimensions='elementCount')
+!#     call var%add_attribute('units', Attribute("radians^2"), _RC)
+!#     call var%add_attribute('long_name', Attribute("area weights"), _RC)
+!#     call filemd%add_variable('elementArea', var, _RC)
+
+!#     var = Variable('elementCount')
+!#     call var%add_attribute('_FillValue', Attribute(-9999), _RC)
+!#
+     call filemd%add_attribute('gridType', Attribute('unstructured'), _RC)
+     call filemd%add_attribute('version', Attribute('0.9'), _RC)
+
+     call formatter%write(filemd, _RC)
+
+     allocate(nodeCoords(2*nodeCount))
+     call ESMF_MeshGet(m, nodeCoords=nodeCoords, _RC)
+     call formatter%put_var('nodeCoords', reshape(nodeCoords, [2, nodeCount]), _RC)
+     deallocate(nodeCoords)
+
+     allocate(elementConn(3*elementCount))
+     call ESMF_MeshGet(m, elementConn=elementConn, _RC)
+     call formatter%put_var('elementConn', reshape(elementConn, [3, elementCount]), _RC)
+     deallocate(elementConn)
+
+     allocate(numElementConn(elementCount))
+     numElementConn = 3
+     call formatter%put_var('numElementConn', numElementConn, _RC)
+     deallocate(numElementConn)
+
+     call formatter%close(_RC)
+
+     block
+       type(ESMF_Mesh) :: m2
+
+       m2 = ESMF_MeshCreate(filename, fileFormat=ESMF_FILEFORMAT_ESMFMESH, _RC)
+     end block
+
+     _RETURN(_SUCCESS)
+  end subroutine write_to_file
+   
 
 end module sf_Mesh
 
