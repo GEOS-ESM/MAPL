@@ -84,6 +84,7 @@ jobs:
       - name: Install Dependencies
         shell: spack-bash {0}
         run: |
+          spack clean -m
           spack -e spack-env install --add --no-check-signature --use-buildcache only \
             openmpi parallelio py-pyyaml python netcdf-fortran netcdf-c hdf5 \
             gftl gftl-shared fargparse pflogger pfunit yafyaml ecbuild udunits openblas
