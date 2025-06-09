@@ -67,7 +67,7 @@ module mapl3g_Generic
 
    ! These should be available to users
    public :: MAPL_GridCompAddVarSpec
-   public :: MAPL_GridCompAddFieldSpec
+   public :: MAPL_GridCompAddSpec
    public :: MAPL_GridCompIsGeneric
    public :: MAPL_GridCompIsUser
 
@@ -83,7 +83,7 @@ module mapl3g_Generic
 
    public :: MAPL_GridCompSetGeometry
 
-    public :: MAPL_GridcompGetResource
+   public :: MAPL_GridcompGetResource
 
    ! Accessors
 !!$   public :: MAPL_GetOrbit
@@ -100,6 +100,9 @@ module mapl3g_Generic
 
    ! Spec types
    public :: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
+
+   ! Restart types
+   public :: MAPL_RESTART, MAPL_RESTART_SKIP
 
    ! Interfaces
 
@@ -148,9 +151,9 @@ module mapl3g_Generic
       procedure :: gridcomp_add_varspec_basic
    end interface MAPL_GridCompAddVarSpec
 
-   interface MAPL_GridCompAddFieldSpec
-      procedure :: gridcomp_add_fieldspec
-   end interface MAPL_GridCompAddFieldSpec
+   interface MAPL_GridCompAddSpec
+      procedure :: gridcomp_add_spec
+   end interface MAPL_GridCompAddSpec
 
    interface MAPL_GridCompSetGeometry
       procedure :: gridcomp_set_geometry
@@ -439,7 +442,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gridcomp_add_varspec_basic
 
-   subroutine gridcomp_add_fieldspec( &
+   subroutine gridcomp_add_spec( &
         gridcomp, &
         state_intent, &
         short_name, &
@@ -452,7 +455,7 @@ contains
         units, &
         restart, &
         itemType, &
-        add2export, &
+        add_to_export, &
         rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
@@ -466,7 +469,7 @@ contains
       character(*), optional, intent(in) :: units
       integer(kind=kind(MAPL_RESTART)), optional, intent(in) :: restart
       type(ESMF_StateItem_Flag), optional, intent(in) :: itemType
-      logical, optional, intent(in) :: add2export
+      logical, optional, intent(in) :: add_to_export
       integer, optional, intent(out) :: rc
 
       type(VariableSpec) :: var_spec
@@ -500,8 +503,8 @@ contains
       component_spec => outer_meta%get_component_spec()
       call component_spec%var_specs%push_back(var_spec)
 
-      if (present(add2export)) then
-         if (add2export) then
+      if (present(add_to_export)) then
+         if (add_to_export) then
             _ASSERT((state_intent==ESMF_STATEINTENT_INTERNAL), "cannot reexport a non-internal spec")
             call gridcomp_reexport( &
                  gridcomp=gridcomp, &
@@ -515,7 +518,7 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
       _UNUSED_DUMMY(restart)
-   end subroutine gridcomp_add_fieldspec
+   end subroutine gridcomp_add_spec
 
    subroutine MAPL_GridCompSetVerticalGrid(gridcomp, vertical_grid, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
