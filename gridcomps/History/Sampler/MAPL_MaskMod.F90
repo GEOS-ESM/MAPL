@@ -40,6 +40,7 @@ module MaskSamplerMod
 
   type :: var3d_unit
      real(kind=REAL32), allocatable :: array_xz(:,:)
+     real(kind=REAL32), allocatable :: array_zx(:,:)
   end type var3d_unit
 
 
@@ -68,6 +69,7 @@ module MaskSamplerMod
      character(len=ESMF_MAXSTR)  :: ofile
      integer :: write_collection_id
      logical :: use_pfio
+     logical :: write_LZ_first
      !
      integer                        :: nobs
      integer                        :: obs_written
