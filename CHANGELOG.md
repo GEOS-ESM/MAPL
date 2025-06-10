@@ -8,14 +8,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- `StateFilterItem` => `MAPL_StateFilterItem` in **ACG**
 
 ### Added
+
+- Added new option to History, if you specify xlevels instead of levels, it will perform extrapolation below the surface, using ECMWF formulas for height and temperature, otherwise use lowest model level
+- Added `_USERRC` macro for use with ESMF commands that return both `rc` and `userrc`
+
 
 ### Changed
 
 ### Removed
 
 ### Deprecated
+
+## [2.56.1] - 2025-05-30
+
+### Fixed
+
+- Fixed issue so that if ExtData cannot find a file and fail on missing is false, just set collection to /dev/null
 
 ## [2.56.0] - 2025-05-23
 

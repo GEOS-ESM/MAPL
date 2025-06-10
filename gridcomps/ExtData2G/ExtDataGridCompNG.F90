@@ -880,7 +880,12 @@ CONTAINS
         if (trim(item%file_template) == "/dev/null") then
            _RETURN(_SUCCESS)
         end if
-        filename = item%filestream%find_any_file(current_time, _RC)
+        filename = item%filestream%find_any_file(current_time, item%fail_on_missing_file, _RC)
+        if (.not.(item%fail_on_missing_file) .and. filename == 'NONE') then
+           item%file_template = "/dev/null"
+           item%isConst = .true.
+           _RETURN(_SUCCESS)
+        end if
         collection => DataCollections%at(item%pfioCollection_id)
         metadata => collection%find(filename,_RC)
         item%file_metadata = metadata
@@ -1446,12 +1451,24 @@ CONTAINS
 
      if (item%vartype == MAPL_FieldItem) then
         call ESMF_StateGet(ExtDataState,trim(item%name),field,_RC)
-        call FieldSet(field, item%const, _RC)
+        if (item%modelGridFields%comp1%exact) then
+           call FieldSet(field, MAPL_UNDEF, _RC)
+        else
+           call FieldSet(field, item%const, _RC)
+        end if
      else if (item%vartype == MAPL_VectorField) then
         call ESMF_StateGet(ExtDataState,trim(item%vcomp1),field,_RC)
-        call FieldSet(field, item%const, _RC)
+        if (item%modelGridFields%comp1%exact) then
+           call FieldSet(field, MAPL_UNDEF, _RC)
+        else
+           call FieldSet(field, item%const, _RC)
+        end if
         call ESMF_StateGet(ExtDataState,trim(item%vcomp2),field,_RC)
-        call FieldSet(field, item%const, _RC)
+        if (item%modelGridFields%comp2%exact) then
+           call FieldSet(field, MAPL_UNDEF, _RC)
+        else
+           call FieldSet(field, item%const, _RC)
+        end if
       end if
 
      _RETURN(_SUCCESS)
