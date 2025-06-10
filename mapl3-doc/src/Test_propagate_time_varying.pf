@@ -1,0 +1,296 @@
+#include "MAPL_TestErr.h"
+
+module Test_propagate_time_varying
+   use mapl3g_regridder_mgr, only: EsmfRegridderParam
+   use mapl3g_GriddedComponentDriver
+   use mapl3g_CouplerPhases
+   use mapl3g_ExtensionTransform
+   use mapl3g_RegridTransform
+   use mapl3g_CopyTransform
+   use mapl3g_TimeInterpolateTransform
+   use mapl3g_MultiState
+   use mapl3g_Geom_API
+   use mapl3g_Field_API
+   use mapl3g_FieldInfo
+   use mapl3g_GenericCoupler
+   use mapl3g_FieldBundle_API
+   use funit
+   use ESMF_TestMethod_mod
+   use esmf
+   implicit none(type, external)
+
+
+contains
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   !---------
+   !
+   !       e --> regrid --> i
+   !
+   ! Setup a time interpolation coupler and then modify the geom of
+   ! the import item.  We expect that the export will be reallocated
+   ! with the new geom during update()
+   !---------
+   subroutine test_propagate_interp_weights(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(GeomManager), pointer :: geom_mgr
+      integer :: status
+      type(ESMF_Field) :: bracket0(2), bracket1(2)
+      type(ESMF_FieldBundle) :: fb0, fb0_alias
+      type(ESMF_FieldBundle) :: fb1, fb1_alias
+      real, parameter :: weights0(*) = [0., 1., 0.]
+      real, parameter :: weights1(*) = [0., 0.5, 0.5]
+      real, allocatable :: weights_found(:)
+      type(ESMF_Grid) :: grid
+      class(ExtensionTransform), allocatable :: transform
+      type(ESMF_GridComp) :: coupler
+      type(GriddedComponentDriver) :: driver
+      type(ESMF_Geom) :: geom_0, geom_1
+
+      geom_mgr => get_geom_manager()
+      call setup(_RC)
+
+      ! Change the weights
+       call MAPL_FieldBundleSet(fb0, interpolation_weights=weights1, _RC)
+
+      ! Run
+      call driver%run(phase_idx=GENERIC_COUPLER_INVALIDATE, _RC) ! probably not needed for test
+      call driver%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
+
+      ! Check weights on fb1
+      call MAPL_FieldBundleGet(fb1, interpolation_weights=weights_found, _RC)
+
+      @assert_that(all(weights_found == weights1), is(true()))
+
+   contains
+
+      subroutine setup(rc)
+         integer, optional, intent(out) :: rc
+
+         type(ESMF_HConfig) :: hconfig
+         type(MaplGeom) :: mapl_geom
+         type(ESMF_Clock) :: clock
+
+         type(MultiState) :: states
+         integer :: status
+         real(kind=ESMF_KIND_R4), pointer :: x(:,:)
+         
+         hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}", _RC)
+         mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+         geom_0 = mapl_geom%get_geom()
+
+         hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 6, jm_world: 7, pole: PC, dateline: DC}", _RC)
+         mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+         geom_1 = mapl_geom%get_geom()
+
+         transform = RegridTransform(geom_0, geom_1, EsmfRegridderParam())
+         coupler = make_coupler(transform, _RC)
+         driver = GriddedComponentDriver(coupler)
+         
+         bracket0(1) = MAPL_FieldCreate(geom=geom_0, typekind=ESMF_TYPEKIND_R4, _RC)
+         bracket0(2) = MAPL_FieldCreate(geom=geom_0, typekind=ESMF_TYPEKIND_R4, _RC)
+         call ESMF_FieldGet(bracket0(1), fArrayPtr=x, _RC)
+         x = 1.
+         call ESMF_FieldGet(bracket0(2), fArrayPtr=x, _RC)
+         x = 3.
+         
+         fb0 = MAPL_FieldBundleCreate(fieldList=bracket0, fieldBundleType=FIELDBUNDLETYPE_BRACKET, _RC)
+         call MAPL_FieldBundleSet(fb0, geom=geom_0, interpolation_weights=weights0, _RC)
+         fb0_alias = ESMF_NamedAlias(fb0, name='import[1]', _RC)
+
+         bracket1(1) = MAPL_FieldCreate(geom=geom_1, typekind=ESMF_TYPEKIND_R4, _RC)
+         bracket1(2) = MAPL_FieldCreate(geom=geom_1, typekind=ESMF_TYPEKIND_R4, _RC)
+         call ESMF_FieldGet(bracket1(1), fArrayPtr=x, _RC)
+         x = 1.
+         call ESMF_FieldGet(bracket1(2), fArrayPtr=x, _RC)
+         x = 3.
+         
+         fb1 = MAPL_FieldBundleCreate(fieldList=bracket1, fieldBundleType=FIELDBUNDLETYPE_BRACKET, _RC)
+         call MAPL_FieldBundleSet(fb1, geom=geom_1, interpolation_weights=weights0, _RC)
+         fb1_alias = ESMF_NamedAlias(fb1, name='export[1]', _RC)
+
+
+         states = driver%get_states()
+         call ESMF_StateAdd(states%importState, fieldBundleList=[fb0_alias], _RC)
+         call ESMF_StateAdd(states%exportState, fieldBundleList=[fb1_alias], _RC)
+         call driver%initialize(_RC)
+         
+         if (present(rc)) rc = _SUCCESS
+      end subroutine setup
+      
+   end subroutine test_propagate_interp_weights
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   !---------
+   !
+   !       e --> interp --> i
+   !
+   ! Setup a time interpolation coupler and then modify the geom of
+   ! the import item.  We expect that the export will be reallocated
+   ! with the new geom during update()
+   !---------
+   subroutine test_propagate_geom(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(GeomManager), pointer :: geom_mgr
+      integer :: status
+      type(ESMF_Field) :: f, f_alias, bracket(2)
+      type(ESMF_FieldBundle) :: fb, fb_alias
+      type(ESMF_Geom) ::  geom_1, geom_2, geom
+      type(ESMF_Grid) :: grid, grid_2
+      class(ExtensionTransform), allocatable :: transform
+      type(ESMF_GridComp) :: coupler
+      type(GriddedComponentDriver) :: driver
+
+      geom_mgr => get_geom_manager()
+      call setup(_RC)
+
+      ! Change the geom
+       call MAPL_FieldBundleSet(fb, geom=geom_2, _RC)
+
+      ! Run
+      call driver%run(phase_idx=GENERIC_COUPLER_INVALIDATE, _RC) ! probably not needed for test
+      call driver%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
+
+      ! Check geom on f
+      call MAPL_FieldGet(f, geom=geom, _RC)
+      call ESMF_GeomGet(geom_2, grid=grid_2, _RC)
+      call ESMF_GeomGet(geom, grid=grid, _RC)
+
+      @assert_that(grid == grid_2, is(true()))
+
+   contains
+
+      subroutine setup(rc)
+         integer, optional, intent(out) :: rc
+
+         type(ESMF_HConfig) :: hconfig
+         type(MaplGeom) :: mapl_geom
+
+         type(MultiState) :: states
+         integer :: status
+         real(kind=ESMF_KIND_R4), pointer :: x(:,:)
+         
+         hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}", _RC)
+         mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+         geom_1 = mapl_geom%get_geom()
+         block
+           type(ESMF_Info) :: info
+           call ESMF_InfoGetFromHost(geom_1, info, _RC)
+           call ESMF_InfoSet(info, 'name', 'geom_1', _RC)
+         end block
+
+         hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 6, jm_world: 7, pole: PC, dateline: DC}", _RC)
+         mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+         geom_2 = mapl_geom%get_geom()
+         
+         block
+           type(ESMF_Info) :: info
+           call ESMF_InfoGetFromHost(geom_2, info, _RC)
+           call ESMF_InfoSet(info, 'name', 'geom_2', _RC)
+         end block
+         transform = TimeInterpolateTransform()
+         coupler = make_coupler(transform, _RC)
+         driver = GriddedComponentDriver(coupler)
+         
+         bracket(1) = MAPL_FieldCreate(geom=geom_1, typekind=ESMF_TYPEKIND_R4, _RC)
+         bracket(2) = MAPL_FieldCreate(geom=geom_1, typekind=ESMF_TYPEKIND_R4, _RC)
+         call ESMF_FieldGet(bracket(1), fArrayPtr=x, _RC)
+         x = 1.
+         call ESMF_FieldGet(bracket(2), fArrayPtr=x, _RC)
+         x = 3.
+         
+         fb = MAPL_FieldBundleCreate(fieldList=bracket, _RC)
+         call MAPL_FieldBundleSet(fb, geom=geom_1, interpolation_weights=[0.0, 0.5,0.5], _RC)
+         block
+           real, allocatable :: w(:)
+           call MAPL_FieldBundleGet(fb, interpolation_weights=w, _RC)
+         end block
+         fb_alias = ESMF_NamedAlias(fb, name='import[1]', _RC)
+         
+         f = MAPL_FieldCreate(geom=geom_1, typekind=ESMF_TYPEKIND_R4, _RC)
+         f_alias = ESMF_NamedAlias(f, name='export[1]', _RC)
+         
+         states = driver%get_states()
+         call ESMF_StateAdd(states%importState, fieldBundleList=[fb_alias], _RC)
+         call ESMF_StateAdd(states%exportState, fieldList=[f_alias], _RC)
+         call driver%initialize(_RC)
+         
+         if (present(rc)) rc = _SUCCESS
+      end subroutine setup
+      
+   end subroutine test_propagate_geom
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_propagate_shared_attrs(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(GeomManager), pointer :: geom_mgr
+      integer :: status
+      type(ESMF_Field) :: f0, f1
+      type(ESMF_Field) :: f0_alias, f1_alias
+      type(ESMF_Grid) :: grid
+      class(ExtensionTransform), allocatable :: transform
+      type(ESMF_GridComp) :: coupler
+      type(GriddedComponentDriver) :: driver
+      type(ESMF_Geom) :: geom
+      integer :: i
+      real :: x
+
+      geom_mgr => get_geom_manager()
+      call setup(_RC)
+
+      call driver%initialize(_RC)
+
+      call FieldInfoGetShared(f1, 'ATTR_1', value=i, _RC)
+      @assert_that(i, is(1))
+      call FieldInfoGetShared(f1, 'ATTR_2', value=x, _RC)
+      @assert_that(x, is(2.))
+
+   contains
+
+      subroutine setup(rc)
+         integer, optional, intent(out) :: rc
+
+         type(ESMF_HConfig) :: hconfig
+         type(MaplGeom) :: mapl_geom
+         type(ESMF_Clock) :: clock
+
+         type(MultiState) :: states
+         integer :: status
+         real(kind=ESMF_KIND_R4), pointer :: x4(:,:)
+         real(kind=ESMF_KIND_R8), pointer :: x8(:,:)
+         
+         hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}", _RC)
+         mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+         geom = mapl_geom%get_geom()
+
+         transform = CopyTransform(ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8)
+         coupler = make_coupler(transform, _RC)
+         driver = GriddedComponentDriver(coupler)
+         
+         f0 = MAPL_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, _RC)
+         call ESMF_FieldGet(f0, fArrayPtr=x4, _RC)
+         x4 = 1.
+         f0_alias = ESMF_NamedAlias(f0, name='import[1]', _RC)
+
+         f1 = MAPL_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R8, _RC)
+         call ESMF_FieldGet(f1, fArrayPtr=x8, _RC)
+         x8 = 0
+         f1_alias = ESMF_NamedAlias(f1, name='export[1]', _RC)
+         
+
+         states = driver%get_states()
+         call ESMF_StateAdd(states%importState, fieldList=[f0_alias], _RC)
+         call ESMF_StateAdd(states%exportState, fieldList=[f1_alias], _RC)
+
+         call FieldInfoSetShared(f0, 'ATTR_1', value=1, _RC)
+         call FieldInfoSetShared(f0, 'ATTR_2', value=2., _RC)
+
+         if (present(rc)) rc = _SUCCESS
+      end subroutine setup
+      
+    end subroutine test_propagate_shared_attrs
+
+end module Test_propagate_time_varying

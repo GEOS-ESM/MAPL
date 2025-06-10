@@ -1,0 +1,953 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Test_HConfigUtilities &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Test_HConfigUtilities
+      <small>Module</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for modules and submodules.">249 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_HConfigUtilities.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_hconfigutilities.pf.html'>Test_HConfigUtilities.pf</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Test_HConfigUtilities</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#variable-chvalue1">CHVALUE1</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#variable-chvalue2">CHVALUE2</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#variable-chvalue3">CHVALUE3</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#variable-key1">KEY1</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#variable-key2">KEY2</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#variable-key3">KEY3</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#variable-key4">KEY4</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#variable-key5">KEY5</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#variable-maplkey">MAPLKEY</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#variable-pvalue1">PVALUE1</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#variable-pvalue2">PVALUE2</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#variable-pvalue4">PVALUE4</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#variable-pvalue5">PVALUE5</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#variable-keylen">KEYLEN</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#variable-child~103">child</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#variable-hconfig_content">hconfig_content</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#variable-merged">merged</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#variable-parent~100">parent</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#subs-0"
+         aria-expanded="false" aria-controls="subs-0">
+         <h4 class="card-header bg-primary text-white">Subroutines</h4>
+      </a>
+      <div id="subs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#proc-check_match">check_match</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#proc-set_up~4">set_up</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#proc-tear_down~3">tear_down</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#proc-test_merge_hconfig_bad_parent">test_merge_hconfig_bad_parent</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#proc-test_merge_hconfig_duplicate">test_merge_hconfig_duplicate</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#proc-test_merge_hconfig_mapl_section">test_merge_hconfig_mapl_section</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#proc-test_merge_hconfig_no_mapl">test_merge_hconfig_no_mapl</a>
+            <a class="list-group-item" href="../module/test_hconfigutilities.html#proc-test_merge_hconfig_problem_child">test_merge_hconfig_problem_child</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='mapl3g_hconfigutilities.html'>mapl3g_HConfigUtilities</a></li>
+                  <li class="list-inline-item"><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
+                  <li class="list-inline-item">pfunit</li>
+                  <li class="list-inline-item"><a href='mapl_errorhandling.html'>mapl_ErrorHandling</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~test_hconfigutilities~~UsesGraph Pages: 1 -->
+<svg id="moduletest_hconfigutilitiesUsesGraph" width="596pt" height="142pt"
+ viewBox="0.00 0.00 596.00 142.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~test_hconfigutilities~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 138)">
+<title>module~~test_hconfigutilities~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-138 592,-138 592,4 -4,4"/>
+<!-- module~test_hconfigutilities -->
+<g id="module~~test_hconfigutilities~~UsesGraph_node1" class="node">
+<title>module~test_hconfigutilities</title>
+<polygon fill="none" stroke="black" points="588,-84 468,-84 468,-60 588,-60 588,-84"/>
+<text text-anchor="middle" x="528" y="-69.6" font-family="Helvetica,sans-Serif" font-size="10.50">Test_HConfigUtilities</text>
+</g>
+<!-- ESMF -->
+<g id="module~~test_hconfigutilities~~UsesGraph_node2" class="node">
+<title>ESMF</title>
+<g id="a_module~~test_hconfigutilities~~UsesGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/module/esmf.html" xlink:title="ESMF">
+<polygon fill="#337ab7" stroke="#337ab7" points="223.5,-134 169.5,-134 169.5,-110 223.5,-110 223.5,-134"/>
+<text text-anchor="middle" x="196.5" y="-119.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
+</a>
+</g>
+</g>
+<!-- module~test_hconfigutilities&#45;&gt;ESMF -->
+<g id="module~~test_hconfigutilities~~UsesGraph_edge1" class="edge">
+<title>module~test_hconfigutilities&#45;&gt;ESMF</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M505.52,-84.01C486.75,-93.82 458.45,-107 432,-113 363.25,-128.58 280.31,-127.21 233.77,-124.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="233.77,-121.18 223.58,-124.08 233.36,-128.17 233.77,-121.18"/>
+</g>
+<!-- module~mapl3g_hconfigutilities -->
+<g id="module~~test_hconfigutilities~~UsesGraph_node3" class="node">
+<title>module~mapl3g_hconfigutilities</title>
+<g id="a_module~~test_hconfigutilities~~UsesGraph_node3"><a xlink:href="../module/mapl3g_hconfigutilities.html" xlink:title="mapl3g_HConfigUtilities">
+<polygon fill="#337ab7" stroke="#337ab7" points="432,-104 292,-104 292,-80 432,-80 432,-104"/>
+<text text-anchor="middle" x="362" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_HConfigUtilities</text>
+</a>
+</g>
+</g>
+<!-- module~test_hconfigutilities&#45;&gt;module~mapl3g_hconfigutilities -->
+<g id="module~~test_hconfigutilities~~UsesGraph_edge2" class="edge">
+<title>module~test_hconfigutilities&#45;&gt;module~mapl3g_hconfigutilities</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M467.79,-79.22C459.48,-80.23 450.83,-81.29 442.23,-82.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="441.67,-78.88 432.16,-83.57 442.51,-85.83 441.67,-78.88"/>
+</g>
+<!-- module~mapl_errorhandling -->
+<g id="module~~test_hconfigutilities~~UsesGraph_node4" class="node">
+<title>module~mapl_errorhandling</title>
+<g id="a_module~~test_hconfigutilities~~UsesGraph_node4"><a xlink:href="../module/mapl_errorhandling.html" xlink:title="mapl_ErrorHandling">
+<polygon fill="#337ab7" stroke="#337ab7" points="256,-83 137,-83 137,-59 256,-59 256,-83"/>
+<text text-anchor="middle" x="196.5" y="-68.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_ErrorHandling</text>
+</a>
+</g>
+</g>
+<!-- module~test_hconfigutilities&#45;&gt;module~mapl_errorhandling -->
+<g id="module~~test_hconfigutilities~~UsesGraph_edge3" class="edge">
+<title>module~test_hconfigutilities&#45;&gt;module~mapl_errorhandling</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M467.96,-71.28C456.06,-71.16 443.63,-71.06 432,-71 376.25,-70.71 313.03,-70.73 266.3,-70.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="266.28,-67.31 256.29,-70.83 266.29,-74.31 266.28,-67.31"/>
+</g>
+<!-- pfunit -->
+<g id="module~~test_hconfigutilities~~UsesGraph_node5" class="node">
+<title>pfunit</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="389,-24 335,-24 335,0 389,0 389,-24"/>
+<text text-anchor="middle" x="362" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pfunit</text>
+</g>
+<!-- module~test_hconfigutilities&#45;&gt;pfunit -->
+<g id="module~~test_hconfigutilities~~UsesGraph_edge4" class="edge">
+<title>module~test_hconfigutilities&#45;&gt;pfunit</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M493.81,-59.86C466.18,-49.75 426.93,-35.39 398.64,-25.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="399.72,-21.71 389.13,-21.56 397.32,-28.28 399.72,-21.71"/>
+</g>
+<!-- module~mapl3g_hconfigutilities&#45;&gt;ESMF -->
+<g id="module~~test_hconfigutilities~~UsesGraph_edge5" class="edge">
+<title>module~mapl3g_hconfigutilities&#45;&gt;ESMF</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M295.44,-104.03C274.4,-107.89 251.87,-112.02 233.73,-115.35"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="233.07,-111.91 223.87,-117.16 234.34,-118.8 233.07,-111.91"/>
+</g>
+<!-- module~mapl3g_hconfigutilities&#45;&gt;module~mapl_errorhandling -->
+<g id="module~~test_hconfigutilities~~UsesGraph_edge6" class="edge">
+<title>module~mapl3g_hconfigutilities&#45;&gt;module~mapl_errorhandling</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M291.66,-83.09C283.25,-82.01 274.65,-80.91 266.24,-79.83"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="266.47,-76.33 256.11,-78.53 265.58,-83.27 266.47,-76.33"/>
+</g>
+<!-- module~mapl_throwmod -->
+<g id="module~~test_hconfigutilities~~UsesGraph_node6" class="node">
+<title>module~mapl_throwmod</title>
+<g id="a_module~~test_hconfigutilities~~UsesGraph_node6"><a xlink:href="../module/mapl_throwmod.html" xlink:title="MAPL_ThrowMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="101,-104 0,-104 0,-80 101,-80 101,-104"/>
+<text text-anchor="middle" x="50.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_errorhandling&#45;&gt;module~mapl_throwmod -->
+<g id="module~~test_hconfigutilities~~UsesGraph_edge7" class="edge">
+<title>module~mapl_errorhandling&#45;&gt;module~mapl_throwmod</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M136.93,-79.54C128.52,-80.77 119.85,-82.03 111.41,-83.26"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="110.65,-79.84 101.26,-84.74 111.66,-86.76 110.65,-79.84"/>
+</g>
+<!-- mpi -->
+<g id="module~~test_hconfigutilities~~UsesGraph_node7" class="node">
+<title>mpi</title>
+<g id="a_module~~test_hconfigutilities~~UsesGraph_node7"><a xlink:href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm" xlink:title="mpi">
+<polygon fill="#337ab7" stroke="#337ab7" points="77.5,-62 23.5,-62 23.5,-38 77.5,-38 77.5,-62"/>
+<text text-anchor="middle" x="50.5" y="-47.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_errorhandling&#45;&gt;mpi -->
+<g id="module~~test_hconfigutilities~~UsesGraph_edge8" class="edge">
+<title>module~mapl_errorhandling&#45;&gt;mpi</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M136.93,-62.46C120.39,-60.05 102.87,-57.49 88.02,-55.33"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="88.14,-51.81 77.74,-53.83 87.13,-58.73 88.14,-51.81"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+      
+      <br>
+
+
+        <section>
+          <h2>Variables</h2>
+            <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-chvalue1"></span>
+              character(len=*),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>CHVALUE1</strong></td>
+<td> =</td>
+                <td>&#39;child_value1&#39;</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-chvalue2"></span>
+              character(len=*),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>CHVALUE2</strong></td>
+<td> =</td>
+                <td>&#39;child_value2&#39;</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-chvalue3"></span>
+              character(len=*),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>CHVALUE3</strong></td>
+<td> =</td>
+                <td>&#39;child_value3&#39;</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-key1"></span>
+              character(len=*),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>KEY1</strong></td>
+<td> =</td>
+                <td>&#39;key1: &#39;</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-key2"></span>
+              character(len=*),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>KEY2</strong></td>
+<td> =</td>
+                <td>&#39;key2: &#39;</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-key3"></span>
+              character(len=*),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>KEY3</strong></td>
+<td> =</td>
+                <td>&#39;key3: &#39;</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-key4"></span>
+              character(len=*),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>KEY4</strong></td>
+<td> =</td>
+                <td>&#39;key4: &#39;</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-key5"></span>
+              character(len=*),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>KEY5</strong></td>
+<td> =</td>
+                <td>&#39;key5: &#39;</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-maplkey"></span>
+              character(len=*),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>MAPLKEY</strong></td>
+<td> =</td>
+                <td>&#39;mapl: &#39;</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pvalue1"></span>
+              character(len=*),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>PVALUE1</strong></td>
+<td> =</td>
+                <td>&#39;parent_value1&#39;</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pvalue2"></span>
+              character(len=*),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>PVALUE2</strong></td>
+<td> =</td>
+                <td>&#39;parent_value2&#39;</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pvalue4"></span>
+              character(len=*),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>PVALUE4</strong></td>
+<td> =</td>
+                <td>&#39;parent_value4&#39;</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pvalue5"></span>
+              character(len=*),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>PVALUE5</strong></td>
+<td> =</td>
+                <td>&#39;parent_value5&#39;</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-keylen"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>KEYLEN</strong></td>
+<td> =</td>
+                <td>len(KEY1)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-child~103"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_hconfig.html'>ESMF_HConfig</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>child</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-hconfig_content"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_hconfig.html'>ESMF_HConfig</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>hconfig_content</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-merged"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_hconfig.html'>ESMF_HConfig</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>merged</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-parent~100"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_hconfig.html'>ESMF_HConfig</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>parent</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+        </section>
+        <br>
+
+
+
+
+
+
+        <section>
+          <h2>Subroutines</h2>
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-check_match"></span> <h3>public  subroutine <a href='../proc/check_match.html'>check_match</a>(hconfig, key, expected, rc)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-hconfig~76"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_hconfig.html'>ESMF_HConfig</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>hconfig</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-key~120"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>key</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-expected~46"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>expected</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1631"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-set_up~4"></span> <h3>public  subroutine <a href='../proc/set_up~4.html'>set_up</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-tear_down~3"></span> <h3>public  subroutine <a href='../proc/tear_down~3.html'>tear_down</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-test_merge_hconfig_bad_parent"></span> <h3>public  subroutine <a href='../proc/test_merge_hconfig_bad_parent.html'>test_merge_hconfig_bad_parent</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-test_merge_hconfig_duplicate"></span> <h3>public  subroutine <a href='../proc/test_merge_hconfig_duplicate.html'>test_merge_hconfig_duplicate</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-test_merge_hconfig_mapl_section"></span> <h3>public  subroutine <a href='../proc/test_merge_hconfig_mapl_section.html'>test_merge_hconfig_mapl_section</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-test_merge_hconfig_no_mapl"></span> <h3>public  subroutine <a href='../proc/test_merge_hconfig_no_mapl.html'>test_merge_hconfig_no_mapl</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-test_merge_hconfig_problem_child"></span> <h3>public  subroutine <a href='../proc/test_merge_hconfig_problem_child.html'>test_merge_hconfig_problem_child</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+
+
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

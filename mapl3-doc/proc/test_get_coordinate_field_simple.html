@@ -1,0 +1,725 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>test_get_coordinate_field_simple &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>test_get_coordinate_field_simple
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">22 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_ModelVerticalGrid.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_modelverticalgrid.pf.html'>Test_ModelVerticalGrid.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_modelverticalgrid.html'>Test_ModelVerticalGrid</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_get_coordinate_field_simple</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/test_get_coordinate_field_simple.html#src">test_get_coordinate_field_simple</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine test_get_coordinate_field_simple(this)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~9192"></span>
+              class(<a href='../type/esmf_testmethod.html'>ESMF_TestMethod</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~test_get_coordinate_field_simple~~CallsGraph Pages: 1 -->
+<svg id="proctest_get_coordinate_field_simpleCallsGraph" width="641pt" height="458pt"
+ viewBox="0.00 0.00 641.00 458.39" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph" class="graph" transform="scale(0.74 0.74) rotate(0) translate(4 616)">
+<title>proc~~test_get_coordinate_field_simple~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-616 863,-616 863,4 -4,4"/>
+<!-- proc~test_get_coordinate_field_simple -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node1" class="node">
+<title>proc~test_get_coordinate_field_simple</title>
+<polygon fill="none" stroke="black" points="187,-423 0,-423 0,-399 187,-399 187,-423"/>
+<text text-anchor="middle" x="93.5" y="-408.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_get_coordinate_field_simple</text>
+</g>
+<!-- assert_that -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node2" class="node">
+<title>assert_that</title>
+<polygon fill="#777777" stroke="#777777" points="371.5,-570 300.5,-570 300.5,-546 371.5,-546 371.5,-570"/>
+<text text-anchor="middle" x="336" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assert_that</text>
+</g>
+<!-- proc~test_get_coordinate_field_simple&#45;&gt;assert_that -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge1" class="edge">
+<title>proc~test_get_coordinate_field_simple&#45;&gt;assert_that</title>
+<path fill="none" stroke="#ff0000" d="M102.85,-423.07C121.27,-448.67 168.14,-508.41 223,-537 243.65,-547.77 269,-553.07 290.35,-555.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="290.17,-559.16 300.48,-556.73 290.9,-552.2 290.17,-559.16"/>
+</g>
+<!-- equal_to -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node3" class="node">
+<title>equal_to</title>
+<polygon fill="#777777" stroke="#777777" points="365,-528 307,-528 307,-504 365,-504 365,-528"/>
+<text text-anchor="middle" x="336" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">equal_to</text>
+</g>
+<!-- proc~test_get_coordinate_field_simple&#45;&gt;equal_to -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge2" class="edge">
+<title>proc~test_get_coordinate_field_simple&#45;&gt;equal_to</title>
+<path fill="none" stroke="#ff0000" d="M108.85,-423.16C131.53,-441.7 177.74,-476.81 223,-495 246.61,-504.49 274.77,-509.74 296.95,-512.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="296.65,-516.11 306.99,-513.82 297.48,-509.16 296.65,-516.11"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node4" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="378.5,-486 293.5,-486 293.5,-462 378.5,-462 378.5,-486"/>
+<text text-anchor="middle" x="336" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~test_get_coordinate_field_simple&#45;&gt;esmf_fieldget -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge3" class="edge">
+<title>proc~test_get_coordinate_field_simple&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M127.43,-423.08C153.18,-432.21 190.03,-444.56 223,-453 242.58,-458.01 264.36,-462.37 283.47,-465.79"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="283.04,-469.27 293.49,-467.55 284.25,-462.37 283.04,-469.27"/>
+</g>
+<!-- every_item -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node5" class="node">
+<title>every_item</title>
+<polygon fill="#777777" stroke="#777777" points="372,-444 300,-444 300,-420 372,-420 372,-444"/>
+<text text-anchor="middle" x="336" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">every_item</text>
+</g>
+<!-- proc~test_get_coordinate_field_simple&#45;&gt;every_item -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge4" class="edge">
+<title>proc~test_get_coordinate_field_simple&#45;&gt;every_item</title>
+<path fill="none" stroke="#ff0000" d="M187.14,-419.09C222.26,-422.16 260.7,-425.51 289.58,-428.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="289.5,-431.54 299.77,-428.92 290.11,-424.57 289.5,-431.54"/>
+</g>
+<!-- false -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node6" class="node">
+<title>false</title>
+<polygon fill="#777777" stroke="#777777" points="363,-402 309,-402 309,-378 363,-378 363,-402"/>
+<text text-anchor="middle" x="336" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">false</text>
+</g>
+<!-- proc~test_get_coordinate_field_simple&#45;&gt;false -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge5" class="edge">
+<title>proc~test_get_coordinate_field_simple&#45;&gt;false</title>
+<path fill="none" stroke="#ff0000" d="M187.14,-402.91C226.03,-399.52 268.99,-395.76 298.54,-393.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="299.13,-396.65 308.79,-392.29 298.52,-389.67 299.13,-396.65"/>
+</g>
+<!-- none~get_coordinate_field~4 -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node7" class="node">
+<title>none~get_coordinate_field~4</title>
+<g id="a_proc~~test_get_coordinate_field_simple~~CallsGraph_node7"><a xlink:href="../type/modelverticalgrid.html#boundprocedure-get_coordinate_field~4" xlink:title="ModelVerticalGrid%get_coordinate_field">
+<polygon fill="#a7506f" stroke="#a7506f" points="449,-360 223,-360 223,-336 449,-336 449,-360"/>
+<text text-anchor="middle" x="336" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ModelVerticalGrid%get_coordinate_field</text>
+</a>
+</g>
+</g>
+<!-- proc~test_get_coordinate_field_simple&#45;&gt;none~get_coordinate_field~4 -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge6" class="edge">
+<title>proc~test_get_coordinate_field_simple&#45;&gt;none~get_coordinate_field~4</title>
+<path fill="none" stroke="#ff0000" d="M127.43,-398.92C153.18,-389.79 190.03,-377.44 223,-369 232.8,-366.49 243.16,-364.15 253.46,-362"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="254.19,-365.42 263.3,-360 252.8,-358.56 254.19,-365.42"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node8" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~test_get_coordinate_field_simple~~CallsGraph_node8"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="625.5,-234 549.5,-234 549.5,-210 625.5,-210 625.5,-234"/>
+<text text-anchor="middle" x="587.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~test_get_coordinate_field_simple&#45;&gt;proc~mapl_verify -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge7" class="edge">
+<title>proc~test_get_coordinate_field_simple&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M109.91,-398.94C133.25,-381.15 179.45,-347.75 223,-327 330.67,-275.7 468.47,-244.35 539.49,-230.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="540.32,-233.86 549.47,-228.53 538.99,-226.99 540.32,-233.86"/>
+</g>
+<!-- proc~setup~9 -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node9" class="node">
+<title>proc~setup~9</title>
+<g id="a_proc~~test_get_coordinate_field_simple~~CallsGraph_node9"><a xlink:href="../proc/setup~9.html" xlink:title="setup">
+<polygon fill="#d9534f" stroke="#d9534f" points="363,-150 309,-150 309,-126 363,-126 363,-150"/>
+<text text-anchor="middle" x="336" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setup</text>
+</a>
+</g>
+</g>
+<!-- proc~test_get_coordinate_field_simple&#45;&gt;proc~setup~9 -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge8" class="edge">
+<title>proc~test_get_coordinate_field_simple&#45;&gt;proc~setup~9</title>
+<path fill="none" stroke="#ff0000" d="M103.75,-398.6C124.33,-371.23 175.78,-303.89 223,-251 253.61,-216.72 291.74,-179.26 314.69,-157.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="317.32,-159.57 322.13,-150.13 312.48,-154.51 317.32,-159.57"/>
+</g>
+<!-- none~get_coordinate_field~4&#45;&gt;proc~mapl_verify -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge19" class="edge">
+<title>none~get_coordinate_field~4&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M359.91,-335.96C383.29,-323.21 420.15,-301.8 449,-279 466.75,-264.97 465.09,-253.74 485,-243 501.42,-234.14 521.18,-229.02 538.89,-226.05"/>
+<polygon fill="#003fff" stroke="#003fff" points="539.66,-229.47 549.04,-224.54 538.63,-222.55 539.66,-229.47"/>
+</g>
+<!-- get_payload -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node10" class="node">
+<title>get_payload</title>
+<polygon fill="#777777" stroke="#777777" points="626.5,-276 548.5,-276 548.5,-252 626.5,-252 626.5,-276"/>
+<text text-anchor="middle" x="587.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_payload</text>
+</g>
+<!-- none~get_coordinate_field~4&#45;&gt;get_payload -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge9" class="edge">
+<title>none~get_coordinate_field~4&#45;&gt;get_payload</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M361.06,-336C389.89,-322.03 439.96,-299.09 485,-285 502.07,-279.66 521.18,-275.3 538.17,-271.97"/>
+<polygon fill="#003fff" stroke="#003fff" points="539.27,-275.32 548.45,-270.02 537.97,-268.44 539.27,-275.32"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node11" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~test_get_coordinate_field_simple~~CallsGraph_node11"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="627,-612 548,-612 548,-588 627,-588 627,-612"/>
+<text text-anchor="middle" x="587.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- none~get_coordinate_field~4&#45;&gt;interface~mapl_assert -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge10" class="edge">
+<title>none~get_coordinate_field~4&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M438.02,-360.14C441.98,-362.68 445.67,-365.62 449,-369 515.44,-436.48 419.2,-510.9 485,-579 498.57,-593.04 518.87,-598.95 537.75,-601.1"/>
+<polygon fill="#003fff" stroke="#003fff" points="537.5,-604.59 547.75,-601.92 538.07,-597.62 537.5,-604.59"/>
+</g>
+<!-- none~extend -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node13" class="node">
+<title>none~extend</title>
+<g id="a_proc~~test_get_coordinate_field_simple~~CallsGraph_node13"><a xlink:href="../type/stateregistry.html#boundprocedure-extend" xlink:title="StateRegistry%extend">
+<polygon fill="#a7506f" stroke="#a7506f" points="652,-570 523,-570 523,-546 652,-546 652,-570"/>
+<text text-anchor="middle" x="587.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry%extend</text>
+</a>
+</g>
+</g>
+<!-- none~get_coordinate_field~4&#45;&gt;none~extend -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge11" class="edge">
+<title>none~get_coordinate_field~4&#45;&gt;none~extend</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M437.35,-360.01C441.54,-362.57 445.46,-365.55 449,-369 503.69,-422.3 430.81,-483.2 485,-537 492.77,-544.72 502.59,-549.95 513.03,-553.45"/>
+<polygon fill="#003fff" stroke="#003fff" points="512.19,-556.85 522.76,-556.19 514.09,-550.11 512.19,-556.85"/>
+</g>
+<!-- none~get_aspect -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node14" class="node">
+<title>none~get_aspect</title>
+<g id="a_proc~~test_get_coordinate_field_simple~~CallsGraph_node14"><a xlink:href="../type/stateitemspec.html#boundprocedure-get_aspect" xlink:title="StateItemSpec%get_aspect">
+<polygon fill="#a7506f" stroke="#a7506f" points="666.5,-528 508.5,-528 508.5,-504 666.5,-504 666.5,-528"/>
+<text text-anchor="middle" x="587.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemSpec%get_aspect</text>
+</a>
+</g>
+</g>
+<!-- none~get_coordinate_field~4&#45;&gt;none~get_aspect -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge12" class="edge">
+<title>none~get_coordinate_field~4&#45;&gt;none~get_aspect</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M436.56,-360.01C441.01,-362.56 445.2,-365.54 449,-369 492.05,-408.22 442.32,-455.38 485,-495 489.2,-498.9 493.93,-502.16 498.99,-504.87"/>
+<polygon fill="#003fff" stroke="#003fff" points="497.87,-508.2 508.42,-509.18 500.78,-501.84 497.87,-508.2"/>
+</g>
+<!-- none~get_aspects -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node15" class="node">
+<title>none~get_aspects</title>
+<g id="a_proc~~test_get_coordinate_field_simple~~CallsGraph_node15"><a xlink:href="../type/stateitemspec.html#boundprocedure-get_aspects" xlink:title="StateItemSpec%get_aspects">
+<polygon fill="#a7506f" stroke="#a7506f" points="669,-486 506,-486 506,-462 669,-462 669,-486"/>
+<text text-anchor="middle" x="587.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemSpec%get_aspects</text>
+</a>
+</g>
+</g>
+<!-- none~get_coordinate_field~4&#45;&gt;none~get_aspects -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge13" class="edge">
+<title>none~get_coordinate_field~4&#45;&gt;none~get_aspects</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M434.99,-360.06C439.96,-362.58 444.68,-365.54 449,-369 480.69,-394.4 453.54,-427.3 485,-453 488.59,-455.93 492.47,-458.48 496.57,-460.7"/>
+<polygon fill="#003fff" stroke="#003fff" points="495.29,-463.97 505.83,-465.06 498.27,-457.63 495.29,-463.97"/>
+</g>
+<!-- none~get_producer -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node16" class="node">
+<title>none~get_producer</title>
+<g id="a_proc~~test_get_coordinate_field_simple~~CallsGraph_node16"><a xlink:href="../type/stateitemextension.html#boundprocedure-get_producer" xlink:title="StateItemExtension%get_producer">
+<polygon fill="#a7506f" stroke="#a7506f" points="685.5,-444 489.5,-444 489.5,-420 685.5,-420 685.5,-444"/>
+<text text-anchor="middle" x="587.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtension%get_producer</text>
+</a>
+</g>
+</g>
+<!-- none~get_coordinate_field~4&#45;&gt;none~get_producer -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge14" class="edge">
+<title>none~get_coordinate_field~4&#45;&gt;none~get_producer</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M429.6,-360.08C436.37,-362.55 442.92,-365.49 449,-369 470.29,-381.3 463.83,-398.51 485,-411 488.08,-412.82 491.29,-414.48 494.59,-415.99"/>
+<polygon fill="#003fff" stroke="#003fff" points="493.54,-419.34 504.12,-419.91 496.2,-412.87 493.54,-419.34"/>
+</g>
+<!-- none~get_short_name~2 -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node17" class="node">
+<title>none~get_short_name~2</title>
+<g id="a_proc~~test_get_coordinate_field_simple~~CallsGraph_node17"><a xlink:href="../type/modelverticalgrid.html#boundprocedure-get_short_name~2" xlink:title="ModelVerticalGrid%get_short_name">
+<polygon fill="#a7506f" stroke="#a7506f" points="688.5,-402 486.5,-402 486.5,-378 688.5,-378 688.5,-402"/>
+<text text-anchor="middle" x="587.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ModelVerticalGrid%get_short_name</text>
+</a>
+</g>
+</g>
+<!-- none~get_coordinate_field~4&#45;&gt;none~get_short_name~2 -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge15" class="edge">
+<title>none~get_coordinate_field~4&#45;&gt;none~get_short_name~2</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M408.5,-360.04C438.64,-365.11 473.89,-371.04 505.04,-376.29"/>
+<polygon fill="#003fff" stroke="#003fff" points="504.55,-379.75 514.99,-377.96 505.71,-372.85 504.55,-379.75"/>
+</g>
+<!-- none~get_spec~3 -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node18" class="node">
+<title>none~get_spec~3</title>
+<g id="a_proc~~test_get_coordinate_field_simple~~CallsGraph_node18"><a xlink:href="../type/stateitemextension.html#boundprocedure-get_spec~3" xlink:title="StateItemExtension%get_spec">
+<polygon fill="#a7506f" stroke="#a7506f" points="674,-360 501,-360 501,-336 674,-336 674,-360"/>
+<text text-anchor="middle" x="587.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtension%get_spec</text>
+</a>
+</g>
+</g>
+<!-- none~get_coordinate_field~4&#45;&gt;none~get_spec~3 -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge16" class="edge">
+<title>none~get_coordinate_field~4&#45;&gt;none~get_spec~3</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M449.34,-348C463.15,-348 477.17,-348 490.7,-348"/>
+<polygon fill="#003fff" stroke="#003fff" points="490.95,-351.5 500.95,-348 490.95,-344.5 490.95,-351.5"/>
+</g>
+<!-- none~insert~421 -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node19" class="node">
+<title>none~insert~421</title>
+<g id="a_proc~~test_get_coordinate_field_simple~~CallsGraph_node19"><a xlink:href="../type/aspectmap.html#boundprocedure-insert~421" xlink:title="AspectMap%insert">
+<polygon fill="#a7506f" stroke="#a7506f" points="643,-318 532,-318 532,-294 643,-294 643,-318"/>
+<text text-anchor="middle" x="587.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AspectMap%insert</text>
+</a>
+</g>
+</g>
+<!-- none~get_coordinate_field~4&#45;&gt;none~insert~421 -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge17" class="edge">
+<title>none~get_coordinate_field~4&#45;&gt;none~insert~421</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M408.5,-335.96C444.15,-329.96 486.94,-322.76 521.63,-316.92"/>
+<polygon fill="#003fff" stroke="#003fff" points="522.37,-320.34 531.65,-315.23 521.21,-313.44 522.37,-320.34"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node22" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~test_get_coordinate_field_simple~~CallsGraph_node22"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="628.5,-192 546.5,-192 546.5,-168 628.5,-168 628.5,-192"/>
+<text text-anchor="middle" x="587.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- none~get_coordinate_field~4&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge18" class="edge">
+<title>none~get_coordinate_field~4&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M345.38,-335.76C365.67,-307.13 420.56,-235.62 485,-201 500.49,-192.68 518.94,-187.65 535.84,-184.61"/>
+<polygon fill="#003fff" stroke="#003fff" points="536.8,-188 546.12,-182.97 535.69,-181.09 536.8,-188"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node23" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~test_get_coordinate_field_simple~~CallsGraph_node23"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="859,-234 726,-234 726,-210 859,-210 859,-234"/>
+<text text-anchor="middle" x="792.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7f00ff" d="M625.73,-222C650.83,-222 684.82,-222 715.49,-222"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="715.75,-225.5 725.75,-222 715.75,-218.5 715.75,-225.5"/>
+</g>
+<!-- proc~setup~9&#45;&gt;proc~mapl_verify -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge25" class="edge">
+<title>proc~setup~9&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff00bf" d="M361.06,-150C389.89,-163.97 439.96,-186.91 485,-201 502.51,-206.48 522.18,-210.93 539.51,-214.29"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="538.93,-217.75 549.41,-216.15 540.22,-210.87 538.93,-217.75"/>
+</g>
+<!-- none~add_short_name -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node12" class="node">
+<title>none~add_short_name</title>
+<g id="a_proc~~test_get_coordinate_field_simple~~CallsGraph_node12"><a xlink:href="../type/modelverticalgrid.html#boundprocedure-add_short_name" xlink:title="ModelVerticalGrid%add_short_name">
+<polygon fill="#a7506f" stroke="#a7506f" points="690,-108 485,-108 485,-84 690,-84 690,-108"/>
+<text text-anchor="middle" x="587.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ModelVerticalGrid%add_short_name</text>
+</a>
+</g>
+</g>
+<!-- proc~setup~9&#45;&gt;none~add_short_name -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge21" class="edge">
+<title>proc~setup~9&#45;&gt;none~add_short_name</title>
+<path fill="none" stroke="#ff00bf" d="M363.23,-133.58C396.65,-127.96 455.96,-117.97 505.06,-109.71"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="505.77,-113.14 515.05,-108.03 504.6,-106.24 505.77,-113.14"/>
+</g>
+<!-- none~set_registry -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node20" class="node">
+<title>none~set_registry</title>
+<g id="a_proc~~test_get_coordinate_field_simple~~CallsGraph_node20"><a xlink:href="../type/modelverticalgrid.html#boundprocedure-set_registry" xlink:title="ModelVerticalGrid%set_registry">
+<polygon fill="#a7506f" stroke="#a7506f" points="676.5,-66 498.5,-66 498.5,-42 676.5,-42 676.5,-66"/>
+<text text-anchor="middle" x="587.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ModelVerticalGrid%set_registry</text>
+</a>
+</g>
+</g>
+<!-- proc~setup~9&#45;&gt;none~set_registry -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge22" class="edge">
+<title>proc~setup~9&#45;&gt;none~set_registry</title>
+<path fill="none" stroke="#ff00bf" d="M361.06,-126C389.89,-112.03 439.96,-89.09 485,-75 492.69,-72.59 500.8,-70.39 508.94,-68.38"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="509.94,-71.74 518.86,-66.04 508.33,-64.93 509.94,-71.74"/>
+</g>
+<!-- proc~make_geom~6 -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node21" class="node">
+<title>proc~make_geom~6</title>
+<g id="a_proc~~test_get_coordinate_field_simple~~CallsGraph_node21"><a xlink:href="../proc/make_geom~6.html" xlink:title="make_geom">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="627,-24 548,-24 548,0 627,0 627,-24"/>
+<text text-anchor="middle" x="587.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_geom</text>
+</a>
+</g>
+</g>
+<!-- proc~setup~9&#45;&gt;proc~make_geom~6 -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge23" class="edge">
+<title>proc~setup~9&#45;&gt;proc~make_geom~6</title>
+<path fill="none" stroke="#ff00bf" d="M350.11,-125.77C374.6,-103.64 429.83,-57.01 485,-33 501.4,-25.86 520.36,-21.1 537.42,-17.95"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="538.49,-21.32 547.76,-16.19 537.32,-14.42 538.49,-21.32"/>
+</g>
+<!-- proc~setup~9&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge24" class="edge">
+<title>proc~setup~9&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff00bf" d="M363.23,-142.42C404.16,-149.31 483.96,-162.74 536.23,-171.54"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="535.86,-175.02 546.3,-173.23 537.02,-168.12 535.86,-175.02"/>
+</g>
+<!-- proc~setup_ -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_node24" class="node">
+<title>proc~setup_</title>
+<g id="a_proc~~test_get_coordinate_field_simple~~CallsGraph_node24"><a xlink:href="../proc/setup_.html" xlink:title="setup_">
+<polygon fill="#d9534f" stroke="#d9534f" points="614.5,-150 560.5,-150 560.5,-126 614.5,-126 614.5,-150"/>
+<text text-anchor="middle" x="587.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setup_</text>
+</a>
+</g>
+</g>
+<!-- proc~setup~9&#45;&gt;proc~setup_ -->
+<g id="proc~~test_get_coordinate_field_simple~~CallsGraph_edge26" class="edge">
+<title>proc~setup~9&#45;&gt;proc~setup_</title>
+<path fill="none" stroke="#ff00bf" d="M363.23,-138C407.97,-138 499.11,-138 550.03,-138"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="550.25,-141.5 560.25,-138 550.25,-134.5 550.25,-141.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproctest_get_coordinate_field_simpleCallsGraph = svgPanZoom('#proctest_get_coordinate_field_simpleCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_get_coordinate_field_simple</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ModelVerticalGrid</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vgrid</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ComponentDriver</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">coupler</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vcoord</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="p">,</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a</span><span class="p">(:,:,:)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">setup</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vgrid</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">vgrid</span><span class="p">%</span><span class="n">get_coordinate_field</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">vcoord</span><span class="p">,</span><span class="w"> </span><span class="n">coupler</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">standard_name</span><span class="o">=</span><span class="s2">&quot;air_pressure&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">units</span><span class="o">=</span><span class="s2">&quot;hPa&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">vertical_stagger</span><span class="o">=</span><span class="n">VERTICAL_STAGGER_EDGE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">coupler</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">false</span><span class="p">()))</span>
+<span class="w">      </span><span class="k">call </span><span class="n">r</span><span class="p">%</span><span class="k">allocate</span><span class="p">()</span>
+<span class="w">      </span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">vcoord</span><span class="p">,</span><span class="w"> </span><span class="n">fArrayPtr</span><span class="o">=</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">every_item</span><span class="p">(</span><span class="k">is</span><span class="p">(</span><span class="n">equal_to</span><span class="p">(</span><span class="mf">3.</span><span class="p">))))</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_get_coordinate_field_simple</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

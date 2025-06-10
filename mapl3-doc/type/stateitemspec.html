@@ -1,0 +1,2847 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>StateItemSpec &ndash; MAPL </title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>StateItemSpec
+      <small>Derived Type</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title="<p> 0.2% of total for derived types.</p>Including implementation: 305 statements,  0.3% of total for derived types.">33 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/StateItemSpec.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/stateitemspec.f90.html'>StateItemSpec.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl3g_stateitemspec.html'>mapl3g_StateItemSpec</a></li>
+            <li class="breadcrumb-item active" aria-current="page">StateItemSpec</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#cons-0"
+         aria-expanded="false" aria-controls="cons-0">
+         <h4 class="card-header bg-primary text-white">Constructor</h4>
+      </a>
+      <div id="cons-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../type/stateitemspec.html#interface-stateitemspec">StateItemSpec</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#boundprocs-0"
+         aria-expanded="false" aria-controls="boundprocs-0">
+         <h4 class="card-header bg-primary text-white">Type-Bound Procedures</h4>
+      </a>
+      <div id="boundprocs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../type/stateitemspec.html#boundprocedure-activate~2">activate</a>
+            <a class="list-group-item" href="../type/stateitemspec.html#boundprocedure-add_to_state">add_to_state</a>
+            <a class="list-group-item" href="../type/stateitemspec.html#boundprocedure-allocate">allocate</a>
+            <a class="list-group-item" href="../type/stateitemspec.html#boundprocedure-can_connect_to">can_connect_to</a>
+            <a class="list-group-item" href="../type/stateitemspec.html#boundprocedure-connect~2">connect</a>
+            <a class="list-group-item" href="../type/stateitemspec.html#boundprocedure-connect_to_export">connect_to_export</a>
+            <a class="list-group-item" href="../type/stateitemspec.html#boundprocedure-connect_to_import">connect_to_import</a>
+            <a class="list-group-item" href="../type/stateitemspec.html#boundprocedure-create">create</a>
+            <a class="list-group-item" href="../type/stateitemspec.html#boundprocedure-destroy">destroy</a>
+            <a class="list-group-item" href="../type/stateitemspec.html#boundprocedure-get_aspect">get_aspect</a>
+            <a class="list-group-item" href="../type/stateitemspec.html#boundprocedure-get_aspect_by_id">get_aspect_by_id</a>
+            <a class="list-group-item" href="../type/stateitemspec.html#boundprocedure-get_aspect_order">get_aspect_order</a>
+            <a class="list-group-item" href="../type/stateitemspec.html#boundprocedure-get_aspect_priorities">get_aspect_priorities</a>
+            <a class="list-group-item" href="../type/stateitemspec.html#boundprocedure-get_aspects">get_aspects</a>
+            <a class="list-group-item" href="../type/stateitemspec.html#boundprocedure-get_dependencies">get_dependencies</a>
+            <a class="list-group-item" href="../type/stateitemspec.html#boundprocedure-is_active~4">is_active</a>
+            <a class="list-group-item" href="../type/stateitemspec.html#boundprocedure-is_allocated">is_allocated</a>
+            <a class="list-group-item" href="../type/stateitemspec.html#boundprocedure-make_extension">make_extension</a>
+            <a class="list-group-item" href="../type/stateitemspec.html#boundprocedure-set_allocated">set_allocated</a>
+            <a class="list-group-item" href="../type/stateitemspec.html#boundprocedure-set_aspect">set_aspect</a>
+            <a class="list-group-item" href="../type/stateitemspec.html#boundprocedure-set_dependencies">set_dependencies</a>
+            <a class="list-group-item" href="../type/stateitemspec.html#boundprocedure-set_geometry">set_geometry</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../type/stateitemspec.html#src">StateItemSpec</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+      <h2 id="type-def-statement">
+        type, public :: StateItemSpec</h2>
+    
+<br>      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Inherits</h3>
+        </div>
+        <div class="card-body">
+          <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: type~~stateitemspec~~InheritsGraph Pages: 1 -->
+<svg id="typestateitemspecInheritsGraph" width="641pt" height="71pt"
+ viewBox="0.00 0.00 641.00 70.61" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="type~~stateitemspec~~InheritsGraph" class="graph" transform="scale(0.61 0.61) rotate(0) translate(4 112)">
+<title>type~~stateitemspec~~InheritsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 1049,-112 1049,4 -4,4"/>
+<!-- type~stateitemspec -->
+<g id="type~~stateitemspec~~InheritsGraph_node1" class="node">
+<title>type~stateitemspec</title>
+<polygon fill="none" stroke="black" points="1045,-44 954,-44 954,-20 1045,-20 1045,-44"/>
+<text text-anchor="middle" x="999.5" y="-29.6" font-family="Helvetica,sans-Serif" font-size="10.50">StateItemSpec</text>
+</g>
+<!-- type~aspectmap -->
+<g id="type~~stateitemspec~~InheritsGraph_node2" class="node">
+<title>type~aspectmap</title>
+<g id="a_type~~stateitemspec~~InheritsGraph_node2"><a xlink:href="../type/aspectmap.html" xlink:title="AspectMap">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="810,-66 739,-66 739,-42 810,-42 810,-66"/>
+<text text-anchor="middle" x="774.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AspectMap</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemspec&#45;&gt;type~aspectmap -->
+<g id="type~~stateitemspec~~InheritsGraph_edge2" class="edge">
+<title>type~stateitemspec&#45;&gt;type~aspectmap</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M953.91,-36.4C915.06,-40.23 859,-45.76 820.13,-49.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="819.76,-46.12 810.15,-50.58 820.45,-53.08 819.76,-46.12"/>
+<text text-anchor="middle" x="902" y="-46.4" font-family="Helvetica,sans-Serif" font-size="9.50">aspects</text>
+</g>
+<!-- type~virtualconnectionptvector -->
+<g id="type~~stateitemspec~~InheritsGraph_node3" class="node">
+<title>type~virtualconnectionptvector</title>
+<g id="a_type~~stateitemspec~~InheritsGraph_node3"><a xlink:href="../type/virtualconnectionptvector.html" xlink:title="VirtualConnectionPtVector">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="850,-24 699,-24 699,0 850,0 850,-24"/>
+<text text-anchor="middle" x="774.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VirtualConnectionPtVector</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemspec&#45;&gt;type~virtualconnectionptvector -->
+<g id="type~~stateitemspec~~InheritsGraph_edge1" class="edge">
+<title>type~stateitemspec&#45;&gt;type~virtualconnectionptvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M953.92,-21.82C947.92,-20.71 941.83,-19.73 936,-19 911.43,-15.93 884.6,-14.15 860.04,-13.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="860.15,-9.63 850.02,-12.75 859.88,-16.62 860.15,-9.63"/>
+<text text-anchor="middle" x="902" y="-21.4" font-family="Helvetica,sans-Serif" font-size="9.50">dependencies</text>
+</g>
+<!-- type~map_set~6 -->
+<g id="type~~stateitemspec~~InheritsGraph_node4" class="node">
+<title>type~map_set~6</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="598.5,-66 539.5,-66 539.5,-42 598.5,-42 598.5,-66"/>
+<text text-anchor="middle" x="569" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set</text>
+</g>
+<!-- type~aspectmap&#45;&gt;type~map_set~6 -->
+<g id="type~~stateitemspec~~InheritsGraph_edge3" class="edge">
+<title>type~aspectmap&#45;&gt;type~map_set~6</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M738.98,-54C702.91,-54 646.43,-54 608.83,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="608.76,-50.5 598.76,-54 608.76,-57.5 608.76,-50.5"/>
+<text text-anchor="middle" x="658" y="-56.4" font-family="Helvetica,sans-Serif" font-size="9.50">tree</text>
+</g>
+<!-- type~vector_wrapper~8 -->
+<g id="type~~stateitemspec~~InheritsGraph_node5" class="node">
+<title>type~vector_wrapper~8</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="617,-24 521,-24 521,0 617,0 617,-24"/>
+<text text-anchor="middle" x="569" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vector_wrapper</text>
+</g>
+<!-- type~virtualconnectionptvector&#45;&gt;type~vector_wrapper~8 -->
+<g id="type~~stateitemspec~~InheritsGraph_edge4" class="edge">
+<title>type~virtualconnectionptvector&#45;&gt;type~vector_wrapper~8</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M698.88,-12C675.28,-12 649.58,-12 627.38,-12"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="627.12,-8.5 617.12,-12 627.12,-15.5 627.12,-8.5"/>
+<text text-anchor="middle" x="658" y="-14.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~map_s_indexvector -->
+<g id="type~~stateitemspec~~InheritsGraph_node6" class="node">
+<title>type~map_s_indexvector</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="343.5,-108 228.5,-108 228.5,-84 343.5,-84 343.5,-108"/>
+<text text-anchor="middle" x="286" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_IndexVector</text>
+</g>
+<!-- type~map_set~6&#45;&gt;type~map_s_indexvector -->
+<g id="type~~stateitemspec~~InheritsGraph_edge6" class="edge">
+<title>type~map_set~6&#45;&gt;type~map_s_indexvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M539.3,-60.72C528.03,-63.22 514.94,-65.94 503,-68 453.15,-76.58 396.41,-83.84 353.6,-88.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="353.12,-85.35 343.59,-89.97 353.92,-92.3 353.12,-85.35"/>
+<text text-anchor="middle" x="433" y="-89.4" font-family="Helvetica,sans-Serif" font-size="9.50">parents, lefts, rights, heights</text>
+</g>
+<!-- type~map_s_itemvector -->
+<g id="type~~stateitemspec~~InheritsGraph_node7" class="node">
+<title>type~map_s_itemvector</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="341,-66 231,-66 231,-42 341,-42 341,-66"/>
+<text text-anchor="middle" x="286" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_ItemVector</text>
+</g>
+<!-- type~map_set~6&#45;&gt;type~map_s_itemvector -->
+<g id="type~~stateitemspec~~InheritsGraph_edge5" class="edge">
+<title>type~map_set~6&#45;&gt;type~map_s_itemvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M539.25,-54C495.37,-54 410.58,-54 351.48,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="351.12,-50.5 341.12,-54 351.12,-57.5 351.12,-50.5"/>
+<text text-anchor="middle" x="433" y="-56.4" font-family="Helvetica,sans-Serif" font-size="9.50">items</text>
+</g>
+<!-- type~virtualconnectionpt -->
+<g id="type~~stateitemspec~~InheritsGraph_node8" class="node">
+<title>type~virtualconnectionpt</title>
+<g id="a_type~~stateitemspec~~InheritsGraph_node8"><a xlink:href="../type/virtualconnectionpt.html" xlink:title="VirtualConnectionPt">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="345,-24 227,-24 227,0 345,0 345,-24"/>
+<text text-anchor="middle" x="286" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VirtualConnectionPt</text>
+</a>
+</g>
+</g>
+<!-- type~vector_wrapper~8&#45;&gt;type~virtualconnectionpt -->
+<g id="type~~stateitemspec~~InheritsGraph_edge7" class="edge">
+<title>type~vector_wrapper~8&#45;&gt;type~virtualconnectionpt</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M520.97,-12C475.63,-12 406.54,-12 355.18,-12"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="355.15,-8.5 345.15,-12 355.15,-15.5 355.15,-8.5"/>
+<text text-anchor="middle" x="433" y="-14.4" font-family="Helvetica,sans-Serif" font-size="9.50">item</text>
+</g>
+<!-- type~map_s_indexwrapper -->
+<g id="type~~stateitemspec~~InheritsGraph_node10" class="node">
+<title>type~map_s_indexwrapper</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="129,-108 4,-108 4,-84 129,-84 129,-108"/>
+<text text-anchor="middle" x="66.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_Indexwrapper</text>
+</g>
+<!-- type~map_s_indexvector&#45;&gt;type~map_s_indexwrapper -->
+<g id="type~~stateitemspec~~InheritsGraph_edge8" class="edge">
+<title>type~map_s_indexvector&#45;&gt;type~map_s_indexwrapper</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M228.42,-96C201.17,-96 168.2,-96 139.21,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="139.14,-92.5 129.14,-96 139.14,-99.5 139.14,-92.5"/>
+<text text-anchor="middle" x="180" y="-98.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~map_s_itemwrapper -->
+<g id="type~~stateitemspec~~InheritsGraph_node11" class="node">
+<title>type~map_s_itemwrapper</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="127,-66 6,-66 6,-42 127,-42 127,-66"/>
+<text text-anchor="middle" x="66.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_Itemwrapper</text>
+</g>
+<!-- type~map_s_itemvector&#45;&gt;type~map_s_itemwrapper -->
+<g id="type~~stateitemspec~~InheritsGraph_edge9" class="edge">
+<title>type~map_s_itemvector&#45;&gt;type~map_s_itemwrapper</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M230.96,-54C202.59,-54 167.5,-54 137.11,-54"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="137,-50.5 127,-54 137,-57.5 137,-50.5"/>
+<text text-anchor="middle" x="180" y="-56.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- ESMF_StateIntent_Flag -->
+<g id="type~~stateitemspec~~InheritsGraph_node9" class="node">
+<title>ESMF_StateIntent_Flag</title>
+<g id="a_type~~stateitemspec~~InheritsGraph_node9"><a xlink:href="https://mathomp4.github.io/esmf/type/esmf_stateintent_flag.html" xlink:title="ESMF_StateIntent_Flag">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="133,-24 0,-24 0,0 133,0 133,-24"/>
+<text text-anchor="middle" x="66.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_StateIntent_Flag</text>
+</a>
+</g>
+</g>
+<!-- type~virtualconnectionpt&#45;&gt;ESMF_StateIntent_Flag -->
+<g id="type~~stateitemspec~~InheritsGraph_edge10" class="edge">
+<title>type~virtualconnectionpt&#45;&gt;ESMF_StateIntent_Flag</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M227,-12C201.33,-12 170.81,-12 143.37,-12"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="143.02,-8.5 133.02,-12 143.02,-15.5 143.02,-8.5"/>
+<text text-anchor="middle" x="180" y="-14.4" font-family="Helvetica,sans-Serif" font-size="9.50">state_intent</text>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pantypestateitemspecInheritsGraph = svgPanZoom('#typestateitemspecInheritsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#InheritsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="InheritsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="186pt" height="32pt"
+ viewBox="0.00 0.00 185.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 181.5,-28 181.5,4 -4,4"/>
+<!-- Type -->
+<g id="node1" class="node">
+<title>Type</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="177.5,-24 72.5,-24 72.5,0 177.5,0 177.5,-24"/>
+<text text-anchor="middle" x="125" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a derived type to the parent type which it
+extends. Dashed arrows point from a derived type to the other
+types it contains as a components, with a label listing the name(s) of
+said component(s).
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Inherited by</h3>
+        </div>
+        <div class="card-body">
+          <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: type~~stateitemspec~~InheritedByGraph Pages: 1 -->
+<svg id="typestateitemspecInheritedByGraph" width="641pt" height="430pt"
+ viewBox="0.00 0.00 641.00 430.08" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="type~~stateitemspec~~InheritedByGraph" class="graph" transform="scale(0.75 0.75) rotate(0) translate(4 571)">
+<title>type~~stateitemspec~~InheritedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-571 853,-571 853,4 -4,4"/>
+<!-- type~stateitemspec -->
+<g id="type~~stateitemspec~~InheritedByGraph_node1" class="node">
+<title>type~stateitemspec</title>
+<polygon fill="none" stroke="black" points="91,-280 0,-280 0,-256 91,-256 91,-280"/>
+<text text-anchor="middle" x="45.5" y="-265.6" font-family="Helvetica,sans-Serif" font-size="10.50">StateItemSpec</text>
+</g>
+<!-- type~actualptstateitemspecpair -->
+<g id="type~~stateitemspec~~InheritedByGraph_node2" class="node">
+<title>type~actualptstateitemspecpair</title>
+<g id="a_type~~stateitemspec~~InheritedByGraph_node2"><a xlink:href="../type/actualptstateitemspecpair.html" xlink:title="ActualPtStateItemSpecPair">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="316.5,-539 162.5,-539 162.5,-515 316.5,-515 316.5,-539"/>
+<text text-anchor="middle" x="239.5" y="-524.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ActualPtStateItemSpecPair</text>
+</a>
+</g>
+</g>
+<!-- type~actualptstateitemspecpair&#45;&gt;type~stateitemspec -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge2" class="edge">
+<title>type~actualptstateitemspecpair&#45;&gt;type~stateitemspec</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M182.58,-514.89C175.46,-512.42 168.42,-509.48 162,-506 134.32,-491 126.27,-485.32 109,-459 73.26,-404.54 56.41,-327.94 49.9,-290.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="53.29,-289.43 48.21,-280.14 46.38,-290.57 53.29,-289.43"/>
+<text text-anchor="middle" x="126.5" y="-497.4" font-family="Helvetica,sans-Serif" font-size="9.50">second</text>
+</g>
+<!-- type~mockitemspec -->
+<g id="type~~stateitemspec~~InheritedByGraph_node3" class="node">
+<title>type~mockitemspec</title>
+<g id="a_type~~stateitemspec~~InheritedByGraph_node3"><a xlink:href="../type/mockitemspec.html" xlink:title="MockItemSpec">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="285,-497 194,-497 194,-473 285,-473 285,-497"/>
+<text text-anchor="middle" x="239.5" y="-482.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockItemSpec</text>
+</a>
+</g>
+</g>
+<!-- type~mockitemspec&#45;&gt;type~stateitemspec -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge8" class="edge">
+<title>type~mockitemspec&#45;&gt;type~stateitemspec</title>
+<path fill="none" stroke="#ff0000" d="M193.99,-475.78C172.33,-469.69 146.86,-459.98 127.5,-445"/>
+</g>
+<!-- type~serviceclassaspect -->
+<g id="type~~stateitemspec~~InheritedByGraph_node4" class="node">
+<title>type~serviceclassaspect</title>
+<g id="a_type~~stateitemspec~~InheritedByGraph_node4"><a xlink:href="../type/serviceclassaspect.html" xlink:title="ServiceClassAspect">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="563.5,-458 447.5,-458 447.5,-434 563.5,-434 563.5,-458"/>
+<text text-anchor="middle" x="505.5" y="-443.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServiceClassAspect</text>
+</a>
+</g>
+</g>
+<!-- type~serviceclassaspect&#45;&gt;type~stateitemspec -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge6" class="edge">
+<title>type~serviceclassaspect&#45;&gt;type~stateitemspec</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M447.12,-447.67C344.7,-450.39 139.89,-454.59 127.5,-445"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M125.5,-445C75.77,-405.68 56.45,-328.37 49.71,-290.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="53.14,-289.53 48.07,-280.22 46.23,-290.66 53.14,-289.53"/>
+<text text-anchor="middle" x="239.5" y="-452.4" font-family="Helvetica,sans-Serif" font-size="9.50">reference_spec</text>
+</g>
+<!-- type~stateitemspecptr -->
+<g id="type~~stateitemspec~~InheritedByGraph_node7" class="node">
+<title>type~stateitemspecptr</title>
+<g id="a_type~~stateitemspec~~InheritedByGraph_node7"><a xlink:href="../type/stateitemspecptr.html" xlink:title="StateItemSpecPtr">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="292,-366 187,-366 187,-342 292,-342 292,-366"/>
+<text text-anchor="middle" x="239.5" y="-351.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemSpecPtr</text>
+</a>
+</g>
+</g>
+<!-- type~serviceclassaspect&#45;&gt;type~stateitemspecptr -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge15" class="edge">
+<title>type~serviceclassaspect&#45;&gt;type~stateitemspecptr</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M461.98,-433.98C412.02,-419.86 335.77,-398.29 335,-398 313.96,-390.18 291.12,-379.61 273.17,-370.79"/>
+<polygon fill="#003fff" stroke="#003fff" points="274.26,-367.42 263.74,-366.1 271.14,-373.69 274.26,-367.42"/>
+<text text-anchor="middle" x="375.5" y="-422.4" font-family="Helvetica,sans-Serif" font-size="9.50">items_to_service</text>
+</g>
+<!-- type~stateitemextension -->
+<g id="type~~stateitemspec~~InheritedByGraph_node5" class="node">
+<title>type~stateitemextension</title>
+<g id="a_type~~stateitemspec~~InheritedByGraph_node5"><a xlink:href="../type/stateitemextension.html" xlink:title="StateItemExtension">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="297.5,-280 181.5,-280 181.5,-256 297.5,-256 297.5,-280"/>
+<text text-anchor="middle" x="239.5" y="-265.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtension</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemextension&#45;&gt;type~stateitemspec -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge3" class="edge">
+<title>type~stateitemextension&#45;&gt;type~stateitemspec</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M181.41,-268C156.06,-268 126.34,-268 101.26,-268"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="101.18,-264.5 91.18,-268 101.18,-271.5 101.18,-264.5"/>
+<text text-anchor="middle" x="126.5" y="-270.4" font-family="Helvetica,sans-Serif" font-size="9.50">spec</text>
+</g>
+<!-- type~stateitemspecpair -->
+<g id="type~~stateitemspec~~InheritedByGraph_node6" class="node">
+<title>type~stateitemspecpair</title>
+<g id="a_type~~stateitemspec~~InheritedByGraph_node6"><a xlink:href="../type/stateitemspecpair.html" xlink:title="StateItemSpecPair">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="295,-226 184,-226 184,-202 295,-202 295,-226"/>
+<text text-anchor="middle" x="239.5" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemSpecPair</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemspecpair&#45;&gt;type~stateitemspec -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge4" class="edge">
+<title>type~stateitemspecpair&#45;&gt;type~stateitemspec</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M195.41,-226.12C167,-234.11 129.6,-244.63 99.39,-253.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="98.12,-249.84 89.44,-255.92 100.02,-256.58 98.12,-249.84"/>
+<text text-anchor="middle" x="126.5" y="-250.4" font-family="Helvetica,sans-Serif" font-size="9.50">second</text>
+</g>
+<!-- type~stateitemspecptr&#45;&gt;type~stateitemspec -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge1" class="edge">
+<title>type~stateitemspecptr&#45;&gt;type~stateitemspec</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M211.4,-341.86C177.81,-326.81 120.43,-301.11 82.99,-284.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="84.02,-280.97 73.46,-280.08 81.16,-287.36 84.02,-280.97"/>
+<text text-anchor="middle" x="126.5" y="-313.4" font-family="Helvetica,sans-Serif" font-size="9.50">ptr</text>
+</g>
+<!-- type~vector_wrapper~23 -->
+<g id="type~~stateitemspec~~InheritedByGraph_node8" class="node">
+<title>type~vector_wrapper~23</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="287.5,-136 191.5,-136 191.5,-112 287.5,-112 287.5,-136"/>
+<text text-anchor="middle" x="239.5" y="-121.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vector_wrapper</text>
+</g>
+<!-- type~vector_wrapper~23&#45;&gt;type~stateitemspec -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge5" class="edge">
+<title>type~vector_wrapper~23&#45;&gt;type~stateitemspec</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M222.46,-136.03C188.79,-161.28 110.57,-219.95 70.74,-249.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="68.53,-247.1 62.63,-255.9 72.73,-252.7 68.53,-247.1"/>
+<text text-anchor="middle" x="126.5" y="-219.4" font-family="Helvetica,sans-Serif" font-size="9.50">item</text>
+</g>
+<!-- type~virtualptstateitemspecpair -->
+<g id="type~~stateitemspec~~InheritedByGraph_node9" class="node">
+<title>type~virtualptstateitemspecpair</title>
+<g id="a_type~~stateitemspec~~InheritedByGraph_node9"><a xlink:href="../type/virtualptstateitemspecpair.html" xlink:title="VirtualPtStateItemSpecPair">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="317,-82 162,-82 162,-58 317,-58 317,-82"/>
+<text text-anchor="middle" x="239.5" y="-67.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VirtualPtStateItemSpecPair</text>
+</a>
+</g>
+</g>
+<!-- type~virtualptstateitemspecpair&#45;&gt;type~stateitemspec -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge7" class="edge">
+<title>type~virtualptstateitemspecpair&#45;&gt;type~stateitemspec</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M199.21,-82.12C186.49,-87.25 172.88,-94.14 162,-103 111.67,-144.01 73.59,-212.33 56.47,-246.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="53.24,-245.4 52.02,-255.92 59.54,-248.46 53.24,-245.4"/>
+<text text-anchor="middle" x="126.5" y="-161.4" font-family="Helvetica,sans-Serif" font-size="9.50">second</text>
+</g>
+<!-- type~actualptspecptrpair -->
+<g id="type~~stateitemspec~~InheritedByGraph_node10" class="node">
+<title>type~actualptspecptrpair</title>
+<g id="a_type~~stateitemspec~~InheritedByGraph_node10"><a xlink:href="../type/actualptspecptrpair.html" xlink:title="ActualPtSpecPtrPair">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="563.5,-416 447.5,-416 447.5,-392 563.5,-392 563.5,-416"/>
+<text text-anchor="middle" x="505.5" y="-401.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ActualPtSpecPtrPair</text>
+</a>
+</g>
+</g>
+<!-- type~actualptspecptrpair&#45;&gt;type~stateitemspecptr -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge14" class="edge">
+<title>type~actualptspecptrpair&#45;&gt;type~stateitemspecptr</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M447.22,-393.15C404.45,-385.05 346.07,-373.99 302.26,-365.7"/>
+<polygon fill="#003fff" stroke="#003fff" points="302.78,-362.23 292.3,-363.81 301.48,-369.11 302.78,-362.23"/>
+<text text-anchor="middle" x="375.5" y="-388.4" font-family="Helvetica,sans-Serif" font-size="9.50">second</text>
+</g>
+<!-- type~map_s_node~13 -->
+<g id="type~~stateitemspec~~InheritedByGraph_node11" class="node">
+<title>type~map_s_node~13</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="545.5,-539 465.5,-539 465.5,-515 545.5,-515 545.5,-539"/>
+<text text-anchor="middle" x="505.5" y="-524.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_Node</text>
+</g>
+<!-- type~map_s_node~13&#45;&gt;type~actualptstateitemspecpair -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge9" class="edge">
+<title>type~map_s_node~13&#45;&gt;type~actualptstateitemspecpair</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M465.26,-527C428.86,-527 373.44,-527 326.73,-527"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="326.61,-523.5 316.61,-527 326.61,-530.5 326.61,-523.5"/>
+<text text-anchor="middle" x="375.5" y="-529.4" font-family="Helvetica,sans-Serif" font-size="9.50">value</text>
+</g>
+<!-- type~map_s_node~13&#45;&gt;type~map_s_node~13 -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge21" class="edge">
+<title>type~map_s_node~13&#45;&gt;type~map_s_node~13</title>
+<path fill="none" stroke="#ff9900" stroke-dasharray="5,2" d="M524.02,-539.01C530.49,-547.97 524.31,-557 505.5,-557 494.04,-557 487.27,-553.65 485.19,-549"/>
+<polygon fill="#ff9900" stroke="#ff9900" points="488.66,-549.47 486.98,-539.01 481.77,-548.24 488.66,-549.47"/>
+<text text-anchor="middle" x="505.5" y="-559.4" font-family="Helvetica,sans-Serif" font-size="9.50">parent</text>
+</g>
+<!-- type~map_s_node~14 -->
+<g id="type~~stateitemspec~~InheritedByGraph_node12" class="node">
+<title>type~map_s_node~14</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="545.5,-178 465.5,-178 465.5,-154 545.5,-154 545.5,-178"/>
+<text text-anchor="middle" x="505.5" y="-163.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_Node</text>
+</g>
+<!-- type~map_s_node~14&#45;&gt;type~stateitemspecpair -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge12" class="edge">
+<title>type~map_s_node~14&#45;&gt;type~stateitemspecpair</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M465.26,-173.13C423.07,-180.81 355.3,-193.13 305.2,-202.24"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="304.32,-198.84 295.11,-204.07 305.57,-205.73 304.32,-198.84"/>
+<text text-anchor="middle" x="375.5" y="-197.4" font-family="Helvetica,sans-Serif" font-size="9.50">value</text>
+</g>
+<!-- type~map_s_node~14&#45;&gt;type~map_s_node~14 -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge23" class="edge">
+<title>type~map_s_node~14&#45;&gt;type~map_s_node~14</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M524.02,-178.01C530.49,-186.97 524.31,-196 505.5,-196 494.04,-196 487.27,-192.65 485.19,-188"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="488.66,-188.47 486.98,-178.01 481.77,-187.24 488.66,-188.47"/>
+<text text-anchor="middle" x="505.5" y="-198.4" font-family="Helvetica,sans-Serif" font-size="9.50">parent</text>
+</g>
+<!-- type~map_s_node~16 -->
+<g id="type~~stateitemspec~~InheritedByGraph_node13" class="node">
+<title>type~map_s_node~16</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="545.5,-24 465.5,-24 465.5,0 545.5,0 545.5,-24"/>
+<text text-anchor="middle" x="505.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_Node</text>
+</g>
+<!-- type~map_s_node~16&#45;&gt;type~virtualptstateitemspecpair -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge19" class="edge">
+<title>type~map_s_node~16&#45;&gt;type~virtualptstateitemspecpair</title>
+<path fill="none" stroke="#ff00bf" stroke-dasharray="5,2" d="M465.26,-20.62C423.11,-29.88 355.45,-44.75 305.36,-55.75"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="304.61,-52.33 295.59,-57.9 306.11,-59.17 304.61,-52.33"/>
+<text text-anchor="middle" x="375.5" y="-49.4" font-family="Helvetica,sans-Serif" font-size="9.50">value</text>
+</g>
+<!-- type~map_s_node~16&#45;&gt;type~map_s_node~16 -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge25" class="edge">
+<title>type~map_s_node~16&#45;&gt;type~map_s_node~16</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M524.02,-24.01C530.49,-32.97 524.31,-42 505.5,-42 494.04,-42 487.27,-38.65 485.19,-34"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="488.66,-34.47 486.98,-24.01 481.77,-33.24 488.66,-34.47"/>
+<text text-anchor="middle" x="505.5" y="-44.4" font-family="Helvetica,sans-Serif" font-size="9.50">parent</text>
+</g>
+<!-- type~stateitemextensionptr -->
+<g id="type~~stateitemspec~~InheritedByGraph_node14" class="node">
+<title>type~stateitemextensionptr</title>
+<g id="a_type~~stateitemspec~~InheritedByGraph_node14"><a xlink:href="../type/stateitemextensionptr.html" xlink:title="StateItemExtensionPtr">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="570.5,-290 440.5,-290 440.5,-266 570.5,-266 570.5,-290"/>
+<text text-anchor="middle" x="505.5" y="-275.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtensionPtr</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemextensionptr&#45;&gt;type~stateitemextension -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge11" class="edge">
+<title>type~stateitemextensionptr&#45;&gt;type~stateitemextension</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M440.26,-275.57C400.16,-274.05 348.61,-272.1 307.92,-270.55"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="307.95,-267.05 297.83,-270.17 307.69,-274.05 307.95,-267.05"/>
+<text text-anchor="middle" x="375.5" y="-276.4" font-family="Helvetica,sans-Serif" font-size="9.50">ptr</text>
+</g>
+<!-- type~stateitemvector -->
+<g id="type~~stateitemspec~~InheritedByGraph_node15" class="node">
+<title>type~stateitemvector</title>
+<g id="a_type~~stateitemspec~~InheritedByGraph_node15"><a xlink:href="../type/stateitemvector.html" xlink:title="StateItemVector">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="554.5,-136 456.5,-136 456.5,-112 554.5,-112 554.5,-136"/>
+<text text-anchor="middle" x="505.5" y="-121.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemVector</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemvector&#45;&gt;type~vector_wrapper~23 -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge17" class="edge">
+<title>type~stateitemvector&#45;&gt;type~vector_wrapper~23</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M456.39,-124C411.77,-124 345.32,-124 297.94,-124"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="297.84,-120.5 287.84,-124 297.84,-127.5 297.84,-120.5"/>
+<text text-anchor="middle" x="375.5" y="-126.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~stateitemvectoriterator -->
+<g id="type~~stateitemspec~~InheritedByGraph_node16" class="node">
+<title>type~stateitemvectoriterator</title>
+<g id="a_type~~stateitemspec~~InheritedByGraph_node16"><a xlink:href="../type/stateitemvectoriterator.html" xlink:title="StateItemVectorIterator">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="574.5,-94 436.5,-94 436.5,-70 574.5,-70 574.5,-94"/>
+<text text-anchor="middle" x="505.5" y="-79.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemVectorIterator</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemvectoriterator&#45;&gt;type~vector_wrapper~23 -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge18" class="edge">
+<title>type~stateitemvectoriterator&#45;&gt;type~vector_wrapper~23</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M436.17,-92.87C393.21,-99.7 338.43,-108.42 297.76,-114.89"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="297.06,-111.46 287.74,-116.48 298.16,-118.37 297.06,-111.46"/>
+<text text-anchor="middle" x="375.5" y="-109.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~vector_wrapper~22 -->
+<g id="type~~stateitemspec~~InheritedByGraph_node17" class="node">
+<title>type~vector_wrapper~22</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="553.5,-374 457.5,-374 457.5,-350 553.5,-350 553.5,-374"/>
+<text text-anchor="middle" x="505.5" y="-359.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vector_wrapper</text>
+</g>
+<!-- type~vector_wrapper~22&#45;&gt;type~stateitemspecptr -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge16" class="edge">
+<title>type~vector_wrapper~22&#45;&gt;type~stateitemspecptr</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M457.23,-357.62C443.91,-356.56 429.4,-355.57 416,-355 378.34,-353.41 336.1,-353.12 302.5,-353.25"/>
+<polygon fill="#003fff" stroke="#003fff" points="302.34,-349.75 292.36,-353.3 302.38,-356.75 302.34,-349.75"/>
+<text text-anchor="middle" x="375.5" y="-357.4" font-family="Helvetica,sans-Serif" font-size="9.50">item</text>
+</g>
+<!-- type~vector_wrapper~25 -->
+<g id="type~~stateitemspec~~InheritedByGraph_node18" class="node">
+<title>type~vector_wrapper~25</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="553.5,-248 457.5,-248 457.5,-224 553.5,-224 553.5,-248"/>
+<text text-anchor="middle" x="505.5" y="-233.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vector_wrapper</text>
+</g>
+<!-- type~vector_wrapper~25&#45;&gt;type~stateitemextension -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge10" class="edge">
+<title>type~vector_wrapper~25&#45;&gt;type~stateitemextension</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M457.3,-241.72C415.71,-246.76 354.64,-254.16 307.91,-259.83"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="307.37,-256.37 297.87,-261.05 308.22,-263.32 307.37,-256.37"/>
+<text text-anchor="middle" x="375.5" y="-257.4" font-family="Helvetica,sans-Serif" font-size="9.50">item</text>
+</g>
+<!-- type~virtualptstateitemptrpair -->
+<g id="type~~stateitemspec~~InheritedByGraph_node19" class="node">
+<title>type~virtualptstateitemptrpair</title>
+<g id="a_type~~stateitemspec~~InheritedByGraph_node19"><a xlink:href="../type/virtualptstateitemptrpair.html" xlink:title="VirtualPtStateItemPtrPair">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="577,-332 434,-332 434,-308 577,-308 577,-332"/>
+<text text-anchor="middle" x="505.5" y="-317.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VirtualPtStateItemPtrPair</text>
+</a>
+</g>
+</g>
+<!-- type~virtualptstateitemptrpair&#45;&gt;type~stateitemspecptr -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge13" class="edge">
+<title>type~virtualptstateitemptrpair&#45;&gt;type~stateitemspecptr</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M433.9,-327.18C403.44,-330.47 367.42,-334.61 335,-339 324.52,-340.42 313.41,-342.06 302.63,-343.72"/>
+<polygon fill="#003fff" stroke="#003fff" points="301.77,-340.32 292.43,-345.32 302.85,-347.23 301.77,-340.32"/>
+<text text-anchor="middle" x="375.5" y="-341.4" font-family="Helvetica,sans-Serif" font-size="9.50">second</text>
+</g>
+<!-- type~map_s_node~12 -->
+<g id="type~~stateitemspec~~InheritedByGraph_node20" class="node">
+<title>type~map_s_node~12</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="794,-458 714,-458 714,-434 794,-434 794,-458"/>
+<text text-anchor="middle" x="754" y="-443.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_Node</text>
+</g>
+<!-- type~map_s_node~12&#45;&gt;type~actualptspecptrpair -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge20" class="edge">
+<title>type~map_s_node~12&#45;&gt;type~actualptspecptrpair</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M713.94,-439.34C676.33,-432.94 618.68,-423.11 573.7,-415.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="574.17,-411.98 563.72,-413.75 572.99,-418.88 574.17,-411.98"/>
+<text text-anchor="middle" x="618" y="-428.4" font-family="Helvetica,sans-Serif" font-size="9.50">value</text>
+</g>
+<!-- type~map_s_node~15 -->
+<g id="type~~stateitemspec~~InheritedByGraph_node21" class="node">
+<title>type~map_s_node~15</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="794,-332 714,-332 714,-308 794,-308 794,-332"/>
+<text text-anchor="middle" x="754" y="-317.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_Node</text>
+</g>
+<!-- type~map_s_node~15&#45;&gt;type~virtualptstateitemptrpair -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge33" class="edge">
+<title>type~map_s_node~15&#45;&gt;type~virtualptstateitemptrpair</title>
+<path fill="none" stroke="#ff0098" stroke-dasharray="5,2" d="M713.94,-320C680.01,-320 629.77,-320 587.23,-320"/>
+<polygon fill="#ff0098" stroke="#ff0098" points="587.16,-316.5 577.16,-320 587.16,-323.5 587.16,-316.5"/>
+<text text-anchor="middle" x="618" y="-322.4" font-family="Helvetica,sans-Serif" font-size="9.50">value</text>
+</g>
+<!-- type~map_setiterator~15 -->
+<g id="type~~stateitemspec~~InheritedByGraph_node22" class="node">
+<title>type~map_setiterator~15</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="803.5,-539 704.5,-539 704.5,-515 803.5,-515 803.5,-539"/>
+<text text-anchor="middle" x="754" y="-524.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_SetIterator</text>
+</g>
+<!-- type~map_setiterator~15&#45;&gt;type~map_s_node~13 -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge22" class="edge">
+<title>type~map_setiterator~15&#45;&gt;type~map_s_node~13</title>
+<path fill="none" stroke="#ff9900" stroke-dasharray="5,2" d="M704.3,-527C661.4,-527 599.18,-527 556.03,-527"/>
+<polygon fill="#ff9900" stroke="#ff9900" points="555.77,-523.5 545.77,-527 555.77,-530.5 555.77,-523.5"/>
+<text text-anchor="middle" x="618" y="-529.4" font-family="Helvetica,sans-Serif" font-size="9.50">node</text>
+</g>
+<!-- type~map_setiterator~16 -->
+<g id="type~~stateitemspec~~InheritedByGraph_node23" class="node">
+<title>type~map_setiterator~16</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="803.5,-164 704.5,-164 704.5,-140 803.5,-140 803.5,-164"/>
+<text text-anchor="middle" x="754" y="-149.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_SetIterator</text>
+</g>
+<!-- type~map_setiterator~16&#45;&gt;type~map_s_node~14 -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge24" class="edge">
+<title>type~map_setiterator~16&#45;&gt;type~map_s_node~14</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M704.3,-154.77C661.3,-157.21 598.92,-160.75 555.76,-163.2"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="555.55,-159.71 545.77,-163.77 555.95,-166.7 555.55,-159.71"/>
+<text text-anchor="middle" x="618" y="-162.4" font-family="Helvetica,sans-Serif" font-size="9.50">node</text>
+</g>
+<!-- type~map_setiterator~18 -->
+<g id="type~~stateitemspec~~InheritedByGraph_node24" class="node">
+<title>type~map_setiterator~18</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="803.5,-24 704.5,-24 704.5,0 803.5,0 803.5,-24"/>
+<text text-anchor="middle" x="754" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_SetIterator</text>
+</g>
+<!-- type~map_setiterator~18&#45;&gt;type~map_s_node~16 -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge26" class="edge">
+<title>type~map_setiterator~18&#45;&gt;type~map_s_node~16</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M704.3,-12C661.4,-12 599.18,-12 556.03,-12"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="555.77,-8.5 545.77,-12 555.77,-15.5 555.77,-8.5"/>
+<text text-anchor="middle" x="618" y="-14.4" font-family="Helvetica,sans-Serif" font-size="9.50">node</text>
+</g>
+<!-- type~stateitemextensionvector -->
+<g id="type~~stateitemspec~~InheritedByGraph_node25" class="node">
+<title>type~stateitemextensionvector</title>
+<g id="a_type~~stateitemspec~~InheritedByGraph_node25"><a xlink:href="../type/stateitemextensionvector.html" xlink:title="StateItemExtensionVector">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="829,-248 679,-248 679,-224 829,-224 829,-248"/>
+<text text-anchor="middle" x="754" y="-233.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtensionVector</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemextensionvector&#45;&gt;type~vector_wrapper~25 -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge31" class="edge">
+<title>type~stateitemextensionvector&#45;&gt;type~vector_wrapper~25</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M678.71,-236C641.97,-236 598.29,-236 564.12,-236"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="563.84,-232.5 553.84,-236 563.84,-239.5 563.84,-232.5"/>
+<text text-anchor="middle" x="618" y="-238.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~stateitemextensionvectoriterator -->
+<g id="type~~stateitemspec~~InheritedByGraph_node26" class="node">
+<title>type~stateitemextensionvectoriterator</title>
+<g id="a_type~~stateitemspec~~InheritedByGraph_node26"><a xlink:href="../type/stateitemextensionvectoriterator.html" xlink:title="StateItemExtensionVectorIterator">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="849,-206 659,-206 659,-182 849,-182 849,-206"/>
+<text text-anchor="middle" x="754" y="-191.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtensionVectorIterator</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemextensionvectoriterator&#45;&gt;type~vector_wrapper~25 -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge32" class="edge">
+<title>type~stateitemextensionvectoriterator&#45;&gt;type~vector_wrapper~25</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M682.36,-206.04C644.81,-212.43 599.24,-220.2 563.9,-226.22"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="563.02,-222.82 553.75,-227.95 564.19,-229.72 563.02,-222.82"/>
+<text text-anchor="middle" x="618" y="-221.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~stateitemspecptrvector -->
+<g id="type~~stateitemspec~~InheritedByGraph_node27" class="node">
+<title>type~stateitemspecptrvector</title>
+<g id="a_type~~stateitemspec~~InheritedByGraph_node27"><a xlink:href="../type/stateitemspecptrvector.html" xlink:title="StateItemSpecPtrVector">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="823.5,-416 684.5,-416 684.5,-392 823.5,-392 823.5,-416"/>
+<text text-anchor="middle" x="754" y="-401.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemSpecPtrVector</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemspecptrvector&#45;&gt;type~vector_wrapper~22 -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge29" class="edge">
+<title>type~stateitemspecptrvector&#45;&gt;type~vector_wrapper~22</title>
+<path fill="none" stroke="#3200ff" stroke-dasharray="5,2" d="M684.34,-392.3C646.48,-385.85 600,-377.93 564.06,-371.81"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="564.19,-368.28 553.75,-370.05 563.02,-375.18 564.19,-368.28"/>
+<text text-anchor="middle" x="618" y="-386.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~stateitemspecptrvectoriterator -->
+<g id="type~~stateitemspec~~InheritedByGraph_node28" class="node">
+<title>type~stateitemspecptrvectoriterator</title>
+<g id="a_type~~stateitemspec~~InheritedByGraph_node28"><a xlink:href="../type/stateitemspecptrvectoriterator.html" xlink:title="StateItemSpecPtrVectorIterator">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="843,-374 665,-374 665,-350 843,-350 843,-374"/>
+<text text-anchor="middle" x="754" y="-359.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemSpecPtrVectorIterator</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemspecptrvectoriterator&#45;&gt;type~vector_wrapper~22 -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge30" class="edge">
+<title>type~stateitemspecptrvectoriterator&#45;&gt;type~vector_wrapper~22</title>
+<path fill="none" stroke="#3200ff" stroke-dasharray="5,2" d="M664.7,-362C631.22,-362 593.97,-362 564.04,-362"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="563.77,-358.5 553.77,-362 563.77,-365.5 563.77,-358.5"/>
+<text text-anchor="middle" x="618" y="-364.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~vector_wrapper~24 -->
+<g id="type~~stateitemspec~~InheritedByGraph_node29" class="node">
+<title>type~vector_wrapper~24</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="802,-290 706,-290 706,-266 802,-266 802,-290"/>
+<text text-anchor="middle" x="754" y="-275.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vector_wrapper</text>
+</g>
+<!-- type~vector_wrapper~24&#45;&gt;type~stateitemextensionptr -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge27" class="edge">
+<title>type~vector_wrapper~24&#45;&gt;type~stateitemextensionptr</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M705.76,-278C670.45,-278 621.48,-278 580.93,-278"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="580.81,-274.5 570.81,-278 580.81,-281.5 580.81,-274.5"/>
+<text text-anchor="middle" x="618" y="-280.4" font-family="Helvetica,sans-Serif" font-size="9.50">item</text>
+</g>
+<!-- type~vectorriterator~18 -->
+<g id="type~~stateitemspec~~InheritedByGraph_node30" class="node">
+<title>type~vectorriterator~18</title>
+<g id="a_type~~stateitemspec~~InheritedByGraph_node30"><a xlink:href="../type/vectorriterator~18.html" xlink:title="VectorRIterator">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="801,-94 707,-94 707,-70 801,-70 801,-94"/>
+<text text-anchor="middle" x="754" y="-79.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VectorRIterator</text>
+</a>
+</g>
+</g>
+<!-- type~vectorriterator~18&#45;&gt;type~stateitemvectoriterator -->
+<g id="type~~stateitemspec~~InheritedByGraph_edge28" class="edge">
+<title>type~vectorriterator~18&#45;&gt;type~stateitemvectoriterator</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M706.92,-82C672.63,-82 624.98,-82 584.75,-82"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="584.7,-78.5 574.7,-82 584.7,-85.5 584.7,-78.5"/>
+<text text-anchor="middle" x="618" y="-84.4" font-family="Helvetica,sans-Serif" font-size="9.50">iterator</text>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pantypestateitemspecInheritedByGraph = svgPanZoom('#typestateitemspecInheritedByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#InheritedByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="InheritedByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="186pt" height="32pt"
+ viewBox="0.00 0.00 185.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 181.5,-28 181.5,4 -4,4"/>
+<!-- Type -->
+<g id="node1" class="node">
+<title>Type</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="177.5,-24 72.5,-24 72.5,0 177.5,0 177.5,-24"/>
+<text text-anchor="middle" x="125" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a derived type to the parent type which it
+extends. Dashed arrows point from a derived type to the other
+types it contains as a components, with a label listing the name(s) of
+said component(s).
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    <br>
+
+    
+      <section>
+        <h2>Constructor</h2>
+            <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-stateitemspec"></span>
+      <h3>public        interface <a href='../interface/stateitemspec.html'>StateItemSpec</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    public  function <a href='../proc/new_stateitemspec.html'>new_StateItemSpec</a>(aspects, dependencies) result(spec)  
+
+    </h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-aspects~2"></span>
+              type(<a href='aspectmap.html'>AspectMap</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>aspects</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dependencies~2"></span>
+              type(<a href='virtualconnectionptvector.html'>VirtualConnectionPtVector</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dependencies</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='stateitemspec.html'>StateItemSpec</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+      </section>
+      <br>
+
+
+      <section>
+        <h2>Type-Bound Procedures</h2>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-activate~2"></span>
+      <h3>
+          procedure, public, non_overridable ::
+  <strong>activate</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private recursive subroutine activate(this, rc)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-add_to_state"></span>
+      <h3>
+          procedure, public ::
+  <strong>add_to_state</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  subroutine add_to_state(this, multi_state, actual_pt, rc)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='multistate.html'>MultiState</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>multi_state</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='actualconnectionpt.html'>ActualConnectionPt</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>actual_pt</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-allocate"></span>
+      <h3>
+          procedure, public ::
+  <strong>allocate</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  subroutine allocate(this, rc)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-can_connect_to"></span>
+      <h3>
+          procedure, public ::
+  <strong>can_connect_to</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function can_connect_to(this, export, rc)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>export</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-connect~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>connect</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  subroutine connect(import, export, actual_pt, rc)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>import</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>export</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='actualconnectionpt.html'>ActualConnectionPt</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>actual_pt</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-connect_to_export"></span>
+      <h3>
+          procedure, public ::
+  <strong>connect_to_export</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  subroutine connect_to_export(this, export, actual_pt, rc)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>export</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='actualconnectionpt.html'>ActualConnectionPt</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>actual_pt</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-connect_to_import"></span>
+      <h3>
+          procedure, public ::
+  <strong>connect_to_import</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  subroutine connect_to_import(this, import, rc)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>import</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-create"></span>
+      <h3>
+          procedure, public ::
+  <strong>create</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  subroutine create(this, rc)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-destroy"></span>
+      <h3>
+          procedure, public ::
+  <strong>destroy</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  subroutine destroy(this, rc)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-get_aspect"></span>
+      <h3>
+          generic, public ::
+  <strong>get_aspect</strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/stateitemspec.html#boundprocedure-get_aspect_by_id'>get_aspect_by_id</a>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function get_aspect_by_id(this, aspect_id, rc) result(aspect)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='aspectid.html'>AspectId</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>aspect_id</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>class(<a href='stateitemaspect.html'>StateItemAspect</a>), pointer</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-get_aspect_by_id"></span>
+      <h3>
+          procedure, public ::
+  <strong>get_aspect_by_id</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function get_aspect_by_id(this, aspect_id, rc) result(aspect)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='aspectid.html'>AspectId</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>aspect_id</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>class(<a href='stateitemaspect.html'>StateItemAspect</a>), pointer</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-get_aspect_order"></span>
+      <h3>
+          procedure, public ::
+  <strong>get_aspect_order</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function get_aspect_order(src_spec, dst_spec, rc) result(ids)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>src_spec</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>dst_spec</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='aspectid.html'>AspectId</a>), allocatable, (:)</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-get_aspect_priorities"></span>
+      <h3>
+          procedure, public ::
+  <strong>get_aspect_priorities</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function get_aspect_priorities(src_spec, dst_spec) result(order)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>src_spec</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dst_spec</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>character(len=:), allocatable</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-get_aspects"></span>
+      <h3>
+          procedure, public ::
+  <strong>get_aspects</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function get_aspects(this) result(aspects)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='aspectmap.html'>AspectMap</a>), pointer</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-get_dependencies"></span>
+      <h3>
+          procedure, public ::
+  <strong>get_dependencies</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function get_dependencies(this) result(dependencies)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='virtualconnectionptvector.html'>VirtualConnectionPtVector</a>)</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-is_active~4"></span>
+      <h3>
+          procedure, public, non_overridable ::
+  <strong>is_active</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private pure function is_active(this)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-is_allocated"></span>
+      <h3>
+          procedure, public, non_overridable ::
+  <strong>is_allocated</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private pure function is_allocated(this)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-make_extension"></span>
+      <h3>
+          procedure, public ::
+  <strong>make_extension</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function make_extension(this, aspect_name, aspect, rc) result(new_spec)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>aspect_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemaspect.html'>StateItemAspect</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>aspect</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>class(<a href='stateitemspec.html'>StateItemSpec</a>), allocatable</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-set_allocated"></span>
+      <h3>
+          procedure, public, non_overridable ::
+  <strong>set_allocated</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private pure subroutine set_allocated(this, allocated)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>allocated</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-set_aspect"></span>
+      <h3>
+          procedure, public ::
+  <strong>set_aspect</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  subroutine set_aspect(this, aspect, rc)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemaspect.html'>StateItemAspect</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>aspect</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-set_dependencies"></span>
+      <h3>
+          procedure, public ::
+  <strong>set_dependencies</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  subroutine set_dependencies(this, dependencies)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='virtualconnectionptvector.html'>VirtualConnectionPtVector</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dependencies</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-set_geometry"></span>
+      <h3>
+          procedure, public ::
+  <strong>set_geometry</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  subroutine set_geometry(this, geom, vertical_grid, rc)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_geom.html'>ESMF_Geom</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>geom</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='verticalgrid.html'>VerticalGrid</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vertical_grid</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+      </section>
+
+    <section>
+    <h3><span class="anchor" id="src"></span>Source Code</h3>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">StateItemSpec</span>
+<span class="w">      </span><span class="k">private</span>
+
+<span class="k">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">active</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">allocated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">VirtualConnectionPtVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dependencies</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">AspectMap</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">aspects</span>
+<span class="w">   </span><span class="k">contains</span>
+
+<span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_aspect_order</span><span class="w"> </span><span class="c">! as string vector</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_aspect_priorities</span><span class="w"> </span><span class="c">! default implementation as aid to refactoring</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_extension</span>
+
+<span class="c">!#      procedure(I_write_formatted), deferred :: write_formatted</span>
+<span class="c">!##ifndef __GFORTRAN__</span>
+<span class="c">!#      generic :: write(formatted) =&gt; write_formatted</span>
+<span class="c">!##endif</span>
+
+<span class="w">      </span><span class="k">procedure</span><span class="p">,</span><span class="w"> </span><span class="k">non_overridable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_allocated</span>
+<span class="w">      </span><span class="k">procedure</span><span class="p">,</span><span class="w"> </span><span class="k">non_overridable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">is_allocated</span>
+<span class="w">      </span><span class="k">procedure</span><span class="p">,</span><span class="w"> </span><span class="k">non_overridable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">is_active</span>
+<span class="w">      </span><span class="k">procedure</span><span class="p">,</span><span class="w"> </span><span class="k">non_overridable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">activate</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_aspect_by_id</span>
+<span class="w">      </span><span class="k">generic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_aspect</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_aspect_by_id</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_aspects</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_aspect</span>
+
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_dependencies</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_dependencies</span>
+
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">create</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">destroy</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">allocate</span>
+
+<span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">connect</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">connect_to_import</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">connect_to_export</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">can_connect_to</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_to_state</span>
+
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_geometry</span>
+<span class="w">   </span><span class="k">end type </span><span class="n">StateItemSpec</span>
+</pre></div>
+
+    </section>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

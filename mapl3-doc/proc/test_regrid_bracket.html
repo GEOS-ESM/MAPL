@@ -1,0 +1,790 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>test_regrid_bracket &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>test_regrid_bracket
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">107 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_RegridderManager.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_regriddermanager.pf.html'>Test_RegridderManager.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_regriddermanager.html'>Test_RegridderManager</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_regrid_bracket</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/test_regrid_bracket.html#src">test_regrid_bracket</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine test_regrid_bracket(this)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~1775"></span>
+              class(<a href='../type/esmf_testmethod.html'>ESMF_TestMethod</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~test_regrid_bracket~~CallsGraph Pages: 1 -->
+<svg id="proctest_regrid_bracketCallsGraph" width="596pt" height="713pt"
+ viewBox="0.00 0.00 596.00 713.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~test_regrid_bracket~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 709)">
+<title>proc~~test_regrid_bracket~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-709 592,-709 592,4 -4,4"/>
+<!-- proc~test_regrid_bracket -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node1" class="node">
+<title>proc~test_regrid_bracket</title>
+<polygon fill="none" stroke="black" points="115,-401 0,-401 0,-377 115,-377 115,-401"/>
+<text text-anchor="middle" x="57.5" y="-386.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_regrid_bracket</text>
+</g>
+<!-- ESMF_HConfigCreate -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node2" class="node">
+<title>ESMF_HConfigCreate</title>
+<g id="a_proc~~test_regrid_bracket~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_hconfigcreate.html" xlink:title="ESMF_HConfigCreate">
+<polygon fill="#a7506f" stroke="#a7506f" points="546.5,-705 422.5,-705 422.5,-681 546.5,-681 546.5,-705"/>
+<text text-anchor="middle" x="484.5" y="-690.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_HConfigCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~test_regrid_bracket&#45;&gt;ESMF_HConfigCreate -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge1" class="edge">
+<title>proc~test_regrid_bracket&#45;&gt;ESMF_HConfigCreate</title>
+<path fill="none" stroke="#ff0000" d="M59.31,-401.13C62.62,-440.44 78.63,-565.2 151,-626 224.31,-687.59 338.63,-697.97 412.29,-697.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="412.47,-700.85 422.41,-697.19 412.36,-693.85 412.47,-700.85"/>
+</g>
+<!-- anyexceptions -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node3" class="node">
+<title>anyexceptions</title>
+<polygon fill="#777777" stroke="#777777" points="529,-579 440,-579 440,-555 529,-555 529,-579"/>
+<text text-anchor="middle" x="484.5" y="-564.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">anyexceptions</text>
+</g>
+<!-- proc~test_regrid_bracket&#45;&gt;anyexceptions -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge2" class="edge">
+<title>proc~test_regrid_bracket&#45;&gt;anyexceptions</title>
+<path fill="none" stroke="#ff0000" d="M61.82,-401.01C70.66,-430.47 97.83,-506.32 151,-539 236.91,-591.8 359.71,-585.74 429.52,-576.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="430.42,-579.87 439.84,-575.01 429.45,-572.93 430.42,-579.87"/>
+</g>
+<!-- assert_that -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node4" class="node">
+<title>assert_that</title>
+<polygon fill="#777777" stroke="#777777" points="520,-537 449,-537 449,-513 520,-513 520,-537"/>
+<text text-anchor="middle" x="484.5" y="-522.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assert_that</text>
+</g>
+<!-- proc~test_regrid_bracket&#45;&gt;assert_that -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge3" class="edge">
+<title>proc~test_regrid_bracket&#45;&gt;assert_that</title>
+<path fill="none" stroke="#ff0000" d="M63.69,-401.25C75.15,-426.55 105.29,-484.17 151,-508 243.68,-556.32 371.33,-544.86 438.3,-533.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="439.24,-537.35 448.51,-532.23 438.07,-530.45 439.24,-537.35"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node5" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="527,-411 442,-411 442,-387 527,-387 527,-411"/>
+<text text-anchor="middle" x="484.5" y="-396.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~test_regrid_bracket&#45;&gt;esmf_fieldget -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge4" class="edge">
+<title>proc~test_regrid_bracket&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M115.38,-390.34C198.39,-392.29 351.55,-395.9 431.64,-397.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="431.89,-401.29 441.97,-398.02 432.05,-394.29 431.89,-401.29"/>
+</g>
+<!-- esmfregridderparam -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node6" class="node">
+<title>esmfregridderparam</title>
+<polygon fill="#777777" stroke="#777777" points="310,-381 186,-381 186,-357 310,-357 310,-381"/>
+<text text-anchor="middle" x="248" y="-366.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmfregridderparam</text>
+</g>
+<!-- proc~test_regrid_bracket&#45;&gt;esmfregridderparam -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge5" class="edge">
+<title>proc~test_regrid_bracket&#45;&gt;esmfregridderparam</title>
+<path fill="none" stroke="#ff0000" d="M115.06,-383C134.17,-380.97 155.75,-378.68 175.85,-376.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="176.31,-380.02 185.88,-375.48 175.57,-373.06 176.31,-380.02"/>
+</g>
+<!-- every_item -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node7" class="node">
+<title>every_item</title>
+<polygon fill="#777777" stroke="#777777" points="284,-339 212,-339 212,-315 284,-315 284,-339"/>
+<text text-anchor="middle" x="248" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">every_item</text>
+</g>
+<!-- proc~test_regrid_bracket&#45;&gt;every_item -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge6" class="edge">
+<title>proc~test_regrid_bracket&#45;&gt;every_item</title>
+<path fill="none" stroke="#ff0000" d="M82.32,-376.84C100.7,-367.86 126.96,-355.87 151,-348 167.38,-342.64 185.79,-338.24 202.06,-334.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="202.76,-338.3 211.89,-332.92 201.4,-331.44 202.76,-338.3"/>
+</g>
+<!-- geommanager -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node8" class="node">
+<title>geommanager</title>
+<polygon fill="#777777" stroke="#777777" points="294,-297 202,-297 202,-273 294,-273 294,-297"/>
+<text text-anchor="middle" x="248" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">geommanager</text>
+</g>
+<!-- proc~test_regrid_bracket&#45;&gt;geommanager -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge7" class="edge">
+<title>proc~test_regrid_bracket&#45;&gt;geommanager</title>
+<path fill="none" stroke="#ff0000" d="M68.2,-376.99C83.69,-358.68 115.86,-324 151,-306 163.59,-299.55 178.08,-295.08 191.94,-291.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="192.78,-295.38 201.88,-289.95 191.38,-288.52 192.78,-295.38"/>
+</g>
+<!-- interface~fieldbundlecreate -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node9" class="node">
+<title>interface~fieldbundlecreate</title>
+<g id="a_proc~~test_regrid_bracket~~CallsGraph_node9"><a xlink:href="../interface/fieldbundlecreate.html" xlink:title="FieldBundleCreate">
+<polygon fill="#a7506f" stroke="#a7506f" points="303,-255 193,-255 193,-231 303,-231 303,-255"/>
+<text text-anchor="middle" x="248" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~test_regrid_bracket&#45;&gt;interface~fieldbundlecreate -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge8" class="edge">
+<title>proc~test_regrid_bracket&#45;&gt;interface~fieldbundlecreate</title>
+<path fill="none" stroke="#ff0000" d="M63.86,-376.75C75.64,-351.34 106.35,-292.9 151,-264 160.53,-257.83 171.58,-253.45 182.73,-250.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="183.65,-253.73 192.52,-247.93 181.97,-246.93 183.65,-253.73"/>
+</g>
+<!-- near -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node10" class="node">
+<title>near</title>
+<polygon fill="#777777" stroke="#777777" points="275,-213 221,-213 221,-189 275,-189 275,-213"/>
+<text text-anchor="middle" x="248" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">near</text>
+</g>
+<!-- proc~test_regrid_bracket&#45;&gt;near -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge9" class="edge">
+<title>proc~test_regrid_bracket&#45;&gt;near</title>
+<path fill="none" stroke="#ff0000" d="M61.56,-376.59C69.97,-345.26 96.51,-262.58 151,-222 168.17,-209.22 191.56,-203.92 210.96,-201.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="211.3,-205.32 220.97,-201.01 210.71,-198.35 211.3,-205.32"/>
+</g>
+<!-- none~get_regridder -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node11" class="node">
+<title>none~get_regridder</title>
+<g id="a_proc~~test_regrid_bracket~~CallsGraph_node11"><a xlink:href="../type/regriddermanager.html#boundprocedure-get_regridder" xlink:title="RegridderManager%get_regridder">
+<polygon fill="#a7506f" stroke="#a7506f" points="345,-171 151,-171 151,-147 345,-147 345,-171"/>
+<text text-anchor="middle" x="248" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderManager%get_regridder</text>
+</a>
+</g>
+</g>
+<!-- proc~test_regrid_bracket&#45;&gt;none~get_regridder -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge10" class="edge">
+<title>proc~test_regrid_bracket&#45;&gt;none~get_regridder</title>
+<path fill="none" stroke="#ff0000" d="M60.06,-376.81C65.36,-340.6 86.15,-232.95 151,-180 152.59,-178.71 154.23,-177.49 155.93,-176.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="157.95,-179.22 164.84,-171.17 154.43,-173.16 157.95,-179.22"/>
+</g>
+<!-- proc~make_field -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node12" class="node">
+<title>proc~make_field</title>
+<g id="a_proc~~test_regrid_bracket~~CallsGraph_node12"><a xlink:href="../proc/make_field.html" xlink:title="make_field">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="283.5,-499 212.5,-499 212.5,-475 283.5,-475 283.5,-499"/>
+<text text-anchor="middle" x="248" y="-484.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_field</text>
+</a>
+</g>
+</g>
+<!-- proc~test_regrid_bracket&#45;&gt;proc~make_field -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge11" class="edge">
+<title>proc~test_regrid_bracket&#45;&gt;proc~make_field</title>
+<path fill="none" stroke="#ff0000" d="M70.57,-401.01C87.25,-416.97 118.95,-445 151,-461 166.99,-468.98 185.75,-474.76 202.42,-478.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="201.95,-482.3 212.48,-481.12 203.52,-475.47 201.95,-482.3"/>
+</g>
+<!-- proc~make_geom~2 -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node13" class="node">
+<title>proc~make_geom~2</title>
+<g id="a_proc~~test_regrid_bracket~~CallsGraph_node13"><a xlink:href="../proc/make_geom~2.html" xlink:title="make_geom">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="287.5,-617 208.5,-617 208.5,-593 287.5,-593 287.5,-617"/>
+<text text-anchor="middle" x="248" y="-602.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_geom</text>
+</a>
+</g>
+</g>
+<!-- proc~test_regrid_bracket&#45;&gt;proc~make_geom~2 -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge12" class="edge">
+<title>proc~test_regrid_bracket&#45;&gt;proc~make_geom~2</title>
+<path fill="none" stroke="#ff0000" d="M60.83,-401.4C67.89,-435.33 92.2,-530.36 151,-579 164.33,-590.03 181.94,-596.41 198.42,-600.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="198.01,-603.57 208.5,-602.04 199.35,-596.7 198.01,-603.57"/>
+</g>
+<!-- regrid -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node14" class="node">
+<title>regrid</title>
+<polygon fill="#777777" stroke="#777777" points="275,-129 221,-129 221,-105 275,-105 275,-129"/>
+<text text-anchor="middle" x="248" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">regrid</text>
+</g>
+<!-- proc~test_regrid_bracket&#45;&gt;regrid -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge13" class="edge">
+<title>proc~test_regrid_bracket&#45;&gt;regrid</title>
+<path fill="none" stroke="#ff0000" d="M59.06,-376.79C61.64,-336.05 75.71,-203.58 151,-138 167.25,-123.85 190.83,-118.55 210.56,-116.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="210.98,-120.29 220.75,-116.19 210.56,-113.3 210.98,-120.29"/>
+</g>
+<!-- sourcelocation -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node15" class="node">
+<title>sourcelocation</title>
+<polygon fill="#777777" stroke="#777777" points="530,-495 439,-495 439,-471 530,-471 530,-495"/>
+<text text-anchor="middle" x="484.5" y="-480.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sourcelocation</text>
+</g>
+<!-- proc~test_regrid_bracket&#45;&gt;sourcelocation -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge14" class="edge">
+<title>proc~test_regrid_bracket&#45;&gt;sourcelocation</title>
+<path fill="none" stroke="#ff0000" d="M110.09,-401.02C173.71,-415.77 285.18,-441.34 381,-462 396.51,-465.34 413.38,-468.85 428.86,-472.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="428.31,-475.48 438.81,-474.05 429.71,-468.62 428.31,-475.48"/>
+</g>
+<!-- find -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node16" class="node">
+<title>find</title>
+<polygon fill="#777777" stroke="#777777" points="511.5,-318 457.5,-318 457.5,-294 511.5,-294 511.5,-318"/>
+<text text-anchor="middle" x="484.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">find</text>
+</g>
+<!-- none~get_regridder&#45;&gt;find -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge15" class="edge">
+<title>none~get_regridder&#45;&gt;find</title>
+<path fill="none" stroke="#0024ff" stroke-dasharray="5,2" d="M332.42,-171.24C336.94,-173.7 341.18,-176.59 345,-180 381.83,-212.82 343.95,-252.42 381,-285 398.94,-300.77 425.49,-305.88 447.07,-307.12"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="447.1,-310.62 457.21,-307.45 447.33,-303.63 447.1,-310.62"/>
+</g>
+<!-- none~add_regridder -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node20" class="node">
+<title>none~add_regridder</title>
+<g id="a_proc~~test_regrid_bracket~~CallsGraph_node20"><a xlink:href="../type/regriddermanager.html#boundprocedure-add_regridder" xlink:title="RegridderManager%add_regridder">
+<polygon fill="#a7506f" stroke="#a7506f" points="583,-276 386,-276 386,-252 583,-252 583,-276"/>
+<text text-anchor="middle" x="484.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderManager%add_regridder</text>
+</a>
+</g>
+</g>
+<!-- none~get_regridder&#45;&gt;none~add_regridder -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge16" class="edge">
+<title>none~get_regridder&#45;&gt;none~add_regridder</title>
+<path fill="none" stroke="#0024ff" stroke-dasharray="5,2" d="M329.35,-171.03C334.9,-173.5 340.19,-176.47 345,-180 370.99,-199.09 354.88,-224.08 381,-243 383.12,-244.54 385.33,-245.97 387.61,-247.3"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="386.23,-250.52 396.72,-251.96 389.41,-244.29 386.23,-250.52"/>
+</g>
+<!-- none~back~101 -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node21" class="node">
+<title>none~back~101</title>
+<g id="a_proc~~test_regrid_bracket~~CallsGraph_node21"><a xlink:href="../type/regriddervector.html#boundprocedure-back~101" xlink:title="RegridderVector%back">
+<polygon fill="#a7506f" stroke="#a7506f" points="551.5,-234 417.5,-234 417.5,-210 551.5,-210 551.5,-234"/>
+<text text-anchor="middle" x="484.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderVector%back</text>
+</a>
+</g>
+</g>
+<!-- none~get_regridder&#45;&gt;none~back~101 -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge17" class="edge">
+<title>none~get_regridder&#45;&gt;none~back~101</title>
+<path fill="none" stroke="#0024ff" stroke-dasharray="5,2" d="M316.67,-171C326.33,-173.52 336.02,-176.5 345,-180 362.26,-186.73 363.7,-194.39 381,-201 389.41,-204.21 398.41,-206.97 407.45,-209.33"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="406.7,-212.75 417.25,-211.73 408.37,-205.95 406.7,-212.75"/>
+</g>
+<!-- none~begin~39 -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node22" class="node">
+<title>none~begin~39</title>
+<g id="a_proc~~test_regrid_bracket~~CallsGraph_node22"><a xlink:href="../type/regridderspecvector.html#boundprocedure-begin~39" xlink:title="RegridderSpecVector%begin">
+<polygon fill="#a7506f" stroke="#a7506f" points="567,-192 402,-192 402,-168 567,-168 567,-192"/>
+<text text-anchor="middle" x="484.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderSpecVector%begin</text>
+</a>
+</g>
+</g>
+<!-- none~get_regridder&#45;&gt;none~begin~39 -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge18" class="edge">
+<title>none~get_regridder&#45;&gt;none~begin~39</title>
+<path fill="none" stroke="#0024ff" stroke-dasharray="5,2" d="M345.06,-167.6C360.52,-168.99 376.48,-170.42 391.84,-171.79"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="391.55,-175.28 401.83,-172.69 392.18,-168.31 391.55,-175.28"/>
+</g>
+<!-- none~make_regridder~4 -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node23" class="node">
+<title>none~make_regridder~4</title>
+<g id="a_proc~~test_regrid_bracket~~CallsGraph_node23"><a xlink:href="../type/regriddermanager.html#boundprocedure-make_regridder~4" xlink:title="RegridderManager%make_regridder">
+<polygon fill="#a7506f" stroke="#a7506f" points="588,-150 381,-150 381,-126 588,-126 588,-150"/>
+<text text-anchor="middle" x="484.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderManager%make_regridder</text>
+</a>
+</g>
+</g>
+<!-- none~get_regridder&#45;&gt;none~make_regridder~4 -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge19" class="edge">
+<title>none~get_regridder&#45;&gt;none~make_regridder~4</title>
+<path fill="none" stroke="#0024ff" stroke-dasharray="5,2" d="M345.06,-150.4C353.51,-149.64 362.12,-148.87 370.69,-148.1"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="371.09,-151.58 380.73,-147.2 370.46,-144.61 371.09,-151.58"/>
+</g>
+<!-- none~of~406 -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node24" class="node">
+<title>none~of~406</title>
+<g id="a_proc~~test_regrid_bracket~~CallsGraph_node24"><a xlink:href="../type/regriddervector.html#boundprocedure-of~406" xlink:title="RegridderVector%of">
+<polygon fill="#a7506f" stroke="#a7506f" points="544,-108 425,-108 425,-84 544,-84 544,-108"/>
+<text text-anchor="middle" x="484.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderVector%of</text>
+</a>
+</g>
+</g>
+<!-- none~get_regridder&#45;&gt;none~of~406 -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge20" class="edge">
+<title>none~get_regridder&#45;&gt;none~of~406</title>
+<path fill="none" stroke="#0024ff" stroke-dasharray="5,2" d="M316.67,-147C326.33,-144.48 336.02,-141.5 345,-138 362.26,-131.27 363.7,-123.61 381,-117 391.7,-112.91 403.34,-109.56 414.81,-106.84"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="415.83,-110.2 424.83,-104.6 414.3,-103.37 415.83,-110.2"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node25" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~test_regrid_bracket~~CallsGraph_node25"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="525.5,-66 443.5,-66 443.5,-42 525.5,-42 525.5,-66"/>
+<text text-anchor="middle" x="484.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- none~get_regridder&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge21" class="edge">
+<title>none~get_regridder&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0024ff" stroke-dasharray="5,2" d="M329.35,-146.97C334.9,-144.5 340.19,-141.53 345,-138 370.99,-118.91 354.88,-93.92 381,-75 396,-64.13 415.32,-58.59 433.13,-55.86"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="433.92,-59.28 443.4,-54.55 433.04,-52.34 433.92,-59.28"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node26" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~test_regrid_bracket~~CallsGraph_node26"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="522.5,-24 446.5,-24 446.5,0 522.5,0 522.5,-24"/>
+<text text-anchor="middle" x="484.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- none~get_regridder&#45;&gt;proc~mapl_verify -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge22" class="edge">
+<title>none~get_regridder&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0024ff" stroke-dasharray="5,2" d="M332.42,-146.76C336.94,-144.3 341.18,-141.41 345,-138 381.83,-105.18 343.95,-65.58 381,-33 396.03,-19.78 417.11,-14.05 436.25,-11.81"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="436.69,-15.29 446.34,-10.92 436.07,-8.32 436.69,-15.29"/>
+</g>
+<!-- proc~make_field&#45;&gt;anyexceptions -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge23" class="edge">
+<title>proc~make_field&#45;&gt;anyexceptions</title>
+<path fill="none" stroke="#4800ff" d="M271.76,-499.02C297.61,-512.22 341.33,-533.24 381,-546 396.53,-551 413.78,-555.07 429.64,-558.26"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="429.34,-561.76 439.82,-560.22 430.66,-554.89 429.34,-561.76"/>
+</g>
+<!-- proc~make_field&#45;&gt;assert_that -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge24" class="edge">
+<title>proc~make_field&#45;&gt;assert_that</title>
+<path fill="none" stroke="#4800ff" d="M283.6,-492.61C324.73,-499.27 393.48,-510.41 438.65,-517.73"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="438.33,-521.23 448.76,-519.37 439.45,-514.32 438.33,-521.23"/>
+</g>
+<!-- proc~make_field&#45;&gt;esmf_fieldget -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge25" class="edge">
+<title>proc~make_field&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#4800ff" d="M268.83,-474.8C294.03,-459.81 339.27,-434.57 381,-420 397.19,-414.35 415.38,-410.01 431.89,-406.78"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="432.73,-410.19 441.92,-404.92 431.45,-403.3 432.73,-410.19"/>
+</g>
+<!-- proc~make_field&#45;&gt;sourcelocation -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge27" class="edge">
+<title>proc~make_field&#45;&gt;sourcelocation</title>
+<path fill="none" stroke="#4800ff" d="M283.6,-486.41C321.78,-485.76 383.74,-484.7 428.57,-483.94"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="428.78,-487.43 438.71,-483.76 428.66,-480.44 428.78,-487.43"/>
+</g>
+<!-- interface~mapl_fieldcreate -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node19" class="node">
+<title>interface~mapl_fieldcreate</title>
+<g id="a_proc~~test_regrid_bracket~~CallsGraph_node19"><a xlink:href="../interface/mapl_fieldcreate.html" xlink:title="MAPL_FieldCreate">
+<polygon fill="#a7506f" stroke="#a7506f" points="537.5,-453 431.5,-453 431.5,-429 537.5,-429 537.5,-453"/>
+<text text-anchor="middle" x="484.5" y="-438.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_FieldCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~make_field&#45;&gt;interface~mapl_fieldcreate -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge26" class="edge">
+<title>proc~make_field&#45;&gt;interface~mapl_fieldcreate</title>
+<path fill="none" stroke="#4800ff" d="M283.6,-480.21C319.77,-473.12 377.28,-461.84 421.36,-453.19"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="422.25,-456.58 431.39,-451.22 420.91,-449.71 422.25,-456.58"/>
+</g>
+<!-- proc~make_geom~2&#45;&gt;ESMF_HConfigCreate -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge28" class="edge">
+<title>proc~make_geom~2&#45;&gt;ESMF_HConfigCreate</title>
+<path fill="none" stroke="#b600ff" d="M272.09,-617.14C306.87,-635.37 369.87,-668.11 381,-672 391.04,-675.51 401.86,-678.51 412.56,-681.05"/>
+<polygon fill="#b600ff" stroke="#b600ff" points="411.81,-684.47 422.34,-683.26 413.36,-677.64 411.81,-684.47"/>
+</g>
+<!-- proc~make_geom~2&#45;&gt;anyexceptions -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge29" class="edge">
+<title>proc~make_geom~2&#45;&gt;anyexceptions</title>
+<path fill="none" stroke="#b600ff" d="M287.72,-598.73C326.5,-592.44 386.49,-582.72 429.85,-575.69"/>
+<polygon fill="#b600ff" stroke="#b600ff" points="430.62,-579.11 439.93,-574.06 429.5,-572.2 430.62,-579.11"/>
+</g>
+<!-- proc~make_geom~2&#45;&gt;assert_that -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge30" class="edge">
+<title>proc~make_geom~2&#45;&gt;assert_that</title>
+<path fill="none" stroke="#b600ff" d="M271.76,-592.98C297.61,-579.78 341.33,-558.76 381,-546 399.59,-540.02 420.64,-535.36 438.81,-531.96"/>
+<polygon fill="#b600ff" stroke="#b600ff" points="439.63,-535.37 448.85,-530.16 438.39,-528.48 439.63,-535.37"/>
+</g>
+<!-- proc~make_geom~2&#45;&gt;sourcelocation -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge33" class="edge">
+<title>proc~make_geom~2&#45;&gt;sourcelocation</title>
+<path fill="none" stroke="#b600ff" d="M260.85,-592.86C282.56,-571.36 331.11,-526.74 381,-504 395.85,-497.23 412.89,-492.63 428.77,-489.5"/>
+<polygon fill="#b600ff" stroke="#b600ff" points="429.78,-492.88 439,-487.66 428.54,-485.99 429.78,-492.88"/>
+</g>
+<!-- get_geom -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node17" class="node">
+<title>get_geom</title>
+<polygon fill="#777777" stroke="#777777" points="517.5,-621 451.5,-621 451.5,-597 517.5,-597 517.5,-621"/>
+<text text-anchor="middle" x="484.5" y="-606.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_geom</text>
+</g>
+<!-- proc~make_geom~2&#45;&gt;get_geom -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge31" class="edge">
+<title>proc~make_geom~2&#45;&gt;get_geom</title>
+<path fill="none" stroke="#b600ff" d="M287.72,-605.66C329.99,-606.38 397.47,-607.53 441.13,-608.28"/>
+<polygon fill="#b600ff" stroke="#b600ff" points="441.09,-611.78 451.14,-608.45 441.21,-604.78 441.09,-611.78"/>
+</g>
+<!-- get_mapl_geom -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_node18" class="node">
+<title>get_mapl_geom</title>
+<polygon fill="#777777" stroke="#777777" points="533.5,-663 435.5,-663 435.5,-639 533.5,-639 533.5,-663"/>
+<text text-anchor="middle" x="484.5" y="-648.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_mapl_geom</text>
+</g>
+<!-- proc~make_geom~2&#45;&gt;get_mapl_geom -->
+<g id="proc~~test_regrid_bracket~~CallsGraph_edge32" class="edge">
+<title>proc~make_geom~2&#45;&gt;get_mapl_geom</title>
+<path fill="none" stroke="#b600ff" d="M287.72,-612.6C325.18,-619.94 382.42,-631.17 425.35,-639.59"/>
+<polygon fill="#b600ff" stroke="#b600ff" points="424.89,-643.07 435.38,-641.56 426.24,-636.2 424.89,-643.07"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_regrid_bracket</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GeomManager</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom_mgr</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">RegridderManager</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regridder_mgr</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">RegridderSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">Regridder</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">my_regridder</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="n">geom_2</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">f1</span><span class="p">,</span><span class="w"> </span><span class="n">f2</span><span class="p">,</span><span class="w"> </span><span class="n">f3</span><span class="p">,</span><span class="w"> </span><span class="n">f4</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Fieldbundle</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">xy1</span><span class="p">,</span><span class="w"> </span><span class="n">xy2</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x1</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">y1</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x2</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">y2</span><span class="p">(:,:)</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">DynamicMask</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dyn_mask</span>
+<span class="w">      </span>
+<span class="w">      </span><span class="n">geom_mgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GeomManager</span><span class="p">()</span>
+<span class="w">      </span><span class="n">regridder_mgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderManager</span><span class="p">(</span><span class="n">geom_mgr</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;{class: latlon, im_world: 12, jm_world: 13, pole: PE, dateline: DE, nx: 1, ny: 1}&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">geom_1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_geom</span><span class="p">(</span><span class="n">geom_mgr</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;{class: latlon, im_world: 6, jm_world: 5, pole: PE, dateline: DE, nx: 1, ny: 1}&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">geom_2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_geom</span><span class="p">(</span><span class="n">geom_mgr</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"> </span><span class="c">! variant of geom_1</span>
+
+<span class="w">      </span><span class="n">dyn_mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DynamicMask</span><span class="p">(</span><span class="n">mask_type</span><span class="o">=</span><span class="s1">&#39;missing_value&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">src_mask_value</span><span class="o">=</span><span class="kt">real</span><span class="p">(</span><span class="n">MAPL_UNDEF</span><span class="p">,</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="n">handleAllElements</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span>
+<span class="w">      </span><span class="n">spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderSpec</span><span class="p">(</span><span class="n">EsmfRegridderParam</span><span class="p">(</span><span class="n">regridmethod</span><span class="o">=</span><span class="n">ESMF_REGRIDMETHOD_BILINEAR</span><span class="p">,</span><span class="w"> </span><span class="n">dyn_mask</span><span class="o">=</span><span class="n">dyn_mask</span><span class="p">),</span><span class="w"> </span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="n">geom_2</span><span class="p">)</span>
+<span class="w">      </span><span class="n">my_regridder</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">regridder_mgr</span><span class="p">%</span><span class="n">get_regridder</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! North-east field</span>
+<span class="w">      </span><span class="n">f1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_field</span><span class="p">(</span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="mf">1._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">f2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_field</span><span class="p">(</span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="mi">1</span><span class="mf">0._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">xy1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_FieldBundleCreate</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;[x,y]&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">fieldList</span><span class="o">=</span><span class="p">[</span><span class="n">f1</span><span class="p">,</span><span class="n">f2</span><span class="p">],</span><span class="w"> </span><span class="n">fieldBundleType</span><span class="o">=</span><span class="n">FIELDBUNDLETYPE_BRACKET</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f1</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">x1</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f2</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">y1</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span>
+<span class="w">      </span><span class="n">f3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_field</span><span class="p">(</span><span class="n">geom_2</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="mf">0._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">f4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_field</span><span class="p">(</span><span class="n">geom_2</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="mf">0._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">xy2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_FieldBundleCreate</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;[x,y]&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">fieldList</span><span class="o">=</span><span class="p">[</span><span class="n">f3</span><span class="p">,</span><span class="n">f4</span><span class="p">],</span><span class="w"> </span><span class="n">fieldBundleType</span><span class="o">=</span><span class="n">FIELDBUNDLETYPE_BRACKET</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">my_regridder</span><span class="p">%</span><span class="n">regrid</span><span class="p">(</span><span class="n">xy1</span><span class="p">,</span><span class="w"> </span><span class="n">xy2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f3</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">x2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f4</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">y2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! If treated as vector, the components would mix.  We check here that they do not.</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span><span class="w"> </span><span class="n">every_item</span><span class="p">(</span><span class="k">is</span><span class="p">(</span><span class="n">near</span><span class="p">(</span><span class="mf">1._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="mf">1.e-5</span><span class="p">))))</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">y2</span><span class="p">,</span><span class="w"> </span><span class="n">every_item</span><span class="p">(</span><span class="k">is</span><span class="p">(</span><span class="n">near</span><span class="p">(</span><span class="mi">1</span><span class="mf">0._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="mf">1.e-5</span><span class="p">))))</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_regrid_bracket</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

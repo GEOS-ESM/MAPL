@@ -1,0 +1,585 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>test_add_to_state &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>test_add_to_state
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">78 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_StateRegistry.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_stateregistry.pf.html'>Test_StateRegistry.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_stateregistry.html'>Test_StateRegistry</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_add_to_state</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/test_add_to_state.html#src">test_add_to_state</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine test_add_to_state(this)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~583"></span>
+              class(<a href='../type/esmf_testmethod.html'>ESMF_TestMethod</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~test_add_to_state~~CallsGraph Pages: 1 -->
+<svg id="proctest_add_to_stateCallsGraph" width="405pt" height="536pt"
+ viewBox="0.00 0.00 405.00 536.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~test_add_to_state~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 532)">
+<title>proc~~test_add_to_state~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-532 401,-532 401,4 -4,4"/>
+<!-- proc~test_add_to_state -->
+<g id="proc~~test_add_to_state~~CallsGraph_node1" class="node">
+<title>proc~test_add_to_state</title>
+<polygon fill="none" stroke="black" points="105,-276 0,-276 0,-252 105,-252 105,-276"/>
+<text text-anchor="middle" x="52.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_add_to_state</text>
+</g>
+<!-- ESMF_InfoGetFromHost -->
+<g id="proc~~test_add_to_state~~CallsGraph_node2" class="node">
+<title>ESMF_InfoGetFromHost</title>
+<g id="a_proc~~test_add_to_state~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_infogetfromhost.html" xlink:title="ESMF_InfoGetFromHost">
+<polygon fill="#a7506f" stroke="#a7506f" points="337,-528 201,-528 201,-504 337,-504 337,-528"/>
+<text text-anchor="middle" x="269" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_InfoGetFromHost</text>
+</a>
+</g>
+</g>
+<!-- proc~test_add_to_state&#45;&gt;ESMF_InfoGetFromHost -->
+<g id="proc~~test_add_to_state~~CallsGraph_edge1" class="edge">
+<title>proc~test_add_to_state&#45;&gt;ESMF_InfoGetFromHost</title>
+<path fill="none" stroke="#ff0000" d="M54.08,-276.19C56.62,-315.07 70.17,-436.98 141,-495 155.08,-506.53 173.05,-512.85 191.01,-516.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="190.55,-519.58 200.96,-517.62 191.6,-512.66 190.55,-519.58"/>
+</g>
+<!-- ESMF_InfoIsPresent -->
+<g id="proc~~test_add_to_state~~CallsGraph_node3" class="node">
+<title>ESMF_InfoIsPresent</title>
+<g id="a_proc~~test_add_to_state~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_infoispresent.html" xlink:title="ESMF_InfoIsPresent">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="326,-486 212,-486 212,-462 326,-462 326,-486"/>
+<text text-anchor="middle" x="269" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_InfoIsPresent</text>
+</a>
+</g>
+</g>
+<!-- proc~test_add_to_state&#45;&gt;ESMF_InfoIsPresent -->
+<g id="proc~~test_add_to_state~~CallsGraph_edge2" class="edge">
+<title>proc~test_add_to_state&#45;&gt;ESMF_InfoIsPresent</title>
+<path fill="none" stroke="#ff0000" d="M55.18,-276.14C60.6,-310.22 80.86,-407.23 141,-453 158.27,-466.14 180.72,-472.34 201.92,-474.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="201.58,-478.45 211.88,-475.95 202.28,-471.48 201.58,-478.45"/>
+</g>
+<!-- anyexceptions -->
+<g id="proc~~test_add_to_state~~CallsGraph_node4" class="node">
+<title>anyexceptions</title>
+<polygon fill="#777777" stroke="#777777" points="313.5,-444 224.5,-444 224.5,-420 313.5,-420 313.5,-444"/>
+<text text-anchor="middle" x="269" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">anyexceptions</text>
+</g>
+<!-- proc~test_add_to_state&#45;&gt;anyexceptions -->
+<g id="proc~~test_add_to_state~~CallsGraph_edge3" class="edge">
+<title>proc~test_add_to_state&#45;&gt;anyexceptions</title>
+<path fill="none" stroke="#ff0000" d="M56.92,-276.35C65.62,-305.21 91.45,-377.18 141,-411 162.24,-425.5 190.04,-431.2 214.22,-433.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="214.14,-436.6 224.33,-433.69 214.55,-429.61 214.14,-436.6"/>
+</g>
+<!-- assert_that -->
+<g id="proc~~test_add_to_state~~CallsGraph_node5" class="node">
+<title>assert_that</title>
+<polygon fill="#777777" stroke="#777777" points="304.5,-402 233.5,-402 233.5,-378 304.5,-378 304.5,-402"/>
+<text text-anchor="middle" x="269" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assert_that</text>
+</g>
+<!-- proc~test_add_to_state&#45;&gt;assert_that -->
+<g id="proc~~test_add_to_state~~CallsGraph_edge4" class="edge">
+<title>proc~test_add_to_state&#45;&gt;assert_that</title>
+<path fill="none" stroke="#ff0000" d="M59.76,-276.16C72.01,-298.62 101.46,-346.36 141,-369 165.89,-383.25 197.73,-388.49 223.31,-390.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="223.33,-393.68 233.49,-390.68 223.68,-386.69 223.33,-393.68"/>
+</g>
+<!-- false -->
+<g id="proc~~test_add_to_state~~CallsGraph_node6" class="node">
+<title>false</title>
+<polygon fill="#777777" stroke="#777777" points="296,-360 242,-360 242,-336 296,-336 296,-360"/>
+<text text-anchor="middle" x="269" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">false</text>
+</g>
+<!-- proc~test_add_to_state&#45;&gt;false -->
+<g id="proc~~test_add_to_state~~CallsGraph_edge5" class="edge">
+<title>proc~test_add_to_state&#45;&gt;false</title>
+<path fill="none" stroke="#ff0000" d="M66.26,-276.16C82.33,-290.73 111.44,-314.71 141,-327 170.02,-339.06 205.48,-344.21 231.55,-346.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="231.52,-349.91 241.75,-347.15 232.03,-342.92 231.52,-349.91"/>
+</g>
+<!-- none~add_primary_spec -->
+<g id="proc~~test_add_to_state~~CallsGraph_node7" class="node">
+<title>none~add_primary_spec</title>
+<g id="a_proc~~test_add_to_state~~CallsGraph_node7"><a xlink:href="../type/stateregistry.html#boundprocedure-add_primary_spec" xlink:title="StateRegistry%add_primary_spec">
+<polygon fill="#a7506f" stroke="#a7506f" points="364,-318 174,-318 174,-294 364,-294 364,-318"/>
+<text text-anchor="middle" x="269" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry%add_primary_spec</text>
+</a>
+</g>
+</g>
+<!-- proc~test_add_to_state&#45;&gt;none~add_primary_spec -->
+<g id="proc~~test_add_to_state~~CallsGraph_edge6" class="edge">
+<title>proc~test_add_to_state&#45;&gt;none~add_primary_spec</title>
+<path fill="none" stroke="#ff0000" d="M101.05,-276.07C113.97,-279.17 127.98,-282.37 141,-285 153.57,-287.54 166.88,-290 179.97,-292.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="179.48,-295.75 189.93,-294 180.67,-288.85 179.48,-295.75"/>
+</g>
+<!-- none~add_subregistry -->
+<g id="proc~~test_add_to_state~~CallsGraph_node8" class="node">
+<title>none~add_subregistry</title>
+<g id="a_proc~~test_add_to_state~~CallsGraph_node8"><a xlink:href="../type/stateregistry.html#boundprocedure-add_subregistry" xlink:title="StateRegistry%add_subregistry">
+<polygon fill="#a7506f" stroke="#a7506f" points="357.5,-276 180.5,-276 180.5,-252 357.5,-252 357.5,-276"/>
+<text text-anchor="middle" x="269" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry%add_subregistry</text>
+</a>
+</g>
+</g>
+<!-- proc~test_add_to_state&#45;&gt;none~add_subregistry -->
+<g id="proc~~test_add_to_state~~CallsGraph_edge7" class="edge">
+<title>proc~test_add_to_state&#45;&gt;none~add_subregistry</title>
+<path fill="none" stroke="#ff0000" d="M105.15,-264C124.72,-264 147.69,-264 170.12,-264"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="170.37,-267.5 180.37,-264 170.37,-260.5 170.37,-267.5"/>
+</g>
+<!-- none~add_to_states -->
+<g id="proc~~test_add_to_state~~CallsGraph_node9" class="node">
+<title>none~add_to_states</title>
+<g id="a_proc~~test_add_to_state~~CallsGraph_node9"><a xlink:href="../type/stateregistry.html#boundprocedure-add_to_states" xlink:title="StateRegistry%add_to_states">
+<polygon fill="#a7506f" stroke="#a7506f" points="352,-234 186,-234 186,-210 352,-210 352,-234"/>
+<text text-anchor="middle" x="269" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry%add_to_states</text>
+</a>
+</g>
+</g>
+<!-- proc~test_add_to_state&#45;&gt;none~add_to_states -->
+<g id="proc~~test_add_to_state~~CallsGraph_edge8" class="edge">
+<title>proc~test_add_to_state&#45;&gt;none~add_to_states</title>
+<path fill="none" stroke="#ff0000" d="M101.05,-251.93C113.97,-248.83 127.98,-245.63 141,-243 153.57,-240.46 166.88,-238 179.97,-235.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="180.67,-239.15 189.93,-234 179.48,-232.25 180.67,-239.15"/>
+</g>
+<!-- none~propagate_exports~3 -->
+<g id="proc~~test_add_to_state~~CallsGraph_node10" class="node">
+<title>none~propagate_exports~3</title>
+<g id="a_proc~~test_add_to_state~~CallsGraph_node10"><a xlink:href="../type/stateregistry.html#boundprocedure-propagate_exports~3" xlink:title="StateRegistry%propagate_exports">
+<polygon fill="#a7506f" stroke="#a7506f" points="365,-192 173,-192 173,-168 365,-168 365,-192"/>
+<text text-anchor="middle" x="269" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry%propagate_exports</text>
+</a>
+</g>
+</g>
+<!-- proc~test_add_to_state&#45;&gt;none~propagate_exports~3 -->
+<g id="proc~~test_add_to_state~~CallsGraph_edge9" class="edge">
+<title>proc~test_add_to_state&#45;&gt;none~propagate_exports~3</title>
+<path fill="none" stroke="#ff0000" d="M66.26,-251.84C82.33,-237.27 111.44,-213.29 141,-201 147.96,-198.11 155.29,-195.61 162.77,-193.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="163.91,-196.78 172.67,-190.82 162.11,-190.01 163.91,-196.78"/>
+</g>
+<!-- none~propagate_unsatisfied_imports~3 -->
+<g id="proc~~test_add_to_state~~CallsGraph_node11" class="node">
+<title>none~propagate_unsatisfied_imports~3</title>
+<g id="a_proc~~test_add_to_state~~CallsGraph_node11"><a xlink:href="../type/stateregistry.html#boundprocedure-propagate_unsatisfied_imports~3" xlink:title="StateRegistry%propagate_unsatisfied_imports">
+<polygon fill="#a7506f" stroke="#a7506f" points="397,-150 141,-150 141,-126 397,-126 397,-150"/>
+<text text-anchor="middle" x="269" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry%propagate_unsatisfied_imports</text>
+</a>
+</g>
+</g>
+<!-- proc~test_add_to_state&#45;&gt;none~propagate_unsatisfied_imports~3 -->
+<g id="proc~~test_add_to_state~~CallsGraph_edge10" class="edge">
+<title>proc~test_add_to_state&#45;&gt;none~propagate_unsatisfied_imports~3</title>
+<path fill="none" stroke="#ff0000" d="M59.76,-251.84C72.01,-229.38 101.46,-181.64 141,-159 144.25,-157.14 147.61,-155.44 151.06,-153.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="152.46,-157.08 160.39,-150.05 149.81,-150.6 152.46,-157.08"/>
+</g>
+<!-- proc~mockitemspec -->
+<g id="proc~~test_add_to_state~~CallsGraph_node12" class="node">
+<title>proc~mockitemspec</title>
+<g id="a_proc~~test_add_to_state~~CallsGraph_node12"><a xlink:href="../proc/mockitemspec.html" xlink:title="MockItemSpec">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="314.5,-108 223.5,-108 223.5,-84 314.5,-84 314.5,-108"/>
+<text text-anchor="middle" x="269" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockItemSpec</text>
+</a>
+</g>
+</g>
+<!-- proc~test_add_to_state&#45;&gt;proc~mockitemspec -->
+<g id="proc~~test_add_to_state~~CallsGraph_edge11" class="edge">
+<title>proc~test_add_to_state&#45;&gt;proc~mockitemspec</title>
+<path fill="none" stroke="#ff0000" d="M56.92,-251.65C65.62,-222.79 91.45,-150.82 141,-117 162,-102.67 189.41,-96.93 213.39,-94.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="213.66,-98.46 223.43,-94.35 213.23,-91.48 213.66,-98.46"/>
+</g>
+<!-- sourcelocation -->
+<g id="proc~~test_add_to_state~~CallsGraph_node13" class="node">
+<title>sourcelocation</title>
+<polygon fill="#777777" stroke="#777777" points="314.5,-66 223.5,-66 223.5,-42 314.5,-42 314.5,-66"/>
+<text text-anchor="middle" x="269" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sourcelocation</text>
+</g>
+<!-- proc~test_add_to_state&#45;&gt;sourcelocation -->
+<g id="proc~~test_add_to_state~~CallsGraph_edge12" class="edge">
+<title>proc~test_add_to_state&#45;&gt;sourcelocation</title>
+<path fill="none" stroke="#ff0000" d="M55.18,-251.86C60.6,-217.78 80.86,-120.77 141,-75 161.38,-59.49 188.98,-53.66 213.23,-51.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="213.58,-55.43 223.39,-51.45 213.24,-48.44 213.58,-55.43"/>
+</g>
+<!-- true -->
+<g id="proc~~test_add_to_state~~CallsGraph_node14" class="node">
+<title>true</title>
+<polygon fill="#777777" stroke="#777777" points="296,-24 242,-24 242,0 296,0 296,-24"/>
+<text text-anchor="middle" x="269" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">true</text>
+</g>
+<!-- proc~test_add_to_state&#45;&gt;true -->
+<g id="proc~~test_add_to_state~~CallsGraph_edge13" class="edge">
+<title>proc~test_add_to_state&#45;&gt;true</title>
+<path fill="none" stroke="#ff0000" d="M54.08,-251.81C56.62,-212.93 70.17,-91.02 141,-33 166.22,-12.34 203.93,-8.41 231.71,-8.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="231.71,-12.35 241.82,-9.2 231.95,-5.35 231.71,-12.35"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_add_to_state</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StateRegistry</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">r</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StateRegistry</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">r_A</span><span class="w"> </span><span class="c">! child registry</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">VirtualConnectionPt</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cp_e1</span><span class="p">,</span><span class="w"> </span><span class="n">cp_e2</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">VirtualConnectionPt</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cp_i1</span><span class="p">,</span><span class="w"> </span><span class="n">cp_i2</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MultiState</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">user_states</span><span class="p">,</span><span class="w"> </span><span class="n">outer_states</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Info</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">info</span>
+
+<span class="w">      </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StateRegistry</span><span class="p">(</span><span class="s1">&#39;P&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="n">r_a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StateRegistry</span><span class="p">(</span><span class="s1">&#39;child_A&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">r</span><span class="p">%</span><span class="n">add_subregistry</span><span class="p">(</span><span class="n">r_a</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">cp_e1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">VirtualConnectionPt</span><span class="p">(</span><span class="n">state_intent</span><span class="o">=</span><span class="s1">&#39;export&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;e1&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="n">cp_e2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">VirtualConnectionPt</span><span class="p">(</span><span class="n">state_intent</span><span class="o">=</span><span class="s1">&#39;export&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;e2&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">cp_i1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">VirtualConnectionPt</span><span class="p">(</span><span class="n">state_intent</span><span class="o">=</span><span class="s1">&#39;import&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;i1&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="n">cp_i2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">VirtualConnectionPt</span><span class="p">(</span><span class="n">state_intent</span><span class="o">=</span><span class="s1">&#39;import&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;i2&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">r_a</span><span class="p">%</span><span class="n">add_primary_spec</span><span class="p">(</span><span class="n">cp_e1</span><span class="p">,</span><span class="w"> </span><span class="n">MockItemSpec</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">state_intent</span><span class="o">=</span><span class="n">ESMF_STATEINTENT_EXPORT</span><span class="p">,</span><span class="w"> </span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;e1&#39;</span><span class="p">))</span>
+<span class="w">      </span><span class="k">call </span><span class="n">r_a</span><span class="p">%</span><span class="n">add_primary_spec</span><span class="p">(</span><span class="n">cp_i1</span><span class="p">,</span><span class="w"> </span><span class="n">MockItemSpec</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">state_intent</span><span class="o">=</span><span class="n">ESMF_STATEINTENT_IMPORT</span><span class="p">,</span><span class="w"> </span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;i2&#39;</span><span class="p">))</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">r</span><span class="p">%</span><span class="n">add_primary_spec</span><span class="p">(</span><span class="n">cp_e2</span><span class="p">,</span><span class="w"> </span><span class="n">MockItemSpec</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">state_intent</span><span class="o">=</span><span class="n">ESMF_STATEINTENT_EXPORT</span><span class="p">,</span><span class="w"> </span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;e2&#39;</span><span class="p">))</span>
+<span class="w">      </span><span class="k">call </span><span class="n">r</span><span class="p">%</span><span class="n">add_primary_spec</span><span class="p">(</span><span class="n">cp_i1</span><span class="p">,</span><span class="w"> </span><span class="n">MockItemSpec</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">state_intent</span><span class="o">=</span><span class="n">ESMF_STATEINTENT_IMPORT</span><span class="p">,</span><span class="w"> </span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;i1&#39;</span><span class="p">))</span><span class="w"> </span><span class="c">! intentional duplicate with r_A</span>
+<span class="w">      </span><span class="k">call </span><span class="n">r</span><span class="p">%</span><span class="n">add_primary_spec</span><span class="p">(</span><span class="n">cp_i2</span><span class="p">,</span><span class="w"> </span><span class="n">MockItemSpec</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="n">state_intent</span><span class="o">=</span><span class="n">ESMF_STATEINTENT_IMPORT</span><span class="p">,</span><span class="w"> </span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;i2&#39;</span><span class="p">))</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">r</span><span class="p">%</span><span class="n">propagate_exports</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">r</span><span class="p">%</span><span class="n">propagate_unsatisfied_imports</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">user_states</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MultiState</span><span class="p">()</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">r</span><span class="p">%</span><span class="n">add_to_states</span><span class="p">(</span><span class="n">user_states</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;user&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="c">! expect e2 and i2 only</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_InfoGetFromHost</span><span class="p">(</span><span class="n">user_states</span><span class="p">%</span><span class="n">exportstate</span><span class="p">,</span><span class="w"> </span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">ESMF_InfoIsPresent</span><span class="p">(</span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;e2&#39;</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">ESMF_InfoIsPresent</span><span class="p">(</span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;a/e1&#39;</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">false</span><span class="p">()))</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_InfoGetFromHost</span><span class="p">(</span><span class="n">user_states</span><span class="p">%</span><span class="n">importstate</span><span class="p">,</span><span class="w"> </span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">ESMF_InfoIsPresent</span><span class="p">(</span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;i2&#39;</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">ESMF_InfoIsPresent</span><span class="p">(</span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;i1&#39;</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">ESMF_InfoIsPresent</span><span class="p">(</span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;i1(1)&#39;</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">false</span><span class="p">()))</span>
+
+<span class="w">      </span><span class="n">outer_states</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MultiState</span><span class="p">()</span>
+<span class="w">      </span><span class="k">call </span><span class="n">r</span><span class="p">%</span><span class="n">add_to_states</span><span class="p">(</span><span class="n">outer_states</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;outer&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="c">! expect e2 and i2 only</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_InfoGetFromHost</span><span class="p">(</span><span class="n">outer_states</span><span class="p">%</span><span class="n">exportstate</span><span class="p">,</span><span class="w"> </span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">ESMF_InfoIsPresent</span><span class="p">(</span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;e2&#39;</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">ESMF_InfoIsPresent</span><span class="p">(</span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;child_A/e1&#39;</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_InfoGetFromHost</span><span class="p">(</span><span class="n">outer_states</span><span class="p">%</span><span class="n">importstate</span><span class="p">,</span><span class="w"> </span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">ESMF_InfoIsPresent</span><span class="p">(</span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;i2&#39;</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">ESMF_InfoIsPresent</span><span class="p">(</span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;i1&#39;</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">ESMF_InfoIsPresent</span><span class="p">(</span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;i1(1)&#39;</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_add_to_state</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

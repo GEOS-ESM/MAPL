@@ -1,0 +1,618 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>FieldsAreSameTypeKind &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>FieldsAreSameTypeKind
+      <small>Interface</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title="<p> 0.0% of total for procedures.</p>Including implementation: 18 statements,  0.0% of total for procedures.">3 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/FieldPointerUtilities.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/fieldpointerutilities.f90.html'>FieldPointerUtilities.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_fieldpointerutilities.html'>MAPL_FieldPointerUtilities</a></li>
+            <li class="breadcrumb-item active" aria-current="page">FieldsAreSameTypeKind</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#modprocs-0"
+         aria-expanded="false" aria-controls="modprocs-0">
+         <h4 class="card-header bg-primary text-white">Module Procedures</h4>
+      </a>
+      <div id="modprocs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../interface/fieldsaresametypekind.html#moduleprocedure-are_same_type_kind">are_same_type_kind</a>
+        </div>
+      </div>
+    </div>
+
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      <h2>public interface FieldsAreSameTypeKind</h2>
+      
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Called by</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: interface~~fieldsaresametypekind~~CalledByGraph Pages: 1 -->
+<svg id="interfacefieldsaresametypekindCalledByGraph" width="637pt" height="578pt"
+ viewBox="0.00 0.00 637.00 578.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="interface~~fieldsaresametypekind~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 574)">
+<title>interface~~fieldsaresametypekind~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-574 633,-574 633,4 -4,4"/>
+<!-- interface~fieldsaresametypekind -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_node1" class="node">
+<title>interface~fieldsaresametypekind</title>
+<polygon fill="none" stroke="black" points="629,-276 490,-276 490,-252 629,-252 629,-276"/>
+<text text-anchor="middle" x="559.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50">FieldsAreSameTypeKind</text>
+</g>
+<!-- none~initialize~14 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_node2" class="node">
+<title>none~initialize~14</title>
+<g id="a_interface~~fieldsaresametypekind~~CalledByGraph_node2"><a xlink:href="../type/accumulatortransform.html#boundprocedure-initialize~14" xlink:title="AccumulatorTransform%initialize">
+<polygon fill="#a7506f" stroke="#a7506f" points="454,-297 267,-297 267,-273 454,-273 454,-297"/>
+<text text-anchor="middle" x="360.5" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AccumulatorTransform%initialize</text>
+</a>
+</g>
+</g>
+<!-- none~initialize~14&#45;&gt;interface~fieldsaresametypekind -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_edge1" class="edge">
+<title>none~initialize~14&#45;&gt;interface~fieldsaresametypekind</title>
+<path fill="none" stroke="#ff0000" d="M454.23,-275.11C462.75,-274.21 471.32,-273.29 479.69,-272.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="480.22,-275.86 489.79,-271.32 479.47,-268.9 480.22,-275.86"/>
+</g>
+<!-- proc~test_fieldsaresametypekind -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_node3" class="node">
+<title>proc~test_fieldsaresametypekind</title>
+<g id="a_interface~~fieldsaresametypekind~~CalledByGraph_node3"><a xlink:href="../proc/test_fieldsaresametypekind.html" xlink:title="test_FieldsAreSameTypeKind">
+<polygon fill="#d9534f" stroke="#d9534f" points="442,-255 279,-255 279,-231 442,-231 442,-255"/>
+<text text-anchor="middle" x="360.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_FieldsAreSameTypeKind</text>
+</a>
+</g>
+</g>
+<!-- proc~test_fieldsaresametypekind&#45;&gt;interface~fieldsaresametypekind -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_edge2" class="edge">
+<title>proc~test_fieldsaresametypekind&#45;&gt;interface~fieldsaresametypekind</title>
+<path fill="none" stroke="#ff0000" d="M442.2,-251.6C454.56,-252.92 467.32,-254.28 479.65,-255.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="479.57,-259.11 489.89,-256.69 480.31,-252.15 479.57,-259.11"/>
+</g>
+<!-- proc~test_accumulate_mean_r4 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_node4" class="node">
+<title>proc~test_accumulate_mean_r4</title>
+<g id="a_interface~~fieldsaresametypekind~~CalledByGraph_node4"><a xlink:href="../proc/test_accumulate_mean_r4.html" xlink:title="test_accumulate_mean_R4">
+<polygon fill="#d9534f" stroke="#d9534f" points="193.5,-570 37.5,-570 37.5,-546 193.5,-546 193.5,-570"/>
+<text text-anchor="middle" x="115.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_accumulate_mean_R4</text>
+</a>
+</g>
+</g>
+<!-- proc~test_accumulate_mean_r4&#45;&gt;none~initialize~14 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_edge3" class="edge">
+<title>proc~test_accumulate_mean_r4&#45;&gt;none~initialize~14</title>
+<path fill="none" stroke="#ff0000" d="M193.52,-553.87C206.93,-550.46 220.06,-545.15 231,-537 309.9,-478.22 344.01,-357.1 355.11,-307.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="358.59,-307.69 357.24,-297.18 351.74,-306.23 358.59,-307.69"/>
+</g>
+<!-- proc~test_accumulate_r4 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_node5" class="node">
+<title>proc~test_accumulate_r4</title>
+<g id="a_interface~~fieldsaresametypekind~~CalledByGraph_node5"><a xlink:href="../proc/test_accumulate_r4.html" xlink:title="test_accumulate_R4">
+<polygon fill="#d9534f" stroke="#d9534f" points="175.5,-528 55.5,-528 55.5,-504 175.5,-504 175.5,-528"/>
+<text text-anchor="middle" x="115.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_accumulate_R4</text>
+</a>
+</g>
+</g>
+<!-- proc~test_accumulate_r4&#45;&gt;none~initialize~14 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_edge4" class="edge">
+<title>proc~test_accumulate_r4&#45;&gt;none~initialize~14</title>
+<path fill="none" stroke="#ff0000" d="M175.73,-514.56C194.69,-511.74 214.92,-506.04 231,-495 299.85,-447.74 338.46,-350.29 352.88,-306.79"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="356.24,-307.78 355.96,-297.19 349.57,-305.65 356.24,-307.78"/>
+</g>
+<!-- proc~test_accumulate_with_undef_some_steps -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_node6" class="node">
+<title>proc~test_accumulate_with_undef_some_steps</title>
+<g id="a_interface~~fieldsaresametypekind~~CalledByGraph_node6"><a xlink:href="../proc/test_accumulate_with_undef_some_steps.html" xlink:title="test_accumulate_with_undef_some_steps">
+<polygon fill="#d9534f" stroke="#d9534f" points="231,-486 0,-486 0,-462 231,-462 231,-486"/>
+<text text-anchor="middle" x="115.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_accumulate_with_undef_some_steps</text>
+</a>
+</g>
+</g>
+<!-- proc~test_accumulate_with_undef_some_steps&#45;&gt;none~initialize~14 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_edge5" class="edge">
+<title>proc~test_accumulate_with_undef_some_steps&#45;&gt;none~initialize~14</title>
+<path fill="none" stroke="#ff0000" d="M212.55,-462C219,-459.51 225.23,-456.54 231,-453 289.96,-416.88 331.71,-343.01 349.66,-306.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="352.93,-307.73 354.09,-297.2 346.62,-304.71 352.93,-307.73"/>
+</g>
+<!-- proc~test_accumulate~2 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_node7" class="node">
+<title>proc~test_accumulate~2</title>
+<g id="a_interface~~fieldsaresametypekind~~CalledByGraph_node7"><a xlink:href="../proc/test_accumulate~2.html" xlink:title="test_accumulate">
+<polygon fill="#d9534f" stroke="#d9534f" points="165.5,-444 65.5,-444 65.5,-420 165.5,-420 165.5,-444"/>
+<text text-anchor="middle" x="115.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_accumulate</text>
+</a>
+</g>
+</g>
+<!-- proc~test_accumulate~2&#45;&gt;none~initialize~14 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_edge6" class="edge">
+<title>proc~test_accumulate~2&#45;&gt;none~initialize~14</title>
+<path fill="none" stroke="#ff0000" d="M165.64,-429.4C186.7,-426.7 211,-421.38 231,-411 280.55,-385.3 323.53,-334.1 344.97,-305.51"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="348.06,-307.22 351.16,-297.09 342.42,-303.08 348.06,-307.22"/>
+</g>
+<!-- proc~test_calculate_mean_r4 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_node8" class="node">
+<title>proc~test_calculate_mean_r4</title>
+<g id="a_interface~~fieldsaresametypekind~~CalledByGraph_node8"><a xlink:href="../proc/test_calculate_mean_r4.html" xlink:title="test_calculate_mean_R4">
+<polygon fill="#d9534f" stroke="#d9534f" points="186.5,-402 44.5,-402 44.5,-378 186.5,-378 186.5,-402"/>
+<text text-anchor="middle" x="115.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_calculate_mean_R4</text>
+</a>
+</g>
+</g>
+<!-- proc~test_calculate_mean_r4&#45;&gt;none~initialize~14 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_edge7" class="edge">
+<title>proc~test_calculate_mean_r4&#45;&gt;none~initialize~14</title>
+<path fill="none" stroke="#ff0000" d="M186.77,-381.66C201.69,-378.65 217.11,-374.55 231,-369 271.51,-352.81 312.76,-322.98 337.23,-303.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="339.57,-306.18 345.16,-297.18 335.18,-300.73 339.57,-306.18"/>
+</g>
+<!-- proc~test_clear -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_node9" class="node">
+<title>proc~test_clear</title>
+<g id="a_interface~~fieldsaresametypekind~~CalledByGraph_node9"><a xlink:href="../proc/test_clear.html" xlink:title="test_clear">
+<polygon fill="#d9534f" stroke="#d9534f" points="147.5,-360 83.5,-360 83.5,-336 147.5,-336 147.5,-360"/>
+<text text-anchor="middle" x="115.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_clear</text>
+</a>
+</g>
+</g>
+<!-- proc~test_clear&#45;&gt;none~initialize~14 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_edge8" class="edge">
+<title>proc~test_clear&#45;&gt;none~initialize~14</title>
+<path fill="none" stroke="#ff0000" d="M147.85,-343.42C171,-339.75 203.18,-334.06 231,-327 260.22,-319.58 292.47,-309.03 317.35,-300.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="318.57,-303.64 326.84,-297.02 316.25,-297.04 318.57,-303.64"/>
+</g>
+<!-- proc~test_clear~2 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_node10" class="node">
+<title>proc~test_clear~2</title>
+<g id="a_interface~~fieldsaresametypekind~~CalledByGraph_node10"><a xlink:href="../proc/test_clear~2.html" xlink:title="test_clear">
+<polygon fill="#d9534f" stroke="#d9534f" points="147.5,-318 83.5,-318 83.5,-294 147.5,-294 147.5,-318"/>
+<text text-anchor="middle" x="115.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_clear</text>
+</a>
+</g>
+</g>
+<!-- proc~test_clear~2&#45;&gt;none~initialize~14 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_edge9" class="edge">
+<title>proc~test_clear~2&#45;&gt;none~initialize~14</title>
+<path fill="none" stroke="#ff0000" d="M147.77,-303.3C175.42,-300.91 217.36,-297.28 256.64,-293.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="257.16,-297.36 266.82,-293.01 256.56,-290.38 257.16,-297.36"/>
+</g>
+<!-- proc~test_initialize -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_node11" class="node">
+<title>proc~test_initialize</title>
+<g id="a_interface~~fieldsaresametypekind~~CalledByGraph_node11"><a xlink:href="../proc/test_initialize.html" xlink:title="test_initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="156.5,-276 74.5,-276 74.5,-252 156.5,-252 156.5,-276"/>
+<text text-anchor="middle" x="115.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~test_initialize&#45;&gt;none~initialize~14 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_edge10" class="edge">
+<title>proc~test_initialize&#45;&gt;none~initialize~14</title>
+<path fill="none" stroke="#ff0000" d="M156.63,-267.47C183.86,-269.82 221.2,-273.05 256.42,-276.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="256.51,-279.61 266.78,-276.99 257.11,-272.64 256.51,-279.61"/>
+</g>
+<!-- proc~test_initialize~2 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_node12" class="node">
+<title>proc~test_initialize~2</title>
+<g id="a_interface~~fieldsaresametypekind~~CalledByGraph_node12"><a xlink:href="../proc/test_initialize~2.html" xlink:title="test_initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="156.5,-234 74.5,-234 74.5,-210 156.5,-210 156.5,-234"/>
+<text text-anchor="middle" x="115.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~test_initialize~2&#45;&gt;none~initialize~14 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_edge11" class="edge">
+<title>proc~test_initialize~2&#45;&gt;none~initialize~14</title>
+<path fill="none" stroke="#ff0000" d="M156.62,-225.9C179.01,-228.93 207.12,-234.16 231,-243 248.37,-249.43 249.77,-257.2 267,-264 272.73,-266.26 278.76,-268.31 284.88,-270.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="283.97,-273.54 294.54,-272.9 285.88,-266.8 283.97,-273.54"/>
+</g>
+<!-- proc~test_invalidate -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_node13" class="node">
+<title>proc~test_invalidate</title>
+<g id="a_interface~~fieldsaresametypekind~~CalledByGraph_node13"><a xlink:href="../proc/test_invalidate.html" xlink:title="test_invalidate">
+<polygon fill="#d9534f" stroke="#d9534f" points="160.5,-192 70.5,-192 70.5,-168 160.5,-168 160.5,-192"/>
+<text text-anchor="middle" x="115.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_invalidate</text>
+</a>
+</g>
+</g>
+<!-- proc~test_invalidate&#45;&gt;none~initialize~14 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_edge12" class="edge">
+<title>proc~test_invalidate&#45;&gt;none~initialize~14</title>
+<path fill="none" stroke="#ff0000" d="M160.68,-179.48C183.49,-181.22 210.72,-186.63 231,-201 257.31,-219.65 241.08,-244.81 267,-264 269.08,-265.54 271.26,-266.98 273.51,-268.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="272.04,-271.48 282.53,-272.95 275.24,-265.26 272.04,-271.48"/>
+</g>
+<!-- proc~test_invalidate~2 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_node14" class="node">
+<title>proc~test_invalidate~2</title>
+<g id="a_interface~~fieldsaresametypekind~~CalledByGraph_node14"><a xlink:href="../proc/test_invalidate~2.html" xlink:title="test_invalidate">
+<polygon fill="#d9534f" stroke="#d9534f" points="160.5,-150 70.5,-150 70.5,-126 160.5,-126 160.5,-150"/>
+<text text-anchor="middle" x="115.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_invalidate</text>
+</a>
+</g>
+</g>
+<!-- proc~test_invalidate~2&#45;&gt;none~initialize~14 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_edge13" class="edge">
+<title>proc~test_invalidate~2&#45;&gt;none~initialize~14</title>
+<path fill="none" stroke="#ff0000" d="M160.72,-135.92C184.11,-137.12 211.86,-142.51 231,-159 268.38,-191.19 230.3,-231.03 267,-264 268.35,-265.21 269.75,-266.36 271.2,-267.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="269.66,-270.6 279.98,-272.99 273.4,-264.69 269.66,-270.6"/>
+</g>
+<!-- proc~test_max_accumulate_r4 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_node15" class="node">
+<title>proc~test_max_accumulate_r4</title>
+<g id="a_interface~~fieldsaresametypekind~~CalledByGraph_node15"><a xlink:href="../proc/test_max_accumulate_r4.html" xlink:title="test_max_accumulate_R4">
+<polygon fill="#d9534f" stroke="#d9534f" points="189.5,-108 41.5,-108 41.5,-84 189.5,-84 189.5,-108"/>
+<text text-anchor="middle" x="115.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_max_accumulate_R4</text>
+</a>
+</g>
+</g>
+<!-- proc~test_max_accumulate_r4&#45;&gt;none~initialize~14 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_edge14" class="edge">
+<title>proc~test_max_accumulate_r4&#45;&gt;none~initialize~14</title>
+<path fill="none" stroke="#ff0000" d="M189.55,-96.79C204.81,-100.17 219.68,-106.32 231,-117 279.94,-163.14 219.04,-216.84 267,-264 268.1,-265.08 269.25,-266.11 270.43,-267.1"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="268.54,-270.05 278.75,-272.9 272.55,-264.31 268.54,-270.05"/>
+</g>
+<!-- proc~test_min_accumulate_r4 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_node16" class="node">
+<title>proc~test_min_accumulate_r4</title>
+<g id="a_interface~~fieldsaresametypekind~~CalledByGraph_node16"><a xlink:href="../proc/test_min_accumulate_r4.html" xlink:title="test_min_accumulate_R4">
+<polygon fill="#d9534f" stroke="#d9534f" points="188,-66 43,-66 43,-42 188,-42 188,-66"/>
+<text text-anchor="middle" x="115.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_min_accumulate_R4</text>
+</a>
+</g>
+</g>
+<!-- proc~test_min_accumulate_r4&#45;&gt;none~initialize~14 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_edge15" class="edge">
+<title>proc~test_min_accumulate_r4&#45;&gt;none~initialize~14</title>
+<path fill="none" stroke="#ff0000" d="M188.18,-53.97C204.05,-57.28 219.53,-63.61 231,-75 291.67,-135.26 207.6,-202.49 267,-264 267.93,-264.97 268.9,-265.89 269.9,-266.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="267.99,-269.72 278.12,-272.85 272.15,-264.09 267.99,-269.72"/>
+</g>
+<!-- proc~test_update -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_node17" class="node">
+<title>proc~test_update</title>
+<g id="a_interface~~fieldsaresametypekind~~CalledByGraph_node17"><a xlink:href="../proc/test_update.html" xlink:title="test_update">
+<polygon fill="#d9534f" stroke="#d9534f" points="153,-24 78,-24 78,0 153,0 153,-24"/>
+<text text-anchor="middle" x="115.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_update</text>
+</a>
+</g>
+</g>
+<!-- proc~test_update&#45;&gt;none~initialize~14 -->
+<g id="interface~~fieldsaresametypekind~~CalledByGraph_edge16" class="edge">
+<title>proc~test_update&#45;&gt;none~initialize~14</title>
+<path fill="none" stroke="#ff0000" d="M153.02,-8.55C178.41,-8.29 211.12,-12.58 231,-33 303.48,-107.45 196.09,-188.05 267,-264 267.92,-264.98 268.87,-265.92 269.85,-266.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="267.9,-269.73 277.98,-272.98 272.12,-264.15 267.9,-269.73"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+
+
+        <h2>Module Procedures</h2>
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-are_same_type_kind"></span> <h3>private  function are_same_type_kind(x, y, rc) result(same_tk)  
+</h3></div>
+    <div class="card-body">
+        
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-x~442"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>x</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-y~220"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>y</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~3499"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+</div>
+  </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

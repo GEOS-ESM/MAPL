@@ -1,0 +1,1294 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>mapl3g_generalized_equality &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>mapl3g_generalized_equality
+      <small>Module</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for modules and submodules.">70 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/generalized_equality.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/generalized_equality.f90.html'>generalized_equality.F90</a></li>
+            <li class="breadcrumb-item active" aria-current="page">mapl3g_generalized_equality</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#inters-0"
+         aria-expanded="false" aria-controls="inters-0">
+         <h4 class="card-header bg-primary text-white">Interfaces</h4>
+      </a>
+      <div id="inters-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_generalized_equality.html#interface-are_equal">are_equal</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~mapl3g_generalized_equality~~UsesGraph Pages: 1 -->
+<svg id="modulemapl3g_generalized_equalityUsesGraph" width="267pt" height="32pt"
+ viewBox="0.00 0.00 267.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl3g_generalized_equality~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>module~~mapl3g_generalized_equality~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 263,-28 263,4 -4,4"/>
+<!-- module~mapl3g_generalized_equality -->
+<g id="module~~mapl3g_generalized_equality~~UsesGraph_node1" class="node">
+<title>module~mapl3g_generalized_equality</title>
+<polygon fill="none" stroke="black" points="259,-24 90,-24 90,0 259,0 259,-24"/>
+<text text-anchor="middle" x="174.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl3g_generalized_equality</text>
+</g>
+<!-- ESMF -->
+<g id="module~~mapl3g_generalized_equality~~UsesGraph_node2" class="node">
+<title>ESMF</title>
+<g id="a_module~~mapl3g_generalized_equality~~UsesGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/module/esmf.html" xlink:title="ESMF">
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_generalized_equality&#45;&gt;ESMF -->
+<g id="module~~mapl3g_generalized_equality~~UsesGraph_edge1" class="edge">
+<title>module~mapl3g_generalized_equality&#45;&gt;ESMF</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M89.71,-12C80.85,-12 72.21,-12 64.34,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="64.13,-8.5 54.13,-12 64.13,-15.5 64.13,-8.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+          <div class="card">
+      <h3 class="card-header card-title bg-light">Used by</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~mapl3g_generalized_equality~~UsedByGraph Pages: 1 -->
+<svg id="modulemapl3g_generalized_equalityUsedByGraph" width="641pt" height="260pt"
+ viewBox="0.00 0.00 641.00 259.79" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph" class="graph" transform="scale(0.71 0.71) rotate(0) translate(4 364)">
+<title>module~~mapl3g_generalized_equality~~UsedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-364 904,-364 904,4 -4,4"/>
+<!-- module~mapl3g_generalized_equality -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_node1" class="node">
+<title>module~mapl3g_generalized_equality</title>
+<polygon fill="none" stroke="black" points="169,-192 0,-192 0,-168 169,-168 169,-192"/>
+<text text-anchor="middle" x="84.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl3g_generalized_equality</text>
+</g>
+<!-- module~mapl3g_hconfig_get_private -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_node2" class="node">
+<title>module~mapl3g_hconfig_get_private</title>
+<g id="a_module~~mapl3g_generalized_equality~~UsedByGraph_node2"><a xlink:href="../module/mapl3g_hconfig_get_private.html" xlink:title="mapl3g_hconfig_get_private">
+<polygon fill="#337ab7" stroke="#337ab7" points="368,-192 205,-192 205,-168 368,-168 368,-192"/>
+<text text-anchor="middle" x="286.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_hconfig_get_private</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_hconfig_get_private&#45;&gt;module~mapl3g_generalized_equality -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_edge1" class="edge">
+<title>module~mapl3g_hconfig_get_private&#45;&gt;module~mapl3g_generalized_equality</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M204.73,-180C196.4,-180 187.9,-180 179.45,-180"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="179.18,-176.5 169.18,-180 179.18,-183.5 179.18,-176.5"/>
+</g>
+<!-- module~mapl3g_hconfig_get -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_node3" class="node">
+<title>module~mapl3g_hconfig_get</title>
+<g id="a_module~~mapl3g_generalized_equality~~UsedByGraph_node3"><a xlink:href="../module/mapl3g_hconfig_get.html" xlink:title="mapl3g_hconfig_get">
+<polygon fill="#337ab7" stroke="#337ab7" points="536,-213 415,-213 415,-189 536,-189 536,-213"/>
+<text text-anchor="middle" x="475.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_hconfig_get</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_hconfig_get&#45;&gt;module~mapl3g_hconfig_get_private -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_edge2" class="edge">
+<title>module~mapl3g_hconfig_get&#45;&gt;module~mapl3g_hconfig_get_private</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M414.82,-194.3C403.09,-192.98 390.55,-191.57 378.08,-190.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="378.43,-186.69 368.11,-189.05 377.65,-193.65 378.43,-186.69"/>
+</g>
+<!-- module~test_hconfig_get_private -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_node4" class="node">
+<title>module~test_hconfig_get_private</title>
+<g id="a_module~~mapl3g_generalized_equality~~UsedByGraph_node4"><a xlink:href="../module/test_hconfig_get_private.html" xlink:title="Test_hconfig_get_private">
+<polygon fill="#337ab7" stroke="#337ab7" points="547,-171 404,-171 404,-147 547,-147 547,-171"/>
+<text text-anchor="middle" x="475.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_hconfig_get_private</text>
+</a>
+</g>
+</g>
+<!-- module~test_hconfig_get_private&#45;&gt;module~mapl3g_hconfig_get_private -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_edge3" class="edge">
+<title>module~test_hconfig_get_private&#45;&gt;module~mapl3g_hconfig_get_private</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M403.8,-166.94C395.4,-167.88 386.74,-168.86 378.11,-169.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="377.56,-166.36 368.02,-170.96 378.34,-173.32 377.56,-166.36"/>
+</g>
+<!-- module~hconfig3g -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_node5" class="node">
+<title>module~hconfig3g</title>
+<g id="a_module~~mapl3g_generalized_equality~~UsedByGraph_node5"><a xlink:href="../module/hconfig3g.html" xlink:title="hconfig3g">
+<polygon fill="#337ab7" stroke="#337ab7" points="666,-234 600,-234 600,-210 666,-210 666,-234"/>
+<text text-anchor="middle" x="633" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">hconfig3g</text>
+</a>
+</g>
+</g>
+<!-- module~hconfig3g&#45;&gt;module~mapl3g_hconfig_get -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_edge4" class="edge">
+<title>module~hconfig3g&#45;&gt;module~mapl3g_hconfig_get</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M599.78,-217.65C584.17,-215.54 564.78,-212.92 546.04,-210.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="546.4,-206.91 536.02,-209.04 545.46,-213.84 546.4,-206.91"/>
+</g>
+<!-- module~mapl3g_generic -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_node6" class="node">
+<title>module~mapl3g_generic</title>
+<g id="a_module~~mapl3g_generalized_equality~~UsedByGraph_node6"><a xlink:href="../module/mapl3g_generic.html" xlink:title="mapl3g_Generic">
+<polygon fill="#337ab7" stroke="#337ab7" points="683,-192 583,-192 583,-168 683,-168 683,-192"/>
+<text text-anchor="middle" x="633" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_Generic</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_generic&#45;&gt;module~mapl3g_hconfig_get -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_edge5" class="edge">
+<title>module~mapl3g_generic&#45;&gt;module~mapl3g_hconfig_get</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M582.8,-186.64C571.19,-188.21 558.6,-189.91 546.27,-191.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="545.45,-188.16 536.01,-192.96 546.39,-195.09 545.45,-188.16"/>
+</g>
+<!-- module~generic3g -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_node7" class="node">
+<title>module~generic3g</title>
+<g id="a_module~~mapl3g_generalized_equality~~UsedByGraph_node7"><a xlink:href="../module/generic3g.html" xlink:title="Generic3g">
+<polygon fill="#337ab7" stroke="#337ab7" points="843.5,-360 775.5,-360 775.5,-336 843.5,-336 843.5,-360"/>
+<text text-anchor="middle" x="809.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Generic3g</text>
+</a>
+</g>
+</g>
+<!-- module~generic3g&#45;&gt;module~mapl3g_generic -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_edge6" class="edge">
+<title>module~generic3g&#45;&gt;module~mapl3g_generic</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M775.28,-348.11C756.51,-346.43 733.9,-341.21 719,-327 676.84,-286.81 721.5,-244.71 683,-201 682.14,-200.02 681.23,-199.09 680.27,-198.2"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="682.29,-195.34 672.18,-192.16 678.1,-200.95 682.29,-195.34"/>
+</g>
+<!-- module~mapl3g_acg3 -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_node8" class="node">
+<title>module~mapl3g_acg3</title>
+<g id="a_module~~mapl3g_generalized_equality~~UsedByGraph_node8"><a xlink:href="../module/mapl3g_acg3.html" xlink:title="mapl3g_acg3">
+<polygon fill="#337ab7" stroke="#337ab7" points="852,-318 767,-318 767,-294 852,-294 852,-318"/>
+<text text-anchor="middle" x="809.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_acg3</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_acg3&#45;&gt;module~mapl3g_generic -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_edge7" class="edge">
+<title>module~mapl3g_acg3&#45;&gt;module~mapl3g_generic</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M766.59,-304.17C750.2,-301.55 732.2,-296.08 719,-285 687.89,-258.89 711.72,-229.72 683,-201 681.94,-199.94 680.81,-198.92 679.63,-197.96"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="681.51,-195 671.27,-192.27 677.57,-200.79 681.51,-195"/>
+</g>
+<!-- module~mapl3g_configurablegridcomp -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_node9" class="node">
+<title>module~mapl3g_configurablegridcomp</title>
+<g id="a_module~~mapl3g_generalized_equality~~UsedByGraph_node9"><a xlink:href="../module/mapl3g_configurablegridcomp.html" xlink:title="mapl3g_ConfigurableGridComp">
+<polygon fill="#337ab7" stroke="#337ab7" points="900,-276 719,-276 719,-252 900,-252 900,-276"/>
+<text text-anchor="middle" x="809.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ConfigurableGridComp</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_configurablegridcomp&#45;&gt;module~mapl3g_generic -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_edge8" class="edge">
+<title>module~mapl3g_configurablegridcomp&#45;&gt;module~mapl3g_generic</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M737.91,-251.98C731.28,-249.53 724.86,-246.57 719,-243 697.99,-230.23 702.81,-215.55 683,-201 680.98,-199.51 678.83,-198.11 676.61,-196.78"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="678.27,-193.69 667.8,-192.05 674.96,-199.86 678.27,-193.69"/>
+</g>
+<!-- module~mapl3g_deprecated -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_node10" class="node">
+<title>module~mapl3g_deprecated</title>
+<g id="a_module~~mapl3g_generalized_equality~~UsedByGraph_node10"><a xlink:href="../module/mapl3g_deprecated.html" xlink:title="mapl3g_Deprecated">
+<polygon fill="#337ab7" stroke="#337ab7" points="870,-234 749,-234 749,-210 870,-210 870,-234"/>
+<text text-anchor="middle" x="809.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_Deprecated</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_deprecated&#45;&gt;module~mapl3g_generic -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_edge9" class="edge">
+<title>module~mapl3g_deprecated&#45;&gt;module~mapl3g_generic</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M756.89,-210C744.47,-207.08 731.26,-203.95 719,-201 710.41,-198.93 701.34,-196.72 692.45,-194.54"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="693.07,-191.08 682.52,-192.09 691.4,-197.88 693.07,-191.08"/>
+</g>
+<!-- module~protoextdatagc -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_node11" class="node">
+<title>module~protoextdatagc</title>
+<g id="a_module~~mapl3g_generalized_equality~~UsedByGraph_node11"><a xlink:href="../module/protoextdatagc.html" xlink:title="ProtoExtDataGC">
+<polygon fill="#337ab7" stroke="#337ab7" points="858,-192 761,-192 761,-168 858,-168 858,-192"/>
+<text text-anchor="middle" x="809.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ProtoExtDataGC</text>
+</a>
+</g>
+</g>
+<!-- module~protoextdatagc&#45;&gt;module~mapl3g_generic -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_edge10" class="edge">
+<title>module~protoextdatagc&#45;&gt;module~mapl3g_generic</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M760.82,-180C740,-180 715.36,-180 693.37,-180"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="693.15,-176.5 683.15,-180 693.14,-183.5 693.15,-176.5"/>
+</g>
+<!-- module~test_configurablegridcomp -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_node12" class="node">
+<title>module~test_configurablegridcomp</title>
+<g id="a_module~~mapl3g_generalized_equality~~UsedByGraph_node12"><a xlink:href="../module/test_configurablegridcomp.html" xlink:title="Test_ConfigurableGridComp">
+<polygon fill="#337ab7" stroke="#337ab7" points="890,-150 729,-150 729,-126 890,-126 890,-150"/>
+<text text-anchor="middle" x="809.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ConfigurableGridComp</text>
+</a>
+</g>
+</g>
+<!-- module~test_configurablegridcomp&#45;&gt;module~mapl3g_generic -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_edge11" class="edge">
+<title>module~test_configurablegridcomp&#45;&gt;module~mapl3g_generic</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M756.89,-150C744.47,-152.92 731.26,-156.05 719,-159 710.41,-161.07 701.34,-163.28 692.45,-165.46"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="691.4,-162.12 682.52,-167.91 693.07,-168.92 691.4,-162.12"/>
+</g>
+<!-- module~test_scenarios -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_node13" class="node">
+<title>module~test_scenarios</title>
+<g id="a_module~~mapl3g_generalized_equality~~UsedByGraph_node13"><a xlink:href="../module/test_scenarios.html" xlink:title="Test_Scenarios">
+<polygon fill="#337ab7" stroke="#337ab7" points="855,-108 764,-108 764,-84 855,-84 855,-108"/>
+<text text-anchor="middle" x="809.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_Scenarios</text>
+</a>
+</g>
+</g>
+<!-- module~test_scenarios&#45;&gt;module~mapl3g_generic -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_edge12" class="edge">
+<title>module~test_scenarios&#45;&gt;module~mapl3g_generic</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M763.61,-102.8C748.96,-105.99 732.9,-110.56 719,-117 694.88,-128.19 670.85,-146.87 654.53,-160.99"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="651.9,-158.64 646.74,-167.89 656.55,-163.88 651.9,-158.64"/>
+</g>
+<!-- module~test_timestep_propagation -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_node14" class="node">
+<title>module~test_timestep_propagation</title>
+<g id="a_module~~mapl3g_generalized_equality~~UsedByGraph_node14"><a xlink:href="../module/test_timestep_propagation.html" xlink:title="Test_timestep_propagation">
+<polygon fill="#337ab7" stroke="#337ab7" points="886.5,-66 732.5,-66 732.5,-42 886.5,-42 886.5,-66"/>
+<text text-anchor="middle" x="809.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_timestep_propagation</text>
+</a>
+</g>
+</g>
+<!-- module~test_timestep_propagation&#45;&gt;module~mapl3g_generic -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_edge13" class="edge">
+<title>module~test_timestep_propagation&#45;&gt;module~mapl3g_generic</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M737.34,-66.02C730.9,-68.48 724.68,-71.44 719,-75 685.5,-96.02 659.26,-134.9 645.24,-159"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="642.18,-157.3 640.32,-167.73 648.28,-160.74 642.18,-157.3"/>
+</g>
+<!-- proc~setservices~4 -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_node15" class="node">
+<title>proc~setservices~4</title>
+<g id="a_module~~mapl3g_generalized_equality~~UsedByGraph_node15"><a xlink:href="../proc/setservices~4.html" xlink:title="setservices">
+<polygon fill="#d9534f" stroke="#d9534f" points="845.5,-24 773.5,-24 773.5,0 845.5,0 845.5,-24"/>
+<text text-anchor="middle" x="809.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setservices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~4&#45;&gt;module~mapl3g_generic -->
+<g id="module~~mapl3g_generalized_equality~~UsedByGraph_edge14" class="edge">
+<title>proc~setservices~4&#45;&gt;module~mapl3g_generic</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M773.46,-13.7C755.69,-16.08 734.64,-21.4 719,-33 676.04,-64.89 651.27,-125.44 640.49,-157.99"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="637.05,-157.28 637.37,-167.87 643.72,-159.4 637.05,-157.28"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panmodulemapl3g_generalized_equalityUsedByGraph = svgPanZoom('#modulemapl3g_generalized_equalityUsedByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsedByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsedByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+      <br>
+
+
+
+
+        <section>
+          <h2>Interfaces</h2>
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-are_equal"></span>
+      <h3>public        interface <a href='../interface/are_equal.html'>are_equal</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function equals_i4_scalar(u, v) result(lval)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-u~10"></span>
+              integer(kind=ESMF_KIND_I4),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>u</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-v~119"></span>
+              integer(kind=ESMF_KIND_I4),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>v</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function equals_i8_scalar(u, v) result(lval)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-u~11"></span>
+              integer(kind=ESMF_KIND_I8),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>u</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-v~120"></span>
+              integer(kind=ESMF_KIND_I8),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>v</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function equals_r4_scalar(u, v) result(lval)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-u~12"></span>
+              real(kind=ESMF_KIND_R4),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>u</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-v~121"></span>
+              real(kind=ESMF_KIND_R4),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>v</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function equals_r8_scalar(u, v) result(lval)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-u~13"></span>
+              real(kind=ESMF_KIND_R8),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>u</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-v~122"></span>
+              real(kind=ESMF_KIND_R8),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>v</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function equals_l_scalar(u, v) result(lval)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-u~14"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>u</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-v~123"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>v</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function equals_string(u, v) result(lval)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-u~15"></span>
+              character(len=:),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>u</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-v~124"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>v</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function equals_i4_array(u, v) result(lval)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-u~16"></span>
+              integer(kind=ESMF_KIND_I4),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>u</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-v~125"></span>
+              integer(kind=ESMF_KIND_I4),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>v</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function equals_i8_array(u, v) result(lval)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-u~17"></span>
+              integer(kind=ESMF_KIND_I8),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>u</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-v~126"></span>
+              integer(kind=ESMF_KIND_I8),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>v</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function equals_r4_array(u, v) result(lval)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-u~18"></span>
+              real(kind=ESMF_KIND_R4),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>u</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-v~127"></span>
+              real(kind=ESMF_KIND_R4),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>v</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function equals_r8_array(u, v) result(lval)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-u~19"></span>
+              real(kind=ESMF_KIND_R8),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>u</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-v~128"></span>
+              real(kind=ESMF_KIND_R8),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>v</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function equals_l_array(u, v) result(lval)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-u~20"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>u</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-v~129"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>v</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+        </section>
+        <br>
+
+
+
+
+
+
+
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

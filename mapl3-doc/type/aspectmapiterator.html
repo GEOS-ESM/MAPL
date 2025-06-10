@@ -1,0 +1,671 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>AspectMapIterator &ndash; MAPL </title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>AspectMapIterator
+      <small>Derived Type</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title="<p> 0.1% of total for derived types.</p>Including implementation: 46 statements,  0.0% of total for derived types.">11 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/StateItemAspect.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/stateitemaspect.f90.html'>StateItemAspect.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl3g_stateitemaspect.html'>mapl3g_StateItemAspect</a></li>
+            <li class="breadcrumb-item active" aria-current="page">AspectMapIterator</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#boundprocs-0"
+         aria-expanded="false" aria-controls="boundprocs-0">
+         <h4 class="card-header bg-primary text-white">Type-Bound Procedures</h4>
+      </a>
+      <div id="boundprocs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../type/aspectmapiterator.html#boundprocedure-first~478">first</a>
+            <a class="list-group-item" href="../type/aspectmapiterator.html#boundprocedure-next~194">next</a>
+            <a class="list-group-item" href="../type/aspectmapiterator.html#boundprocedure-of~384">of</a>
+            <a class="list-group-item" href="../type/aspectmapiterator.html#boundprocedure-prev~153">prev</a>
+            <a class="list-group-item" href="../type/aspectmapiterator.html#boundprocedure-second~95">second</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+      <h2 id="type-def-statement">
+        type, public :: AspectMapIterator</h2>
+    
+<br>      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Inherits</h3>
+        </div>
+        <div class="card-body">
+          <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: type~~aspectmapiterator~~InheritsGraph Pages: 1 -->
+<svg id="typeaspectmapiteratorInheritsGraph" width="641pt" height="52pt"
+ viewBox="0.00 0.00 641.00 51.95" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="type~~aspectmapiterator~~InheritsGraph" class="graph" transform="scale(0.7 0.7) rotate(0) translate(4 70)">
+<title>type~~aspectmapiterator~~InheritsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 909,-70 909,4 -4,4"/>
+<!-- type~aspectmapiterator -->
+<g id="type~~aspectmapiterator~~InheritsGraph_node1" class="node">
+<title>type~aspectmapiterator</title>
+<polygon fill="none" stroke="black" points="905,-44 794,-44 794,-20 905,-20 905,-44"/>
+<text text-anchor="middle" x="849.5" y="-29.6" font-family="Helvetica,sans-Serif" font-size="10.50">AspectMapIterator</text>
+</g>
+<!-- type~aspectmap -->
+<g id="type~~aspectmapiterator~~InheritsGraph_node2" class="node">
+<title>type~aspectmap</title>
+<g id="a_type~~aspectmapiterator~~InheritsGraph_node2"><a xlink:href="../type/aspectmap.html" xlink:title="AspectMap">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="698,-66 627,-66 627,-42 698,-42 698,-66"/>
+<text text-anchor="middle" x="662.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AspectMap</text>
+</a>
+</g>
+</g>
+<!-- type~aspectmapiterator&#45;&gt;type~aspectmap -->
+<g id="type~~aspectmapiterator~~InheritsGraph_edge2" class="edge">
+<title>type~aspectmapiterator&#45;&gt;type~aspectmap</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M793.99,-38.48C766.73,-41.72 734.15,-45.6 708.36,-48.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="707.63,-45.23 698.11,-49.88 708.46,-52.18 707.63,-45.23"/>
+<text text-anchor="middle" x="753" y="-47.4" font-family="Helvetica,sans-Serif" font-size="9.50">reference</text>
+</g>
+<!-- type~map_setiterator~6 -->
+<g id="type~~aspectmapiterator~~InheritsGraph_node3" class="node">
+<title>type~map_setiterator~6</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="712,-24 613,-24 613,0 712,0 712,-24"/>
+<text text-anchor="middle" x="662.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_SetIterator</text>
+</g>
+<!-- type~aspectmapiterator&#45;&gt;type~map_setiterator~6 -->
+<g id="type~~aspectmapiterator~~InheritsGraph_edge1" class="edge">
+<title>type~aspectmapiterator&#45;&gt;type~map_setiterator~6</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M793.97,-21.53C787.92,-20.57 781.84,-19.7 776,-19 758.54,-16.9 739.48,-15.41 722.09,-14.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="722.25,-10.87 712.06,-13.8 721.85,-17.86 722.25,-10.87"/>
+<text text-anchor="middle" x="753" y="-21.4" font-family="Helvetica,sans-Serif" font-size="9.50">set_iter</text>
+</g>
+<!-- type~map_set~6 -->
+<g id="type~~aspectmapiterator~~InheritsGraph_node4" class="node">
+<title>type~map_set~6</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="557,-44 498,-44 498,-20 557,-20 557,-44"/>
+<text text-anchor="middle" x="527.5" y="-29.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set</text>
+</g>
+<!-- type~aspectmap&#45;&gt;type~map_set~6 -->
+<g id="type~~aspectmapiterator~~InheritsGraph_edge3" class="edge">
+<title>type~aspectmap&#45;&gt;type~map_set~6</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M626.9,-48.28C608.59,-45.25 586.05,-41.52 567.16,-38.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="567.53,-34.91 557.09,-36.73 566.39,-41.81 567.53,-34.91"/>
+<text text-anchor="middle" x="585" y="-45.4" font-family="Helvetica,sans-Serif" font-size="9.50">tree</text>
+</g>
+<!-- type~map_setiterator~6&#45;&gt;type~map_set~6 -->
+<g id="type~~aspectmapiterator~~InheritsGraph_edge4" class="edge">
+<title>type~map_setiterator~6&#45;&gt;type~map_set~6</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M612.8,-14.3C600.41,-15.33 587.16,-16.83 575,-19 572.47,-19.45 569.88,-19.98 567.29,-20.56"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="566.2,-17.23 557.32,-23.02 567.87,-24.02 566.2,-17.23"/>
+<text text-anchor="middle" x="585" y="-21.4" font-family="Helvetica,sans-Serif" font-size="9.50">tree</text>
+</g>
+<!-- type~map_s_indexvector -->
+<g id="type~~aspectmapiterator~~InheritsGraph_node5" class="node">
+<title>type~map_s_indexvector</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="322,-66 207,-66 207,-42 322,-42 322,-66"/>
+<text text-anchor="middle" x="264.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_IndexVector</text>
+</g>
+<!-- type~map_set~6&#45;&gt;type~map_s_indexvector -->
+<g id="type~~aspectmapiterator~~InheritsGraph_edge6" class="edge">
+<title>type~map_set~6&#45;&gt;type~map_s_indexvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M497.82,-34.42C458.26,-37.75 385.77,-43.86 332.25,-48.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="331.82,-44.9 322.15,-49.22 332.41,-51.87 331.82,-44.9"/>
+<text text-anchor="middle" x="410" y="-49.4" font-family="Helvetica,sans-Serif" font-size="9.50">parents, lefts, rights, heights</text>
+</g>
+<!-- type~map_s_itemvector -->
+<g id="type~~aspectmapiterator~~InheritsGraph_node6" class="node">
+<title>type~map_s_itemvector</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="319.5,-24 209.5,-24 209.5,0 319.5,0 319.5,-24"/>
+<text text-anchor="middle" x="264.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_ItemVector</text>
+</g>
+<!-- type~map_set~6&#45;&gt;type~map_s_itemvector -->
+<g id="type~~aspectmapiterator~~InheritsGraph_edge5" class="edge">
+<title>type~map_set~6&#45;&gt;type~map_s_itemvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M497.71,-22.8C491.9,-21.27 485.8,-19.89 480,-19 429.88,-11.29 372.43,-9.8 329.61,-10.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="329.57,-6.6 319.6,-10.2 329.64,-13.59 329.57,-6.6"/>
+<text text-anchor="middle" x="410" y="-21.4" font-family="Helvetica,sans-Serif" font-size="9.50">items</text>
+</g>
+<!-- type~map_s_indexwrapper -->
+<g id="type~~aspectmapiterator~~InheritsGraph_node7" class="node">
+<title>type~map_s_indexwrapper</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="125,-66 0,-66 0,-42 125,-42 125,-66"/>
+<text text-anchor="middle" x="62.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_Indexwrapper</text>
+</g>
+<!-- type~map_s_indexvector&#45;&gt;type~map_s_indexwrapper -->
+<g id="type~~aspectmapiterator~~InheritsGraph_edge7" class="edge">
+<title>type~map_s_indexvector&#45;&gt;type~map_s_indexwrapper</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M206.99,-54C184.75,-54 158.95,-54 135.41,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="135.13,-50.5 125.13,-54 135.13,-57.5 135.13,-50.5"/>
+<text text-anchor="middle" x="166" y="-56.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~map_s_itemwrapper -->
+<g id="type~~aspectmapiterator~~InheritsGraph_node8" class="node">
+<title>type~map_s_itemwrapper</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="123,-24 2,-24 2,0 123,0 123,-24"/>
+<text text-anchor="middle" x="62.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_Itemwrapper</text>
+</g>
+<!-- type~map_s_itemvector&#45;&gt;type~map_s_itemwrapper -->
+<g id="type~~aspectmapiterator~~InheritsGraph_edge8" class="edge">
+<title>type~map_s_itemvector&#45;&gt;type~map_s_itemwrapper</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M209.38,-12C185.99,-12 158.33,-12 133.42,-12"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="133.3,-8.5 123.3,-12 133.3,-15.5 133.3,-8.5"/>
+<text text-anchor="middle" x="166" y="-14.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pantypeaspectmapiteratorInheritsGraph = svgPanZoom('#typeaspectmapiteratorInheritsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#InheritsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="InheritsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="186pt" height="32pt"
+ viewBox="0.00 0.00 185.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 181.5,-28 181.5,4 -4,4"/>
+<!-- Type -->
+<g id="node1" class="node">
+<title>Type</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="177.5,-24 72.5,-24 72.5,0 177.5,0 177.5,-24"/>
+<text text-anchor="middle" x="125" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a derived type to the parent type which it
+extends. Dashed arrows point from a derived type to the other
+types it contains as a components, with a label listing the name(s) of
+said component(s).
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    <br>
+
+    
+
+
+      <section>
+        <h2>Type-Bound Procedures</h2>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-first~478"></span>
+      <h3>
+          procedure, public ::
+  <strong>first</strong> => map_iter_first
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function map_iter_first(this) result(first)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='aspectmapiterator.html'>AspectMapIterator</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='aspectid.html'>AspectId</a>), pointer</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-next~194"></span>
+      <h3>
+          procedure, public ::
+  <strong>next</strong> => map_iter_next
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private recursive subroutine map_iter_next(this)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='aspectmapiterator.html'>AspectMapIterator</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-of~384"></span>
+      <h3>
+          procedure, public ::
+  <strong>of</strong> => map_iter_of
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function map_iter_of(this) result(p)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='aspectmapiterator.html'>AspectMapIterator</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='aspectpair.html'>AspectPair</a>), pointer</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-prev~153"></span>
+      <h3>
+          procedure, public ::
+  <strong>prev</strong> => map_iter_prev
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  subroutine map_iter_prev(this)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='aspectmapiterator.html'>AspectMapIterator</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-second~95"></span>
+      <h3>
+          procedure, public ::
+  <strong>second</strong> => map_iter_second
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function map_iter_second(this) result(second)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='aspectmapiterator.html'>AspectMapIterator</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>class(<a href='stateitemaspect.html'>StateItemAspect</a>), pointer</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+      </section>
+
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

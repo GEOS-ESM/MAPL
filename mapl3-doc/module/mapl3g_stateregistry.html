@@ -1,0 +1,1274 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>mapl3g_StateRegistry &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>mapl3g_StateRegistry
+      <small>Module</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.2% of total for modules and submodules.">685 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/StateRegistry.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/stateregistry.f90.html'>StateRegistry.F90</a></li>
+            <li class="breadcrumb-item active" aria-current="page">mapl3g_StateRegistry</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#inters-0"
+         aria-expanded="false" aria-controls="inters-0">
+         <h4 class="card-header bg-primary text-white">Interfaces</h4>
+      </a>
+      <div id="inters-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_stateregistry.html#interface-stateregistry">StateRegistry</a>
+        </div>
+      </div>
+    </div>
+
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#types-0"
+         aria-expanded="false" aria-controls="types-0">
+         <h4 class="card-header bg-primary text-white">Derived Types</h4>
+      </a>
+      <div id="types-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_stateregistry.html#type-stateregistry">StateRegistry</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='mapl3g_stateitemextensionvector.html'>mapl3g_StateItemExtensionVector</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_componentdriver.html'>mapl3g_ComponentDriver</a></li>
+                  <li class="list-inline-item"><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_griddedcomponentdriver.html'>mapl3g_GriddedComponentDriver</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_stateitemvector.html'>mapl3g_StateItemVector</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_connectionpt.html'>mapl3g_ConnectionPt</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_verticalgrid.html'>mapl3g_VerticalGrid</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_registryptr.html'>mapl3g_RegistryPtr</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_extensionfamily.html'>mapl3g_ExtensionFamily</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_abstractregistry.html'>mapl3g_AbstractRegistry</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_registryptrmap.html'>mapl3g_RegistryPtrMap</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_virtualconnectionptvector.html'>mapl3g_VirtualConnectionPtVector</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_virtualptfamilymap.html'>mapl3g_VirtualPtFamilyMap</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_componentdrivervector.html'>mapl3g_ComponentDriverVector</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_stateitemspec.html'>mapl3g_StateItemSpec</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_virtualconnectionpt.html'>mapl3g_VirtualConnectionPt</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_stateitemextension.html'>mapl3g_StateItemExtension</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_componentdriverptrvector.html'>mapl3g_ComponentDriverPtrVector</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_stateitemextensionptrvector.html'>mapl3g_StateItemExtensionPtrVector</a></li>
+                  <li class="list-inline-item"><a href='mapl_errorhandling.html'>mapl_ErrorHandling</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~mapl3g_stateregistry~~UsesGraph Pages: 1 -->
+<svg id="modulemapl3g_stateregistryUsesGraph" width="383pt" height="830pt"
+ viewBox="0.00 0.00 383.00 830.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl3g_stateregistry~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 826)">
+<title>module~~mapl3g_stateregistry~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-826 379,-826 379,4 -4,4"/>
+<!-- module~mapl3g_stateregistry -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_node1" class="node">
+<title>module~mapl3g_stateregistry</title>
+<polygon fill="none" stroke="black" points="375,-423 246,-423 246,-399 375,-399 375,-423"/>
+<text text-anchor="middle" x="310.5" y="-408.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl3g_StateRegistry</text>
+</g>
+<!-- ESMF -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_node2" class="node">
+<title>ESMF</title>
+<g id="a_module~~mapl3g_stateregistry~~UsesGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/module/esmf.html" xlink:title="ESMF">
+<polygon fill="#337ab7" stroke="#337ab7" points="132,-822 78,-822 78,-798 132,-798 132,-822"/>
+<text text-anchor="middle" x="105" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_stateregistry&#45;&gt;ESMF -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_edge1" class="edge">
+<title>module~mapl3g_stateregistry&#45;&gt;ESMF</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M308.02,-423.19C300.62,-482.07 265.78,-736.38 210,-789 192.07,-805.91 164.47,-810.88 142.21,-811.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="142.04,-808.28 132.09,-811.92 142.14,-815.28 142.04,-808.28"/>
+</g>
+<!-- module~mapl3g_abstractregistry -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_node3" class="node">
+<title>module~mapl3g_abstractregistry</title>
+<g id="a_module~~mapl3g_stateregistry~~UsesGraph_node3"><a xlink:href="../module/mapl3g_abstractregistry.html" xlink:title="mapl3g_AbstractRegistry">
+<polygon fill="#337ab7" stroke="#337ab7" points="177.5,-780 32.5,-780 32.5,-756 177.5,-756 177.5,-780"/>
+<text text-anchor="middle" x="105" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_AbstractRegistry</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_stateregistry&#45;&gt;module~mapl3g_abstractregistry -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_edge2" class="edge">
+<title>module~mapl3g_stateregistry&#45;&gt;module~mapl3g_abstractregistry</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M309.99,-423.03C311.28,-471.78 309.19,-656.24 210,-747 203.43,-753.01 195.64,-757.5 187.32,-760.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="186.06,-757.56 177.74,-764.11 188.33,-764.18 186.06,-757.56"/>
+</g>
+<!-- module~mapl3g_componentdriver -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_node4" class="node">
+<title>module~mapl3g_componentdriver</title>
+<g id="a_module~~mapl3g_stateregistry~~UsesGraph_node4"><a xlink:href="../module/mapl3g_componentdriver.html" xlink:title="mapl3g_ComponentDriver">
+<polygon fill="#337ab7" stroke="#337ab7" points="182,-738 28,-738 28,-714 182,-714 182,-738"/>
+<text text-anchor="middle" x="105" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ComponentDriver</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_stateregistry&#45;&gt;module~mapl3g_componentdriver -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_edge3" class="edge">
+<title>module~mapl3g_stateregistry&#45;&gt;module~mapl3g_componentdriver</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M309.41,-423.07C308.38,-468.03 298.37,-627.2 210,-705 204.49,-709.85 198.17,-713.7 191.43,-716.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="190.06,-713.52 182.01,-720.41 192.6,-720.05 190.06,-713.52"/>
+</g>
+<!-- module~mapl3g_componentdriverptrvector -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_node5" class="node">
+<title>module~mapl3g_componentdriverptrvector</title>
+<g id="a_module~~mapl3g_stateregistry~~UsesGraph_node5"><a xlink:href="../module/mapl3g_componentdriverptrvector.html" xlink:title="mapl3g_ComponentDriverPtrVector">
+<polygon fill="#337ab7" stroke="#337ab7" points="206,-696 4,-696 4,-672 206,-672 206,-696"/>
+<text text-anchor="middle" x="105" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ComponentDriverPtrVector</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_stateregistry&#45;&gt;module~mapl3g_componentdriverptrvector -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_edge4" class="edge">
+<title>module~mapl3g_stateregistry&#45;&gt;module~mapl3g_componentdriverptrvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M308.65,-423.04C305.1,-463.84 287.72,-597.93 210,-663 208.46,-664.29 206.87,-665.5 205.23,-666.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="203.39,-663.67 196.64,-671.84 207.01,-669.66 203.39,-663.67"/>
+</g>
+<!-- module~mapl3g_componentdrivervector -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_node6" class="node">
+<title>module~mapl3g_componentdrivervector</title>
+<g id="a_module~~mapl3g_stateregistry~~UsesGraph_node6"><a xlink:href="../module/mapl3g_componentdrivervector.html" xlink:title="mapl3g_ComponentDriverVector">
+<polygon fill="#337ab7" stroke="#337ab7" points="198.5,-654 11.5,-654 11.5,-630 198.5,-630 198.5,-654"/>
+<text text-anchor="middle" x="105" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ComponentDriverVector</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_stateregistry&#45;&gt;module~mapl3g_componentdrivervector -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_edge5" class="edge">
+<title>module~mapl3g_stateregistry&#45;&gt;module~mapl3g_componentdrivervector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M307.62,-423.06C301.28,-459.39 277.21,-568.43 210,-621 208.2,-622.41 206.33,-623.73 204.41,-624.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="202.64,-621.94 195.62,-629.88 206.06,-628.05 202.64,-621.94"/>
+</g>
+<!-- module~mapl3g_connectionpt -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_node7" class="node">
+<title>module~mapl3g_connectionpt</title>
+<g id="a_module~~mapl3g_stateregistry~~UsesGraph_node7"><a xlink:href="../module/mapl3g_connectionpt.html" xlink:title="mapl3g_ConnectionPt">
+<polygon fill="#337ab7" stroke="#337ab7" points="169.5,-612 40.5,-612 40.5,-588 169.5,-588 169.5,-612"/>
+<text text-anchor="middle" x="105" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ConnectionPt</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_stateregistry&#45;&gt;module~mapl3g_connectionpt -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_edge6" class="edge">
+<title>module~mapl3g_stateregistry&#45;&gt;module~mapl3g_connectionpt</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M306.11,-423.09C296.67,-454.42 266.93,-538.56 210,-579 200.97,-585.41 190.46,-589.97 179.64,-593.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="178.45,-589.88 169.66,-595.79 180.22,-596.66 178.45,-589.88"/>
+</g>
+<!-- module~mapl3g_extensionfamily -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_node8" class="node">
+<title>module~mapl3g_extensionfamily</title>
+<g id="a_module~~mapl3g_stateregistry~~UsesGraph_node8"><a xlink:href="../module/mapl3g_extensionfamily.html" xlink:title="mapl3g_ExtensionFamily">
+<polygon fill="#337ab7" stroke="#337ab7" points="177.5,-570 32.5,-570 32.5,-546 177.5,-546 177.5,-570"/>
+<text text-anchor="middle" x="105" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ExtensionFamily</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_stateregistry&#45;&gt;module~mapl3g_extensionfamily -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_edge7" class="edge">
+<title>module~mapl3g_stateregistry&#45;&gt;module~mapl3g_extensionfamily</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M303.73,-423.02C290.83,-448.54 257.03,-508.12 210,-537 203.03,-541.28 195.34,-544.71 187.4,-547.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="186.14,-544.18 177.62,-550.47 188.2,-550.87 186.14,-544.18"/>
+</g>
+<!-- module~mapl3g_griddedcomponentdriver -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_node9" class="node">
+<title>module~mapl3g_griddedcomponentdriver</title>
+<g id="a_module~~mapl3g_stateregistry~~UsesGraph_node9"><a xlink:href="../module/mapl3g_griddedcomponentdriver.html" xlink:title="mapl3g_GriddedComponentDriver">
+<polygon fill="#337ab7" stroke="#337ab7" points="203,-528 7,-528 7,-504 203,-504 203,-528"/>
+<text text-anchor="middle" x="105" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_GriddedComponentDriver</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_stateregistry&#45;&gt;module~mapl3g_griddedcomponentdriver -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_edge8" class="edge">
+<title>module~mapl3g_stateregistry&#45;&gt;module~mapl3g_griddedcomponentdriver</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M298.93,-423.2C282.09,-441.81 247.25,-477 210,-495 205.62,-497.12 201.03,-499.02 196.33,-500.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="194.94,-497.51 186.55,-503.99 197.15,-504.15 194.94,-497.51"/>
+</g>
+<!-- module~mapl3g_registryptr -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_node10" class="node">
+<title>module~mapl3g_registryptr</title>
+<g id="a_module~~mapl3g_stateregistry~~UsesGraph_node10"><a xlink:href="../module/mapl3g_registryptr.html" xlink:title="mapl3g_RegistryPtr">
+<polygon fill="#337ab7" stroke="#337ab7" points="162.5,-486 47.5,-486 47.5,-462 162.5,-462 162.5,-486"/>
+<text text-anchor="middle" x="105" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_RegistryPtr</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_stateregistry&#45;&gt;module~mapl3g_registryptr -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_edge9" class="edge">
+<title>module~mapl3g_stateregistry&#45;&gt;module~mapl3g_registryptr</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M284.66,-423.13C264.84,-432.4 236.16,-444.93 210,-453 198.06,-456.69 185.14,-459.89 172.6,-462.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="171.72,-459.22 162.65,-464.7 173.15,-466.08 171.72,-459.22"/>
+</g>
+<!-- module~mapl3g_registryptrmap -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_node11" class="node">
+<title>module~mapl3g_registryptrmap</title>
+<g id="a_module~~mapl3g_stateregistry~~UsesGraph_node11"><a xlink:href="../module/mapl3g_registryptrmap.html" xlink:title="mapl3g_RegistryPtrMap">
+<polygon fill="#337ab7" stroke="#337ab7" points="174,-444 36,-444 36,-420 174,-420 174,-444"/>
+<text text-anchor="middle" x="105" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_RegistryPtrMap</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_stateregistry&#45;&gt;module~mapl3g_registryptrmap -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_edge10" class="edge">
+<title>module~mapl3g_stateregistry&#45;&gt;module~mapl3g_registryptrmap</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M245.95,-417.56C226.39,-419.58 204.64,-421.82 184.22,-423.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="183.59,-420.47 174,-424.98 184.31,-427.44 183.59,-420.47"/>
+</g>
+<!-- module~mapl3g_stateitemextension -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_node12" class="node">
+<title>module~mapl3g_stateitemextension</title>
+<g id="a_module~~mapl3g_stateregistry~~UsesGraph_node12"><a xlink:href="../module/mapl3g_stateitemextension.html" xlink:title="mapl3g_StateItemExtension">
+<polygon fill="#337ab7" stroke="#337ab7" points="186,-402 24,-402 24,-378 186,-378 186,-402"/>
+<text text-anchor="middle" x="105" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_StateItemExtension</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_stateregistry&#45;&gt;module~mapl3g_stateitemextension -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_edge11" class="edge">
+<title>module~mapl3g_stateregistry&#45;&gt;module~mapl3g_stateitemextension</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M245.95,-404.44C230.3,-402.83 213.25,-401.07 196.6,-399.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="196.6,-395.83 186.3,-398.29 195.89,-402.79 196.6,-395.83"/>
+</g>
+<!-- module~mapl3g_stateitemextensionptrvector -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_node13" class="node">
+<title>module~mapl3g_stateitemextensionptrvector</title>
+<g id="a_module~~mapl3g_stateregistry~~UsesGraph_node13"><a xlink:href="../module/mapl3g_stateitemextensionptrvector.html" xlink:title="mapl3g_StateItemExtensionPtrVector">
+<polygon fill="#337ab7" stroke="#337ab7" points="210,-360 0,-360 0,-336 210,-336 210,-360"/>
+<text text-anchor="middle" x="105" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_StateItemExtensionPtrVector</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_stateregistry&#45;&gt;module~mapl3g_stateitemextensionptrvector -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_edge12" class="edge">
+<title>module~mapl3g_stateregistry&#45;&gt;module~mapl3g_stateitemextensionptrvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M284.66,-398.87C264.84,-389.6 236.16,-377.07 210,-369 202.09,-366.56 193.76,-364.33 185.39,-362.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="186.11,-358.88 175.58,-360.04 184.53,-365.7 186.11,-358.88"/>
+</g>
+<!-- module~mapl3g_stateitemextensionvector -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_node14" class="node">
+<title>module~mapl3g_stateitemextensionvector</title>
+<g id="a_module~~mapl3g_stateregistry~~UsesGraph_node14"><a xlink:href="../module/mapl3g_stateitemextensionvector.html" xlink:title="mapl3g_StateItemExtensionVector">
+<polygon fill="#337ab7" stroke="#337ab7" points="203,-318 7,-318 7,-294 203,-294 203,-318"/>
+<text text-anchor="middle" x="105" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_StateItemExtensionVector</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_stateregistry&#45;&gt;module~mapl3g_stateitemextensionvector -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_edge13" class="edge">
+<title>module~mapl3g_stateregistry&#45;&gt;module~mapl3g_stateitemextensionvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M298.93,-398.8C282.09,-380.19 247.25,-345 210,-327 205.62,-324.88 201.03,-322.98 196.33,-321.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="197.15,-317.85 186.55,-318.01 194.94,-324.49 197.15,-317.85"/>
+</g>
+<!-- module~mapl3g_stateitemspec -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_node15" class="node">
+<title>module~mapl3g_stateitemspec</title>
+<g id="a_module~~mapl3g_stateregistry~~UsesGraph_node15"><a xlink:href="../module/mapl3g_stateitemspec.html" xlink:title="mapl3g_StateItemSpec">
+<polygon fill="#337ab7" stroke="#337ab7" points="173,-276 37,-276 37,-252 173,-252 173,-276"/>
+<text text-anchor="middle" x="105" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_StateItemSpec</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_stateregistry&#45;&gt;module~mapl3g_stateitemspec -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_edge14" class="edge">
+<title>module~mapl3g_stateregistry&#45;&gt;module~mapl3g_stateitemspec</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M303.73,-398.98C290.83,-373.46 257.03,-313.88 210,-285 201.79,-279.96 192.59,-276.1 183.15,-273.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="183.82,-269.7 173.25,-270.39 181.95,-276.45 183.82,-269.7"/>
+</g>
+<!-- module~mapl3g_stateitemvector -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_node16" class="node">
+<title>module~mapl3g_stateitemvector</title>
+<g id="a_module~~mapl3g_stateregistry~~UsesGraph_node16"><a xlink:href="../module/mapl3g_stateitemvector.html" xlink:title="mapl3g_StateItemVector">
+<polygon fill="#337ab7" stroke="#337ab7" points="177,-234 33,-234 33,-210 177,-210 177,-234"/>
+<text text-anchor="middle" x="105" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_StateItemVector</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_stateregistry&#45;&gt;module~mapl3g_stateitemvector -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_edge15" class="edge">
+<title>module~mapl3g_stateregistry&#45;&gt;module~mapl3g_stateitemvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M306.11,-398.91C296.67,-367.58 266.93,-283.44 210,-243 203.04,-238.05 195.19,-234.21 187,-231.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="187.85,-227.83 177.26,-228.12 185.72,-234.5 187.85,-227.83"/>
+</g>
+<!-- module~mapl3g_verticalgrid -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_node17" class="node">
+<title>module~mapl3g_verticalgrid</title>
+<g id="a_module~~mapl3g_stateregistry~~UsesGraph_node17"><a xlink:href="../module/mapl3g_verticalgrid.html" xlink:title="mapl3g_VerticalGrid">
+<polygon fill="#337ab7" stroke="#337ab7" points="165.5,-192 44.5,-192 44.5,-168 165.5,-168 165.5,-192"/>
+<text text-anchor="middle" x="105" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_VerticalGrid</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_stateregistry&#45;&gt;module~mapl3g_verticalgrid -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_edge16" class="edge">
+<title>module~mapl3g_stateregistry&#45;&gt;module~mapl3g_verticalgrid</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M307.62,-398.94C301.28,-362.61 277.21,-253.57 210,-201 200.04,-193.21 187.94,-188.09 175.57,-184.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="176.16,-181.31 165.63,-182.46 174.58,-188.13 176.16,-181.31"/>
+</g>
+<!-- module~mapl3g_virtualconnectionpt -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_node18" class="node">
+<title>module~mapl3g_virtualconnectionpt</title>
+<g id="a_module~~mapl3g_stateregistry~~UsesGraph_node18"><a xlink:href="../module/mapl3g_virtualconnectionpt.html" xlink:title="mapl3g_VirtualConnectionPt">
+<polygon fill="#337ab7" stroke="#337ab7" points="186.5,-150 23.5,-150 23.5,-126 186.5,-126 186.5,-150"/>
+<text text-anchor="middle" x="105" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_VirtualConnectionPt</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_stateregistry&#45;&gt;module~mapl3g_virtualconnectionpt -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_edge17" class="edge">
+<title>module~mapl3g_stateregistry&#45;&gt;module~mapl3g_virtualconnectionpt</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M308.65,-398.96C305.1,-358.16 287.72,-224.07 210,-159 205.72,-155.42 200.99,-152.39 195.99,-149.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="197.28,-146.57 186.71,-145.72 194.44,-152.97 197.28,-146.57"/>
+</g>
+<!-- module~mapl3g_virtualconnectionptvector -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_node19" class="node">
+<title>module~mapl3g_virtualconnectionptvector</title>
+<g id="a_module~~mapl3g_stateregistry~~UsesGraph_node19"><a xlink:href="../module/mapl3g_virtualconnectionptvector.html" xlink:title="mapl3g_VirtualConnectionPtVector">
+<polygon fill="#337ab7" stroke="#337ab7" points="203.5,-108 6.5,-108 6.5,-84 203.5,-84 203.5,-108"/>
+<text text-anchor="middle" x="105" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_VirtualConnectionPtVector</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_stateregistry&#45;&gt;module~mapl3g_virtualconnectionptvector -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_edge18" class="edge">
+<title>module~mapl3g_stateregistry&#45;&gt;module~mapl3g_virtualconnectionptvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M309.41,-398.93C308.38,-353.97 298.37,-194.8 210,-117 208.67,-115.83 207.29,-114.72 205.87,-113.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="207.64,-110.63 197.33,-108.19 203.87,-116.53 207.64,-110.63"/>
+</g>
+<!-- module~mapl3g_virtualptfamilymap -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_node20" class="node">
+<title>module~mapl3g_virtualptfamilymap</title>
+<g id="a_module~~mapl3g_stateregistry~~UsesGraph_node20"><a xlink:href="../module/mapl3g_virtualptfamilymap.html" xlink:title="mapl3g_VirtualPtFamilyMap">
+<polygon fill="#337ab7" stroke="#337ab7" points="185,-66 25,-66 25,-42 185,-42 185,-66"/>
+<text text-anchor="middle" x="105" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_VirtualPtFamilyMap</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_stateregistry&#45;&gt;module~mapl3g_virtualptfamilymap -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_edge19" class="edge">
+<title>module~mapl3g_stateregistry&#45;&gt;module~mapl3g_virtualptfamilymap</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M309.99,-398.97C311.28,-350.22 309.19,-165.76 210,-75 205.32,-70.72 200.01,-67.2 194.34,-64.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="195.71,-61.12 185.15,-60.34 192.92,-67.54 195.71,-61.12"/>
+</g>
+<!-- module~mapl_errorhandling -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_node21" class="node">
+<title>module~mapl_errorhandling</title>
+<g id="a_module~~mapl3g_stateregistry~~UsesGraph_node21"><a xlink:href="../module/mapl_errorhandling.html" xlink:title="mapl_ErrorHandling">
+<polygon fill="#337ab7" stroke="#337ab7" points="164.5,-24 45.5,-24 45.5,0 164.5,0 164.5,-24"/>
+<text text-anchor="middle" x="105" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_ErrorHandling</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_stateregistry&#45;&gt;module~mapl_errorhandling -->
+<g id="module~~mapl3g_stateregistry~~UsesGraph_edge20" class="edge">
+<title>module~mapl3g_stateregistry&#45;&gt;module~mapl_errorhandling</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M308.02,-398.81C300.62,-339.93 265.78,-85.62 210,-33 200.28,-23.83 187.73,-18.18 174.72,-14.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="175.24,-11.3 164.72,-12.59 173.75,-18.14 175.24,-11.3"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+          <div class="card">
+      <h3 class="card-header card-title bg-light">Used by</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~mapl3g_stateregistry~~UsedByGraph Pages: 1 -->
+<svg id="modulemapl3g_stateregistryUsedByGraph" width="354pt" height="662pt"
+ viewBox="0.00 0.00 354.00 662.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl3g_stateregistry~~UsedByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 658)">
+<title>module~~mapl3g_stateregistry~~UsedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-658 350,-658 350,4 -4,4"/>
+<!-- module~mapl3g_stateregistry -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_node1" class="node">
+<title>module~mapl3g_stateregistry</title>
+<polygon fill="none" stroke="black" points="129,-339 0,-339 0,-315 129,-315 129,-339"/>
+<text text-anchor="middle" x="64.5" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl3g_StateRegistry</text>
+</g>
+<!-- module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_node2" class="node">
+<title>module~mapl3g_componentspecparser</title>
+<g id="a_module~~mapl3g_stateregistry~~UsedByGraph_node2"><a xlink:href="../module/mapl3g_componentspecparser.html" xlink:title="mapl3g_ComponentSpecParser">
+<polygon fill="#337ab7" stroke="#337ab7" points="346,-654 165,-654 165,-630 346,-630 346,-654"/>
+<text text-anchor="middle" x="255.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ComponentSpecParser</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_componentspecparser&#45;&gt;module~mapl3g_stateregistry -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_edge1" class="edge">
+<title>module~mapl3g_componentspecparser&#45;&gt;module~mapl3g_stateregistry</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M177.53,-629.79C173.01,-627.34 168.78,-624.43 165,-621 83.66,-547.1 68.77,-404.35 66.08,-349.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="69.57,-349.14 65.68,-339.29 62.58,-349.42 69.57,-349.14"/>
+</g>
+<!-- module~mapl3g_expressionclassaspect -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_node3" class="node">
+<title>module~mapl3g_expressionclassaspect</title>
+<g id="a_module~~mapl3g_stateregistry~~UsedByGraph_node3"><a xlink:href="../module/mapl3g_expressionclassaspect.html" xlink:title="mapl3g_ExpressionClassAspect">
+<polygon fill="#337ab7" stroke="#337ab7" points="345,-612 166,-612 166,-588 345,-588 345,-612"/>
+<text text-anchor="middle" x="255.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ExpressionClassAspect</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_expressionclassaspect&#45;&gt;module~mapl3g_stateregistry -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_edge2" class="edge">
+<title>module~mapl3g_expressionclassaspect&#45;&gt;module~mapl3g_stateregistry</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M178.15,-587.8C173.43,-585.35 168.99,-582.44 165,-579 94.01,-517.66 73.24,-398.92 67.53,-349.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="70.98,-348.81 66.45,-339.23 64.02,-349.54 70.98,-348.81"/>
+</g>
+<!-- module~mapl3g_generic -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_node4" class="node">
+<title>module~mapl3g_generic</title>
+<g id="a_module~~mapl3g_stateregistry~~UsedByGraph_node4"><a xlink:href="../module/mapl3g_generic.html" xlink:title="mapl3g_Generic">
+<polygon fill="#337ab7" stroke="#337ab7" points="305.5,-570 205.5,-570 205.5,-546 305.5,-546 305.5,-570"/>
+<text text-anchor="middle" x="255.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_Generic</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_generic&#45;&gt;module~mapl3g_stateregistry -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_edge3" class="edge">
+<title>module~mapl3g_generic&#45;&gt;module~mapl3g_stateregistry</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M205.43,-554.55C191.19,-551.53 176.42,-546.23 165,-537 104.08,-487.8 78.34,-392.48 69.45,-349.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="72.85,-348.38 67.5,-339.23 65.97,-349.71 72.85,-348.38"/>
+</g>
+<!-- module~mapl3g_matchconnection -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_node5" class="node">
+<title>module~mapl3g_matchconnection</title>
+<g id="a_module~~mapl3g_stateregistry~~UsedByGraph_node5"><a xlink:href="../module/mapl3g_matchconnection.html" xlink:title="mapl3g_MatchConnection">
+<polygon fill="#337ab7" stroke="#337ab7" points="331,-528 180,-528 180,-504 331,-504 331,-528"/>
+<text text-anchor="middle" x="255.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_MatchConnection</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_matchconnection&#45;&gt;module~mapl3g_stateregistry -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_edge4" class="edge">
+<title>module~mapl3g_matchconnection&#45;&gt;module~mapl3g_stateregistry</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M180.52,-503.86C175.01,-501.42 169.76,-498.49 165,-495 114.02,-457.57 84.5,-385.46 72.23,-349.1"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="75.52,-347.88 69.1,-339.45 68.86,-350.04 75.52,-347.88"/>
+</g>
+<!-- module~mapl3g_modelverticalgrid -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_node6" class="node">
+<title>module~mapl3g_modelverticalgrid</title>
+<g id="a_module~~mapl3g_stateregistry~~UsedByGraph_node6"><a xlink:href="../module/mapl3g_modelverticalgrid.html" xlink:title="mapl3g_ModelVerticalGrid">
+<polygon fill="#337ab7" stroke="#337ab7" points="332,-486 179,-486 179,-462 332,-462 332,-486"/>
+<text text-anchor="middle" x="255.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ModelVerticalGrid</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_modelverticalgrid&#45;&gt;module~mapl3g_stateregistry -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_edge5" class="edge">
+<title>module~mapl3g_modelverticalgrid&#45;&gt;module~mapl3g_stateregistry</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M182.84,-461.87C176.57,-459.44 170.52,-456.51 165,-453 123.55,-426.64 92.02,-376.87 76.39,-348.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="79.33,-346.48 71.54,-339.3 73.15,-349.77 79.33,-346.48"/>
+</g>
+<!-- module~mapl3g_outermetacomponent -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_node7" class="node">
+<title>module~mapl3g_outermetacomponent</title>
+<g id="a_module~~mapl3g_stateregistry~~UsedByGraph_node7"><a xlink:href="../module/mapl3g_outermetacomponent.html" xlink:title="mapl3g_OuterMetaComponent">
+<polygon fill="#337ab7" stroke="#337ab7" points="344,-444 167,-444 167,-420 344,-420 344,-444"/>
+<text text-anchor="middle" x="255.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_OuterMetaComponent</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_outermetacomponent&#45;&gt;module~mapl3g_stateregistry -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_edge6" class="edge">
+<title>module~mapl3g_outermetacomponent&#45;&gt;module~mapl3g_stateregistry</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M187.29,-419.9C179.58,-417.45 171.99,-414.51 165,-411 132.51,-394.67 101.57,-365.7 83.06,-346.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="85.54,-343.95 76.14,-339.06 80.44,-348.75 85.54,-343.95"/>
+</g>
+<!-- module~mapl3g_reexportconnection -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_node8" class="node">
+<title>module~mapl3g_reexportconnection</title>
+<g id="a_module~~mapl3g_stateregistry~~UsedByGraph_node8"><a xlink:href="../module/mapl3g_reexportconnection.html" xlink:title="mapl3g_ReexportConnection">
+<polygon fill="#337ab7" stroke="#337ab7" points="338.5,-402 172.5,-402 172.5,-378 338.5,-378 338.5,-402"/>
+<text text-anchor="middle" x="255.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ReexportConnection</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_reexportconnection&#45;&gt;module~mapl3g_stateregistry -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_edge7" class="edge">
+<title>module~mapl3g_reexportconnection&#45;&gt;module~mapl3g_stateregistry</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M196.81,-377.98C186.14,-375.33 175.17,-372.31 165,-369 142.89,-361.8 118.84,-351.71 99.93,-343.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="101.37,-340.04 90.82,-339.09 98.47,-346.41 101.37,-340.04"/>
+</g>
+<!-- module~mapl3g_serviceclassaspect -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_node9" class="node">
+<title>module~mapl3g_serviceclassaspect</title>
+<g id="a_module~~mapl3g_stateregistry~~UsedByGraph_node9"><a xlink:href="../module/mapl3g_serviceclassaspect.html" xlink:title="mapl3g_ServiceClassAspect">
+<polygon fill="#337ab7" stroke="#337ab7" points="336.5,-360 174.5,-360 174.5,-336 336.5,-336 336.5,-360"/>
+<text text-anchor="middle" x="255.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ServiceClassAspect</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_serviceclassaspect&#45;&gt;module~mapl3g_stateregistry -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_edge8" class="edge">
+<title>module~mapl3g_serviceclassaspect&#45;&gt;module~mapl3g_stateregistry</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M174.35,-339.09C162.67,-337.8 150.7,-336.47 139.17,-335.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="139.49,-331.7 129.16,-334.07 138.71,-338.66 139.49,-331.7"/>
+</g>
+<!-- module~mapl3g_simpleconnection -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_node10" class="node">
+<title>module~mapl3g_simpleconnection</title>
+<g id="a_module~~mapl3g_stateregistry~~UsedByGraph_node10"><a xlink:href="../module/mapl3g_simpleconnection.html" xlink:title="mapl3g_SimpleConnection">
+<polygon fill="#337ab7" stroke="#337ab7" points="333.5,-318 177.5,-318 177.5,-294 333.5,-294 333.5,-318"/>
+<text text-anchor="middle" x="255.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_SimpleConnection</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_simpleconnection&#45;&gt;module~mapl3g_stateregistry -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_edge9" class="edge">
+<title>module~mapl3g_simpleconnection&#45;&gt;module~mapl3g_stateregistry</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M177.35,-314.57C164.71,-315.98 151.63,-317.43 139.08,-318.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="138.69,-315.35 129.14,-319.93 139.46,-322.3 138.69,-315.35"/>
+</g>
+<!-- module~mapl3g_variablespec -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_node11" class="node">
+<title>module~mapl3g_variablespec</title>
+<g id="a_module~~mapl3g_stateregistry~~UsedByGraph_node11"><a xlink:href="../module/mapl3g_variablespec.html" xlink:title="mapl3g_VariableSpec">
+<polygon fill="#337ab7" stroke="#337ab7" points="319.5,-276 191.5,-276 191.5,-252 319.5,-252 319.5,-276"/>
+<text text-anchor="middle" x="255.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_VariableSpec</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_variablespec&#45;&gt;module~mapl3g_stateregistry -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_edge10" class="edge">
+<title>module~mapl3g_variablespec&#45;&gt;module~mapl3g_stateregistry</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M196.81,-276.02C186.14,-278.67 175.17,-281.69 165,-285 142.89,-292.2 118.84,-302.29 99.93,-310.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="98.47,-307.59 90.82,-314.91 101.37,-313.96 98.47,-307.59"/>
+</g>
+<!-- module~mockaspect_mod -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_node12" class="node">
+<title>module~mockaspect_mod</title>
+<g id="a_module~~mapl3g_stateregistry~~UsedByGraph_node12"><a xlink:href="../module/mockaspect_mod.html" xlink:title="MockAspect_mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="308.5,-234 202.5,-234 202.5,-210 308.5,-210 308.5,-234"/>
+<text text-anchor="middle" x="255.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockAspect_mod</text>
+</a>
+</g>
+</g>
+<!-- module~mockaspect_mod&#45;&gt;module~mapl3g_stateregistry -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_edge11" class="edge">
+<title>module~mockaspect_mod&#45;&gt;module~mapl3g_stateregistry</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M202.4,-229.88C189.75,-232.96 176.55,-237.19 165,-243 132.51,-259.33 101.57,-288.3 83.06,-307.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="80.44,-305.25 76.14,-314.94 85.54,-310.05 80.44,-305.25"/>
+</g>
+<!-- module~protoextdatagc -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_node13" class="node">
+<title>module~protoextdatagc</title>
+<g id="a_module~~mapl3g_stateregistry~~UsedByGraph_node13"><a xlink:href="../module/protoextdatagc.html" xlink:title="ProtoExtDataGC">
+<polygon fill="#337ab7" stroke="#337ab7" points="304,-192 207,-192 207,-168 304,-168 304,-192"/>
+<text text-anchor="middle" x="255.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ProtoExtDataGC</text>
+</a>
+</g>
+</g>
+<!-- module~protoextdatagc&#45;&gt;module~mapl3g_stateregistry -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_edge12" class="edge">
+<title>module~protoextdatagc&#45;&gt;module~mapl3g_stateregistry</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M206.62,-185.11C192.43,-188.19 177.39,-193.12 165,-201 123.55,-227.36 92.02,-277.13 76.39,-305.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="73.15,-304.23 71.54,-314.7 79.33,-307.52 73.15,-304.23"/>
+</g>
+<!-- module~test_bracketclassaspect -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_node14" class="node">
+<title>module~test_bracketclassaspect</title>
+<g id="a_module~~mapl3g_stateregistry~~UsedByGraph_node14"><a xlink:href="../module/test_bracketclassaspect.html" xlink:title="Test_BracketClassAspect">
+<polygon fill="#337ab7" stroke="#337ab7" points="327,-150 184,-150 184,-126 327,-126 327,-150"/>
+<text text-anchor="middle" x="255.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_BracketClassAspect</text>
+</a>
+</g>
+</g>
+<!-- module~test_bracketclassaspect&#45;&gt;module~mapl3g_stateregistry -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_edge13" class="edge">
+<title>module~test_bracketclassaspect&#45;&gt;module~mapl3g_stateregistry</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M183.67,-148.8C177.02,-151.5 170.66,-154.84 165,-159 114.02,-196.43 84.5,-268.54 72.23,-304.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="68.86,-303.96 69.1,-314.55 75.52,-306.12 68.86,-303.96"/>
+</g>
+<!-- module~test_extensionfamily -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_node15" class="node">
+<title>module~test_extensionfamily</title>
+<g id="a_module~~mapl3g_stateregistry~~UsedByGraph_node15"><a xlink:href="../module/test_extensionfamily.html" xlink:title="Test_ExtensionFamily">
+<polygon fill="#337ab7" stroke="#337ab7" points="317.5,-108 193.5,-108 193.5,-84 317.5,-84 317.5,-108"/>
+<text text-anchor="middle" x="255.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ExtensionFamily</text>
+</a>
+</g>
+</g>
+<!-- module~test_extensionfamily&#45;&gt;module~mapl3g_stateregistry -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_edge14" class="edge">
+<title>module~test_extensionfamily&#45;&gt;module~mapl3g_stateregistry</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M193.32,-102.59C183.11,-105.78 173.19,-110.38 165,-117 104.08,-166.2 78.34,-261.52 69.45,-304.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="65.97,-304.29 67.5,-314.77 72.85,-305.62 65.97,-304.29"/>
+</g>
+<!-- module~test_modelverticalgrid -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_node16" class="node">
+<title>module~test_modelverticalgrid</title>
+<g id="a_module~~mapl3g_stateregistry~~UsedByGraph_node16"><a xlink:href="../module/test_modelverticalgrid.html" xlink:title="Test_ModelVerticalGrid">
+<polygon fill="#337ab7" stroke="#337ab7" points="322,-66 189,-66 189,-42 322,-42 322,-66"/>
+<text text-anchor="middle" x="255.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ModelVerticalGrid</text>
+</a>
+</g>
+</g>
+<!-- module~test_modelverticalgrid&#45;&gt;module~mapl3g_stateregistry -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_edge15" class="edge">
+<title>module~test_modelverticalgrid&#45;&gt;module~mapl3g_stateregistry</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M188.81,-61.56C180.14,-64.71 171.88,-69.05 165,-75 94.01,-136.34 73.24,-255.08 67.53,-304.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="64.02,-304.46 66.45,-314.77 70.98,-305.19 64.02,-304.46"/>
+</g>
+<!-- module~test_stateregistry -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_node17" class="node">
+<title>module~test_stateregistry</title>
+<g id="a_module~~mapl3g_stateregistry~~UsedByGraph_node17"><a xlink:href="../module/test_stateregistry.html" xlink:title="Test_StateRegistry">
+<polygon fill="#337ab7" stroke="#337ab7" points="310,-24 201,-24 201,0 310,0 310,-24"/>
+<text text-anchor="middle" x="255.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_StateRegistry</text>
+</a>
+</g>
+</g>
+<!-- module~test_stateregistry&#45;&gt;module~mapl3g_stateregistry -->
+<g id="module~~mapl3g_stateregistry~~UsedByGraph_edge16" class="edge">
+<title>module~test_stateregistry&#45;&gt;module~mapl3g_stateregistry</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M200.56,-15.61C187.66,-18.75 174.81,-24.09 165,-33 83.66,-106.9 68.77,-249.65 66.08,-304.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="62.58,-304.58 65.68,-314.71 69.57,-304.86 62.58,-304.58"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsedByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsedByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+      <br>
+
+
+
+
+        <section>
+          <h2>Interfaces</h2>
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-stateregistry"></span>
+      <h3>public        interface <a href='../interface/stateregistry.html'>StateRegistry</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function new_StateRegistry(name) result(r)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-name~153"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/stateregistry.html'>StateRegistry</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+        </section>
+        <br>
+
+
+        <section>
+          <h2>Derived Types</h2>
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-stateregistry"></span>
+      <h3>
+        type, public, extends(<a href='../type/abstractregistry.html'>AbstractRegistry</a>)&nbsp;::&nbsp;
+        <a href='../type/stateregistry.html'>StateRegistry</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      
+
+
+        <h4>Constructor</h4>
+          
+        <table class="table table-striped varlist">
+          <tbody>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong>new_StateRegistry</strong>
+                    (name)
+                  </td>
+                  <td></td>
+                </tr>
+          </tbody>
+        </table>
+
+
+        <h4>Type-Bound Procedures</h4>
+        <table class="table table-striped varlist">
+          <tbody>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-add_extension~2'>add_extension</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-add_family'>add_family</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-add_primary_spec'>add_primary_spec</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-add_spec'>add_spec</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-add_subregistry'>add_subregistry</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-add_to_states'>add_to_states</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-add_virtual_pt'>add_virtual_pt</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-allocate~7'>allocate</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-extend'>extend</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-filter'>filter</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-get_export_couplers'>get_export_couplers</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-get_extension_family'>get_extension_family</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-get_extensions~2'>get_extensions</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-get_import_couplers'>get_import_couplers</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-get_name~10'>get_name</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-get_primary_extension'>get_primary_extension</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-get_subregistry'>get_subregistry</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/stateregistry.html#boundprocedure-get_subregistry_by_name'>get_subregistry_by_name</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-get_subregistry~2'>get_subregistry</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/stateregistry.html#boundprocedure-get_subregistry_by_conn_pt'>get_subregistry_by_conn_pt</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-get_subregistry_by_conn_pt'>get_subregistry_by_conn_pt</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-get_subregistry_by_name'>get_subregistry_by_name</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-has_subregistry'>has_subregistry</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-has_virtual_pt'>has_virtual_pt</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-link_extension'>link_extension</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-num_owned_items'>num_owned_items</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-propagate_exports'>propagate_exports</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/stateregistry.html#boundprocedure-propagate_exports_all'>propagate_exports_all</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-propagate_exports~2'>propagate_exports</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/stateregistry.html#boundprocedure-propagate_exports_subregistry'>propagate_exports_subregistry</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-propagate_exports~3'>propagate_exports</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/stateregistry.html#boundprocedure-propagate_exports_virtual_pt'>propagate_exports_virtual_pt</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-propagate_exports_all'>propagate_exports_all</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-propagate_exports_subregistry'>propagate_exports_subregistry</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-propagate_exports_virtual_pt'>propagate_exports_virtual_pt</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-propagate_unsatisfied_imports'>propagate_unsatisfied_imports</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/stateregistry.html#boundprocedure-propagate_unsatisfied_imports_all'>propagate_unsatisfied_imports_all</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-propagate_unsatisfied_imports~2'>propagate_unsatisfied_imports</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/stateregistry.html#boundprocedure-propagate_unsatisfied_imports_subregistry'>propagate_unsatisfied_imports_subregistry</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-propagate_unsatisfied_imports~3'>propagate_unsatisfied_imports</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/stateregistry.html#boundprocedure-propagate_unsatisfied_imports_virtual_pt'>propagate_unsatisfied_imports_virtual_pt</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-propagate_unsatisfied_imports_all'>propagate_unsatisfied_imports_all</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-propagate_unsatisfied_imports_subregistry'>propagate_unsatisfied_imports_subregistry</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-propagate_unsatisfied_imports_virtual_pt'>propagate_unsatisfied_imports_virtual_pt</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-write%28formatted%29~34'>write(formatted)</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/stateregistry.html#boundprocedure-write_formatted~34'>write_formatted</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/stateregistry.html#boundprocedure-write_formatted~34'>write_formatted</a></strong></td>
+                  <td></td>
+              </tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+
+
+
+
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

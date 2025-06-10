@@ -1,0 +1,870 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>mapl3g_ExtDataNode &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>mapl3g_ExtDataNode
+      <small>Module</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for modules and submodules.">85 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataNode.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/extdatanode.f90.html'>ExtDataNode.F90</a></li>
+            <li class="breadcrumb-item active" aria-current="page">mapl3g_ExtDataNode</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#inters-0"
+         aria-expanded="false" aria-controls="inters-0">
+         <h4 class="card-header bg-primary text-white">Interfaces</h4>
+      </a>
+      <div id="inters-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_extdatanode.html#interface-extdatanode">ExtDataNode</a>
+        </div>
+      </div>
+    </div>
+
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#types-0"
+         aria-expanded="false" aria-controls="types-0">
+         <h4 class="card-header bg-primary text-white">Derived Types</h4>
+      </a>
+      <div id="types-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_extdatanode.html#type-extdatanode">ExtDataNode</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='mapl_exceptionhandling.html'>MAPL_ExceptionHandling</a></li>
+                  <li class="list-inline-item"><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
+                  <li class="list-inline-item"><a href='mapl_keywordenforcermod.html'>mapl_KeywordEnforcerMod</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~mapl3g_extdatanode~~UsesGraph Pages: 1 -->
+<svg id="modulemapl3g_extdatanodeUsesGraph" width="641pt" height="93pt"
+ viewBox="0.00 0.00 641.00 93.06" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl3g_extdatanode~~UsesGraph" class="graph" transform="scale(0.8 0.8) rotate(0) translate(4 112)">
+<title>module~~mapl3g_extdatanode~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 795,-112 795,4 -4,4"/>
+<!-- module~mapl3g_extdatanode -->
+<g id="module~~mapl3g_extdatanode~~UsesGraph_node1" class="node">
+<title>module~mapl3g_extdatanode</title>
+<polygon fill="none" stroke="black" points="791,-66 663,-66 663,-42 791,-42 791,-66"/>
+<text text-anchor="middle" x="727" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl3g_ExtDataNode</text>
+</g>
+<!-- ESMF -->
+<g id="module~~mapl3g_extdatanode~~UsesGraph_node2" class="node">
+<title>ESMF</title>
+<g id="a_module~~mapl3g_extdatanode~~UsesGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/module/esmf.html" xlink:title="ESMF">
+<polygon fill="#337ab7" stroke="#337ab7" points="575.5,-108 521.5,-108 521.5,-84 575.5,-84 575.5,-108"/>
+<text text-anchor="middle" x="548.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_extdatanode&#45;&gt;ESMF -->
+<g id="module~~mapl3g_extdatanode~~UsesGraph_edge1" class="edge">
+<title>module~mapl3g_extdatanode&#45;&gt;ESMF</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M675.42,-66.04C646.65,-72.88 611.29,-81.3 585.37,-87.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="584.51,-84.07 575.59,-89.79 586.13,-90.88 584.51,-84.07"/>
+</g>
+<!-- module~mapl_exceptionhandling -->
+<g id="module~~mapl3g_extdatanode~~UsesGraph_node3" class="node">
+<title>module~mapl_exceptionhandling</title>
+<g id="a_module~~mapl3g_extdatanode~~UsesGraph_node3"><a xlink:href="../module/mapl_exceptionhandling.html" xlink:title="MAPL_ExceptionHandling">
+<polygon fill="#337ab7" stroke="#337ab7" points="622,-66 475,-66 475,-42 622,-42 622,-66"/>
+<text text-anchor="middle" x="548.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_extdatanode&#45;&gt;module~mapl_exceptionhandling -->
+<g id="module~~mapl3g_extdatanode~~UsesGraph_edge2" class="edge">
+<title>module~mapl3g_extdatanode&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M662.78,-54C652.91,-54 642.59,-54 632.36,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="632.19,-50.5 622.19,-54 632.19,-57.5 632.19,-50.5"/>
+</g>
+<!-- module~mapl_keywordenforcermod -->
+<g id="module~~mapl3g_extdatanode~~UsesGraph_node4" class="node">
+<title>module~mapl_keywordenforcermod</title>
+<g id="a_module~~mapl3g_extdatanode~~UsesGraph_node4"><a xlink:href="../module/mapl_keywordenforcermod.html" xlink:title="mapl_KeywordEnforcerMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="627,-24 470,-24 470,0 627,0 627,-24"/>
+<text text-anchor="middle" x="548.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_KeywordEnforcerMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_extdatanode&#45;&gt;module~mapl_keywordenforcermod -->
+<g id="module~~mapl3g_extdatanode~~UsesGraph_edge3" class="edge">
+<title>module~mapl3g_extdatanode&#45;&gt;module~mapl_keywordenforcermod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M675.42,-41.96C655.02,-37.11 631.31,-31.47 610,-26.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="610.62,-22.95 600.09,-24.04 609,-29.76 610.62,-22.95"/>
+</g>
+<!-- module~mapl_errorhandlingmod -->
+<g id="module~~mapl3g_extdatanode~~UsesGraph_node5" class="node">
+<title>module~mapl_errorhandlingmod</title>
+<g id="a_module~~mapl3g_extdatanode~~UsesGraph_node5"><a xlink:href="../module/mapl_errorhandlingmod.html" xlink:title="mapl_ErrorHandlingMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="434,-105 292,-105 292,-81 434,-81 434,-105"/>
+<text text-anchor="middle" x="363" y="-90.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_ErrorHandlingMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_exceptionhandling&#45;&gt;module~mapl_errorhandlingmod -->
+<g id="module~~mapl3g_extdatanode~~UsesGraph_edge4" class="edge">
+<title>module~mapl_exceptionhandling&#45;&gt;module~mapl_errorhandlingmod</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M490.95,-66.02C471.85,-70.08 450.35,-74.65 430.55,-78.86"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="429.74,-75.45 420.68,-80.95 431.19,-82.3 429.74,-75.45"/>
+</g>
+<!-- module~mapl_throwmod -->
+<g id="module~~mapl3g_extdatanode~~UsesGraph_node7" class="node">
+<title>module~mapl_throwmod</title>
+<g id="a_module~~mapl3g_extdatanode~~UsesGraph_node7"><a xlink:href="../module/mapl_throwmod.html" xlink:title="MAPL_ThrowMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="101,-65 0,-65 0,-41 101,-41 101,-65"/>
+<text text-anchor="middle" x="50.5" y="-50.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_exceptionhandling&#45;&gt;module~mapl_throwmod -->
+<g id="module~~mapl3g_extdatanode~~UsesGraph_edge5" class="edge">
+<title>module~mapl_exceptionhandling&#45;&gt;module~mapl_throwmod</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M474.85,-53.85C376.39,-53.66 202.45,-53.3 111.19,-53.12"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="111.03,-49.62 101.02,-53.1 111.01,-56.62 111.03,-49.62"/>
+</g>
+<!-- module~mapl_keywordenforcer -->
+<g id="module~~mapl3g_extdatanode~~UsesGraph_node6" class="node">
+<title>module~mapl_keywordenforcer</title>
+<g id="a_module~~mapl3g_extdatanode~~UsesGraph_node6"><a xlink:href="../module/mapl_keywordenforcer.html" xlink:title="mapl_KeywordEnforcer">
+<polygon fill="#337ab7" stroke="#337ab7" points="430.5,-24 295.5,-24 295.5,0 430.5,0 430.5,-24"/>
+<text text-anchor="middle" x="363" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_KeywordEnforcer</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_keywordenforcermod&#45;&gt;module~mapl_keywordenforcer -->
+<g id="module~~mapl3g_extdatanode~~UsesGraph_edge6" class="edge">
+<title>module~mapl_keywordenforcermod&#45;&gt;module~mapl_keywordenforcer</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M469.95,-12C460.22,-12 450.27,-12 440.56,-12"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="440.54,-8.5 430.54,-12 440.54,-15.5 440.54,-8.5"/>
+</g>
+<!-- module~mapl_errorhandling -->
+<g id="module~~mapl3g_extdatanode~~UsesGraph_node8" class="node">
+<title>module~mapl_errorhandling</title>
+<g id="a_module~~mapl3g_extdatanode~~UsesGraph_node8"><a xlink:href="../module/mapl_errorhandling.html" xlink:title="mapl_ErrorHandling">
+<polygon fill="#337ab7" stroke="#337ab7" points="256,-105 137,-105 137,-81 256,-81 256,-105"/>
+<text text-anchor="middle" x="196.5" y="-90.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_ErrorHandling</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_errorhandlingmod&#45;&gt;module~mapl_errorhandling -->
+<g id="module~~mapl3g_extdatanode~~UsesGraph_edge7" class="edge">
+<title>module~mapl_errorhandlingmod&#45;&gt;module~mapl_errorhandling</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M291.76,-93C283.32,-93 274.7,-93 266.28,-93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="266.13,-89.5 256.13,-93 266.13,-96.5 266.13,-89.5"/>
+</g>
+<!-- module~mapl_errorhandling&#45;&gt;module~mapl_throwmod -->
+<g id="module~~mapl3g_extdatanode~~UsesGraph_edge8" class="edge">
+<title>module~mapl_errorhandling&#45;&gt;module~mapl_throwmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M152.3,-81C137.48,-76.88 120.72,-72.23 105.18,-67.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="105.74,-64.44 95.17,-65.13 103.87,-71.18 105.74,-64.44"/>
+</g>
+<!-- mpi -->
+<g id="module~~mapl3g_extdatanode~~UsesGraph_node9" class="node">
+<title>mpi</title>
+<g id="a_module~~mapl3g_extdatanode~~UsesGraph_node9"><a xlink:href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm" xlink:title="mpi">
+<polygon fill="#337ab7" stroke="#337ab7" points="77.5,-107 23.5,-107 23.5,-83 77.5,-83 77.5,-107"/>
+<text text-anchor="middle" x="50.5" y="-92.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_errorhandling&#45;&gt;mpi -->
+<g id="module~~mapl3g_extdatanode~~UsesGraph_edge9" class="edge">
+<title>module~mapl_errorhandling&#45;&gt;mpi</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M136.93,-93.81C120.39,-94.04 102.87,-94.29 88.02,-94.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="87.69,-91 77.74,-94.64 87.79,-98 87.69,-91"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panmodulemapl3g_extdatanodeUsesGraph = svgPanZoom('#modulemapl3g_extdatanodeUsesGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+          <div class="card">
+      <h3 class="card-header card-title bg-light">Used by</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~mapl3g_extdatanode~~UsedByGraph Pages: 1 -->
+<svg id="modulemapl3g_extdatanodeUsedByGraph" width="499pt" height="52pt"
+ viewBox="0.00 0.00 499.00 52.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl3g_extdatanode~~UsedByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 48)">
+<title>module~~mapl3g_extdatanode~~UsedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-48 495,-48 495,4 -4,4"/>
+<!-- module~mapl3g_extdatanode -->
+<g id="module~~mapl3g_extdatanode~~UsedByGraph_node1" class="node">
+<title>module~mapl3g_extdatanode</title>
+<polygon fill="none" stroke="black" points="128,-44 0,-44 0,-20 128,-20 128,-44"/>
+<text text-anchor="middle" x="64" y="-29.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl3g_ExtDataNode</text>
+</g>
+<!-- module~mapl3g_extdatabracket -->
+<g id="module~~mapl3g_extdatanode~~UsedByGraph_node2" class="node">
+<title>module~mapl3g_extdatabracket</title>
+<g id="a_module~~mapl3g_extdatanode~~UsedByGraph_node2"><a xlink:href="../module/mapl3g_extdatabracket.html" xlink:title="mapl3g_ExtDataBracket">
+<polygon fill="#337ab7" stroke="#337ab7" points="306,-24 164,-24 164,0 306,0 306,-24"/>
+<text text-anchor="middle" x="235" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ExtDataBracket</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_extdatabracket&#45;&gt;module~mapl3g_extdatanode -->
+<g id="module~~mapl3g_extdatanode~~UsedByGraph_edge1" class="edge">
+<title>module~mapl3g_extdatabracket&#45;&gt;module~mapl3g_extdatanode</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M163.8,-20.31C155.42,-21.3 146.84,-22.31 138.42,-23.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="137.75,-19.87 128.24,-24.52 138.58,-26.82 137.75,-19.87"/>
+</g>
+<!-- module~test_extdatanodebracket -->
+<g id="module~~mapl3g_extdatanode~~UsedByGraph_node3" class="node">
+<title>module~test_extdatanodebracket</title>
+<g id="a_module~~mapl3g_extdatanode~~UsedByGraph_node3"><a xlink:href="../module/test_extdatanodebracket.html" xlink:title="Test_ExtDataNodeBracket">
+<polygon fill="#337ab7" stroke="#337ab7" points="491,-44 342,-44 342,-20 491,-20 491,-44"/>
+<text text-anchor="middle" x="416.5" y="-29.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ExtDataNodeBracket</text>
+</a>
+</g>
+</g>
+<!-- module~test_extdatanodebracket&#45;&gt;module~mapl3g_extdatanode -->
+<g id="module~~mapl3g_extdatanode~~UsedByGraph_edge2" class="edge">
+<title>module~test_extdatanodebracket&#45;&gt;module~mapl3g_extdatanode</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M341.87,-32.76C329.88,-32.86 317.6,-32.95 306,-33 242.89,-33.29 227.11,-33.32 164,-33 155.66,-32.96 146.93,-32.9 138.25,-32.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="138.14,-29.32 128.11,-32.73 138.08,-36.32 138.14,-29.32"/>
+</g>
+<!-- module~test_extdatanodebracket&#45;&gt;module~mapl3g_extdatabracket -->
+<g id="module~~mapl3g_extdatanode~~UsedByGraph_edge3" class="edge">
+<title>module~test_extdatanodebracket&#45;&gt;module~mapl3g_extdatabracket</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M341.97,-23.81C333.48,-22.86 324.79,-21.89 316.22,-20.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="316.55,-17.45 306.23,-19.82 315.78,-24.41 316.55,-17.45"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsedByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsedByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+      <br>
+
+
+
+
+        <section>
+          <h2>Interfaces</h2>
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-extdatanode"></span>
+      <h3>public        interface <a href='../interface/extdatanode.html'>ExtDataNode</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function new_ExtDataNode(file, time_index, file_time, interp_time) result(node)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-file~8"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>file</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-time_index~3"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>time_index</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-file_time~2"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>file_time</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-interp_time~2"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>interp_time</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/extdatanode.html'>ExtDataNode</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+        </section>
+        <br>
+
+
+        <section>
+          <h2>Derived Types</h2>
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-extdatanode"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/extdatanode.html'>ExtDataNode</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      
+
+        <h4>Components</h4>
+          <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-file~7"></span>
+              character(len=:),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>file</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-time_index~2"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>time_index</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-file_time"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>file_time</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-interp_time"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>interp_time</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        <h4>Constructor</h4>
+          
+        <table class="table table-striped varlist">
+          <tbody>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong>new_ExtDataNode</strong>
+                    (file, time_index, file_time, interp_time)
+                  </td>
+                  <td></td>
+                </tr>
+          </tbody>
+        </table>
+
+
+        <h4>Type-Bound Procedures</h4>
+        <table class="table table-striped varlist">
+          <tbody>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/extdatanode.html#boundprocedure-equals~9'>equals</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/extdatanode.html#boundprocedure-get_file'>get_file</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/extdatanode.html#boundprocedure-get_file_time'>get_file_time</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/extdatanode.html#boundprocedure-get_interp_time'>get_interp_time</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/extdatanode.html#boundprocedure-get_time_index'>get_time_index</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/extdatanode.html#boundprocedure-operator%28%3D%3D%29~19'>operator(==)</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/extdatanode.html#boundprocedure-equals~9'>equals</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/extdatanode.html#boundprocedure-set_file'>set_file</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/extdatanode.html#boundprocedure-set_file_time'>set_file_time</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/extdatanode.html#boundprocedure-set_interp_time'>set_interp_time</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/extdatanode.html#boundprocedure-set_time_index'>set_time_index</a></strong></td>
+                  <td></td>
+              </tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+
+
+
+
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

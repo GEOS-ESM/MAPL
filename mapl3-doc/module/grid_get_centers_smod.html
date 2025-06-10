@@ -1,0 +1,623 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>grid_get_centers_smod &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>grid_get_centers_smod
+      <small>Submodule</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for modules and submodules.">19 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/grid_get_centers.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/grid_get_centers.f90.html'>grid_get_centers.F90</a></li>
+            <li class="breadcrumb-item active" aria-current="page">grid_get_centers_smod</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+    <em>None</em>
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='mapl_base.html'>MAPL_Base</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <ul class="list-inline">
+                <li><h5>Ancestors:</h5></li>
+                  <li class="list-inline-item"><a href='mapl3g_vectorbasis.html'>mapl3g_VectorBasis</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~grid_get_centers_smod~~UsesGraph Pages: 1 -->
+<svg id="modulegrid_get_centers_smodUsesGraph" width="641pt" height="169pt"
+ viewBox="0.00 0.00 641.00 169.11" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~grid_get_centers_smod~~UsesGraph" class="graph" transform="scale(0.41 0.41) rotate(0) translate(4 403.61)">
+<title>module~~grid_get_centers_smod~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-403.61 1541,-403.61 1541,4 -4,4"/>
+<!-- module~grid_get_centers_smod -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_node1" class="node">
+<title>module~grid_get_centers_smod</title>
+<polygon fill="none" stroke="black" points="1537,-103 1401,-103 1401,-79 1537,-79 1537,-103"/>
+<text text-anchor="middle" x="1469" y="-88.6" font-family="Helvetica,sans-Serif" font-size="10.50">grid_get_centers_smod</text>
+</g>
+<!-- module~mapl3g_vectorbasis -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_node2" class="node">
+<title>module~mapl3g_vectorbasis</title>
+<g id="a_module~~grid_get_centers_smod~~UsesGraph_node2"><a xlink:href="../module/mapl3g_vectorbasis.html" xlink:title="mapl3g_VectorBasis">
+<polygon fill="#337ab7" stroke="#337ab7" points="1365,-142 1245,-142 1245,-118 1365,-118 1365,-142"/>
+<text text-anchor="middle" x="1305" y="-127.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_VectorBasis</text>
+</a>
+</g>
+</g>
+<!-- module~grid_get_centers_smod&#45;&gt;module~mapl3g_vectorbasis -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge2" class="edge">
+<title>module~grid_get_centers_smod&#45;&gt;module~mapl3g_vectorbasis</title>
+<path fill="none" stroke="#ff0000" d="M1418.07,-103.02C1401.6,-106.99 1383.1,-111.44 1365.95,-115.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1364.94,-112.21 1356.04,-117.95 1366.58,-119.02 1364.94,-112.21"/>
+</g>
+<!-- module~mapl_base -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_node3" class="node">
+<title>module~mapl_base</title>
+<g id="a_module~~grid_get_centers_smod~~UsesGraph_node3"><a xlink:href="../module/mapl_base.html" xlink:title="MAPL_Base">
+<polygon fill="#337ab7" stroke="#337ab7" points="1341.5,-64 1268.5,-64 1268.5,-40 1341.5,-40 1341.5,-64"/>
+<text text-anchor="middle" x="1305" y="-49.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Base</text>
+</a>
+</g>
+</g>
+<!-- module~grid_get_centers_smod&#45;&gt;module~mapl_base -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge1" class="edge">
+<title>module~grid_get_centers_smod&#45;&gt;module~mapl_base</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1418.07,-78.98C1396.82,-73.86 1372.21,-67.94 1351.47,-62.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1352.17,-59.52 1341.63,-60.58 1350.53,-66.32 1352.17,-59.52"/>
+</g>
+<!-- ESMF -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_node4" class="node">
+<title>ESMF</title>
+<g id="a_module~~grid_get_centers_smod~~UsesGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/module/esmf.html" xlink:title="ESMF">
+<polygon fill="#337ab7" stroke="#337ab7" points="570.5,-102 516.5,-102 516.5,-78 570.5,-78 570.5,-102"/>
+<text text-anchor="middle" x="543.5" y="-87.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_vectorbasis&#45;&gt;ESMF -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge3" class="edge">
+<title>module~mapl3g_vectorbasis&#45;&gt;ESMF</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M759.5,-90C697.25,-81.72 623.96,-84.32 581.03,-87.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="580.53,-83.61 570.79,-87.78 581.01,-90.59 580.53,-83.61"/>
+</g>
+<!-- module~mapl_errorhandlingmod -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_node6" class="node">
+<title>module~mapl_errorhandlingmod</title>
+<g id="a_module~~grid_get_centers_smod~~UsesGraph_node6"><a xlink:href="../module/mapl_errorhandlingmod.html" xlink:title="mapl_ErrorHandlingMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="434,-343 292,-343 292,-319 434,-319 434,-343"/>
+<text text-anchor="middle" x="363" y="-328.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_ErrorHandlingMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_vectorbasis&#45;&gt;module~mapl_errorhandlingmod -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge4" class="edge">
+<title>module~mapl3g_vectorbasis&#45;&gt;module~mapl_errorhandlingmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1244.87,-130.08C1181.93,-130.14 1079.44,-130.19 991,-130"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M989,-130C934.18,-129.72 922.01,-115.41 868,-106 820.85,-97.79 808.95,-96.31 761.5,-90"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M759.5,-90C631.62,-72.99 576.97,3.11 470,-69 387.75,-124.45 369.3,-255.72 365.18,-308.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="361.67,-308.54 364.48,-318.75 368.65,-309.01 361.67,-308.54"/>
+</g>
+<!-- module~mapl_fieldblas -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_node7" class="node">
+<title>module~mapl_fieldblas</title>
+<g id="a_module~~grid_get_centers_smod~~UsesGraph_node7"><a xlink:href="../module/mapl_fieldblas.html" xlink:title="mapl_FieldBLAS">
+<polygon fill="#337ab7" stroke="#337ab7" points="1209,-221 1112,-221 1112,-197 1209,-197 1209,-221"/>
+<text text-anchor="middle" x="1160.5" y="-206.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_FieldBLAS</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_vectorbasis&#45;&gt;module~mapl_fieldblas -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge5" class="edge">
+<title>module~mapl3g_vectorbasis&#45;&gt;module~mapl_fieldblas</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1282.05,-142.17C1258.02,-155.49 1219.33,-176.94 1192.28,-191.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1190.29,-189.04 1183.24,-196.95 1193.69,-195.16 1190.29,-189.04"/>
+</g>
+<!-- module~mapl_fieldpointerutilities -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_node8" class="node">
+<title>module~mapl_fieldpointerutilities</title>
+<g id="a_module~~grid_get_centers_smod~~UsesGraph_node8"><a xlink:href="../module/mapl_fieldpointerutilities.html" xlink:title="MAPL_FieldPointerUtilities">
+<polygon fill="#337ab7" stroke="#337ab7" points="834.5,-180 686.5,-180 686.5,-156 834.5,-156 834.5,-180"/>
+<text text-anchor="middle" x="760.5" y="-165.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_FieldPointerUtilities</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_vectorbasis&#45;&gt;module~mapl_fieldpointerutilities -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge6" class="edge">
+<title>module~mapl3g_vectorbasis&#45;&gt;module~mapl_fieldpointerutilities</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M989,-130C929.31,-129.87 862,-142.78 816.18,-153.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="815.36,-150.18 806.45,-155.92 816.99,-156.98 815.36,-150.18"/>
+</g>
+<!-- module~mapl_base&#45;&gt;ESMF -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge7" class="edge">
+<title>module~mapl_base&#45;&gt;ESMF</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1268.29,-52.17C1170,-52.89 887.16,-56.62 653,-76 628.87,-78 601.87,-81.48 580.84,-84.47"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="580.13,-81.03 570.74,-85.93 581.14,-87.96 580.13,-81.03"/>
+</g>
+<!-- iso_fortran_env -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_node5" class="node">
+<title>iso_fortran_env</title>
+<g id="a_module~~grid_get_centers_smod~~UsesGraph_node5"><a xlink:href="http://fortranwiki.org/fortran/show/iso_fortran_env" xlink:title="iso_fortran_env">
+<polygon fill="#337ab7" stroke="#337ab7" points="1207.5,-24 1113.5,-24 1113.5,0 1207.5,0 1207.5,-24"/>
+<text text-anchor="middle" x="1160.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_fortran_env</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_base&#45;&gt;iso_fortran_env -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge8" class="edge">
+<title>module~mapl_base&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1268.41,-42.01C1252.06,-37.42 1232.34,-31.89 1214.32,-26.83"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="1215.08,-23.4 1204.51,-24.07 1213.19,-30.14 1215.08,-23.4"/>
+</g>
+<!-- module~mapl_errorhandling -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_node11" class="node">
+<title>module~mapl_errorhandling</title>
+<g id="a_module~~grid_get_centers_smod~~UsesGraph_node11"><a xlink:href="../module/mapl_errorhandling.html" xlink:title="mapl_ErrorHandling">
+<polygon fill="#337ab7" stroke="#337ab7" points="256,-343 137,-343 137,-319 256,-319 256,-343"/>
+<text text-anchor="middle" x="196.5" y="-328.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_ErrorHandling</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_errorhandlingmod&#45;&gt;module~mapl_errorhandling -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge9" class="edge">
+<title>module~mapl_errorhandlingmod&#45;&gt;module~mapl_errorhandling</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M291.76,-331C283.32,-331 274.7,-331 266.28,-331"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="266.13,-327.5 256.13,-331 266.13,-334.5 266.13,-327.5"/>
+</g>
+<!-- module~mapl_fieldblas&#45;&gt;ESMF -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge10" class="edge">
+<title>module~mapl_fieldblas&#45;&gt;ESMF</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M1117.97,-197C1084.09,-187.66 1034.83,-175.14 991,-168"/>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M989,-168C968.7,-164.69 682.5,-114.31 580.38,-96.32"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="580.98,-92.87 570.53,-94.59 579.77,-99.77 580.98,-92.87"/>
+</g>
+<!-- module~mapl_fieldblas&#45;&gt;module~mapl_fieldpointerutilities -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge13" class="edge">
+<title>module~mapl_fieldblas&#45;&gt;module~mapl_fieldpointerutilities</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M989,-168C941.72,-160.3 888.18,-159.9 844.92,-161.6"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="844.56,-158.11 834.73,-162.05 844.87,-165.11 844.56,-158.11"/>
+</g>
+<!-- module~mapl3g_fieldcondensedarray -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_node10" class="node">
+<title>module~mapl3g_fieldcondensedarray</title>
+<g id="a_module~~grid_get_centers_smod~~UsesGraph_node10"><a xlink:href="../module/mapl3g_fieldcondensedarray.html" xlink:title="mapl3g_FieldCondensedArray">
+<polygon fill="#337ab7" stroke="#337ab7" points="1076,-260 904,-260 904,-236 1076,-236 1076,-260"/>
+<text text-anchor="middle" x="990" y="-245.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_FieldCondensedArray</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_fieldblas&#45;&gt;module~mapl3g_fieldcondensedarray -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge11" class="edge">
+<title>module~mapl_fieldblas&#45;&gt;module~mapl3g_fieldcondensedarray</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M1111.67,-220.07C1093.44,-224.29 1072.39,-229.16 1053.03,-233.64"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="1052.04,-230.28 1043.09,-235.94 1053.62,-237.1 1052.04,-230.28"/>
+</g>
+<!-- module~mapl_exceptionhandling -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_node12" class="node">
+<title>module~mapl_exceptionhandling</title>
+<g id="a_module~~grid_get_centers_smod~~UsesGraph_node12"><a xlink:href="../module/mapl_exceptionhandling.html" xlink:title="MAPL_ExceptionHandling">
+<polygon fill="#337ab7" stroke="#337ab7" points="617,-384 470,-384 470,-360 617,-360 617,-384"/>
+<text text-anchor="middle" x="543.5" y="-369.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_fieldblas&#45;&gt;module~mapl_exceptionhandling -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge12" class="edge">
+<title>module~mapl_fieldblas&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M1146.3,-221.04C1107.38,-255.57 988.28,-354.49 868,-386 780.45,-408.93 675.09,-397.49 608.93,-385.83"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="609.52,-382.38 599.06,-384.04 608.27,-389.27 609.52,-382.38"/>
+</g>
+<!-- module~mapl_fieldpointerutilities&#45;&gt;ESMF -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge14" class="edge">
+<title>module~mapl_fieldpointerutilities&#45;&gt;ESMF</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M700.82,-155.98C685.09,-152.14 668.23,-147.44 653,-142 625.93,-132.33 596.6,-118.02 575.27,-106.87"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="576.84,-103.73 566.36,-102.14 573.56,-109.92 576.84,-103.73"/>
+</g>
+<!-- iso_c_binding -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_node9" class="node">
+<title>iso_c_binding</title>
+<g id="a_module~~grid_get_centers_smod~~UsesGraph_node9"><a xlink:href="http://fortranwiki.org/fortran/show/iso_c_binding" xlink:title="iso_c_binding">
+<polygon fill="#337ab7" stroke="#337ab7" points="585.5,-261 501.5,-261 501.5,-237 585.5,-237 585.5,-261"/>
+<text text-anchor="middle" x="543.5" y="-246.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_c_binding</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_fieldpointerutilities&#45;&gt;iso_c_binding -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge15" class="edge">
+<title>module~mapl_fieldpointerutilities&#45;&gt;iso_c_binding</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M727.31,-180.13C689.68,-194.3 627.3,-217.8 586.05,-233.35"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="584.68,-230.12 576.56,-236.92 587.15,-236.67 584.68,-230.12"/>
+</g>
+<!-- module~mapl_fieldpointerutilities&#45;&gt;module~mapl_exceptionhandling -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge16" class="edge">
+<title>module~mapl_fieldpointerutilities&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M730.29,-180.08C707.63,-190.38 676.26,-206.72 653,-227 641.59,-236.95 585.96,-313.97 559.08,-351.53"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="556.18,-349.58 553.21,-359.75 561.87,-353.65 556.18,-349.58"/>
+</g>
+<!-- module~mapl3g_fieldcondensedarray&#45;&gt;ESMF -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge17" class="edge">
+<title>module~mapl3g_fieldcondensedarray&#45;&gt;ESMF</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M919.77,-235.97C821.84,-218.93 654.5,-189.74 653,-189 614.27,-169.97 579.34,-132.84 560.1,-109.86"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="562.79,-107.61 553.75,-102.09 557.37,-112.04 562.79,-107.61"/>
+</g>
+<!-- module~mapl3g_fieldcondensedarray&#45;&gt;module~mapl_fieldpointerutilities -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge23" class="edge">
+<title>module~mapl3g_fieldcondensedarray&#45;&gt;module~mapl_fieldpointerutilities</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M965.41,-235.94C941.38,-224.03 902.83,-205.91 868,-194 855.52,-189.73 841.98,-185.86 828.88,-182.5"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="829.53,-179.05 818.98,-180.03 827.83,-185.84 829.53,-179.05"/>
+</g>
+<!-- module~mapl3g_fieldcondensedarray&#45;&gt;iso_c_binding -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge18" class="edge">
+<title>module~mapl3g_fieldcondensedarray&#45;&gt;iso_c_binding</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M979.13,-260.09C960.16,-282.43 916.19,-329.98 868,-353 824.61,-373.72 809.29,-366.74 761.5,-372"/>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M759.5,-372C711.71,-377.26 695.86,-374.79 653,-353 613.43,-332.88 578.54,-293.58 559.58,-269.47"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="562.21,-267.14 553.34,-261.34 556.65,-271.4 562.21,-267.14"/>
+</g>
+<!-- module~mapl3g_fieldcondensedarray&#45;&gt;module~mapl_exceptionhandling -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge22" class="edge">
+<title>module~mapl3g_fieldcondensedarray&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M759.5,-372C716.15,-376.77 667.59,-377.19 627.6,-376.23"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="627.46,-372.72 617.37,-375.95 627.27,-379.72 627.46,-372.72"/>
+</g>
+<!-- module~mapl3g_fieldcondensedarray_private -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_node13" class="node">
+<title>module~mapl3g_fieldcondensedarray_private</title>
+<g id="a_module~~grid_get_centers_smod~~UsesGraph_node13"><a xlink:href="../module/mapl3g_fieldcondensedarray_private.html" xlink:title="mapl3g_FieldCondensedArray_private">
+<polygon fill="#337ab7" stroke="#337ab7" points="868,-302 653,-302 653,-278 868,-278 868,-302"/>
+<text text-anchor="middle" x="760.5" y="-287.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_FieldCondensedArray_private</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_fieldcondensedarray&#45;&gt;module~mapl3g_fieldcondensedarray_private -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge19" class="edge">
+<title>module~mapl3g_fieldcondensedarray&#45;&gt;module~mapl3g_fieldcondensedarray_private</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M923.81,-260.04C896.68,-265.04 865.01,-270.89 836.89,-276.08"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="835.9,-272.71 826.7,-277.96 837.17,-279.59 835.9,-272.71"/>
+</g>
+<!-- module~mapl3g_fieldget -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_node14" class="node">
+<title>module~mapl3g_fieldget</title>
+<g id="a_module~~grid_get_centers_smod~~UsesGraph_node14"><a xlink:href="../module/mapl3g_fieldget.html" xlink:title="mapl3g_FieldGet">
+<polygon fill="#337ab7" stroke="#337ab7" points="811.5,-260 709.5,-260 709.5,-236 811.5,-236 811.5,-260"/>
+<text text-anchor="middle" x="760.5" y="-245.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_FieldGet</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_fieldcondensedarray&#45;&gt;module~mapl3g_fieldget -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge20" class="edge">
+<title>module~mapl3g_fieldcondensedarray&#45;&gt;module~mapl3g_fieldget</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M903.96,-248C876.68,-248 847.03,-248 821.88,-248"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="821.76,-244.5 811.76,-248 821.76,-251.5 821.76,-244.5"/>
+</g>
+<!-- module~mapl3g_verticalstaggerloc -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_node15" class="node">
+<title>module~mapl3g_verticalstaggerloc</title>
+<g id="a_module~~grid_get_centers_smod~~UsesGraph_node15"><a xlink:href="../module/mapl3g_verticalstaggerloc.html" xlink:title="mapl3g_VerticalStaggerLoc">
+<polygon fill="#337ab7" stroke="#337ab7" points="840,-344 681,-344 681,-320 840,-320 840,-344"/>
+<text text-anchor="middle" x="760.5" y="-329.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_VerticalStaggerLoc</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_fieldcondensedarray&#45;&gt;module~mapl3g_verticalstaggerloc -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge21" class="edge">
+<title>module~mapl3g_fieldcondensedarray&#45;&gt;module~mapl3g_verticalstaggerloc</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M970.07,-260.04C946.88,-274.26 905.99,-297.67 868,-311 861.15,-313.4 853.96,-315.56 846.67,-317.48"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="845.56,-314.15 836.71,-319.97 847.26,-320.94 845.56,-314.15"/>
+</g>
+<!-- module~mapl_throwmod -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_node16" class="node">
+<title>module~mapl_throwmod</title>
+<g id="a_module~~grid_get_centers_smod~~UsesGraph_node16"><a xlink:href="../module/mapl_throwmod.html" xlink:title="MAPL_ThrowMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="101,-384 0,-384 0,-360 101,-360 101,-384"/>
+<text text-anchor="middle" x="50.5" y="-369.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_errorhandling&#45;&gt;module~mapl_throwmod -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge24" class="edge">
+<title>module~mapl_errorhandling&#45;&gt;module~mapl_throwmod</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M153.07,-343.08C137.68,-347.46 120.11,-352.46 103.96,-357.06"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="102.78,-353.76 94.12,-359.87 104.7,-360.49 102.78,-353.76"/>
+</g>
+<!-- mpi -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_node17" class="node">
+<title>mpi</title>
+<g id="a_module~~grid_get_centers_smod~~UsesGraph_node17"><a xlink:href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm" xlink:title="mpi">
+<polygon fill="#337ab7" stroke="#337ab7" points="77.5,-342 23.5,-342 23.5,-318 77.5,-318 77.5,-342"/>
+<text text-anchor="middle" x="50.5" y="-327.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_errorhandling&#45;&gt;mpi -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge25" class="edge">
+<title>module~mapl_errorhandling&#45;&gt;mpi</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M136.93,-330.59C120.39,-330.48 102.87,-330.36 88.02,-330.25"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="87.77,-326.75 77.74,-330.18 87.72,-333.75 87.77,-326.75"/>
+</g>
+<!-- module~mapl_exceptionhandling&#45;&gt;module~mapl_errorhandlingmod -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge26" class="edge">
+<title>module~mapl_exceptionhandling&#45;&gt;module~mapl_errorhandlingmod</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M489.91,-359.92C470.02,-355.35 447.2,-350.11 426.5,-345.35"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="427.05,-341.89 416.52,-343.06 425.49,-348.71 427.05,-341.89"/>
+</g>
+<!-- module~mapl_exceptionhandling&#45;&gt;module~mapl_throwmod -->
+<g id="module~~grid_get_centers_smod~~UsesGraph_edge27" class="edge">
+<title>module~mapl_exceptionhandling&#45;&gt;module~mapl_throwmod</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M469.79,-372C372.37,-372 201.32,-372 111.09,-372"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="111.03,-368.5 101.03,-372 111.03,-375.5 111.03,-368.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panmodulegrid_get_centers_smodUsesGraph = svgPanZoom('#modulegrid_get_centers_smodUsesGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+      
+      <br>
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

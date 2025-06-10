@@ -1,0 +1,1052 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Test_ComponentSpecParser.pf &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Test_ComponentSpecParser.pf
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for source files.">214 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_ComponentSpecParser.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">Test_ComponentSpecParser.pf</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/test_componentspecparser.html">Test_ComponentSpecParser</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/test_componentspecparser.pf.html#src">Test_ComponentSpecParser.pf</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~test_componentspecparser.pf~~EfferentGraph Pages: 1 -->
+<svg id="sourcefiletest_componentspecparserpfEfferentGraph" width="641pt" height="583pt"
+ viewBox="0.00 0.00 641.00 582.93" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph" class="graph" transform="scale(0.55 0.55) rotate(0) translate(4 1046.37)">
+<title>sourcefile~~test_componentspecparser.pf~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-1046.37 1151,-1046.37 1151,4 -4,4"/>
+<!-- sourcefile~test_componentspecparser.pf -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node1" class="node">
+<title>sourcefile~test_componentspecparser.pf</title>
+<polygon fill="none" stroke="black" points="1147,-936.37 975,-936.37 975,-912.37 1147,-912.37 1147,-936.37"/>
+<text text-anchor="middle" x="1061" y="-921.97" font-family="Helvetica,sans-Serif" font-size="10.50">Test_ComponentSpecParser.pf</text>
+</g>
+<!-- sourcefile~childspec.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node2" class="node">
+<title>sourcefile~childspec.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node2"><a xlink:href="../sourcefile/childspec.f90.html" xlink:title="ChildSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="542,-854.37 454,-854.37 454,-830.37 542,-830.37 542,-854.37"/>
+<text text-anchor="middle" x="498" y="-839.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ChildSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~childspec.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~childspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M860,-924.37C735.02,-911.7 695.11,-950.82 578,-905.37 553.91,-896.02 531.38,-876.56 516.6,-861.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="519.07,-859.25 509.61,-854.48 514.02,-864.11 519.07,-859.25"/>
+</g>
+<!-- sourcefile~childspecmap.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node3" class="node">
+<title>sourcefile~childspecmap.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node3"><a xlink:href="../sourcefile/childspecmap.f90.html" xlink:title="ChildSpecMap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="718,-854.37 607,-854.37 607,-830.37 718,-830.37 718,-854.37"/>
+<text text-anchor="middle" x="662.5" y="-839.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ChildSpecMap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~childspecmap.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~childspecmap.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M974.53,-928.13C939.57,-928.69 898.76,-928.09 862,-924.37"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M860,-924.37C803.22,-918.61 800.2,-884.04 747,-863.37 740.82,-860.97 734.28,-858.77 727.68,-856.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="728.59,-853.39 718.02,-853.99 726.66,-860.12 728.59,-853.39"/>
+</g>
+<!-- sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node4" class="node">
+<title>sourcefile~componentspecparser.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node4"><a xlink:href="../sourcefile/componentspecparser.f90.html" xlink:title="ComponentSpecParser.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="939,-375.37 783,-375.37 783,-351.37 939,-351.37 939,-375.37"/>
+<text text-anchor="middle" x="861" y="-360.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpecParser.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1055.68,-912.13C1030.47,-840.69 902.32,-477.6 869.61,-384.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="872.89,-383.71 866.26,-375.45 866.29,-386.04 872.89,-383.71"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node5" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node5"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="251.5,-315.37 142.5,-315.37 142.5,-291.37 251.5,-291.37 251.5,-315.37"/>
+<text text-anchor="middle" x="197" y="-300.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1040.17,-936.42C1016.77,-950.15 976.32,-972.36 939,-985.37 820.93,-1026.53 788.54,-1042.37 663.5,-1042.37 663.5,-1042.37 663.5,-1042.37 497,-1042.37 396.62,-1042.37 353.38,-1024.3 294,-943.37 219.44,-841.75 201.83,-426.7 198.62,-325.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="202.11,-325.27 198.31,-315.38 195.11,-325.48 202.11,-325.27"/>
+</g>
+<!-- sourcefile~stateitem.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node6" class="node">
+<title>sourcefile~stateitem.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node6"><a xlink:href="../sourcefile/stateitem.f90.html" xlink:title="StateItem.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="706,-896.37 619,-896.37 619,-872.37 706,-872.37 706,-896.37"/>
+<text text-anchor="middle" x="662.5" y="-881.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItem.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~stateitem.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~stateitem.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M860,-924.37C810.61,-919.36 755.28,-907.52 715.95,-898.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="716.6,-894.57 706.05,-895.59 714.93,-901.37 716.6,-894.57"/>
+</g>
+<!-- sourcefile~timestringconversion.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node7" class="node">
+<title>sourcefile~timestringconversion.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node7"><a xlink:href="../sourcefile/timestringconversion.f90.html" xlink:title="TimeStringConversion.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="937.5,-976.37 784.5,-976.37 784.5,-952.37 937.5,-952.37 937.5,-976.37"/>
+<text text-anchor="middle" x="861" y="-961.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">TimeStringConversion.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~timestringconversion.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~timestringconversion.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1000.59,-936.37C978.86,-940.76 954.09,-945.76 931.55,-950.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="930.82,-946.89 921.71,-952.31 932.2,-953.76 930.82,-946.89"/>
+</g>
+<!-- sourcefile~usersetservices.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node8" class="node">
+<title>sourcefile~usersetservices.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node8"><a xlink:href="../sourcefile/usersetservices.f90.html" xlink:title="UserSetServices.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="416.5,-273.37 295.5,-273.37 295.5,-249.37 416.5,-249.37 416.5,-273.37"/>
+<text text-anchor="middle" x="356" y="-258.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UserSetServices.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~usersetservices.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~usersetservices.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1059.03,-912.03C1053.78,-849.29 1025.69,-560.01 939,-342.37 878.89,-191.46 879.14,-125.85 747,-31.37 716.04,-9.23 699.09,-25.85 663.5,-12.37"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M661.5,-12.37C530.04,54.3 403.79,-168.47 367.42,-239.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="364.24,-238.53 362.89,-249.03 370.5,-241.66 364.24,-238.53"/>
+</g>
+<!-- sourcefile~childspec.f90&#45;&gt;sourcefile~usersetservices.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~childspec.f90&#45;&gt;sourcefile~usersetservices.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M494.08,-830.23C476.53,-757.43 385.23,-378.51 362.25,-283.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="365.65,-282.34 359.91,-273.44 358.85,-283.98 365.65,-282.34"/>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node18" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node18"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="418,-934.37 294,-934.37 294,-910.37 418,-910.37 418,-934.37"/>
+<text text-anchor="middle" x="356" y="-919.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~childspec.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~childspec.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M475.74,-854.52C452.06,-868.05 413.62,-890.01 386.92,-905.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="384.95,-902.36 378,-910.36 388.42,-908.44 384.95,-902.36"/>
+</g>
+<!-- sourcefile~childspecmap.f90&#45;&gt;sourcefile~childspec.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~childspecmap.f90&#45;&gt;sourcefile~childspec.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M606.94,-842.37C589.29,-842.37 569.75,-842.37 552.2,-842.37"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="552.12,-838.87 542.12,-842.37 552.12,-845.87 552.12,-838.87"/>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~childspec.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~childspec.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M860.42,-375.4C861.54,-427.68 858.68,-637.17 747,-741.37 690.71,-793.89 647.42,-746.08 578,-779.37 555.31,-790.25 533.25,-808.71 518.23,-822.85"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="515.41,-820.71 510.65,-830.18 520.27,-825.74 515.41,-820.71"/>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~childspecmap.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~childspecmap.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M858.65,-375.79C851.21,-442.23 813.01,-755.06 747,-821.37 741.63,-826.76 735.1,-830.83 728.08,-833.91"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="726.45,-830.78 718.27,-837.5 728.86,-837.35 726.45,-830.78"/>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M834.66,-351.25C812.2,-341.16 778.21,-327.51 747,-321.37 574.22,-287.36 365.05,-293.05 261.89,-298.86"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="261.42,-295.38 251.64,-299.46 261.83,-302.37 261.42,-295.38"/>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~stateitem.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~stateitem.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M858.95,-375.53C852.73,-444.9 818.49,-790.13 747,-863.37 738.76,-871.81 727.67,-877.04 716.27,-880.24"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="715.19,-876.9 706.23,-882.56 716.76,-883.72 715.19,-876.9"/>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~usersetservices.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~usersetservices.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M859.84,-351.17C858.5,-302.59 846.75,-121.22 747,-31.37 718.72,-5.89 699.09,-25.85 663.5,-12.37"/>
+</g>
+<!-- sourcefile~api.f90~2 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node9" class="node">
+<title>sourcefile~api.f90~2</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node9"><a xlink:href="../sourcefile/api.f90~2.html" xlink:title="API.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="689.5,-732.37 635.5,-732.37 635.5,-708.37 689.5,-708.37 689.5,-732.37"/>
+<text text-anchor="middle" x="662.5" y="-717.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">API.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~api.f90~2 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~api.f90~2</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M859.83,-375.64C858.46,-424.54 846.63,-607.23 747,-699.37 734.31,-711.11 716.04,-716.52 699.82,-718.94"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="699.08,-715.5 689.54,-720.12 699.88,-722.45 699.08,-715.5"/>
+</g>
+<!-- sourcefile~componentspec.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node10" class="node">
+<title>sourcefile~componentspec.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node10"><a xlink:href="../sourcefile/componentspec.f90.html" xlink:title="ComponentSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="724.5,-690.37 600.5,-690.37 600.5,-666.37 724.5,-666.37 724.5,-690.37"/>
+<text text-anchor="middle" x="662.5" y="-675.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~componentspec.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~componentspec.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M859.17,-375.65C855.43,-420.7 836.22,-578.31 747,-657.37 743.11,-660.81 738.75,-663.71 734.1,-666.14"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="732.56,-662.99 724.86,-670.27 735.42,-669.38 732.56,-662.99"/>
+</g>
+<!-- sourcefile~connection.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node11" class="node">
+<title>sourcefile~connection.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node11"><a xlink:href="../sourcefile/connection.f90.html" xlink:title="Connection.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="710.5,-648.37 614.5,-648.37 614.5,-624.37 710.5,-624.37 710.5,-648.37"/>
+<text text-anchor="middle" x="662.5" y="-633.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Connection.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~connection.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~connection.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M858.31,-375.59C852,-416.41 825.99,-549.13 747,-615.37 739.35,-621.78 730.02,-626.27 720.4,-629.42"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="719.41,-626.06 710.73,-632.13 721.3,-632.8 719.41,-626.06"/>
+</g>
+<!-- sourcefile~connectionpt.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node12" class="node">
+<title>sourcefile~connectionpt.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node12"><a xlink:href="../sourcefile/connectionpt.f90.html" xlink:title="ConnectionPt.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="715.5,-606.37 609.5,-606.37 609.5,-582.37 715.5,-582.37 715.5,-606.37"/>
+<text text-anchor="middle" x="662.5" y="-591.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ConnectionPt.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~connectionpt.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~connectionpt.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M857.14,-375.58C847.99,-411.83 815.92,-519.69 747,-573.37 740.54,-578.4 733.03,-582.23 725.21,-585.16"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="723.99,-581.88 715.56,-588.3 726.16,-588.53 723.99,-581.88"/>
+</g>
+<!-- sourcefile~connectionvector.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node13" class="node">
+<title>sourcefile~connectionvector.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node13"><a xlink:href="../sourcefile/connectionvector.f90.html" xlink:title="ConnectionVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="726.5,-564.37 598.5,-564.37 598.5,-540.37 726.5,-540.37 726.5,-564.37"/>
+<text text-anchor="middle" x="662.5" y="-549.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ConnectionVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~connectionvector.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~connectionvector.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M855.35,-375.78C842.95,-407.13 805.96,-489.94 747,-531.37 743.56,-533.78 739.87,-535.92 736.02,-537.82"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="734.6,-534.62 726.81,-541.8 737.38,-541.04 734.6,-534.62"/>
+</g>
+<!-- sourcefile~esmf_utilities.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node16" class="node">
+<title>sourcefile~esmf_utilities.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node16"><a xlink:href="../sourcefile/esmf_utilities.f90.html" xlink:title="ESMF_Utilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="716.5,-522.37 608.5,-522.37 608.5,-498.37 716.5,-498.37 716.5,-522.37"/>
+<text text-anchor="middle" x="662.5" y="-507.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_Utilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~esmf_utilities.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~esmf_utilities.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M852.66,-375.59C836.76,-400.96 796.56,-459.45 747,-489.37 740.67,-493.19 733.66,-496.32 726.48,-498.88"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="725.08,-495.66 716.62,-502.04 727.21,-502.32 725.08,-495.66"/>
+</g>
+<!-- sourcefile~geometryspec.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node17" class="node">
+<title>sourcefile~geometryspec.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node17"><a xlink:href="../sourcefile/geometryspec.f90.html" xlink:title="GeometrySpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="720,-480.37 605,-480.37 605,-456.37 720,-456.37 720,-480.37"/>
+<text text-anchor="middle" x="662.5" y="-465.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GeometrySpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~geometryspec.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~geometryspec.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M847.21,-375.59C827.35,-393.89 787.2,-428.3 747,-447.37 741.64,-449.91 735.93,-452.17 730.11,-454.17"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="728.72,-450.94 720.25,-457.31 730.84,-457.61 728.72,-450.94"/>
+</g>
+<!-- sourcefile~matchconnection.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node21" class="node">
+<title>sourcefile~matchconnection.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node21"><a xlink:href="../sourcefile/matchconnection.f90.html" xlink:title="MatchConnection.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="726.5,-438.37 598.5,-438.37 598.5,-414.37 726.5,-414.37 726.5,-438.37"/>
+<text text-anchor="middle" x="662.5" y="-423.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MatchConnection.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~matchconnection.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~matchconnection.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M830.09,-375.5C807.49,-384.43 775.58,-396.49 747,-405.37 739.85,-407.59 732.31,-409.74 724.79,-411.77"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="723.75,-408.43 714.97,-414.36 725.53,-415.2 723.75,-408.43"/>
+</g>
+<!-- sourcefile~reexportconnection.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node22" class="node">
+<title>sourcefile~reexportconnection.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node22"><a xlink:href="../sourcefile/reexportconnection.f90.html" xlink:title="ReexportConnection.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="734,-396.37 591,-396.37 591,-372.37 734,-372.37 734,-396.37"/>
+<text text-anchor="middle" x="662.5" y="-381.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ReexportConnection.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~reexportconnection.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~reexportconnection.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M782.9,-371.61C770.26,-372.96 757.13,-374.36 744.4,-375.72"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="743.86,-372.26 734.29,-376.8 744.61,-379.22 743.86,-372.26"/>
+</g>
+<!-- sourcefile~simpleconnection.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node23" class="node">
+<title>sourcefile~simpleconnection.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node23"><a xlink:href="../sourcefile/simpleconnection.f90.html" xlink:title="SimpleConnection.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="729,-354.37 596,-354.37 596,-330.37 729,-330.37 729,-354.37"/>
+<text text-anchor="middle" x="662.5" y="-339.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SimpleConnection.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~simpleconnection.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~simpleconnection.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M782.9,-355.13C768.63,-353.6 753.72,-352.01 739.48,-350.49"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="739.56,-346.98 729.25,-349.39 738.82,-353.94 739.56,-346.98"/>
+</g>
+<!-- sourcefile~stateregistry.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node24" class="node">
+<title>sourcefile~stateregistry.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node24"><a xlink:href="../sourcefile/stateregistry.f90.html" xlink:title="StateRegistry.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="714.5,-274.37 610.5,-274.37 610.5,-250.37 714.5,-250.37 714.5,-274.37"/>
+<text text-anchor="middle" x="662.5" y="-259.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~stateregistry.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~stateregistry.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M844.76,-351.19C823.8,-334.94 784.42,-306.16 747,-288.37 738.45,-284.3 729.11,-280.67 719.88,-277.51"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="720.92,-274.17 710.33,-274.39 718.75,-280.83 720.92,-274.17"/>
+</g>
+<!-- sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node25" class="node">
+<title>sourcefile~ungriddeddim.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node25"><a xlink:href="../sourcefile/ungriddeddim.f90.html" xlink:title="UngriddedDim.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="718.5,-232.37 606.5,-232.37 606.5,-208.37 718.5,-208.37 718.5,-232.37"/>
+<text text-anchor="middle" x="662.5" y="-217.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDim.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~ungriddeddim.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M852.31,-351.16C836.06,-326.41 795.68,-270.22 747,-241.37 741.21,-237.94 734.88,-235.06 728.37,-232.66"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="729.34,-229.29 718.75,-229.45 727.13,-235.93 729.34,-229.29"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node26" class="node">
+<title>sourcefile~ungriddeddims.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node26"><a xlink:href="../sourcefile/ungriddeddims.f90.html" xlink:title="UngriddedDims.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="721.5,-190.37 603.5,-190.37 603.5,-166.37 721.5,-166.37 721.5,-190.37"/>
+<text text-anchor="middle" x="662.5" y="-175.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDims.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M855.26,-351.25C842.66,-320.64 805.22,-239.79 747,-199.37 742.12,-195.98 736.75,-193.14 731.15,-190.76"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="732.16,-187.4 721.56,-187.16 729.7,-193.95 732.16,-187.4"/>
+</g>
+<!-- sourcefile~variablespec.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node27" class="node">
+<title>sourcefile~variablespec.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node27"><a xlink:href="../sourcefile/variablespec.f90.html" xlink:title="VariableSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="715,-148.37 610,-148.37 610,-124.37 715,-124.37 715,-148.37"/>
+<text text-anchor="middle" x="662.5" y="-133.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VariableSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M857,-351.13C847.56,-315.31 814.95,-209.86 747,-157.37 740.44,-152.3 732.8,-148.44 724.87,-145.51"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="725.68,-142.09 715.09,-142.37 723.54,-148.76 725.68,-142.09"/>
+</g>
+<!-- sourcefile~variablespecvector.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node28" class="node">
+<title>sourcefile~variablespecvector.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node28"><a xlink:href="../sourcefile/variablespecvector.f90.html" xlink:title="VariableSpecVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="731,-106.37 594,-106.37 594,-82.37 731,-82.37 731,-106.37"/>
+<text text-anchor="middle" x="662.5" y="-91.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VariableSpecVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~variablespecvector.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge30" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~variablespecvector.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M858.25,-351.33C851.73,-311.15 825.14,-180.5 747,-115.37 744.94,-113.65 742.76,-112.07 740.48,-110.62"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="741.76,-107.33 731.3,-105.62 738.41,-113.47 741.76,-107.33"/>
+</g>
+<!-- sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node29" class="node">
+<title>sourcefile~verticalstaggerloc.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node29"><a xlink:href="../sourcefile/verticalstaggerloc.f90.html" xlink:title="VerticalStaggerLoc.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="730.5,-64.37 594.5,-64.37 594.5,-40.37 730.5,-40.37 730.5,-64.37"/>
+<text text-anchor="middle" x="662.5" y="-49.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalStaggerLoc.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge31" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M859.11,-351.25C855.17,-306.8 835.34,-151.29 747,-73.37 744.67,-71.31 742.16,-69.44 739.52,-67.76"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="741.17,-64.67 730.71,-62.96 737.82,-70.82 741.17,-64.67"/>
+</g>
+<!-- sourcefile~virtualconnectionpt.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node30" class="node">
+<title>sourcefile~virtualconnectionpt.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node30"><a xlink:href="../sourcefile/virtualconnectionpt.f90.html" xlink:title="VirtualConnectionPt.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="732.5,-812.37 592.5,-812.37 592.5,-788.37 732.5,-788.37 732.5,-812.37"/>
+<text text-anchor="middle" x="662.5" y="-797.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VirtualConnectionPt.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~virtualconnectionpt.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge32" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~virtualconnectionpt.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M860.55,-375.44C862.32,-429.9 862.23,-655.2 747,-774.37 743.62,-777.87 739.77,-780.9 735.63,-783.52"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="733.87,-780.49 726.78,-788.36 737.23,-786.64 733.87,-780.49"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node20" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node20"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="100,-315.37 0,-315.37 0,-291.37 100,-291.37 100,-315.37"/>
+<text text-anchor="middle" x="50" y="-300.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge33" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M142.42,-303.37C131.9,-303.37 120.82,-303.37 110.13,-303.37"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="110.04,-299.87 100.04,-303.37 110.04,-306.87 110.04,-299.87"/>
+</g>
+<!-- sourcefile~timestringconversion.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge34" class="edge">
+<title>sourcefile~timestringconversion.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#4800ff" stroke-dasharray="5,2" d="M806.54,-976.39C787.81,-980.04 766.57,-983.56 747,-985.37 672.21,-992.26 652.39,-995.76 578,-985.37 513.71,-976.38 441.88,-953.37 398.05,-937.79"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="399.2,-934.49 388.61,-934.39 396.83,-941.07 399.2,-934.49"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node19" class="node">
+<title>sourcefile~mapl_exceptionhandling.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node19"><a xlink:href="../sourcefile/mapl_exceptionhandling.f90.html" xlink:title="MAPL_ExceptionHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="747,-976.37 578,-976.37 578,-952.37 747,-952.37 747,-976.37"/>
+<text text-anchor="middle" x="662.5" y="-961.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~timestringconversion.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge35" class="edge">
+<title>sourcefile~timestringconversion.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#4800ff" stroke-dasharray="5,2" d="M784.31,-964.37C775.51,-964.37 766.46,-964.37 757.45,-964.37"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="757.32,-960.87 747.32,-964.37 757.32,-967.87 757.32,-960.87"/>
+</g>
+<!-- sourcefile~usersetservices.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge37" class="edge">
+<title>sourcefile~usersetservices.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M310.01,-273.4C292.19,-278.17 271.54,-283.7 252.85,-288.69"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="251.75,-285.36 243,-291.33 253.56,-292.13 251.75,-285.36"/>
+</g>
+<!-- sourcefile~dso_utilities.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node14" class="node">
+<title>sourcefile~dso_utilities.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node14"><a xlink:href="../sourcefile/dso_utilities.f90.html" xlink:title="DSO_Utilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="248.5,-231.37 145.5,-231.37 145.5,-207.37 248.5,-207.37 248.5,-231.37"/>
+<text text-anchor="middle" x="197" y="-216.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DSO_Utilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~usersetservices.f90&#45;&gt;sourcefile~dso_utilities.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge36" class="edge">
+<title>sourcefile~usersetservices.f90&#45;&gt;sourcefile~dso_utilities.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M310.01,-249.33C292.19,-244.56 271.54,-239.04 252.85,-234.04"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="253.56,-230.61 243,-231.4 251.75,-237.37 253.56,-230.61"/>
+</g>
+<!-- sourcefile~esmf_interfaces.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_node15" class="node">
+<title>sourcefile~esmf_interfaces.f90</title>
+<g id="a_sourcefile~~test_componentspecparser.pf~~EfferentGraph_node15"><a xlink:href="../sourcefile/esmf_interfaces.f90.html" xlink:title="ESMF_Interfaces.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="258,-273.37 136,-273.37 136,-249.37 258,-249.37 258,-273.37"/>
+<text text-anchor="middle" x="197" y="-258.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_Interfaces.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~usersetservices.f90&#45;&gt;sourcefile~esmf_interfaces.f90 -->
+<g id="sourcefile~~test_componentspecparser.pf~~EfferentGraph_edge38" class="edge">
+<title>sourcefile~usersetservices.f90&#45;&gt;sourcefile~esmf_interfaces.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M295.2,-261.37C286.38,-261.37 277.23,-261.37 268.23,-261.37"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="268.16,-257.87 258.16,-261.37 268.16,-264.87 268.16,-257.87"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefiletest_componentspecparserpfEfferentGraph = svgPanZoom('#sourcefiletest_componentspecparserpfEfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#if defined(MAKE_MESSAGE)</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="cp">#  undef MAKE_MESSAGE</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="cp">#endif</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="cp">#define MAKE_MESSAGE(V) &#39;Actual &#39; // V // &#39; does not match &#39; // V // &#39;.&#39;</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="cp">#include &quot;MAPL_ErrLog.h&quot;</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="k">module </span><span class="n">Test_ComponentSpecParser</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">funit</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_StateItem</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_UserSetServices</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ComponentSpecParser</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ChildSpec</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ChildSpecMap</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_ErrorHandling</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_TimeStringConversion</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">   </span><span class="k">use </span><span class="n">esmf</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">   </span><span class="k">implicit none</span><span class="p">(</span><span class="k">type</span><span class="p">,</span><span class="k">external</span><span class="p">)</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="k">contains</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a>
+<a id="ln-21" name="ln-21" href="#ln-21"></a>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">   </span><span class="c">! setServices:</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">   </span><span class="c">!      sharedObj: &lt;dso_name&gt;</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">   </span><span class="c">!      userRoutine: &lt;user_routine&gt;  </span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_parse_setServices</span><span class="p">()</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">DSOSetServices</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ss_expected</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;{sharedObj: libA, userRoutine: procB}&#39;</span><span class="p">)</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="n">ss_expected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DSOSetServices</span><span class="p">(</span><span class="s1">&#39;libA&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;procB&#39;</span><span class="p">)</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">parse_setservices</span><span class="p">(</span><span class="n">config</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ss_expected</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_parse_setServices</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_parse_setServices_default</span><span class="p">()</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">DSOSetServices</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ss_expected</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;{sharedObj: libA}&#39;</span><span class="p">)</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">      </span><span class="n">ss_expected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DSOSetServices</span><span class="p">(</span><span class="s1">&#39;libA&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;setservices_&#39;</span><span class="p">)</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">parse_setservices</span><span class="p">(</span><span class="n">config</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ss_expected</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_parse_setServices_default</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_equal_child_spec_ss_differs</span><span class="p">()</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractUserSetServices</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ss_A</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractUserSetServices</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ss_B</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ChildSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cs_a</span><span class="p">,</span><span class="w"> </span><span class="n">cs_b</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">      </span><span class="n">ss_A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">user_setservices</span><span class="p">(</span><span class="s1">&#39;libA&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;setservices_&#39;</span><span class="p">)</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">      </span><span class="n">ss_B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">user_setservices</span><span class="p">(</span><span class="nb">gamma</span><span class="p">)</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span><span class="n">cs_a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ChildSpec</span><span class="p">(</span><span class="n">ss_A</span><span class="p">)</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">      </span><span class="n">cs_b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ChildSpec</span><span class="p">(</span><span class="n">ss_B</span><span class="p">)</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="s1">&#39;OPERATOR(==)&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">cs_a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">cs_b</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">false</span><span class="p">()))</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="k">      subroutine </span><span class="nb">gamma</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">         </span><span class="k">use </span><span class="n">esmf</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gc</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">      </span><span class="k">end subroutine </span><span class="nb">gamma</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="nb">      </span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="nb">   </span><span class="k">end subroutine </span><span class="n">test_equal_child_spec_ss_differs</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_equal_child_spec_cfg_differs</span><span class="p">()</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractUserSetServices</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ss</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ChildSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">      </span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">      </span><span class="n">ss</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">user_setservices</span><span class="p">(</span><span class="s1">&#39;libA&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;setservices_&#39;</span><span class="p">)</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ChildSpec</span><span class="p">(</span><span class="n">ss</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="o">=</span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;{a: 5}&#39;</span><span class="p">))</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">      </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ChildSpec</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">false</span><span class="p">()))</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">      </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ChildSpec</span><span class="p">(</span><span class="n">ss</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="o">=</span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;{b: 7}&#39;</span><span class="p">))</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">false</span><span class="p">()))</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">      </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ChildSpec</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">false</span><span class="p">()))</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">      </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ChildSpec</span><span class="p">(</span><span class="n">ss</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="o">=</span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;{b: 7}&#39;</span><span class="p">))</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">false</span><span class="p">()))</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">          </span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="k">      subroutine </span><span class="nb">gamma</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">         </span><span class="k">use </span><span class="n">esmf</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gc</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">      </span><span class="k">end subroutine </span><span class="nb">gamma</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="nb">      </span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="nb">   </span><span class="k">end subroutine </span><span class="n">test_equal_child_spec_cfg_differs</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_parse_childSpec_basic</span><span class="p">()</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ChildSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">found</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="p">,</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ChildSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">expected</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">      </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;{sharedObj: libA, setServices: setservices_}&#39;</span><span class="p">)</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">      </span><span class="n">expected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ChildSpec</span><span class="p">(</span><span class="n">user_setservices</span><span class="p">(</span><span class="s1">&#39;libA&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;setservices_&#39;</span><span class="p">))</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">      </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parse_child</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">expected</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">found</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_parse_childSpec_basic</span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a>
+<a id="ln-119" name="ln-119" href="#ln-119"></a>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_parse_childSpec_with_config_file</span><span class="p">()</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">child_hconfig</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CHILD_HCONFIG_CONTENT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;{a: 8}&#39;</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ChildSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">found</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractUserSetServices</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ss</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ChildSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">expected</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unit</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">      </span><span class="k">open</span><span class="p">(</span><span class="n">newunit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="s1">&#39;a.yml&#39;</span><span class="p">,</span><span class="n">form</span><span class="o">=</span><span class="s1">&#39;formatted&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;unknown&#39;</span><span class="p">)</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="n">CHILD_HCONFIG_CONTENT</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">      </span><span class="k">close</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="w">      </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;{setServices: setservices_, sharedObj: libA, config_file: a.yml}&#39;</span><span class="p">)</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="w">      </span><span class="n">child_hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">CHILD_HCONFIG_CONTENT</span><span class="p">)</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="w">      </span><span class="n">ss</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">user_setservices</span><span class="p">(</span><span class="s1">&#39;libA&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;setservices_&#39;</span><span class="p">)</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="w">      </span><span class="n">expected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ChildSpec</span><span class="p">(</span><span class="n">ss</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="o">=</span><span class="n">child_hconfig</span><span class="p">)</span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">      </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parse_child</span><span class="p">(</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">expected</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">found</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="w">      </span><span class="k">open</span><span class="p">(</span><span class="n">newunit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="s1">&#39;a.yml&#39;</span><span class="p">,</span><span class="n">form</span><span class="o">=</span><span class="s1">&#39;formatted&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;unknown&#39;</span><span class="p">)</span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="w">      </span><span class="k">close</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;delete&#39;</span><span class="p">)</span>
+<a id="ln-145" name="ln-145" href="#ln-145"></a>
+<a id="ln-146" name="ln-146" href="#ln-146"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">child_hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">      </span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a>
+<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_parse_childSpec_with_config_file</span>
+<a id="ln-151" name="ln-151" href="#ln-151"></a>
+<a id="ln-152" name="ln-152" href="#ln-152"></a>
+<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span>
+<a id="ln-154" name="ln-154" href="#ln-154"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_parse_ChildSpecMap_empty</span><span class="p">()</span>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ChildSpecMap</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">expected</span><span class="p">,</span><span class="w"> </span><span class="n">found</span>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig</span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a>
+<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="w">      </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;{}&#39;</span><span class="p">)</span>
+<a id="ln-161" name="ln-161" href="#ln-161"></a>
+<a id="ln-162" name="ln-162" href="#ln-162"></a><span class="w">      </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parse_children</span><span class="p">(</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-163" name="ln-163" href="#ln-163"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">found</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-164" name="ln-164" href="#ln-164"></a>
+<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">hconfig</span><span class="p">)</span>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_parse_ChildSpecMap_empty</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_parse_ChildSpecMap_1</span><span class="p">()</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config</span>
+<a id="ln-171" name="ln-171" href="#ln-171"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config_ptr</span>
+<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ChildSpecMap</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">expected</span><span class="p">,</span><span class="w"> </span><span class="n">found</span>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a>
+<a id="ln-175" name="ln-175" href="#ln-175"></a><span class="w">      </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;children: {A: {sharedObj: libA}}&#39;</span><span class="p">)</span>
+<a id="ln-176" name="ln-176" href="#ln-176"></a><span class="w">      </span><span class="n">config_ptr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">config</span>
+<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="w">      </span><span class="k">call </span><span class="n">expected</span><span class="p">%</span><span class="n">insert</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ChildSpec</span><span class="p">(</span><span class="n">user_setservices</span><span class="p">(</span><span class="s1">&#39;libA&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;setservices_&#39;</span><span class="p">)))</span>
+<a id="ln-178" name="ln-178" href="#ln-178"></a><span class="w">      </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parse_children</span><span class="p">(</span><span class="n">config_ptr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-179" name="ln-179" href="#ln-179"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">found</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="w">      </span>
+<a id="ln-181" name="ln-181" href="#ln-181"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_parse_ChildSpecMap_1</span>
+<a id="ln-182" name="ln-182" href="#ln-182"></a>
+<a id="ln-183" name="ln-183" href="#ln-183"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span>
+<a id="ln-184" name="ln-184" href="#ln-184"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_parse_ChildSpecMap_2</span><span class="p">()</span>
+<a id="ln-185" name="ln-185" href="#ln-185"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config</span>
+<a id="ln-186" name="ln-186" href="#ln-186"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config_ptr</span>
+<a id="ln-187" name="ln-187" href="#ln-187"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ChildSpecMap</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">expected</span><span class="p">,</span><span class="w"> </span><span class="n">found</span>
+<a id="ln-188" name="ln-188" href="#ln-188"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-189" name="ln-189" href="#ln-189"></a>
+<a id="ln-190" name="ln-190" href="#ln-190"></a><span class="w">      </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;children: {&#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-191" name="ln-191" href="#ln-191"></a><span class="w">           </span><span class="s1">&#39;A: {sharedObj: libA},&#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-192" name="ln-192" href="#ln-192"></a><span class="w">           </span><span class="s1">&#39;B: {sharedObj: libB}}&#39;</span><span class="p">)</span>
+<a id="ln-193" name="ln-193" href="#ln-193"></a><span class="w">      </span><span class="n">config_ptr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">config</span>
+<a id="ln-194" name="ln-194" href="#ln-194"></a>
+<a id="ln-195" name="ln-195" href="#ln-195"></a><span class="w">      </span><span class="k">call </span><span class="n">expected</span><span class="p">%</span><span class="n">insert</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ChildSpec</span><span class="p">(</span><span class="n">user_setservices</span><span class="p">(</span><span class="s1">&#39;libA&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;setservices_&#39;</span><span class="p">)))</span>
+<a id="ln-196" name="ln-196" href="#ln-196"></a><span class="w">      </span><span class="k">call </span><span class="n">expected</span><span class="p">%</span><span class="n">insert</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ChildSpec</span><span class="p">(</span><span class="n">user_setservices</span><span class="p">(</span><span class="s1">&#39;libB&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;setservices_&#39;</span><span class="p">)))</span>
+<a id="ln-197" name="ln-197" href="#ln-197"></a><span class="w">      </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parse_children</span><span class="p">(</span><span class="n">config_ptr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-198" name="ln-198" href="#ln-198"></a>
+<a id="ln-199" name="ln-199" href="#ln-199"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">found</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-200" name="ln-200" href="#ln-200"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">found</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-201" name="ln-201" href="#ln-201"></a><span class="w">      </span>
+<a id="ln-202" name="ln-202" href="#ln-202"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_parse_ChildSpecMap_2</span>
+<a id="ln-203" name="ln-203" href="#ln-203"></a>
+<a id="ln-204" name="ln-204" href="#ln-204"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span>
+<a id="ln-205" name="ln-205" href="#ln-205"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_parse_timespec</span><span class="p">()</span>
+<a id="ln-206" name="ln-206" href="#ln-206"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">expected_duration</span>
+<a id="ln-207" name="ln-207" href="#ln-207"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">expected_offset</span>
+<a id="ln-208" name="ln-208" href="#ln-208"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ISO_DURATION</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;P3M&#39;</span>
+<a id="ln-209" name="ln-209" href="#ln-209"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ISO_OFFSET</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;P1D&#39;</span>
+<a id="ln-210" name="ln-210" href="#ln-210"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">new_line</span><span class="p">(</span><span class="s1">&#39;10&#39;</span><span class="p">)</span>
+<a id="ln-211" name="ln-211" href="#ln-211"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">content</span>
+<a id="ln-212" name="ln-212" href="#ln-212"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig</span>
+<a id="ln-213" name="ln-213" href="#ln-213"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">actual_duration</span>
+<a id="ln-214" name="ln-214" href="#ln-214"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">actual_offset</span>
+<a id="ln-215" name="ln-215" href="#ln-215"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">expected_mm</span>
+<a id="ln-216" name="ln-216" href="#ln-216"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="p">,</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-217" name="ln-217" href="#ln-217"></a>
+<a id="ln-218" name="ln-218" href="#ln-218"></a><span class="w">      </span><span class="c">! Test with correct key for timestep</span>
+<a id="ln-219" name="ln-219" href="#ln-219"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">expected_duration</span><span class="p">,</span><span class="w"> </span><span class="n">mm</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-220" name="ln-220" href="#ln-220"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">expected_offset</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-221" name="ln-221" href="#ln-221"></a><span class="w">      </span><span class="n">content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;timestep: &#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">ISO_DURATION</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">NL</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;run_time_offset: &#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">ISO_OFFSET</span>
+<a id="ln-222" name="ln-222" href="#ln-222"></a><span class="w">      </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-223" name="ln-223" href="#ln-223"></a><span class="w">      </span><span class="k">call </span><span class="n">parse_timespec</span><span class="p">(</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">actual_duration</span><span class="p">,</span><span class="w"> </span><span class="n">actual_offset</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-224" name="ln-224" href="#ln-224"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">actual_duration</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-225" name="ln-225" href="#ln-225"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">actual_duration</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected_duration</span><span class="p">,</span><span class="w"> </span><span class="n">MAKE_MESSAGE</span><span class="p">(</span><span class="s1">&#39;timestep&#39;</span><span class="p">))</span>
+<a id="ln-226" name="ln-226" href="#ln-226"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">actual_offset</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected_offset</span><span class="p">,</span><span class="w"> </span><span class="n">MAKE_MESSAGE</span><span class="p">(</span><span class="s1">&#39;reference time offset&#39;</span><span class="p">))</span>
+<a id="ln-227" name="ln-227" href="#ln-227"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-228" name="ln-228" href="#ln-228"></a><span class="w">      </span>
+<a id="ln-229" name="ln-229" href="#ln-229"></a><span class="w">      </span><span class="c">! Test with incorrect key for timestep; should return without allocating actual_duration (invalid)</span>
+<a id="ln-230" name="ln-230" href="#ln-230"></a><span class="w">      </span><span class="n">expected_mm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-231" name="ln-231" href="#ln-231"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">actual_duration</span><span class="p">,</span><span class="w"> </span><span class="n">mm</span><span class="o">=</span><span class="n">expected_mm</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-232" name="ln-232" href="#ln-232"></a><span class="w">      </span><span class="n">content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;run_dmc: &#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">ISO_DURATION</span>
+<a id="ln-233" name="ln-233" href="#ln-233"></a><span class="w">      </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-234" name="ln-234" href="#ln-234"></a><span class="w">      </span><span class="k">call </span><span class="n">parse_timespec</span><span class="p">(</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">actual_duration</span><span class="p">,</span><span class="w"> </span><span class="n">actual_offset</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-235" name="ln-235" href="#ln-235"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">actual_duration</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">false</span><span class="p">()))</span>
+<a id="ln-236" name="ln-236" href="#ln-236"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">actual_offset</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">false</span><span class="p">()))</span>
+<a id="ln-237" name="ln-237" href="#ln-237"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-238" name="ln-238" href="#ln-238"></a>
+<a id="ln-239" name="ln-239" href="#ln-239"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_parse_timespec</span>
+<a id="ln-240" name="ln-240" href="#ln-240"></a>
+<a id="ln-241" name="ln-241" href="#ln-241"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span>
+<a id="ln-242" name="ln-242" href="#ln-242"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_to_itemType</span><span class="p">()</span>
+<a id="ln-243" name="ln-243" href="#ln-243"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_StateItem_Flag</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">itemtype</span>
+<a id="ln-244" name="ln-244" href="#ln-244"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig</span>
+<a id="ln-245" name="ln-245" href="#ln-245"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-246" name="ln-246" href="#ln-246"></a>
+<a id="ln-247" name="ln-247" href="#ln-247"></a><span class="w">      </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;{}&#39;</span><span class="p">)</span>
+<a id="ln-248" name="ln-248" href="#ln-248"></a><span class="w">      </span><span class="n">itemtype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">to_ItemType</span><span class="p">(</span><span class="n">hconfig</span><span class="p">)</span>
+<a id="ln-249" name="ln-249" href="#ln-249"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">itemType</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_STATEITEM_FIELD</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-250" name="ln-250" href="#ln-250"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">hconfig</span><span class="p">)</span>
+<a id="ln-251" name="ln-251" href="#ln-251"></a><span class="w">      </span>
+<a id="ln-252" name="ln-252" href="#ln-252"></a><span class="w">      </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;{class: vector}&#39;</span><span class="p">)</span>
+<a id="ln-253" name="ln-253" href="#ln-253"></a><span class="w">      </span><span class="n">itemtype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">to_ItemType</span><span class="p">(</span><span class="w"> </span><span class="n">hconfig</span><span class="p">)</span>
+<a id="ln-254" name="ln-254" href="#ln-254"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">itemType</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_STATEITEM_VECTOR</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-255" name="ln-255" href="#ln-255"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">hconfig</span><span class="p">)</span>
+<a id="ln-256" name="ln-256" href="#ln-256"></a>
+<a id="ln-257" name="ln-257" href="#ln-257"></a><span class="w">      </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;{expression: A+B}&#39;</span><span class="p">)</span>
+<a id="ln-258" name="ln-258" href="#ln-258"></a><span class="w">      </span><span class="n">itemtype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">to_ItemType</span><span class="p">(</span><span class="n">hconfig</span><span class="p">)</span>
+<a id="ln-259" name="ln-259" href="#ln-259"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">itemType</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_STATEITEM_EXPRESSION</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-260" name="ln-260" href="#ln-260"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">hconfig</span><span class="p">)</span>
+<a id="ln-261" name="ln-261" href="#ln-261"></a>
+<a id="ln-262" name="ln-262" href="#ln-262"></a><span class="w">      </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;{}&#39;</span><span class="p">)</span>
+<a id="ln-263" name="ln-263" href="#ln-263"></a><span class="w">      </span><span class="n">itemtype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">to_ItemType</span><span class="p">(</span><span class="n">hconfig</span><span class="p">)</span>
+<a id="ln-264" name="ln-264" href="#ln-264"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">itemType</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_STATEITEM_FIELD</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-265" name="ln-265" href="#ln-265"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">hconfig</span><span class="p">)</span>
+<a id="ln-266" name="ln-266" href="#ln-266"></a><span class="w">      </span>
+<a id="ln-267" name="ln-267" href="#ln-267"></a><span class="w">      </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;{class: vector}&#39;</span><span class="p">)</span>
+<a id="ln-268" name="ln-268" href="#ln-268"></a><span class="w">      </span><span class="n">itemtype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">to_ItemType</span><span class="p">(</span><span class="w"> </span><span class="n">hconfig</span><span class="p">)</span>
+<a id="ln-269" name="ln-269" href="#ln-269"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">itemType</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_STATEITEM_VECTOR</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-270" name="ln-270" href="#ln-270"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">hconfig</span><span class="p">)</span>
+<a id="ln-271" name="ln-271" href="#ln-271"></a>
+<a id="ln-272" name="ln-272" href="#ln-272"></a><span class="w">      </span><span class="c">! We do NOT allow &quot;expression + other classes</span>
+<a id="ln-273" name="ln-273" href="#ln-273"></a><span class="w">      </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;{class: bracket, expression: A+B}&#39;</span><span class="p">)</span>
+<a id="ln-274" name="ln-274" href="#ln-274"></a><span class="w">      </span><span class="n">itemtype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">to_ItemType</span><span class="p">(</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-275" name="ln-275" href="#ln-275"></a><span class="w">      </span><span class="err">@</span><span class="n">assertExceptionRaised</span><span class="p">(</span><span class="s2">&quot;Subclass bracket does not support expressions.&quot;</span><span class="p">)</span>
+<a id="ln-276" name="ln-276" href="#ln-276"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">hconfig</span><span class="p">)</span>
+<a id="ln-277" name="ln-277" href="#ln-277"></a>
+<a id="ln-278" name="ln-278" href="#ln-278"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_to_itemType</span>
+<a id="ln-279" name="ln-279" href="#ln-279"></a>
+<a id="ln-280" name="ln-280" href="#ln-280"></a><span class="k">end module </span><span class="n">Test_ComponentSpecParser</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

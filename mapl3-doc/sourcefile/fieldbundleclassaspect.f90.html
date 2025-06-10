@@ -1,0 +1,1291 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>FieldBundleClassAspect.F90 &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>FieldBundleClassAspect.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for source files.">215 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/FieldBundleClassAspect.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">FieldBundleClassAspect.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_fieldbundleclassaspect.html">mapl3g_FieldBundleClassAspect</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/fieldbundleclassaspect.f90.html#src">FieldBundleClassAspect.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilefieldbundleclassaspectf90EfferentGraph" width="641pt" height="389pt"
+ viewBox="0.00 0.00 641.00 389.47" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph" class="graph" transform="scale(0.55 0.55) rotate(0) translate(4 706.28)">
+<title>sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-706.28 1165,-706.28 1165,4 -4,4"/>
+<!-- sourcefile~fieldbundleclassaspect.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~fieldbundleclassaspect.f90</title>
+<polygon fill="none" stroke="black" points="1161,-310 1000,-310 1000,-286 1161,-286 1161,-310"/>
+<text text-anchor="middle" x="1080.5" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50">FieldBundleClassAspect.F90</text>
+</g>
+<!-- sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~actualconnectionpt.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/actualconnectionpt.f90.html" xlink:title="ActualConnectionPt.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="596.5,-668 457.5,-668 457.5,-644 596.5,-644 596.5,-668"/>
+<text text-anchor="middle" x="527" y="-653.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ActualConnectionPt.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~actualconnectionpt.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M890,-620C812.98,-661.43 795.08,-683.7 708.5,-696"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M706.5,-696C681.8,-699.51 620.18,-683.64 576.27,-670.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="577.21,-667.49 566.63,-668.03 575.23,-674.21 577.21,-667.49"/>
+</g>
+<!-- sourcefile~api.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~api.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/api.f90.html" xlink:title="API.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="918,-129 864,-129 864,-105 918,-105 918,-129"/>
+<text text-anchor="middle" x="891" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">API.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~api.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~api.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1066.91,-285.84C1035.02,-255.06 950.87,-173.83 912.09,-136.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="914.16,-133.53 904.54,-129.1 909.3,-138.57 914.16,-133.53"/>
+</g>
+<!-- sourcefile~aspectid.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~aspectid.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/aspectid.f90.html" xlink:title="AspectId.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="391.5,-427 310.5,-427 310.5,-403 391.5,-403 391.5,-427"/>
+<text text-anchor="middle" x="351" y="-412.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AspectId.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~aspectid.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~aspectid.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1042.63,-285.92C1005.17,-274.65 945.24,-259.37 892,-258"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M890,-258C807.61,-255.89 789.62,-234.55 708.5,-220"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M706.5,-220C561.82,-194.06 416.8,-340.82 368.67,-395.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="365.96,-393.06 362.04,-402.9 371.24,-397.65 365.96,-393.06"/>
+</g>
+<!-- sourcefile~classaspect.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~classaspect.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/classaspect.f90.html" xlink:title="ClassAspect.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="757,-592 658,-592 658,-568 757,-568 757,-592"/>
+<text text-anchor="middle" x="707.5" y="-577.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ClassAspect.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~classaspect.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~classaspect.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M890,-620C878.51,-626.12 809.38,-608.63 759.85,-594.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="760.49,-591.41 749.91,-592.08 758.6,-598.15 760.49,-591.41"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="245,-606 136,-606 136,-582 245,-582 245,-606"/>
+<text text-anchor="middle" x="190.5" y="-591.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M526,-696C416.96,-689.82 381.05,-720.79 281,-677 249.88,-663.38 222.65,-634.28 206.63,-614.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="209.19,-612.02 200.28,-606.29 203.68,-616.33 209.19,-612.02"/>
+</g>
+<!-- sourcefile~esmf_utilities.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~esmf_utilities.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/esmf_utilities.f90.html" xlink:title="ESMF_Utilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="405,-668 297,-668 297,-644 405,-644 405,-668"/>
+<text text-anchor="middle" x="351" y="-653.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_Utilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~esmf_utilities.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~esmf_utilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M706.5,-696C627.96,-707.16 607.21,-700.49 528,-696"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M526,-696C481.78,-693.5 432.71,-681.32 397.99,-671.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="398.73,-667.63 388.14,-668.08 396.7,-674.33 398.73,-667.63"/>
+</g>
+<!-- sourcefile~extensiontransform.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~extensiontransform.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/extensiontransform.f90.html" xlink:title="ExtensionTransform.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="597,-389 457,-389 457,-365 597,-365 597,-389"/>
+<text text-anchor="middle" x="527" y="-374.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtensionTransform.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~extensiontransform.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~extensiontransform.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M890,-258C775.52,-254.56 737.7,-230.57 633,-277 593.85,-294.36 560.37,-332.8 542.31,-356.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="539.48,-354.58 536.37,-364.7 545.12,-358.73 539.48,-354.58"/>
+</g>
+<!-- sourcefile~multistate.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~multistate.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/multistate.f90.html" xlink:title="MultiState.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="571,-626 483,-626 483,-602 571,-602 571,-626"/>
+<text text-anchor="middle" x="527" y="-611.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiState.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~multistate.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~multistate.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M890,-620C818.96,-658.22 784.88,-594.04 708.5,-620"/>
+</g>
+<!-- sourcefile~nulltransform.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~nulltransform.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node10"><a xlink:href="../sourcefile/nulltransform.f90.html" xlink:title="NullTransform.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="762,-390 653,-390 653,-366 762,-366 762,-390"/>
+<text text-anchor="middle" x="707.5" y="-375.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NullTransform.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~nulltransform.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~nulltransform.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M890,-258C853.62,-256.91 848.7,-277.46 818,-297 787,-316.72 753.3,-342.34 731.59,-359.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="729.27,-356.8 723.61,-365.76 733.62,-362.29 729.27,-356.8"/>
+</g>
+<!-- sourcefile~stateitemaspect.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~stateitemaspect.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node11"><a xlink:href="../sourcefile/stateitemaspect.f90.html" xlink:title="StateItemAspect.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="588.5,-546 465.5,-546 465.5,-522 588.5,-522 588.5,-546"/>
+<text text-anchor="middle" x="527" y="-531.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemAspect.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~stateitemaspect.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~stateitemaspect.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1077.09,-310.3C1066.45,-360.78 1018.46,-552.63 892,-620"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M890,-620C841.35,-645.92 834.56,-575.61 782,-559 722.09,-540.06 650.62,-534.44 598.78,-533.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="598.75,-529.68 588.68,-532.99 598.61,-536.68 598.75,-529.68"/>
+</g>
+<!-- sourcefile~wildcardclassaspect.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node12" class="node">
+<title>sourcefile~wildcardclassaspect.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node12"><a xlink:href="../sourcefile/wildcardclassaspect.f90.html" xlink:title="WildcardClassAspect.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="964,-330 818,-330 818,-306 964,-306 964,-330"/>
+<text text-anchor="middle" x="891" y="-315.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">WildcardClassAspect.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~wildcardclassaspect.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~wildcardclassaspect.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M999.98,-306.48C991.45,-307.39 982.75,-308.32 974.18,-309.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="973.77,-305.76 964.2,-310.3 974.52,-312.72 973.77,-305.76"/>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node20" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node20"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="413,-584 289,-584 289,-560 413,-560 413,-584"/>
+<text text-anchor="middle" x="351" y="-569.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M474.41,-643.89C468.3,-641.43 462.35,-638.49 457,-635 436.42,-621.55 441.58,-606.45 421,-593 418.41,-591.31 415.68,-589.75 412.86,-588.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="414.14,-585.05 403.59,-584.11 411.26,-591.43 414.14,-585.05"/>
+</g>
+<!-- sourcefile~virtualconnectionpt.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node24" class="node">
+<title>sourcefile~virtualconnectionpt.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node24"><a xlink:href="../sourcefile/virtualconnectionpt.f90.html" xlink:title="VirtualConnectionPt.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="421,-626 281,-626 281,-602 421,-602 421,-626"/>
+<text text-anchor="middle" x="351" y="-611.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VirtualConnectionPt.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~virtualconnectionpt.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~virtualconnectionpt.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M476.14,-643.96C456.03,-639.11 432.65,-633.47 411.65,-628.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="412.41,-624.98 401.87,-626.04 410.77,-631.79 412.41,-624.98"/>
+</g>
+<!-- sourcefile~fieldbundlecreate.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node13" class="node">
+<title>sourcefile~fieldbundlecreate.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node13"><a xlink:href="../sourcefile/fieldbundlecreate.f90.html" xlink:title="FieldBundleCreate.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="774,-66 641,-66 641,-42 774,-42 774,-66"/>
+<text text-anchor="middle" x="707.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleCreate.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~api.f90&#45;&gt;sourcefile~fieldbundlecreate.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~api.f90&#45;&gt;sourcefile~fieldbundlecreate.f90</title>
+<path fill="none" stroke="#ff8b00" stroke-dasharray="5,2" d="M863.62,-105.95C841.91,-97.05 810.22,-84.5 782,-75 775.89,-72.94 769.46,-70.91 763.04,-68.97"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="763.6,-65.49 753.01,-66 761.61,-72.2 763.6,-65.49"/>
+</g>
+<!-- sourcefile~fieldbundleget.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node14" class="node">
+<title>sourcefile~fieldbundleget.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node14"><a xlink:href="../sourcefile/fieldbundleget.f90.html" xlink:title="FieldBundleGet.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="765.5,-24 649.5,-24 649.5,0 765.5,0 765.5,-24"/>
+<text text-anchor="middle" x="707.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleGet.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~api.f90&#45;&gt;sourcefile~fieldbundleget.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~api.f90&#45;&gt;sourcefile~fieldbundleget.f90</title>
+<path fill="none" stroke="#ff8b00" stroke-dasharray="5,2" d="M877.81,-104.91C858.87,-86.77 820.55,-52.57 782,-33 778.03,-30.99 773.84,-29.14 769.56,-27.45"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="770.67,-24.13 760.07,-24 768.28,-30.71 770.67,-24.13"/>
+</g>
+<!-- sourcefile~fieldbundleinfo.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node15" class="node">
+<title>sourcefile~fieldbundleinfo.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node15"><a xlink:href="../sourcefile/fieldbundleinfo.f90.html" xlink:title="FieldBundleInfo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="766,-192 649,-192 649,-168 766,-168 766,-192"/>
+<text text-anchor="middle" x="707.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleInfo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~api.f90&#45;&gt;sourcefile~fieldbundleinfo.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~api.f90&#45;&gt;sourcefile~fieldbundleinfo.f90</title>
+<path fill="none" stroke="#ff8b00" stroke-dasharray="5,2" d="M863.62,-128.05C841.91,-136.95 810.22,-149.5 782,-159 775.89,-161.06 769.46,-163.09 763.04,-165.03"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="761.61,-161.8 753.01,-168 763.6,-168.51 761.61,-161.8"/>
+</g>
+<!-- sourcefile~fieldbundleset.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node16" class="node">
+<title>sourcefile~fieldbundleset.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node16"><a xlink:href="../sourcefile/fieldbundleset.f90.html" xlink:title="FieldBundleSet.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="765,-150 650,-150 650,-126 765,-126 765,-150"/>
+<text text-anchor="middle" x="707.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleSet.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~api.f90&#45;&gt;sourcefile~fieldbundleset.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~api.f90&#45;&gt;sourcefile~fieldbundleset.f90</title>
+<path fill="none" stroke="#ff8b00" stroke-dasharray="5,2" d="M864,-120.01C840.92,-122.68 806.2,-126.7 775.41,-130.26"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="774.68,-126.82 765.15,-131.45 775.48,-133.77 774.68,-126.82"/>
+</g>
+<!-- sourcefile~fieldbundletype_flag.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node17" class="node">
+<title>sourcefile~fieldbundletype_flag.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node17"><a xlink:href="../sourcefile/fieldbundletype_flag.f90.html" xlink:title="FieldBundleType_Flag.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="782,-108 633,-108 633,-84 782,-84 782,-108"/>
+<text text-anchor="middle" x="707.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleType_Flag.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~api.f90&#45;&gt;sourcefile~fieldbundletype_flag.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~api.f90&#45;&gt;sourcefile~fieldbundletype_flag.f90</title>
+<path fill="none" stroke="#ff8b00" stroke-dasharray="5,2" d="M864,-113.99C845.13,-111.81 818.48,-108.72 792.56,-105.73"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="792.63,-102.21 782.29,-104.54 791.83,-109.16 792.63,-102.21"/>
+</g>
+<!-- sourcefile~classaspect.f90&#45;&gt;sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~classaspect.f90&#45;&gt;sourcefile~actualconnectionpt.f90</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M685.19,-592.07C663.48,-604.04 628.6,-622.36 597,-635 591.99,-637.01 586.7,-638.93 581.38,-640.75"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="580.23,-637.44 571.82,-643.89 582.42,-644.09 580.23,-637.44"/>
+</g>
+<!-- sourcefile~classaspect.f90&#45;&gt;sourcefile~aspectid.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~classaspect.f90&#45;&gt;sourcefile~aspectid.f90</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M657.8,-584.59C621.36,-586.54 570.66,-586.08 528,-574"/>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M526,-574C495.4,-565.33 479.77,-577.21 457,-555 417.44,-516.42 460.04,-475.1 421,-436 415.59,-430.58 408.82,-426.55 401.65,-423.55"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="402.32,-420.08 391.73,-420.08 400.01,-426.69 402.32,-420.08"/>
+</g>
+<!-- sourcefile~classaspect.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~classaspect.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M526,-574C516.43,-571.29 361.79,-530.24 352,-532"/>
+</g>
+<!-- sourcefile~classaspect.f90&#45;&gt;sourcefile~multistate.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~classaspect.f90&#45;&gt;sourcefile~multistate.f90</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M657.72,-589.29C634.06,-593.8 605.58,-599.22 581.34,-603.84"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="580.41,-600.45 571.24,-605.76 581.72,-607.33 580.41,-600.45"/>
+</g>
+<!-- sourcefile~classaspect.f90&#45;&gt;sourcefile~stateitemaspect.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~classaspect.f90&#45;&gt;sourcefile~stateitemaspect.f90</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M659.6,-567.91C636.54,-561.97 608.57,-554.76 584.36,-548.52"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="585.14,-545.11 574.59,-546.01 583.4,-551.89 585.14,-545.11"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node21" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node21"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="100,-606 0,-606 0,-582 100,-582 100,-606"/>
+<text text-anchor="middle" x="50" y="-591.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#00ff2e" stroke-dasharray="5,2" d="M135.95,-594C127.62,-594 118.96,-594 110.51,-594"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="110.33,-590.5 100.33,-594 110.33,-597.5 110.33,-590.5"/>
+</g>
+<!-- sourcefile~esmf_utilities.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~esmf_utilities.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M307,-643.89C298.32,-641.17 289.31,-638.15 281,-635 262.03,-627.81 241.41,-618.47 224.75,-610.52"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="225.97,-607.22 215.44,-606.03 222.92,-613.53 225.97,-607.22"/>
+</g>
+<!-- sourcefile~extensiontransform.f90&#45;&gt;sourcefile~aspectid.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~extensiontransform.f90&#45;&gt;sourcefile~aspectid.f90</title>
+<path fill="none" stroke="#00b9ff" stroke-dasharray="5,2" d="M470.95,-389.02C448.68,-393.89 423.18,-399.45 401.52,-404.19"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="400.56,-400.81 391.54,-406.37 402.05,-407.65 400.56,-400.81"/>
+</g>
+<!-- sourcefile~extensiontransform.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~extensiontransform.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00b9ff" stroke-dasharray="5,2" d="M465.43,-364.97C412.05,-357.88 334.66,-356.53 281,-394 220.59,-436.19 200.36,-529.03 194.09,-571.72"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="190.59,-571.52 192.72,-581.89 197.52,-572.45 190.59,-571.52"/>
+</g>
+<!-- sourcefile~transformid.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node23" class="node">
+<title>sourcefile~transformid.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node23"><a xlink:href="../sourcefile/transformid.f90.html" xlink:title="TransformId.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="400,-469 302,-469 302,-445 400,-445 400,-469"/>
+<text text-anchor="middle" x="351" y="-454.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">TransformId.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extensiontransform.f90&#45;&gt;sourcefile~transformid.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~extensiontransform.f90&#45;&gt;sourcefile~transformid.f90</title>
+<path fill="none" stroke="#00b9ff" stroke-dasharray="5,2" d="M507.28,-389.16C486.76,-402.1 452.54,-422.53 421,-436 416.3,-438.01 411.34,-439.91 406.33,-441.69"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="405.03,-438.43 396.68,-444.95 407.27,-445.06 405.03,-438.43"/>
+</g>
+<!-- sourcefile~multistate.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~multistate.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M485.15,-601.99C475.52,-598.25 465.57,-593.61 457,-588 437.8,-575.43 440.75,-562.68 421,-551 393.62,-534.81 383.31,-526.38 352,-532"/>
+</g>
+<!-- sourcefile~multistate.f90&#45;&gt;sourcefile~esmf_utilities.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge30" class="edge">
+<title>sourcefile~multistate.f90&#45;&gt;sourcefile~esmf_utilities.f90</title>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M482.99,-624.38C461.5,-629.57 435.16,-635.93 411.74,-641.58"/>
+<polygon fill="#002eff" stroke="#002eff" points="410.81,-638.2 401.91,-643.95 412.45,-645.01 410.81,-638.2"/>
+</g>
+<!-- sourcefile~multistate.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge31" class="edge">
+<title>sourcefile~multistate.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M482.99,-603.62C461.5,-598.43 435.16,-592.07 411.74,-586.42"/>
+<polygon fill="#002eff" stroke="#002eff" points="412.45,-582.99 401.91,-584.05 410.81,-589.8 412.45,-582.99"/>
+</g>
+<!-- sourcefile~nulltransform.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge32" class="edge">
+<title>sourcefile~nulltransform.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#5c00ff" stroke-dasharray="5,2" d="M526,-456C495.1,-465.96 486.94,-467.44 457,-480 408.98,-500.15 403.26,-522.81 352,-532"/>
+<path fill="none" stroke="#5c00ff" stroke-dasharray="5,2" d="M350,-532C318.69,-537.62 310.79,-539.85 281,-551 261.11,-558.45 239.64,-568.68 222.71,-577.3"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="221.1,-574.2 213.82,-581.89 224.31,-580.42 221.1,-574.2"/>
+</g>
+<!-- sourcefile~nulltransform.f90&#45;&gt;sourcefile~extensiontransform.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge33" class="edge">
+<title>sourcefile~nulltransform.f90&#45;&gt;sourcefile~extensiontransform.f90</title>
+<path fill="none" stroke="#5c00ff" stroke-dasharray="5,2" d="M652.94,-377.7C638.54,-377.62 622.65,-377.53 607.17,-377.44"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="607.09,-373.94 597.07,-377.39 607.05,-380.94 607.09,-373.94"/>
+</g>
+<!-- sourcefile~nulltransform.f90&#45;&gt;sourcefile~transformid.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge34" class="edge">
+<title>sourcefile~nulltransform.f90&#45;&gt;sourcefile~transformid.f90</title>
+<path fill="none" stroke="#5c00ff" stroke-dasharray="5,2" d="M658.54,-390.06C649.92,-392.69 641.11,-395.69 633,-399 583.84,-419.08 578.54,-439.72 528,-456"/>
+<path fill="none" stroke="#5c00ff" stroke-dasharray="5,2" d="M526,-456C488.87,-467.96 444.92,-468.11 410.48,-465.32"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="410.4,-461.8 400.12,-464.37 409.76,-468.77 410.4,-461.8"/>
+</g>
+<!-- sourcefile~stateitemaspect.f90&#45;&gt;sourcefile~aspectid.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge35" class="edge">
+<title>sourcefile~stateitemaspect.f90&#45;&gt;sourcefile~aspectid.f90</title>
+<path fill="none" stroke="#e700ff" stroke-dasharray="5,2" d="M512.74,-521.77C498.82,-508.91 476.32,-488.09 457,-470 440.93,-454.96 440.03,-447.05 421,-436 414.96,-432.49 408.28,-429.52 401.52,-427.01"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="402.23,-423.55 391.63,-423.66 399.98,-430.18 402.23,-423.55"/>
+</g>
+<!-- sourcefile~stateitemaspect.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge36" class="edge">
+<title>sourcefile~stateitemaspect.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#e700ff" stroke-dasharray="5,2" d="M465.14,-527.73C431.53,-525.65 389.17,-525.33 352,-532"/>
+</g>
+<!-- sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge37" class="edge">
+<title>sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~actualconnectionpt.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M890.15,-330C890.05,-377.72 882.68,-555.22 782,-634 730.81,-674.06 654.76,-675.39 599.22,-669.26"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="599.45,-665.76 589.1,-668.03 598.61,-672.71 599.45,-665.76"/>
+</g>
+<!-- sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~aspectid.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge38" class="edge">
+<title>sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~aspectid.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M871.35,-305.96C832.43,-281.18 743.31,-226.24 708.5,-220"/>
+</g>
+<!-- sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~classaspect.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge39" class="edge">
+<title>sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~classaspect.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M885.22,-330.04C872.05,-362.36 832.77,-452.82 782,-516 767.96,-533.47 748.77,-550 733.52,-561.88"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="731.35,-559.14 725.51,-567.98 735.59,-564.71 731.35,-559.14"/>
+</g>
+<!-- sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge40" class="edge">
+<title>sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M885.64,-330.17C873.98,-360.9 839.04,-442.1 782,-483 754.58,-502.66 739.22,-488.04 708.5,-502"/>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M706.5,-502C681.24,-513.48 484.58,-509.91 457,-513 409.87,-518.28 398.68,-523.63 352,-532"/>
+</g>
+<!-- sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~extensiontransform.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge41" class="edge">
+<title>sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~extensiontransform.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M817.88,-328.2C766.3,-335.68 695.28,-346.35 633,-357 621.97,-358.89 610.3,-361 598.91,-363.12"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="598.19,-359.69 589,-364.98 599.48,-366.57 598.19,-359.69"/>
+</g>
+<!-- sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~multistate.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge44" class="edge">
+<title>sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~multistate.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M889.19,-330.1C885.6,-373.79 867.26,-524.76 782,-601 756.85,-623.49 740.45,-609.14 708.5,-620"/>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M706.5,-620C665.98,-633.77 617.27,-630.95 580.97,-625.42"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="581.51,-621.97 571.08,-623.8 580.38,-628.87 581.51,-621.97"/>
+</g>
+<!-- sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~nulltransform.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge45" class="edge">
+<title>sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~nulltransform.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M853.27,-330.14C824.76,-339.57 785.07,-352.69 754.46,-362.81"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="753.26,-359.52 744.86,-365.98 755.46,-366.16 753.26,-359.52"/>
+</g>
+<!-- sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~stateitemaspect.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge46" class="edge">
+<title>sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~stateitemaspect.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M706.5,-502C672.99,-517.23 632.86,-525.22 599.15,-529.41"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="598.44,-525.97 588.9,-530.59 599.24,-532.92 598.44,-525.97"/>
+</g>
+<!-- sourcefile~fieldclassaspect.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node18" class="node">
+<title>sourcefile~fieldclassaspect.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node18"><a xlink:href="../sourcefile/fieldclassaspect.f90.html" xlink:title="FieldClassAspect.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="769.5,-474 645.5,-474 645.5,-450 769.5,-450 769.5,-474"/>
+<text text-anchor="middle" x="707.5" y="-459.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldClassAspect.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~fieldclassaspect.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge42" class="edge">
+<title>sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~fieldclassaspect.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M882.74,-330.19C867.37,-354.94 829.06,-411.21 782,-441 779.2,-442.77 776.24,-444.4 773.19,-445.9"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="771.56,-442.78 763.79,-449.98 774.36,-449.2 771.56,-442.78"/>
+</g>
+<!-- sourcefile~fieldclassaspectmap.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node19" class="node">
+<title>sourcefile~fieldclassaspectmap.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node19"><a xlink:href="../sourcefile/fieldclassaspectmap.f90.html" xlink:title="FieldClassAspectMap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="780.5,-432 634.5,-432 634.5,-408 780.5,-408 780.5,-432"/>
+<text text-anchor="middle" x="707.5" y="-417.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldClassAspectMap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~fieldclassaspectmap.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge43" class="edge">
+<title>sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~fieldclassaspectmap.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M877.09,-330.22C857.83,-347.81 819.79,-380.24 782,-399 778.01,-400.98 773.81,-402.8 769.52,-404.47"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="768.24,-401.21 760.02,-407.89 770.61,-407.8 768.24,-401.21"/>
+</g>
+<!-- sourcefile~stateitemspec.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node22" class="node">
+<title>sourcefile~stateitemspec.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_node22"><a xlink:href="../sourcefile/stateitemspec.f90.html" xlink:title="StateItemSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="764,-310 651,-310 651,-286 764,-286 764,-310"/>
+<text text-anchor="middle" x="707.5" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~stateitemspec.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~EfferentGraph_edge47" class="edge">
+<title>sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~stateitemspec.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M817.74,-310.04C803.35,-308.45 788.3,-306.79 774.14,-305.23"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="774.33,-301.73 764,-304.12 773.56,-308.69 774.33,-301.73"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilefieldbundleclassaspectf90EfferentGraph = svgPanZoom('#sourcefilefieldbundleclassaspectf90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilefieldbundleclassaspectf90AfferentGraph" width="569pt" height="410pt"
+ viewBox="0.00 0.00 569.00 410.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 406)">
+<title>sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-406 565,-406 565,4 -4,4"/>
+<!-- sourcefile~fieldbundleclassaspect.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~fieldbundleclassaspect.f90</title>
+<polygon fill="none" stroke="black" points="161,-213 0,-213 0,-189 161,-189 161,-213"/>
+<text text-anchor="middle" x="80.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50">FieldBundleClassAspect.F90</text>
+</g>
+<!-- sourcefile~variablespec.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~variablespec.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/variablespec.f90.html" xlink:title="VariableSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="302,-213 197,-213 197,-189 302,-189 302,-213"/>
+<text text-anchor="middle" x="249.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VariableSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~fieldbundleclassaspect.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~fieldbundleclassaspect.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M196.58,-201C188.52,-201 180.01,-201 171.41,-201"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="171.29,-197.5 161.29,-201 171.29,-204.5 171.29,-197.5"/>
+</g>
+<!-- sourcefile~componentspec.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~componentspec.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/componentspec.f90.html" xlink:title="ComponentSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="511.5,-402 387.5,-402 387.5,-378 511.5,-378 511.5,-402"/>
+<text text-anchor="middle" x="449.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspec.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~componentspec.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M387.45,-388.24C370.15,-385.26 352.18,-379.54 338,-369 288.73,-332.37 264.79,-259.82 255.43,-223.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="258.74,-222 252.99,-213.1 251.93,-223.64 258.74,-222"/>
+</g>
+<!-- sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~componentspecparser.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/componentspecparser.f90.html" xlink:title="ComponentSpecParser.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="527.5,-360 371.5,-360 371.5,-336 527.5,-336 527.5,-360"/>
+<text text-anchor="middle" x="449.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpecParser.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M371.22,-341.3C359.49,-338.07 347.99,-333.49 338,-327 298.61,-301.43 271.97,-251.3 259.2,-222.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="262.28,-220.87 255.13,-213.05 255.84,-223.62 262.28,-220.87"/>
+</g>
+<!-- sourcefile~historycollectiongridcomp_private.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~historycollectiongridcomp_private.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/historycollectiongridcomp_private.f90.html" xlink:title="HistoryCollectionGridComp_private.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="561,-318 338,-318 338,-294 561,-294 561,-318"/>
+<text text-anchor="middle" x="449.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionGridComp_private.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~historycollectiongridcomp_private.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~historycollectiongridcomp_private.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M359.79,-293.94C352.22,-291.48 344.85,-288.54 338,-285 308.17,-269.61 281.56,-240.81 265.73,-221.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="268.37,-218.97 259.43,-213.28 262.87,-223.31 268.37,-218.97"/>
+</g>
+<!-- sourcefile~initialize_advertise.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~initialize_advertise.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/initialize_advertise.f90.html" xlink:title="initialize_advertise.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="516.5,-276 382.5,-276 382.5,-252 516.5,-252 516.5,-276"/>
+<text text-anchor="middle" x="449.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_advertise.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~initialize_advertise.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~initialize_advertise.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M382.34,-254.33C367.56,-251.37 352.1,-247.64 338,-243 318.33,-236.53 297.38,-226.6 280.92,-218.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="282.25,-214.76 271.78,-213.15 278.97,-220.94 282.25,-214.76"/>
+</g>
+<!-- sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~mapl_generic.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/mapl_generic.f90.html" xlink:title="MAPL_Generic.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="505,-234 394,-234 394,-210 505,-210 505,-234"/>
+<text text-anchor="middle" x="449.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Generic.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M393.87,-216.21C368.61,-213.53 338.48,-210.33 312.39,-207.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="312.54,-204.06 302.23,-206.49 311.8,-211.02 312.54,-204.06"/>
+</g>
+<!-- sourcefile~mockaspect.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~mockaspect.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/mockaspect.f90.html" xlink:title="MockAspect.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="499,-192 400,-192 400,-168 499,-168 499,-192"/>
+<text text-anchor="middle" x="449.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockAspect.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockaspect.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~mockaspect.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M399.81,-185.16C373.4,-187.97 340.48,-191.46 312.27,-194.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="311.69,-190.99 302.12,-195.53 312.43,-197.95 311.69,-190.99"/>
+</g>
+<!-- sourcefile~mockitemspec.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~mockitemspec.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/mockitemspec.f90.html" xlink:title="MockItemSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="506,-150 393,-150 393,-126 506,-126 506,-150"/>
+<text text-anchor="middle" x="449.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockItemSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockitemspec.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~mockitemspec.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M392.99,-145.65C375.18,-148.87 355.53,-153.24 338,-159 318.33,-165.47 297.38,-175.4 280.92,-183.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="278.97,-181.06 271.78,-188.85 282.25,-187.24 278.97,-181.06"/>
+</g>
+<!-- sourcefile~test_bracketclassaspect.pf -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~test_bracketclassaspect.pf</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/test_bracketclassaspect.pf.html" xlink:title="Test_BracketClassAspect.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="528,-108 371,-108 371,-84 528,-84 528,-108"/>
+<text text-anchor="middle" x="449.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_BracketClassAspect.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_bracketclassaspect.pf&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~test_bracketclassaspect.pf&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M370.8,-104.86C359.43,-107.82 348.15,-111.76 338,-117 308.17,-132.39 281.56,-161.19 265.73,-180.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="262.87,-178.69 259.43,-188.72 268.37,-183.03 262.87,-178.69"/>
+</g>
+<!-- sourcefile~test_modelverticalgrid.pf -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~test_modelverticalgrid.pf</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/test_modelverticalgrid.pf.html" xlink:title="Test_ModelVerticalGrid.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="522.5,-66 376.5,-66 376.5,-42 522.5,-42 522.5,-66"/>
+<text text-anchor="middle" x="449.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ModelVerticalGrid.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_modelverticalgrid.pf&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~test_modelverticalgrid.pf&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M376.42,-59.36C362.92,-62.61 349.47,-67.56 338,-75 298.61,-100.57 271.97,-150.7 259.2,-179.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="255.84,-178.38 255.13,-188.95 262.28,-181.13 255.84,-178.38"/>
+</g>
+<!-- sourcefile~variablespecvector.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~variablespecvector.f90</title>
+<g id="a_sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/variablespecvector.f90.html" xlink:title="VariableSpecVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="518,-24 381,-24 381,0 518,0 518,-24"/>
+<text text-anchor="middle" x="449.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VariableSpecVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~variablespecvector.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~fieldbundleclassaspect.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~variablespecvector.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M380.83,-15.04C365.64,-18.27 350.38,-23.8 338,-33 288.73,-69.63 264.79,-142.18 255.43,-178.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="251.93,-178.36 252.99,-188.9 258.74,-180 251.93,-178.36"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_Generic.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">module </span><span class="n">mapl3g_FieldBundleClassAspect</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ActualConnectionPt</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_AspectId</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_StateItemAspect</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ClassAspect</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_WildcardClassAspect</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_NullTransform</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ExtensionTransform</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_MultiState</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ESMF_Utilities</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">get_substate</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_FieldBundle_API</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">MAPL_FieldBundleCreate</span><span class="p">,</span><span class="w"> </span><span class="n">MAPL_FieldBundleInfoSetInternal</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_ErrorHandling</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">   </span><span class="k">use </span><span class="n">esmf</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">   </span><span class="k">implicit none</span><span class="p">(</span><span class="k">type</span><span class="p">,</span><span class="k">external</span><span class="p">)</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">   </span><span class="k">private</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">FieldBundleClassAspect</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">extends</span><span class="p">(</span><span class="n">ClassAspect</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">FieldBundleClassAspect</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">      </span><span class="k">private</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="k">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">is_created</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">payload</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">standard_name</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">long_name</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_aspect_order</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">supports_conversion_general</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">supports_conversion_specific</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_transform</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">matches</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">matches_a</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="c">! procedure :: connect_to_import</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">connect_to_export</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">create</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">activate</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">allocate</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">destroy</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_to_state</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_payload</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">      </span><span class="k">procedure</span><span class="p">,</span><span class="w"> </span><span class="k">nopass</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_aspect_id</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">   </span><span class="k">end type </span><span class="n">FieldBundleClassAspect</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">   </span><span class="k">interface </span><span class="n">FieldBundleClassAspect</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_FieldBundleClassAspect</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">   </span><span class="k">end interface </span><span class="n">FieldBundleClassAspect</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="k">contains</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="k">   function </span><span class="n">new_FieldBundleClassAspect</span><span class="p">(</span><span class="n">standard_name</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">aspect</span><span class="p">)</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldBundleClassAspect</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">aspect</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">standard_name</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">long_name</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span><span class="n">aspect</span><span class="p">%</span><span class="n">standard_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;unknown&quot;</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">standard_name</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="k">         </span><span class="n">aspect</span><span class="p">%</span><span class="n">standard_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">standard_name</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="k">      </span><span class="n">aspect</span><span class="p">%</span><span class="n">long_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;unknown&quot;</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">long_name</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="k">         </span><span class="n">aspect</span><span class="p">%</span><span class="n">long_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">long_name</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="k">   end function </span><span class="n">new_FieldBundleClassAspect</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">   </span><span class="k">function </span><span class="n">get_aspect_order</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">goal_aspects</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">aspect_ids</span><span class="p">)</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">AspectId</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">aspect_ids</span><span class="p">(:)</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">FieldBundleClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">AspectMap</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">goal_aspects</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">      </span><span class="n">aspect_ids</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">           </span><span class="n">CLASS_ASPECT_ID</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">           </span><span class="n">ATTRIBUTES_ASPECT_ID</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">           </span><span class="n">UNGRIDDED_DIMS_ASPECT_ID</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">           </span><span class="n">GEOM_ASPECT_ID</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">           </span><span class="n">VERTICAL_GRID_ASPECT_ID</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">           </span><span class="n">UNITS_ASPECT_ID</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">           </span><span class="n">TYPEKIND_ASPECT_ID</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">           </span><span class="p">]</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">goal_aspects</span><span class="p">)</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="w">   </span><span class="k">end function </span><span class="n">get_aspect_order</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">create</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">FieldBundleClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">payload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_FieldBundleCreate</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">create</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">activate</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">FieldBundleClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Info</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">info</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_InfoGetFromHost</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">payload</span><span class="p">,</span><span class="w"> </span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">      </span><span class="k">call </span><span class="n">MAPL_FieldBundleInfoSetInternal</span><span class="p">(</span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="n">is_active</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">activate</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">   </span><span class="k">subroutine allocate</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">other_aspects</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">FieldBundleClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">AspectMap</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">other_aspects</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">other_aspects</span><span class="p">)</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="w">   </span><span class="k">end subroutine allocate</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="k">   subroutine </span><span class="n">destroy</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">FieldBundleClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldBundleDestroy</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">payload</span><span class="p">,</span><span class="w"> </span><span class="n">noGarbage</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">destroy</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="w">   </span><span class="c">! subroutine connect_to_import(this, import, rc)</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="w">   </span><span class="c">!    class(FieldClassAspect), intent(inout) :: this</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="w">   </span><span class="c">!    class(StateItemAspect), intent(in) :: import</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="w">   </span><span class="c">!    integer, optional, intent(out) :: rc</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">   </span><span class="c">!    type(FieldClassAspect) :: import_</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="w">   </span><span class="c">!    integer :: status</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="w">   </span><span class="c">!    _RETURN_IF(allocated(this%default_value))</span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w">   </span><span class="c">!    import_ = to_FieldClassAspect(import, _RC)</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a><span class="w">   </span><span class="c">!    if (allocated(import_%default_value)) then ! import wins (for now)</span>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">   </span><span class="c">!       this%default_value = import_%default_value</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">   </span><span class="c">!    end if</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a>
+<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="w">   </span><span class="c">!    _RETURN(_SUCCESS)</span>
+<a id="ln-151" name="ln-151" href="#ln-151"></a><span class="w">   </span><span class="c">! end subroutine connect_to_import</span>
+<a id="ln-152" name="ln-152" href="#ln-152"></a>
+<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">connect_to_export</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">export</span><span class="p">,</span><span class="w"> </span><span class="n">actual_pt</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-154" name="ln-154" href="#ln-154"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">FieldBundleClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">export</span>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ActualConnectionPt</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">actual_pt</span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a>
+<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldBundleClassAspect</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">export_</span>
+<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-161" name="ln-161" href="#ln-161"></a>
+<a id="ln-162" name="ln-162" href="#ln-162"></a><span class="w">      </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s2">&quot;FieldBundleClassAspect::connect_to_export - not implemented yet&quot;</span><span class="p">)</span>
+<a id="ln-163" name="ln-163" href="#ln-163"></a>
+<a id="ln-164" name="ln-164" href="#ln-164"></a><span class="w">      </span><span class="c">! export_ = to_FieldClassAspect(export, _RC)</span>
+<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="w">      </span><span class="c">! call this%destroy(_RC) ! import is replaced by export/extension</span>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="w">      </span><span class="c">! this%payload = export_%payload</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="w">      </span><span class="c">! call mirror(this%default_value, export_%default_value)</span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a>
+<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-171" name="ln-171" href="#ln-171"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">export</span><span class="p">)</span>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">actual_pt</span><span class="p">)</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-175" name="ln-175" href="#ln-175"></a>
+<a id="ln-176" name="ln-176" href="#ln-176"></a><span class="w">   </span><span class="c">! contains</span>
+<a id="ln-177" name="ln-177" href="#ln-177"></a>
+<a id="ln-178" name="ln-178" href="#ln-178"></a><span class="w">   </span><span class="c">!   subroutine mirror(dst, src)</span>
+<a id="ln-179" name="ln-179" href="#ln-179"></a><span class="w">   </span><span class="c">!      real, allocatable, intent(inout) :: dst</span>
+<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="w">   </span><span class="c">!      real, allocatable, intent(in) :: src</span>
+<a id="ln-181" name="ln-181" href="#ln-181"></a>
+<a id="ln-182" name="ln-182" href="#ln-182"></a><span class="w">   </span><span class="c">!      if (.not. allocated(src)) return</span>
+<a id="ln-183" name="ln-183" href="#ln-183"></a>
+<a id="ln-184" name="ln-184" href="#ln-184"></a><span class="w">   </span><span class="c">!      if (.not. allocated(dst)) then</span>
+<a id="ln-185" name="ln-185" href="#ln-185"></a><span class="w">   </span><span class="c">!         dst = src</span>
+<a id="ln-186" name="ln-186" href="#ln-186"></a><span class="w">   </span><span class="c">!         return</span>
+<a id="ln-187" name="ln-187" href="#ln-187"></a><span class="w">   </span><span class="c">!      end if</span>
+<a id="ln-188" name="ln-188" href="#ln-188"></a>
+<a id="ln-189" name="ln-189" href="#ln-189"></a><span class="w">   </span><span class="c">!      ! TODO: Problematic case: both allocated with different values.</span>
+<a id="ln-190" name="ln-190" href="#ln-190"></a><span class="w">   </span><span class="c">!      if (dst /= src) then</span>
+<a id="ln-191" name="ln-191" href="#ln-191"></a><span class="w">   </span><span class="c">!         _HERE, &quot;WARNING: mismatched default values for &quot;, actual_pt</span>
+<a id="ln-192" name="ln-192" href="#ln-192"></a><span class="w">   </span><span class="c">!         _HERE, &quot;    src = &quot;, src, &quot;; dst = &quot;,dst, &quot; (src value wins)&quot;</span>
+<a id="ln-193" name="ln-193" href="#ln-193"></a><span class="w">   </span><span class="c">!      end if</span>
+<a id="ln-194" name="ln-194" href="#ln-194"></a>
+<a id="ln-195" name="ln-195" href="#ln-195"></a><span class="w">   </span><span class="c">!    end subroutine mirror</span>
+<a id="ln-196" name="ln-196" href="#ln-196"></a>
+<a id="ln-197" name="ln-197" href="#ln-197"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">connect_to_export</span>
+<a id="ln-198" name="ln-198" href="#ln-198"></a>
+<a id="ln-199" name="ln-199" href="#ln-199"></a><span class="w">   </span><span class="k">function </span><span class="n">make_transform</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">dst</span><span class="p">,</span><span class="w"> </span><span class="n">other_aspects</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span>
+<a id="ln-200" name="ln-200" href="#ln-200"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ExtensionTransform</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">transform</span>
+<a id="ln-201" name="ln-201" href="#ln-201"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">FieldBundleClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src</span>
+<a id="ln-202" name="ln-202" href="#ln-202"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dst</span>
+<a id="ln-203" name="ln-203" href="#ln-203"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">AspectMap</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">other_aspects</span>
+<a id="ln-204" name="ln-204" href="#ln-204"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-205" name="ln-205" href="#ln-205"></a>
+<a id="ln-206" name="ln-206" href="#ln-206"></a><span class="w">      </span><span class="n">transform</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NullTransform</span><span class="p">()</span>
+<a id="ln-207" name="ln-207" href="#ln-207"></a>
+<a id="ln-208" name="ln-208" href="#ln-208"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-209" name="ln-209" href="#ln-209"></a><span class="w">   </span><span class="k">end function </span><span class="n">make_transform</span>
+<a id="ln-210" name="ln-210" href="#ln-210"></a>
+<a id="ln-211" name="ln-211" href="#ln-211"></a><span class="w">   </span><span class="kt">logical </span><span class="k">function </span><span class="n">supports_conversion_general</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+<a id="ln-212" name="ln-212" href="#ln-212"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">FieldBundleClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src</span>
+<a id="ln-213" name="ln-213" href="#ln-213"></a><span class="w">      </span><span class="n">supports_conversion_general</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-214" name="ln-214" href="#ln-214"></a><span class="w">   </span><span class="k">end function </span><span class="n">supports_conversion_general</span>
+<a id="ln-215" name="ln-215" href="#ln-215"></a>
+<a id="ln-216" name="ln-216" href="#ln-216"></a><span class="w">   </span><span class="kt">logical </span><span class="k">function </span><span class="n">supports_conversion_specific</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">dst</span><span class="p">)</span>
+<a id="ln-217" name="ln-217" href="#ln-217"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">FieldBundleClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src</span>
+<a id="ln-218" name="ln-218" href="#ln-218"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dst</span>
+<a id="ln-219" name="ln-219" href="#ln-219"></a>
+<a id="ln-220" name="ln-220" href="#ln-220"></a><span class="w">      </span><span class="n">supports_conversion_specific</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-221" name="ln-221" href="#ln-221"></a>
+<a id="ln-222" name="ln-222" href="#ln-222"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">dst</span><span class="p">)</span>
+<a id="ln-223" name="ln-223" href="#ln-223"></a><span class="w">   </span><span class="k">end function </span><span class="n">supports_conversion_specific</span>
+<a id="ln-224" name="ln-224" href="#ln-224"></a>
+<a id="ln-225" name="ln-225" href="#ln-225"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">add_to_state</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">multi_state</span><span class="p">,</span><span class="w"> </span><span class="n">actual_pt</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-226" name="ln-226" href="#ln-226"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">FieldBundleClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-227" name="ln-227" href="#ln-227"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MultiState</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">multi_state</span>
+<a id="ln-228" name="ln-228" href="#ln-228"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ActualConnectionPt</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">actual_pt</span>
+<a id="ln-229" name="ln-229" href="#ln-229"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-230" name="ln-230" href="#ln-230"></a>
+<a id="ln-231" name="ln-231" href="#ln-231"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">alias</span>
+<a id="ln-232" name="ln-232" href="#ln-232"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">substate</span>
+<a id="ln-233" name="ln-233" href="#ln-233"></a><span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">full_name</span><span class="p">,</span><span class="w"> </span><span class="n">inner_name</span>
+<a id="ln-234" name="ln-234" href="#ln-234"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">idx</span><span class="p">,</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-235" name="ln-235" href="#ln-235"></a>
+<a id="ln-236" name="ln-236" href="#ln-236"></a><span class="w">      </span><span class="k">call </span><span class="n">multi_state</span><span class="p">%</span><span class="n">get_state</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">actual_pt</span><span class="p">%</span><span class="n">get_state_intent</span><span class="p">(),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-237" name="ln-237" href="#ln-237"></a>
+<a id="ln-238" name="ln-238" href="#ln-238"></a><span class="w">      </span><span class="n">full_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">actual_pt</span><span class="p">%</span><span class="n">get_full_name</span><span class="p">()</span>
+<a id="ln-239" name="ln-239" href="#ln-239"></a><span class="w">      </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">full_name</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;/&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">back</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.)</span>
+<a id="ln-240" name="ln-240" href="#ln-240"></a><span class="w">      </span><span class="k">call </span><span class="n">get_substate</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">full_name</span><span class="p">(:</span><span class="n">idx</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">substate</span><span class="o">=</span><span class="n">substate</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-241" name="ln-241" href="#ln-241"></a><span class="w">      </span><span class="n">inner_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">full_name</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:)</span>
+<a id="ln-242" name="ln-242" href="#ln-242"></a>
+<a id="ln-243" name="ln-243" href="#ln-243"></a><span class="w">      </span><span class="n">alias</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_NamedAlias</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">payload</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">inner_name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-244" name="ln-244" href="#ln-244"></a>
+<a id="ln-245" name="ln-245" href="#ln-245"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_StateAdd</span><span class="p">(</span><span class="n">substate</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">alias</span><span class="p">],</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-246" name="ln-246" href="#ln-246"></a>
+<a id="ln-247" name="ln-247" href="#ln-247"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-248" name="ln-248" href="#ln-248"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">add_to_state</span>
+<a id="ln-249" name="ln-249" href="#ln-249"></a>
+<a id="ln-250" name="ln-250" href="#ln-250"></a><span class="w">   </span><span class="k">function </span><span class="n">get_payload</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">field_bundle</span><span class="p">)</span>
+<a id="ln-251" name="ln-251" href="#ln-251"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field_bundle</span>
+<a id="ln-252" name="ln-252" href="#ln-252"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">FieldBundleClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-253" name="ln-253" href="#ln-253"></a><span class="w">      </span><span class="n">field_bundle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">payload</span>
+<a id="ln-254" name="ln-254" href="#ln-254"></a><span class="w">   </span><span class="k">end function </span><span class="n">get_payload</span>
+<a id="ln-255" name="ln-255" href="#ln-255"></a>
+<a id="ln-256" name="ln-256" href="#ln-256"></a><span class="w">   </span><span class="k">function </span><span class="n">get_aspect_id</span><span class="p">()</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">aspect_id</span><span class="p">)</span>
+<a id="ln-257" name="ln-257" href="#ln-257"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">AspectId</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">aspect_id</span>
+<a id="ln-258" name="ln-258" href="#ln-258"></a><span class="w">      </span><span class="n">aspect_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CLASS_ASPECT_ID</span>
+<a id="ln-259" name="ln-259" href="#ln-259"></a><span class="w">   </span><span class="k">end function </span><span class="n">get_aspect_id</span>
+<a id="ln-260" name="ln-260" href="#ln-260"></a>
+<a id="ln-261" name="ln-261" href="#ln-261"></a><span class="w">   </span><span class="k">function </span><span class="n">matches_a</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">dst</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span>
+<a id="ln-262" name="ln-262" href="#ln-262"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">matches</span>
+<a id="ln-263" name="ln-263" href="#ln-263"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">FieldBundleClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src</span>
+<a id="ln-264" name="ln-264" href="#ln-264"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dst</span>
+<a id="ln-265" name="ln-265" href="#ln-265"></a>
+<a id="ln-266" name="ln-266" href="#ln-266"></a><span class="w">      </span><span class="n">matches</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-267" name="ln-267" href="#ln-267"></a><span class="w">      </span><span class="k">select type</span><span class="p">(</span><span class="n">dst</span><span class="p">)</span>
+<a id="ln-268" name="ln-268" href="#ln-268"></a><span class="w">      </span><span class="k">class is</span><span class="w"> </span><span class="p">(</span><span class="n">FieldBundleClassAspect</span><span class="p">)</span>
+<a id="ln-269" name="ln-269" href="#ln-269"></a><span class="w">         </span><span class="n">matches</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-270" name="ln-270" href="#ln-270"></a><span class="w">      </span><span class="k">class is</span><span class="w"> </span><span class="p">(</span><span class="n">WildcardClassAspect</span><span class="p">)</span>
+<a id="ln-271" name="ln-271" href="#ln-271"></a><span class="w">         </span><span class="n">matches</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-272" name="ln-272" href="#ln-272"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-273" name="ln-273" href="#ln-273"></a>
+<a id="ln-274" name="ln-274" href="#ln-274"></a><span class="k">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+<a id="ln-275" name="ln-275" href="#ln-275"></a><span class="w">   </span><span class="k">end function </span><span class="n">matches_a</span>
+<a id="ln-276" name="ln-276" href="#ln-276"></a>
+<a id="ln-277" name="ln-277" href="#ln-277"></a><span class="k">end module </span><span class="n">mapl3g_FieldBundleClassAspect</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

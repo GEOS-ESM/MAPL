@@ -1,0 +1,588 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>recurse.F90 &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>recurse.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">43 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/recurse.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">recurse.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#submods-0"
+         aria-expanded="false" aria-controls="submods-0">
+         <h4 class="card-header bg-primary text-white">Submodules</h4>
+      </a>
+      <div id="submods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/recurse_smod.html">recurse_smod</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/recurse.f90.html#src">recurse.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~recurse.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilerecursef90EfferentGraph" width="641pt" height="516pt"
+ viewBox="0.00 0.00 641.00 516.04" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~recurse.f90~~EfferentGraph" class="graph" transform="scale(0.9 0.9) rotate(0) translate(4 570)">
+<title>sourcefile~~recurse.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-570 709,-570 709,4 -4,4"/>
+<!-- sourcefile~recurse.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~recurse.f90</title>
+<polygon fill="none" stroke="black" points="705,-524 630,-524 630,-500 705,-500 705,-524"/>
+<text text-anchor="middle" x="667.5" y="-509.6" font-family="Helvetica,sans-Serif" font-size="10.50">recurse.F90</text>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~recurse.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="571.5,-565 462.5,-565 462.5,-541 571.5,-541 571.5,-565"/>
+<text text-anchor="middle" x="517" y="-550.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~recurse.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~recurse.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M629.79,-522.13C612.24,-526.98 590.89,-532.88 571.56,-538.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="570.38,-534.91 561.68,-540.94 572.25,-541.65 570.38,-534.91"/>
+</g>
+<!-- sourcefile~griddedcomponentdrivermap.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~griddedcomponentdrivermap.f90</title>
+<g id="a_sourcefile~~recurse.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/griddedcomponentdrivermap.f90.html" xlink:title="GriddedComponentDriverMap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="404,-524 208,-524 208,-500 404,-500 404,-524"/>
+<text text-anchor="middle" x="306" y="-509.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedComponentDriverMap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~recurse.f90&#45;&gt;sourcefile~griddedcomponentdrivermap.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~recurse.f90&#45;&gt;sourcefile~griddedcomponentdrivermap.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M629.72,-512C579.47,-512 487.27,-512 414.25,-512"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="414.08,-508.5 404.08,-512 414.08,-515.5 414.08,-508.5"/>
+</g>
+<!-- sourcefile~outermetacomponent.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~outermetacomponent.f90</title>
+<g id="a_sourcefile~~recurse.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/outermetacomponent.f90.html" xlink:title="OuterMetaComponent.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="594,-296 440,-296 440,-272 594,-272 594,-296"/>
+<text text-anchor="middle" x="517" y="-281.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~recurse.f90&#45;&gt;sourcefile~outermetacomponent.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~recurse.f90&#45;&gt;sourcefile~outermetacomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M658.52,-499.74C634.34,-462.62 561.72,-351.13 531.46,-304.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="534.23,-302.51 525.84,-296.04 528.37,-306.33 534.23,-302.51"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_node12" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~recurse.f90~~EfferentGraph_node12"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="356,-566 256,-566 256,-542 356,-542 356,-566"/>
+<text text-anchor="middle" x="306" y="-551.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M462.45,-553.26C433,-553.4 396.41,-553.57 366.12,-553.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="366.1,-550.22 356.12,-553.76 366.13,-557.22 366.1,-550.22"/>
+</g>
+<!-- sourcefile~griddedcomponentdriver.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~griddedcomponentdriver.f90</title>
+<g id="a_sourcefile~~recurse.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/griddedcomponentdriver.f90.html" xlink:title="GriddedComponentDriver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="172,-420 0,-420 0,-396 172,-396 172,-420"/>
+<text text-anchor="middle" x="86" y="-405.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedComponentDriver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~griddedcomponentdrivermap.f90&#45;&gt;sourcefile~griddedcomponentdriver.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~griddedcomponentdrivermap.f90&#45;&gt;sourcefile~griddedcomponentdriver.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M233.8,-499.94C224.94,-497.46 216.15,-494.51 208,-491 170.08,-474.65 131.67,-445.73 108.59,-426.71"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="110.73,-423.93 100.81,-420.19 106.23,-429.3 110.73,-423.93"/>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~griddedcomponentdrivermap.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~griddedcomponentdrivermap.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M513.23,-296.14C504.32,-332.18 472.95,-439.23 404,-491 402.1,-492.43 400.12,-493.76 398.07,-495.01"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="395.95,-492.18 388.75,-499.95 399.23,-498.36 395.95,-492.18"/>
+</g>
+<!-- sourcefile~childspec.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~childspec.f90</title>
+<g id="a_sourcefile~~recurse.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/childspec.f90.html" xlink:title="ChildSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="350,-482 262,-482 262,-458 350,-458 350,-482"/>
+<text text-anchor="middle" x="306" y="-467.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ChildSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~childspec.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~childspec.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M511.44,-296.31C499.26,-327.37 462.82,-409.29 404,-449 391.24,-457.62 375.56,-462.78 360.57,-465.84"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="359.57,-462.46 350.33,-467.65 360.79,-469.36 359.57,-462.46"/>
+</g>
+<!-- sourcefile~componentdrivervector.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~componentdrivervector.f90</title>
+<g id="a_sourcefile~~recurse.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/componentdrivervector.f90.html" xlink:title="ComponentDriverVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="387.5,-440 224.5,-440 224.5,-416 387.5,-416 387.5,-440"/>
+<text text-anchor="middle" x="306" y="-425.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentDriverVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~componentdrivervector.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~componentdrivervector.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M508.75,-296.06C493.05,-321.07 453.3,-378.6 404,-407 400.71,-408.9 397.26,-410.62 393.72,-412.19"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="392.13,-409.05 384.13,-416 394.72,-415.56 392.13,-409.05"/>
+</g>
+<!-- sourcefile~componentspec.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~componentspec.f90</title>
+<g id="a_sourcefile~~recurse.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/componentspec.f90.html" xlink:title="ComponentSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="368,-398 244,-398 244,-374 368,-374 368,-398"/>
+<text text-anchor="middle" x="306" y="-383.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~componentspec.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~componentspec.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M503.01,-296.23C483.23,-314.14 443.66,-347.3 404,-365 395.8,-368.66 386.91,-371.7 377.96,-374.22"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="377.04,-370.84 368.25,-376.76 378.81,-377.62 377.04,-370.84"/>
+</g>
+<!-- sourcefile~esmf_interfaces.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~esmf_interfaces.f90</title>
+<g id="a_sourcefile~~recurse.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/esmf_interfaces.f90.html" xlink:title="ESMF_Interfaces.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="367,-356 245,-356 245,-332 367,-332 367,-356"/>
+<text text-anchor="middle" x="306" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_Interfaces.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~esmf_interfaces.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~esmf_interfaces.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M477.48,-296.04C455.92,-302.69 428.52,-310.99 404,-318 390.91,-321.74 376.78,-325.62 363.46,-329.2"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="362.22,-325.91 353.46,-331.88 364.03,-332.67 362.22,-325.91"/>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~griddedcomponentdriver.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~griddedcomponentdriver.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M439.77,-283.53C375.88,-285.48 283.28,-293.87 208,-323 168.55,-338.26 129.76,-369.09 107.12,-389.12"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="104.62,-386.67 99.54,-395.97 109.31,-391.86 104.62,-386.67"/>
+</g>
+<!-- sourcefile~innermetacomponent.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~innermetacomponent.f90</title>
+<g id="a_sourcefile~~recurse.f90~~EfferentGraph_node10"><a xlink:href="../sourcefile/innermetacomponent.f90.html" xlink:title="InnerMetaComponent.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="381.5,-276 230.5,-276 230.5,-252 381.5,-252 381.5,-276"/>
+<text text-anchor="middle" x="306" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InnerMetaComponent.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~innermetacomponent.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~innermetacomponent.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M439.95,-276.72C424.35,-275.23 407.83,-273.65 391.93,-272.13"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="391.88,-268.61 381.59,-271.14 391.21,-275.57 391.88,-268.61"/>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~recurse.f90~~EfferentGraph_node11"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="368,-234 244,-234 244,-210 368,-210 368,-234"/>
+<text text-anchor="middle" x="306" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M486.42,-271.9C464.05,-263.07 432.44,-251.24 404,-243 395.64,-240.58 386.81,-238.29 378.01,-236.19"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="378.65,-232.75 368.12,-233.89 377.07,-239.56 378.65,-232.75"/>
+</g>
+<!-- sourcefile~methodphasesmap.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_node13" class="node">
+<title>sourcefile~methodphasesmap.f90</title>
+<g id="a_sourcefile~~recurse.f90~~EfferentGraph_node13"><a xlink:href="../sourcefile/methodphasesmap.f90.html" xlink:title="MethodPhasesMap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="373,-192 239,-192 239,-168 373,-168 373,-192"/>
+<text text-anchor="middle" x="306" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MethodPhasesMap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~methodphasesmap.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~methodphasesmap.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M503.39,-271.76C483.8,-253.46 444.12,-219.18 404,-201 397.36,-197.99 390.27,-195.41 383.06,-193.18"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="383.76,-189.74 373.18,-190.37 381.84,-196.48 383.76,-189.74"/>
+</g>
+<!-- sourcefile~pflogger_stub.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_node14" class="node">
+<title>sourcefile~pflogger_stub.f90</title>
+<g id="a_sourcefile~~recurse.f90~~EfferentGraph_node14"><a xlink:href="../sourcefile/pflogger_stub.f90.html" xlink:title="pflogger_stub.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="360,-150 252,-150 252,-126 360,-126 360,-150"/>
+<text text-anchor="middle" x="306" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pflogger_stub.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~pflogger_stub.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~pflogger_stub.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M508.8,-271.74C493.2,-246.32 453.62,-187.86 404,-159 393.64,-152.98 381.76,-148.68 369.94,-145.61"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="370.59,-142.17 360.06,-143.31 369,-148.98 370.59,-142.17"/>
+</g>
+<!-- sourcefile~stateregistry.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_node15" class="node">
+<title>sourcefile~stateregistry.f90</title>
+<g id="a_sourcefile~~recurse.f90~~EfferentGraph_node15"><a xlink:href="../sourcefile/stateregistry.f90.html" xlink:title="StateRegistry.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="358,-108 254,-108 254,-84 358,-84 358,-108"/>
+<text text-anchor="middle" x="306" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~stateregistry.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~stateregistry.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M511.48,-271.54C499.41,-240.11 463.2,-157.21 404,-117 393.37,-109.78 380.71,-104.99 368.09,-101.82"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="368.54,-98.33 358.02,-99.61 367.04,-105.17 368.54,-98.33"/>
+</g>
+<!-- sourcefile~usersetservices.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_node16" class="node">
+<title>sourcefile~usersetservices.f90</title>
+<g id="a_sourcefile~~recurse.f90~~EfferentGraph_node16"><a xlink:href="../sourcefile/usersetservices.f90.html" xlink:title="UserSetServices.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="366.5,-66 245.5,-66 245.5,-42 366.5,-42 366.5,-66"/>
+<text text-anchor="middle" x="306" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UserSetServices.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~usersetservices.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~usersetservices.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M513.26,-271.74C504.47,-235.37 473.36,-127.29 404,-75 395.9,-68.89 386.4,-64.48 376.56,-61.32"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="377.23,-57.87 366.65,-58.54 375.34,-64.61 377.23,-57.87"/>
+</g>
+<!-- sourcefile~verticalgrid.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_node17" class="node">
+<title>sourcefile~verticalgrid.f90</title>
+<g id="a_sourcefile~~recurse.f90~~EfferentGraph_node17"><a xlink:href="../sourcefile/verticalgrid.f90.html" xlink:title="VerticalGrid.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="354.5,-24 257.5,-24 257.5,0 354.5,0 354.5,-24"/>
+<text text-anchor="middle" x="306" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalGrid.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~verticalgrid.f90 -->
+<g id="sourcefile~~recurse.f90~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~verticalgrid.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M514.43,-271.72C508.51,-230.76 483.63,-97.68 404,-33 392.91,-24 378.84,-18.62 364.87,-15.47"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="365.24,-11.98 354.77,-13.55 363.94,-18.85 365.24,-11.98"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilerecursef90EfferentGraph = svgPanZoom('#sourcefilerecursef90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_Generic.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">submodule</span><span class="w"> </span><span class="p">(</span><span class="n">mapl3g_OuterMetaComponent</span><span class="p">)</span><span class="w"> </span><span class="n">recurse_smod</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_GriddedComponentDriverMap</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_ErrorHandling</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="k">contains</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="c">! This procedure is used to recursively invoke a given ESMF phase down</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="c">! the hierarchy.</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">module recursive subroutine </span><span class="n">recurse_</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">phase_idx</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">OuterMetaComponent</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">phase_idx</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GriddedComponentDriverMapIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GriddedComponentDriver</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">      </span><span class="k">associate</span><span class="p">(</span><span class="n">e</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">children</span><span class="p">%</span><span class="n">ftn_end</span><span class="p">())</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">        </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">children</span><span class="p">%</span><span class="n">ftn_begin</span><span class="p">()</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">        </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">e</span><span class="p">)</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">           </span><span class="k">call </span><span class="n">iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">           </span><span class="n">child</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="nb">second</span><span class="p">()</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">           </span><span class="k">call </span><span class="n">child</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">phase_idx</span><span class="o">=</span><span class="n">phase_idx</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">        </span><span class="k">end do</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="k">      end associate</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">recurse_</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">   </span><span class="c">! This procedure is used to recursively invoke write_restart</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">   </span><span class="k">module recursive subroutine </span><span class="n">recurse_write_restart_</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">OuterMetaComponent</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GriddedComponentDriverMapIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GriddedComponentDriver</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="k">associate</span><span class="p">(</span><span class="n">e</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">children</span><span class="p">%</span><span class="n">ftn_end</span><span class="p">())</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">        </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">children</span><span class="p">%</span><span class="n">ftn_begin</span><span class="p">()</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">        </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">e</span><span class="p">)</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">           </span><span class="k">call </span><span class="n">iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">           </span><span class="n">child</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="nb">second</span><span class="p">()</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">           </span><span class="k">call </span><span class="n">child</span><span class="p">%</span><span class="n">write_restart</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">        </span><span class="k">end do</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="k">      end associate</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">recurse_write_restart_</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="k">end submodule </span><span class="n">recurse_smod</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

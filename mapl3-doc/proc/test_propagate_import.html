@@ -1,0 +1,771 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>test_propagate_import &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>test_propagate_import
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">28 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_StateRegistry.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_stateregistry.pf.html'>Test_StateRegistry.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_stateregistry.html'>Test_StateRegistry</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_propagate_import</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/test_propagate_import.html#src">test_propagate_import</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine test_propagate_import()  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+    <em>None</em>
+    <br>
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~test_propagate_import~~CallsGraph Pages: 1 -->
+<svg id="proctest_propagate_importCallsGraph" width="641pt" height="510pt"
+ viewBox="0.00 0.00 641.00 509.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~test_propagate_import~~CallsGraph" class="graph" transform="scale(0.82 0.82) rotate(0) translate(4 616)">
+<title>proc~~test_propagate_import~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-616 776,-616 776,4 -4,4"/>
+<!-- proc~test_propagate_import -->
+<g id="proc~~test_propagate_import~~CallsGraph_node1" class="node">
+<title>proc~test_propagate_import</title>
+<polygon fill="none" stroke="black" points="133,-318 0,-318 0,-294 133,-294 133,-318"/>
+<text text-anchor="middle" x="66.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_propagate_import</text>
+</g>
+<!-- anyexceptions -->
+<g id="proc~~test_propagate_import~~CallsGraph_node2" class="node">
+<title>anyexceptions</title>
+<polygon fill="#777777" stroke="#777777" points="341.5,-570 252.5,-570 252.5,-546 341.5,-546 341.5,-570"/>
+<text text-anchor="middle" x="297" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">anyexceptions</text>
+</g>
+<!-- proc~test_propagate_import&#45;&gt;anyexceptions -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge1" class="edge">
+<title>proc~test_propagate_import&#45;&gt;anyexceptions</title>
+<path fill="none" stroke="#ff0000" d="M68.86,-318.24C73.88,-357.29 95.14,-479.63 169,-537 189.54,-552.95 217.65,-558.74 242.2,-560.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="242.34,-563.82 252.48,-560.74 242.63,-556.82 242.34,-563.82"/>
+</g>
+<!-- assert_that -->
+<g id="proc~~test_propagate_import~~CallsGraph_node3" class="node">
+<title>assert_that</title>
+<polygon fill="#777777" stroke="#777777" points="332.5,-528 261.5,-528 261.5,-504 332.5,-504 332.5,-528"/>
+<text text-anchor="middle" x="297" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assert_that</text>
+</g>
+<!-- proc~test_propagate_import&#45;&gt;assert_that -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge2" class="edge">
+<title>proc~test_propagate_import&#45;&gt;assert_that</title>
+<path fill="none" stroke="#ff0000" d="M70.11,-318.19C78.1,-352.4 105.69,-449.71 169,-495 192.67,-511.93 225.12,-517.07 251.29,-518.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="251.29,-521.53 261.35,-518.22 251.41,-514.54 251.29,-521.53"/>
+</g>
+<!-- false -->
+<g id="proc~~test_propagate_import~~CallsGraph_node4" class="node">
+<title>false</title>
+<polygon fill="#777777" stroke="#777777" points="324,-486 270,-486 270,-462 324,-462 324,-486"/>
+<text text-anchor="middle" x="297" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">false</text>
+</g>
+<!-- proc~test_propagate_import&#45;&gt;false -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge3" class="edge">
+<title>proc~test_propagate_import&#45;&gt;false</title>
+<path fill="none" stroke="#ff0000" d="M72.08,-318.38C83.48,-347.32 116.1,-419.45 169,-453 196.07,-470.17 232.69,-474.69 259.64,-475.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="259.8,-478.85 269.82,-475.43 259.85,-471.85 259.8,-478.85"/>
+</g>
+<!-- none~add_primary_spec -->
+<g id="proc~~test_propagate_import~~CallsGraph_node5" class="node">
+<title>none~add_primary_spec</title>
+<g id="a_proc~~test_propagate_import~~CallsGraph_node5"><a xlink:href="../type/stateregistry.html#boundprocedure-add_primary_spec" xlink:title="StateRegistry%add_primary_spec">
+<polygon fill="#a7506f" stroke="#a7506f" points="392,-444 202,-444 202,-420 392,-420 392,-444"/>
+<text text-anchor="middle" x="297" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry%add_primary_spec</text>
+</a>
+</g>
+</g>
+<!-- proc~test_propagate_import&#45;&gt;none~add_primary_spec -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge4" class="edge">
+<title>proc~test_propagate_import&#45;&gt;none~add_primary_spec</title>
+<path fill="none" stroke="#ff0000" d="M75.28,-318.17C90.35,-340.63 125.89,-388.39 169,-411 176.25,-414.8 184.02,-417.94 192.01,-420.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="191.28,-423.97 201.86,-423.44 193.26,-417.26 191.28,-423.97"/>
+</g>
+<!-- none~add_subregistry -->
+<g id="proc~~test_propagate_import~~CallsGraph_node6" class="node">
+<title>none~add_subregistry</title>
+<g id="a_proc~~test_propagate_import~~CallsGraph_node6"><a xlink:href="../type/stateregistry.html#boundprocedure-add_subregistry" xlink:title="StateRegistry%add_subregistry">
+<polygon fill="#a7506f" stroke="#a7506f" points="385.5,-360 208.5,-360 208.5,-336 385.5,-336 385.5,-360"/>
+<text text-anchor="middle" x="297" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry%add_subregistry</text>
+</a>
+</g>
+</g>
+<!-- proc~test_propagate_import&#45;&gt;none~add_subregistry -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge5" class="edge">
+<title>proc~test_propagate_import&#45;&gt;none~add_subregistry</title>
+<path fill="none" stroke="#ff0000" d="M123.53,-318.01C138.29,-321.06 154.23,-324.25 169,-327 182.26,-329.47 196.33,-331.94 210.08,-334.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="209.58,-337.74 220.03,-335.95 210.75,-330.84 209.58,-337.74"/>
+</g>
+<!-- none~get_extension_family -->
+<g id="proc~~test_propagate_import~~CallsGraph_node7" class="node">
+<title>none~get_extension_family</title>
+<g id="a_proc~~test_propagate_import~~CallsGraph_node7"><a xlink:href="../type/stateregistry.html#boundprocedure-get_extension_family" xlink:title="StateRegistry%get_extension_family">
+<polygon fill="#a7506f" stroke="#a7506f" points="399.5,-402 194.5,-402 194.5,-378 399.5,-378 399.5,-402"/>
+<text text-anchor="middle" x="297" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry%get_extension_family</text>
+</a>
+</g>
+</g>
+<!-- proc~test_propagate_import&#45;&gt;none~get_extension_family -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge6" class="edge">
+<title>proc~test_propagate_import&#45;&gt;none~get_extension_family</title>
+<path fill="none" stroke="#ff0000" d="M82.66,-318.1C101.67,-332.6 135.8,-356.52 169,-369 175.32,-371.38 181.93,-373.49 188.65,-375.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="188.02,-378.81 198.58,-377.93 189.78,-372.03 188.02,-378.81"/>
+</g>
+<!-- none~has_primary -->
+<g id="proc~~test_propagate_import~~CallsGraph_node8" class="node">
+<title>none~has_primary</title>
+<g id="a_proc~~test_propagate_import~~CallsGraph_node8"><a xlink:href="../type/extensionfamily.html#boundprocedure-has_primary" xlink:title="ExtensionFamily%has_primary">
+<polygon fill="#a7506f" stroke="#a7506f" points="384.5,-318 209.5,-318 209.5,-294 384.5,-294 384.5,-318"/>
+<text text-anchor="middle" x="297" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtensionFamily%has_primary</text>
+</a>
+</g>
+</g>
+<!-- proc~test_propagate_import&#45;&gt;none~has_primary -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge7" class="edge">
+<title>proc~test_propagate_import&#45;&gt;none~has_primary</title>
+<path fill="none" stroke="#ff0000" d="M133.29,-306C153.86,-306 177.02,-306 199.27,-306"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="199.41,-309.5 209.41,-306 199.41,-302.5 199.41,-309.5"/>
+</g>
+<!-- none~has_virtual_pt -->
+<g id="proc~~test_propagate_import~~CallsGraph_node9" class="node">
+<title>none~has_virtual_pt</title>
+<g id="a_proc~~test_propagate_import~~CallsGraph_node9"><a xlink:href="../type/stateregistry.html#boundprocedure-has_virtual_pt" xlink:title="StateRegistry%has_virtual_pt">
+<polygon fill="#a7506f" stroke="#a7506f" points="380,-276 214,-276 214,-252 380,-252 380,-276"/>
+<text text-anchor="middle" x="297" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry%has_virtual_pt</text>
+</a>
+</g>
+</g>
+<!-- proc~test_propagate_import&#45;&gt;none~has_virtual_pt -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge8" class="edge">
+<title>proc~test_propagate_import&#45;&gt;none~has_virtual_pt</title>
+<path fill="none" stroke="#ff0000" d="M123.53,-293.99C138.29,-290.94 154.23,-287.75 169,-285 182.26,-282.53 196.33,-280.06 210.08,-277.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="210.75,-281.16 220.03,-276.05 209.58,-274.26 210.75,-281.16"/>
+</g>
+<!-- none~num_owned_items -->
+<g id="proc~~test_propagate_import~~CallsGraph_node10" class="node">
+<title>none~num_owned_items</title>
+<g id="a_proc~~test_propagate_import~~CallsGraph_node10"><a xlink:href="../type/stateregistry.html#boundprocedure-num_owned_items" xlink:title="StateRegistry%num_owned_items">
+<polygon fill="#a7506f" stroke="#a7506f" points="393,-234 201,-234 201,-210 393,-210 393,-234"/>
+<text text-anchor="middle" x="297" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry%num_owned_items</text>
+</a>
+</g>
+</g>
+<!-- proc~test_propagate_import&#45;&gt;none~num_owned_items -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge9" class="edge">
+<title>proc~test_propagate_import&#45;&gt;none~num_owned_items</title>
+<path fill="none" stroke="#ff0000" d="M82.66,-293.9C101.67,-279.4 135.8,-255.48 169,-243 176.13,-240.32 183.62,-237.98 191.24,-235.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="192.09,-239.33 200.94,-233.51 190.39,-232.54 192.09,-239.33"/>
+</g>
+<!-- none~propagate_unsatisfied_imports~3 -->
+<g id="proc~~test_propagate_import~~CallsGraph_node11" class="node">
+<title>none~propagate_unsatisfied_imports~3</title>
+<g id="a_proc~~test_propagate_import~~CallsGraph_node11"><a xlink:href="../type/stateregistry.html#boundprocedure-propagate_unsatisfied_imports~3" xlink:title="StateRegistry%propagate_unsatisfied_imports">
+<polygon fill="#a7506f" stroke="#a7506f" points="425,-192 169,-192 169,-168 425,-168 425,-192"/>
+<text text-anchor="middle" x="297" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry%propagate_unsatisfied_imports</text>
+</a>
+</g>
+</g>
+<!-- proc~test_propagate_import&#45;&gt;none~propagate_unsatisfied_imports~3 -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge10" class="edge">
+<title>proc~test_propagate_import&#45;&gt;none~propagate_unsatisfied_imports~3</title>
+<path fill="none" stroke="#ff0000" d="M75.28,-293.83C90.35,-271.37 125.89,-223.61 169,-201 172.78,-199.01 176.71,-197.21 180.74,-195.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="182.14,-198.78 190.31,-192.02 179.71,-192.22 182.14,-198.78"/>
+</g>
+<!-- proc~mockitemspec -->
+<g id="proc~~test_propagate_import~~CallsGraph_node12" class="node">
+<title>proc~mockitemspec</title>
+<g id="a_proc~~test_propagate_import~~CallsGraph_node12"><a xlink:href="../proc/mockitemspec.html" xlink:title="MockItemSpec">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="342.5,-150 251.5,-150 251.5,-126 342.5,-126 342.5,-150"/>
+<text text-anchor="middle" x="297" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockItemSpec</text>
+</a>
+</g>
+</g>
+<!-- proc~test_propagate_import&#45;&gt;proc~mockitemspec -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge11" class="edge">
+<title>proc~test_propagate_import&#45;&gt;proc~mockitemspec</title>
+<path fill="none" stroke="#ff0000" d="M72.08,-293.62C83.48,-264.68 116.1,-192.55 169,-159 190.21,-145.55 217.27,-139.86 240.95,-137.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="241.49,-141.18 251.22,-136.98 240.99,-134.2 241.49,-141.18"/>
+</g>
+<!-- sourcelocation -->
+<g id="proc~~test_propagate_import~~CallsGraph_node13" class="node">
+<title>sourcelocation</title>
+<polygon fill="#777777" stroke="#777777" points="342.5,-108 251.5,-108 251.5,-84 342.5,-84 342.5,-108"/>
+<text text-anchor="middle" x="297" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sourcelocation</text>
+</g>
+<!-- proc~test_propagate_import&#45;&gt;sourcelocation -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge12" class="edge">
+<title>proc~test_propagate_import&#45;&gt;sourcelocation</title>
+<path fill="none" stroke="#ff0000" d="M70.11,-293.81C78.1,-259.6 105.69,-162.29 169,-117 189.76,-102.15 217.26,-96.37 241.37,-94.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="241.67,-98.01 251.46,-93.96 241.28,-91.03 241.67,-98.01"/>
+</g>
+<!-- true -->
+<g id="proc~~test_propagate_import~~CallsGraph_node14" class="node">
+<title>true</title>
+<polygon fill="#777777" stroke="#777777" points="324,-66 270,-66 270,-42 324,-42 324,-66"/>
+<text text-anchor="middle" x="297" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">true</text>
+</g>
+<!-- proc~test_propagate_import&#45;&gt;true -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge13" class="edge">
+<title>proc~test_propagate_import&#45;&gt;true</title>
+<path fill="none" stroke="#ff0000" d="M68.86,-293.76C73.88,-254.71 95.14,-132.37 169,-75 194.67,-55.07 232.15,-51 259.75,-51.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="259.71,-54.71 269.8,-51.48 259.89,-47.71 259.71,-54.71"/>
+</g>
+<!-- none~add_family -->
+<g id="proc~~test_propagate_import~~CallsGraph_node16" class="node">
+<title>none~add_family</title>
+<g id="a_proc~~test_propagate_import~~CallsGraph_node16"><a xlink:href="../type/stateregistry.html#boundprocedure-add_family" xlink:title="StateRegistry%add_family">
+<polygon fill="#a7506f" stroke="#a7506f" points="692,-612 541,-612 541,-588 692,-588 692,-612"/>
+<text text-anchor="middle" x="616.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry%add_family</text>
+</a>
+</g>
+</g>
+<!-- none~add_primary_spec&#45;&gt;none~add_family -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge14" class="edge">
+<title>none~add_primary_spec&#45;&gt;none~add_family</title>
+<path fill="none" stroke="#9cff00" stroke-dasharray="5,2" d="M392,-435.07C404.13,-438.88 415.58,-444.6 425,-453 468.47,-491.76 416.98,-540.87 461,-579 480.06,-595.51 505.71,-602.79 530.63,-605.36"/>
+<polygon fill="#9cff00" stroke="#9cff00" points="530.62,-608.87 540.87,-606.17 531.18,-601.89 530.62,-608.87"/>
+</g>
+<!-- none~back~52 -->
+<g id="proc~~test_propagate_import~~CallsGraph_node18" class="node">
+<title>none~back~52</title>
+<g id="a_proc~~test_propagate_import~~CallsGraph_node18"><a xlink:href="../type/stateitemextensionvector.html#boundprocedure-back~52" xlink:title="StateItemExtensionVector%back">
+<polygon fill="#a7506f" stroke="#a7506f" points="709,-570 524,-570 524,-546 709,-546 709,-570"/>
+<text text-anchor="middle" x="616.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtensionVector%back</text>
+</a>
+</g>
+</g>
+<!-- none~add_primary_spec&#45;&gt;none~back~52 -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge15" class="edge">
+<title>none~add_primary_spec&#45;&gt;none~back~52</title>
+<path fill="none" stroke="#9cff00" stroke-dasharray="5,2" d="M392.04,-436.48C403.95,-440.12 415.33,-445.42 425,-453 456.97,-478.06 428.68,-512.4 461,-537 476.23,-548.59 494.82,-555.38 513.76,-559.13"/>
+<polygon fill="#9cff00" stroke="#9cff00" points="513.24,-562.59 523.69,-560.83 514.42,-555.7 513.24,-562.59"/>
+</g>
+<!-- none~push_back~45 -->
+<g id="proc~~test_propagate_import~~CallsGraph_node26" class="node">
+<title>none~push_back~45</title>
+<g id="a_proc~~test_propagate_import~~CallsGraph_node26"><a xlink:href="../type/stateitemextensionvector.html#boundprocedure-push_back~45" xlink:title="StateItemExtensionVector%push_back">
+<polygon fill="#a7506f" stroke="#a7506f" points="724.5,-528 508.5,-528 508.5,-504 724.5,-504 724.5,-528"/>
+<text text-anchor="middle" x="616.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtensionVector%push_back</text>
+</a>
+</g>
+</g>
+<!-- none~add_primary_spec&#45;&gt;none~push_back~45 -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge16" class="edge">
+<title>none~add_primary_spec&#45;&gt;none~push_back~45</title>
+<path fill="none" stroke="#9cff00" stroke-dasharray="5,2" d="M392.12,-439.89C403.62,-443.04 414.88,-447.3 425,-453 446.42,-465.07 439.41,-483.24 461,-495 472.56,-501.29 485.29,-505.95 498.35,-509.37"/>
+<polygon fill="#9cff00" stroke="#9cff00" points="497.84,-512.85 508.38,-511.75 499.46,-506.04 497.84,-512.85"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~test_propagate_import~~CallsGraph_node28" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~test_propagate_import~~CallsGraph_node28"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="657.5,-402 575.5,-402 575.5,-378 657.5,-378 657.5,-402"/>
+<text text-anchor="middle" x="616.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- none~add_primary_spec&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge17" class="edge">
+<title>none~add_primary_spec&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#9cff00" stroke-dasharray="5,2" d="M388.98,-419.96C446.34,-412.38 518.24,-402.87 565.45,-396.62"/>
+<polygon fill="#9cff00" stroke="#9cff00" points="565.97,-400.08 575.43,-395.3 565.06,-393.14 565.97,-400.08"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~test_propagate_import~~CallsGraph_node29" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~test_propagate_import~~CallsGraph_node29"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="654.5,-486 578.5,-486 578.5,-462 654.5,-462 654.5,-486"/>
+<text text-anchor="middle" x="616.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- none~add_primary_spec&#45;&gt;proc~mapl_verify -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge18" class="edge">
+<title>none~add_primary_spec&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#9cff00" stroke-dasharray="5,2" d="M388.98,-444.04C447.54,-451.78 521.24,-461.53 568.37,-467.77"/>
+<polygon fill="#9cff00" stroke="#9cff00" points="567.93,-471.24 578.3,-469.08 568.84,-464.3 567.93,-471.24"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~test_propagate_import~~CallsGraph_node15" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~test_propagate_import~~CallsGraph_node15"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="656,-318 577,-318 577,-294 656,-294 656,-318"/>
+<text text-anchor="middle" x="616.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- none~add_subregistry&#45;&gt;interface~mapl_assert -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge19" class="edge">
+<title>none~add_subregistry&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#27ff00" stroke-dasharray="5,2" d="M385.6,-336.41C443.91,-328.7 518.37,-318.85 566.49,-312.48"/>
+<polygon fill="#27ff00" stroke="#27ff00" points="567.19,-315.92 576.64,-311.14 566.27,-308.98 567.19,-315.92"/>
+</g>
+<!-- none~get_name~10 -->
+<g id="proc~~test_propagate_import~~CallsGraph_node20" class="node">
+<title>none~get_name~10</title>
+<g id="a_proc~~test_propagate_import~~CallsGraph_node20"><a xlink:href="../type/stateregistry.html#boundprocedure-get_name~10" xlink:title="StateRegistry%get_name">
+<polygon fill="#a7506f" stroke="#a7506f" points="689.5,-276 543.5,-276 543.5,-252 689.5,-252 689.5,-276"/>
+<text text-anchor="middle" x="616.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry%get_name</text>
+</a>
+</g>
+</g>
+<!-- none~add_subregistry&#45;&gt;none~get_name~10 -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge20" class="edge">
+<title>none~add_subregistry&#45;&gt;none~get_name~10</title>
+<path fill="none" stroke="#27ff00" stroke-dasharray="5,2" d="M385.8,-341.74C399.47,-338.46 413.03,-333.75 425,-327 446.42,-314.93 439.41,-296.76 461,-285 482.83,-273.11 508.89,-267.05 533.32,-264.16"/>
+<polygon fill="#27ff00" stroke="#27ff00" points="533.72,-267.64 543.32,-263.15 533.01,-260.68 533.72,-267.64"/>
+</g>
+<!-- none~has_subregistry -->
+<g id="proc~~test_propagate_import~~CallsGraph_node21" class="node">
+<title>none~has_subregistry</title>
+<g id="a_proc~~test_propagate_import~~CallsGraph_node21"><a xlink:href="../type/stateregistry.html#boundprocedure-has_subregistry" xlink:title="StateRegistry%has_subregistry">
+<polygon fill="#a7506f" stroke="#a7506f" points="704,-234 529,-234 529,-210 704,-210 704,-234"/>
+<text text-anchor="middle" x="616.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry%has_subregistry</text>
+</a>
+</g>
+</g>
+<!-- none~add_subregistry&#45;&gt;none~has_subregistry -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge21" class="edge">
+<title>none~add_subregistry&#45;&gt;none~has_subregistry</title>
+<path fill="none" stroke="#27ff00" stroke-dasharray="5,2" d="M385.5,-345.34C399.75,-341.73 413.57,-335.96 425,-327 456.97,-301.94 428.68,-267.6 461,-243 477.57,-230.39 498.13,-223.46 518.78,-219.94"/>
+<polygon fill="#27ff00" stroke="#27ff00" points="519.52,-223.37 528.91,-218.48 518.52,-216.44 519.52,-223.37"/>
+</g>
+<!-- none~insert~357 -->
+<g id="proc~~test_propagate_import~~CallsGraph_node22" class="node">
+<title>none~insert~357</title>
+<g id="a_proc~~test_propagate_import~~CallsGraph_node22"><a xlink:href="../type/registryptrmap.html#boundprocedure-insert~357" xlink:title="RegistryPtrMap%insert">
+<polygon fill="#a7506f" stroke="#a7506f" points="682.5,-360 550.5,-360 550.5,-336 682.5,-336 682.5,-360"/>
+<text text-anchor="middle" x="616.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegistryPtrMap%insert</text>
+</a>
+</g>
+</g>
+<!-- none~add_subregistry&#45;&gt;none~insert~357 -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge22" class="edge">
+<title>none~add_subregistry&#45;&gt;none~insert~357</title>
+<path fill="none" stroke="#27ff00" stroke-dasharray="5,2" d="M385.6,-348C434.06,-348 493.68,-348 540.06,-348"/>
+<polygon fill="#27ff00" stroke="#27ff00" points="540.35,-351.5 550.34,-348 540.34,-344.5 540.35,-351.5"/>
+</g>
+<!-- none~add_subregistry&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge23" class="edge">
+<title>none~add_subregistry&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#27ff00" stroke-dasharray="5,2" d="M385.6,-359.59C443.4,-367.23 517.06,-376.98 565.22,-383.35"/>
+<polygon fill="#27ff00" stroke="#27ff00" points="565.01,-386.85 575.39,-384.69 565.93,-379.91 565.01,-386.85"/>
+</g>
+<!-- none~at~81 -->
+<g id="proc~~test_propagate_import~~CallsGraph_node17" class="node">
+<title>none~at~81</title>
+<g id="a_proc~~test_propagate_import~~CallsGraph_node17"><a xlink:href="../type/virtualptfamilymap.html#boundprocedure-at~81" xlink:title="VirtualPtFamilyMap%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="683.5,-444 549.5,-444 549.5,-420 683.5,-420 683.5,-444"/>
+<text text-anchor="middle" x="616.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VirtualPtFamilyMap%at</text>
+</a>
+</g>
+</g>
+<!-- none~get_extension_family&#45;&gt;none~at~81 -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge24" class="edge">
+<title>none~get_extension_family&#45;&gt;none~at~81</title>
+<path fill="none" stroke="#00ff4e" stroke-dasharray="5,2" d="M388.98,-402.04C436.6,-408.33 494.23,-415.96 539.44,-421.94"/>
+<polygon fill="#00ff4e" stroke="#00ff4e" points="539.1,-425.42 549.48,-423.27 540.02,-418.48 539.1,-425.42"/>
+</g>
+<!-- none~get_extension_family&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge25" class="edge">
+<title>none~get_extension_family&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff4e" stroke-dasharray="5,2" d="M399.77,-390C455.01,-390 520.88,-390 565.17,-390"/>
+<polygon fill="#00ff4e" stroke="#00ff4e" points="565.39,-393.5 575.39,-390 565.39,-386.5 565.39,-393.5"/>
+</g>
+<!-- none~get_extension_family&#45;&gt;proc~mapl_verify -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge26" class="edge">
+<title>none~get_extension_family&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff4e" stroke-dasharray="5,2" d="M399.71,-400.15C408.54,-403 417.11,-406.56 425,-411 446.42,-423.07 439.41,-441.24 461,-453 493.82,-470.87 536.18,-475.58 568.24,-476.12"/>
+<polygon fill="#00ff4e" stroke="#00ff4e" points="568.24,-479.62 578.26,-476.16 568.27,-472.62 568.24,-479.62"/>
+</g>
+<!-- none~propagate_unsatisfied_imports_virtual_pt -->
+<g id="proc~~test_propagate_import~~CallsGraph_node25" class="node">
+<title>none~propagate_unsatisfied_imports_virtual_pt</title>
+<g id="a_proc~~test_propagate_import~~CallsGraph_node25"><a xlink:href="../type/stateregistry.html#boundprocedure-propagate_unsatisfied_imports_virtual_pt" xlink:title="StateRegistry%propagate_unsatisfied_imports_virtual_pt">
+<polygon fill="#a7506f" stroke="#a7506f" points="772,-192 461,-192 461,-168 772,-168 772,-192"/>
+<text text-anchor="middle" x="616.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry%propagate_unsatisfied_imports_virtual_pt</text>
+</a>
+</g>
+</g>
+<!-- none~propagate_unsatisfied_imports~3&#45;&gt;none~propagate_unsatisfied_imports_virtual_pt -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge27" class="edge">
+<title>none~propagate_unsatisfied_imports~3&#45;&gt;none~propagate_unsatisfied_imports_virtual_pt</title>
+<path fill="none" stroke="#2700ff" stroke-dasharray="5,2" d="M425.31,-180C433.74,-180 442.3,-180 450.88,-180"/>
+<polygon fill="#2700ff" stroke="#2700ff" points="450.95,-183.5 460.95,-180 450.95,-176.5 450.95,-183.5"/>
+</g>
+<!-- none~get_aspects -->
+<g id="proc~~test_propagate_import~~CallsGraph_node19" class="node">
+<title>none~get_aspects</title>
+<g id="a_proc~~test_propagate_import~~CallsGraph_node19"><a xlink:href="../type/stateitemspec.html#boundprocedure-get_aspects" xlink:title="StateItemSpec%get_aspects">
+<polygon fill="#a7506f" stroke="#a7506f" points="698,-108 535,-108 535,-84 698,-84 698,-108"/>
+<text text-anchor="middle" x="616.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemSpec%get_aspects</text>
+</a>
+</g>
+</g>
+<!-- proc~mockitemspec&#45;&gt;none~get_aspects -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge28" class="edge">
+<title>proc~mockitemspec&#45;&gt;none~get_aspects</title>
+<path fill="none" stroke="#9c00ff" d="M342.82,-132.07C389.84,-125.85 465.05,-115.9 524.58,-108.03"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="525.29,-111.46 534.75,-106.68 524.38,-104.52 525.29,-111.46"/>
+</g>
+<!-- none~insert~421 -->
+<g id="proc~~test_propagate_import~~CallsGraph_node23" class="node">
+<title>none~insert~421</title>
+<g id="a_proc~~test_propagate_import~~CallsGraph_node23"><a xlink:href="../type/aspectmap.html#boundprocedure-insert~421" xlink:title="AspectMap%insert">
+<polygon fill="#a7506f" stroke="#a7506f" points="672,-66 561,-66 561,-42 672,-42 672,-66"/>
+<text text-anchor="middle" x="616.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AspectMap%insert</text>
+</a>
+</g>
+</g>
+<!-- proc~mockitemspec&#45;&gt;none~insert~421 -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge29" class="edge">
+<title>proc~mockitemspec&#45;&gt;none~insert~421</title>
+<path fill="none" stroke="#9c00ff" d="M342.51,-138.05C368.08,-136.33 399.98,-131.09 425,-117 446.42,-104.93 439.41,-86.76 461,-75 488.11,-60.24 521.73,-54.46 550.68,-52.59"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="550.9,-56.09 560.71,-52.09 550.55,-49.09 550.9,-56.09"/>
+</g>
+<!-- none~make_stateitemspec -->
+<g id="proc~~test_propagate_import~~CallsGraph_node24" class="node">
+<title>none~make_stateitemspec</title>
+<g id="a_proc~~test_propagate_import~~CallsGraph_node24"><a xlink:href="../type/variablespec.html#boundprocedure-make_stateitemspec" xlink:title="VariableSpec%make_StateItemSpec">
+<polygon fill="#a7506f" stroke="#a7506f" points="719,-24 514,-24 514,0 719,0 719,-24"/>
+<text text-anchor="middle" x="616.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VariableSpec%make_StateItemSpec</text>
+</a>
+</g>
+</g>
+<!-- proc~mockitemspec&#45;&gt;none~make_stateitemspec -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge30" class="edge">
+<title>proc~mockitemspec&#45;&gt;none~make_stateitemspec</title>
+<path fill="none" stroke="#9c00ff" d="M342.79,-140.79C369.24,-140.14 401.96,-135.06 425,-117 456.97,-91.94 428.68,-57.6 461,-33 473.46,-23.52 488.17,-17.25 503.49,-13.23"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="504.66,-16.55 513.62,-10.89 503.09,-9.73 504.66,-16.55"/>
+</g>
+<!-- proc~make_variablespec -->
+<g id="proc~~test_propagate_import~~CallsGraph_node27" class="node">
+<title>proc~make_variablespec</title>
+<g id="a_proc~~test_propagate_import~~CallsGraph_node27"><a xlink:href="../proc/make_variablespec.html" xlink:title="make_VariableSpec">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="675.5,-150 557.5,-150 557.5,-126 675.5,-126 675.5,-150"/>
+<text text-anchor="middle" x="616.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_VariableSpec</text>
+</a>
+</g>
+</g>
+<!-- proc~mockitemspec&#45;&gt;proc~make_variablespec -->
+<g id="proc~~test_propagate_import~~CallsGraph_edge31" class="edge">
+<title>proc~mockitemspec&#45;&gt;proc~make_variablespec</title>
+<path fill="none" stroke="#9c00ff" d="M342.82,-138C396.09,-138 485.54,-138 547.39,-138"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="547.45,-141.5 557.45,-138 547.45,-134.5 547.45,-141.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproctest_propagate_importCallsGraph = svgPanZoom('#proctest_propagate_importCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_propagate_import</span><span class="p">()</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StateRegistry</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">r_child</span><span class="p">,</span><span class="w"> </span><span class="n">r_parent</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">VirtualConnectionPt</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">v_pt</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ExtensionFamily</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">family</span>
+
+<span class="w">      </span><span class="n">r_parent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StateRegistry</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="n">r_child</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StateRegistry</span><span class="p">(</span><span class="s1">&#39;child&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">r_parent</span><span class="p">%</span><span class="n">add_subregistry</span><span class="p">(</span><span class="n">r_child</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">v_pt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">VirtualConnectionPt</span><span class="p">(</span><span class="n">state_intent</span><span class="o">=</span><span class="s1">&#39;import&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;T&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">r_child</span><span class="p">%</span><span class="n">add_primary_spec</span><span class="p">(</span><span class="n">v_pt</span><span class="p">,</span><span class="w"> </span><span class="n">MockItemSpec</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">r_parent</span><span class="p">%</span><span class="n">propagate_unsatisfied_imports</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">r_parent</span><span class="p">%</span><span class="n">num_owned_items</span><span class="p">(),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">r_parent</span><span class="p">%</span><span class="n">has_virtual_pt</span><span class="p">(</span><span class="n">v_pt</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+
+<span class="w">      </span><span class="n">family</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">r_parent</span><span class="p">%</span><span class="n">get_extension_family</span><span class="p">(</span><span class="n">v_pt</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">family</span><span class="p">%</span><span class="n">has_primary</span><span class="p">(),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">false</span><span class="p">()))</span>
+<span class="w">      </span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_propagate_import</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

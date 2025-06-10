@@ -1,0 +1,619 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>test_double_timeStep &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>test_double_timeStep
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">58 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_timestep_propagation.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_timestep_propagation.pf.html'>Test_timestep_propagation.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_timestep_propagation.html'>Test_timestep_propagation</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_double_timeStep</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/test_double_timestep.html#src">test_double_timeStep</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine test_double_timeStep()  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+    <em>None</em>
+    <br>
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~test_double_timestep~~CallsGraph Pages: 1 -->
+<svg id="proctest_double_timestepCallsGraph" width="636pt" height="536pt"
+ viewBox="0.00 0.00 636.00 536.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~test_double_timestep~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 532)">
+<title>proc~~test_double_timestep~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-532 632,-532 632,4 -4,4"/>
+<!-- proc~test_double_timestep -->
+<g id="proc~~test_double_timestep~~CallsGraph_node1" class="node">
+<title>proc~test_double_timestep</title>
+<polygon fill="none" stroke="black" points="127,-276 0,-276 0,-252 127,-252 127,-276"/>
+<text text-anchor="middle" x="63.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_double_timeStep</text>
+</g>
+<!-- ESMF_ClockCreate -->
+<g id="proc~~test_double_timestep~~CallsGraph_node2" class="node">
+<title>ESMF_ClockCreate</title>
+<g id="a_proc~~test_double_timestep~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_clockcreate.html" xlink:title="ESMF_ClockCreate">
+<polygon fill="#a7506f" stroke="#a7506f" points="307.5,-528 196.5,-528 196.5,-504 307.5,-504 307.5,-528"/>
+<text text-anchor="middle" x="252" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ClockCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~test_double_timestep&#45;&gt;ESMF_ClockCreate -->
+<g id="proc~~test_double_timestep~~CallsGraph_edge1" class="edge">
+<title>proc~test_double_timestep&#45;&gt;ESMF_ClockCreate</title>
+<path fill="none" stroke="#ff0000" d="M65.86,-276.02C70.87,-314.4 91.87,-434.96 163,-495 169.8,-500.74 177.91,-504.97 186.4,-508.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="185.52,-511.47 196.11,-511.12 187.62,-504.79 185.52,-511.47"/>
+</g>
+<!-- ESMF_HConfigCreate -->
+<g id="proc~~test_double_timestep~~CallsGraph_node3" class="node">
+<title>ESMF_HConfigCreate</title>
+<g id="a_proc~~test_double_timestep~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_hconfigcreate.html" xlink:title="ESMF_HConfigCreate">
+<polygon fill="#a7506f" stroke="#a7506f" points="314,-486 190,-486 190,-462 314,-462 314,-486"/>
+<text text-anchor="middle" x="252" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_HConfigCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~test_double_timestep&#45;&gt;ESMF_HConfigCreate -->
+<g id="proc~~test_double_timestep~~CallsGraph_edge2" class="edge">
+<title>proc~test_double_timestep&#45;&gt;ESMF_HConfigCreate</title>
+<path fill="none" stroke="#ff0000" d="M67.19,-276.45C75.22,-310.48 102.31,-405.67 163,-453 168.12,-456.99 173.88,-460.24 179.95,-462.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="179.08,-466.3 189.67,-466.57 181.55,-459.76 179.08,-466.3"/>
+</g>
+<!-- ESMF_TimeIntervalSet -->
+<g id="proc~~test_double_timestep~~CallsGraph_node4" class="node">
+<title>ESMF_TimeIntervalSet</title>
+<g id="a_proc~~test_double_timestep~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeintervalset.html" xlink:title="ESMF_TimeIntervalSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="317,-444 187,-444 187,-420 317,-420 317,-444"/>
+<text text-anchor="middle" x="252" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeIntervalSet</text>
+</a>
+</g>
+</g>
+<!-- proc~test_double_timestep&#45;&gt;ESMF_TimeIntervalSet -->
+<g id="proc~~test_double_timestep~~CallsGraph_edge3" class="edge">
+<title>proc~test_double_timestep&#45;&gt;ESMF_TimeIntervalSet</title>
+<path fill="none" stroke="#ff0000" d="M69,-276.14C80.17,-304.53 112.04,-375.59 163,-411 167.32,-414 172.02,-416.58 176.93,-418.79"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="175.97,-422.18 186.56,-422.61 178.55,-415.67 175.97,-422.18"/>
+</g>
+<!-- ESMF_TimeSet -->
+<g id="proc~~test_double_timestep~~CallsGraph_node5" class="node">
+<title>ESMF_TimeSet</title>
+<g id="a_proc~~test_double_timestep~~CallsGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeset.html" xlink:title="ESMF_TimeSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="297,-402 207,-402 207,-378 297,-378 297,-402"/>
+<text text-anchor="middle" x="252" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeSet</text>
+</a>
+</g>
+</g>
+<!-- proc~test_double_timestep&#45;&gt;ESMF_TimeSet -->
+<g id="proc~~test_double_timestep~~CallsGraph_edge4" class="edge">
+<title>proc~test_double_timestep&#45;&gt;ESMF_TimeSet</title>
+<path fill="none" stroke="#ff0000" d="M72.34,-276.24C87.2,-298.38 121.71,-345.04 163,-369 173.19,-374.91 184.97,-379.17 196.52,-382.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="196.04,-385.7 206.58,-384.61 197.66,-378.89 196.04,-385.7"/>
+</g>
+<!-- anyexceptions -->
+<g id="proc~~test_double_timestep~~CallsGraph_node6" class="node">
+<title>anyexceptions</title>
+<polygon fill="#777777" stroke="#777777" points="296.5,-360 207.5,-360 207.5,-336 296.5,-336 296.5,-360"/>
+<text text-anchor="middle" x="252" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">anyexceptions</text>
+</g>
+<!-- proc~test_double_timestep&#45;&gt;anyexceptions -->
+<g id="proc~~test_double_timestep~~CallsGraph_edge5" class="edge">
+<title>proc~test_double_timestep&#45;&gt;anyexceptions</title>
+<path fill="none" stroke="#ff0000" d="M79.96,-276.24C98.61,-290.43 131.42,-313.59 163,-327 173.73,-331.56 185.64,-335.24 197.15,-338.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="196.57,-341.63 207.11,-340.55 198.2,-334.82 196.57,-341.63"/>
+</g>
+<!-- assert_that -->
+<g id="proc~~test_double_timestep~~CallsGraph_node7" class="node">
+<title>assert_that</title>
+<polygon fill="#777777" stroke="#777777" points="287.5,-318 216.5,-318 216.5,-294 287.5,-294 287.5,-318"/>
+<text text-anchor="middle" x="252" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assert_that</text>
+</g>
+<!-- proc~test_double_timestep&#45;&gt;assert_that -->
+<g id="proc~~test_double_timestep~~CallsGraph_edge6" class="edge">
+<title>proc~test_double_timestep&#45;&gt;assert_that</title>
+<path fill="none" stroke="#ff0000" d="M117.94,-276.04C146,-282.35 179.98,-290.01 206.58,-296"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="205.86,-299.42 216.39,-298.21 207.4,-292.59 205.86,-299.42"/>
+</g>
+<!-- esmf_gridcompsetservices -->
+<g id="proc~~test_double_timestep~~CallsGraph_node8" class="node">
+<title>esmf_gridcompsetservices</title>
+<polygon fill="#777777" stroke="#777777" points="329,-276 175,-276 175,-252 329,-252 329,-276"/>
+<text text-anchor="middle" x="252" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_gridcompsetservices</text>
+</g>
+<!-- proc~test_double_timestep&#45;&gt;esmf_gridcompsetservices -->
+<g id="proc~~test_double_timestep~~CallsGraph_edge7" class="edge">
+<title>proc~test_double_timestep&#45;&gt;esmf_gridcompsetservices</title>
+<path fill="none" stroke="#ff0000" d="M127.12,-264C139.23,-264 152.11,-264 164.82,-264"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="164.95,-267.5 174.95,-264 164.95,-260.5 164.95,-267.5"/>
+</g>
+<!-- interface~mapl_gridcompcreate -->
+<g id="proc~~test_double_timestep~~CallsGraph_node9" class="node">
+<title>interface~mapl_gridcompcreate</title>
+<g id="a_proc~~test_double_timestep~~CallsGraph_node9"><a xlink:href="../interface/mapl_gridcompcreate.html" xlink:title="MAPL_GridCompCreate">
+<polygon fill="#a7506f" stroke="#a7506f" points="320,-234 184,-234 184,-210 320,-210 320,-234"/>
+<text text-anchor="middle" x="252" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridCompCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~test_double_timestep&#45;&gt;interface~mapl_gridcompcreate -->
+<g id="proc~~test_double_timestep~~CallsGraph_edge8" class="edge">
+<title>proc~test_double_timestep&#45;&gt;interface~mapl_gridcompcreate</title>
+<path fill="none" stroke="#ff0000" d="M117.94,-251.96C139.7,-247.07 165.01,-241.37 187.68,-236.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="188.56,-239.65 197.55,-234.04 187.02,-232.82 188.56,-239.65"/>
+</g>
+<!-- interface~user_setservices -->
+<g id="proc~~test_double_timestep~~CallsGraph_node10" class="node">
+<title>interface~user_setservices</title>
+<g id="a_proc~~test_double_timestep~~CallsGraph_node10"><a xlink:href="../interface/user_setservices.html" xlink:title="user_setservices">
+<polygon fill="#a7506f" stroke="#a7506f" points="302,-192 202,-192 202,-168 302,-168 302,-192"/>
+<text text-anchor="middle" x="252" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">user_setservices</text>
+</a>
+</g>
+</g>
+<!-- proc~test_double_timestep&#45;&gt;interface~user_setservices -->
+<g id="proc~~test_double_timestep~~CallsGraph_edge9" class="edge">
+<title>proc~test_double_timestep&#45;&gt;interface~user_setservices</title>
+<path fill="none" stroke="#ff0000" d="M79.96,-251.76C98.61,-237.57 131.42,-214.41 163,-201 172.11,-197.13 182.06,-193.9 191.9,-191.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="192.83,-194.59 201.65,-188.72 191.1,-187.81 192.83,-194.59"/>
+</g>
+<!-- none~run~3 -->
+<g id="proc~~test_double_timestep~~CallsGraph_node11" class="node">
+<title>none~run~3</title>
+<g id="a_proc~~test_double_timestep~~CallsGraph_node11"><a xlink:href="../type/griddedcomponentdriver.html#boundprocedure-run~3" xlink:title="GriddedComponentDriver%run">
+<polygon fill="#a7506f" stroke="#a7506f" points="341,-150 163,-150 163,-126 341,-126 341,-150"/>
+<text text-anchor="middle" x="252" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedComponentDriver%run</text>
+</a>
+</g>
+</g>
+<!-- proc~test_double_timestep&#45;&gt;none~run~3 -->
+<g id="proc~~test_double_timestep~~CallsGraph_edge10" class="edge">
+<title>proc~test_double_timestep&#45;&gt;none~run~3</title>
+<path fill="none" stroke="#ff0000" d="M72.34,-251.76C87.2,-229.62 121.71,-182.96 163,-159 166.25,-157.12 169.66,-155.4 173.17,-153.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="174.67,-157.01 182.66,-150.05 172.08,-150.51 174.67,-157.01"/>
+</g>
+<!-- proc~initialize_phases -->
+<g id="proc~~test_double_timestep~~CallsGraph_node12" class="node">
+<title>proc~initialize_phases</title>
+<g id="a_proc~~test_double_timestep~~CallsGraph_node12"><a xlink:href="../proc/initialize_phases.html" xlink:title="initialize_phases">
+<polygon fill="#d9534f" stroke="#d9534f" points="302,-108 202,-108 202,-84 302,-84 302,-108"/>
+<text text-anchor="middle" x="252" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_phases</text>
+</a>
+</g>
+</g>
+<!-- proc~test_double_timestep&#45;&gt;proc~initialize_phases -->
+<g id="proc~~test_double_timestep~~CallsGraph_edge11" class="edge">
+<title>proc~test_double_timestep&#45;&gt;proc~initialize_phases</title>
+<path fill="none" stroke="#ff0000" d="M69,-251.86C80.17,-223.47 112.04,-152.41 163,-117 171.6,-111.02 181.69,-106.73 191.91,-103.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="192.94,-107.01 201.71,-101.07 191.15,-100.24 192.94,-107.01"/>
+</g>
+<!-- sourcelocation -->
+<g id="proc~~test_double_timestep~~CallsGraph_node13" class="node">
+<title>sourcelocation</title>
+<polygon fill="#777777" stroke="#777777" points="297.5,-66 206.5,-66 206.5,-42 297.5,-42 297.5,-66"/>
+<text text-anchor="middle" x="252" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sourcelocation</text>
+</g>
+<!-- proc~test_double_timestep&#45;&gt;sourcelocation -->
+<g id="proc~~test_double_timestep~~CallsGraph_edge12" class="edge">
+<title>proc~test_double_timestep&#45;&gt;sourcelocation</title>
+<path fill="none" stroke="#ff0000" d="M67.19,-251.55C75.22,-217.52 102.31,-122.33 163,-75 172.58,-67.53 184.4,-62.66 196.24,-59.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="197.18,-62.87 206.14,-57.22 195.61,-56.05 197.18,-62.87"/>
+</g>
+<!-- true -->
+<g id="proc~~test_double_timestep~~CallsGraph_node14" class="node">
+<title>true</title>
+<polygon fill="#777777" stroke="#777777" points="279,-24 225,-24 225,0 279,0 279,-24"/>
+<text text-anchor="middle" x="252" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">true</text>
+</g>
+<!-- proc~test_double_timestep&#45;&gt;true -->
+<g id="proc~~test_double_timestep~~CallsGraph_edge13" class="edge">
+<title>proc~test_double_timestep&#45;&gt;true</title>
+<path fill="none" stroke="#ff0000" d="M65.86,-251.98C70.87,-213.6 91.87,-93.04 163,-33 177.21,-21 197.11,-15.61 214.39,-13.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="215.15,-16.72 224.73,-12.2 214.42,-9.76 215.15,-16.72"/>
+</g>
+<!-- initialize -->
+<g id="proc~~test_double_timestep~~CallsGraph_node15" class="node">
+<title>initialize</title>
+<polygon fill="#777777" stroke="#777777" points="446.5,-150 389.5,-150 389.5,-126 446.5,-126 446.5,-150"/>
+<text text-anchor="middle" x="418" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</g>
+<!-- proc~initialize_phases&#45;&gt;initialize -->
+<g id="proc~~test_double_timestep~~CallsGraph_edge14" class="edge">
+<title>proc~initialize_phases&#45;&gt;initialize</title>
+<path fill="none" stroke="#9c00ff" d="M302.41,-107.47C315.02,-110.48 328.53,-113.79 341,-117 353.53,-120.23 367.17,-123.93 379.39,-127.33"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="378.7,-130.76 389.27,-130.08 380.58,-124.02 378.7,-130.76"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~test_double_timestep~~CallsGraph_node16" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~test_double_timestep~~CallsGraph_node16"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="459,-108 377,-108 377,-84 459,-84 459,-108"/>
+<text text-anchor="middle" x="418" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_phases&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_double_timestep~~CallsGraph_edge15" class="edge">
+<title>proc~initialize_phases&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#9c00ff" d="M302.21,-96C322.63,-96 346.3,-96 366.82,-96"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="366.92,-99.5 376.92,-96 366.92,-92.5 366.92,-99.5"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~test_double_timestep~~CallsGraph_node17" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~test_double_timestep~~CallsGraph_node17"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="456,-66 380,-66 380,-42 456,-42 456,-66"/>
+<text text-anchor="middle" x="418" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_phases&#45;&gt;proc~mapl_verify -->
+<g id="proc~~test_double_timestep~~CallsGraph_edge16" class="edge">
+<title>proc~initialize_phases&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#9c00ff" d="M302.41,-84.53C315.02,-81.52 328.53,-78.21 341,-75 350.45,-72.57 360.52,-69.86 370.14,-67.23"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="371.25,-70.55 379.96,-64.52 369.39,-63.8 371.25,-70.55"/>
+</g>
+<!-- at -->
+<g id="proc~~test_double_timestep~~CallsGraph_node18" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="588.5,-150 534.5,-150 534.5,-126 588.5,-126 588.5,-150"/>
+<text text-anchor="middle" x="561.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~test_double_timestep~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#00ff00" d="M459.17,-107.92C479.72,-114.02 504.53,-121.39 524.46,-127.3"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="523.51,-130.67 534.1,-130.16 525.51,-123.96 523.51,-130.67"/>
+</g>
+<!-- insert -->
+<g id="proc~~test_double_timestep~~CallsGraph_node19" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="588.5,-108 534.5,-108 534.5,-84 588.5,-84 588.5,-108"/>
+<text text-anchor="middle" x="561.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~test_double_timestep~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#00ff00" d="M459.17,-96C479.53,-96 504.08,-96 523.91,-96"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="524.1,-99.5 534.1,-96 524.1,-92.5 524.1,-99.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~test_double_timestep~~CallsGraph_node20" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~test_double_timestep~~CallsGraph_node20"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="628,-66 495,-66 495,-42 628,-42 628,-66"/>
+<text text-anchor="middle" x="561.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~test_double_timestep~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff00" d="M459.17,-84.08C475.02,-79.37 493.4,-73.92 510.12,-68.95"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="511.15,-72.3 519.74,-66.1 509.16,-65.59 511.15,-72.3"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~test_double_timestep~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0000ff" d="M456.18,-54C464.99,-54 474.71,-54 484.56,-54"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="484.84,-57.5 494.84,-54 484.84,-50.5 484.84,-57.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_double_timeStep</span><span class="p">()</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">t0</span><span class="p">,</span><span class="w"> </span><span class="n">t1</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">timeStep</span><span class="p">,</span><span class="w"> </span><span class="n">expected_timeStep</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">user_status</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cap_hconfig</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cap_gridcomp</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GriddedComponentDriver</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">driver</span>
+<span class="w">      </span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span><span class="w"> </span><span class="n">timeString</span><span class="o">=</span><span class="s2">&quot;2000-04-03T21:00:00&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span><span class="w"> </span><span class="n">timeString</span><span class="o">=</span><span class="s2">&quot;2000-04-03T22:00:00&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">timestep</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="mi">1800</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">clock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_ClockCreate</span><span class="p">(</span><span class="n">timeStep</span><span class="o">=</span><span class="n">timeStep</span><span class="p">,</span><span class="w"> </span><span class="n">startTime</span><span class="o">=</span><span class="n">t0</span><span class="p">,</span><span class="w"> </span><span class="n">stoptime</span><span class="o">=</span><span class="n">t1</span><span class="p">,</span><span class="w"> </span><span class="n">refTime</span><span class="o">=</span><span class="n">t0</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">cap_hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;{use_default_timestep: true, use_default_runTime: true}&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">cap_gridcomp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_GridCompCreate</span><span class="p">(</span><span class="s1">&#39;CAP&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">user_setservices</span><span class="p">(</span><span class="n">parent_ss</span><span class="p">),</span><span class="w"> </span><span class="n">cap_hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridCompSetServices</span><span class="p">(</span><span class="n">cap_gridcomp</span><span class="p">,</span><span class="w"> </span><span class="n">generic_setservices</span><span class="p">,</span><span class="w"> </span><span class="n">userRC</span><span class="o">=</span><span class="n">user_status</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">driver</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GriddedComponentDriver</span><span class="p">(</span><span class="n">cap_gridcomp</span><span class="p">,</span><span class="w"> </span><span class="n">MultiState</span><span class="p">(),</span><span class="w"> </span><span class="n">clock</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">initialize_phases</span><span class="p">(</span><span class="n">driver</span><span class="p">,</span><span class="w"> </span><span class="n">phases</span><span class="o">=</span><span class="n">GENERIC_INIT_PHASE_SEQUENCE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">driver</span><span class="p">%</span><span class="n">run</span><span class="p">(</span><span class="n">phase_idx</span><span class="o">=</span><span class="n">GENERIC_RUN_USER</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">driver</span><span class="p">%</span><span class="n">run</span><span class="p">(</span><span class="n">phase_idx</span><span class="o">=</span><span class="n">GENERIC_RUN_CLOCK_ADVANCE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">expected_timeStep</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="mi">1800</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">child_timestep</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected_timestep</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<span class="w">      </span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_double_timeStep</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,1465 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>WildcardClassAspect.F90 &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>WildcardClassAspect.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for source files.">198 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/WildcardClassAspect.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">WildcardClassAspect.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_wildcardclassaspect.html">mapl3g_WildcardClassAspect</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/wildcardclassaspect.f90.html#src">WildcardClassAspect.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~wildcardclassaspect.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilewildcardclassaspectf90EfferentGraph" width="641pt" height="558pt"
+ viewBox="0.00 0.00 641.00 558.43" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph" class="graph" transform="scale(0.54 0.54) rotate(0) translate(4 1034.46)">
+<title>sourcefile~~wildcardclassaspect.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-1034.46 1188,-1034.46 1188,4 -4,4"/>
+<!-- sourcefile~wildcardclassaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~wildcardclassaspect.f90</title>
+<polygon fill="none" stroke="black" points="1184,-408.6 1038,-408.6 1038,-384.6 1184,-384.6 1184,-408.6"/>
+<text text-anchor="middle" x="1111" y="-394.2" font-family="Helvetica,sans-Serif" font-size="10.50">WildcardClassAspect.F90</text>
+</g>
+<!-- sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~actualconnectionpt.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/actualconnectionpt.f90.html" xlink:title="ActualConnectionPt.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="451.5,-66.6 312.5,-66.6 312.5,-42.6 451.5,-42.6 451.5,-66.6"/>
+<text text-anchor="middle" x="382" y="-52.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ActualConnectionPt.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~actualconnectionpt.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M573,-36.6C536.52,-36.41 496.27,-39.71 462.24,-43.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="461.42,-40.11 451.89,-44.74 462.23,-47.06 461.42,-40.11"/>
+</g>
+<!-- sourcefile~aspectid.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~aspectid.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/aspectid.f90.html" xlink:title="AspectId.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="246.5,-408.6 165.5,-408.6 165.5,-384.6 246.5,-384.6 246.5,-408.6"/>
+<text text-anchor="middle" x="206" y="-394.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AspectId.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~aspectid.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~aspectid.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M757,-928.6C706.12,-930.8 708.93,-975.49 660,-989.6 510.72,-1032.63 421.86,-1066.45 312,-956.6 234.2,-878.8 212.33,-513.35 207.93,-418.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="211.42,-418.61 207.48,-408.78 204.43,-418.92 211.42,-418.61"/>
+</g>
+<!-- sourcefile~classaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~classaspect.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/classaspect.f90.html" xlink:title="ClassAspect.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="623.5,-244.6 524.5,-244.6 524.5,-220.6 623.5,-220.6 623.5,-244.6"/>
+<text text-anchor="middle" x="574" y="-230.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ClassAspect.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~classaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~classaspect.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M757,-171.6C728.65,-173.13 721.99,-179.15 696,-190.6 679.05,-198.06 677.17,-204.64 660,-211.6 651.62,-214.99 642.55,-217.95 633.55,-220.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="632.62,-217.1 623.86,-223.06 634.42,-223.87 632.62,-217.1"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="260.5,-306.6 151.5,-306.6 151.5,-282.6 260.5,-282.6 260.5,-306.6"/>
+<text text-anchor="middle" x="206" y="-292.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1104.35,-384.57C1085.67,-346.23 1021.78,-226.22 930,-171.6"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M928,-171.6C875.04,-140.07 875.67,-111.06 820,-84.6 719.79,-36.96 685.96,-37.17 575,-36.6"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M573,-36.6C457.35,-27.55 402.94,38.43 312,-33.6 257.24,-76.97 303.19,-122.25 276,-186.6 262.13,-219.41 238.62,-253.43 222.95,-274.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="220.05,-272.34 216.77,-282.41 225.62,-276.58 220.05,-272.34"/>
+</g>
+<!-- sourcefile~extensiontransform.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~extensiontransform.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/extensiontransform.f90.html" xlink:title="ExtensionTransform.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="452,-904.6 312,-904.6 312,-880.6 452,-880.6 452,-904.6"/>
+<text text-anchor="middle" x="382" y="-890.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtensionTransform.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~extensiontransform.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~extensiontransform.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M757,-928.6C676.19,-932.1 652.96,-907.04 575,-928.6"/>
+</g>
+<!-- sourcefile~fieldclassaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~fieldclassaspect.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/fieldclassaspect.f90.html" xlink:title="FieldClassAspect.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="820,-614.6 696,-614.6 696,-590.6 820,-590.6 820,-614.6"/>
+<text text-anchor="middle" x="758" y="-600.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldClassAspect.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~fieldclassaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~fieldclassaspect.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1108.45,-409.04C1098.43,-486.63 1039.87,-901.73 930,-928.6"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M928,-928.6C793.43,-961.51 765.55,-703.63 760.19,-624.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="763.67,-624.45 759.56,-614.68 756.68,-624.88 763.67,-624.45"/>
+</g>
+<!-- sourcefile~fieldclassaspectmap.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~fieldclassaspectmap.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/fieldclassaspectmap.f90.html" xlink:title="FieldClassAspectMap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1002,-408.6 856,-408.6 856,-384.6 1002,-384.6 1002,-408.6"/>
+<text text-anchor="middle" x="929" y="-394.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldClassAspectMap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~fieldclassaspectmap.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~fieldclassaspectmap.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1037.82,-396.6C1029.48,-396.6 1020.92,-396.6 1012.46,-396.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1012.19,-393.1 1002.19,-396.6 1012.19,-400.1 1012.19,-393.1"/>
+</g>
+<!-- sourcefile~multistate.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~multistate.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/multistate.f90.html" xlink:title="MultiState.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="426,-248.6 338,-248.6 338,-224.6 426,-224.6 426,-248.6"/>
+<text text-anchor="middle" x="382" y="-234.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiState.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~multistate.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~multistate.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M928,-171.6C863.46,-133.18 834,-167.53 759,-171.6"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M757,-171.6C675.69,-176 656.01,-142.39 575,-150.6"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M573,-150.6C534.49,-154.5 523.75,-154.74 488,-169.6 457.77,-182.16 426.58,-203.29 406.13,-218.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="403.93,-215.74 398.06,-224.56 408.15,-221.33 403.93,-215.74"/>
+</g>
+<!-- sourcefile~nulltransform.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~nulltransform.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node10"><a xlink:href="../sourcefile/nulltransform.f90.html" xlink:title="NullTransform.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="628.5,-980.6 519.5,-980.6 519.5,-956.6 628.5,-956.6 628.5,-980.6"/>
+<text text-anchor="middle" x="574" y="-966.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NullTransform.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~nulltransform.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~nulltransform.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M757,-928.6C710.64,-931.17 659.07,-943.43 622.69,-953.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="621.49,-950.41 612.85,-956.54 623.43,-957.13 621.49,-950.41"/>
+</g>
+<!-- sourcefile~stateitemaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~stateitemaspect.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node11"><a xlink:href="../sourcefile/stateitemaspect.f90.html" xlink:title="StateItemAspect.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="443.5,-408.6 320.5,-408.6 320.5,-384.6 443.5,-384.6 443.5,-408.6"/>
+<text text-anchor="middle" x="382" y="-394.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemAspect.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~stateitemaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~stateitemaspect.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M928,-928.6C855.04,-946.44 834,-924.43 759,-928.6"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M757,-928.6C693.7,-932.11 530.44,-880.69 488,-833.6 431.12,-770.49 395.03,-498.55 385.52,-418.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="389,-418.29 384.36,-408.76 382.04,-419.1 389,-418.29"/>
+</g>
+<!-- sourcefile~stateitemspec.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node12" class="node">
+<title>sourcefile~stateitemspec.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node12"><a xlink:href="../sourcefile/stateitemspec.f90.html" xlink:title="StateItemSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="814.5,-223.6 701.5,-223.6 701.5,-199.6 814.5,-199.6 814.5,-223.6"/>
+<text text-anchor="middle" x="758" y="-209.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~stateitemspec.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~wildcardclassaspect.f90&#45;&gt;sourcefile~stateitemspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M928,-171.6C906.31,-158.68 840.68,-179.78 797.88,-195.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="796.41,-192.73 788.33,-199.58 798.92,-199.27 796.41,-192.73"/>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node19" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node19"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="268,-177.6 144,-177.6 144,-153.6 268,-153.6 268,-177.6"/>
+<text text-anchor="middle" x="206" y="-163.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M362.05,-66.69C331.19,-86.37 269.98,-125.42 234.39,-148.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="232.48,-145.19 225.93,-153.52 236.24,-151.09 232.48,-145.19"/>
+</g>
+<!-- sourcefile~virtualconnectionpt.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node29" class="node">
+<title>sourcefile~virtualconnectionpt.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node29"><a xlink:href="../sourcefile/virtualconnectionpt.f90.html" xlink:title="VirtualConnectionPt.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="276,-66.6 136,-66.6 136,-42.6 276,-42.6 276,-66.6"/>
+<text text-anchor="middle" x="206" y="-52.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VirtualConnectionPt.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~virtualconnectionpt.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~virtualconnectionpt.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M312.23,-54.6C303.7,-54.6 294.92,-54.6 286.24,-54.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="286.12,-51.1 276.12,-54.6 286.12,-58.1 286.12,-51.1"/>
+</g>
+<!-- sourcefile~classaspect.f90&#45;&gt;sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~classaspect.f90&#45;&gt;sourcefile~actualconnectionpt.f90</title>
+<path fill="none" stroke="#e7ff00" stroke-dasharray="5,2" d="M524.49,-227.05C511.81,-223.94 498.7,-219.1 488,-211.6 438.37,-176.78 405.66,-110.37 391.32,-76.16"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="394.46,-74.59 387.46,-66.64 387.98,-77.22 394.46,-74.59"/>
+</g>
+<!-- sourcefile~classaspect.f90&#45;&gt;sourcefile~aspectid.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~classaspect.f90&#45;&gt;sourcefile~aspectid.f90</title>
+<path fill="none" stroke="#e7ff00" stroke-dasharray="5,2" d="M381,-276.6C349.98,-286.17 336.77,-279.6 312,-300.6 286.51,-322.2 300.66,-344.05 276,-366.6 270.1,-371.99 263.09,-376.52 255.82,-380.29"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="254.09,-377.23 246.55,-384.66 257.08,-383.56 254.09,-377.23"/>
+</g>
+<!-- sourcefile~classaspect.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~classaspect.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#e7ff00" stroke-dasharray="5,2" d="M524.47,-241.83C485.77,-249.67 430.4,-261.96 383,-276.6"/>
+<path fill="none" stroke="#e7ff00" stroke-dasharray="5,2" d="M381,-276.6C345.5,-287.56 304.19,-292.15 270.73,-293.96"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="270.44,-290.47 260.62,-294.44 270.77,-297.47 270.44,-290.47"/>
+</g>
+<!-- sourcefile~classaspect.f90&#45;&gt;sourcefile~multistate.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~classaspect.f90&#45;&gt;sourcefile~multistate.f90</title>
+<path fill="none" stroke="#e7ff00" stroke-dasharray="5,2" d="M524.07,-233.63C497.26,-234.19 463.99,-234.89 436.49,-235.47"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="436.18,-231.98 426.26,-235.69 436.33,-238.97 436.18,-231.98"/>
+</g>
+<!-- sourcefile~classaspect.f90&#45;&gt;sourcefile~stateitemaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~classaspect.f90&#45;&gt;sourcefile~stateitemaspect.f90</title>
+<path fill="none" stroke="#e7ff00" stroke-dasharray="5,2" d="M524.29,-241.86C511.75,-245.71 498.76,-251.1 488,-258.6 443.65,-289.5 409.86,-344.95 393.63,-375.3"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="390.5,-373.73 388.99,-384.21 396.71,-376.96 390.5,-373.73"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node20" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node20"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="100,-306.6 0,-306.6 0,-282.6 100,-282.6 100,-306.6"/>
+<text text-anchor="middle" x="50" y="-292.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M151.14,-294.6C137.94,-294.6 123.73,-294.6 110.29,-294.6"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="110.19,-291.1 100.19,-294.6 110.19,-298.1 110.19,-291.1"/>
+</g>
+<!-- sourcefile~extensiontransform.f90&#45;&gt;sourcefile~aspectid.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~extensiontransform.f90&#45;&gt;sourcefile~aspectid.f90</title>
+<path fill="none" stroke="#00ff2e" stroke-dasharray="5,2" d="M330.8,-880.58C323.72,-877.05 317.12,-872.49 312,-866.6 251.99,-797.49 217.83,-502.83 209.19,-418.95"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="212.65,-418.36 208.16,-408.77 205.69,-419.07 212.65,-418.36"/>
+</g>
+<!-- sourcefile~extensiontransform.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~extensiontransform.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00ff2e" stroke-dasharray="5,2" d="M379.46,-880.52C369.39,-802.41 312.31,-370.27 276,-324.6 271.95,-319.5 266.85,-315.25 261.28,-311.71"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="262.65,-308.47 252.2,-306.71 259.28,-314.6 262.65,-308.47"/>
+</g>
+<!-- sourcefile~transformid.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node21" class="node">
+<title>sourcefile~transformid.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node21"><a xlink:href="../sourcefile/transformid.f90.html" xlink:title="TransformId.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="255,-981.6 157,-981.6 157,-957.6 255,-957.6 255,-981.6"/>
+<text text-anchor="middle" x="206" y="-967.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">TransformId.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extensiontransform.f90&#45;&gt;sourcefile~transformid.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~extensiontransform.f90&#45;&gt;sourcefile~transformid.f90</title>
+<path fill="none" stroke="#00ff2e" stroke-dasharray="5,2" d="M353.81,-904.63C324.15,-917.75 276.5,-938.84 243.57,-953.41"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="242.01,-950.28 234.28,-957.52 244.84,-956.68 242.01,-950.28"/>
+</g>
+<!-- sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~actualconnectionpt.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M752.66,-590.41C741.84,-561.91 710.85,-490.66 660,-455.6 628.13,-433.62 605.03,-461.02 575,-436.6"/>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M573,-436.6C542.97,-412.17 514.77,-445.56 488,-417.6 424.94,-351.72 478.13,-302.96 452,-215.6 436.5,-163.77 409.22,-106.23 394.02,-75.94"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="397.01,-74.09 389.36,-66.76 390.77,-77.26 397.01,-74.09"/>
+</g>
+<!-- sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~aspectid.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~aspectid.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M756.31,-614.77C753.29,-654.68 737.7,-781.95 660,-833.6 596.34,-875.91 555.1,-870.22 488,-833.6 317.08,-740.3 234.6,-493.59 212.95,-418.55"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="216.27,-417.44 210.19,-408.77 209.53,-419.34 216.27,-417.44"/>
+</g>
+<!-- sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~classaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~classaspect.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M757.43,-590.56C758.51,-541.77 755.89,-356.62 660,-258.6 652.64,-251.07 643.17,-245.71 633.23,-241.9"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="634.21,-238.53 623.62,-238.69 632,-245.17 634.21,-238.53"/>
+</g>
+<!-- sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M573,-436.6C543.09,-412.02 521.18,-437.53 488,-417.6 466.93,-404.93 472.42,-389.29 452,-375.6 396.6,-338.44 322.76,-317.11 270.67,-305.76"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="271.39,-302.33 260.88,-303.68 269.94,-309.18 271.39,-302.33"/>
+</g>
+<!-- sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~extensiontransform.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~extensiontransform.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M755.74,-614.79C749.33,-669.33 714.94,-889.9 575,-928.6"/>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M573,-928.6C519.68,-943.34 456.28,-924.19 417.87,-908.67"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="418.78,-905.25 408.2,-904.62 416.07,-911.71 418.78,-905.25"/>
+</g>
+<!-- sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~multistate.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge34" class="edge">
+<title>sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~multistate.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M573,-436.6C542.97,-412.17 515.49,-444.85 488,-417.6 437.78,-367.8 498.6,-315.8 452,-262.6 447.41,-257.36 441.65,-253.17 435.43,-249.82"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="436.62,-246.51 426.07,-245.5 433.68,-252.87 436.62,-246.51"/>
+</g>
+<!-- sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~nulltransform.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge35" class="edge">
+<title>sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~nulltransform.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M757.39,-614.82C758.25,-663.56 754.8,-845.99 660,-942.6 653.94,-948.77 646.46,-953.49 638.47,-957.09"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="636.95,-953.93 628.91,-960.83 639.5,-960.45 636.95,-953.93"/>
+</g>
+<!-- sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~stateitemaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge36" class="edge">
+<title>sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~stateitemaspect.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M573,-436.6C570.56,-434.61 506.48,-421.37 453.41,-410.65"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="453.8,-407.16 443.3,-408.61 452.41,-414.02 453.8,-407.16"/>
+</g>
+<!-- sourcefile~api.f90~3 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node13" class="node">
+<title>sourcefile~api.f90~3</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node13"><a xlink:href="../sourcefile/api.f90~3.html" xlink:title="API.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="601,-740.6 547,-740.6 547,-716.6 601,-716.6 601,-740.6"/>
+<text text-anchor="middle" x="574" y="-726.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">API.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~api.f90~3 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~api.f90~3</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M749.31,-614.8C734.72,-636.9 700.81,-683.49 660,-707.6 645.18,-716.35 626.85,-721.47 611.01,-724.45"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="610.3,-721.02 601.02,-726.12 611.46,-727.93 610.3,-721.02"/>
+</g>
+<!-- sourcefile~esmf_utilities.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node14" class="node">
+<title>sourcefile~esmf_utilities.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node14"><a xlink:href="../sourcefile/esmf_utilities.f90.html" xlink:title="ESMF_Utilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="260,-357.6 152,-357.6 152,-333.6 260,-333.6 260,-357.6"/>
+<text text-anchor="middle" x="206" y="-343.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_Utilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~esmf_utilities.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~esmf_utilities.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M573,-436.6C527.88,-399.91 363.92,-443.8 312,-417.6 290.05,-406.52 295.78,-390.2 276,-375.6 268.82,-370.3 260.57,-365.69 252.31,-361.78"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="253.62,-358.53 243.06,-357.67 250.77,-364.93 253.62,-358.53"/>
+</g>
+<!-- sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node15" class="node">
+<title>sourcefile~fieldinfo.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node15"><a xlink:href="../sourcefile/fieldinfo.f90.html" xlink:title="FieldInfo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="613.5,-698.6 534.5,-698.6 534.5,-674.6 613.5,-674.6 613.5,-698.6"/>
+<text text-anchor="middle" x="574" y="-684.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldInfo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge30" class="edge">
+<title>sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~fieldinfo.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M741.79,-614.8C723.44,-628.96 691.14,-652.1 660,-665.6 648.56,-670.56 635.72,-674.49 623.56,-677.55"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="622.47,-674.22 613.55,-679.92 624.08,-681.03 622.47,-674.22"/>
+</g>
+<!-- sourcefile~fieldutilities.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node16" class="node">
+<title>sourcefile~fieldutilities.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node16"><a xlink:href="../sourcefile/fieldutilities.f90.html" xlink:title="FieldUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="623.5,-656.6 524.5,-656.6 524.5,-632.6 623.5,-632.6 623.5,-656.6"/>
+<text text-anchor="middle" x="574" y="-642.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~fieldutilities.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge31" class="edge">
+<title>sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~fieldutilities.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M704.85,-614.63C682.61,-619.76 656.57,-625.77 633.67,-631.06"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="632.68,-627.69 623.73,-633.35 634.26,-634.51 632.68,-627.69"/>
+</g>
+<!-- sourcefile~geomaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node17" class="node">
+<title>sourcefile~geomaspect.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node17"><a xlink:href="../sourcefile/geomaspect.f90.html" xlink:title="GeomAspect.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="625.5,-408.6 522.5,-408.6 522.5,-384.6 625.5,-384.6 625.5,-408.6"/>
+<text text-anchor="middle" x="574" y="-394.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GeomAspect.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~geomaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge32" class="edge">
+<title>sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~geomaspect.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M753.95,-590.46C745.18,-558.12 716.83,-469.18 660,-422.6 652.81,-416.7 644.3,-412.15 635.49,-408.62"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="636.46,-405.25 625.86,-405.18 634.1,-411.84 636.46,-405.25"/>
+</g>
+<!-- sourcefile~horizontaldimsspec.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node18" class="node">
+<title>sourcefile~horizontaldimsspec.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node18"><a xlink:href="../sourcefile/horizontaldimsspec.f90.html" xlink:title="HorizontalDimsSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="645.5,-614.6 502.5,-614.6 502.5,-590.6 645.5,-590.6 645.5,-614.6"/>
+<text text-anchor="middle" x="574" y="-600.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HorizontalDimsSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~horizontaldimsspec.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge33" class="edge">
+<title>sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~horizontaldimsspec.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M695.89,-602.6C683.05,-602.6 669.32,-602.6 655.89,-602.6"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="655.7,-599.1 645.7,-602.6 655.7,-606.1 655.7,-599.1"/>
+</g>
+<!-- sourcefile~typekindaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node22" class="node">
+<title>sourcefile~typekindaspect.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node22"><a xlink:href="../sourcefile/typekindaspect.f90.html" xlink:title="TypekindAspect.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="633,-572.6 515,-572.6 515,-548.6 633,-548.6 633,-572.6"/>
+<text text-anchor="middle" x="574" y="-558.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">TypekindAspect.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~typekindaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge37" class="edge">
+<title>sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~typekindaspect.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M704.85,-590.56C683.71,-585.68 659.14,-580.01 637.09,-574.93"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="637.69,-571.47 627.16,-572.63 636.12,-578.29 637.69,-571.47"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node23" class="node">
+<title>sourcefile~ungriddeddims.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node23"><a xlink:href="../sourcefile/ungriddeddims.f90.html" xlink:title="UngriddedDims.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="633,-530.6 515,-530.6 515,-506.6 633,-506.6 633,-530.6"/>
+<text text-anchor="middle" x="574" y="-516.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDims.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge38" class="edge">
+<title>sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M741.79,-590.39C723.44,-576.23 691.14,-553.1 660,-539.6 654.55,-537.23 648.78,-535.1 642.92,-533.19"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="643.6,-529.73 633.01,-530.17 641.56,-536.43 643.6,-529.73"/>
+</g>
+<!-- sourcefile~ungriddeddimsaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node24" class="node">
+<title>sourcefile~ungriddeddimsaspect.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node24"><a xlink:href="../sourcefile/ungriddeddimsaspect.f90.html" xlink:title="UngriddedDimsAspect.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="651,-488.6 497,-488.6 497,-464.6 651,-464.6 651,-488.6"/>
+<text text-anchor="middle" x="574" y="-474.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDimsAspect.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~ungriddeddimsaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge39" class="edge">
+<title>sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~ungriddeddimsaspect.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M749.31,-590.39C734.72,-568.29 700.81,-521.71 660,-497.6 656.8,-495.71 653.44,-493.99 649.97,-492.42"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="651.18,-489.13 640.6,-488.63 648.56,-495.62 651.18,-489.13"/>
+</g>
+<!-- sourcefile~unitsaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node25" class="node">
+<title>sourcefile~unitsaspect.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node25"><a xlink:href="../sourcefile/unitsaspect.f90.html" xlink:title="UnitsAspect.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="622.5,-824.6 525.5,-824.6 525.5,-800.6 622.5,-800.6 622.5,-824.6"/>
+<text text-anchor="middle" x="574" y="-810.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UnitsAspect.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~unitsaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge40" class="edge">
+<title>sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~unitsaspect.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M754.39,-615.02C746.59,-648.98 720.16,-743.99 660,-791.6 652.04,-797.89 642.46,-802.33 632.63,-805.46"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="631.49,-802.14 622.78,-808.16 633.35,-808.89 631.49,-802.14"/>
+</g>
+<!-- sourcefile~verticalgrid.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node26" class="node">
+<title>sourcefile~verticalgrid.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node26"><a xlink:href="../sourcefile/verticalgrid.f90.html" xlink:title="VerticalGrid.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="622.5,-366.6 525.5,-366.6 525.5,-342.6 622.5,-342.6 622.5,-366.6"/>
+<text text-anchor="middle" x="574" y="-352.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalGrid.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~verticalgrid.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge41" class="edge">
+<title>sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~verticalgrid.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M755.6,-590.54C750.51,-552.61 729.55,-434.72 660,-375.6 652.18,-368.95 642.58,-364.35 632.67,-361.18"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="633.29,-357.72 622.72,-358.46 631.45,-364.47 633.29,-357.72"/>
+</g>
+<!-- sourcefile~verticalgridaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node27" class="node">
+<title>sourcefile~verticalgridaspect.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node27"><a xlink:href="../sourcefile/verticalgridaspect.f90.html" xlink:title="VerticalGridAspect.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="640.5,-324.6 507.5,-324.6 507.5,-300.6 640.5,-300.6 640.5,-324.6"/>
+<text text-anchor="middle" x="574" y="-310.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalGridAspect.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~verticalgridaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge42" class="edge">
+<title>sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~verticalgridaspect.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M756.49,-590.5C754.01,-548.19 739.84,-405.55 660,-333.6 656.82,-330.73 653.32,-328.25 649.6,-326.09"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="651.09,-322.92 640.57,-321.62 647.98,-329.19 651.09,-322.92"/>
+</g>
+<!-- sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node28" class="node">
+<title>sourcefile~verticalstaggerloc.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node28"><a xlink:href="../sourcefile/verticalstaggerloc.f90.html" xlink:title="VerticalStaggerLoc.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="642,-782.6 506,-782.6 506,-758.6 642,-758.6 642,-782.6"/>
+<text text-anchor="middle" x="574" y="-768.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalStaggerLoc.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge43" class="edge">
+<title>sourcefile~fieldclassaspect.f90&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M752.61,-614.7C741.68,-643.04 710.45,-713.97 660,-749.6 657.27,-751.53 654.38,-753.28 651.38,-754.87"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="649.69,-751.8 642.09,-759.18 652.63,-758.15 649.69,-751.8"/>
+</g>
+<!-- sourcefile~fieldclassaspectmap.f90&#45;&gt;sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge44" class="edge">
+<title>sourcefile~fieldclassaspectmap.f90&#45;&gt;sourcefile~actualconnectionpt.f90</title>
+<path fill="none" stroke="#00b9ff" stroke-dasharray="5,2" d="M925.94,-384.5C918.74,-345.83 891.14,-223.85 820,-157.6 721.94,-66.27 558.5,-51.15 461.73,-51.08"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="461.69,-47.58 451.71,-51.12 461.72,-54.58 461.69,-47.58"/>
+</g>
+<!-- sourcefile~fieldclassaspectmap.f90&#45;&gt;sourcefile~fieldclassaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge45" class="edge">
+<title>sourcefile~fieldclassaspectmap.f90&#45;&gt;sourcefile~fieldclassaspect.f90</title>
+<path fill="none" stroke="#00b9ff" stroke-dasharray="5,2" d="M917.93,-408.87C889.81,-443.14 810.21,-540.17 775.51,-582.47"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="772.65,-580.44 769.01,-590.39 778.06,-584.88 772.65,-580.44"/>
+</g>
+<!-- sourcefile~multistate.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge46" class="edge">
+<title>sourcefile~multistate.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M344.95,-248.61C318.23,-257.52 281.63,-269.72 252.84,-279.32"/>
+<polygon fill="#002eff" stroke="#002eff" points="251.39,-276.11 243.01,-282.59 253.6,-282.75 251.39,-276.11"/>
+</g>
+<!-- sourcefile~multistate.f90&#45;&gt;sourcefile~esmf_utilities.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge47" class="edge">
+<title>sourcefile~multistate.f90&#45;&gt;sourcefile~esmf_utilities.f90</title>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M337.97,-248.15C328.83,-251.84 319.64,-256.58 312,-262.6 289.63,-280.22 297.92,-297.42 276,-315.6 269.49,-320.99 261.87,-325.57 254.11,-329.41"/>
+<polygon fill="#002eff" stroke="#002eff" points="252.63,-326.24 244.99,-333.58 255.54,-332.6 252.63,-326.24"/>
+</g>
+<!-- sourcefile~multistate.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge48" class="edge">
+<title>sourcefile~multistate.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M351.48,-224.55C322.49,-212.72 278.07,-194.6 246.14,-181.57"/>
+<polygon fill="#002eff" stroke="#002eff" points="247.24,-178.24 236.66,-177.7 244.6,-184.72 247.24,-178.24"/>
+</g>
+<!-- sourcefile~nulltransform.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge49" class="edge">
+<title>sourcefile~nulltransform.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#5c00ff" stroke-dasharray="5,2" d="M519.43,-974.46C459.06,-977.76 362.76,-972.4 312,-913.6 226.32,-814.33 351.21,-432.01 276,-324.6 272.5,-319.59 267.97,-315.42 262.91,-311.93"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="264.38,-308.73 253.98,-306.69 260.84,-314.77 264.38,-308.73"/>
+</g>
+<!-- sourcefile~nulltransform.f90&#45;&gt;sourcefile~extensiontransform.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge50" class="edge">
+<title>sourcefile~nulltransform.f90&#45;&gt;sourcefile~extensiontransform.f90</title>
+<path fill="none" stroke="#5c00ff" stroke-dasharray="5,2" d="M529.34,-956.59C515.93,-952.54 501.23,-947.74 488,-942.6 462.87,-932.83 435.38,-919.65 414.84,-909.27"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="416.42,-906.15 405.92,-904.72 413.24,-912.38 416.42,-906.15"/>
+</g>
+<!-- sourcefile~nulltransform.f90&#45;&gt;sourcefile~transformid.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge51" class="edge">
+<title>sourcefile~nulltransform.f90&#45;&gt;sourcefile~transformid.f90</title>
+<path fill="none" stroke="#5c00ff" stroke-dasharray="5,2" d="M519.39,-968.74C451.68,-968.93 335.6,-969.24 265.61,-969.44"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="265.2,-965.94 255.2,-969.46 265.21,-972.94 265.2,-965.94"/>
+</g>
+<!-- sourcefile~stateitemaspect.f90&#45;&gt;sourcefile~aspectid.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge52" class="edge">
+<title>sourcefile~stateitemaspect.f90&#45;&gt;sourcefile~aspectid.f90</title>
+<path fill="none" stroke="#e700ff" stroke-dasharray="5,2" d="M320.14,-396.6C299.36,-396.6 276.39,-396.6 256.6,-396.6"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="256.58,-393.1 246.58,-396.6 256.58,-400.1 256.58,-393.1"/>
+</g>
+<!-- sourcefile~stateitemaspect.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge53" class="edge">
+<title>sourcefile~stateitemaspect.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#e700ff" stroke-dasharray="5,2" d="M337.9,-384.51C328.86,-380.87 319.74,-376.28 312,-370.6 291.08,-355.23 296.53,-340.48 276,-324.6 269.17,-319.31 261.26,-314.75 253.29,-310.9"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="254.52,-307.62 243.97,-306.7 251.65,-314 254.52,-307.62"/>
+</g>
+<!-- sourcefile~stateitemspec.f90&#45;&gt;sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge54" class="edge">
+<title>sourcefile~stateitemspec.f90&#45;&gt;sourcefile~actualconnectionpt.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M720.06,-199.6C711.67,-195.88 703.13,-191.24 696,-185.6 674.82,-168.81 682.21,-151.99 660,-136.6 627.74,-114.23 612.24,-125.01 575,-112.6"/>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M573,-112.6C535.76,-100.18 525.57,-99.98 488,-88.6 468.57,-82.71 447.24,-75.87 428.9,-69.88"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="429.93,-66.53 419.34,-66.74 427.75,-73.18 429.93,-66.53"/>
+</g>
+<!-- sourcefile~stateitemspec.f90&#45;&gt;sourcefile~aspectid.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge55" class="edge">
+<title>sourcefile~stateitemspec.f90&#45;&gt;sourcefile~aspectid.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M732.78,-223.61C713.45,-232.82 685.48,-245.31 660,-253.6 623.19,-265.56 606.3,-249.81 575,-272.6"/>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M573,-272.6C541.7,-295.38 525.11,-280.57 488,-291.6 399.17,-317.98 298.08,-358.41 244.68,-380.62"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="243.16,-377.46 235.28,-384.54 245.86,-383.92 243.16,-377.46"/>
+</g>
+<!-- sourcefile~stateitemspec.f90&#45;&gt;sourcefile~classaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge56" class="edge">
+<title>sourcefile~stateitemspec.f90&#45;&gt;sourcefile~classaspect.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M701.41,-218.01C680.02,-220.48 655.54,-223.3 633.85,-225.81"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="633.32,-222.34 623.78,-226.97 634.12,-229.3 633.32,-222.34"/>
+</g>
+<!-- sourcefile~stateitemspec.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge57" class="edge">
+<title>sourcefile~stateitemspec.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M573,-112.6C431.19,-65.32 274.96,-219.06 224.04,-275.03"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="221.38,-272.76 217.31,-282.54 226.59,-277.43 221.38,-272.76"/>
+</g>
+<!-- sourcefile~stateitemspec.f90&#45;&gt;sourcefile~extensiontransform.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge58" class="edge">
+<title>sourcefile~stateitemspec.f90&#45;&gt;sourcefile~extensiontransform.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M573,-272.6C541.7,-295.38 514.72,-263.59 488,-291.6 467.36,-313.22 401.46,-764.16 386.18,-870.34"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="382.68,-870.14 384.72,-880.54 389.6,-871.14 382.68,-870.14"/>
+</g>
+<!-- sourcefile~stateitemspec.f90&#45;&gt;sourcefile~multistate.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge60" class="edge">
+<title>sourcefile~stateitemspec.f90&#45;&gt;sourcefile~multistate.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M728.41,-199.52C718.17,-195.16 706.56,-190.19 696,-185.6 644.67,-163.25 630.7,-144.95 575,-150.6"/>
+</g>
+<!-- sourcefile~stateitemspec.f90&#45;&gt;sourcefile~stateitemaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge61" class="edge">
+<title>sourcefile~stateitemspec.f90&#45;&gt;sourcefile~stateitemaspect.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M573,-272.6C541.7,-295.38 521.79,-272.72 488,-291.6 467.97,-302.79 468.17,-312.32 452,-328.6 435.65,-345.05 416.89,-363.52 403.06,-377.05"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="400.25,-374.9 395.54,-384.39 405.14,-379.9 400.25,-374.9"/>
+</g>
+<!-- sourcefile~stateitemspec.f90&#45;&gt;sourcefile~geomaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge59" class="edge">
+<title>sourcefile~stateitemspec.f90&#45;&gt;sourcefile~geomaspect.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M753.46,-223.71C743.88,-254.31 714.42,-335.13 660,-375.6 652.65,-381.06 644.06,-385.11 635.21,-388.12"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="634.15,-384.78 625.56,-390.99 636.14,-391.49 634.15,-384.78"/>
+</g>
+<!-- sourcefile~stateitemspec.f90&#45;&gt;sourcefile~verticalgrid.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge62" class="edge">
+<title>sourcefile~stateitemspec.f90&#45;&gt;sourcefile~verticalgrid.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M750.87,-223.84C737.78,-248.65 704.63,-304.95 660,-333.6 651.65,-338.95 642.04,-342.94 632.35,-345.92"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="631.39,-342.55 622.67,-348.56 633.24,-349.3 631.39,-342.55"/>
+</g>
+<!-- sourcefile~stateitemspec.f90&#45;&gt;sourcefile~verticalgridaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge63" class="edge">
+<title>sourcefile~stateitemspec.f90&#45;&gt;sourcefile~verticalgridaspect.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M744.55,-223.67C727.02,-240.06 693.46,-269.28 660,-286.6 652.13,-290.67 643.52,-294.22 634.89,-297.28"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="633.56,-294.04 625.18,-300.53 635.78,-300.68 633.56,-294.04"/>
+</g>
+<!-- sourcefile~virtualconnectionptvector.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node30" class="node">
+<title>sourcefile~virtualconnectionptvector.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~EfferentGraph_node30"><a xlink:href="../sourcefile/virtualconnectionptvector.f90.html" xlink:title="VirtualConnectionPtVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="660,-202.6 488,-202.6 488,-178.6 660,-178.6 660,-202.6"/>
+<text text-anchor="middle" x="574" y="-188.2" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VirtualConnectionPtVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~stateitemspec.f90&#45;&gt;sourcefile~virtualconnectionptvector.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~EfferentGraph_edge64" class="edge">
+<title>sourcefile~stateitemspec.f90&#45;&gt;sourcefile~virtualconnectionptvector.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M701.41,-205.18C691.5,-204.04 680.94,-202.82 670.29,-201.59"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="670.42,-198.08 660.08,-200.41 669.62,-205.04 670.42,-198.08"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilewildcardclassaspectf90EfferentGraph = svgPanZoom('#sourcefilewildcardclassaspectf90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~wildcardclassaspect.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilewildcardclassaspectf90AfferentGraph" width="641pt" height="350pt"
+ viewBox="0.00 0.00 641.00 349.95" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph" class="graph" transform="scale(0.85 0.85) rotate(0) translate(4 406)">
+<title>sourcefile~~wildcardclassaspect.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-406 747,-406 747,4 -4,4"/>
+<!-- sourcefile~wildcardclassaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~wildcardclassaspect.f90</title>
+<polygon fill="none" stroke="black" points="146,-192 0,-192 0,-168 146,-168 146,-192"/>
+<text text-anchor="middle" x="73" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50">WildcardClassAspect.F90</text>
+</g>
+<!-- sourcefile~fieldbundleclassaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~fieldbundleclassaspect.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/fieldbundleclassaspect.f90.html" xlink:title="FieldBundleClassAspect.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="343,-213 182,-213 182,-189 343,-189 343,-213"/>
+<text text-anchor="middle" x="262.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleClassAspect.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~wildcardclassaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~fieldbundleclassaspect.f90&#45;&gt;sourcefile~wildcardclassaspect.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M181.98,-192.09C173.45,-191.14 164.75,-190.16 156.18,-189.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="156.53,-185.72 146.2,-188.09 155.75,-192.68 156.53,-185.72"/>
+</g>
+<!-- sourcefile~fieldclassaspect_smod.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~fieldclassaspect_smod.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/fieldclassaspect_smod.f90.html" xlink:title="FieldClassAspect_smod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="341.5,-129 183.5,-129 183.5,-105 341.5,-105 341.5,-129"/>
+<text text-anchor="middle" x="262.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldClassAspect_smod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldclassaspect_smod.f90&#45;&gt;sourcefile~wildcardclassaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~fieldclassaspect_smod.f90&#45;&gt;sourcefile~wildcardclassaspect.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M212.48,-129.02C202.34,-131.77 191.77,-134.82 182,-138 158.38,-145.68 132.43,-155.72 111.88,-164.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="110.49,-160.85 102.56,-167.88 113.14,-167.33 110.49,-160.85"/>
+</g>
+<!-- sourcefile~stateclassaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~stateclassaspect.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/stateclassaspect.f90.html" xlink:title="StateClassAspect.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="326,-171 199,-171 199,-147 326,-147 326,-171"/>
+<text text-anchor="middle" x="262.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateClassAspect.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~stateclassaspect.f90&#45;&gt;sourcefile~wildcardclassaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~stateclassaspect.f90&#45;&gt;sourcefile~wildcardclassaspect.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M198.8,-166.02C185.18,-167.55 170.58,-169.18 156.33,-170.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="155.58,-167.34 146.03,-171.93 156.36,-174.3 155.58,-167.34"/>
+</g>
+<!-- sourcefile~variablespec.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~variablespec.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/variablespec.f90.html" xlink:title="VariableSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="484,-213 379,-213 379,-189 484,-189 484,-213"/>
+<text text-anchor="middle" x="431.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VariableSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~wildcardclassaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~wildcardclassaspect.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M389.03,-213.07C374.59,-216.7 358.2,-220.2 343,-222 271.94,-230.41 252.33,-235.19 182,-222 155.77,-217.08 127.71,-205.98 106.78,-196.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="108.23,-193.24 97.69,-192.17 105.26,-199.58 108.23,-193.24"/>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~fieldbundleclassaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~fieldbundleclassaspect.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M378.58,-201C370.52,-201 362.01,-201 353.41,-201"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="353.29,-197.5 343.29,-201 353.29,-204.5 353.29,-197.5"/>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~stateclassaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~stateclassaspect.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M382.64,-188.96C363.52,-184.15 341.31,-178.57 321.3,-173.54"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="321.91,-170.08 311.36,-171.04 320.21,-176.87 321.91,-170.08"/>
+</g>
+<!-- sourcefile~componentspec.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~componentspec.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/componentspec.f90.html" xlink:title="ComponentSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="693.5,-402 569.5,-402 569.5,-378 693.5,-378 693.5,-402"/>
+<text text-anchor="middle" x="631.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspec.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~componentspec.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M569.45,-388.24C552.15,-385.26 534.18,-379.54 520,-369 470.73,-332.37 446.79,-259.82 437.43,-223.22"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="440.74,-222 434.99,-213.1 433.93,-223.64 440.74,-222"/>
+</g>
+<!-- sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~componentspecparser.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/componentspecparser.f90.html" xlink:title="ComponentSpecParser.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="709.5,-360 553.5,-360 553.5,-336 709.5,-336 709.5,-360"/>
+<text text-anchor="middle" x="631.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpecParser.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M553.22,-341.3C541.49,-338.07 529.99,-333.49 520,-327 480.61,-301.43 453.97,-251.3 441.2,-222.58"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="444.28,-220.87 437.13,-213.05 437.84,-223.62 444.28,-220.87"/>
+</g>
+<!-- sourcefile~historycollectiongridcomp_private.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~historycollectiongridcomp_private.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/historycollectiongridcomp_private.f90.html" xlink:title="HistoryCollectionGridComp_private.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="743,-318 520,-318 520,-294 743,-294 743,-318"/>
+<text text-anchor="middle" x="631.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionGridComp_private.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~historycollectiongridcomp_private.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~historycollectiongridcomp_private.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M541.79,-293.94C534.22,-291.48 526.85,-288.54 520,-285 490.17,-269.61 463.56,-240.81 447.73,-221.28"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="450.37,-218.97 441.43,-213.28 444.87,-223.31 450.37,-218.97"/>
+</g>
+<!-- sourcefile~initialize_advertise.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~initialize_advertise.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/initialize_advertise.f90.html" xlink:title="initialize_advertise.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="698.5,-276 564.5,-276 564.5,-252 698.5,-252 698.5,-276"/>
+<text text-anchor="middle" x="631.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_advertise.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~initialize_advertise.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~initialize_advertise.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M564.34,-254.33C549.56,-251.37 534.1,-247.64 520,-243 500.33,-236.53 479.38,-226.6 462.92,-218.01"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="464.25,-214.76 453.78,-213.15 460.97,-220.94 464.25,-214.76"/>
+</g>
+<!-- sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~mapl_generic.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/mapl_generic.f90.html" xlink:title="MAPL_Generic.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="687,-234 576,-234 576,-210 687,-210 687,-234"/>
+<text text-anchor="middle" x="631.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Generic.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M575.87,-216.21C550.61,-213.53 520.48,-210.33 494.39,-207.56"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="494.54,-204.06 484.23,-206.49 493.8,-211.02 494.54,-204.06"/>
+</g>
+<!-- sourcefile~mockaspect.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~mockaspect.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/mockaspect.f90.html" xlink:title="MockAspect.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="681,-192 582,-192 582,-168 681,-168 681,-192"/>
+<text text-anchor="middle" x="631.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockAspect.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockaspect.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~mockaspect.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M581.81,-185.16C555.4,-187.97 522.48,-191.46 494.27,-194.45"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="493.69,-190.99 484.12,-195.53 494.43,-197.95 493.69,-190.99"/>
+</g>
+<!-- sourcefile~mockitemspec.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~mockitemspec.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/mockitemspec.f90.html" xlink:title="MockItemSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="688,-150 575,-150 575,-126 688,-126 688,-150"/>
+<text text-anchor="middle" x="631.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockItemSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockitemspec.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~mockitemspec.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M574.99,-145.65C557.18,-148.87 537.53,-153.24 520,-159 500.33,-165.47 479.38,-175.4 462.92,-183.99"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="460.97,-181.06 453.78,-188.85 464.25,-187.24 460.97,-181.06"/>
+</g>
+<!-- sourcefile~test_bracketclassaspect.pf -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~test_bracketclassaspect.pf</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/test_bracketclassaspect.pf.html" xlink:title="Test_BracketClassAspect.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="710,-108 553,-108 553,-84 710,-84 710,-108"/>
+<text text-anchor="middle" x="631.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_BracketClassAspect.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_bracketclassaspect.pf&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~test_bracketclassaspect.pf&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M552.8,-104.86C541.43,-107.82 530.15,-111.76 520,-117 490.17,-132.39 463.56,-161.19 447.73,-180.72"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="444.87,-178.69 441.43,-188.72 450.37,-183.03 444.87,-178.69"/>
+</g>
+<!-- sourcefile~test_modelverticalgrid.pf -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~test_modelverticalgrid.pf</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/test_modelverticalgrid.pf.html" xlink:title="Test_ModelVerticalGrid.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="704.5,-66 558.5,-66 558.5,-42 704.5,-42 704.5,-66"/>
+<text text-anchor="middle" x="631.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ModelVerticalGrid.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_modelverticalgrid.pf&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~test_modelverticalgrid.pf&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M558.42,-59.36C544.92,-62.61 531.47,-67.56 520,-75 480.61,-100.57 453.97,-150.7 441.2,-179.42"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="437.84,-178.38 437.13,-188.95 444.28,-181.13 437.84,-178.38"/>
+</g>
+<!-- sourcefile~variablespecvector.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~variablespecvector.f90</title>
+<g id="a_sourcefile~~wildcardclassaspect.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/variablespecvector.f90.html" xlink:title="VariableSpecVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="700,-24 563,-24 563,0 700,0 700,-24"/>
+<text text-anchor="middle" x="631.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VariableSpecVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~variablespecvector.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~wildcardclassaspect.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~variablespecvector.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M562.83,-15.04C547.64,-18.27 532.38,-23.8 520,-33 470.73,-69.63 446.79,-142.18 437.43,-178.78"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="433.93,-178.36 434.99,-188.9 440.74,-180 433.93,-178.36"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilewildcardclassaspectf90AfferentGraph = svgPanZoom('#sourcefilewildcardclassaspectf90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_Generic.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">module </span><span class="n">mapl3g_WildcardClassAspect</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ActualPtFieldAspectMap</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ActualConnectionPt</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_StateItemSpec</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_AspectId</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_StateItemAspect</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ClassAspect</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_FieldClassAspect</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ExtensionTransform</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_NullTransform</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_MultiState</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_ErrorHandling</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="k">use </span><span class="n">esmf</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">   </span><span class="k">implicit none</span><span class="p">(</span><span class="k">type</span><span class="p">,</span><span class="k">external</span><span class="p">)</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">   </span><span class="k">private</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">WildcardClassAspect</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">extends</span><span class="p">(</span><span class="n">ClassAspect</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">WildcardClassAspect</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">     </span><span class="k">private</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="k">     type</span><span class="p">(</span><span class="n">ActualPtFieldAspectMap</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">matched_items</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">supports_conversion_general</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">supports_conversion_specific</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">matches</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_transform</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">connect_to_export</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_aspect_order</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">create</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">activate</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">allocate</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">destroy</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_to_state</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w"> </span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">   </span><span class="k">end type </span><span class="n">WildcardClassAspect</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">   </span><span class="k">interface </span><span class="n">WildcardClassAspect</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_WildcardClassAspect</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">   </span><span class="k">end interface </span><span class="n">WildcardClassAspect</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="k">contains</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="k">   function </span><span class="n">new_WildcardClassAspect</span><span class="p">()</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">wildcard_aspect</span><span class="p">)</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">WildcardClassAspect</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wildcard_aspect</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">   </span><span class="k">end function </span><span class="n">new_WildcardClassAspect</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a>
+<a id="ln-51" name="ln-51" href="#ln-51"></a>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">   </span><span class="c">! Wildcard not permitted as an export.</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">   </span><span class="kt">logical </span><span class="k">function </span><span class="n">matches</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">dst</span><span class="p">)</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">WildcardClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dst</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">      </span><span class="n">matches</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">   </span><span class="k">end function </span><span class="n">matches</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">   </span><span class="c">! Wildcard not permitted as an export.</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">   </span><span class="k">function </span><span class="n">make_transform</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">dst</span><span class="p">,</span><span class="w"> </span><span class="n">other_aspects</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ExtensionTransform</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">transform</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">WildcardClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dst</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">AspectMap</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">other_aspects</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">      </span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">      </span><span class="n">transform</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NullTransform</span><span class="p">()</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">   </span><span class="k">end function </span><span class="n">make_transform</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a>
+<a id="ln-74" name="ln-74" href="#ln-74"></a>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">connect_to_export</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">export</span><span class="p">,</span><span class="w"> </span><span class="n">actual_pt</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">WildcardClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">export</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ActualConnectionPt</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">actual_pt</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldClassAspect</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">export_</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">     </span><span class="c">! Export must be a field - all other cases should fail</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">      </span><span class="n">export_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">to_FieldClassAspect</span><span class="p">(</span><span class="n">export</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">      </span><span class="k">call </span><span class="n">typesafe_connect_to_export</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">export_</span><span class="p">,</span><span class="w"> </span><span class="n">actual_pt</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">connect_to_export</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">typesafe_connect_to_export</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">export</span><span class="p">,</span><span class="w"> </span><span class="n">actual_pt</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">WildcardClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">export</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ActualConnectionPt</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">actual_pt</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemAspect</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">import_class_aspect</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">matched_items</span><span class="p">%</span><span class="n">insert</span><span class="p">(</span><span class="n">actual_pt</span><span class="p">,</span><span class="w"> </span><span class="n">export</span><span class="p">)</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="w">      </span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">typesafe_connect_to_export</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">   </span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">   </span><span class="c">! No-op</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">create</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">WildcardClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">create</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">   </span><span class="c">! No-op</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">activate</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">WildcardClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">activate</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">   </span><span class="c">! No-op</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">destroy</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">WildcardClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">destroy</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">   </span><span class="c">! No-op</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="w">   </span><span class="c">! Wildcard is always an import, and allocation is on exports.</span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="w">   </span><span class="k">subroutine allocate</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">other_aspects</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">WildcardClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">AspectMap</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">other_aspects</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="w">   </span><span class="k">end subroutine allocate</span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="k">   subroutine </span><span class="n">add_to_state</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">multi_state</span><span class="p">,</span><span class="w"> </span><span class="n">actual_pt</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">WildcardClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MultiState</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">multi_state</span>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ActualConnectionPt</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">actual_pt</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a>
+<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-151" name="ln-151" href="#ln-151"></a>
+<a id="ln-152" name="ln-152" href="#ln-152"></a><span class="w">      </span><span class="k">call </span><span class="n">with_target_attribute</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">multi_state</span><span class="p">,</span><span class="w"> </span><span class="n">actual_pt</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-153" name="ln-153" href="#ln-153"></a>
+<a id="ln-154" name="ln-154" href="#ln-154"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-155" name="ln-155" href="#ln-155"></a>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="k">      </span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="k">      subroutine </span><span class="n">with_target_attribute</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">multi_state</span><span class="p">,</span><span class="w"> </span><span class="n">actual_pt</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="w">         </span><span class="k">class</span><span class="p">(</span><span class="n">WildcardClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">MultiState</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">multi_state</span>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ActualConnectionPt</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">actual_pt</span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-163" name="ln-163" href="#ln-163"></a><span class="w">         </span>
+<a id="ln-164" name="ln-164" href="#ln-164"></a><span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ActualConnectionPt</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">effective_pt</span>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ActualConnectionPt</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">use_pt</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a><span class="w">         </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comp_name</span>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">label</span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ActualPtFieldAspectMapIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">FieldClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ptr</span>
+<a id="ln-171" name="ln-171" href="#ln-171"></a>
+<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="w">         </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">matched_items</span><span class="p">%</span><span class="n">ftn_end</span><span class="p">())</span>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="w">           </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">matched_items</span><span class="p">%</span><span class="n">ftn_begin</span><span class="p">()</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a><span class="w">           </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">e</span><span class="p">)</span>
+<a id="ln-175" name="ln-175" href="#ln-175"></a><span class="w">              </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">next</span><span class="p">(</span><span class="n">iter</span><span class="p">)</span>
+<a id="ln-176" name="ln-176" href="#ln-176"></a><span class="w">              </span><span class="c">! Ignore actual_pt argument and use internally recorded name</span>
+<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="w">              </span><span class="n">effective_pt</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="n">first</span><span class="p">()</span>
+<a id="ln-178" name="ln-178" href="#ln-178"></a><span class="w">              </span><span class="n">comp_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">actual_pt</span><span class="p">%</span><span class="n">get_comp_name</span><span class="p">()</span>
+<a id="ln-179" name="ln-179" href="#ln-179"></a><span class="w">              </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">actual_pt</span><span class="p">%</span><span class="n">get_label</span><span class="p">()</span>
+<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="w">              </span><span class="n">use_pt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">effective_pt</span>
+<a id="ln-181" name="ln-181" href="#ln-181"></a>
+<a id="ln-182" name="ln-182" href="#ln-182"></a><span class="w">              </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">label</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! not primary</span>
+<a id="ln-183" name="ln-183" href="#ln-183"></a><span class="w">                 </span><span class="n">use_pt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">use_pt</span><span class="p">%</span><span class="n">extend</span><span class="p">()</span>
+<a id="ln-184" name="ln-184" href="#ln-184"></a><span class="w">              </span><span class="k">end if</span>
+<a id="ln-185" name="ln-185" href="#ln-185"></a>
+<a id="ln-186" name="ln-186" href="#ln-186"></a><span class="k">              if</span><span class="w"> </span><span class="p">(</span><span class="n">comp_name</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-187" name="ln-187" href="#ln-187"></a><span class="k">                 </span><span class="n">use_pt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">use_pt</span><span class="p">%</span><span class="n">add_comp_name</span><span class="p">(</span><span class="n">comp_name</span><span class="p">)</span>
+<a id="ln-188" name="ln-188" href="#ln-188"></a><span class="w">              </span><span class="k">end if</span>
+<a id="ln-189" name="ln-189" href="#ln-189"></a><span class="k">              </span><span class="n">ptr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="nb">second</span><span class="p">()</span>
+<a id="ln-190" name="ln-190" href="#ln-190"></a><span class="w">              </span><span class="k">call </span><span class="n">ptr</span><span class="p">%</span><span class="n">add_to_state</span><span class="p">(</span><span class="n">multi_state</span><span class="p">,</span><span class="w"> </span><span class="n">use_pt</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-191" name="ln-191" href="#ln-191"></a><span class="w">           </span><span class="k">end do</span>
+<a id="ln-192" name="ln-192" href="#ln-192"></a><span class="k">         end associate</span>
+<a id="ln-193" name="ln-193" href="#ln-193"></a><span class="k">         </span>
+<a id="ln-194" name="ln-194" href="#ln-194"></a><span class="k">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-195" name="ln-195" href="#ln-195"></a><span class="w">      </span><span class="k">end subroutine </span><span class="n">with_target_attribute</span>
+<a id="ln-196" name="ln-196" href="#ln-196"></a>
+<a id="ln-197" name="ln-197" href="#ln-197"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">add_to_state</span>
+<a id="ln-198" name="ln-198" href="#ln-198"></a>
+<a id="ln-199" name="ln-199" href="#ln-199"></a><span class="w">   </span><span class="c">! Wildcard is never an export</span>
+<a id="ln-200" name="ln-200" href="#ln-200"></a><span class="w">   </span><span class="kt">logical </span><span class="k">function </span><span class="n">supports_conversion_general</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+<a id="ln-201" name="ln-201" href="#ln-201"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">WildcardClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src</span>
+<a id="ln-202" name="ln-202" href="#ln-202"></a><span class="w">      </span><span class="n">supports_conversion_general</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-203" name="ln-203" href="#ln-203"></a><span class="w">   </span><span class="k">end function </span><span class="n">supports_conversion_general</span>
+<a id="ln-204" name="ln-204" href="#ln-204"></a>
+<a id="ln-205" name="ln-205" href="#ln-205"></a><span class="w">   </span><span class="kt">logical </span><span class="k">function </span><span class="n">supports_conversion_specific</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">dst</span><span class="p">)</span>
+<a id="ln-206" name="ln-206" href="#ln-206"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">WildcardClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src</span>
+<a id="ln-207" name="ln-207" href="#ln-207"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dst</span>
+<a id="ln-208" name="ln-208" href="#ln-208"></a>
+<a id="ln-209" name="ln-209" href="#ln-209"></a><span class="w">      </span><span class="n">supports_conversion_specific</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-210" name="ln-210" href="#ln-210"></a>
+<a id="ln-211" name="ln-211" href="#ln-211"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">dst</span><span class="p">)</span>
+<a id="ln-212" name="ln-212" href="#ln-212"></a><span class="w">   </span><span class="k">end function </span><span class="n">supports_conversion_specific</span>
+<a id="ln-213" name="ln-213" href="#ln-213"></a>
+<a id="ln-214" name="ln-214" href="#ln-214"></a><span class="w">   </span><span class="c">! Cannot be an export - should not call this</span>
+<a id="ln-215" name="ln-215" href="#ln-215"></a><span class="w">   </span><span class="k">function </span><span class="n">get_aspect_order</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">goal_aspects</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">aspect_ids</span><span class="p">)</span>
+<a id="ln-216" name="ln-216" href="#ln-216"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">AspectId</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">aspect_ids</span><span class="p">(:)</span>
+<a id="ln-217" name="ln-217" href="#ln-217"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">WildcardClassAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-218" name="ln-218" href="#ln-218"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">AspectMap</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">goal_aspects</span>
+<a id="ln-219" name="ln-219" href="#ln-219"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-220" name="ln-220" href="#ln-220"></a>
+<a id="ln-221" name="ln-221" href="#ln-221"></a><span class="w">      </span><span class="n">aspect_ids</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">AspectId</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="c">! empty</span>
+<a id="ln-222" name="ln-222" href="#ln-222"></a>
+<a id="ln-223" name="ln-223" href="#ln-223"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-224" name="ln-224" href="#ln-224"></a>
+<a id="ln-225" name="ln-225" href="#ln-225"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-226" name="ln-226" href="#ln-226"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">goal_aspects</span><span class="p">)</span>
+<a id="ln-227" name="ln-227" href="#ln-227"></a><span class="w">   </span><span class="k">end function </span><span class="n">get_aspect_order</span>
+<a id="ln-228" name="ln-228" href="#ln-228"></a><span class="w"> </span>
+<a id="ln-229" name="ln-229" href="#ln-229"></a><span class="k">end module </span><span class="n">mapl3g_WildcardClassAspect</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

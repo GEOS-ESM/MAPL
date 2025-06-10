@@ -1,0 +1,484 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>test_can_connect_accum_fail &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>test_can_connect_accum_fail
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">12 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_Aspects.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_aspects.pf.html'>Test_Aspects.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_aspects.html'>Test_Aspects</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_can_connect_accum_fail</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/test_can_connect_accum_fail.html#src">test_can_connect_accum_fail</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine test_can_connect_accum_fail()  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+    <em>None</em>
+    <br>
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~test_can_connect_accum_fail~~CallsGraph Pages: 1 -->
+<svg id="proctest_can_connect_accum_failCallsGraph" width="641pt" height="165pt"
+ viewBox="0.00 0.00 641.00 165.20" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~test_can_connect_accum_fail~~CallsGraph" class="graph" transform="scale(0.68 0.68) rotate(0) translate(4 238)">
+<title>proc~~test_can_connect_accum_fail~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-238 935,-238 935,4 -4,4"/>
+<!-- proc~test_can_connect_accum_fail -->
+<g id="proc~~test_can_connect_accum_fail~~CallsGraph_node1" class="node">
+<title>proc~test_can_connect_accum_fail</title>
+<polygon fill="none" stroke="black" points="168,-171 0,-171 0,-147 168,-147 168,-171"/>
+<text text-anchor="middle" x="84" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_can_connect_accum_fail</text>
+</g>
+<!-- ESMF_TimeIntervalSet -->
+<g id="proc~~test_can_connect_accum_fail~~CallsGraph_node2" class="node">
+<title>ESMF_TimeIntervalSet</title>
+<g id="a_proc~~test_can_connect_accum_fail~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeintervalset.html" xlink:title="ESMF_TimeIntervalSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="365.5,-234 235.5,-234 235.5,-210 365.5,-210 365.5,-234"/>
+<text text-anchor="middle" x="300.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeIntervalSet</text>
+</a>
+</g>
+</g>
+<!-- proc~test_can_connect_accum_fail&#45;&gt;ESMF_TimeIntervalSet -->
+<g id="proc~~test_can_connect_accum_fail~~CallsGraph_edge1" class="edge">
+<title>proc~test_can_connect_accum_fail&#45;&gt;ESMF_TimeIntervalSet</title>
+<path fill="none" stroke="#ff0000" d="M115.98,-171.11C139.8,-180.14 173.66,-192.35 204,-201 212.24,-203.35 220.95,-205.59 229.62,-207.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="228.82,-211.08 239.36,-209.96 230.42,-204.27 228.82,-211.08"/>
+</g>
+<!-- assert_that -->
+<g id="proc~~test_can_connect_accum_fail~~CallsGraph_node3" class="node">
+<title>assert_that</title>
+<polygon fill="#777777" stroke="#777777" points="336,-192 265,-192 265,-168 336,-168 336,-192"/>
+<text text-anchor="middle" x="300.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assert_that</text>
+</g>
+<!-- proc~test_can_connect_accum_fail&#45;&gt;assert_that -->
+<g id="proc~~test_can_connect_accum_fail~~CallsGraph_edge2" class="edge">
+<title>proc~test_can_connect_accum_fail&#45;&gt;assert_that</title>
+<path fill="none" stroke="#ff0000" d="M168.24,-167.15C197.61,-170.02 229.5,-173.15 254.5,-175.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="254.47,-179.11 264.77,-176.6 255.15,-172.14 254.47,-179.11"/>
+</g>
+<!-- false -->
+<g id="proc~~test_can_connect_accum_fail~~CallsGraph_node4" class="node">
+<title>false</title>
+<polygon fill="#777777" stroke="#777777" points="327.5,-150 273.5,-150 273.5,-126 327.5,-126 327.5,-150"/>
+<text text-anchor="middle" x="300.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">false</text>
+</g>
+<!-- proc~test_can_connect_accum_fail&#45;&gt;false -->
+<g id="proc~~test_can_connect_accum_fail~~CallsGraph_edge3" class="edge">
+<title>proc~test_can_connect_accum_fail&#45;&gt;false</title>
+<path fill="none" stroke="#ff0000" d="M168.24,-150.85C201.15,-147.63 237.25,-144.09 263.24,-141.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="263.76,-145.02 273.37,-140.56 263.08,-138.05 263.76,-145.02"/>
+</g>
+<!-- none~can_connect_to~13 -->
+<g id="proc~~test_can_connect_accum_fail~~CallsGraph_node5" class="node">
+<title>none~can_connect_to~13</title>
+<g id="a_proc~~test_can_connect_accum_fail~~CallsGraph_node5"><a xlink:href="../type/stateitemaspect.html#boundprocedure-can_connect_to~13" xlink:title="StateItemAspect%can_connect_to">
+<polygon fill="#a7506f" stroke="#a7506f" points="397,-108 204,-108 204,-84 397,-84 397,-108"/>
+<text text-anchor="middle" x="300.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemAspect%can_connect_to</text>
+</a>
+</g>
+</g>
+<!-- proc~test_can_connect_accum_fail&#45;&gt;none~can_connect_to~13 -->
+<g id="proc~~test_can_connect_accum_fail~~CallsGraph_edge4" class="edge">
+<title>proc~test_can_connect_accum_fail&#45;&gt;none~can_connect_to~13</title>
+<path fill="none" stroke="#ff0000" d="M115.98,-146.89C139.8,-137.86 173.66,-125.65 204,-117 212.24,-114.65 220.95,-112.41 229.62,-110.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="230.42,-113.73 239.36,-108.04 228.82,-106.92 230.42,-113.73"/>
+</g>
+<!-- matches -->
+<g id="proc~~test_can_connect_accum_fail~~CallsGraph_node6" class="node">
+<title>matches</title>
+<polygon fill="#777777" stroke="#777777" points="572,-171 514,-171 514,-147 572,-147 572,-171"/>
+<text text-anchor="middle" x="543" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">matches</text>
+</g>
+<!-- none~can_connect_to~13&#45;&gt;matches -->
+<g id="proc~~test_can_connect_accum_fail~~CallsGraph_edge5" class="edge">
+<title>none~can_connect_to~13&#45;&gt;matches</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M368.82,-108.03C378.42,-110.54 388.07,-113.51 397,-117 414.25,-123.74 415.66,-131.49 433,-138 455.79,-146.56 482.63,-151.78 503.98,-154.88"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="503.59,-158.36 513.97,-156.24 504.53,-151.42 503.59,-158.36"/>
+</g>
+<!-- none~is_mirror~2 -->
+<g id="proc~~test_can_connect_accum_fail~~CallsGraph_node7" class="node">
+<title>none~is_mirror~2</title>
+<g id="a_proc~~test_can_connect_accum_fail~~CallsGraph_node7"><a xlink:href="../type/stateitemaspect.html#boundprocedure-is_mirror~2" xlink:title="StateItemAspect%is_mirror">
+<polygon fill="#a7506f" stroke="#a7506f" points="621.5,-129 464.5,-129 464.5,-105 621.5,-105 621.5,-129"/>
+<text text-anchor="middle" x="543" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemAspect%is_mirror</text>
+</a>
+</g>
+</g>
+<!-- none~can_connect_to~13&#45;&gt;none~is_mirror~2 -->
+<g id="proc~~test_can_connect_accum_fail~~CallsGraph_edge6" class="edge">
+<title>none~can_connect_to~13&#45;&gt;none~is_mirror~2</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M397.24,-104.36C416.03,-106 435.65,-107.71 454.17,-109.33"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="454.06,-112.83 464.33,-110.22 454.67,-105.86 454.06,-112.83"/>
+</g>
+<!-- none~is_time_dependent~3 -->
+<g id="proc~~test_can_connect_accum_fail~~CallsGraph_node8" class="node">
+<title>none~is_time_dependent~3</title>
+<g id="a_proc~~test_can_connect_accum_fail~~CallsGraph_node8"><a xlink:href="../type/stateitemaspect.html#boundprocedure-is_time_dependent~3" xlink:title="StateItemAspect%is_time_dependent">
+<polygon fill="#a7506f" stroke="#a7506f" points="648.5,-87 437.5,-87 437.5,-63 648.5,-63 648.5,-87"/>
+<text text-anchor="middle" x="543" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemAspect%is_time_dependent</text>
+</a>
+</g>
+</g>
+<!-- none~can_connect_to~13&#45;&gt;none~is_time_dependent~3 -->
+<g id="proc~~test_can_connect_accum_fail~~CallsGraph_edge7" class="edge">
+<title>none~can_connect_to~13&#45;&gt;none~is_time_dependent~3</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M397.24,-87.64C407.17,-86.77 417.32,-85.89 427.42,-85"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="427.84,-88.48 437.5,-84.13 427.23,-81.51 427.84,-88.48"/>
+</g>
+<!-- none~supports_conversion~3 -->
+<g id="proc~~test_can_connect_accum_fail~~CallsGraph_node9" class="node">
+<title>none~supports_conversion~3</title>
+<g id="a_proc~~test_can_connect_accum_fail~~CallsGraph_node9"><a xlink:href="../type/stateitemaspect.html#boundprocedure-supports_conversion~3" xlink:title="StateItemAspect%supports_conversion">
+<polygon fill="#a7506f" stroke="#a7506f" points="653,-45 433,-45 433,-21 653,-21 653,-45"/>
+<text text-anchor="middle" x="543" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemAspect%supports_conversion</text>
+</a>
+</g>
+</g>
+<!-- none~can_connect_to~13&#45;&gt;none~supports_conversion~3 -->
+<g id="proc~~test_can_connect_accum_fail~~CallsGraph_edge8" class="edge">
+<title>none~can_connect_to~13&#45;&gt;none~supports_conversion~3</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M335.51,-83.91C361.87,-74.84 399.44,-62.56 433,-54 442.59,-51.55 452.73,-49.24 462.8,-47.11"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="463.74,-50.49 472.82,-45.04 462.32,-43.64 463.74,-50.49"/>
+</g>
+<!-- none~supports_conversion_general~27 -->
+<g id="proc~~test_can_connect_accum_fail~~CallsGraph_node10" class="node">
+<title>none~supports_conversion_general~27</title>
+<g id="a_proc~~test_can_connect_accum_fail~~CallsGraph_node10"><a xlink:href="../type/mockaspect.html#boundprocedure-supports_conversion_general~27" xlink:title="MockAspect%supports_conversion_general">
+<polygon fill="#a7506f" stroke="#a7506f" points="931,-66 689,-66 689,-42 931,-42 931,-66"/>
+<text text-anchor="middle" x="810" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockAspect%supports_conversion_general</text>
+</a>
+</g>
+</g>
+<!-- none~supports_conversion~3&#45;&gt;none~supports_conversion_general~27 -->
+<g id="proc~~test_can_connect_accum_fail~~CallsGraph_edge9" class="edge">
+<title>none~supports_conversion~3&#45;&gt;none~supports_conversion_general~27</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M653.32,-41.66C661.72,-42.33 670.25,-43 678.77,-43.68"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="678.51,-47.17 688.75,-44.47 679.06,-40.19 678.51,-47.17"/>
+</g>
+<!-- none~supports_conversion_specific~27 -->
+<g id="proc~~test_can_connect_accum_fail~~CallsGraph_node11" class="node">
+<title>none~supports_conversion_specific~27</title>
+<g id="a_proc~~test_can_connect_accum_fail~~CallsGraph_node11"><a xlink:href="../type/mockaspect.html#boundprocedure-supports_conversion_specific~27" xlink:title="MockAspect%supports_conversion_specific">
+<polygon fill="#a7506f" stroke="#a7506f" points="930.5,-24 689.5,-24 689.5,0 930.5,0 930.5,-24"/>
+<text text-anchor="middle" x="810" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockAspect%supports_conversion_specific</text>
+</a>
+</g>
+</g>
+<!-- none~supports_conversion~3&#45;&gt;none~supports_conversion_specific~27 -->
+<g id="proc~~test_can_connect_accum_fail~~CallsGraph_edge10" class="edge">
+<title>none~supports_conversion~3&#45;&gt;none~supports_conversion_specific~27</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M653.32,-24.34C661.82,-23.66 670.46,-22.98 679.08,-22.3"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="679.49,-25.77 689.19,-21.49 678.94,-18.8 679.49,-25.77"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproctest_can_connect_accum_failCallsGraph = svgPanZoom('#proctest_can_connect_accum_failCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_can_connect_accum_fail</span><span class="p">()</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FrequencyAspect</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">import</span><span class="p">,</span><span class="w"> </span><span class="n">export</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dt1</span><span class="p">,</span><span class="w"> </span><span class="n">dt2</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">offset1</span><span class="p">,</span><span class="w"> </span><span class="n">offset2</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">dt1</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">dt2</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="c">! not commensurate</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">offset1</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">offset2</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">import</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FrequencyAspect</span><span class="p">(</span><span class="n">timeStep</span><span class="o">=</span><span class="n">dt2</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="o">=</span><span class="n">offset2</span><span class="p">,</span><span class="w"> </span><span class="n">accumulation_type</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="n">export</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FrequencyAspect</span><span class="p">(</span><span class="n">timeStep</span><span class="o">=</span><span class="n">dt1</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="o">=</span><span class="n">offset1</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">export</span><span class="p">%</span><span class="n">can_connect_to</span><span class="p">(</span><span class="k">import</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">false</span><span class="p">()))</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_can_connect_accum_fail</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,1417 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>FrequencyAspect.F90 &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>FrequencyAspect.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">137 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/FrequencyAspect.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">FrequencyAspect.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_frequencyaspect.html">mapl3g_FrequencyAspect</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/frequencyaspect.f90.html#src">FrequencyAspect.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~frequencyaspect.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilefrequencyaspectf90EfferentGraph" width="641pt" height="343pt"
+ viewBox="0.00 0.00 641.00 343.20" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph" class="graph" transform="scale(0.41 0.41) rotate(0) translate(4 828.03)">
+<title>sourcefile~~frequencyaspect.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-828.03 1550,-828.03 1550,4 -4,4"/>
+<!-- sourcefile~frequencyaspect.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~frequencyaspect.f90</title>
+<polygon fill="none" stroke="black" points="1546,-328.22 1420,-328.22 1420,-304.22 1546,-304.22 1546,-328.22"/>
+<text text-anchor="middle" x="1483" y="-313.82" font-family="Helvetica,sans-Serif" font-size="10.50">FrequencyAspect.F90</text>
+</g>
+<!-- sourcefile~accumulatortransforminterface.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~accumulatortransforminterface.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/accumulatortransforminterface.f90.html" xlink:title="AccumulatorTransformInterface.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1384,-513.22 1180,-513.22 1180,-489.22 1384,-489.22 1384,-513.22"/>
+<text text-anchor="middle" x="1282" y="-498.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AccumulatorTransformInterface.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~frequencyaspect.f90&#45;&gt;sourcefile~accumulatortransforminterface.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~frequencyaspect.f90&#45;&gt;sourcefile~accumulatortransforminterface.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1468.94,-328.36C1435.14,-359.78 1344.55,-444 1303.6,-482.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1301.05,-479.66 1296.11,-489.04 1305.81,-484.79 1301.05,-479.66"/>
+</g>
+<!-- sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~actualconnectionpt.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/actualconnectionpt.f90.html" xlink:title="ActualConnectionPt.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="981.5,-168.22 842.5,-168.22 842.5,-144.22 981.5,-144.22 981.5,-168.22"/>
+<text text-anchor="middle" x="912" y="-153.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ActualConnectionPt.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~frequencyaspect.f90&#45;&gt;sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~frequencyaspect.f90&#45;&gt;sourcefile~actualconnectionpt.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1281,-154.22C1179.02,-106.9 1043.35,-125.58 968.5,-141.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="967.35,-138.55 958.35,-144.16 968.88,-145.38 967.35,-138.55"/>
+</g>
+<!-- sourcefile~aspectid.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~aspectid.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/aspectid.f90.html" xlink:title="AspectId.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="594.5,-127.22 513.5,-127.22 513.5,-103.22 594.5,-103.22 594.5,-127.22"/>
+<text text-anchor="middle" x="554" y="-112.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AspectId.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~frequencyaspect.f90&#45;&gt;sourcefile~aspectid.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~frequencyaspect.f90&#45;&gt;sourcefile~aspectid.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M911,-78.22C801.69,-66.48 673.44,-88.64 604.64,-103.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="603.54,-100.1 594.52,-105.66 605.04,-106.94 603.54,-100.1"/>
+</g>
+<!-- sourcefile~esmf_time_utilities.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~esmf_time_utilities.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/esmf_time_utilities.f90.html" xlink:title="ESMF_Time_Utilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="435,-110.22 296,-110.22 296,-86.22 435,-86.22 435,-110.22"/>
+<text text-anchor="middle" x="365.5" y="-95.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_Time_Utilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~frequencyaspect.f90&#45;&gt;sourcefile~esmf_time_utilities.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~frequencyaspect.f90&#45;&gt;sourcefile~esmf_time_utilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1470.75,-303.95C1442.33,-273.71 1364.15,-195.14 1283,-154.22"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1281,-154.22C1131.88,-79.03 1079.13,-95.34 913,-78.22"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M911,-78.22C854.56,-69.76 853.33,-31.2 798,-17.22 663.06,16.88 619.37,-4.41 486,-44.22 454.94,-53.49 421.46,-69.15 397.87,-81.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="395.97,-78.27 388.71,-85.99 399.2,-84.48 395.97,-78.27"/>
+</g>
+<!-- sourcefile~stateitemaspect.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~stateitemaspect.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/stateitemaspect.f90.html" xlink:title="StateItemAspect.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="789.5,-50.22 666.5,-50.22 666.5,-26.22 789.5,-26.22 789.5,-50.22"/>
+<text text-anchor="middle" x="728" y="-35.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemAspect.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~frequencyaspect.f90&#45;&gt;sourcefile~stateitemaspect.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~frequencyaspect.f90&#45;&gt;sourcefile~stateitemaspect.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M911,-78.22C866.6,-73.45 817.17,-62.2 781.05,-52.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="781.78,-49.41 771.22,-50.25 780,-56.18 781.78,-49.41"/>
+</g>
+<!-- sourcefile~accumulatortransform.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~accumulatortransform.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/accumulatortransform.f90.html" xlink:title="AccumulatorTransform.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="990,-573.22 834,-573.22 834,-549.22 990,-549.22 990,-573.22"/>
+<text text-anchor="middle" x="912" y="-558.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AccumulatorTransform.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~accumulatortransforminterface.f90&#45;&gt;sourcefile~accumulatortransform.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~accumulatortransforminterface.f90&#45;&gt;sourcefile~accumulatortransform.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1206.97,-513.29C1146.21,-523.2 1060.17,-537.23 996.87,-547.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="996.22,-544.11 986.91,-549.17 997.34,-551.01 996.22,-544.11"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="245,-410.22 136,-410.22 136,-386.22 245,-386.22 245,-410.22"/>
+<text text-anchor="middle" x="190.5" y="-395.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~accumulatortransforminterface.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~accumulatortransforminterface.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1277.87,-489.12C1266.53,-447.33 1224,-306.99 1144,-222.22 1090.04,-165.05 1066.03,-155.21 990,-135.22 847.3,-97.7 804.64,-118.8 658,-135.22 580.1,-143.94 559.7,-147.53 486,-174.22 429.93,-194.53 423.63,-218.15 366.5,-235.22"/>
+</g>
+<!-- sourcefile~extensiontransform.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~extensiontransform.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/extensiontransform.f90.html" xlink:title="ExtensionTransform.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="798,-248.22 658,-248.22 658,-224.22 798,-224.22 798,-248.22"/>
+<text text-anchor="middle" x="728" y="-233.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtensionTransform.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~accumulatortransforminterface.f90&#45;&gt;sourcefile~extensiontransform.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~accumulatortransforminterface.f90&#45;&gt;sourcefile~extensiontransform.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M911,-236.22C877.41,-234.4 840.27,-234.09 808.35,-234.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="808.15,-230.86 798.19,-234.46 808.22,-237.86 808.15,-230.86"/>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node10"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="616,-207.22 492,-207.22 492,-183.22 616,-183.22 616,-207.22"/>
+<text text-anchor="middle" x="554" y="-192.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~accumulatortransforminterface.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~accumulatortransforminterface.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1277.05,-489.02C1261.62,-443.78 1200.55,-285.77 1086,-236.22"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1084,-236.22C1014.24,-206.05 988.89,-240.33 913,-236.22"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M911,-236.22C828.3,-231.74 811.82,-196.46 729,-196.22"/>
+</g>
+<!-- sourcefile~maxtransform.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~maxtransform.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node11"><a xlink:href="../sourcefile/maxtransform.f90.html" xlink:title="MaxTransform.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1140,-635.22 1030,-635.22 1030,-611.22 1140,-611.22 1140,-635.22"/>
+<text text-anchor="middle" x="1085" y="-620.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaxTransform.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~accumulatortransforminterface.f90&#45;&gt;sourcefile~maxtransform.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~accumulatortransforminterface.f90&#45;&gt;sourcefile~maxtransform.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1267.5,-513.26C1243.91,-533.83 1192.98,-576.01 1144,-602.22 1140.69,-603.99 1137.2,-605.67 1133.64,-607.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1132.02,-604.13 1124.12,-611.2 1134.7,-610.6 1132.02,-604.13"/>
+</g>
+<!-- sourcefile~meantransform.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node12" class="node">
+<title>sourcefile~meantransform.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node12"><a xlink:href="../sourcefile/meantransform.f90.html" xlink:title="MeanTransform.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1144,-513.22 1026,-513.22 1026,-489.22 1144,-489.22 1144,-513.22"/>
+<text text-anchor="middle" x="1085" y="-498.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MeanTransform.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~accumulatortransforminterface.f90&#45;&gt;sourcefile~meantransform.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~accumulatortransforminterface.f90&#45;&gt;sourcefile~meantransform.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1179.79,-501.22C1171.08,-501.22 1162.42,-501.22 1154.08,-501.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1154.07,-497.72 1144.07,-501.22 1154.07,-504.72 1154.07,-497.72"/>
+</g>
+<!-- sourcefile~mintransform.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node13" class="node">
+<title>sourcefile~mintransform.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node13"><a xlink:href="../sourcefile/mintransform.f90.html" xlink:title="MinTransform.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1138.5,-593.22 1031.5,-593.22 1031.5,-569.22 1138.5,-569.22 1138.5,-593.22"/>
+<text text-anchor="middle" x="1085" y="-578.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MinTransform.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~accumulatortransforminterface.f90&#45;&gt;sourcefile~mintransform.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~accumulatortransforminterface.f90&#45;&gt;sourcefile~mintransform.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1251.38,-513.37C1217.54,-527.25 1162.04,-550.02 1124.78,-565.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1123.18,-562.18 1115.26,-569.22 1125.84,-568.66 1123.18,-562.18"/>
+</g>
+<!-- sourcefile~nulltransform.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node14" class="node">
+<title>sourcefile~nulltransform.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node14"><a xlink:href="../sourcefile/nulltransform.f90.html" xlink:title="NullTransform.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="966.5,-288.22 857.5,-288.22 857.5,-264.22 966.5,-264.22 966.5,-288.22"/>
+<text text-anchor="middle" x="912" y="-273.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NullTransform.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~accumulatortransforminterface.f90&#45;&gt;sourcefile~nulltransform.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~accumulatortransforminterface.f90&#45;&gt;sourcefile~nulltransform.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1084,-236.22C1072.83,-231.39 1009.09,-248.14 962.69,-261.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="961.72,-258.07 953.08,-264.21 963.66,-264.8 961.72,-258.07"/>
+</g>
+<!-- sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M877.27,-168.28C841.1,-180.11 781.73,-196.37 729,-196.22"/>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M727,-196.22C694,-196.13 657.44,-195.93 626.54,-195.73"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="626.32,-192.23 616.3,-195.66 626.27,-199.23 626.32,-192.23"/>
+</g>
+<!-- sourcefile~virtualconnectionpt.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node15" class="node">
+<title>sourcefile~virtualconnectionpt.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node15"><a xlink:href="../sourcefile/virtualconnectionpt.f90.html" xlink:title="VirtualConnectionPt.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="798,-168.22 658,-168.22 658,-144.22 798,-144.22 798,-168.22"/>
+<text text-anchor="middle" x="728" y="-153.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VirtualConnectionPt.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~virtualconnectionpt.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~virtualconnectionpt.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M842.45,-156.22C831.34,-156.22 819.76,-156.22 808.42,-156.22"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="808.09,-152.72 798.09,-156.22 808.09,-159.72 808.09,-152.72"/>
+</g>
+<!-- sourcefile~esmf_time_utilities.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~esmf_time_utilities.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M355.42,-110.45C339.47,-132.18 305.76,-179.19 281,-221.22 249.01,-275.54 217.01,-342.68 201.37,-376.53"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="198.05,-375.37 197.05,-385.92 204.41,-378.29 198.05,-375.37"/>
+</g>
+<!-- sourcefile~stateitemaspect.f90&#45;&gt;sourcefile~aspectid.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~stateitemaspect.f90&#45;&gt;sourcefile~aspectid.f90</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M689.74,-50.35C679.24,-54.27 667.97,-58.98 658,-64.22 640.75,-73.28 639.2,-80.08 622,-89.22 615.11,-92.88 607.58,-96.31 600.14,-99.4"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="598.81,-96.16 590.82,-103.12 601.4,-102.66 598.81,-96.16"/>
+</g>
+<!-- sourcefile~stateitemaspect.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~stateitemaspect.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M666.31,-41.73C615.02,-47.06 541.27,-60.48 486,-94.22 415.88,-137.02 445.26,-211.86 366.5,-235.22"/>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M364.5,-235.22C288.68,-257.87 229.38,-338.04 204.39,-376.85"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="201.15,-375.44 198.79,-385.77 207.08,-379.16 201.15,-375.44"/>
+</g>
+<!-- sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~extensiontransform.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~extensiontransform.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M851.87,-549.2C845.06,-545.66 838.84,-541.11 834,-535.22 756.27,-440.69 874.07,-358.09 798,-262.22 795.48,-259.04 792.52,-256.25 789.27,-253.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="791.02,-250.76 780.7,-248.38 787.28,-256.68 791.02,-250.76"/>
+</g>
+<!-- sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node18" class="node">
+<title>sourcefile~fieldpointerutilities.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node18"><a xlink:href="../sourcefile/fieldpointerutilities.f90.html" xlink:title="FieldPointerUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="622,-733.22 486,-733.22 486,-709.22 622,-709.22 622,-733.22"/>
+<text text-anchor="middle" x="554" y="-718.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldPointerUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M727,-661.22C682.54,-675.27 632.23,-693.04 597.57,-705.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="595.99,-702.44 587.78,-709.14 598.37,-709.02 595.99,-702.44"/>
+</g>
+<!-- sourcefile~fieldutilities.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node19" class="node">
+<title>sourcefile~fieldutilities.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node19"><a xlink:href="../sourcefile/fieldutilities.f90.html" xlink:title="FieldUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="777.5,-533.22 678.5,-533.22 678.5,-509.22 777.5,-509.22 777.5,-533.22"/>
+<text text-anchor="middle" x="728" y="-518.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~fieldutilities.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~fieldutilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M856.39,-549.22C834.69,-544.45 809.69,-538.95 787.61,-534.1"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="788.21,-530.65 777.69,-531.92 786.7,-537.49 788.21,-530.65"/>
+</g>
+<!-- sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node20" class="node">
+<title>sourcefile~internalconstants.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node20"><a xlink:href="../sourcefile/internalconstants.f90.html" xlink:title="InternalConstants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="618.5,-653.22 489.5,-653.22 489.5,-629.22 618.5,-629.22 618.5,-653.22"/>
+<text text-anchor="middle" x="554" y="-638.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InternalConstants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~internalconstants.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M894.46,-573.27C863.65,-595.02 794.66,-640.47 729,-661.22"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M727,-661.22C684.74,-674.58 634.1,-665.91 598.75,-656.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="599.34,-652.69 588.76,-653.27 597.39,-659.41 599.34,-652.69"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node21" class="node">
+<title>sourcefile~mapl_exceptionhandling.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node21"><a xlink:href="../sourcefile/mapl_exceptionhandling.f90.html" xlink:title="MAPL_ExceptionHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="450,-653.22 281,-653.22 281,-629.22 450,-629.22 450,-653.22"/>
+<text text-anchor="middle" x="365.5" y="-638.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M727,-661.22C622.04,-694.39 491.44,-672.64 419.77,-655.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="420.17,-652.21 409.63,-653.25 418.52,-659.01 420.17,-652.21"/>
+</g>
+<!-- sourcefile~transformid.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node23" class="node">
+<title>sourcefile~transformid.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node23"><a xlink:href="../sourcefile/transformid.f90.html" xlink:title="TransformId.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="603,-287.22 505,-287.22 505,-263.22 603,-263.22 603,-287.22"/>
+<text text-anchor="middle" x="554" y="-272.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">TransformId.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~transformid.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~transformid.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M856.57,-549.13C848.38,-545.61 840.51,-541.07 834,-535.22 805.6,-509.7 827.16,-481.87 798,-457.22 748.76,-415.6 704.04,-464.36 658,-419.22 617.33,-379.34 661.89,-336.88 622,-296.22 619.15,-293.32 615.91,-290.81 612.42,-288.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="613.83,-285.44 603.34,-283.97 610.62,-291.67 613.83,-285.44"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node22" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node22"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="100,-430.22 0,-430.22 0,-406.22 100,-406.22 100,-430.22"/>
+<text text-anchor="middle" x="50" y="-415.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#ffaa00" stroke-dasharray="5,2" d="M135.95,-405.95C127.53,-407.17 118.77,-408.43 110.23,-409.67"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="109.72,-406.2 100.33,-411.1 110.72,-413.13 109.72,-406.2"/>
+</g>
+<!-- sourcefile~extensiontransform.f90&#45;&gt;sourcefile~aspectid.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~extensiontransform.f90&#45;&gt;sourcefile~aspectid.f90</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M709.88,-224.18C679.56,-202.85 616.3,-158.34 580.72,-133.31"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="582.5,-130.29 572.31,-127.4 578.47,-136.01 582.5,-130.29"/>
+</g>
+<!-- sourcefile~extensiontransform.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~extensiontransform.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M657.9,-237.53C626.47,-237.68 588.83,-237.25 555,-235.22"/>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M553,-235.22C470.26,-230.25 445.97,-211.65 366.5,-235.22"/>
+</g>
+<!-- sourcefile~extensiontransform.f90&#45;&gt;sourcefile~transformid.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~extensiontransform.f90&#45;&gt;sourcefile~transformid.f90</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M673.99,-248.24C654.65,-252.62 632.69,-257.6 612.95,-262.08"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="612.13,-258.68 603.16,-264.3 613.68,-265.5 612.13,-258.68"/>
+</g>
+<!-- sourcefile~maxtransform.f90&#45;&gt;sourcefile~accumulatortransform.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~maxtransform.f90&#45;&gt;sourcefile~accumulatortransform.f90</title>
+<path fill="none" stroke="#00ffa9" stroke-dasharray="5,2" d="M1050.57,-611.12C1042.52,-608.21 1033.95,-605.1 1026,-602.22 1002.79,-593.81 976.91,-584.42 955.78,-576.75"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="956.72,-573.37 946.13,-573.25 954.33,-579.95 956.72,-573.37"/>
+</g>
+<!-- sourcefile~maxtransform.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge30" class="edge">
+<title>sourcefile~maxtransform.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#00ffa9" stroke-dasharray="5,2" d="M911,-813.22C871.71,-825.99 769.48,-783.51 729,-775.22"/>
+</g>
+<!-- sourcefile~maxtransform.f90&#45;&gt;sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge31" class="edge">
+<title>sourcefile~maxtransform.f90&#45;&gt;sourcefile~internalconstants.f90</title>
+<path fill="none" stroke="#00ffa9" stroke-dasharray="5,2" d="M1080.59,-635.28C1071.33,-665.79 1042.84,-746.59 990,-789.22 962.1,-811.73 947.09,-802.14 913,-813.22"/>
+<path fill="none" stroke="#00ffa9" stroke-dasharray="5,2" d="M911,-813.22C876.91,-824.3 865.77,-805.82 834,-789.22 816.04,-779.83 815.81,-770.9 798,-761.22 769.47,-745.71 758.88,-749.93 729,-737.22"/>
+</g>
+<!-- sourcefile~maxtransform.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge32" class="edge">
+<title>sourcefile~maxtransform.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#00ffa9" stroke-dasharray="5,2" d="M911,-813.22C834.07,-838.22 809.78,-809.06 729,-813.22"/>
+</g>
+<!-- sourcefile~meantransform.f90&#45;&gt;sourcefile~accumulatortransform.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge33" class="edge">
+<title>sourcefile~meantransform.f90&#45;&gt;sourcefile~accumulatortransform.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M1051,-513.35C1033,-519.92 1010.31,-528.12 990,-535.22 979.91,-538.75 969.04,-542.47 958.75,-545.95"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="957.45,-542.7 949.09,-549.21 959.69,-549.33 957.45,-542.7"/>
+</g>
+<!-- sourcefile~api.f90~3 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node16" class="node">
+<title>sourcefile~api.f90~3</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node16"><a xlink:href="../sourcefile/api.f90~3.html" xlink:title="API.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="939,-410.22 885,-410.22 885,-386.22 939,-386.22 939,-410.22"/>
+<text text-anchor="middle" x="912" y="-395.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">API.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~meantransform.f90&#45;&gt;sourcefile~api.f90~3 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge34" class="edge">
+<title>sourcefile~meantransform.f90&#45;&gt;sourcefile~api.f90~3</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M1064.05,-489.2C1033.88,-471.03 976.51,-436.47 941.81,-415.57"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="943.46,-412.48 933.09,-410.32 939.85,-418.48 943.46,-412.48"/>
+</g>
+<!-- sourcefile~fieldcreate.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node17" class="node">
+<title>sourcefile~fieldcreate.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node17"><a xlink:href="../sourcefile/fieldcreate.f90.html" xlink:title="FieldCreate.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="775.5,-490.22 680.5,-490.22 680.5,-466.22 775.5,-466.22 775.5,-490.22"/>
+<text text-anchor="middle" x="728" y="-475.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldCreate.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~meantransform.f90&#45;&gt;sourcefile~fieldcreate.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge35" class="edge">
+<title>sourcefile~meantransform.f90&#45;&gt;sourcefile~fieldcreate.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M1025.9,-508.76C992.85,-512.86 950.65,-517.78 913,-521.22"/>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M911,-521.22C885.37,-523.56 821.71,-506.52 776.93,-493.2"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="777.7,-489.77 767.12,-490.25 775.69,-496.48 777.7,-489.77"/>
+</g>
+<!-- sourcefile~meantransform.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge36" class="edge">
+<title>sourcefile~meantransform.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M1072.06,-513.33C1054.98,-530.23 1022.05,-561.17 990,-582.22 910.75,-634.27 888.03,-645.48 798,-675.22 743.95,-693.08 680.72,-704.77 632.3,-711.9"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="631.6,-708.47 622.2,-713.36 632.6,-715.4 631.6,-708.47"/>
+</g>
+<!-- sourcefile~meantransform.f90&#45;&gt;sourcefile~fieldutilities.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge37" class="edge">
+<title>sourcefile~meantransform.f90&#45;&gt;sourcefile~fieldutilities.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M911,-521.22C870.05,-524.96 823.69,-524.89 788.01,-523.93"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="787.88,-520.42 777.78,-523.62 787.67,-527.42 787.88,-520.42"/>
+</g>
+<!-- sourcefile~meantransform.f90&#45;&gt;sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge38" class="edge">
+<title>sourcefile~meantransform.f90&#45;&gt;sourcefile~internalconstants.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M727,-601.22C692.27,-610.54 653.25,-619.72 621.17,-626.93"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="620.01,-623.6 611.01,-629.2 621.53,-630.43 620.01,-623.6"/>
+</g>
+<!-- sourcefile~meantransform.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge39" class="edge">
+<title>sourcefile~meantransform.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M911,-521.22C875.9,-524.42 866.68,-527.01 834,-540.22 783.96,-560.44 781.12,-587.23 729,-601.22"/>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M727,-601.22C623.23,-629.08 592.59,-606.68 486,-620.22 470.57,-622.18 454.1,-624.75 438.48,-627.43"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="437.6,-624.03 428.35,-629.19 438.8,-630.92 437.6,-624.03"/>
+</g>
+<!-- sourcefile~mintransform.f90&#45;&gt;sourcefile~accumulatortransform.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge40" class="edge">
+<title>sourcefile~mintransform.f90&#45;&gt;sourcefile~accumulatortransform.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M1031.3,-575.06C1021.41,-573.9 1010.83,-572.66 1000.21,-571.42"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="1000.38,-567.92 990.04,-570.23 999.57,-574.87 1000.38,-567.92"/>
+</g>
+<!-- sourcefile~mintransform.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge41" class="edge">
+<title>sourcefile~mintransform.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M911,-775.22C837.18,-808.3 808.25,-791.44 729,-775.22"/>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M727,-775.22C681.37,-765.88 630.67,-749.15 596.21,-736.78"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="597.1,-733.38 586.5,-733.26 594.71,-739.96 597.1,-733.38"/>
+</g>
+<!-- sourcefile~mintransform.f90&#45;&gt;sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge42" class="edge">
+<title>sourcefile~mintransform.f90&#45;&gt;sourcefile~internalconstants.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M1037.86,-593.28C1033.49,-595.73 1029.42,-598.68 1026,-602.22 989.95,-639.51 1019.42,-670.51 990,-713.22 965.07,-749.4 953.1,-757.25 913,-775.22"/>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M911,-775.22C892.15,-783.67 748.01,-745.31 729,-737.22"/>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M727,-737.22C673.5,-714.46 615.2,-679.59 582.07,-658.73"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="583.74,-655.64 573.42,-653.24 579.99,-661.55 583.74,-655.64"/>
+</g>
+<!-- sourcefile~mintransform.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge43" class="edge">
+<title>sourcefile~mintransform.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M911,-775.22C873.3,-792.12 770.26,-811.1 729,-813.22"/>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M727,-813.22C615.49,-818.96 584.31,-795.17 486,-742.22 445.57,-720.44 406.42,-683.38 384.49,-660.72"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="386.91,-658.18 377.48,-653.35 381.84,-663.01 386.91,-658.18"/>
+</g>
+<!-- sourcefile~nulltransform.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge44" class="edge">
+<title>sourcefile~nulltransform.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M857.19,-277.91C820.94,-278.64 772.05,-278.81 729,-276.22"/>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M727,-276.22C648.56,-271.5 633.44,-239.94 555,-235.22"/>
+</g>
+<!-- sourcefile~nulltransform.f90&#45;&gt;sourcefile~extensiontransform.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge45" class="edge">
+<title>sourcefile~nulltransform.f90&#45;&gt;sourcefile~extensiontransform.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M857.38,-264.43C837.46,-260.06 814.66,-255.05 793.85,-250.47"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="794.33,-247 783.81,-248.27 792.83,-253.83 794.33,-247"/>
+</g>
+<!-- sourcefile~nulltransform.f90&#45;&gt;sourcefile~transformid.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge46" class="edge">
+<title>sourcefile~nulltransform.f90&#45;&gt;sourcefile~transformid.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M727,-276.22C689.18,-273.95 646.6,-273.68 613.27,-273.99"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="613.2,-270.49 603.24,-274.1 613.28,-277.49 613.2,-270.49"/>
+</g>
+<!-- sourcefile~virtualconnectionpt.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge47" class="edge">
+<title>sourcefile~virtualconnectionpt.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M673.99,-168.24C656.25,-172.26 636.31,-176.78 617.89,-180.96"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="617.11,-177.55 608.13,-183.17 618.66,-184.37 617.11,-177.55"/>
+</g>
+<!-- sourcefile~api.f90~3&#45;&gt;sourcefile~fieldcreate.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge48" class="edge">
+<title>sourcefile~api.f90~3&#45;&gt;sourcefile~fieldcreate.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M884.92,-409.68C853.75,-423.39 801.36,-446.41 766.01,-461.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="764.26,-458.9 756.52,-466.12 767.08,-465.3 764.26,-458.9"/>
+</g>
+<!-- sourcefile~fieldget.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node24" class="node">
+<title>sourcefile~fieldget.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node24"><a xlink:href="../sourcefile/fieldget.f90.html" xlink:title="FieldGet.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="767.5,-410.22 688.5,-410.22 688.5,-386.22 767.5,-386.22 767.5,-410.22"/>
+<text text-anchor="middle" x="728" y="-395.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldGet.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~api.f90~3&#45;&gt;sourcefile~fieldget.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge49" class="edge">
+<title>sourcefile~api.f90~3&#45;&gt;sourcefile~fieldget.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M884.92,-398.22C857.13,-398.22 812.48,-398.22 778.07,-398.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="777.75,-394.72 767.75,-398.22 777.75,-401.72 777.75,-394.72"/>
+</g>
+<!-- sourcefile~fieldset.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node26" class="node">
+<title>sourcefile~fieldset.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node26"><a xlink:href="../sourcefile/fieldset.f90.html" xlink:title="FieldSet.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="766.5,-368.22 689.5,-368.22 689.5,-344.22 766.5,-344.22 766.5,-368.22"/>
+<text text-anchor="middle" x="728" y="-353.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldSet.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~api.f90~3&#45;&gt;sourcefile~fieldset.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge50" class="edge">
+<title>sourcefile~api.f90~3&#45;&gt;sourcefile~fieldset.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M884.92,-392.2C856.74,-385.7 811.23,-375.2 776.64,-367.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="777.27,-363.77 766.74,-364.93 775.69,-370.59 777.27,-363.77"/>
+</g>
+<!-- sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node30" class="node">
+<title>sourcefile~verticalstaggerloc.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node30"><a xlink:href="../sourcefile/verticalstaggerloc.f90.html" xlink:title="VerticalStaggerLoc.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="622,-329.22 486,-329.22 486,-305.22 622,-305.22 622,-329.22"/>
+<text text-anchor="middle" x="554" y="-314.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalStaggerLoc.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~api.f90~3&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge51" class="edge">
+<title>sourcefile~api.f90~3&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M894.81,-386.17C873.74,-371.23 835.22,-346.38 798,-335.22 744.19,-319.09 680.81,-314.85 632.28,-314.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="632.16,-311 622.15,-314.49 632.15,-318 632.16,-311"/>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge52" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M680.38,-466.29C672.27,-462.72 664.4,-458.12 658,-452.22 630.51,-426.9 650.58,-400.31 622,-376.22 574.02,-335.77 541.32,-367.86 486,-338.22 424.2,-305.1 433.75,-215.39 366.5,-235.22"/>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge55" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M706.4,-466.17C690.58,-455.78 669.54,-439.31 658,-419.22 613.43,-341.67 678.95,-290.19 622,-221.22 619.27,-217.92 616.08,-215.04 612.58,-212.52"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="614.33,-209.48 603.97,-207.28 610.69,-215.47 614.33,-209.48"/>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge54" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~internalconstants.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M680.3,-487.13C672.2,-490.27 664.35,-494.5 658,-500.22 628.42,-526.85 645.49,-550.09 622,-582.22 610.56,-597.87 594.31,-612.3 580.68,-622.98"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="578.44,-620.29 572.6,-629.12 582.68,-625.86 578.44,-620.29"/>
+</g>
+<!-- sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node25" class="node">
+<title>sourcefile~fieldinfo.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node25"><a xlink:href="../sourcefile/fieldinfo.f90.html" xlink:title="FieldInfo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="593.5,-409.22 514.5,-409.22 514.5,-385.22 593.5,-385.22 593.5,-409.22"/>
+<text text-anchor="middle" x="554" y="-394.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldInfo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge53" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~fieldinfo.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M686.68,-466.09C676.93,-462.34 666.79,-457.72 658,-452.22 639.34,-440.56 640.99,-429.35 622,-418.22 616.21,-414.82 609.8,-411.92 603.32,-409.44"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="604.43,-406.12 593.83,-406.13 602.12,-412.73 604.43,-406.12"/>
+</g>
+<!-- sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node28" class="node">
+<title>sourcefile~lu_bound.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node28"><a xlink:href="../sourcefile/lu_bound.f90.html" xlink:title="LU_Bound.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="598,-493.22 510,-493.22 510,-469.22 598,-469.22 598,-493.22"/>
+<text text-anchor="middle" x="554" y="-478.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LU_Bound.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge56" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M680.45,-479.03C658.09,-479.42 631.19,-479.89 608.04,-480.29"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="607.98,-476.8 598.04,-480.47 608.1,-483.79 607.98,-476.8"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node29" class="node">
+<title>sourcefile~ungriddeddims.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node29"><a xlink:href="../sourcefile/ungriddeddims.f90.html" xlink:title="UngriddedDims.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="613,-451.22 495,-451.22 495,-427.22 613,-427.22 613,-451.22"/>
+<text text-anchor="middle" x="554" y="-436.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDims.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge57" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M680.45,-467.67C661.22,-463.3 638.62,-458.18 617.94,-453.49"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="618.49,-450.03 607.96,-451.23 616.94,-456.85 618.49,-450.03"/>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge58" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M680.48,-467.23C672.17,-463.56 664.2,-458.69 658,-452.22 622.68,-415.41 657.14,-380.21 622,-343.22 618.68,-339.73 614.84,-336.7 610.71,-334.07"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="612.35,-330.98 601.91,-329.22 608.98,-337.11 612.35,-330.98"/>
+</g>
+<!-- sourcefile~fieldpointerutilities.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge59" class="edge">
+<title>sourcefile~fieldpointerutilities.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M520.82,-709.14C509.74,-704.87 497.28,-699.95 486,-695.22 457.4,-683.22 425.4,-668.7 401.72,-657.74"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="402.97,-654.46 392.43,-653.43 400.03,-660.81 402.97,-654.46"/>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge60" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M678.27,-530.92C625.84,-538.51 542.42,-542.02 486,-502.22 379.76,-427.28 491.2,-198.45 366.5,-235.22"/>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge64" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M678.18,-513.38C670.48,-510.14 663.32,-505.59 658,-499.22 578.17,-403.57 698.85,-319.28 622,-221.22 619.47,-218 616.5,-215.17 613.22,-212.7"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="614.89,-209.61 604.56,-207.24 611.16,-215.54 614.89,-209.61"/>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge62" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M711.45,-533.28C696.35,-545.59 673.48,-565.88 658,-587.22 636.29,-617.15 644.32,-632.74 622,-662.22 610.22,-677.77 593.83,-692.3 580.2,-703.04"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="577.95,-700.36 572.15,-709.22 582.21,-705.91 577.95,-700.36"/>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge61" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldinfo.f90</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M678.18,-511.43C670.85,-508.39 663.81,-504.42 658,-499.22 628.66,-472.93 651.4,-444.44 622,-418.22 616.56,-413.37 610,-409.64 603.15,-406.77"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="604.29,-403.46 593.7,-403.36 601.92,-410.05 604.29,-403.46"/>
+</g>
+<!-- sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_node27" class="node">
+<title>sourcefile~infoutilities.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~EfferentGraph_node27"><a xlink:href="../sourcefile/infoutilities.f90.html" xlink:title="InfoUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="601,-573.22 507,-573.22 507,-549.22 601,-549.22 601,-573.22"/>
+<text text-anchor="middle" x="554" y="-558.82" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InfoUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge63" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M678.17,-532.58C657.34,-537.42 632.9,-543.1 611.31,-548.13"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="610.23,-544.78 601.29,-550.46 611.82,-551.6 610.23,-544.78"/>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge65" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M678.17,-509.86C656.3,-504.78 630.45,-498.77 608.09,-493.57"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="608.62,-490.1 598.09,-491.24 607.04,-496.92 608.62,-490.1"/>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge66" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M678.42,-509.27C671.3,-506.52 664.26,-503.2 658,-499.22 638.1,-486.55 641.93,-472.84 622,-460.22 619.22,-458.46 616.28,-456.84 613.25,-455.34"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="614.49,-452.06 603.93,-451.23 611.67,-458.47 614.49,-452.06"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge67" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M355.92,-629.17C328.19,-590.22 240.78,-467.43 205.99,-418.57"/>
+<polygon fill="#003fff" stroke="#003fff" points="208.78,-416.46 200.13,-410.34 203.08,-420.52 208.78,-416.46"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~EfferentGraph_edge68" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M347.2,-628.91C294.96,-591.75 138.61,-480.54 76.68,-436.49"/>
+<polygon fill="#003fff" stroke="#003fff" points="78.43,-433.43 68.25,-430.49 74.37,-439.14 78.43,-433.43"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilefrequencyaspectf90EfferentGraph = svgPanZoom('#sourcefilefrequencyaspectf90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~frequencyaspect.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilefrequencyaspectf90AfferentGraph" width="641pt" height="358pt"
+ viewBox="0.00 0.00 641.00 358.33" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph" class="graph" transform="scale(0.83 0.83) rotate(0) translate(4 427)">
+<title>sourcefile~~frequencyaspect.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-427 767,-427 767,4 -4,4"/>
+<!-- sourcefile~frequencyaspect.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~frequencyaspect.f90</title>
+<polygon fill="none" stroke="black" points="126,-89 0,-89 0,-65 126,-65 126,-89"/>
+<text text-anchor="middle" x="63" y="-74.6" font-family="Helvetica,sans-Serif" font-size="10.50">FrequencyAspect.F90</text>
+</g>
+<!-- sourcefile~historycollectiongridcomp_private.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~historycollectiongridcomp_private.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/historycollectiongridcomp_private.f90.html" xlink:title="HistoryCollectionGridComp_private.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="531,-45 308,-45 308,-21 531,-21 531,-45"/>
+<text text-anchor="middle" x="419.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionGridComp_private.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~historycollectiongridcomp_private.f90&#45;&gt;sourcefile~frequencyaspect.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~historycollectiongridcomp_private.f90&#45;&gt;sourcefile~frequencyaspect.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M335.38,-45.04C325.98,-47.5 316.68,-50.45 308,-54 290.2,-61.27 290.4,-72.43 272,-78 225.21,-92.17 210.89,-78.25 162,-78 153.68,-77.96 144.97,-77.89 136.32,-77.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="136.24,-74.32 126.21,-77.73 136.18,-81.32 136.24,-74.32"/>
+</g>
+<!-- sourcefile~variablespec.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~variablespec.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/variablespec.f90.html" xlink:title="VariableSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="269.5,-213 164.5,-213 164.5,-189 269.5,-189 269.5,-213"/>
+<text text-anchor="middle" x="217" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VariableSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~historycollectiongridcomp_private.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~historycollectiongridcomp_private.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M324.28,-45.06C318.55,-47.55 313.06,-50.5 308,-54 305.01,-56.07 254.65,-139.77 230.6,-179.93"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="227.49,-178.31 225.36,-188.68 233.5,-181.9 227.49,-178.31"/>
+</g>
+<!-- sourcefile~test_aspectmap.pf -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~test_aspectmap.pf</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/test_aspectmap.pf.html" xlink:title="Test_AspectMap.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="272,-69 162,-69 162,-45 272,-45 272,-69"/>
+<text text-anchor="middle" x="217" y="-54.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_AspectMap.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_aspectmap.pf&#45;&gt;sourcefile~frequencyaspect.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~test_aspectmap.pf&#45;&gt;sourcefile~frequencyaspect.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M161.98,-64.11C153.64,-65.21 144.91,-66.35 136.25,-67.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="135.6,-64.05 126.14,-68.82 136.51,-70.99 135.6,-64.05"/>
+</g>
+<!-- sourcefile~test_aspects.pf -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~test_aspects.pf</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/test_aspects.pf.html" xlink:title="Test_Aspects.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="263.5,-27 170.5,-27 170.5,-3 263.5,-3 263.5,-27"/>
+<text text-anchor="middle" x="217" y="-12.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_Aspects.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_aspects.pf&#45;&gt;sourcefile~frequencyaspect.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~test_aspects.pf&#45;&gt;sourcefile~frequencyaspect.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M184.54,-27.08C177.13,-29.97 169.28,-33.06 162,-36 141.99,-44.07 119.81,-53.33 101.61,-61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="100.07,-57.85 92.23,-64.97 102.8,-64.3 100.07,-57.85"/>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~frequencyaspect.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~frequencyaspect.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M201.15,-188.88C174.54,-167.18 118.58,-121.53 86.99,-95.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="89.1,-92.96 79.14,-89.35 84.67,-98.38 89.1,-92.96"/>
+</g>
+<!-- sourcefile~componentspec.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~componentspec.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/componentspec.f90.html" xlink:title="ComponentSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="481.5,-423 357.5,-423 357.5,-399 481.5,-399 481.5,-423"/>
+<text text-anchor="middle" x="419.5" y="-408.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspec.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~componentspec.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M357.5,-409.6C340.1,-406.65 322.07,-400.85 308,-390 253.03,-347.59 229.98,-263.23 221.83,-223.14"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="225.22,-222.25 219.91,-213.08 218.34,-223.56 225.22,-222.25"/>
+</g>
+<!-- sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~componentspecparser.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/componentspecparser.f90.html" xlink:title="ComponentSpecParser.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="497.5,-381 341.5,-381 341.5,-357 497.5,-357 497.5,-381"/>
+<text text-anchor="middle" x="419.5" y="-366.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpecParser.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M341.47,-362.96C329.58,-359.66 317.96,-354.88 308,-348 263.13,-316.99 236.53,-255.62 224.93,-222.84"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="228.21,-221.62 221.69,-213.28 221.58,-223.87 228.21,-221.62"/>
+</g>
+<!-- sourcefile~historycollectiongridcomp.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~historycollectiongridcomp.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/historycollectiongridcomp.f90.html" xlink:title="HistoryCollectionGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="755,-66 575,-66 575,-42 755,-42 755,-66"/>
+<text text-anchor="middle" x="665" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~historycollectiongridcomp.f90&#45;&gt;sourcefile~historycollectiongridcomp_private.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~historycollectiongridcomp.f90&#45;&gt;sourcefile~historycollectiongridcomp_private.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M574.71,-46.3C563.9,-45.37 552.73,-44.4 541.56,-43.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="541.58,-39.93 531.32,-42.56 540.98,-46.9 541.58,-39.93"/>
+</g>
+<!-- sourcefile~initialize_advertise.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~initialize_advertise.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/initialize_advertise.f90.html" xlink:title="initialize_advertise.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="486.5,-339 352.5,-339 352.5,-315 486.5,-315 486.5,-339"/>
+<text text-anchor="middle" x="419.5" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_advertise.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~initialize_advertise.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~initialize_advertise.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M352.22,-321.85C336.98,-318.69 321.35,-313.73 308,-306 272.78,-285.6 244.75,-246.19 229.82,-221.88"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="232.7,-219.88 224.58,-213.07 226.69,-223.46 232.7,-219.88"/>
+</g>
+<!-- sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~mapl_generic.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/mapl_generic.f90.html" xlink:title="MAPL_Generic.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="475,-297 364,-297 364,-273 475,-273 475,-297"/>
+<text text-anchor="middle" x="419.5" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Generic.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M363.77,-279.28C345.54,-276.16 325.45,-271.36 308,-264 282.18,-253.1 256.34,-233.96 239.02,-219.62"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="241.13,-216.82 231.24,-213.03 236.61,-222.17 241.13,-216.82"/>
+</g>
+<!-- sourcefile~mockaspect.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~mockaspect.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/mockaspect.f90.html" xlink:title="MockAspect.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="469,-255 370,-255 370,-231 469,-231 469,-255"/>
+<text text-anchor="middle" x="419.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockAspect.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockaspect.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~mockaspect.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M369.73,-234.18C350.46,-230.58 328.16,-226.26 308,-222 298.23,-219.93 287.89,-217.63 277.83,-215.33"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="278.43,-211.87 267.9,-213.03 276.86,-218.69 278.43,-211.87"/>
+</g>
+<!-- sourcefile~mockitemspec.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~mockitemspec.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/mockitemspec.f90.html" xlink:title="MockItemSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="476,-213 363,-213 363,-189 476,-189 476,-213"/>
+<text text-anchor="middle" x="419.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockItemSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockitemspec.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~mockitemspec.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M362.92,-201C337.13,-201 306.4,-201 279.88,-201"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="279.56,-197.5 269.56,-201 279.56,-204.5 279.56,-197.5"/>
+</g>
+<!-- sourcefile~test_bracketclassaspect.pf -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~test_bracketclassaspect.pf</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/test_bracketclassaspect.pf.html" xlink:title="Test_BracketClassAspect.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="498,-171 341,-171 341,-147 498,-147 498,-171"/>
+<text text-anchor="middle" x="419.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_BracketClassAspect.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_bracketclassaspect.pf&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~test_bracketclassaspect.pf&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M352.68,-171.05C337.95,-173.87 322.42,-176.95 308,-180 298.23,-182.07 287.89,-184.37 277.83,-186.67"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="276.86,-183.31 267.9,-188.97 278.43,-190.13 276.86,-183.31"/>
+</g>
+<!-- sourcefile~test_historycollectiongridcomp.pf -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~test_historycollectiongridcomp.pf</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/test_historycollectiongridcomp.pf.html" xlink:title="Test_HistoryCollectionGridComp.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="763,-24 567,-24 567,0 763,0 763,-24"/>
+<text text-anchor="middle" x="665" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_HistoryCollectionGridComp.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_historycollectiongridcomp.pf&#45;&gt;sourcefile~historycollectiongridcomp_private.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~test_historycollectiongridcomp.pf&#45;&gt;sourcefile~historycollectiongridcomp_private.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M566.71,-20.39C558.33,-21.11 549.79,-21.85 541.26,-22.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="540.92,-19.1 531.26,-23.45 541.52,-26.08 540.92,-19.1"/>
+</g>
+<!-- sourcefile~test_modelverticalgrid.pf -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~test_modelverticalgrid.pf</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/test_modelverticalgrid.pf.html" xlink:title="Test_ModelVerticalGrid.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="492.5,-129 346.5,-129 346.5,-105 492.5,-105 492.5,-129"/>
+<text text-anchor="middle" x="419.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ModelVerticalGrid.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_modelverticalgrid.pf&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~test_modelverticalgrid.pf&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M346.46,-126.12C333.37,-129.05 320.05,-132.91 308,-138 282.18,-148.9 256.34,-168.04 239.02,-182.38"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="236.61,-179.83 231.24,-188.97 241.13,-185.18 236.61,-179.83"/>
+</g>
+<!-- sourcefile~variablespecvector.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~variablespecvector.f90</title>
+<g id="a_sourcefile~~frequencyaspect.f90~~AfferentGraph_node16"><a xlink:href="../sourcefile/variablespecvector.f90.html" xlink:title="VariableSpecVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="488,-87 351,-87 351,-63 488,-63 488,-87"/>
+<text text-anchor="middle" x="419.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VariableSpecVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~variablespecvector.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~frequencyaspect.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~variablespecvector.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M350.77,-80.45C336,-83.63 320.93,-88.51 308,-96 272.78,-116.4 244.75,-155.81 229.82,-180.12"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="226.69,-178.54 224.58,-188.93 232.7,-182.12 226.69,-178.54"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilefrequencyaspectf90AfferentGraph = svgPanZoom('#sourcefilefrequencyaspectf90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_Generic.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="cp">#include &quot;unused_dummy.H&quot;</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">module </span><span class="n">mapl3g_FrequencyAspect</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ActualConnectionPt</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_AspectId</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_StateItemAspect</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_AccumulatorTransformInterface</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ESMF_Time_Utilities</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">intervals_and_offset_are_compatible</span><span class="p">,</span><span class="w"> </span><span class="n">zero_time_interval</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">esmf</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="k">   private</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">FrequencyAspect</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">extends</span><span class="p">(</span><span class="n">StateItemAspect</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">FrequencyAspect</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">      </span><span class="k">private</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="k">      type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">timeStep</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">offset</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">accumulation_type</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">      </span><span class="c">! These are implementations of extended derived type.</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">matches</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">supports_conversion_general</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">supports_conversion_specific</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_transform</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">connect_to_export</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="k">procedure</span><span class="p">,</span><span class="w"> </span><span class="k">nopass</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_aspect_id</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">   </span><span class="k">end type </span><span class="n">FrequencyAspect</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">   </span><span class="k">interface </span><span class="n">FrequencyAspect</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="k">module procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_FrequencyAspect</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">   </span><span class="k">end interface </span><span class="n">FrequencyAspect</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="k">contains</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="k">   function </span><span class="n">new_FrequencyAspect</span><span class="p">(</span><span class="n">timeStep</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="n">accumulation_type</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">aspect</span><span class="p">)</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FrequencyAspect</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">aspect</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">timeStep</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">offset</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">accumulation_type</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">      </span><span class="k">call </span><span class="n">aspect</span><span class="p">%</span><span class="n">set_mirror</span><span class="p">(.</span><span class="n">FALSE</span><span class="p">.)</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">      </span><span class="k">call </span><span class="n">aspect</span><span class="p">%</span><span class="n">set_time_dependent</span><span class="p">(.</span><span class="n">FALSE</span><span class="p">.)</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">      </span><span class="k">call </span><span class="n">set_accumulation_type</span><span class="p">(</span><span class="n">aspect</span><span class="p">,</span><span class="w"> </span><span class="n">INSTANTANEOUS</span><span class="p">)</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">aspect</span><span class="p">%</span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">timeStep</span><span class="p">))</span><span class="w"> </span><span class="n">aspect</span><span class="p">%</span><span class="n">timeStep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timeStep</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">offset</span><span class="p">))</span><span class="w"> </span><span class="n">aspect</span><span class="p">%</span><span class="n">offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">offset</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">accumulation_type</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">set_accumulation_type</span><span class="p">(</span><span class="n">aspect</span><span class="p">,</span><span class="w"> </span><span class="n">accumulation_type</span><span class="p">)</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">   </span><span class="k">end function </span><span class="n">new_FrequencyAspect</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">set_accumulation_type</span><span class="p">(</span><span class="n">aspect</span><span class="p">,</span><span class="w"> </span><span class="n">accumulation_type</span><span class="p">)</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">FrequencyAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">aspect</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">accumulation_type</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">accumulation_type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">INSTANTANEOUS</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">accumulation_type_is_valid</span><span class="p">(</span><span class="n">accumulation_type</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="k">         </span><span class="n">aspect</span><span class="p">%</span><span class="n">accumulation_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">accumulation_type</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="k">   end subroutine </span><span class="n">set_accumulation_type</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">   </span><span class="kt">logical </span><span class="k">function </span><span class="n">matches</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">dst</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">does_match</span><span class="p">)</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">FrequencyAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dst</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this_timeStep</span><span class="p">,</span><span class="w"> </span><span class="n">other_timeStep</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">zero</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">      </span><span class="n">does_match</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">      </span><span class="k">if</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="nb">allocated</span><span class="p">(</span><span class="n">src</span><span class="p">%</span><span class="n">timeStep</span><span class="p">))</span><span class="w"> </span><span class="k">return</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="k">      </span><span class="n">zero</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">zero_time_interval</span><span class="p">()</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">      </span><span class="n">this_timeStep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">src</span><span class="p">%</span><span class="n">timeStep</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">this_timeStep</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">zero</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="k">      select type</span><span class="p">(</span><span class="n">dst</span><span class="p">)</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">      </span><span class="k">class is</span><span class="w"> </span><span class="p">(</span><span class="n">FrequencyAspect</span><span class="p">)</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">         </span><span class="k">if</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="nb">allocated</span><span class="p">(</span><span class="n">dst</span><span class="p">%</span><span class="n">timeStep</span><span class="p">))</span><span class="w"> </span><span class="k">return</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="k">         </span><span class="n">other_timeStep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dst</span><span class="p">%</span><span class="n">timeStep</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">         </span><span class="k">if</span><span class="p">(</span><span class="n">other_timeStep</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">zero</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="k">         if</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">accumulation_type_is_valid</span><span class="p">(</span><span class="n">dst</span><span class="p">%</span><span class="n">accumulation_type</span><span class="p">))</span><span class="w"> </span><span class="k">return</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="k">         </span><span class="n">does_match</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">other_timeStep</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">this_timeStep</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="k">   end function </span><span class="n">matches</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">   </span><span class="k">function </span><span class="n">make_transform</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">dst</span><span class="p">,</span><span class="w"> </span><span class="n">other_aspects</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ExtensionTransform</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">transform</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">FrequencyAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">dst</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">AspectMap</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">other_aspects</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">accumulation_type</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">      </span><span class="k">select type</span><span class="p">(</span><span class="n">dst</span><span class="p">)</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">      </span><span class="k">class is</span><span class="w"> </span><span class="p">(</span><span class="n">FrequencyAspect</span><span class="p">)</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">         </span><span class="n">accumulation_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dst</span><span class="p">%</span><span class="n">accumulation_type</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">         </span><span class="k">call </span><span class="n">get_accumulator_transform</span><span class="p">(</span><span class="n">accumulation_type</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="n">transform</span><span class="p">)</span><span class="w"> </span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">transform</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;Unable to allocate transform&#39;</span><span class="p">)</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">      </span><span class="k">class </span><span class="n">default</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">transform</span><span class="p">,</span><span class="n">source</span><span class="o">=</span><span class="n">NullTransform</span><span class="p">())</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">         </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;FrequencyAspect cannot convert from other class.&#39;</span><span class="p">)</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">   </span><span class="k">end function </span><span class="n">make_transform</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">connect_to_export</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">export</span><span class="p">,</span><span class="w"> </span><span class="n">actual_pt</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">FrequencyAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">export</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ActualConnectionPt</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">actual_pt</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">export</span><span class="p">)</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">actual_pt</span><span class="p">)</span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">connect_to_export</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">  </span><span class="kt">logical </span><span class="k">function </span><span class="n">supports_conversion_general</span><span class="p">(</span><span class="n">src</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">supports</span><span class="p">)</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">FrequencyAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="w">      </span><span class="n">supports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">   </span><span class="k">end function </span><span class="n">supports_conversion_general</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">   </span><span class="kt">logical </span><span class="k">function </span><span class="n">supports_conversion_specific</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">dst</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">supports</span><span class="p">)</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">FrequencyAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemAspect</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dst</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">      </span><span class="n">supports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="w">      </span><span class="k">if</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="nb">allocated</span><span class="p">(</span><span class="n">src</span><span class="p">%</span><span class="n">timeStep</span><span class="p">))</span><span class="w"> </span><span class="k">return</span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="k">      select type</span><span class="p">(</span><span class="n">dst</span><span class="p">)</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="w">      </span><span class="k">class is</span><span class="w"> </span><span class="p">(</span><span class="n">FrequencyAspect</span><span class="p">)</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="w">         </span><span class="k">if</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="nb">allocated</span><span class="p">(</span><span class="n">dst</span><span class="p">%</span><span class="n">timeStep</span><span class="p">))</span><span class="w"> </span><span class="k">return</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="k">         call </span><span class="n">intervals_and_offset_are_compatible</span><span class="p">(</span><span class="n">src</span><span class="p">%</span><span class="n">timeStep</span><span class="p">,</span><span class="w"> </span><span class="n">dst</span><span class="p">%</span><span class="n">timeStep</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="w">            </span><span class="p">&amp;</span><span class="w"> </span><span class="n">src</span><span class="p">%</span><span class="n">offset</span><span class="o">-</span><span class="n">dst</span><span class="p">%</span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="n">supports</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">         </span><span class="n">supports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">supports</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="err">_</span><span class="n">SUCCESS</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="k">   end function </span><span class="n">supports_conversion_specific</span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w">   </span><span class="k">function </span><span class="n">get_aspect_id</span><span class="p">()</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">aspect_id</span><span class="p">)</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">AspectId</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">aspect_id</span>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">      </span><span class="n">aspect_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FREQUENCY_ASPECT_ID</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">   </span><span class="k">end function </span><span class="n">get_aspect_id</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a>
+<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="k">end module </span><span class="n">mapl3g_FrequencyAspect</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

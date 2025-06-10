@@ -1,0 +1,1537 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_VerticalDataMod &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_VerticalDataMod
+      <small>Module</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.3% of total for modules and submodules.">772 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_VerticalMethods.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_verticalmethods.f90.html'>MAPL_VerticalMethods.F90</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_VerticalDataMod</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#enums-0"
+         aria-expanded="false" aria-controls="enums-0">
+         <h4 class="card-header bg-primary text-white">Enumerations</h4>
+      </a>
+      <div id="enums-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_verticaldatamod.html#enum-__unnamed__~22"><em>unnamed</em></a>
+            <a class="list-group-item" href="../module/mapl_verticaldatamod.html#enum-__unnamed__~23"><em>unnamed</em></a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#inters-0"
+         aria-expanded="false" aria-controls="inters-0">
+         <h4 class="card-header bg-primary text-white">Interfaces</h4>
+      </a>
+      <div id="inters-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_verticaldatamod.html#interface-verticaldata">verticalData</a>
+        </div>
+      </div>
+    </div>
+
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#types-0"
+         aria-expanded="false" aria-controls="types-0">
+         <h4 class="card-header bg-primary text-white">Derived Types</h4>
+      </a>
+      <div id="types-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_verticaldatamod.html#type-verticaldata">verticalData</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
+                  <li class="list-inline-item"><a href='pfio.html'>pFIO</a></li>
+                  <li class="list-inline-item"><a href='http://fortranwiki.org/fortran/show/iso_fortran_env'>iso_fortran_env</a></li>
+                  <li class="list-inline-item"><a href='mapl_constants.html'>MAPL_Constants</a></li>
+                  <li class="list-inline-item"><a href='mapl_abstractregriddermod.html'>MAPL_AbstractRegridderMod</a></li>
+                  <li class="list-inline-item"><a href='mapl_profiler.html'>mapl_Profiler</a></li>
+                  <li class="list-inline-item"><a href='mapl_exceptionhandling.html'>MAPL_ExceptionHandling</a></li>
+                  <li class="list-inline-item"><a href='http://fortranwiki.org/fortran/show/iso_c_binding'>iso_c_binding</a></li>
+                  <li class="list-inline-item"><a href='mapl_basemod.html'>MAPL_BaseMod</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~mapl_verticaldatamod~~UsesGraph Pages: 1 -->
+<svg id="modulemapl_verticaldatamodUsesGraph" width="344pt" height="368pt"
+ viewBox="0.00 0.00 344.00 368.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl_verticaldatamod~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 364)">
+<title>module~~mapl_verticaldatamod~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-364 340,-364 340,4 -4,4"/>
+<!-- module~mapl_verticaldatamod -->
+<g id="module~~mapl_verticaldatamod~~UsesGraph_node1" class="node">
+<title>module~mapl_verticaldatamod</title>
+<polygon fill="none" stroke="black" points="336,-192 202,-192 202,-168 336,-168 336,-192"/>
+<text text-anchor="middle" x="269" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_VerticalDataMod</text>
+</g>
+<!-- ESMF -->
+<g id="module~~mapl_verticaldatamod~~UsesGraph_node2" class="node">
+<title>ESMF</title>
+<g id="a_module~~mapl_verticaldatamod~~UsesGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/module/esmf.html" xlink:title="ESMF">
+<polygon fill="#337ab7" stroke="#337ab7" points="110,-360 56,-360 56,-336 110,-336 110,-360"/>
+<text text-anchor="middle" x="83" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_verticaldatamod&#45;&gt;ESMF -->
+<g id="module~~mapl_verticaldatamod~~UsesGraph_edge1" class="edge">
+<title>module~mapl_verticaldatamod&#45;&gt;ESMF</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M263.18,-192.08C251.24,-220.37 217.52,-291.19 166,-327 152.67,-336.27 135.57,-341.45 120.43,-344.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="119.64,-340.93 110.34,-346 120.78,-347.83 119.64,-340.93"/>
+</g>
+<!-- iso_c_binding -->
+<g id="module~~mapl_verticaldatamod~~UsesGraph_node3" class="node">
+<title>iso_c_binding</title>
+<g id="a_module~~mapl_verticaldatamod~~UsesGraph_node3"><a xlink:href="http://fortranwiki.org/fortran/show/iso_c_binding" xlink:title="iso_c_binding">
+<polygon fill="#337ab7" stroke="#337ab7" points="125,-318 41,-318 41,-294 125,-294 125,-318"/>
+<text text-anchor="middle" x="83" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_c_binding</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_verticaldatamod&#45;&gt;iso_c_binding -->
+<g id="module~~mapl_verticaldatamod~~UsesGraph_edge2" class="edge">
+<title>module~mapl_verticaldatamod&#45;&gt;iso_c_binding</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M259.73,-192.16C244.11,-214.19 208,-260.66 166,-285 156.56,-290.47 145.69,-294.54 135.03,-297.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="134.15,-294.16 125.33,-300.03 135.89,-300.94 134.15,-294.16"/>
+</g>
+<!-- iso_fortran_env -->
+<g id="module~~mapl_verticaldatamod~~UsesGraph_node4" class="node">
+<title>iso_fortran_env</title>
+<g id="a_module~~mapl_verticaldatamod~~UsesGraph_node4"><a xlink:href="http://fortranwiki.org/fortran/show/iso_fortran_env" xlink:title="iso_fortran_env">
+<polygon fill="#337ab7" stroke="#337ab7" points="130,-276 36,-276 36,-252 130,-252 130,-276"/>
+<text text-anchor="middle" x="83" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_fortran_env</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_verticaldatamod&#45;&gt;iso_fortran_env -->
+<g id="module~~mapl_verticaldatamod~~UsesGraph_edge3" class="edge">
+<title>module~mapl_verticaldatamod&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M251.88,-192.11C232.45,-206.19 198.37,-229.24 166,-243 157.84,-246.47 148.98,-249.47 140.2,-252.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="139.07,-248.71 130.35,-254.73 140.92,-255.46 139.07,-248.71"/>
+</g>
+<!-- module~mapl_abstractregriddermod -->
+<g id="module~~mapl_verticaldatamod~~UsesGraph_node5" class="node">
+<title>module~mapl_abstractregriddermod</title>
+<g id="a_module~~mapl_verticaldatamod~~UsesGraph_node5"><a xlink:href="../module/mapl_abstractregriddermod.html" xlink:title="MAPL_AbstractRegridderMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="166,-234 0,-234 0,-210 166,-210 166,-234"/>
+<text text-anchor="middle" x="83" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AbstractRegridderMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_verticaldatamod&#45;&gt;module~mapl_abstractregriddermod -->
+<g id="module~~mapl_verticaldatamod~~UsesGraph_edge4" class="edge">
+<title>module~mapl_verticaldatamod&#45;&gt;module~mapl_abstractregriddermod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M215.27,-192.04C193.91,-196.91 169.06,-202.58 146.77,-207.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="145.71,-204.33 136.73,-209.96 147.26,-211.15 145.71,-204.33"/>
+</g>
+<!-- module~mapl_basemod -->
+<g id="module~~mapl_verticaldatamod~~UsesGraph_node6" class="node">
+<title>module~mapl_basemod</title>
+<g id="a_module~~mapl_verticaldatamod~~UsesGraph_node6"><a xlink:href="../module/mapl_basemod.html" xlink:title="MAPL_BaseMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="130.5,-192 35.5,-192 35.5,-168 130.5,-168 130.5,-192"/>
+<text text-anchor="middle" x="83" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_BaseMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_verticaldatamod&#45;&gt;module~mapl_basemod -->
+<g id="module~~mapl_verticaldatamod~~UsesGraph_edge5" class="edge">
+<title>module~mapl_verticaldatamod&#45;&gt;module~mapl_basemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M201.83,-180C181.83,-180 160.06,-180 140.74,-180"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="140.58,-176.5 130.58,-180 140.58,-183.5 140.58,-176.5"/>
+</g>
+<!-- module~mapl_constants -->
+<g id="module~~mapl_verticaldatamod~~UsesGraph_node7" class="node">
+<title>module~mapl_constants</title>
+<g id="a_module~~mapl_verticaldatamod~~UsesGraph_node7"><a xlink:href="../module/mapl_constants.html" xlink:title="MAPL_Constants">
+<polygon fill="#337ab7" stroke="#337ab7" points="132.5,-150 33.5,-150 33.5,-126 132.5,-126 132.5,-150"/>
+<text text-anchor="middle" x="83" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Constants</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_verticaldatamod&#45;&gt;module~mapl_constants -->
+<g id="module~~mapl_verticaldatamod~~UsesGraph_edge6" class="edge">
+<title>module~mapl_verticaldatamod&#45;&gt;module~mapl_constants</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M215.27,-167.96C192.51,-162.77 165.79,-156.67 142.43,-151.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="143.17,-147.92 132.64,-149.1 141.61,-154.74 143.17,-147.92"/>
+</g>
+<!-- module~mapl_exceptionhandling -->
+<g id="module~~mapl_verticaldatamod~~UsesGraph_node8" class="node">
+<title>module~mapl_exceptionhandling</title>
+<g id="a_module~~mapl_verticaldatamod~~UsesGraph_node8"><a xlink:href="../module/mapl_exceptionhandling.html" xlink:title="MAPL_ExceptionHandling">
+<polygon fill="#337ab7" stroke="#337ab7" points="156.5,-108 9.5,-108 9.5,-84 156.5,-84 156.5,-108"/>
+<text text-anchor="middle" x="83" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_verticaldatamod&#45;&gt;module~mapl_exceptionhandling -->
+<g id="module~~mapl_verticaldatamod~~UsesGraph_edge7" class="edge">
+<title>module~mapl_verticaldatamod&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M251.88,-167.89C232.45,-153.81 198.37,-130.76 166,-117 160.93,-114.84 155.58,-112.87 150.15,-111.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="150.92,-107.64 140.33,-108.01 148.84,-114.32 150.92,-107.64"/>
+</g>
+<!-- module~mapl_profiler -->
+<g id="module~~mapl_verticaldatamod~~UsesGraph_node9" class="node">
+<title>module~mapl_profiler</title>
+<g id="a_module~~mapl_verticaldatamod~~UsesGraph_node9"><a xlink:href="../module/mapl_profiler.html" xlink:title="mapl_Profiler">
+<polygon fill="#337ab7" stroke="#337ab7" points="124,-66 42,-66 42,-42 124,-42 124,-66"/>
+<text text-anchor="middle" x="83" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_Profiler</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_verticaldatamod&#45;&gt;module~mapl_profiler -->
+<g id="module~~mapl_verticaldatamod~~UsesGraph_edge8" class="edge">
+<title>module~mapl_verticaldatamod&#45;&gt;module~mapl_profiler</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M259.73,-167.84C244.11,-145.81 208,-99.34 166,-75 156.27,-69.36 145.02,-65.21 134.04,-62.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="134.63,-58.71 124.07,-59.68 132.93,-65.5 134.63,-58.71"/>
+</g>
+<!-- module~pfio -->
+<g id="module~~mapl_verticaldatamod~~UsesGraph_node10" class="node">
+<title>module~pfio</title>
+<g id="a_module~~mapl_verticaldatamod~~UsesGraph_node10"><a xlink:href="../module/pfio.html" xlink:title="pFIO">
+<polygon fill="#337ab7" stroke="#337ab7" points="110,-24 56,-24 56,0 110,0 110,-24"/>
+<text text-anchor="middle" x="83" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_verticaldatamod&#45;&gt;module~pfio -->
+<g id="module~~mapl_verticaldatamod~~UsesGraph_edge9" class="edge">
+<title>module~mapl_verticaldatamod&#45;&gt;module~pfio</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M263.18,-167.92C251.24,-139.63 217.52,-68.81 166,-33 152.67,-23.73 135.57,-18.55 120.43,-15.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="120.78,-12.17 110.34,-14 119.64,-19.07 120.78,-12.17"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+          <div class="card">
+      <h3 class="card-header card-title bg-light">Used by</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~mapl_verticaldatamod~~UsedByGraph Pages: 1 -->
+<svg id="modulemapl_verticaldatamodUsedByGraph" width="344pt" height="410pt"
+ viewBox="0.00 0.00 344.00 410.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl_verticaldatamod~~UsedByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 406)">
+<title>module~~mapl_verticaldatamod~~UsedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-406 340,-406 340,4 -4,4"/>
+<!-- module~mapl_verticaldatamod -->
+<g id="module~~mapl_verticaldatamod~~UsedByGraph_node1" class="node">
+<title>module~mapl_verticaldatamod</title>
+<polygon fill="none" stroke="black" points="134,-213 0,-213 0,-189 134,-189 134,-213"/>
+<text text-anchor="middle" x="67" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_VerticalDataMod</text>
+</g>
+<!-- module~historytrajectory_implement -->
+<g id="module~~mapl_verticaldatamod~~UsedByGraph_node2" class="node">
+<title>module~historytrajectory_implement</title>
+<g id="a_module~~mapl_verticaldatamod~~UsedByGraph_node2"><a xlink:href="../module/historytrajectory_implement.html" xlink:title="HistoryTrajectory_implement">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="336,-402 170,-402 170,-378 336,-378 336,-402"/>
+<text text-anchor="middle" x="253" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryTrajectory_implement</text>
+</a>
+</g>
+</g>
+<!-- module~historytrajectory_implement&#45;&gt;module~mapl_verticaldatamod -->
+<g id="module~~mapl_verticaldatamod~~UsedByGraph_edge1" class="edge">
+<title>module~historytrajectory_implement&#45;&gt;module~mapl_verticaldatamod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M185.47,-377.85C179.97,-375.42 174.72,-372.5 170,-369 118.86,-331.09 88.08,-259.2 75.15,-223"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="78.41,-221.7 71.84,-213.39 71.79,-223.98 78.41,-221.7"/>
+</g>
+<!-- module~historytrajectorymod -->
+<g id="module~~mapl_verticaldatamod~~UsedByGraph_node3" class="node">
+<title>module~historytrajectorymod</title>
+<g id="a_module~~mapl_verticaldatamod~~UsedByGraph_node3"><a xlink:href="../module/historytrajectorymod.html" xlink:title="HistoryTrajectoryMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="315.5,-360 190.5,-360 190.5,-336 315.5,-336 315.5,-360"/>
+<text text-anchor="middle" x="253" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryTrajectoryMod</text>
+</a>
+</g>
+</g>
+<!-- module~historytrajectorymod&#45;&gt;module~mapl_verticaldatamod -->
+<g id="module~~mapl_verticaldatamod~~UsedByGraph_edge2" class="edge">
+<title>module~historytrajectorymod&#45;&gt;module~mapl_verticaldatamod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M190.18,-336.8C183.08,-334.19 176.18,-330.97 170,-327 128.26,-300.22 95.65,-250.6 79.38,-222.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="82.25,-220.24 74.32,-213.22 76.14,-223.66 82.25,-220.24"/>
+</g>
+<!-- module~mapl_epochswathmod -->
+<g id="module~~mapl_verticaldatamod~~UsedByGraph_node4" class="node">
+<title>module~mapl_epochswathmod</title>
+<g id="a_module~~mapl_verticaldatamod~~UsedByGraph_node4"><a xlink:href="../module/mapl_epochswathmod.html" xlink:title="MAPL_EpochSwathMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="320,-318 186,-318 186,-294 320,-294 320,-318"/>
+<text text-anchor="middle" x="253" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_EpochSwathMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_epochswathmod&#45;&gt;module~mapl_verticaldatamod -->
+<g id="module~~mapl_verticaldatamod~~UsedByGraph_edge3" class="edge">
+<title>module~mapl_epochswathmod&#45;&gt;module~mapl_verticaldatamod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M192.19,-293.98C184.53,-291.49 176.94,-288.53 170,-285 137.28,-268.39 105.63,-239.74 86.48,-220.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="88.81,-217.96 79.31,-213.26 83.81,-222.85 88.81,-217.96"/>
+</g>
+<!-- module~mapl_esmffieldbundlewrite -->
+<g id="module~~mapl_verticaldatamod~~UsedByGraph_node5" class="node">
+<title>module~mapl_esmffieldbundlewrite</title>
+<g id="a_module~~mapl_verticaldatamod~~UsedByGraph_node5"><a xlink:href="../module/mapl_esmffieldbundlewrite.html" xlink:title="MAPL_ESMFFieldBundleWrite">
+<polygon fill="#337ab7" stroke="#337ab7" points="335.5,-276 170.5,-276 170.5,-252 335.5,-252 335.5,-276"/>
+<text text-anchor="middle" x="253" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFFieldBundleWrite</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_esmffieldbundlewrite&#45;&gt;module~mapl_verticaldatamod -->
+<g id="module~~mapl_verticaldatamod~~UsedByGraph_edge4" class="edge">
+<title>module~mapl_esmffieldbundlewrite&#45;&gt;module~mapl_verticaldatamod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M200.5,-251.99C190.32,-249.28 179.76,-246.24 170,-243 147.61,-235.56 123.15,-225.56 103.8,-217.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="105.02,-213.9 94.46,-213.09 102.22,-220.31 105.02,-213.9"/>
+</g>
+<!-- module~mapl_griddediomod -->
+<g id="module~~mapl_verticaldatamod~~UsedByGraph_node6" class="node">
+<title>module~mapl_griddediomod</title>
+<g id="a_module~~mapl_verticaldatamod~~UsedByGraph_node6"><a xlink:href="../module/mapl_griddediomod.html" xlink:title="MAPL_GriddedIOMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="314.5,-234 191.5,-234 191.5,-210 314.5,-210 314.5,-234"/>
+<text text-anchor="middle" x="253" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIOMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_griddediomod&#45;&gt;module~mapl_verticaldatamod -->
+<g id="module~~mapl_verticaldatamod~~UsedByGraph_edge5" class="edge">
+<title>module~mapl_griddediomod&#45;&gt;module~mapl_verticaldatamod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M191.5,-215.09C176.46,-213.38 160.15,-211.52 144.46,-209.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="144.59,-206.22 134.25,-208.56 143.79,-213.17 144.59,-206.22"/>
+</g>
+<!-- module~mapl_historycollectionmod -->
+<g id="module~~mapl_verticaldatamod~~UsedByGraph_node7" class="node">
+<title>module~mapl_historycollectionmod</title>
+<g id="a_module~~mapl_verticaldatamod~~UsedByGraph_node7"><a xlink:href="../module/mapl_historycollectionmod.html" xlink:title="MAPL_HistoryCollectionMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="333,-192 173,-192 173,-168 333,-168 333,-192"/>
+<text text-anchor="middle" x="253" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryCollectionMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_historycollectionmod&#45;&gt;module~mapl_verticaldatamod -->
+<g id="module~~mapl_verticaldatamod~~UsedByGraph_edge6" class="edge">
+<title>module~mapl_historycollectionmod&#45;&gt;module~mapl_verticaldatamod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M172.9,-189.03C163.39,-190.11 153.68,-191.22 144.21,-192.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="143.59,-188.85 134.05,-193.46 144.38,-195.81 143.59,-188.85"/>
+</g>
+<!-- module~mapl_historygridcompmod -->
+<g id="module~~mapl_verticaldatamod~~UsedByGraph_node8" class="node">
+<title>module~mapl_historygridcompmod</title>
+<g id="a_module~~mapl_verticaldatamod~~UsedByGraph_node8"><a xlink:href="../module/mapl_historygridcompmod.html" xlink:title="MAPL_HistoryGridCompMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="333,-150 173,-150 173,-126 333,-126 333,-150"/>
+<text text-anchor="middle" x="253" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryGridCompMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_historygridcompmod&#45;&gt;module~mapl_verticaldatamod -->
+<g id="module~~mapl_verticaldatamod~~UsedByGraph_edge7" class="edge">
+<title>module~mapl_historygridcompmod&#45;&gt;module~mapl_verticaldatamod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M200.5,-150.01C190.32,-152.72 179.76,-155.76 170,-159 147.61,-166.44 123.15,-176.44 103.8,-184.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="102.22,-181.69 94.46,-188.91 105.02,-188.1 102.22,-181.69"/>
+</g>
+<!-- module~maplbase_mod -->
+<g id="module~~mapl_verticaldatamod~~UsedByGraph_node9" class="node">
+<title>module~maplbase_mod</title>
+<g id="a_module~~mapl_verticaldatamod~~UsedByGraph_node9"><a xlink:href="../module/maplbase_mod.html" xlink:title="MAPLBase_Mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="300.5,-108 205.5,-108 205.5,-84 300.5,-84 300.5,-108"/>
+<text text-anchor="middle" x="253" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPLBase_Mod</text>
+</a>
+</g>
+</g>
+<!-- module~maplbase_mod&#45;&gt;module~mapl_verticaldatamod -->
+<g id="module~~mapl_verticaldatamod~~UsedByGraph_edge8" class="edge">
+<title>module~maplbase_mod&#45;&gt;module~mapl_verticaldatamod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M205.17,-104.24C193.32,-107.33 180.88,-111.48 170,-117 137.28,-133.61 105.63,-162.26 86.48,-181.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="83.81,-179.15 79.31,-188.74 88.81,-184.04 83.81,-179.15"/>
+</g>
+<!-- module~masksamplermod -->
+<g id="module~~mapl_verticaldatamod~~UsedByGraph_node10" class="node">
+<title>module~masksamplermod</title>
+<g id="a_module~~mapl_verticaldatamod~~UsedByGraph_node10"><a xlink:href="../module/masksamplermod.html" xlink:title="MaskSamplerMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="306.5,-66 199.5,-66 199.5,-42 306.5,-42 306.5,-66"/>
+<text text-anchor="middle" x="253" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaskSamplerMod</text>
+</a>
+</g>
+</g>
+<!-- module~masksamplermod&#45;&gt;module~mapl_verticaldatamod -->
+<g id="module~~mapl_verticaldatamod~~UsedByGraph_edge9" class="edge">
+<title>module~masksamplermod&#45;&gt;module~mapl_verticaldatamod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M199.18,-62.22C189,-65.24 178.78,-69.37 170,-75 128.26,-101.78 95.65,-151.4 79.38,-179.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="76.14,-178.34 74.32,-188.78 82.25,-181.76 76.14,-178.34"/>
+</g>
+<!-- module~stationsamplermod -->
+<g id="module~~mapl_verticaldatamod~~UsedByGraph_node11" class="node">
+<title>module~stationsamplermod</title>
+<g id="a_module~~mapl_verticaldatamod~~UsedByGraph_node11"><a xlink:href="../module/stationsamplermod.html" xlink:title="StationSamplerMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="312,-24 194,-24 194,0 312,0 312,-24"/>
+<text text-anchor="middle" x="253" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StationSamplerMod</text>
+</a>
+</g>
+</g>
+<!-- module~stationsamplermod&#45;&gt;module~mapl_verticaldatamod -->
+<g id="module~~mapl_verticaldatamod~~UsedByGraph_edge10" class="edge">
+<title>module~stationsamplermod&#45;&gt;module~mapl_verticaldatamod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M193.86,-20.85C185.35,-23.81 177.08,-27.75 170,-33 118.86,-70.91 88.08,-142.8 75.15,-179"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="71.79,-178.02 71.84,-188.61 78.41,-180.3 71.79,-178.02"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsedByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsedByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+      <br>
+
+
+
+        <section>
+          <h2>Enumerations</h2>
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="enum-__unnamed__~22"></span><h3>enum, bind(c)</h3></div>
+    <div class="card-body">
+      <h4>Enumerators</h4>
+      <table class="table table-striped varlist">
+        <tbody>
+            <tr>
+              <td>enumerator</td><td>::</td>
+              <td><strong>VERTICAL_METHOD_NONE</strong></td><td> = </td><td>-1</td><td></td>
+            </tr>
+            <tr>
+              <td>enumerator</td><td>::</td>
+              <td><strong>VERTICAL_METHOD_SELECT</strong></td><td> = </td><td>0</td><td></td>
+            </tr>
+            <tr>
+              <td>enumerator</td><td>::</td>
+              <td><strong>VERTICAL_METHOD_ETA2LEV</strong></td><td> = </td><td>1</td><td></td>
+            </tr>
+            <tr>
+              <td>enumerator</td><td>::</td>
+              <td><strong>VERTICAL_METHOD_FLIP</strong></td><td> = </td><td>2</td><td></td>
+            </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="enum-__unnamed__~23"></span><h3>enum, bind(c)</h3></div>
+    <div class="card-body">
+      <h4>Enumerators</h4>
+      <table class="table table-striped varlist">
+        <tbody>
+            <tr>
+              <td>enumerator</td><td>::</td>
+              <td><strong>VFLAG_GEOT</strong></td><td> = </td><td>0</td><td></td>
+            </tr>
+            <tr>
+              <td>enumerator</td><td>::</td>
+              <td><strong>VFLAG_GEOZ</strong></td><td> = </td><td>1</td><td></td>
+            </tr>
+            <tr>
+              <td>enumerator</td><td>::</td>
+              <td><strong>VFLAG_GENERIC</strong></td><td> = </td><td>2</td><td></td>
+            </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+        <section>
+          <h2>Interfaces</h2>
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-verticaldata"></span>
+      <h3>public        interface <a href='../interface/verticaldata.html'>verticalData</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function newVerticalData(levels, vcoord, vscale, vunit, positive, long_name, standard_name, force_no_regrid, extrap_below_surf, rc) result(vData)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-levels~7"></span>
+              real,
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>levels</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vcoord~5"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vcoord</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vscale~3"></span>
+              real,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vscale</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vunit~3"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vunit</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-positive~14"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>positive</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-long_name~39"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>long_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-standard_name~27"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>standard_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-force_no_regrid"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>force_no_regrid</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-extrap_below_surf~3"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>extrap_below_surf</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~2389"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/verticaldata.html'>verticalData</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+        </section>
+        <br>
+
+
+        <section>
+          <h2>Derived Types</h2>
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-verticaldata"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/verticaldata.html'>verticalData</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      
+
+        <h4>Components</h4>
+          <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-func"></span>
+              character(len=:),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>func</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-long_name~38"></span>
+              character(len=:),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>long_name</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-positive~13"></span>
+              character(len=:),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>positive</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-standard_name~26"></span>
+              character(len=:),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>standard_name</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vcoord~4"></span>
+              character(len=:),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>vcoord</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vunit~2"></span>
+              character(len=:),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>vunit</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vvar"></span>
+              character(len=:),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>vvar</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ks~2"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>ks</strong>(:,:,:)</td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ks_e"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>ks_e</strong>(:,:,:)</td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lm~35"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>lm</strong></td>
+<td> =</td>
+                <td>0</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nedge"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nedge</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-regrid_type~2"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>regrid_type</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ascending~2"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ascending</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-extrap_below_surf~2"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>extrap_below_surf</strong></td>
+<td> =</td>
+                <td>.false.</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-interp_levels"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>interp_levels</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-levs~7"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>levs</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pl3d"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>pl3d</strong>(:,:,:)</td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ple3d"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>ple3d</strong>(:,:,:)</td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pow~2"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>pow</strong></td>
+<td> =</td>
+                <td>0.0</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-scaled_levels"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>scaled_levels</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-surface_level"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>surface_level</strong>(:,:)</td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vscale~2"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vscale</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-weight~6"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>weight</strong>(:,:,:)</td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-weight_e"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>weight_e</strong>(:,:,:)</td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-interp_var"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>interp_var</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-phis_var"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>phis_var</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ts_var"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ts_var</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        <h4>Constructor</h4>
+          
+        <table class="table table-striped varlist">
+          <tbody>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong>newVerticalData</strong>
+                    (levels, vcoord, vscale, vunit, positive, long_name, standard_name, force_no_regrid, extrap_below_surf, rc)
+                  </td>
+                  <td></td>
+                </tr>
+          </tbody>
+        </table>
+
+
+        <h4>Type-Bound Procedures</h4>
+        <table class="table table-striped varlist">
+          <tbody>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/verticaldata.html#boundprocedure-append_vertical_metadata'>append_vertical_metadata</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/verticaldata.html#boundprocedure-correct_topo'>correct_topo</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/verticaldata.html#boundprocedure-do_below_surf_extrap'>do_below_surf_extrap</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/verticaldata.html#boundprocedure-flip_levels'>flip_levels</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/verticaldata.html#boundprocedure-get_interpolating_variable'>get_interpolating_variable</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/verticaldata.html#boundprocedure-regrid_eta_to_pressure'>regrid_eta_to_pressure</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/verticaldata.html#boundprocedure-regrid_select_level'>regrid_select_level</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/verticaldata.html#boundprocedure-setup_eta_to_pressure'>setup_eta_to_pressure</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/verticaldata.html#boundprocedure-skip_var'>skip_var</a></strong></td>
+                  <td></td>
+              </tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+
+
+
+
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

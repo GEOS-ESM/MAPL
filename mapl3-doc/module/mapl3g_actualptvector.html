@@ -1,0 +1,3738 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>mapl3g_ActualPtVector &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>mapl3g_ActualPtVector
+      <small>Module</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.4% of total for modules and submodules.">1292 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ActualPtVector.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/actualptvector.f90.html'>ActualPtVector.F90</a></li>
+            <li class="breadcrumb-item active" aria-current="page">mapl3g_ActualPtVector</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#variable-bad_alloc~65">BAD_ALLOC</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#variable-gftl_size_kind~33">GFTL_SIZE_KIND</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#variable-illegal_input~65">ILLEGAL_INPUT</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#variable-length_error~33">LENGTH_ERROR</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#variable-out_of_range~65">OUT_OF_RANGE</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#variable-success~74">SUCCESS</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#variable-type_has_no_default_value~33">TYPE_HAS_NO_DEFAULT_VALUE</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#variable-no_type__~33">NO_TYPE__</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#inters-0"
+         aria-expanded="false" aria-controls="inters-0">
+         <h4 class="card-header bg-primary text-white">Interfaces</h4>
+      </a>
+      <div id="inters-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#interface-actualptvector">ActualPtVector</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#interface-advance~69">advance</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#interface-begin~47">begin</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#interface-distance~45">distance</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#interface-end~47">end</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#interface-find~69">find</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#interface-find_if~69">find_if</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#interface-find_if_not~69">find_if_not</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#interface-ftn_begin~47">ftn_begin</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#interface-ftn_end~47">ftn_end</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#interface-next~69">next</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#interface-operator%28%2B%29~45">operator(+)</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#interface-operator%28-%29~45">operator(-)</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#interface-operator%28SLASH%3D%29~109">operator(/=)</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#interface-operator%28%3D%3D%29~111">operator(==)</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#interface-prev~69">prev</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#interface-swap~88">swap</a>
+        </div>
+      </div>
+    </div>
+
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#types-0"
+         aria-expanded="false" aria-controls="types-0">
+         <h4 class="card-header bg-primary text-white">Derived Types</h4>
+      </a>
+      <div id="types-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#type-actualptvector">ActualPtVector</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#type-actualptvectoriterator">ActualPtVectorIterator</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#type-keywordenforcer~22">KeywordEnforcer</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#type-no_type_~15">NO_TYPE_</a>
+            <a class="list-group-item" href="../module/mapl3g_actualptvector.html#type-vectorriterator~6">VectorRIterator</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      <p>$   public :: foreach</p>
+<p>$   ! =======================
+$   !  insert
+$   ! =======================
+$   subroutine vector_insert_size_kind(                                                 &amp;
+$        &amp;   this, index, value, unused, rc)
+$      class(ActualPtVector), target, intent(inout) :: this
+$
+$      integer(kind=GFTL_SIZE_KIND), intent(in) :: index
+$
+$      type(ActualConnectionPt), intent(in) :: value
+$      type (KeywordEnforcer), optional, intent(in) :: unused
+$      integer, optional, intent(out) :: rc
+$
+$      type(ActualConnectionPt) :: temp
+$      integer(kind=GFTL_SIZE_KIND) :: i, n
+$
+$      if (.false.) print*,shape(unused)
+$
+$      n = this%vsize
+$      if (index==n+1) then
+$         call this%push_back(value)
+$         ! Workaround for NAG -6221 - temp needs some status
+$         temp=value
+$         return
+$      endif
+$      call this%grow_to(this%vsize+1)
+$      temp=this%elements(n)%item
+$      call this%resize(n+1, temp, rc=rc)
+$
+$      do i = n, index, -1
+$         this%elements(index)%item=this%elements(index-1)%item
+$      end do
+$
+$      this%elements(index)%item=value
+$
+$      return
+$   end subroutine vector_insert_size_kind
+$
+$
+$   subroutine vector_insert_default(this, index, value)
+$      class(ActualPtVector), intent(inout) :: this
+$      integer, intent(in) :: index
+$      type(ActualConnectionPt), intent(in) :: value
+$
+$      call this%insert(int(index,kind=GFTL_SIZE_KIND), value)
+$   end subroutine vector_insert_default</p>
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='mapl3g_actualconnectionpt.html'>mapl3g_ActualConnectionPt</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~mapl3g_actualptvector~~UsesGraph Pages: 1 -->
+<svg id="modulemapl3g_actualptvectorUsesGraph" width="641pt" height="67pt"
+ viewBox="0.00 0.00 641.00 66.71" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl3g_actualptvector~~UsesGraph" class="graph" transform="scale(0.9 0.9) rotate(0) translate(4 70)">
+<title>module~~mapl3g_actualptvector~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 707,-70 707,4 -4,4"/>
+<!-- module~mapl3g_actualptvector -->
+<g id="module~~mapl3g_actualptvector~~UsesGraph_node1" class="node">
+<title>module~mapl3g_actualptvector</title>
+<polygon fill="none" stroke="black" points="703,-46 568,-46 568,-22 703,-22 703,-46"/>
+<text text-anchor="middle" x="635.5" y="-31.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl3g_ActualPtVector</text>
+</g>
+<!-- module~mapl3g_actualconnectionpt -->
+<g id="module~~mapl3g_actualptvector~~UsesGraph_node2" class="node">
+<title>module~mapl3g_actualconnectionpt</title>
+<g id="a_module~~mapl3g_actualptvector~~UsesGraph_node2"><a xlink:href="../module/mapl3g_actualconnectionpt.html" xlink:title="mapl3g_ActualConnectionPt">
+<polygon fill="#337ab7" stroke="#337ab7" points="532,-46 370,-46 370,-22 532,-22 532,-46"/>
+<text text-anchor="middle" x="451" y="-31.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ActualConnectionPt</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_actualptvector&#45;&gt;module~mapl3g_actualconnectionpt -->
+<g id="module~~mapl3g_actualptvector~~UsesGraph_edge1" class="edge">
+<title>module~mapl3g_actualptvector&#45;&gt;module~mapl3g_actualconnectionpt</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M567.84,-34C559.5,-34 550.86,-34 542.23,-34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="542.12,-30.5 532.12,-34 542.12,-37.5 542.12,-30.5"/>
+</g>
+<!-- module~mapl3g_virtualconnectionpt -->
+<g id="module~~mapl3g_actualptvector~~UsesGraph_node3" class="node">
+<title>module~mapl3g_virtualconnectionpt</title>
+<g id="a_module~~mapl3g_actualptvector~~UsesGraph_node3"><a xlink:href="../module/mapl3g_virtualconnectionpt.html" xlink:title="mapl3g_VirtualConnectionPt">
+<polygon fill="#337ab7" stroke="#337ab7" points="334,-26 171,-26 171,-2 334,-2 334,-26"/>
+<text text-anchor="middle" x="252.5" y="-11.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_VirtualConnectionPt</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_actualconnectionpt&#45;&gt;module~mapl3g_virtualconnectionpt -->
+<g id="module~~mapl3g_actualptvector~~UsesGraph_edge2" class="edge">
+<title>module~mapl3g_actualconnectionpt&#45;&gt;module~mapl3g_virtualconnectionpt</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M369.79,-25.84C361.33,-24.97 352.67,-24.09 344.1,-23.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="344.39,-19.73 334.09,-22.2 343.68,-26.7 344.39,-19.73"/>
+</g>
+<!-- module~mapl_keywordenforcer -->
+<g id="module~~mapl3g_actualptvector~~UsesGraph_node4" class="node">
+<title>module~mapl_keywordenforcer</title>
+<g id="a_module~~mapl3g_actualptvector~~UsesGraph_node4"><a xlink:href="../module/mapl_keywordenforcer.html" xlink:title="mapl_KeywordEnforcer">
+<polygon fill="#337ab7" stroke="#337ab7" points="135,-66 0,-66 0,-42 135,-42 135,-66"/>
+<text text-anchor="middle" x="67.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_KeywordEnforcer</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_actualconnectionpt&#45;&gt;module~mapl_keywordenforcer -->
+<g id="module~~mapl3g_actualptvector~~UsesGraph_edge3" class="edge">
+<title>module~mapl3g_actualconnectionpt&#45;&gt;module~mapl_keywordenforcer</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M369.56,-38.22C303.47,-41.68 210.46,-46.56 145.36,-49.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="144.97,-46.49 135.16,-50.51 145.33,-53.48 144.97,-46.49"/>
+</g>
+<!-- module~mapl3g_virtualconnectionpt&#45;&gt;module~mapl_keywordenforcer -->
+<g id="module~~mapl3g_actualptvector~~UsesGraph_edge5" class="edge">
+<title>module~mapl3g_virtualconnectionpt&#45;&gt;module~mapl_keywordenforcer</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M196.59,-26C176.78,-30.33 154.22,-35.26 133.62,-39.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="132.71,-36.38 123.68,-41.94 134.2,-43.22 132.71,-36.38"/>
+</g>
+<!-- ESMF -->
+<g id="module~~mapl3g_actualptvector~~UsesGraph_node5" class="node">
+<title>ESMF</title>
+<g id="a_module~~mapl3g_actualptvector~~UsesGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/module/esmf.html" xlink:title="ESMF">
+<polygon fill="#337ab7" stroke="#337ab7" points="94.5,-24 40.5,-24 40.5,0 94.5,0 94.5,-24"/>
+<text text-anchor="middle" x="67.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_virtualconnectionpt&#45;&gt;ESMF -->
+<g id="module~~mapl3g_actualptvector~~UsesGraph_edge4" class="edge">
+<title>module~mapl3g_virtualconnectionpt&#45;&gt;ESMF</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M170.97,-13.12C147.93,-12.87 123.96,-12.61 105,-12.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="104.78,-8.9 94.74,-12.29 104.7,-15.9 104.78,-8.9"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panmodulemapl3g_actualptvectorUsesGraph = svgPanZoom('#modulemapl3g_actualptvectorUsesGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+          <div class="card">
+      <h3 class="card-header card-title bg-light">Used by</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~mapl3g_actualptvector~~UsedByGraph Pages: 1 -->
+<svg id="modulemapl3g_actualptvectorUsedByGraph" width="641pt" height="301pt"
+ viewBox="0.00 0.00 641.00 300.85" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl3g_actualptvector~~UsedByGraph" class="graph" transform="scale(0.56 0.56) rotate(0) translate(4 532)">
+<title>module~~mapl3g_actualptvector~~UsedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-532 1138,-532 1138,4 -4,4"/>
+<!-- module~mapl3g_actualptvector -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node1" class="node">
+<title>module~mapl3g_actualptvector</title>
+<polygon fill="none" stroke="black" points="135,-267 0,-267 0,-243 135,-243 135,-267"/>
+<text text-anchor="middle" x="67.5" y="-252.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl3g_ActualPtVector</text>
+</g>
+<!-- module~mapl3g_actualptvec_map -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node2" class="node">
+<title>module~mapl3g_actualptvec_map</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node2"><a xlink:href="../module/mapl3g_actualptvec_map.html" xlink:title="mapl3g_ActualPtVec_Map">
+<polygon fill="#337ab7" stroke="#337ab7" points="319,-287 171,-287 171,-263 319,-263 319,-287"/>
+<text text-anchor="middle" x="245" y="-272.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ActualPtVec_Map</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_actualptvec_map&#45;&gt;module~mapl3g_actualptvector -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge1" class="edge">
+<title>module~mapl3g_actualptvec_map&#45;&gt;module~mapl3g_actualptvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M170.84,-266.66C162.33,-265.69 153.62,-264.7 145.06,-263.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="145.42,-260.24 135.09,-262.59 144.63,-267.2 145.42,-260.24"/>
+</g>
+<!-- module~mapl3g_matchconnection -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node3" class="node">
+<title>module~mapl3g_matchconnection</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node3"><a xlink:href="../module/mapl3g_matchconnection.html" xlink:title="mapl3g_MatchConnection">
+<polygon fill="#337ab7" stroke="#337ab7" points="708,-377 557,-377 557,-353 708,-353 708,-377"/>
+<text text-anchor="middle" x="632.5" y="-362.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_MatchConnection</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_matchconnection&#45;&gt;module~mapl3g_actualptvector -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge2" class="edge">
+<title>module~mapl3g_matchconnection&#45;&gt;module~mapl3g_actualptvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M437,-315C320.34,-294.08 286.51,-322.55 171,-296 147.08,-290.5 121.45,-280.25 101.8,-271.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="103.21,-268.17 92.66,-267.15 100.27,-274.52 103.21,-268.17"/>
+</g>
+<!-- module~mapl3g_matchconnection&#45;&gt;module~mapl3g_actualptvec_map -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge5" class="edge">
+<title>module~mapl3g_matchconnection&#45;&gt;module~mapl3g_actualptvec_map</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M592.44,-352.97C553.83,-341.53 492.87,-324.66 439,-315"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M437,-315C394.33,-307.35 346.59,-297.35 309.51,-289.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="309.87,-285.76 299.35,-287.04 308.37,-292.6 309.87,-285.76"/>
+</g>
+<!-- module~mapl3g_simpleconnection -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node9" class="node">
+<title>module~mapl3g_simpleconnection</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node9"><a xlink:href="../module/mapl3g_simpleconnection.html" xlink:title="mapl3g_SimpleConnection">
+<polygon fill="#337ab7" stroke="#337ab7" points="516,-287 360,-287 360,-263 516,-263 516,-287"/>
+<text text-anchor="middle" x="438" y="-272.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_SimpleConnection</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_matchconnection&#45;&gt;module~mapl3g_simpleconnection -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge30" class="edge">
+<title>module~mapl3g_matchconnection&#45;&gt;module~mapl3g_simpleconnection</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M585.77,-352.9C575.86,-349.24 565.74,-344.65 557,-339 537.47,-326.37 540.71,-313.35 521,-301 514.74,-297.07 507.83,-293.7 500.76,-290.8"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="501.66,-287.4 491.07,-287.14 499.19,-293.95 501.66,-287.4"/>
+</g>
+<!-- module~mapl3g_reexportconnection -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node4" class="node">
+<title>module~mapl3g_reexportconnection</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node4"><a xlink:href="../module/mapl3g_reexportconnection.html" xlink:title="mapl3g_ReexportConnection">
+<polygon fill="#337ab7" stroke="#337ab7" points="521,-235 355,-235 355,-211 521,-211 521,-235"/>
+<text text-anchor="middle" x="438" y="-220.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ReexportConnection</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_reexportconnection&#45;&gt;module~mapl3g_actualptvector -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge3" class="edge">
+<title>module~mapl3g_reexportconnection&#45;&gt;module~mapl3g_actualptvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M354.76,-230.14C292.07,-235.59 206.37,-243.03 145.11,-248.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="144.78,-244.86 135.12,-249.21 145.38,-251.84 144.78,-244.86"/>
+</g>
+<!-- module~mapl3g_reexportconnection&#45;&gt;module~mapl3g_actualptvec_map -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge6" class="edge">
+<title>module~mapl3g_reexportconnection&#45;&gt;module~mapl3g_actualptvec_map</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M392.7,-235.06C365.08,-242.58 329.34,-252.31 300.05,-260.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="299.12,-256.91 290.39,-262.91 300.96,-263.67 299.12,-256.91"/>
+</g>
+<!-- module~mockitemspecmod -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node5" class="node">
+<title>module~mockitemspecmod</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node5"><a xlink:href="../module/mockitemspecmod.html" xlink:title="MockItemSpecMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="301.5,-207 188.5,-207 188.5,-183 301.5,-183 301.5,-207"/>
+<text text-anchor="middle" x="245" y="-192.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockItemSpecMod</text>
+</a>
+</g>
+</g>
+<!-- module~mockitemspecmod&#45;&gt;module~mapl3g_actualptvector -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge4" class="edge">
+<title>module~mockitemspecmod&#45;&gt;module~mapl3g_actualptvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M208.48,-207.14C181.04,-216.53 142.87,-229.57 113.32,-239.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="111.99,-236.43 103.66,-242.98 114.26,-243.06 111.99,-236.43"/>
+</g>
+<!-- module~connect_all_smod -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node6" class="node">
+<title>module~connect_all_smod</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node6"><a xlink:href="../module/connect_all_smod.html" xlink:title="connect_all_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="888.5,-377 780.5,-377 780.5,-353 888.5,-353 888.5,-377"/>
+<text text-anchor="middle" x="834.5" y="-362.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">connect_all_smod</text>
+</a>
+</g>
+</g>
+<!-- module~connect_all_smod&#45;&gt;module~mapl3g_matchconnection -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge8" class="edge">
+<title>module~connect_all_smod&#45;&gt;module~mapl3g_matchconnection</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M780.43,-365C761.43,-365 739.52,-365 718.5,-365"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="718.28,-361.5 708.28,-365 718.28,-368.5 718.28,-361.5"/>
+</g>
+<!-- module~mapl3g_componentspec -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node7" class="node">
+<title>module~mapl3g_componentspec</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node7"><a xlink:href="../module/mapl3g_componentspec.html" xlink:title="mapl3g_ComponentSpec">
+<polygon fill="#337ab7" stroke="#337ab7" points="706,-175 559,-175 559,-151 706,-151 706,-175"/>
+<text text-anchor="middle" x="632.5" y="-160.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ComponentSpec</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_componentspec&#45;&gt;module~mapl3g_reexportconnection -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge10" class="edge">
+<title>module~mapl3g_componentspec&#45;&gt;module~mapl3g_reexportconnection</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M592.54,-175.14C562.18,-184.61 519.85,-197.8 487.32,-207.94"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="486.07,-204.66 477.57,-210.98 488.16,-211.34 486.07,-204.66"/>
+</g>
+<!-- module~mapl3g_componentspec&#45;&gt;module~mapl3g_simpleconnection -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge28" class="edge">
+<title>module~mapl3g_componentspec&#45;&gt;module~mapl3g_simpleconnection</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M617.68,-175.07C597.54,-192.19 558.43,-223.7 521,-244 510.34,-249.78 498.37,-254.97 486.94,-259.37"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="485.66,-256.11 477.51,-262.88 488.1,-262.67 485.66,-256.11"/>
+</g>
+<!-- module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node8" class="node">
+<title>module~mapl3g_componentspecparser</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node8"><a xlink:href="../module/mapl3g_componentspecparser.html" xlink:title="mapl3g_ComponentSpecParser">
+<polygon fill="#337ab7" stroke="#337ab7" points="925,-276 744,-276 744,-252 925,-252 925,-276"/>
+<text text-anchor="middle" x="834.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ComponentSpecParser</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_componentspecparser&#45;&gt;module~mapl3g_matchconnection -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge9" class="edge">
+<title>module~mapl3g_componentspecparser&#45;&gt;module~mapl3g_matchconnection</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M815.84,-276.13C792.11,-292.05 748.24,-320.19 708,-339 699.88,-342.79 691.05,-346.34 682.4,-349.53"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="681.01,-346.31 672.76,-352.97 683.36,-352.91 681.01,-346.31"/>
+</g>
+<!-- module~mapl3g_componentspecparser&#45;&gt;module~mapl3g_reexportconnection -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge11" class="edge">
+<title>module~mapl3g_componentspecparser&#45;&gt;module~mapl3g_reexportconnection</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M805.75,-251.82C780.75,-241.55 742.7,-227.65 708,-222 649.77,-212.51 583.5,-212.63 531.31,-215.19"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="530.87,-211.71 521.07,-215.73 531.24,-218.7 530.87,-211.71"/>
+</g>
+<!-- module~mapl3g_componentspecparser&#45;&gt;module~mapl3g_componentspec -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge12" class="edge">
+<title>module~mapl3g_componentspecparser&#45;&gt;module~mapl3g_componentspec</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M815.84,-251.87C792.11,-235.95 748.24,-207.81 708,-189 699.88,-185.21 691.05,-181.66 682.4,-178.47"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="683.36,-175.09 672.76,-175.03 681.01,-181.69 683.36,-175.09"/>
+</g>
+<!-- module~mapl3g_componentspecparser&#45;&gt;module~mapl3g_simpleconnection -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge29" class="edge">
+<title>module~mapl3g_componentspecparser&#45;&gt;module~mapl3g_simpleconnection</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M805.75,-276.18C780.75,-286.45 742.7,-300.35 708,-306 641.76,-316.79 623.56,-314.6 557,-306 532.68,-302.86 506.22,-296.22 484.54,-289.89"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="485.52,-286.53 474.94,-287.01 483.51,-293.23 485.52,-286.53"/>
+</g>
+<!-- module~mapl3g_simpleconnection&#45;&gt;module~mapl3g_actualptvec_map -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge7" class="edge">
+<title>module~mapl3g_simpleconnection&#45;&gt;module~mapl3g_actualptvec_map</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M359.86,-275C349.77,-275 339.39,-275 329.2,-275"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="329.09,-271.5 319.09,-275 329.09,-278.5 329.09,-271.5"/>
+</g>
+<!-- module~add_child_by_spec_smod -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node10" class="node">
+<title>module~add_child_by_spec_smod</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node10"><a xlink:href="../module/add_child_by_spec_smod.html" xlink:title="add_child_by_spec_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="1120.5,-528 974.5,-528 974.5,-504 1120.5,-504 1120.5,-528"/>
+<text text-anchor="middle" x="1047.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">add_child_by_spec_smod</text>
+</a>
+</g>
+</g>
+<!-- module~add_child_by_spec_smod&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge15" class="edge">
+<title>module~add_child_by_spec_smod&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M974.19,-504.78C969.36,-502.13 964.88,-498.9 961,-495 912.38,-446.05 960.34,-403.26 925,-344 909.75,-318.43 883.65,-296.48 863.56,-282.08"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="865.3,-279.03 855.09,-276.2 861.3,-284.78 865.3,-279.03"/>
+</g>
+<!-- module~mapl3g_generic -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node11" class="node">
+<title>module~mapl3g_generic</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node11"><a xlink:href="../module/mapl3g_generic.html" xlink:title="mapl3g_Generic">
+<polygon fill="#337ab7" stroke="#337ab7" points="884.5,-196 784.5,-196 784.5,-172 884.5,-172 884.5,-196"/>
+<text text-anchor="middle" x="834.5" y="-181.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_Generic</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_generic&#45;&gt;module~mapl3g_componentspec -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge13" class="edge">
+<title>module~mapl3g_generic&#45;&gt;module~mapl3g_componentspec</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M784.32,-178.84C763.87,-176.69 739.55,-174.14 716.48,-171.71"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="716.65,-168.21 706.34,-170.65 715.92,-175.17 716.65,-168.21"/>
+</g>
+<!-- module~mapl3g_outermetacomponent -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node12" class="node">
+<title>module~mapl3g_outermetacomponent</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node12"><a xlink:href="../module/mapl3g_outermetacomponent.html" xlink:title="mapl3g_OuterMetaComponent">
+<polygon fill="#337ab7" stroke="#337ab7" points="923,-154 746,-154 746,-130 923,-130 923,-154"/>
+<text text-anchor="middle" x="834.5" y="-139.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_OuterMetaComponent</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_outermetacomponent&#45;&gt;module~mapl3g_componentspec -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge14" class="edge">
+<title>module~mapl3g_outermetacomponent&#45;&gt;module~mapl3g_componentspec</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M745.78,-151.21C735.96,-152.24 725.99,-153.29 716.24,-154.31"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="715.76,-150.84 706.18,-155.37 716.49,-157.81 715.76,-150.84"/>
+</g>
+<!-- module~parse_child_smod -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node13" class="node">
+<title>module~parse_child_smod</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node13"><a xlink:href="../module/parse_child_smod.html" xlink:title="parse_child_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="1101.5,-486 993.5,-486 993.5,-462 1101.5,-462 1101.5,-486"/>
+<text text-anchor="middle" x="1047.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_child_smod</text>
+</a>
+</g>
+</g>
+<!-- module~parse_child_smod&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge19" class="edge">
+<title>module~parse_child_smod&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#00ffff" d="M993.12,-469.52C981.4,-466.34 969.87,-461.2 961,-453 923.54,-418.36 952.97,-386.67 925,-344 908.58,-318.95 882.38,-296.81 862.57,-282.21"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="864.41,-279.22 854.24,-276.24 860.33,-284.91 864.41,-279.22"/>
+</g>
+<!-- module~parse_children_smod -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node14" class="node">
+<title>module~parse_children_smod</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node14"><a xlink:href="../module/parse_children_smod.html" xlink:title="parse_children_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="1110,-444 985,-444 985,-420 1110,-420 1110,-444"/>
+<text text-anchor="middle" x="1047.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_children_smod</text>
+</a>
+</g>
+</g>
+<!-- module~parse_children_smod&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge20" class="edge">
+<title>module~parse_children_smod&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#00ffff" d="M984.75,-423.49C976.23,-420.48 968.01,-416.43 961,-411 934.28,-390.29 945.92,-370.55 925,-344 906.13,-320.04 879.58,-297.33 860.31,-282.27"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="862.34,-279.42 852.28,-276.11 858.08,-284.97 862.34,-279.42"/>
+</g>
+<!-- module~parse_component_spec_smod -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node15" class="node">
+<title>module~parse_component_spec_smod</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node15"><a xlink:href="../module/parse_component_spec_smod.html" xlink:title="parse_component_spec_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="1134,-402 961,-402 961,-378 1134,-378 1134,-402"/>
+<text text-anchor="middle" x="1047.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_component_spec_smod</text>
+</a>
+</g>
+</g>
+<!-- module~parse_component_spec_smod&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge21" class="edge">
+<title>module~parse_component_spec_smod&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#00ffff" d="M983.21,-377.94C975.53,-375.47 967.95,-372.52 961,-369 938.18,-357.44 885.37,-310.19 856.05,-283.18"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="858.16,-280.37 848.45,-276.15 853.41,-285.51 858.16,-280.37"/>
+</g>
+<!-- module~parse_connections_smod -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node16" class="node">
+<title>module~parse_connections_smod</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node16"><a xlink:href="../module/parse_connections_smod.html" xlink:title="parse_connections_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="1121,-360 974,-360 974,-336 1121,-336 1121,-360"/>
+<text text-anchor="middle" x="1047.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_connections_smod</text>
+</a>
+</g>
+</g>
+<!-- module~parse_connections_smod&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge22" class="edge">
+<title>module~parse_connections_smod&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#00ffff" d="M989.85,-335.99C980.11,-333.39 970.18,-330.38 961,-327 926.92,-314.44 890.01,-295.17 865.1,-281.24"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="866.6,-278.07 856.17,-276.19 863.15,-284.16 866.6,-278.07"/>
+</g>
+<!-- module~parse_geometry_spec_smod -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node17" class="node">
+<title>module~parse_geometry_spec_smod</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node17"><a xlink:href="../module/parse_geometry_spec_smod.html" xlink:title="parse_geometry_spec_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="1129.5,-318 965.5,-318 965.5,-294 1129.5,-294 1129.5,-318"/>
+<text text-anchor="middle" x="1047.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_geometry_spec_smod</text>
+</a>
+</g>
+</g>
+<!-- module~parse_geometry_spec_smod&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge23" class="edge">
+<title>module~parse_geometry_spec_smod&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#00ffff" d="M986.04,-293.96C961.09,-289 932.02,-283.21 906.11,-278.05"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="906.46,-274.56 895.97,-276.04 905.1,-281.42 906.46,-274.56"/>
+</g>
+<!-- module~parse_setservices_smod -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node18" class="node">
+<title>module~parse_setservices_smod</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node18"><a xlink:href="../module/parse_setservices_smod.html" xlink:title="parse_setservices_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="1118.5,-276 976.5,-276 976.5,-252 1118.5,-252 1118.5,-276"/>
+<text text-anchor="middle" x="1047.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_setservices_smod</text>
+</a>
+</g>
+</g>
+<!-- module~parse_setservices_smod&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge24" class="edge">
+<title>module~parse_setservices_smod&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#00ffff" d="M976.24,-264C963.12,-264 949.18,-264 935.37,-264"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="935.35,-260.5 925.35,-264 935.35,-267.5 935.35,-260.5"/>
+</g>
+<!-- module~parse_timespec_smod -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node19" class="node">
+<title>module~parse_timespec_smod</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node19"><a xlink:href="../module/parse_timespec_smod.html" xlink:title="parse_timespec_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="1113,-234 982,-234 982,-210 1113,-210 1113,-234"/>
+<text text-anchor="middle" x="1047.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_timespec_smod</text>
+</a>
+</g>
+</g>
+<!-- module~parse_timespec_smod&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge25" class="edge">
+<title>module~parse_timespec_smod&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#00ffff" d="M986.04,-234.04C961.09,-239 932.02,-244.79 906.11,-249.95"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="905.1,-246.58 895.97,-251.96 906.46,-253.44 905.1,-246.58"/>
+</g>
+<!-- module~parse_var_specs_smod -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node20" class="node">
+<title>module~parse_var_specs_smod</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node20"><a xlink:href="../module/parse_var_specs_smod.html" xlink:title="parse_var_specs_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="1115,-192 980,-192 980,-168 1115,-168 1115,-192"/>
+<text text-anchor="middle" x="1047.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_var_specs_smod</text>
+</a>
+</g>
+</g>
+<!-- module~parse_var_specs_smod&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge26" class="edge">
+<title>module~parse_var_specs_smod&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#00ffff" d="M989.85,-192.01C980.11,-194.61 970.18,-197.62 961,-201 926.92,-213.56 890.01,-232.83 865.1,-246.76"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="863.15,-243.84 856.17,-251.81 866.6,-249.93 863.15,-243.84"/>
+</g>
+<!-- module~protoextdatagc -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node21" class="node">
+<title>module~protoextdatagc</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node21"><a xlink:href="../module/protoextdatagc.html" xlink:title="ProtoExtDataGC">
+<polygon fill="#337ab7" stroke="#337ab7" points="681,-297 584,-297 584,-273 681,-273 681,-297"/>
+<text text-anchor="middle" x="632.5" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ProtoExtDataGC</text>
+</a>
+</g>
+</g>
+<!-- module~protoextdatagc&#45;&gt;module~mapl3g_simpleconnection -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge31" class="edge">
+<title>module~protoextdatagc&#45;&gt;module~mapl3g_simpleconnection</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M583.92,-282.53C566.57,-281.63 546.35,-280.58 526.63,-279.55"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="526.54,-276.04 516.37,-279.02 526.18,-283.03 526.54,-276.04"/>
+</g>
+<!-- module~setservices_smod -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node22" class="node">
+<title>module~setservices_smod</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node22"><a xlink:href="../module/setservices_smod.html" xlink:title="SetServices_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="1102,-150 993,-150 993,-126 1102,-126 1102,-150"/>
+<text text-anchor="middle" x="1047.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SetServices_smod</text>
+</a>
+</g>
+</g>
+<!-- module~setservices_smod&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge16" class="edge">
+<title>module~setservices_smod&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M992.71,-145.44C981.65,-148.52 970.5,-152.86 961,-159 939.2,-173.09 944.09,-187.4 925,-205 907.41,-221.22 884.91,-236.03 866.87,-246.76"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="864.77,-243.93 857.89,-251.98 868.29,-249.98 864.77,-243.93"/>
+</g>
+<!-- module~test_componentspecparser -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node23" class="node">
+<title>module~test_componentspecparser</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node23"><a xlink:href="../module/test_componentspecparser.html" xlink:title="Test_ComponentSpecParser">
+<polygon fill="#337ab7" stroke="#337ab7" points="1127.5,-108 967.5,-108 967.5,-84 1127.5,-84 1127.5,-108"/>
+<text text-anchor="middle" x="1047.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ComponentSpecParser</text>
+</a>
+</g>
+</g>
+<!-- module~test_componentspecparser&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge17" class="edge">
+<title>module~test_componentspecparser&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M974.42,-108.12C969.59,-110.58 965.05,-113.51 961,-117 929,-144.6 951.84,-172.36 925,-205 910.51,-222.63 889.36,-236.91 871.26,-247"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="869.29,-244.08 862.13,-251.89 872.6,-250.25 869.29,-244.08"/>
+</g>
+<!-- module~test_stateregistry -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node24" class="node">
+<title>module~test_stateregistry</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node24"><a xlink:href="../module/test_stateregistry.html" xlink:title="Test_StateRegistry">
+<polygon fill="#337ab7" stroke="#337ab7" points="687,-255 578,-255 578,-231 687,-231 687,-255"/>
+<text text-anchor="middle" x="632.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_StateRegistry</text>
+</a>
+</g>
+</g>
+<!-- module~test_stateregistry&#45;&gt;module~mapl3g_simpleconnection -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge32" class="edge">
+<title>module~test_stateregistry&#45;&gt;module~mapl3g_simpleconnection</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M577.88,-251.91C560.35,-254.83 540.46,-258.13 521.32,-261.31"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="520.69,-257.87 511.4,-262.96 521.84,-264.78 520.69,-257.87"/>
+</g>
+<!-- module~test_timestep_propagation -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node25" class="node">
+<title>module~test_timestep_propagation</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node25"><a xlink:href="../module/test_timestep_propagation.html" xlink:title="Test_timestep_propagation">
+<polygon fill="#337ab7" stroke="#337ab7" points="1124.5,-66 970.5,-66 970.5,-42 1124.5,-42 1124.5,-66"/>
+<text text-anchor="middle" x="1047.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_timestep_propagation</text>
+</a>
+</g>
+</g>
+<!-- module~test_timestep_propagation&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge18" class="edge">
+<title>module~test_timestep_propagation&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M973.13,-66.04C968.72,-68.53 964.62,-71.49 961,-75 917.99,-116.77 960.28,-156.52 925,-205 911.85,-223.07 891.35,-237.17 873.28,-247.04"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="871.36,-244.1 864.11,-251.82 874.59,-250.31 871.36,-244.1"/>
+</g>
+<!-- module~to_itemtype_smod -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_node26" class="node">
+<title>module~to_itemtype_smod</title>
+<g id="a_module~~mapl3g_actualptvector~~UsedByGraph_node26"><a xlink:href="../module/to_itemtype_smod.html" xlink:title="to_itemtype_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="1102.5,-24 992.5,-24 992.5,0 1102.5,0 1102.5,-24"/>
+<text text-anchor="middle" x="1047.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">to_itemtype_smod</text>
+</a>
+</g>
+</g>
+<!-- module~to_itemtype_smod&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_actualptvector~~UsedByGraph_edge27" class="edge">
+<title>module~to_itemtype_smod&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#00ffff" d="M992.43,-15.78C980.74,-18.99 969.39,-24.32 961,-33 906.74,-89.17 968.91,-140.41 925,-205 912.52,-223.35 892.26,-237.4 874.16,-247.18"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="872.25,-244.23 864.95,-251.91 875.45,-250.46 872.25,-244.23"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panmodulemapl3g_actualptvectorUsedByGraph = svgPanZoom('#modulemapl3g_actualptvectorUsedByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsedByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsedByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+      <br>
+
+
+        <section>
+          <h2>Variables</h2>
+            <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bad_alloc~65"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>BAD_ALLOC</strong></td>
+<td> =</td>
+                <td>2</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gftl_size_kind~33"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>GFTL_SIZE_KIND</strong></td>
+<td> =</td>
+                <td>selected_int_kind(18)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-illegal_input~65"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>ILLEGAL_INPUT</strong></td>
+<td> =</td>
+                <td>3</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-length_error~33"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>LENGTH_ERROR</strong></td>
+<td> =</td>
+                <td>4</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-out_of_range~65"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>OUT_OF_RANGE</strong></td>
+<td> =</td>
+                <td>1</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-success~74"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>SUCCESS</strong></td>
+<td> =</td>
+                <td>0</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-type_has_no_default_value~33"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>TYPE_HAS_NO_DEFAULT_VALUE</strong></td>
+<td> =</td>
+                <td>5</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-no_type__~33"></span>
+              type(<a href='../type/no_type_~15.html'>NO_TYPE_</a>),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>NO_TYPE__</strong></td>
+<td> =</td>
+                <td>NO_TYPE_()</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+        </section>
+        <br>
+
+
+        <section>
+          <h2>Interfaces</h2>
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-actualptvector"></span>
+      <h3>public        interface <a href='../interface/actualptvector.html'>ActualPtVector</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_new_vector_empty() result(v)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+    <em>None</em>
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvector.html'>ActualPtVector</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_new_vector_fill_size_kind(n, value) result(v)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1444"></span>
+              integer(kind=GFTL_SIZE_KIND),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-value~950"></span>
+              type(<a href='../type/actualconnectionpt.html'>ActualConnectionPt</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvector.html'>ActualPtVector</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_new_vector_fill_default(n, value) result(v)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1445"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-value~951"></span>
+              type(<a href='../type/actualconnectionpt.html'>ActualConnectionPt</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvector.html'>ActualPtVector</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_new_vector_range(first, last) result(v)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-first~332"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>first</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-last~343"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>last</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvector.html'>ActualPtVector</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_new_vector_copy(x) result(v)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-x~294"></span>
+              type(<a href='../type/actualptvector.html'>ActualPtVector</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>x</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvector.html'>ActualPtVector</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_new_vector_initializer_list(il) result(v)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-il~55"></span>
+              type(<a href='../type/actualconnectionpt.html'>ActualConnectionPt</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(:)
+            </td>
+            <td>::</td>
+            <td><strong>il</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvector.html'>ActualPtVector</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-advance~69"></span>
+      <h3>public        interface <a href='../interface/advance~69.html'>advance</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  subroutine vector_iter_advance_size_kind(it, n)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~707"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1460"></span>
+              integer(kind=selected_int_kind(18)),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  subroutine vector_iter_advance_default(it, n)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~708"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1461"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-begin~47"></span>
+      <h3>public        interface <a href='../interface/begin~47.html'>begin</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_begin(cont) result(begin)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cont~185"></span>
+              type(<a href='../type/actualptvector.html'>ActualPtVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>cont</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-distance~45"></span>
+      <h3>public        interface <a href='../interface/distance~45.html'>distance</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_distance(a, b) result(distance)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~926"></span>
+              class(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-b~635"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>b</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>integer(kind=selected_int_kind(18))</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-end~47"></span>
+      <h3>public        interface <a href='../interface/end~47.html'>end</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_end(cont) result(end)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cont~187"></span>
+              type(<a href='../type/actualptvector.html'>ActualPtVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>cont</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-find~69"></span>
+      <h3>public        interface <a href='../interface/find~69.html'>find</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_find_basic(do_not_use, unused) result(j)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-do_not_use~63"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>do_not_use</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unused~461"></span>
+              type(<a href='../type/keywordenforcer~22.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unused</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(vector_keywordenforcer)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-find_if~69"></span>
+      <h3>public        interface <a href='../interface/find_if~69.html'>find_if</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_find_if(first, last, p) result(it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-first~335"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>first</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-last~346"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>last</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td colspan="7">
+              <small>    <h5>
+    private  function p(item)  
+
+    </h5>
+  
+
+  <h6>Arguments</h6>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-item~263"></span>
+              type(<a href='../type/actualconnectionpt.html'>ActualConnectionPt</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>item</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h6>
+    Return Value
+    <small>logical</small>
+    </h6>
+    
+</small>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-find_if_not~69"></span>
+      <h3>public        interface <a href='../interface/find_if_not~69.html'>find_if_not</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_find_if_not(first, last, q) result(it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-first~336"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>first</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-last~347"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>last</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td colspan="7">
+              <small>    <h5>
+    private  function q(item)  
+
+    </h5>
+  
+
+  <h6>Arguments</h6>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-item~264"></span>
+              type(<a href='../type/actualconnectionpt.html'>ActualConnectionPt</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>item</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h6>
+    Return Value
+    <small>logical</small>
+    </h6>
+    
+</small>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-ftn_begin~47"></span>
+      <h3>public        interface <a href='../interface/ftn_begin~47.html'>ftn_begin</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_ftn_begin(cont) result(begin)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cont~186"></span>
+              type(<a href='../type/actualptvector.html'>ActualPtVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>cont</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-ftn_end~47"></span>
+      <h3>public        interface <a href='../interface/ftn_end~47.html'>ftn_end</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_ftn_end(cont) result(end)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cont~188"></span>
+              type(<a href='../type/actualptvector.html'>ActualPtVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>cont</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-next~69"></span>
+      <h3>public        interface <a href='../interface/next~69.html'>next</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_next_1(it) result(new_it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~709"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_next_n_size_kind(it, n) result(new_it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~710"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1462"></span>
+              integer(kind=selected_int_kind(18)),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_next_n_default(it, n) result(new_it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~711"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1463"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-operator%28%2B%29~45"></span>
+      <h3>public        interface <a href='../interface/operator(+)~45.html'>operator(+)</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_a_plus_n_size_kind(a, n) result(new_iter)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~913"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1453"></span>
+              integer(kind=selected_int_kind(18)),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_n_plus_a_size_kind(n, a) result(new_iter)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1454"></span>
+              integer(kind=selected_int_kind(18)),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~914"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_n_plus_a_default(n, a) result(new_iter)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1457"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~917"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_a_plus_n_default(a, n) result(new_iter)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~916"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1456"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-operator%28-%29~45"></span>
+      <h3>public        interface <a href='../interface/operator(-)~45.html'>operator(-)</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_a_minus_n_size_kind(a, n) result(new_iter)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~915"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1455"></span>
+              integer(kind=selected_int_kind(18)),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_a_minus_n_default(a, n) result(new_iter)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~918"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1458"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_a_minus_b(a, b) result(n)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~919"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-b~628"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>b</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>integer(kind=selected_int_kind(18))</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-operator%28SLASH%3D%29~109"></span>
+      <h3>public        interface <a href='../interface/operator(SLASH=)~109.html'>operator(/=)</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_not_equal(a, b) result(ne)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~921"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-b~630"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>b</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-operator%28%3D%3D%29~111"></span>
+      <h3>public        interface <a href='../interface/operator(==)~111.html'>operator(==)</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_equal(a, b) result(eq)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~920"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-b~629"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>b</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-prev~69"></span>
+      <h3>public        interface <a href='../interface/prev~69.html'>prev</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_prev_1(it) result(new_it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~712"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_prev_n_size_kind(it, n) result(new_it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~713"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1464"></span>
+              integer(kind=selected_int_kind(18)),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_prev_n_default(it, n) result(new_it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~714"></span>
+              type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1465"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-swap~88"></span>
+      <h3>public        interface <a href='../interface/swap~88.html'>swap</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  subroutine vector_swap(this, x)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~6365"></span>
+              class(<a href='../type/actualptvector.html'>ActualPtVector</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-x~295"></span>
+              type(<a href='../type/actualptvector.html'>ActualPtVector</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>x</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+    </ul>
+  </div>
+
+        </section>
+        <br>
+
+
+        <section>
+          <h2>Derived Types</h2>
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-actualptvector"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/actualptvector.html'>ActualPtVector</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      
+
+
+        <h4>Constructor</h4>
+          
+        <table class="table table-striped varlist">
+          <tbody>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong>vector_new_vector_empty</strong>
+                    ()
+                  </td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong>vector_new_vector_fill_size_kind</strong>
+                    (n, value)
+                  </td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong>vector_new_vector_fill_default</strong>
+                    (n, value)
+                  </td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong>vector_new_vector_range</strong>
+                    (first, last)
+                  </td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong>vector_new_vector_copy</strong>
+                    (x)
+                  </td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong>vector_new_vector_initializer_list</strong>
+                    (il)
+                  </td>
+                  <td></td>
+                </tr>
+          </tbody>
+        </table>
+
+
+        <h4>Type-Bound Procedures</h4>
+        <table class="table table-striped varlist">
+          <tbody>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-assignment%28%3D%29~94'>assignment(=)</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvector.html#boundprocedure-copy_from_array~17'>copy_from_array</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-at~310'>at</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvector.html#boundprocedure-at_default~23'>at_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-at~311'>at</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvector.html#boundprocedure-of_default~23'>of_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-at~312'>at</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvector.html#boundprocedure-at_size_kind~64'>at_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-at~313'>at</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvector.html#boundprocedure-of_size_kind~23'>of_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-at_default~23'>at_default</a></strong> => vector_at_default</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-at_size_kind~64'>at_size_kind</a></strong> => vector_at_size_kind</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-back~71'>back</a></strong> => vector_back</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-begin~223'>begin</a></strong> => vector_begin</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-capacity~379'>capacity</a></strong> => vector_capacity</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-clear~116'>clear</a></strong> => vector_clear</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-copy_from_array~17'>copy_from_array</a></strong> => vector_copy_from_array</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-data~61'>data</a></strong> => vector_data</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-empty~225'>empty</a></strong> => vector_empty</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-end~186'>end</a></strong> => vector_end</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-erase~138'>erase</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvector.html#boundprocedure-erase_one~49'>erase_one</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-erase~139'>erase</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvector.html#boundprocedure-erase_range~47'>erase_range</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-erase_one~49'>erase_one</a></strong> => vector_erase_one</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-erase_range~47'>erase_range</a></strong> => vector_erase_range</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-front~64'>front</a></strong> => vector_front</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-ftn_begin~47'>ftn_begin</a></strong> => vector_ftn_begin</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-ftn_end~48'>ftn_end</a></strong> => vector_ftn_end</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-insert~298'>insert</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvector.html#boundprocedure-vector_insert_one~21'>vector_insert_one</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-insert~299'>insert</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvector.html#boundprocedure-vector_insert_count_size_kind~21'>vector_insert_count_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-insert~300'>insert</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvector.html#boundprocedure-vector_insert_count_default~21'>vector_insert_count_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-insert~301'>insert</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvector.html#boundprocedure-vector_insert_range~21'>vector_insert_range</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-insert~302'>insert</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvector.html#boundprocedure-vector_insert_list~15'>vector_insert_list</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public, nopass ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-max_size~85'>max_size</a></strong> => vector_max_size</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-of~267'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvector.html#boundprocedure-of_default~23'>of_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-of~268'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvector.html#boundprocedure-of_size_kind~23'>of_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-of_default~23'>of_default</a></strong> => vector_of_default</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-of_size_kind~23'>of_size_kind</a></strong> => vector_of_size_kind</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-pop_back~64'>pop_back</a></strong> => vector_pop_back</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-push_back~64'>push_back</a></strong> => vector_push_back</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-rbegin~42'>rbegin</a></strong> => vector_rbegin</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-rend~42'>rend</a></strong> => vector_rend</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-reserve~127'>reserve</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvector.html#boundprocedure-reserve_default~23'>reserve_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-reserve~128'>reserve</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvector.html#boundprocedure-reserve_size_kind~64'>reserve_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-reserve_default~23'>reserve_default</a></strong> => vector_reserve_default</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-reserve_size_kind~64'>reserve_size_kind</a></strong> => vector_reserve_size_kind</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-reset~69'>reset</a></strong> => vector_reset</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-resize~127'>resize</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvector.html#boundprocedure-resize_default~23'>resize_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-resize~128'>resize</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvector.html#boundprocedure-resize_size_kind~23'>resize_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-resize_default~23'>resize_default</a></strong> => vector_resize_default</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-resize_size_kind~23'>resize_size_kind</a></strong> => vector_resize_size_kind</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-set~160'>set</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvector.html#boundprocedure-set_default~23'>set_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-set~161'>set</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvector.html#boundprocedure-set_size_kind~64'>set_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-set_default~23'>set_default</a></strong> => vector_set_default</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-set_size_kind~64'>set_size_kind</a></strong> => vector_set_size_kind</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-shrink_to_fit~64'>shrink_to_fit</a></strong> => vector_shrink_to_fit</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-size~170'>size</a></strong> => vector_size</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-swap~79'>swap</a></strong> => vector_swap</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-vector_insert_count_default~21'>vector_insert_count_default</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-vector_insert_count_size_kind~21'>vector_insert_count_size_kind</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-vector_insert_list~15'>vector_insert_list</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-vector_insert_one~21'>vector_insert_one</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-vector_insert_range~21'>vector_insert_range</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-write%28formatted%29~42'>write(formatted)</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvector.html#boundprocedure-write_formatted~43'>write_formatted</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvector.html#boundprocedure-write_formatted~43'>write_formatted</a></strong> => vector_write_formatted</td>
+                  <td></td>
+              </tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-actualptvectoriterator"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/actualptvectoriterator.html'>ActualPtVectorIterator</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      
+
+
+
+
+        <h4>Type-Bound Procedures</h4>
+        <table class="table table-striped varlist">
+          <tbody>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvectoriterator.html#boundprocedure-add~89'>add</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvectoriterator.html#boundprocedure-vector_iter_add_n_default~21'>vector_iter_add_n_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvectoriterator.html#boundprocedure-add~90'>add</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvectoriterator.html#boundprocedure-vector_iter_add_n_size_kind~21'>vector_iter_add_n_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvectoriterator.html#boundprocedure-next~139'>next</a></strong> => vector_iter_next</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvectoriterator.html#boundprocedure-of~269'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvectoriterator.html#boundprocedure-vector_iter_of~21'>vector_iter_of</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvectoriterator.html#boundprocedure-of~270'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvectoriterator.html#boundprocedure-vector_iter_of_offset_default~21'>vector_iter_of_offset_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvectoriterator.html#boundprocedure-of~271'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvectoriterator.html#boundprocedure-vector_iter_of_offset_size_kind~21'>vector_iter_of_offset_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvectoriterator.html#boundprocedure-prev~107'>prev</a></strong> => vector_iter_prev</td>
+                  <td><p>$      procedure :: back_inserter =&gt; vector_back_inserter
+$      procedure :: front_inserter =&gt; vector_front_inserter
+$      procedure :: inserter =&gt; vector_inserter
+$      procedure :: make_move_iterator =&gt; vector_make_move_iterator</p><a href="../type/actualptvectoriterator.html#boundprocedure-prev~107" class="pull-right"><emph>Read more&hellip;</emph></a></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvectoriterator.html#boundprocedure-sub~89'>sub</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvectoriterator.html#boundprocedure-vector_iter_sub_n_default~21'>vector_iter_sub_n_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/actualptvectoriterator.html#boundprocedure-sub~90'>sub</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/actualptvectoriterator.html#boundprocedure-vector_iter_sub_n_size_kind~21'>vector_iter_sub_n_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvectoriterator.html#boundprocedure-vector_iter_add_n_default~21'>vector_iter_add_n_default</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvectoriterator.html#boundprocedure-vector_iter_add_n_size_kind~21'>vector_iter_add_n_size_kind</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvectoriterator.html#boundprocedure-vector_iter_of~21'>vector_iter_of</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvectoriterator.html#boundprocedure-vector_iter_of_offset_default~21'>vector_iter_of_offset_default</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvectoriterator.html#boundprocedure-vector_iter_of_offset_size_kind~21'>vector_iter_of_offset_size_kind</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvectoriterator.html#boundprocedure-vector_iter_sub_n_default~21'>vector_iter_sub_n_default</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/actualptvectoriterator.html#boundprocedure-vector_iter_sub_n_size_kind~21'>vector_iter_sub_n_size_kind</a></strong></td>
+                  <td></td>
+              </tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-keywordenforcer~22"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/keywordenforcer~22.html'>KeywordEnforcer</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      
+
+
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-no_type_~15"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/no_type_~15.html'>NO_TYPE_</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      
+
+
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-vectorriterator~6"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/vectorriterator~6.html'>VectorRIterator</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      <p>$      procedure :: back_inserter =&gt; vector_back_inserter
+$      procedure :: front_inserter =&gt; vector_front_inserter
+$      procedure :: inserter =&gt; vector_inserter
+$      procedure :: make_move_iterator =&gt; vector_make_move_iterator</p>
+
+
+
+
+        <h4>Type-Bound Procedures</h4>
+        <table class="table table-striped varlist">
+          <tbody>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/vectorriterator~6.html#boundprocedure-add~91'>add</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/vectorriterator~6.html#boundprocedure-vector_riter_add_n_default~21'>vector_riter_add_n_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/vectorriterator~6.html#boundprocedure-add~92'>add</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/vectorriterator~6.html#boundprocedure-vector_riter_add_n_size_kind~21'>vector_riter_add_n_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/vectorriterator~6.html#boundprocedure-next~140'>next</a></strong> => vector_riter_next</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/vectorriterator~6.html#boundprocedure-of~272'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/vectorriterator~6.html#boundprocedure-vector_riter_of~21'>vector_riter_of</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/vectorriterator~6.html#boundprocedure-of~273'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/vectorriterator~6.html#boundprocedure-vector_riter_of_offset_size_kind~21'>vector_riter_of_offset_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/vectorriterator~6.html#boundprocedure-of~274'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/vectorriterator~6.html#boundprocedure-vector_riter_of_offset_default~21'>vector_riter_of_offset_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/vectorriterator~6.html#boundprocedure-prev~108'>prev</a></strong> => vector_riter_prev</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/vectorriterator~6.html#boundprocedure-sub~91'>sub</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/vectorriterator~6.html#boundprocedure-vector_riter_sub_n_default~21'>vector_riter_sub_n_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/vectorriterator~6.html#boundprocedure-sub~92'>sub</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/vectorriterator~6.html#boundprocedure-vector_riter_sub_n_size_kind~21'>vector_riter_sub_n_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/vectorriterator~6.html#boundprocedure-vector_riter_add_n_default~21'>vector_riter_add_n_default</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/vectorriterator~6.html#boundprocedure-vector_riter_add_n_size_kind~21'>vector_riter_add_n_size_kind</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/vectorriterator~6.html#boundprocedure-vector_riter_of~21'>vector_riter_of</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/vectorriterator~6.html#boundprocedure-vector_riter_of_offset_default~21'>vector_riter_of_offset_default</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/vectorriterator~6.html#boundprocedure-vector_riter_of_offset_size_kind~21'>vector_riter_of_offset_size_kind</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/vectorriterator~6.html#boundprocedure-vector_riter_sub_n_default~21'>vector_riter_sub_n_default</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/vectorriterator~6.html#boundprocedure-vector_riter_sub_n_size_kind~21'>vector_riter_sub_n_size_kind</a></strong></td>
+                  <td></td>
+              </tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+
+
+
+
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

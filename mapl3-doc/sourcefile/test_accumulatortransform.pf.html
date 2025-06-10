@@ -1,0 +1,1147 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Test_AccumulatorTransform.pf &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Test_AccumulatorTransform.pf
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for source files.">447 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_AccumulatorTransform.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">Test_AccumulatorTransform.pf</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/test_accumulatortransform.html">Test_AccumulatorTransform</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/test_accumulatortransform.pf.html#src">Test_AccumulatorTransform.pf</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~test_accumulatortransform.pf~~EfferentGraph Pages: 1 -->
+<svg id="sourcefiletest_accumulatortransformpfEfferentGraph" width="641pt" height="230pt"
+ viewBox="0.00 0.00 641.00 229.63" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph" class="graph" transform="scale(0.36 0.36) rotate(0) translate(4 629.01)">
+<title>sourcefile~~test_accumulatortransform.pf~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-629.01 1763,-629.01 1763,4 -4,4"/>
+<!-- sourcefile~test_accumulatortransform.pf -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node1" class="node">
+<title>sourcefile~test_accumulatortransform.pf</title>
+<polygon fill="none" stroke="black" points="1759,-167.01 1587,-167.01 1587,-143.01 1759,-143.01 1759,-167.01"/>
+<text text-anchor="middle" x="1673" y="-152.61" font-family="Helvetica,sans-Serif" font-size="10.50">Test_AccumulatorTransform.pf</text>
+</g>
+<!-- sourcefile~accumulator_transform_test_common.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node2" class="node">
+<title>sourcefile~accumulator_transform_test_common.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node2"><a xlink:href="../sourcefile/accumulator_transform_test_common.f90.html" xlink:title="accumulator_transform_test_common.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1551,-187.01 1313,-187.01 1313,-163.01 1551,-163.01 1551,-187.01"/>
+<text text-anchor="middle" x="1432" y="-172.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">accumulator_transform_test_common.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_accumulatortransform.pf&#45;&gt;sourcefile~accumulator_transform_test_common.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~test_accumulatortransform.pf&#45;&gt;sourcefile~accumulator_transform_test_common.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1586.73,-162.15C1578.44,-162.84 1569.92,-163.55 1561.33,-164.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1560.9,-160.8 1551.23,-165.12 1561.49,-167.77 1560.9,-160.8"/>
+</g>
+<!-- sourcefile~accumulatortransform.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node3" class="node">
+<title>sourcefile~accumulatortransform.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node3"><a xlink:href="../sourcefile/accumulatortransform.f90.html" xlink:title="AccumulatorTransform.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1277,-249.01 1121,-249.01 1121,-225.01 1277,-225.01 1277,-249.01"/>
+<text text-anchor="middle" x="1199" y="-234.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AccumulatorTransform.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_accumulatortransform.pf&#45;&gt;sourcefile~accumulatortransform.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~test_accumulatortransform.pf&#45;&gt;sourcefile~accumulatortransform.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1642.17,-167.08C1617.98,-176.39 1582.81,-188.85 1551,-196.01 1462.43,-215.96 1358.98,-226.54 1287.44,-231.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1286.84,-228.46 1277.13,-232.68 1287.36,-235.44 1286.84,-228.46"/>
+</g>
+<!-- sourcefile~esmf_testmethod.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node4" class="node">
+<title>sourcefile~esmf_testmethod.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node4"><a xlink:href="../sourcefile/esmf_testmethod.f90.html" xlink:title="ESMF_TestMethod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1496.5,-107.01 1367.5,-107.01 1367.5,-83.01 1496.5,-83.01 1496.5,-107.01"/>
+<text text-anchor="middle" x="1432" y="-92.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TestMethod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_accumulatortransform.pf&#45;&gt;sourcefile~esmf_testmethod.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~test_accumulatortransform.pf&#45;&gt;sourcefile~esmf_testmethod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1631.27,-142.94C1607.87,-136.16 1577.88,-127.74 1551,-121.01 1534.82,-116.96 1517.31,-112.92 1500.86,-109.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1501.29,-105.78 1490.77,-107.05 1499.79,-112.62 1501.29,-105.78"/>
+</g>
+<!-- sourcefile~fieldutils.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node5" class="node">
+<title>sourcefile~fieldutils.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node5"><a xlink:href="../sourcefile/fieldutils.f90.html" xlink:title="FieldUtils.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1240,-147.01 1158,-147.01 1158,-123.01 1240,-123.01 1240,-147.01"/>
+<text text-anchor="middle" x="1199" y="-132.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldUtils.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_accumulatortransform.pf&#45;&gt;sourcefile~fieldutils.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~test_accumulatortransform.pf&#45;&gt;sourcefile~fieldutils.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1586.8,-151.4C1488.7,-147.24 1330.8,-140.55 1250.46,-137.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1250.26,-133.64 1240.12,-136.71 1249.97,-140.63 1250.26,-133.64"/>
+</g>
+<!-- sourcefile~accumulator_transform_test_common.f90&#45;&gt;sourcefile~fieldutils.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~accumulator_transform_test_common.f90&#45;&gt;sourcefile~fieldutils.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1361.69,-163.01C1325.84,-156.8 1282.87,-149.36 1250.24,-143.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1250.49,-140.2 1240.04,-141.94 1249.29,-147.1 1250.49,-140.2"/>
+</g>
+<!-- sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node14" class="node">
+<title>sourcefile~internalconstants.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node14"><a xlink:href="../sourcefile/internalconstants.f90.html" xlink:title="InternalConstants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1077.5,-189.01 948.5,-189.01 948.5,-165.01 1077.5,-165.01 1077.5,-189.01"/>
+<text text-anchor="middle" x="1013" y="-174.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InternalConstants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~accumulator_transform_test_common.f90&#45;&gt;sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~accumulator_transform_test_common.f90&#45;&gt;sourcefile~internalconstants.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1312.9,-175.58C1240.47,-175.93 1150,-176.36 1087.67,-176.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1087.51,-173.16 1077.53,-176.71 1087.55,-180.16 1087.51,-173.16"/>
+</g>
+<!-- sourcefile~extensiontransform.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node8" class="node">
+<title>sourcefile~extensiontransform.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node8"><a xlink:href="../sourcefile/extensiontransform.f90.html" xlink:title="ExtensionTransform.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1083,-563.01 943,-563.01 943,-539.01 1083,-539.01 1083,-563.01"/>
+<text text-anchor="middle" x="1013" y="-548.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtensionTransform.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~extensiontransform.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~extensiontransform.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M1190.79,-249.32C1162.85,-297 1061.55,-469.86 1026.24,-530.12"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="1023.2,-528.39 1021.16,-538.79 1029.24,-531.93 1023.2,-528.39"/>
+</g>
+<!-- sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node11" class="node">
+<title>sourcefile~fieldpointerutilities.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node11"><a xlink:href="../sourcefile/fieldpointerutilities.f90.html" xlink:title="FieldPointerUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="688,-63.01 552,-63.01 552,-39.01 688,-39.01 688,-63.01"/>
+<text text-anchor="middle" x="620" y="-48.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldPointerUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M1120.88,-232.25C1087.73,-229.28 1048.7,-224.52 1014,-217.01"/>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M1012,-217.01C980.07,-210.1 965.69,-219.4 941,-198.01 910.3,-171.42 935.9,-140.37 905,-114.01 878.67,-91.56 862.44,-105.59 829.5,-95.01"/>
+</g>
+<!-- sourcefile~fieldutilities.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node13" class="node">
+<title>sourcefile~fieldutilities.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node13"><a xlink:href="../sourcefile/fieldutilities.f90.html" xlink:title="FieldUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1062.5,-269.01 963.5,-269.01 963.5,-245.01 1062.5,-245.01 1062.5,-269.01"/>
+<text text-anchor="middle" x="1013" y="-254.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~fieldutilities.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~fieldutilities.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M1120.77,-245.41C1104.79,-247.14 1088.19,-248.95 1072.99,-250.6"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="1072.27,-247.16 1062.71,-251.72 1073.03,-254.12 1072.27,-247.16"/>
+</g>
+<!-- sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~internalconstants.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M1160.76,-224.87C1131.86,-215.45 1091.63,-202.32 1060.59,-192.2"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="1061.46,-188.81 1050.87,-189.03 1059.29,-195.46 1061.46,-188.81"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node15" class="node">
+<title>sourcefile~mapl_exceptionhandling.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node15"><a xlink:href="../sourcefile/mapl_exceptionhandling.f90.html" xlink:title="MAPL_ExceptionHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="488,-183.01 319,-183.01 319,-159.01 488,-159.01 488,-183.01"/>
+<text text-anchor="middle" x="403.5" y="-168.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M1012,-217.01C799.86,-171.08 722.83,-323.07 524,-236.01 502.39,-226.55 507.94,-209.61 488,-197.01 481.74,-193.05 474.82,-189.66 467.74,-186.76"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="468.61,-183.34 458.02,-183.1 466.14,-189.9 468.61,-183.34"/>
+</g>
+<!-- sourcefile~transformid.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node16" class="node">
+<title>sourcefile~transformid.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node16"><a xlink:href="../sourcefile/transformid.f90.html" xlink:title="TransformId.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="877.5,-625.01 779.5,-625.01 779.5,-601.01 877.5,-601.01 877.5,-625.01"/>
+<text text-anchor="middle" x="828.5" y="-610.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">TransformId.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~transformid.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~accumulatortransform.f90&#45;&gt;sourcefile~transformid.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M1198.05,-249.17C1197.53,-298.39 1188.55,-484.39 1085,-572.01 1030.44,-618.18 945.01,-622.8 888.16,-619.68"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="888.09,-616.17 877.89,-619.02 887.64,-623.16 888.09,-616.17"/>
+</g>
+<!-- sourcefile~esmf_testcase.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node6" class="node">
+<title>sourcefile~esmf_testcase.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node6"><a xlink:href="../sourcefile/esmf_testcase.f90.html" xlink:title="ESMF_TestCase.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1256.5,-67.01 1141.5,-67.01 1141.5,-43.01 1256.5,-43.01 1256.5,-67.01"/>
+<text text-anchor="middle" x="1199" y="-52.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TestCase.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~esmf_testmethod.f90&#45;&gt;sourcefile~esmf_testcase.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~esmf_testmethod.f90&#45;&gt;sourcefile~esmf_testcase.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1367.27,-83.98C1336.06,-78.57 1298.49,-72.07 1266.87,-66.59"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="1267.28,-63.11 1256.83,-64.85 1266.08,-70.01 1267.28,-63.11"/>
+</g>
+<!-- sourcefile~esmf_testparameter.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node7" class="node">
+<title>sourcefile~esmf_testparameter.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node7"><a xlink:href="../sourcefile/esmf_testparameter.f90.html" xlink:title="ESMF_TestParameter.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1085,-67.01 941,-67.01 941,-43.01 1085,-43.01 1085,-67.01"/>
+<text text-anchor="middle" x="1013" y="-52.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TestParameter.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~esmf_testmethod.f90&#45;&gt;sourcefile~esmf_testparameter.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~esmf_testmethod.f90&#45;&gt;sourcefile~esmf_testparameter.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1367.24,-93.57C1304.4,-91.57 1205.77,-86.88 1121,-76.01 1107.02,-74.22 1092.13,-71.69 1078.03,-69.01"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="1078.42,-65.52 1067.93,-67.04 1077.08,-72.39 1078.42,-65.52"/>
+</g>
+<!-- sourcefile~fieldbinaryoperations.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node9" class="node">
+<title>sourcefile~fieldbinaryoperations.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node9"><a xlink:href="../sourcefile/fieldbinaryoperations.f90.html" xlink:title="FieldBinaryOperations.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="905,-24.01 752,-24.01 752,-0.01 905,-0.01 905,-24.01"/>
+<text text-anchor="middle" x="828.5" y="-9.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBinaryOperations.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutils.f90&#45;&gt;sourcefile~fieldbinaryoperations.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~fieldutils.f90&#45;&gt;sourcefile~fieldbinaryoperations.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M1157.79,-126.32C1120.51,-118.25 1063.49,-105.88 1014,-95.01"/>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M1012,-95.01C980.09,-88.01 968.54,-93.57 941,-76.01 919.98,-62.61 925.95,-46.51 905,-33.01 902.26,-31.24 899.36,-29.62 896.37,-28.13"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="897.72,-24.9 887.16,-24.07 894.9,-31.31 897.72,-24.9"/>
+</g>
+<!-- sourcefile~fieldblas.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node10" class="node">
+<title>sourcefile~fieldblas.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node10"><a xlink:href="../sourcefile/fieldblas.f90.html" xlink:title="FieldBLAS.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1057,-147.01 969,-147.01 969,-123.01 1057,-123.01 1057,-147.01"/>
+<text text-anchor="middle" x="1013" y="-132.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBLAS.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutils.f90&#45;&gt;sourcefile~fieldblas.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~fieldutils.f90&#45;&gt;sourcefile~fieldblas.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M1157.62,-135.01C1131.15,-135.01 1096.24,-135.01 1067.47,-135.01"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="1067.17,-131.51 1057.17,-135.01 1067.17,-138.51 1067.17,-131.51"/>
+</g>
+<!-- sourcefile~fieldutils.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~fieldutils.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M1012,-95.01C932.78,-77.62 906.72,-119.82 829.5,-95.01"/>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M827.5,-95.01C802.97,-87.13 743.12,-74.64 694.13,-64.98"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="694.67,-61.51 684.18,-63.02 693.32,-68.38 694.67,-61.51"/>
+</g>
+<!-- sourcefile~fieldunaryfunctions.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node12" class="node">
+<title>sourcefile~fieldunaryfunctions.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node12"><a xlink:href="../sourcefile/fieldunaryfunctions.f90.html" xlink:title="FieldUnaryFunctions.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="899.5,-66.01 757.5,-66.01 757.5,-42.01 899.5,-42.01 899.5,-66.01"/>
+<text text-anchor="middle" x="828.5" y="-51.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldUnaryFunctions.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutils.f90&#45;&gt;sourcefile~fieldunaryfunctions.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~fieldutils.f90&#45;&gt;sourcefile~fieldunaryfunctions.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M1012,-95.01C972.31,-86.3 927.81,-76.3 892.69,-68.37"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="893.1,-64.87 882.58,-66.08 891.56,-71.7 893.1,-64.87"/>
+</g>
+<!-- sourcefile~fieldutils.f90&#45;&gt;sourcefile~fieldutilities.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~fieldutils.f90&#45;&gt;sourcefile~fieldutilities.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M1186.55,-147.21C1167.28,-167.15 1126.37,-206.9 1085,-231.01 1078.53,-234.78 1071.41,-238.16 1064.27,-241.14"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="1062.58,-238.04 1054.55,-244.95 1065.14,-244.56 1062.58,-238.04"/>
+</g>
+<!-- sourcefile~esmf_testcase.f90&#45;&gt;sourcefile~esmf_testparameter.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~esmf_testcase.f90&#45;&gt;sourcefile~esmf_testparameter.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1141.29,-55.01C1126.74,-55.01 1110.8,-55.01 1095.27,-55.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1095.15,-51.51 1085.15,-55.01 1095.15,-58.51 1095.15,-51.51"/>
+</g>
+<!-- sourcefile~extensiontransform.f90&#45;&gt;sourcefile~transformid.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~extensiontransform.f90&#45;&gt;sourcefile~transformid.f90</title>
+<path fill="none" stroke="#e7ff00" stroke-dasharray="5,2" d="M982.75,-563.08C961.39,-571.68 931.64,-583.23 905,-592.01 898.66,-594.1 891.98,-596.16 885.32,-598.13"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="884.26,-594.79 875.62,-600.93 886.2,-601.52 884.26,-594.79"/>
+</g>
+<!-- sourcefile~aspectid.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node17" class="node">
+<title>sourcefile~aspectid.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node17"><a xlink:href="../sourcefile/aspectid.f90.html" xlink:title="AspectId.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="869,-583.01 788,-583.01 788,-559.01 869,-559.01 869,-583.01"/>
+<text text-anchor="middle" x="828.5" y="-568.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AspectId.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extensiontransform.f90&#45;&gt;sourcefile~aspectid.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~extensiontransform.f90&#45;&gt;sourcefile~aspectid.f90</title>
+<path fill="none" stroke="#e7ff00" stroke-dasharray="5,2" d="M942.74,-558.6C921.63,-560.91 898.85,-563.41 879.29,-565.55"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="878.65,-562.1 869.09,-566.67 879.41,-569.06 878.65,-562.1"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node18" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node18"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="264,-373.01 155,-373.01 155,-349.01 264,-349.01 264,-373.01"/>
+<text text-anchor="middle" x="209.5" y="-358.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extensiontransform.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~extensiontransform.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#e7ff00" stroke-dasharray="5,2" d="M942.89,-550.37C789.04,-547.82 423.65,-535.3 319,-474.01 297.78,-461.59 299.8,-449.96 283,-432.01 266.14,-413.99 246.03,-394.44 231.27,-380.42"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="233.35,-377.57 223.67,-373.25 228.54,-382.66 233.35,-377.57"/>
+</g>
+<!-- sourcefile~fieldbinaryoperations.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~fieldbinaryoperations.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M763.86,-24.03C741.97,-28.16 717.29,-32.83 694.68,-37.1"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="693.96,-33.67 684.79,-38.96 695.26,-40.55 693.96,-33.67"/>
+</g>
+<!-- sourcefile~fieldbinaryoperations.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~fieldbinaryoperations.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M751.69,-2.04C712.08,0.78 663.2,0.47 621,-11.01"/>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M619,-11.01C577.45,-22.32 561.1,-8.15 524,-30.01 473.64,-59.69 434.45,-118.52 416.02,-149.99"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="412.9,-148.4 410.98,-158.82 418.98,-151.87 412.9,-148.4"/>
+</g>
+<!-- sourcefile~fieldblas.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~fieldblas.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#00ff2e" stroke-dasharray="5,2" d="M968.87,-126.54C923.43,-117.45 854.98,-103.2 829.5,-95.01"/>
+</g>
+<!-- sourcefile~fieldblas.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~fieldblas.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#00ff2e" stroke-dasharray="5,2" d="M968.99,-144.75C949.54,-148.81 926.21,-153.23 905,-156.01 779.57,-172.45 747.41,-170.13 621,-175.01"/>
+</g>
+<!-- sourcefile~fieldcondensedarray.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node19" class="node">
+<title>sourcefile~fieldcondensedarray.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node19"><a xlink:href="../sourcefile/fieldcondensedarray.f90.html" xlink:title="FieldCondensedArray.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="902.5,-147.01 754.5,-147.01 754.5,-123.01 902.5,-123.01 902.5,-147.01"/>
+<text text-anchor="middle" x="828.5" y="-132.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldCondensedArray.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldblas.f90&#45;&gt;sourcefile~fieldcondensedarray.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~fieldblas.f90&#45;&gt;sourcefile~fieldcondensedarray.f90</title>
+<path fill="none" stroke="#00ff2e" stroke-dasharray="5,2" d="M968.75,-135.01C951.97,-135.01 932.15,-135.01 912.82,-135.01"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="912.77,-131.51 902.77,-135.01 912.77,-138.51 912.77,-131.51"/>
+</g>
+<!-- sourcefile~fieldpointerutilities.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~fieldpointerutilities.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M551.96,-61.62C542.32,-64.34 532.73,-67.75 524,-72.01 483.08,-92.02 444.09,-128.78 422.33,-151.44"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="419.68,-149.14 415.37,-158.81 424.78,-153.94 419.68,-149.14"/>
+</g>
+<!-- sourcefile~fieldunaryfunctions.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge30" class="edge">
+<title>sourcefile~fieldunaryfunctions.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#00b9ff" stroke-dasharray="5,2" d="M757.3,-52.99C738.28,-52.72 717.59,-52.41 698.21,-52.13"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="698.26,-48.63 688.21,-51.99 698.16,-55.63 698.26,-48.63"/>
+</g>
+<!-- sourcefile~fieldunaryfunctions.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge31" class="edge">
+<title>sourcefile~fieldunaryfunctions.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#00b9ff" stroke-dasharray="5,2" d="M780.79,-41.95C724.7,-27.83 636.24,-6.87 621,-11.01"/>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge34" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M963.31,-246.02C955.03,-242.36 947.14,-237.49 941,-231.01 903.55,-191.54 944.46,-151.47 905,-114.01 879.91,-90.19 862.44,-105.59 829.5,-95.01"/>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge32" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M991.27,-269.05C958.33,-287.37 891.4,-321.38 829.5,-333.01"/>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M827.5,-333.01C810.49,-336.21 539.31,-271.07 524,-263.01 504.79,-252.91 507.22,-240.09 488,-230.01 454.29,-212.34 442.33,-206.87 404.5,-211.01"/>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M402.5,-211.01C364.69,-215.4 351.42,-210.07 319,-230.01 274.03,-257.67 238.95,-310.59 221.88,-340"/>
+<polygon fill="#002eff" stroke="#002eff" points="218.67,-338.57 216.8,-349 224.76,-342.01 218.67,-338.57"/>
+</g>
+<!-- sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node20" class="node">
+<title>sourcefile~fieldinfo.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node20"><a xlink:href="../sourcefile/fieldinfo.f90.html" xlink:title="FieldInfo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="868,-385.01 789,-385.01 789,-361.01 868,-361.01 868,-385.01"/>
+<text text-anchor="middle" x="828.5" y="-370.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldInfo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge33" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldinfo.f90</title>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M1000.59,-269.14C982.14,-288.13 943.86,-324.99 905,-347.01 896.59,-351.78 887.15,-355.88 877.87,-359.32"/>
+<polygon fill="#002eff" stroke="#002eff" points="876.6,-356.06 868.32,-362.67 878.91,-362.67 876.6,-356.06"/>
+</g>
+<!-- sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node21" class="node">
+<title>sourcefile~infoutilities.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node21"><a xlink:href="../sourcefile/infoutilities.f90.html" xlink:title="InfoUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="450.5,-465.01 356.5,-465.01 356.5,-441.01 450.5,-441.01 450.5,-465.01"/>
+<text text-anchor="middle" x="403.5" y="-450.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InfoUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge35" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M1005.83,-269.15C986.04,-306.73 920.11,-421.74 829.5,-474.01"/>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M827.5,-474.01C703.66,-545.45 523.93,-496.26 444.64,-468.47"/>
+<polygon fill="#002eff" stroke="#002eff" points="445.63,-465.1 435.03,-465.03 443.27,-471.69 445.63,-465.1"/>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node22" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node22"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="271.5,-544.01 147.5,-544.01 147.5,-520.01 271.5,-520.01 271.5,-544.01"/>
+<text text-anchor="middle" x="209.5" y="-529.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge36" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M827.5,-474.01C665.84,-578.86 597.15,-572.81 404.5,-569.01"/>
+</g>
+<!-- sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node23" class="node">
+<title>sourcefile~lu_bound.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node23"><a xlink:href="../sourcefile/lu_bound.f90.html" xlink:title="LU_Bound.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="447.5,-385.01 359.5,-385.01 359.5,-361.01 447.5,-361.01 447.5,-385.01"/>
+<text text-anchor="middle" x="403.5" y="-370.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LU_Bound.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge37" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M827.5,-333.01C778.03,-342.8 766.04,-347.8 716,-354.01 625.91,-365.2 520.31,-369.88 458.09,-371.78"/>
+<polygon fill="#002eff" stroke="#002eff" points="457.63,-368.29 447.74,-372.08 457.84,-375.29 457.63,-368.29"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node25" class="node">
+<title>sourcefile~ungriddeddims.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node25"><a xlink:href="../sourcefile/ungriddeddims.f90.html" xlink:title="UngriddedDims.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="679,-345.01 561,-345.01 561,-321.01 679,-321.01 679,-345.01"/>
+<text text-anchor="middle" x="620" y="-330.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDims.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge38" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M827.5,-333.01C782.11,-341.99 730,-341.92 689.49,-339.64"/>
+<polygon fill="#002eff" stroke="#002eff" points="689.64,-336.14 679.45,-339.01 689.21,-343.13 689.64,-336.14"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge39" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#e700ff" stroke-dasharray="5,2" d="M341.14,-183.11C333.06,-186.63 325.38,-191.16 319,-197.01 287.86,-225.57 305.98,-249.55 283,-285.01 268.98,-306.64 248.34,-327.56 232.66,-341.95"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="230.08,-339.57 224.98,-348.85 234.76,-344.78 230.08,-339.57"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node24" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node24"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="100,-303.01 0,-303.01 0,-279.01 100,-279.01 100,-303.01"/>
+<text text-anchor="middle" x="50" y="-288.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge40" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#e700ff" stroke-dasharray="5,2" d="M362.91,-183.03C348.99,-187.33 333.27,-192.29 319,-197.01 239.18,-223.43 146.8,-256.36 94,-275.4"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="92.51,-272.22 84.29,-278.91 94.89,-278.8 92.51,-272.22"/>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge41" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#ffaa00" stroke-dasharray="5,2" d="M181.42,-348.98C155.51,-337.46 116.22,-320 87.53,-307.25"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="88.81,-303.99 78.25,-303.12 85.97,-310.38 88.81,-303.99"/>
+</g>
+<!-- sourcefile~fieldcondensedarray.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge44" class="edge">
+<title>sourcefile~fieldcondensedarray.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M781.21,-122.9C771.16,-119.24 760.9,-114.66 752,-109.01 732.63,-96.72 736.04,-83.18 716,-72.01 710.38,-68.88 704.34,-66.22 698.11,-63.95"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="698.81,-60.5 688.22,-60.71 696.63,-67.15 698.81,-60.5"/>
+</g>
+<!-- sourcefile~fieldcondensedarray.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge45" class="edge">
+<title>sourcefile~fieldcondensedarray.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M785.62,-147.03C744.21,-157.98 678.84,-172.78 621,-175.01"/>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M619,-175.01C579.54,-176.53 535.97,-176.11 498.46,-175.09"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="498.15,-171.58 488.05,-174.79 497.95,-178.58 498.15,-171.58"/>
+</g>
+<!-- sourcefile~fieldcondensedarray_private.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node26" class="node">
+<title>sourcefile~fieldcondensedarray_private.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node26"><a xlink:href="../sourcefile/fieldcondensedarray_private.f90.html" xlink:title="FieldCondensedArray_private.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="716,-147.01 524,-147.01 524,-123.01 716,-123.01 716,-147.01"/>
+<text text-anchor="middle" x="620" y="-132.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldCondensedArray_private.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldcondensedarray.f90&#45;&gt;sourcefile~fieldcondensedarray_private.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge42" class="edge">
+<title>sourcefile~fieldcondensedarray.f90&#45;&gt;sourcefile~fieldcondensedarray_private.f90</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M754.41,-135.01C745.29,-135.01 735.83,-135.01 726.34,-135.01"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="726.06,-131.51 716.06,-135.01 726.06,-138.51 726.06,-131.51"/>
+</g>
+<!-- sourcefile~fieldget.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node27" class="node">
+<title>sourcefile~fieldget.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node27"><a xlink:href="../sourcefile/fieldget.f90.html" xlink:title="FieldGet.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="659.5,-105.01 580.5,-105.01 580.5,-81.01 659.5,-81.01 659.5,-105.01"/>
+<text text-anchor="middle" x="620" y="-90.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldGet.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldcondensedarray.f90&#45;&gt;sourcefile~fieldget.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge43" class="edge">
+<title>sourcefile~fieldcondensedarray.f90&#45;&gt;sourcefile~fieldget.f90</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M768.33,-122.98C737.09,-116.62 699.23,-108.92 669.71,-102.92"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="670.13,-99.43 659.64,-100.87 668.74,-106.29 670.13,-99.43"/>
+</g>
+<!-- sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node31" class="node">
+<title>sourcefile~verticalstaggerloc.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node31"><a xlink:href="../sourcefile/verticalstaggerloc.f90.html" xlink:title="VerticalStaggerLoc.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="688,-227.01 552,-227.01 552,-203.01 688,-203.01 688,-227.01"/>
+<text text-anchor="middle" x="620" y="-212.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalStaggerLoc.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldcondensedarray.f90&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge46" class="edge">
+<title>sourcefile~fieldcondensedarray.f90&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M805.4,-147.22C783.27,-159.07 748.02,-176.99 716,-189.01 705.1,-193.1 693.29,-196.85 681.81,-200.16"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="680.53,-196.88 671.84,-202.95 682.41,-203.63 680.53,-196.88"/>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge47" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M788.79,-381.83C747.38,-391.13 679.71,-405.94 621,-417.01"/>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M619,-417.01C487.05,-441.89 329.15,-400.25 254.17,-376.21"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="255.17,-372.85 244.58,-373.08 253,-379.51 255.17,-372.85"/>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge48" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M619,-417.01C565.41,-427.12 504.02,-437.28 460.68,-444.22"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="459.95,-440.79 450.62,-445.82 461.05,-447.7 459.95,-440.79"/>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge49" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M813.62,-385.06C762.78,-427.92 580.54,-570.31 404.5,-569.01"/>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M402.5,-569.01C353.9,-568.05 299.59,-556.59 261.17,-546.67"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="261.83,-543.23 251.27,-544.06 260.04,-549.99 261.83,-543.23"/>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge51" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M788.66,-365.49C760.71,-360.07 722.27,-352.63 689.25,-346.23"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="689.67,-342.75 679.19,-344.28 688.34,-349.62 689.67,-342.75"/>
+</g>
+<!-- sourcefile~mapl_esmf_infokeys.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node28" class="node">
+<title>sourcefile~mapl_esmf_infokeys.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node28"><a xlink:href="../sourcefile/mapl_esmf_infokeys.f90.html" xlink:title="MAPL_ESMF_InfoKeys.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="283,-465.01 136,-465.01 136,-441.01 283,-441.01 283,-465.01"/>
+<text text-anchor="middle" x="209.5" y="-450.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMF_InfoKeys.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge50" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M619,-417.01C556.57,-428.59 550.16,-461.07 488,-474.01 414.46,-489.32 393.77,-481.18 319,-474.01 303.57,-472.53 287.07,-469.89 271.71,-466.98"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="272.3,-463.52 261.81,-465.03 270.95,-470.39 272.3,-463.52"/>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge52" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M788.71,-363.4C776.43,-359.4 763.16,-354.01 752,-347.01 748.71,-344.95 676.34,-271.39 640.6,-235"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="642.67,-232.11 633.17,-227.42 637.68,-237.01 642.67,-232.11"/>
+</g>
+<!-- sourcefile~infoutilities.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge53" class="edge">
+<title>sourcefile~infoutilities.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00ffa9" stroke-dasharray="5,2" d="M356.68,-440.95C344.23,-437.08 330.9,-432.39 319,-427.01 289.11,-413.51 257.32,-393.42 235.94,-378.95"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="237.67,-375.9 227.44,-373.13 233.71,-381.67 237.67,-375.9"/>
+</g>
+<!-- sourcefile~infoutilities.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge54" class="edge">
+<title>sourcefile~infoutilities.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#00ffa9" stroke-dasharray="5,2" d="M372.92,-465.18C339.7,-478.85 285.68,-501.08 249.14,-516.11"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="247.71,-512.91 239.8,-519.96 250.38,-519.39 247.71,-512.91"/>
+</g>
+<!-- sourcefile~infoutilities.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge55" class="edge">
+<title>sourcefile~infoutilities.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90</title>
+<path fill="none" stroke="#00ffa9" stroke-dasharray="5,2" d="M356.02,-453.01C337.15,-453.01 314.76,-453.01 293.27,-453.01"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="293.14,-449.51 283.14,-453.01 293.14,-456.51 293.14,-449.51"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge56" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M560.87,-325.54C547.66,-321.67 534.46,-315.83 524,-307.01 495.11,-282.67 517.41,-253.72 488,-230.01 458.37,-206.12 442.33,-206.87 404.5,-211.01"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge57" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M597.25,-345.18C558.77,-366.71 478.62,-411.55 434.76,-436.08"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="433,-433.05 425.99,-440.99 436.42,-439.16 433,-433.05"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge58" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M560.95,-343.84C528.71,-349.85 488.89,-357.27 457.49,-363.13"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="456.81,-359.7 447.62,-364.97 458.09,-366.58 456.81,-359.7"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge59" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M560.79,-325.47C498.32,-319.89 397.5,-318.23 319,-352.01 308.25,-356.64 258,-405.68 229.81,-433.69"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="227.11,-431.44 222.49,-440.97 232.05,-436.4 227.11,-431.44"/>
+</g>
+<!-- sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node29" class="node">
+<title>sourcefile~ungriddeddim.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node29"><a xlink:href="../sourcefile/ungriddeddim.f90.html" xlink:title="UngriddedDim.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="459.5,-305.01 347.5,-305.01 347.5,-281.01 459.5,-281.01 459.5,-305.01"/>
+<text text-anchor="middle" x="403.5" y="-290.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDim.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge60" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddim.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M560.95,-322.19C532.76,-316.93 498.78,-310.59 469.7,-305.17"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="470.11,-301.69 459.64,-303.29 468.83,-308.57 470.11,-301.69"/>
+</g>
+<!-- sourcefile~ungriddeddimvector.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node30" class="node">
+<title>sourcefile~ungriddeddimvector.f90</title>
+<g id="a_sourcefile~~test_accumulatortransform.pf~~EfferentGraph_node30"><a xlink:href="../sourcefile/ungriddeddimvector.f90.html" xlink:title="UngriddedDimVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="476,-263.01 331,-263.01 331,-239.01 476,-239.01 476,-263.01"/>
+<text text-anchor="middle" x="403.5" y="-248.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDimVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddimvector.f90 -->
+<g id="sourcefile~~test_accumulatortransform.pf~~EfferentGraph_edge61" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddimvector.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M560.88,-322.09C548.24,-318.37 535.28,-313.46 524,-307.01 504.63,-295.94 507.49,-282.88 488,-272.01 484.57,-270.1 480.97,-268.36 477.27,-266.78"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="478.47,-263.49 467.88,-263.15 475.95,-270.02 478.47,-263.49"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefiletest_accumulatortransformpfEfferentGraph = svgPanZoom('#sourcefiletest_accumulatortransformpfEfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_TestErr.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="k">module </span><span class="n">Test_AccumulatorTransform</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_AccumulatorTransform</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">accumulator_transform_test_common</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">esmf</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_FieldUtils</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">pfunit</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">ESMF_TestMethod_mod</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="k">contains</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="err">@</span><span class="n">Test</span><span class="p">(</span><span class="k">type</span><span class="o">=</span><span class="n">ESMF_TestMethod</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_construct_AccumulatorTransform</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">AccumulatorTransform</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">acc</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">      </span><span class="err">@</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">update_calculated</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;updated_calculated .TRUE.&#39;</span><span class="p">)</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">      </span><span class="err">@</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">initialized</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;initialized .TRUE.&#39;</span><span class="p">)</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_construct_AccumulatorTransform</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">   </span><span class="err">@</span><span class="n">Test</span><span class="p">(</span><span class="k">type</span><span class="o">=</span><span class="n">ESMF_TestMethod</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_initialize</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">AccumulatorTransform</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">acc</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">equals_expected_value</span><span class="w"> </span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="k">call </span><span class="n">initialize_objects</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">initialized</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;initialized .FALSE.&#39;</span><span class="p">)</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="n">equals_expected_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldIsConstant</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">,</span><span class="w"> </span><span class="n">acc</span><span class="p">%</span><span class="n">CLEAR_VALUE_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">equals_expected_value</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;accumulation_field was not cleared.&#39;</span><span class="p">)</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="k">call </span><span class="n">destroy_objects</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_initialize</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">   </span><span class="err">@</span><span class="n">Test</span><span class="p">(</span><span class="k">type</span><span class="o">=</span><span class="n">ESMF_TestMethod</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_invalidate</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">AccumulatorTransform</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">acc</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">import_field</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">R4</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">invalidate_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">4.0_R4</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">equals_expected_value</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="k">call </span><span class="n">initialize_objects</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="k">call </span><span class="n">get_field</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">import_field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">      </span><span class="k">call </span><span class="n">FieldSet</span><span class="p">(</span><span class="n">import_field</span><span class="p">,</span><span class="w"> </span><span class="n">invalidate_value</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">invalidate</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">      </span><span class="err">@</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">update_calculated</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;update_calculated .TRUE.&#39;</span><span class="p">)</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span><span class="n">equals_expected_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldIsConstant</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">,</span><span class="w"> </span><span class="n">invalidate_value</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">equals_expected_value</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;accumulation_field not equal to invalidate_value&#39;</span><span class="p">)</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">invalidate</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="err">@</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">update_calculated</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;update_calculated .TRUE.&#39;</span><span class="p">)</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">      </span><span class="n">equals_expected_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldIsConstant</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="o">*</span><span class="n">invalidate_value</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">equals_expected_value</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;accumulation_field .FALSE.&#39;</span><span class="p">)</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="k">call </span><span class="n">destroy_objects</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_invalidate</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">   </span><span class="err">@</span><span class="n">Test</span><span class="p">(</span><span class="k">type</span><span class="o">=</span><span class="n">ESMF_TestMethod</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_update</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">AccumulatorTransform</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">acc</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">import_field</span><span class="p">,</span><span class="w"> </span><span class="n">export_field</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">R4</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">invalidate_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">4.0_R4</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">R4</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">update_value</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">equals_expected_value</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">      </span><span class="k">call </span><span class="n">initialize_objects</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">      </span><span class="k">call </span><span class="n">get_field</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">import_field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">      </span><span class="k">call </span><span class="n">FieldSet</span><span class="p">(</span><span class="n">import_field</span><span class="p">,</span><span class="w"> </span><span class="n">invalidate_value</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">invalidate</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">update</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">      </span><span class="n">update_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">invalidate_value</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">update_calculated</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;update_calculated .FALSE.&#39;</span><span class="p">)</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">      </span><span class="n">equals_expected_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldIsConstant</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">,</span><span class="w"> </span><span class="n">acc</span><span class="p">%</span><span class="n">CLEAR_VALUE_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">equals_expected_value</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;accumulation_field was not cleared.&#39;</span><span class="p">)</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">      </span><span class="n">equals_expected_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldIsConstant</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">result_field</span><span class="p">,</span><span class="w"> </span><span class="n">update_value</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">equals_expected_value</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;result_field not equal to update_value&#39;</span><span class="p">)</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">      </span><span class="k">call </span><span class="n">get_field</span><span class="p">(</span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">export_field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">      </span><span class="n">equals_expected_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldIsConstant</span><span class="p">(</span><span class="n">export_field</span><span class="p">,</span><span class="w"> </span><span class="n">update_value</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">equals_expected_value</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;export_field not equal to update_value&#39;</span><span class="p">)</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">invalidate</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">invalidate</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">update</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">      </span><span class="n">update_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">invalidate_value</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">update_calculated</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;update_calculated .FALSE&#39;</span><span class="p">)</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">      </span><span class="n">equals_expected_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldIsConstant</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">,</span><span class="w"> </span><span class="n">acc</span><span class="p">%</span><span class="n">CLEAR_VALUE_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">equals_expected_value</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;accumulation_field was not cleared.&#39;</span><span class="p">)</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">      </span><span class="n">equals_expected_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldIsConstant</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">result_field</span><span class="p">,</span><span class="w"> </span><span class="n">update_value</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">equals_expected_value</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;result_field not equal to update_value.&#39;</span><span class="p">)</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">      </span><span class="k">call </span><span class="n">get_field</span><span class="p">(</span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">export_field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">      </span><span class="n">equals_expected_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldIsConstant</span><span class="p">(</span><span class="n">export_field</span><span class="p">,</span><span class="w"> </span><span class="n">update_value</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">equals_expected_value</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;export_field not equal to update_value&#39;</span><span class="p">)</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">      </span><span class="k">call </span><span class="n">destroy_objects</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_update</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">   </span><span class="err">@</span><span class="n">Test</span><span class="p">(</span><span class="k">type</span><span class="o">=</span><span class="n">ESMF_TestMethod</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_accumulate</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">AccumulatorTransform</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">acc</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">update_field</span>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TypeKind_Flag</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">typekind</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">matches_expected</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">value_r4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.0_ESMF_KIND_R4</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">      </span><span class="n">typekind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">      </span><span class="k">call </span><span class="n">initialize_objects</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">      </span><span class="k">call </span><span class="n">initialize_field</span><span class="p">(</span><span class="n">update_field</span><span class="p">,</span><span class="w"> </span><span class="n">acc</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">      </span><span class="k">call </span><span class="n">FieldSet</span><span class="p">(</span><span class="n">update_field</span><span class="p">,</span><span class="w"> </span><span class="n">value_r4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">accumulate</span><span class="p">(</span><span class="n">update_field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">      </span><span class="n">matches_expected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldIsConstant</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">,</span><span class="w"> </span><span class="n">value_r4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">matches_expected</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;accumulation_field not equal to value_r4&#39;</span><span class="p">)</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldDestroy</span><span class="p">(</span><span class="n">update_field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">      </span><span class="k">call </span><span class="n">destroy_objects</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_accumulate</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="w">   </span><span class="err">@</span><span class="n">Test</span><span class="p">(</span><span class="k">type</span><span class="o">=</span><span class="n">ESMF_TestMethod</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_clear</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">AccumulatorTransform</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">acc</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">is_expected_value</span>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">TEST_VALUE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0_ESMF_KIND_R4</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">      </span><span class="k">call </span><span class="n">initialize_objects</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="w">      </span><span class="k">call </span><span class="n">FieldSet</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">,</span><span class="w"> </span><span class="n">TEST_VALUE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">clear</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-151" name="ln-151" href="#ln-151"></a><span class="w">      </span><span class="n">is_expected_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldIsConstant</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">,</span><span class="w"> </span><span class="n">acc</span><span class="p">%</span><span class="n">CLEAR_VALUE_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-152" name="ln-152" href="#ln-152"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">is_expected_value</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;accumulation_field was not cleared.&#39;</span><span class="p">)</span>
+<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="w">      </span><span class="k">call </span><span class="n">destroy_objects</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-154" name="ln-154" href="#ln-154"></a>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_clear</span>
+<a id="ln-156" name="ln-156" href="#ln-156"></a>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="w">   </span><span class="err">@</span><span class="n">Test</span><span class="p">(</span><span class="k">type</span><span class="o">=</span><span class="n">ESMF_TestMethod</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_accumulate_R4</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">AccumulatorTransform</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">acc</span>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<a id="ln-163" name="ln-163" href="#ln-163"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-164" name="ln-164" href="#ln-164"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">R4</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">INITIAL_VALUE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0_R4</span>
+<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">R4</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">UPDATE_VALUE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.0_R4</span>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">R4</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">expected_value</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">upPtr</span><span class="p">(:),</span><span class="w"> </span><span class="n">accPtr</span><span class="p">(:)</span>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">update_field</span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field_is_expected_value</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n</span>
+<a id="ln-171" name="ln-171" href="#ln-171"></a>
+<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="w">      </span><span class="c">! first accumulate</span>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="w">      </span><span class="k">call </span><span class="n">initialize_objects</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-175" name="ln-175" href="#ln-175"></a><span class="w">      </span><span class="k">call </span><span class="n">initialize_field</span><span class="p">(</span><span class="n">update_field</span><span class="p">,</span><span class="w"> </span><span class="n">acc</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-176" name="ln-176" href="#ln-176"></a><span class="w">      </span><span class="k">call </span><span class="n">FieldSet</span><span class="p">(</span><span class="n">update_field</span><span class="p">,</span><span class="w"> </span><span class="n">UPDATE_VALUE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="w">      </span><span class="k">call </span><span class="n">FieldSet</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">,</span><span class="w"> </span><span class="n">INITIAL_VALUE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-178" name="ln-178" href="#ln-178"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">accumulate_R4</span><span class="p">(</span><span class="n">update_field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-179" name="ln-179" href="#ln-179"></a><span class="w">      </span><span class="n">expected_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">INITIAL_VALUE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">UPDATE_VALUE</span>
+<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="w">      </span><span class="n">field_is_expected_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldIsConstant</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">,</span><span class="w"> </span><span class="n">expected_value</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-181" name="ln-181" href="#ln-181"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">field_is_expected_value</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;accumulation_field not equal to expected_value. (first test)&#39;</span><span class="p">)</span>
+<a id="ln-182" name="ln-182" href="#ln-182"></a><span class="w">      </span><span class="c">! second accumulate</span>
+<a id="ln-183" name="ln-183" href="#ln-183"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">accumulate_R4</span><span class="p">(</span><span class="n">update_field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-184" name="ln-184" href="#ln-184"></a><span class="w">      </span><span class="n">expected_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">expected_value</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">UPDATE_VALUE</span>
+<a id="ln-185" name="ln-185" href="#ln-185"></a><span class="w">      </span><span class="n">field_is_expected_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldIsConstant</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">,</span><span class="w"> </span><span class="n">expected_value</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-186" name="ln-186" href="#ln-186"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">field_is_expected_value</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;accumulation_field not equal to expected_value. (second test)&#39;</span><span class="p">)</span>
+<a id="ln-187" name="ln-187" href="#ln-187"></a>
+<a id="ln-188" name="ln-188" href="#ln-188"></a><span class="w">      </span><span class="c">! one update point to undef</span>
+<a id="ln-189" name="ln-189" href="#ln-189"></a><span class="w">      </span><span class="n">expected_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UPDATE_VALUE</span>
+<a id="ln-190" name="ln-190" href="#ln-190"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-191" name="ln-191" href="#ln-191"></a><span class="w">      </span><span class="k">call </span><span class="n">assign_fptr</span><span class="p">(</span><span class="n">update_field</span><span class="p">,</span><span class="w"> </span><span class="n">upPtr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-192" name="ln-192" href="#ln-192"></a><span class="w">      </span><span class="k">call </span><span class="n">assign_fptr</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">,</span><span class="w"> </span><span class="n">accPtr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-193" name="ln-193" href="#ln-193"></a><span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">upPtr</span><span class="p">)</span>
+<a id="ln-194" name="ln-194" href="#ln-194"></a><span class="w">      </span><span class="k">call </span><span class="n">set_undef</span><span class="p">(</span><span class="n">upPtr</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+<a id="ln-195" name="ln-195" href="#ln-195"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">accumulate_R4</span><span class="p">(</span><span class="n">update_field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-196" name="ln-196" href="#ln-196"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">undef</span><span class="p">(</span><span class="n">accPtr</span><span class="p">(</span><span class="n">n</span><span class="p">)),</span><span class="w"> </span><span class="s1">&#39;invalid point is not UNDEF.&#39;</span><span class="p">)</span>
+<a id="ln-197" name="ln-197" href="#ln-197"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="k">all</span><span class="p">(</span><span class="nb">pack</span><span class="p">(</span><span class="n">accPtr</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">undef</span><span class="p">(</span><span class="n">accPtr</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected_value</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;valid point not equal to expected value. (update undef)&#39;</span><span class="p">)</span>
+<a id="ln-198" name="ln-198" href="#ln-198"></a>
+<a id="ln-199" name="ln-199" href="#ln-199"></a><span class="w">      </span><span class="c">! one accumulation point to undef</span>
+<a id="ln-200" name="ln-200" href="#ln-200"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-201" name="ln-201" href="#ln-201"></a><span class="w">      </span><span class="k">call </span><span class="n">assign_fptr</span><span class="p">(</span><span class="n">update_field</span><span class="p">,</span><span class="w"> </span><span class="n">upPtr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-202" name="ln-202" href="#ln-202"></a><span class="w">      </span><span class="n">upPtr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UPDATE_VALUE</span>
+<a id="ln-203" name="ln-203" href="#ln-203"></a><span class="w">      </span><span class="k">call </span><span class="n">assign_fptr</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">,</span><span class="w"> </span><span class="n">accPtr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-204" name="ln-204" href="#ln-204"></a><span class="w">      </span><span class="n">accPtr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">INITIAL_VALUE</span>
+<a id="ln-205" name="ln-205" href="#ln-205"></a><span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">accPtr</span><span class="p">)</span>
+<a id="ln-206" name="ln-206" href="#ln-206"></a><span class="w">      </span><span class="k">call </span><span class="n">set_undef</span><span class="p">(</span><span class="n">accPtr</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+<a id="ln-207" name="ln-207" href="#ln-207"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">accumulate_R4</span><span class="p">(</span><span class="n">update_field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-208" name="ln-208" href="#ln-208"></a><span class="w">      </span><span class="n">expected_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">INITIAL_VALUE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">UPDATE_VALUE</span>
+<a id="ln-209" name="ln-209" href="#ln-209"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">undef</span><span class="p">(</span><span class="n">accPtr</span><span class="p">(</span><span class="n">n</span><span class="p">)),</span><span class="w"> </span><span class="s1">&#39;invalid point is not UNDEF.&#39;</span><span class="p">)</span>
+<a id="ln-210" name="ln-210" href="#ln-210"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="k">all</span><span class="p">(</span><span class="nb">pack</span><span class="p">(</span><span class="n">accPtr</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">undef</span><span class="p">(</span><span class="n">accPtr</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected_value</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;valid point not equal to expected value. (accumulation undef)&#39;</span><span class="p">)</span>
+<a id="ln-211" name="ln-211" href="#ln-211"></a>
+<a id="ln-212" name="ln-212" href="#ln-212"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldDestroy</span><span class="p">(</span><span class="n">update_field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-213" name="ln-213" href="#ln-213"></a><span class="w">      </span><span class="k">call </span><span class="n">destroy_objects</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-214" name="ln-214" href="#ln-214"></a>
+<a id="ln-215" name="ln-215" href="#ln-215"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_accumulate_R4</span>
+<a id="ln-216" name="ln-216" href="#ln-216"></a>
+<a id="ln-217" name="ln-217" href="#ln-217"></a><span class="w">   </span><span class="err">@</span><span class="n">Test</span><span class="p">(</span><span class="k">type</span><span class="o">=</span><span class="n">ESMF_TestMethod</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<a id="ln-218" name="ln-218" href="#ln-218"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_runs_invalidate</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-219" name="ln-219" href="#ln-219"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-220" name="ln-220" href="#ln-220"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">AccumulatorTransform</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">transform</span>
+<a id="ln-221" name="ln-221" href="#ln-221"></a>
+<a id="ln-222" name="ln-222" href="#ln-222"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">transform</span><span class="p">%</span><span class="n">runs_invalidate</span><span class="p">(),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-223" name="ln-223" href="#ln-223"></a>
+<a id="ln-224" name="ln-224" href="#ln-224"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_runs_invalidate</span>
+<a id="ln-225" name="ln-225" href="#ln-225"></a>
+<a id="ln-226" name="ln-226" href="#ln-226"></a><span class="k">end module </span><span class="n">Test_AccumulatorTransform</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

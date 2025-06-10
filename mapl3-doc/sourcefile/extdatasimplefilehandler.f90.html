@@ -1,0 +1,1150 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>ExtDataSimpleFileHandler.F90 &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>ExtDataSimpleFileHandler.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for source files.">192 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataSimpleFileHandler.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">ExtDataSimpleFileHandler.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_extdatasimplefilehandler.html">MAPL_ExtdataSimpleFileHandler</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/extdatasimplefilehandler.f90.html#src">ExtDataSimpleFileHandler.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefileextdatasimplefilehandlerf90EfferentGraph" width="641pt" height="281pt"
+ viewBox="0.00 0.00 641.00 280.54" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph" class="graph" transform="scale(0.48 0.48) rotate(0) translate(4 575.91)">
+<title>sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-575.91 1321,-575.91 1321,4 -4,4"/>
+<!-- sourcefile~extdatasimplefilehandler.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~extdatasimplefilehandler.f90</title>
+<polygon fill="none" stroke="black" points="1317,-375.91 1144,-375.91 1144,-351.91 1317,-351.91 1317,-375.91"/>
+<text text-anchor="middle" x="1230.5" y="-361.51" font-family="Helvetica,sans-Serif" font-size="10.50">ExtDataSimpleFileHandler.F90</text>
+</g>
+<!-- sourcefile~datacollection.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~datacollection.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/datacollection.f90.html" xlink:title="DataCollection.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="687,-571.91 573,-571.91 573,-547.91 687,-547.91 687,-571.91"/>
+<text text-anchor="middle" x="630" y="-557.51" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DataCollection.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~datacollection.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~datacollection.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M810,-559.91C772.69,-560.41 731,-560.44 697.24,-560.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="697.05,-556.83 687.04,-560.3 697.02,-563.83 697.05,-556.83"/>
+</g>
+<!-- sourcefile~datacollectionmanager.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~datacollectionmanager.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/datacollectionmanager.f90.html" xlink:title="DataCollectionManager.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="891,-531.91 731,-531.91 731,-507.91 891,-507.91 891,-531.91"/>
+<text text-anchor="middle" x="811" y="-517.51" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DataCollectionManager.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~datacollectionmanager.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~datacollectionmanager.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1016.5,-519.91C979.76,-530.69 937.67,-532.39 901.27,-530.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="901.34,-527.24 891.16,-530.19 900.96,-534.23 901.34,-527.24"/>
+</g>
+<!-- sourcefile~extdataabstractfilehandler.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~extdataabstractfilehandler.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/extdataabstractfilehandler.f90.html" xlink:title="ExtDataAbstractFileHandler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1108,-375.91 927,-375.91 927,-351.91 1108,-351.91 1108,-375.91"/>
+<text text-anchor="middle" x="1017.5" y="-361.51" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataAbstractFileHandler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~extdataabstractfilehandler.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~extdataabstractfilehandler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1143.98,-363.91C1135.53,-363.91 1126.89,-363.91 1118.31,-363.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1118.27,-360.41 1108.27,-363.91 1118.27,-367.41 1118.27,-360.41"/>
+</g>
+<!-- sourcefile~extdatabracket.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~extdatabracket.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/extdatabracket.f90.html" xlink:title="ExtDataBracket.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="870,-238.91 752,-238.91 752,-214.91 870,-214.91 870,-238.91"/>
+<text text-anchor="middle" x="811" y="-224.51" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataBracket.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~extdatabracket.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~extdatabracket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1016.5,-265.91C972.77,-248.75 920.72,-238.96 880.08,-233.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="880.37,-229.99 870.01,-232.18 879.48,-236.93 880.37,-229.99"/>
+</g>
+<!-- sourcefile~extdataconstants.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~extdataconstants.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/extdataconstants.f90.html" xlink:title="ExtDataConstants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="695,-55.91 565,-55.91 565,-31.91 695,-31.91 695,-55.91"/>
+<text text-anchor="middle" x="630" y="-41.51" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataConstants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~extdataconstants.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~extdataconstants.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M810,-43.91C774.62,-26.12 730.11,-26.04 694.33,-30.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="693.44,-27.04 684.01,-31.87 694.39,-33.97 693.44,-27.04"/>
+</g>
+<!-- sourcefile~filemetadatautilities.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~filemetadatautilities.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/filemetadatautilities.f90.html" xlink:title="FileMetadataUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="512.5,-489.91 370.5,-489.91 370.5,-465.91 512.5,-465.91 512.5,-489.91"/>
+<text text-anchor="middle" x="441.5" y="-475.51" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadataUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~filemetadatautilities.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~filemetadatautilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1016.5,-519.91C927.64,-545.98 904.6,-558.65 812,-559.91"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M810,-559.91C773.89,-560.4 765.36,-552.01 731,-540.91 685.29,-526.14 678.73,-505.33 631,-499.91"/>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="293.5,-390.91 169.5,-390.91 169.5,-366.91 293.5,-366.91 293.5,-390.91"/>
+<text text-anchor="middle" x="231.5" y="-376.51" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1219.21,-375.95C1191.1,-407.74 1108.99,-493.35 1018.5,-519.91"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1016.5,-519.91C958.23,-537 949.49,-482.21 891,-465.91 842.54,-452.4 492.51,-409.4 442.5,-403.91"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~mapl_exceptionhandling.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/mapl_exceptionhandling.f90.html" xlink:title="MAPL_ExceptionHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="316,-348.91 147,-348.91 147,-324.91 316,-324.91 316,-348.91"/>
+<text text-anchor="middle" x="231.5" y="-334.51" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1205.11,-351.77C1166.11,-332.56 1087.14,-294.39 1018.5,-265.91"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1016.5,-265.91C927.1,-228.81 962.97,-152.63 891,-87.91 861.12,-61.03 847.91,-61.96 812,-43.91"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M810,-43.91C737.17,-7.29 711.77,7.08 631,-3.91"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M629,-3.91C539.63,-16.06 528.85,-57.86 442.5,-83.91"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M440.5,-83.91C402.82,-95.27 385.24,-78.96 354,-102.91 282.03,-158.08 248.69,-268 237.29,-314.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="233.82,-314.36 234.96,-324.89 240.64,-315.94 233.82,-314.36"/>
+</g>
+<!-- sourcefile~stringtemplate.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~stringtemplate.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node10"><a xlink:href="../sourcefile/stringtemplate.f90.html" xlink:title="StringTemplate.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="499,-135.91 384,-135.91 384,-111.91 499,-111.91 499,-135.91"/>
+<text text-anchor="middle" x="441.5" y="-121.51" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringTemplate.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~stringtemplate.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~stringtemplate.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M629,-3.91C599.6,-7.9 587.58,-3.66 565,-22.91 536.86,-46.89 557.1,-73.87 529,-97.91 522.97,-103.07 515.94,-107.2 508.54,-110.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="507.03,-107.35 499.03,-114.29 509.61,-113.86 507.03,-107.35"/>
+</g>
+<!-- sourcefile~timestringconversion.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~timestringconversion.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node11"><a xlink:href="../sourcefile/timestringconversion.f90.html" xlink:title="TimeStringConversion.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="518,-375.91 365,-375.91 365,-351.91 518,-351.91 518,-375.91"/>
+<text text-anchor="middle" x="441.5" y="-361.51" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">TimeStringConversion.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~timestringconversion.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~timestringconversion.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1016.5,-265.91C879.82,-212.27 839.96,-318.58 695,-341.91 639.94,-350.76 577.51,-356.24 528.51,-359.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="528.01,-356.04 518.26,-360.18 528.47,-363.03 528.01,-356.04"/>
+</g>
+<!-- sourcefile~datacollection.f90&#45;&gt;sourcefile~filemetadatautilities.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~datacollection.f90&#45;&gt;sourcefile~filemetadatautilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M612.86,-547.88C593.76,-534.17 560.56,-511.99 529,-498.91 523.7,-496.71 518.11,-494.7 512.43,-492.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="513.42,-489.53 502.83,-490 511.4,-496.23 513.42,-489.53"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node13" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node13"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="109,-473.91 0,-473.91 0,-449.91 109,-449.91 109,-473.91"/>
+<text text-anchor="middle" x="54.5" y="-459.51" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~datacollection.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~datacollection.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M440.5,-559.91C310.23,-541.22 266.54,-591.39 145,-540.91 114.49,-528.23 87.27,-500.71 71.08,-481.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="73.71,-479.44 64.64,-473.97 68.32,-483.9 73.71,-479.44"/>
+</g>
+<!-- sourcefile~filemetadatautilitiesvector.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node17" class="node">
+<title>sourcefile~filemetadatautilitiesvector.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node17"><a xlink:href="../sourcefile/filemetadatautilitiesvector.f90.html" xlink:title="FileMetadataUtilitiesVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="529,-531.91 354,-531.91 354,-507.91 529,-507.91 529,-531.91"/>
+<text text-anchor="middle" x="441.5" y="-517.51" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadataUtilitiesVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~datacollection.f90&#45;&gt;sourcefile~filemetadatautilitiesvector.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~datacollection.f90&#45;&gt;sourcefile~filemetadatautilitiesvector.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M573.04,-547.91C552.76,-543.55 529.66,-538.6 508.58,-534.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="509.25,-530.64 498.74,-531.97 507.78,-537.49 509.25,-530.64"/>
+</g>
+<!-- sourcefile~mapl_abstractgridfactory.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node18" class="node">
+<title>sourcefile~mapl_abstractgridfactory.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node18"><a xlink:href="../sourcefile/mapl_abstractgridfactory.f90.html" xlink:title="MAPL_AbstractGridFactory.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="318,-489.91 145,-489.91 145,-465.91 318,-465.91 318,-489.91"/>
+<text text-anchor="middle" x="231.5" y="-475.51" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AbstractGridFactory.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~datacollection.f90&#45;&gt;sourcefile~mapl_abstractgridfactory.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~datacollection.f90&#45;&gt;sourcefile~mapl_abstractgridfactory.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M440.5,-559.91C401.54,-554.32 387.78,-561.12 354,-540.91 332.9,-528.28 338.94,-511.79 318,-498.91 315.05,-497.09 311.94,-495.43 308.74,-493.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="310.08,-490.68 299.51,-490.01 307.35,-497.13 310.08,-490.68"/>
+</g>
+<!-- sourcefile~mapl_gridmanager.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node20" class="node">
+<title>sourcefile~mapl_gridmanager.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node20"><a xlink:href="../sourcefile/mapl_gridmanager.f90.html" xlink:title="MAPL_GridManager.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="300,-447.91 163,-447.91 163,-423.91 300,-423.91 300,-447.91"/>
+<text text-anchor="middle" x="231.5" y="-433.51" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridManager.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~datacollection.f90&#45;&gt;sourcefile~mapl_gridmanager.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~datacollection.f90&#45;&gt;sourcefile~mapl_gridmanager.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M572.8,-564.05C535.63,-565.77 485.93,-566.13 442.5,-559.91"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M440.5,-559.91C401.54,-554.32 384.33,-565.99 354,-540.91 322.7,-515.02 348.98,-483.18 318,-456.91 315.3,-454.61 312.38,-452.56 309.31,-450.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="310.81,-447.56 300.31,-446.12 307.62,-453.79 310.81,-447.56"/>
+</g>
+<!-- sourcefile~pfio.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node22" class="node">
+<title>sourcefile~pfio.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node22"><a xlink:href="../sourcefile/pfio.f90.html" xlink:title="pFIO.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="260.5,-531.91 202.5,-531.91 202.5,-507.91 260.5,-507.91 260.5,-531.91"/>
+<text text-anchor="middle" x="231.5" y="-517.51" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~datacollection.f90&#45;&gt;sourcefile~pfio.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~datacollection.f90&#45;&gt;sourcefile~pfio.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M440.5,-559.91C380.77,-551.34 312.15,-537.32 270.58,-528.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="271.13,-524.9 260.62,-526.2 269.65,-531.74 271.13,-524.9"/>
+</g>
+<!-- sourcefile~datacollectionmanager.f90&#45;&gt;sourcefile~datacollection.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~datacollectionmanager.f90&#45;&gt;sourcefile~datacollection.f90</title>
+<path fill="none" stroke="#ff9900" stroke-dasharray="5,2" d="M756.29,-531.91C737,-536.22 715.05,-541.12 694.97,-545.61"/>
+<polygon fill="#ff9900" stroke="#ff9900" points="693.97,-542.25 684.98,-547.84 695.5,-549.08 693.97,-542.25"/>
+</g>
+<!-- sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~datacollection.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~datacollection.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M810,-479.91C776.61,-493.66 764.37,-485.11 731,-498.91 703.62,-510.22 675.02,-528.41 655.45,-541.99"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="653.28,-539.24 647.13,-547.86 657.32,-544.96 653.28,-539.24"/>
+</g>
+<!-- sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~datacollectionmanager.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~datacollectionmanager.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M1007.92,-376.2C989.45,-401.78 943.34,-461.05 891,-493.91 884.78,-497.81 877.91,-501.19 870.9,-504.1"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="869.38,-500.93 861.29,-507.78 871.88,-507.47 869.38,-500.93"/>
+</g>
+<!-- sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~extdatabracket.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~extdatabracket.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M1001.06,-351.69C977.78,-333.48 932.03,-298.51 891,-271.91 875.9,-262.12 858.58,-252.12 844.01,-244.04"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="845.33,-240.78 834.88,-239.03 841.97,-246.91 845.33,-240.78"/>
+</g>
+<!-- sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~extdataconstants.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~extdataconstants.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M1000.26,-351.71C980.9,-336.54 948.49,-309.07 927,-279.91 905.31,-250.46 914.8,-233.68 891,-205.91 822.01,-125.39 788.24,-120.39 695,-69.91 688.4,-66.33 681.21,-62.95 674.1,-59.89"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="675.11,-56.52 664.53,-55.91 672.42,-62.98 675.11,-56.52"/>
+</g>
+<!-- sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~filemetadatautilities.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~filemetadatautilities.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M998.68,-376.07C964.08,-399.21 884.84,-449.91 812,-479.91"/>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M810,-479.91C772.99,-495.15 670.77,-504.42 631,-499.91"/>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M629,-499.91C594.21,-495.95 555.79,-491.45 522.91,-487.54"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="523.23,-484.06 512.89,-486.35 522.41,-491.01 523.23,-484.06"/>
+</g>
+<!-- sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M629,-403.91C546.23,-399.53 524.89,-412.96 442.5,-403.91"/>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M440.5,-403.91C395.01,-398.91 343.98,-392.78 303.85,-387.85"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="304.25,-384.37 293.9,-386.62 303.39,-391.32 304.25,-384.37"/>
+</g>
+<!-- sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M952.84,-351.88C933.09,-348.52 911.2,-345.17 891,-342.91 833.49,-336.45 685.91,-346.2 631,-327.91"/>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M629,-327.91C602.57,-314.43 584.73,-331.06 565,-308.91 503.18,-239.5 593.29,-170.03 529,-102.91 501.78,-74.48 480.18,-72.54 442.5,-83.91"/>
+</g>
+<!-- sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~stringtemplate.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~stringtemplate.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M629,-327.91C600.85,-318.53 588.85,-326.56 565,-308.91 506.14,-265.33 467.14,-184.44 450.97,-145.7"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="454.02,-143.9 447.01,-135.95 447.53,-146.53 454.02,-143.9"/>
+</g>
+<!-- sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~timestringconversion.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~timestringconversion.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M810,-403.91C730.58,-399.18 710.44,-408.11 631,-403.91"/>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M629,-403.91C581.54,-401.4 528.69,-389.13 491.4,-378.84"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="491.88,-375.34 481.31,-375.99 489.99,-382.07 491.88,-375.34"/>
+</g>
+<!-- sourcefile~extdatafilestream.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node14" class="node">
+<title>sourcefile~extdatafilestream.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node14"><a xlink:href="../sourcefile/extdatafilestream.f90.html" xlink:title="ExtDataFileStream.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="877.5,-375.91 744.5,-375.91 744.5,-351.91 877.5,-351.91 877.5,-375.91"/>
+<text text-anchor="middle" x="811" y="-361.51" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataFileStream.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~extdatafilestream.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~extdatafilestream.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M926.8,-363.91C913.76,-363.91 900.45,-363.91 887.72,-363.91"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="887.65,-360.41 877.65,-363.91 887.65,-367.41 887.65,-360.41"/>
+</g>
+<!-- sourcefile~mapl_comms.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node19" class="node">
+<title>sourcefile~mapl_comms.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node19"><a xlink:href="../sourcefile/mapl_comms.f90.html" xlink:title="MAPL_Comms.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="684.5,-299.91 575.5,-299.91 575.5,-275.91 684.5,-275.91 684.5,-299.91"/>
+<text text-anchor="middle" x="630" y="-285.51" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Comms.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~mapl_comms.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~mapl_comms.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M982.49,-376C942.19,-389.05 872.85,-407.52 812,-403.91"/>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M810,-403.91C773.95,-401.76 759.33,-407.3 731,-384.91 703.24,-362.97 721.04,-337.86 695,-313.91 691.18,-310.39 686.83,-307.33 682.22,-304.65"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="683.64,-301.44 673.14,-299.98 680.44,-307.67 683.64,-301.44"/>
+</g>
+<!-- sourcefile~extdatabracket.f90&#45;&gt;sourcefile~extdataconstants.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge30" class="edge">
+<title>sourcefile~extdatabracket.f90&#45;&gt;sourcefile~extdataconstants.f90</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M797.14,-214.64C780.54,-198.37 751.35,-168.26 731,-138.91 711.29,-110.48 720.59,-93.18 695,-69.91 691.16,-66.42 686.79,-63.36 682.18,-60.7"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="683.59,-57.49 673.09,-56.04 680.4,-63.72 683.59,-57.49"/>
+</g>
+<!-- sourcefile~extdatabracket.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge33" class="edge">
+<title>sourcefile~extdatabracket.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M751.95,-233.33C701.91,-239.59 627.99,-250.57 565,-266.91 468.52,-291.93 446.92,-306.84 354,-342.91 337.84,-349.18 334.47,-352.49 318,-357.91 311.21,-360.14 304.05,-362.26 296.88,-364.23"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="295.9,-360.87 287.13,-366.82 297.7,-367.63 295.9,-360.87"/>
+</g>
+<!-- sourcefile~extdatabracket.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge35" class="edge">
+<title>sourcefile~extdatabracket.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M791.52,-214.76C774.44,-202.91 749.06,-183.7 731,-162.91 710.61,-139.43 721.47,-119.23 695,-102.91 647.11,-73.36 496.29,-67.39 442.5,-83.91"/>
+</g>
+<!-- sourcefile~base_base.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node12" class="node">
+<title>sourcefile~base_base.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node12"><a xlink:href="../sourcefile/base_base.f90.html" xlink:title="Base_Base.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="676.5,-177.91 583.5,-177.91 583.5,-153.91 676.5,-153.91 676.5,-177.91"/>
+<text text-anchor="middle" x="630" y="-163.51" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base_Base.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatabracket.f90&#45;&gt;sourcefile~base_base.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~extdatabracket.f90&#45;&gt;sourcefile~base_base.f90</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M775.84,-214.85C752.99,-206.82 722.24,-196.11 695,-186.91 689.46,-185.04 683.65,-183.1 677.88,-181.18"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="678.86,-177.82 668.26,-178.01 676.66,-184.47 678.86,-177.82"/>
+</g>
+<!-- sourcefile~extdatanode.f90~2 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node15" class="node">
+<title>sourcefile~extdatanode.f90~2</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node15"><a xlink:href="../sourcefile/extdatanode.f90~2.html" xlink:title="ExtDataNode.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="682.5,-135.91 577.5,-135.91 577.5,-111.91 682.5,-111.91 682.5,-135.91"/>
+<text text-anchor="middle" x="630" y="-121.51" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataNode.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatabracket.f90&#45;&gt;sourcefile~extdatanode.f90~2 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge31" class="edge">
+<title>sourcefile~extdatabracket.f90&#45;&gt;sourcefile~extdatanode.f90~2</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M796.03,-214.78C775.24,-197.27 734.39,-164.83 695,-144.91 691.24,-143.01 687.28,-141.23 683.24,-139.57"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="684.32,-136.24 673.73,-135.93 681.82,-142.77 684.32,-136.24"/>
+</g>
+<!-- sourcefile~fieldutils.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node16" class="node">
+<title>sourcefile~fieldutils.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node16"><a xlink:href="../sourcefile/fieldutils.f90.html" xlink:title="FieldUtils.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="671,-219.91 589,-219.91 589,-195.91 671,-195.91 671,-219.91"/>
+<text text-anchor="middle" x="630" y="-205.51" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldUtils.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatabracket.f90&#45;&gt;sourcefile~fieldutils.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge32" class="edge">
+<title>sourcefile~extdatabracket.f90&#45;&gt;sourcefile~fieldutils.f90</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M751.88,-220.74C729.06,-218.31 703.12,-215.56 681.13,-213.23"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="681.33,-209.73 671.01,-212.15 680.59,-216.69 681.33,-209.73"/>
+</g>
+<!-- sourcefile~extdatabracket.f90&#45;&gt;sourcefile~mapl_comms.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge34" class="edge">
+<title>sourcefile~extdatabracket.f90&#45;&gt;sourcefile~mapl_comms.f90</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M774.64,-238.96C746.32,-248.61 706.42,-262.2 675.86,-272.62"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="674.63,-269.34 666.29,-275.88 676.89,-275.97 674.63,-269.34"/>
+</g>
+<!-- sourcefile~filemetadatautilities.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge36" class="edge">
+<title>sourcefile~filemetadatautilities.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M418.18,-465.77C393.82,-452.69 353.54,-431.5 318,-414.91 303.3,-408.04 286.92,-401.01 272.47,-394.99"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="273.4,-391.59 262.82,-391.01 270.73,-398.06 273.4,-391.59"/>
+</g>
+<!-- sourcefile~filemetadatautilities.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge38" class="edge">
+<title>sourcefile~filemetadatautilities.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M429.59,-465.68C404.75,-438.14 344.14,-372.46 318,-357.91 314.57,-356 310.96,-354.26 307.25,-352.67"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="308.45,-349.39 297.86,-349.06 305.93,-355.92 308.45,-349.39"/>
+</g>
+<!-- sourcefile~filemetadatautilities.f90&#45;&gt;sourcefile~mapl_abstractgridfactory.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge37" class="edge">
+<title>sourcefile~filemetadatautilities.f90&#45;&gt;sourcefile~mapl_abstractgridfactory.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M370.37,-477.91C356.89,-477.91 342.57,-477.91 328.44,-477.91"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="328.2,-474.41 318.2,-477.91 328.2,-481.41 328.2,-474.41"/>
+</g>
+<!-- sourcefile~filemetadatautilities.f90&#45;&gt;sourcefile~mapl_gridmanager.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge39" class="edge">
+<title>sourcefile~filemetadatautilities.f90&#45;&gt;sourcefile~mapl_gridmanager.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M380.9,-465.87C356.31,-460.91 327.65,-455.12 302.1,-449.96"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="302.61,-446.49 292.11,-447.94 301.22,-453.35 302.61,-446.49"/>
+</g>
+<!-- sourcefile~filemetadatautilities.f90&#45;&gt;sourcefile~pfio.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge40" class="edge">
+<title>sourcefile~filemetadatautilities.f90&#45;&gt;sourcefile~pfio.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M380.9,-489.94C345.41,-497.11 301.44,-505.99 270.61,-512.21"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="269.79,-508.81 260.68,-514.22 271.18,-515.67 269.79,-508.81"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge41" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#3200ff" stroke-dasharray="5,2" d="M163.5,-349.02C157.02,-351.46 150.73,-354.39 145,-357.91 110.77,-378.92 82.8,-417.37 67.7,-441.17"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="64.65,-439.45 62.38,-449.8 70.61,-443.12 64.65,-439.45"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node21" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_node21"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="104.5,-348.91 4.5,-348.91 4.5,-324.91 104.5,-324.91 104.5,-348.91"/>
+<text text-anchor="middle" x="54.5" y="-334.51" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge42" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#3200ff" stroke-dasharray="5,2" d="M146.84,-336.91C136.04,-336.91 125.15,-336.91 114.84,-336.91"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="114.76,-333.41 104.76,-336.91 114.76,-340.41 114.76,-333.41"/>
+</g>
+<!-- sourcefile~stringtemplate.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge43" class="edge">
+<title>sourcefile~stringtemplate.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M428.37,-135.99C409.79,-155.14 374.31,-194.36 354,-233.91 327.78,-284.95 359.42,-318.18 318,-357.91 313.62,-362.11 308.54,-365.51 303.08,-368.26"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="301.43,-365.17 293.6,-372.31 304.17,-371.6 301.43,-365.17"/>
+</g>
+<!-- sourcefile~stringtemplate.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge44" class="edge">
+<title>sourcefile~stringtemplate.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M428.72,-135.97C394.34,-171.18 293.87,-274.06 251.59,-317.35"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="248.89,-315.11 244.41,-324.71 253.9,-320 248.89,-315.11"/>
+</g>
+<!-- sourcefile~timestringconversion.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge45" class="edge">
+<title>sourcefile~timestringconversion.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0098" stroke-dasharray="5,2" d="M364.82,-369.36C344.94,-370.8 323.56,-372.34 303.91,-373.76"/>
+<polygon fill="#ff0098" stroke="#ff0098" points="303.53,-370.27 293.81,-374.49 304.04,-377.26 303.53,-370.27"/>
+</g>
+<!-- sourcefile~timestringconversion.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~EfferentGraph_edge46" class="edge">
+<title>sourcefile~timestringconversion.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#ff0098" stroke-dasharray="5,2" d="M364.82,-354.08C352.35,-352.46 339.3,-350.77 326.45,-349.1"/>
+<polygon fill="#ff0098" stroke="#ff0098" points="326.58,-345.59 316.21,-347.77 325.68,-352.53 326.58,-345.59"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefileextdatasimplefilehandlerf90EfferentGraph = svgPanZoom('#sourcefileextdatasimplefilehandlerf90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefileextdatasimplefilehandlerf90AfferentGraph" width="641pt" height="107pt"
+ viewBox="0.00 0.00 641.00 107.29" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph" class="graph" transform="scale(0.68 0.68) rotate(0) translate(4 154)">
+<title>sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 940,-154 940,4 -4,4"/>
+<!-- sourcefile~extdatasimplefilehandler.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~extdatasimplefilehandler.f90</title>
+<polygon fill="none" stroke="black" points="173,-87 0,-87 0,-63 173,-63 173,-87"/>
+<text text-anchor="middle" x="86.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">ExtDataSimpleFileHandler.F90</text>
+</g>
+<!-- sourcefile~extdataoldtypescreator.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~extdataoldtypescreator.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/extdataoldtypescreator.f90.html" xlink:title="ExtDataOldTypesCreator.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="372,-87 209,-87 209,-63 372,-63 372,-87"/>
+<text text-anchor="middle" x="290.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataOldTypesCreator.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdatasimplefilehandler.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdatasimplefilehandler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M208.79,-75C200.34,-75 191.69,-75 183.1,-75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="183.04,-71.5 173.04,-75 183.04,-78.5 183.04,-71.5"/>
+</g>
+<!-- sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~extdatagridcompng.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/extdatagridcompng.f90.html" xlink:title="ExtDataGridCompNG.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="555,-87 408,-87 408,-63 555,-63 555,-87"/>
+<text text-anchor="middle" x="481.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataGridCompNG.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~extdataoldtypescreator.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~extdataoldtypescreator.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M407.97,-75C399.51,-75 390.81,-75 382.15,-75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="382.02,-71.5 372.02,-75 382.02,-78.5 382.02,-71.5"/>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~extdatadrivergridcomp.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/extdatadrivergridcomp.f90.html" xlink:title="ExtDataDriverGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="755,-108 591,-108 591,-84 755,-84 755,-108"/>
+<text text-anchor="middle" x="673" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriverGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M590.81,-87C582.29,-86.06 573.62,-85.1 565.09,-84.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="565.47,-80.67 555.14,-83.05 564.7,-87.63 565.47,-80.67"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~mapl_capgridcomp.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/mapl_capgridcomp.f90.html" xlink:title="MAPL_CapGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="745,-66 601,-66 601,-42 745,-42 745,-66"/>
+<text text-anchor="middle" x="673" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M600.9,-61.88C589.36,-63.16 577.33,-64.49 565.54,-65.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="564.82,-62.36 555.26,-66.94 565.59,-69.31 564.82,-62.36"/>
+</g>
+<!-- sourcefile~comp_testing_driver.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~comp_testing_driver.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/comp_testing_driver.f90.html" xlink:title="Comp_Testing_Driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="936,-66 791,-66 791,-42 936,-42 936,-66"/>
+<text text-anchor="middle" x="863.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Comp_Testing_Driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M790.97,-54C779.37,-54 767.28,-54 755.46,-54"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="755.17,-50.5 745.17,-54 755.17,-57.5 755.17,-50.5"/>
+</g>
+<!-- sourcefile~extdatadriver.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~extdatadriver.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/extdatadriver.f90.html" xlink:title="ExtDataDriver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="918,-150 809,-150 809,-126 918,-126 918,-150"/>
+<text text-anchor="middle" x="863.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M808.99,-126.08C786.9,-121.15 761.11,-115.41 738.02,-110.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="738.5,-106.78 727.97,-108.03 736.97,-113.62 738.5,-106.78"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~extdatadrivermod.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/extdatadrivermod.f90.html" xlink:title="ExtDataDriverMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="930,-108 797,-108 797,-84 930,-84 930,-108"/>
+<text text-anchor="middle" x="863.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriverMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M796.84,-96C786.61,-96 775.89,-96 765.22,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="765.02,-92.5 755.02,-96 765.02,-99.5 765.02,-92.5"/>
+</g>
+<!-- sourcefile~mapl_cap.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~mapl_cap.f90</title>
+<g id="a_sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/mapl_cap.f90.html" xlink:title="MAPL_Cap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="908.5,-24 818.5,-24 818.5,0 908.5,0 908.5,-24"/>
+<text text-anchor="middle" x="863.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cap.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~extdatasimplefilehandler.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~mapl_cap.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M818.31,-21.85C794.38,-27.18 764.38,-33.86 737.95,-39.75"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="737.01,-36.38 728.01,-41.97 738.53,-43.21 737.01,-36.38"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefileextdatasimplefilehandlerf90AfferentGraph = svgPanZoom('#sourcefileextdatasimplefilehandlerf90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_Exceptions.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="cp">#include &quot;MAPL_ErrLog.h&quot;</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">module </span><span class="n">MAPL_ExtdataSimpleFileHandler</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">ESMF</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_ExtDataAbstractFileHandler</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_KeywordEnforcerMod</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_ExceptionHandling</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_DataCollectionMod</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_CollectionVectorMod</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_DataCollectionManagerMod</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_FileMetadataUtilsMod</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_TimeStringConversion</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_StringTemplate</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_ExtDataBracket</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_ExtDataConstants</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="k">   private</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="k">   public </span><span class="n">ExtDataSimpleFileHandler</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">extends</span><span class="p">(</span><span class="n">ExtDataAbstractFileHandler</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ExtDataSimpleFileHandler</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">      </span><span class="k">contains</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="k">         procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_file_bracket</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">         </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_file</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">   </span><span class="k">end type</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="k">contains</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="k">   subroutine </span><span class="n">get_file_bracket</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">input_time</span><span class="p">,</span><span class="w"> </span><span class="n">source_time</span><span class="p">,</span><span class="w"> </span><span class="n">bracket</span><span class="p">,</span><span class="w"> </span><span class="n">fail_on_missing_file</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ExtdataSimpleFileHandler</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">input_time</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">source_time</span><span class="p">(:)</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ExtDataBracket</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bracket</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fail_on_missing_file</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">zero</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">time</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="nb">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">time_index</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXPATHLEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">current_file</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_left</span><span class="p">,</span><span class="w"> </span><span class="n">get_right</span><span class="p">,</span><span class="n">in_range</span><span class="p">,</span><span class="n">left_was_set</span><span class="p">,</span><span class="n">right_was_set</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">target_time</span><span class="p">,</span><span class="n">ghost_time</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">allow_missing_file</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span><span class="n">get_left</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">      </span><span class="n">get_right</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="n">in_range</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="n">target_time</span><span class="o">=</span><span class="n">input_time</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="n">allow_missing_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="n">fail_on_missing_file</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">      </span><span class="k">call </span><span class="n">bracket</span><span class="p">%</span><span class="n">get_node</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="n">was_set</span><span class="o">=</span><span class="n">left_was_set</span><span class="p">)</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="k">call </span><span class="n">bracket</span><span class="p">%</span><span class="n">get_node</span><span class="p">(</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="n">was_set</span><span class="o">=</span><span class="n">right_was_set</span><span class="p">)</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">      </span><span class="k">call </span><span class="n">bracket</span><span class="p">%</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">intermittent_disable</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.)</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">persist_closest</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">input_time</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">valid_range</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="k">            </span><span class="n">target_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">valid_range</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">            </span><span class="n">get_right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">            </span><span class="n">in_range</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">left_was_set</span><span class="p">)</span><span class="w"> </span><span class="n">get_left</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">            </span><span class="k">call </span><span class="n">bracket</span><span class="p">%</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">intermittent_disable</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.)</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">         </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">input_time</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">valid_range</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="k">            </span><span class="n">target_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">valid_range</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">            </span><span class="n">get_right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">            </span><span class="n">in_range</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">left_was_set</span><span class="p">)</span><span class="w"> </span><span class="n">get_left</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">            </span><span class="k">call </span><span class="n">bracket</span><span class="p">%</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">intermittent_disable</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.)</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="k">      else</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="k">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">left_was_set</span><span class="p">.</span><span class="n">eqv</span><span class="p">.</span><span class="n">right_was_set</span><span class="p">,</span><span class="s2">&quot;You should not be here&quot;</span><span class="p">)</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">in_range</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">bracket</span><span class="p">%</span><span class="n">time_in_bracket</span><span class="p">(</span><span class="n">target_time</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="k">            </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="k">      end if</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="k">      call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">zero</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">frequency</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">zero</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="k">         </span><span class="n">current_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">file_template</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">get_left</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="k">            call </span><span class="n">this</span><span class="p">%</span><span class="n">get_time_on_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">time_index</span><span class="o">/=</span><span class="n">time_not_found</span><span class="p">,</span><span class="s2">&quot;Time not found in file&quot;</span><span class="p">)</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">            </span><span class="k">call </span><span class="n">bracket</span><span class="p">%</span><span class="n">set_node</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="n">current_file</span><span class="p">,</span><span class="n">time_index</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="o">=</span><span class="nb">time</span><span class="p">,</span><span class="n">was_set</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">in_range</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">bracket</span><span class="p">%</span><span class="n">left_node</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">bracket</span><span class="p">%</span><span class="n">right_node</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="k">               call </span><span class="n">bracket</span><span class="p">%</span><span class="n">swap_node_fields</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">            </span><span class="k">else</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="k">               </span><span class="n">bracket</span><span class="p">%</span><span class="n">new_file_left</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">            </span><span class="k">end if</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="k">         end if</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">get_right</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="k">            call </span><span class="n">this</span><span class="p">%</span><span class="n">get_time_on_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">time_index</span><span class="o">/=</span><span class="n">time_not_found</span><span class="p">,</span><span class="s2">&quot;Time not found in file&quot;</span><span class="p">)</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">            </span><span class="k">call </span><span class="n">bracket</span><span class="p">%</span><span class="n">set_node</span><span class="p">(</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="n">current_file</span><span class="p">,</span><span class="n">time_index</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="o">=</span><span class="nb">time</span><span class="p">,</span><span class="n">was_set</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">            </span><span class="n">bracket</span><span class="p">%</span><span class="n">new_file_right</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="k">      else</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">get_left</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="k">            call </span><span class="n">this</span><span class="p">%</span><span class="n">get_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">allow_missing_file</span><span class="p">,</span><span class="n">ghost_time</span><span class="o">=</span><span class="n">ghost_time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">            </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">get_time_on_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">current_file</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">file_not_found</span><span class="p">)</span><span class="w"> </span><span class="nb">time</span><span class="o">=</span><span class="n">ghost_time</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">            </span><span class="k">call </span><span class="n">bracket</span><span class="p">%</span><span class="n">set_node</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="n">current_file</span><span class="p">,</span><span class="n">time_index</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="o">=</span><span class="nb">time</span><span class="p">,</span><span class="n">was_set</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">in_range</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">bracket</span><span class="p">%</span><span class="n">left_node</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">bracket</span><span class="p">%</span><span class="n">right_node</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="k">               if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">current_file</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">file_not_found</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="k">                  call </span><span class="n">bracket</span><span class="p">%</span><span class="n">swap_node_fields</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">                  </span><span class="n">bracket</span><span class="p">%</span><span class="n">new_file_left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">               </span><span class="k">end if</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="k">            else</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="k">               if</span><span class="w"> </span><span class="p">(</span><span class="n">time_index</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">time_not_found</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="k">                  call </span><span class="n">this</span><span class="p">%</span><span class="n">get_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">allow_missing_file</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">                  </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">get_time_on_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">                  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">time_index</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">time_not_found</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="k">                     if</span><span class="w"> </span><span class="p">(</span><span class="n">allow_missing_file</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="k">                        </span><span class="nb">time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ghost_time</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a><span class="w">                     </span><span class="k">else</span>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="k">                        </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s2">&quot;Time not found in file&quot;</span><span class="p">)</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">                     </span><span class="k">end if</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="k">                  end if</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="k">               end if</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="k">               call </span><span class="n">bracket</span><span class="p">%</span><span class="n">set_node</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="n">current_file</span><span class="p">,</span><span class="n">time_index</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="o">=</span><span class="nb">time</span><span class="p">,</span><span class="n">was_set</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">               </span><span class="n">bracket</span><span class="p">%</span><span class="n">new_file_left</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">            </span><span class="k">end if</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="k">         end if</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">get_right</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="k">            call </span><span class="n">this</span><span class="p">%</span><span class="n">get_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">allow_missing_file</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">            </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">get_time_on_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">time_index</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">time_not_found</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="k">               call </span><span class="n">this</span><span class="p">%</span><span class="n">get_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">allow_missing_file</span><span class="p">,</span><span class="n">ghost_time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="w">               </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">get_time_on_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">time_index</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">time_not_found</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="k">                  if</span><span class="w"> </span><span class="p">(</span><span class="n">allow_missing_file</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="k">                     </span><span class="nb">time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ghost_time</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="w">                  </span><span class="k">else</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="k">                     </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s2">&quot;Time not found in file&quot;</span><span class="p">)</span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">                  </span><span class="k">end if</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="k">               end if</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="k">            end if</span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="k">            call </span><span class="n">bracket</span><span class="p">%</span><span class="n">set_node</span><span class="p">(</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="n">current_file</span><span class="p">,</span><span class="n">time_index</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="o">=</span><span class="nb">time</span><span class="p">,</span><span class="n">was_set</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="w">            </span><span class="n">bracket</span><span class="p">%</span><span class="n">new_file_right</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="k">      end if</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a>
+<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-150" name="ln-150" href="#ln-150"></a>
+<a id="ln-151" name="ln-151" href="#ln-151"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">source_time</span><span class="p">)</span>
+<a id="ln-152" name="ln-152" href="#ln-152"></a>
+<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">get_file_bracket</span>
+<a id="ln-154" name="ln-154" href="#ln-154"></a>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">get_file</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="n">filename</span><span class="p">,</span><span class="n">input_time</span><span class="p">,</span><span class="n">shift</span><span class="p">,</span><span class="n">allow_missing_file</span><span class="p">,</span><span class="n">ghost_time</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ExtdataSimpleFileHandler</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">filename</span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">input_time</span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">shift</span>
+<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">allow_missing_file</span>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ghost_time</span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-163" name="ln-163" href="#ln-163"></a>
+<a id="ln-164" name="ln-164" href="#ln-164"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ftime</span>
+<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="n">status</span>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">file_found</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a><span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">ESMF_KIND_I8</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">interval_seconds</span>
+<a id="ln-168" name="ln-168" href="#ln-168"></a>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeIntervalGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">frequency</span><span class="p">,</span><span class="n">s_i8</span><span class="o">=</span><span class="n">interval_seconds</span><span class="p">)</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">interval_seconds</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-171" name="ln-171" href="#ln-171"></a><span class="w">         </span><span class="c">! time is not representable as absolute time interval (month, year etc...) do this</span>
+<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="w">         </span><span class="c">! brute force way. Not good but ESMF leaves no choice</span>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="w">         </span><span class="n">ftime</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">reff_time</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a><span class="w">         </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">ftime</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">input_time</span><span class="p">)</span>
+<a id="ln-175" name="ln-175" href="#ln-175"></a><span class="w">            </span><span class="n">ftime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ftime</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">frequency</span>
+<a id="ln-176" name="ln-176" href="#ln-176"></a><span class="w">         </span><span class="k">enddo</span>
+<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="k">         </span><span class="n">ftime</span><span class="o">=</span><span class="n">ftime</span><span class="w"> </span><span class="o">-</span><span class="n">this</span><span class="p">%</span><span class="n">frequency</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">shift</span><span class="o">*</span><span class="n">this</span><span class="p">%</span><span class="n">frequency</span>
+<a id="ln-178" name="ln-178" href="#ln-178"></a><span class="w">      </span><span class="k">else</span>
+<a id="ln-179" name="ln-179" href="#ln-179"></a><span class="k">         </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">input_time</span><span class="o">-</span><span class="n">this</span><span class="p">%</span><span class="n">reff_time</span><span class="p">)</span><span class="o">/</span><span class="n">this</span><span class="p">%</span><span class="n">frequency</span>
+<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="w">         </span><span class="n">ftime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">reff_time</span><span class="o">+</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="n">shift</span><span class="p">)</span><span class="o">*</span><span class="n">this</span><span class="p">%</span><span class="n">frequency</span>
+<a id="ln-181" name="ln-181" href="#ln-181"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-182" name="ln-182" href="#ln-182"></a><span class="k">      call </span><span class="n">fill_grads_template</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">file_template</span><span class="p">,</span><span class="nb">time</span><span class="o">=</span><span class="n">ftime</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-183" name="ln-183" href="#ln-183"></a><span class="w">      </span><span class="k">inquire</span><span class="p">(</span><span class="k">file</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span><span class="n">exist</span><span class="o">=</span><span class="n">file_found</span><span class="p">)</span>
+<a id="ln-184" name="ln-184" href="#ln-184"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">file_found</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-185" name="ln-185" href="#ln-185"></a><span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">allow_Missing_file</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-186" name="ln-186" href="#ln-186"></a><span class="k">            </span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file_not_found</span>
+<a id="ln-187" name="ln-187" href="#ln-187"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">ghost_time</span><span class="p">))</span><span class="w"> </span><span class="n">ghost_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ftime</span>
+<a id="ln-188" name="ln-188" href="#ln-188"></a><span class="w">         </span><span class="k">else</span>
+<a id="ln-189" name="ln-189" href="#ln-189"></a><span class="k">            </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s2">&quot;get_file did not file a file using: &quot;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">file_template</span><span class="p">))</span>
+<a id="ln-190" name="ln-190" href="#ln-190"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-191" name="ln-191" href="#ln-191"></a><span class="k">      end if</span>
+<a id="ln-192" name="ln-192" href="#ln-192"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-193" name="ln-193" href="#ln-193"></a>
+<a id="ln-194" name="ln-194" href="#ln-194"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">get_file</span>
+<a id="ln-195" name="ln-195" href="#ln-195"></a>
+<a id="ln-196" name="ln-196" href="#ln-196"></a><span class="k">end module </span><span class="n">MAPL_ExtdataSimpleFileHandler</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

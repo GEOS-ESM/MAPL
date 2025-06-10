@@ -1,0 +1,1039 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_CollectiveGather3D &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_CollectiveGather3D
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">56 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_Comms.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_comms.f90.html'>MAPL_Comms.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_commsmod.html'>MAPL_CommsMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_CollectiveGather3D</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_collectivegather3d.html#src">MAPL_CollectiveGather3D</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine MAPL_CollectiveGather3D(Grid, LocArray, GlobArray, CoresPerNode, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid~5"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Grid</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-locarray"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>LocArray</strong>(:,:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-globarray"></span>
+              real,
+            </td>
+<td></td>
+              <td></td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>GlobArray</strong>(:,:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-corespernode"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CoresPerNode</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~64"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_collectivegather3d~~CallsGraph Pages: 1 -->
+<svg id="procmapl_collectivegather3dCallsGraph" width="641pt" height="727pt"
+ viewBox="0.00 0.00 641.00 726.77" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_collectivegather3d~~CallsGraph" class="graph" transform="scale(0.78 0.78) rotate(0) translate(4 922.32)">
+<title>proc~~mapl_collectivegather3d~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-922.32 813,-922.32 813,4 -4,4"/>
+<!-- proc~mapl_collectivegather3d -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node1" class="node">
+<title>proc~mapl_collectivegather3d</title>
+<polygon fill="none" stroke="black" points="151,-684.32 0,-684.32 0,-660.32 151,-660.32 151,-684.32"/>
+<text text-anchor="middle" x="75.5" y="-669.92" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_CollectiveGather3D</text>
+</g>
+<!-- ESMF_VMGet -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node2" class="node">
+<title>ESMF_VMGet</title>
+<g id="a_proc~~mapl_collectivegather3d~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_vmget.html" xlink:title="ESMF_VMGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="458.5,-779.32 376.5,-779.32 376.5,-755.32 458.5,-755.32 458.5,-779.32"/>
+<text text-anchor="middle" x="417.5" y="-764.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivegather3d&#45;&gt;ESMF_VMGet -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_collectivegather3d&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#ff0000" d="M106.17,-684.48C128.23,-693.23 159.18,-704.93 187,-713.32 247.97,-731.73 319.6,-747.71 366.41,-757.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="365.8,-760.86 376.3,-759.45 367.21,-754 365.8,-760.86"/>
+</g>
+<!-- ESMF_VMGetCurrent -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node3" class="node">
+<title>ESMF_VMGetCurrent</title>
+<g id="a_proc~~mapl_collectivegather3d~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_vmgetcurrent.html" xlink:title="ESMF_VMGetCurrent">
+<polygon fill="#d9534f" stroke="#d9534f" points="478,-737.32 357,-737.32 357,-713.32 478,-713.32 478,-737.32"/>
+<text text-anchor="middle" x="417.5" y="-722.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMGetCurrent</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivegather3d&#45;&gt;ESMF_VMGetCurrent -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_collectivegather3d&#45;&gt;ESMF_VMGetCurrent</title>
+<path fill="none" stroke="#ff0000" d="M151.11,-683.96C209.39,-693.04 289.77,-705.57 346.76,-714.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="346.34,-717.93 356.76,-716.01 347.42,-711.01 346.34,-717.93"/>
+</g>
+<!-- interface~mapl_arrayigather -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node4" class="node">
+<title>interface~mapl_arrayigather</title>
+<g id="a_proc~~mapl_collectivegather3d~~CallsGraph_node4"><a xlink:href="../interface/mapl_arrayigather.html" xlink:title="MAPL_ArrayIGather">
+<polygon fill="#a7506f" stroke="#a7506f" points="306.5,-221.32 191.5,-221.32 191.5,-197.32 306.5,-197.32 306.5,-221.32"/>
+<text text-anchor="middle" x="249" y="-206.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ArrayIGather</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivegather3d&#45;&gt;interface~mapl_arrayigather -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_collectivegather3d&#45;&gt;interface~mapl_arrayigather</title>
+<path fill="none" stroke="#ff0000" d="M77.99,-660C86.02,-595.46 126.06,-296.78 187,-230.32 187.92,-229.33 188.88,-228.37 189.89,-227.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="192.28,-230.06 198.34,-221.37 188.19,-224.38 192.28,-230.06"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node5" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_collectivegather3d~~CallsGraph_node5"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="621.5,-697.32 542.5,-697.32 542.5,-673.32 621.5,-673.32 621.5,-697.32"/>
+<text text-anchor="middle" x="582" y="-682.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivegather3d&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_collectivegather3d&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M81.06,-684.61C92.99,-714.71 128.32,-791.78 187,-821.32 246.75,-851.4 428.84,-852.54 488,-821.32 533.91,-797.1 561.47,-738.87 573.62,-707.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="577.02,-707.92 577.15,-697.33 570.44,-705.52 577.02,-707.92"/>
+</g>
+<!-- proc~mapl_collectivewait -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node6" class="node">
+<title>proc~mapl_collectivewait</title>
+<g id="a_proc~~mapl_collectivegather3d~~CallsGraph_node6"><a xlink:href="../proc/mapl_collectivewait.html" xlink:title="MAPL_CollectiveWait">
+<polygon fill="#d9534f" stroke="#d9534f" points="478.5,-897.32 356.5,-897.32 356.5,-873.32 478.5,-873.32 478.5,-897.32"/>
+<text text-anchor="middle" x="417.5" y="-882.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CollectiveWait</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivegather3d&#45;&gt;proc~mapl_collectivewait -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_collectivegather3d&#45;&gt;proc~mapl_collectivewait</title>
+<path fill="none" stroke="#ff0000" d="M79.62,-684.59C89.06,-718.95 120.86,-816.47 187,-859.32 233.81,-889.66 297.51,-894.7 345.93,-892.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="346.19,-896.48 356.01,-892.52 345.86,-889.48 346.19,-896.48"/>
+</g>
+<!-- proc~mapl_createrequest -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node7" class="node">
+<title>proc~mapl_createrequest</title>
+<g id="a_proc~~mapl_collectivegather3d~~CallsGraph_node7"><a xlink:href="../proc/mapl_createrequest.html" xlink:title="MAPL_CreateRequest">
+<polygon fill="#d9534f" stroke="#d9534f" points="311,-659.32 187,-659.32 187,-635.32 311,-635.32 311,-659.32"/>
+<text text-anchor="middle" x="249" y="-644.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CreateRequest</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivegather3d&#45;&gt;proc~mapl_createrequest -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_collectivegather3d&#45;&gt;proc~mapl_createrequest</title>
+<path fill="none" stroke="#ff0000" d="M151.22,-661.43C159.69,-660.2 168.31,-658.94 176.74,-657.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="177.5,-661.14 186.89,-656.23 176.49,-654.21 177.5,-661.14"/>
+</g>
+<!-- proc~mapl_gridget -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node8" class="node">
+<title>proc~mapl_gridget</title>
+<g id="a_proc~~mapl_collectivegather3d~~CallsGraph_node8"><a xlink:href="../proc/mapl_gridget.html" xlink:title="MAPL_GridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="293,-263.32 205,-263.32 205,-239.32 293,-239.32 293,-263.32"/>
+<text text-anchor="middle" x="249" y="-248.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivegather3d&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_collectivegather3d&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M81.12,-660.31C96.05,-621.52 144.57,-496.14 187,-393.32 204.7,-350.44 226.32,-300.7 238.49,-272.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="241.85,-273.99 242.66,-263.43 235.44,-271.18 241.85,-273.99"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node9" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_collectivegather3d~~CallsGraph_node9"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="623,-581.32 541,-581.32 541,-557.32 623,-557.32 623,-581.32"/>
+<text text-anchor="middle" x="582" y="-566.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivegather3d&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_collectivegather3d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M90.88,-684.38C147.37,-730.23 357.42,-886.38 488,-788.32 533.89,-753.86 501.05,-716.92 524,-664.32 535.83,-637.21 554.03,-608.38 566.66,-589.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="569.6,-591.6 572.37,-581.37 563.82,-587.64 569.6,-591.6"/>
+</g>
+<!-- proc~mapl_roundrobinpelist -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node10" class="node">
+<title>proc~mapl_roundrobinpelist</title>
+<g id="a_proc~~mapl_collectivegather3d~~CallsGraph_node10"><a xlink:href="../proc/mapl_roundrobinpelist.html" xlink:title="MAPL_RoundRobinPEList">
+<polygon fill="#d9534f" stroke="#d9534f" points="488,-497.32 347,-497.32 347,-473.32 488,-473.32 488,-497.32"/>
+<text text-anchor="middle" x="417.5" y="-482.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_RoundRobinPEList</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivegather3d&#45;&gt;proc~mapl_roundrobinpelist -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_collectivegather3d&#45;&gt;proc~mapl_roundrobinpelist</title>
+<path fill="none" stroke="#ff0000" d="M92.76,-660.26C133.57,-630.44 244.45,-552.36 347,-506.32 351.44,-504.33 356.12,-502.46 360.86,-500.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="362.34,-503.92 370.65,-497.35 360.05,-497.3 362.34,-503.92"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node11" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_collectivegather3d~~CallsGraph_node11"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="620,-455.32 544,-455.32 544,-431.32 620,-431.32 620,-455.32"/>
+<text text-anchor="middle" x="582" y="-440.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivegather3d&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_collectivegather3d&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M83.1,-659.96C98.37,-632.23 138.57,-564.05 187,-520.32 248.05,-465.21 267.58,-448.73 347,-427.32 410.13,-410.31 486.13,-420.93 534.02,-431.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="533.27,-434.64 543.79,-433.4 534.8,-427.81 533.27,-434.64"/>
+</g>
+<!-- proc~mapl_collectivewait&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_collectivewait&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff66" d="M437.08,-873.12C453.04,-861.65 475.4,-843.03 488,-821.32 523.94,-759.41 497.25,-730.73 524,-664.32 534.99,-637.03 553.2,-608.44 566.08,-589.84"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="569.01,-591.75 571.91,-581.56 563.29,-587.72 569.01,-591.75"/>
+</g>
+<!-- proc~mapl_collectivewait&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_collectivewait&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff66" d="M430.52,-873.09C446.67,-855.83 474.87,-822.56 488,-788.32 513.94,-720.68 479.34,-521.36 524,-464.32 526.89,-460.63 530.51,-457.58 534.5,-455.07"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="536.38,-458.04 543.71,-450.39 533.21,-451.8 536.38,-458.04"/>
+</g>
+<!-- mpi_recv -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node22" class="node">
+<title>mpi_recv</title>
+<polygon fill="#777777" stroke="#777777" points="612.5,-918.32 551.5,-918.32 551.5,-894.32 612.5,-894.32 612.5,-918.32"/>
+<text text-anchor="middle" x="582" y="-903.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_recv</text>
+</g>
+<!-- proc~mapl_collectivewait&#45;&gt;mpi_recv -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_collectivewait&#45;&gt;mpi_recv</title>
+<path fill="none" stroke="#00ff66" d="M478.55,-893.08C499.45,-895.79 522.36,-898.75 541.21,-901.18"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="540.86,-904.67 551.23,-902.48 541.76,-897.72 540.86,-904.67"/>
+</g>
+<!-- mpi_wait -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node23" class="node">
+<title>mpi_wait</title>
+<polygon fill="#777777" stroke="#777777" points="612,-876.32 552,-876.32 552,-852.32 612,-852.32 612,-876.32"/>
+<text text-anchor="middle" x="582" y="-861.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_wait</text>
+</g>
+<!-- proc~mapl_collectivewait&#45;&gt;mpi_wait -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_collectivewait&#45;&gt;mpi_wait</title>
+<path fill="none" stroke="#00ff66" d="M478.55,-877.56C499.6,-874.84 522.7,-871.86 541.62,-869.41"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="542.2,-872.87 551.67,-868.11 541.3,-865.92 542.2,-872.87"/>
+</g>
+<!-- proc~mapl_createrequest&#45;&gt;ESMF_VMGet -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_createrequest&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#00ffff" d="M258.71,-659.61C274.13,-680.48 308.3,-722.89 347,-746.32 353.15,-750.05 360.02,-753.16 366.97,-755.74"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="365.85,-759.05 376.44,-758.94 368.09,-752.42 365.85,-759.05"/>
+</g>
+<!-- proc~mapl_createrequest&#45;&gt;ESMF_VMGetCurrent -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_createrequest&#45;&gt;ESMF_VMGetCurrent</title>
+<path fill="none" stroke="#00ffff" d="M270.78,-659.52C290.15,-670.62 320.02,-687.11 347,-699.32 354.93,-702.91 363.51,-706.42 371.86,-709.63"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="370.89,-713.01 381.48,-713.27 373.36,-706.46 370.89,-713.01"/>
+</g>
+<!-- proc~mapl_createrequest&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_createrequest&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ffff" d="M311.01,-656.52C322.93,-658.21 335.35,-659.89 347,-661.32 411,-669.22 485.08,-676.51 532.46,-680.93"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="532.16,-684.42 542.44,-681.86 532.8,-677.45 532.16,-684.42"/>
+</g>
+<!-- proc~mapl_createrequest&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_createrequest&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ffff" d="M311.27,-650.43C360.31,-651.03 430.21,-647.64 488,-628.32 514.49,-619.47 541.04,-601.51 558.94,-587.72"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="561.33,-590.29 567,-581.34 556.99,-584.8 561.33,-590.29"/>
+</g>
+<!-- proc~mapl_createrequest&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_createrequest&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ffff" d="M252.28,-635.29C259.36,-601.57 284.4,-505.91 347,-464.32 402.78,-427.26 483.26,-429.1 533.82,-435.19"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="533.45,-438.67 543.82,-436.5 534.36,-431.73 533.45,-438.67"/>
+</g>
+<!-- ESMF_GridGet -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node13" class="node">
+<title>ESMF_GridGet</title>
+<g id="a_proc~~mapl_collectivegather3d~~CallsGraph_node13"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridget.html" xlink:title="ESMF_GridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="626,-263.32 538,-263.32 538,-239.32 626,-239.32 626,-263.32"/>
+<text text-anchor="middle" x="582" y="-248.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_createrequest&#45;&gt;ESMF_GridGet -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_createrequest&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#00ffff" d="M252.99,-635.22C262.15,-600.05 292.52,-496 347,-427.32 378.05,-388.18 499.37,-305.39 554.03,-269.05"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="556.11,-271.87 562.52,-263.43 552.25,-266.04 556.11,-271.87"/>
+</g>
+<!-- mpi_irecv -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node21" class="node">
+<title>mpi_irecv</title>
+<polygon fill="#777777" stroke="#777777" points="449.5,-619.32 385.5,-619.32 385.5,-595.32 449.5,-595.32 449.5,-619.32"/>
+<text text-anchor="middle" x="417.5" y="-604.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_irecv</text>
+</g>
+<!-- proc~mapl_createrequest&#45;&gt;mpi_irecv -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_createrequest&#45;&gt;mpi_irecv</title>
+<path fill="none" stroke="#00ffff" d="M299.96,-635.32C324.15,-629.51 352.84,-622.62 375.7,-617.12"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="376.53,-620.53 385.44,-614.79 374.89,-613.72 376.53,-620.53"/>
+</g>
+<!-- proc~mapl_distgridget -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node24" class="node">
+<title>proc~mapl_distgridget</title>
+<g id="a_proc~~mapl_collectivegather3d~~CallsGraph_node24"><a xlink:href="../proc/mapl_distgridget.html" xlink:title="MAPL_DistGridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="471.5,-303.32 363.5,-303.32 363.5,-279.32 471.5,-279.32 471.5,-303.32"/>
+<text text-anchor="middle" x="417.5" y="-288.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_createrequest&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_createrequest&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#00ffff" d="M251.78,-635.26C258.38,-593.49 284.38,-452.24 347,-355.32 358.53,-337.47 376.2,-321.3 390.83,-309.67"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="393.23,-312.24 399.03,-303.38 388.96,-306.69 393.23,-312.24"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0066ff" d="M249.67,-263.51C249.15,-309.59 254.06,-474.34 347,-548.32 398.76,-589.52 478.86,-586.95 530.61,-579.53"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="531.22,-582.98 540.57,-577.99 530.15,-576.06 531.22,-582.98"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge33" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0066ff" d="M268.78,-263.53C288.2,-276.06 319.46,-295.97 347,-312.32 418.57,-354.82 504.3,-401.85 549.51,-426.36"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="548.06,-429.55 558.52,-431.24 551.39,-423.4 548.06,-429.55"/>
+</g>
+<!-- ESMF_DistGridGet -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node12" class="node">
+<title>ESMF_DistGridGet</title>
+<g id="a_proc~~mapl_collectivegather3d~~CallsGraph_node12"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_distgridget.html" xlink:title="ESMF_DistGridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="636,-76.32 528,-76.32 528,-52.32 636,-52.32 636,-76.32"/>
+<text text-anchor="middle" x="582" y="-61.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#0066ff" d="M293.01,-243.09C299.83,-240.07 306.21,-235.95 311,-230.32 371.82,-158.89 275.23,-82.74 347,-22.32 394.94,18.03 427.51,-5.97 488,-22.32 505.88,-27.16 507.25,-35.43 524,-43.32 527.81,-45.12 531.82,-46.87 535.87,-48.54"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="534.75,-51.85 545.33,-52.28 537.32,-45.35 534.75,-51.85"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_GridGet -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#0066ff" d="M293.27,-251.32C353.57,-251.32 462.78,-251.32 527.92,-251.32"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="527.98,-254.82 537.98,-251.32 527.98,-247.82 527.98,-254.82"/>
+</g>
+<!-- ESMF_InfoGet -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node14" class="node">
+<title>ESMF_InfoGet</title>
+<g id="a_proc~~mapl_collectivegather3d~~CallsGraph_node14"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_infoget.html" xlink:title="ESMF_InfoGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="460,-97.32 375,-97.32 375,-73.32 460,-73.32 460,-97.32"/>
+<text text-anchor="middle" x="417.5" y="-82.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_InfoGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_InfoGet -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_InfoGet</title>
+<path fill="none" stroke="#0066ff" d="M293.13,-242.37C299.77,-239.42 306.06,-235.52 311,-230.32 350.57,-188.76 306.64,-147.12 347,-106.32 352.18,-101.09 358.62,-97.15 365.47,-94.18"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="366.78,-97.43 374.98,-90.72 364.39,-90.85 366.78,-97.43"/>
+</g>
+<!-- ESMF_InfoGetAlloc -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node15" class="node">
+<title>ESMF_InfoGetAlloc</title>
+<g id="a_proc~~mapl_collectivegather3d~~CallsGraph_node15"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_infogetalloc.html" xlink:title="ESMF_InfoGetAlloc">
+<polygon fill="#a7506f" stroke="#a7506f" points="473.5,-223.32 361.5,-223.32 361.5,-199.32 473.5,-199.32 473.5,-223.32"/>
+<text text-anchor="middle" x="417.5" y="-208.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_InfoGetAlloc</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_InfoGetAlloc -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_InfoGetAlloc</title>
+<path fill="none" stroke="#0066ff" d="M293.31,-240.92C312.61,-236.28 335.66,-230.75 356.57,-225.72"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="357.42,-229.12 366.33,-223.38 355.78,-222.31 357.42,-229.12"/>
+</g>
+<!-- ESMF_InfoGetFromHost -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node16" class="node">
+<title>ESMF_InfoGetFromHost</title>
+<g id="a_proc~~mapl_collectivegather3d~~CallsGraph_node16"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_infogetfromhost.html" xlink:title="ESMF_InfoGetFromHost">
+<polygon fill="#a7506f" stroke="#a7506f" points="485.5,-181.32 349.5,-181.32 349.5,-157.32 485.5,-157.32 485.5,-181.32"/>
+<text text-anchor="middle" x="417.5" y="-166.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_InfoGetFromHost</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_InfoGetFromHost -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_InfoGetFromHost</title>
+<path fill="none" stroke="#0066ff" d="M293.3,-239.5C299.49,-236.95 305.58,-233.91 311,-230.32 330.94,-217.12 326.81,-203.14 347,-190.32 349.77,-188.57 352.69,-186.95 355.7,-185.46"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="357.24,-188.61 364.98,-181.38 354.42,-182.21 357.24,-188.61"/>
+</g>
+<!-- ESMF_InfoIsPresent -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node17" class="node">
+<title>ESMF_InfoIsPresent</title>
+<g id="a_proc~~mapl_collectivegather3d~~CallsGraph_node17"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_infoispresent.html" xlink:title="ESMF_InfoIsPresent">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="474.5,-139.32 360.5,-139.32 360.5,-115.32 474.5,-115.32 474.5,-139.32"/>
+<text text-anchor="middle" x="417.5" y="-124.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_InfoIsPresent</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_InfoIsPresent -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_InfoIsPresent</title>
+<path fill="none" stroke="#0066ff" d="M293.2,-241.53C299.68,-238.69 305.89,-235.03 311,-230.32 340.28,-203.36 317.22,-174.73 347,-148.32 348.49,-147.01 350.05,-145.77 351.68,-144.62"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="353.52,-147.59 360.3,-139.45 349.93,-141.59 353.52,-147.59"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#0066ff" d="M293.31,-261.73C312.61,-266.37 335.66,-271.9 356.57,-276.93"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="355.78,-280.34 366.33,-279.27 357.42,-273.53 355.78,-280.34"/>
+</g>
+<!-- proc~mapl_getimsjms -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node25" class="node">
+<title>proc~mapl_getimsjms</title>
+<g id="a_proc~~mapl_collectivegather3d~~CallsGraph_node25"><a xlink:href="../proc/mapl_getimsjms.html" xlink:title="MAPL_GetImsJms">
+<polygon fill="#d9534f" stroke="#d9534f" points="469,-539.32 366,-539.32 366,-515.32 469,-515.32 469,-539.32"/>
+<text text-anchor="middle" x="417.5" y="-524.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GetImsJms</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_getimsjms -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_getimsjms</title>
+<path fill="none" stroke="#0066ff" d="M250.94,-263.51C254.72,-304.22 272.51,-436.88 347,-506.32 349.92,-509.05 353.19,-511.42 356.67,-513.49"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="355.18,-516.65 365.68,-518.02 358.32,-510.4 355.18,-516.65"/>
+</g>
+<!-- proc~mapl_gridhasde -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node26" class="node">
+<title>proc~mapl_gridhasde</title>
+<g id="a_proc~~mapl_collectivegather3d~~CallsGraph_node26"><a xlink:href="../proc/mapl_gridhasde.html" xlink:title="MAPL_GridHasDE">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="469.5,-55.32 365.5,-55.32 365.5,-31.32 469.5,-31.32 469.5,-55.32"/>
+<text text-anchor="middle" x="417.5" y="-40.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridHasDE</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde</title>
+<path fill="none" stroke="#0066ff" d="M293.12,-242.79C299.85,-239.8 306.16,-235.77 311,-230.32 361.14,-173.89 295.79,-119.79 347,-64.32 349.76,-61.34 352.93,-58.77 356.36,-56.56"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="358.15,-59.57 365.33,-51.78 354.86,-53.39 358.15,-59.57"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node18" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="769.5,-602.32 715.5,-602.32 715.5,-578.32 769.5,-578.32 769.5,-602.32"/>
+<text text-anchor="middle" x="742.5" y="-587.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge34" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#3200ff" d="M623.41,-574.68C648.61,-578.02 680.77,-582.28 705.16,-585.51"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="704.72,-588.98 715.1,-586.83 705.64,-582.04 704.72,-588.98"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node19" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="769.5,-560.32 715.5,-560.32 715.5,-536.32 769.5,-536.32 769.5,-560.32"/>
+<text text-anchor="middle" x="742.5" y="-545.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge35" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#3200ff" d="M623.41,-563.97C648.61,-560.63 680.77,-556.37 705.16,-553.14"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="705.64,-556.61 715.1,-551.82 704.72,-549.67 705.64,-556.61"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node27" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_collectivegather3d~~CallsGraph_node27"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="809,-497.32 676,-497.32 676,-473.32 809,-473.32 809,-497.32"/>
+<text text-anchor="middle" x="742.5" y="-482.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge36" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#3200ff" d="M619.04,-557.31C626.1,-554.6 633.37,-551.56 640,-548.32 647.53,-544.64 686.05,-520.47 713.41,-503.17"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="715.62,-505.91 722.19,-497.6 711.87,-500 715.62,-505.91"/>
+</g>
+<!-- proc~mapl_roundrobinpelist&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge38" class="edge">
+<title>proc~mapl_roundrobinpelist&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#cc00ff" d="M470.46,-497.4C476.62,-499.87 482.62,-502.81 488,-506.32 508.59,-519.75 503.81,-534.29 524,-548.32 526.39,-549.99 528.94,-551.54 531.57,-552.98"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="530.24,-556.23 540.76,-557.47 533.31,-549.94 530.24,-556.23"/>
+</g>
+<!-- proc~mapl_roundrobinpelist&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge39" class="edge">
+<title>proc~mapl_roundrobinpelist&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#cc00ff" d="M465.07,-473.29C486.68,-467.7 512.33,-461.07 534,-455.47"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="535.16,-458.79 543.97,-452.9 533.41,-452.01 535.16,-458.79"/>
+</g>
+<!-- interface~mapl_getnewrank -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node20" class="node">
+<title>interface~mapl_getnewrank</title>
+<g id="a_proc~~mapl_collectivegather3d~~CallsGraph_node20"><a xlink:href="../interface/mapl_getnewrank.html" xlink:title="MAPL_GetNewRank">
+<polygon fill="#a7506f" stroke="#a7506f" points="639,-497.32 525,-497.32 525,-473.32 639,-473.32 639,-497.32"/>
+<text text-anchor="middle" x="582" y="-482.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GetNewRank</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_roundrobinpelist&#45;&gt;interface~mapl_getnewrank -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge37" class="edge">
+<title>proc~mapl_roundrobinpelist&#45;&gt;interface~mapl_getnewrank</title>
+<path fill="none" stroke="#cc00ff" d="M488.36,-485.32C497.14,-485.32 506.1,-485.32 514.82,-485.32"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="514.92,-488.82 524.92,-485.32 514.92,-481.82 514.92,-488.82"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge40" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff0098" d="M620.16,-453.17C639.84,-458.39 664.39,-464.89 686.26,-470.69"/>
+<polygon fill="#ff0098" stroke="#ff0098" points="685.52,-474.11 696.09,-473.29 687.32,-467.35 685.52,-474.11"/>
+</g>
+<!-- proc~mapl_distgridget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge42" class="edge">
+<title>proc~mapl_distgridget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#7f00ff" d="M462.4,-303.36C471.37,-306.99 480.39,-311.58 488,-317.32 526.05,-346.04 555.6,-394.52 570.45,-422.23"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="567.35,-423.85 575.08,-431.09 573.55,-420.61 567.35,-423.85"/>
+</g>
+<!-- proc~mapl_distgridget&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge41" class="edge">
+<title>proc~mapl_distgridget&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#7f00ff" d="M436.04,-279.24C451.11,-268.25 472.76,-250.94 488,-232.32 526.67,-185.11 557.59,-119.51 572.07,-85.97"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="575.34,-87.21 576.03,-76.64 568.9,-84.48 575.34,-87.21"/>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge43" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#df00ff" d="M433.84,-539.51C448.21,-551.12 470.11,-569.31 488,-586.32 515.49,-612.46 545.14,-644.83 563.4,-665.29"/>
+<polygon fill="#df00ff" stroke="#df00ff" points="561,-667.86 570.25,-673.02 566.24,-663.22 561,-667.86"/>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge45" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#df00ff" d="M465.07,-539.36C485.71,-544.7 510.04,-550.98 531.06,-556.42"/>
+<polygon fill="#df00ff" stroke="#df00ff" points="530.21,-559.81 540.77,-558.93 531.96,-553.04 530.21,-559.81"/>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge46" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#df00ff" d="M469.01,-515.82C475.67,-513.24 482.19,-510.11 488,-506.32 508.59,-492.9 503.81,-478.36 524,-464.32 527.27,-462.05 530.81,-459.99 534.48,-458.14"/>
+<polygon fill="#df00ff" stroke="#df00ff" points="536.1,-461.24 543.75,-453.92 533.2,-454.87 536.1,-461.24"/>
+</g>
+<!-- interface~mapl_sort -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node29" class="node">
+<title>interface~mapl_sort</title>
+<g id="a_proc~~mapl_collectivegather3d~~CallsGraph_node29"><a xlink:href="../interface/mapl_sort.html" xlink:title="MAPL_Sort">
+<polygon fill="#a7506f" stroke="#a7506f" points="616,-539.32 548,-539.32 548,-515.32 616,-515.32 616,-539.32"/>
+<text text-anchor="middle" x="582" y="-524.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Sort</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;interface~mapl_sort -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge44" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;interface~mapl_sort</title>
+<path fill="none" stroke="#df00ff" d="M469.03,-527.32C491.02,-527.32 516.54,-527.32 537.66,-527.32"/>
+<polygon fill="#df00ff" stroke="#df00ff" points="537.95,-530.82 547.95,-527.32 537.95,-523.82 537.95,-530.82"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge50" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff00bf" d="M469.67,-50.87C476.73,-53.99 483.19,-58.33 488,-64.32 555.46,-148.47 459.07,-462.21 524,-548.32 526.29,-551.37 529.07,-553.97 532.16,-556.19"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="530.5,-559.28 540.91,-561.25 534,-553.22 530.5,-559.28"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge51" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff00bf" d="M469.52,-51.44C476.51,-54.5 482.99,-58.66 488,-64.32 550.17,-134.59 501.1,-181.34 524,-272.32 537.72,-326.85 560.26,-389.08 572.48,-421.33"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="569.36,-422.98 576.2,-431.07 575.9,-420.48 569.36,-422.98"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge48" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#ff00bf" d="M469.92,-49.97C485.09,-51.93 501.89,-54.1 517.72,-56.15"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="517.59,-59.66 527.96,-57.47 518.49,-52.72 517.59,-59.66"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_GridGet -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge49" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#ff00bf" d="M469.6,-53.41C476.25,-56.2 482.61,-59.77 488,-64.32 540.67,-108.81 566.4,-190.36 576.16,-229.39"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="572.77,-230.28 578.49,-239.2 579.58,-228.66 572.77,-230.28"/>
+</g>
+<!-- ESMF_DELayoutGet -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_node28" class="node">
+<title>ESMF_DELayoutGet</title>
+<g id="a_proc~~mapl_collectivegather3d~~CallsGraph_node28"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_delayoutget.html" xlink:title="ESMF_DELayoutGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="640,-34.32 524,-34.32 524,-10.32 640,-10.32 640,-34.32"/>
+<text text-anchor="middle" x="582" y="-19.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DELayoutGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet -->
+<g id="proc~~mapl_collectivegather3d~~CallsGraph_edge47" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet</title>
+<path fill="none" stroke="#ff00bf" d="M469.92,-36.68C483.89,-34.87 499.24,-32.89 513.94,-30.99"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="514.53,-34.44 523.99,-29.69 513.63,-27.5 514.53,-34.44"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_collectivegather3dCallsGraph = svgPanZoom('#procmapl_collectivegather3dCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_CollectiveGather3D</span><span class="p">(</span><span class="n">Grid</span><span class="p">,</span><span class="w"> </span><span class="n">LocArray</span><span class="p">,</span><span class="w"> </span><span class="n">GlobArray</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                                     </span><span class="n">CoresPerNode</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w">        </span><span class="k">intent</span><span class="p">(</span><span class="n">INout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Grid</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w">                    </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">LocArray</span><span class="p">(:,:,:)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">                          </span><span class="kd">::</span><span class="w"> </span><span class="n">GlobArray</span><span class="p">(:,:,:)</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">       </span><span class="k">intent</span><span class="p">(</span><span class="n">In</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CoresPerNode</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">       </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="c">! Locals</span>
+<span class="c">!-------</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_CommRequest</span><span class="p">)</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">reqs</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">LocArray</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">root</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">LocArray</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">Nnodes</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">nn</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">LM</span><span class="p">,</span><span class="w"> </span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="n">nc</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="p">,</span><span class="w"> </span><span class="n">mype</span><span class="p">,</span><span class="w"> </span><span class="n">dims</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w">                 </span><span class="kd">::</span><span class="w"> </span><span class="n">VM</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+
+<span class="c">! Begin</span>
+<span class="c">!------</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="nb">associated</span><span class="p">(</span><span class="n">GlobArray</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;GlobalArray already associated&#39;</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_VMGetCurrent</span><span class="p">(</span><span class="n">VM</span><span class="p">,</span><span class="w">         </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_VMGet</span><span class="p">(</span><span class="n">VM</span><span class="p">,</span><span class="w"> </span><span class="n">petcount</span><span class="o">=</span><span class="n">npes</span><span class="p">,</span><span class="w"> </span><span class="n">localpet</span><span class="o">=</span><span class="n">MYPE</span><span class="p">,</span><span class="w"> </span><span class="n">mpiCommunicator</span><span class="o">=</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+
+<span class="w">    </span><span class="n">LM</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">LocArray</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">nNodes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">MAPL_NodeRankList</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_RoundRobinPEList</span><span class="p">(</span><span class="n">Root</span><span class="p">,</span><span class="w"> </span><span class="n">nNodes</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="n">root</span><span class="o">==</span><span class="n">mype</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       call </span><span class="n">MAPL_GridGet</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">globalCellCountPerDim</span><span class="o">=</span><span class="n">DIMS</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="n">nc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">count</span><span class="p">(</span><span class="n">Root</span><span class="o">==</span><span class="n">mype</span><span class="p">)</span>
+<span class="w">       </span><span class="k">allocate</span><span class="p">(</span><span class="n">GlobArray</span><span class="p">(</span><span class="n">dims</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">dims</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nc</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="k">       allocate</span><span class="p">(</span><span class="n">GlobArray</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="w">             </span><span class="p">,</span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">endif</span>
+
+<span class="k">    </span><span class="n">nn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+
+<span class="w">    </span><span class="k">do </span><span class="n">L</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">LM</span>
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="n">root</span><span class="p">(</span><span class="n">L</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">mype</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">nn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nn</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">          </span><span class="k">call </span><span class="n">MAPL_CreateRequest</span><span class="p">(</span><span class="n">GRID</span><span class="p">,</span><span class="w"> </span><span class="n">Root</span><span class="p">(</span><span class="n">L</span><span class="p">),</span><span class="w"> </span><span class="n">reqs</span><span class="p">(</span><span class="n">L</span><span class="p">),</span><span class="w"> </span><span class="n">tag</span><span class="o">=</span><span class="n">L</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">RequestType</span><span class="o">=</span><span class="n">MAPL_IsGather</span><span class="p">,</span><span class="w">           </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">DstArray</span><span class="o">=</span><span class="n">GlobArray</span><span class="p">(:,:,</span><span class="n">nn</span><span class="p">),</span><span class="w">          </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">PrePost</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w">             </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">else</span>
+<span class="k">          call </span><span class="n">MAPL_CreateRequest</span><span class="p">(</span><span class="n">GRID</span><span class="p">,</span><span class="w"> </span><span class="n">Root</span><span class="p">(</span><span class="n">L</span><span class="p">),</span><span class="w"> </span><span class="n">reqs</span><span class="p">(</span><span class="n">L</span><span class="p">),</span><span class="w"> </span><span class="n">tag</span><span class="o">=</span><span class="n">L</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">RequestType</span><span class="o">=</span><span class="n">MAPL_IsGather</span><span class="p">,</span><span class="w">           </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">DstArray</span><span class="o">=</span><span class="n">GlobArray</span><span class="p">(:,:,</span><span class="mi">1</span><span class="p">),</span><span class="w">           </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">PrePost</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w">             </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">    enddo</span><span class="w">  </span><span class="c">! Do not fuse with next</span>
+
+<span class="w">    </span><span class="k">do </span><span class="n">L</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">LM</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_ArrayIGather</span><span class="w"> </span><span class="p">(</span><span class="n">LocArray</span><span class="p">(:,:,</span><span class="n">L</span><span class="p">),</span><span class="w"> </span><span class="n">reqs</span><span class="p">(</span><span class="n">L</span><span class="p">),</span><span class="w">  </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">enddo</span><span class="w">  </span><span class="c">! Do not fuse with next</span>
+
+<span class="w">    </span><span class="k">do </span><span class="n">L</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">LM</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_CollectiveWait</span><span class="p">(</span><span class="n">reqs</span><span class="p">(</span><span class="n">L</span><span class="p">),</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end do</span>
+
+<span class="k">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">corespernode</span><span class="p">)</span>
+<span class="w"> </span><span class="k">end subroutine </span><span class="n">MAPL_CollectiveGather3D</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

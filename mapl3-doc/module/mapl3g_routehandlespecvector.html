@@ -1,0 +1,3567 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>mapl3g_RoutehandleSpecVector &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>mapl3g_RoutehandleSpecVector
+      <small>Module</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.4% of total for modules and submodules.">1343 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/RoutehandleSpecVector.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/routehandlespecvector.f90.html'>RoutehandleSpecVector.F90</a></li>
+            <li class="breadcrumb-item active" aria-current="page">mapl3g_RoutehandleSpecVector</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#variable-bad_alloc~87">BAD_ALLOC</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#variable-gftl_size_kind~45">GFTL_SIZE_KIND</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#variable-illegal_input~87">ILLEGAL_INPUT</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#variable-length_error~45">LENGTH_ERROR</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#variable-out_of_range~87">OUT_OF_RANGE</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#variable-success~96">SUCCESS</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#variable-type_has_no_default_value~45">TYPE_HAS_NO_DEFAULT_VALUE</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#variable-no_type__~45">NO_TYPE__</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#inters-0"
+         aria-expanded="false" aria-controls="inters-0">
+         <h4 class="card-header bg-primary text-white">Interfaces</h4>
+      </a>
+      <div id="inters-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#interface-routehandlespecvector">RoutehandleSpecVector</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#interface-advance~96">advance</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#interface-begin~67">begin</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#interface-distance~59">distance</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#interface-end~67">end</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#interface-find~95">find</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#interface-find_if~95">find_if</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#interface-find_if_not~95">find_if_not</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#interface-ftn_begin~67">ftn_begin</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#interface-ftn_end~67">ftn_end</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#interface-next~96">next</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#interface-operator%28%2B%29~59">operator(+)</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#interface-operator%28-%29~59">operator(-)</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#interface-operator%28SLASH%3D%29~155">operator(/=)</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#interface-operator%28%3D%3D%29~159">operator(==)</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#interface-prev~96">prev</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#interface-swap~120">swap</a>
+        </div>
+      </div>
+    </div>
+
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#types-0"
+         aria-expanded="false" aria-controls="types-0">
+         <h4 class="card-header bg-primary text-white">Derived Types</h4>
+      </a>
+      <div id="types-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#type-keywordenforcer~45">KeywordEnforcer</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#type-no_type_~26">NO_TYPE_</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#type-routehandlespecvector">RoutehandleSpecVector</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#type-routehandlespecvectoriterator">RoutehandleSpecVectorIterator</a>
+            <a class="list-group-item" href="../module/mapl3g_routehandlespecvector.html#type-routehandlespecvectorriterator">RoutehandleSpecVectorRIterator</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      <p>$   public :: foreach</p>
+<p>$   ! =======================
+$   !  insert
+$   ! =======================
+$   subroutine vector_insert_size_kind(                                                 &amp;
+$        &amp;   this, index, value, unused, rc)
+$      class(RoutehandleSpecVector), target, intent(inout) :: this
+$
+$      integer(kind=GFTL_SIZE_KIND), intent(in) :: index
+$
+$      type(RoutehandleSpec), intent(in) :: value
+$      type (KeywordEnforcer), optional, intent(in) :: unused
+$      integer, optional, intent(out) :: rc
+$
+$      type(RoutehandleSpec) :: temp
+$      integer(kind=GFTL_SIZE_KIND) :: i, n
+$
+$      if (.false.) print*,shape(unused)
+$
+$      n = this%vsize
+$      if (index==n+1) then
+$         call this%push_back(value)
+$         ! Workaround for NAG -6221 - temp needs some status
+$         temp=value
+$         return
+$      endif
+$      call this%grow_to(this%vsize+1)
+$      temp=this%elements(n)%item
+$      call this%resize(n+1, temp, rc=rc)
+$
+$      do i = n, index, -1
+$         this%elements(index)%item=this%elements(index-1)%item
+$      end do
+$
+$      this%elements(index)%item=value
+$
+$      return
+$   end subroutine vector_insert_size_kind
+$
+$
+$   subroutine vector_insert_default(this, index, value)
+$      class(RoutehandleSpecVector), intent(inout) :: this
+$      integer, intent(in) :: index
+$      type(RoutehandleSpec), intent(in) :: value
+$
+$      call this%insert(int(index,kind=GFTL_SIZE_KIND), value)
+$   end subroutine vector_insert_default</p>
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='mapl3g_routehandlespec.html'>mapl3g_RoutehandleSpec</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~mapl3g_routehandlespecvector~~UsesGraph Pages: 1 -->
+<svg id="modulemapl3g_routehandlespecvectorUsesGraph" width="641pt" height="168pt"
+ viewBox="0.00 0.00 641.00 168.15" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph" class="graph" transform="scale(0.47 0.47) rotate(0) translate(4 355.38)">
+<title>module~~mapl3g_routehandlespecvector~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-355.38 1366,-355.38 1366,4 -4,4"/>
+<!-- module~mapl3g_routehandlespecvector -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_node1" class="node">
+<title>module~mapl3g_routehandlespecvector</title>
+<polygon fill="none" stroke="black" points="1362,-169 1176,-169 1176,-145 1362,-145 1362,-169"/>
+<text text-anchor="middle" x="1269" y="-154.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl3g_RoutehandleSpecVector</text>
+</g>
+<!-- module~mapl3g_routehandlespec -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_node2" class="node">
+<title>module~mapl3g_routehandlespec</title>
+<g id="a_module~~mapl3g_routehandlespecvector~~UsesGraph_node2"><a xlink:href="../module/mapl3g_routehandlespec.html" xlink:title="mapl3g_RoutehandleSpec">
+<polygon fill="#337ab7" stroke="#337ab7" points="1140,-169 988,-169 988,-145 1140,-145 1140,-169"/>
+<text text-anchor="middle" x="1064" y="-154.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_RoutehandleSpec</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_routehandlespecvector&#45;&gt;module~mapl3g_routehandlespec -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_edge1" class="edge">
+<title>module~mapl3g_routehandlespecvector&#45;&gt;module~mapl3g_routehandlespec</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1175.71,-157C1167.22,-157 1158.64,-157 1150.22,-157"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1150.04,-153.5 1140.04,-157 1150.04,-160.5 1150.04,-153.5"/>
+</g>
+<!-- ESMF -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_node3" class="node">
+<title>ESMF</title>
+<g id="a_module~~mapl3g_routehandlespecvector~~UsesGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/module/esmf.html" xlink:title="ESMF">
+<polygon fill="#337ab7" stroke="#337ab7" points="390,-87 336,-87 336,-63 390,-63 390,-87"/>
+<text text-anchor="middle" x="363" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_routehandlespec&#45;&gt;ESMF -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_edge2" class="edge">
+<title>module~mapl3g_routehandlespec&#45;&gt;ESMF</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M871,-322C727.11,-352.59 679.59,-368.42 540,-322"/>
+</g>
+<!-- module~mapl3g_geom_api -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_node4" class="node">
+<title>module~mapl3g_geom_api</title>
+<g id="a_module~~mapl3g_routehandlespecvector~~UsesGraph_node4"><a xlink:href="../module/mapl3g_geom_api.html" xlink:title="mapl3g_Geom_API">
+<polygon fill="#337ab7" stroke="#337ab7" points="756,-231 644,-231 644,-207 756,-207 756,-231"/>
+<text text-anchor="middle" x="700" y="-216.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_Geom_API</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_routehandlespec&#45;&gt;module~mapl3g_geom_api -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_edge3" class="edge">
+<title>module~mapl3g_routehandlespec&#45;&gt;module~mapl3g_geom_api</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1055.49,-169.22C1033.1,-204.11 962.74,-302.92 873,-322"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M871,-322C807.21,-335.56 744.96,-272.97 716.74,-239.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="719.34,-236.93 710.31,-231.39 713.92,-241.35 719.34,-236.93"/>
+</g>
+<!-- module~mapl3g_routehandleparam -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_node5" class="node">
+<title>module~mapl3g_routehandleparam</title>
+<g id="a_module~~mapl3g_routehandlespecvector~~UsesGraph_node5"><a xlink:href="../module/mapl3g_routehandleparam.html" xlink:title="mapl3g_RoutehandleParam">
+<polygon fill="#337ab7" stroke="#337ab7" points="952,-169 792,-169 792,-145 952,-145 952,-169"/>
+<text text-anchor="middle" x="872" y="-154.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_RoutehandleParam</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_routehandlespec&#45;&gt;module~mapl3g_routehandleparam -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_edge4" class="edge">
+<title>module~mapl3g_routehandlespec&#45;&gt;module~mapl3g_routehandleparam</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M987.91,-157C979.48,-157 970.84,-157 962.26,-157"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="962.23,-153.5 952.23,-157 962.23,-160.5 962.23,-153.5"/>
+</g>
+<!-- module~mapl_errorhandlingmod -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_node6" class="node">
+<title>module~mapl_errorhandlingmod</title>
+<g id="a_module~~mapl3g_routehandlespecvector~~UsesGraph_node6"><a xlink:href="../module/mapl_errorhandlingmod.html" xlink:title="mapl_ErrorHandlingMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="434,-45 292,-45 292,-21 434,-21 434,-45"/>
+<text text-anchor="middle" x="363" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_ErrorHandlingMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_routehandlespec&#45;&gt;module~mapl_errorhandlingmod -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_edge5" class="edge">
+<title>module~mapl3g_routehandlespec&#45;&gt;module~mapl_errorhandlingmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1016.87,-144.99C935.1,-124.18 759.11,-81.61 608,-60 553.45,-52.2 491.75,-45.39 444.05,-40.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="444.39,-37.08 434.09,-39.56 443.69,-44.04 444.39,-37.08"/>
+</g>
+<!-- module~mapl3g_geom_api&#45;&gt;ESMF -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_edge6" class="edge">
+<title>module~mapl3g_geom_api&#45;&gt;ESMF</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M690.85,-231.24C668.69,-262.88 604.6,-343.48 540,-322"/>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M538,-322C508.22,-312.1 493.92,-323.31 470,-303 404.53,-247.4 377.08,-142.56 367.88,-97.03"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="371.29,-96.21 365.97,-87.04 364.41,-97.52 371.29,-96.21"/>
+</g>
+<!-- mapl3g_GeomManager -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_node7" class="node">
+<title>mapl3g_GeomManager</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="608,-294 470,-294 470,-270 608,-270 608,-294"/>
+<text text-anchor="middle" x="539" y="-279.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_GeomManager</text>
+</g>
+<!-- module~mapl3g_geom_api&#45;&gt;mapl3g_GeomManager -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_edge7" class="edge">
+<title>module~mapl3g_geom_api&#45;&gt;mapl3g_GeomManager</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M675.04,-231.12C656.91,-240.03 631.23,-252.1 608,-261 602.81,-262.99 597.34,-264.93 591.85,-266.77"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="590.44,-263.55 582.01,-269.98 592.61,-270.21 590.44,-263.55"/>
+</g>
+<!-- mapl3g_MaplGeom -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_node8" class="node">
+<title>mapl3g_MaplGeom</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="597,-252 481,-252 481,-228 597,-228 597,-252"/>
+<text text-anchor="middle" x="539" y="-237.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_MaplGeom</text>
+</g>
+<!-- module~mapl3g_geom_api&#45;&gt;mapl3g_MaplGeom -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_edge8" class="edge">
+<title>module~mapl3g_geom_api&#45;&gt;mapl3g_MaplGeom</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M643.84,-226.29C632.06,-227.84 619.5,-229.5 607.33,-231.11"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="606.68,-227.66 597.23,-232.44 607.6,-234.6 606.68,-227.66"/>
+</g>
+<!-- module~mapl3g_geomspec -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_node9" class="node">
+<title>module~mapl3g_geomspec</title>
+<g id="a_module~~mapl3g_routehandlespecvector~~UsesGraph_node9"><a xlink:href="../module/mapl3g_geomspec.html" xlink:title="mapl3g_GeomSpec">
+<polygon fill="#337ab7" stroke="#337ab7" points="597.5,-210 480.5,-210 480.5,-186 597.5,-186 597.5,-210"/>
+<text text-anchor="middle" x="539" y="-195.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_GeomSpec</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_geom_api&#45;&gt;module~mapl3g_geomspec -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_edge9" class="edge">
+<title>module~mapl3g_geom_api&#45;&gt;module~mapl3g_geomspec</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M643.84,-211.71C632.2,-210.18 619.8,-208.54 607.77,-206.95"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="608.14,-203.47 597.77,-205.63 607.23,-210.41 608.14,-203.47"/>
+</g>
+<!-- module~mapl3g_geomutilities -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_node10" class="node">
+<title>module~mapl3g_geomutilities</title>
+<g id="a_module~~mapl3g_routehandlespecvector~~UsesGraph_node10"><a xlink:href="../module/mapl3g_geomutilities.html" xlink:title="mapl3g_GeomUtilities">
+<polygon fill="#337ab7" stroke="#337ab7" points="604,-126 474,-126 474,-102 604,-102 604,-126"/>
+<text text-anchor="middle" x="539" y="-111.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_GeomUtilities</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_geom_api&#45;&gt;module~mapl3g_geomutilities -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_edge10" class="edge">
+<title>module~mapl3g_geom_api&#45;&gt;module~mapl3g_geomutilities</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M689.09,-206.9C673.6,-188.75 641.91,-154.53 608,-135 604.81,-133.17 601.45,-131.47 597.99,-129.92"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="599.26,-126.65 588.68,-126.1 596.61,-133.13 599.26,-126.65"/>
+</g>
+<!-- module~mapl_keywordenforcer -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_node12" class="node">
+<title>module~mapl_keywordenforcer</title>
+<g id="a_module~~mapl3g_routehandlespecvector~~UsesGraph_node12"><a xlink:href="../module/mapl_keywordenforcer.html" xlink:title="mapl_KeywordEnforcer">
+<polygon fill="#337ab7" stroke="#337ab7" points="606.5,-168 471.5,-168 471.5,-144 606.5,-144 606.5,-168"/>
+<text text-anchor="middle" x="539" y="-153.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_KeywordEnforcer</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_geom_api&#45;&gt;module~mapl_keywordenforcer -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_edge11" class="edge">
+<title>module~mapl3g_geom_api&#45;&gt;module~mapl_keywordenforcer</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M675.04,-206.88C656.91,-197.97 631.23,-185.9 608,-177 602.81,-175.01 597.34,-173.07 591.85,-171.23"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="592.61,-167.79 582.01,-168.02 590.44,-174.45 592.61,-167.79"/>
+</g>
+<!-- module~mapl3g_routehandleparam&#45;&gt;ESMF -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_edge12" class="edge">
+<title>module~mapl3g_routehandleparam&#45;&gt;ESMF</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M538,-74C490.58,-71.31 435.77,-72.3 400.54,-73.47"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="400.13,-69.98 390.26,-73.83 400.38,-76.98 400.13,-69.98"/>
+</g>
+<!-- module~mapl3g_routehandleparam&#45;&gt;module~mapl3g_geom_api -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_edge13" class="edge">
+<title>module~mapl3g_routehandleparam&#45;&gt;module~mapl3g_geom_api</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M837.82,-169.1C810.91,-178.92 772.79,-192.82 743.62,-203.46"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="742.29,-200.21 734.1,-206.93 744.69,-206.79 742.29,-200.21"/>
+</g>
+<!-- module~mapl3g_routehandleparam&#45;&gt;module~mapl_errorhandlingmod -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_edge14" class="edge">
+<title>module~mapl3g_routehandleparam&#45;&gt;module~mapl_errorhandlingmod</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M839.67,-144.9C781.62,-123.45 652.98,-80.4 540,-74"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M538,-74C496.5,-67.91 450.32,-56.82 415.97,-47.71"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="416.72,-44.29 406.16,-45.08 414.91,-51.05 416.72,-44.29"/>
+</g>
+<!-- module~mapl_errorhandling -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_node11" class="node">
+<title>module~mapl_errorhandling</title>
+<g id="a_module~~mapl3g_routehandlespecvector~~UsesGraph_node11"><a xlink:href="../module/mapl_errorhandling.html" xlink:title="mapl_ErrorHandling">
+<polygon fill="#337ab7" stroke="#337ab7" points="256,-45 137,-45 137,-21 256,-21 256,-45"/>
+<text text-anchor="middle" x="196.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_ErrorHandling</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_errorhandlingmod&#45;&gt;module~mapl_errorhandling -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_edge15" class="edge">
+<title>module~mapl_errorhandlingmod&#45;&gt;module~mapl_errorhandling</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M291.76,-33C283.32,-33 274.7,-33 266.28,-33"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="266.13,-29.5 256.13,-33 266.13,-36.5 266.13,-29.5"/>
+</g>
+<!-- module~mapl3g_geomspec&#45;&gt;ESMF -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_edge16" class="edge">
+<title>module~mapl3g_geomspec&#45;&gt;ESMF</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M488.89,-185.88C482.33,-183.39 475.85,-180.45 470,-177 433.13,-155.26 399.11,-118.27 380,-95.31"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="382.47,-92.8 373.44,-87.26 377.05,-97.23 382.47,-92.8"/>
+</g>
+<!-- module~mapl3g_geomutilities&#45;&gt;ESMF -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_edge17" class="edge">
+<title>module~mapl3g_geomutilities&#45;&gt;ESMF</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M484.37,-101.98C456.94,-95.83 424.29,-88.51 399.91,-83.05"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="400.54,-79.6 390.02,-80.83 399.01,-86.43 400.54,-79.6"/>
+</g>
+<!-- module~mapl3g_geomutilities&#45;&gt;module~mapl_errorhandlingmod -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_edge18" class="edge">
+<title>module~mapl3g_geomutilities&#45;&gt;module~mapl_errorhandlingmod</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M498.62,-101.94C488.91,-98.16 478.78,-93.51 470,-88 451.37,-76.29 453.05,-65.01 434,-54 430.79,-52.14 427.4,-50.44 423.92,-48.87"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="425.1,-45.58 414.52,-45.05 422.46,-52.06 425.1,-45.58"/>
+</g>
+<!-- module~mapl_throwmod -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_node13" class="node">
+<title>module~mapl_throwmod</title>
+<g id="a_module~~mapl3g_routehandlespecvector~~UsesGraph_node13"><a xlink:href="../module/mapl_throwmod.html" xlink:title="MAPL_ThrowMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="101,-66 0,-66 0,-42 101,-42 101,-66"/>
+<text text-anchor="middle" x="50.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_errorhandling&#45;&gt;module~mapl_throwmod -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_edge19" class="edge">
+<title>module~mapl_errorhandling&#45;&gt;module~mapl_throwmod</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M136.93,-41.54C128.52,-42.77 119.85,-44.03 111.41,-45.26"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="110.65,-41.84 101.26,-46.74 111.66,-48.76 110.65,-41.84"/>
+</g>
+<!-- mpi -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_node14" class="node">
+<title>mpi</title>
+<g id="a_module~~mapl3g_routehandlespecvector~~UsesGraph_node14"><a xlink:href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm" xlink:title="mpi">
+<polygon fill="#337ab7" stroke="#337ab7" points="77.5,-24 23.5,-24 23.5,0 77.5,0 77.5,-24"/>
+<text text-anchor="middle" x="50.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_errorhandling&#45;&gt;mpi -->
+<g id="module~~mapl3g_routehandlespecvector~~UsesGraph_edge20" class="edge">
+<title>module~mapl_errorhandling&#45;&gt;mpi</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M136.93,-24.46C120.39,-22.05 102.87,-19.49 88.02,-17.33"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="88.14,-13.81 77.74,-15.83 87.13,-20.73 88.14,-13.81"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panmodulemapl3g_routehandlespecvectorUsesGraph = svgPanZoom('#modulemapl3g_routehandlespecvectorUsesGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+          <div class="card">
+      <h3 class="card-header card-title bg-light">Used by</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~mapl3g_routehandlespecvector~~UsedByGraph Pages: 1 -->
+<svg id="modulemapl3g_routehandlespecvectorUsedByGraph" width="641pt" height="21pt"
+ viewBox="0.00 0.00 641.00 20.93" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl3g_routehandlespecvector~~UsedByGraph" class="graph" transform="scale(0.65 0.65) rotate(0) translate(4 28)">
+<title>module~~mapl3g_routehandlespecvector~~UsedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 976,-28 976,4 -4,4"/>
+<!-- module~mapl3g_routehandlespecvector -->
+<g id="module~~mapl3g_routehandlespecvector~~UsedByGraph_node1" class="node">
+<title>module~mapl3g_routehandlespecvector</title>
+<polygon fill="none" stroke="black" points="186,-24 0,-24 0,0 186,0 186,-24"/>
+<text text-anchor="middle" x="93" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl3g_RoutehandleSpecVector</text>
+</g>
+<!-- module~mapl3g_routehandlemanager -->
+<g id="module~~mapl3g_routehandlespecvector~~UsedByGraph_node2" class="node">
+<title>module~mapl3g_routehandlemanager</title>
+<g id="a_module~~mapl3g_routehandlespecvector~~UsedByGraph_node2"><a xlink:href="../module/mapl3g_routehandlemanager.html" xlink:title="mapl3g_RoutehandleManager">
+<polygon fill="#337ab7" stroke="#337ab7" points="395,-24 222,-24 222,0 395,0 395,-24"/>
+<text text-anchor="middle" x="308.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_RoutehandleManager</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_routehandlemanager&#45;&gt;module~mapl3g_routehandlespecvector -->
+<g id="module~~mapl3g_routehandlespecvector~~UsedByGraph_edge1" class="edge">
+<title>module~mapl3g_routehandlemanager&#45;&gt;module~mapl3g_routehandlespecvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M221.89,-12C213.47,-12 204.87,-12 196.3,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="196.27,-8.5 186.27,-12 196.27,-15.5 196.27,-8.5"/>
+</g>
+<!-- module~mapl3g_esmfregridderfactory -->
+<g id="module~~mapl3g_routehandlespecvector~~UsedByGraph_node3" class="node">
+<title>module~mapl3g_esmfregridderfactory</title>
+<g id="a_module~~mapl3g_routehandlespecvector~~UsedByGraph_node3"><a xlink:href="../module/mapl3g_esmfregridderfactory.html" xlink:title="mapl3g_EsmfRegridderFactory">
+<polygon fill="#337ab7" stroke="#337ab7" points="607,-24 431,-24 431,0 607,0 607,-24"/>
+<text text-anchor="middle" x="519" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_EsmfRegridderFactory</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_esmfregridderfactory&#45;&gt;module~mapl3g_routehandlemanager -->
+<g id="module~~mapl3g_routehandlespecvector~~UsedByGraph_edge2" class="edge">
+<title>module~mapl3g_esmfregridderfactory&#45;&gt;module~mapl3g_routehandlemanager</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M430.79,-12C422.28,-12 413.63,-12 405.05,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="405.03,-8.5 395.03,-12 405.03,-15.5 405.03,-8.5"/>
+</g>
+<!-- module~mapl3g_regriddermanager -->
+<g id="module~~mapl3g_routehandlespecvector~~UsedByGraph_node4" class="node">
+<title>module~mapl3g_regriddermanager</title>
+<g id="a_module~~mapl3g_routehandlespecvector~~UsedByGraph_node4"><a xlink:href="../module/mapl3g_regriddermanager.html" xlink:title="mapl3g_RegridderManager">
+<polygon fill="#337ab7" stroke="#337ab7" points="801,-24 643,-24 643,0 801,0 801,-24"/>
+<text text-anchor="middle" x="722" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_RegridderManager</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_regriddermanager&#45;&gt;module~mapl3g_esmfregridderfactory -->
+<g id="module~~mapl3g_routehandlespecvector~~UsedByGraph_edge3" class="edge">
+<title>module~mapl3g_regriddermanager&#45;&gt;module~mapl3g_esmfregridderfactory</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M642.71,-12C634.31,-12 625.7,-12 617.12,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="617.07,-8.5 607.07,-12 617.07,-15.5 617.07,-8.5"/>
+</g>
+<!-- module~mapl3g_regridder_mgr -->
+<g id="module~~mapl3g_routehandlespecvector~~UsedByGraph_node5" class="node">
+<title>module~mapl3g_regridder_mgr</title>
+<g id="a_module~~mapl3g_routehandlespecvector~~UsedByGraph_node5"><a xlink:href="../module/mapl3g_regridder_mgr.html" xlink:title="mapl3g_regridder_mgr">
+<polygon fill="#337ab7" stroke="#337ab7" points="972,-24 837,-24 837,0 972,0 972,-24"/>
+<text text-anchor="middle" x="904.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_regridder_mgr</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_regridder_mgr&#45;&gt;module~mapl3g_regriddermanager -->
+<g id="module~~mapl3g_routehandlespecvector~~UsedByGraph_edge4" class="edge">
+<title>module~mapl3g_regridder_mgr&#45;&gt;module~mapl3g_regriddermanager</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M836.8,-12C828.43,-12 819.76,-12 811.13,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="811.02,-8.5 801.02,-12 811.02,-15.5 811.02,-8.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panmodulemapl3g_routehandlespecvectorUsedByGraph = svgPanZoom('#modulemapl3g_routehandlespecvectorUsedByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsedByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsedByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+      <br>
+
+
+        <section>
+          <h2>Variables</h2>
+            <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bad_alloc~87"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>BAD_ALLOC</strong></td>
+<td> =</td>
+                <td>2</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gftl_size_kind~45"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>GFTL_SIZE_KIND</strong></td>
+<td> =</td>
+                <td>selected_int_kind(18)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-illegal_input~87"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>ILLEGAL_INPUT</strong></td>
+<td> =</td>
+                <td>3</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-length_error~45"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>LENGTH_ERROR</strong></td>
+<td> =</td>
+                <td>4</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-out_of_range~87"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>OUT_OF_RANGE</strong></td>
+<td> =</td>
+                <td>1</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-success~96"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>SUCCESS</strong></td>
+<td> =</td>
+                <td>0</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-type_has_no_default_value~45"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>TYPE_HAS_NO_DEFAULT_VALUE</strong></td>
+<td> =</td>
+                <td>5</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-no_type__~45"></span>
+              type(<a href='../type/no_type_~26.html'>NO_TYPE_</a>),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>NO_TYPE__</strong></td>
+<td> =</td>
+                <td>NO_TYPE_()</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+        </section>
+        <br>
+
+
+        <section>
+          <h2>Interfaces</h2>
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-routehandlespecvector"></span>
+      <h3>public        interface <a href='../interface/routehandlespecvector.html'>RoutehandleSpecVector</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_new_vector_empty() result(v)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+    <em>None</em>
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvector.html'>RoutehandleSpecVector</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_new_vector_fill_size_kind(n, value) result(v)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1944"></span>
+              integer(kind=GFTL_SIZE_KIND),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-value~1306"></span>
+              type(<a href='../type/routehandlespec.html'>RoutehandleSpec</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvector.html'>RoutehandleSpecVector</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_new_vector_fill_default(n, value) result(v)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1945"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-value~1307"></span>
+              type(<a href='../type/routehandlespec.html'>RoutehandleSpec</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvector.html'>RoutehandleSpecVector</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_new_vector_range(first, last) result(v)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-first~468"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>first</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-last~469"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>last</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvector.html'>RoutehandleSpecVector</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_new_vector_copy(x) result(v)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-x~390"></span>
+              type(<a href='../type/routehandlespecvector.html'>RoutehandleSpecVector</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>x</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvector.html'>RoutehandleSpecVector</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_new_vector_initializer_list(il) result(v)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-il~77"></span>
+              type(<a href='../type/routehandlespec.html'>RoutehandleSpec</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(:)
+            </td>
+            <td>::</td>
+            <td><strong>il</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvector.html'>RoutehandleSpecVector</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-advance~96"></span>
+      <h3>public        interface <a href='../interface/advance~96.html'>advance</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  subroutine vector_iter_advance_size_kind(it, n)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~981"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1960"></span>
+              integer(kind=selected_int_kind(18)),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  subroutine vector_iter_advance_default(it, n)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~982"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1961"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-begin~67"></span>
+      <h3>public        interface <a href='../interface/begin~67.html'>begin</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_begin(cont) result(begin)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cont~265"></span>
+              type(<a href='../type/routehandlespecvector.html'>RoutehandleSpecVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>cont</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-distance~59"></span>
+      <h3>public        interface <a href='../interface/distance~59.html'>distance</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_distance(a, b) result(distance)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~1247"></span>
+              class(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-b~872"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>b</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>integer(kind=selected_int_kind(18))</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-end~67"></span>
+      <h3>public        interface <a href='../interface/end~67.html'>end</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_end(cont) result(end)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cont~267"></span>
+              type(<a href='../type/routehandlespecvector.html'>RoutehandleSpecVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>cont</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-find~95"></span>
+      <h3>public        interface <a href='../interface/find~95.html'>find</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_find_basic(first, last, value) result(iter)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-first~471"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>first</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-last~472"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>last</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-value~1318"></span>
+              type(<a href='../type/routehandlespec.html'>RoutehandleSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-find_if~95"></span>
+      <h3>public        interface <a href='../interface/find_if~95.html'>find_if</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_find_if(first, last, p) result(it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-first~472"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>first</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-last~473"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>last</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td colspan="7">
+              <small>    <h5>
+    private  function p(item)  
+
+    </h5>
+  
+
+  <h6>Arguments</h6>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-item~343"></span>
+              type(<a href='../type/routehandlespec.html'>RoutehandleSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>item</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h6>
+    Return Value
+    <small>logical</small>
+    </h6>
+    
+</small>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-find_if_not~95"></span>
+      <h3>public        interface <a href='../interface/find_if_not~95.html'>find_if_not</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_find_if_not(first, last, q) result(it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-first~473"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>first</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-last~474"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>last</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td colspan="7">
+              <small>    <h5>
+    private  function q(item)  
+
+    </h5>
+  
+
+  <h6>Arguments</h6>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-item~344"></span>
+              type(<a href='../type/routehandlespec.html'>RoutehandleSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>item</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h6>
+    Return Value
+    <small>logical</small>
+    </h6>
+    
+</small>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-ftn_begin~67"></span>
+      <h3>public        interface <a href='../interface/ftn_begin~67.html'>ftn_begin</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_ftn_begin(cont) result(begin)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cont~266"></span>
+              type(<a href='../type/routehandlespecvector.html'>RoutehandleSpecVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>cont</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-ftn_end~67"></span>
+      <h3>public        interface <a href='../interface/ftn_end~67.html'>ftn_end</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_ftn_end(cont) result(end)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cont~268"></span>
+              type(<a href='../type/routehandlespecvector.html'>RoutehandleSpecVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>cont</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-next~96"></span>
+      <h3>public        interface <a href='../interface/next~96.html'>next</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_next_1(it) result(new_it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~983"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_next_n_size_kind(it, n) result(new_it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~984"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1962"></span>
+              integer(kind=selected_int_kind(18)),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_next_n_default(it, n) result(new_it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~985"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1963"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-operator%28%2B%29~59"></span>
+      <h3>public        interface <a href='../interface/operator(+)~59.html'>operator(+)</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_a_plus_n_size_kind(a, n) result(new_iter)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~1234"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1953"></span>
+              integer(kind=selected_int_kind(18)),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_n_plus_a_size_kind(n, a) result(new_iter)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1954"></span>
+              integer(kind=selected_int_kind(18)),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~1235"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_n_plus_a_default(n, a) result(new_iter)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1957"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~1238"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_a_plus_n_default(a, n) result(new_iter)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~1237"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1956"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-operator%28-%29~59"></span>
+      <h3>public        interface <a href='../interface/operator(-)~59.html'>operator(-)</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_a_minus_n_size_kind(a, n) result(new_iter)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~1236"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1955"></span>
+              integer(kind=selected_int_kind(18)),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_a_minus_n_default(a, n) result(new_iter)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~1239"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1958"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_a_minus_b(a, b) result(n)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~1240"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-b~865"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>b</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>integer(kind=selected_int_kind(18))</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-operator%28SLASH%3D%29~155"></span>
+      <h3>public        interface <a href='../interface/operator(SLASH=)~155.html'>operator(/=)</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private impure elemental function vector_not_equal(lhs, rhs) result(not_equal)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lhs~43"></span>
+              type(<a href='../type/routehandlespecvector.html'>RoutehandleSpecVector</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>lhs</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rhs~50"></span>
+              type(<a href='../type/routehandlespecvector.html'>RoutehandleSpecVector</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rhs</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-operator%28%3D%3D%29~159"></span>
+      <h3>public        interface <a href='../interface/operator(==)~159.html'>operator(==)</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private impure elemental function vector_equal(lhs, rhs) result(equal)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lhs~42"></span>
+              type(<a href='../type/routehandlespecvector.html'>RoutehandleSpecVector</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>lhs</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rhs~49"></span>
+              type(<a href='../type/routehandlespecvector.html'>RoutehandleSpecVector</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rhs</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-prev~96"></span>
+      <h3>public        interface <a href='../interface/prev~96.html'>prev</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_prev_1(it) result(new_it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~986"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_prev_n_size_kind(it, n) result(new_it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~987"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1964"></span>
+              integer(kind=selected_int_kind(18)),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_prev_n_default(it, n) result(new_it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~988"></span>
+              type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1965"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-swap~120"></span>
+      <h3>public        interface <a href='../interface/swap~120.html'>swap</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  subroutine vector_swap(this, x)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~8631"></span>
+              class(<a href='../type/routehandlespecvector.html'>RoutehandleSpecVector</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-x~391"></span>
+              type(<a href='../type/routehandlespecvector.html'>RoutehandleSpecVector</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>x</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+    </ul>
+  </div>
+
+        </section>
+        <br>
+
+
+        <section>
+          <h2>Derived Types</h2>
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-keywordenforcer~45"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/keywordenforcer~45.html'>KeywordEnforcer</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      
+
+
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-no_type_~26"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/no_type_~26.html'>NO_TYPE_</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      
+
+
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-routehandlespecvector"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/routehandlespecvector.html'>RoutehandleSpecVector</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      
+
+
+        <h4>Constructor</h4>
+          
+        <table class="table table-striped varlist">
+          <tbody>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong>vector_new_vector_empty</strong>
+                    ()
+                  </td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong>vector_new_vector_fill_size_kind</strong>
+                    (n, value)
+                  </td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong>vector_new_vector_fill_default</strong>
+                    (n, value)
+                  </td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong>vector_new_vector_range</strong>
+                    (first, last)
+                  </td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong>vector_new_vector_copy</strong>
+                    (x)
+                  </td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong>vector_new_vector_initializer_list</strong>
+                    (il)
+                  </td>
+                  <td></td>
+                </tr>
+          </tbody>
+        </table>
+
+
+        <h4>Type-Bound Procedures</h4>
+        <table class="table table-striped varlist">
+          <tbody>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-assignment%28%3D%29~124'>assignment(=)</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvector.html#boundprocedure-copy_from_array~20'>copy_from_array</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-at~417'>at</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvector.html#boundprocedure-at_default~30'>at_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-at~418'>at</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvector.html#boundprocedure-of_default~30'>of_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-at~419'>at</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvector.html#boundprocedure-at_size_kind~84'>at_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-at~420'>at</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvector.html#boundprocedure-of_size_kind~30'>of_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-at_default~30'>at_default</a></strong> => vector_at_default</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-at_size_kind~84'>at_size_kind</a></strong> => vector_at_size_kind</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-back~91'>back</a></strong> => vector_back</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-begin~313'>begin</a></strong> => vector_begin</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-capacity~499'>capacity</a></strong> => vector_capacity</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-clear~156'>clear</a></strong> => vector_clear</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-copy_from_array~20'>copy_from_array</a></strong> => vector_copy_from_array</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-data~74'>data</a></strong> => vector_data</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-empty~299'>empty</a></strong> => vector_empty</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-end~261'>end</a></strong> => vector_end</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-erase~192'>erase</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvector.html#boundprocedure-erase_one~62'>erase_one</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-erase~193'>erase</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvector.html#boundprocedure-erase_range~67'>erase_range</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-erase_one~62'>erase_one</a></strong> => vector_erase_one</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-erase_range~67'>erase_range</a></strong> => vector_erase_range</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-front~84'>front</a></strong> => vector_front</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-ftn_begin~67'>ftn_begin</a></strong> => vector_ftn_begin</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-ftn_end~68'>ftn_end</a></strong> => vector_ftn_end</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-get_index~5'>get_index</a></strong> => vector_get_index</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-insert~401'>insert</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvector.html#boundprocedure-vector_insert_one~27'>vector_insert_one</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-insert~402'>insert</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvector.html#boundprocedure-vector_insert_count_size_kind~27'>vector_insert_count_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-insert~403'>insert</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvector.html#boundprocedure-vector_insert_count_default~27'>vector_insert_count_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-insert~404'>insert</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvector.html#boundprocedure-vector_insert_range~27'>vector_insert_range</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-insert~405'>insert</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvector.html#boundprocedure-vector_insert_list~18'>vector_insert_list</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public, nopass ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-max_size~118'>max_size</a></strong> => vector_max_size</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-of~358'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvector.html#boundprocedure-of_default~30'>of_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-of~359'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvector.html#boundprocedure-of_size_kind~30'>of_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-of_default~30'>of_default</a></strong> => vector_of_default</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-of_size_kind~30'>of_size_kind</a></strong> => vector_of_size_kind</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-pop_back~84'>pop_back</a></strong> => vector_pop_back</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-push_back~84'>push_back</a></strong> => vector_push_back</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-rbegin~56'>rbegin</a></strong> => vector_rbegin</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-rend~56'>rend</a></strong> => vector_rend</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-reserve~167'>reserve</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvector.html#boundprocedure-reserve_default~30'>reserve_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-reserve~168'>reserve</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvector.html#boundprocedure-reserve_size_kind~84'>reserve_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-reserve_default~30'>reserve_default</a></strong> => vector_reserve_default</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-reserve_size_kind~84'>reserve_size_kind</a></strong> => vector_reserve_size_kind</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-reset~92'>reset</a></strong> => vector_reset</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-resize~167'>resize</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvector.html#boundprocedure-resize_default~30'>resize_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-resize~168'>resize</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvector.html#boundprocedure-resize_size_kind~30'>resize_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-resize_default~30'>resize_default</a></strong> => vector_resize_default</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-resize_size_kind~30'>resize_size_kind</a></strong> => vector_resize_size_kind</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-set~211'>set</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvector.html#boundprocedure-set_default~30'>set_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-set~212'>set</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvector.html#boundprocedure-set_size_kind~84'>set_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-set_default~30'>set_default</a></strong> => vector_set_default</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-set_size_kind~84'>set_size_kind</a></strong> => vector_set_size_kind</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-shrink_to_fit~84'>shrink_to_fit</a></strong> => vector_shrink_to_fit</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-size~230'>size</a></strong> => vector_size</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-swap~105'>swap</a></strong> => vector_swap</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-vector_insert_count_default~27'>vector_insert_count_default</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-vector_insert_count_size_kind~27'>vector_insert_count_size_kind</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-vector_insert_list~18'>vector_insert_list</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-vector_insert_one~27'>vector_insert_one</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-vector_insert_range~27'>vector_insert_range</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-write%28formatted%29~59'>write(formatted)</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvector.html#boundprocedure-write_formatted~62'>write_formatted</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvector.html#boundprocedure-write_formatted~62'>write_formatted</a></strong> => vector_write_formatted</td>
+                  <td></td>
+              </tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-routehandlespecvectoriterator"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/routehandlespecvectoriterator.html'>RoutehandleSpecVectorIterator</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      
+
+
+
+
+        <h4>Type-Bound Procedures</h4>
+        <table class="table table-striped varlist">
+          <tbody>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvectoriterator.html#boundprocedure-add~117'>add</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvectoriterator.html#boundprocedure-vector_iter_add_n_default~27'>vector_iter_add_n_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvectoriterator.html#boundprocedure-add~118'>add</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvectoriterator.html#boundprocedure-vector_iter_add_n_size_kind~27'>vector_iter_add_n_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvectoriterator.html#boundprocedure-next~187'>next</a></strong> => vector_iter_next</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvectoriterator.html#boundprocedure-of~360'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvectoriterator.html#boundprocedure-vector_iter_of~27'>vector_iter_of</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvectoriterator.html#boundprocedure-of~361'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvectoriterator.html#boundprocedure-vector_iter_of_offset_default~27'>vector_iter_of_offset_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvectoriterator.html#boundprocedure-of~362'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvectoriterator.html#boundprocedure-vector_iter_of_offset_size_kind~27'>vector_iter_of_offset_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvectoriterator.html#boundprocedure-prev~146'>prev</a></strong> => vector_iter_prev</td>
+                  <td><p>$      procedure :: back_inserter =&gt; vector_back_inserter
+$      procedure :: front_inserter =&gt; vector_front_inserter
+$      procedure :: inserter =&gt; vector_inserter
+$      procedure :: make_move_iterator =&gt; vector_make_move_iterator</p><a href="../type/routehandlespecvectoriterator.html#boundprocedure-prev~146" class="pull-right"><emph>Read more&hellip;</emph></a></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvectoriterator.html#boundprocedure-sub~117'>sub</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvectoriterator.html#boundprocedure-vector_iter_sub_n_default~27'>vector_iter_sub_n_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvectoriterator.html#boundprocedure-sub~118'>sub</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvectoriterator.html#boundprocedure-vector_iter_sub_n_size_kind~27'>vector_iter_sub_n_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvectoriterator.html#boundprocedure-vector_iter_add_n_default~27'>vector_iter_add_n_default</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvectoriterator.html#boundprocedure-vector_iter_add_n_size_kind~27'>vector_iter_add_n_size_kind</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvectoriterator.html#boundprocedure-vector_iter_of~27'>vector_iter_of</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvectoriterator.html#boundprocedure-vector_iter_of_offset_default~27'>vector_iter_of_offset_default</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvectoriterator.html#boundprocedure-vector_iter_of_offset_size_kind~27'>vector_iter_of_offset_size_kind</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvectoriterator.html#boundprocedure-vector_iter_sub_n_default~27'>vector_iter_sub_n_default</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvectoriterator.html#boundprocedure-vector_iter_sub_n_size_kind~27'>vector_iter_sub_n_size_kind</a></strong></td>
+                  <td></td>
+              </tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-routehandlespecvectorriterator"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/routehandlespecvectorriterator.html'>RoutehandleSpecVectorRIterator</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      <p>$      procedure :: back_inserter =&gt; vector_back_inserter
+$      procedure :: front_inserter =&gt; vector_front_inserter
+$      procedure :: inserter =&gt; vector_inserter
+$      procedure :: make_move_iterator =&gt; vector_make_move_iterator</p>
+
+
+
+
+        <h4>Type-Bound Procedures</h4>
+        <table class="table table-striped varlist">
+          <tbody>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvectorriterator.html#boundprocedure-add~119'>add</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvectorriterator.html#boundprocedure-vector_riter_add_n_default~27'>vector_riter_add_n_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvectorriterator.html#boundprocedure-add~120'>add</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvectorriterator.html#boundprocedure-vector_riter_add_n_size_kind~27'>vector_riter_add_n_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvectorriterator.html#boundprocedure-next~188'>next</a></strong> => vector_riter_next</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvectorriterator.html#boundprocedure-of~363'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvectorriterator.html#boundprocedure-vector_riter_of~27'>vector_riter_of</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvectorriterator.html#boundprocedure-of~364'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvectorriterator.html#boundprocedure-vector_riter_of_offset_size_kind~27'>vector_riter_of_offset_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvectorriterator.html#boundprocedure-of~365'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvectorriterator.html#boundprocedure-vector_riter_of_offset_default~27'>vector_riter_of_offset_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvectorriterator.html#boundprocedure-prev~147'>prev</a></strong> => vector_riter_prev</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvectorriterator.html#boundprocedure-sub~119'>sub</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvectorriterator.html#boundprocedure-vector_riter_sub_n_default~27'>vector_riter_sub_n_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/routehandlespecvectorriterator.html#boundprocedure-sub~120'>sub</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/routehandlespecvectorriterator.html#boundprocedure-vector_riter_sub_n_size_kind~27'>vector_riter_sub_n_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvectorriterator.html#boundprocedure-vector_riter_add_n_default~27'>vector_riter_add_n_default</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvectorriterator.html#boundprocedure-vector_riter_add_n_size_kind~27'>vector_riter_add_n_size_kind</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvectorriterator.html#boundprocedure-vector_riter_of~27'>vector_riter_of</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvectorriterator.html#boundprocedure-vector_riter_of_offset_default~27'>vector_riter_of_offset_default</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvectorriterator.html#boundprocedure-vector_riter_of_offset_size_kind~27'>vector_riter_of_offset_size_kind</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvectorriterator.html#boundprocedure-vector_riter_sub_n_default~27'>vector_riter_sub_n_default</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/routehandlespecvectorriterator.html#boundprocedure-vector_riter_sub_n_size_kind~27'>vector_riter_sub_n_size_kind</a></strong></td>
+                  <td></td>
+              </tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+
+
+
+
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

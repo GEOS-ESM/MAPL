@@ -1,0 +1,821 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>test_find_closest_simple &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>test_find_closest_simple
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">29 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_ExtensionFamily.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_extensionfamily.pf.html'>Test_ExtensionFamily.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_extensionfamily.html'>Test_ExtensionFamily</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_find_closest_simple</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/test_find_closest_simple.html#src">test_find_closest_simple</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine test_find_closest_simple()  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+    <em>None</em>
+    <br>
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~test_find_closest_simple~~CallsGraph Pages: 1 -->
+<svg id="proctest_find_closest_simpleCallsGraph" width="641pt" height="658pt"
+ viewBox="0.00 0.00 641.00 657.87" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~test_find_closest_simple~~CallsGraph" class="graph" transform="scale(0.7 0.7) rotate(0) translate(4 932)">
+<title>proc~~test_find_closest_simple~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-932 908,-932 908,4 -4,4"/>
+<!-- proc~test_find_closest_simple -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node1" class="node">
+<title>proc~test_find_closest_simple</title>
+<polygon fill="none" stroke="black" points="140,-520 0,-520 0,-496 140,-496 140,-520"/>
+<text text-anchor="middle" x="70" y="-505.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_find_closest_simple</text>
+</g>
+<!-- anyexceptions -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node2" class="node">
+<title>anyexceptions</title>
+<polygon fill="#777777" stroke="#777777" points="334,-827 245,-827 245,-803 334,-803 334,-827"/>
+<text text-anchor="middle" x="289.5" y="-812.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">anyexceptions</text>
+</g>
+<!-- proc~test_find_closest_simple&#45;&gt;anyexceptions -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge1" class="edge">
+<title>proc~test_find_closest_simple&#45;&gt;anyexceptions</title>
+<path fill="none" stroke="#ff0000" d="M71.43,-520.11C73.71,-564.51 87.94,-719.56 176,-794 192.16,-807.66 214.35,-813.59 234.75,-815.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="234.64,-819.36 244.9,-816.71 235.23,-812.38 234.64,-819.36"/>
+</g>
+<!-- assert_that -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node3" class="node">
+<title>assert_that</title>
+<polygon fill="#777777" stroke="#777777" points="325,-785 254,-785 254,-761 325,-761 325,-785"/>
+<text text-anchor="middle" x="289.5" y="-770.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assert_that</text>
+</g>
+<!-- proc~test_find_closest_simple&#45;&gt;assert_that -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge2" class="edge">
+<title>proc~test_find_closest_simple&#45;&gt;assert_that</title>
+<path fill="none" stroke="#ff0000" d="M72.26,-520.01C77.13,-560.06 98.56,-690.08 176,-752 194.91,-767.12 221.3,-772.6 243.77,-774.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="243.62,-777.7 253.78,-774.68 243.96,-770.7 243.62,-777.7"/>
+</g>
+<!-- none~add_primary_spec -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node4" class="node">
+<title>none~add_primary_spec</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node4"><a xlink:href="../type/stateregistry.html#boundprocedure-add_primary_spec" xlink:title="StateRegistry%add_primary_spec">
+<polygon fill="#a7506f" stroke="#a7506f" points="384.5,-743 194.5,-743 194.5,-719 384.5,-719 384.5,-743"/>
+<text text-anchor="middle" x="289.5" y="-728.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry%add_primary_spec</text>
+</a>
+</g>
+</g>
+<!-- proc~test_find_closest_simple&#45;&gt;none~add_primary_spec -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge3" class="edge">
+<title>proc~test_find_closest_simple&#45;&gt;none~add_primary_spec</title>
+<path fill="none" stroke="#ff0000" d="M78.75,-520.21C94.97,-545.24 134.44,-603.49 176,-645 202.53,-671.5 237.38,-696.95 261.22,-713.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="259.52,-716.27 269.78,-718.95 263.43,-710.46 259.52,-716.27"/>
+</g>
+<!-- none~find_closest_extension -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node5" class="node">
+<title>none~find_closest_extension</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node5"><a xlink:href="../type/extensionfamily.html#boundprocedure-find_closest_extension" xlink:title="ExtensionFamily%find_closest_extension">
+<polygon fill="#a7506f" stroke="#a7506f" points="403,-520 176,-520 176,-496 403,-496 403,-520"/>
+<text text-anchor="middle" x="289.5" y="-505.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtensionFamily%find_closest_extension</text>
+</a>
+</g>
+</g>
+<!-- proc~test_find_closest_simple&#45;&gt;none~find_closest_extension -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge4" class="edge">
+<title>proc~test_find_closest_simple&#45;&gt;none~find_closest_extension</title>
+<path fill="none" stroke="#ff0000" d="M140.12,-508C148.34,-508 156.92,-508 165.62,-508"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="165.87,-511.5 175.87,-508 165.87,-504.5 165.87,-511.5"/>
+</g>
+<!-- none~get_extension_family -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node6" class="node">
+<title>none~get_extension_family</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node6"><a xlink:href="../type/stateregistry.html#boundprocedure-get_extension_family" xlink:title="StateRegistry%get_extension_family">
+<polygon fill="#a7506f" stroke="#a7506f" points="392,-313 187,-313 187,-289 392,-289 392,-313"/>
+<text text-anchor="middle" x="289.5" y="-298.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry%get_extension_family</text>
+</a>
+</g>
+</g>
+<!-- proc~test_find_closest_simple&#45;&gt;none~get_extension_family -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge5" class="edge">
+<title>proc~test_find_closest_simple&#45;&gt;none~get_extension_family</title>
+<path fill="none" stroke="#ff0000" d="M83.63,-495.98C119.9,-461.46 224.53,-361.88 268.58,-319.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="271,-322.49 275.83,-313.06 266.17,-317.42 271,-322.49"/>
+</g>
+<!-- none~get_primary -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node7" class="node">
+<title>none~get_primary</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node7"><a xlink:href="../type/extensionfamily.html#boundprocedure-get_primary" xlink:title="ExtensionFamily%get_primary">
+<polygon fill="#a7506f" stroke="#a7506f" points="640.5,-726 467.5,-726 467.5,-702 640.5,-702 640.5,-726"/>
+<text text-anchor="middle" x="554" y="-711.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtensionFamily%get_primary</text>
+</a>
+</g>
+</g>
+<!-- proc~test_find_closest_simple&#45;&gt;none~get_primary -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge6" class="edge">
+<title>proc~test_find_closest_simple&#45;&gt;none~get_primary</title>
+<path fill="none" stroke="#ff0000" d="M92.33,-520.13C147.85,-551.3 302.08,-635.22 439,-685 454.18,-690.52 470.86,-695.4 486.66,-699.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="485.82,-702.9 496.37,-701.95 487.53,-696.11 485.82,-702.9"/>
+</g>
+<!-- proc~mockitemspec -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node8" class="node">
+<title>proc~mockitemspec</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node8"><a xlink:href="../proc/mockitemspec.html" xlink:title="MockItemSpec">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="335,-150 244,-150 244,-126 335,-126 335,-150"/>
+<text text-anchor="middle" x="289.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockItemSpec</text>
+</a>
+</g>
+</g>
+<!-- proc~test_find_closest_simple&#45;&gt;proc~mockitemspec -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge7" class="edge">
+<title>proc~test_find_closest_simple&#45;&gt;proc~mockitemspec</title>
+<path fill="none" stroke="#ff0000" d="M75.5,-495.61C88.51,-460.46 128.33,-357.61 176,-280 204.79,-233.12 246.76,-184.02 270.45,-157.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="273.07,-159.93 277.19,-150.17 267.88,-155.23 273.07,-159.93"/>
+</g>
+<!-- sourcelocation -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node9" class="node">
+<title>sourcelocation</title>
+<polygon fill="#777777" stroke="#777777" points="335,-108 244,-108 244,-84 335,-84 335,-108"/>
+<text text-anchor="middle" x="289.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sourcelocation</text>
+</g>
+<!-- proc~test_find_closest_simple&#45;&gt;sourcelocation -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge8" class="edge">
+<title>proc~test_find_closest_simple&#45;&gt;sourcelocation</title>
+<path fill="none" stroke="#ff0000" d="M72.53,-495.77C80.34,-435.54 117.57,-171.05 176,-117 191.41,-102.75 213.26,-96.68 233.61,-94.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="234.07,-97.95 243.76,-93.66 233.51,-90.97 234.07,-97.95"/>
+</g>
+<!-- true -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node10" class="node">
+<title>true</title>
+<polygon fill="#777777" stroke="#777777" points="316.5,-66 262.5,-66 262.5,-42 316.5,-42 316.5,-66"/>
+<text text-anchor="middle" x="289.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">true</text>
+</g>
+<!-- proc~test_find_closest_simple&#45;&gt;true -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge9" class="edge">
+<title>proc~test_find_closest_simple&#45;&gt;true</title>
+<path fill="none" stroke="#ff0000" d="M72.2,-495.77C78.71,-431.73 112.01,-135.67 176,-75 196.06,-55.98 227.54,-51.43 252.11,-51.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="252.11,-54.74 262.16,-51.4 252.22,-47.74 252.11,-54.74"/>
+</g>
+<!-- none~add_family -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node12" class="node">
+<title>none~add_family</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node12"><a xlink:href="../type/stateregistry.html#boundprocedure-add_family" xlink:title="StateRegistry%add_family">
+<polygon fill="#a7506f" stroke="#a7506f" points="629.5,-928 478.5,-928 478.5,-904 629.5,-904 629.5,-928"/>
+<text text-anchor="middle" x="554" y="-913.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry%add_family</text>
+</a>
+</g>
+</g>
+<!-- none~add_primary_spec&#45;&gt;none~add_family -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge10" class="edge">
+<title>none~add_primary_spec&#45;&gt;none~add_family</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M384.6,-739.63C391.32,-742.84 397.57,-746.9 403,-752 450.76,-796.88 391.19,-850.17 439,-895 447.35,-902.82 457.61,-908.21 468.52,-911.85"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="467.67,-915.25 478.25,-914.62 469.59,-908.52 467.67,-915.25"/>
+</g>
+<!-- none~back~52 -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node14" class="node">
+<title>none~back~52</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node14"><a xlink:href="../type/stateitemextensionvector.html#boundprocedure-back~52" xlink:title="StateItemExtensionVector%back">
+<polygon fill="#a7506f" stroke="#a7506f" points="646.5,-886 461.5,-886 461.5,-862 646.5,-862 646.5,-886"/>
+<text text-anchor="middle" x="554" y="-871.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtensionVector%back</text>
+</a>
+</g>
+</g>
+<!-- none~add_primary_spec&#45;&gt;none~back~52 -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge11" class="edge">
+<title>none~add_primary_spec&#45;&gt;none~back~52</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M384.62,-740.46C391.25,-743.5 397.48,-747.29 403,-752 439.25,-782.94 402.71,-822.11 439,-853 443.02,-856.42 447.4,-859.36 452.04,-861.88"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="450.72,-865.12 461.25,-866.23 453.71,-858.79 450.72,-865.12"/>
+</g>
+<!-- none~push_back~45 -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node26" class="node">
+<title>none~push_back~45</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node26"><a xlink:href="../type/stateitemextensionvector.html#boundprocedure-push_back~45" xlink:title="StateItemExtensionVector%push_back">
+<polygon fill="#a7506f" stroke="#a7506f" points="662,-844 446,-844 446,-820 662,-820 662,-844"/>
+<text text-anchor="middle" x="554" y="-829.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtensionVector%push_back</text>
+</a>
+</g>
+</g>
+<!-- none~add_primary_spec&#45;&gt;none~push_back~45 -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge12" class="edge">
+<title>none~add_primary_spec&#45;&gt;none~push_back~45</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M384.57,-742.47C391.06,-745.08 397.28,-748.22 403,-752 427.07,-767.9 415.25,-789.63 439,-806 444.73,-809.95 450.96,-813.3 457.47,-816.16"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="456.58,-819.57 467.17,-819.99 459.15,-813.06 456.58,-819.57"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node29" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node29"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="845.5,-476 763.5,-476 763.5,-452 845.5,-452 845.5,-476"/>
+<text text-anchor="middle" x="804.5" y="-461.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- none~add_primary_spec&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge13" class="edge">
+<title>none~add_primary_spec&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M382.95,-743.04C479.44,-753.68 622.99,-763.53 669,-735 680.76,-727.71 764.32,-548.73 793.49,-485.71"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="796.81,-486.86 797.83,-476.31 790.46,-483.92 796.81,-486.86"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node30" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node30"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="592,-394 516,-394 516,-370 592,-370 592,-394"/>
+<text text-anchor="middle" x="554" y="-379.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- none~add_primary_spec&#45;&gt;proc~mapl_verify -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge14" class="edge">
+<title>none~add_primary_spec&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M298.66,-718.74C318.81,-688 371.62,-604.64 403,-529 425.32,-475.2 395.89,-442.16 439,-403 456.83,-386.81 482.9,-381.17 505.61,-379.75"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="505.91,-383.24 515.77,-379.37 505.65,-376.24 505.91,-383.24"/>
+</g>
+<!-- none~find_closest_extension&#45;&gt;none~get_primary -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge20" class="edge">
+<title>none~find_closest_extension&#45;&gt;none~get_primary</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M305.9,-520.07C329.16,-538.88 373.63,-577.16 403,-617 423.99,-645.48 411.11,-666.23 439,-688 444.78,-692.51 451.19,-696.26 457.94,-699.39"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="456.76,-702.68 467.34,-703.26 459.43,-696.21 456.76,-702.68"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node11" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node11"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="844,-756 765,-756 765,-732 844,-732 844,-756"/>
+<text text-anchor="middle" x="804.5" y="-741.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- none~find_closest_extension&#45;&gt;interface~mapl_assert -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge15" class="edge">
+<title>none~find_closest_extension&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M293.98,-520.09C306.13,-559.7 350.74,-685.86 439,-735 539.62,-791.03 681.33,-771.96 754.9,-756.24"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="755.81,-759.63 764.82,-754.06 754.3,-752.79 755.81,-759.63"/>
+</g>
+<!-- none~front~25 -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node15" class="node">
+<title>none~front~25</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node15"><a xlink:href="../type/stateitemextensionptrvector.html#boundprocedure-front~25" xlink:title="StateItemExtensionPtrVector%front">
+<polygon fill="#a7506f" stroke="#a7506f" points="904,-705 705,-705 705,-681 904,-681 904,-705"/>
+<text text-anchor="middle" x="804.5" y="-690.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtensionPtrVector%front</text>
+</a>
+</g>
+</g>
+<!-- none~find_closest_extension&#45;&gt;none~front~25 -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge16" class="edge">
+<title>none~find_closest_extension&#45;&gt;none~front~25</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M303.5,-520.25C324.63,-540.23 367.62,-581.23 403,-617 419.36,-633.54 418.13,-644.71 439,-655 482.59,-676.5 603.96,-685.87 694.76,-689.93"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="694.69,-693.43 704.84,-690.37 695,-686.44 694.69,-693.43"/>
+</g>
+<!-- none~get_aspect -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node16" class="node">
+<title>none~get_aspect</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node16"><a xlink:href="../type/stateitemspec.html#boundprocedure-get_aspect" xlink:title="StateItemSpec%get_aspect">
+<polygon fill="#a7506f" stroke="#a7506f" points="633,-646 475,-646 475,-622 633,-622 633,-646"/>
+<text text-anchor="middle" x="554" y="-631.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemSpec%get_aspect</text>
+</a>
+</g>
+</g>
+<!-- none~find_closest_extension&#45;&gt;none~get_aspect -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge17" class="edge">
+<title>none~find_closest_extension&#45;&gt;none~get_aspect</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M303.61,-520.34C328.11,-542.66 383.42,-589.58 439,-613 447.24,-616.47 456.05,-619.37 464.99,-621.79"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="464.17,-625.19 474.72,-624.24 465.88,-618.41 464.17,-625.19"/>
+</g>
+<!-- none~get_aspect_order -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node17" class="node">
+<title>none~get_aspect_order</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node17"><a xlink:href="../type/stateitemspec.html#boundprocedure-get_aspect_order" xlink:title="StateItemSpec%get_aspect_order">
+<polygon fill="#a7506f" stroke="#a7506f" points="650.5,-604 457.5,-604 457.5,-580 650.5,-580 650.5,-604"/>
+<text text-anchor="middle" x="554" y="-589.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemSpec%get_aspect_order</text>
+</a>
+</g>
+</g>
+<!-- none~find_closest_extension&#45;&gt;none~get_aspect_order -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge18" class="edge">
+<title>none~find_closest_extension&#45;&gt;none~get_aspect_order</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M314.33,-520.04C343.18,-534.16 393.54,-557.35 439,-571 447.33,-573.5 456.1,-575.76 464.92,-577.78"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="464.37,-581.24 474.88,-579.96 465.86,-574.4 464.37,-581.24"/>
+</g>
+<!-- none~get_extensions -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node19" class="node">
+<title>none~get_extensions</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node19"><a xlink:href="../type/extensionfamily.html#boundprocedure-get_extensions" xlink:title="ExtensionFamily%get_extensions">
+<polygon fill="#a7506f" stroke="#a7506f" points="647.5,-562 460.5,-562 460.5,-538 647.5,-538 647.5,-562"/>
+<text text-anchor="middle" x="554" y="-547.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtensionFamily%get_extensions</text>
+</a>
+</g>
+</g>
+<!-- none~find_closest_extension&#45;&gt;none~get_extensions -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge19" class="edge">
+<title>none~find_closest_extension&#45;&gt;none~get_extensions</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M365.72,-520.04C397.57,-525.13 434.85,-531.1 467.72,-536.35"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="467.34,-539.84 477.77,-537.96 468.45,-532.93 467.34,-539.84"/>
+</g>
+<!-- none~get_spec~3 -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node20" class="node">
+<title>none~get_spec~3</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node20"><a xlink:href="../type/stateitemextension.html#boundprocedure-get_spec~3" xlink:title="StateItemExtension%get_spec">
+<polygon fill="#a7506f" stroke="#a7506f" points="640.5,-520 467.5,-520 467.5,-496 640.5,-496 640.5,-520"/>
+<text text-anchor="middle" x="554" y="-505.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtension%get_spec</text>
+</a>
+</g>
+</g>
+<!-- none~find_closest_extension&#45;&gt;none~get_spec~3 -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge21" class="edge">
+<title>none~find_closest_extension&#45;&gt;none~get_spec~3</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M403.35,-508C421.24,-508 439.59,-508 457.04,-508"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="457.21,-511.5 467.21,-508 457.21,-504.5 457.21,-511.5"/>
+</g>
+<!-- none~needs_extension_for -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node23" class="node">
+<title>none~needs_extension_for</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node23"><a xlink:href="../type/stateitemaspect.html#boundprocedure-needs_extension_for" xlink:title="StateItemAspect%needs_extension_for">
+<polygon fill="#a7506f" stroke="#a7506f" points="663.5,-478 444.5,-478 444.5,-454 663.5,-454 663.5,-478"/>
+<text text-anchor="middle" x="554" y="-463.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemAspect%needs_extension_for</text>
+</a>
+</g>
+</g>
+<!-- none~find_closest_extension&#45;&gt;none~needs_extension_for -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge22" class="edge">
+<title>none~find_closest_extension&#45;&gt;none~needs_extension_for</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M365.72,-495.96C397.57,-490.87 434.85,-484.9 467.72,-479.65"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="468.45,-483.07 477.77,-478.04 467.34,-476.16 468.45,-483.07"/>
+</g>
+<!-- none~of~121 -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node24" class="node">
+<title>none~of~121</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node24"><a xlink:href="../type/stateitemextensionptrvector.html#boundprocedure-of~121" xlink:title="StateItemExtensionPtrVector%of">
+<polygon fill="#a7506f" stroke="#a7506f" points="646,-436 462,-436 462,-412 646,-412 646,-436"/>
+<text text-anchor="middle" x="554" y="-421.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtensionPtrVector%of</text>
+</a>
+</g>
+</g>
+<!-- none~find_closest_extension&#45;&gt;none~of~121 -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge23" class="edge">
+<title>none~find_closest_extension&#45;&gt;none~of~121</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M314.33,-495.96C343.18,-481.84 393.54,-458.65 439,-445 447.33,-442.5 456.1,-440.24 464.92,-438.22"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="465.86,-441.6 474.88,-436.04 464.37,-434.76 465.86,-441.6"/>
+</g>
+<!-- none~push_back~25 -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node25" class="node">
+<title>none~push_back~25</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node25"><a xlink:href="../type/stateitemextensionptrvector.html#boundprocedure-push_back~25" xlink:title="StateItemExtensionPtrVector%push_back">
+<polygon fill="#a7506f" stroke="#a7506f" points="669,-352 439,-352 439,-328 669,-328 669,-352"/>
+<text text-anchor="middle" x="554" y="-337.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtensionPtrVector%push_back</text>
+</a>
+</g>
+</g>
+<!-- none~find_closest_extension&#45;&gt;none~push_back~25 -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge24" class="edge">
+<title>none~find_closest_extension&#45;&gt;none~push_back~25</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M298.86,-495.66C319.14,-466.83 374.04,-394.92 439,-361 442.81,-359.01 446.78,-357.2 450.86,-355.57"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="452.34,-358.76 460.54,-352.05 449.94,-352.18 452.34,-358.76"/>
+</g>
+<!-- none~to_string~8 -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node27" class="node">
+<title>none~to_string~8</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node27"><a xlink:href="../type/aspectid.html#boundprocedure-to_string~8" xlink:title="AspectId%to_string">
+<polygon fill="#a7506f" stroke="#a7506f" points="611,-310 497,-310 497,-286 611,-286 611,-310"/>
+<text text-anchor="middle" x="554" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AspectId%to_string</text>
+</a>
+</g>
+</g>
+<!-- none~find_closest_extension&#45;&gt;none~to_string~8 -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge25" class="edge">
+<title>none~find_closest_extension&#45;&gt;none~to_string~8</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M296.13,-495.79C312.61,-461.53 364.35,-364.1 439,-319 453.26,-310.38 470.23,-305.14 486.66,-302"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="487.5,-305.4 496.78,-300.3 486.34,-298.5 487.5,-305.4"/>
+</g>
+<!-- none~find_closest_extension&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge26" class="edge">
+<title>none~find_closest_extension&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M297.8,-495.95C326.09,-449.37 427.49,-283.28 439,-277 528.72,-228.02 578.03,-230.37 669,-277 737.9,-312.31 779.51,-401.16 795.7,-442.38"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="792.45,-443.66 799.27,-451.77 798.99,-441.18 792.45,-443.66"/>
+</g>
+<!-- none~find_closest_extension&#45;&gt;proc~mapl_verify -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge27" class="edge">
+<title>none~find_closest_extension&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M303.61,-495.66C328.11,-473.34 383.42,-426.42 439,-403 460.04,-394.13 484.81,-389 505.89,-386.04"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="506.43,-389.5 515.9,-384.75 505.54,-382.55 506.43,-389.5"/>
+</g>
+<!-- none~at~81 -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node13" class="node">
+<title>none~at~81</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node13"><a xlink:href="../type/virtualptfamilymap.html#boundprocedure-at~81" xlink:title="VirtualPtFamilyMap%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="621,-192 487,-192 487,-168 621,-168 621,-192"/>
+<text text-anchor="middle" x="554" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VirtualPtFamilyMap%at</text>
+</a>
+</g>
+</g>
+<!-- none~get_extension_family&#45;&gt;none~at~81 -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge28" class="edge">
+<title>none~get_extension_family&#45;&gt;none~at~81</title>
+<path fill="none" stroke="#00ffa9" stroke-dasharray="5,2" d="M305.54,-288.84C331.31,-268.61 386.21,-228.11 439,-206 451.01,-200.97 464.16,-196.83 477.12,-193.44"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="478.11,-196.8 486.98,-191 476.43,-190.01 478.11,-196.8"/>
+</g>
+<!-- none~get_extension_family&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge29" class="edge">
+<title>none~get_extension_family&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ffa9" stroke-dasharray="5,2" d="M310.99,-288.93C370.6,-255.55 547.39,-168.86 669,-238 747.99,-282.91 785.45,-394.56 798.21,-442.06"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="794.87,-443.11 800.75,-451.92 801.65,-441.37 794.87,-443.11"/>
+</g>
+<!-- none~get_extension_family&#45;&gt;proc~mapl_verify -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge30" class="edge">
+<title>none~get_extension_family&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ffa9" stroke-dasharray="5,2" d="M315.7,-313.01C344.8,-326.45 394.41,-348.03 439,-361 460.57,-367.28 485.01,-372.07 505.71,-375.48"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="505.43,-378.98 515.85,-377.1 506.52,-372.07 505.43,-378.98"/>
+</g>
+<!-- none~get_primary&#45;&gt;interface~mapl_assert -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge31" class="edge">
+<title>none~get_primary&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M640.52,-724.32C678.65,-728.93 722.19,-734.18 754.67,-738.11"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="754.46,-741.6 764.81,-739.33 755.3,-734.66 754.46,-741.6"/>
+</g>
+<!-- none~get_primary&#45;&gt;none~front~25 -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge32" class="edge">
+<title>none~get_primary&#45;&gt;none~front~25</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M640.52,-706.77C657.93,-705.3 676.47,-703.73 694.57,-702.2"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="694.91,-705.69 704.57,-701.36 694.32,-698.71 694.91,-705.69"/>
+</g>
+<!-- none~get_primary&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge33" class="edge">
+<title>none~get_primary&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M587.99,-701.91C612.23,-691.91 644.99,-675.95 669,-655 727.07,-604.33 773.04,-523.65 792.87,-485.43"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="796.13,-486.75 797.56,-476.25 789.89,-483.57 796.13,-486.75"/>
+</g>
+<!-- none~get_aspects -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node18" class="node">
+<title>none~get_aspects</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node18"><a xlink:href="../type/stateitemspec.html#boundprocedure-get_aspects" xlink:title="StateItemSpec%get_aspects">
+<polygon fill="#a7506f" stroke="#a7506f" points="635.5,-108 472.5,-108 472.5,-84 635.5,-84 635.5,-108"/>
+<text text-anchor="middle" x="554" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemSpec%get_aspects</text>
+</a>
+</g>
+</g>
+<!-- proc~mockitemspec&#45;&gt;none~get_aspects -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge34" class="edge">
+<title>proc~mockitemspec&#45;&gt;none~get_aspects</title>
+<path fill="none" stroke="#0000ff" d="M335.03,-130.88C371.34,-125.07 423.67,-116.69 467.96,-109.61"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="468.54,-113.06 477.86,-108.02 467.44,-106.15 468.54,-113.06"/>
+</g>
+<!-- none~insert~421 -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node21" class="node">
+<title>none~insert~421</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node21"><a xlink:href="../type/aspectmap.html#boundprocedure-insert~421" xlink:title="AspectMap%insert">
+<polygon fill="#a7506f" stroke="#a7506f" points="609.5,-66 498.5,-66 498.5,-42 609.5,-42 609.5,-66"/>
+<text text-anchor="middle" x="554" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AspectMap%insert</text>
+</a>
+</g>
+</g>
+<!-- proc~mockitemspec&#45;&gt;none~insert~421 -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge35" class="edge">
+<title>proc~mockitemspec&#45;&gt;none~insert~421</title>
+<path fill="none" stroke="#0000ff" d="M335.08,-136.55C356.77,-134.19 382.52,-128.82 403,-117 424.29,-104.71 417.69,-87.26 439,-75 453.81,-66.48 471.33,-61.3 488.13,-58.18"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="489.17,-61.56 498.48,-56.5 488.04,-54.65 489.17,-61.56"/>
+</g>
+<!-- none~make_stateitemspec -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node22" class="node">
+<title>none~make_stateitemspec</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node22"><a xlink:href="../type/variablespec.html#boundprocedure-make_stateitemspec" xlink:title="VariableSpec%make_StateItemSpec">
+<polygon fill="#a7506f" stroke="#a7506f" points="656.5,-24 451.5,-24 451.5,0 656.5,0 656.5,-24"/>
+<text text-anchor="middle" x="554" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VariableSpec%make_StateItemSpec</text>
+</a>
+</g>
+</g>
+<!-- proc~mockitemspec&#45;&gt;none~make_stateitemspec -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge36" class="edge">
+<title>proc~mockitemspec&#45;&gt;none~make_stateitemspec</title>
+<path fill="none" stroke="#0000ff" d="M335.15,-139.22C357.64,-137.63 384.08,-132.15 403,-117 434.7,-91.61 407.27,-58.35 439,-33 440.62,-31.7 442.3,-30.48 444.02,-29.32"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="446.13,-32.14 453,-24.07 442.6,-26.1 446.13,-32.14"/>
+</g>
+<!-- proc~make_variablespec -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_node28" class="node">
+<title>proc~make_variablespec</title>
+<g id="a_proc~~test_find_closest_simple~~CallsGraph_node28"><a xlink:href="../proc/make_variablespec.html" xlink:title="make_VariableSpec">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="613,-150 495,-150 495,-126 613,-126 613,-150"/>
+<text text-anchor="middle" x="554" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_VariableSpec</text>
+</a>
+</g>
+</g>
+<!-- proc~mockitemspec&#45;&gt;proc~make_variablespec -->
+<g id="proc~~test_find_closest_simple~~CallsGraph_edge37" class="edge">
+<title>proc~mockitemspec&#45;&gt;proc~make_variablespec</title>
+<path fill="none" stroke="#0000ff" d="M335.03,-138C376.05,-138 437.52,-138 484.74,-138"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="484.89,-141.5 494.89,-138 484.89,-134.5 484.89,-141.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproctest_find_closest_simpleCallsGraph = svgPanZoom('#proctest_find_closest_simpleCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_find_closest_simple</span><span class="p">()</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StateRegistry</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">r</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">VirtualConnectionPt</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">v_pt</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ExtensionFamily</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">family</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StateItemExtension</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">primary</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StateItemSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">goal_spec</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StateItemExtension</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">closest</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StateRegistry</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="n">v_pt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">VirtualConnectionPt</span><span class="p">(</span><span class="n">state_intent</span><span class="o">=</span><span class="s1">&#39;export&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;E1&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">r</span><span class="p">%</span><span class="n">add_primary_spec</span><span class="p">(</span><span class="n">v_pt</span><span class="p">,</span><span class="w"> </span><span class="n">MockItemSpec</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="o">=</span><span class="n">R8</span><span class="p">))</span>
+
+<span class="w">      </span><span class="n">family</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">r</span><span class="p">%</span><span class="n">get_extension_family</span><span class="p">(</span><span class="n">v_pt</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">primary</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">family</span><span class="p">%</span><span class="n">get_primary</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">goal_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MockItemSpec</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">      </span><span class="n">closest</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">family</span><span class="p">%</span><span class="n">find_closest_extension</span><span class="p">(</span><span class="n">goal_spec</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">closest</span><span class="p">,</span><span class="w"> </span><span class="n">primary</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<span class="w">      </span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_find_closest_simple</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

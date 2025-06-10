@@ -1,0 +1,1094 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Test_RegridderManager.pf &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Test_RegridderManager.pf
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.2% of total for source files.">552 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_RegridderManager.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">Test_RegridderManager.pf</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/test_regriddermanager.html">Test_RegridderManager</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/test_regriddermanager.pf.html#src">Test_RegridderManager.pf</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~test_regriddermanager.pf~~EfferentGraph Pages: 1 -->
+<svg id="sourcefiletest_regriddermanagerpfEfferentGraph" width="508pt" height="914pt"
+ viewBox="0.00 0.00 508.00 914.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 910)">
+<title>sourcefile~~test_regriddermanager.pf~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-910 504,-910 504,4 -4,4"/>
+<!-- sourcefile~test_regriddermanager.pf -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node1" class="node">
+<title>sourcefile~test_regriddermanager.pf</title>
+<polygon fill="none" stroke="black" points="500,-444 350,-444 350,-420 500,-420 500,-444"/>
+<text text-anchor="middle" x="425" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50">Test_RegridderManager.pf</text>
+</g>
+<!-- sourcefile~api.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node2" class="node">
+<title>sourcefile~api.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node2"><a xlink:href="../sourcefile/api.f90.html" xlink:title="API.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="276.5,-801 222.5,-801 222.5,-777 276.5,-777 276.5,-801"/>
+<text text-anchor="middle" x="249.5" y="-786.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">API.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_regriddermanager.pf&#45;&gt;sourcefile~api.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~test_regriddermanager.pf&#45;&gt;sourcefile~api.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M418.03,-444.29C392.64,-496.53 293.47,-700.59 260.91,-767.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="257.67,-766.24 256.45,-776.76 263.97,-769.3 257.67,-766.24"/>
+</g>
+<!-- sourcefile~api.f90~2 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node3" class="node">
+<title>sourcefile~api.f90~2</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node3"><a xlink:href="../sourcefile/api.f90~2.html" xlink:title="API.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="276.5,-633 222.5,-633 222.5,-609 276.5,-609 276.5,-633"/>
+<text text-anchor="middle" x="249.5" y="-618.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">API.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_regriddermanager.pf&#45;&gt;sourcefile~api.f90~2 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~test_regriddermanager.pf&#45;&gt;sourcefile~api.f90~2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M412.88,-444.11C383.7,-475.9 304.67,-561.99 268.73,-601.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="265.93,-599.01 261.75,-608.75 271.09,-603.75 265.93,-599.01"/>
+</g>
+<!-- sourcefile~base_base.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node4" class="node">
+<title>sourcefile~base_base.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node4"><a xlink:href="../sourcefile/base_base.f90.html" xlink:title="Base_Base.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="296,-528 203,-528 203,-504 296,-504 296,-528"/>
+<text text-anchor="middle" x="249.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base_Base.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_regriddermanager.pf&#45;&gt;sourcefile~base_base.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~test_regriddermanager.pf&#45;&gt;sourcefile~base_base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M399.14,-444.04C368.99,-458.63 318.04,-483.3 284.33,-499.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="282.79,-496.48 275.31,-503.99 285.84,-502.78 282.79,-496.48"/>
+</g>
+<!-- sourcefile~esmf_testmethod.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node5" class="node">
+<title>sourcefile~esmf_testmethod.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node5"><a xlink:href="../sourcefile/esmf_testmethod.f90.html" xlink:title="ESMF_TestMethod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="314,-192 185,-192 185,-168 314,-168 314,-192"/>
+<text text-anchor="middle" x="249.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TestMethod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_regriddermanager.pf&#45;&gt;sourcefile~esmf_testmethod.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~test_regriddermanager.pf&#45;&gt;sourcefile~esmf_testmethod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M415.63,-419.85C387.98,-379.68 299.3,-250.89 264.61,-200.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="267.34,-198.28 258.78,-192.03 261.57,-202.25 267.34,-198.28"/>
+</g>
+<!-- sourcefile~fieldcreate.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node6" class="node">
+<title>sourcefile~fieldcreate.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node6"><a xlink:href="../sourcefile/fieldcreate.f90.html" xlink:title="FieldCreate.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="297,-381 202,-381 202,-357 297,-357 297,-381"/>
+<text text-anchor="middle" x="249.5" y="-366.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldCreate.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_regriddermanager.pf&#45;&gt;sourcefile~fieldcreate.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~test_regriddermanager.pf&#45;&gt;sourcefile~fieldcreate.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M390.55,-419.85C362.86,-409.8 323.34,-395.45 293.33,-384.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="294.15,-381.13 283.56,-381 291.76,-387.71 294.15,-381.13"/>
+</g>
+<!-- sourcefile~regridder_mgr.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node7" class="node">
+<title>sourcefile~regridder_mgr.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node7"><a xlink:href="../sourcefile/regridder_mgr.f90.html" xlink:title="regridder_mgr.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="304.5,-87 194.5,-87 194.5,-63 304.5,-63 304.5,-87"/>
+<text text-anchor="middle" x="249.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">regridder_mgr.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_regriddermanager.pf&#45;&gt;sourcefile~regridder_mgr.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~test_regriddermanager.pf&#45;&gt;sourcefile~regridder_mgr.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M420.36,-419.78C408.35,-380.4 367.75,-253.94 314,-159 300.73,-135.56 281.7,-111.28 267.94,-94.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="270.44,-92.42 261.28,-87.08 265.11,-96.96 270.44,-92.42"/>
+</g>
+<!-- sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node8" class="node">
+<title>sourcefile~verticalstaggerloc.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node8"><a xlink:href="../sourcefile/verticalstaggerloc.f90.html" xlink:title="VerticalStaggerLoc.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="142.5,-444 6.5,-444 6.5,-420 142.5,-420 142.5,-444"/>
+<text text-anchor="middle" x="74.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalStaggerLoc.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_regriddermanager.pf&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~test_regriddermanager.pf&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M349.67,-432C291.77,-432 211.65,-432 152.97,-432"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="152.65,-428.5 142.65,-432 152.65,-435.5 152.65,-428.5"/>
+</g>
+<!-- sourcefile~fieldbundlecreate.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node14" class="node">
+<title>sourcefile~fieldbundlecreate.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node14"><a xlink:href="../sourcefile/fieldbundlecreate.f90.html" xlink:title="FieldBundleCreate.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="141,-864 8,-864 8,-840 141,-840 141,-864"/>
+<text text-anchor="middle" x="74.5" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleCreate.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~api.f90&#45;&gt;sourcefile~fieldbundlecreate.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~api.f90&#45;&gt;sourcefile~fieldbundlecreate.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M222.24,-801.12C202.37,-810.03 174.29,-822.09 149,-831 143.09,-833.08 136.85,-835.11 130.62,-837.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="129.43,-833.74 120.86,-839.97 131.45,-840.44 129.43,-833.74"/>
+</g>
+<!-- sourcefile~fieldbundleget.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node15" class="node">
+<title>sourcefile~fieldbundleget.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node15"><a xlink:href="../sourcefile/fieldbundleget.f90.html" xlink:title="FieldBundleGet.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="132.5,-822 16.5,-822 16.5,-798 132.5,-798 132.5,-822"/>
+<text text-anchor="middle" x="74.5" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleGet.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~api.f90&#45;&gt;sourcefile~fieldbundleget.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~api.f90&#45;&gt;sourcefile~fieldbundleget.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M222.23,-792.19C201.09,-794.75 170.45,-798.47 142.62,-801.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="142.02,-798.4 132.52,-803.08 142.86,-805.35 142.02,-798.4"/>
+</g>
+<!-- sourcefile~fieldbundleinfo.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node16" class="node">
+<title>sourcefile~fieldbundleinfo.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node16"><a xlink:href="../sourcefile/fieldbundleinfo.f90.html" xlink:title="FieldBundleInfo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="133,-780 16,-780 16,-756 133,-756 133,-780"/>
+<text text-anchor="middle" x="74.5" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleInfo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~api.f90&#45;&gt;sourcefile~fieldbundleinfo.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~api.f90&#45;&gt;sourcefile~fieldbundleinfo.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M222.23,-785.81C201.26,-783.27 170.93,-779.58 143.28,-776.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="143.59,-772.74 133.24,-775.01 142.75,-779.69 143.59,-772.74"/>
+</g>
+<!-- sourcefile~fieldbundleset.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node17" class="node">
+<title>sourcefile~fieldbundleset.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node17"><a xlink:href="../sourcefile/fieldbundleset.f90.html" xlink:title="FieldBundleSet.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="132,-738 17,-738 17,-714 132,-714 132,-738"/>
+<text text-anchor="middle" x="74.5" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleSet.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~api.f90&#45;&gt;sourcefile~fieldbundleset.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~api.f90&#45;&gt;sourcefile~fieldbundleset.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M222.24,-776.88C202.37,-767.97 174.29,-755.91 149,-747 143.09,-744.92 136.85,-742.89 130.62,-740.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="131.45,-737.56 120.86,-738.03 129.43,-744.26 131.45,-737.56"/>
+</g>
+<!-- sourcefile~fieldbundletype_flag.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node18" class="node">
+<title>sourcefile~fieldbundletype_flag.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node18"><a xlink:href="../sourcefile/fieldbundletype_flag.f90.html" xlink:title="FieldBundleType_Flag.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="149,-906 0,-906 0,-882 149,-882 149,-906"/>
+<text text-anchor="middle" x="74.5" y="-891.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleType_Flag.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~api.f90&#45;&gt;sourcefile~fieldbundletype_flag.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~api.f90&#45;&gt;sourcefile~fieldbundletype_flag.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M237.47,-801.15C220.28,-819.36 185.31,-853.65 149,-873 145.31,-874.97 141.42,-876.77 137.42,-878.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="136.1,-875.17 127.98,-881.98 138.57,-881.72 136.1,-875.17"/>
+</g>
+<!-- sourcefile~geomspec.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node20" class="node">
+<title>sourcefile~geomspec.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node20"><a xlink:href="../sourcefile/geomspec.f90.html" xlink:title="GeomSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="121.5,-696 27.5,-696 27.5,-672 121.5,-672 121.5,-696"/>
+<text text-anchor="middle" x="74.5" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GeomSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~api.f90~2&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~api.f90~2&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M222.24,-633.12C202.37,-642.03 174.29,-654.09 149,-663 143.09,-665.08 136.85,-667.11 130.62,-669.04"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="129.43,-665.74 120.86,-671.97 131.45,-672.44 129.43,-665.74"/>
+</g>
+<!-- sourcefile~geomutilities.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node21" class="node">
+<title>sourcefile~geomutilities.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node21"><a xlink:href="../sourcefile/geomutilities.f90.html" xlink:title="GeomUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="127.5,-654 21.5,-654 21.5,-630 127.5,-630 127.5,-654"/>
+<text text-anchor="middle" x="74.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GeomUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~api.f90~2&#45;&gt;sourcefile~geomutilities.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~api.f90~2&#45;&gt;sourcefile~geomutilities.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M222.23,-624.19C199.82,-626.91 166.71,-630.93 137.61,-634.46"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="137.01,-631.01 127.51,-635.69 137.86,-637.96 137.01,-631.01"/>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node23" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node23"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="136.5,-612 12.5,-612 12.5,-588 136.5,-588 136.5,-612"/>
+<text text-anchor="middle" x="74.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~api.f90~2&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~api.f90~2&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M222.23,-617.81C202.11,-615.37 173.37,-611.88 146.64,-608.64"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="146.87,-605.14 136.52,-607.41 146.03,-612.09 146.87,-605.14"/>
+</g>
+<!-- sourcefile~constants.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node9" class="node">
+<title>sourcefile~constants.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node9"><a xlink:href="../sourcefile/constants.f90.html" xlink:title="Constants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="118.5,-570 30.5,-570 30.5,-546 118.5,-546 118.5,-570"/>
+<text text-anchor="middle" x="74.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Constants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~base_base.f90&#45;&gt;sourcefile~constants.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~base_base.f90&#45;&gt;sourcefile~constants.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M202.59,-527.14C179.82,-532.67 152.19,-539.38 128.52,-545.13"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="127.53,-541.77 118.64,-547.53 129.19,-548.57 127.53,-541.77"/>
+</g>
+<!-- sourcefile~base_base.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~base_base.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M232.42,-528.23C213.4,-542.21 180.34,-564.95 149,-579 144.54,-581 139.85,-582.86 135.07,-584.57"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="133.58,-581.38 125.22,-587.9 135.81,-588.02 133.58,-581.38"/>
+</g>
+<!-- sourcefile~mapl_range.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node25" class="node">
+<title>sourcefile~mapl_range.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node25"><a xlink:href="../sourcefile/mapl_range.f90.html" xlink:title="MAPL_Range.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="126,-528 23,-528 23,-504 126,-504 126,-528"/>
+<text text-anchor="middle" x="74.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Range.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~base_base.f90&#45;&gt;sourcefile~mapl_range.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~base_base.f90&#45;&gt;sourcefile~mapl_range.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M202.59,-516C182.29,-516 158.12,-516 136.34,-516"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="136.19,-512.5 126.19,-516 136.19,-519.5 136.19,-512.5"/>
+</g>
+<!-- sourcefile~maplgrid.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node26" class="node">
+<title>sourcefile~maplgrid.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node26"><a xlink:href="../sourcefile/maplgrid.f90.html" xlink:title="MaplGrid.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="116,-486 33,-486 33,-462 116,-462 116,-486"/>
+<text text-anchor="middle" x="74.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGrid.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~base_base.f90&#45;&gt;sourcefile~maplgrid.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~base_base.f90&#45;&gt;sourcefile~maplgrid.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M202.59,-504.86C178.93,-499.11 150.02,-492.09 125.75,-486.2"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="126.56,-482.79 116.01,-483.84 124.91,-489.6 126.56,-482.79"/>
+</g>
+<!-- sourcefile~esmf_testcase.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node12" class="node">
+<title>sourcefile~esmf_testcase.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node12"><a xlink:href="../sourcefile/esmf_testcase.f90.html" xlink:title="ESMF_TestCase.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="132,-192 17,-192 17,-168 132,-168 132,-192"/>
+<text text-anchor="middle" x="74.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TestCase.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~esmf_testmethod.f90&#45;&gt;sourcefile~esmf_testcase.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~esmf_testmethod.f90&#45;&gt;sourcefile~esmf_testcase.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M184.57,-180C170.71,-180 156.01,-180 142.05,-180"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="142.04,-176.5 132.04,-180 142.04,-183.5 142.04,-176.5"/>
+</g>
+<!-- sourcefile~esmf_testparameter.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node13" class="node">
+<title>sourcefile~esmf_testparameter.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node13"><a xlink:href="../sourcefile/esmf_testparameter.f90.html" xlink:title="ESMF_TestParameter.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="146.5,-150 2.5,-150 2.5,-126 146.5,-126 146.5,-150"/>
+<text text-anchor="middle" x="74.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TestParameter.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~esmf_testmethod.f90&#45;&gt;sourcefile~esmf_testparameter.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~esmf_testmethod.f90&#45;&gt;sourcefile~esmf_testparameter.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M198.93,-167.96C178.93,-163.11 155.69,-157.47 134.81,-152.4"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="135.63,-149 125.08,-150.04 133.97,-155.8 135.63,-149"/>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M222.24,-381.12C202.37,-390.03 174.29,-402.09 149,-411 143.09,-413.08 136.85,-415.11 130.62,-417.04"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="129.43,-413.74 120.86,-419.97 131.45,-420.44 129.43,-413.74"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node11" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node11"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="129,-360 20,-360 20,-336 129,-336 129,-360"/>
+<text text-anchor="middle" x="74.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M201.68,-363.32C182.42,-360.98 159.81,-358.23 139.08,-355.72"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="139.43,-352.23 129.08,-354.5 138.59,-359.18 139.43,-352.23"/>
+</g>
+<!-- sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node19" class="node">
+<title>sourcefile~fieldinfo.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node19"><a xlink:href="../sourcefile/fieldinfo.f90.html" xlink:title="FieldInfo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="114,-318 35,-318 35,-294 114,-294 114,-318"/>
+<text text-anchor="middle" x="74.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldInfo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~fieldinfo.f90</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M222.24,-356.88C202.37,-347.97 174.29,-335.91 149,-327 140.99,-324.18 132.4,-321.46 124.01,-318.96"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="124.88,-315.57 114.3,-316.14 122.93,-322.29 124.88,-315.57"/>
+</g>
+<!-- sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node22" class="node">
+<title>sourcefile~internalconstants.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node22"><a xlink:href="../sourcefile/internalconstants.f90.html" xlink:title="InternalConstants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="139,-276 10,-276 10,-252 139,-252 139,-276"/>
+<text text-anchor="middle" x="74.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InternalConstants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~internalconstants.f90</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M237.47,-356.85C220.28,-338.64 185.31,-304.35 149,-285 145.31,-283.03 141.42,-281.23 137.42,-279.59"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="138.57,-276.28 127.98,-276.02 136.1,-282.83 138.57,-276.28"/>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M242.12,-381.04C230.38,-403.32 204.75,-452.59 185,-495 167.85,-531.82 179.48,-552.15 149,-579 147.51,-580.32 145.94,-581.55 144.3,-582.71"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="142.45,-579.73 135.67,-587.87 146.05,-585.74 142.45,-579.73"/>
+</g>
+<!-- sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node24" class="node">
+<title>sourcefile~lu_bound.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node24"><a xlink:href="../sourcefile/lu_bound.f90.html" xlink:title="LU_Bound.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="118.5,-234 30.5,-234 30.5,-210 118.5,-210 118.5,-234"/>
+<text text-anchor="middle" x="74.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LU_Bound.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M242.35,-356.88C228.95,-331.7 194.62,-273.57 149,-243 142.78,-238.84 135.74,-235.49 128.54,-232.8"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="129.27,-229.35 118.68,-229.52 127.07,-236 129.27,-229.35"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node29" class="node">
+<title>sourcefile~ungriddeddims.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node29"><a xlink:href="../sourcefile/ungriddeddims.f90.html" xlink:title="UngriddedDims.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="133.5,-402 15.5,-402 15.5,-378 133.5,-378 133.5,-402"/>
+<text text-anchor="middle" x="74.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDims.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M201.68,-374.68C183.87,-376.84 163.2,-379.35 143.8,-381.71"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="143.3,-378.24 133.8,-382.92 144.15,-385.19 143.3,-378.24"/>
+</g>
+<!-- sourcefile~dynamicmask.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node10" class="node">
+<title>sourcefile~dynamicmask.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node10"><a xlink:href="../sourcefile/dynamicmask.f90.html" xlink:title="DynamicMask.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="129,-108 20,-108 20,-84 129,-84 129,-108"/>
+<text text-anchor="middle" x="74.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DynamicMask.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~regridder_mgr.f90&#45;&gt;sourcefile~dynamicmask.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~regridder_mgr.f90&#45;&gt;sourcefile~dynamicmask.f90</title>
+<path fill="none" stroke="#4800ff" stroke-dasharray="5,2" d="M194.24,-81.59C176.84,-83.7 157.42,-86.06 139.4,-88.24"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="138.78,-84.79 129.27,-89.47 139.62,-91.74 138.78,-84.79"/>
+</g>
+<!-- sourcefile~regriddermanager.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node27" class="node">
+<title>sourcefile~regriddermanager.f90</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node27"><a xlink:href="../sourcefile/regriddermanager.f90.html" xlink:title="RegridderManager.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="141,-66 8,-66 8,-42 141,-42 141,-66"/>
+<text text-anchor="middle" x="74.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderManager.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~regridder_mgr.f90&#45;&gt;sourcefile~regriddermanager.f90 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge30" class="edge">
+<title>sourcefile~regridder_mgr.f90&#45;&gt;sourcefile~regriddermanager.f90</title>
+<path fill="none" stroke="#4800ff" stroke-dasharray="5,2" d="M194.24,-68.41C180.55,-66.75 165.61,-64.94 151.08,-63.17"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="151.46,-59.69 141.11,-61.96 150.62,-66.64 151.46,-59.69"/>
+</g>
+<!-- sourcefile~regridderspec.f90~2 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_node28" class="node">
+<title>sourcefile~regridderspec.f90~2</title>
+<g id="a_sourcefile~~test_regriddermanager.pf~~EfferentGraph_node28"><a xlink:href="../sourcefile/regridderspec.f90~2.html" xlink:title="RegridderSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="131.5,-24 17.5,-24 17.5,0 131.5,0 131.5,-24"/>
+<text text-anchor="middle" x="74.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~regridder_mgr.f90&#45;&gt;sourcefile~regridderspec.f90~2 -->
+<g id="sourcefile~~test_regriddermanager.pf~~EfferentGraph_edge31" class="edge">
+<title>sourcefile~regridder_mgr.f90&#45;&gt;sourcefile~regridderspec.f90~2</title>
+<path fill="none" stroke="#4800ff" stroke-dasharray="5,2" d="M222.24,-62.88C202.37,-53.97 174.29,-41.91 149,-33 143.09,-30.92 136.85,-28.89 130.62,-26.96"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="131.45,-23.56 120.86,-24.03 129.43,-30.26 131.45,-23.56"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_TestErr.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">module </span><span class="n">Test_RegridderManager</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">pfunit</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_FieldCreate</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_VerticalStaggerLoc</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_regridder_mgr</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_Geom_API</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_FieldBundle_API</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_BaseMod</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">MAPL_UNDEF</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">use </span><span class="n">esmf_TestMethod_mod</span><span class="w"> </span><span class="c">! mapl</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">use </span><span class="n">esmf</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">implicit none</span><span class="p">(</span><span class="k">type</span><span class="p">,</span><span class="k">external</span><span class="p">)</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="k">contains</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">   </span><span class="c">! Helper procedures</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">   </span><span class="c">! TODO add error handling to helper procedures</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">   </span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">   </span><span class="k">function </span><span class="n">make_geom</span><span class="p">(</span><span class="n">geom_mgr</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GeomManager</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom_mgr</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MaplGeom</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mapl_geom</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig_</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="n">hconfig_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">           </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">hconfig</span><span class="p">))</span><span class="w"> </span><span class="n">hconfig_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hconfig</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="n">mapl_geom</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">geom_mgr</span><span class="p">%</span><span class="n">get_mapl_geom</span><span class="p">(</span><span class="n">hconfig_</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="n">geom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mapl_geom</span><span class="p">%</span><span class="n">get_geom</span><span class="p">()</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">))</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">   </span><span class="k">end function </span><span class="n">make_geom</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">   </span><span class="k">function </span><span class="n">make_field</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="p">,</span><span class="w"> </span><span class="n">lm</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">value</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="k">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lm</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span><span class="p">(:,:)</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x_3d</span><span class="p">(:,:,:)</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">lm</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="k">         </span><span class="n">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_FieldCreate</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="n">num_levels</span><span class="o">=</span><span class="n">lm</span><span class="p">,</span><span class="w"> </span><span class="n">vert_staggerloc</span><span class="o">=</span><span class="n">VERTICAL_STAGGER_EDGE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">         </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">x_3d</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">         </span><span class="n">x_3d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">value</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="k">      else</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="k">         </span><span class="n">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_FieldCreate</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">         </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">         </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">value</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="k">      end if</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">))</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">   </span><span class="k">end function </span><span class="n">make_field</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span><span class="p">(</span><span class="k">type</span><span class="o">=</span><span class="n">ESMF_TestMethod</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">   </span><span class="c">! Just execute a series of plausible commands and ensure that no</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">   </span><span class="c">! failures are indicated Regrid a constant field onto identical</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">   </span><span class="c">! geometry should not change any values.</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_basic</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GeomManager</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom_mgr</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">RegridderManager</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regridder_mgr</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">RegridderSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regridder_spec</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">Regridder</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">my_regridder</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">f1</span><span class="p">,</span><span class="w"> </span><span class="n">f2</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span><span class="p">(:,:)</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a>
+<a id="ln-82" name="ln-82" href="#ln-82"></a>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">      </span><span class="n">geom_mgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GeomManager</span><span class="p">()</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">      </span><span class="n">regridder_mgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderManager</span><span class="p">(</span><span class="n">geom_mgr</span><span class="p">)</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">      </span><span class="n">geom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_geom</span><span class="p">(</span><span class="n">geom_mgr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">      </span><span class="c">! use default esmf regrid parameters: method, zero region, etc</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">      </span><span class="n">regridder_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderSpec</span><span class="p">(</span><span class="n">EsmfRegridderParam</span><span class="p">(),</span><span class="w"> </span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span><span class="p">)</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">      </span><span class="n">my_regridder</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">regridder_mgr</span><span class="p">%</span><span class="n">get_regridder</span><span class="p">(</span><span class="n">regridder_spec</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">      </span><span class="n">f1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_field</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;f1&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="mf">3._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">      </span><span class="n">f2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_field</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;f2&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="mf">0._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">      </span><span class="k">call </span><span class="n">my_regridder</span><span class="p">%</span><span class="n">regrid</span><span class="p">(</span><span class="n">f1</span><span class="p">,</span><span class="w"> </span><span class="n">f2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f2</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">every_item</span><span class="p">(</span><span class="k">is</span><span class="p">(</span><span class="n">equal_to</span><span class="p">(</span><span class="mf">3._ESMF_KIND_R4</span><span class="p">))))</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_basic</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span><span class="p">(</span><span class="k">type</span><span class="o">=</span><span class="n">ESMF_TestMethod</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">   </span><span class="c">! Test that identical spec returns same regridder object.  I.e.,</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">   </span><span class="c">! that the manager is properly caching.</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_reuse_regridder</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GeomManager</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom_mgr</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">RegridderManager</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regridder_mgr</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">RegridderSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regridder_spec</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">Regridder</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regridder_1</span><span class="p">,</span><span class="w"> </span><span class="n">regridder_2</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">      </span><span class="n">geom_mgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GeomManager</span><span class="p">()</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">      </span><span class="n">regridder_mgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderManager</span><span class="p">(</span><span class="n">geom_mgr</span><span class="p">)</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">      </span><span class="n">geom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_geom</span><span class="p">(</span><span class="n">geom_mgr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">      </span><span class="n">regridder_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderSpec</span><span class="p">(</span><span class="n">EsmfRegridderParam</span><span class="p">(),</span><span class="w"> </span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span><span class="p">)</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="w">      </span><span class="n">regridder_1</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">regridder_mgr</span><span class="p">%</span><span class="n">get_regridder</span><span class="p">(</span><span class="n">regridder_spec</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">      </span><span class="n">regridder_2</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">regridder_mgr</span><span class="p">%</span><span class="n">get_regridder</span><span class="p">(</span><span class="n">regridder_spec</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">regridder_2</span><span class="p">,</span><span class="w"> </span><span class="n">regridder_1</span><span class="p">))</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_reuse_regridder</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span><span class="p">(</span><span class="k">type</span><span class="o">=</span><span class="n">ESMF_TestMethod</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">   </span><span class="c">! Test that different spec returns different regridder object.  I.e.,</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">   </span><span class="c">! that the manager is properly caching.</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_do_not_reuse_regridder</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GeomManager</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom_mgr</span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">RegridderManager</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regridder_mgr</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">RegridderSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec_1</span><span class="p">,</span><span class="w"> </span><span class="n">spec_2</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">Regridder</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regridder_1</span><span class="p">,</span><span class="w"> </span><span class="n">regridder_2</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="n">geom_2</span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="w">      </span><span class="n">geom_mgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GeomManager</span><span class="p">()</span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="w">      </span><span class="n">regridder_mgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderManager</span><span class="p">(</span><span class="n">geom_mgr</span><span class="p">)</span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w">      </span><span class="n">geom_1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_geom</span><span class="p">(</span><span class="n">geom_mgr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">      </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;{class: latlon, im_world: 12, jm_world: 11, pole: PC, dateline: DC, nx: 1, ny: 1}&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">      </span><span class="n">geom_2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_geom</span><span class="p">(</span><span class="n">geom_mgr</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"> </span><span class="c">! variant of geom_1</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a>
+<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="w">      </span>
+<a id="ln-151" name="ln-151" href="#ln-151"></a><span class="w">      </span><span class="n">spec_1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderSpec</span><span class="p">(</span><span class="n">EsmfRegridderParam</span><span class="p">(),</span><span class="w"> </span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="n">geom_1</span><span class="p">)</span>
+<a id="ln-152" name="ln-152" href="#ln-152"></a><span class="w">      </span><span class="n">regridder_1</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">regridder_mgr</span><span class="p">%</span><span class="n">get_regridder</span><span class="p">(</span><span class="n">spec_1</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-153" name="ln-153" href="#ln-153"></a>
+<a id="ln-154" name="ln-154" href="#ln-154"></a><span class="w">      </span><span class="n">spec_2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderSpec</span><span class="p">(</span><span class="n">EsmfRegridderParam</span><span class="p">(),</span><span class="w"> </span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="n">geom_2</span><span class="p">)</span>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="w">      </span><span class="n">regridder_2</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">regridder_mgr</span><span class="p">%</span><span class="n">get_regridder</span><span class="p">(</span><span class="n">spec_2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-156" name="ln-156" href="#ln-156"></a>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="w">      </span><span class="err">@</span><span class="n">assertFalse</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">regridder_1</span><span class="p">,</span><span class="w"> </span><span class="n">regridder_2</span><span class="p">))</span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_do_not_reuse_regridder</span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a>
+<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span><span class="p">(</span><span class="k">type</span><span class="o">=</span><span class="n">ESMF_TestMethod</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="w">   </span><span class="c">! Test realistic regridding.  A checkerboard input field (in</span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a><span class="w">   </span><span class="c">! longitude) with constant spacing should produce a constant output</span>
+<a id="ln-163" name="ln-163" href="#ln-163"></a><span class="w">   </span><span class="c">! grid with default bilinear regrid method.</span>
+<a id="ln-164" name="ln-164" href="#ln-164"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_regrid_values</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GeomManager</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom_mgr</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">RegridderManager</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regridder_mgr</span>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">RegridderSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">Regridder</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">my_regridder</span>
+<a id="ln-171" name="ln-171" href="#ln-171"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="n">geom_2</span>
+<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig</span>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">f1</span><span class="p">,</span><span class="w"> </span><span class="n">f2</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x1</span><span class="p">(:,:)</span>
+<a id="ln-175" name="ln-175" href="#ln-175"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x2</span><span class="p">(:,:)</span>
+<a id="ln-176" name="ln-176" href="#ln-176"></a>
+<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="w">      </span><span class="n">geom_mgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GeomManager</span><span class="p">()</span>
+<a id="ln-178" name="ln-178" href="#ln-178"></a><span class="w">      </span><span class="n">regridder_mgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderManager</span><span class="p">(</span><span class="n">geom_mgr</span><span class="p">)</span>
+<a id="ln-179" name="ln-179" href="#ln-179"></a>
+<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="w">      </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;{class: latlon, im_world: 12, jm_world: 11, pole: PC, dateline: DE, nx: 1, ny: 1}&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-181" name="ln-181" href="#ln-181"></a><span class="w">      </span><span class="n">geom_1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_geom</span><span class="p">(</span><span class="n">geom_mgr</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-182" name="ln-182" href="#ln-182"></a>
+<a id="ln-183" name="ln-183" href="#ln-183"></a><span class="w">      </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;{class: latlon, im_world: 6, jm_world: 5, pole: PC, dateline: DE, nx: 1, ny: 1}&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-184" name="ln-184" href="#ln-184"></a><span class="w">      </span><span class="n">geom_2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_geom</span><span class="p">(</span><span class="n">geom_mgr</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"> </span><span class="c">! variant of geom_1</span>
+<a id="ln-185" name="ln-185" href="#ln-185"></a>
+<a id="ln-186" name="ln-186" href="#ln-186"></a><span class="w">      </span><span class="n">spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderSpec</span><span class="p">(</span><span class="n">EsmfRegridderParam</span><span class="p">(</span><span class="n">regridmethod</span><span class="o">=</span><span class="n">ESMF_REGRIDMETHOD_CONSERVE</span><span class="p">),</span><span class="w"> </span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="n">geom_2</span><span class="p">)</span>
+<a id="ln-187" name="ln-187" href="#ln-187"></a><span class="w">      </span><span class="n">my_regridder</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">regridder_mgr</span><span class="p">%</span><span class="n">get_regridder</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-188" name="ln-188" href="#ln-188"></a>
+<a id="ln-189" name="ln-189" href="#ln-189"></a><span class="w">      </span><span class="n">f1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_field</span><span class="p">(</span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;f1&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="mf">2._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-190" name="ln-190" href="#ln-190"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f1</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">x1</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-191" name="ln-191" href="#ln-191"></a><span class="w">      </span><span class="n">x1</span><span class="p">(</span><span class="mi">2</span><span class="kd">::</span><span class="mi">2</span><span class="p">,:)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="c">! checkerboard</span>
+<a id="ln-192" name="ln-192" href="#ln-192"></a><span class="w">      </span>
+<a id="ln-193" name="ln-193" href="#ln-193"></a><span class="w">      </span><span class="n">f2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_field</span><span class="p">(</span><span class="n">geom_2</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;f2&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="mf">0._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-194" name="ln-194" href="#ln-194"></a>
+<a id="ln-195" name="ln-195" href="#ln-195"></a><span class="w">      </span><span class="c">! (0 + 2)/2 == 1</span>
+<a id="ln-196" name="ln-196" href="#ln-196"></a><span class="w">      </span><span class="k">call </span><span class="n">my_regridder</span><span class="p">%</span><span class="n">regrid</span><span class="p">(</span><span class="n">f1</span><span class="p">,</span><span class="w"> </span><span class="n">f2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-197" name="ln-197" href="#ln-197"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f2</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">x2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-198" name="ln-198" href="#ln-198"></a><span class="w"> </span>
+<a id="ln-199" name="ln-199" href="#ln-199"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span><span class="w"> </span><span class="n">every_item</span><span class="p">(</span><span class="k">is</span><span class="p">(</span><span class="n">equal_to</span><span class="p">(</span><span class="mf">1._ESMF_KIND_R4</span><span class="p">))))</span>
+<a id="ln-200" name="ln-200" href="#ln-200"></a>
+<a id="ln-201" name="ln-201" href="#ln-201"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_regrid_values</span>
+<a id="ln-202" name="ln-202" href="#ln-202"></a>
+<a id="ln-203" name="ln-203" href="#ln-203"></a>
+<a id="ln-204" name="ln-204" href="#ln-204"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span><span class="p">(</span><span class="k">type</span><span class="o">=</span><span class="n">ESMF_TestMethod</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<a id="ln-205" name="ln-205" href="#ln-205"></a><span class="w">   </span><span class="c">! Test regridding on fields with ungridded dimensions.  ESMF does</span>
+<a id="ln-206" name="ln-206" href="#ln-206"></a><span class="w">   </span><span class="c">! not directly support this case, and this test is to drive the</span>
+<a id="ln-207" name="ln-207" href="#ln-207"></a><span class="w">   </span><span class="c">! creation of a wrapper layer in MAPL.</span>
+<a id="ln-208" name="ln-208" href="#ln-208"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_regrid_3d</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-209" name="ln-209" href="#ln-209"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-210" name="ln-210" href="#ln-210"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GeomManager</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom_mgr</span>
+<a id="ln-211" name="ln-211" href="#ln-211"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">RegridderManager</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regridder_mgr</span>
+<a id="ln-212" name="ln-212" href="#ln-212"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">RegridderSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<a id="ln-213" name="ln-213" href="#ln-213"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-214" name="ln-214" href="#ln-214"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">Regridder</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">my_regridder</span>
+<a id="ln-215" name="ln-215" href="#ln-215"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="n">geom_2</span>
+<a id="ln-216" name="ln-216" href="#ln-216"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig</span>
+<a id="ln-217" name="ln-217" href="#ln-217"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">f1</span><span class="p">,</span><span class="w"> </span><span class="n">f2</span>
+<a id="ln-218" name="ln-218" href="#ln-218"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x1</span><span class="p">(:,:,:)</span>
+<a id="ln-219" name="ln-219" href="#ln-219"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x2</span><span class="p">(:,:,:)</span>
+<a id="ln-220" name="ln-220" href="#ln-220"></a>
+<a id="ln-221" name="ln-221" href="#ln-221"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">DynamicMask</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dyn_mask</span>
+<a id="ln-222" name="ln-222" href="#ln-222"></a><span class="w">      </span>
+<a id="ln-223" name="ln-223" href="#ln-223"></a><span class="w">      </span><span class="n">geom_mgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GeomManager</span><span class="p">()</span>
+<a id="ln-224" name="ln-224" href="#ln-224"></a><span class="w">      </span><span class="n">regridder_mgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderManager</span><span class="p">(</span><span class="n">geom_mgr</span><span class="p">)</span>
+<a id="ln-225" name="ln-225" href="#ln-225"></a>
+<a id="ln-226" name="ln-226" href="#ln-226"></a><span class="w">      </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;{class: latlon, im_world: 12, jm_world: 11, pole: PC, dateline: DE, nx: 1, ny: 1}&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-227" name="ln-227" href="#ln-227"></a><span class="w">      </span><span class="n">geom_1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_geom</span><span class="p">(</span><span class="n">geom_mgr</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-228" name="ln-228" href="#ln-228"></a>
+<a id="ln-229" name="ln-229" href="#ln-229"></a><span class="w">      </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;{class: latlon, im_world: 6, jm_world: 5, pole: PC, dateline: DE, nx: 1, ny: 1}&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-230" name="ln-230" href="#ln-230"></a><span class="w">      </span><span class="n">geom_2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_geom</span><span class="p">(</span><span class="n">geom_mgr</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"> </span><span class="c">! variant of geom_1</span>
+<a id="ln-231" name="ln-231" href="#ln-231"></a>
+<a id="ln-232" name="ln-232" href="#ln-232"></a><span class="w">      </span><span class="n">dyn_mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DynamicMask</span><span class="p">(</span><span class="n">mask_type</span><span class="o">=</span><span class="s1">&#39;missing_value&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">src_mask_value</span><span class="o">=</span><span class="kt">real</span><span class="p">(</span><span class="n">MAPL_UNDEF</span><span class="p">,</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="n">handleAllElements</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-233" name="ln-233" href="#ln-233"></a><span class="w">      </span>
+<a id="ln-234" name="ln-234" href="#ln-234"></a><span class="w">      </span><span class="n">spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderSpec</span><span class="p">(</span><span class="n">EsmfRegridderParam</span><span class="p">(</span><span class="n">regridmethod</span><span class="o">=</span><span class="n">ESMF_REGRIDMETHOD_CONSERVE</span><span class="p">,</span><span class="w"> </span><span class="n">dyn_mask</span><span class="o">=</span><span class="n">dyn_mask</span><span class="p">),</span><span class="w"> </span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="n">geom_2</span><span class="p">)</span>
+<a id="ln-235" name="ln-235" href="#ln-235"></a><span class="w">      </span><span class="n">my_regridder</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">regridder_mgr</span><span class="p">%</span><span class="n">get_regridder</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-236" name="ln-236" href="#ln-236"></a>
+<a id="ln-237" name="ln-237" href="#ln-237"></a><span class="w">      </span><span class="n">f1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_field</span><span class="p">(</span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;f1&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="mf">2._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="n">lm</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-238" name="ln-238" href="#ln-238"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f1</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">x1</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-239" name="ln-239" href="#ln-239"></a><span class="w">      </span><span class="n">x1</span><span class="p">(</span><span class="kd">::</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_UNDEF</span><span class="w"> </span><span class="c">! missing bits in level 1</span>
+<a id="ln-240" name="ln-240" href="#ln-240"></a><span class="w">      </span><span class="n">x1</span><span class="p">(</span><span class="mi">1</span><span class="kd">::</span><span class="mi">2</span><span class="p">,:,</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="c">! checkerboard on level 2</span>
+<a id="ln-241" name="ln-241" href="#ln-241"></a><span class="w">      </span><span class="n">f2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_field</span><span class="p">(</span><span class="n">geom_2</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;f2&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="mf">0._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="n">lm</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-242" name="ln-242" href="#ln-242"></a>
+<a id="ln-243" name="ln-243" href="#ln-243"></a><span class="w">      </span><span class="k">call </span><span class="n">my_regridder</span><span class="p">%</span><span class="n">regrid</span><span class="p">(</span><span class="n">f1</span><span class="p">,</span><span class="w"> </span><span class="n">f2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-244" name="ln-244" href="#ln-244"></a>
+<a id="ln-245" name="ln-245" href="#ln-245"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f2</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">x2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-246" name="ln-246" href="#ln-246"></a>
+<a id="ln-247" name="ln-247" href="#ln-247"></a>
+<a id="ln-248" name="ln-248" href="#ln-248"></a><span class="w">      </span><span class="c">! Missing elements case</span>
+<a id="ln-249" name="ln-249" href="#ln-249"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">x2</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">,:,</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">every_item</span><span class="p">(</span><span class="k">is</span><span class="p">(</span><span class="n">equal_to</span><span class="p">(</span><span class="mf">2._ESMF_KIND_R4</span><span class="p">))))</span>
+<a id="ln-250" name="ln-250" href="#ln-250"></a><span class="w">      </span><span class="c">! Non missing elements case</span>
+<a id="ln-251" name="ln-251" href="#ln-251"></a>
+<a id="ln-252" name="ln-252" href="#ln-252"></a><span class="w">      </span><span class="c">! Weirdly this introduces roundoff that was not present in the</span>
+<a id="ln-253" name="ln-253" href="#ln-253"></a><span class="w">      </span><span class="c">! previous test.  This has been reported to the ESMF core team.</span>
+<a id="ln-254" name="ln-254" href="#ln-254"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">x2</span><span class="p">(:,:,</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">every_item</span><span class="p">(</span><span class="k">is</span><span class="p">(</span><span class="n">near</span><span class="p">(</span><span class="mf">1._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="mf">1.e-6</span><span class="p">))))</span>
+<a id="ln-255" name="ln-255" href="#ln-255"></a>
+<a id="ln-256" name="ln-256" href="#ln-256"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_regrid_3d</span>
+<a id="ln-257" name="ln-257" href="#ln-257"></a>
+<a id="ln-258" name="ln-258" href="#ln-258"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span><span class="p">(</span><span class="k">type</span><span class="o">=</span><span class="n">ESMF_TestMethod</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<a id="ln-259" name="ln-259" href="#ln-259"></a><span class="w">   </span><span class="c">! Test regridding on field bundle representing a tangent vector</span>
+<a id="ln-260" name="ln-260" href="#ln-260"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_regrid_2d_vector</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-261" name="ln-261" href="#ln-261"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-262" name="ln-262" href="#ln-262"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GeomManager</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom_mgr</span>
+<a id="ln-263" name="ln-263" href="#ln-263"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">RegridderManager</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regridder_mgr</span>
+<a id="ln-264" name="ln-264" href="#ln-264"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">RegridderSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<a id="ln-265" name="ln-265" href="#ln-265"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-266" name="ln-266" href="#ln-266"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">Regridder</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">my_regridder</span>
+<a id="ln-267" name="ln-267" href="#ln-267"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="n">geom_2</span>
+<a id="ln-268" name="ln-268" href="#ln-268"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig</span>
+<a id="ln-269" name="ln-269" href="#ln-269"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">f1</span><span class="p">,</span><span class="w"> </span><span class="n">f2</span><span class="p">,</span><span class="w"> </span><span class="n">f3</span><span class="p">,</span><span class="w"> </span><span class="n">f4</span>
+<a id="ln-270" name="ln-270" href="#ln-270"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Fieldbundle</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">uv1</span><span class="p">,</span><span class="w"> </span><span class="n">uv2</span>
+<a id="ln-271" name="ln-271" href="#ln-271"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">u1</span><span class="p">(:,:)</span>
+<a id="ln-272" name="ln-272" href="#ln-272"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">v1</span><span class="p">(:,:)</span>
+<a id="ln-273" name="ln-273" href="#ln-273"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">u2</span><span class="p">(:,:)</span>
+<a id="ln-274" name="ln-274" href="#ln-274"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">v2</span><span class="p">(:,:)</span>
+<a id="ln-275" name="ln-275" href="#ln-275"></a>
+<a id="ln-276" name="ln-276" href="#ln-276"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">DynamicMask</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dyn_mask</span>
+<a id="ln-277" name="ln-277" href="#ln-277"></a><span class="w">      </span>
+<a id="ln-278" name="ln-278" href="#ln-278"></a><span class="w">      </span><span class="n">geom_mgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GeomManager</span><span class="p">()</span>
+<a id="ln-279" name="ln-279" href="#ln-279"></a><span class="w">      </span><span class="n">regridder_mgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderManager</span><span class="p">(</span><span class="n">geom_mgr</span><span class="p">)</span>
+<a id="ln-280" name="ln-280" href="#ln-280"></a>
+<a id="ln-281" name="ln-281" href="#ln-281"></a><span class="w">      </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;{class: latlon, im_world: 12, jm_world: 13, pole: PE, dateline: DE, nx: 1, ny: 1}&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-282" name="ln-282" href="#ln-282"></a><span class="w">      </span><span class="n">geom_1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_geom</span><span class="p">(</span><span class="n">geom_mgr</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-283" name="ln-283" href="#ln-283"></a>
+<a id="ln-284" name="ln-284" href="#ln-284"></a><span class="w">      </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;{class: latlon, im_world: 6, jm_world: 5, pole: PE, dateline: DE, nx: 1, ny: 1}&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-285" name="ln-285" href="#ln-285"></a><span class="w">      </span><span class="n">geom_2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_geom</span><span class="p">(</span><span class="n">geom_mgr</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"> </span><span class="c">! variant of geom_1</span>
+<a id="ln-286" name="ln-286" href="#ln-286"></a>
+<a id="ln-287" name="ln-287" href="#ln-287"></a><span class="w">      </span><span class="n">dyn_mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DynamicMask</span><span class="p">(</span><span class="n">mask_type</span><span class="o">=</span><span class="s1">&#39;missing_value&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">src_mask_value</span><span class="o">=</span><span class="kt">real</span><span class="p">(</span><span class="n">MAPL_UNDEF</span><span class="p">,</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="n">handleAllElements</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-288" name="ln-288" href="#ln-288"></a><span class="w">      </span>
+<a id="ln-289" name="ln-289" href="#ln-289"></a><span class="w">      </span><span class="n">spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderSpec</span><span class="p">(</span><span class="n">EsmfRegridderParam</span><span class="p">(</span><span class="n">regridmethod</span><span class="o">=</span><span class="n">ESMF_REGRIDMETHOD_BILINEAR</span><span class="p">,</span><span class="w"> </span><span class="n">dyn_mask</span><span class="o">=</span><span class="n">dyn_mask</span><span class="p">),</span><span class="w"> </span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="n">geom_2</span><span class="p">)</span>
+<a id="ln-290" name="ln-290" href="#ln-290"></a><span class="w">      </span><span class="n">my_regridder</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">regridder_mgr</span><span class="p">%</span><span class="n">get_regridder</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-291" name="ln-291" href="#ln-291"></a>
+<a id="ln-292" name="ln-292" href="#ln-292"></a><span class="w">      </span><span class="c">! North-east field</span>
+<a id="ln-293" name="ln-293" href="#ln-293"></a><span class="w">      </span><span class="n">f1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_field</span><span class="p">(</span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;u&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="mf">2._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-294" name="ln-294" href="#ln-294"></a><span class="w">      </span><span class="n">f2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_field</span><span class="p">(</span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;v&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="mf">2._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-295" name="ln-295" href="#ln-295"></a><span class="w">      </span><span class="n">uv1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_FieldBundleCreate</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;[u,v]&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">fieldList</span><span class="o">=</span><span class="p">[</span><span class="n">f1</span><span class="p">,</span><span class="n">f2</span><span class="p">],</span><span class="w"> </span><span class="n">fieldBundleType</span><span class="o">=</span><span class="n">FIELDBUNDLETYPE_VECTOR</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-296" name="ln-296" href="#ln-296"></a>
+<a id="ln-297" name="ln-297" href="#ln-297"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f1</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">u1</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-298" name="ln-298" href="#ln-298"></a><span class="w">      </span><span class="n">u1</span><span class="p">(</span><span class="kd">::</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_UNDEF</span><span class="w"> </span><span class="c">! checkerboard</span>
+<a id="ln-299" name="ln-299" href="#ln-299"></a>
+<a id="ln-300" name="ln-300" href="#ln-300"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f2</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">v1</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-301" name="ln-301" href="#ln-301"></a><span class="w">      </span><span class="n">v1</span><span class="p">(</span><span class="kd">::</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_UNDEF</span><span class="w"> </span><span class="c">! checkerboard</span>
+<a id="ln-302" name="ln-302" href="#ln-302"></a><span class="w">      </span>
+<a id="ln-303" name="ln-303" href="#ln-303"></a><span class="w">      </span><span class="n">f3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_field</span><span class="p">(</span><span class="n">geom_2</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;u&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="mf">0._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-304" name="ln-304" href="#ln-304"></a><span class="w">      </span><span class="n">f4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_field</span><span class="p">(</span><span class="n">geom_2</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;v&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="mf">0._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-305" name="ln-305" href="#ln-305"></a><span class="w">      </span><span class="n">uv2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_FieldBundleCreate</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;[u,v]&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">fieldList</span><span class="o">=</span><span class="p">[</span><span class="n">f3</span><span class="p">,</span><span class="n">f4</span><span class="p">],</span><span class="w"> </span><span class="n">fieldBundleType</span><span class="o">=</span><span class="n">FIELDBUNDLETYPE_VECTOR</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-306" name="ln-306" href="#ln-306"></a>
+<a id="ln-307" name="ln-307" href="#ln-307"></a><span class="w">      </span><span class="k">call </span><span class="n">my_regridder</span><span class="p">%</span><span class="n">regrid</span><span class="p">(</span><span class="n">uv1</span><span class="p">,</span><span class="w"> </span><span class="n">uv2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-308" name="ln-308" href="#ln-308"></a>
+<a id="ln-309" name="ln-309" href="#ln-309"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f3</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">u2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-310" name="ln-310" href="#ln-310"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f4</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">v2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-311" name="ln-311" href="#ln-311"></a>
+<a id="ln-312" name="ln-312" href="#ln-312"></a><span class="w">      </span><span class="c">! Still north-east?  Note we have a large tolerance due to</span>
+<a id="ln-313" name="ln-313" href="#ln-313"></a><span class="w">      </span><span class="c">! coarse grids and inherent issues with vector regridding.</span>
+<a id="ln-314" name="ln-314" href="#ln-314"></a><span class="w">      </span><span class="c">! Errors are much smaller at realistic resolutions.</span>
+<a id="ln-315" name="ln-315" href="#ln-315"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">u2</span><span class="p">,</span><span class="w"> </span><span class="n">every_item</span><span class="p">(</span><span class="k">is</span><span class="p">(</span><span class="n">near</span><span class="p">(</span><span class="mf">2._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="mf">1.e-1</span><span class="p">))))</span>
+<a id="ln-316" name="ln-316" href="#ln-316"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">v2</span><span class="p">,</span><span class="w"> </span><span class="n">every_item</span><span class="p">(</span><span class="k">is</span><span class="p">(</span><span class="n">near</span><span class="p">(</span><span class="mf">2._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="mf">1.e-1</span><span class="p">))))</span>
+<a id="ln-317" name="ln-317" href="#ln-317"></a>
+<a id="ln-318" name="ln-318" href="#ln-318"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_regrid_2d_vector</span>
+<a id="ln-319" name="ln-319" href="#ln-319"></a>
+<a id="ln-320" name="ln-320" href="#ln-320"></a>
+<a id="ln-321" name="ln-321" href="#ln-321"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span><span class="p">(</span><span class="k">type</span><span class="o">=</span><span class="n">ESMF_TestMethod</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<a id="ln-322" name="ln-322" href="#ln-322"></a><span class="w">   </span><span class="c">! Test that regridder distinguishes flavors of FieldBundle</span>
+<a id="ln-323" name="ln-323" href="#ln-323"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_regrid_bracket</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-324" name="ln-324" href="#ln-324"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-325" name="ln-325" href="#ln-325"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GeomManager</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom_mgr</span>
+<a id="ln-326" name="ln-326" href="#ln-326"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">RegridderManager</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regridder_mgr</span>
+<a id="ln-327" name="ln-327" href="#ln-327"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">RegridderSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<a id="ln-328" name="ln-328" href="#ln-328"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-329" name="ln-329" href="#ln-329"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">Regridder</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">my_regridder</span>
+<a id="ln-330" name="ln-330" href="#ln-330"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="n">geom_2</span>
+<a id="ln-331" name="ln-331" href="#ln-331"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig</span>
+<a id="ln-332" name="ln-332" href="#ln-332"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">f1</span><span class="p">,</span><span class="w"> </span><span class="n">f2</span><span class="p">,</span><span class="w"> </span><span class="n">f3</span><span class="p">,</span><span class="w"> </span><span class="n">f4</span>
+<a id="ln-333" name="ln-333" href="#ln-333"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Fieldbundle</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">xy1</span><span class="p">,</span><span class="w"> </span><span class="n">xy2</span>
+<a id="ln-334" name="ln-334" href="#ln-334"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x1</span><span class="p">(:,:)</span>
+<a id="ln-335" name="ln-335" href="#ln-335"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">y1</span><span class="p">(:,:)</span>
+<a id="ln-336" name="ln-336" href="#ln-336"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x2</span><span class="p">(:,:)</span>
+<a id="ln-337" name="ln-337" href="#ln-337"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">y2</span><span class="p">(:,:)</span>
+<a id="ln-338" name="ln-338" href="#ln-338"></a>
+<a id="ln-339" name="ln-339" href="#ln-339"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">DynamicMask</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dyn_mask</span>
+<a id="ln-340" name="ln-340" href="#ln-340"></a><span class="w">      </span>
+<a id="ln-341" name="ln-341" href="#ln-341"></a><span class="w">      </span><span class="n">geom_mgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GeomManager</span><span class="p">()</span>
+<a id="ln-342" name="ln-342" href="#ln-342"></a><span class="w">      </span><span class="n">regridder_mgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderManager</span><span class="p">(</span><span class="n">geom_mgr</span><span class="p">)</span>
+<a id="ln-343" name="ln-343" href="#ln-343"></a>
+<a id="ln-344" name="ln-344" href="#ln-344"></a><span class="w">      </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;{class: latlon, im_world: 12, jm_world: 13, pole: PE, dateline: DE, nx: 1, ny: 1}&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-345" name="ln-345" href="#ln-345"></a><span class="w">      </span><span class="n">geom_1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_geom</span><span class="p">(</span><span class="n">geom_mgr</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-346" name="ln-346" href="#ln-346"></a>
+<a id="ln-347" name="ln-347" href="#ln-347"></a><span class="w">      </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;{class: latlon, im_world: 6, jm_world: 5, pole: PE, dateline: DE, nx: 1, ny: 1}&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-348" name="ln-348" href="#ln-348"></a><span class="w">      </span><span class="n">geom_2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_geom</span><span class="p">(</span><span class="n">geom_mgr</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"> </span><span class="c">! variant of geom_1</span>
+<a id="ln-349" name="ln-349" href="#ln-349"></a>
+<a id="ln-350" name="ln-350" href="#ln-350"></a><span class="w">      </span><span class="n">dyn_mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DynamicMask</span><span class="p">(</span><span class="n">mask_type</span><span class="o">=</span><span class="s1">&#39;missing_value&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">src_mask_value</span><span class="o">=</span><span class="kt">real</span><span class="p">(</span><span class="n">MAPL_UNDEF</span><span class="p">,</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="n">handleAllElements</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-351" name="ln-351" href="#ln-351"></a><span class="w">      </span>
+<a id="ln-352" name="ln-352" href="#ln-352"></a><span class="w">      </span><span class="n">spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderSpec</span><span class="p">(</span><span class="n">EsmfRegridderParam</span><span class="p">(</span><span class="n">regridmethod</span><span class="o">=</span><span class="n">ESMF_REGRIDMETHOD_BILINEAR</span><span class="p">,</span><span class="w"> </span><span class="n">dyn_mask</span><span class="o">=</span><span class="n">dyn_mask</span><span class="p">),</span><span class="w"> </span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="n">geom_2</span><span class="p">)</span>
+<a id="ln-353" name="ln-353" href="#ln-353"></a><span class="w">      </span><span class="n">my_regridder</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">regridder_mgr</span><span class="p">%</span><span class="n">get_regridder</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-354" name="ln-354" href="#ln-354"></a>
+<a id="ln-355" name="ln-355" href="#ln-355"></a><span class="w">      </span><span class="c">! North-east field</span>
+<a id="ln-356" name="ln-356" href="#ln-356"></a><span class="w">      </span><span class="n">f1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_field</span><span class="p">(</span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="mf">1._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-357" name="ln-357" href="#ln-357"></a><span class="w">      </span><span class="n">f2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_field</span><span class="p">(</span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="mi">1</span><span class="mf">0._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-358" name="ln-358" href="#ln-358"></a><span class="w">      </span><span class="n">xy1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_FieldBundleCreate</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;[x,y]&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">fieldList</span><span class="o">=</span><span class="p">[</span><span class="n">f1</span><span class="p">,</span><span class="n">f2</span><span class="p">],</span><span class="w"> </span><span class="n">fieldBundleType</span><span class="o">=</span><span class="n">FIELDBUNDLETYPE_BRACKET</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-359" name="ln-359" href="#ln-359"></a>
+<a id="ln-360" name="ln-360" href="#ln-360"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f1</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">x1</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-361" name="ln-361" href="#ln-361"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f2</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">y1</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-362" name="ln-362" href="#ln-362"></a><span class="w">      </span>
+<a id="ln-363" name="ln-363" href="#ln-363"></a><span class="w">      </span><span class="n">f3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_field</span><span class="p">(</span><span class="n">geom_2</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="mf">0._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-364" name="ln-364" href="#ln-364"></a><span class="w">      </span><span class="n">f4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_field</span><span class="p">(</span><span class="n">geom_2</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="mf">0._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-365" name="ln-365" href="#ln-365"></a><span class="w">      </span><span class="n">xy2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_FieldBundleCreate</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;[x,y]&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">fieldList</span><span class="o">=</span><span class="p">[</span><span class="n">f3</span><span class="p">,</span><span class="n">f4</span><span class="p">],</span><span class="w"> </span><span class="n">fieldBundleType</span><span class="o">=</span><span class="n">FIELDBUNDLETYPE_BRACKET</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-366" name="ln-366" href="#ln-366"></a>
+<a id="ln-367" name="ln-367" href="#ln-367"></a><span class="w">      </span><span class="k">call </span><span class="n">my_regridder</span><span class="p">%</span><span class="n">regrid</span><span class="p">(</span><span class="n">xy1</span><span class="p">,</span><span class="w"> </span><span class="n">xy2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-368" name="ln-368" href="#ln-368"></a>
+<a id="ln-369" name="ln-369" href="#ln-369"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f3</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">x2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-370" name="ln-370" href="#ln-370"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f4</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">y2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-371" name="ln-371" href="#ln-371"></a>
+<a id="ln-372" name="ln-372" href="#ln-372"></a><span class="w">      </span><span class="c">! If treated as vector, the components would mix.  We check here that they do not.</span>
+<a id="ln-373" name="ln-373" href="#ln-373"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span><span class="w"> </span><span class="n">every_item</span><span class="p">(</span><span class="k">is</span><span class="p">(</span><span class="n">near</span><span class="p">(</span><span class="mf">1._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="mf">1.e-5</span><span class="p">))))</span>
+<a id="ln-374" name="ln-374" href="#ln-374"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">y2</span><span class="p">,</span><span class="w"> </span><span class="n">every_item</span><span class="p">(</span><span class="k">is</span><span class="p">(</span><span class="n">near</span><span class="p">(</span><span class="mi">1</span><span class="mf">0._ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="mf">1.e-5</span><span class="p">))))</span>
+<a id="ln-375" name="ln-375" href="#ln-375"></a>
+<a id="ln-376" name="ln-376" href="#ln-376"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_regrid_bracket</span>
+<a id="ln-377" name="ln-377" href="#ln-377"></a>
+<a id="ln-378" name="ln-378" href="#ln-378"></a><span class="k">end module </span><span class="n">Test_RegridderManager</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

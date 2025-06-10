@@ -1,0 +1,144 @@
+#include "MAPL_TestErr.h"
+module Test_HConfigUtilities
+   use mapl3g_HConfigUtilities
+   use esmf, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
+   use esmf, only: ESMF_HConfigAdd, ESMF_HConfigAsString
+   use esmf, only: ESMF_HConfigIsDefined
+   use mapl_ErrorHandling
+   use pfunit
+   implicit none(type, external)
+
+   type(ESMF_HConfig) :: parent
+   type(ESMF_HConfig) :: child
+   type(ESMF_HConfig) :: merged
+   type(ESMF_HConfig) :: hconfig_content
+   character(len=*), parameter :: MAPLKEY = 'mapl: '
+   character(len=*), parameter :: KEY1 = 'key1: '
+   character(len=*), parameter :: KEY2 = 'key2: '
+   character(len=*), parameter :: KEY3 = 'key3: '
+   character(len=*), parameter :: KEY4 = 'key4: '
+   character(len=*), parameter :: KEY5 = 'key5: '
+   integer, parameter :: KEYLEN = len(KEY1)
+   character(len=*), parameter :: PVALUE1 = 'parent_value1'
+   character(len=*), parameter :: PVALUE2 = 'parent_value2'
+   character(len=*), parameter :: PVALUE4 = 'parent_value4'
+   character(len=*), parameter :: PVALUE5 = 'parent_value5'
+   character(len=*), parameter :: CHVALUE1 = 'child_value1'
+   character(len=*), parameter :: CHVALUE2 = 'child_value2'
+   character(len=*), parameter :: CHVALUE3 = 'child_value3'
+
+contains
+
+   @Before
+   subroutine set_up()
+      integer :: status
+      parent = ESMF_HConfigCreate(_RC)
+      child = ESMF_HConfigCreate(_RC)
+      hconfig_content = ESMF_HConfigCreate(_RC)
+   end subroutine set_up
+
+   @After
+   subroutine tear_down()
+      integer :: status
+      call ESMF_HConfigDestroy(parent, rc=status)
+      call ESMF_HConfigDestroy(child, rc=status)
+      call ESMF_HConfigDestroy(merged, rc=status)
+      call ESMF_HConfigDestroy(hconfig_content, rc=status)
+   end subroutine tear_down
+
+   subroutine check_match(hconfig, key, expected, rc)
+      type(ESMF_HConfig), intent(in) :: hconfig
+      character(len=*), intent(in) :: key
+      character(len=*), intent(in) :: expected
+      integer, optional, intent(out) :: rc
+      integer :: status
+      character(len=:), allocatable :: strval
+      logical :: ok
+
+      strval = ESMF_HConfigAsString(hconfig, keyString=trim(key), asOkay=ok, _RC)
+      @assertTrue(ok, trim(key) // ' not found')
+      if(ok) then
+         @assertEqual(trim(expected), strval, 'Wrong value for ' // trim(key))
+      end if
+
+   end subroutine check_match
+     
+   @Test
+   subroutine test_merge_hconfig_mapl_section()
+      integer :: status
+      logical :: defined
+      character(len=80) :: msg
+
+
+      call ESMF_HConfigAdd(hconfig_content, content=PVALUE1, addKeyString=KEY1, _RC)
+      call ESMF_HConfigAdd(hconfig_content, content=PVALUE5, addKeyString=KEY5, _RC)
+      call ESMF_HConfigAdd(parent, content=hconfig_content, addKeyString=MAPLKEY, _RC)
+      call ESMF_HConfigAdd(parent, content=PVALUE4, addKeyString=KEY4, _RC)
+      call ESMF_HConfigAdd(child, content=CHVALUE1, addKeyString=KEY1, _RC)
+      call ESMF_HConfigAdd(child, content=CHVALUE3, addKeyString=KEY3, _RC)
+
+      merged = merge_hconfig(parent, child, _RC)
+
+      call check_match(merged, KEY1, CHVALUE1, _RC)
+      call check_match(merged, KEY3, CHVALUE3, _RC)
+
+   end subroutine test_merge_hconfig_mapl_section
+
+   @Test
+   subroutine test_merge_hconfig_bad_parent()
+      integer :: status
+
+      call ESMF_HConfigAdd(parent, content = "['A', 'B', 'C', 'D', 'E', 'F']", _RC)
+      call ESMF_HConfigAdd(child, content=CHVALUE1, addKeyString=KEY1, _RC)
+      merged = merge_hconfig(parent, child, rc=status)
+      @assertTrue(status /= 0, 'The return code should be nonzero.')
+
+   end subroutine test_merge_hconfig_bad_parent
+
+   @Test
+   subroutine test_merge_hconfig_problem_child()
+      integer :: status
+
+      call ESMF_HConfigAdd(parent, content=PVALUE1, addKeyString=KEY1, _RC)
+      call ESMF_HConfigAdd(child, content = "['A', 'B', 'C', 'D', 'E', 'F']", _RC)
+      merged = merge_hconfig(parent, child, rc=status)
+      @assertTrue(status /= 0, 'The return code should be nonzero.')
+
+   end subroutine test_merge_hconfig_problem_child
+
+   @Test
+   subroutine test_merge_hconfig_no_mapl()
+      integer :: status
+
+      call ESMF_HConfigAdd(parent, content=PVALUE4, addKeyString=KEY4, _RC)
+      call ESMF_HConfigAdd(child, content=CHVALUE1, addKeyString=KEY1, _RC)
+      call ESMF_HConfigAdd(child, content=CHVALUE3, addKeyString=KEY3, _RC)
+
+      merged = merge_hconfig(parent, child, _RC)
+
+      call check_match(merged, KEY1, CHVALUE1, _RC)
+      call check_match(merged, KEY3, CHVALUE3, _RC)
+
+   end subroutine test_merge_hconfig_no_mapl
+
+   @Test
+   subroutine test_merge_hconfig_duplicate()
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig_content, content=PVALUE1, addKeyString=KEY1, _RC)
+      call ESMF_HConfigAdd(parent, content=hconfig_content, addKeyString=MAPLKEY, _RC)
+      call ESMF_HConfigAdd(parent, content=PVALUE4, addKeyString=KEY4, _RC)
+      call ESMF_HConfigAdd(parent, content=PVALUE2, addKeyString=KEY2, _RC)
+      call ESMF_HConfigAdd(child, content=CHVALUE1, addKeyString=KEY1, _RC)
+      call ESMF_HConfigAdd(child, content=CHVALUE2, addKeyString=KEY2, _RC)
+      call ESMF_HConfigAdd(child, content=CHVALUE3, addKeyString=KEY3, _RC)
+
+      merged = merge_hconfig(parent, child, _RC)
+
+      call check_match(merged, KEY1, CHVALUE1, _RC)
+      call check_match(merged, KEY2, CHVALUE2, _RC)
+      call check_match(merged, KEY3, CHVALUE3, _RC)
+
+   end subroutine test_merge_hconfig_duplicate
+
+end module Test_HConfigUtilities

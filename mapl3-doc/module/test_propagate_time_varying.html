@@ -1,0 +1,691 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Test_propagate_time_varying &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Test_propagate_time_varying
+      <small>Module</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.2% of total for modules and submodules.">501 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_propagate_time_varying.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_propagate_time_varying.pf.html'>Test_propagate_time_varying.pf</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Test_propagate_time_varying</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#subs-0"
+         aria-expanded="false" aria-controls="subs-0">
+         <h4 class="card-header bg-primary text-white">Subroutines</h4>
+      </a>
+      <div id="subs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/test_propagate_time_varying.html#proc-test_propagate_geom">test_propagate_geom</a>
+            <a class="list-group-item" href="../module/test_propagate_time_varying.html#proc-test_propagate_interp_weights">test_propagate_interp_weights</a>
+            <a class="list-group-item" href="../module/test_propagate_time_varying.html#proc-test_propagate_shared_attrs">test_propagate_shared_attrs</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
+                  <li class="list-inline-item"><a href='esmf_testmethod_mod.html'>ESMF_TestMethod_mod</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_regridder_mgr.html'>mapl3g_regridder_mgr</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_regridtransform.html'>mapl3g_RegridTransform</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_timeinterpolatetransform.html'>mapl3g_TimeInterpolateTransform</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_multistate.html'>mapl3g_MultiState</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_griddedcomponentdriver.html'>mapl3g_GriddedComponentDriver</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_fieldbundle_api.html'>mapl3g_FieldBundle_API</a></li>
+                  <li class="list-inline-item">funit</li>
+                  <li class="list-inline-item"><a href='mapl3g_copytransform.html'>mapl3g_CopyTransform</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_geom_api.html'>mapl3g_Geom_API</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_field_api.html'>mapl3g_Field_API</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_fieldinfo.html'>mapl3g_FieldInfo</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_couplerphases.html'>mapl3g_CouplerPhases</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_genericcoupler.html'>mapl3g_GenericCoupler</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_extensiontransform.html'>mapl3g_ExtensionTransform</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~test_propagate_time_varying~~UsesGraph Pages: 1 -->
+<svg id="moduletest_propagate_time_varyingUsesGraph" width="407pt" height="662pt"
+ viewBox="0.00 0.00 407.00 662.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~test_propagate_time_varying~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 658)">
+<title>module~~test_propagate_time_varying~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-658 403,-658 403,4 -4,4"/>
+<!-- module~test_propagate_time_varying -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_node1" class="node">
+<title>module~test_propagate_time_varying</title>
+<polygon fill="none" stroke="black" points="399,-339 232,-339 232,-315 399,-315 399,-339"/>
+<text text-anchor="middle" x="315.5" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50">Test_propagate_time_varying</text>
+</g>
+<!-- ESMF -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_node2" class="node">
+<title>ESMF</title>
+<g id="a_module~~test_propagate_time_varying~~UsesGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/module/esmf.html" xlink:title="ESMF">
+<polygon fill="#337ab7" stroke="#337ab7" points="125,-654 71,-654 71,-630 125,-630 125,-654"/>
+<text text-anchor="middle" x="98" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
+</a>
+</g>
+</g>
+<!-- module~test_propagate_time_varying&#45;&gt;ESMF -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_edge1" class="edge">
+<title>module~test_propagate_time_varying&#45;&gt;ESMF</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M313.53,-339.09C309.26,-384.12 287.93,-543.5 196,-621 179.28,-635.09 155.31,-640.37 135.38,-642.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="135.15,-638.62 125.38,-642.73 135.58,-645.61 135.15,-638.62"/>
+</g>
+<!-- funit -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_node3" class="node">
+<title>funit</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="125,-612 71,-612 71,-588 125,-588 125,-612"/>
+<text text-anchor="middle" x="98" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">funit</text>
+</g>
+<!-- module~test_propagate_time_varying&#45;&gt;funit -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_edge2" class="edge">
+<title>module~test_propagate_time_varying&#45;&gt;funit</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M312.66,-339.05C305.76,-379.9 277.52,-514.12 196,-579 178.97,-592.55 155.14,-597.84 135.35,-599.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="134.88,-596.25 125.14,-600.44 135.36,-603.23 134.88,-596.25"/>
+</g>
+<!-- module~esmf_testmethod_mod -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_node4" class="node">
+<title>module~esmf_testmethod_mod</title>
+<g id="a_module~~test_propagate_time_varying~~UsesGraph_node4"><a xlink:href="../module/esmf_testmethod_mod.html" xlink:title="ESMF_TestMethod_mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="166,-570 30,-570 30,-546 166,-546 166,-570"/>
+<text text-anchor="middle" x="98" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TestMethod_mod</text>
+</a>
+</g>
+</g>
+<!-- module~test_propagate_time_varying&#45;&gt;module~esmf_testmethod_mod -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_edge3" class="edge">
+<title>module~test_propagate_time_varying&#45;&gt;module~esmf_testmethod_mod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M311.46,-339.07C301.66,-375.4 267.27,-484.47 196,-537 189.94,-541.46 183.13,-545.01 176,-547.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="174.43,-544.68 166.12,-551.25 176.71,-551.29 174.43,-544.68"/>
+</g>
+<!-- module~mapl3g_copytransform -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_node5" class="node">
+<title>module~mapl3g_copytransform</title>
+<g id="a_module~~test_propagate_time_varying~~UsesGraph_node5"><a xlink:href="../module/mapl3g_copytransform.html" xlink:title="mapl3g_CopyTransform">
+<polygon fill="#337ab7" stroke="#337ab7" points="167.5,-528 28.5,-528 28.5,-504 167.5,-504 167.5,-528"/>
+<text text-anchor="middle" x="98" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_CopyTransform</text>
+</a>
+</g>
+</g>
+<!-- module~test_propagate_time_varying&#45;&gt;module~mapl3g_copytransform -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_edge4" class="edge">
+<title>module~test_propagate_time_varying&#45;&gt;module~mapl3g_copytransform</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M309.72,-339.08C296.68,-370.36 257.31,-454.41 196,-495 190.26,-498.8 183.94,-501.93 177.37,-504.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="175.91,-501.3 167.61,-507.88 178.2,-507.92 175.91,-501.3"/>
+</g>
+<!-- module~mapl3g_couplerphases -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_node6" class="node">
+<title>module~mapl3g_couplerphases</title>
+<g id="a_module~~test_propagate_time_varying~~UsesGraph_node6"><a xlink:href="../module/mapl3g_couplerphases.html" xlink:title="mapl3g_CouplerPhases">
+<polygon fill="#337ab7" stroke="#337ab7" points="166.5,-486 29.5,-486 29.5,-462 166.5,-462 166.5,-486"/>
+<text text-anchor="middle" x="98" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_CouplerPhases</text>
+</a>
+</g>
+</g>
+<!-- module~test_propagate_time_varying&#45;&gt;module~mapl3g_couplerphases -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_edge5" class="edge">
+<title>module~test_propagate_time_varying&#45;&gt;module~mapl3g_couplerphases</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M306.72,-339.35C289.91,-364.96 247.5,-423.88 196,-453 189.95,-456.42 183.41,-459.28 176.67,-461.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="175.15,-458.49 166.69,-464.87 177.28,-465.16 175.15,-458.49"/>
+</g>
+<!-- module~mapl3g_extensiontransform -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_node7" class="node">
+<title>module~mapl3g_extensiontransform</title>
+<g id="a_module~~test_propagate_time_varying~~UsesGraph_node7"><a xlink:href="../module/mapl3g_extensiontransform.html" xlink:title="mapl3g_ExtensionTransform">
+<polygon fill="#337ab7" stroke="#337ab7" points="179.5,-444 16.5,-444 16.5,-420 179.5,-420 179.5,-444"/>
+<text text-anchor="middle" x="98" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ExtensionTransform</text>
+</a>
+</g>
+</g>
+<!-- module~test_propagate_time_varying&#45;&gt;module~mapl3g_extensiontransform -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_edge6" class="edge">
+<title>module~test_propagate_time_varying&#45;&gt;module~mapl3g_extensiontransform</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M301.39,-339.06C280.64,-357.47 238.23,-392.4 196,-411 190.97,-413.21 185.7,-415.2 180.31,-416.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="179.05,-413.71 170.51,-419.98 181.1,-420.4 179.05,-413.71"/>
+</g>
+<!-- module~mapl3g_field_api -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_node8" class="node">
+<title>module~mapl3g_field_api</title>
+<g id="a_module~~test_propagate_time_varying~~UsesGraph_node8"><a xlink:href="../module/mapl3g_field_api.html" xlink:title="mapl3g_Field_API">
+<polygon fill="#337ab7" stroke="#337ab7" points="150.5,-402 45.5,-402 45.5,-378 150.5,-378 150.5,-402"/>
+<text text-anchor="middle" x="98" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_Field_API</text>
+</a>
+</g>
+</g>
+<!-- module~test_propagate_time_varying&#45;&gt;module~mapl3g_field_api -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_edge7" class="edge">
+<title>module~test_propagate_time_varying&#45;&gt;module~mapl3g_field_api</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M283.66,-339.15C259.95,-348.19 226.23,-360.41 196,-369 184.61,-372.24 172.34,-375.25 160.48,-377.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="159.66,-374.52 150.65,-380.09 161.17,-381.36 159.66,-374.52"/>
+</g>
+<!-- module~mapl3g_fieldbundle_api -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_node9" class="node">
+<title>module~mapl3g_fieldbundle_api</title>
+<g id="a_module~~test_propagate_time_varying~~UsesGraph_node9"><a xlink:href="../module/mapl3g_fieldbundle_api.html" xlink:title="mapl3g_FieldBundle_API">
+<polygon fill="#337ab7" stroke="#337ab7" points="169,-360 27,-360 27,-336 169,-336 169,-360"/>
+<text text-anchor="middle" x="98" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_FieldBundle_API</text>
+</a>
+</g>
+</g>
+<!-- module~test_propagate_time_varying&#45;&gt;module~mapl3g_fieldbundle_api -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_edge8" class="edge">
+<title>module~test_propagate_time_varying&#45;&gt;module~mapl3g_fieldbundle_api</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M231.8,-335.06C214.53,-336.74 196.36,-338.51 179.19,-340.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="178.82,-336.7 169.21,-341.16 179.5,-343.67 178.82,-336.7"/>
+</g>
+<!-- module~mapl3g_fieldinfo -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_node10" class="node">
+<title>module~mapl3g_fieldinfo</title>
+<g id="a_module~~test_propagate_time_varying~~UsesGraph_node10"><a xlink:href="../module/mapl3g_fieldinfo.html" xlink:title="mapl3g_FieldInfo">
+<polygon fill="#337ab7" stroke="#337ab7" points="149.5,-318 46.5,-318 46.5,-294 149.5,-294 149.5,-318"/>
+<text text-anchor="middle" x="98" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_FieldInfo</text>
+</a>
+</g>
+</g>
+<!-- module~test_propagate_time_varying&#45;&gt;module~mapl3g_fieldinfo -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_edge9" class="edge">
+<title>module~test_propagate_time_varying&#45;&gt;module~mapl3g_fieldinfo</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M231.8,-318.94C207.82,-316.6 182.08,-314.1 159.71,-311.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="159.98,-308.43 149.69,-310.94 159.3,-315.39 159.98,-308.43"/>
+</g>
+<!-- module~mapl3g_genericcoupler -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_node11" class="node">
+<title>module~mapl3g_genericcoupler</title>
+<g id="a_module~~test_propagate_time_varying~~UsesGraph_node11"><a xlink:href="../module/mapl3g_genericcoupler.html" xlink:title="mapl3g_GenericCoupler">
+<polygon fill="#337ab7" stroke="#337ab7" points="169,-276 27,-276 27,-252 169,-252 169,-276"/>
+<text text-anchor="middle" x="98" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_GenericCoupler</text>
+</a>
+</g>
+</g>
+<!-- module~test_propagate_time_varying&#45;&gt;module~mapl3g_genericcoupler -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_edge10" class="edge">
+<title>module~test_propagate_time_varying&#45;&gt;module~mapl3g_genericcoupler</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M283.66,-314.85C259.95,-305.81 226.23,-293.59 196,-285 187.69,-282.64 178.92,-280.4 170.18,-278.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="170.88,-274.89 160.35,-276.04 169.3,-281.71 170.88,-274.89"/>
+</g>
+<!-- module~mapl3g_geom_api -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_node12" class="node">
+<title>module~mapl3g_geom_api</title>
+<g id="a_module~~test_propagate_time_varying~~UsesGraph_node12"><a xlink:href="../module/mapl3g_geom_api.html" xlink:title="mapl3g_Geom_API">
+<polygon fill="#337ab7" stroke="#337ab7" points="154,-234 42,-234 42,-210 154,-210 154,-234"/>
+<text text-anchor="middle" x="98" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_Geom_API</text>
+</a>
+</g>
+</g>
+<!-- module~test_propagate_time_varying&#45;&gt;module~mapl3g_geom_api -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_edge11" class="edge">
+<title>module~test_propagate_time_varying&#45;&gt;module~mapl3g_geom_api</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M301.39,-314.94C280.64,-296.53 238.23,-261.6 196,-243 185.98,-238.59 174.96,-235.07 164.05,-232.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="164.63,-228.82 154.09,-229.91 163.01,-235.63 164.63,-228.82"/>
+</g>
+<!-- module~mapl3g_griddedcomponentdriver -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_node13" class="node">
+<title>module~mapl3g_griddedcomponentdriver</title>
+<g id="a_module~~test_propagate_time_varying~~UsesGraph_node13"><a xlink:href="../module/mapl3g_griddedcomponentdriver.html" xlink:title="mapl3g_GriddedComponentDriver">
+<polygon fill="#337ab7" stroke="#337ab7" points="196,-192 0,-192 0,-168 196,-168 196,-192"/>
+<text text-anchor="middle" x="98" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_GriddedComponentDriver</text>
+</a>
+</g>
+</g>
+<!-- module~test_propagate_time_varying&#45;&gt;module~mapl3g_griddedcomponentdriver -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_edge12" class="edge">
+<title>module~test_propagate_time_varying&#45;&gt;module~mapl3g_griddedcomponentdriver</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M306.72,-314.65C289.91,-289.04 247.5,-230.12 196,-201 192.56,-199.05 188.95,-197.28 185.23,-195.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="186.41,-192.38 175.82,-192.02 183.87,-198.91 186.41,-192.38"/>
+</g>
+<!-- module~mapl3g_multistate -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_node14" class="node">
+<title>module~mapl3g_multistate</title>
+<g id="a_module~~test_propagate_time_varying~~UsesGraph_node14"><a xlink:href="../module/mapl3g_multistate.html" xlink:title="mapl3g_MultiState">
+<polygon fill="#337ab7" stroke="#337ab7" points="154,-150 42,-150 42,-126 154,-126 154,-150"/>
+<text text-anchor="middle" x="98" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_MultiState</text>
+</a>
+</g>
+</g>
+<!-- module~test_propagate_time_varying&#45;&gt;module~mapl3g_multistate -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_edge13" class="edge">
+<title>module~test_propagate_time_varying&#45;&gt;module~mapl3g_multistate</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M309.72,-314.92C296.68,-283.64 257.31,-199.59 196,-159 186.44,-152.67 175.31,-148.22 164.05,-145.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="164.71,-141.64 154.17,-142.66 163.05,-148.44 164.71,-141.64"/>
+</g>
+<!-- module~mapl3g_regridder_mgr -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_node15" class="node">
+<title>module~mapl3g_regridder_mgr</title>
+<g id="a_module~~test_propagate_time_varying~~UsesGraph_node15"><a xlink:href="../module/mapl3g_regridder_mgr.html" xlink:title="mapl3g_regridder_mgr">
+<polygon fill="#337ab7" stroke="#337ab7" points="165.5,-108 30.5,-108 30.5,-84 165.5,-84 165.5,-108"/>
+<text text-anchor="middle" x="98" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_regridder_mgr</text>
+</a>
+</g>
+</g>
+<!-- module~test_propagate_time_varying&#45;&gt;module~mapl3g_regridder_mgr -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_edge14" class="edge">
+<title>module~test_propagate_time_varying&#45;&gt;module~mapl3g_regridder_mgr</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M311.46,-314.93C301.66,-278.6 267.27,-169.53 196,-117 189.71,-112.36 182.6,-108.71 175.17,-105.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="176.21,-102.5 165.61,-102.6 173.96,-109.13 176.21,-102.5"/>
+</g>
+<!-- module~mapl3g_regridtransform -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_node16" class="node">
+<title>module~mapl3g_regridtransform</title>
+<g id="a_module~~test_propagate_time_varying~~UsesGraph_node16"><a xlink:href="../module/mapl3g_regridtransform.html" xlink:title="mapl3g_RegridTransform">
+<polygon fill="#337ab7" stroke="#337ab7" points="171,-66 25,-66 25,-42 171,-42 171,-66"/>
+<text text-anchor="middle" x="98" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_RegridTransform</text>
+</a>
+</g>
+</g>
+<!-- module~test_propagate_time_varying&#45;&gt;module~mapl3g_regridtransform -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_edge15" class="edge">
+<title>module~test_propagate_time_varying&#45;&gt;module~mapl3g_regridtransform</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M312.66,-314.95C305.76,-274.1 277.52,-139.88 196,-75 191.34,-71.29 186.16,-68.2 180.7,-65.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="181.86,-62.32 171.27,-61.77 179.2,-68.79 181.86,-62.32"/>
+</g>
+<!-- module~mapl3g_timeinterpolatetransform -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_node17" class="node">
+<title>module~mapl3g_timeinterpolatetransform</title>
+<g id="a_module~~test_propagate_time_varying~~UsesGraph_node17"><a xlink:href="../module/mapl3g_timeinterpolatetransform.html" xlink:title="mapl3g_TimeInterpolateTransform">
+<polygon fill="#337ab7" stroke="#337ab7" points="196,-24 0,-24 0,0 196,0 196,-24"/>
+<text text-anchor="middle" x="98" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_TimeInterpolateTransform</text>
+</a>
+</g>
+</g>
+<!-- module~test_propagate_time_varying&#45;&gt;module~mapl3g_timeinterpolatetransform -->
+<g id="module~~test_propagate_time_varying~~UsesGraph_edge16" class="edge">
+<title>module~test_propagate_time_varying&#45;&gt;module~mapl3g_timeinterpolatetransform</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M313.53,-314.91C309.26,-269.88 287.93,-110.5 196,-33 194.47,-31.71 192.88,-30.49 191.23,-29.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="192.99,-26.32 182.61,-24.17 189.39,-32.32 192.99,-26.32"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+      
+      <br>
+
+
+
+
+
+
+
+
+        <section>
+          <h2>Subroutines</h2>
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-test_propagate_geom"></span> <h3>public  subroutine <a href='../proc/test_propagate_geom.html'>test_propagate_geom</a>(this)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~7068"></span>
+              class(<a href='../type/esmf_testmethod.html'>ESMF_TestMethod</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-test_propagate_interp_weights"></span> <h3>public  subroutine <a href='../proc/test_propagate_interp_weights.html'>test_propagate_interp_weights</a>(this)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~7067"></span>
+              class(<a href='../type/esmf_testmethod.html'>ESMF_TestMethod</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-test_propagate_shared_attrs"></span> <h3>public  subroutine <a href='../proc/test_propagate_shared_attrs.html'>test_propagate_shared_attrs</a>(this)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~7069"></span>
+              class(<a href='../type/esmf_testmethod.html'>ESMF_TestMethod</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+
+
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,1197 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>mapl3g_RestartHandler &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>mapl3g_RestartHandler
+      <small>Module</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for modules and submodules.">162 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/RestartHandler.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/restarthandler.f90.html'>RestartHandler.F90</a></li>
+            <li class="breadcrumb-item active" aria-current="page">mapl3g_RestartHandler</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#enums-0"
+         aria-expanded="false" aria-controls="enums-0">
+         <h4 class="card-header bg-primary text-white">Enumerations</h4>
+      </a>
+      <div id="enums-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_restarthandler.html#enum-__unnamed__~48"><em>unnamed</em></a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#inters-0"
+         aria-expanded="false" aria-controls="inters-0">
+         <h4 class="card-header bg-primary text-white">Interfaces</h4>
+      </a>
+      <div id="inters-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_restarthandler.html#interface-restarthandler">RestartHandler</a>
+        </div>
+      </div>
+    </div>
+
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#types-0"
+         aria-expanded="false" aria-controls="types-0">
+         <h4 class="card-header bg-primary text-white">Derived Types</h4>
+      </a>
+      <div id="types-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_restarthandler.html#type-restarthandler">RestartHandler</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
+                  <li class="list-inline-item"><a href='pfio.html'>pFIO</a></li>
+                  <li class="list-inline-item"><a href='pflogger.html'>pflogger</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_sharedio.html'>mapl3g_SharedIO</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_fieldbundle_api.html'>mapl3g_FieldBundle_API</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_geom_api.html'>mapl3g_Geom_API</a></li>
+                  <li class="list-inline-item"><a href='http://fortranwiki.org/fortran/show/iso_c_binding'>iso_c_binding</a></li>
+                  <li class="list-inline-item"><a href='mapl3g_geomio.html'>mapl3g_geomio</a></li>
+                  <li class="list-inline-item"><a href='mapl_errorhandling.html'>mapl_ErrorHandling</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~mapl3g_restarthandler~~UsesGraph Pages: 1 -->
+<svg id="modulemapl3g_restarthandlerUsesGraph" width="325pt" height="368pt"
+ viewBox="0.00 0.00 325.00 368.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl3g_restarthandler~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 364)">
+<title>module~~mapl3g_restarthandler~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-364 321,-364 321,4 -4,4"/>
+<!-- module~mapl3g_restarthandler -->
+<g id="module~~mapl3g_restarthandler~~UsesGraph_node1" class="node">
+<title>module~mapl3g_restarthandler</title>
+<polygon fill="none" stroke="black" points="317,-192 178,-192 178,-168 317,-168 317,-192"/>
+<text text-anchor="middle" x="247.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl3g_RestartHandler</text>
+</g>
+<!-- ESMF -->
+<g id="module~~mapl3g_restarthandler~~UsesGraph_node2" class="node">
+<title>ESMF</title>
+<g id="a_module~~mapl3g_restarthandler~~UsesGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/module/esmf.html" xlink:title="ESMF">
+<polygon fill="#337ab7" stroke="#337ab7" points="98,-360 44,-360 44,-336 98,-336 98,-360"/>
+<text text-anchor="middle" x="71" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_restarthandler&#45;&gt;ESMF -->
+<g id="module~~mapl3g_restarthandler~~UsesGraph_edge1" class="edge">
+<title>module~mapl3g_restarthandler&#45;&gt;ESMF</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M241.18,-192.36C228.4,-220.62 193.15,-290.32 142,-327 132.03,-334.15 119.61,-338.89 108.01,-342.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="107.02,-338.67 98.11,-344.39 108.64,-345.48 107.02,-338.67"/>
+</g>
+<!-- iso_c_binding -->
+<g id="module~~mapl3g_restarthandler~~UsesGraph_node3" class="node">
+<title>iso_c_binding</title>
+<g id="a_module~~mapl3g_restarthandler~~UsesGraph_node3"><a xlink:href="http://fortranwiki.org/fortran/show/iso_c_binding" xlink:title="iso_c_binding">
+<polygon fill="#337ab7" stroke="#337ab7" points="113,-318 29,-318 29,-294 113,-294 113,-318"/>
+<text text-anchor="middle" x="71" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_c_binding</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_restarthandler&#45;&gt;iso_c_binding -->
+<g id="module~~mapl3g_restarthandler~~UsesGraph_edge2" class="edge">
+<title>module~mapl3g_restarthandler&#45;&gt;iso_c_binding</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M237.6,-192.33C221.18,-214.22 183.92,-259.89 142,-285 136.08,-288.55 129.51,-291.54 122.84,-294.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="121.39,-290.84 113.05,-297.38 123.65,-297.46 121.39,-290.84"/>
+</g>
+<!-- module~mapl3g_fieldbundle_api -->
+<g id="module~~mapl3g_restarthandler~~UsesGraph_node4" class="node">
+<title>module~mapl3g_fieldbundle_api</title>
+<g id="a_module~~mapl3g_restarthandler~~UsesGraph_node4"><a xlink:href="../module/mapl3g_fieldbundle_api.html" xlink:title="mapl3g_FieldBundle_API">
+<polygon fill="#337ab7" stroke="#337ab7" points="142,-276 0,-276 0,-252 142,-252 142,-276"/>
+<text text-anchor="middle" x="71" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_FieldBundle_API</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_restarthandler&#45;&gt;module~mapl3g_fieldbundle_api -->
+<g id="module~~mapl3g_restarthandler~~UsesGraph_edge3" class="edge">
+<title>module~mapl3g_restarthandler&#45;&gt;module~mapl3g_fieldbundle_api</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M229.48,-192.11C209.38,-205.96 174.54,-228.59 142,-243 137.41,-245.04 132.56,-246.94 127.64,-248.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="126.49,-245.41 118.16,-251.95 128.76,-252.03 126.49,-245.41"/>
+</g>
+<!-- module~mapl3g_geom_api -->
+<g id="module~~mapl3g_restarthandler~~UsesGraph_node5" class="node">
+<title>module~mapl3g_geom_api</title>
+<g id="a_module~~mapl3g_restarthandler~~UsesGraph_node5"><a xlink:href="../module/mapl3g_geom_api.html" xlink:title="mapl3g_Geom_API">
+<polygon fill="#337ab7" stroke="#337ab7" points="127,-234 15,-234 15,-210 127,-210 127,-234"/>
+<text text-anchor="middle" x="71" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_Geom_API</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_restarthandler&#45;&gt;module~mapl3g_geom_api -->
+<g id="module~~mapl3g_restarthandler~~UsesGraph_edge4" class="edge">
+<title>module~mapl3g_restarthandler&#45;&gt;module~mapl3g_geom_api</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M196.5,-192.04C176.32,-196.89 152.88,-202.53 131.82,-207.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="130.92,-204.22 122.01,-209.96 132.55,-211.03 130.92,-204.22"/>
+</g>
+<!-- module~mapl3g_geomio -->
+<g id="module~~mapl3g_restarthandler~~UsesGraph_node6" class="node">
+<title>module~mapl3g_geomio</title>
+<g id="a_module~~mapl3g_restarthandler~~UsesGraph_node6"><a xlink:href="../module/mapl3g_geomio.html" xlink:title="mapl3g_geomio">
+<polygon fill="#337ab7" stroke="#337ab7" points="120.5,-192 21.5,-192 21.5,-168 120.5,-168 120.5,-192"/>
+<text text-anchor="middle" x="71" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_geomio</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_restarthandler&#45;&gt;module~mapl3g_geomio -->
+<g id="module~~mapl3g_restarthandler~~UsesGraph_edge5" class="edge">
+<title>module~mapl3g_restarthandler&#45;&gt;module~mapl3g_geomio</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M177.78,-180C162.29,-180 145.97,-180 130.91,-180"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="130.72,-176.5 120.72,-180 130.72,-183.5 130.72,-176.5"/>
+</g>
+<!-- module~mapl3g_sharedio -->
+<g id="module~~mapl3g_restarthandler~~UsesGraph_node7" class="node">
+<title>module~mapl3g_sharedio</title>
+<g id="a_module~~mapl3g_restarthandler~~UsesGraph_node7"><a xlink:href="../module/mapl3g_sharedio.html" xlink:title="mapl3g_SharedIO">
+<polygon fill="#337ab7" stroke="#337ab7" points="124.5,-150 17.5,-150 17.5,-126 124.5,-126 124.5,-150"/>
+<text text-anchor="middle" x="71" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_SharedIO</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_restarthandler&#45;&gt;module~mapl3g_sharedio -->
+<g id="module~~mapl3g_restarthandler~~UsesGraph_edge6" class="edge">
+<title>module~mapl3g_restarthandler&#45;&gt;module~mapl3g_sharedio</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M196.5,-167.96C176.32,-163.11 152.88,-157.47 131.82,-152.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="132.55,-148.97 122.01,-150.04 130.92,-155.78 132.55,-148.97"/>
+</g>
+<!-- module~mapl_errorhandling -->
+<g id="module~~mapl3g_restarthandler~~UsesGraph_node8" class="node">
+<title>module~mapl_errorhandling</title>
+<g id="a_module~~mapl3g_restarthandler~~UsesGraph_node8"><a xlink:href="../module/mapl_errorhandling.html" xlink:title="mapl_ErrorHandling">
+<polygon fill="#337ab7" stroke="#337ab7" points="130.5,-108 11.5,-108 11.5,-84 130.5,-84 130.5,-108"/>
+<text text-anchor="middle" x="71" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_ErrorHandling</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_restarthandler&#45;&gt;module~mapl_errorhandling -->
+<g id="module~~mapl3g_restarthandler~~UsesGraph_edge7" class="edge">
+<title>module~mapl3g_restarthandler&#45;&gt;module~mapl_errorhandling</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M229.48,-167.89C209.38,-154.04 174.54,-131.41 142,-117 137.41,-114.96 132.56,-113.06 127.64,-111.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="128.76,-107.97 118.16,-108.05 126.49,-114.59 128.76,-107.97"/>
+</g>
+<!-- module~pfio -->
+<g id="module~~mapl3g_restarthandler~~UsesGraph_node9" class="node">
+<title>module~pfio</title>
+<g id="a_module~~mapl3g_restarthandler~~UsesGraph_node9"><a xlink:href="../module/pfio.html" xlink:title="pFIO">
+<polygon fill="#337ab7" stroke="#337ab7" points="98,-66 44,-66 44,-42 98,-42 98,-66"/>
+<text text-anchor="middle" x="71" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_restarthandler&#45;&gt;module~pfio -->
+<g id="module~~mapl3g_restarthandler~~UsesGraph_edge8" class="edge">
+<title>module~mapl3g_restarthandler&#45;&gt;module~pfio</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M237.6,-167.67C221.18,-145.78 183.92,-100.11 142,-75 131.64,-68.8 119.32,-64.31 107.92,-61.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="108.76,-57.71 98.21,-58.62 107.03,-64.49 108.76,-57.71"/>
+</g>
+<!-- module~pflogger -->
+<g id="module~~mapl3g_restarthandler~~UsesGraph_node10" class="node">
+<title>module~pflogger</title>
+<g id="a_module~~mapl3g_restarthandler~~UsesGraph_node10"><a xlink:href="../module/pflogger.html" xlink:title="pflogger">
+<polygon fill="#337ab7" stroke="#337ab7" points="100,-24 42,-24 42,0 100,0 100,-24"/>
+<text text-anchor="middle" x="71" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pflogger</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_restarthandler&#45;&gt;module~pflogger -->
+<g id="module~~mapl3g_restarthandler~~UsesGraph_edge9" class="edge">
+<title>module~mapl3g_restarthandler&#45;&gt;module~pflogger</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M241.18,-167.64C228.4,-139.38 193.15,-69.68 142,-33 132.61,-26.26 121.03,-21.66 110.02,-18.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="110.7,-15.09 100.14,-16.05 108.99,-21.88 110.7,-15.09"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+          <div class="card">
+      <h3 class="card-header card-title bg-light">Used by</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~mapl3g_restarthandler~~UsedByGraph Pages: 1 -->
+<svg id="modulemapl3g_restarthandlerUsedByGraph" width="641pt" height="251pt"
+ viewBox="0.00 0.00 641.00 250.88" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl3g_restarthandler~~UsedByGraph" class="graph" transform="scale(0.47 0.47) rotate(0) translate(4 534.56)">
+<title>module~~mapl3g_restarthandler~~UsedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-534.56 1372,-534.56 1372,4 -4,4"/>
+<!-- module~mapl3g_restarthandler -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node1" class="node">
+<title>module~mapl3g_restarthandler</title>
+<polygon fill="none" stroke="black" points="139,-238.56 0,-238.56 0,-214.56 139,-214.56 139,-238.56"/>
+<text text-anchor="middle" x="69.5" y="-224.16" font-family="Helvetica,sans-Serif" font-size="10.50">mapl3g_RestartHandler</text>
+</g>
+<!-- module~generic3g -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node2" class="node">
+<title>module~generic3g</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node2"><a xlink:href="../module/generic3g.html" xlink:title="Generic3g">
+<polygon fill="#337ab7" stroke="#337ab7" points="495.5,-194.56 427.5,-194.56 427.5,-170.56 495.5,-170.56 495.5,-194.56"/>
+<text text-anchor="middle" x="461.5" y="-180.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Generic3g</text>
+</a>
+</g>
+</g>
+<!-- module~generic3g&#45;&gt;module~mapl3g_restarthandler -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge1" class="edge">
+<title>module~generic3g&#45;&gt;module~mapl3g_restarthandler</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M427.29,-187.43C410.03,-190.68 388.86,-195.81 371,-203.56 353.36,-211.21 353.4,-221.99 335,-227.56 266.94,-248.17 246.11,-227.9 175,-227.56 166.65,-227.52 157.93,-227.46 149.24,-227.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="149.11,-223.89 139.08,-227.31 149.05,-230.89 149.11,-223.89"/>
+</g>
+<!-- module~mapl3g_generic -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node4" class="node">
+<title>module~mapl3g_generic</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node4"><a xlink:href="../module/mapl3g_generic.html" xlink:title="mapl3g_Generic">
+<polygon fill="#337ab7" stroke="#337ab7" points="305,-341.56 205,-341.56 205,-317.56 305,-317.56 305,-341.56"/>
+<text text-anchor="middle" x="255" y="-327.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_Generic</text>
+</a>
+</g>
+</g>
+<!-- module~generic3g&#45;&gt;module~mapl3g_generic -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge13" class="edge">
+<title>module~generic3g&#45;&gt;module~mapl3g_generic</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M427.37,-184.28C409.32,-186.62 387.38,-191.89 371,-203.56 346.6,-220.94 354.49,-237.8 335,-260.56 318.66,-279.64 296.99,-298.19 280.48,-311.25"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="278.12,-308.65 272.37,-317.55 282.42,-314.18 278.12,-308.65"/>
+</g>
+<!-- module~initialize_read_restart_smod -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node3" class="node">
+<title>module~initialize_read_restart_smod</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node3"><a xlink:href="../module/initialize_read_restart_smod.html" xlink:title="initialize_read_restart_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="335,-218.56 175,-218.56 175,-194.56 335,-194.56 335,-218.56"/>
+<text text-anchor="middle" x="255" y="-204.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_read_restart_smod</text>
+</a>
+</g>
+</g>
+<!-- module~initialize_read_restart_smod&#45;&gt;module~mapl3g_restarthandler -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge2" class="edge">
+<title>module~initialize_read_restart_smod&#45;&gt;module~mapl3g_restarthandler</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M174.85,-215.19C166.27,-216.12 157.55,-217.07 148.98,-218.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="148.58,-214.53 139.01,-219.09 149.33,-221.49 148.58,-214.53"/>
+</g>
+<!-- module~mapl3g_generic&#45;&gt;module~mapl3g_restarthandler -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge3" class="edge">
+<title>module~mapl3g_generic&#45;&gt;module~mapl3g_restarthandler</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M232.59,-317.54C200.08,-299.29 138.13,-264.52 100.94,-243.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="102.49,-240.5 92.06,-238.66 99.06,-246.61 102.49,-240.5"/>
+</g>
+<!-- module~write_restart_smod -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node5" class="node">
+<title>module~write_restart_smod</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node5"><a xlink:href="../module/write_restart_smod.html" xlink:title="write_restart_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="311.5,-176.56 198.5,-176.56 198.5,-152.56 311.5,-152.56 311.5,-176.56"/>
+<text text-anchor="middle" x="255" y="-162.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">write_restart_smod</text>
+</a>
+</g>
+</g>
+<!-- module~write_restart_smod&#45;&gt;module~mapl3g_restarthandler -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge4" class="edge">
+<title>module~write_restart_smod&#45;&gt;module~mapl3g_restarthandler</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M205.28,-176.58C195.21,-179.32 184.71,-182.38 175,-185.56 152.4,-192.97 127.6,-202.63 107.84,-210.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="106.48,-207.49 98.57,-214.54 109.15,-213.96 106.48,-207.49"/>
+</g>
+<!-- module~mapl3 -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node6" class="node">
+<title>module~mapl3</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node6"><a xlink:href="../module/mapl3.html" xlink:title="mapl3">
+<polygon fill="#337ab7" stroke="#337ab7" points="1211,-278.56 1157,-278.56 1157,-254.56 1211,-254.56 1211,-278.56"/>
+<text text-anchor="middle" x="1184" y="-264.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3&#45;&gt;module~generic3g -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge5" class="edge">
+<title>module~mapl3&#45;&gt;module~generic3g</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1156.99,-271.34C1054.96,-289.52 683.03,-350.22 588,-287.56 554.09,-265.2 583.11,-229.67 552,-203.56 539.16,-192.79 521.8,-187.32 505.78,-184.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="505.9,-181.1 495.51,-183.21 504.95,-188.03 505.9,-181.1"/>
+</g>
+<!-- module~mapl3g_cap -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node8" class="node">
+<title>module~mapl3g_cap</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node8"><a xlink:href="../module/mapl3g_cap.html" xlink:title="mapl3g_Cap">
+<polygon fill="#337ab7" stroke="#337ab7" points="1011,-238.56 932,-238.56 932,-214.56 1011,-214.56 1011,-238.56"/>
+<text text-anchor="middle" x="971.5" y="-224.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_Cap</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3&#45;&gt;module~mapl3g_cap -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge23" class="edge">
+<title>module~mapl3&#45;&gt;module~mapl3g_cap</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M1156.77,-261.57C1122.96,-255.15 1063.53,-243.86 1021.31,-235.83"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="1021.72,-232.35 1011.24,-233.92 1020.41,-239.23 1021.72,-232.35"/>
+</g>
+<!-- module~mapl3g_acg3 -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node7" class="node">
+<title>module~mapl3g_acg3</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node7"><a xlink:href="../module/mapl3g_acg3.html" xlink:title="mapl3g_acg3">
+<polygon fill="#337ab7" stroke="#337ab7" points="504,-488.56 419,-488.56 419,-464.56 504,-464.56 504,-488.56"/>
+<text text-anchor="middle" x="461.5" y="-474.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_acg3</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_acg3&#45;&gt;module~mapl3g_generic -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge14" class="edge">
+<title>module~mapl3g_acg3&#45;&gt;module~mapl3g_generic</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M418.9,-472.11C403.11,-469.1 385.45,-464.04 371,-455.56 325.79,-429.03 288.13,-378.95 269.18,-350.57"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="271.88,-348.31 263.49,-341.85 266.02,-352.13 271.88,-348.31"/>
+</g>
+<!-- module~mapl3g_cap&#45;&gt;module~generic3g -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge6" class="edge">
+<title>module~mapl3g_cap&#45;&gt;module~generic3g</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M931.79,-226.51C862.55,-226.01 713.04,-223.03 588,-207.56 560.32,-204.13 529.6,-198.05 505.48,-192.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="506.1,-189.3 495.58,-190.53 504.57,-196.13 506.1,-189.3"/>
+</g>
+<!-- module~mapl3g_capgridcomp -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node9" class="node">
+<title>module~mapl3g_capgridcomp</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node9"><a xlink:href="../module/mapl3g_capgridcomp.html" xlink:title="mapl3g_CapGridComp">
+<polygon fill="#337ab7" stroke="#337ab7" points="777.5,-198.56 644.5,-198.56 644.5,-174.56 777.5,-174.56 777.5,-198.56"/>
+<text text-anchor="middle" x="711" y="-184.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_CapGridComp</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_cap&#45;&gt;module~mapl3g_capgridcomp -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge24" class="edge">
+<title>module~mapl3g_cap&#45;&gt;module~mapl3g_capgridcomp</title>
+<path fill="none" stroke="#dfff00" stroke-dasharray="5,2" d="M931.8,-220.57C893.8,-214.69 834.81,-205.56 787.51,-198.24"/>
+<polygon fill="#dfff00" stroke="#dfff00" points="788.02,-194.78 777.6,-196.71 786.95,-201.7 788.02,-194.78"/>
+</g>
+<!-- module~mapl3g_capgridcomp&#45;&gt;module~generic3g -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge7" class="edge">
+<title>module~mapl3g_capgridcomp&#45;&gt;module~generic3g</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M644.32,-185.5C600.6,-184.79 544.37,-183.88 506.1,-183.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="505.86,-179.76 495.8,-183.1 505.75,-186.76 505.86,-179.76"/>
+</g>
+<!-- module~mapl3g_configurablegridcomp -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node10" class="node">
+<title>module~mapl3g_configurablegridcomp</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node10"><a xlink:href="../module/mapl3g_configurablegridcomp.html" xlink:title="mapl3g_ConfigurableGridComp">
+<polygon fill="#337ab7" stroke="#337ab7" points="552,-446.56 371,-446.56 371,-422.56 552,-422.56 552,-446.56"/>
+<text text-anchor="middle" x="461.5" y="-432.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ConfigurableGridComp</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_configurablegridcomp&#45;&gt;module~mapl3g_generic -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge15" class="edge">
+<title>module~mapl3g_configurablegridcomp&#45;&gt;module~mapl3g_generic</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M395.42,-422.55C387.03,-420.06 378.69,-417.09 371,-413.56 334.74,-396.9 298.5,-367.86 276.66,-348.67"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="278.81,-345.9 269.02,-341.85 274.14,-351.12 278.81,-345.9"/>
+</g>
+<!-- module~mapl3g_deprecated -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node11" class="node">
+<title>module~mapl3g_deprecated</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node11"><a xlink:href="../module/mapl3g_deprecated.html" xlink:title="mapl3g_Deprecated">
+<polygon fill="#337ab7" stroke="#337ab7" points="522,-404.56 401,-404.56 401,-380.56 522,-380.56 522,-404.56"/>
+<text text-anchor="middle" x="461.5" y="-390.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_Deprecated</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_deprecated&#45;&gt;module~mapl3g_generic -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge16" class="edge">
+<title>module~mapl3g_deprecated&#45;&gt;module~mapl3g_generic</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M404.37,-380.48C393.25,-377.78 381.7,-374.76 371,-371.56 345.45,-363.93 317.33,-353.69 295.29,-345.23"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="296.52,-341.96 285.94,-341.61 294,-348.49 296.52,-341.96"/>
+</g>
+<!-- module~mapl3g_extdatagridcomp -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node12" class="node">
+<title>module~mapl3g_extdatagridcomp</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node12"><a xlink:href="../module/mapl3g_extdatagridcomp.html" xlink:title="mapl3g_ExtDataGridComp">
+<polygon fill="#337ab7" stroke="#337ab7" points="788,-156.56 634,-156.56 634,-132.56 788,-132.56 788,-156.56"/>
+<text text-anchor="middle" x="711" y="-142.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ExtDataGridComp</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_extdatagridcomp&#45;&gt;module~generic3g -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge8" class="edge">
+<title>module~mapl3g_extdatagridcomp&#45;&gt;module~generic3g</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M633.72,-156.27C591.58,-162.74 540.78,-170.54 505.51,-175.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="504.89,-172.51 495.54,-177.49 505.96,-179.43 504.89,-172.51"/>
+</g>
+<!-- module~mapl3g_historycollectiongridcomp -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node13" class="node">
+<title>module~mapl3g_historycollectiongridcomp</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node13"><a xlink:href="../module/mapl3g_historycollectiongridcomp.html" xlink:title="mapl3g_HistoryCollectionGridComp">
+<polygon fill="#337ab7" stroke="#337ab7" points="1073,-116.56 870,-116.56 870,-92.56 1073,-92.56 1073,-116.56"/>
+<text text-anchor="middle" x="971.5" y="-102.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_HistoryCollectionGridComp</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_historycollectiongridcomp&#45;&gt;module~generic3g -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge9" class="edge">
+<title>module~mapl3g_historycollectiongridcomp&#45;&gt;module~generic3g</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M869.88,-99.01C791.83,-97.22 681.54,-100.22 588,-123.56 552.79,-132.35 515.53,-151.24 490.84,-165.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="488.92,-162.36 482.03,-170.41 492.43,-168.42 488.92,-162.36"/>
+</g>
+<!-- module~mapl3g_historycollectiongridcomp_private -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node14" class="node">
+<title>module~mapl3g_historycollectiongridcomp_private</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node14"><a xlink:href="../module/mapl3g_historycollectiongridcomp_private.html" xlink:title="mapl3g_HistoryCollectionGridComp_private">
+<polygon fill="#337ab7" stroke="#337ab7" points="834,-76.56 588,-76.56 588,-52.56 834,-52.56 834,-76.56"/>
+<text text-anchor="middle" x="711" y="-62.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_HistoryCollectionGridComp_private</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_historycollectiongridcomp&#45;&gt;module~mapl3g_historycollectiongridcomp_private -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge28" class="edge">
+<title>module~mapl3g_historycollectiongridcomp&#45;&gt;module~mapl3g_historycollectiongridcomp_private</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M892.94,-92.56C863.68,-88.03 830.19,-82.85 800.04,-78.18"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="800.37,-74.69 789.95,-76.62 799.3,-81.61 800.37,-74.69"/>
+</g>
+<!-- module~mapl3g_historycollectiongridcomp_private&#45;&gt;module~generic3g -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge10" class="edge">
+<title>module~mapl3g_historycollectiongridcomp_private&#45;&gt;module~generic3g</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M629.7,-76.61C615.47,-80.16 601.04,-84.71 588,-90.56 546.98,-108.94 506.27,-142.29 482.79,-163.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="480.25,-160.96 475.23,-170.29 484.98,-166.13 480.25,-160.96"/>
+</g>
+<!-- module~mapl3g_historygridcomp -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node15" class="node">
+<title>module~mapl3g_historygridcomp</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node15"><a xlink:href="../module/mapl3g_historygridcomp.html" xlink:title="mapl3g_HistoryGridComp">
+<polygon fill="#337ab7" stroke="#337ab7" points="1259,-75.56 1109,-75.56 1109,-51.56 1259,-51.56 1259,-75.56"/>
+<text text-anchor="middle" x="1184" y="-61.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_HistoryGridComp</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_historygridcomp&#45;&gt;module~generic3g -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge11" class="edge">
+<title>module~mapl3g_historygridcomp&#45;&gt;module~generic3g</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1145.65,-51.49C1048.51,-22.3 782.02,43.49 588,-43.56 533.7,-67.92 492.88,-128.52 474.03,-161.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="470.75,-159.77 468.9,-170.2 476.85,-163.2 470.75,-159.77"/>
+</g>
+<!-- module~mapl3g_historygridcomp&#45;&gt;module~mapl3g_historycollectiongridcomp -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge27" class="edge">
+<title>module~mapl3g_historygridcomp&#45;&gt;module~mapl3g_historycollectiongridcomp</title>
+<path fill="none" stroke="#00ff9f" stroke-dasharray="5,2" d="M1121.27,-75.58C1097.06,-80.3 1069.13,-85.74 1044.05,-90.62"/>
+<polygon fill="#00ff9f" stroke="#00ff9f" points="1043.38,-87.19 1034.23,-92.53 1044.72,-94.06 1043.38,-87.19"/>
+</g>
+<!-- module~protoextdatagc -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node16" class="node">
+<title>module~protoextdatagc</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node16"><a xlink:href="../module/protoextdatagc.html" xlink:title="ProtoExtDataGC">
+<polygon fill="#337ab7" stroke="#337ab7" points="510,-362.56 413,-362.56 413,-338.56 510,-338.56 510,-362.56"/>
+<text text-anchor="middle" x="461.5" y="-348.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ProtoExtDataGC</text>
+</a>
+</g>
+</g>
+<!-- module~protoextdatagc&#45;&gt;module~mapl3g_generic -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge17" class="edge">
+<title>module~protoextdatagc&#45;&gt;module~mapl3g_generic</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M412.81,-345.66C383.76,-342.68 346.39,-338.84 315.42,-335.66"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="315.49,-332.15 305.19,-334.61 314.78,-339.11 315.49,-332.15"/>
+</g>
+<!-- module~test_configurablegridcomp -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node17" class="node">
+<title>module~test_configurablegridcomp</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node17"><a xlink:href="../module/test_configurablegridcomp.html" xlink:title="Test_ConfigurableGridComp">
+<polygon fill="#337ab7" stroke="#337ab7" points="542,-320.56 381,-320.56 381,-296.56 542,-296.56 542,-320.56"/>
+<text text-anchor="middle" x="461.5" y="-306.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ConfigurableGridComp</text>
+</a>
+</g>
+</g>
+<!-- module~test_configurablegridcomp&#45;&gt;module~mapl3g_generic -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge18" class="edge">
+<title>module~test_configurablegridcomp&#45;&gt;module~mapl3g_generic</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M380.85,-316.74C358.98,-318.98 335.65,-321.38 315.15,-323.48"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="314.61,-320.02 305.02,-324.52 315.33,-326.98 314.61,-320.02"/>
+</g>
+<!-- module~test_historygridcomp -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node18" class="node">
+<title>module~test_historygridcomp</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node18"><a xlink:href="../module/test_historygridcomp.html" xlink:title="Test_HistoryGridComp">
+<polygon fill="#337ab7" stroke="#337ab7" points="776,-278.56 646,-278.56 646,-254.56 776,-254.56 776,-278.56"/>
+<text text-anchor="middle" x="711" y="-264.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_HistoryGridComp</text>
+</a>
+</g>
+</g>
+<!-- module~test_historygridcomp&#45;&gt;module~generic3g -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge12" class="edge">
+<title>module~test_historygridcomp&#45;&gt;module~generic3g</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M645.73,-260.14C626.33,-256.32 605.54,-250.24 588,-240.56 567.91,-229.47 571.97,-214.86 552,-203.56 538,-195.64 521.16,-190.7 505.88,-187.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="506.07,-184.1 495.61,-185.78 504.83,-190.99 506.07,-184.1"/>
+</g>
+<!-- module~test_scenarios -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node19" class="node">
+<title>module~test_scenarios</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node19"><a xlink:href="../module/test_scenarios.html" xlink:title="Test_Scenarios">
+<polygon fill="#337ab7" stroke="#337ab7" points="507,-278.56 416,-278.56 416,-254.56 507,-254.56 507,-278.56"/>
+<text text-anchor="middle" x="461.5" y="-264.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_Scenarios</text>
+</a>
+</g>
+</g>
+<!-- module~test_scenarios&#45;&gt;module~mapl3g_generic -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge19" class="edge">
+<title>module~test_scenarios&#45;&gt;module~mapl3g_generic</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M415.61,-275.98C401.26,-279.29 385.37,-283.26 371,-287.56 345.45,-295.19 317.33,-305.43 295.29,-313.88"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="294,-310.63 285.94,-317.51 296.52,-317.16 294,-310.63"/>
+</g>
+<!-- module~test_timestep_propagation -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node20" class="node">
+<title>module~test_timestep_propagation</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node20"><a xlink:href="../module/test_timestep_propagation.html" xlink:title="Test_timestep_propagation">
+<polygon fill="#337ab7" stroke="#337ab7" points="538.5,-236.56 384.5,-236.56 384.5,-212.56 538.5,-212.56 538.5,-236.56"/>
+<text text-anchor="middle" x="461.5" y="-222.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_timestep_propagation</text>
+</a>
+</g>
+</g>
+<!-- module~test_timestep_propagation&#45;&gt;module~mapl3g_generic -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge20" class="edge">
+<title>module~test_timestep_propagation&#45;&gt;module~mapl3g_generic</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M395.42,-236.57C387.03,-239.06 378.69,-242.03 371,-245.56 334.74,-262.22 298.5,-291.25 276.66,-310.44"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="274.14,-308 269.02,-317.27 278.81,-313.21 274.14,-308"/>
+</g>
+<!-- proc~setservices~4 -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node21" class="node">
+<title>proc~setservices~4</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node21"><a xlink:href="../proc/setservices~4.html" xlink:title="setservices">
+<polygon fill="#d9534f" stroke="#d9534f" points="497.5,-530.56 425.5,-530.56 425.5,-506.56 497.5,-506.56 497.5,-530.56"/>
+<text text-anchor="middle" x="461.5" y="-516.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setservices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~4&#45;&gt;module~mapl3g_generic -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge21" class="edge">
+<title>proc~setservices~4&#45;&gt;module~mapl3g_generic</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M425.38,-516.3C407.8,-513.76 386.93,-508.47 371,-497.56 316.32,-460.11 280.05,-387.4 264.55,-351.17"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="267.64,-349.47 260.57,-341.57 261.17,-352.15 267.64,-349.47"/>
+</g>
+<!-- module~test_historycollectiongridcomp -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node22" class="node">
+<title>module~test_historycollectiongridcomp</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node22"><a xlink:href="../module/test_historycollectiongridcomp.html" xlink:title="Test_HistoryCollectionGridComp">
+<polygon fill="#337ab7" stroke="#337ab7" points="1063,-74.56 880,-74.56 880,-50.56 1063,-50.56 1063,-74.56"/>
+<text text-anchor="middle" x="971.5" y="-60.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_HistoryCollectionGridComp</text>
+</a>
+</g>
+</g>
+<!-- module~test_historycollectiongridcomp&#45;&gt;module~mapl3g_historycollectiongridcomp_private -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge29" class="edge">
+<title>module~test_historycollectiongridcomp&#45;&gt;module~mapl3g_historycollectiongridcomp_private</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M879.73,-63.26C868.25,-63.35 856.32,-63.44 844.36,-63.53"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="844.29,-60.04 834.32,-63.61 844.34,-67.04 844.29,-60.04"/>
+</g>
+<!-- proc~setservices~10 -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node23" class="node">
+<title>proc~setservices~10</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node23"><a xlink:href="../proc/setservices~10.html" xlink:title="setServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="1368,-75.56 1295,-75.56 1295,-51.56 1368,-51.56 1368,-75.56"/>
+<text text-anchor="middle" x="1331.5" y="-61.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~10&#45;&gt;module~mapl3g_historygridcomp -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge30" class="edge">
+<title>proc~setservices~10&#45;&gt;module~mapl3g_historygridcomp</title>
+<path fill="none" stroke="#009fff" stroke-dasharray="5,2" d="M1294.91,-63.56C1287.02,-63.56 1278.34,-63.56 1269.42,-63.56"/>
+<polygon fill="#009fff" stroke="#009fff" points="1269.27,-60.06 1259.27,-63.56 1269.27,-67.06 1269.27,-60.06"/>
+</g>
+<!-- proc~setservices~12 -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node24" class="node">
+<title>proc~setservices~12</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node24"><a xlink:href="../proc/setservices~12.html" xlink:title="setServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="747.5,-362.56 674.5,-362.56 674.5,-338.56 747.5,-338.56 747.5,-362.56"/>
+<text text-anchor="middle" x="711" y="-348.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~12&#45;&gt;module~protoextdatagc -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge31" class="edge">
+<title>proc~setservices~12&#45;&gt;module~protoextdatagc</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M674.28,-350.56C633.99,-350.56 567.91,-350.56 520.26,-350.56"/>
+<polygon fill="#003fff" stroke="#003fff" points="520.09,-347.06 510.09,-350.56 520.09,-354.06 520.09,-347.06"/>
+</g>
+<!-- proc~setservices~5 -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node25" class="node">
+<title>proc~setservices~5</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node25"><a xlink:href="../proc/setservices~5.html" xlink:title="setServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="1008,-158.56 935,-158.56 935,-134.56 1008,-134.56 1008,-158.56"/>
+<text text-anchor="middle" x="971.5" y="-144.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~5&#45;&gt;module~mapl3g_extdatagridcomp -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge26" class="edge">
+<title>proc~setservices~5&#45;&gt;module~mapl3g_extdatagridcomp</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M934.83,-146.28C899.73,-146.01 844.79,-145.59 798.25,-145.23"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="798.18,-141.73 788.15,-145.15 798.12,-148.73 798.18,-141.73"/>
+</g>
+<!-- proc~setservices~8 -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node26" class="node">
+<title>proc~setservices~8</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node26"><a xlink:href="../proc/setservices~8.html" xlink:title="setServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="747.5,-446.56 674.5,-446.56 674.5,-422.56 747.5,-422.56 747.5,-446.56"/>
+<text text-anchor="middle" x="711" y="-432.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~8&#45;&gt;module~mapl3g_configurablegridcomp -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge25" class="edge">
+<title>proc~setservices~8&#45;&gt;module~mapl3g_configurablegridcomp</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M674.28,-434.56C644.97,-434.56 602,-434.56 562.41,-434.56"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="562.16,-431.06 552.16,-434.56 562.16,-438.06 562.16,-431.06"/>
+</g>
+<!-- program~geos -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_node27" class="node">
+<title>program~geos</title>
+<g id="a_module~~mapl3g_restarthandler~~UsedByGraph_node27"><a xlink:href="../program/geos.html" xlink:title="geos">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1358.5,-278.56 1304.5,-278.56 1304.5,-254.56 1358.5,-254.56 1358.5,-278.56"/>
+<text text-anchor="middle" x="1331.5" y="-264.16" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">geos</text>
+</a>
+</g>
+</g>
+<!-- program~geos&#45;&gt;module~mapl3 -->
+<g id="module~~mapl3g_restarthandler~~UsedByGraph_edge22" class="edge">
+<title>program~geos&#45;&gt;module~mapl3</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1304.49,-266.56C1281.35,-266.56 1247.29,-266.56 1221.44,-266.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1221.28,-263.06 1211.28,-266.56 1221.28,-270.06 1221.28,-263.06"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panmodulemapl3g_restarthandlerUsedByGraph = svgPanZoom('#modulemapl3g_restarthandlerUsedByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsedByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsedByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+      <br>
+
+
+
+        <section>
+          <h2>Enumerations</h2>
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="enum-__unnamed__~48"></span><h3>enum, bind(c)</h3></div>
+    <div class="card-body">
+      <h4>Enumerators</h4>
+      <table class="table table-striped varlist">
+        <tbody>
+            <tr>
+              <td>enumerator</td><td>::</td>
+              <td><strong>MAPL_RESTART</strong></td><td> = </td><td>0</td><td></td>
+            </tr>
+            <tr>
+              <td>enumerator</td><td>::</td>
+              <td><strong>MAPL_RESTART_OPTIONAL</strong></td><td> = </td><td>1</td><td></td>
+            </tr>
+            <tr>
+              <td>enumerator</td><td>::</td>
+              <td><strong>MAPL_RESTART_SKIP</strong></td><td> = </td><td>2</td><td></td>
+            </tr>
+            <tr>
+              <td>enumerator</td><td>::</td>
+              <td><strong>MAPL_RESTART_REQUIRED</strong></td><td> = </td><td>3</td><td></td>
+            </tr>
+            <tr>
+              <td>enumerator</td><td>::</td>
+              <td><strong>MAPL_RESTART_BOOT</strong></td><td> = </td><td>4</td><td></td>
+            </tr>
+            <tr>
+              <td>enumerator</td><td>::</td>
+              <td><strong>MAPL_RESTART_SKIP_INITIAL</strong></td><td> = </td><td>5</td><td></td>
+            </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+        <section>
+          <h2>Interfaces</h2>
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-restarthandler"></span>
+      <h3>public        interface <a href='../interface/restarthandler.html'>RestartHandler</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function new_RestartHandler(gc_name, gc_geom, gc_clock, rc) result(restart_handler)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gc_name~2"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>gc_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gc_geom~2"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_geom.html'>ESMF_Geom</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>gc_geom</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gc_clock"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>gc_clock</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~3514"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/restarthandler.html'>RestartHandler</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+        </section>
+        <br>
+
+
+        <section>
+          <h2>Derived Types</h2>
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-restarthandler"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/restarthandler.html'>RestartHandler</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      
+
+
+        <h4>Constructor</h4>
+          
+        <table class="table table-striped varlist">
+          <tbody>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong>new_RestartHandler</strong>
+                    (gc_name, gc_geom, gc_clock, rc)
+                  </td>
+                  <td></td>
+                </tr>
+          </tbody>
+        </table>
+
+
+        <h4>Type-Bound Procedures</h4>
+        <table class="table table-striped varlist">
+          <tbody>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/restarthandler.html#boundprocedure-read~2'>read</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/restarthandler.html#boundprocedure-write~2'>write</a></strong></td>
+                  <td></td>
+              </tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+
+
+
+
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,3477 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>mapl3g_ConnectionVector &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>mapl3g_ConnectionVector
+      <small>Module</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.4% of total for modules and submodules.">1248 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ConnectionVector.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/connectionvector.f90.html'>ConnectionVector.F90</a></li>
+            <li class="breadcrumb-item active" aria-current="page">mapl3g_ConnectionVector</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#variable-bad_alloc~68">BAD_ALLOC</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#variable-gftl_size_kind~35">GFTL_SIZE_KIND</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#variable-illegal_input~68">ILLEGAL_INPUT</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#variable-length_error~35">LENGTH_ERROR</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#variable-out_of_range~68">OUT_OF_RANGE</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#variable-success~77">SUCCESS</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#variable-type_has_no_default_value~35">TYPE_HAS_NO_DEFAULT_VALUE</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#variable-no_type__~35">NO_TYPE__</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#inters-0"
+         aria-expanded="false" aria-controls="inters-0">
+         <h4 class="card-header bg-primary text-white">Interfaces</h4>
+      </a>
+      <div id="inters-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#interface-connectionvector">ConnectionVector</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#interface-advance~76">advance</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#interface-begin~52">begin</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#interface-distance~49">distance</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#interface-end~52">end</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#interface-find~75">find</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#interface-find_if~75">find_if</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#interface-find_if_not~75">find_if_not</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#interface-ftn_begin~52">ftn_begin</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#interface-ftn_end~52">ftn_end</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#interface-next~76">next</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#interface-operator%28%2B%29~49">operator(+)</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#interface-operator%28-%29~49">operator(-)</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#interface-operator%28SLASH%3D%29~120">operator(/=)</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#interface-operator%28%3D%3D%29~122">operator(==)</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#interface-prev~76">prev</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#interface-swap~94">swap</a>
+        </div>
+      </div>
+    </div>
+
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#types-0"
+         aria-expanded="false" aria-controls="types-0">
+         <h4 class="card-header bg-primary text-white">Derived Types</h4>
+      </a>
+      <div id="types-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#type-connectionvector">ConnectionVector</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#type-connectionvectoriterator">ConnectionVectorIterator</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#type-keywordenforcer~8">KeywordEnforcer</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#type-no_type_~5">NO_TYPE_</a>
+            <a class="list-group-item" href="../module/mapl3g_connectionvector.html#type-vectorriterator">VectorRIterator</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      <p>$   public :: foreach</p>
+<p>$   ! =======================
+$   !  insert
+$   ! =======================
+$   subroutine vector_insert_size_kind(                                                 &amp;
+$        &amp;   this, index, value, unused, rc)
+$      class(ConnectionVector), target, intent(inout) :: this
+$
+$      integer(kind=GFTL_SIZE_KIND), intent(in) :: index
+$
+$      class(Connection), intent(in) :: value
+$      type (KeywordEnforcer), optional, intent(in) :: unused
+$      integer, optional, intent(out) :: rc
+$
+$      class(Connection), allocatable :: temp
+$      integer(kind=GFTL_SIZE_KIND) :: i, n
+$
+$      if (.false.) print*,shape(unused)
+$
+$      n = this%vsize
+$      if (index==n+1) then
+$         call this%push_back(value)
+$         ! Workaround for NAG -6221 - temp needs some status
+$         allocate(temp, source=value)
+$         return
+$      endif
+$      call this%grow_to(this%vsize+1)
+$      allocate(temp, source=this%elements(n)%item)
+$      call this%resize(n+1, temp, rc=rc)
+$
+$      do i = n, index, -1
+$         call move_alloc(from=this%elements(index-1)%item,to=this%elements(index)%item)
+$      end do
+$
+$      allocate(this%elements(index)%item, source=value)
+$
+$      return
+$   end subroutine vector_insert_size_kind
+$
+$
+$   subroutine vector_insert_default(this, index, value)
+$      class(ConnectionVector), intent(inout) :: this
+$      integer, intent(in) :: index
+$      class(Connection), intent(in) :: value
+$
+$      call this%insert(int(index,kind=GFTL_SIZE_KIND), value)
+$   end subroutine vector_insert_default</p>
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='mapl3g_connection.html'>mapl3g_Connection</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~mapl3g_connectionvector~~UsesGraph Pages: 1 -->
+<svg id="modulemapl3g_connectionvectorUsesGraph" width="316pt" height="32pt"
+ viewBox="0.00 0.00 316.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl3g_connectionvector~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>module~~mapl3g_connectionvector~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 312,-28 312,4 -4,4"/>
+<!-- module~mapl3g_connectionvector -->
+<g id="module~~mapl3g_connectionvector~~UsesGraph_node1" class="node">
+<title>module~mapl3g_connectionvector</title>
+<polygon fill="none" stroke="black" points="308,-24 155,-24 155,0 308,0 308,-24"/>
+<text text-anchor="middle" x="231.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl3g_ConnectionVector</text>
+</g>
+<!-- module~mapl3g_connection -->
+<g id="module~~mapl3g_connectionvector~~UsesGraph_node2" class="node">
+<title>module~mapl3g_connection</title>
+<g id="a_module~~mapl3g_connectionvector~~UsesGraph_node2"><a xlink:href="../module/mapl3g_connection.html" xlink:title="mapl3g_Connection">
+<polygon fill="#337ab7" stroke="#337ab7" points="119,-24 0,-24 0,0 119,0 119,-24"/>
+<text text-anchor="middle" x="59.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_Connection</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_connectionvector&#45;&gt;module~mapl3g_connection -->
+<g id="module~~mapl3g_connectionvector~~UsesGraph_edge1" class="edge">
+<title>module~mapl3g_connectionvector&#45;&gt;module~mapl3g_connection</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M154.95,-12C146.43,-12 137.8,-12 129.38,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="129.24,-8.5 119.24,-12 129.24,-15.5 129.24,-8.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+          <div class="card">
+      <h3 class="card-header card-title bg-light">Used by</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~mapl3g_connectionvector~~UsedByGraph Pages: 1 -->
+<svg id="modulemapl3g_connectionvectorUsedByGraph" width="641pt" height="420pt"
+ viewBox="0.00 0.00 641.00 420.02" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl3g_connectionvector~~UsedByGraph" class="graph" transform="scale(0.78 0.78) rotate(0) translate(4 532)">
+<title>module~~mapl3g_connectionvector~~UsedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-532 814,-532 814,4 -4,4"/>
+<!-- module~mapl3g_connectionvector -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_node1" class="node">
+<title>module~mapl3g_connectionvector</title>
+<polygon fill="none" stroke="black" points="153,-295 0,-295 0,-271 153,-271 153,-295"/>
+<text text-anchor="middle" x="76.5" y="-280.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl3g_ConnectionVector</text>
+</g>
+<!-- module~initialize_advertise_smod -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_node2" class="node">
+<title>module~initialize_advertise_smod</title>
+<g id="a_module~~mapl3g_connectionvector~~UsedByGraph_node2"><a xlink:href="../module/initialize_advertise_smod.html" xlink:title="initialize_advertise_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="359.5,-357 213.5,-357 213.5,-333 359.5,-333 359.5,-357"/>
+<text text-anchor="middle" x="286.5" y="-342.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_advertise_smod</text>
+</a>
+</g>
+</g>
+<!-- module~initialize_advertise_smod&#45;&gt;module~mapl3g_connectionvector -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_edge1" class="edge">
+<title>module~initialize_advertise_smod&#45;&gt;module~mapl3g_connectionvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M224.18,-332.99C212.43,-330.31 200.28,-327.28 189,-324 164.44,-316.85 137.51,-307.01 116.27,-298.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="117.53,-295.49 106.94,-295.09 114.97,-302.01 117.53,-295.49"/>
+</g>
+<!-- module~initialize_modify_advertised_smod -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_node3" class="node">
+<title>module~initialize_modify_advertised_smod</title>
+<g id="a_module~~mapl3g_connectionvector~~UsedByGraph_node3"><a xlink:href="../module/initialize_modify_advertised_smod.html" xlink:title="initialize_modify_advertised_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="384,-315 189,-315 189,-291 384,-291 384,-315"/>
+<text text-anchor="middle" x="286.5" y="-300.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_modify_advertised_smod</text>
+</a>
+</g>
+</g>
+<!-- module~initialize_modify_advertised_smod&#45;&gt;module~mapl3g_connectionvector -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_edge2" class="edge">
+<title>module~initialize_modify_advertised_smod&#45;&gt;module~mapl3g_connectionvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M188.81,-293.7C180.28,-292.88 171.7,-292.06 163.27,-291.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="163.38,-287.74 153.09,-290.27 162.71,-294.71 163.38,-287.74"/>
+</g>
+<!-- module~mapl3g_componentspec -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_node4" class="node">
+<title>module~mapl3g_componentspec</title>
+<g id="a_module~~mapl3g_connectionvector~~UsedByGraph_node4"><a xlink:href="../module/mapl3g_componentspec.html" xlink:title="mapl3g_ComponentSpec">
+<polygon fill="#337ab7" stroke="#337ab7" points="360,-235 213,-235 213,-211 360,-211 360,-235"/>
+<text text-anchor="middle" x="286.5" y="-220.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ComponentSpec</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_componentspec&#45;&gt;module~mapl3g_connectionvector -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_edge3" class="edge">
+<title>module~mapl3g_componentspec&#45;&gt;module~mapl3g_connectionvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M239.27,-235.12C223.32,-239.4 205.34,-244.31 189,-249 168.12,-255 145.14,-261.94 125.5,-267.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="124.37,-264.67 115.85,-270.97 126.44,-271.36 124.37,-264.67"/>
+</g>
+<!-- module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_node5" class="node">
+<title>module~mapl3g_componentspecparser</title>
+<g id="a_module~~mapl3g_connectionvector~~UsedByGraph_node5"><a xlink:href="../module/mapl3g_componentspecparser.html" xlink:title="mapl3g_ComponentSpecParser">
+<polygon fill="#337ab7" stroke="#337ab7" points="601,-276 420,-276 420,-252 601,-252 601,-276"/>
+<text text-anchor="middle" x="510.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ComponentSpecParser</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_componentspecparser&#45;&gt;module~mapl3g_connectionvector -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_edge4" class="edge">
+<title>module~mapl3g_componentspecparser&#45;&gt;module~mapl3g_connectionvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M419.99,-267.94C344.69,-271.25 237.73,-275.95 163.46,-279.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="163.04,-275.73 153.2,-279.67 163.34,-282.73 163.04,-275.73"/>
+</g>
+<!-- module~mapl3g_componentspecparser&#45;&gt;module~mapl3g_componentspec -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_edge5" class="edge">
+<title>module~mapl3g_componentspecparser&#45;&gt;module~mapl3g_componentspec</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M444.39,-251.98C418.75,-247.24 389.15,-241.77 362.61,-236.87"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="363.08,-233.4 352.61,-235.02 361.8,-240.28 363.08,-233.4"/>
+</g>
+<!-- module~add_child_by_spec_smod -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_node6" class="node">
+<title>module~add_child_by_spec_smod</title>
+<g id="a_module~~mapl3g_connectionvector~~UsedByGraph_node6"><a xlink:href="../module/add_child_by_spec_smod.html" xlink:title="add_child_by_spec_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="796.5,-528 650.5,-528 650.5,-504 796.5,-504 796.5,-528"/>
+<text text-anchor="middle" x="723.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">add_child_by_spec_smod</text>
+</a>
+</g>
+</g>
+<!-- module~add_child_by_spec_smod&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_edge8" class="edge">
+<title>module~add_child_by_spec_smod&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M652.1,-503.97C646.72,-501.5 641.6,-498.55 637,-495 565.57,-439.91 529.63,-332.18 516.95,-285.94"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="520.28,-284.84 514.35,-276.07 513.52,-286.63 520.28,-284.84"/>
+</g>
+<!-- module~mapl3g_generic -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_node7" class="node">
+<title>module~mapl3g_generic</title>
+<g id="a_module~~mapl3g_connectionvector~~UsedByGraph_node7"><a xlink:href="../module/mapl3g_generic.html" xlink:title="mapl3g_Generic">
+<polygon fill="#337ab7" stroke="#337ab7" points="560.5,-234 460.5,-234 460.5,-210 560.5,-210 560.5,-234"/>
+<text text-anchor="middle" x="510.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_Generic</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_generic&#45;&gt;module~mapl3g_componentspec -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_edge6" class="edge">
+<title>module~mapl3g_generic&#45;&gt;module~mapl3g_componentspec</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M460.23,-222.22C433.83,-222.34 400.61,-222.49 370.37,-222.63"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="370.22,-219.13 360.24,-222.67 370.25,-226.13 370.22,-219.13"/>
+</g>
+<!-- module~mapl3g_outermetacomponent -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_node8" class="node">
+<title>module~mapl3g_outermetacomponent</title>
+<g id="a_module~~mapl3g_connectionvector~~UsedByGraph_node8"><a xlink:href="../module/mapl3g_outermetacomponent.html" xlink:title="mapl3g_OuterMetaComponent">
+<polygon fill="#337ab7" stroke="#337ab7" points="599,-192 422,-192 422,-168 599,-168 599,-192"/>
+<text text-anchor="middle" x="510.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_OuterMetaComponent</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_outermetacomponent&#45;&gt;module~mapl3g_componentspec -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_edge7" class="edge">
+<title>module~mapl3g_outermetacomponent&#45;&gt;module~mapl3g_componentspec</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M447.37,-192.04C420.06,-197.32 387.82,-203.57 359.47,-209.06"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="358.77,-205.63 349.62,-210.97 360.1,-212.5 358.77,-205.63"/>
+</g>
+<!-- module~parse_child_smod -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_node9" class="node">
+<title>module~parse_child_smod</title>
+<g id="a_module~~mapl3g_connectionvector~~UsedByGraph_node9"><a xlink:href="../module/parse_child_smod.html" xlink:title="parse_child_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="777.5,-486 669.5,-486 669.5,-462 777.5,-462 777.5,-486"/>
+<text text-anchor="middle" x="723.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_child_smod</text>
+</a>
+</g>
+</g>
+<!-- module~parse_child_smod&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_edge12" class="edge">
+<title>module~parse_child_smod&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#7f00ff" d="M669.23,-467.36C657.9,-464.25 646.5,-459.68 637,-453 575.34,-409.66 535.74,-325.52 519.67,-285.78"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="522.93,-284.5 516.01,-276.47 516.41,-287.06 522.93,-284.5"/>
+</g>
+<!-- module~parse_children_smod -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_node10" class="node">
+<title>module~parse_children_smod</title>
+<g id="a_module~~mapl3g_connectionvector~~UsedByGraph_node10"><a xlink:href="../module/parse_children_smod.html" xlink:title="parse_children_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="786,-444 661,-444 661,-420 786,-420 786,-444"/>
+<text text-anchor="middle" x="723.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_children_smod</text>
+</a>
+</g>
+</g>
+<!-- module~parse_children_smod&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_edge13" class="edge">
+<title>module~parse_children_smod&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#7f00ff" d="M660.83,-421.8C652.48,-419.02 644.29,-415.49 637,-411 584.48,-378.62 542.67,-316.93 523.27,-284.73"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="526.29,-282.95 518.19,-276.11 520.26,-286.51 526.29,-282.95"/>
+</g>
+<!-- module~parse_component_spec_smod -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_node11" class="node">
+<title>module~parse_component_spec_smod</title>
+<g id="a_module~~mapl3g_connectionvector~~UsedByGraph_node11"><a xlink:href="../module/parse_component_spec_smod.html" xlink:title="parse_component_spec_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="810,-402 637,-402 637,-378 810,-378 810,-402"/>
+<text text-anchor="middle" x="723.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_component_spec_smod</text>
+</a>
+</g>
+</g>
+<!-- module~parse_component_spec_smod&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_edge14" class="edge">
+<title>module~parse_component_spec_smod&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#7f00ff" d="M659.21,-377.94C651.53,-375.47 643.95,-372.52 637,-369 593.51,-346.98 551.93,-307.3 529.25,-283.53"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="531.7,-281.03 522.3,-276.13 526.59,-285.82 531.7,-281.03"/>
+</g>
+<!-- module~parse_connections_smod -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_node12" class="node">
+<title>module~parse_connections_smod</title>
+<g id="a_module~~mapl3g_connectionvector~~UsedByGraph_node12"><a xlink:href="../module/parse_connections_smod.html" xlink:title="parse_connections_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="797,-360 650,-360 650,-336 797,-336 797,-360"/>
+<text text-anchor="middle" x="723.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_connections_smod</text>
+</a>
+</g>
+</g>
+<!-- module~parse_connections_smod&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_edge15" class="edge">
+<title>module~parse_connections_smod&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#7f00ff" d="M665.85,-335.99C656.11,-333.39 646.18,-330.38 637,-327 602.92,-314.44 566.01,-295.17 541.1,-281.24"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="542.6,-278.07 532.17,-276.19 539.15,-284.16 542.6,-278.07"/>
+</g>
+<!-- module~parse_geometry_spec_smod -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_node13" class="node">
+<title>module~parse_geometry_spec_smod</title>
+<g id="a_module~~mapl3g_connectionvector~~UsedByGraph_node13"><a xlink:href="../module/parse_geometry_spec_smod.html" xlink:title="parse_geometry_spec_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="805.5,-318 641.5,-318 641.5,-294 805.5,-294 805.5,-318"/>
+<text text-anchor="middle" x="723.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_geometry_spec_smod</text>
+</a>
+</g>
+</g>
+<!-- module~parse_geometry_spec_smod&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_edge16" class="edge">
+<title>module~parse_geometry_spec_smod&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#7f00ff" d="M662.04,-293.96C637.09,-289 608.02,-283.21 582.11,-278.05"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="582.46,-274.56 571.97,-276.04 581.1,-281.42 582.46,-274.56"/>
+</g>
+<!-- module~parse_setservices_smod -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_node14" class="node">
+<title>module~parse_setservices_smod</title>
+<g id="a_module~~mapl3g_connectionvector~~UsedByGraph_node14"><a xlink:href="../module/parse_setservices_smod.html" xlink:title="parse_setservices_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="794.5,-276 652.5,-276 652.5,-252 794.5,-252 794.5,-276"/>
+<text text-anchor="middle" x="723.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_setservices_smod</text>
+</a>
+</g>
+</g>
+<!-- module~parse_setservices_smod&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_edge17" class="edge">
+<title>module~parse_setservices_smod&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#7f00ff" d="M652.24,-264C639.12,-264 625.18,-264 611.37,-264"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="611.35,-260.5 601.35,-264 611.35,-267.5 611.35,-260.5"/>
+</g>
+<!-- module~parse_timespec_smod -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_node15" class="node">
+<title>module~parse_timespec_smod</title>
+<g id="a_module~~mapl3g_connectionvector~~UsedByGraph_node15"><a xlink:href="../module/parse_timespec_smod.html" xlink:title="parse_timespec_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="789,-234 658,-234 658,-210 789,-210 789,-234"/>
+<text text-anchor="middle" x="723.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_timespec_smod</text>
+</a>
+</g>
+</g>
+<!-- module~parse_timespec_smod&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_edge18" class="edge">
+<title>module~parse_timespec_smod&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#7f00ff" d="M662.04,-234.04C637.09,-239 608.02,-244.79 582.11,-249.95"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="581.1,-246.58 571.97,-251.96 582.46,-253.44 581.1,-246.58"/>
+</g>
+<!-- module~parse_var_specs_smod -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_node16" class="node">
+<title>module~parse_var_specs_smod</title>
+<g id="a_module~~mapl3g_connectionvector~~UsedByGraph_node16"><a xlink:href="../module/parse_var_specs_smod.html" xlink:title="parse_var_specs_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="791,-192 656,-192 656,-168 791,-168 791,-192"/>
+<text text-anchor="middle" x="723.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_var_specs_smod</text>
+</a>
+</g>
+</g>
+<!-- module~parse_var_specs_smod&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_edge19" class="edge">
+<title>module~parse_var_specs_smod&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#7f00ff" d="M655.94,-191.94C649.3,-194.41 642.86,-197.4 637,-201 616.06,-213.88 622.01,-230.23 601,-243 597.98,-244.84 594.81,-246.52 591.53,-248.05"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="589.98,-244.9 582.09,-251.98 592.67,-251.36 589.98,-244.9"/>
+</g>
+<!-- module~setservices_smod -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_node17" class="node">
+<title>module~setservices_smod</title>
+<g id="a_module~~mapl3g_connectionvector~~UsedByGraph_node17"><a xlink:href="../module/setservices_smod.html" xlink:title="SetServices_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="778,-150 669,-150 669,-126 778,-126 778,-150"/>
+<text text-anchor="middle" x="723.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SetServices_smod</text>
+</a>
+</g>
+</g>
+<!-- module~setservices_smod&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_edge9" class="edge">
+<title>module~setservices_smod&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M668.72,-143.28C657.29,-146.45 645.98,-151.39 637,-159 606.02,-185.27 632.11,-216.89 601,-243 599.44,-244.31 597.82,-245.54 596.13,-246.69"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="594.15,-243.8 587.31,-251.88 597.7,-249.83 594.15,-243.8"/>
+</g>
+<!-- module~test_componentspecparser -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_node18" class="node">
+<title>module~test_componentspecparser</title>
+<g id="a_module~~mapl3g_connectionvector~~UsedByGraph_node18"><a xlink:href="../module/test_componentspecparser.html" xlink:title="Test_ComponentSpecParser">
+<polygon fill="#337ab7" stroke="#337ab7" points="803.5,-108 643.5,-108 643.5,-84 803.5,-84 803.5,-108"/>
+<text text-anchor="middle" x="723.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ComponentSpecParser</text>
+</a>
+</g>
+</g>
+<!-- module~test_componentspecparser&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_edge10" class="edge">
+<title>module~test_componentspecparser&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M649.17,-108.08C644.75,-110.55 640.63,-113.5 637,-117 595.05,-157.4 643.16,-202.81 601,-243 599.73,-244.21 598.4,-245.36 597.03,-246.44"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="595.06,-243.55 588.66,-252 598.93,-249.38 595.06,-243.55"/>
+</g>
+<!-- module~test_timestep_propagation -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_node19" class="node">
+<title>module~test_timestep_propagation</title>
+<g id="a_module~~mapl3g_connectionvector~~UsedByGraph_node19"><a xlink:href="../module/test_timestep_propagation.html" xlink:title="Test_timestep_propagation">
+<polygon fill="#337ab7" stroke="#337ab7" points="800.5,-66 646.5,-66 646.5,-42 800.5,-42 800.5,-66"/>
+<text text-anchor="middle" x="723.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_timestep_propagation</text>
+</a>
+</g>
+</g>
+<!-- module~test_timestep_propagation&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_edge11" class="edge">
+<title>module~test_timestep_propagation&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M648.5,-66.04C644.3,-68.53 640.41,-71.49 637,-75 583.81,-129.79 654.47,-188.48 601,-243 600.06,-243.96 599.08,-244.88 598.07,-245.76"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="595.8,-243.09 589.76,-251.79 599.91,-248.75 595.8,-243.09"/>
+</g>
+<!-- module~to_itemtype_smod -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_node20" class="node">
+<title>module~to_itemtype_smod</title>
+<g id="a_module~~mapl3g_connectionvector~~UsedByGraph_node20"><a xlink:href="../module/to_itemtype_smod.html" xlink:title="to_itemtype_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="778.5,-24 668.5,-24 668.5,0 778.5,0 778.5,-24"/>
+<text text-anchor="middle" x="723.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">to_itemtype_smod</text>
+</a>
+</g>
+</g>
+<!-- module~to_itemtype_smod&#45;&gt;module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_connectionvector~~UsedByGraph_edge20" class="edge">
+<title>module~to_itemtype_smod&#45;&gt;module~mapl3g_componentspecparser</title>
+<path fill="none" stroke="#7f00ff" d="M668.2,-15.56C656.52,-18.78 645.23,-24.16 637,-33 572.46,-102.3 665.9,-174.04 601,-243 600.08,-243.98 599.12,-244.92 598.13,-245.82"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="595.84,-243.16 589.93,-251.95 600.03,-248.76 595.84,-243.16"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panmodulemapl3g_connectionvectorUsedByGraph = svgPanZoom('#modulemapl3g_connectionvectorUsedByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsedByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsedByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+      <br>
+
+
+        <section>
+          <h2>Variables</h2>
+            <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bad_alloc~68"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>BAD_ALLOC</strong></td>
+<td> =</td>
+                <td>2</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gftl_size_kind~35"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>GFTL_SIZE_KIND</strong></td>
+<td> =</td>
+                <td>selected_int_kind(18)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-illegal_input~68"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>ILLEGAL_INPUT</strong></td>
+<td> =</td>
+                <td>3</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-length_error~35"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>LENGTH_ERROR</strong></td>
+<td> =</td>
+                <td>4</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-out_of_range~68"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>OUT_OF_RANGE</strong></td>
+<td> =</td>
+                <td>1</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-success~77"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>SUCCESS</strong></td>
+<td> =</td>
+                <td>0</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-type_has_no_default_value~35"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>TYPE_HAS_NO_DEFAULT_VALUE</strong></td>
+<td> =</td>
+                <td>5</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-no_type__~35"></span>
+              type(<a href='../type/no_type_~5.html'>NO_TYPE_</a>),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>NO_TYPE__</strong></td>
+<td> =</td>
+                <td>NO_TYPE_()</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+        </section>
+        <br>
+
+
+        <section>
+          <h2>Interfaces</h2>
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-connectionvector"></span>
+      <h3>public        interface <a href='../interface/connectionvector.html'>ConnectionVector</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_new_vector_empty() result(v)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+    <em>None</em>
+    <h4>
+    Return Value
+    <small>type(<a href='../type/connectionvector.html'>ConnectionVector</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_new_vector_fill_size_kind(n, value) result(v)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1557"></span>
+              integer(kind=GFTL_SIZE_KIND),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-value~1020"></span>
+              class(<a href='../type/connection.html'>Connection</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/connectionvector.html'>ConnectionVector</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_new_vector_fill_default(n, value) result(v)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1558"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-value~1021"></span>
+              class(<a href='../type/connection.html'>Connection</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/connectionvector.html'>ConnectionVector</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_new_vector_range(first, last) result(v)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-first~363"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>first</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-last~372"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>last</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/connectionvector.html'>ConnectionVector</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_new_vector_copy(x) result(v)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-x~314"></span>
+              type(<a href='../type/connectionvector.html'>ConnectionVector</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>x</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/connectionvector.html'>ConnectionVector</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-advance~76"></span>
+      <h3>public        interface <a href='../interface/advance~76.html'>advance</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  subroutine vector_iter_advance_size_kind(it, n)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~777"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1571"></span>
+              integer(kind=selected_int_kind(18)),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  subroutine vector_iter_advance_default(it, n)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~778"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1572"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-begin~52"></span>
+      <h3>public        interface <a href='../interface/begin~52.html'>begin</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_begin(cont) result(begin)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cont~205"></span>
+              type(<a href='../type/connectionvector.html'>ConnectionVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>cont</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-distance~49"></span>
+      <h3>public        interface <a href='../interface/distance~49.html'>distance</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_distance(a, b) result(distance)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~1005"></span>
+              class(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-b~690"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>b</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>integer(kind=selected_int_kind(18))</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-end~52"></span>
+      <h3>public        interface <a href='../interface/end~52.html'>end</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_end(cont) result(end)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cont~207"></span>
+              type(<a href='../type/connectionvector.html'>ConnectionVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>cont</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-find~75"></span>
+      <h3>public        interface <a href='../interface/find~75.html'>find</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_find_basic(do_not_use, unused) result(j)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-do_not_use~67"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>do_not_use</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unused~491"></span>
+              type(<a href='../type/keywordenforcer~8.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unused</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(vector_keywordenforcer)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-find_if~75"></span>
+      <h3>public        interface <a href='../interface/find_if~75.html'>find_if</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_find_if(first, last, p) result(it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-first~366"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>first</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-last~375"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>last</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td colspan="7">
+              <small>    <h5>
+    private  function p(item)  
+
+    </h5>
+  
+
+  <h6>Arguments</h6>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-item~277"></span>
+              class(<a href='../type/connection.html'>Connection</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>item</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h6>
+    Return Value
+    <small>logical</small>
+    </h6>
+    
+</small>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-find_if_not~75"></span>
+      <h3>public        interface <a href='../interface/find_if_not~75.html'>find_if_not</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_find_if_not(first, last, q) result(it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-first~367"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>first</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-last~376"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>last</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td colspan="7">
+              <small>    <h5>
+    private  function q(item)  
+
+    </h5>
+  
+
+  <h6>Arguments</h6>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-item~278"></span>
+              class(<a href='../type/connection.html'>Connection</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>item</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h6>
+    Return Value
+    <small>logical</small>
+    </h6>
+    
+</small>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-ftn_begin~52"></span>
+      <h3>public        interface <a href='../interface/ftn_begin~52.html'>ftn_begin</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_ftn_begin(cont) result(begin)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cont~206"></span>
+              type(<a href='../type/connectionvector.html'>ConnectionVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>cont</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-ftn_end~52"></span>
+      <h3>public        interface <a href='../interface/ftn_end~52.html'>ftn_end</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_ftn_end(cont) result(end)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cont~208"></span>
+              type(<a href='../type/connectionvector.html'>ConnectionVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>cont</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-next~76"></span>
+      <h3>public        interface <a href='../interface/next~76.html'>next</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_next_1(it) result(new_it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~779"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_next_n_size_kind(it, n) result(new_it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~780"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1573"></span>
+              integer(kind=selected_int_kind(18)),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_next_n_default(it, n) result(new_it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~781"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1574"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-operator%28%2B%29~49"></span>
+      <h3>public        interface <a href='../interface/operator(+)~49.html'>operator(+)</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_a_plus_n_size_kind(a, n) result(new_iter)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~992"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1564"></span>
+              integer(kind=selected_int_kind(18)),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_n_plus_a_size_kind(n, a) result(new_iter)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1565"></span>
+              integer(kind=selected_int_kind(18)),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~993"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_n_plus_a_default(n, a) result(new_iter)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1568"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~996"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_a_plus_n_default(a, n) result(new_iter)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~995"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1567"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-operator%28-%29~49"></span>
+      <h3>public        interface <a href='../interface/operator(-)~49.html'>operator(-)</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_a_minus_n_size_kind(a, n) result(new_iter)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~994"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1566"></span>
+              integer(kind=selected_int_kind(18)),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_a_minus_n_default(a, n) result(new_iter)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~997"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1569"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_a_minus_b(a, b) result(n)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~998"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-b~683"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>b</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>integer(kind=selected_int_kind(18))</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-operator%28SLASH%3D%29~120"></span>
+      <h3>public        interface <a href='../interface/operator(SLASH=)~120.html'>operator(/=)</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_not_equal(a, b) result(ne)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~1000"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-b~685"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>b</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-operator%28%3D%3D%29~122"></span>
+      <h3>public        interface <a href='../interface/operator(==)~122.html'>operator(==)</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_equal(a, b) result(eq)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~999"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-b~684"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>b</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-prev~76"></span>
+      <h3>public        interface <a href='../interface/prev~76.html'>prev</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_prev_1(it) result(new_it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~782"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_prev_n_size_kind(it, n) result(new_it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~783"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1575"></span>
+              integer(kind=selected_int_kind(18)),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  function vector_iter_prev_n_default(it, n) result(new_it)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~784"></span>
+              type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~1576"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-swap~94"></span>
+      <h3>public        interface <a href='../interface/swap~94.html'>swap</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  subroutine vector_swap(this, x)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~6754"></span>
+              class(<a href='../type/connectionvector.html'>ConnectionVector</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-x~315"></span>
+              type(<a href='../type/connectionvector.html'>ConnectionVector</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>x</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+    </ul>
+  </div>
+
+        </section>
+        <br>
+
+
+        <section>
+          <h2>Derived Types</h2>
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-connectionvector"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/connectionvector.html'>ConnectionVector</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      
+
+
+        <h4>Constructor</h4>
+          
+        <table class="table table-striped varlist">
+          <tbody>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong>vector_new_vector_empty</strong>
+                    ()
+                  </td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong>vector_new_vector_fill_size_kind</strong>
+                    (n, value)
+                  </td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong>vector_new_vector_fill_default</strong>
+                    (n, value)
+                  </td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong>vector_new_vector_range</strong>
+                    (first, last)
+                  </td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong>vector_new_vector_copy</strong>
+                    (x)
+                  </td>
+                  <td></td>
+                </tr>
+          </tbody>
+        </table>
+
+
+        <h4>Type-Bound Procedures</h4>
+        <table class="table table-striped varlist">
+          <tbody>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-at~326'>at</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvector.html#boundprocedure-at_default~25'>at_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-at~327'>at</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvector.html#boundprocedure-of_default~25'>of_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-at~328'>at</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvector.html#boundprocedure-at_size_kind~68'>at_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-at~329'>at</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvector.html#boundprocedure-of_size_kind~25'>of_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-at_default~25'>at_default</a></strong> => vector_at_default</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-at_size_kind~68'>at_size_kind</a></strong> => vector_at_size_kind</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-back~75'>back</a></strong> => vector_back</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-begin~244'>begin</a></strong> => vector_begin</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-capacity~403'>capacity</a></strong> => vector_capacity</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-clear~125'>clear</a></strong> => vector_clear</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-empty~240'>empty</a></strong> => vector_empty</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-end~204'>end</a></strong> => vector_end</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-erase~151'>erase</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvector.html#boundprocedure-erase_one~53'>erase_one</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-erase~152'>erase</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvector.html#boundprocedure-erase_range~52'>erase_range</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-erase_one~53'>erase_one</a></strong> => vector_erase_one</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-erase_range~52'>erase_range</a></strong> => vector_erase_range</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-front~68'>front</a></strong> => vector_front</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-ftn_begin~52'>ftn_begin</a></strong> => vector_ftn_begin</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-ftn_end~53'>ftn_end</a></strong> => vector_ftn_end</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-insert~321'>insert</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvector.html#boundprocedure-vector_insert_one~22'>vector_insert_one</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-insert~322'>insert</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvector.html#boundprocedure-vector_insert_count_size_kind~22'>vector_insert_count_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-insert~323'>insert</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvector.html#boundprocedure-vector_insert_count_default~22'>vector_insert_count_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-insert~324'>insert</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvector.html#boundprocedure-vector_insert_range~22'>vector_insert_range</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public, nopass ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-max_size~94'>max_size</a></strong> => vector_max_size</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-of~290'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvector.html#boundprocedure-of_default~25'>of_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-of~291'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvector.html#boundprocedure-of_size_kind~25'>of_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-of_default~25'>of_default</a></strong> => vector_of_default</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-of_size_kind~25'>of_size_kind</a></strong> => vector_of_size_kind</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-pop_back~68'>pop_back</a></strong> => vector_pop_back</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-push_back~68'>push_back</a></strong> => vector_push_back</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-rbegin~44'>rbegin</a></strong> => vector_rbegin</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-rend~44'>rend</a></strong> => vector_rend</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-reserve~135'>reserve</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvector.html#boundprocedure-reserve_default~25'>reserve_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-reserve~136'>reserve</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvector.html#boundprocedure-reserve_size_kind~68'>reserve_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-reserve_default~25'>reserve_default</a></strong> => vector_reserve_default</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-reserve_size_kind~68'>reserve_size_kind</a></strong> => vector_reserve_size_kind</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-reset~74'>reset</a></strong> => vector_reset</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-resize~135'>resize</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvector.html#boundprocedure-resize_default~25'>resize_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-resize~136'>resize</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvector.html#boundprocedure-resize_size_kind~25'>resize_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-resize_default~25'>resize_default</a></strong> => vector_resize_default</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-resize_size_kind~25'>resize_size_kind</a></strong> => vector_resize_size_kind</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-set~171'>set</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvector.html#boundprocedure-set_default~25'>set_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-set~172'>set</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvector.html#boundprocedure-set_size_kind~68'>set_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-set_default~25'>set_default</a></strong> => vector_set_default</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-set_size_kind~68'>set_size_kind</a></strong> => vector_set_size_kind</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-shrink_to_fit~68'>shrink_to_fit</a></strong> => vector_shrink_to_fit</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-size~184'>size</a></strong> => vector_size</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-swap~84'>swap</a></strong> => vector_swap</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-vector_insert_count_default~22'>vector_insert_count_default</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-vector_insert_count_size_kind~22'>vector_insert_count_size_kind</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-vector_insert_one~22'>vector_insert_one</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-vector_insert_range~22'>vector_insert_range</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-write%28formatted%29~45'>write(formatted)</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvector.html#boundprocedure-write_formatted~46'>write_formatted</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvector.html#boundprocedure-write_formatted~46'>write_formatted</a></strong> => vector_write_formatted</td>
+                  <td></td>
+              </tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-connectionvectoriterator"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/connectionvectoriterator.html'>ConnectionVectorIterator</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      
+
+
+
+
+        <h4>Type-Bound Procedures</h4>
+        <table class="table table-striped varlist">
+          <tbody>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvectoriterator.html#boundprocedure-add~97'>add</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvectoriterator.html#boundprocedure-vector_iter_add_n_default~22'>vector_iter_add_n_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvectoriterator.html#boundprocedure-add~98'>add</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvectoriterator.html#boundprocedure-vector_iter_add_n_size_kind~22'>vector_iter_add_n_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvectoriterator.html#boundprocedure-next~149'>next</a></strong> => vector_iter_next</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvectoriterator.html#boundprocedure-of~292'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvectoriterator.html#boundprocedure-vector_iter_of~22'>vector_iter_of</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvectoriterator.html#boundprocedure-of~293'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvectoriterator.html#boundprocedure-vector_iter_of_offset_default~22'>vector_iter_of_offset_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvectoriterator.html#boundprocedure-of~294'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvectoriterator.html#boundprocedure-vector_iter_of_offset_size_kind~22'>vector_iter_of_offset_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvectoriterator.html#boundprocedure-prev~117'>prev</a></strong> => vector_iter_prev</td>
+                  <td><p>$      procedure :: back_inserter =&gt; vector_back_inserter
+$      procedure :: front_inserter =&gt; vector_front_inserter
+$      procedure :: inserter =&gt; vector_inserter
+$      procedure :: make_move_iterator =&gt; vector_make_move_iterator</p><a href="../type/connectionvectoriterator.html#boundprocedure-prev~117" class="pull-right"><emph>Read more&hellip;</emph></a></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvectoriterator.html#boundprocedure-sub~97'>sub</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvectoriterator.html#boundprocedure-vector_iter_sub_n_default~22'>vector_iter_sub_n_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/connectionvectoriterator.html#boundprocedure-sub~98'>sub</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/connectionvectoriterator.html#boundprocedure-vector_iter_sub_n_size_kind~22'>vector_iter_sub_n_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvectoriterator.html#boundprocedure-vector_iter_add_n_default~22'>vector_iter_add_n_default</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvectoriterator.html#boundprocedure-vector_iter_add_n_size_kind~22'>vector_iter_add_n_size_kind</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvectoriterator.html#boundprocedure-vector_iter_of~22'>vector_iter_of</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvectoriterator.html#boundprocedure-vector_iter_of_offset_default~22'>vector_iter_of_offset_default</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvectoriterator.html#boundprocedure-vector_iter_of_offset_size_kind~22'>vector_iter_of_offset_size_kind</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvectoriterator.html#boundprocedure-vector_iter_sub_n_default~22'>vector_iter_sub_n_default</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/connectionvectoriterator.html#boundprocedure-vector_iter_sub_n_size_kind~22'>vector_iter_sub_n_size_kind</a></strong></td>
+                  <td></td>
+              </tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-keywordenforcer~8"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/keywordenforcer~8.html'>KeywordEnforcer</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      
+
+
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-no_type_~5"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/no_type_~5.html'>NO_TYPE_</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      
+
+
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-vectorriterator"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/vectorriterator.html'>VectorRIterator</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      <p>$      procedure :: back_inserter =&gt; vector_back_inserter
+$      procedure :: front_inserter =&gt; vector_front_inserter
+$      procedure :: inserter =&gt; vector_inserter
+$      procedure :: make_move_iterator =&gt; vector_make_move_iterator</p>
+
+
+
+
+        <h4>Type-Bound Procedures</h4>
+        <table class="table table-striped varlist">
+          <tbody>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/vectorriterator.html#boundprocedure-add~99'>add</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/vectorriterator.html#boundprocedure-vector_riter_add_n_default~22'>vector_riter_add_n_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/vectorriterator.html#boundprocedure-add~100'>add</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/vectorriterator.html#boundprocedure-vector_riter_add_n_size_kind~22'>vector_riter_add_n_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/vectorriterator.html#boundprocedure-next~150'>next</a></strong> => vector_riter_next</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/vectorriterator.html#boundprocedure-of~295'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/vectorriterator.html#boundprocedure-vector_riter_of~22'>vector_riter_of</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/vectorriterator.html#boundprocedure-of~296'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/vectorriterator.html#boundprocedure-vector_riter_of_offset_size_kind~22'>vector_riter_of_offset_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/vectorriterator.html#boundprocedure-of~297'>of</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/vectorriterator.html#boundprocedure-vector_riter_of_offset_default~22'>vector_riter_of_offset_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/vectorriterator.html#boundprocedure-prev~118'>prev</a></strong> => vector_riter_prev</td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/vectorriterator.html#boundprocedure-sub~99'>sub</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/vectorriterator.html#boundprocedure-vector_riter_sub_n_default~22'>vector_riter_sub_n_default</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/vectorriterator.html#boundprocedure-sub~100'>sub</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/mapl3-doc/type/vectorriterator.html#boundprocedure-vector_riter_sub_n_size_kind~22'>vector_riter_sub_n_size_kind</a></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/vectorriterator.html#boundprocedure-vector_riter_add_n_default~22'>vector_riter_add_n_default</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/vectorriterator.html#boundprocedure-vector_riter_add_n_size_kind~22'>vector_riter_add_n_size_kind</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/vectorriterator.html#boundprocedure-vector_riter_of~22'>vector_riter_of</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/vectorriterator.html#boundprocedure-vector_riter_of_offset_default~22'>vector_riter_of_offset_default</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/vectorriterator.html#boundprocedure-vector_riter_of_offset_size_kind~22'>vector_riter_of_offset_size_kind</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/vectorriterator.html#boundprocedure-vector_riter_sub_n_default~22'>vector_riter_sub_n_default</a></strong></td>
+                  <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/vectorriterator.html#boundprocedure-vector_riter_sub_n_size_kind~22'>vector_riter_sub_n_size_kind</a></strong></td>
+                  <td></td>
+              </tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+
+
+
+
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

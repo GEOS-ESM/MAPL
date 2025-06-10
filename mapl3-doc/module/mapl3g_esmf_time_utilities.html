@@ -1,0 +1,899 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>mapl3g_ESMF_Time_Utilities &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>mapl3g_ESMF_Time_Utilities
+      <small>Module</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for modules and submodules.">74 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ESMF_Time_Utilities.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/esmf_time_utilities.f90.html'>ESMF_Time_Utilities.F90</a></li>
+            <li class="breadcrumb-item active" aria-current="page">mapl3g_ESMF_Time_Utilities</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#inters-0"
+         aria-expanded="false" aria-controls="inters-0">
+         <h4 class="card-header bg-primary text-white">Interfaces</h4>
+      </a>
+      <div id="inters-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_esmf_time_utilities.html#interface-zero_time_interval">zero_time_interval</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#subs-0"
+         aria-expanded="false" aria-controls="subs-0">
+         <h4 class="card-header bg-primary text-white">Subroutines</h4>
+      </a>
+      <div id="subs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_esmf_time_utilities.html#proc-intervals_and_offset_are_compatible">intervals_and_offset_are_compatible</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
+                  <li class="list-inline-item"><a href='mapl_errorhandling.html'>mapl_ErrorHandling</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~mapl3g_esmf_time_utilities~~UsesGraph Pages: 1 -->
+<svg id="modulemapl3g_esmf_time_utilitiesUsesGraph" width="463pt" height="95pt"
+ viewBox="0.00 0.00 463.00 95.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl3g_esmf_time_utilities~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 91)">
+<title>module~~mapl3g_esmf_time_utilities~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-91 459,-91 459,4 -4,4"/>
+<!-- module~mapl3g_esmf_time_utilities -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsesGraph_node1" class="node">
+<title>module~mapl3g_esmf_time_utilities</title>
+<polygon fill="none" stroke="black" points="455,-66 292,-66 292,-42 455,-42 455,-66"/>
+<text text-anchor="middle" x="373.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl3g_ESMF_Time_Utilities</text>
+</g>
+<!-- ESMF -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsesGraph_node2" class="node">
+<title>ESMF</title>
+<g id="a_module~~mapl3g_esmf_time_utilities~~UsesGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/module/esmf.html" xlink:title="ESMF">
+<polygon fill="#337ab7" stroke="#337ab7" points="223.5,-87 169.5,-87 169.5,-63 223.5,-63 223.5,-87"/>
+<text text-anchor="middle" x="196.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_esmf_time_utilities&#45;&gt;ESMF -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsesGraph_edge1" class="edge">
+<title>module~mapl3g_esmf_time_utilities&#45;&gt;ESMF</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M291.91,-63.67C271.56,-66.11 250.7,-68.62 233.79,-70.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="233.32,-67.18 223.8,-71.84 234.15,-74.13 233.32,-67.18"/>
+</g>
+<!-- module~mapl_errorhandling -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsesGraph_node3" class="node">
+<title>module~mapl_errorhandling</title>
+<g id="a_module~~mapl3g_esmf_time_utilities~~UsesGraph_node3"><a xlink:href="../module/mapl_errorhandling.html" xlink:title="mapl_ErrorHandling">
+<polygon fill="#337ab7" stroke="#337ab7" points="256,-45 137,-45 137,-21 256,-21 256,-45"/>
+<text text-anchor="middle" x="196.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_ErrorHandling</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_esmf_time_utilities&#45;&gt;module~mapl_errorhandling -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsesGraph_edge2" class="edge">
+<title>module~mapl3g_esmf_time_utilities&#45;&gt;module~mapl_errorhandling</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M291.91,-44.33C283.37,-43.3 274.73,-42.27 266.34,-41.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="266.59,-37.77 256.24,-40.05 265.75,-44.72 266.59,-37.77"/>
+</g>
+<!-- module~mapl_throwmod -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsesGraph_node4" class="node">
+<title>module~mapl_throwmod</title>
+<g id="a_module~~mapl3g_esmf_time_utilities~~UsesGraph_node4"><a xlink:href="../module/mapl_throwmod.html" xlink:title="MAPL_ThrowMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="101,-66 0,-66 0,-42 101,-42 101,-66"/>
+<text text-anchor="middle" x="50.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_errorhandling&#45;&gt;module~mapl_throwmod -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsesGraph_edge3" class="edge">
+<title>module~mapl_errorhandling&#45;&gt;module~mapl_throwmod</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M136.93,-41.54C128.52,-42.77 119.85,-44.03 111.41,-45.26"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="110.65,-41.84 101.26,-46.74 111.66,-48.76 110.65,-41.84"/>
+</g>
+<!-- mpi -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsesGraph_node5" class="node">
+<title>mpi</title>
+<g id="a_module~~mapl3g_esmf_time_utilities~~UsesGraph_node5"><a xlink:href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm" xlink:title="mpi">
+<polygon fill="#337ab7" stroke="#337ab7" points="77.5,-24 23.5,-24 23.5,0 77.5,0 77.5,-24"/>
+<text text-anchor="middle" x="50.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_errorhandling&#45;&gt;mpi -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsesGraph_edge4" class="edge">
+<title>module~mapl_errorhandling&#45;&gt;mpi</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M136.93,-24.46C120.39,-22.05 102.87,-19.49 88.02,-17.33"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="88.14,-13.81 77.74,-15.83 87.13,-20.73 88.14,-13.81"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+          <div class="card">
+      <h3 class="card-header card-title bg-light">Used by</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~mapl3g_esmf_time_utilities~~UsedByGraph Pages: 1 -->
+<svg id="modulemapl3g_esmf_time_utilitiesUsedByGraph" width="641pt" height="265pt"
+ viewBox="0.00 0.00 641.00 265.39" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph" class="graph" transform="scale(0.62 0.62) rotate(0) translate(4 427)">
+<title>module~~mapl3g_esmf_time_utilities~~UsedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-427 1037,-427 1037,4 -4,4"/>
+<!-- module~mapl3g_esmf_time_utilities -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_node1" class="node">
+<title>module~mapl3g_esmf_time_utilities</title>
+<polygon fill="none" stroke="black" points="163,-89 0,-89 0,-65 163,-65 163,-89"/>
+<text text-anchor="middle" x="81.5" y="-74.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl3g_ESMF_Time_Utilities</text>
+</g>
+<!-- module~initialize_set_clock_smod -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_node2" class="node">
+<title>module~initialize_set_clock_smod</title>
+<g id="a_module~~mapl3g_esmf_time_utilities~~UsedByGraph_node2"><a xlink:href="../module/initialize_set_clock_smod.html" xlink:title="initialize_set_clock_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="346,-131 201,-131 201,-107 346,-107 346,-131"/>
+<text text-anchor="middle" x="273.5" y="-116.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_set_clock_smod</text>
+</a>
+</g>
+</g>
+<!-- module~initialize_set_clock_smod&#45;&gt;module~mapl3g_esmf_time_utilities -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_edge1" class="edge">
+<title>module~initialize_set_clock_smod&#45;&gt;module~mapl3g_esmf_time_utilities</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M218.05,-106.96C195.89,-102.07 170.11,-96.37 147.01,-91.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="147.47,-87.78 136.95,-89.04 145.96,-94.61 147.47,-87.78"/>
+</g>
+<!-- module~mapl3g_frequencyaspect -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_node3" class="node">
+<title>module~mapl3g_frequencyaspect</title>
+<g id="a_module~~mapl3g_esmf_time_utilities~~UsedByGraph_node3"><a xlink:href="../module/mapl3g_frequencyaspect.html" xlink:title="mapl3g_FrequencyAspect">
+<polygon fill="#337ab7" stroke="#337ab7" points="348,-89 199,-89 199,-65 348,-65 348,-89"/>
+<text text-anchor="middle" x="273.5" y="-74.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_FrequencyAspect</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_frequencyaspect&#45;&gt;module~mapl3g_esmf_time_utilities -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_edge2" class="edge">
+<title>module~mapl3g_frequencyaspect&#45;&gt;module~mapl3g_esmf_time_utilities</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M198.77,-77C190.37,-77 181.74,-77 173.16,-77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="173.12,-73.5 163.12,-77 173.12,-80.5 173.12,-73.5"/>
+</g>
+<!-- module~test_esmf_time_utilities -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_node4" class="node">
+<title>module~test_esmf_time_utilities</title>
+<g id="a_module~~mapl3g_esmf_time_utilities~~UsedByGraph_node4"><a xlink:href="../module/test_esmf_time_utilities.html" xlink:title="Test_ESMF_Time_Utilities">
+<polygon fill="#337ab7" stroke="#337ab7" points="344.5,-47 202.5,-47 202.5,-23 344.5,-23 344.5,-47"/>
+<text text-anchor="middle" x="273.5" y="-32.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ESMF_Time_Utilities</text>
+</a>
+</g>
+</g>
+<!-- module~test_esmf_time_utilities&#45;&gt;module~mapl3g_esmf_time_utilities -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_edge3" class="edge">
+<title>module~test_esmf_time_utilities&#45;&gt;module~mapl3g_esmf_time_utilities</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M218.05,-47.04C195.89,-51.93 170.11,-57.63 147.01,-62.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="145.96,-59.39 136.95,-64.96 147.47,-66.22 145.96,-59.39"/>
+</g>
+<!-- module~mapl3g_historycollectiongridcomp_private -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_node5" class="node">
+<title>module~mapl3g_historycollectiongridcomp_private</title>
+<g id="a_module~~mapl3g_esmf_time_utilities~~UsedByGraph_node5"><a xlink:href="../module/mapl3g_historycollectiongridcomp_private.html" xlink:title="mapl3g_HistoryCollectionGridComp_private">
+<polygon fill="#337ab7" stroke="#337ab7" points="794,-45 548,-45 548,-21 794,-21 794,-45"/>
+<text text-anchor="middle" x="671" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_HistoryCollectionGridComp_private</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_historycollectiongridcomp_private&#45;&gt;module~mapl3g_frequencyaspect -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_edge4" class="edge">
+<title>module~mapl3g_historycollectiongridcomp_private&#45;&gt;module~mapl3g_frequencyaspect</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M575.97,-45.07C566.37,-47.52 556.88,-50.46 548,-54 530.14,-61.12 530.4,-72.43 512,-78 457.55,-94.49 440.89,-78.26 384,-78 375.66,-77.96 366.97,-77.91 358.29,-77.84"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="358.15,-74.34 348.13,-77.76 358.1,-81.34 358.15,-74.34"/>
+</g>
+<!-- module~mapl3g_variablespec -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_node6" class="node">
+<title>module~mapl3g_variablespec</title>
+<g id="a_module~~mapl3g_esmf_time_utilities~~UsedByGraph_node6"><a xlink:href="../module/mapl3g_variablespec.html" xlink:title="mapl3g_VariableSpec">
+<polygon fill="#337ab7" stroke="#337ab7" points="512,-213 384,-213 384,-189 512,-189 512,-213"/>
+<text text-anchor="middle" x="448" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_VariableSpec</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_historycollectiongridcomp_private&#45;&gt;module~mapl3g_variablespec -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_edge14" class="edge">
+<title>module~mapl3g_historycollectiongridcomp_private&#45;&gt;module~mapl3g_variablespec</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M564.57,-45.09C558.76,-47.59 553.18,-50.54 548,-54 523.09,-70.64 528.6,-86.05 512,-111 495.99,-135.07 476.85,-162.19 463.9,-180.31"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="460.73,-178.73 457.74,-188.9 466.42,-182.81 460.73,-178.73"/>
+</g>
+<!-- module~mapl3g_variablespec&#45;&gt;module~mapl3g_frequencyaspect -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_edge5" class="edge">
+<title>module~mapl3g_variablespec&#45;&gt;module~mapl3g_frequencyaspect</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M438.7,-188.84C423.35,-167.27 388.38,-122.3 348,-98 345.01,-96.2 341.86,-94.55 338.61,-93.03"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="339.83,-89.75 329.26,-89.12 337.13,-96.21 339.83,-89.75"/>
+</g>
+<!-- module~test_aspectmap -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_node7" class="node">
+<title>module~test_aspectmap</title>
+<g id="a_module~~mapl3g_esmf_time_utilities~~UsedByGraph_node7"><a xlink:href="../module/test_aspectmap.html" xlink:title="Test_AspectMap">
+<polygon fill="#337ab7" stroke="#337ab7" points="496.5,-69 399.5,-69 399.5,-45 496.5,-45 496.5,-69"/>
+<text text-anchor="middle" x="448" y="-54.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_AspectMap</text>
+</a>
+</g>
+</g>
+<!-- module~test_aspectmap&#45;&gt;module~mapl3g_frequencyaspect -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_edge6" class="edge">
+<title>module~test_aspectmap&#45;&gt;module~mapl3g_frequencyaspect</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M399.41,-62.52C386.65,-64 372.47,-65.64 358.37,-67.28"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="357.67,-63.83 348.14,-68.46 358.48,-70.79 357.67,-63.83"/>
+</g>
+<!-- module~test_aspects -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_node8" class="node">
+<title>module~test_aspects</title>
+<g id="a_module~~mapl3g_esmf_time_utilities~~UsedByGraph_node8"><a xlink:href="../module/test_aspects.html" xlink:title="Test_Aspects">
+<polygon fill="#337ab7" stroke="#337ab7" points="487.5,-27 408.5,-27 408.5,-3 487.5,-3 487.5,-27"/>
+<text text-anchor="middle" x="448" y="-12.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_Aspects</text>
+</a>
+</g>
+</g>
+<!-- module~test_aspects&#45;&gt;module~mapl3g_frequencyaspect -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_edge7" class="edge">
+<title>module~test_aspects&#45;&gt;module~mapl3g_frequencyaspect</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M408.26,-26.66C400.14,-29.45 391.7,-32.61 384,-36 367.25,-43.37 364.91,-49 348,-56 343.02,-58.06 337.77,-60 332.46,-61.8"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="331.33,-58.49 322.88,-64.89 333.47,-65.15 331.33,-58.49"/>
+</g>
+<!-- module~initialize_advertise_smod -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_node9" class="node">
+<title>module~initialize_advertise_smod</title>
+<g id="a_module~~mapl3g_esmf_time_utilities~~UsedByGraph_node9"><a xlink:href="../module/initialize_advertise_smod.html" xlink:title="initialize_advertise_smod">
+<polygon fill="#5bc0de" stroke="#5bc0de" points="744,-423 598,-423 598,-399 744,-399 744,-423"/>
+<text text-anchor="middle" x="671" y="-408.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_advertise_smod</text>
+</a>
+</g>
+</g>
+<!-- module~initialize_advertise_smod&#45;&gt;module~mapl3g_variablespec -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_edge10" class="edge">
+<title>module~initialize_advertise_smod&#45;&gt;module~mapl3g_variablespec</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M597.91,-409.58C580.31,-406.4 562.42,-400.5 548,-390 490.67,-348.26 463.72,-263.25 453.77,-223.03"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="457.15,-222.1 451.46,-213.16 450.34,-223.7 457.15,-222.1"/>
+</g>
+<!-- module~mapl3g_componentspec -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_node10" class="node">
+<title>module~mapl3g_componentspec</title>
+<g id="a_module~~mapl3g_esmf_time_utilities~~UsedByGraph_node10"><a xlink:href="../module/mapl3g_componentspec.html" xlink:title="mapl3g_ComponentSpec">
+<polygon fill="#337ab7" stroke="#337ab7" points="744.5,-381 597.5,-381 597.5,-357 744.5,-357 744.5,-381"/>
+<text text-anchor="middle" x="671" y="-366.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ComponentSpec</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_componentspec&#45;&gt;module~mapl3g_variablespec -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_edge11" class="edge">
+<title>module~mapl3g_componentspec&#45;&gt;module~mapl3g_variablespec</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M597.4,-366.23C580.2,-363.03 562.62,-357.46 548,-348 500.91,-317.53 470.69,-255.93 457.19,-222.97"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="460.32,-221.37 453.39,-213.36 453.81,-223.94 460.32,-221.37"/>
+</g>
+<!-- module~mapl3g_componentspecparser -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_node11" class="node">
+<title>module~mapl3g_componentspecparser</title>
+<g id="a_module~~mapl3g_esmf_time_utilities~~UsedByGraph_node11"><a xlink:href="../module/mapl3g_componentspecparser.html" xlink:title="mapl3g_ComponentSpecParser">
+<polygon fill="#337ab7" stroke="#337ab7" points="761.5,-339 580.5,-339 580.5,-315 761.5,-315 761.5,-339"/>
+<text text-anchor="middle" x="671" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ComponentSpecParser</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_componentspecparser&#45;&gt;module~mapl3g_variablespec -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_edge12" class="edge">
+<title>module~mapl3g_componentspecparser&#45;&gt;module~mapl3g_variablespec</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M580.45,-318.49C569.15,-315.44 558.04,-311.39 548,-306 510.42,-285.83 479.04,-246.05 462.23,-221.66"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="465,-219.5 456.52,-213.14 459.18,-223.4 465,-219.5"/>
+</g>
+<!-- module~mapl3g_generic -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_node12" class="node">
+<title>module~mapl3g_generic</title>
+<g id="a_module~~mapl3g_esmf_time_utilities~~UsedByGraph_node12"><a xlink:href="../module/mapl3g_generic.html" xlink:title="mapl3g_Generic">
+<polygon fill="#337ab7" stroke="#337ab7" points="721,-297 621,-297 621,-273 721,-273 721,-297"/>
+<text text-anchor="middle" x="671" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_Generic</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_generic&#45;&gt;module~mapl3g_variablespec -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_edge13" class="edge">
+<title>module~mapl3g_generic&#45;&gt;module~mapl3g_variablespec</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M620.72,-281.01C598.02,-278.05 571.06,-272.91 548,-264 519.82,-253.12 491.07,-233.7 471.86,-219.29"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="473.81,-216.38 463.75,-213.07 469.56,-221.93 473.81,-216.38"/>
+</g>
+<!-- module~mapl3g_historycollectiongridcomp -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_node13" class="node">
+<title>module~mapl3g_historycollectiongridcomp</title>
+<g id="a_module~~mapl3g_esmf_time_utilities~~UsedByGraph_node13"><a xlink:href="../module/mapl3g_historycollectiongridcomp.html" xlink:title="mapl3g_HistoryCollectionGridComp">
+<polygon fill="#337ab7" stroke="#337ab7" points="1033,-66 830,-66 830,-42 1033,-42 1033,-66"/>
+<text text-anchor="middle" x="931.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_HistoryCollectionGridComp</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_historycollectiongridcomp&#45;&gt;module~mapl3g_historycollectiongridcomp_private -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_edge8" class="edge">
+<title>module~mapl3g_historycollectiongridcomp&#45;&gt;module~mapl3g_historycollectiongridcomp_private</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M829.82,-45.82C821.46,-45.14 812.94,-44.45 804.4,-43.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="804.62,-40.26 794.37,-42.94 804.06,-47.24 804.62,-40.26"/>
+</g>
+<!-- module~mapl3g_variablespecvector -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_node14" class="node">
+<title>module~mapl3g_variablespecvector</title>
+<g id="a_module~~mapl3g_esmf_time_utilities~~UsedByGraph_node14"><a xlink:href="../module/mapl3g_variablespecvector.html" xlink:title="mapl3g_VariableSpecVector">
+<polygon fill="#337ab7" stroke="#337ab7" points="752,-255 590,-255 590,-231 752,-231 752,-255"/>
+<text text-anchor="middle" x="671" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_VariableSpecVector</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_variablespecvector&#45;&gt;module~mapl3g_variablespec -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_edge15" class="edge">
+<title>module~mapl3g_variablespecvector&#45;&gt;module~mapl3g_variablespec</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M597.34,-230.97C581.08,-228.14 563.94,-225.06 548,-222 536.92,-219.87 525.18,-217.49 513.79,-215.12"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="514.41,-211.67 503.91,-213.04 512.97,-218.52 514.41,-211.67"/>
+</g>
+<!-- module~mockaspect_mod -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_node15" class="node">
+<title>module~mockaspect_mod</title>
+<g id="a_module~~mapl3g_esmf_time_utilities~~UsedByGraph_node15"><a xlink:href="../module/mockaspect_mod.html" xlink:title="MockAspect_mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="724,-213 618,-213 618,-189 724,-189 724,-213"/>
+<text text-anchor="middle" x="671" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockAspect_mod</text>
+</a>
+</g>
+</g>
+<!-- module~mockaspect_mod&#45;&gt;module~mapl3g_variablespec -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_edge16" class="edge">
+<title>module~mockaspect_mod&#45;&gt;module~mapl3g_variablespec</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M617.91,-201C589.47,-201 553.8,-201 522.57,-201"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="522.17,-197.5 512.17,-201 522.17,-204.5 522.17,-197.5"/>
+</g>
+<!-- module~mockitemspecmod -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_node16" class="node">
+<title>module~mockitemspecmod</title>
+<g id="a_module~~mapl3g_esmf_time_utilities~~UsedByGraph_node16"><a xlink:href="../module/mockitemspecmod.html" xlink:title="MockItemSpecMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="727.5,-171 614.5,-171 614.5,-147 727.5,-147 727.5,-171"/>
+<text text-anchor="middle" x="671" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockItemSpecMod</text>
+</a>
+</g>
+</g>
+<!-- module~mockitemspecmod&#45;&gt;module~mapl3g_variablespec -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_edge17" class="edge">
+<title>module~mockitemspecmod&#45;&gt;module~mapl3g_variablespec</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M614.35,-168.11C593.5,-171.65 569.63,-175.85 548,-180 536.92,-182.13 525.18,-184.51 513.79,-186.88"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="512.97,-183.48 503.91,-188.96 514.41,-190.33 512.97,-183.48"/>
+</g>
+<!-- module~test_bracketclassaspect -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_node17" class="node">
+<title>module~test_bracketclassaspect</title>
+<g id="a_module~~mapl3g_esmf_time_utilities~~UsedByGraph_node17"><a xlink:href="../module/test_bracketclassaspect.html" xlink:title="Test_BracketClassAspect">
+<polygon fill="#337ab7" stroke="#337ab7" points="742.5,-129 599.5,-129 599.5,-105 742.5,-105 742.5,-129"/>
+<text text-anchor="middle" x="671" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_BracketClassAspect</text>
+</a>
+</g>
+</g>
+<!-- module~test_bracketclassaspect&#45;&gt;module~mapl3g_variablespec -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_edge18" class="edge">
+<title>module~test_bracketclassaspect&#45;&gt;module~mapl3g_variablespec</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M599.36,-124.29C582.19,-127.38 564.14,-131.77 548,-138 519.82,-148.88 491.07,-168.3 471.86,-182.71"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="469.56,-180.07 463.75,-188.93 473.81,-185.62 469.56,-180.07"/>
+</g>
+<!-- module~test_historycollectiongridcomp -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_node18" class="node">
+<title>module~test_historycollectiongridcomp</title>
+<g id="a_module~~mapl3g_esmf_time_utilities~~UsedByGraph_node18"><a xlink:href="../module/test_historycollectiongridcomp.html" xlink:title="Test_HistoryCollectionGridComp">
+<polygon fill="#337ab7" stroke="#337ab7" points="1023,-24 840,-24 840,0 1023,0 1023,-24"/>
+<text text-anchor="middle" x="931.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_HistoryCollectionGridComp</text>
+</a>
+</g>
+</g>
+<!-- module~test_historycollectiongridcomp&#45;&gt;module~mapl3g_historycollectiongridcomp_private -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_edge9" class="edge">
+<title>module~test_historycollectiongridcomp&#45;&gt;module~mapl3g_historycollectiongridcomp_private</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M839.73,-19.37C828.25,-20.31 816.32,-21.28 804.36,-22.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="804,-18.76 794.32,-23.06 804.57,-25.74 804,-18.76"/>
+</g>
+<!-- module~test_modelverticalgrid -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_node19" class="node">
+<title>module~test_modelverticalgrid</title>
+<g id="a_module~~mapl3g_esmf_time_utilities~~UsedByGraph_node19"><a xlink:href="../module/test_modelverticalgrid.html" xlink:title="Test_ModelVerticalGrid">
+<polygon fill="#337ab7" stroke="#337ab7" points="737.5,-87 604.5,-87 604.5,-63 737.5,-63 737.5,-87"/>
+<text text-anchor="middle" x="671" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ModelVerticalGrid</text>
+</a>
+</g>
+</g>
+<!-- module~test_modelverticalgrid&#45;&gt;module~mapl3g_variablespec -->
+<g id="module~~mapl3g_esmf_time_utilities~~UsedByGraph_edge19" class="edge">
+<title>module~test_modelverticalgrid&#45;&gt;module~mapl3g_variablespec</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M604.45,-78.45C585.4,-81.48 565.14,-86.8 548,-96 510.42,-116.17 479.04,-155.95 462.23,-180.34"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="459.18,-178.6 456.52,-188.86 465,-182.5 459.18,-178.6"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panmodulemapl3g_esmf_time_utilitiesUsedByGraph = svgPanZoom('#modulemapl3g_esmf_time_utilitiesUsedByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsedByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsedByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+      <br>
+
+
+
+
+        <section>
+          <h2>Interfaces</h2>
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-zero_time_interval"></span>
+      <h3>public        interface <a href='../interface/zero_time_interval.html'>zero_time_interval</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function get_zero() result(zero)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+    <em>None</em>
+    <h4>
+    Return Value
+    <small>type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>), pointer</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+        </section>
+        <br>
+
+
+
+
+        <section>
+          <h2>Subroutines</h2>
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-intervals_and_offset_are_compatible"></span> <h3>public  subroutine <a href='../proc/intervals_and_offset_are_compatible.html'>intervals_and_offset_are_compatible</a>(interval, interval2, offset, compatible, rc)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-interval~18"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>interval</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-interval2"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>interval2</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-offset~46"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>offset</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-compatible"></span>
+              logical,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>compatible</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~2651"></span>
+              integer,
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+
+
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,2416 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>VariableSpec &ndash; MAPL </title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>VariableSpec
+      <small>Derived Type</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title="<p> 0.2% of total for derived types.</p>Including implementation: 231 statements,  0.2% of total for derived types.">39 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/VariableSpec.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/variablespec.f90.html'>VariableSpec.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl3g_variablespec.html'>mapl3g_VariableSpec</a></li>
+            <li class="breadcrumb-item active" aria-current="page">VariableSpec</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../type/variablespec.html#variable-accumulation_type~3">accumulation_type</a>
+            <a class="list-group-item" href="../type/variablespec.html#variable-expression~10">expression</a>
+            <a class="list-group-item" href="../type/variablespec.html#variable-long_name~26">long_name</a>
+            <a class="list-group-item" href="../type/variablespec.html#variable-short_name~21">short_name</a>
+            <a class="list-group-item" href="../type/variablespec.html#variable-standard_name~19">standard_name</a>
+            <a class="list-group-item" href="../type/variablespec.html#variable-units~54">units</a>
+            <a class="list-group-item" href="../type/variablespec.html#variable-bracket_size~3">bracket_size</a>
+            <a class="list-group-item" href="../type/variablespec.html#variable-default_value~6">default_value</a>
+            <a class="list-group-item" href="../type/variablespec.html#variable-geom~56">geom</a>
+            <a class="list-group-item" href="../type/variablespec.html#variable-regrid_method~14">regrid_method</a>
+            <a class="list-group-item" href="../type/variablespec.html#variable-state_intent~14">state_intent</a>
+            <a class="list-group-item" href="../type/variablespec.html#variable-itemtype~18">itemType</a>
+            <a class="list-group-item" href="../type/variablespec.html#variable-offset~35">offset</a>
+            <a class="list-group-item" href="../type/variablespec.html#variable-timestep~9">timeStep</a>
+            <a class="list-group-item" href="../type/variablespec.html#variable-typekind~34">typekind</a>
+            <a class="list-group-item" href="../type/variablespec.html#variable-regrid_param">regrid_param</a>
+            <a class="list-group-item" href="../type/variablespec.html#variable-horizontal_dims_spec~6">horizontal_dims_spec</a>
+            <a class="list-group-item" href="../type/variablespec.html#variable-attributes~7">attributes</a>
+            <a class="list-group-item" href="../type/variablespec.html#variable-dependencies~5">dependencies</a>
+            <a class="list-group-item" href="../type/variablespec.html#variable-service_items">service_items</a>
+            <a class="list-group-item" href="../type/variablespec.html#variable-vector_component_names">vector_component_names</a>
+            <a class="list-group-item" href="../type/variablespec.html#variable-ungridded_dims~12">ungridded_dims</a>
+            <a class="list-group-item" href="../type/variablespec.html#variable-vertical_grid~11">vertical_grid</a>
+            <a class="list-group-item" href="../type/variablespec.html#variable-vertical_stagger~5">vertical_stagger</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#boundprocs-0"
+         aria-expanded="false" aria-controls="boundprocs-0">
+         <h4 class="card-header bg-primary text-white">Type-Bound Procedures</h4>
+      </a>
+      <div id="boundprocs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../type/variablespec.html#boundprocedure-make_attributesaspect">make_AttributesAspect</a>
+            <a class="list-group-item" href="../type/variablespec.html#boundprocedure-make_classaspect">make_ClassAspect</a>
+            <a class="list-group-item" href="../type/variablespec.html#boundprocedure-make_frequencyaspect">make_FrequencyAspect</a>
+            <a class="list-group-item" href="../type/variablespec.html#boundprocedure-make_geomaspect">make_GeomAspect</a>
+            <a class="list-group-item" href="../type/variablespec.html#boundprocedure-make_stateitemspec">make_StateItemSpec</a>
+            <a class="list-group-item" href="../type/variablespec.html#boundprocedure-make_typekindaspect">make_TypekindAspect</a>
+            <a class="list-group-item" href="../type/variablespec.html#boundprocedure-make_ungriddeddimsaspect">make_UngriddedDimsAspect</a>
+            <a class="list-group-item" href="../type/variablespec.html#boundprocedure-make_unitsaspect">make_UnitsAspect</a>
+            <a class="list-group-item" href="../type/variablespec.html#boundprocedure-make_verticalgridaspect">make_VerticalGridAspect</a>
+            <a class="list-group-item" href="../type/variablespec.html#boundprocedure-make_aspects">make_aspects</a>
+            <a class="list-group-item" href="../type/variablespec.html#boundprocedure-make_dependencies">make_dependencies</a>
+            <a class="list-group-item" href="../type/variablespec.html#boundprocedure-make_virtualpt">make_virtualPt</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../type/variablespec.html#src">VariableSpec</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+      <h2 id="type-def-statement">
+        type, public :: VariableSpec</h2>
+    
+<br>      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Inherits</h3>
+        </div>
+        <div class="card-body">
+          <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: type~~variablespec~~InheritsGraph Pages: 1 -->
+<svg id="typevariablespecInheritsGraph" width="641pt" height="311pt"
+ viewBox="0.00 0.00 641.00 311.35" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="type~~variablespec~~InheritsGraph" class="graph" transform="scale(0.56 0.56) rotate(0) translate(4 547.79)">
+<title>type~~variablespec~~InheritsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-547.79 1132,-547.79 1132,4 -4,4"/>
+<!-- type~variablespec -->
+<g id="type~~variablespec~~InheritsGraph_node1" class="node">
+<title>type~variablespec</title>
+<polygon fill="none" stroke="black" points="1128,-282.79 1046,-282.79 1046,-258.79 1128,-258.79 1128,-282.79"/>
+<text text-anchor="middle" x="1087" y="-268.39" font-family="Helvetica,sans-Serif" font-size="10.50">VariableSpec</text>
+</g>
+<!-- ESMF_Geom -->
+<g id="type~~variablespec~~InheritsGraph_node2" class="node">
+<title>ESMF_Geom</title>
+<g id="a_type~~variablespec~~InheritsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/type/esmf_geom.html" xlink:title="ESMF_Geom">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="650.5,-513.79 571.5,-513.79 571.5,-489.79 650.5,-489.79 650.5,-513.79"/>
+<text text-anchor="middle" x="611" y="-499.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_Geom</text>
+</a>
+</g>
+</g>
+<!-- type~variablespec&#45;&gt;ESMF_Geom -->
+<g id="type~~variablespec~~InheritsGraph_edge5" class="edge">
+<title>type~variablespec&#45;&gt;ESMF_Geom</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1084.37,-282.84C1078.72,-322.67 1058.64,-449.02 1028,-473.79 921.57,-559.83 745.45,-534.05 660.62,-514.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="661.27,-511.25 650.74,-512.37 659.67,-518.07 661.27,-511.25"/>
+<text text-anchor="middle" x="865.5" y="-536.19" font-family="Helvetica,sans-Serif" font-size="9.50">geom</text>
+</g>
+<!-- ESMF_RegridMethod_Flag -->
+<g id="type~~variablespec~~InheritsGraph_node3" class="node">
+<title>ESMF_RegridMethod_Flag</title>
+<g id="a_type~~variablespec~~InheritsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/type/esmf_regridmethod_flag.html" xlink:title="ESMF_RegridMethod_Flag">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="685,-471.79 537,-471.79 537,-447.79 685,-447.79 685,-471.79"/>
+<text text-anchor="middle" x="611" y="-457.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_RegridMethod_Flag</text>
+</a>
+</g>
+</g>
+<!-- type~variablespec&#45;&gt;ESMF_RegridMethod_Flag -->
+<g id="type~~variablespec~~InheritsGraph_edge8" class="edge">
+<title>type~variablespec&#45;&gt;ESMF_RegridMethod_Flag</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1086.01,-283.06C1085.3,-314.81 1078.54,-399.8 1028,-437.79 1002.15,-457.22 809.37,-460.24 695.53,-460.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="695.44,-456.79 685.44,-460.29 695.44,-463.79 695.44,-456.79"/>
+<text text-anchor="middle" x="865.5" y="-462.19" font-family="Helvetica,sans-Serif" font-size="9.50">regrid_method</text>
+</g>
+<!-- ESMF_StateIntent_Flag -->
+<g id="type~~variablespec~~InheritsGraph_node4" class="node">
+<title>ESMF_StateIntent_Flag</title>
+<g id="a_type~~variablespec~~InheritsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/type/esmf_stateintent_flag.html" xlink:title="ESMF_StateIntent_Flag">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="677.5,-429.79 544.5,-429.79 544.5,-405.79 677.5,-405.79 677.5,-429.79"/>
+<text text-anchor="middle" x="611" y="-415.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_StateIntent_Flag</text>
+</a>
+</g>
+</g>
+<!-- type~variablespec&#45;&gt;ESMF_StateIntent_Flag -->
+<g id="type~~variablespec~~InheritsGraph_edge1" class="edge">
+<title>type~variablespec&#45;&gt;ESMF_StateIntent_Flag</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1084.38,-282.84C1080.25,-308.36 1066.74,-367.63 1028,-393.79 974.4,-429.98 792.75,-427.33 688.06,-422.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="688.02,-418.93 677.87,-421.94 687.68,-425.92 688.02,-418.93"/>
+<text text-anchor="middle" x="865.5" y="-427.19" font-family="Helvetica,sans-Serif" font-size="9.50">state_intent</text>
+</g>
+<!-- ESMF_StateItem_Flag -->
+<g id="type~~variablespec~~InheritsGraph_node5" class="node">
+<title>ESMF_StateItem_Flag</title>
+<g id="a_type~~variablespec~~InheritsGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/type/esmf_stateitem_flag.html" xlink:title="ESMF_StateItem_Flag">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="674,-387.79 548,-387.79 548,-363.79 674,-363.79 674,-387.79"/>
+<text text-anchor="middle" x="611" y="-373.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_StateItem_Flag</text>
+</a>
+</g>
+</g>
+<!-- type~variablespec&#45;&gt;ESMF_StateItem_Flag -->
+<g id="type~~variablespec~~InheritsGraph_edge2" class="edge">
+<title>type~variablespec&#45;&gt;ESMF_StateItem_Flag</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1081.26,-282.91C1073.34,-301.3 1055.52,-335.69 1028,-350.79 970.75,-382.19 787.44,-381.74 684.29,-378.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="684.36,-375.25 674.26,-378.44 684.14,-382.24 684.36,-375.25"/>
+<text text-anchor="middle" x="865.5" y="-382.19" font-family="Helvetica,sans-Serif" font-size="9.50">itemType</text>
+</g>
+<!-- ESMF_TimeInterval -->
+<g id="type~~variablespec~~InheritsGraph_node6" class="node">
+<title>ESMF_TimeInterval</title>
+<g id="a_type~~variablespec~~InheritsGraph_node6"><a xlink:href="https://mathomp4.github.io/esmf/type/esmf_timeinterval.html" xlink:title="ESMF_TimeInterval">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="667.5,-345.79 554.5,-345.79 554.5,-321.79 667.5,-321.79 667.5,-345.79"/>
+<text text-anchor="middle" x="611" y="-331.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeInterval</text>
+</a>
+</g>
+</g>
+<!-- type~variablespec&#45;&gt;ESMF_TimeInterval -->
+<g id="type~~variablespec~~InheritsGraph_edge11" class="edge">
+<title>type~variablespec&#45;&gt;ESMF_TimeInterval</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1067.46,-282.8C1056.45,-289.3 1041.95,-296.8 1028,-300.79 907.96,-335.08 761.05,-338.16 677.82,-336.51"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="677.82,-333.01 667.74,-336.28 677.66,-340.01 677.82,-333.01"/>
+<text text-anchor="middle" x="865.5" y="-339.19" font-family="Helvetica,sans-Serif" font-size="9.50">timeStep, offset</text>
+</g>
+<!-- ESMF_TypeKind_Flag -->
+<g id="type~~variablespec~~InheritsGraph_node7" class="node">
+<title>ESMF_TypeKind_Flag</title>
+<g id="a_type~~variablespec~~InheritsGraph_node7"><a xlink:href="https://mathomp4.github.io/esmf/type/esmf_typekind_flag.html" xlink:title="ESMF_TypeKind_Flag">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="671.5,-303.79 550.5,-303.79 550.5,-279.79 671.5,-279.79 671.5,-303.79"/>
+<text text-anchor="middle" x="611" y="-289.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TypeKind_Flag</text>
+</a>
+</g>
+</g>
+<!-- type~variablespec&#45;&gt;ESMF_TypeKind_Flag -->
+<g id="type~~variablespec~~InheritsGraph_edge4" class="edge">
+<title>type~variablespec&#45;&gt;ESMF_TypeKind_Flag</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1046,-272.56C965.4,-276.13 782.62,-284.23 681.87,-288.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="681.63,-285.2 671.79,-289.14 681.94,-292.19 681.63,-285.2"/>
+<text text-anchor="middle" x="865.5" y="-289.19" font-family="Helvetica,sans-Serif" font-size="9.50">typekind</text>
+</g>
+<!-- EsmfRegridderParam -->
+<g id="type~~variablespec~~InheritsGraph_node8" class="node">
+<title>EsmfRegridderParam</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="674,-261.79 548,-261.79 548,-237.79 674,-237.79 674,-261.79"/>
+<text text-anchor="middle" x="611" y="-247.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EsmfRegridderParam</text>
+</g>
+<!-- type~variablespec&#45;&gt;EsmfRegridderParam -->
+<g id="type~~variablespec~~InheritsGraph_edge7" class="edge">
+<title>type~variablespec&#45;&gt;EsmfRegridderParam</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1045.9,-261.51C1039.93,-260.41 1033.82,-259.45 1028,-258.79 908.1,-245.2 767.57,-245.52 684.36,-247.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="684.17,-243.88 674.26,-247.61 684.34,-250.87 684.17,-243.88"/>
+<text text-anchor="middle" x="865.5" y="-261.19" font-family="Helvetica,sans-Serif" font-size="9.50">regrid_param</text>
+</g>
+<!-- StringVector -->
+<g id="type~~variablespec~~InheritsGraph_node9" class="node">
+<title>StringVector</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="650,-219.79 572,-219.79 572,-195.79 650,-195.79 650,-219.79"/>
+<text text-anchor="middle" x="611" y="-205.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringVector</text>
+</g>
+<!-- type~variablespec&#45;&gt;StringVector -->
+<g id="type~~variablespec~~InheritsGraph_edge3" class="edge">
+<title>type~variablespec&#45;&gt;StringVector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1072.38,-258.51C1061.29,-249.33 1044.79,-237.44 1028,-231.79 900.87,-188.98 739.66,-195.6 660.43,-202.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="659.91,-199.03 650.27,-203.42 660.54,-206 659.91,-199.03"/>
+<text text-anchor="middle" x="865.5" y="-234.19" font-family="Helvetica,sans-Serif" font-size="9.50">vector_component_names, service_items, attributes, dependencies</text>
+</g>
+<!-- type~horizontaldimsspec -->
+<g id="type~~variablespec~~InheritsGraph_node10" class="node">
+<title>type~horizontaldimsspec</title>
+<g id="a_type~~variablespec~~InheritsGraph_node10"><a xlink:href="../type/horizontaldimsspec.html" xlink:title="HorizontalDimsSpec">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="671.5,-177.79 550.5,-177.79 550.5,-153.79 671.5,-153.79 671.5,-177.79"/>
+<text text-anchor="middle" x="611" y="-163.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HorizontalDimsSpec</text>
+</a>
+</g>
+</g>
+<!-- type~variablespec&#45;&gt;type~horizontaldimsspec -->
+<g id="type~~variablespec~~InheritsGraph_edge6" class="edge">
+<title>type~variablespec&#45;&gt;type~horizontaldimsspec</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1082.12,-258.73C1075.01,-238.82 1057.79,-199.63 1028,-182.79 970.74,-150.42 784.64,-155.49 681.83,-161.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="681.33,-157.64 671.54,-161.7 681.72,-164.63 681.33,-157.64"/>
+<text text-anchor="middle" x="865.5" y="-185.19" font-family="Helvetica,sans-Serif" font-size="9.50">horizontal_dims_spec</text>
+</g>
+<!-- type~ungriddeddims -->
+<g id="type~~variablespec~~InheritsGraph_node11" class="node">
+<title>type~ungriddeddims</title>
+<g id="a_type~~variablespec~~InheritsGraph_node11"><a xlink:href="../type/ungriddeddims.html" xlink:title="UngriddedDims">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="658.5,-135.79 563.5,-135.79 563.5,-111.79 658.5,-111.79 658.5,-135.79"/>
+<text text-anchor="middle" x="611" y="-121.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDims</text>
+</a>
+</g>
+</g>
+<!-- type~variablespec&#45;&gt;type~ungriddeddims -->
+<g id="type~~variablespec~~InheritsGraph_edge12" class="edge">
+<title>type~variablespec&#45;&gt;type~ungriddeddims</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1084.63,-258.63C1080.95,-232.26 1068.19,-170.02 1028,-142.79 971.06,-104.21 768.96,-112.48 668.93,-119.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="668.44,-115.8 658.71,-119.99 668.93,-122.78 668.44,-115.8"/>
+<text text-anchor="middle" x="865.5" y="-145.19" font-family="Helvetica,sans-Serif" font-size="9.50">ungridded_dims</text>
+</g>
+<!-- type~verticalgrid -->
+<g id="type~~variablespec~~InheritsGraph_node12" class="node">
+<title>type~verticalgrid</title>
+<g id="a_type~~variablespec~~InheritsGraph_node12"><a xlink:href="../type/verticalgrid.html" xlink:title="VerticalGrid">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="648.5,-93.79 573.5,-93.79 573.5,-69.79 648.5,-69.79 648.5,-93.79"/>
+<text text-anchor="middle" x="611" y="-79.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalGrid</text>
+</a>
+</g>
+</g>
+<!-- type~variablespec&#45;&gt;type~verticalgrid -->
+<g id="type~~variablespec~~InheritsGraph_edge9" class="edge">
+<title>type~variablespec&#45;&gt;type~verticalgrid</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1086.14,-258.67C1085.79,-226.5 1079.91,-138.73 1028,-99.79 970.95,-57 754.72,-69.48 658.57,-77.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="658.22,-73.96 648.55,-78.3 658.81,-80.94 658.22,-73.96"/>
+<text text-anchor="middle" x="865.5" y="-102.19" font-family="Helvetica,sans-Serif" font-size="9.50">vertical_grid</text>
+</g>
+<!-- type~verticalstaggerloc -->
+<g id="type~~variablespec~~InheritsGraph_node13" class="node">
+<title>type~verticalstaggerloc</title>
+<g id="a_type~~variablespec~~InheritsGraph_node13"><a xlink:href="../type/verticalstaggerloc.html" xlink:title="VerticalStaggerLoc">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="667.5,-51.79 554.5,-51.79 554.5,-27.79 667.5,-27.79 667.5,-51.79"/>
+<text text-anchor="middle" x="611" y="-37.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalStaggerLoc</text>
+</a>
+</g>
+</g>
+<!-- type~variablespec&#45;&gt;type~verticalstaggerloc -->
+<g id="type~~variablespec~~InheritsGraph_edge10" class="edge">
+<title>type~variablespec&#45;&gt;type~verticalstaggerloc</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1084.59,-258.59C1079.5,-216.98 1060.65,-81.81 1028,-55.79 921.14,29.37 745.22,-2.53 660.53,-25.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="659.39,-21.72 650.67,-27.72 661.23,-28.47 659.39,-21.72"/>
+<text text-anchor="middle" x="865.5" y="-58.19" font-family="Helvetica,sans-Serif" font-size="9.50">vertical_stagger</text>
+</g>
+<!-- type~ungriddeddimvector -->
+<g id="type~~variablespec~~InheritsGraph_node14" class="node">
+<title>type~ungriddeddimvector</title>
+<g id="a_type~~variablespec~~InheritsGraph_node14"><a xlink:href="../type/ungriddeddimvector.html" xlink:title="UngriddedDimVector">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="450,-135.79 326,-135.79 326,-111.79 450,-111.79 450,-135.79"/>
+<text text-anchor="middle" x="388" y="-121.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDimVector</text>
+</a>
+</g>
+</g>
+<!-- type~ungriddeddims&#45;&gt;type~ungriddeddimvector -->
+<g id="type~~variablespec~~InheritsGraph_edge13" class="edge">
+<title>type~ungriddeddims&#45;&gt;type~ungriddeddimvector</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M563.4,-123.79C533.56,-123.79 494.25,-123.79 460.51,-123.79"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="460.23,-120.29 450.23,-123.79 460.23,-127.29 460.23,-120.29"/>
+<text text-anchor="middle" x="493.5" y="-126.19" font-family="Helvetica,sans-Serif" font-size="9.50">dim_specs</text>
+</g>
+<!-- type~vector_wrapper~12 -->
+<g id="type~~variablespec~~InheritsGraph_node15" class="node">
+<title>type~vector_wrapper~12</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="244,-135.79 148,-135.79 148,-111.79 244,-111.79 244,-135.79"/>
+<text text-anchor="middle" x="196" y="-121.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vector_wrapper</text>
+</g>
+<!-- type~ungriddeddimvector&#45;&gt;type~vector_wrapper~12 -->
+<g id="type~~variablespec~~InheritsGraph_edge14" class="edge">
+<title>type~ungriddeddimvector&#45;&gt;type~vector_wrapper~12</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M325.84,-123.79C302.88,-123.79 276.9,-123.79 254.31,-123.79"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="254.19,-120.29 244.19,-123.79 254.19,-127.29 254.19,-120.29"/>
+<text text-anchor="middle" x="285" y="-126.19" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~ungriddeddim -->
+<g id="type~~variablespec~~InheritsGraph_node16" class="node">
+<title>type~ungriddeddim</title>
+<g id="a_type~~variablespec~~InheritsGraph_node16"><a xlink:href="../type/ungriddeddim.html" xlink:title="UngriddedDim">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="90,-135.79 0,-135.79 0,-111.79 90,-111.79 90,-135.79"/>
+<text text-anchor="middle" x="45" y="-121.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDim</text>
+</a>
+</g>
+</g>
+<!-- type~vector_wrapper~12&#45;&gt;type~ungriddeddim -->
+<g id="type~~variablespec~~InheritsGraph_edge15" class="edge">
+<title>type~vector_wrapper~12&#45;&gt;type~ungriddeddim</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M147.86,-123.79C132.68,-123.79 115.74,-123.79 100.11,-123.79"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="100.05,-120.29 90.05,-123.79 100.05,-127.29 100.05,-120.29"/>
+<text text-anchor="middle" x="119" y="-126.19" font-family="Helvetica,sans-Serif" font-size="9.50">item</text>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pantypevariablespecInheritsGraph = svgPanZoom('#typevariablespecInheritsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#InheritsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="InheritsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="186pt" height="32pt"
+ viewBox="0.00 0.00 185.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 181.5,-28 181.5,4 -4,4"/>
+<!-- Type -->
+<g id="node1" class="node">
+<title>Type</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="177.5,-24 72.5,-24 72.5,0 177.5,0 177.5,-24"/>
+<text text-anchor="middle" x="125" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a derived type to the parent type which it
+extends. Dashed arrows point from a derived type to the other
+types it contains as a components, with a label listing the name(s) of
+said component(s).
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Inherited by</h3>
+        </div>
+        <div class="card-body">
+          <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: type~~variablespec~~InheritedByGraph Pages: 1 -->
+<svg id="typevariablespecInheritedByGraph" width="641pt" height="52pt"
+ viewBox="0.00 0.00 641.00 51.78" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="type~~variablespec~~InheritedByGraph" class="graph" transform="scale(0.7 0.7) rotate(0) translate(4 70)">
+<title>type~~variablespec~~InheritedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 912,-70 912,4 -4,4"/>
+<!-- type~variablespec -->
+<g id="type~~variablespec~~InheritedByGraph_node1" class="node">
+<title>type~variablespec</title>
+<polygon fill="none" stroke="black" points="82,-44 0,-44 0,-20 82,-20 82,-44"/>
+<text text-anchor="middle" x="41" y="-29.6" font-family="Helvetica,sans-Serif" font-size="10.50">VariableSpec</text>
+</g>
+<!-- type~vector_wrapper~26 -->
+<g id="type~~variablespec~~InheritedByGraph_node2" class="node">
+<title>type~vector_wrapper~26</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="236,-44 140,-44 140,-20 236,-20 236,-44"/>
+<text text-anchor="middle" x="188" y="-29.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vector_wrapper</text>
+</g>
+<!-- type~vector_wrapper~26&#45;&gt;type~variablespec -->
+<g id="type~~variablespec~~InheritedByGraph_edge1" class="edge">
+<title>type~vector_wrapper~26&#45;&gt;type~variablespec</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M139.92,-32C124.74,-32 107.85,-32 92.43,-32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="92.03,-28.5 82.03,-32 92.03,-35.5 92.03,-28.5"/>
+<text text-anchor="middle" x="111" y="-34.4" font-family="Helvetica,sans-Serif" font-size="9.50">item</text>
+</g>
+<!-- type~variablespecvector -->
+<g id="type~~variablespec~~InheritedByGraph_node3" class="node">
+<title>type~variablespecvector</title>
+<g id="a_type~~variablespec~~InheritedByGraph_node3"><a xlink:href="../type/variablespecvector.html" xlink:title="VariableSpecVector">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="454,-66 338,-66 338,-42 454,-42 454,-66"/>
+<text text-anchor="middle" x="396" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VariableSpecVector</text>
+</a>
+</g>
+</g>
+<!-- type~variablespecvector&#45;&gt;type~vector_wrapper~26 -->
+<g id="type~~variablespec~~InheritedByGraph_edge2" class="edge">
+<title>type~variablespecvector&#45;&gt;type~vector_wrapper~26</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M337.89,-47.9C309.36,-44.85 274.93,-41.18 246.37,-38.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="246.45,-34.62 236.13,-37.03 245.71,-41.58 246.45,-34.62"/>
+<text text-anchor="middle" x="277" y="-46.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~variablespecvectoriterator -->
+<g id="type~~variablespec~~InheritedByGraph_node4" class="node">
+<title>type~variablespecvectoriterator</title>
+<g id="a_type~~variablespec~~InheritedByGraph_node4"><a xlink:href="../type/variablespecvectoriterator.html" xlink:title="VariableSpecVectorIterator">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="474,-24 318,-24 318,0 474,0 474,-24"/>
+<text text-anchor="middle" x="396" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VariableSpecVectorIterator</text>
+</a>
+</g>
+</g>
+<!-- type~variablespecvectoriterator&#45;&gt;type~vector_wrapper~26 -->
+<g id="type~~variablespec~~InheritedByGraph_edge3" class="edge">
+<title>type~variablespecvectoriterator&#45;&gt;type~vector_wrapper~26</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M317.98,-13.76C297.16,-14.8 274.67,-16.43 254,-19 251.36,-19.33 248.67,-19.7 245.95,-20.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="245.38,-16.66 236.08,-21.73 246.52,-23.57 245.38,-16.66"/>
+<text text-anchor="middle" x="277" y="-21.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~componentspec -->
+<g id="type~~variablespec~~InheritedByGraph_node5" class="node">
+<title>type~componentspec</title>
+<g id="a_type~~variablespec~~InheritedByGraph_node5"><a xlink:href="../type/componentspec.html" xlink:title="ComponentSpec">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="659,-66 558,-66 558,-42 659,-42 659,-66"/>
+<text text-anchor="middle" x="608.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpec</text>
+</a>
+</g>
+</g>
+<!-- type~componentspec&#45;&gt;type~variablespecvector -->
+<g id="type~~variablespec~~InheritedByGraph_edge4" class="edge">
+<title>type~componentspec&#45;&gt;type~variablespecvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M557.88,-54C529.92,-54 494.62,-54 464.21,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="464.1,-50.5 454.1,-54 464.1,-57.5 464.1,-50.5"/>
+<text text-anchor="middle" x="516" y="-56.4" font-family="Helvetica,sans-Serif" font-size="9.50">var_specs</text>
+</g>
+<!-- type~vectorriterator~21 -->
+<g id="type~~variablespec~~InheritedByGraph_node6" class="node">
+<title>type~vectorriterator~21</title>
+<g id="a_type~~variablespec~~InheritedByGraph_node6"><a xlink:href="../type/vectorriterator~21.html" xlink:title="VectorRIterator">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="655.5,-24 561.5,-24 561.5,0 655.5,0 655.5,-24"/>
+<text text-anchor="middle" x="608.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VectorRIterator</text>
+</a>
+</g>
+</g>
+<!-- type~vectorriterator~21&#45;&gt;type~variablespecvectoriterator -->
+<g id="type~~variablespec~~InheritedByGraph_edge5" class="edge">
+<title>type~vectorriterator~21&#45;&gt;type~variablespecvectoriterator</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M561.3,-12C538.66,-12 510.63,-12 484.16,-12"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="484.11,-8.5 474.11,-12 484.11,-15.5 484.11,-8.5"/>
+<text text-anchor="middle" x="516" y="-14.4" font-family="Helvetica,sans-Serif" font-size="9.50">iterator</text>
+</g>
+<!-- type~outermetacomponent -->
+<g id="type~~variablespec~~InheritedByGraph_node7" class="node">
+<title>type~outermetacomponent</title>
+<g id="a_type~~variablespec~~InheritedByGraph_node7"><a xlink:href="../type/outermetacomponent.html" xlink:title="OuterMetaComponent">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="908,-66 777,-66 777,-42 908,-42 908,-66"/>
+<text text-anchor="middle" x="842.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent</text>
+</a>
+</g>
+</g>
+<!-- type~outermetacomponent&#45;&gt;type~componentspec -->
+<g id="type~~variablespec~~InheritedByGraph_edge6" class="edge">
+<title>type~outermetacomponent&#45;&gt;type~componentspec</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M776.88,-54C743.24,-54 702.39,-54 669.46,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="669.07,-50.5 659.07,-54 669.07,-57.5 669.07,-50.5"/>
+<text text-anchor="middle" x="718" y="-56.4" font-family="Helvetica,sans-Serif" font-size="9.50">component_spec</text>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pantypevariablespecInheritedByGraph = svgPanZoom('#typevariablespecInheritedByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#InheritedByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="InheritedByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="186pt" height="32pt"
+ viewBox="0.00 0.00 185.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 181.5,-28 181.5,4 -4,4"/>
+<!-- Type -->
+<g id="node1" class="node">
+<title>Type</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="177.5,-24 72.5,-24 72.5,0 177.5,0 177.5,-24"/>
+<text text-anchor="middle" x="125" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a derived type to the parent type which it
+extends. Dashed arrows point from a derived type to the other
+types it contains as a components, with a label listing the name(s) of
+said component(s).
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    <br>
+
+    <section>
+    <h2>Components</h2>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-accumulation_type~3"></span>
+              character(len=:),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>accumulation_type</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-expression~10"></span>
+              character(len=:),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>expression</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-long_name~26"></span>
+              character(len=:),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>long_name</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-short_name~21"></span>
+              character(len=:),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>short_name</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-standard_name~19"></span>
+              character(len=:),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>standard_name</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-units~54"></span>
+              character(len=:),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>units</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bracket_size~3"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>bracket_size</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-default_value~6"></span>
+              real(kind=ESMF_KIND_R4),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>default_value</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-geom~56"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_geom.html'>ESMF_Geom</a>),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>geom</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-regrid_method~14"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_regridmethod_flag.html'>ESMF_RegridMethod_Flag</a>),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>regrid_method</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-state_intent~14"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_stateintent_flag.html'>ESMF_StateIntent_Flag</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>state_intent</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-itemtype~18"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_stateitem_flag.html'>ESMF_StateItem_Flag</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>itemType</strong></td>
+<td> =</td>
+                <td>MAPL_STATEITEM_FIELD</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-offset~35"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>offset</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-timestep~9"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>timeStep</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-typekind~34"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_typekind_flag.html'>ESMF_TypeKind_Flag</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>typekind</strong></td>
+<td> =</td>
+                <td>ESMF_TYPEKIND_R4</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-regrid_param"></span>
+              type(EsmfRegridderParam),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>regrid_param</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-horizontal_dims_spec~6"></span>
+              type(<a href='horizontaldimsspec.html'>HorizontalDimsSpec</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>horizontal_dims_spec</strong></td>
+<td> =</td>
+                <td>HORIZONTAL_DIMS_GEOM</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attributes~7"></span>
+              type(StringVector),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>attributes</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dependencies~5"></span>
+              type(StringVector),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dependencies</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-service_items"></span>
+              type(StringVector),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>service_items</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vector_component_names"></span>
+              type(StringVector),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vector_component_names</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ungridded_dims~12"></span>
+              type(<a href='ungriddeddims.html'>UngriddedDims</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ungridded_dims</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vertical_grid~11"></span>
+              class(<a href='verticalgrid.html'>VerticalGrid</a>),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>vertical_grid</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vertical_stagger~5"></span>
+              type(<a href='verticalstaggerloc.html'>VerticalStaggerLoc</a>),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>vertical_stagger</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </section>
+    <br>
+    
+
+
+      <section>
+        <h2>Type-Bound Procedures</h2>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-make_attributesaspect"></span>
+      <h3>
+          procedure, public ::
+  <strong>make_AttributesAspect</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function make_AttributesAspect(this, rc) result(aspect)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='variablespec.html'>VariableSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='attributesaspect.html'>AttributesAspect</a>)</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-make_classaspect"></span>
+      <h3>
+          procedure, public ::
+  <strong>make_ClassAspect</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function make_ClassAspect(this, registry, rc) result(aspect)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='variablespec.html'>VariableSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='stateregistry.html'>StateRegistry</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>registry</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>class(<a href='classaspect.html'>ClassAspect</a>), allocatable</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-make_frequencyaspect"></span>
+      <h3>
+          procedure, public ::
+  <strong>make_FrequencyAspect</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function make_FrequencyAspect(this, timestep, offset, rc) result(aspect)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='variablespec.html'>VariableSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>timestep</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>offset</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='frequencyaspect.html'>FrequencyAspect</a>)</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-make_geomaspect"></span>
+      <h3>
+          procedure, public ::
+  <strong>make_GeomAspect</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function make_GeomAspect(this, component_geom, rc) result(aspect)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='variablespec.html'>VariableSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_geom.html'>ESMF_Geom</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>component_geom</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='geomaspect.html'>GeomAspect</a>)</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-make_stateitemspec"></span>
+      <h3>
+          procedure, public ::
+  <strong>make_StateItemSpec</strong> => make_StateitemSpec
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function make_StateitemSpec(this, registry, component_geom, vertical_grid, unusable, timestep, offset, rc) result(spec)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='variablespec.html'>VariableSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='stateregistry.html'>StateRegistry</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>registry</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_geom.html'>ESMF_Geom</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>component_geom</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='verticalgrid.html'>VerticalGrid</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vertical_grid</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='keywordenforcer~96.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>timestep</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>offset</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='stateitemspec.html'>StateItemSpec</a>)</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-make_typekindaspect"></span>
+      <h3>
+          procedure, public ::
+  <strong>make_TypekindAspect</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function make_TypekindAspect(this, rc) result(aspect)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='variablespec.html'>VariableSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='typekindaspect.html'>TypekindAspect</a>)</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-make_ungriddeddimsaspect"></span>
+      <h3>
+          procedure, public ::
+  <strong>make_UngriddedDimsAspect</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function make_UngriddedDimsAspect(this, rc) result(aspect)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='variablespec.html'>VariableSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='ungriddeddimsaspect.html'>UngriddedDimsAspect</a>)</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-make_unitsaspect"></span>
+      <h3>
+          procedure, public ::
+  <strong>make_UnitsAspect</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function make_UnitsAspect(this, rc) result(aspect)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='variablespec.html'>VariableSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='unitsaspect.html'>UnitsAspect</a>)</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-make_verticalgridaspect"></span>
+      <h3>
+          procedure, public ::
+  <strong>make_VerticalGridAspect</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function make_VerticalGridAspect(this, vertical_grid, component_geom, time_dependent, rc) result(aspect)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='variablespec.html'>VariableSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='verticalgrid.html'>VerticalGrid</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vertical_grid</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_geom.html'>ESMF_Geom</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>component_geom</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>time_dependent</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='verticalgridaspect.html'>VerticalGridAspect</a>)</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-make_aspects"></span>
+      <h3>
+          procedure, public ::
+  <strong>make_aspects</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function make_aspects(this, registry, component_geom, vertical_grid, unusable, timestep, offset, rc) result(aspects)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='variablespec.html'>VariableSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='stateregistry.html'>StateRegistry</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>registry</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_geom.html'>ESMF_Geom</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>component_geom</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='verticalgrid.html'>VerticalGrid</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vertical_grid</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='keywordenforcer~96.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>timestep</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>offset</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='aspectmap.html'>AspectMap</a>)</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-make_dependencies"></span>
+      <h3>
+          procedure, public ::
+  <strong>make_dependencies</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function make_dependencies(this, rc) result(dependencies)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='variablespec.html'>VariableSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='virtualconnectionptvector.html'>VirtualConnectionPtVector</a>)</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-make_virtualpt"></span>
+      <h3>
+          procedure, public ::
+  <strong>make_virtualPt</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function make_virtualPt(this) result(v_pt)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='variablespec.html'>VariableSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='virtualconnectionpt.html'>VirtualConnectionPt</a>)</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+      </section>
+
+    <section>
+    <h3><span class="anchor" id="src"></span>Source Code</h3>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">type </span><span class="n">VariableSpec</span>
+<span class="w">      </span><span class="c">! TODO: delete - move to StateItemSpec</span>
+
+<span class="w">      </span><span class="c">! Mandatory values:</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_StateIntent_Flag</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">state_intent</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">short_name</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_StateItem_Flag</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">itemType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_STATEITEM_FIELD</span>
+
+<span class="w">      </span><span class="c">!=====================</span>
+<span class="w">      </span><span class="c">! class aspect</span>
+<span class="w">      </span><span class="c">!=====================</span>
+<span class="w">      </span><span class="c">!---------------------</span>
+<span class="w">      </span><span class="c">! Field &amp; Vector</span>
+<span class="w">      </span><span class="c">!---------------------</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">standard_name</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">long_name</span><span class="w"> </span><span class="c">! from FieldDictionary or override</span>
+<span class="w">      </span><span class="c">!---------------------</span>
+<span class="w">      </span><span class="c">! Vector</span>
+<span class="w">      </span><span class="c">!---------------------</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StringVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vector_component_names</span><span class="w"> </span><span class="c">! default empty</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">default_value</span>
+<span class="w">      </span><span class="c">! Todo: implement these</span>
+<span class="w">      </span><span class="c">! type(VectorOrientation_Flag), allocatable :: vectororientation</span>
+<span class="w">      </span><span class="c">! type(ArakawaStagger_Flag), allocatable :: arakawa_stagger</span>
+<span class="w">      </span><span class="c">!---------------------</span>
+<span class="w">      </span><span class="c">! Bracket</span>
+<span class="w">      </span><span class="c">!---------------------</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bracket_size</span>
+<span class="w">      </span><span class="c">!---------------------</span>
+<span class="w">      </span><span class="c">! Service</span>
+<span class="w">      </span><span class="c">!---------------------</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StringVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">service_items</span><span class="w"> </span><span class="c">! default empty</span>
+<span class="w">      </span><span class="c">!---------------------</span>
+<span class="w">      </span><span class="c">! Expression</span>
+<span class="w">      </span><span class="c">!---------------------</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">expression</span><span class="w"> </span><span class="c">! default empt</span>
+
+<span class="w">      </span>
+<span class="w">      </span><span class="c">!=====================</span>
+<span class="w">      </span><span class="c">! typekind aspect</span>
+<span class="w">      </span><span class="c">!=====================</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TypeKind_Flag</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">typekind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="w"> </span><span class="c">! default</span>
+
+<span class="w">      </span><span class="c">!=====================</span>
+<span class="w">      </span><span class="c">! geomaspect</span>
+<span class="w">      </span><span class="c">!=====================</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">HorizontalDimsSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">horizontal_dims_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HORIZONTAL_DIMS_GEOM</span>
+<span class="w">      </span><span class="c">! next two items are mutually exclusive</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">EsmfRegridderParam</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regrid_param</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_RegridMethod_Flag</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regrid_method</span>
+
+<span class="w">      </span><span class="c">!=====================</span>
+<span class="w">      </span><span class="c">! vertical aspect</span>
+<span class="w">      </span><span class="c">!=====================</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">VerticalGrid</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vertical_grid</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">VerticalStaggerLoc</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vertical_stagger</span>
+
+<span class="w">      </span><span class="c">!=====================</span>
+<span class="w">      </span><span class="c">! units aspect</span>
+<span class="w">      </span><span class="c">!=====================</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">units</span><span class="w"> </span><span class="c">! from FieldDictionary or override</span>
+
+<span class="w">      </span><span class="c">!=====================</span>
+<span class="w">      </span><span class="c">! frequency aspect</span>
+<span class="w">      </span><span class="c">!=====================</span>
+<span class="w">      </span><span class="c">! TODO: Should be an enum</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">accumulation_type</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">timeStep</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">offset</span>
+
+<span class="w">      </span><span class="c">!=====================</span>
+<span class="w">      </span><span class="c">! ungridded_dims aspect</span>
+<span class="w">      </span><span class="c">!=====================</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">UngriddedDims</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ungridded_dims</span><span class="w"> </span><span class="c">! default no ungridded</span>
+<span class="w">      </span><span class="c">!=====================</span>
+<span class="w">      </span><span class="c">! attributes aspect</span>
+<span class="w">      </span><span class="c">!=====================</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StringVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attributes</span><span class="w"> </span><span class="c">! default empty</span>
+
+<span class="w">      </span><span class="c">!=====================</span>
+<span class="w">      </span><span class="c">! miscellaneous</span>
+<span class="w">      </span><span class="c">!=====================</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StringVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dependencies</span><span class="w"> </span><span class="c">! default emuty</span>
+
+<span class="w">   </span><span class="k">contains</span>
+<span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_virtualPt</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_dependencies</span>
+
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_StateItemSpec</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_aspects</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_UnitsAspect</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_TypekindAspect</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_GeomAspect</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_UngriddedDimsAspect</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_AttributesAspect</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_VerticalGridAspect</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_FrequencyAspect</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_ClassAspect</span>
+<span class="w">   </span><span class="k">end type </span><span class="n">VariableSpec</span>
+</pre></div>
+
+    </section>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,770 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>test_propagate_geom &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>test_propagate_geom
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.3% of total for procedures.">185 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_propagate_time_varying.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_propagate_time_varying.pf.html'>Test_propagate_time_varying.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_propagate_time_varying.html'>Test_propagate_time_varying</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_propagate_geom</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/test_propagate_geom.html#src">test_propagate_geom</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine test_propagate_geom(this)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~7068"></span>
+              class(<a href='../type/esmf_testmethod.html'>ESMF_TestMethod</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~test_propagate_geom~~CallsGraph Pages: 1 -->
+<svg id="proctest_propagate_geomCallsGraph" width="386pt" height="998pt"
+ viewBox="0.00 0.00 386.00 998.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~test_propagate_geom~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 994)">
+<title>proc~~test_propagate_geom~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-994 382,-994 382,4 -4,4"/>
+<!-- proc~test_propagate_geom -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node1" class="node">
+<title>proc~test_propagate_geom</title>
+<polygon fill="none" stroke="black" points="128,-507 0,-507 0,-483 128,-483 128,-507"/>
+<text text-anchor="middle" x="64" y="-492.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_propagate_geom</text>
+</g>
+<!-- ESMF_GeomGet -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node2" class="node">
+<title>ESMF_GeomGet</title>
+<g id="a_proc~~test_propagate_geom~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_geomget.html" xlink:title="ESMF_GeomGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="319.5,-990 222.5,-990 222.5,-966 319.5,-966 319.5,-990"/>
+<text text-anchor="middle" x="271" y="-975.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GeomGet</text>
+</a>
+</g>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;ESMF_GeomGet -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge1" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;ESMF_GeomGet</title>
+<path fill="none" stroke="#ff0000" d="M65.84,-507.13C70.66,-573.41 97.07,-891.1 164,-957 176.74,-969.54 194.68,-975.66 212.19,-978.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="212.06,-981.9 222.41,-979.63 212.9,-974.95 212.06,-981.9"/>
+</g>
+<!-- ESMF_HConfigCreate -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node3" class="node">
+<title>ESMF_HConfigCreate</title>
+<g id="a_proc~~test_propagate_geom~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_hconfigcreate.html" xlink:title="ESMF_HConfigCreate">
+<polygon fill="#a7506f" stroke="#a7506f" points="333,-948 209,-948 209,-924 333,-924 333,-948"/>
+<text text-anchor="middle" x="271" y="-933.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_HConfigCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;ESMF_HConfigCreate -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge2" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;ESMF_HConfigCreate</title>
+<path fill="none" stroke="#ff0000" d="M66.13,-507.26C72.16,-570.14 102.67,-855.83 164,-915 173.58,-924.24 185.98,-929.97 198.91,-933.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="198.35,-936.89 208.87,-935.65 199.87,-930.05 198.35,-936.89"/>
+</g>
+<!-- ESMF_InfoGetFromHost -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node4" class="node">
+<title>ESMF_InfoGetFromHost</title>
+<g id="a_proc~~test_propagate_geom~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_infogetfromhost.html" xlink:title="ESMF_InfoGetFromHost">
+<polygon fill="#a7506f" stroke="#a7506f" points="339,-906 203,-906 203,-882 339,-882 339,-906"/>
+<text text-anchor="middle" x="271" y="-891.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_InfoGetFromHost</text>
+</a>
+</g>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;ESMF_InfoGetFromHost -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge3" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;ESMF_InfoGetFromHost</title>
+<path fill="none" stroke="#ff0000" d="M66.46,-507.19C73.76,-566.09 108.18,-820.46 164,-873 172.24,-880.76 182.49,-886.02 193.33,-889.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="192.41,-892.92 202.98,-892.21 194.27,-886.17 192.41,-892.92"/>
+</g>
+<!-- ESMF_InfoSet -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node5" class="node">
+<title>ESMF_InfoSet</title>
+<g id="a_proc~~test_propagate_geom~~CallsGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_infoset.html" xlink:title="ESMF_InfoSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="313,-864 229,-864 229,-840 313,-840 313,-864"/>
+<text text-anchor="middle" x="271" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_InfoSet</text>
+</a>
+</g>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;ESMF_InfoSet -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge4" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;ESMF_InfoSet</title>
+<path fill="none" stroke="#ff0000" d="M64.48,-507.04C63.08,-555.82 64.75,-740.39 164,-831 178.68,-844.4 199.37,-850.31 218.57,-852.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="218.47,-856.13 228.74,-853.55 219.1,-849.16 218.47,-856.13"/>
+</g>
+<!-- ESMF_NamedAlias -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node6" class="node">
+<title>ESMF_NamedAlias</title>
+<g id="a_proc~~test_propagate_geom~~CallsGraph_node6"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_namedalias.html" xlink:title="ESMF_NamedAlias">
+<polygon fill="#a7506f" stroke="#a7506f" points="326,-822 216,-822 216,-798 326,-798 326,-822"/>
+<text text-anchor="middle" x="271" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_NamedAlias</text>
+</a>
+</g>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;ESMF_NamedAlias -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge5" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;ESMF_NamedAlias</title>
+<path fill="none" stroke="#ff0000" d="M65.06,-507.08C65.98,-552.07 75.59,-711.33 164,-789 175.62,-799.21 190.75,-805.02 205.92,-808.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="205.41,-811.67 215.86,-809.94 206.61,-804.77 205.41,-811.67"/>
+</g>
+<!-- anyexceptions -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node7" class="node">
+<title>anyexceptions</title>
+<polygon fill="#777777" stroke="#777777" points="315.5,-780 226.5,-780 226.5,-756 315.5,-756 315.5,-780"/>
+<text text-anchor="middle" x="271" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">anyexceptions</text>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;anyexceptions -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge6" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;anyexceptions</title>
+<path fill="none" stroke="#ff0000" d="M65.81,-507.05C69.25,-547.88 86.27,-682.05 164,-747 178.52,-759.13 198.04,-764.96 216.38,-767.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="216.07,-771.06 226.4,-768.72 216.86,-764.11 216.07,-771.06"/>
+</g>
+<!-- assert_that -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node8" class="node">
+<title>assert_that</title>
+<polygon fill="#777777" stroke="#777777" points="306.5,-738 235.5,-738 235.5,-714 306.5,-714 306.5,-738"/>
+<text text-anchor="middle" x="271" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assert_that</text>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;assert_that -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge7" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;assert_that</title>
+<path fill="none" stroke="#ff0000" d="M66.84,-507.07C73.07,-543.42 96.81,-652.54 164,-705 181.2,-718.43 204.66,-723.99 225.14,-726.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="224.98,-729.56 235.22,-726.83 225.51,-722.58 224.98,-729.56"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node9" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="313.5,-696 228.5,-696 228.5,-672 313.5,-672 313.5,-696"/>
+<text text-anchor="middle" x="271" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;esmf_fieldget -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge8" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M68.34,-507.11C77.68,-538.46 107.12,-622.65 164,-663 179.69,-674.13 199.81,-679.71 218.3,-682.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="218.01,-685.9 228.36,-683.62 218.85,-678.95 218.01,-685.9"/>
+</g>
+<!-- esmf_stateadd -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node10" class="node">
+<title>esmf_stateadd</title>
+<polygon fill="#777777" stroke="#777777" points="316.5,-654 225.5,-654 225.5,-630 316.5,-630 316.5,-654"/>
+<text text-anchor="middle" x="271" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_stateadd</text>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;esmf_stateadd -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge9" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;esmf_stateadd</title>
+<path fill="none" stroke="#ff0000" d="M70.71,-507.04C83.5,-532.58 117.05,-592.2 164,-621 179.31,-630.39 197.99,-635.69 215.37,-638.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="215.02,-642.14 225.43,-640.14 216.05,-635.21 215.02,-642.14"/>
+</g>
+<!-- get_geom -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node11" class="node">
+<title>get_geom</title>
+<polygon fill="#777777" stroke="#777777" points="304,-612 238,-612 238,-588 304,-588 304,-612"/>
+<text text-anchor="middle" x="271" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_geom</text>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;get_geom -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge10" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;get_geom</title>
+<path fill="none" stroke="#ff0000" d="M75.5,-507.22C92.22,-525.85 126.85,-561.07 164,-579 183.71,-588.51 207.47,-593.72 227.5,-596.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="227.22,-600.06 237.59,-597.85 228.11,-593.11 227.22,-600.06"/>
+</g>
+<!-- get_geom_manager -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node12" class="node">
+<title>get_geom_manager</title>
+<polygon fill="#777777" stroke="#777777" points="331,-570 211,-570 211,-546 331,-546 331,-570"/>
+<text text-anchor="middle" x="271" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_geom_manager</text>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;get_geom_manager -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge11" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;get_geom_manager</title>
+<path fill="none" stroke="#ff0000" d="M89.7,-507.16C109.41,-516.45 137.95,-528.99 164,-537 175.81,-540.63 188.57,-543.79 201,-546.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="200.37,-549.91 210.87,-548.52 201.79,-543.06 200.37,-549.91"/>
+</g>
+<!-- get_mapl_geom -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node13" class="node">
+<title>get_mapl_geom</title>
+<polygon fill="#777777" stroke="#777777" points="320,-528 222,-528 222,-504 320,-504 320,-528"/>
+<text text-anchor="middle" x="271" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_mapl_geom</text>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;get_mapl_geom -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge12" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;get_mapl_geom</title>
+<path fill="none" stroke="#ff0000" d="M128.18,-501.47C154.77,-504.2 185.52,-507.35 211.57,-510.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="211.37,-513.51 221.68,-511.05 212.09,-506.55 211.37,-513.51"/>
+</g>
+<!-- interface~fieldbundlecreate -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node14" class="node">
+<title>interface~fieldbundlecreate</title>
+<g id="a_proc~~test_propagate_geom~~CallsGraph_node14"><a xlink:href="../interface/fieldbundlecreate.html" xlink:title="FieldBundleCreate">
+<polygon fill="#a7506f" stroke="#a7506f" points="326,-486 216,-486 216,-462 326,-462 326,-486"/>
+<text text-anchor="middle" x="271" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;interface~fieldbundlecreate -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge13" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;interface~fieldbundlecreate</title>
+<path fill="none" stroke="#ff0000" d="M128.18,-488.53C152.79,-486.01 180.96,-483.12 205.68,-480.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="206.09,-484.07 215.68,-479.56 205.37,-477.1 206.09,-484.07"/>
+</g>
+<!-- interface~fieldbundleget -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node15" class="node">
+<title>interface~fieldbundleget</title>
+<g id="a_proc~~test_propagate_geom~~CallsGraph_node15"><a xlink:href="../interface/fieldbundleget.html" xlink:title="FieldBundleGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="318,-444 224,-444 224,-420 318,-420 318,-444"/>
+<text text-anchor="middle" x="271" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleGet</text>
+</a>
+</g>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;interface~fieldbundleget -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge14" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;interface~fieldbundleget</title>
+<path fill="none" stroke="#ff0000" d="M89.7,-482.84C109.41,-473.55 137.95,-461.01 164,-453 179.96,-448.09 197.64,-444.06 213.91,-440.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="214.65,-444.3 223.84,-439.02 213.36,-437.42 214.65,-444.3"/>
+</g>
+<!-- interface~fieldbundleset -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node16" class="node">
+<title>interface~fieldbundleset</title>
+<g id="a_proc~~test_propagate_geom~~CallsGraph_node16"><a xlink:href="../interface/fieldbundleset.html" xlink:title="FieldBundleSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="317,-402 225,-402 225,-378 317,-378 317,-402"/>
+<text text-anchor="middle" x="271" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleSet</text>
+</a>
+</g>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;interface~fieldbundleset -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge15" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;interface~fieldbundleset</title>
+<path fill="none" stroke="#ff0000" d="M75.5,-482.78C92.22,-464.15 126.85,-428.93 164,-411 179.6,-403.47 197.74,-398.64 214.55,-395.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="215.53,-398.93 224.82,-393.83 214.38,-392.02 215.53,-398.93"/>
+</g>
+<!-- interface~fieldget -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node17" class="node">
+<title>interface~fieldget</title>
+<g id="a_proc~~test_propagate_geom~~CallsGraph_node17"><a xlink:href="../interface/fieldget.html" xlink:title="FieldGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="299,-360 243,-360 243,-336 299,-336 299,-360"/>
+<text text-anchor="middle" x="271" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldGet</text>
+</a>
+</g>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;interface~fieldget -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge16" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;interface~fieldget</title>
+<path fill="none" stroke="#ff0000" d="M70.71,-482.96C83.5,-457.42 117.05,-397.8 164,-369 184.61,-356.36 211.34,-351.12 232.81,-349.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="233.17,-352.52 242.87,-348.25 232.62,-345.54 233.17,-352.52"/>
+</g>
+<!-- interface~mapl_fieldcreate -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node18" class="node">
+<title>interface~mapl_fieldcreate</title>
+<g id="a_proc~~test_propagate_geom~~CallsGraph_node18"><a xlink:href="../interface/mapl_fieldcreate.html" xlink:title="MAPL_FieldCreate">
+<polygon fill="#a7506f" stroke="#a7506f" points="324,-318 218,-318 218,-294 324,-294 324,-318"/>
+<text text-anchor="middle" x="271" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_FieldCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;interface~mapl_fieldcreate -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge17" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;interface~mapl_fieldcreate</title>
+<path fill="none" stroke="#ff0000" d="M68.34,-482.89C77.68,-451.54 107.12,-367.35 164,-327 176.74,-317.96 192.41,-312.58 207.75,-309.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="208.51,-312.86 217.75,-307.68 207.29,-305.96 208.51,-312.86"/>
+</g>
+<!-- none~get_states -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node19" class="node">
+<title>none~get_states</title>
+<g id="a_proc~~test_propagate_geom~~CallsGraph_node19"><a xlink:href="../type/griddedcomponentdriver.html#boundprocedure-get_states" xlink:title="GriddedComponentDriver%get_states">
+<polygon fill="#a7506f" stroke="#a7506f" points="378,-276 164,-276 164,-252 378,-252 378,-276"/>
+<text text-anchor="middle" x="271" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedComponentDriver%get_states</text>
+</a>
+</g>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;none~get_states -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge18" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;none~get_states</title>
+<path fill="none" stroke="#ff0000" d="M66.84,-482.93C73.07,-446.58 96.81,-337.46 164,-285 165.8,-283.59 167.67,-282.27 169.6,-281.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="171.38,-284.05 178.4,-276.1 167.96,-277.94 171.38,-284.05"/>
+</g>
+<!-- none~initialize~4 -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node20" class="node">
+<title>none~initialize~4</title>
+<g id="a_proc~~test_propagate_geom~~CallsGraph_node20"><a xlink:href="../type/griddedcomponentdriver.html#boundprocedure-initialize~4" xlink:title="GriddedComponentDriver%initialize">
+<polygon fill="#a7506f" stroke="#a7506f" points="373.5,-234 168.5,-234 168.5,-210 373.5,-210 373.5,-234"/>
+<text text-anchor="middle" x="271" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedComponentDriver%initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;none~initialize~4 -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge19" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;none~initialize~4</title>
+<path fill="none" stroke="#ff0000" d="M65.81,-482.95C69.25,-442.12 86.27,-307.95 164,-243 165.57,-241.69 167.19,-240.46 168.86,-239.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="170.86,-242.18 177.62,-234.02 167.25,-236.18 170.86,-242.18"/>
+</g>
+<!-- none~run~3 -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node21" class="node">
+<title>none~run~3</title>
+<g id="a_proc~~test_propagate_geom~~CallsGraph_node21"><a xlink:href="../type/griddedcomponentdriver.html#boundprocedure-run~3" xlink:title="GriddedComponentDriver%run">
+<polygon fill="#a7506f" stroke="#a7506f" points="360,-192 182,-192 182,-168 360,-168 360,-192"/>
+<text text-anchor="middle" x="271" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedComponentDriver%run</text>
+</a>
+</g>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;none~run~3 -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge20" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;none~run~3</title>
+<path fill="none" stroke="#ff0000" d="M65.06,-482.92C65.98,-437.93 75.59,-278.67 164,-201 166.85,-198.5 169.9,-196.26 173.12,-194.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="174.81,-197.33 181.97,-189.51 171.5,-191.16 174.81,-197.33"/>
+</g>
+<!-- proc~make_coupler -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node22" class="node">
+<title>proc~make_coupler</title>
+<g id="a_proc~~test_propagate_geom~~CallsGraph_node22"><a xlink:href="../proc/make_coupler.html" xlink:title="make_coupler">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="315,-150 227,-150 227,-126 315,-126 315,-150"/>
+<text text-anchor="middle" x="271" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_coupler</text>
+</a>
+</g>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;proc~make_coupler -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge21" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;proc~make_coupler</title>
+<path fill="none" stroke="#ff0000" d="M64.48,-482.96C63.08,-434.18 64.75,-249.61 164,-159 178.27,-145.97 198.21,-140.03 216.96,-137.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="217.31,-141.06 226.91,-136.57 216.61,-134.09 217.31,-141.06"/>
+</g>
+<!-- sourcelocation -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node23" class="node">
+<title>sourcelocation</title>
+<polygon fill="#777777" stroke="#777777" points="316.5,-108 225.5,-108 225.5,-84 316.5,-84 316.5,-108"/>
+<text text-anchor="middle" x="271" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sourcelocation</text>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;sourcelocation -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge22" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;sourcelocation</title>
+<path fill="none" stroke="#ff0000" d="M66.46,-482.81C73.76,-423.91 108.18,-169.54 164,-117 177.72,-104.09 196.98,-98.08 215.33,-95.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="215.82,-99 225.39,-94.46 215.07,-92.04 215.82,-99"/>
+</g>
+<!-- true -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node24" class="node">
+<title>true</title>
+<polygon fill="#777777" stroke="#777777" points="298,-66 244,-66 244,-42 298,-42 298,-66"/>
+<text text-anchor="middle" x="271" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">true</text>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;true -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge23" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;true</title>
+<path fill="none" stroke="#ff0000" d="M66.13,-482.74C72.16,-419.86 102.67,-134.17 164,-75 182.27,-57.38 210.83,-52.52 233.7,-51.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="233.77,-55.35 243.75,-51.81 233.74,-48.35 233.77,-55.35"/>
+</g>
+<!-- w -->
+<g id="proc~~test_propagate_geom~~CallsGraph_node25" class="node">
+<title>w</title>
+<polygon fill="#777777" stroke="#777777" points="298,-24 244,-24 244,0 298,0 298,-24"/>
+<text text-anchor="middle" x="271" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">w</text>
+</g>
+<!-- proc~test_propagate_geom&#45;&gt;w -->
+<g id="proc~~test_propagate_geom~~CallsGraph_edge24" class="edge">
+<title>proc~test_propagate_geom&#45;&gt;w</title>
+<path fill="none" stroke="#ff0000" d="M65.84,-482.87C70.66,-416.59 97.07,-98.9 164,-33 182.08,-15.19 210.66,-10.34 233.58,-9.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="233.67,-13.23 243.66,-9.71 233.65,-6.23 233.67,-13.23"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_propagate_geom</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GeomManager</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom_mgr</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">f_alias</span><span class="p">,</span><span class="w"> </span><span class="n">bracket</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fb</span><span class="p">,</span><span class="w"> </span><span class="n">fb_alias</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w">  </span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="n">geom_2</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">grid_2</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ExtensionTransform</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">transform</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">coupler</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GriddedComponentDriver</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">driver</span>
+
+<span class="w">      </span><span class="n">geom_mgr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_geom_manager</span><span class="p">()</span>
+<span class="w">      </span><span class="k">call </span><span class="n">setup</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! Change the geom</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_FieldBundleSet</span><span class="p">(</span><span class="n">fb</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span><span class="o">=</span><span class="n">geom_2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! Run</span>
+<span class="w">      </span><span class="k">call </span><span class="n">driver</span><span class="p">%</span><span class="n">run</span><span class="p">(</span><span class="n">phase_idx</span><span class="o">=</span><span class="n">GENERIC_COUPLER_INVALIDATE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"> </span><span class="c">! probably not needed for test</span>
+<span class="w">      </span><span class="k">call </span><span class="n">driver</span><span class="p">%</span><span class="n">run</span><span class="p">(</span><span class="n">phase_idx</span><span class="o">=</span><span class="n">GENERIC_COUPLER_UPDATE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! Check geom on f</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_FieldGet</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GeomGet</span><span class="p">(</span><span class="n">geom_2</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="o">=</span><span class="n">grid_2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GeomGet</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">grid</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">grid_2</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+
+<span class="w">   </span><span class="k">contains</span>
+
+<span class="k">      subroutine </span><span class="n">setup</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig</span>
+<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">MaplGeom</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mapl_geom</span>
+
+<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">MultiState</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">states</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">         </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span><span class="p">(:,:)</span>
+<span class="w">         </span>
+<span class="w">         </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">mapl_geom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">geom_mgr</span><span class="p">%</span><span class="n">get_mapl_geom</span><span class="p">(</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">geom_1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mapl_geom</span><span class="p">%</span><span class="n">get_geom</span><span class="p">()</span>
+<span class="w">         </span><span class="k">block</span>
+<span class="k">           type</span><span class="p">(</span><span class="n">ESMF_Info</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">info</span>
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_InfoGetFromHost</span><span class="p">(</span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_InfoSet</span><span class="p">(</span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;geom_1&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end block</span>
+
+<span class="k">         </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;{class: latlon, im_world: 6, jm_world: 7, pole: PC, dateline: DC}&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">mapl_geom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">geom_mgr</span><span class="p">%</span><span class="n">get_mapl_geom</span><span class="p">(</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">geom_2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mapl_geom</span><span class="p">%</span><span class="n">get_geom</span><span class="p">()</span>
+<span class="w">         </span>
+<span class="w">         </span><span class="k">block</span>
+<span class="k">           type</span><span class="p">(</span><span class="n">ESMF_Info</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">info</span>
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_InfoGetFromHost</span><span class="p">(</span><span class="n">geom_2</span><span class="p">,</span><span class="w"> </span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_InfoSet</span><span class="p">(</span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;geom_2&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end block</span>
+<span class="k">         </span><span class="n">transform</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TimeInterpolateTransform</span><span class="p">()</span>
+<span class="w">         </span><span class="n">coupler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_coupler</span><span class="p">(</span><span class="n">transform</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">driver</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GriddedComponentDriver</span><span class="p">(</span><span class="n">coupler</span><span class="p">)</span>
+<span class="w">         </span>
+<span class="w">         </span><span class="n">bracket</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_FieldCreate</span><span class="p">(</span><span class="n">geom</span><span class="o">=</span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">bracket</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_FieldCreate</span><span class="p">(</span><span class="n">geom</span><span class="o">=</span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">bracket</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">fArrayPtr</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">bracket</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">fArrayPtr</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.</span>
+<span class="w">         </span>
+<span class="w">         </span><span class="n">fb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_FieldBundleCreate</span><span class="p">(</span><span class="n">fieldList</span><span class="o">=</span><span class="n">bracket</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_FieldBundleSet</span><span class="p">(</span><span class="n">fb</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span><span class="o">=</span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="n">interpolation_weights</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.5</span><span class="p">],</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">block</span>
+<span class="k">           </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">w</span><span class="p">(:)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">MAPL_FieldBundleGet</span><span class="p">(</span><span class="n">fb</span><span class="p">,</span><span class="w"> </span><span class="n">interpolation_weights</span><span class="o">=</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end block</span>
+<span class="k">         </span><span class="n">fb_alias</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_NamedAlias</span><span class="p">(</span><span class="n">fb</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;import[1]&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span>
+<span class="w">         </span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_FieldCreate</span><span class="p">(</span><span class="n">geom</span><span class="o">=</span><span class="n">geom_1</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">f_alias</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_NamedAlias</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;export[1]&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span>
+<span class="w">         </span><span class="n">states</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">driver</span><span class="p">%</span><span class="n">get_states</span><span class="p">()</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_StateAdd</span><span class="p">(</span><span class="n">states</span><span class="p">%</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">fieldBundleList</span><span class="o">=</span><span class="p">[</span><span class="n">fb_alias</span><span class="p">],</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_StateAdd</span><span class="p">(</span><span class="n">states</span><span class="p">%</span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">fieldList</span><span class="o">=</span><span class="p">[</span><span class="n">f_alias</span><span class="p">],</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">driver</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">))</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">_</span><span class="n">SUCCESS</span>
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">setup</span>
+<span class="w">      </span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_propagate_geom</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

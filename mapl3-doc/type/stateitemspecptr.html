@@ -1,0 +1,733 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>StateItemSpecPtr &ndash; MAPL </title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>StateItemSpecPtr
+      <small>Derived Type</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title="<p> 0.0% of total for derived types.</p>Including implementation: 3 statements,  0.0% of total for derived types.">3 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/StateItemSpec.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/stateitemspec.f90.html'>StateItemSpec.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl3g_stateitemspec.html'>mapl3g_StateItemSpec</a></li>
+            <li class="breadcrumb-item active" aria-current="page">StateItemSpecPtr</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../type/stateitemspecptr.html#variable-ptr~57">ptr</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../type/stateitemspecptr.html#src">StateItemSpecPtr</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+      <h2 id="type-def-statement">
+        type, public :: StateItemSpecPtr</h2>
+    
+<br>      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Inherits</h3>
+        </div>
+        <div class="card-body">
+          <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: type~~stateitemspecptr~~InheritsGraph Pages: 1 -->
+<svg id="typestateitemspecptrInheritsGraph" width="641pt" height="76pt"
+ viewBox="0.00 0.00 641.00 75.80" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="type~~stateitemspecptr~~InheritsGraph" class="graph" transform="scale(0.65 0.65) rotate(0) translate(4 112)">
+<title>type~~stateitemspecptr~~InheritsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 977,-112 977,4 -4,4"/>
+<!-- type~stateitemspecptr -->
+<g id="type~~stateitemspecptr~~InheritsGraph_node1" class="node">
+<title>type~stateitemspecptr</title>
+<polygon fill="none" stroke="black" points="973,-44 868,-44 868,-20 973,-20 973,-44"/>
+<text text-anchor="middle" x="920.5" y="-29.6" font-family="Helvetica,sans-Serif" font-size="10.50">StateItemSpecPtr</text>
+</g>
+<!-- type~stateitemspec -->
+<g id="type~~stateitemspecptr~~InheritsGraph_node2" class="node">
+<title>type~stateitemspec</title>
+<g id="a_type~~stateitemspecptr~~InheritsGraph_node2"><a xlink:href="../type/stateitemspec.html" xlink:title="StateItemSpec">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="818,-44 727,-44 727,-20 818,-20 818,-44"/>
+<text text-anchor="middle" x="772.5" y="-29.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemSpec</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemspecptr&#45;&gt;type~stateitemspec -->
+<g id="type~~stateitemspecptr~~InheritsGraph_edge1" class="edge">
+<title>type~stateitemspecptr&#45;&gt;type~stateitemspec</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M867.61,-32C854.94,-32 841.33,-32 828.52,-32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="828.44,-28.5 818.44,-32 828.44,-35.5 828.44,-28.5"/>
+<text text-anchor="middle" x="843" y="-34.4" font-family="Helvetica,sans-Serif" font-size="9.50">ptr</text>
+</g>
+<!-- type~aspectmap -->
+<g id="type~~stateitemspecptr~~InheritsGraph_node3" class="node">
+<title>type~aspectmap</title>
+<g id="a_type~~stateitemspecptr~~InheritsGraph_node3"><a xlink:href="../type/aspectmap.html" xlink:title="AspectMap">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="583,-66 512,-66 512,-42 583,-42 583,-66"/>
+<text text-anchor="middle" x="547.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AspectMap</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemspec&#45;&gt;type~aspectmap -->
+<g id="type~~stateitemspecptr~~InheritsGraph_edge3" class="edge">
+<title>type~stateitemspec&#45;&gt;type~aspectmap</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M726.91,-36.4C688.06,-40.23 632,-45.76 593.13,-49.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="592.76,-46.12 583.15,-50.58 593.45,-53.08 592.76,-46.12"/>
+<text text-anchor="middle" x="675" y="-46.4" font-family="Helvetica,sans-Serif" font-size="9.50">aspects</text>
+</g>
+<!-- type~virtualconnectionptvector -->
+<g id="type~~stateitemspecptr~~InheritsGraph_node4" class="node">
+<title>type~virtualconnectionptvector</title>
+<g id="a_type~~stateitemspecptr~~InheritsGraph_node4"><a xlink:href="../type/virtualconnectionptvector.html" xlink:title="VirtualConnectionPtVector">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="623,-24 472,-24 472,0 623,0 623,-24"/>
+<text text-anchor="middle" x="547.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VirtualConnectionPtVector</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemspec&#45;&gt;type~virtualconnectionptvector -->
+<g id="type~~stateitemspecptr~~InheritsGraph_edge2" class="edge">
+<title>type~stateitemspec&#45;&gt;type~virtualconnectionptvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M726.92,-21.82C720.92,-20.71 714.83,-19.73 709,-19 684.43,-15.93 657.6,-14.15 633.04,-13.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="633.15,-9.63 623.02,-12.75 632.88,-16.62 633.15,-9.63"/>
+<text text-anchor="middle" x="675" y="-21.4" font-family="Helvetica,sans-Serif" font-size="9.50">dependencies</text>
+</g>
+<!-- type~map_set~6 -->
+<g id="type~~stateitemspecptr~~InheritsGraph_node5" class="node">
+<title>type~map_set~6</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="371.5,-66 312.5,-66 312.5,-42 371.5,-42 371.5,-66"/>
+<text text-anchor="middle" x="342" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set</text>
+</g>
+<!-- type~aspectmap&#45;&gt;type~map_set~6 -->
+<g id="type~~stateitemspecptr~~InheritsGraph_edge4" class="edge">
+<title>type~aspectmap&#45;&gt;type~map_set~6</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M511.98,-54C475.91,-54 419.43,-54 381.83,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="381.76,-50.5 371.76,-54 381.76,-57.5 381.76,-50.5"/>
+<text text-anchor="middle" x="431" y="-56.4" font-family="Helvetica,sans-Serif" font-size="9.50">tree</text>
+</g>
+<!-- type~vector_wrapper~8 -->
+<g id="type~~stateitemspecptr~~InheritsGraph_node6" class="node">
+<title>type~vector_wrapper~8</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="390,-24 294,-24 294,0 390,0 390,-24"/>
+<text text-anchor="middle" x="342" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vector_wrapper</text>
+</g>
+<!-- type~virtualconnectionptvector&#45;&gt;type~vector_wrapper~8 -->
+<g id="type~~stateitemspecptr~~InheritsGraph_edge5" class="edge">
+<title>type~virtualconnectionptvector&#45;&gt;type~vector_wrapper~8</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M471.88,-12C448.28,-12 422.58,-12 400.38,-12"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="400.12,-8.5 390.12,-12 400.12,-15.5 400.12,-8.5"/>
+<text text-anchor="middle" x="431" y="-14.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~map_s_indexvector -->
+<g id="type~~stateitemspecptr~~InheritsGraph_node7" class="node">
+<title>type~map_s_indexvector</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="116.5,-108 1.5,-108 1.5,-84 116.5,-84 116.5,-108"/>
+<text text-anchor="middle" x="59" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_IndexVector</text>
+</g>
+<!-- type~map_set~6&#45;&gt;type~map_s_indexvector -->
+<g id="type~~stateitemspecptr~~InheritsGraph_edge7" class="edge">
+<title>type~map_set~6&#45;&gt;type~map_s_indexvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M312.3,-60.72C301.03,-63.22 287.94,-65.94 276,-68 226.15,-76.58 169.41,-83.84 126.6,-88.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="126.12,-85.35 116.59,-89.97 126.92,-92.3 126.12,-85.35"/>
+<text text-anchor="middle" x="206" y="-89.4" font-family="Helvetica,sans-Serif" font-size="9.50">parents, lefts, rights, heights</text>
+</g>
+<!-- type~map_s_itemvector -->
+<g id="type~~stateitemspecptr~~InheritsGraph_node8" class="node">
+<title>type~map_s_itemvector</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="114,-66 4,-66 4,-42 114,-42 114,-66"/>
+<text text-anchor="middle" x="59" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_ItemVector</text>
+</g>
+<!-- type~map_set~6&#45;&gt;type~map_s_itemvector -->
+<g id="type~~stateitemspecptr~~InheritsGraph_edge6" class="edge">
+<title>type~map_set~6&#45;&gt;type~map_s_itemvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M312.25,-54C268.37,-54 183.58,-54 124.48,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="124.12,-50.5 114.12,-54 124.12,-57.5 124.12,-50.5"/>
+<text text-anchor="middle" x="206" y="-56.4" font-family="Helvetica,sans-Serif" font-size="9.50">items</text>
+</g>
+<!-- type~virtualconnectionpt -->
+<g id="type~~stateitemspecptr~~InheritsGraph_node9" class="node">
+<title>type~virtualconnectionpt</title>
+<g id="a_type~~stateitemspecptr~~InheritsGraph_node9"><a xlink:href="../type/virtualconnectionpt.html" xlink:title="VirtualConnectionPt">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="118,-24 0,-24 0,0 118,0 118,-24"/>
+<text text-anchor="middle" x="59" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VirtualConnectionPt</text>
+</a>
+</g>
+</g>
+<!-- type~vector_wrapper~8&#45;&gt;type~virtualconnectionpt -->
+<g id="type~~stateitemspecptr~~InheritsGraph_edge8" class="edge">
+<title>type~vector_wrapper~8&#45;&gt;type~virtualconnectionpt</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M293.97,-12C248.63,-12 179.54,-12 128.18,-12"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="128.15,-8.5 118.15,-12 128.15,-15.5 128.15,-8.5"/>
+<text text-anchor="middle" x="206" y="-14.4" font-family="Helvetica,sans-Serif" font-size="9.50">item</text>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pantypestateitemspecptrInheritsGraph = svgPanZoom('#typestateitemspecptrInheritsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#InheritsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="InheritsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="186pt" height="32pt"
+ viewBox="0.00 0.00 185.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 181.5,-28 181.5,4 -4,4"/>
+<!-- Type -->
+<g id="node1" class="node">
+<title>Type</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="177.5,-24 72.5,-24 72.5,0 177.5,0 177.5,-24"/>
+<text text-anchor="middle" x="125" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a derived type to the parent type which it
+extends. Dashed arrows point from a derived type to the other
+types it contains as a components, with a label listing the name(s) of
+said component(s).
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Inherited by</h3>
+        </div>
+        <div class="card-body">
+          <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: type~~stateitemspecptr~~InheritedByGraph Pages: 1 -->
+<svg id="typestateitemspecptrInheritedByGraph" width="641pt" height="129pt"
+ viewBox="0.00 0.00 641.00 129.04" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="type~~stateitemspecptr~~InheritedByGraph" class="graph" transform="scale(0.6 0.6) rotate(0) translate(4 210)">
+<title>type~~stateitemspecptr~~InheritedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-210 1059,-210 1059,4 -4,4"/>
+<!-- type~stateitemspecptr -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_node1" class="node">
+<title>type~stateitemspecptr</title>
+<polygon fill="none" stroke="black" points="105,-115 0,-115 0,-91 105,-91 105,-115"/>
+<text text-anchor="middle" x="52.5" y="-100.6" font-family="Helvetica,sans-Serif" font-size="10.50">StateItemSpecPtr</text>
+</g>
+<!-- type~actualptspecptrpair -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_node2" class="node">
+<title>type~actualptspecptrpair</title>
+<g id="a_type~~stateitemspecptr~~InheritedByGraph_node2"><a xlink:href="../type/actualptspecptrpair.html" xlink:title="ActualPtSpecPtrPair">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="351.5,-178 235.5,-178 235.5,-154 351.5,-154 351.5,-178"/>
+<text text-anchor="middle" x="293.5" y="-163.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ActualPtSpecPtrPair</text>
+</a>
+</g>
+</g>
+<!-- type~actualptspecptrpair&#45;&gt;type~stateitemspecptr -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_edge2" class="edge">
+<title>type~actualptspecptrpair&#45;&gt;type~stateitemspecptr</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M235.49,-155.67C202.36,-149.14 159.98,-139.89 123,-129 112.99,-126.05 102.36,-122.37 92.5,-118.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="93.54,-115.36 82.95,-115.08 91.05,-121.9 93.54,-115.36"/>
+<text text-anchor="middle" x="163.5" y="-150.4" font-family="Helvetica,sans-Serif" font-size="9.50">second</text>
+</g>
+<!-- type~serviceclassaspect -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_node3" class="node">
+<title>type~serviceclassaspect</title>
+<g id="a_type~~stateitemspecptr~~InheritedByGraph_node3"><a xlink:href="../type/serviceclassaspect.html" xlink:title="ServiceClassAspect">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="351.5,-136 235.5,-136 235.5,-112 351.5,-112 351.5,-136"/>
+<text text-anchor="middle" x="293.5" y="-121.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServiceClassAspect</text>
+</a>
+</g>
+</g>
+<!-- type~serviceclassaspect&#45;&gt;type~stateitemspecptr -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_edge3" class="edge">
+<title>type~serviceclassaspect&#45;&gt;type~stateitemspecptr</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M235.25,-118.97C199.15,-115.8 152.53,-111.7 115.55,-108.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="115.66,-104.95 105.39,-107.56 115.04,-111.92 115.66,-104.95"/>
+<text text-anchor="middle" x="163.5" y="-117.4" font-family="Helvetica,sans-Serif" font-size="9.50">items_to_service</text>
+</g>
+<!-- type~vector_wrapper~22 -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_node4" class="node">
+<title>type~vector_wrapper~22</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="341.5,-94 245.5,-94 245.5,-70 341.5,-70 341.5,-94"/>
+<text text-anchor="middle" x="293.5" y="-79.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vector_wrapper</text>
+</g>
+<!-- type~vector_wrapper~22&#45;&gt;type~stateitemspecptr -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_edge4" class="edge">
+<title>type~vector_wrapper~22&#45;&gt;type~stateitemspecptr</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M245.33,-85.13C211.3,-87.51 164.28,-91.04 123,-95 120.46,-95.24 117.87,-95.5 115.26,-95.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="114.67,-92.31 105.09,-96.84 115.4,-99.27 114.67,-92.31"/>
+<text text-anchor="middle" x="163.5" y="-97.4" font-family="Helvetica,sans-Serif" font-size="9.50">item</text>
+</g>
+<!-- type~virtualptstateitemptrpair -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_node5" class="node">
+<title>type~virtualptstateitemptrpair</title>
+<g id="a_type~~stateitemspecptr~~InheritedByGraph_node5"><a xlink:href="../type/virtualptstateitemptrpair.html" xlink:title="VirtualPtStateItemPtrPair">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="365,-45 222,-45 222,-21 365,-21 365,-45"/>
+<text text-anchor="middle" x="293.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VirtualPtStateItemPtrPair</text>
+</a>
+</g>
+</g>
+<!-- type~virtualptstateitemptrpair&#45;&gt;type~stateitemspecptr -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_edge1" class="edge">
+<title>type~virtualptstateitemptrpair&#45;&gt;type~stateitemspecptr</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M232.63,-45.06C199.89,-52.26 158.82,-62.27 123,-74 111.77,-77.67 99.82,-82.37 89.04,-86.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="87.34,-83.82 79.53,-90.99 90.1,-90.26 87.34,-83.82"/>
+<text text-anchor="middle" x="163.5" y="-76.4" font-family="Helvetica,sans-Serif" font-size="9.50">second</text>
+</g>
+<!-- type~map_s_node~12 -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_node6" class="node">
+<title>type~map_s_node~12</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="576,-178 496,-178 496,-154 576,-154 576,-178"/>
+<text text-anchor="middle" x="536" y="-163.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_Node</text>
+</g>
+<!-- type~map_s_node~12&#45;&gt;type~actualptspecptrpair -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_edge5" class="edge">
+<title>type~map_s_node~12&#45;&gt;type~actualptspecptrpair</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M495.82,-166C459.6,-166 404.99,-166 361.79,-166"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="361.63,-162.5 351.63,-166 361.63,-169.5 361.63,-162.5"/>
+<text text-anchor="middle" x="406" y="-168.4" font-family="Helvetica,sans-Serif" font-size="9.50">value</text>
+</g>
+<!-- type~map_s_node~12&#45;&gt;type~map_s_node~12 -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_edge9" class="edge">
+<title>type~map_s_node~12&#45;&gt;type~map_s_node~12</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M556.5,-178.01C563.66,-186.97 556.83,-196 536,-196 523.31,-196 515.81,-192.65 513.51,-188"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="516.98,-188.5 515.5,-178.01 510.12,-187.14 516.98,-188.5"/>
+<text text-anchor="middle" x="536" y="-198.4" font-family="Helvetica,sans-Serif" font-size="9.50">parent</text>
+</g>
+<!-- type~map_s_node~15 -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_node7" class="node">
+<title>type~map_s_node~15</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="576,-24 496,-24 496,0 576,0 576,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_Node</text>
+</g>
+<!-- type~map_s_node~15&#45;&gt;type~virtualptstateitemptrpair -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_edge8" class="edge">
+<title>type~map_s_node~15&#45;&gt;type~virtualptstateitemptrpair</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M495.82,-15.42C463.31,-18.26 415.99,-22.39 375.39,-25.94"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="374.89,-22.47 365.23,-26.82 375.5,-29.44 374.89,-22.47"/>
+<text text-anchor="middle" x="406" y="-26.4" font-family="Helvetica,sans-Serif" font-size="9.50">value</text>
+</g>
+<!-- type~map_s_node~15&#45;&gt;type~map_s_node~15 -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_edge11" class="edge">
+<title>type~map_s_node~15&#45;&gt;type~map_s_node~15</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M556.5,-24.01C563.66,-32.97 556.83,-42 536,-42 523.31,-42 515.81,-38.65 513.51,-34"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="516.98,-34.5 515.5,-24.01 510.12,-33.14 516.98,-34.5"/>
+<text text-anchor="middle" x="536" y="-44.4" font-family="Helvetica,sans-Serif" font-size="9.50">parent</text>
+</g>
+<!-- type~stateitemspecptrvector -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_node8" class="node">
+<title>type~stateitemspecptrvector</title>
+<g id="a_type~~stateitemspecptr~~InheritedByGraph_node8"><a xlink:href="../type/stateitemspecptrvector.html" xlink:title="StateItemSpecPtrVector">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="605.5,-136 466.5,-136 466.5,-112 605.5,-112 605.5,-136"/>
+<text text-anchor="middle" x="536" y="-121.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemSpecPtrVector</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemspecptrvector&#45;&gt;type~vector_wrapper~22 -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_edge6" class="edge">
+<title>type~stateitemspecptrvector&#45;&gt;type~vector_wrapper~22</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M466.4,-112.02C430.14,-105.69 386.13,-98 351.72,-91.99"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="352.28,-88.54 341.83,-90.27 351.08,-95.43 352.28,-88.54"/>
+<text text-anchor="middle" x="406" y="-106.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~stateitemspecptrvectoriterator -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_node9" class="node">
+<title>type~stateitemspecptrvectoriterator</title>
+<g id="a_type~~stateitemspecptr~~InheritedByGraph_node9"><a xlink:href="../type/stateitemspecptrvectoriterator.html" xlink:title="StateItemSpecPtrVectorIterator">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="625,-94 447,-94 447,-70 625,-70 625,-94"/>
+<text text-anchor="middle" x="536" y="-79.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemSpecPtrVectorIterator</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemspecptrvectoriterator&#45;&gt;type~vector_wrapper~22 -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_edge7" class="edge">
+<title>type~stateitemspecptrvectoriterator&#45;&gt;type~vector_wrapper~22</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M446.81,-82C415.17,-82 380.34,-82 351.98,-82"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="351.84,-78.5 341.84,-82 351.84,-85.5 351.84,-78.5"/>
+<text text-anchor="middle" x="406" y="-84.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~map_setiterator~14 -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_node10" class="node">
+<title>type~map_setiterator~14</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="797,-178 698,-178 698,-154 797,-154 797,-178"/>
+<text text-anchor="middle" x="747.5" y="-163.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_SetIterator</text>
+</g>
+<!-- type~map_setiterator~14&#45;&gt;type~map_s_node~12 -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_edge10" class="edge">
+<title>type~map_setiterator~14&#45;&gt;type~map_s_node~12</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M697.91,-166C664.39,-166 619.98,-166 586.3,-166"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="586.22,-162.5 576.22,-166 586.22,-169.5 586.22,-162.5"/>
+<text text-anchor="middle" x="661.5" y="-168.4" font-family="Helvetica,sans-Serif" font-size="9.50">node</text>
+</g>
+<!-- type~map_setiterator~17 -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_node11" class="node">
+<title>type~map_setiterator~17</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="797,-24 698,-24 698,0 797,0 797,-24"/>
+<text text-anchor="middle" x="747.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_SetIterator</text>
+</g>
+<!-- type~map_setiterator~17&#45;&gt;type~map_s_node~15 -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_edge12" class="edge">
+<title>type~map_setiterator~17&#45;&gt;type~map_s_node~15</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M697.91,-12C664.39,-12 619.98,-12 586.3,-12"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="586.22,-8.5 576.22,-12 586.22,-15.5 586.22,-8.5"/>
+<text text-anchor="middle" x="661.5" y="-14.4" font-family="Helvetica,sans-Serif" font-size="9.50">node</text>
+</g>
+<!-- type~vectorriterator~17 -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_node12" class="node">
+<title>type~vectorriterator~17</title>
+<g id="a_type~~stateitemspecptr~~InheritedByGraph_node12"><a xlink:href="../type/vectorriterator~17.html" xlink:title="VectorRIterator">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="794.5,-94 700.5,-94 700.5,-70 794.5,-70 794.5,-94"/>
+<text text-anchor="middle" x="747.5" y="-79.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VectorRIterator</text>
+</a>
+</g>
+</g>
+<!-- type~vectorriterator~17&#45;&gt;type~stateitemspecptrvectoriterator -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_edge13" class="edge">
+<title>type~vectorriterator~17&#45;&gt;type~stateitemspecptrvectoriterator</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M700.26,-82C681.06,-82 657.98,-82 635.31,-82"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="635.29,-78.5 625.29,-82 635.29,-85.5 635.29,-78.5"/>
+<text text-anchor="middle" x="661.5" y="-84.4" font-family="Helvetica,sans-Serif" font-size="9.50">iterator</text>
+</g>
+<!-- type~actualptspecptrmapiterator -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_node13" class="node">
+<title>type~actualptspecptrmapiterator</title>
+<g id="a_type~~stateitemspecptr~~InheritedByGraph_node13"><a xlink:href="../type/actualptspecptrmapiterator.html" xlink:title="ActualPtSpecPtrMapIterator">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="1041.5,-178 883.5,-178 883.5,-154 1041.5,-154 1041.5,-178"/>
+<text text-anchor="middle" x="962.5" y="-163.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ActualPtSpecPtrMapIterator</text>
+</a>
+</g>
+</g>
+<!-- type~actualptspecptrmapiterator&#45;&gt;type~map_setiterator~14 -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_edge14" class="edge">
+<title>type~actualptspecptrmapiterator&#45;&gt;type~map_setiterator~14</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M883.4,-166C858.26,-166 830.86,-166 807.35,-166"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="807.19,-162.5 797.19,-166 807.19,-169.5 807.19,-162.5"/>
+<text text-anchor="middle" x="833.5" y="-168.4" font-family="Helvetica,sans-Serif" font-size="9.50">set_iter</text>
+</g>
+<!-- type~virtualptstateitemptrmapiterator -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_node14" class="node">
+<title>type~virtualptstateitemptrmapiterator</title>
+<g id="a_type~~stateitemspecptr~~InheritedByGraph_node14"><a xlink:href="../type/virtualptstateitemptrmapiterator.html" xlink:title="VirtualPtStateItemPtrMapIterator">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="1055,-24 870,-24 870,0 1055,0 1055,-24"/>
+<text text-anchor="middle" x="962.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VirtualPtStateItemPtrMapIterator</text>
+</a>
+</g>
+</g>
+<!-- type~virtualptstateitemptrmapiterator&#45;&gt;type~map_setiterator~17 -->
+<g id="type~~stateitemspecptr~~InheritedByGraph_edge15" class="edge">
+<title>type~virtualptstateitemptrmapiterator&#45;&gt;type~map_setiterator~17</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M869.93,-12C848.71,-12 826.69,-12 807.32,-12"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="807.15,-8.5 797.15,-12 807.15,-15.5 807.15,-8.5"/>
+<text text-anchor="middle" x="833.5" y="-14.4" font-family="Helvetica,sans-Serif" font-size="9.50">set_iter</text>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pantypestateitemspecptrInheritedByGraph = svgPanZoom('#typestateitemspecptrInheritedByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#InheritedByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="InheritedByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="186pt" height="32pt"
+ viewBox="0.00 0.00 185.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 181.5,-28 181.5,4 -4,4"/>
+<!-- Type -->
+<g id="node1" class="node">
+<title>Type</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="177.5,-24 72.5,-24 72.5,0 177.5,0 177.5,-24"/>
+<text text-anchor="middle" x="125" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a derived type to the parent type which it
+extends. Dashed arrows point from a derived type to the other
+types it contains as a components, with a label listing the name(s) of
+said component(s).
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    <br>
+
+    <section>
+    <h2>Components</h2>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ptr~57"></span>
+              class(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+              <td>public,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>ptr</strong></td>
+<td>=&gt; </td>
+                <td>null()</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </section>
+    <br>
+    
+
+
+
+    <section>
+    <h3><span class="anchor" id="src"></span>Source Code</h3>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">StateItemSpecPtr</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ptr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<span class="w">   </span><span class="k">end type </span><span class="n">StateItemSpecPtr</span>
+</pre></div>
+
+    </section>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

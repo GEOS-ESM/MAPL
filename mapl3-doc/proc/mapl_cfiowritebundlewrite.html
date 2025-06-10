@@ -1,0 +1,1056 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_CFIOWriteBundleWrite &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_CFIOWriteBundleWrite
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.2% of total for procedures.">110 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_CFIO.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_cfio.f90.html'>MAPL_CFIO.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_cfiomod.html'>MAPL_CFIOMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_CFIOWriteBundleWrite</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_cfiowritebundlewrite.html#src">MAPL_CFIOWriteBundleWrite</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine MAPL_CFIOWriteBundleWrite(MCFIO, CLOCK, RC)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mcfio~7"></span>
+              type(<a href='../type/mapl_cfio.html'>MAPL_CFIO</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>MCFIO</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~39"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CLOCK</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~297"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_cfiowritebundlewrite~~CallsGraph Pages: 1 -->
+<svg id="procmapl_cfiowritebundlewriteCallsGraph" width="641pt" height="649pt"
+ viewBox="0.00 0.00 641.00 649.46" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph" class="graph" transform="scale(0.77 0.77) rotate(0) translate(4 840)">
+<title>proc~~mapl_cfiowritebundlewrite~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-840 829,-840 829,4 -4,4"/>
+<!-- proc~mapl_cfiowritebundlewrite -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node1" class="node">
+<title>proc~mapl_cfiowritebundlewrite</title>
+<polygon fill="none" stroke="black" points="164,-564 0,-564 0,-540 164,-540 164,-564"/>
+<text text-anchor="middle" x="82" y="-549.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_CFIOWriteBundleWrite</text>
+</g>
+<!-- ESMF_AlarmIsRinging -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node2" class="node">
+<title>ESMF_AlarmIsRinging</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_alarmisringing.html" xlink:title="ESMF_AlarmIsRinging">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="329.5,-836 202.5,-836 202.5,-812 329.5,-812 329.5,-836"/>
+<text text-anchor="middle" x="266" y="-821.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_AlarmIsRinging</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiowritebundlewrite&#45;&gt;ESMF_AlarmIsRinging -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_cfiowritebundlewrite&#45;&gt;ESMF_AlarmIsRinging</title>
+<path fill="none" stroke="#ff0000" d="M85.13,-564.27C92.8,-604.65 122.71,-734.72 200,-803 201.5,-804.32 203.08,-805.57 204.74,-806.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="203.09,-809.82 213.47,-811.92 206.66,-803.8 203.09,-809.82"/>
+</g>
+<!-- ESMF_ClockGet -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node3" class="node">
+<title>ESMF_ClockGet</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_clockget.html" xlink:title="ESMF_ClockGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="313,-794 219,-794 219,-770 313,-770 313,-794"/>
+<text text-anchor="middle" x="266" y="-779.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ClockGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiowritebundlewrite&#45;&gt;ESMF_ClockGet -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_cfiowritebundlewrite&#45;&gt;ESMF_ClockGet</title>
+<path fill="none" stroke="#ff0000" d="M86.36,-564.2C96.83,-599.97 132.29,-705.52 200,-761 202.92,-763.4 206.13,-765.52 209.5,-767.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="208.19,-770.66 218.72,-771.85 211.23,-764.35 208.19,-770.66"/>
+</g>
+<!-- ESMF_ClockGetAlarm -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node4" class="node">
+<title>ESMF_ClockGetAlarm</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_clockgetalarm.html" xlink:title="ESMF_ClockGetAlarm">
+<polygon fill="#d9534f" stroke="#d9534f" points="329.5,-752 202.5,-752 202.5,-728 329.5,-728 329.5,-752"/>
+<text text-anchor="middle" x="266" y="-737.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ClockGetAlarm</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiowritebundlewrite&#45;&gt;ESMF_ClockGetAlarm -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_cfiowritebundlewrite&#45;&gt;ESMF_ClockGetAlarm</title>
+<path fill="none" stroke="#ff0000" d="M88.13,-564.11C101.71,-594.73 141.62,-675.89 200,-719 202.09,-720.54 204.29,-721.97 206.58,-723.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="205.23,-726.54 215.74,-727.93 208.39,-720.3 205.23,-726.54"/>
+</g>
+<!-- ESMF_TimeGet -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node5" class="node">
+<title>ESMF_TimeGet</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_timeget.html" xlink:title="ESMF_TimeGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="311.5,-710 220.5,-710 220.5,-686 311.5,-686 311.5,-710"/>
+<text text-anchor="middle" x="266" y="-695.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiowritebundlewrite&#45;&gt;ESMF_TimeGet -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_cfiowritebundlewrite&#45;&gt;ESMF_TimeGet</title>
+<path fill="none" stroke="#ff0000" d="M91.16,-564.24C108.36,-589.09 150.81,-645.78 200,-677 203.4,-679.15 207.03,-681.11 210.78,-682.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="209.71,-686.22 220.29,-686.89 212.44,-679.77 209.71,-686.22"/>
+</g>
+<!-- ESMF_TimeIntervalGet -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node6" class="node">
+<title>ESMF_TimeIntervalGet</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node6"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeintervalget.html" xlink:title="ESMF_TimeIntervalGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="332,-668 200,-668 200,-644 332,-644 332,-668"/>
+<text text-anchor="middle" x="266" y="-653.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeIntervalGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiowritebundlewrite&#45;&gt;ESMF_TimeIntervalGet -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_cfiowritebundlewrite&#45;&gt;ESMF_TimeIntervalGet</title>
+<path fill="none" stroke="#ff0000" d="M97.22,-564.29C118.36,-582.04 159.93,-614.91 200,-635 203.76,-636.88 207.72,-638.65 211.76,-640.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="210.67,-643.62 221.26,-643.9 213.15,-637.08 210.67,-643.62"/>
+</g>
+<!-- ESMF_TimeSet -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node7" class="node">
+<title>ESMF_TimeSet</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node7"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeset.html" xlink:title="ESMF_TimeSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="311,-626 221,-626 221,-602 311,-602 311,-626"/>
+<text text-anchor="middle" x="266" y="-611.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeSet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiowritebundlewrite&#45;&gt;ESMF_TimeSet -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_cfiowritebundlewrite&#45;&gt;ESMF_TimeSet</title>
+<path fill="none" stroke="#ff0000" d="M116.72,-564.06C140.05,-572.35 171.85,-583.52 200,-593 205.62,-594.89 211.52,-596.84 217.38,-598.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="216.55,-602.17 227.14,-601.94 218.72,-595.52 216.55,-602.17"/>
+</g>
+<!-- interface~esmf_cfiovarwrite -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node8" class="node">
+<title>interface~esmf_cfiovarwrite</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node8"><a xlink:href="../interface/esmf_cfiovarwrite.html" xlink:title="ESMF_CFIOVarWrite">
+<polygon fill="#a7506f" stroke="#a7506f" points="324,-584 208,-584 208,-560 324,-560 324,-584"/>
+<text text-anchor="middle" x="266" y="-569.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOVarWrite</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiowritebundlewrite&#45;&gt;interface~esmf_cfiovarwrite -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_cfiowritebundlewrite&#45;&gt;interface~esmf_cfiovarwrite</title>
+<path fill="none" stroke="#ff0000" d="M164.15,-560.92C175.47,-562.16 187,-563.43 198.02,-564.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="197.66,-568.12 207.98,-565.73 198.42,-561.16 197.66,-568.12"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node9" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node9"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="637.5,-522 558.5,-522 558.5,-498 637.5,-498 637.5,-522"/>
+<text text-anchor="middle" x="598" y="-507.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiowritebundlewrite&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_cfiowritebundlewrite&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M164.16,-545.37C272.19,-536.54 459.86,-521.21 548.27,-513.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="548.62,-517.47 558.3,-513.16 548.05,-510.49 548.62,-517.47"/>
+</g>
+<!-- mpi_recv -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node10" class="node">
+<title>mpi_recv</title>
+<polygon fill="#777777" stroke="#777777" points="296.5,-268 235.5,-268 235.5,-244 296.5,-244 296.5,-268"/>
+<text text-anchor="middle" x="266" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_recv</text>
+</g>
+<!-- proc~mapl_cfiowritebundlewrite&#45;&gt;mpi_recv -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_cfiowritebundlewrite&#45;&gt;mpi_recv</title>
+<path fill="none" stroke="#ff0000" d="M84.58,-539.79C90.73,-497.07 117.09,-352.79 200,-277 207.14,-270.48 216.32,-265.98 225.52,-262.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="226.77,-266.16 235.41,-260.03 224.84,-259.43 226.77,-266.16"/>
+</g>
+<!-- mpi_wait -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node11" class="node">
+<title>mpi_wait</title>
+<polygon fill="#777777" stroke="#777777" points="296,-226 236,-226 236,-202 296,-202 296,-226"/>
+<text text-anchor="middle" x="266" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_wait</text>
+</g>
+<!-- proc~mapl_cfiowritebundlewrite&#45;&gt;mpi_wait -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_cfiowritebundlewrite&#45;&gt;mpi_wait</title>
+<path fill="none" stroke="#ff0000" d="M83.79,-539.94C87.49,-493.47 107.1,-324.16 200,-235 207.18,-228.11 216.63,-223.48 226.09,-220.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="227.17,-223.71 235.86,-217.65 225.29,-216.96 227.17,-223.71"/>
+</g>
+<!-- proc~mapl_gridget -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node12" class="node">
+<title>proc~mapl_gridget</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node12"><a xlink:href="../proc/mapl_gridget.html" xlink:title="MAPL_GridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="310,-310 222,-310 222,-286 310,-286 310,-310"/>
+<text text-anchor="middle" x="266" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiowritebundlewrite&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_cfiowritebundlewrite&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M89.19,-539.78C105.26,-508.59 150.53,-424.12 200,-362 212.99,-345.69 229.81,-329.23 243.09,-317.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="245.74,-319.41 250.83,-310.12 241.06,-314.2 245.74,-319.41"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node13" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node13"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="639,-459 557,-459 557,-435 639,-435 639,-459"/>
+<text text-anchor="middle" x="598" y="-444.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiowritebundlewrite&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_cfiowritebundlewrite&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M138.62,-539.98C158.03,-535.82 179.97,-531.16 200,-527 324.59,-501.14 471.45,-471.86 546.81,-456.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="547.83,-460.28 556.96,-454.91 546.47,-453.42 547.83,-460.28"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node14" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node14"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="636,-358 560,-358 560,-334 636,-334 636,-358"/>
+<text text-anchor="middle" x="598" y="-343.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiowritebundlewrite&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_cfiowritebundlewrite&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M100.45,-539.97C143.73,-510.69 260.3,-435.19 368,-395 428.86,-372.29 502.96,-358.84 550.06,-351.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="550.57,-355.4 559.97,-350.52 549.58,-348.47 550.57,-355.4"/>
+</g>
+<!-- proc~strtoint -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node15" class="node">
+<title>proc~strtoint</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node15"><a xlink:href="../proc/strtoint.html" xlink:title="strToInt">
+<polygon fill="#d9534f" stroke="#d9534f" points="293,-184 239,-184 239,-160 293,-160 293,-184"/>
+<text text-anchor="middle" x="266" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">strToInt</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiowritebundlewrite&#45;&gt;proc~strtoint -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_cfiowritebundlewrite&#45;&gt;proc~strtoint</title>
+<path fill="none" stroke="#ff0000" d="M83.2,-539.78C84.7,-489.4 97.2,-295.54 200,-193 207.83,-185.19 218.57,-180.29 229.07,-177.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="230.08,-180.56 238.96,-174.77 228.41,-173.76 230.08,-180.56"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#4800ff" d="M271.5,-310.14C282.72,-338.42 314.92,-408.48 368,-437 423.47,-466.81 497.87,-463.58 546.59,-456.78"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="547.21,-460.22 556.58,-455.28 546.18,-453.3 547.21,-460.22"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#4800ff" d="M310.1,-307.83C327.95,-311.67 348.91,-315.9 368,-319 430.63,-329.18 503.5,-337.11 549.91,-341.67"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="549.68,-345.16 559.98,-342.64 550.36,-338.19 549.68,-345.16"/>
+</g>
+<!-- ESMF_DistGridGet -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node16" class="node">
+<title>ESMF_DistGridGet</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node16"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_distgridget.html" xlink:title="ESMF_DistGridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="652,-247 544,-247 544,-223 652,-223 652,-247"/>
+<text text-anchor="middle" x="598" y="-232.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#4800ff" d="M310.16,-287.76C317.78,-284.94 325.39,-281.4 332,-277 352.47,-263.38 345.66,-245.27 368,-235 420.27,-210.96 486.62,-214.1 534.43,-221.37"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="533.9,-224.83 544.33,-222.98 535.02,-217.92 533.9,-224.83"/>
+</g>
+<!-- ESMF_GridGet -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node17" class="node">
+<title>ESMF_GridGet</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node17"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridget.html" xlink:title="ESMF_GridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="642,-167 554,-167 554,-143 642,-143 642,-167"/>
+<text text-anchor="middle" x="598" y="-152.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_GridGet -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#4800ff" d="M310.23,-290.52C318.29,-287.45 326.04,-283.11 332,-277 371.46,-236.52 322.72,-188.85 368,-155 420.73,-115.58 501.06,-127.16 551.22,-140.25"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="550.57,-143.7 561.14,-142.96 552.42,-136.95 550.57,-143.7"/>
+</g>
+<!-- ESMF_InfoGet -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node18" class="node">
+<title>ESMF_InfoGet</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node18"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_infoget.html" xlink:title="ESMF_InfoGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="478.5,-188 393.5,-188 393.5,-164 478.5,-164 478.5,-188"/>
+<text text-anchor="middle" x="436" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_InfoGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_InfoGet -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_InfoGet</title>
+<path fill="none" stroke="#4800ff" d="M310.18,-289.5C318.05,-286.5 325.75,-282.46 332,-277 359.85,-252.68 340.86,-227.11 368,-202 372.69,-197.66 378.18,-194.02 383.97,-190.97"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="385.65,-194.04 393.23,-186.64 382.69,-187.7 385.65,-194.04"/>
+</g>
+<!-- ESMF_InfoGetAlloc -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node19" class="node">
+<title>ESMF_InfoGetAlloc</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node19"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_infogetalloc.html" xlink:title="ESMF_InfoGetAlloc">
+<polygon fill="#a7506f" stroke="#a7506f" points="492,-108 380,-108 380,-84 492,-84 492,-108"/>
+<text text-anchor="middle" x="436" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_InfoGetAlloc</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_InfoGetAlloc -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_InfoGetAlloc</title>
+<path fill="none" stroke="#4800ff" d="M310.18,-290.92C318.34,-287.82 326.14,-283.37 332,-277 379.86,-224.93 321.66,-175.43 368,-122 370.85,-118.71 374.17,-115.84 377.77,-113.33"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="379.79,-116.2 386.62,-108.1 376.23,-110.17 379.79,-116.2"/>
+</g>
+<!-- ESMF_InfoGetFromHost -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node20" class="node">
+<title>ESMF_InfoGetFromHost</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node20"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_infogetfromhost.html" xlink:title="ESMF_InfoGetFromHost">
+<polygon fill="#a7506f" stroke="#a7506f" points="504,-66 368,-66 368,-42 504,-42 504,-66"/>
+<text text-anchor="middle" x="436" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_InfoGetFromHost</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_InfoGetFromHost -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_InfoGetFromHost</title>
+<path fill="none" stroke="#4800ff" d="M310.1,-291.28C318.37,-288.16 326.23,-283.61 332,-277 391.95,-208.28 307.75,-143.46 368,-75 368.77,-74.13 369.57,-73.3 370.4,-72.5"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="372.83,-75.04 378.65,-66.18 368.58,-69.48 372.83,-75.04"/>
+</g>
+<!-- ESMF_InfoIsPresent -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node21" class="node">
+<title>ESMF_InfoIsPresent</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node21"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_infoispresent.html" xlink:title="ESMF_InfoIsPresent">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="493,-24 379,-24 379,0 493,0 493,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_InfoIsPresent</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_InfoIsPresent -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_InfoIsPresent</title>
+<path fill="none" stroke="#4800ff" d="M310.25,-291.41C318.51,-288.28 326.33,-283.7 332,-277 402.82,-193.33 296.82,-116.36 368,-33 368.87,-31.98 369.79,-31.01 370.74,-30.09"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="373.03,-32.75 378.85,-23.89 368.78,-27.19 373.03,-32.75"/>
+</g>
+<!-- proc~mapl_distgridget -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node24" class="node">
+<title>proc~mapl_distgridget</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node24"><a xlink:href="../proc/mapl_distgridget.html" xlink:title="MAPL_DistGridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="490,-310 382,-310 382,-286 490,-286 490,-310"/>
+<text text-anchor="middle" x="436" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#4800ff" d="M310.26,-298C328.98,-298 351.25,-298 371.76,-298"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="371.98,-301.5 381.98,-298 371.98,-294.5 371.98,-301.5"/>
+</g>
+<!-- proc~mapl_getimsjms -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node25" class="node">
+<title>proc~mapl_getimsjms</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node25"><a xlink:href="../proc/mapl_getimsjms.html" xlink:title="MAPL_GetImsJms">
+<polygon fill="#d9534f" stroke="#d9534f" points="487.5,-428 384.5,-428 384.5,-404 487.5,-404 487.5,-428"/>
+<text text-anchor="middle" x="436" y="-413.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GetImsJms</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_getimsjms -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_getimsjms</title>
+<path fill="none" stroke="#4800ff" d="M284.35,-310.18C314.02,-331.03 374.68,-373.63 409.29,-397.94"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="407.3,-400.82 417.5,-403.71 411.33,-395.09 407.3,-400.82"/>
+</g>
+<!-- proc~mapl_gridhasde -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node26" class="node">
+<title>proc~mapl_gridhasde</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node26"><a xlink:href="../proc/mapl_gridhasde.html" xlink:title="MAPL_GridHasDE">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="488,-268 384,-268 384,-244 488,-244 488,-268"/>
+<text text-anchor="middle" x="436" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridHasDE</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde</title>
+<path fill="none" stroke="#4800ff" d="M310.26,-287.18C330.58,-282.1 355.1,-275.98 377,-270.5"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="378,-273.86 386.85,-268.04 376.3,-267.07 378,-273.86"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node22" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="785.5,-438 731.5,-438 731.5,-414 785.5,-414 785.5,-438"/>
+<text text-anchor="middle" x="758.5" y="-423.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#b600ff" d="M639.41,-441.65C664.61,-438.31 696.77,-434.05 721.16,-430.81"/>
+<polygon fill="#b600ff" stroke="#b600ff" points="721.64,-434.28 731.1,-429.5 720.72,-427.34 721.64,-434.28"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node23" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="785.5,-480 731.5,-480 731.5,-456 785.5,-456 785.5,-480"/>
+<text text-anchor="middle" x="758.5" y="-465.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#b600ff" d="M639.41,-452.35C664.61,-455.69 696.77,-459.95 721.16,-463.19"/>
+<polygon fill="#b600ff" stroke="#b600ff" points="720.72,-466.66 731.1,-464.5 721.64,-459.72 720.72,-466.66"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node27" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node27"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="825,-388 692,-388 692,-364 825,-364 825,-388"/>
+<text text-anchor="middle" x="758.5" y="-373.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#b600ff" d="M634.67,-434.95C641.83,-432.23 649.23,-429.19 656,-426 672.75,-418.1 675.51,-413.43 692,-405 700.71,-400.55 710.26,-396.09 719.3,-392.06"/>
+<polygon fill="#b600ff" stroke="#b600ff" points="720.73,-395.25 728.48,-388.02 717.92,-388.84 720.73,-395.25"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00da" d="M636.16,-353.03C650.41,-355.73 667.21,-358.91 683.69,-362.03"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="683.42,-365.54 693.89,-363.96 684.72,-358.66 683.42,-365.54"/>
+</g>
+<!-- proc~mapl_distgridget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_distgridget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0000ff" d="M477.37,-310.11C499.57,-316.77 527.21,-325.06 550.33,-332"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="549.34,-335.36 559.93,-334.88 551.36,-328.65 549.34,-335.36"/>
+</g>
+<!-- proc~mapl_distgridget&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_distgridget&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#0000ff" d="M480.42,-285.96C488.38,-283.31 496.53,-280.3 504,-277 520.94,-269.52 523.25,-263.9 540,-256 543.81,-254.2 547.82,-252.46 551.87,-250.79"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="553.32,-253.98 561.33,-247.05 550.75,-247.47 553.32,-253.98"/>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#7f00ff" d="M457.59,-428.1C485.55,-444.52 535.7,-473.98 567.61,-492.73"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="566.09,-495.9 576.49,-497.95 569.64,-489.87 566.09,-495.9"/>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge34" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#7f00ff" d="M487.62,-425.81C506.56,-429.48 528.05,-433.64 546.93,-437.3"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="546.35,-440.75 556.83,-439.22 547.68,-433.88 546.35,-440.75"/>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge35" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#7f00ff" d="M469.56,-403.9C480.57,-399.67 492.88,-394.78 504,-390 523.94,-381.43 545.9,-371.08 563.47,-362.58"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="565.28,-365.59 572.74,-358.06 562.22,-359.29 565.28,-365.59"/>
+</g>
+<!-- interface~mapl_sort -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node29" class="node">
+<title>interface~mapl_sort</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node29"><a xlink:href="../interface/mapl_sort.html" xlink:title="MAPL_Sort">
+<polygon fill="#a7506f" stroke="#a7506f" points="632,-417 564,-417 564,-393 632,-393 632,-417"/>
+<text text-anchor="middle" x="598" y="-402.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Sort</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;interface~mapl_sort -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge33" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;interface~mapl_sort</title>
+<path fill="none" stroke="#7f00ff" d="M487.62,-412.52C508.83,-411.06 533.23,-409.38 553.6,-407.98"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="554.11,-411.46 563.85,-407.28 553.63,-404.47 554.11,-411.46"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge39" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff00ff" d="M488.25,-265.77C494.13,-268.62 499.59,-272.28 504,-277 550.54,-326.75 494.7,-375.12 540,-426 542.35,-428.64 545.06,-430.95 548,-432.97"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="546.34,-436.05 556.77,-437.92 549.79,-429.96 546.34,-436.05"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge40" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff00ff" d="M482.87,-268.12C490.1,-270.67 497.37,-273.63 504,-277 530.88,-290.69 558.19,-312.03 576.2,-327.35"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="573.93,-330.02 583.79,-333.92 578.52,-324.73 573.93,-330.02"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge37" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#ff00ff" d="M488.06,-249.3C502.55,-247.4 518.51,-245.3 533.63,-243.32"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="534.48,-246.74 543.94,-241.96 533.57,-239.8 534.48,-246.74"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_GridGet -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge38" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#ff00ff" d="M456.3,-243.82C484.41,-226.07 536.78,-193.02 569.09,-172.62"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="571.04,-175.52 577.63,-167.23 567.31,-169.6 571.04,-175.52"/>
+</g>
+<!-- ESMF_DELayoutGet -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_node28" class="node">
+<title>ESMF_DELayoutGet</title>
+<g id="a_proc~~mapl_cfiowritebundlewrite~~CallsGraph_node28"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_delayoutget.html" xlink:title="ESMF_DELayoutGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="656,-289 540,-289 540,-265 656,-265 656,-289"/>
+<text text-anchor="middle" x="598" y="-274.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DELayoutGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet -->
+<g id="proc~~mapl_cfiowritebundlewrite~~CallsGraph_edge36" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet</title>
+<path fill="none" stroke="#ff00ff" d="M488.06,-262.7C501.31,-264.44 515.78,-266.34 529.72,-268.17"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="529.38,-271.66 539.76,-269.49 530.3,-264.71 529.38,-271.66"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_cfiowritebundlewriteCallsGraph = svgPanZoom('#procmapl_cfiowritebundlewriteCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_CFIOWriteBundleWrite</span><span class="p">(</span><span class="w"> </span><span class="n">MCFIO</span><span class="p">,</span><span class="w"> </span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="w"> </span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_CFIO</span><span class="w">  </span><span class="p">),</span><span class="w">                 </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MCFIO</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_CLOCK</span><span class="p">),</span><span class="w">                  </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CLOCK</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w">                </span><span class="k">optional</span><span class="p">,</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+
+<span class="c">! Locals</span>
+<span class="c">!-------</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="n">K</span><span class="p">,</span><span class="w"> </span><span class="n">NN</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">YY</span><span class="p">,</span><span class="n">MM</span><span class="p">,</span><span class="n">DD</span><span class="p">,</span><span class="n">H</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">S</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">noffset</span>
+<span class="w">    </span><span class="kt">logical</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">AmRoot</span><span class="p">,</span><span class="w"> </span><span class="n">MyGlobal</span><span class="p">,</span><span class="w"> </span><span class="n">LPERP</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TIME</span><span class="w"> </span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="nb">TIME</span>
+<span class="nb">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Alarm</span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">PERPETUAL</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">DATE</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ClockName</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w">          </span><span class="k">pointer</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">Gptr3Out</span><span class="p">(:,:,:)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w">          </span><span class="k">pointer</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">Gptr2Out</span><span class="p">(:,:</span><span class="w">  </span><span class="p">)</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">counts</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">IM0</span><span class="p">,</span><span class="n">JM0</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">nymd</span><span class="p">,</span><span class="n">nhms</span>
+
+<span class="c">! Space for global arrays is allocated everywhere, even if not used.</span>
+<span class="c">!------------------------------------------------------------------</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">CREATED</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;MCFIO%CREATED is false&#39;</span><span class="p">)</span>
+
+<span class="c">! Set the time at which we will be writing from the clock</span>
+<span class="c">!--------------------------------------------------------</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_ClockGet</span><span class="w">       </span><span class="p">(</span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">ClockName</span><span class="p">,</span><span class="w"> </span><span class="n">CurrTime</span><span class="w"> </span><span class="o">=</span><span class="nb">TIME</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_TimeIntervalGet</span><span class="p">(</span><span class="w"> </span><span class="n">MCFIO</span><span class="p">%</span><span class="n">OFFSET</span><span class="p">,</span><span class="w"> </span><span class="n">S</span><span class="o">=</span><span class="n">noffset</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">noffset</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">LPERP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">clockname</span><span class="p">),</span><span class="s1">&#39;_PERPETUAL&#39;</span><span class="w"> </span><span class="p">).</span><span class="n">ne</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">LPERP</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             call </span><span class="n">ESMF_ClockGetAlarm</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">alarmName</span><span class="o">=</span><span class="s1">&#39;PERPETUAL&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">alarm</span><span class="o">=</span><span class="n">PERPETUAL</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">             </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">ESMF_AlarmIsRinging</span><span class="p">(</span><span class="n">PERPETUAL</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                call </span><span class="n">ESMF_TimeGet</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">Time</span><span class="p">,</span><span class="w"> </span><span class="n">YY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">YY</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                     </span><span class="n">MM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MM</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                     </span><span class="n">DD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DD</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                     </span><span class="n">H</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">H</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                     </span><span class="n">M</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">M</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                     </span><span class="n">S</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">S</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">                </span><span class="n">MM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MM</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">                </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">Time</span><span class="p">,</span><span class="w"> </span><span class="n">YY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">YY</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                     </span><span class="n">MM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MM</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                     </span><span class="n">DD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DD</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                     </span><span class="n">H</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">H</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                     </span><span class="n">M</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">M</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                     </span><span class="n">S</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">S</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">             </span><span class="k">endif</span>
+<span class="k">          endif</span>
+<span class="k">       endif</span>
+
+<span class="k">       </span><span class="nb">TIME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">TIME</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">MCFIO</span><span class="p">%</span><span class="n">OFFSET</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="w">        </span><span class="p">(</span><span class="nb">TIME</span><span class="p">,</span><span class="w">     </span><span class="n">timeString</span><span class="o">=</span><span class="n">DATE</span><span class="p">,</span><span class="w">     </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">       </span><span class="c">! Allocate global 2d and 3d arrays at the writing resolution</span>
+<span class="w">       </span><span class="c">!  Note that everybody allocated these.</span>
+<span class="w">       </span><span class="c">!-----------------------------------------------------------</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_GridGet</span><span class="p">(</span><span class="w"> </span><span class="n">MCFIO</span><span class="p">%</span><span class="n">GRID</span><span class="p">,</span><span class="w"> </span><span class="n">globalCellCountPerDim</span><span class="o">=</span><span class="n">COUNTS</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">       </span><span class="n">IM0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">COUNTS</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">       </span><span class="n">JM0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">COUNTS</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="n">mCFIO</span><span class="p">%</span><span class="n">myPE</span><span class="o">==</span><span class="n">mCFIO</span><span class="p">%</span><span class="n">Krank</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">Gptr3Out</span><span class="p">(</span><span class="n">Mcfio</span><span class="p">%</span><span class="n">IM</span><span class="p">,</span><span class="w"> </span><span class="n">Mcfio</span><span class="p">%</span><span class="n">JM</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">          </span><span class="n">Gptr2Out</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Gptr3Out</span><span class="p">(:,:,</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">          </span><span class="n">Gptr2Out</span><span class="p">(:,:)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">       </span><span class="k">end if</span>
+
+<span class="k">       </span><span class="n">AmRoot</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">mCFIO</span><span class="p">%</span><span class="n">myPE</span><span class="o">==</span><span class="n">mCFIO</span><span class="p">%</span><span class="n">rootRank</span>
+
+<span class="w">       </span><span class="c">! Finally Do The Writes</span>
+<span class="w">       </span><span class="c">!______________________</span>
+
+<span class="w">       </span><span class="n">nn</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">       </span><span class="n">VARIABLESW</span><span class="p">:</span><span class="w"> </span><span class="k">do </span><span class="n">L</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">VarDims</span><span class="p">)</span>
+
+<span class="w">          </span><span class="n">RANKW</span><span class="p">:</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">VarDims</span><span class="p">(</span><span class="n">L</span><span class="p">)</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             </span><span class="n">nn</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="n">nn</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">             </span><span class="n">MyGlobal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mCFIO</span><span class="p">%</span><span class="n">Krank</span><span class="p">(</span><span class="n">nn</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MCFIO</span><span class="p">%</span><span class="n">MYPE</span>
+
+<span class="w">             </span><span class="c">! Horizontal Interpolation and Shaving on PEs with global data</span>
+<span class="w">             </span><span class="c">! ------------------------------------------------------------</span>
+
+<span class="w">             </span><span class="n">IAMVARROOT</span><span class="p">:</span><span class="w"> </span><span class="k">if</span><span class="p">(</span><span class="n">AmRoot</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                </span><span class="n">Gptr2Out</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Gptr3Out</span><span class="p">(:,:,</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">                </span><span class="k">call </span><span class="n">MPI_Recv</span><span class="p">(</span><span class="n">Gptr2Out</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">Gptr2Out</span><span class="p">),</span><span class="n">MPI_REAL</span><span class="p">,</span><span class="w"> </span><span class="n">mCFIO</span><span class="p">%</span><span class="n">Krank</span><span class="p">(</span><span class="n">nn</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                     </span><span class="n">trans_tag</span><span class="p">,</span><span class="w">  </span><span class="n">mCFIO</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_STATUS_IGNORE</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">                </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">                </span><span class="k">call </span><span class="n">StrToInt</span><span class="p">(</span><span class="n">date</span><span class="p">,</span><span class="n">nymd</span><span class="p">,</span><span class="n">nhms</span><span class="p">)</span>
+<span class="w">                </span><span class="k">call </span><span class="n">ESMF_CFIOVarWrite</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">CFIO</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">VARNAME</span><span class="p">(</span><span class="n">L</span><span class="p">)),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                     </span><span class="n">Gptr2Out</span><span class="p">,</span><span class="w"> </span><span class="n">timeString</span><span class="o">=</span><span class="n">DATE</span><span class="p">,</span><span class="w">  </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">                </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">             </span><span class="k">end if </span><span class="n">IAMVARROOT</span>
+
+<span class="w">          </span><span class="k">elseif</span><span class="w"> </span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">VarDims</span><span class="p">(</span><span class="n">L</span><span class="p">)</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="w">             </span><span class="c">! Everyone waits, processes their layer, and sends it to root.</span>
+<span class="w">             </span><span class="c">!   Root write it out.</span>
+<span class="w">             </span><span class="c">!-------------------------------------------------------------</span>
+
+<span class="w">             </span><span class="n">LEVELSW</span><span class="p">:</span><span class="w"> </span><span class="k">do </span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">lm</span>
+<span class="w">                </span><span class="n">nn</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="n">nn</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">                </span><span class="n">MyGlobal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MCFIO</span><span class="p">%</span><span class="n">Krank</span><span class="p">(</span><span class="n">nn</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MCFIO</span><span class="p">%</span><span class="n">MYPE</span>
+
+<span class="w">                </span><span class="n">IAMLEVROOT</span><span class="p">:</span><span class="w"> </span><span class="k">if</span><span class="p">(</span><span class="n">AmRoot</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                   </span><span class="n">Gptr2Out</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Gptr3Out</span><span class="p">(:,:,</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">                   </span><span class="k">call </span><span class="n">MPI_Recv</span><span class="p">(</span><span class="n">Gptr2Out</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">Gptr2Out</span><span class="p">),</span><span class="w"> </span><span class="n">MPI_REAL</span><span class="p">,</span><span class="w"> </span><span class="n">mCFIO</span><span class="p">%</span><span class="n">Krank</span><span class="p">(</span><span class="n">nn</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                        </span><span class="n">trans_tag</span><span class="p">,</span><span class="w">  </span><span class="n">mCFIO</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_STATUS_IGNORE</span><span class="p">,</span><span class="w">   </span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">                   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">                   </span><span class="k">call </span><span class="n">StrToInt</span><span class="p">(</span><span class="n">date</span><span class="p">,</span><span class="n">nymd</span><span class="p">,</span><span class="n">nhms</span><span class="p">)</span>
+<span class="w">                   </span><span class="k">call </span><span class="n">ESMF_CFIOVarWrite</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">CFIO</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">VARNAME</span><span class="p">(</span><span class="n">L</span><span class="p">)),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                        </span><span class="n">Gptr3Out</span><span class="p">,</span><span class="w"> </span><span class="n">kbeg</span><span class="o">=</span><span class="n">K</span><span class="p">,</span><span class="w"> </span><span class="n">kount</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w">          </span><span class="p">&amp;</span>
+<span class="w">                        </span><span class="n">timeString</span><span class="o">=</span><span class="n">DATE</span><span class="p">,</span><span class="w">           </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">                   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">                </span><span class="k">end if </span><span class="n">IAMLEVROOT</span>
+<span class="w">             </span><span class="k">end do </span><span class="n">LEVELSW</span>
+<span class="w">          </span><span class="k">endif </span><span class="n">RANKW</span>
+
+<span class="w">       </span><span class="k">end do </span><span class="n">VARIABLESW</span>
+
+<span class="w">   </span><span class="c">!if(AmRoot) then</span>
+<span class="w">   </span><span class="c">!   write(6,&#39;(1X,&quot;Wrote: &quot;,i6,&quot; Slices (&quot;,i3,&quot; Nodes, &quot;,i2,&quot; CoresPerNode) to File:  &quot;,a)&#39;) &amp;</span>
+<span class="w">   </span><span class="c">!         size(MCFIO%reqs),mCFIO%partsize/mCFIO%numcores,mCFIO%numcores,trim(mCFIO%fName)</span>
+<span class="w">   </span><span class="c">!endif</span>
+
+<span class="c">! Clean-up</span>
+<span class="c">!---------</span>
+<span class="w">    </span><span class="n">nn</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">    </span><span class="n">VARIABLESC</span><span class="p">:</span><span class="w"> </span><span class="k">do </span><span class="n">L</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">VarDims</span><span class="p">)</span>
+
+<span class="w">       </span><span class="n">RANKC</span><span class="p">:</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">VarDims</span><span class="p">(</span><span class="n">L</span><span class="p">)</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">nn</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="n">nn</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">          </span><span class="n">MyGlobal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mCFIO</span><span class="p">%</span><span class="n">Krank</span><span class="p">(</span><span class="n">nn</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MCFIO</span><span class="p">%</span><span class="n">MYPE</span>
+
+<span class="w">             </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">MyGlobal</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                call </span><span class="n">MPI_Wait</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">reqs</span><span class="p">(</span><span class="n">nn</span><span class="p">)%</span><span class="n">s_rqst</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_STATUS_IGNORE</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">                </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">                </span><span class="k">deallocate</span><span class="p">(</span><span class="w"> </span><span class="n">MCFIO</span><span class="p">%</span><span class="n">reqs</span><span class="p">(</span><span class="n">nn</span><span class="p">)%</span><span class="n">Trans_Array</span><span class="p">,</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">                </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">                </span><span class="k">nullify</span><span class="p">(</span><span class="w"> </span><span class="n">MCFIO</span><span class="p">%</span><span class="n">reqs</span><span class="p">(</span><span class="n">nn</span><span class="p">)%</span><span class="n">Trans_Array</span><span class="w"> </span><span class="p">)</span>
+<span class="w">             </span><span class="k">endif</span>
+
+<span class="k">       elseif</span><span class="w"> </span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">VarDims</span><span class="p">(</span><span class="n">L</span><span class="p">)</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">          </span><span class="n">LEVELSC</span><span class="p">:</span><span class="w"> </span><span class="k">do </span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">lm</span>
+<span class="w">             </span><span class="n">nn</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="n">nn</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">             </span><span class="n">MyGlobal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MCFIO</span><span class="p">%</span><span class="n">Krank</span><span class="p">(</span><span class="n">nn</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MCFIO</span><span class="p">%</span><span class="n">MYPE</span>
+
+<span class="w">             </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">MyGlobal</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                call </span><span class="n">MPI_Wait</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">reqs</span><span class="p">(</span><span class="n">nn</span><span class="p">)%</span><span class="n">s_rqst</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_STATUS_IGNORE</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">                </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">                </span><span class="k">deallocate</span><span class="p">(</span><span class="w"> </span><span class="n">MCFIO</span><span class="p">%</span><span class="n">reqs</span><span class="p">(</span><span class="n">nn</span><span class="p">)%</span><span class="n">Trans_Array</span><span class="p">,</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">                </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">                </span><span class="k">nullify</span><span class="p">(</span><span class="w"> </span><span class="n">MCFIO</span><span class="p">%</span><span class="n">reqs</span><span class="p">(</span><span class="n">nn</span><span class="p">)%</span><span class="n">Trans_Array</span><span class="w"> </span><span class="p">)</span>
+<span class="w">             </span><span class="k">endif</span>
+
+<span class="k">          end do </span><span class="n">LEVELSC</span>
+<span class="w">       </span><span class="k">endif </span><span class="n">RANKC</span>
+
+<span class="w">    </span><span class="k">end do </span><span class="n">VARIABLESC</span>
+
+<span class="w">  </span><span class="c">! if(AmRoot) then</span>
+<span class="w">  </span><span class="c">!    write(6,&#39;(1X,&quot;Cleaned: &quot;,i6,&quot; Slices (&quot;,i3,&quot; Nodes, &quot;,i2,&quot; CoresPerNode) to File:  &quot;,a)&#39;) &amp;</span>
+<span class="w">  </span><span class="c">!          size(MCFIO%reqs),mCFIO%partsize/mCFIO%numcores,mCFIO%numcores,trim(mCFIO%fName)</span>
+<span class="w">  </span><span class="c">! endif</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="n">mCFIO</span><span class="p">%</span><span class="n">myPE</span><span class="o">==</span><span class="n">mCFIO</span><span class="p">%</span><span class="n">Krank</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          deallocate</span><span class="p">(</span><span class="n">Gptr3Out</span><span class="p">,</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+
+<span class="k">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_CFIOWriteBundleWrite</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

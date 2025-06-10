@@ -1,0 +1,921 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>newExtDataDriver &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>newExtDataDriver
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">25 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataDriverMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/extdatadrivermod.f90.html'>ExtDataDriverMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/extdatadrivermod.html'>ExtDataDriverMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">newExtDataDriver</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/newextdatadriver.html#src">newExtDataDriver</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  function newExtDataDriver(name, set_services, unusable, cap_options, rc) result(driver)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-name~211"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-set_services~7"></span>
+              procedure
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>set_services</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~428"></span>
+              class(<a href='../type/keywordenforcer~39.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cap_options~6"></span>
+              class(<a href='../type/mapl_capoptions.html'>MAPL_CapOptions</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>cap_options</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~2427"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-driver~13"></span>
+          type(<a href='../type/extdatadriver.html'>ExtDataDriver</a>)
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~newextdatadriver~~CallsGraph Pages: 1 -->
+<svg id="procnewextdatadriverCallsGraph" width="628pt" height="830pt"
+ viewBox="0.00 0.00 628.00 830.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~newextdatadriver~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 826)">
+<title>proc~~newextdatadriver~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-826 624,-826 624,4 -4,4"/>
+<!-- proc~newextdatadriver -->
+<g id="proc~~newextdatadriver~~CallsGraph_node1" class="node">
+<title>proc~newextdatadriver</title>
+<polygon fill="none" stroke="black" points="109,-637 0,-637 0,-613 109,-613 109,-637"/>
+<text text-anchor="middle" x="54.5" y="-622.6" font-family="Helvetica,sans-Serif" font-size="10.50">newExtDataDriver</text>
+</g>
+<!-- proc~initialize_mpi~2 -->
+<g id="proc~~newextdatadriver~~CallsGraph_node2" class="node">
+<title>proc~initialize_mpi~2</title>
+<g id="a_proc~~newextdatadriver~~CallsGraph_node2"><a xlink:href="../proc/initialize_mpi~2.html" xlink:title="ExtDataDriver%initialize_mpi">
+<polygon fill="#d9534f" stroke="#d9534f" points="312,-696 145,-696 145,-672 312,-672 312,-696"/>
+<text text-anchor="middle" x="228.5" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriver%initialize_mpi</text>
+</a>
+</g>
+</g>
+<!-- proc~newextdatadriver&#45;&gt;proc~initialize_mpi~2 -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge1" class="edge">
+<title>proc~newextdatadriver&#45;&gt;proc~initialize_mpi~2</title>
+<path fill="none" stroke="#ff0000" d="M88.58,-637.07C105.43,-643.15 126.27,-650.59 145,-657 156.47,-660.93 168.89,-665.05 180.51,-668.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="179.46,-672.21 190.06,-671.98 181.64,-665.55 179.46,-672.21"/>
+</g>
+<!-- proc~mapl_initialize -->
+<g id="proc~~newextdatadriver~~CallsGraph_node3" class="node">
+<title>proc~mapl_initialize</title>
+<g id="a_proc~~newextdatadriver~~CallsGraph_node3"><a xlink:href="../proc/mapl_initialize.html" xlink:title="MAPL_Initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="274,-381 183,-381 183,-357 274,-357 274,-381"/>
+<text text-anchor="middle" x="228.5" y="-366.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~newextdatadriver&#45;&gt;proc~mapl_initialize -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge2" class="edge">
+<title>proc~newextdatadriver&#45;&gt;proc~mapl_initialize</title>
+<path fill="none" stroke="#ff0000" d="M63.57,-613C90.76,-572.52 179.29,-440.76 213.67,-389.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="216.58,-391.53 219.25,-381.28 210.77,-387.62 216.58,-391.53"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~newextdatadriver~~CallsGraph_node4" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~newextdatadriver~~CallsGraph_node4"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="440.5,-696 358.5,-696 358.5,-672 440.5,-672 440.5,-696"/>
+<text text-anchor="middle" x="399.5" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~newextdatadriver&#45;&gt;proc~mapl_return -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge3" class="edge">
+<title>proc~newextdatadriver&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M109.29,-631.52C161.36,-638.17 242.41,-649.43 312,-663 323.85,-665.31 336.52,-668.17 348.41,-671.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="347.64,-674.43 358.18,-673.41 349.3,-667.63 347.64,-674.43"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~newextdatadriver~~CallsGraph_node5" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~newextdatadriver~~CallsGraph_node5"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="437.5,-612 361.5,-612 361.5,-588 437.5,-588 437.5,-612"/>
+<text text-anchor="middle" x="399.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~newextdatadriver&#45;&gt;proc~mapl_verify -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge4" class="edge">
+<title>proc~newextdatadriver&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M109.09,-621.09C175.49,-616.25 287.58,-608.08 351.01,-603.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="351.42,-606.94 361.14,-602.72 350.91,-599.96 351.42,-606.94"/>
+</g>
+<!-- proc~initialize_mpi~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge9" class="edge">
+<title>proc~initialize_mpi~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M312.02,-684C324.34,-684 336.71,-684 348.09,-684"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="348.24,-687.5 358.24,-684 348.23,-680.5 348.24,-687.5"/>
+</g>
+<!-- proc~initialize_mpi~2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge10" class="edge">
+<title>proc~initialize_mpi~2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M251.03,-671.76C274.54,-658.59 313.45,-637.32 348,-621 351.52,-619.34 355.21,-617.67 358.92,-616.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="360.31,-619.25 368.12,-612.09 357.55,-612.82 360.31,-619.25"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~newextdatadriver~~CallsGraph_node12" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~newextdatadriver~~CallsGraph_node12"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="439,-780 360,-780 360,-756 439,-756 439,-780"/>
+<text text-anchor="middle" x="399.5" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_mpi~2&#45;&gt;interface~mapl_assert -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge5" class="edge">
+<title>proc~initialize_mpi~2&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M251.03,-696.24C274.54,-709.41 313.45,-730.68 348,-747 351.52,-748.66 355.21,-750.33 358.92,-751.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="357.55,-755.18 368.12,-755.91 360.31,-748.75 357.55,-755.18"/>
+</g>
+<!-- mpi_comm_rank -->
+<g id="proc~~newextdatadriver~~CallsGraph_node14" class="node">
+<title>mpi_comm_rank</title>
+<polygon fill="#777777" stroke="#777777" points="450,-654 349,-654 349,-630 450,-630 450,-654"/>
+<text text-anchor="middle" x="399.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_rank</text>
+</g>
+<!-- proc~initialize_mpi~2&#45;&gt;mpi_comm_rank -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge6" class="edge">
+<title>proc~initialize_mpi~2&#45;&gt;mpi_comm_rank</title>
+<path fill="none" stroke="#ff0000" d="M277.93,-671.96C297.38,-667.13 319.96,-661.52 340.29,-656.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="341.2,-659.85 350.06,-654.04 339.52,-653.05 341.2,-659.85"/>
+</g>
+<!-- mpi_comm_size -->
+<g id="proc~~newextdatadriver~~CallsGraph_node15" class="node">
+<title>mpi_comm_size</title>
+<polygon fill="#777777" stroke="#777777" points="448,-738 351,-738 351,-714 448,-714 448,-738"/>
+<text text-anchor="middle" x="399.5" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_size</text>
+</g>
+<!-- proc~initialize_mpi~2&#45;&gt;mpi_comm_size -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge7" class="edge">
+<title>proc~initialize_mpi~2&#45;&gt;mpi_comm_size</title>
+<path fill="none" stroke="#ff0000" d="M277.93,-696.04C297.63,-700.93 320.54,-706.63 341.08,-711.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="340.39,-715.17 350.94,-714.18 342.08,-708.37 340.39,-715.17"/>
+</g>
+<!-- mpi_init -->
+<g id="proc~~newextdatadriver~~CallsGraph_node16" class="node">
+<title>mpi_init</title>
+<polygon fill="#777777" stroke="#777777" points="427,-822 372,-822 372,-798 427,-798 427,-822"/>
+<text text-anchor="middle" x="399.5" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_init</text>
+</g>
+<!-- proc~initialize_mpi~2&#45;&gt;mpi_init -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge8" class="edge">
+<title>proc~initialize_mpi~2&#45;&gt;mpi_init</title>
+<path fill="none" stroke="#ff0000" d="M240.55,-696.15C260.36,-717.33 303.97,-761.42 348,-789 352.51,-791.83 357.47,-794.42 362.46,-796.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="361.43,-800.12 371.99,-800.9 364.22,-793.7 361.43,-800.12"/>
+</g>
+<!-- proc~mapl_initialize&#45;&gt;proc~mapl_return -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_initialize&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#7fff00" d="M231.02,-381.17C237.15,-425.18 263.83,-577.9 348,-663 349.09,-664.1 350.24,-665.14 351.44,-666.13"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="349.78,-669.23 360.02,-671.93 353.7,-663.43 349.78,-669.23"/>
+</g>
+<!-- proc~mapl_initialize&#45;&gt;proc~mapl_verify -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_initialize&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#7fff00" d="M233.15,-381C244.45,-416.23 282.08,-520.53 348,-579 349.49,-580.32 351.08,-581.57 352.73,-582.75"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="351.11,-585.85 361.48,-588.04 354.73,-579.86 351.11,-585.85"/>
+</g>
+<!-- basic_config -->
+<g id="proc~~newextdatadriver~~CallsGraph_node7" class="node">
+<title>basic_config</title>
+<polygon fill="#777777" stroke="#777777" points="439,-150 360,-150 360,-126 439,-126 439,-150"/>
+<text text-anchor="middle" x="399.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">basic_config</text>
+</g>
+<!-- proc~mapl_initialize&#45;&gt;basic_config -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_initialize&#45;&gt;basic_config</title>
+<path fill="none" stroke="#7fff00" d="M233.15,-357C244.45,-321.77 282.08,-217.47 348,-159 349.47,-157.7 351.02,-156.47 352.65,-155.32"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="354.5,-158.29 361.22,-150.1 350.86,-152.31 354.5,-158.29"/>
+</g>
+<!-- filehandler -->
+<g id="proc~~newextdatadriver~~CallsGraph_node8" class="node">
+<title>filehandler</title>
+<polygon fill="#777777" stroke="#777777" points="434.5,-108 364.5,-108 364.5,-84 434.5,-84 434.5,-108"/>
+<text text-anchor="middle" x="399.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">filehandler</text>
+</g>
+<!-- proc~mapl_initialize&#45;&gt;filehandler -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_initialize&#45;&gt;filehandler</title>
+<path fill="none" stroke="#7fff00" d="M231.92,-356.93C240.5,-317.15 273.02,-188.64 348,-117 350.26,-114.84 352.78,-112.89 355.44,-111.13"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="357.34,-114.07 364.35,-106.13 353.92,-107.97 357.34,-114.07"/>
+</g>
+<!-- initialize_profiler -->
+<g id="proc~~newextdatadriver~~CallsGraph_node9" class="node">
+<title>initialize_profiler</title>
+<polygon fill="#777777" stroke="#777777" points="449.5,-66 349.5,-66 349.5,-42 449.5,-42 449.5,-66"/>
+<text text-anchor="middle" x="399.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_profiler</text>
+</g>
+<!-- proc~mapl_initialize&#45;&gt;initialize_profiler -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_initialize&#45;&gt;initialize_profiler</title>
+<path fill="none" stroke="#7fff00" d="M231.02,-356.83C237.15,-312.82 263.83,-160.1 348,-75 349.09,-73.9 350.24,-72.86 351.44,-71.87"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="353.7,-74.57 360.02,-66.07 349.78,-68.77 353.7,-74.57"/>
+</g>
+<!-- initialize_udunits -->
+<g id="proc~~newextdatadriver~~CallsGraph_node10" class="node">
+<title>initialize_udunits</title>
+<polygon fill="#777777" stroke="#777777" points="450,-24 349,-24 349,0 450,0 450,-24"/>
+<text text-anchor="middle" x="399.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_udunits</text>
+</g>
+<!-- proc~mapl_initialize&#45;&gt;initialize_udunits -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_initialize&#45;&gt;initialize_udunits</title>
+<path fill="none" stroke="#7fff00" d="M230.32,-356.8C234.18,-308.94 254.46,-131.83 348,-33 349.04,-31.9 350.15,-30.86 351.31,-29.87"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="353.42,-32.66 359.62,-24.07 349.41,-26.92 353.42,-32.66"/>
+</g>
+<!-- load_file -->
+<g id="proc~~newextdatadriver~~CallsGraph_node13" class="node">
+<title>load_file</title>
+<polygon fill="#777777" stroke="#777777" points="428.5,-570 370.5,-570 370.5,-546 428.5,-546 428.5,-570"/>
+<text text-anchor="middle" x="399.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">load_file</text>
+</g>
+<!-- proc~mapl_initialize&#45;&gt;load_file -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_initialize&#45;&gt;load_file</title>
+<path fill="none" stroke="#7fff00" d="M235.15,-381.34C249.66,-411.83 291.17,-491.48 348,-537 352.02,-540.22 356.6,-543.02 361.33,-545.43"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="359.94,-548.64 370.49,-549.59 362.84,-542.27 359.94,-548.64"/>
+</g>
+<!-- proc~mapl_initialize&#45;&gt;mpi_comm_rank -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_initialize&#45;&gt;mpi_comm_rank</title>
+<path fill="none" stroke="#7fff00" d="M231.92,-381.07C240.5,-420.85 273.02,-549.36 348,-621 349.25,-622.2 350.58,-623.33 351.97,-624.4"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="350.16,-627.4 360.46,-629.89 353.96,-621.52 350.16,-627.4"/>
+</g>
+<!-- mpiformatter -->
+<g id="proc~~newextdatadriver~~CallsGraph_node17" class="node">
+<title>mpiformatter</title>
+<polygon fill="#777777" stroke="#777777" points="441.5,-528 357.5,-528 357.5,-504 441.5,-504 441.5,-528"/>
+<text text-anchor="middle" x="399.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpiformatter</text>
+</g>
+<!-- proc~mapl_initialize&#45;&gt;mpiformatter -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_initialize&#45;&gt;mpiformatter</title>
+<path fill="none" stroke="#7fff00" d="M238,-381C255.85,-405.45 299.59,-461.52 348,-495 350.23,-496.54 352.59,-498 355.02,-499.38"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="353.56,-502.56 364.06,-503.99 356.75,-496.33 353.56,-502.56"/>
+</g>
+<!-- mpilock -->
+<g id="proc~~newextdatadriver~~CallsGraph_node18" class="node">
+<title>mpilock</title>
+<polygon fill="#777777" stroke="#777777" points="427,-486 372,-486 372,-462 427,-462 427,-486"/>
+<text text-anchor="middle" x="399.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpilock</text>
+</g>
+<!-- proc~mapl_initialize&#45;&gt;mpilock -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_initialize&#45;&gt;mpilock</title>
+<path fill="none" stroke="#7fff00" d="M244.13,-381C265.83,-398.42 308.28,-431.02 348,-453 352.56,-455.52 357.48,-457.93 362.4,-460.15"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="361.2,-463.44 371.77,-464.18 363.97,-457.01 361.2,-463.44"/>
+</g>
+<!-- none~warning -->
+<g id="proc~~newextdatadriver~~CallsGraph_node19" class="node">
+<title>none~warning</title>
+<g id="a_proc~~newextdatadriver~~CallsGraph_node19"><a xlink:href="../type/logger.html#boundprocedure-warning" xlink:title="Logger%warning">
+<polygon fill="#a7506f" stroke="#a7506f" points="451,-444 348,-444 348,-420 451,-420 451,-444"/>
+<text text-anchor="middle" x="399.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Logger%warning</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_initialize&#45;&gt;none~warning -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_initialize&#45;&gt;none~warning</title>
+<path fill="none" stroke="#7fff00" d="M262.08,-381.15C289.06,-391.2 327.55,-405.55 356.78,-416.45"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="355.71,-419.78 366.3,-420 358.15,-413.22 355.71,-419.78"/>
+</g>
+<!-- proc~initialize~4 -->
+<g id="proc~~newextdatadriver~~CallsGraph_node20" class="node">
+<title>proc~initialize~4</title>
+<g id="a_proc~~newextdatadriver~~CallsGraph_node20"><a xlink:href="../proc/initialize~4.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="428,-402 371,-402 371,-378 428,-378 428,-402"/>
+<text text-anchor="middle" x="399.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_initialize&#45;&gt;proc~initialize~4 -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_initialize&#45;&gt;proc~initialize~4</title>
+<path fill="none" stroke="#7fff00" d="M274.35,-374.57C301.33,-377.93 335.3,-382.15 360.88,-385.33"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="360.58,-388.81 370.93,-386.57 361.44,-381.87 360.58,-388.81"/>
+</g>
+<!-- push_back -->
+<g id="proc~~newextdatadriver~~CallsGraph_node22" class="node">
+<title>push_back</title>
+<polygon fill="#777777" stroke="#777777" points="434,-360 365,-360 365,-336 434,-336 434,-360"/>
+<text text-anchor="middle" x="399.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">push_back</text>
+</g>
+<!-- proc~mapl_initialize&#45;&gt;push_back -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_initialize&#45;&gt;push_back</title>
+<path fill="none" stroke="#7fff00" d="M274.35,-363.43C299.24,-360.33 330.08,-356.5 354.8,-353.43"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="355.49,-356.87 364.98,-352.17 354.62,-349.93 355.49,-356.87"/>
+</g>
+<!-- set_formatter -->
+<g id="proc~~newextdatadriver~~CallsGraph_node23" class="node">
+<title>set_formatter</title>
+<polygon fill="#777777" stroke="#777777" points="442,-318 357,-318 357,-294 442,-294 442,-318"/>
+<text text-anchor="middle" x="399.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set_formatter</text>
+</g>
+<!-- proc~mapl_initialize&#45;&gt;set_formatter -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_initialize&#45;&gt;set_formatter</title>
+<path fill="none" stroke="#7fff00" d="M262.08,-356.85C289.06,-346.8 327.55,-332.45 356.78,-321.55"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="358.15,-324.78 366.3,-318 355.71,-318.22 358.15,-324.78"/>
+</g>
+<!-- set_level -->
+<g id="proc~~newextdatadriver~~CallsGraph_node24" class="node">
+<title>set_level</title>
+<polygon fill="#777777" stroke="#777777" points="429,-276 370,-276 370,-252 429,-252 429,-276"/>
+<text text-anchor="middle" x="399.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set_level</text>
+</g>
+<!-- proc~mapl_initialize&#45;&gt;set_level -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_initialize&#45;&gt;set_level</title>
+<path fill="none" stroke="#7fff00" d="M244.13,-357C265.83,-339.58 308.28,-306.98 348,-285 351.99,-282.79 356.25,-280.68 360.55,-278.69"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="362.18,-281.8 369.93,-274.58 359.37,-275.39 362.18,-281.8"/>
+</g>
+<!-- set_lock -->
+<g id="proc~~newextdatadriver~~CallsGraph_node25" class="node">
+<title>set_lock</title>
+<polygon fill="#777777" stroke="#777777" points="427,-234 372,-234 372,-210 427,-210 427,-234"/>
+<text text-anchor="middle" x="399.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set_lock</text>
+</g>
+<!-- proc~mapl_initialize&#45;&gt;set_lock -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_initialize&#45;&gt;set_lock</title>
+<path fill="none" stroke="#7fff00" d="M238,-357C255.85,-332.55 299.59,-276.48 348,-243 352.54,-239.86 357.62,-237.06 362.76,-234.62"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="364.22,-237.8 371.98,-230.59 361.42,-231.38 364.22,-237.8"/>
+</g>
+<!-- streamhandler -->
+<g id="proc~~newextdatadriver~~CallsGraph_node26" class="node">
+<title>streamhandler</title>
+<polygon fill="#777777" stroke="#777777" points="445,-192 354,-192 354,-168 445,-168 445,-192"/>
+<text text-anchor="middle" x="399.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">streamhandler</text>
+</g>
+<!-- proc~mapl_initialize&#45;&gt;streamhandler -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_initialize&#45;&gt;streamhandler</title>
+<path fill="none" stroke="#7fff00" d="M235.15,-356.66C249.66,-326.17 291.17,-246.52 348,-201 349.75,-199.6 351.6,-198.28 353.52,-197.04"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="355.33,-200.04 362.32,-192.08 351.89,-193.94 355.33,-200.04"/>
+</g>
+<!-- at -->
+<g id="proc~~newextdatadriver~~CallsGraph_node6" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="580.5,-727 526.5,-727 526.5,-703 580.5,-703 580.5,-727"/>
+<text text-anchor="middle" x="553.5" y="-712.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#00ffff" d="M440.83,-692.23C464.33,-697.02 493.7,-703.01 516.42,-707.64"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="515.85,-711.1 526.35,-709.67 517.25,-704.24 515.85,-711.1"/>
+</g>
+<!-- insert -->
+<g id="proc~~newextdatadriver~~CallsGraph_node11" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="580.5,-685 526.5,-685 526.5,-661 580.5,-661 580.5,-685"/>
+<text text-anchor="middle" x="553.5" y="-670.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#00ffff" d="M440.83,-681.08C464.22,-679.39 493.43,-677.27 516.11,-675.63"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="516.62,-679.11 526.35,-674.89 516.12,-672.12 516.62,-679.11"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~newextdatadriver~~CallsGraph_node21" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~newextdatadriver~~CallsGraph_node21"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="620,-633 487,-633 487,-609 620,-609 620,-633"/>
+<text text-anchor="middle" x="553.5" y="-618.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M429.81,-671.85C453.86,-661.89 488.09,-647.7 514.29,-636.84"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="515.64,-640.06 523.54,-633 512.96,-633.6 515.64,-640.06"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~newextdatadriver~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7f00ff" d="M437.68,-605.14C449.64,-606.79 463.34,-608.68 477.02,-610.57"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="476.57,-614.04 486.95,-611.94 477.52,-607.11 476.57,-614.04"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~newextdatadriver~~CalledByGraph Pages: 1 -->
+<svg id="procnewextdatadriverCalledByGraph" width="241pt" height="32pt"
+ viewBox="0.00 0.00 241.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~newextdatadriver~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~newextdatadriver~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 237,-28 237,4 -4,4"/>
+<!-- proc~newextdatadriver -->
+<g id="proc~~newextdatadriver~~CalledByGraph_node1" class="node">
+<title>proc~newextdatadriver</title>
+<polygon fill="none" stroke="black" points="233,-24 124,-24 124,0 233,0 233,-24"/>
+<text text-anchor="middle" x="178.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">newExtDataDriver</text>
+</g>
+<!-- interface~extdatadriver -->
+<g id="proc~~newextdatadriver~~CalledByGraph_node2" class="node">
+<title>interface~extdatadriver</title>
+<g id="a_proc~~newextdatadriver~~CalledByGraph_node2"><a xlink:href="../interface/extdatadriver.html" xlink:title="ExtDataDriver">
+<polygon fill="#a7506f" stroke="#a7506f" points="88,-24 0,-24 0,0 88,0 88,-24"/>
+<text text-anchor="middle" x="44" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriver</text>
+</a>
+</g>
+</g>
+<!-- interface~extdatadriver&#45;&gt;proc~newextdatadriver -->
+<g id="proc~~newextdatadriver~~CalledByGraph_edge1" class="edge">
+<title>interface~extdatadriver&#45;&gt;proc~newextdatadriver</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M88.02,-12C96.17,-12 104.85,-12 113.48,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="113.56,-15.5 123.56,-12 113.56,-8.5 113.56,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">newExtDataDriver</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">set_services</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">driver</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ExtDataDriver</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">driver</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+<span class="w">      </span><span class="k">procedure</span><span class="p">()</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_services</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w">  </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MAPL_CapOptions</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cap_options</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">     </span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">driver</span><span class="p">%</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span>
+<span class="w">      </span><span class="n">driver</span><span class="p">%</span><span class="n">set_services</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">set_services</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">cap_options</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">driver</span><span class="p">%</span><span class="n">cap_options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap_options</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">driver</span><span class="p">%</span><span class="n">cap_options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_CapOptions</span><span class="p">()</span>
+<span class="w">      </span><span class="k">endif</span>
+<span class="k">      call </span><span class="n">driver</span><span class="p">%</span><span class="n">initialize_mpi</span><span class="p">()</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_Initialize</span><span class="p">(</span><span class="n">comm</span><span class="o">=</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">logging_config</span><span class="o">=</span><span class="n">driver</span><span class="p">%</span><span class="n">cap_options</span><span class="p">%</span><span class="n">logging_config</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end function </span><span class="n">newExtDataDriver</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

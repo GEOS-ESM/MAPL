@@ -1,0 +1,1405 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>StateItemExtension &ndash; MAPL </title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>StateItemExtension
+      <small>Derived Type</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title="<p> 0.1% of total for derived types.</p>Including implementation: 108 statements,  0.1% of total for derived types.">18 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/StateItemExtension.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/stateitemextension.f90.html'>StateItemExtension.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl3g_stateitemextension.html'>mapl3g_StateItemExtension</a></li>
+            <li class="breadcrumb-item active" aria-current="page">StateItemExtension</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#cons-0"
+         aria-expanded="false" aria-controls="cons-0">
+         <h4 class="card-header bg-primary text-white">Constructor</h4>
+      </a>
+      <div id="cons-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../type/stateitemextension.html#interface-stateitemextension">StateItemExtension</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#boundprocs-0"
+         aria-expanded="false" aria-controls="boundprocs-0">
+         <h4 class="card-header bg-primary text-white">Type-Bound Procedures</h4>
+      </a>
+      <div id="boundprocs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../type/stateitemextension.html#boundprocedure-add_consumer~2">add_consumer</a>
+            <a class="list-group-item" href="../type/stateitemextension.html#boundprocedure-get_consumers">get_consumers</a>
+            <a class="list-group-item" href="../type/stateitemextension.html#boundprocedure-get_producer">get_producer</a>
+            <a class="list-group-item" href="../type/stateitemextension.html#boundprocedure-get_spec~3">get_spec</a>
+            <a class="list-group-item" href="../type/stateitemextension.html#boundprocedure-has_consumers">has_consumers</a>
+            <a class="list-group-item" href="../type/stateitemextension.html#boundprocedure-has_producer">has_producer</a>
+            <a class="list-group-item" href="../type/stateitemextension.html#boundprocedure-make_extension~2">make_extension</a>
+            <a class="list-group-item" href="../type/stateitemextension.html#boundprocedure-set_producer">set_producer</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../type/stateitemextension.html#src">StateItemExtension</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+      <h2 id="type-def-statement">
+        type, public :: StateItemExtension</h2>
+    
+<br>      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Inherits</h3>
+        </div>
+        <div class="card-body">
+          <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: type~~stateitemextension~~InheritsGraph Pages: 1 -->
+<svg id="typestateitemextensionInheritsGraph" width="641pt" height="82pt"
+ viewBox="0.00 0.00 641.00 82.03" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="type~~stateitemextension~~InheritsGraph" class="graph" transform="scale(0.59 0.59) rotate(0) translate(4 136)">
+<title>type~~stateitemextension~~InheritsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-136 1090,-136 1090,4 -4,4"/>
+<!-- type~stateitemextension -->
+<g id="type~~stateitemextension~~InheritsGraph_node1" class="node">
+<title>type~stateitemextension</title>
+<polygon fill="none" stroke="black" points="1086,-108 970,-108 970,-84 1086,-84 1086,-108"/>
+<text text-anchor="middle" x="1028" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">StateItemExtension</text>
+</g>
+<!-- type~componentdriver -->
+<g id="type~~stateitemextension~~InheritsGraph_node2" class="node">
+<title>type~componentdriver</title>
+<g id="a_type~~stateitemextension~~InheritsGraph_node2"><a xlink:href="../type/componentdriver.html" xlink:title="ComponentDriver">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="402,-128 294,-128 294,-104 402,-104 402,-128"/>
+<text text-anchor="middle" x="348" y="-113.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentDriver</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemextension&#45;&gt;type~componentdriver -->
+<g id="type~~stateitemextension~~InheritsGraph_edge3" class="edge">
+<title>type~stateitemextension&#45;&gt;type~componentdriver</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M969.76,-107.21C963.77,-108.23 957.77,-109.18 952,-110 920.61,-114.47 912.66,-115.25 881,-117 696.82,-127.17 650.45,-120.89 466,-122 445.56,-122.12 440.43,-122.86 420,-122 417.46,-121.89 414.87,-121.76 412.25,-121.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="412.28,-118.11 402.08,-120.98 411.84,-125.1 412.28,-118.11"/>
+<text text-anchor="middle" x="687" y="-124.4" font-family="Helvetica,sans-Serif" font-size="9.50">producer</text>
+</g>
+<!-- type~componentdrivervector -->
+<g id="type~~stateitemextension~~InheritsGraph_node3" class="node">
+<title>type~componentdrivervector</title>
+<g id="a_type~~stateitemextension~~InheritsGraph_node3"><a xlink:href="../type/componentdrivervector.html" xlink:title="ComponentDriverVector">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="881,-108 739,-108 739,-84 881,-84 881,-108"/>
+<text text-anchor="middle" x="810" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentDriverVector</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemextension&#45;&gt;type~componentdrivervector -->
+<g id="type~~stateitemextension~~InheritsGraph_edge2" class="edge">
+<title>type~stateitemextension&#45;&gt;type~componentdrivervector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M969.97,-96C945.91,-96 917.48,-96 891.36,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="891.1,-92.5 881.1,-96 891.1,-99.5 891.1,-92.5"/>
+<text text-anchor="middle" x="925.5" y="-98.4" font-family="Helvetica,sans-Serif" font-size="9.50">consumers</text>
+</g>
+<!-- type~stateitemspec -->
+<g id="type~~stateitemextension~~InheritsGraph_node4" class="node">
+<title>type~stateitemspec</title>
+<g id="a_type~~stateitemextension~~InheritsGraph_node4"><a xlink:href="../type/stateitemspec.html" xlink:title="StateItemSpec">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="855.5,-66 764.5,-66 764.5,-42 855.5,-42 855.5,-66"/>
+<text text-anchor="middle" x="810" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemSpec</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemextension&#45;&gt;type~stateitemspec -->
+<g id="type~~stateitemextension~~InheritsGraph_edge1" class="edge">
+<title>type~stateitemextension&#45;&gt;type~stateitemspec</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M969.97,-84.91C937.71,-78.64 897.58,-70.84 865.72,-64.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="866.16,-61.16 855.68,-62.69 864.83,-68.03 866.16,-61.16"/>
+<text text-anchor="middle" x="925.5" y="-83.4" font-family="Helvetica,sans-Serif" font-size="9.50">spec</text>
+</g>
+<!-- type~vector_wrapper~20 -->
+<g id="type~~stateitemextension~~InheritsGraph_node6" class="node">
+<title>type~vector_wrapper~20</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="607.5,-108 511.5,-108 511.5,-84 607.5,-84 607.5,-108"/>
+<text text-anchor="middle" x="559.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vector_wrapper</text>
+</g>
+<!-- type~componentdrivervector&#45;&gt;type~vector_wrapper~20 -->
+<g id="type~~stateitemextension~~InheritsGraph_edge4" class="edge">
+<title>type~componentdrivervector&#45;&gt;type~vector_wrapper~20</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M738.79,-96C700.64,-96 654.06,-96 618.08,-96"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="617.75,-92.5 607.75,-96 617.75,-99.5 617.75,-92.5"/>
+<text text-anchor="middle" x="687" y="-98.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~aspectmap -->
+<g id="type~~stateitemextension~~InheritsGraph_node5" class="node">
+<title>type~aspectmap</title>
+<g id="a_type~~stateitemextension~~InheritsGraph_node5"><a xlink:href="../type/aspectmap.html" xlink:title="AspectMap">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="595,-66 524,-66 524,-42 595,-42 595,-66"/>
+<text text-anchor="middle" x="559.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AspectMap</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemspec&#45;&gt;type~aspectmap -->
+<g id="type~~stateitemextension~~InheritsGraph_edge6" class="edge">
+<title>type~stateitemspec&#45;&gt;type~aspectmap</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M764.29,-54C719.3,-54 650.32,-54 605.31,-54"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="605.24,-50.5 595.24,-54 605.24,-57.5 605.24,-50.5"/>
+<text text-anchor="middle" x="687" y="-56.4" font-family="Helvetica,sans-Serif" font-size="9.50">aspects</text>
+</g>
+<!-- type~virtualconnectionptvector -->
+<g id="type~~stateitemextension~~InheritsGraph_node7" class="node">
+<title>type~virtualconnectionptvector</title>
+<g id="a_type~~stateitemextension~~InheritsGraph_node7"><a xlink:href="../type/virtualconnectionptvector.html" xlink:title="VirtualConnectionPtVector">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="635,-24 484,-24 484,0 635,0 635,-24"/>
+<text text-anchor="middle" x="559.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VirtualConnectionPtVector</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemspec&#45;&gt;type~virtualconnectionptvector -->
+<g id="type~~stateitemextension~~InheritsGraph_edge5" class="edge">
+<title>type~stateitemspec&#45;&gt;type~virtualconnectionptvector</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M764.29,-46.44C730.21,-40.68 682.35,-32.59 641.58,-25.7"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="642.1,-22.24 631.65,-24.03 640.93,-29.14 642.1,-22.24"/>
+<text text-anchor="middle" x="687" y="-39.4" font-family="Helvetica,sans-Serif" font-size="9.50">dependencies</text>
+</g>
+<!-- type~map_set~6 -->
+<g id="type~~stateitemextension~~InheritsGraph_node8" class="node">
+<title>type~map_set~6</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="377.5,-66 318.5,-66 318.5,-42 377.5,-42 377.5,-66"/>
+<text text-anchor="middle" x="348" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set</text>
+</g>
+<!-- type~aspectmap&#45;&gt;type~map_set~6 -->
+<g id="type~~stateitemextension~~InheritsGraph_edge7" class="edge">
+<title>type~aspectmap&#45;&gt;type~map_set~6</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M523.91,-54C486.51,-54 427.04,-54 388.01,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="387.58,-50.5 377.58,-54 387.58,-57.5 387.58,-50.5"/>
+<text text-anchor="middle" x="443" y="-56.4" font-family="Helvetica,sans-Serif" font-size="9.50">tree</text>
+</g>
+<!-- type~vector_wrapper~20&#45;&gt;type~componentdriver -->
+<g id="type~~stateitemextension~~InheritsGraph_edge8" class="edge">
+<title>type~vector_wrapper~20&#45;&gt;type~componentdriver</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M511.48,-100.49C482.2,-103.28 444.16,-106.92 412.26,-109.96"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="411.75,-106.49 402.13,-110.93 412.42,-113.46 411.75,-106.49"/>
+<text text-anchor="middle" x="443" y="-110.4" font-family="Helvetica,sans-Serif" font-size="9.50">item</text>
+</g>
+<!-- type~vector_wrapper~8 -->
+<g id="type~~stateitemextension~~InheritsGraph_node9" class="node">
+<title>type~vector_wrapper~8</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="396,-24 300,-24 300,0 396,0 396,-24"/>
+<text text-anchor="middle" x="348" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vector_wrapper</text>
+</g>
+<!-- type~virtualconnectionptvector&#45;&gt;type~vector_wrapper~8 -->
+<g id="type~~stateitemextension~~InheritsGraph_edge9" class="edge">
+<title>type~virtualconnectionptvector&#45;&gt;type~vector_wrapper~8</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M483.75,-12C458.37,-12 430.41,-12 406.58,-12"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="406.29,-8.5 396.29,-12 406.29,-15.5 406.29,-8.5"/>
+<text text-anchor="middle" x="443" y="-14.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~map_s_indexvector -->
+<g id="type~~stateitemextension~~InheritsGraph_node10" class="node">
+<title>type~map_s_indexvector</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="116.5,-108 1.5,-108 1.5,-84 116.5,-84 116.5,-108"/>
+<text text-anchor="middle" x="59" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_IndexVector</text>
+</g>
+<!-- type~map_set~6&#45;&gt;type~map_s_indexvector -->
+<g id="type~~stateitemextension~~InheritsGraph_edge11" class="edge">
+<title>type~map_set~6&#45;&gt;type~map_s_indexvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M318.4,-60.08C305.49,-62.72 290.01,-65.71 276,-68 226.08,-76.15 169.34,-83.43 126.55,-88.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="126.06,-85.05 116.54,-89.7 126.88,-92 126.06,-85.05"/>
+<text text-anchor="middle" x="206" y="-89.4" font-family="Helvetica,sans-Serif" font-size="9.50">parents, lefts, rights, heights</text>
+</g>
+<!-- type~map_s_itemvector -->
+<g id="type~~stateitemextension~~InheritsGraph_node11" class="node">
+<title>type~map_s_itemvector</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="114,-66 4,-66 4,-42 114,-42 114,-66"/>
+<text text-anchor="middle" x="59" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_ItemVector</text>
+</g>
+<!-- type~map_set~6&#45;&gt;type~map_s_itemvector -->
+<g id="type~~stateitemextension~~InheritsGraph_edge10" class="edge">
+<title>type~map_set~6&#45;&gt;type~map_s_itemvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M318.43,-54C273.47,-54 185.05,-54 124.26,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="124,-50.5 114,-54 124,-57.5 124,-50.5"/>
+<text text-anchor="middle" x="206" y="-56.4" font-family="Helvetica,sans-Serif" font-size="9.50">items</text>
+</g>
+<!-- type~virtualconnectionpt -->
+<g id="type~~stateitemextension~~InheritsGraph_node12" class="node">
+<title>type~virtualconnectionpt</title>
+<g id="a_type~~stateitemextension~~InheritsGraph_node12"><a xlink:href="../type/virtualconnectionpt.html" xlink:title="VirtualConnectionPt">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="118,-24 0,-24 0,0 118,0 118,-24"/>
+<text text-anchor="middle" x="59" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VirtualConnectionPt</text>
+</a>
+</g>
+</g>
+<!-- type~vector_wrapper~8&#45;&gt;type~virtualconnectionpt -->
+<g id="type~~stateitemextension~~InheritsGraph_edge12" class="edge">
+<title>type~vector_wrapper~8&#45;&gt;type~virtualconnectionpt</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M299.93,-12C253.27,-12 181.28,-12 128.33,-12"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="128,-8.5 118,-12 128,-15.5 128,-8.5"/>
+<text text-anchor="middle" x="206" y="-14.4" font-family="Helvetica,sans-Serif" font-size="9.50">item</text>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pantypestateitemextensionInheritsGraph = svgPanZoom('#typestateitemextensionInheritsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#InheritsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="InheritsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="186pt" height="32pt"
+ viewBox="0.00 0.00 185.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 181.5,-28 181.5,4 -4,4"/>
+<!-- Type -->
+<g id="node1" class="node">
+<title>Type</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="177.5,-24 72.5,-24 72.5,0 177.5,0 177.5,-24"/>
+<text text-anchor="middle" x="125" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a derived type to the parent type which it
+extends. Dashed arrows point from a derived type to the other
+types it contains as a components, with a label listing the name(s) of
+said component(s).
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Inherited by</h3>
+        </div>
+        <div class="card-body">
+          <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: type~~stateitemextension~~InheritedByGraph Pages: 1 -->
+<svg id="typestateitemextensionInheritedByGraph" width="641pt" height="140pt"
+ viewBox="0.00 0.00 641.00 139.75" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="type~~stateitemextension~~InheritedByGraph" class="graph" transform="scale(0.58 0.58) rotate(0) translate(4 238)">
+<title>type~~stateitemextension~~InheritedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-238 1106,-238 1106,4 -4,4"/>
+<!-- type~stateitemextension -->
+<g id="type~~stateitemextension~~InheritedByGraph_node1" class="node">
+<title>type~stateitemextension</title>
+<polygon fill="none" stroke="black" points="116,-128 0,-128 0,-104 116,-104 116,-128"/>
+<text text-anchor="middle" x="58" y="-113.6" font-family="Helvetica,sans-Serif" font-size="10.50">StateItemExtension</text>
+</g>
+<!-- type~stateitemextensionptr -->
+<g id="type~~stateitemextension~~InheritedByGraph_node2" class="node">
+<title>type~stateitemextensionptr</title>
+<g id="a_type~~stateitemextension~~InheritedByGraph_node2"><a xlink:href="../type/stateitemextensionptr.html" xlink:title="StateItemExtensionPtr">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="304,-171 174,-171 174,-147 304,-147 304,-171"/>
+<text text-anchor="middle" x="239" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtensionPtr</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemextensionptr&#45;&gt;type~stateitemextension -->
+<g id="type~~stateitemextension~~InheritedByGraph_edge2" class="edge">
+<title>type~stateitemextensionptr&#45;&gt;type~stateitemextension</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M187.66,-146.91C166.22,-141.76 141.05,-135.71 118.68,-130.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="119.5,-126.93 108.96,-128 117.87,-133.74 119.5,-126.93"/>
+<text text-anchor="middle" x="145" y="-140.4" font-family="Helvetica,sans-Serif" font-size="9.50">ptr</text>
+</g>
+<!-- type~vector_wrapper~25 -->
+<g id="type~~stateitemextension~~InheritedByGraph_node3" class="node">
+<title>type~vector_wrapper~25</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="287,-108 191,-108 191,-84 287,-84 287,-108"/>
+<text text-anchor="middle" x="239" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vector_wrapper</text>
+</g>
+<!-- type~vector_wrapper~25&#45;&gt;type~stateitemextension -->
+<g id="type~~stateitemextension~~InheritedByGraph_edge1" class="edge">
+<title>type~vector_wrapper~25&#45;&gt;type~stateitemextension</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M190.79,-98.13C172.96,-99.21 152.51,-100.78 134,-103 131.47,-103.3 128.9,-103.63 126.31,-103.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="125.63,-100.55 116.24,-105.45 126.64,-107.48 125.63,-100.55"/>
+<text text-anchor="middle" x="145" y="-105.4" font-family="Helvetica,sans-Serif" font-size="9.50">item</text>
+</g>
+<!-- type~stateitemextensionvector -->
+<g id="type~~stateitemextension~~InheritedByGraph_node4" class="node">
+<title>type~stateitemextensionvector</title>
+<g id="a_type~~stateitemextension~~InheritedByGraph_node4"><a xlink:href="../type/stateitemextensionvector.html" xlink:title="StateItemExtensionVector">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="556,-108 406,-108 406,-84 556,-84 556,-108"/>
+<text text-anchor="middle" x="481" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtensionVector</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemextensionvector&#45;&gt;type~vector_wrapper~25 -->
+<g id="type~~stateitemextension~~InheritedByGraph_edge4" class="edge">
+<title>type~stateitemextensionvector&#45;&gt;type~vector_wrapper~25</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M405.71,-96C370.8,-96 329.83,-96 297.36,-96"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="297.13,-92.5 287.13,-96 297.13,-99.5 297.13,-92.5"/>
+<text text-anchor="middle" x="345" y="-98.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~stateitemextensionvectoriterator -->
+<g id="type~~stateitemextension~~InheritedByGraph_node5" class="node">
+<title>type~stateitemextensionvectoriterator</title>
+<g id="a_type~~stateitemextension~~InheritedByGraph_node5"><a xlink:href="../type/stateitemextensionvectoriterator.html" xlink:title="StateItemExtensionVectorIterator">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="576,-66 386,-66 386,-42 576,-42 576,-66"/>
+<text text-anchor="middle" x="481" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtensionVectorIterator</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemextensionvectoriterator&#45;&gt;type~vector_wrapper~25 -->
+<g id="type~~stateitemextension~~InheritedByGraph_edge5" class="edge">
+<title>type~stateitemextensionvectoriterator&#45;&gt;type~vector_wrapper~25</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M411.23,-66.04C375.2,-72.34 331.59,-79.97 297.4,-85.96"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="296.35,-82.58 287.11,-87.76 297.56,-89.48 296.35,-82.58"/>
+<text text-anchor="middle" x="345" y="-83.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~vector_wrapper~24 -->
+<g id="type~~stateitemextension~~InheritedByGraph_node6" class="node">
+<title>type~vector_wrapper~24</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="529,-192 433,-192 433,-168 529,-168 529,-192"/>
+<text text-anchor="middle" x="481" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vector_wrapper</text>
+</g>
+<!-- type~vector_wrapper~24&#45;&gt;type~stateitemextensionptr -->
+<g id="type~~stateitemextension~~InheritedByGraph_edge3" class="edge">
+<title>type~vector_wrapper~24&#45;&gt;type~stateitemextensionptr</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M432.87,-175.88C399.16,-172.93 353.1,-168.9 314.45,-165.51"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="314.55,-162.01 304.28,-164.62 313.94,-168.98 314.55,-162.01"/>
+<text text-anchor="middle" x="345" y="-172.4" font-family="Helvetica,sans-Serif" font-size="9.50">item</text>
+</g>
+<!-- type~stateitemextensionptrvector -->
+<g id="type~~stateitemextension~~InheritedByGraph_node7" class="node">
+<title>type~stateitemextensionptrvector</title>
+<g id="a_type~~stateitemextension~~InheritedByGraph_node7"><a xlink:href="../type/stateitemextensionptrvector.html" xlink:title="StateItemExtensionPtrVector">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="860,-234 696,-234 696,-210 860,-210 860,-234"/>
+<text text-anchor="middle" x="778" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtensionPtrVector</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemextensionptrvector&#45;&gt;type~vector_wrapper~24 -->
+<g id="type~~stateitemextension~~InheritedByGraph_edge8" class="edge">
+<title>type~stateitemextensionptrvector&#45;&gt;type~vector_wrapper~24</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M696,-210.47C646.31,-203.39 583.89,-194.51 539.31,-188.16"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="539.62,-184.67 529.23,-186.72 538.64,-191.6 539.62,-184.67"/>
+<text text-anchor="middle" x="626" y="-206.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~stateitemextensionptrvectoriterator -->
+<g id="type~~stateitemextension~~InheritedByGraph_node8" class="node">
+<title>type~stateitemextensionptrvectoriterator</title>
+<g id="a_type~~stateitemextension~~InheritedByGraph_node8"><a xlink:href="../type/stateitemextensionptrvectoriterator.html" xlink:title="StateItemExtensionPtrVectorIterator">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="880,-192 676,-192 676,-168 880,-168 880,-192"/>
+<text text-anchor="middle" x="778" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtensionPtrVectorIterator</text>
+</a>
+</g>
+</g>
+<!-- type~stateitemextensionptrvectoriterator&#45;&gt;type~vector_wrapper~24 -->
+<g id="type~~stateitemextension~~InheritedByGraph_edge9" class="edge">
+<title>type~stateitemextensionptrvectoriterator&#45;&gt;type~vector_wrapper~24</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M675.89,-180C630.26,-180 578.04,-180 539.3,-180"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="539.25,-176.5 529.25,-180 539.25,-183.5 539.25,-176.5"/>
+<text text-anchor="middle" x="626" y="-182.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~stateregistry -->
+<g id="type~~stateitemextension~~InheritedByGraph_node9" class="node">
+<title>type~stateregistry</title>
+<g id="a_type~~stateitemextension~~InheritedByGraph_node9"><a xlink:href="../type/stateregistry.html" xlink:title="StateRegistry">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="819.5,-108 736.5,-108 736.5,-84 819.5,-84 819.5,-108"/>
+<text text-anchor="middle" x="778" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry</text>
+</a>
+</g>
+</g>
+<!-- type~stateregistry&#45;&gt;type~stateitemextensionvector -->
+<g id="type~~stateitemextension~~InheritedByGraph_edge6" class="edge">
+<title>type~stateregistry&#45;&gt;type~stateitemextensionvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M736.29,-96C692.62,-96 622.03,-96 566.29,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="566.06,-92.5 556.06,-96 566.06,-99.5 566.06,-92.5"/>
+<text text-anchor="middle" x="626" y="-98.4" font-family="Helvetica,sans-Serif" font-size="9.50">owned_items</text>
+</g>
+<!-- type~vectorriterator~20 -->
+<g id="type~~stateitemextension~~InheritedByGraph_node10" class="node">
+<title>type~vectorriterator~20</title>
+<g id="a_type~~stateitemextension~~InheritedByGraph_node10"><a xlink:href="../type/vectorriterator~20.html" xlink:title="VectorRIterator">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="825,-66 731,-66 731,-42 825,-42 825,-66"/>
+<text text-anchor="middle" x="778" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VectorRIterator</text>
+</a>
+</g>
+</g>
+<!-- type~vectorriterator~20&#45;&gt;type~stateitemextensionvectoriterator -->
+<g id="type~~stateitemextension~~InheritedByGraph_edge7" class="edge">
+<title>type~vectorriterator~20&#45;&gt;type~stateitemextensionvectoriterator</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M730.91,-54C692.32,-54 635.8,-54 586.36,-54"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="586.25,-50.5 576.25,-54 586.25,-57.5 586.25,-50.5"/>
+<text text-anchor="middle" x="626" y="-56.4" font-family="Helvetica,sans-Serif" font-size="9.50">iterator</text>
+</g>
+<!-- type~expressionclassaspect -->
+<g id="type~~stateitemextension~~InheritedByGraph_node11" class="node">
+<title>type~expressionclassaspect</title>
+<g id="a_type~~stateitemextension~~InheritedByGraph_node11"><a xlink:href="../type/expressionclassaspect.html" xlink:title="ExpressionClassAspect">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="1102,-150 969,-150 969,-126 1102,-126 1102,-150"/>
+<text text-anchor="middle" x="1035.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExpressionClassAspect</text>
+</a>
+</g>
+</g>
+<!-- type~expressionclassaspect&#45;&gt;type~stateregistry -->
+<g id="type~~stateitemextension~~InheritedByGraph_edge13" class="edge">
+<title>type~expressionclassaspect&#45;&gt;type~stateregistry</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M968.7,-127.18C925.45,-120.07 869.69,-110.91 829.84,-104.36"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="830.25,-100.88 819.82,-102.71 829.12,-107.79 830.25,-100.88"/>
+<text text-anchor="middle" x="924.5" y="-125.4" font-family="Helvetica,sans-Serif" font-size="9.50">registry</text>
+</g>
+<!-- type~extensionfamily -->
+<g id="type~~stateitemextension~~InheritedByGraph_node12" class="node">
+<title>type~extensionfamily</title>
+<g id="a_type~~stateitemextension~~InheritedByGraph_node12"><a xlink:href="../type/extensionfamily.html" xlink:title="ExtensionFamily">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="1085,-234 986,-234 986,-210 1085,-210 1085,-234"/>
+<text text-anchor="middle" x="1035.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtensionFamily</text>
+</a>
+</g>
+</g>
+<!-- type~extensionfamily&#45;&gt;type~stateitemextensionptrvector -->
+<g id="type~~stateitemextension~~InheritedByGraph_edge10" class="edge">
+<title>type~extensionfamily&#45;&gt;type~stateitemextensionptrvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M985.84,-222C953.28,-222 909.41,-222 870.46,-222"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="870.14,-218.5 860.14,-222 870.14,-225.5 870.14,-218.5"/>
+<text text-anchor="middle" x="924.5" y="-224.4" font-family="Helvetica,sans-Serif" font-size="9.50">extensions</text>
+</g>
+<!-- type~modelverticalgrid -->
+<g id="type~~stateitemextension~~InheritedByGraph_node13" class="node">
+<title>type~modelverticalgrid</title>
+<g id="a_type~~stateitemextension~~InheritedByGraph_node13"><a xlink:href="../type/modelverticalgrid.html" xlink:title="ModelVerticalGrid">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="1089,-108 982,-108 982,-84 1089,-84 1089,-108"/>
+<text text-anchor="middle" x="1035.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ModelVerticalGrid</text>
+</a>
+</g>
+</g>
+<!-- type~modelverticalgrid&#45;&gt;type~stateregistry -->
+<g id="type~~stateitemextension~~InheritedByGraph_edge15" class="edge">
+<title>type~modelverticalgrid&#45;&gt;type~stateregistry</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M981.87,-96C937.38,-96 874.03,-96 830,-96"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="829.8,-92.5 819.8,-96 829.8,-99.5 829.8,-92.5"/>
+<text text-anchor="middle" x="924.5" y="-98.4" font-family="Helvetica,sans-Serif" font-size="9.50">registry</text>
+</g>
+<!-- type~outermetacomponent -->
+<g id="type~~stateitemextension~~InheritedByGraph_node14" class="node">
+<title>type~outermetacomponent</title>
+<g id="a_type~~stateitemextension~~InheritedByGraph_node14"><a xlink:href="../type/outermetacomponent.html" xlink:title="OuterMetaComponent">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="1101,-66 970,-66 970,-42 1101,-42 1101,-66"/>
+<text text-anchor="middle" x="1035.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent</text>
+</a>
+</g>
+</g>
+<!-- type~outermetacomponent&#45;&gt;type~stateregistry -->
+<g id="type~~stateitemextension~~InheritedByGraph_edge12" class="edge">
+<title>type~outermetacomponent&#45;&gt;type~stateregistry</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M969.7,-64.65C926.31,-71.78 870.01,-81.04 829.86,-87.64"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="829.06,-84.22 819.76,-89.3 830.19,-91.13 829.06,-84.22"/>
+<text text-anchor="middle" x="924.5" y="-78.4" font-family="Helvetica,sans-Serif" font-size="9.50">registry</text>
+</g>
+<!-- type~serviceclassaspect -->
+<g id="type~~stateitemextension~~InheritedByGraph_node15" class="node">
+<title>type~serviceclassaspect</title>
+<g id="a_type~~stateitemextension~~InheritedByGraph_node15"><a xlink:href="../type/serviceclassaspect.html" xlink:title="ServiceClassAspect">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="1093.5,-24 977.5,-24 977.5,0 1093.5,0 1093.5,-24"/>
+<text text-anchor="middle" x="1035.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServiceClassAspect</text>
+</a>
+</g>
+</g>
+<!-- type~serviceclassaspect&#45;&gt;type~stateregistry -->
+<g id="type~~stateitemextension~~InheritedByGraph_edge14" class="edge">
+<title>type~serviceclassaspect&#45;&gt;type~stateregistry</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M977.25,-22.04C951.55,-28.39 921.74,-38.43 898,-54 887.72,-60.74 890.58,-68.75 880,-75 864.93,-83.9 846.65,-89.07 829.81,-92.05"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="828.89,-88.65 819.54,-93.64 829.96,-95.57 828.89,-88.65"/>
+<text text-anchor="middle" x="924.5" y="-56.4" font-family="Helvetica,sans-Serif" font-size="9.50">registry</text>
+</g>
+<!-- type~vectorriterator~19 -->
+<g id="type~~stateitemextension~~InheritedByGraph_node16" class="node">
+<title>type~vectorriterator~19</title>
+<g id="a_type~~stateitemextension~~InheritedByGraph_node16"><a xlink:href="../type/vectorriterator~19.html" xlink:title="VectorRIterator">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="1082.5,-192 988.5,-192 988.5,-168 1082.5,-168 1082.5,-192"/>
+<text text-anchor="middle" x="1035.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VectorRIterator</text>
+</a>
+</g>
+</g>
+<!-- type~vectorriterator~19&#45;&gt;type~stateitemextensionptrvectoriterator -->
+<g id="type~~stateitemextension~~InheritedByGraph_edge11" class="edge">
+<title>type~vectorriterator~19&#45;&gt;type~stateitemextensionptrvectoriterator</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M988.23,-180C960.81,-180 924.79,-180 890.39,-180"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="890.26,-176.5 880.26,-180 890.26,-183.5 890.26,-176.5"/>
+<text text-anchor="middle" x="924.5" y="-182.4" font-family="Helvetica,sans-Serif" font-size="9.50">iterator</text>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pantypestateitemextensionInheritedByGraph = svgPanZoom('#typestateitemextensionInheritedByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#InheritedByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="InheritedByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="186pt" height="32pt"
+ viewBox="0.00 0.00 185.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 181.5,-28 181.5,4 -4,4"/>
+<!-- Type -->
+<g id="node1" class="node">
+<title>Type</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="177.5,-24 72.5,-24 72.5,0 177.5,0 177.5,-24"/>
+<text text-anchor="middle" x="125" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a derived type to the parent type which it
+extends. Dashed arrows point from a derived type to the other
+types it contains as a components, with a label listing the name(s) of
+said component(s).
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    <br>
+
+    
+      <section>
+        <h2>Constructor</h2>
+            <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-stateitemextension"></span>
+      <h3>public        interface <a href='../interface/stateitemextension.html'>StateItemExtension</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function new_StateItemExtension_spec(spec) result(ext)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-spec~129"></span>
+              type(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>spec</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='stateitemextension.html'>StateItemExtension</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+      </section>
+      <br>
+
+
+      <section>
+        <h2>Type-Bound Procedures</h2>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-add_consumer~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>add_consumer</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function add_consumer(this, consumer) result(reference)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemextension.html'>StateItemExtension</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='griddedcomponentdriver.html'>GriddedComponentDriver</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>consumer</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>class(<a href='componentdriver.html'>ComponentDriver</a>), pointer</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-get_consumers"></span>
+      <h3>
+          procedure, public ::
+  <strong>get_consumers</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function get_consumers(this) result(consumers)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemextension.html'>StateItemExtension</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='componentdrivervector.html'>ComponentDriverVector</a>), pointer</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-get_producer"></span>
+      <h3>
+          procedure, public ::
+  <strong>get_producer</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function get_producer(this) result(producer)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemextension.html'>StateItemExtension</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>class(<a href='componentdriver.html'>ComponentDriver</a>), pointer</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-get_spec~3"></span>
+      <h3>
+          procedure, public ::
+  <strong>get_spec</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function get_spec(this) result(spec)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemextension.html'>StateItemExtension</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='stateitemspec.html'>StateItemSpec</a>), pointer</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-has_consumers"></span>
+      <h3>
+          procedure, public ::
+  <strong>has_consumers</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function has_consumers(this)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemextension.html'>StateItemExtension</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-has_producer"></span>
+      <h3>
+          procedure, public ::
+  <strong>has_producer</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  function has_producer(this)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemextension.html'>StateItemExtension</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-make_extension~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>make_extension</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private recursive function make_extension(this, goal, rc) result(extension)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemextension.html'>StateItemExtension</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='stateitemspec.html'>StateItemSpec</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>goal</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='stateitemextension.html'>StateItemExtension</a>)</small>
+    </h4>
+    
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-set_producer"></span>
+      <h3>
+          procedure, public ::
+  <strong>set_producer</strong>
+        
+      </h3>
+    </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+                    <h3>
+    private  subroutine set_producer(this, producer, rc)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='stateitemextension.html'>StateItemExtension</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='componentdriver.html'>ComponentDriver</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>producer</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+      </ul>
+  </div>
+
+          </div>
+      </section>
+
+    <section>
+    <h3><span class="anchor" id="src"></span>Source Code</h3>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">type </span><span class="n">StateItemExtension</span>
+<span class="w">      </span><span class="k">private</span>
+<span class="k">      type</span><span class="p">(</span><span class="n">StateItemSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ComponentDriverVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">consumers</span><span class="w"> </span><span class="c">! couplers that depend on spec</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ComponentDriver</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">producer</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span><span class="w"> </span><span class="c">! coupler that computes spec</span>
+<span class="w">   </span><span class="k">contains</span>
+<span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_spec</span>
+
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">has_producer</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_producer</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_producer</span>
+
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">has_consumers</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_consumer</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_consumers</span>
+
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_extension</span>
+<span class="w">   </span><span class="k">end type </span><span class="n">StateItemExtension</span>
+</pre></div>
+
+    </section>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

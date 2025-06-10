@@ -1,0 +1,919 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>get_child_user_states &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>get_child_user_states
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">23 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_ConfigurableGridComp.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_configurablegridcomp.pf.html'>Test_ConfigurableGridComp.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_configurablegridcomp.html'>Test_ConfigurableGridComp</a></li>
+            <li class="breadcrumb-item active" aria-current="page">get_child_user_states</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/get_child_user_states.html#src">get_child_user_states</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine get_child_user_states(states, outer_meta, child_name, rc)  
+</h2>
+        <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='../module/mapl3g_griddedcomponentdriver.html'>mapl3g_GriddedComponentDriver</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_child_user_states~~UsesGraph Pages: 1 -->
+<svg id="procget_child_user_statesUsesGraph" width="641pt" height="106pt"
+ viewBox="0.00 0.00 641.00 106.34" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_child_user_states~~UsesGraph" class="graph" transform="scale(0.57 0.57) rotate(0) translate(4 183.14)">
+<title>proc~~get_child_user_states~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-183.14 1124,-183.14 1124,4 -4,4"/>
+<!-- proc~get_child_user_states -->
+<g id="proc~~get_child_user_states~~UsesGraph_node1" class="node">
+<title>proc~get_child_user_states</title>
+<polygon fill="none" stroke="black" points="1120,-148 994,-148 994,-124 1120,-124 1120,-148"/>
+<text text-anchor="middle" x="1057" y="-133.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_child_user_states</text>
+</g>
+<!-- module~mapl3g_griddedcomponentdriver -->
+<g id="proc~~get_child_user_states~~UsesGraph_node2" class="node">
+<title>module~mapl3g_griddedcomponentdriver</title>
+<g id="a_proc~~get_child_user_states~~UsesGraph_node2"><a xlink:href="../module/mapl3g_griddedcomponentdriver.html" xlink:title="mapl3g_GriddedComponentDriver">
+<polygon fill="#337ab7" stroke="#337ab7" points="958,-148 762,-148 762,-124 958,-124 958,-148"/>
+<text text-anchor="middle" x="860" y="-133.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_GriddedComponentDriver</text>
+</a>
+</g>
+</g>
+<!-- proc~get_child_user_states&#45;&gt;module~mapl3g_griddedcomponentdriver -->
+<g id="proc~~get_child_user_states~~UsesGraph_edge1" class="edge">
+<title>proc~get_child_user_states&#45;&gt;module~mapl3g_griddedcomponentdriver</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M993.76,-136C985.59,-136 977.04,-136 968.38,-136"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="968.19,-132.5 958.19,-136 968.19,-139.5 968.19,-132.5"/>
+</g>
+<!-- ESMF -->
+<g id="proc~~get_child_user_states~~UsesGraph_node3" class="node">
+<title>ESMF</title>
+<g id="a_proc~~get_child_user_states~~UsesGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/module/esmf.html" xlink:title="ESMF">
+<polygon fill="#337ab7" stroke="#337ab7" points="94.5,-169 40.5,-169 40.5,-145 94.5,-145 94.5,-169"/>
+<text text-anchor="middle" x="67.5" y="-154.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_griddedcomponentdriver&#45;&gt;ESMF -->
+<g id="proc~~get_child_user_states~~UsesGraph_edge2" class="edge">
+<title>module~mapl3g_griddedcomponentdriver&#45;&gt;ESMF</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M631.5,-176C458.96,-182.69 415.67,-176.02 243,-176"/>
+</g>
+<!-- module~mapl3g_componentdriver -->
+<g id="proc~~get_child_user_states~~UsesGraph_node4" class="node">
+<title>module~mapl3g_componentdriver</title>
+<g id="a_proc~~get_child_user_states~~UsesGraph_node4"><a xlink:href="../module/mapl3g_componentdriver.html" xlink:title="mapl3g_ComponentDriver">
+<polygon fill="#337ab7" stroke="#337ab7" points="503,-148 349,-148 349,-124 503,-124 503,-148"/>
+<text text-anchor="middle" x="426" y="-133.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ComponentDriver</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_griddedcomponentdriver&#45;&gt;module~mapl3g_componentdriver -->
+<g id="proc~~get_child_user_states~~UsesGraph_edge3" class="edge">
+<title>module~mapl3g_griddedcomponentdriver&#45;&gt;module~mapl3g_componentdriver</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M812.76,-148.03C767.46,-158.9 696.27,-173.57 633.5,-176"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M631.5,-176C575.9,-178.16 513.28,-163.28 472.16,-151.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="473.02,-147.67 462.44,-148.1 470.99,-154.36 473.02,-147.67"/>
+</g>
+<!-- module~mapl3g_componentdrivervector -->
+<g id="proc~~get_child_user_states~~UsesGraph_node5" class="node">
+<title>module~mapl3g_componentdrivervector</title>
+<g id="a_proc~~get_child_user_states~~UsesGraph_node5"><a xlink:href="../module/mapl3g_componentdrivervector.html" xlink:title="mapl3g_ComponentDriverVector">
+<polygon fill="#337ab7" stroke="#337ab7" points="726,-148 539,-148 539,-124 726,-124 726,-148"/>
+<text text-anchor="middle" x="632.5" y="-133.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ComponentDriverVector</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_griddedcomponentdriver&#45;&gt;module~mapl3g_componentdrivervector -->
+<g id="proc~~get_child_user_states~~UsesGraph_edge4" class="edge">
+<title>module~mapl3g_griddedcomponentdriver&#45;&gt;module~mapl3g_componentdrivervector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M761.73,-136C753.34,-136 744.84,-136 736.4,-136"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="736.17,-132.5 726.17,-136 736.17,-139.5 736.17,-132.5"/>
+</g>
+<!-- module~mapl3g_multistate -->
+<g id="proc~~get_child_user_states~~UsesGraph_node6" class="node">
+<title>module~mapl3g_multistate</title>
+<g id="a_proc~~get_child_user_states~~UsesGraph_node6"><a xlink:href="../module/mapl3g_multistate.html" xlink:title="mapl3g_MultiState">
+<polygon fill="#337ab7" stroke="#337ab7" points="298,-106 186,-106 186,-82 298,-82 298,-106"/>
+<text text-anchor="middle" x="242" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_MultiState</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_griddedcomponentdriver&#45;&gt;module~mapl3g_multistate -->
+<g id="proc~~get_child_user_states~~UsesGraph_edge5" class="edge">
+<title>module~mapl3g_griddedcomponentdriver&#45;&gt;module~mapl3g_multistate</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M425,-52C400.05,-52.05 339.35,-67.21 294.88,-79.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="293.81,-75.96 285.09,-81.98 295.66,-82.71 293.81,-75.96"/>
+</g>
+<!-- module~mapl_errorhandlingmod -->
+<g id="proc~~get_child_user_states~~UsesGraph_node7" class="node">
+<title>module~mapl_errorhandlingmod</title>
+<g id="a_proc~~get_child_user_states~~UsesGraph_node7"><a xlink:href="../module/mapl_errorhandlingmod.html" xlink:title="mapl_ErrorHandlingMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="313,-64 171,-64 171,-40 313,-40 313,-64"/>
+<text text-anchor="middle" x="242" y="-49.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_ErrorHandlingMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_griddedcomponentdriver&#45;&gt;module~mapl_errorhandlingmod -->
+<g id="proc~~get_child_user_states~~UsesGraph_edge6" class="edge">
+<title>module~mapl3g_griddedcomponentdriver&#45;&gt;module~mapl_errorhandlingmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M425,-52C391.64,-52.06 354.84,-52.07 323.12,-52.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="323.01,-48.56 313,-52.06 323,-55.56 323.01,-48.56"/>
+</g>
+<!-- module~mapl_keywordenforcer -->
+<g id="proc~~get_child_user_states~~UsesGraph_node8" class="node">
+<title>module~mapl_keywordenforcer</title>
+<g id="a_proc~~get_child_user_states~~UsesGraph_node8"><a xlink:href="../module/mapl_keywordenforcer.html" xlink:title="mapl_KeywordEnforcer">
+<polygon fill="#337ab7" stroke="#337ab7" points="135,-24 0,-24 0,0 135,0 135,-24"/>
+<text text-anchor="middle" x="67.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_KeywordEnforcer</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_griddedcomponentdriver&#45;&gt;module~mapl_keywordenforcer -->
+<g id="proc~~get_child_user_states~~UsesGraph_edge7" class="edge">
+<title>module~mapl3g_griddedcomponentdriver&#45;&gt;module~mapl_keywordenforcer</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M822.48,-123.92C748.66,-100.61 575.99,-51.73 427,-52"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M425,-52C374.45,-48.92 363.21,-37.64 313,-31 257.04,-23.6 193.47,-18.77 145.18,-15.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="145.31,-12.33 135.12,-15.23 144.89,-19.32 145.31,-12.33"/>
+</g>
+<!-- module~mapl3g_componentdriver&#45;&gt;ESMF -->
+<g id="proc~~get_child_user_states~~UsesGraph_edge8" class="edge">
+<title>module~mapl3g_componentdriver&#45;&gt;ESMF</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M391.27,-148C355.1,-159.79 295.73,-176 243,-176"/>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M241,-176C193.76,-176 139.69,-168.87 104.86,-163.35"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="105.14,-159.85 94.7,-161.7 104.01,-166.76 105.14,-159.85"/>
+</g>
+<!-- module~mapl3g_componentdriver&#45;&gt;module~mapl3g_multistate -->
+<g id="proc~~get_child_user_states~~UsesGraph_edge9" class="edge">
+<title>module~mapl3g_componentdriver&#45;&gt;module~mapl3g_multistate</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M372.85,-123.96C351.71,-119.09 327.14,-113.42 305.09,-108.33"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="305.69,-104.88 295.16,-106.04 304.12,-111.7 305.69,-104.88"/>
+</g>
+<!-- module~mapl3g_componentdriver&#45;&gt;module~mapl_errorhandlingmod -->
+<g id="proc~~get_child_user_states~~UsesGraph_edge10" class="edge">
+<title>module~mapl3g_componentdriver&#45;&gt;module~mapl_errorhandlingmod</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M406.62,-123.98C384.95,-110.21 347.49,-87.66 313,-73 308.3,-71 303.36,-69.12 298.35,-67.35"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="299.3,-63.98 288.71,-64.12 297.07,-70.62 299.3,-63.98"/>
+</g>
+<!-- module~maplshared -->
+<g id="proc~~get_child_user_states~~UsesGraph_node11" class="node">
+<title>module~maplshared</title>
+<g id="a_proc~~get_child_user_states~~UsesGraph_node11"><a xlink:href="../module/maplshared.html" xlink:title="MaplShared">
+<polygon fill="#337ab7" stroke="#337ab7" points="280,-148 204,-148 204,-124 280,-124 280,-148"/>
+<text text-anchor="middle" x="242" y="-133.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplShared</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_componentdriver&#45;&gt;module~maplshared -->
+<g id="proc~~get_child_user_states~~UsesGraph_edge11" class="edge">
+<title>module~mapl3g_componentdriver&#45;&gt;module~maplshared</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M348.87,-136C329,-136 308.16,-136 290.28,-136"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="290.12,-132.5 280.12,-136 290.12,-139.5 290.12,-132.5"/>
+</g>
+<!-- module~mapl3g_componentdrivervector&#45;&gt;module~mapl3g_componentdriver -->
+<g id="proc~~get_child_user_states~~UsesGraph_edge12" class="edge">
+<title>module~mapl3g_componentdrivervector&#45;&gt;module~mapl3g_componentdriver</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M538.82,-136C530.33,-136 521.75,-136 513.32,-136"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="513.13,-132.5 503.13,-136 513.13,-139.5 513.13,-132.5"/>
+</g>
+<!-- module~mapl3g_multistate&#45;&gt;ESMF -->
+<g id="proc~~get_child_user_states~~UsesGraph_edge13" class="edge">
+<title>module~mapl3g_multistate&#45;&gt;ESMF</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M198.59,-106C189.43,-108.79 179.85,-111.87 171,-115 148.51,-122.96 123.75,-133.07 104.2,-141.37"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="102.59,-138.25 94.77,-145.41 105.34,-144.69 102.59,-138.25"/>
+</g>
+<!-- module~mapl3g_multistate&#45;&gt;module~mapl_keywordenforcer -->
+<g id="proc~~get_child_user_states~~UsesGraph_edge16" class="edge">
+<title>module~mapl3g_multistate&#45;&gt;module~mapl_keywordenforcer</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M189.11,-81.97C182.77,-79.49 176.57,-76.53 171,-73 150.8,-60.2 155.11,-45.95 135,-33 132.39,-31.32 129.63,-29.76 126.78,-28.32"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="128.01,-25.04 117.45,-24.12 125.13,-31.42 128.01,-25.04"/>
+</g>
+<!-- module~mapl3g_esmf_utilities -->
+<g id="proc~~get_child_user_states~~UsesGraph_node9" class="node">
+<title>module~mapl3g_esmf_utilities</title>
+<g id="a_proc~~get_child_user_states~~UsesGraph_node9"><a xlink:href="../module/mapl3g_esmf_utilities.html" xlink:title="mapl3g_ESMF_Utilities">
+<polygon fill="#337ab7" stroke="#337ab7" points="133,-108 2,-108 2,-84 133,-84 133,-108"/>
+<text text-anchor="middle" x="67.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl3g_ESMF_Utilities</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_multistate&#45;&gt;module~mapl3g_esmf_utilities -->
+<g id="proc~~get_child_user_states~~UsesGraph_edge14" class="edge">
+<title>module~mapl3g_multistate&#45;&gt;module~mapl3g_esmf_utilities</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M185.95,-94.64C172.46,-94.79 157.79,-94.96 143.54,-95.13"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="143.22,-91.63 133.26,-95.25 143.3,-98.63 143.22,-91.63"/>
+</g>
+<!-- module~mapl_errorhandling -->
+<g id="proc~~get_child_user_states~~UsesGraph_node10" class="node">
+<title>module~mapl_errorhandling</title>
+<g id="a_proc~~get_child_user_states~~UsesGraph_node10"><a xlink:href="../module/mapl_errorhandling.html" xlink:title="mapl_ErrorHandling">
+<polygon fill="#337ab7" stroke="#337ab7" points="127,-66 8,-66 8,-42 127,-42 127,-66"/>
+<text text-anchor="middle" x="67.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_ErrorHandling</text>
+</a>
+</g>
+</g>
+<!-- module~mapl3g_multistate&#45;&gt;module~mapl_errorhandling -->
+<g id="proc~~get_child_user_states~~UsesGraph_edge15" class="edge">
+<title>module~mapl3g_multistate&#45;&gt;module~mapl_errorhandling</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M189.24,-82C170.74,-77.71 149.69,-72.83 130.41,-68.36"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="131.05,-64.91 120.52,-66.06 129.47,-71.73 131.05,-64.91"/>
+</g>
+<!-- module~mapl_errorhandlingmod&#45;&gt;module~mapl_errorhandling -->
+<g id="proc~~get_child_user_states~~UsesGraph_edge17" class="edge">
+<title>module~mapl_errorhandlingmod&#45;&gt;module~mapl_errorhandling</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M170.84,-52.81C159.7,-52.94 148.18,-53.08 137.08,-53.2"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="136.98,-49.71 127.02,-53.32 137.06,-56.71 136.98,-49.71"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocget_child_user_statesUsesGraph = svgPanZoom('#procget_child_user_statesUsesGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-states~16"></span>
+              type(<a href='../type/multistate.html'>MultiState</a>),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>states</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-outer_meta~30"></span>
+              type(<a href='../type/outermetacomponent.html'>OuterMetaComponent</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>outer_meta</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-child_name~19"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>child_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1860"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_child_user_states~~CallsGraph Pages: 1 -->
+<svg id="procget_child_user_statesCallsGraph" width="411pt" height="200pt"
+ viewBox="0.00 0.00 411.00 200.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_child_user_states~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 196)">
+<title>proc~~get_child_user_states~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 407,-196 407,4 -4,4"/>
+<!-- proc~get_child_user_states -->
+<g id="proc~~get_child_user_states~~CallsGraph_node1" class="node">
+<title>proc~get_child_user_states</title>
+<polygon fill="none" stroke="black" points="126,-108 0,-108 0,-84 126,-84 126,-108"/>
+<text text-anchor="middle" x="63" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_child_user_states</text>
+</g>
+<!-- interface~get_outer_meta -->
+<g id="proc~~get_child_user_states~~CallsGraph_node2" class="node">
+<title>interface~get_outer_meta</title>
+<g id="a_proc~~get_child_user_states~~CallsGraph_node2"><a xlink:href="../interface/get_outer_meta.html" xlink:title="get_outer_meta">
+<polygon fill="#a7506f" stroke="#a7506f" points="331,-192 234,-192 234,-168 331,-168 331,-192"/>
+<text text-anchor="middle" x="282.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_outer_meta</text>
+</a>
+</g>
+</g>
+<!-- proc~get_child_user_states&#45;&gt;interface~get_outer_meta -->
+<g id="proc~~get_child_user_states~~CallsGraph_edge1" class="edge">
+<title>proc~get_child_user_states&#45;&gt;interface~get_outer_meta</title>
+<path fill="none" stroke="#ff0000" d="M78.58,-108.06C96.88,-122.53 129.79,-146.41 162,-159 181.47,-166.61 203.8,-171.48 223.85,-174.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="223.39,-178.05 233.79,-176.01 224.39,-171.12 223.39,-178.05"/>
+</g>
+<!-- none~get_child~7 -->
+<g id="proc~~get_child_user_states~~CallsGraph_node3" class="node">
+<title>none~get_child~7</title>
+<g id="a_proc~~get_child_user_states~~CallsGraph_node3"><a xlink:href="../type/outermetacomponent.html#boundprocedure-get_child~7" xlink:title="OuterMetaComponent%get_child">
+<polygon fill="#a7506f" stroke="#a7506f" points="377,-150 188,-150 188,-126 377,-126 377,-150"/>
+<text text-anchor="middle" x="282.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent%get_child</text>
+</a>
+</g>
+</g>
+<!-- proc~get_child_user_states&#45;&gt;none~get_child~7 -->
+<g id="proc~~get_child_user_states~~CallsGraph_edge2" class="edge">
+<title>proc~get_child_user_states&#45;&gt;none~get_child~7</title>
+<path fill="none" stroke="#ff0000" d="M118.35,-108.02C132.54,-111.06 147.82,-114.24 162,-117 174.52,-119.44 187.81,-121.9 200.79,-124.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="200.19,-127.69 210.65,-126 201.42,-120.79 200.19,-127.69"/>
+</g>
+<!-- none~get_gridcomp -->
+<g id="proc~~get_child_user_states~~CallsGraph_node4" class="node">
+<title>none~get_gridcomp</title>
+<g id="a_proc~~get_child_user_states~~CallsGraph_node4"><a xlink:href="../type/griddedcomponentdriver.html#boundprocedure-get_gridcomp" xlink:title="GriddedComponentDriver%get_gridcomp">
+<polygon fill="#a7506f" stroke="#a7506f" points="399.5,-108 165.5,-108 165.5,-84 399.5,-84 399.5,-108"/>
+<text text-anchor="middle" x="282.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedComponentDriver%get_gridcomp</text>
+</a>
+</g>
+</g>
+<!-- proc~get_child_user_states&#45;&gt;none~get_gridcomp -->
+<g id="proc~~get_child_user_states~~CallsGraph_edge3" class="edge">
+<title>proc~get_child_user_states&#45;&gt;none~get_gridcomp</title>
+<path fill="none" stroke="#ff0000" d="M126.04,-96C135.36,-96 145.25,-96 155.34,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="155.49,-99.5 165.49,-96 155.49,-92.5 155.49,-99.5"/>
+</g>
+<!-- none~get_states -->
+<g id="proc~~get_child_user_states~~CallsGraph_node5" class="node">
+<title>none~get_states</title>
+<g id="a_proc~~get_child_user_states~~CallsGraph_node5"><a xlink:href="../type/griddedcomponentdriver.html#boundprocedure-get_states" xlink:title="GriddedComponentDriver%get_states">
+<polygon fill="#a7506f" stroke="#a7506f" points="389.5,-66 175.5,-66 175.5,-42 389.5,-42 389.5,-66"/>
+<text text-anchor="middle" x="282.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedComponentDriver%get_states</text>
+</a>
+</g>
+</g>
+<!-- proc~get_child_user_states&#45;&gt;none~get_states -->
+<g id="proc~~get_child_user_states~~CallsGraph_edge4" class="edge">
+<title>proc~get_child_user_states&#45;&gt;none~get_states</title>
+<path fill="none" stroke="#ff0000" d="M118.35,-83.98C132.54,-80.94 147.82,-77.76 162,-75 174.52,-72.56 187.81,-70.1 200.79,-67.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="201.42,-71.21 210.65,-66 200.19,-64.31 201.42,-71.21"/>
+</g>
+<!-- none~get_user_gc_driver -->
+<g id="proc~~get_child_user_states~~CallsGraph_node6" class="node">
+<title>none~get_user_gc_driver</title>
+<g id="a_proc~~get_child_user_states~~CallsGraph_node6"><a xlink:href="../type/outermetacomponent.html#boundprocedure-get_user_gc_driver" xlink:title="OuterMetaComponent%get_user_gc_driver">
+<polygon fill="#a7506f" stroke="#a7506f" points="403,-24 162,-24 162,0 403,0 403,-24"/>
+<text text-anchor="middle" x="282.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent%get_user_gc_driver</text>
+</a>
+</g>
+</g>
+<!-- proc~get_child_user_states&#45;&gt;none~get_user_gc_driver -->
+<g id="proc~~get_child_user_states~~CallsGraph_edge5" class="edge">
+<title>proc~get_child_user_states&#45;&gt;none~get_user_gc_driver</title>
+<path fill="none" stroke="#ff0000" d="M78.58,-83.94C96.88,-69.47 129.79,-45.59 162,-33 167.99,-30.66 174.24,-28.58 180.62,-26.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="181.98,-29.99 190.72,-24.01 180.16,-23.23 181.98,-29.99"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_child_user_states~~CalledByGraph Pages: 1 -->
+<svg id="procget_child_user_statesCalledByGraph" width="347pt" height="32pt"
+ viewBox="0.00 0.00 347.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_child_user_states~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~get_child_user_states~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 343,-28 343,4 -4,4"/>
+<!-- proc~get_child_user_states -->
+<g id="proc~~get_child_user_states~~CalledByGraph_node1" class="node">
+<title>proc~get_child_user_states</title>
+<polygon fill="none" stroke="black" points="339,-24 213,-24 213,0 339,0 339,-24"/>
+<text text-anchor="middle" x="276" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_child_user_states</text>
+</g>
+<!-- proc~test_child_outer_items_created -->
+<g id="proc~~get_child_user_states~~CalledByGraph_node2" class="node">
+<title>proc~test_child_outer_items_created</title>
+<g id="a_proc~~get_child_user_states~~CalledByGraph_node2"><a xlink:href="../proc/test_child_outer_items_created.html" xlink:title="test_child_outer_items_created">
+<polygon fill="#d9534f" stroke="#d9534f" points="177,-24 0,-24 0,0 177,0 177,-24"/>
+<text text-anchor="middle" x="88.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_child_outer_items_created</text>
+</a>
+</g>
+</g>
+<!-- proc~test_child_outer_items_created&#45;&gt;proc~get_child_user_states -->
+<g id="proc~~get_child_user_states~~CalledByGraph_edge1" class="edge">
+<title>proc~test_child_outer_items_created&#45;&gt;proc~get_child_user_states</title>
+<path fill="none" stroke="#ff0000" d="M177.09,-12C185.69,-12 194.36,-12 202.78,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="202.92,-15.5 212.92,-12 202.92,-8.5 202.92,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">get_child_user_states</span><span class="p">(</span><span class="n">states</span><span class="p">,</span><span class="w"> </span><span class="n">outer_meta</span><span class="p">,</span><span class="w"> </span><span class="n">child_name</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">use </span><span class="n">mapl3g_GriddedComponentDriver</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MultiState</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">states</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">OuterMetaComponent</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">outer_meta</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child_name</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GriddedComponentDriver</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child_comp</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child_gc</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">OuterMetaComponent</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child_meta</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GriddedComponentDriver</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">user_component</span>
+
+<span class="w">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">+</span><span class="mi">1</span>
+<span class="w">      </span><span class="n">child_comp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">outer_meta</span><span class="p">%</span><span class="n">get_child</span><span class="p">(</span><span class="n">child_name</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">status</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">+</span><span class="mi">2</span>
+<span class="w">         </span><span class="k">return</span>
+<span class="k">      end if</span>
+
+<span class="k">      </span><span class="n">child_gc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">child_comp</span><span class="p">%</span><span class="n">get_gridcomp</span><span class="p">()</span>
+<span class="w">      </span><span class="n">child_meta</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_outer_meta</span><span class="p">(</span><span class="n">child_gc</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="n">user_component</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">child_meta</span><span class="p">%</span><span class="n">get_user_gc_driver</span><span class="p">()</span>
+<span class="w">      </span><span class="n">states</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">user_component</span><span class="p">%</span><span class="n">get_states</span><span class="p">()</span>
+
+<span class="w">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">get_child_user_states</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,546 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>test_min_accumulate_R4 &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>test_min_accumulate_R4
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">61 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_MinTransform.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_mintransform.pf.html'>Test_MinTransform.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_mintransform.html'>Test_MinTransform</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_min_accumulate_R4</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/test_min_accumulate_r4.html#src">test_min_accumulate_R4</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine test_min_accumulate_R4(this)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~5326"></span>
+              class(<a href='../type/esmf_testmethod.html'>ESMF_TestMethod</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~test_min_accumulate_r4~~CallsGraph Pages: 1 -->
+<svg id="proctest_min_accumulate_r4CallsGraph" width="376pt" height="494pt"
+ viewBox="0.00 0.00 376.00 494.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~test_min_accumulate_r4~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 490)">
+<title>proc~~test_min_accumulate_r4~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-490 372,-490 372,4 -4,4"/>
+<!-- proc~test_min_accumulate_r4 -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_node1" class="node">
+<title>proc~test_min_accumulate_r4</title>
+<polygon fill="none" stroke="black" points="145,-255 0,-255 0,-231 145,-231 145,-255"/>
+<text text-anchor="middle" x="72.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_min_accumulate_R4</text>
+</g>
+<!-- anyexceptions -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_node2" class="node">
+<title>anyexceptions</title>
+<polygon fill="#777777" stroke="#777777" points="319,-486 230,-486 230,-462 319,-462 319,-486"/>
+<text text-anchor="middle" x="274.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">anyexceptions</text>
+</g>
+<!-- proc~test_min_accumulate_r4&#45;&gt;anyexceptions -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_edge1" class="edge">
+<title>proc~test_min_accumulate_r4&#45;&gt;anyexceptions</title>
+<path fill="none" stroke="#ff0000" d="M75.91,-255.01C83.84,-291.19 112.59,-399.86 181,-453 192.09,-461.62 206.06,-466.82 219.76,-469.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="219.16,-473.38 229.64,-471.85 220.49,-466.51 219.16,-473.38"/>
+</g>
+<!-- assert_that -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_node3" class="node">
+<title>assert_that</title>
+<polygon fill="#777777" stroke="#777777" points="310,-444 239,-444 239,-420 310,-420 310,-444"/>
+<text text-anchor="middle" x="274.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assert_that</text>
+</g>
+<!-- proc~test_min_accumulate_r4&#45;&gt;assert_that -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_edge2" class="edge">
+<title>proc~test_min_accumulate_r4&#45;&gt;assert_that</title>
+<path fill="none" stroke="#ff0000" d="M77.52,-255.03C88.59,-286.2 122.63,-370 181,-411 194.82,-420.71 212.41,-426.01 228.53,-428.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="228.45,-432.4 238.86,-430.43 229.49,-425.48 228.45,-432.4"/>
+</g>
+<!-- assertequal -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_node4" class="node">
+<title>assertequal</title>
+<polygon fill="#777777" stroke="#777777" points="312,-402 237,-402 237,-378 312,-378 312,-402"/>
+<text text-anchor="middle" x="274.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assertequal</text>
+</g>
+<!-- proc~test_min_accumulate_r4&#45;&gt;assertequal -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_edge3" class="edge">
+<title>proc~test_min_accumulate_r4&#45;&gt;assertequal</title>
+<path fill="none" stroke="#ff0000" d="M80.27,-255.32C95,-280.87 132.53,-339.69 181,-369 194.76,-377.32 211.47,-382.35 226.89,-385.38"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="226.34,-388.84 236.79,-387.11 227.54,-381.94 226.34,-388.84"/>
+</g>
+<!-- esmf_fielddestroy -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_node5" class="node">
+<title>esmf_fielddestroy</title>
+<polygon fill="#777777" stroke="#777777" points="327.5,-360 221.5,-360 221.5,-336 327.5,-336 327.5,-360"/>
+<text text-anchor="middle" x="274.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fielddestroy</text>
+</g>
+<!-- proc~test_min_accumulate_r4&#45;&gt;esmf_fielddestroy -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_edge4" class="edge">
+<title>proc~test_min_accumulate_r4&#45;&gt;esmf_fielddestroy</title>
+<path fill="none" stroke="#ff0000" d="M85.19,-255.06C103.74,-273.47 141.85,-308.41 181,-327 190.47,-331.5 200.95,-335.05 211.35,-337.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="210.71,-341.31 221.26,-340.33 212.41,-334.52 210.71,-341.31"/>
+</g>
+<!-- interface~assign_fptr -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_node6" class="node">
+<title>interface~assign_fptr</title>
+<g id="a_proc~~test_min_accumulate_r4~~CallsGraph_node6"><a xlink:href="../interface/assign_fptr.html" xlink:title="assign_fptr">
+<polygon fill="#a7506f" stroke="#a7506f" points="309.5,-318 239.5,-318 239.5,-294 309.5,-294 309.5,-318"/>
+<text text-anchor="middle" x="274.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assign_fptr</text>
+</a>
+</g>
+</g>
+<!-- proc~test_min_accumulate_r4&#45;&gt;interface~assign_fptr -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_edge5" class="edge">
+<title>proc~test_min_accumulate_r4&#45;&gt;interface~assign_fptr</title>
+<path fill="none" stroke="#ff0000" d="M100.94,-255.03C122.43,-264.13 153.23,-276.47 181,-285 196.63,-289.8 214.04,-294.03 229.51,-297.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="228.84,-300.85 239.35,-299.52 230.3,-294.01 228.84,-300.85"/>
+</g>
+<!-- interface~initialize_field -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_node7" class="node">
+<title>interface~initialize_field</title>
+<g id="a_proc~~test_min_accumulate_r4~~CallsGraph_node7"><a xlink:href="../interface/initialize_field.html" xlink:title="initialize_field">
+<polygon fill="#a7506f" stroke="#a7506f" points="317,-276 232,-276 232,-252 317,-252 317,-276"/>
+<text text-anchor="middle" x="274.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_field</text>
+</a>
+</g>
+</g>
+<!-- proc~test_min_accumulate_r4&#45;&gt;interface~initialize_field -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_edge6" class="edge">
+<title>proc~test_min_accumulate_r4&#45;&gt;interface~initialize_field</title>
+<path fill="none" stroke="#ff0000" d="M145.14,-250.52C170.43,-253.18 198.35,-256.11 221.68,-258.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="221.4,-262.05 231.71,-259.61 222.13,-255.09 221.4,-262.05"/>
+</g>
+<!-- none~accumulate_r4~4 -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_node8" class="node">
+<title>none~accumulate_r4~4</title>
+<g id="a_proc~~test_min_accumulate_r4~~CallsGraph_node8"><a xlink:href="../type/mintransform.html#boundprocedure-accumulate_r4~4" xlink:title="MinTransform%accumulate_R4">
+<polygon fill="#a7506f" stroke="#a7506f" points="363,-234 186,-234 186,-210 363,-210 363,-234"/>
+<text text-anchor="middle" x="274.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MinTransform%accumulate_R4</text>
+</a>
+</g>
+</g>
+<!-- proc~test_min_accumulate_r4&#45;&gt;none~accumulate_r4~4 -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_edge7" class="edge">
+<title>proc~test_min_accumulate_r4&#45;&gt;none~accumulate_r4~4</title>
+<path fill="none" stroke="#ff0000" d="M145.14,-235.48C155.16,-234.43 165.6,-233.33 176,-232.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="176.37,-235.72 185.95,-231.19 175.64,-228.76 176.37,-235.72"/>
+</g>
+<!-- none~initialize~14 -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_node9" class="node">
+<title>none~initialize~14</title>
+<g id="a_proc~~test_min_accumulate_r4~~CallsGraph_node9"><a xlink:href="../type/accumulatortransform.html#boundprocedure-initialize~14" xlink:title="AccumulatorTransform%initialize">
+<polygon fill="#a7506f" stroke="#a7506f" points="368,-192 181,-192 181,-168 368,-168 368,-192"/>
+<text text-anchor="middle" x="274.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AccumulatorTransform%initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~test_min_accumulate_r4&#45;&gt;none~initialize~14 -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_edge8" class="edge">
+<title>proc~test_min_accumulate_r4&#45;&gt;none~initialize~14</title>
+<path fill="none" stroke="#ff0000" d="M100.94,-230.97C122.43,-221.87 153.23,-209.53 181,-201 188.61,-198.66 196.65,-196.46 204.67,-194.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="205.56,-197.81 214.43,-192.03 203.89,-191.01 205.56,-197.81"/>
+</g>
+<!-- proc~destroy_objects -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_node10" class="node">
+<title>proc~destroy_objects</title>
+<g id="a_proc~~test_min_accumulate_r4~~CallsGraph_node10"><a xlink:href="../proc/destroy_objects.html" xlink:title="destroy_objects">
+<polygon fill="#d9534f" stroke="#d9534f" points="322,-150 227,-150 227,-126 322,-126 322,-150"/>
+<text text-anchor="middle" x="274.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">destroy_objects</text>
+</a>
+</g>
+</g>
+<!-- proc~test_min_accumulate_r4&#45;&gt;proc~destroy_objects -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_edge9" class="edge">
+<title>proc~test_min_accumulate_r4&#45;&gt;proc~destroy_objects</title>
+<path fill="none" stroke="#ff0000" d="M85.19,-230.94C103.74,-212.53 141.85,-177.59 181,-159 192.04,-153.76 204.45,-149.79 216.52,-146.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="217.56,-150.15 226.53,-144.51 216,-143.33 217.56,-150.15"/>
+</g>
+<!-- proc~initialize_objects -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_node11" class="node">
+<title>proc~initialize_objects</title>
+<g id="a_proc~~test_min_accumulate_r4~~CallsGraph_node11"><a xlink:href="../proc/initialize_objects.html" xlink:title="initialize_objects">
+<polygon fill="#d9534f" stroke="#d9534f" points="324.5,-108 224.5,-108 224.5,-84 324.5,-84 324.5,-108"/>
+<text text-anchor="middle" x="274.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_objects</text>
+</a>
+</g>
+</g>
+<!-- proc~test_min_accumulate_r4&#45;&gt;proc~initialize_objects -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_edge10" class="edge">
+<title>proc~test_min_accumulate_r4&#45;&gt;proc~initialize_objects</title>
+<path fill="none" stroke="#ff0000" d="M80.27,-230.68C95,-205.13 132.53,-146.31 181,-117 191.03,-110.94 202.63,-106.62 214.15,-103.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="215.29,-106.88 224.21,-101.16 213.68,-100.07 215.29,-106.88"/>
+</g>
+<!-- proc~set_undef -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_node12" class="node">
+<title>proc~set_undef</title>
+<g id="a_proc~~test_min_accumulate_r4~~CallsGraph_node12"><a xlink:href="../proc/set_undef.html" xlink:title="set_undef">
+<polygon fill="#d9534f" stroke="#d9534f" points="306.5,-66 242.5,-66 242.5,-42 306.5,-42 306.5,-66"/>
+<text text-anchor="middle" x="274.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set_undef</text>
+</a>
+</g>
+</g>
+<!-- proc~test_min_accumulate_r4&#45;&gt;proc~set_undef -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_edge11" class="edge">
+<title>proc~test_min_accumulate_r4&#45;&gt;proc~set_undef</title>
+<path fill="none" stroke="#ff0000" d="M77.52,-230.97C88.59,-199.8 122.63,-116 181,-75 195.84,-64.57 215.03,-59.23 232.09,-56.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="232.92,-59.95 242.37,-55.17 232,-53.01 232.92,-59.95"/>
+</g>
+<!-- sourcelocation -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_node13" class="node">
+<title>sourcelocation</title>
+<polygon fill="#777777" stroke="#777777" points="320,-24 229,-24 229,0 320,0 320,-24"/>
+<text text-anchor="middle" x="274.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sourcelocation</text>
+</g>
+<!-- proc~test_min_accumulate_r4&#45;&gt;sourcelocation -->
+<g id="proc~~test_min_accumulate_r4~~CallsGraph_edge12" class="edge">
+<title>proc~test_min_accumulate_r4&#45;&gt;sourcelocation</title>
+<path fill="none" stroke="#ff0000" d="M75.91,-230.99C83.84,-194.81 112.59,-86.14 181,-33 191.78,-24.63 205.27,-19.48 218.59,-16.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="219.58,-19.71 228.7,-14.31 218.21,-12.84 219.58,-19.71"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_min_accumulate_R4</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MinTransform</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">acc</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">update_field</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TypeKind_Flag</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tk</span><span class="w"> </span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">upPtr</span><span class="p">(:),</span><span class="w"> </span><span class="n">accPtr</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">UPDATE_VALUE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0_R4</span><span class="p">,</span><span class="w"> </span><span class="n">ACCUMULATED_VALUE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.0_R4</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">undef_value</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">expected</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">n</span>
+
+<span class="w">      </span><span class="c">! Initialize</span>
+<span class="w">      </span><span class="k">call </span><span class="n">set_undef</span><span class="p">(</span><span class="n">undef_value</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">initialize_objects</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">tk</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">initialize_field</span><span class="p">(</span><span class="n">update_field</span><span class="p">,</span><span class="w"> </span><span class="n">acc</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">assign_fptr</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">,</span><span class="w"> </span><span class="n">accPtr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">assign_fptr</span><span class="p">(</span><span class="n">update_field</span><span class="p">,</span><span class="w"> </span><span class="n">upPtr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">upPtr</span><span class="p">)</span>
+<span class="w">      </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">3</span>
+<span class="w">      </span><span class="n">accPtr</span><span class="p">(</span><span class="n">i</span><span class="p">:</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">undef_value</span><span class="p">,</span><span class="w"> </span><span class="n">ACCUMULATED_VALUE</span><span class="p">,</span><span class="w"> </span><span class="n">ACCUMULATED_VALUE</span><span class="p">,</span><span class="w"> </span><span class="n">ACCUMULATED_VALUE</span><span class="p">]</span>
+<span class="w">      </span><span class="n">upPtr</span><span class="p">(</span><span class="n">i</span><span class="p">:</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">UPDATE_VALUE</span><span class="p">,</span><span class="w"> </span><span class="n">undef_value</span><span class="p">,</span><span class="w"> </span><span class="n">UPDATE_VALUE</span><span class="p">,</span><span class="w"> </span><span class="n">UPDATE_VALUE</span><span class="o">+</span><span class="n">ACCUMULATED_VALUE</span><span class="p">]</span>
+<span class="w">      </span><span class="n">expected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">UPDATE_VALUE</span><span class="p">,</span><span class="w"> </span><span class="n">ACCUMULATED_VALUE</span><span class="p">,</span><span class="w"> </span><span class="n">UPDATE_VALUE</span><span class="p">,</span><span class="w"> </span><span class="n">ACCUMULATED_VALUE</span><span class="p">]</span>
+<span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">accumulate_R4</span><span class="p">(</span><span class="n">update_field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span><span class="w"> </span><span class="n">accPtr</span><span class="p">(</span><span class="n">i</span><span class="p">:</span><span class="n">n</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;accumulation_field not equal to expected values&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldDestroy</span><span class="p">(</span><span class="n">update_field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">destroy_objects</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_min_accumulate_R4</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-06-10T19:11:33.299843+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>
