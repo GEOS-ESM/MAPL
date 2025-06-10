@@ -57,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add unit tests for ACG3
 - Add enumerators for RESTART setting
 - Add `add2export` to ACG3
+- Changed `MAPL_GridCompAddFieldSpec` and ACG3 to use new RESTART enum
 
 ### Changed
 
