@@ -3,7 +3,7 @@
 #define _SUCCESS ESMF_SUCCESS
 #define _FAILURE _SUCCESS-1
 module mapl3g_acg3
-   use mapl3g_Generic, only: MAPL_GridCompAddFieldSpec
+   use mapl3g_Generic, only: MAPL_GridCompAddSpec
    use mapl3g_State_API, only: MAPL_StateGetPointer
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
