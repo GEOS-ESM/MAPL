@@ -1,4 +1,9 @@
 #include "MAPL_Generic.h"
+#if defined(IS_IN_SET)
+#  undef IS_IN_SET
+#endif
+#define IS_IN_SET_(V, S) findloc(S, V) >= lbound(S)
+
 module mapl3g_VariableSpec
    use mapl3g_StateItemSpec
    use mapl3g_StateItemAspect
@@ -154,6 +159,13 @@ module mapl3g_VariableSpec
       module procedure :: is_in_integer
       module procedure :: is_in_realR4
    end interface is_in
+
+   interface
+      logical function StringPredicate(string)
+         character(len=*), intent(in) :: string
+      end function StringPredicate
+   end interface
+
 contains
 
    function make_VariableSpec( &
@@ -587,6 +599,7 @@ contains
       class(VariableSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
       integer :: status
+      type(StringVector) :: svector
       character, parameter :: UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
       character, parameter :: LOWER = 'abcdefghijklmnopqrstuvwxyz'
       character, parameter :: ALPHA = UPPER // LOWER
@@ -594,14 +607,19 @@ contains
       character, parameter :: ALPHANUMERIC = ALPHA // NUMERIC
       character, parameter :: FORTRAN_IDENTIFIER = ALPHANUMERIC // '_'
 
-      call validate_short_name(spec%short_name, _RC)
-      call validate_state_intent(spec%state_item, _RC)
-      call validate_item_type(spec%itemType, _RC)
-      call validate_standard_name(spec%standard_name, _RC)
-      call validate_long_name(spec%long_name, _RC)
-      call validate_vector_component_names(spec%vector_component_names, _RC)
-      call validate_default_value(spec%default_value, _RC)
-      call validate_bracket_size(spec%bracket_size, _RC)
+      call validate_string(spec%short_name, is_valid_identifier, _RC)
+      if(present(spec%standard)) then
+         call validate_string(spec%standard, is_not_empty, _RC)
+      else if(present(spec%long)) then
+         call validate_string(spec%long, is_not_empty, _RC)
+      else
+         _FAIL('Neither standard_name nor long_name is present.')
+      end if
+      _ASSERT(valid_state_intent(spec%state_item), 'Invalid state intent')
+      _ASSERT(valid_item_type(spec%itemType), 'Invalid item type')
+      call validate_string_vector(spec%vector_component_names, svector, _RC)
+      _ASSERT(valid_r4(spec%default_value), 'Invalid default_value')
+      _ASSERT(valid_integer(spec%bracket_size), 'Invalid bracket size') 
       call validate_service_items(spec%service_items, _RC)
       call validate_expression(spec%expression, _RC)
       call validate_typekind(spec%typekind, _RC)
@@ -616,69 +634,46 @@ contains
 
    end subroutine validate_variable_spec
    
-   logical function is_digit(c)
-      character, intent(in) :: c
-      character(len=*), parameter :: DIGITS = '0123456789'
+   function ascii_ranges(bounds) result(ranges)
+      character(len=:), allocatable :: ranges
+      character(len=*), intent(in) :: bounds
+      integer :: i, j
+      integer :: range_index(2)
+      character(len=:), allocatable :: range
 
-      is_digit(c) = index(c, DIGITS) > 0
-
-   end function is_digit
-
-   logical function is_upper(c)
-      character, intent(in) :: c
-      character(len=*), parameter :: UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-      
-      is_upper = index(c, UPPER)
-
-   end function is_upper
-
-   logical function is_lower(c)
-      character, intent(in) :: c
-      character(len=*), parameter :: LOWER = 'abcdefghijklmnopqrstuvwxyz'
-      
-      is_lower = index(c, lower)
-
-   end function is_lower
-   
-   logical function is_alpha(c)
-      character, intent(in) :: c
-
-      is_alpha = is_upper(c) .or. is_lower(c)
-
-   end function is_alpha
-
-   logical function is_alphanumeric(c)
-      character, intent(in) :: c
-      
-      is_alphanumeric = is_digit(c) .or. is_alpha(c)
-
-   end function is_alphanumeric
-
-   
-   logical function is_valid_string(c, first_alpha) result(lval)
-      character(len=*), intent(in) :: c
-      logical, optional, intent(in) :: first_alpha
-      character, parameter :: ALPHANUMERIC(6)  = ['A', 'Z', 'a', 'z', '0', '9']
-      character(len=*), parameter :: OTHER = '_'
-      integer :: i, n
-      logical :: check_first
-      
-      check_first = .FALSE.
-      if(present(first_alpha)) check_first = first_alpha 
-      if(c == '') return
-      i = 1
-      if(check_first) then
-         lval = is_in(iachar(c(i)), iachar(ALPHANUMERIC(1, 4)))
-         i = i + 1
-      end if
-
-      do while (lval .and. i <= len(c))
-         lval = is_in(iachar(c(i)), iachar(ALPHANUMERIC)) .or. index(OTHER, c(i)) > 0
-         i = i + 1
+      ranges = ''
+      do i=1, len(bounds)/2
+         range_index = [iachar(ranges(2*i-1:2*i-1)), iachar(ranges(2*i:2*i))]
+         range_index = [minval(range_index), maxval(range_index)]
+         allocate(range(range_index(2) - range_index(1)+1))
+         do j = range_index(1), range_index(2)
+            range(j:j) = achar(j)
+         end do
+         ranges = ranges // range 
       end do
 
-   end function is_valid_string
-         
+   end function ascii_ranges
+      
+   logical function is_valid_identifier(s)
+      character(len=*), intent(in) :: s
+      
+      is_valid_identifier = is_all_alphanumeric_(s(1:1), alpha_only=.TRUE.) .and. is_all_alphanumeric_(s(2:))
+
+   end function is_valid_identifier
+
+   logical function is_all_alphanumeric_(s, alpha_only)
+      character(len=*), intent(in) :: s
+      logical, optional, intent(in) :: alpha_only
+      character(len=*), parameter :: ALPHA = ascii_ranges('AZaz')
+      character(len=*), parameter :: ALPHANUMERIC_ = ALPHA // ascii_ranges('09') // '_'
+      logical :: alpha_only_
+
+      if(.not. present(alpha_only)) return (verify(s, ALPHANUMERIC_) == 0)
+      if(alpha_only) return verify(s, ALPHA) == 0
+      return verify(s, ALPHANUMERIC_) == 0
+
+   end function is_all_alphanumeric_
+
    logical function is_in_integer(n, bounds) result(lval)
       integer, intent(in) :: n
       integer, intent(in) :: bounds(:)
@@ -718,146 +713,102 @@ contains
 
    end function is_in_realR4
 
+   subroutine validate_string(string, validator, rc)
+      character(len=*), intent(in) :: string
+      procedure(StringPredicate) :: validator
+
+      _ASSERT(validator(string), '"' // trim(string) // '" is not a valid string.')
+      _RETURN(_SUCCESS)
+
+   end validate_string
+      
+   logical function is_not_empty(string)
+      character(len=*), intent(in) :: string
+
+      is_not_empty = len_trim(string) > 0
+
+   end function is_not_empty
+
    subroutine validate_string_vector(strings, valid_strings, rc)
       class(StringVector), optional, intent(in) :: strings
       class(StringVector), optional, intent(in) :: valid_strings
       integer, optional, intent(out) :: rc
       integer :: status
-      type(StringVectorIterator) :: iter
+      type(StringVectorIterator) :: iter, e, iiter, ie
+      character(len=:), allocatable :: string
       logical :: found
 
-      if(.not.(present(strings) .or. present(valid_strings))) then
-         _RETURN(_SUCCESS)
-      end if
+      _RETURN_UNLESS(present(strings))
 
       iter = strings%begin()
-      do while(iter /= strings%end())
-         call string_is_in_vector(iter%of(), valid_strings, _RC)
+      e = strings%end()
+      do while(iter /= e)
+         _ASSERT(is_valid_identifier(iter%of()), 'Invalid string')
+         call iter%next()
       end do
+
+      _RETURN_UNLESS(present(valid_strings))
+      _RETURN_IF(valid_strings%empty())
+
+      iter = strings%begin()
+      e = strings%end()
+      outer: do while(iter /= e)
+         string = iter%of()
+         iiter = valid_strings%begin()
+         ie = valid_strings%end()
+         inner: do while(iiter /= ie)
+            found = string == iiter%of()
+            if(found) exit inner
+            call iiter%next()
+         end do inner
+         _ASSERT(found, 'Failed to find "' // trim(string) // '" in valid strings')
+         call iter%next()
+      end do outer
       _RETURN(_SUCCESS)
-
-      contains
-
-         subroutine string_is_in_vector(s, v, rc)
-            character(len=*), intent(in) :: s
-            type(StringVector), intent(in) :: v
-            integer, optional, intent(out) :: rc
-            integer :: status
-            type(StringVectorIterator) :: iter
-            logical :: found
-
-            found = .FALSE.
-            iter = v%begin()
-            associate(itof => iter%of())
-               do while(.not. (iter == v%end() .or. found))
-                  found = s == itof
-               end do
-            end associate
-            _ASSERT(found, "Invalid string :: " // s)
-
-         end subroutine string_is_in_vector
 
    end subroutine validate_string_vector
 
-   subroutine validate_short_name(val, rc)
-      character(len=*), intent(in) :: val
-      integer, optional, intent(out) :: rc
-      integer :: status
-
-      _ASSERT(is_valid_string(val, .TRUE.), 'Invalid value')
-      _RETURN(_SUCCESS)
-
-   end subroutine validate_short_name
-
-#define IS_IN_SET_(V, S) findloc(S, V) >= lbound(S)
-   subroutine validate_state_intent(val, rc)
-      type(ESMF_StateIntent_Flag), intent(in) :: val
-      integer, optional, intent(out) :: rc
-      integer :: status
+   logical function valid_state_intent(val)
+      class(ESMF_StateIntent_Flag), intent(in) :: val
       type(ESMF_StateIntent_Flag), parameter :: VALID(*) = &
          & [ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_INTERNAL]
 
-      _ASSERT(IS_IN_SET_(val, VALID), "Invalid value")
-      _RETURN(_SUCCESS)
+      valid_state_intent = IS_IN_SET_(val, VALID)
 
-   end subroutine validate_state_intent
+   end function valid_state_intent
 
-   subroutine validate_item_type(val, rc)
+   logical function valid_item_type(val)
       type(ESMF_StateItem_Flag), intent(in):: item_type
-      integer, optional, intent(out) :: rc
-      integer :: status
       type(ESMF_StateItem_Flag), parameter :: VALID(*) = &
          & [ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE]
 
-      _ASSERT(IS_IN_SET_(val, VALID, 'Invalid value')
-      _RETURN(_SUCCESS)
+      valid_item_type = IS_IN_SET_(val, VALID)
 
-   end subroutine validate_item_type
+   end function valid_item_type
 
-   subroutine validate_standard_name(val, rc)
-      character(len=*), intent(in) :: val
-      integer, optional, intent(out) :: rc
-      integer :: status 
-      
-      _ASSERT(is_valid_string(val), 'Invalid value')
-      _RETURN(_SUCCESS)
-
-   end subroutine validate_standard_name
-
-   subroutine validate_long_name(val, rc)
-      character(len=*), intent(in) :: val
-      integer, optional, intent(out) :: rc
-      integer :: status 
-      
-      _ASSERT(is_valid_string(val), 'Invalid value')
-      _RETURN(_SUCCESS)
-
-   end subroutine validate_long_name
-
-   subroutine validate_standard_name_long_name(standard, long, rc)
-      character(len=*), optional, intent(in) :: standard
-      character(len=*), optional, intent(in) :: long
-      integer, optional, intent(out) :: rc
-      integer :: status 
-
-      if present(standard) then
-         call validate_standard_name(standard, _RC)
-         _RETURN(_SUCCESS)
-      end if
-
-      if present(long) then
-         call validate_long_name(long, _RC)
-         _RETURN(_SUCCESS)
-      end if
-
-      _FAIL("Neither name present")
-
-   end subroutine validate_standard_name_long_name
-
-   subroutine validate_vector_component_names(val, rc)
-      class(StringVector), intent(in) :: val
-      integer, optional, intent(out) :: rc
-      integer :: status
-      type(StringVector) :: valid_names
-
-      call validate_string_vector(val, valid_names , _RC)
-      
-   end subroutine validate_vector_component_names
-
-   subroutine validate_default_value(val, rc)
+   logical function valid_r4(val, bounds, invert)
       real(kind=ESMF_KIND_R4), intent(in) :: val
-      integer, optional, intent(out) :: rc
-      integer :: status
-      real(kind=ESMF_KIND_R4), parameter :: bounds(0)
+      real(kind=ESMF_KIND_R4), optional, intent(in) :: bounds(:)
+      logical, optional, intent(in) :: invert
 
-      _ASSERT(is_in(val, bounds), "Invalid value")
-      _RETURN(_SUCCESS)
+      valid_r4 = .TRUE.
+      if(.not. present(bounds)) return
+      valid_r4 = is_in(val, bounds)
+      if(present(invert)) valid_r4 = valid_r4 .eqv. .not. invert
 
-   end subroutine validate_default_value
+   end function valid_r4
 
-   subroutine validate_bracket_size(spec%bracket_size, rc)
-      TYPE :: bracket_size
-   end subroutine validate_bracket_size
+   logical function valid_integer(val, bounds, invert)
+      integer, intent(in) :: val
+      integer, optional, intent(in) :: bounds(:)
+      logical, optional, intent(in) :: invert
+
+      valid_integer = .TRUE.
+      if(.not. present(bounds)) return
+      valid_integer = is_in(val, bounds)
+      if(present(invert)) valid_integer = valid_intger .eqv. .not. invert
+
+   end function valid_integer
 
    subroutine validate_service_items(spec%service_items, rc)
       TYPE :: service_items
