@@ -28,6 +28,27 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
    contains
 
      module procedure HistoryTrajectory_from_config
+       integer :: status
+
+       if (.not. present(GENSTATE)) then
+          _FAIL('GENSTATE is not provided')
+       end if
+       if (schema_version == 1) then
+          traj = HistoryTrajectory_from_config_schema_version_1 &
+               (config,string,clock,schema_version,genstate=GENSTATE,_RC)
+       elseif (schema_version == 2) then
+          traj = HistoryTrajectory_from_config_schema_version_2 &
+               (config,string,clock,schema_version,genstate=GENSTATE,_RC)
+       end if
+       _RETURN(_SUCCESS)
+
+     end procedure HistoryTrajectory_from_config
+
+
+     ! case : schema_version = 1
+     !        read collection from .rcx config
+     !        read grid_label
+     module procedure HistoryTrajectory_from_config_schema_version_1
          use BinIOMod
          use  MAPL_scan_pattern_in_file
          use pflogger, only         :  Logger, logging
@@ -36,14 +57,15 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(ESMF_TimeInterval)    :: obs_time_span
          integer                    :: time_integer, second
          integer                    :: status
-         character(len=ESMF_MAXSTR) :: STR1, line, splitter
+         character(len=ESMF_MAXSTR) :: STR1, line, splitter, STR_KW
          character(len=ESMF_MAXSTR) :: symd, shms
+         character(len=ESMF_MAXSTR) :: key_grid
          integer                    :: nline, col
          integer, allocatable       :: ncol(:)
          character(len=ESMF_MAXSTR), allocatable :: word(:)
          character(len=ESMF_MAXSTR), allocatable :: str_piece(:)
          integer                    :: nobs, head, jvar
-         logical                    :: tend
+         logical                    :: tend, ispresent
          integer                    :: i, j, k, k2, M
          integer                    :: count, idx
          integer                    :: unitr, unitw
@@ -51,7 +73,146 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(GriddedIOitem)        :: item
          type(Logger), pointer      :: lgr
 
+         traj%clock=clock
+         traj%schema_version=schema_version
+         lgr => logging%get_logger('HISTORY.sampler')
+         if (present(GENSTATE)) traj%GENSTATE => GENSTATE
 
+         call ESMF_ClockGet ( clock, CurrTime=currTime, _RC )
+         call ESMF_ConfigGetAttribute(config, value=time_integer, label=trim(string)//'Epoch:', default=0, _RC)
+         _ASSERT(time_integer /= 0, 'Epoch value in config wrong')
+         second = hms_2_s(time_integer)
+         call ESMF_TimeIntervalSet(epoch_frequency, s=second, _RC)
+         traj%Epoch = time_integer
+         traj%RingTime = currTime
+         traj%epoch_frequency = epoch_frequency
+         traj%alarm = ESMF_AlarmCreate( clock=clock, RingInterval=epoch_frequency, &
+              RingTime=traj%RingTime, sticky=.false., _RC )
+
+         call ESMF_ConfigGetAttribute(config, value=traj%use_NWP_1_file, default=.false., &
+              label=trim(string)//'use_NWP_1_file:', _RC)
+         call ESMF_ConfigGetAttribute(config, value=traj%restore_2_obs_vector, default=.false., &
+              label=trim(string)//'restore_2_obs_vector:', _RC)
+         if (mapl_am_I_root()) then
+            if (traj%use_NWP_1_file) then
+               write(6,105) 'WARNING: Traj sampler: use_NWP_1_file is true'
+               write(6,105) 'WARNING: USER needs to check if observation file is fetched correctly'
+            end if
+            if (traj%restore_2_obs_vector) then
+               write(6,105) 'WARNING: Traj sampler: restore_2_obs_vector is true'
+            end if
+         end if
+         if (.NOT. traj%use_NWP_1_file .AND. traj%restore_2_obs_vector) then
+            _FAIL('use_NWP_1_file=.false. and restore_2_obs_vector=.true. is not allowed')
+         end if
+
+         call ESMF_ConfigGetAttribute ( config, key_grid, default='' , &
+              label=trim(string) // 'grid_label:' ,_RC )
+         key_grid = trim(adjustl(key_grid))//'.'
+         _ASSERT (key_grid /= '', 'GRID_LABELS is empty')
+
+         call ESMF_ConfigFindLabel(config, trim(key_grid)//'schema:',  isPresent=ispresent, rc=status)
+         if (isPresent) then
+            call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
+                 label=trim(key_grid) // 'schema:', _RC)
+            call lgr%debug('%a %a', 'schema: ', trim(STR1))
+            STR_KW = trim(STR1)//'.'
+         else
+            STR_KW = key_grid
+         end if
+         call ESMF_ConfigFindLabel(config, trim(key_grid)//'index:',  isPresent=ispresent, rc=status)
+         _ASSERT(.not.ispresent, 'conflict: '//trim(key_grid)//'schema:'//' with '//trim(key_grid)//'index:')
+
+         call ESMF_ConfigGetAttribute(config, value=traj%index_name_x, default="", &
+              label=trim(STR_KW) // 'index:', _RC)
+         call ESMF_ConfigGetAttribute(config, value=traj%var_name_lon_full, default="", &
+              label=trim(STR_KW) // 'lon:', _RC)
+         call ESMF_ConfigGetAttribute(config, value=traj%var_name_lat_full, default="", &
+              label=trim(STR_KW) // 'lat:', _RC)
+         call ESMF_ConfigGetAttribute(config, value=traj%var_name_time_full, default="", &
+              label=trim(STR_KW) // 'time:', _RC)
+         call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
+              label=trim(STR_KW) // 'obs_reftime:', _RC)
+         if (trim(STR1)=='') then
+            traj%obsfile_start_time = currTime
+            call ESMF_TimeGet(currTime, timestring=STR1, _RC)
+            if (mapl_am_I_root()) then
+               write(6,105) 'obs reftime missing, default = currTime :', trim(STR1)
+            endif
+         else
+            call ESMF_TimeSet(traj%obsfile_start_time, STR1, _RC)
+            if (mapl_am_I_root()) then
+               write(6,105) 'obs reftime provided: ', trim(STR1)
+            end if
+         end if
+         call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
+              label=trim(STR_KW)//'obs_frequency:', _RC)
+         _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
+
+         if (mapl_am_I_root()) write(6,105) 'obs_file frequency:', trim(STR1)
+         if (mapl_am_I_root()) write(6,106) 'Epoch (second)   :', second
+         i= index( trim(STR1), ' ' )
+         if (i>0) then
+            symd=STR1(1:i-1)
+            shms=STR1(i+1:)
+         else
+            symd=''
+            shms=trim(STR1)
+         endif
+         call convert_twostring_2_esmfinterval (symd, shms,  traj%obsfile_interval, _RC)
+         traj%active = .true.
+
+         k=1
+         traj%nobs_type = k
+         allocate (traj%obs(k), _STAT)
+         allocate (traj%obs(k)%metadata, _STAT)
+         call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
+              label=trim(key_grid) // 'file_name_template:', _RC)
+         traj%obs(k)%input_template = trim(STR1)
+         if (mapl_am_i_root()) then
+            allocate (traj%obs(k)%file_handle, _STAT)
+         end if
+         traj%obs(k)%name = ''
+
+         call lgr%debug('%a %i8', 'nobs_type=', traj%nobs_type)
+
+         _RETURN(_SUCCESS)
+
+105      format (1x,a,2x,a)
+106      format (1x,a,2x,i8)
+     end procedure HistoryTrajectory_from_config_schema_version_1
+
+
+
+     ! case : schema_version = 2
+     !        read from .rcx config
+     !        read DEFINE_OBS_PLATFORM:  supercollection
+     !
+     module procedure HistoryTrajectory_from_config_schema_version_2
+         use BinIOMod
+         use  MAPL_scan_pattern_in_file
+         use pflogger, only         :  Logger, logging
+         type(ESMF_Time)            :: currTime
+         type(ESMF_TimeInterval)    :: epoch_frequency
+         type(ESMF_TimeInterval)    :: obs_time_span
+         integer                    :: time_integer, second
+         integer                    :: status
+         character(len=ESMF_MAXSTR) :: STR1, line, splitter, STR_KW
+         character(len=ESMF_MAXSTR) :: symd, shms
+         integer                    :: nline, col
+         integer, allocatable       :: ncol(:)
+         character(len=ESMF_MAXSTR), allocatable :: word(:)
+         character(len=ESMF_MAXSTR), allocatable :: str_piece(:)
+         integer                    :: nobs, head, jvar
+         logical                    :: tend, ispresent, ispresent2
+         integer                    :: i, j, k, k2, M
+         integer                    :: count, idx
+         integer                    :: unitr, unitw
+         integer                    :: length_mx, mxseg, nseg
+         type(GriddedIOitem)        :: item
+         type(Logger), pointer      :: lgr
+
+         traj%schema_version=schema_version
          traj%clock=clock
          if (present(GENSTATE)) traj%GENSTATE => GENSTATE
 
@@ -66,14 +227,29 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          traj%alarm = ESMF_AlarmCreate( clock=clock, RingInterval=epoch_frequency, &
               RingTime=traj%RingTime, sticky=.false., _RC )
 
+
+         call ESMF_ConfigFindLabel(config, trim(string)//'schema:',  isPresent=ispresent, rc=status)
+         if (isPresent) then
+            call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
+                 label=trim(string) // 'schema:', _RC)
+            STR_KW = trim(STR1)//'.'
+         else
+            STR_KW = string
+         end if
+
+         call ESMF_ConfigFindLabel(config, trim(string)//'index:',  isPresent=ispresent2, rc=status)
+         ispresent = .not. (ispresent .and. ispresent2)
+         _ASSERT(ispresent, 'conflict: '//trim(string)//'schema:'//' with '//trim(string)//'index_name_x:')
+
+
          call ESMF_ConfigGetAttribute(config, value=traj%index_name_x, default="", &
-              label=trim(string) // 'index_name_x:', _RC)
+              label=trim(STR_KW) // 'index:', _RC)
          call ESMF_ConfigGetAttribute(config, value=traj%var_name_lon_full, default="", &
-              label=trim(string) // 'var_name_lon:', _RC)
+              label=trim(STR_KW) // 'lon:', _RC)
          call ESMF_ConfigGetAttribute(config, value=traj%var_name_lat_full, default="", &
-              label=trim(string) // 'var_name_lat:', _RC)
+              label=trim(STR_KW) // 'lat:', _RC)
          call ESMF_ConfigGetAttribute(config, value=traj%var_name_time_full, default="", &
-              label=trim(string) // 'var_name_time:', _RC)
+              label=trim(STR_KW) // 'time:', _RC)
          call ESMF_ConfigGetAttribute(config, value=traj%use_NWP_1_file, default=.false., &
               label=trim(string)//'use_NWP_1_file:', _RC)
          call ESMF_ConfigGetAttribute(config, value=traj%restore_2_obs_vector, default=.false., &
@@ -92,38 +268,22 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          end if
 
          call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
-              label=trim(string) // 'obs_file_begin:', _RC)
+              label=trim(STR_KW) // 'obs_reftime:', _RC)
          if (trim(STR1)=='') then
             traj%obsfile_start_time = currTime
             call ESMF_TimeGet(currTime, timestring=STR1, _RC)
             if (mapl_am_I_root()) then
-               write(6,105) 'obs_file_begin missing, default = currTime :', trim(STR1)
+               write(6,105) 'obs reftime missing, default = currTime :', trim(STR1)
             endif
          else
             call ESMF_TimeSet(traj%obsfile_start_time, STR1, _RC)
             if (mapl_am_I_root()) then
-               write(6,105) 'obs_file_begin provided: ', trim(STR1)
+               write(6,105) 'obs_reftime provided: ', trim(STR1)
             end if
          end if
 
          call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
-              label=trim(string) // 'obs_file_end:', _RC)
-         if (trim(STR1)=='') then
-            call ESMF_TimeIntervalSet(obs_time_span, d=14, _RC)
-            traj%obsfile_end_time = traj%obsfile_start_time + obs_time_span
-            call ESMF_TimeGet(traj%obsfile_end_time, timestring=STR1, _RC)
-            if (mapl_am_I_root()) then
-               write(6,105) 'obs_file_end   missing, default = begin+14D:', trim(STR1)
-            endif
-         else
-            call ESMF_TimeSet(traj%obsfile_end_time, STR1, _RC)
-            if (mapl_am_I_root()) then
-               write(6,105) 'obs_file_end provided:', trim(STR1)
-            end if
-         end if
-
-         call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
-              label=trim(string) // 'obs_file_interval:', _RC)
+              label=trim(STR_KW) // 'obs_refquency:', _RC)
          _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
          if (mapl_am_I_root()) write(6,105) 'obs_file_interval:', trim(STR1)
          if (mapl_am_I_root()) write(6,106) 'Epoch (second)   :', second
@@ -138,6 +298,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          endif
          call convert_twostring_2_esmfinterval (symd, shms,  traj%obsfile_interval, _RC)
          traj%active = .true.
+
 
 
          ! __ s1. overall print
@@ -310,7 +471,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 105      format (1x,a,2x,a)
 106      format (1x,a,2x,i8)
-       end procedure HistoryTrajectory_from_config
+       end procedure HistoryTrajectory_from_config_schema_version_2
 
 
 
@@ -360,8 +521,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
 
          call ESMF_ClockGet (this%clock, CurrTime=currTime, _RC)
-         call get_obsfile_Tbracket_from_epoch(currTime, &
-              this%obsfile_start_time, this%obsfile_end_time, &
+         call get_obsfile_Tbracket_from_epoch(currTime, this%obsfile_start_time, &
               this%obsfile_interval, this%epoch_frequency, &
               this%obsfile_Ts_index, this%obsfile_Te_index, _RC)
          if (this%obsfile_Te_index < 0) then
@@ -423,7 +583,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             call iter%next()
          enddo
 
-
          _RETURN(_SUCCESS)
 
        end procedure initialize_
@@ -467,16 +626,20 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
         call v%add_attribute('valid_range',(/-MAPL_UNDEF,MAPL_UNDEF/))
 
         do k = 1, this%nobs_type
-           do ig = 1, this%obs(k)%ngeoval
-              if (trim(var_name) == trim(this%obs(k)%geoval_xname(ig))) then
-                 call this%obs(k)%metadata%add_variable(trim(var_name),v,_RC)
+           if (this%schema_version == 1) then
+              call this%obs(k)%metadata%add_variable(trim(var_name),v,_RC)
+           else
+              do ig = 1, this%obs(k)%ngeoval
+                 if (trim(var_name) == trim(this%obs(k)%geoval_xname(ig))) then
+                    call this%obs(k)%metadata%add_variable(trim(var_name),v,_RC)
 
 !!              if (mapl_am_i_root()) write(6, '(2x,a,/,10(2x,a))') &
 !!                   'Traj: create_metadata_variable: vname, var_name, this%obs(k)%geoval_xname(ig)', &
 !!                   trim(vname), trim(var_name), trim(this%obs(k)%geoval_xname(ig))
 
-              endif
-           enddo
+                 endif
+              enddo
+           end if
         enddo
 
          _RETURN(_SUCCESS)
@@ -1244,16 +1407,21 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         is = 1
                         nx = this%obs(k)%nobs_epoch
                         if (nx>0) then
-                           do ig = 1, this%obs(k)%ngeoval
-                              !! print*, 'this%obs(k)%geoval_xname(ig)= ', this%obs(k)%geoval_xname(ig)
-
-                              if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
-                                 call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p2d(1:nx), &
-                                      start=[is],count=[nx])
-                              end if
-                           end do
+                           if (this%schema_version==1) then
+                              call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p2d(1:nx), &
+                                   start=[is],count=[nx])
+                           else
+                              do ig = 1, this%obs(k)%ngeoval
+                                 !! print*, 'this%obs(k)%geoval_xname(ig)= ', this%obs(k)%geoval_xname(ig)
+                                 if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
+                                    call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p2d(1:nx), &
+                                         start=[is],count=[nx])
+                                 end if
+                              end do
+                           end if
                         endif
                      enddo
+
                      do k=1, this%nobs_type
                         deallocate (this%obs(k)%p2d, _STAT)
                      enddo
@@ -1331,12 +1499,17 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         is = 1
                         nx = this%obs(k)%nobs_epoch
                         if (nx>0) then
-                           do ig = 1, this%obs(k)%ngeoval
-                              if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
-                                 call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p3d(:,:), &
-                                      start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
-                              end if
-                           end do
+                           if (this%schema_version==1) then
+                              call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p3d(:,:), &
+                                   start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
+                           else
+                              do ig = 1, this%obs(k)%ngeoval
+                                 if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
+                                    call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p3d(:,:), &
+                                         start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
+                                 end if
+                              end do
+                           end if
                         endif
                      enddo
                      do k=1, this%nobs_type
@@ -1551,12 +1724,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            enddo
            call ESMF_FieldBundleDestroy(this%output_bundle,noGarbage=.true.,_RC)
            deallocate(names, _STAT)
-
-           call ESMF_ClockGet ( this%clock, CurrTime=currTime, _RC )
-           if (currTime > this%obsfile_end_time) then
-              this%active = .false.
-              _RETURN(ESMF_SUCCESS)
-           end if
 
            this%epoch_index(1:2)=0
 

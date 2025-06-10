@@ -117,7 +117,6 @@ module MaskSamplerMod
      integer                        :: nobs_dur
      integer                        :: nobs_dur_sum
      type(ESMF_Time)                :: obsfile_start_time   ! user specify
-     type(ESMF_Time)                :: obsfile_end_time
      type(ESMF_TimeInterval)        :: obsfile_interval
      integer                        :: obsfile_Ts_index     ! for epoch
      integer                        :: obsfile_Te_index
