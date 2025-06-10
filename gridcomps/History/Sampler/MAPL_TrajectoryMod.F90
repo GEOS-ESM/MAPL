@@ -71,7 +71,7 @@ module HistoryTrajectoryMod
      integer                        :: obsfile_Te_index
      logical                        :: active               ! case: when no obs. exist
      logical                        :: level_by_level = .false.
-     integer                        :: schema_version
+     integer                        :: schema_version     
      !
      ! note
      ! for MPI_GATHERV of 3D data in procedure :: append_file
@@ -114,7 +114,7 @@ module HistoryTrajectoryMod
        type(ESMF_Config), intent(inout)        :: config
        character(len=*),  intent(in)           :: string
        type(ESMF_Clock),  intent(in)           :: clock
-       integer, intent(in)                     :: schema_version
+       integer, intent(in)                     :: schema_version       
        type(MAPL_MetaComp), pointer, intent(in), optional  :: GENSTATE
        integer, optional, intent(out)          :: rc
      end function HistoryTrajectory_from_config_schema_version_1
@@ -129,7 +129,7 @@ module HistoryTrajectoryMod
        type(MAPL_MetaComp), pointer, intent(in), optional  :: GENSTATE
        integer, optional, intent(out)          :: rc
      end function HistoryTrajectory_from_config_schema_version_2
-
+     
      module subroutine initialize_(this,items,bundle,timeInfo,vdata,reinitialize,rc)
        class(HistoryTrajectory), intent(inout) :: this
        type(GriddedIOitemVector), optional, intent(inout) :: items
