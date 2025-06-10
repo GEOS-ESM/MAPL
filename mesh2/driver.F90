@@ -32,11 +32,13 @@ program main
 
    integer(kind=INT64) :: c0, c1, crate
    integer :: i, n
-   type(ESMF_Mesh) :: msh
-   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/2 ! C180
+   type(ESMF_Mesh) :: msh, msh2
+!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 2.0 ! C48
+!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0 ! C90
+!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/2 ! C180
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/4 ! C360
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/8 ! C720
-!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/16 ! C1440
+   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/16 ! C1440
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/32 ! C2880
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/64 ! C5760
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 0. ! fully resolved
@@ -99,7 +101,15 @@ program main
    call write_to_file(msh, 'surface_types.nc', _RC)
    call system_clock(c1)
    _HERE, 'time to create ESMF mesh is: ', real(c1-c0)/crate
-!#   call write_to_file(elements, out_filename)
+
+   call ESMF_Initialize(_RC)
+   call system_clock(c0)
+   msh2 = m%make_esmf_mesh3(_RC)
+   call m%to_netcdf('surface_types2.nc', _RC)
+   call system_clock(c1)
+   _HERE, 'time to create ESMF mesh2 is: ', real(c1-c0)/crate
+
+
    call ESMF_Finalize(_RC)
 
 !#   call MPI_Finalize(status)
@@ -154,38 +164,5 @@ contains
    end subroutine fill_pixels
 
 
-!#   subroutine write_to_file(elements, filename)
-!#
-!#      type(Variable) :: catch_index
-!#
-!#      file_md = FileMetadata()
-!#      call file_md%add_dimension('elementCount', elements%size())
-!#      call file_md%add_dimension('nodeCount', ???)
-!#      call file_md%add_dimension('coordDim', 2)
-!#
-!#      catch_index = Variable(PFIO_INT, dimensions='num_elements')
-!#      call catch_index%add_attribute('CatchIndex', "Ocean (0) Land (1-291284) Lakes (190000000) ice (200000000)")
-!#      call file_md%add_variable('CatchIndex', catch_index)
-!#
-!#      element_mask = Variable(PFIO_INT, dimensions='elementCount')
-!#      call element_mask%add_attribute('elementMask', "Ocean (0) Land (1) Lakes (190000000) ice (200000000)")
-!#      call file_md%add_variable('elementMask', element_mask)
-!#
-!#      node_coords = Variable(PFIO_REAL64, dimensions='codeCount,coordDim')
-!#      call node_coords%add_attribute('units', 'degrees')
-!#      call file_md%add_variable('nodeCoords', node_coords)
-!#
-!#
-!#      call formatter%open(file, mode=PFIO_WRITE, _RC)
-!#
-!#      call formatter%...(file_md)
-!#
-!#      call formatter%put_var('CatchIndex', elements%catch_index..., _RC)
-!#      call formatter%put_var('elementMask', ..., _RC)
-!#      call formatter%put_var('nodeCoords', ..., _RC)
-!#
-!#      call formatter%close(_RC)
-!#      
-!#   end subroutine write_to_file
 
 end program main

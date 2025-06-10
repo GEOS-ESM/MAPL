@@ -28,6 +28,7 @@ module sf_Element
       procedure :: do_refine
       procedure :: is_fully_refined
       procedure :: set_fully_refined
+      procedure :: get_type
    end type Element
 
    interface Element
@@ -127,4 +128,20 @@ contains
       class(Element), intent(in) :: this
       is_fully_refined = this%fully_refined
    end function is_fully_refined
+
+   integer function get_type(this)
+      class(Element), intent(in) :: this
+
+      integer :: counts(4)
+      integer :: j
+      integer, parameter :: SURF_TYPES(*) = [0, 1, 190000000, 200000000]
+
+      do j = 1, 4
+         counts(j) = count(this%pixels == SURF_TYPES(j))
+      end do
+
+      get_type = maxloc(counts,1)
+      
+   end function get_type
+
 end module sf_Element
