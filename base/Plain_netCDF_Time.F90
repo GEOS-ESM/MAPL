@@ -690,7 +690,7 @@ contains
     if (rew) rewind (iunps)
     do while (ios==0)
        read (iunps, '(a100)', iostat = ios) line
-       if (matchbgn (trim(line), trim(substring)) ) return
+       if (matchbgn (trim(adjustl(line)), trim(substring)) ) return
     enddo
     return
   end subroutine scan_begin
@@ -735,7 +735,7 @@ contains
     if (rew) rewind (iunps)
     do while (ios==0)
        read (iunps, '(a100)', iostat = ios) line
-       if (matchbgn (line, string) ) then
+       if (matchbgn (adjustl(line), string) ) then
           count = count + 1
        endif
     enddo
@@ -907,5 +907,61 @@ contains
 
     return
   end subroutine split_string_by_seperator
+
+
+  
+  
+  subroutine scan_write_between_line1_line2_flush_Left (ur, uw, L1, L2)
+    character (len=*), intent(in) :: L1, L2
+    integer, intent(in) :: ur, uw
+
+    integer :: i, j, k
+    character (len=150) :: line
+
+    rewind(ur)
+    ios=0
+    j=0
+    k=0
+    do while (ios==0)
+       read (ur, '(a150)', iostat = ios, err = 300) line
+       i=index( adjustl(line), trim(L1) )
+       if ( i==1 ) then
+          j=1
+       end if
+       if (j==1) then
+          write(uw, '(a)')  trim(line)
+          k=index( adjustl(line), trim(L2) )
+          if (k==1) then
+             j=0
+          end if
+       end if
+    end do
+300 continue
+    write(uw,*)
+
+  end subroutine scan_write_between_line1_line2_flush_Left
+
+
+  subroutine scan_write_begin_with_line1_flush_Left (ur, uw, L1)
+    character (len=*), intent(in) :: L1
+    integer, intent(in) :: ur, uw
+
+    integer :: i  
+    character (len=300) :: line
+
+    rewind(ur)
+    ios=0
+    do while (ios==0)
+       read (ur, '(a300)', iostat = ios, err = 300) line
+       i=index( adjustl(line), trim(L1) )
+       if ( i==1 ) then
+          write(uw, '(a)')  trim(line)
+       end if
+    end do
+300 continue
+    write(uw,*)
+
+  end subroutine scan_write_begin_with_line1_flush_Left
+
 
 end module MAPL_scan_pattern_in_file
