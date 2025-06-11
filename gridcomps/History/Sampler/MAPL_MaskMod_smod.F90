@@ -30,8 +30,10 @@ module function MaskSampler_from_config(config,string,clock,GENSTATE,rc) result(
   integer                    :: i, j, k, M
   integer                    :: count
   integer                    :: unitr, unitw
+  character(len=3)           :: output_leading_dim
   type(Logger), pointer :: lgr
 
+  
   mask%clock=clock
   mask%grid_file_name=''
   if (present(GENSTATE)) mask%GENSTATE => GENSTATE
@@ -47,11 +49,11 @@ module function MaskSampler_from_config(config,string,clock,GENSTATE,rc) result(
   call ESMF_ConfigGetAttribute(config, value=mask%var_name_proj, label=trim(string)//'var_name_proj:',default="",  _RC)
   call ESMF_ConfigGetAttribute(config, value=mask%att_name_proj, label=trim(string)//'att_name_proj:',default="",  _RC)
   call ESMF_ConfigGetAttribute(config, value=mask%thin_factor,   label=trim(string)//'thin_factor:',  default=-1,  _RC)
-  call ESMF_ConfigGetAttribute(config, value=mask%write_LZ_first,label=trim(string)//'write_LZ_first:',default=.true.,  _RC)
+  call ESMF_ConfigGetAttribute(config, value=output_leading_dim, label=trim(string)//'output_leading_dim:',default='lev',  _RC)
   if (mapl_am_I_root()) write(6,*) 'thin_factor:', mask%thin_factor
   mask%is_valid = .true.
   mask%use_pfio = .false.   ! activate in set_param
-
+  mask%write_lev_first = ( output_leading_dim == 'lev' )
   _RETURN(_SUCCESS)
 
 105 format (1x,a,2x,a)
@@ -139,13 +141,13 @@ module subroutine initialize(this,duration,frequency,items,bundle,timeInfo,vdata
       end do
       do j=1, ic_3d
          if (mapl_am_i_root()) then
-            if (this%write_LZ_first) then
+            if (this%write_lev_first) then
                allocate ( this%var3d(j)%array_zx(this%vdata%lm, this%npt_mask_tot), _STAT )
             else
                allocate ( this%var3d(j)%array_xz(this%npt_mask_tot, this%vdata%lm), _STAT )
             end if
          else
-            if (this%write_LZ_first) then
+            if (this%write_lev_first) then
                allocate ( this%var3d(j)%array_zx(0,0), _STAT )
             else
                allocate ( this%var3d(j)%array_xz(0,0), _STAT )
@@ -281,7 +283,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
           vdims = "mask_index"
           v = variable(type=pfio_REAL32,dimensions=trim(vdims))
        else if (field_rank==3) then
-          if (this%write_LZ_first) then
+          if (this%write_lev_first) then
              vdims = "lev,mask_index"
           else
              vdims = "mask_index,lev"
@@ -943,7 +945,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
              if (this%use_pfio) then
                 ic_3d = ic_3d + 1
                 if (mapl_am_i_root()) then
-                   if (this%write_LZ_first) then
+                   if (this%write_lev_first) then
                       this%var3d(ic_3d)%array_zx(1:nz,1:this%npt_mask_tot) = &
                            reshape(p_dst_3d_full,[nz, this%npt_mask_tot],order=[1,2])
                    else
@@ -951,7 +953,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
                            reshape(p_dst_3d_full,[this%npt_mask_tot, nz],order=[2,1])
                    end if
                 endif
-                if (this%write_LZ_first) then
+                if (this%write_lev_first) then
                    ref = ArrayReference(this%var3d(ic_3d)%array_zx)
                    call oClients%collective_stage_data(this%write_collection_id,trim(filename), item%xname, &
                         ref,start=[1,1], global_start=[1,1], global_count=[nz,this%npt_mask_tot])
@@ -1165,7 +1167,7 @@ module subroutine finalize(this,rc)
        end do
        deallocate ( this%var2d, _STAT )
        do j=1, ic_3d
-          if (this%write_LZ_first) then
+          if (this%write_lev_first) then
              deallocate ( this%var3d(j)%array_zx, _STAT )
           else
              deallocate ( this%var3d(j)%array_xz, _STAT  )

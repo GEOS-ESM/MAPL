@@ -39,7 +39,7 @@ module HistoryTrajectoryMod
      type(GriddedIOitemVector) :: items
      type(VerticalData) :: vdata
      logical :: do_vertical_regrid
-     logical :: write_Lz_first
+     logical :: write_lev_first
 
      type(LocstreamRegridder) :: regridder
      type(TimeData)           :: time_info

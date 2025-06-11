@@ -71,6 +71,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer                    :: unitr, unitw
          integer                    :: length_mx, mxseg, nseg
          type(GriddedIOitem)        :: item
+         character(len=3)           :: output_leading_dim
          type(Logger), pointer      :: lgr
 
          traj%clock=clock
@@ -176,8 +177,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          call lgr%debug('%a %i8', 'nobs_type=', traj%nobs_type)
 
-         call ESMF_ConfigGetAttribute(config, value=traj%write_LZ_first, default=.true., &
-              label=trim(string)//'write_Lz_first:', _RC)
+         call ESMF_ConfigGetAttribute(config, value=output_leading_dim, default='lev', &
+              label=trim(string)//'output_leading_dim:', _RC)
+         traj%write_lev_first = ( output_leading_dim == 'lev' )
 
          _RETURN(_SUCCESS)
 
@@ -470,8 +472,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             end if
          end do
 
-         call ESMF_ConfigGetAttribute(config, value=traj%write_LZ_first, default=.true., &
-              label=trim(string)//'write_Lz_first:', _RC)
+         call ESMF_ConfigGetAttribute(config, value=traj%write_lev_first, default=.true., &
+              label=trim(string)//'write_lev_first:', _RC)
 
          _RETURN(_SUCCESS)
 
@@ -620,7 +622,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
         if (field_rank==2) then
            vdims = this%index_name_x
         else if (field_rank==3) then
-           if (this%write_LZ_first) then
+           if (this%write_lev_first) then
               vdims = "lev,"//trim(this%index_name_x)
            else
               vdims = trim(this%index_name_x)//",lev"
@@ -1507,14 +1509,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                      do k=1, this%nobs_type
                         is = 1
                         nx = this%obs(k)%nobs_epoch
-                        if (this%write_LZ_first) then
+                        if (this%write_lev_first) then
                            ! p_rt_3d  --> [nz,nx] for output nc4
                            allocate(p_rt_3d, source=reshape(this%obs(k)%p3d, &
                                 [size(this%obs(k)%p3d,2),size(this%obs(k)%p3d,1)], order=[2,1]))
                         endif
                         if (nx>0) then
                            if (this%schema_version==1) then
-                              if (this%write_LZ_first) then
+                              if (this%write_lev_first) then
                                  call this%obs(k)%file_handle%put_var(trim(item%xname), p_rt_3d(:,:), &
                                       start=[1,is],count=[size(p_acc_rt_3d,2),nx])
                                  !     lev,nx
@@ -1525,7 +1527,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                            else
                               do ig = 1, this%obs(k)%ngeoval
                                  if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
-                                    if (this%write_LZ_first) then
+                                    if (this%write_lev_first) then
                                        call this%obs(k)%file_handle%put_var(trim(item%xname), p_rt_3d(:,:), &
                                             start=[1,is],count=[size(p_acc_rt_3d,2),nx])
                                        !      lev,nx
@@ -1537,7 +1539,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                               end do
                            end if
                         endif
-                        if (this%write_LZ_first) then
+                        if (this%write_lev_first) then
                            deallocate(p_rt_3d, _STAT)
                         end if
                         deallocate (this%obs(k)%p3d, _STAT)

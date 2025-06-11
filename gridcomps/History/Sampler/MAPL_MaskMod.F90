@@ -69,7 +69,7 @@ module MaskSamplerMod
      character(len=ESMF_MAXSTR)  :: ofile
      integer :: write_collection_id
      logical :: use_pfio
-     logical :: write_LZ_first
+     logical :: write_lev_first
      !
      integer                        :: nobs
      integer                        :: obs_written
