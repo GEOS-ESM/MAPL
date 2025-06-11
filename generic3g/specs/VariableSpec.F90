@@ -1,23 +1,6 @@
 #include "MAPL_Generic.h"
-#if defined(_INVALID)
-#  undef _INVALID
-#endif
-#define _INVALID(V) "Invalid " // #V
+#include "macros.h"
 
-#if defined(_ASSERT_IN)
-#  undef _ASSERT_IN
-#endif
-#define _ASSERT_IN(V, S) _ASSERT(findloc(S, spec%V) >= lbound(S), _INVALID(V))
-
-#if defined(_ASSERT_VALID_STRING)
-#  undef _ASSERT_VALID_STRING
-#endif
-#define _ASSERT_VALID_STRING(S, F) _ASSERT(F(spec%F), _INVALID(V))
-
-#if defined(_ASSERT_VALID_STRINGVECTOR)
-#  undef _ASSERT_VALID_STRINGVECTOR
-#endif
-#define _ASSERT_VALID_STRINGVECTOR(V1, V2) _ASSERT(valid_string_vector(spec%V1, V2, _INVALID(V1)))
 module mapl3g_VariableSpec
    use mapl3g_StateItemSpec
    use mapl3g_StateItemAspect
@@ -178,6 +161,9 @@ module mapl3g_VariableSpec
       logical function StringPredicate(string)
          character(len=*), intent(in) :: string
       end function StringPredicate
+      logical function StringVectorPredicate(vector)
+         class(StringVector), intent(in) :: vector
+      end function StringVectorPredicate
    end interface
 
 contains
@@ -621,30 +607,28 @@ contains
       character, parameter :: ALPHANUMERIC = ALPHA // NUMERIC
       character, parameter :: FORTRAN_IDENTIFIER = ALPHANUMERIC // '_'
 
-      _ASSERT_VALID_STRING(short_name, is_valid_identifier)
-
-      if(present(spec%standard)) then
-         _ASSERT_VALID_STRING(standard, is_not_empty)
-      else if(present(spec%long)) then
-         _ASSERT_VALID_STRING(long, is_not_empty)
-      else
-         _FAIL('Neither standard_name nor long_name is present.')
+      _ASSERT_SPEC_VALUE(short_name, is_valid_identifier)
+      _ASSERT_IN_SET(state_intent, [ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_INTERNAL])
+      _ASSERT(present(spec%standard) .or. present(spec%long), 'Neither standard_name nor long_name is present.')
+      _ASSERT_SPEC_VALUE(standard, is_not_empty)
+      if(.not. present(spec%standard)) then
+         _ASSERT_SPEC_VALUE(long, is_not_empty)
       end if
 
-      _ASSERT_VALID_STRINGVECTOR(vector_component_names, StringVector())
+      _ASSERT_SPEC_VALUE(vector_component_names, make_string_vector_predicate())
+      _ASSERT_IN_SET(itemType, [ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE])
 
-      _ASSERT_IN(state_intent, [ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_INTERNAL])
-      _ASSERT_IN(itemType, [ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE])
+      _ASSERT_VALUE_IN(default_value, [real(kind=ESMF_KIND_R4)::])
+      _ASSERT_VALUE_IN(bracket_size, [integer::])
+      _ASSERT_SPEC_VALUE(expression, no_test)
 
-      _ASSERT(valid_r4(spec%default_value), 'Invalid default_value')
-      _ASSERT(valid_integer(spec%bracket_size), 'Invalid bracket size') 
-
+      make_string_vector_predicate
       _ASSERT_VALID_STRINGVECTOR(service_items, StringVector())
       _ASSERT_VALID_STRINGVECTOR(dependencies, StringVector())
       _ASSERT_VALID_STRINGVECTOR(attributes, StringVector())
 
       call validate_typekind(spec%typekind, _RC)
-      _ASSERT(no_test(spec%expression))
+      
       call validate_geom(spec%geom, _RC)
       call validate_horizontal_dims_spec(spec%horizontal_dims_spec, _RC)
       call validate_regrid_param_regrid_method(spec%regrid_param, spec%regrid_method, _RC)
@@ -700,7 +684,6 @@ contains
       integer :: i
 
       lval = .TRUE.
-      if(.not. present(bounds)) return
       if(size(bounds) < 1) return
 
       if(size(bounds) == 1)
@@ -722,7 +705,6 @@ contains
       integer :: i
 
       lval = .TRUE.
-      if(.not. present(bounds)) return
       if(size(bounds) < 1) return
 
       lval = .FALSE.
@@ -733,15 +715,6 @@ contains
 
    end function is_in_realR4
 
-   subroutine validate_string(string, validator, rc)
-      character(len=*), intent(in) :: string
-      procedure(StringPredicate) :: validator
-
-      _ASSERT(validator(string), '"' // trim(string) // '" is not a valid string.')
-      _RETURN(_SUCCESS)
-
-   end validate_string
-      
    logical function is_not_empty(string)
       character(len=*), intent(in) :: string
 
@@ -750,40 +723,48 @@ contains
    end function is_not_empty
 
    logical function no_test(v)
-      class(*), intent(in) :: string
+      class(*), intent(in) :: v
 
       no_test = .TRUE.
 
    end function no_test
 
-   function valid_string_vector(strings, valid_strings, rc) result(valid)
-      logical :: valid
-      class(StringVector), optional, intent(in) :: strings
-      class(StringVector), optional, intent(in) :: valid_strings
-      integer, optional, intent(out) :: rc
-      integer :: status
-      type(StringVectorIterator) :: iter, e, iiter, ie
-      character(len=:), allocatable :: string
-      logical :: found, valid_strings_not_present
+   function make_string_vector_predicate(valid_strings, string_predicate) result(predicate)
+      procedure(StringVectorPredicate), pointer :: predicate
+      class(StringVector), intent(in), optional :: valid_strings
+      procedure(StringPredicate), optional, pointer :: string_predicate
       procedure(StringPredicate), pointer :: fptr => null()
 
-      valid = .not. present(strings)
-      _RETURN_IF(valid)
+      fptr => default_string_predicate
+      if(present(string_predicate)) fptr => string_predicate
+      if(present(valid_strings)) fptr => string_in_vector
 
-      fptr => is_valid_identifier
-      if(present(valid_strings)) then
-         if(.not. valid_string%empty()) fptr => string_in_vector
-      end if
-
-      iter = strings%begin()
-      e = strings%end()
-      do while(iter /= e)
-         if(.not. fptr(iter%of())) return
-         call iter%next()
-      end do
-      valid = .TRUE.
+      predicate => vector_predicate
 
    contains
+
+      logical function vector_predicate(strings) result(valid)
+         class(StringVector), intent(in) :: strings
+         type(StringVectorIterator) :: iter, e
+         logical :: found, valid_strings_not_present
+
+         valid = .FALSE.
+         iter = strings%begin()
+         e = strings%end()
+         do while(iter /= e)
+            if(.not. fptr(iter%of())) return
+            call iter%next()
+         end do
+         valid = .TRUE.
+
+      end function vector_predicate
+
+      logical function default_string_predicate(string)
+         character(len=*), intent(in) :: string
+
+         default_string_predicate = .TRUE.
+
+      end function default_string_predicate
 
       logical function string_in_vector(string, vector) result(in_vector)
          character(len=*), intent(in) :: string
@@ -801,15 +782,15 @@ contains
 
       end function string_in_vector
 
-   end function valid_string_vector
+   end function make_string_vector_predicate
 
    logical function valid_r4(val, bounds, invert)
-      real(kind=ESMF_KIND_R4), intent(in) :: val
+      real(kind=ESMF_KIND_R4), optional, intent(in) :: val
       real(kind=ESMF_KIND_R4), optional, intent(in) :: bounds(:)
       logical, optional, intent(in) :: invert
 
       valid_r4 = .TRUE.
-      if(.not. present(bounds)) return
+      if(.not.(present(val) .and. present(bounds))) return
       valid_r4 = is_in(val, bounds)
       if(present(invert)) valid_r4 = valid_r4 .eqv. .not. invert
 
@@ -821,52 +802,12 @@ contains
       logical, optional, intent(in) :: invert
 
       valid_integer = .TRUE.
-      if(.not. present(bounds)) return
+      if(.not. (present(val) .and. present(bounds))) return
       valid_integer = is_in(val, bounds)
       if(present(invert)) valid_integer = valid_intger .eqv. .not. invert
 
    end function valid_integer
 
-   subroutine validate_service_items(spec%service_items, rc)
-      TYPE :: service_items
-   end subroutine validate_service_items
-
-   subroutine validate_expression(spec%expression, rc)
-      TYPE :: expression
-   end subroutine validate_expression
-
-   subroutine validate_typekind(spec%typekind, rc)
-      TYPE :: typekind
-   end subroutine validate_typekind
-
-   subroutine validate_geom(spec%geom, rc)
-      TYPE :: geom
-   end subroutine validate_geom
-
-   subroutine validate_horizontal_dims_spec(spec%horizontal_dims_spec, rc)
-      TYPE :: horizontal_dims_spec
-   end subroutine validate_horizontal_dims_spec
-
-      call validate_regrid_param_regrid_method(spec%regrid_param, spec%regrid_method, _RC)
-   subroutine validate_timestep(spec%timestep, rc)
-      TYPE :: timestep
-   end subroutine validate_timestep
-
-   subroutine validate_offset(spec%offset, rc)
-      TYPE :: offset
-   end subroutine validate_offset
-
-   subroutine validate_ungridded_dims(spec%ungridded_dims, rc)
-      TYPE :: ungridded_dims
-   end subroutine validate_ungridded_dims
-
-   subroutine validate_attributes(spec%attributes, rc)
-      TYPE :: attributes
-   end subroutine validate_attributes
-
-   subroutine validate_dependencies(spec%dependencies, rc)
-      TYPE :: dependencies
-   end subroutine validate_dependencies
-
 end module mapl3g_VariableSpec
-
+#include "undef_macros.h"
+#include "meta_undef_macros.h"
