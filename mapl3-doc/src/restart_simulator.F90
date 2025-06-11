@@ -575,6 +575,9 @@ contains
               write(fc,'(I0.3)')writer_rank
               fname = "checkpoint_"//fc//".bin"
               open(file=fname,newunit=this%ncid,status='old',form='unformatted',access='sequential')
+           else
+              fname = "checkpoint.bin"
+              open(file=fname,newunit=this%ncid,status='old',form='unformatted',access='sequential')
            end if
         end if
      end if
