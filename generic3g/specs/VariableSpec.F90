@@ -1,9 +1,23 @@
 #include "MAPL_Generic.h"
-#if defined(IS_IN_SET)
-#  undef IS_IN_SET
+#if defined(_INVALID)
+#  undef _INVALID
 #endif
-#define IS_IN_SET_(V, S) findloc(S, V) >= lbound(S)
+#define _INVALID(V) "Invalid " // #V
 
+#if defined(_ASSERT_IN)
+#  undef _ASSERT_IN
+#endif
+#define _ASSERT_IN(V, S) _ASSERT(findloc(S, spec%V) >= lbound(S), _INVALID(V))
+
+#if defined(_ASSERT_VALID_STRING)
+#  undef _ASSERT_VALID_STRING
+#endif
+#define _ASSERT_VALID_STRING(S, F) _ASSERT(F(spec%F), _INVALID(V))
+
+#if defined(_ASSERT_VALID_STRINGVECTOR)
+#  undef _ASSERT_VALID_STRINGVECTOR
+#endif
+#define _ASSERT_VALID_STRINGVECTOR(V1, V2) _ASSERT(valid_string_vector(spec%V1, V2, _INVALID(V1)))
 module mapl3g_VariableSpec
    use mapl3g_StateItemSpec
    use mapl3g_StateItemAspect
@@ -607,30 +621,36 @@ contains
       character, parameter :: ALPHANUMERIC = ALPHA // NUMERIC
       character, parameter :: FORTRAN_IDENTIFIER = ALPHANUMERIC // '_'
 
-      call validate_string(spec%short_name, is_valid_identifier, _RC)
+      _ASSERT_VALID_STRING(short_name, is_valid_identifier)
+
       if(present(spec%standard)) then
-         call validate_string(spec%standard, is_not_empty, _RC)
+         _ASSERT_VALID_STRING(standard, is_not_empty)
       else if(present(spec%long)) then
-         call validate_string(spec%long, is_not_empty, _RC)
+         _ASSERT_VALID_STRING(long, is_not_empty)
       else
          _FAIL('Neither standard_name nor long_name is present.')
       end if
-      _ASSERT(valid_state_intent(spec%state_item), 'Invalid state intent')
-      _ASSERT(valid_item_type(spec%itemType), 'Invalid item type')
-      call validate_string_vector(spec%vector_component_names, svector, _RC)
+
+      _ASSERT_VALID_STRINGVECTOR(vector_component_names, StringVector())
+
+      _ASSERT_IN(state_intent, [ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_INTERNAL])
+      _ASSERT_IN(itemType, [ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE])
+
       _ASSERT(valid_r4(spec%default_value), 'Invalid default_value')
       _ASSERT(valid_integer(spec%bracket_size), 'Invalid bracket size') 
-      call validate_service_items(spec%service_items, _RC)
-      call validate_expression(spec%expression, _RC)
+
+      _ASSERT_VALID_STRINGVECTOR(service_items, StringVector())
+      _ASSERT_VALID_STRINGVECTOR(dependencies, StringVector())
+      _ASSERT_VALID_STRINGVECTOR(attributes, StringVector())
+
       call validate_typekind(spec%typekind, _RC)
+      _ASSERT(no_test(spec%expression))
       call validate_geom(spec%geom, _RC)
       call validate_horizontal_dims_spec(spec%horizontal_dims_spec, _RC)
       call validate_regrid_param_regrid_method(spec%regrid_param, spec%regrid_method, _RC)
       call validate_timestep(spec%timestep, _RC)
       call validate_offset(spec%offset, _RC)
       call validate_ungridded_dims(spec%ungridded_dims, _RC)
-      call validate_attributes(spec%attributes, _RC)
-      call validate_dependencies(spec%dependencies, _RC)
 
    end subroutine validate_variable_spec
    
@@ -729,62 +749,59 @@ contains
 
    end function is_not_empty
 
-   subroutine validate_string_vector(strings, valid_strings, rc)
+   logical function no_test(v)
+      class(*), intent(in) :: string
+
+      no_test = .TRUE.
+
+   end function no_test
+
+   function valid_string_vector(strings, valid_strings, rc) result(valid)
+      logical :: valid
       class(StringVector), optional, intent(in) :: strings
       class(StringVector), optional, intent(in) :: valid_strings
       integer, optional, intent(out) :: rc
       integer :: status
       type(StringVectorIterator) :: iter, e, iiter, ie
       character(len=:), allocatable :: string
-      logical :: found
+      logical :: found, valid_strings_not_present
+      procedure(StringPredicate), pointer :: fptr => null()
 
-      _RETURN_UNLESS(present(strings))
+      valid = .not. present(strings)
+      _RETURN_IF(valid)
+
+      fptr => is_valid_identifier
+      if(present(valid_strings)) then
+         if(.not. valid_string%empty()) fptr => string_in_vector
+      end if
 
       iter = strings%begin()
       e = strings%end()
       do while(iter /= e)
-         _ASSERT(is_valid_identifier(iter%of()), 'Invalid string')
+         if(.not. fptr(iter%of())) return
          call iter%next()
       end do
+      valid = .TRUE.
 
-      _RETURN_UNLESS(present(valid_strings))
-      _RETURN_IF(valid_strings%empty())
+   contains
 
-      iter = strings%begin()
-      e = strings%end()
-      outer: do while(iter /= e)
-         string = iter%of()
-         iiter = valid_strings%begin()
-         ie = valid_strings%end()
-         inner: do while(iiter /= ie)
-            found = string == iiter%of()
-            if(found) exit inner
-            call iiter%next()
-         end do inner
-         _ASSERT(found, 'Failed to find "' // trim(string) // '" in valid strings')
-         call iter%next()
-      end do outer
-      _RETURN(_SUCCESS)
+      logical function string_in_vector(string, vector) result(in_vector)
+         character(len=*), intent(in) :: string
+         class(StringVector), intent(in) :: vector
+         type(StringVectorIterator) :: e, iter
 
-   end subroutine validate_string_vector
+         in_vector = .TRUE.
+         e = vector%end()
+         iter = vector%begin()
+         do while(iter /= e)
+            if(string == iter%of()) return
+            call iter%next()
+         end do
+         in_vector = .FALSE.
 
-   logical function valid_state_intent(val)
-      class(ESMF_StateIntent_Flag), intent(in) :: val
-      type(ESMF_StateIntent_Flag), parameter :: VALID(*) = &
-         & [ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_INTERNAL]
+      end function string_in_vector
 
-      valid_state_intent = IS_IN_SET_(val, VALID)
-
-   end function valid_state_intent
-
-   logical function valid_item_type(val)
-      type(ESMF_StateItem_Flag), intent(in):: item_type
-      type(ESMF_StateItem_Flag), parameter :: VALID(*) = &
-         & [ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE]
-
-      valid_item_type = IS_IN_SET_(val, VALID)
-
-   end function valid_item_type
+   end function valid_string_vector
 
    logical function valid_r4(val, bounds, invert)
       real(kind=ESMF_KIND_R4), intent(in) :: val
