@@ -34,11 +34,11 @@ program main
    integer :: i, n
    type(ESMF_Mesh) :: msh, msh2
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 2.0 ! C48
-!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0 ! C90
+   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0 ! C90
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/2 ! C180
-!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/4 ! C360
+!#  real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/4 ! C360
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/8 ! C720
-   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/16 ! C1440
+!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/16 ! C1440
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/32 ! C2880
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/64 ! C5760
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 0. ! fully resolved
@@ -52,7 +52,7 @@ program main
    e => m%get_element(1) ! archetype
 
    level = 0
-
+   
    levels: do while (.not. done)
       level = level + 1
       done = .true. ! unless
@@ -80,18 +80,8 @@ program main
       e => m%get_element(i)
 !#      _ASSERT(.not. e%do_refine(), 'hmm algorithm did not complete')
 
-      p => e%pixels(1,1)
-      catch_index = p
-      select case (catch_index)
-      case (0)
-         counters(1) = counters(1) + 1
-      case (1:291284)
-         counters(2) = counters(2) + 1
-      case (190000000)
-         counters(3) = counters(3) + 1
-      case (200000000)
-         counters(4) = counters(4) + 1
-      end select
+      catch_index = e%get_type()
+      counters(catch_index) = counters(catch_index) + 1
    end do
    _HERE,'counts: ocean: ', counters(1), 'land: ', counters(2), 'lake: ', counters(3), 'landice: ', counters(4)
 
@@ -102,7 +92,6 @@ program main
    call system_clock(c1)
    _HERE, 'time to create ESMF mesh is: ', real(c1-c0)/crate
 
-   call ESMF_Initialize(_RC)
    call system_clock(c0)
    msh2 = m%make_esmf_mesh3(_RC)
    call m%to_netcdf('surface_types2.nc', _RC)

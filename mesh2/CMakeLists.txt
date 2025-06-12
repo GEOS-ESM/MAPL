@@ -25,10 +25,10 @@ target_link_libraries(xgrid.x PRIVATE
     MPI::MPI_Fortran
 )
 
-ecbuild_add_executable (TARGET xgrid2.x SOURCES ${srcs} xgrid.F90)
+ecbuild_add_executable (TARGET xgrid2.x SOURCES ${srcs} xgrid2.F90)
 
 target_link_libraries(xgrid2.x PRIVATE
-    MAPL NetCDF::NetCDF_Fortran
+    MAPL MAPL.geom NetCDF::NetCDF_Fortran
     GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
     MPI::MPI_Fortran
 )

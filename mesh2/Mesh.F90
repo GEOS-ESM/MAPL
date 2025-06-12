@@ -7,6 +7,7 @@ module sf_Mesh
    use sf_ElementVector
    use mapl_ErrorHandling
    use mapl_constants, only: MAPL_DEGREES_TO_RADIANS_R8, MAPL_PI_R8
+   use mapl_constants, only: MAPL_RADIANS_TO_DEGREES
    use gFTL2_Integer64Vector
    use esmf
    use, intrinsic :: iso_fortran_env, only: INT64, REAL64
@@ -702,6 +703,8 @@ contains
       integer, allocatable :: elementConn(:)
       integer, allocatable :: elementIds(:)
       integer, allocatable :: elementTypes(:)
+      integer, allocatable :: elementMask(:)
+      integer :: k_element, typ
 
       msh = ESMF_MeshCreate(parametricDim=2, spatialDim=2, coordSys=ESMF_COORDSYS_SPH_DEG, _RC)
 
@@ -722,6 +725,7 @@ contains
          nodeCoords(2 + (k-1)*2) = this%to_lat(v%loc)
       end do
 
+
       kk = n_vertices
       do k = 1, n_elements
          kk = kk + 1
@@ -736,9 +740,6 @@ contains
       n_conn = 0
       n_esmf_elements = 0
       do k = 1, n_elements
-         if (mod(k, 10000) == 0) then
-            _HERE, k
-         end if
          e => this%get_element(k)
          p = this%get_perimeter(e)
          np = p%size()
@@ -751,15 +752,18 @@ contains
       allocate(elementIds(n_esmf_elements))
       allocate(elementTypes(n_esmf_elements))
       allocate(elementConn(n_conn))
-      elementTypes = ESMF_MESHELEMTYPE_TRI
+      allocate(elementMask(n_esmf_elements))
+      elementMask = -1
+     elementTypes = ESMF_MESHELEMTYPE_TRI
 
       i0 = 0
       elementIds = huge(1)
 
       kk = 0
+      k_element = 0
       do k = 1, n_elements
          e => this%get_element(k)
-         elementIds(k) = k
+         typ = e%get_type()
          p = this%get_perimeter(e)
          np = p%size()
          do i = 1, np
@@ -768,18 +772,24 @@ contains
             elementConn(kk+3) = p%of(1 + mod(i-1+1,np))
 !#            elementArea(k) = ...
             kk = kk + 3
+            k_element = k_element + 1
+            elementIds(k_element) = k_element
+            elementMask(k_element) = typ
+!#            _HERE, 'type? ', k_element, typ
          end do
       end do
 
+      
+
       call ESMF_MeshAddElements(msh, &
            elementIds, elementTypes, elementConn, &
-!#           elementMask, &
+           elementMask=elementMask, &
 !#           elementArea, &
 !#           elementCoords, &
 !#           elementDistgrid, &
            _RC)
 
-      deallocate(elementConn, elementTypes, elementIds)
+      deallocate(elementConn, elementTypes, elementIds, elementMask)
       _RETURN(_SUCCESS)
    end function make_esmf_mesh
 
@@ -920,9 +930,6 @@ contains
       n_conn = 0
       n_esmf_elements = 0
       do k = 1, n_elements
-         if (mod(k, 10000) == 0) then
-            _HERE, k
-         end if
          e => this%get_element(k)
          p = this%get_perimeter(e)
          np = p%size()
@@ -948,7 +955,6 @@ contains
          kk_last = kk
          do k = 1, n_elements
             e => this%get_element(k)
-!#            if (e%get_type() /= SURF_TYPES(j)) cycle
             if (e%get_type() /= j) cycle
             p = this%get_perimeter(e)
             np = p%size()
@@ -963,7 +969,6 @@ contains
          end do
          kk = kk - 1 ! remove last polybreak
          elementTypes(j) = kk - kk_last 
-         _HERE, j, elementTypes(j)
       end do
 
       call ESMF_MeshAddElements(msh, &
@@ -986,15 +991,15 @@ contains
       real(kind=REAL64) :: xyz(3), lon, lat
       integer :: i
       type(Vertex), pointer :: v
-      type(Integer64Vector) :: p
+      type(Integer64Vector), target :: p
 
       p = this%get_perimeter(e)
 
       xyz = 0
       do i = 1, p%size()
          v => this%get_vertex(p%of(i))
-         lon = this%to_lon(v%loc)
-         lat = this%to_lat(v%loc)
+         lon = this%to_lon(v%loc) * MAPL_DEGREES_TO_RADIANS_R8
+         lat = this%to_lat(v%loc) * MAPL_DEGREES_TO_RADIANS_R8
 
          xyz = xyz + to_cartesian(lon, lat)
       end do
@@ -1019,8 +1024,10 @@ contains
       real(kind=REAL64), intent(in) :: xyz(3)
       real(kind=REAL64)  :: lon_lat(2)
 
-      lon_lat(1) = atan2(xyz(1), xyz(2)) ! lon
+      lon_lat(1) = atan2(xyz(2), xyz(1)) ! lon
       lon_lat(2) = asin(xyz(3))          ! lat
+
+      lon_lat = lon_lat * MAPL_RADIANS_TO_DEGREES
 
    end function to_lon_lat
 
@@ -1168,7 +1175,7 @@ contains
       integer, allocatable :: elementConn(:)
       integer :: elementConnCount
       integer, allocatable :: numElementConn(:)
-      integer, allocatable :: elementTypes(:)
+      integer, allocatable :: elementMask(:)
       type(Variable) :: var
 
       call formatter%create(file=filename, _RC)
@@ -1197,6 +1204,10 @@ contains
       call var%add_attribute('long_name', Attribute("Number of nodes per elemennt"))
       call filemd%add_variable('numElementConn', var, _RC)
 
+     var = Variable(type=pFIO_INT32, dimensions='elementCount', _RC)
+      call var%add_attribute('long_name', Attribute("mask for surface types: {1: Ocean, 2: Land, 3: Lake, 4: Landice}"))
+      call filemd%add_variable('elementMask', var, _RC)
+
 !#     var = Variable(type=???, dimensions='coordDim,elementCount', _RC)
 !#     call var%add_attribute('units', Attribute('degrees'), _RC)
 !#     call filemd%add_variable('centerCoords' var, _RC)
@@ -1209,6 +1220,8 @@ contains
 !#     var = Variable('elementCount')
 !#     call var%add_attribute('_FillValue', Attribute(-9999), _RC)
 !#
+
+
       call filemd%add_attribute('gridType', Attribute('unstructured'), _RC)
       call filemd%add_attribute('version', Attribute('0.9'), _RC)
 
@@ -1224,6 +1237,11 @@ contains
       call ESMF_MeshGet(m, elementConn=elementConn, _RC)
       call formatter%put_var('elementConn', reshape(elementConn, [3, elementCount]), _RC)
       deallocate(elementConn)
+
+      allocate(elementMask(elementCount))
+      call ESMF_MeshGet(m, elementMask=elementMask, _RC)
+      call formatter%put_var('elementMask', elementMask, _RC)
+      deallocate(elementMask)
 
       allocate(numElementConn(elementCount))
       numElementConn = 3
