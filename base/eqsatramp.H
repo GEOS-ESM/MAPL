@@ -3,41 +3,39 @@ URAMP = -abs(Ramp_)
 
 if    (TX<=TMINTBL) then
    TI = TMINTBL
-elseif(TX>=TMAXTBL-.001) then
+elseif (TX>=TMAXTBL-.001) then
    TI = TMAXTBL-.001
 else
    TI = TX
 end if
 
-if( ( URAMP==TMIX .OR. URAMP==0. ) .and. UTBL) then ! Use table
+if ( ( URAMP==TMIX .OR. URAMP==0. ) .and. UTBL) then ! Use table
 
 ! Initialize table, if necessary
 
-   if(.not.TableReady) call MAPL_EQsatSET
+   if (.not.TableReady) call MAPL_EQsatSET
 
 ! Get saturation vapor pressure from table
 
    TT  = (TI - TMINTBL)*DEGSUBS+1
    IT  = int(TT)
 
-   if(URAMP==TMIX) then
+   DDQ = TABLE(IT+1)  - TABLE(IT)
+   EX  = (TT-IT)*DDQ  + TABLE(IT)
+   if (URAMP==TMIX) then
       DDQ = TABLEX(IT+1) - TABLEX(IT)
       EX  = (TT-IT)*DDQ  + TABLEX(IT)
-   else
-      DDQ = TABLE(IT+1)  - TABLE(IT)
-      EX  = (TT-IT)*DDQ  + TABLE(IT)
    endif
 
 ! Compute saturation specific humidity
 
-   if(present(PL)) then
-      if(PP > EX) then
+   if (present(PL)) then
+      EX  = 1.0
+      DDQ = 0.0
+      if (PP > EX) then
          DD  = 1.0/(PP - (1.0-ESFAC)*EX)
          EX  = ESFAC*EX*DD
          DDQ = ESFAC*DDQ*PP*(DD*DD)
-      else
-         EX  = 1.0
-         DDQ = 0.0
       end if
    end if
 
@@ -75,4 +73,4 @@ else  ! Use exact formulation
 
 endif ! not table
 
-if(present(DQ)) DX = DDQ*DEGSUBS
+if (present(DQ)) DX = DDQ*DEGSUBS

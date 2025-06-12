@@ -67,113 +67,113 @@ module MAPL_SatVaporMod
   end interface
 
 #ifndef MAPL_MODE
-  real(kind=REAL64),    parameter :: ESFAC      = 0.622
-  real(kind=REAL64),    parameter :: ZEROC      = 273.16  ! K
+  real(kind=REAL64), parameter :: ESFAC = 0.622
+  real(kind=REAL64), parameter :: ZEROC = 273.16  ! K
 #else
-  real(kind=REAL64),    parameter :: ESFAC      = MAPL_H2OMW/MAPL_AIRMW
-  real(kind=REAL64),    parameter :: ZEROC      = MAPL_TICE
+  real(kind=REAL64), parameter :: ESFAC = MAPL_H2OMW/MAPL_AIRMW
+  real(kind=REAL64), parameter :: ZEROC = MAPL_TICE
 #endif
 
 ! Physical parameters
 
-  real(kind=REAL64),    parameter :: MINPFAC    = 2.0
-  real(kind=REAL64),    parameter :: MAX_RS     = 1.0/(MINPFAC-1.0)
-  real(kind=REAL64),    parameter :: MAX_QS     = MAX_RS/(1.0+MAX_RS)
+  real(kind = REAL64), parameter :: MINPFAC = 2.0
+  real(kind = REAL64), parameter :: MAX_RS  = 1.0/(MINPFAC-1.0)
+  real(kind = REAL64), parameter :: MAX_QS  = MAX_RS/(1.0+MAX_RS)
 
 ! Table parameters
 
-  real(kind=REAL64),    parameter :: TMINTBL    =  150.0       ! lower T bound of tables
-  real(kind=REAL64),    parameter :: TMAXTBL    =  333.0       ! upper T bound of tables
+  real(kind = REAL64), parameter :: TMINTBL = 150.0       ! lower T bound of tables
+  real(kind = REAL64), parameter :: TMAXTBL = 333.0       ! upper T bound of tables
 
 ! Some limits
 
-  real(kind=REAL64),    parameter :: TMINICE    =  ZEROC - 95.
-  real(kind=REAL64),    parameter :: TMAXICE    =  ZEROC
-  real(kind=REAL64),    parameter :: TMINLQU    =  ZEROC - 40.
-  real(kind=REAL64),    parameter :: TMAXLQU    =  TMAXTBL
+  real(kind = REAL64), parameter :: TMINICE = ZEROC - 95.
+  real(kind = REAL64), parameter :: TMAXICE = ZEROC
+  real(kind = REAL64), parameter :: TMINLQU = ZEROC - 40.
+  real(kind = REAL64), parameter :: TMAXLQU = TMAXTBL
 
 ! Starr parameters
 
-  real(kind=REAL64),    parameter :: TMINSTR = TMINICE - ZEROC
-  real(kind=REAL64),    parameter :: TSTARR1 = -75.
-  real(kind=REAL64),    parameter :: TSTARR2 = -65.
-  real(kind=REAL64),    parameter :: TSTARR3 = -50.
-  real(kind=REAL64),    parameter :: TSTARR4 = -40.
-  real(kind=REAL64),    parameter :: TMAXSTR = +60.
+  real(kind=REAL64), parameter :: TMINSTR = TMINICE - ZEROC
+  real(kind=REAL64), parameter :: TSTARR1 = -75.
+  real(kind=REAL64), parameter :: TSTARR2 = -65.
+  real(kind=REAL64), parameter :: TSTARR3 = -50.
+  real(kind=REAL64), parameter :: TSTARR4 = -40.
+  real(kind=REAL64), parameter :: TMAXSTR = +60.
 
-  real(kind=REAL64),    parameter :: B6 = 6.136820929E-11*100.0
-  real(kind=REAL64),    parameter :: B5 = 2.034080948E-8 *100.0
-  real(kind=REAL64),    parameter :: B4 = 3.031240396E-6 *100.0
-  real(kind=REAL64),    parameter :: B3 = 2.650648471E-4 *100.0
-  real(kind=REAL64),    parameter :: B2 = 1.428945805E-2 *100.0
-  real(kind=REAL64),    parameter :: B1 = 4.436518521E-1 *100.0
-  real(kind=REAL64),    parameter :: B0 = 6.107799961E+0 *100.0
-  real(kind=REAL64),    parameter :: BI6= 1.838826904E-10*100.0
-  real(kind=REAL64),    parameter :: BI5= 4.838803174E-8 *100.0
-  real(kind=REAL64),    parameter :: BI4= 5.824720280E-6 *100.0
-  real(kind=REAL64),    parameter :: BI3= 4.176223716E-4 *100.0
-  real(kind=REAL64),    parameter :: BI2= 1.886013408E-2 *100.0
-  real(kind=REAL64),    parameter :: BI1= 5.034698970E-1 *100.0
-  real(kind=REAL64),    parameter :: BI0= 6.109177956E+0 *100.0
-  real(kind=REAL64),    parameter :: S16= 0.516000335E-11*100.0
-  real(kind=REAL64),    parameter :: S15= 0.276961083E-8 *100.0
-  real(kind=REAL64),    parameter :: S14= 0.623439266E-6 *100.0
-  real(kind=REAL64),    parameter :: S13= 0.754129933E-4 *100.0
-  real(kind=REAL64),    parameter :: S12= 0.517609116E-2 *100.0
-  real(kind=REAL64),    parameter :: S11= 0.191372282E+0 *100.0
-  real(kind=REAL64),    parameter :: S10= 0.298152339E+1 *100.0
-  real(kind=REAL64),    parameter :: S26= 0.314296723E-10*100.0
-  real(kind=REAL64),    parameter :: S25= 0.132243858E-7 *100.0
-  real(kind=REAL64),    parameter :: S24= 0.236279781E-5 *100.0
-  real(kind=REAL64),    parameter :: S23= 0.230325039E-3 *100.0
-  real(kind=REAL64),    parameter :: S22= 0.129690326E-1 *100.0
-  real(kind=REAL64),    parameter :: S21= 0.401390832E+0 *100.0
-  real(kind=REAL64),    parameter :: S20= 0.535098336E+1 *100.0
+  real(kind = REAL64), parameter :: B6  = 6.136820929E-11*100.0
+  real(kind = REAL64), parameter :: B5  = 2.034080948E-8 *100.0
+  real(kind = REAL64), parameter :: B4  = 3.031240396E-6 *100.0
+  real(kind = REAL64), parameter :: B3  = 2.650648471E-4 *100.0
+  real(kind = REAL64), parameter :: B2  = 1.428945805E-2 *100.0
+  real(kind = REAL64), parameter :: B1  = 4.436518521E-1 *100.0
+  real(kind = REAL64), parameter :: B0  = 6.107799961E+0 *100.0
+  real(kind = REAL64), parameter :: BI6 = 1.838826904E-10*100.0
+  real(kind = REAL64), parameter :: BI5 = 4.838803174E-8 *100.0
+  real(kind = REAL64), parameter :: BI4 = 5.824720280E-6 *100.0
+  real(kind = REAL64), parameter :: BI3 = 4.176223716E-4 *100.0
+  real(kind = REAL64), parameter :: BI2 = 1.886013408E-2 *100.0
+  real(kind = REAL64), parameter :: BI1 = 5.034698970E-1 *100.0
+  real(kind = REAL64), parameter :: BI0 = 6.109177956E+0 *100.0
+  real(kind = REAL64), parameter :: S16 = 0.516000335E-11*100.0
+  real(kind = REAL64), parameter :: S15 = 0.276961083E-8 *100.0
+  real(kind = REAL64), parameter :: S14 = 0.623439266E-6 *100.0
+  real(kind = REAL64), parameter :: S13 = 0.754129933E-4 *100.0
+  real(kind = REAL64), parameter :: S12 = 0.517609116E-2 *100.0
+  real(kind = REAL64), parameter :: S11 = 0.191372282E+0 *100.0
+  real(kind = REAL64), parameter :: S10 = 0.298152339E+1 *100.0
+  real(kind = REAL64), parameter :: S26 = 0.314296723E-10*100.0
+  real(kind = REAL64), parameter :: S25 = 0.132243858E-7 *100.0
+  real(kind = REAL64), parameter :: S24 = 0.236279781E-5 *100.0
+  real(kind = REAL64), parameter :: S23 = 0.230325039E-3 *100.0
+  real(kind = REAL64), parameter :: S22 = 0.129690326E-1 *100.0
+  real(kind = REAL64), parameter :: S21 = 0.401390832E+0 *100.0
+  real(kind = REAL64), parameter :: S20 = 0.535098336E+1 *100.0
 
 ! Goff-Gratch Parameters
 
-  real(kind=REAL64),    parameter :: DL(1:6) = (/-7.902980, 5.02808, -1.3816E-7, 11.344, 8.1328E-3, -3.49149 /)
-  real(kind=REAL64),    parameter :: DI(0:3) = (/ 57518.5606E08, 2.01889049, 3.56654, 20.947031        /)
-  real(kind=REAL64),    parameter :: LOGPS   = 3.005714898  ! log10(1013.246)
-  real(kind=REAL64),    parameter :: TS      = 373.16
+  real(kind=REAL64), parameter :: DL(1:6) = [-7.902980, 5.02808, -1.3816E-7, 11.344, 8.1328E-3, -3.49149]
+  real(kind=REAL64), parameter :: DI(0:3) = [57518.5606E08, 2.01889049, 3.56654, 20.947031]
+  real(kind=REAL64), parameter :: LOGPS   = 3.005714898  ! log10(1013.246)
+  real(kind=REAL64), parameter :: TS      = 373.16
 
 ! Murphy and Koop Parameters
 
-  real(kind=REAL64),    parameter :: CL(0:9) = (/ 54.842763, -6763.22, -4.21000, .000367, &
-                                       0.0415, 218.8,  53.878000, -1331.22,    &
-                                      -9.44523, 0.014025                      /)
-  real(kind=REAL64),    parameter :: CI(0:3) = (/ 9.550426, -5723.265, 3.53068, -.00728332             /)
+  real(kind=REAL64), parameter :: CL(0:9) = [ 54.842763, -6763.22, -4.21000, .000367, &
+                                               0.0415, 218.8,  53.878000, -1331.22,   &
+                                              -9.44523, 0.014025                      ]
+  real(kind=REAL64), parameter :: CI(0:3) = [ 9.550426, -5723.265, 3.53068, -.00728332 ]
 
 ! Enumeration for formulation type
 
-  integer,   parameter :: Starr      = MAPL_UseStarrQsat
-  integer,   parameter :: GoffGratch = MAPL_UseGoffGratchQsat
-  integer,   parameter :: MurphyKoop = MAPL_UseMurphyKoopQsat
+  integer, parameter :: Starr      = MAPL_UseStarrQsat
+  integer, parameter :: GoffGratch = MAPL_UseGoffGratchQsat
+  integer, parameter :: MurphyKoop = MAPL_UseMurphyKoopQsat
 
 ! Tables and other Global variables
 
   integer,   parameter :: DEFAULT_SUBS = 100
 
-  logical,   save      :: UTBL       = .true.
-  logical,   save      :: MXRT       = .false.
-  integer,   save      :: TYPE       =  1
-  logical,   save      :: TableReady = .false.
+  logical, save :: UTBL       = .true.
+  logical, save :: MXRT       = .false.
+  integer, save :: TYPE       =  1
+  logical, save :: TableReady = .false.
 
-  integer,   save      :: DEGSUBS    =  DEFAULT_SUBS ! subdivisions per deg K
-  integer,   save      :: TABLESIZE  =  nint(TMAXTBL-TMINTBL)*DEFAULT_SUBS + 1
-  real(kind=REAL64),    save      :: DELTA_T    =  1.0 / DEFAULT_SUBS
+  integer, save :: DEGSUBS    =  DEFAULT_SUBS ! subdivisions per deg K
+  integer, save :: TABLESIZE  =  nint(TMAXTBL-TMINTBL)*DEFAULT_SUBS + 1
+  real(kind=REAL64), save :: DELTA_T    =  1.0 / DEFAULT_SUBS
 
-  real(kind=REAL64),    save      :: ESTFRZ
-  real(kind=REAL64),    save      :: ESTLQU
+  real(kind=REAL64), save :: ESTFRZ
+  real(kind=REAL64), save :: ESTLQU
 
   real(kind=REAL64), allocatable, save :: ESTBLE(:)
   real(kind=REAL64), allocatable, save :: ESTBLW(:)
 
-  integer,   parameter :: WATER   = 1
-  integer,   parameter :: ICE     = 2
+  integer, parameter :: WATER = 1
+  integer, parameter :: ICE   = 2
 
-  real(kind=REAL64),    save      :: TMIN(2) = (/ TMINLQU, TMINICE /)
-  real(kind=REAL64),    save      :: TMAX(2) = (/ TMAXLQU, TMAXICE /)
+  real(kind=REAL64), save :: TMIN(2) = [ TMINLQU, TMINICE ]
+  real(kind=REAL64), save :: TMAX(2) = [ TMAXLQU, TMAXICE ]
 
 ! New variables to emulate ramping a la GEOS_Utilities
 
@@ -229,17 +229,17 @@ contains
 
 ! Set the global flags
 
-    if(present(UseTable   )) UTBL = UseTable
-    if(present(Formulation)) TYPE = Formulation
-    if(present(MixingRatio)) MXRT = MixingRatio
+    if (present(UseTable   )) UTBL = UseTable
+    if (present(Formulation)) TYPE = Formulation
+    if (present(MixingRatio)) MXRT = MixingRatio
 
-    if(present(SubDivisions)) then
+    if (present(SubDivisions)) then
        DEGSUBS    =  SubDivisions
        TABLESIZE  =  nint(TMAXTBL-TMINTBL)*DEGSUBS + 1
        DELTA_T    =  1.0 / DEGSUBS
     endif
 
-    if(TYPE/=Starr .and. TYPE/=GoffGratch .and. TYPE/=MurphyKoop) then
+    if (TYPE/=Starr .and. TYPE/=GoffGratch .and. TYPE/=MurphyKoop) then
        print *, 'Bad argument to MAPL_EQsatSET: FORMULATION=',TYPE
        print *, 'Must be one of: ', Starr, GoffGratch, MurphyKoop
        stop 999
@@ -247,19 +247,18 @@ contains
 
 ! Set the formulation dependent limits
 
-    if(TYPE==MurphyKoop)  then
+    TMIN(WATER) =  TMINLQU
+    TMIN(ICE  ) =  TMINICE
+    if (TYPE==MurphyKoop)  then
        TMIN(ICE  ) =  max(TMINTBL,110._REAL64)
        TMIN(WATER) =  max(TMINTBL,123._REAL64)
-    else
-       TMIN(WATER) =  TMINLQU
-       TMIN(ICE  ) =  TMINICE
     endif
 
 ! Initialize or reset the tables, even if not needed.
 
-    if(allocated(ESTBLE)) deallocate(ESTBLE)
-    if(allocated(ESTBLW)) deallocate(ESTBLW)
-    if(allocated(ESTBLX)) deallocate(ESTBLX)
+    if (allocated(ESTBLE)) deallocate(ESTBLE)
+    if (allocated(ESTBLW)) deallocate(ESTBLW)
+    if (allocated(ESTBLX)) deallocate(ESTBLX)
 
     allocate(ESTBLE(TABLESIZE))
     allocate(ESTBLW(TABLESIZE))
@@ -306,10 +305,9 @@ contains
 
          T = T - ZEROC
 
+         ESTBLX(I) = ESTBLE(I)
          if (T >= TMIX .and. T < 0.0 ) then
             ESTBLX(I) = ( T/TMIX )* ( ESTBLE(I) - ESTBLW(I) ) + ESTBLW(I)
-         else
-            ESTBLX(I) = ESTBLE(I)
          end if
 
       end do
@@ -458,30 +456,26 @@ contains
     real(kind=REAL32) :: Ramp_
     real(kind=REAL32) :: PP, URAMP, QQ, QI, DQQ, DQI
 
-    if(present(UseRamp)) then
-       UseRamp_ = UseRamp
-    else
-       UseRamp_ = .false.
-    end if
+    UseRamp_ = .false.
+    if (present(UseRamp)) UseRamp_ = UseRamp
 
-    if(present(Ramp)) then
-       UseRamp_=.true.
-       Ramp_=Ramp
-    else
-       if(UseRamp_) Ramp_=DefaultRamp
+    if (UseRamp_) Ramp_ = DefaultRamp
+    if (present(Ramp)) then
+       UseRamp_ = .true.
+       Ramp_    = Ramp
     end if
 
     OverLqu = .true.
-    if(present(OverIce)) OverLqu=.not.OverIce
+    if (present(OverIce)) OverLqu = .not. OverIce
 
     if (present(PL)) then
        PP = PX
     end if
 
-    if(UseRamp_) then
+    if (UseRamp_) then
 #include "qsatramp.H"
     else
-      if(OverLqu) then
+      if (OverLqu) then
 #include "qsatlqu.H"
       else
 #include "qsatice.H"
@@ -514,30 +508,26 @@ contains
     real(kind=REAL64) :: Ramp_
     real(kind=REAL64) :: PP, URAMP, QQ, QI, DQQ, DQI
 
-    if(present(UseRamp)) then
-       UseRamp_ = UseRamp
-    else
-       UseRamp_ = .false.
-    end if
+    UseRamp_ = .false.
+    if (present(UseRamp)) UseRamp_ = UseRamp
 
-    if(present(Ramp)) then
-       UseRamp_=.true.
-       Ramp_=Ramp
-    else
-       if(UseRamp_) Ramp_=DefaultRamp
+    if (UseRamp_) Ramp_ = DefaultRamp
+    if (present(Ramp)) then
+       UseRamp_ = .true.
+       Ramp_    = Ramp
     end if
 
     OverLqu = .true.
-    if(present(OverIce)) OverLqu=.not.OverIce
+    if (present(OverIce)) OverLqu = .not. OverIce
 
     if (present(PL)) then
        PP = PX
     end if
 
-    if(UseRamp_) then
+    if (UseRamp_) then
 #include "qsatramp.H"
     else
-      if(OverLqu) then
+      if (OverLqu) then
 #include "qsatlqu.H"
       else
 #include "qsatice.H"
@@ -580,21 +570,17 @@ contains
     real(kind=REAL32) :: Ramp_
     real(kind=REAL32) :: PP, URAMP, QQ, QI, DQQ, DQI
 
-    if(present(UseRamp)) then
-       UseRamp_ = UseRamp
-    else
-       UseRamp_ = .false.
-    end if
+    UseRamp_ = .false.
+    if (present(UseRamp)) UseRamp_ = UseRamp
 
-    if(present(Ramp)) then
-       UseRamp_=.true.
-       Ramp_=Ramp
-    else
-       if(UseRamp_) Ramp_=DefaultRamp
+    if (UseRamp_) Ramp_ = DefaultRamp
+    if (present(Ramp)) then
+       UseRamp_ = .true.
+       Ramp_    = Ramp
     end if
 
     OverLqu = .true.
-    if(present(OverIce)) OverLqu=.not.OverIce
+    if (present(OverIce)) OverLqu = .not. OverIce
 
     do I=1,size(TL,1)
 
@@ -602,10 +588,10 @@ contains
           PP = PX
        end if
 
-       if(UseRamp_) then
+       if (UseRamp_) then
 #include "qsatramp.H"
        else
-         if(OverLqu) then
+         if (OverLqu) then
 #include "qsatlqu.H"
          else
 #include "qsatice.H"
@@ -639,21 +625,17 @@ contains
     real(kind=REAL64) :: Ramp_
     real(kind=REAL64) :: PP, URAMP, QQ, QI, DQQ, DQI
 
-    if(present(UseRamp)) then
-       UseRamp_ = UseRamp
-    else
-       UseRamp_ = .false.
-    end if
+    UseRamp_ = .false.
+    if (present(UseRamp)) UseRamp_ = UseRamp
 
-    if(present(Ramp)) then
-       UseRamp_=.true.
-       Ramp_=Ramp
-    else
-       if(UseRamp_) Ramp_=DefaultRamp
+    if (UseRamp_) Ramp_ = DefaultRamp
+    if (present(Ramp)) then
+       UseRamp_ = .true.
+       Ramp_    = Ramp
     end if
 
     OverLqu = .true.
-    if(present(OverIce)) OverLqu=.not.OverIce
+    if (present(OverIce)) OverLqu = .not. OverIce
 
     do I=1,size(TL,1)
 
@@ -661,10 +643,10 @@ contains
           PP = PX
        end if
 
-       if(UseRamp_) then
+       if (UseRamp_) then
 #include "qsatramp.H"
        else
-         if(OverLqu) then
+         if (OverLqu) then
 #include "qsatlqu.H"
          else
 #include "qsatice.H"
@@ -708,21 +690,17 @@ contains
     real(kind=REAL32) :: Ramp_
     real(kind=REAL32) :: PP, URAMP, QQ, QI, DQQ, DQI
 
-    if(present(UseRamp)) then
-       UseRamp_ = UseRamp
-    else
-       UseRamp_ = .false.
-    end if
+    UseRamp_ = .false.
+    if (present(UseRamp)) UseRamp_ = UseRamp
 
-    if(present(Ramp)) then
-       UseRamp_=.true.
-       Ramp_=Ramp
-    else
-       if(UseRamp_) Ramp_=DefaultRamp
+    if (UseRamp_) Ramp_ = DefaultRamp
+    if (present(Ramp)) then
+       UseRamp_ = .true.
+       Ramp_    = Ramp
     end if
 
     OverLqu = .true.
-    if(present(OverIce)) OverLqu=.not.OverIce
+    if (present(OverIce)) OverLqu = .not.OverIce
 
     do J=1,size(TL,2)
        do I=1,size(TL,1)
@@ -731,10 +709,10 @@ contains
              PP = PX
           end if
 
-          if(UseRamp_) then
+          if (UseRamp_) then
 #include "qsatramp.H"
           else
-            if(OverLqu) then
+            if (OverLqu) then
 #include "qsatlqu.H"
             else
 #include "qsatice.H"
@@ -769,21 +747,17 @@ contains
     real(kind=REAL64) :: Ramp_
     real(kind=REAL64) :: PP, URAMP, QQ, QI, DQQ, DQI
 
-    if(present(UseRamp)) then
-       UseRamp_ = UseRamp
-    else
-       UseRamp_ = .false.
-    end if
+    UseRamp_ = .false.
+    if (present(UseRamp)) UseRamp_ = UseRamp
 
-    if(present(Ramp)) then
-       UseRamp_=.true.
-       Ramp_=Ramp
-    else
-       if(UseRamp_) Ramp_=DefaultRamp
+    if (UseRamp_) Ramp_ = DefaultRamp
+    if (present(Ramp)) then
+       UseRamp_ = .true.
+       Ramp_    = Ramp
     end if
 
     OverLqu = .true.
-    if(present(OverIce)) OverLqu=.not.OverIce
+    if (present(OverIce)) OverLqu = .not. OverIce
 
     do J=1,size(TL,2)
        do I=1,size(TL,1)
@@ -792,10 +766,10 @@ contains
              PP = PX
           end if
 
-          if(UseRamp_) then
+          if (UseRamp_) then
 #include "qsatramp.H"
           else
-            if(OverLqu) then
+            if (OverLqu) then
 #include "qsatlqu.H"
             else
 #include "qsatice.H"
@@ -840,21 +814,19 @@ contains
     real(kind=REAL32) :: Ramp_
     real(kind=REAL32) :: PP, URAMP, QQ, QI, DQQ, DQI
 
-    if(present(UseRamp)) then
+    UseRamp_ = .false.
+    if (present(UseRamp)) then
        UseRamp_ = UseRamp
-    else
-       UseRamp_ = .false.
     end if
 
-    if(present(Ramp)) then
-       UseRamp_=.true.
-       Ramp_=Ramp
-    else
-       if(UseRamp_) Ramp_=DefaultRamp
+    if (UseRamp_) Ramp_ = DefaultRamp
+    if (present(Ramp)) then
+       UseRamp_ = .true.
+       Ramp_    = Ramp
     end if
 
     OverLqu = .true.
-    if(present(OverIce)) OverLqu=.not.OverIce
+    if (present(OverIce)) OverLqu = .not. OverIce
 
     do K=1,size(TL,3)
        do J=1,size(TL,2)
@@ -864,10 +836,10 @@ contains
                 PP = PX
              end if
 
-             if(UseRamp_) then
+             if (UseRamp_) then
 #include "qsatramp.H"
              else
-               if(OverLqu) then
+               if (OverLqu) then
 #include "qsatlqu.H"
                else
 #include "qsatice.H"
@@ -903,21 +875,17 @@ contains
     real(kind=REAL64) :: Ramp_
     real(kind=REAL64) :: PP, URAMP, QQ, QI, DQQ, DQI
 
-    if(present(UseRamp)) then
-       UseRamp_ = UseRamp
-    else
-       UseRamp_ = .false.
-    end if
+    UseRamp_ = .false.
+    if (present(UseRamp)) UseRamp_ = UseRamp
 
-    if(present(Ramp)) then
-       UseRamp_=.true.
-       Ramp_=Ramp
-    else
-       if(UseRamp_) Ramp_=DefaultRamp
+    if (UseRamp_) Ramp_ = DefaultRamp
+    if (present(Ramp)) then
+       UseRamp_ = .true.
+       Ramp_    = Ramp
     end if
 
     OverLqu = .true.
-    if(present(OverIce)) OverLqu=.not.OverIce
+    if (present(OverIce)) OverLqu = .not. OverIce
 
     do K=1,size(TL,3)
        do J=1,size(TL,2)
@@ -927,10 +895,10 @@ contains
                 PP = PX
              end if
 
-             if(UseRamp_) then
+             if (UseRamp_) then
 #include "qsatramp.H"
              else
-               if(OverLqu) then
+               if (OverLqu) then
 #include "qsatlqu.H"
                else
 #include "qsatice.H"
