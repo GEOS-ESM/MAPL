@@ -88,7 +88,7 @@ module mapl3g_VariableSpec
       !---------------------
       character(:), allocatable :: expression ! default empt
 
-      
+
       !=====================
       ! typekind aspect
       !=====================
@@ -161,9 +161,6 @@ module mapl3g_VariableSpec
       logical function StringPredicate(string)
          character(len=*), intent(in) :: string
       end function StringPredicate
-      logical function StringVectorPredicate(vector)
-         class(StringVector), intent(in) :: vector
-      end function StringVectorPredicate
    end interface
 
 contains
@@ -278,7 +275,7 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine split_name
-   
+
 
    function make_virtualPt(this) result(v_pt)
       type(VirtualConnectionPt) :: v_pt
@@ -307,7 +304,7 @@ contains
       type(EsmfRegridderParam) :: regrid_param
       type(EsmfRegridderParam), optional, intent(in) :: requested_param
       character(*), optional, intent(in) :: standard_name
-      
+
       type(ESMF_RegridMethod_Flag) :: regrid_method
       integer :: status
 
@@ -404,11 +401,11 @@ contains
       type(AspectMap) :: aspects
       type(VirtualConnectionPtVector) :: dependencies
       integer :: status
-      
+
       aspects = this%make_aspects(registry, component_geom, vertical_grid, timestep=timestep, offset=offset, _RC)
       dependencies = this%make_dependencies(_RC)
       spec = new_StateItemSpec(aspects, dependencies=dependencies)
-      
+
 
       _RETURN(_SUCCESS)
    end function make_StateitemSpec
@@ -430,7 +427,7 @@ contains
 
       aspect = this%make_UnitsAspect(RC)
       call aspects%insert(UNITS_ASPECT_ID, aspect)
-      
+
       aspect = this%make_TypekindAspect(_RC)
       call aspects%insert(TYPEKIND_ASPECT_ID, aspect)
 
@@ -439,10 +436,10 @@ contains
 
       aspect = this%make_UngriddedDimsAspect(_RC)
       call aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, aspect)
-      
+
       aspect = this%make_AttributesAspect(_RC)
       call aspects%insert(ATTRIBUTES_ASPECT_ID, aspect)
-      
+
       aspect = this%make_VerticalGridAspect(vertical_grid, &
            component_geom=component_geom, _RC)
       call aspects%insert(VERTICAL_GRID_ASPECT_ID, aspect)
@@ -452,7 +449,7 @@ contains
 
       aspect = this%make_ClassAspect(registry, _RC)
       call aspects%insert(CLASS_ASPECT_ID, aspect)
-      
+
       _RETURN(_SUCCESS)
    end function make_aspects
 
@@ -501,7 +498,7 @@ contains
       aspect = UngriddedDimsAspect(this%ungridded_dims)
       _RETURN(_SUCCESS)
    end function make_UngriddedDimsAspect
-  
+
    function make_AttributesAspect(this, rc) result(aspect)
       type(AttributesAspect) :: aspect
       class(VariableSpec), intent(in) :: this
@@ -509,7 +506,7 @@ contains
       aspect = AttributesAspect(this%attributes)
       _RETURN(_SUCCESS)
    end function make_AttributesAspect
-  
+
    function make_VerticalGridAspect(this, vertical_grid, component_geom, time_dependent, rc) result(aspect)
       type(VerticalGridAspect) :: aspect
       class(VariableSpec), intent(in) :: this
@@ -553,13 +550,13 @@ contains
       aspect = FrequencyAspect(timestep, offset, this%accumulation_type)
       _RETURN(_SUCCESS)
    end function make_FrequencyAspect
-   
+
    function make_ClassAspect(this, registry, rc) result(aspect)
       class(ClassAspect), allocatable :: aspect
       class(VariableSpec), intent(in) :: this
       type(StateRegistry), pointer, optional, intent(in) :: registry
       integer, optional, intent(out) :: rc
-      
+
       integer :: status
       character(:), allocatable :: std_name_1, std_name_2
 
@@ -590,93 +587,102 @@ contains
          aspect=FieldClassAspect('') ! must allocate something
          _FAIL('Unsupported itemType')
       end select
-      
+
       _RETURN(_SUCCESS)
-      
+
    end function make_ClassAspect
-      
+
    subroutine validate_variable_spec(spec, rc)
       class(VariableSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
       integer :: status
-      type(StringVector) :: svector
-      character, parameter :: UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-      character, parameter :: LOWER = 'abcdefghijklmnopqrstuvwxyz'
-      character, parameter :: ALPHA = UPPER // LOWER
-      character, parameter :: NUMERIC = '0123456789'
-      character, parameter :: ALPHANUMERIC = ALPHA // NUMERIC
-      character, parameter :: FORTRAN_IDENTIFIER = ALPHANUMERIC // '_'
+      logical :: is_present
 
-      _ASSERT_SPEC_VALUE(short_name, is_valid_identifier)
-      _ASSERT_IN_SET(state_intent, [ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_INTERNAL])
-      _ASSERT(present(spec%standard) .or. present(spec%long), 'Neither standard_name nor long_name is present.')
-      _ASSERT_SPEC_VALUE(standard, is_not_empty)
-      if(.not. present(spec%standard)) then
-         _ASSERT_SPEC_VALUE(long, is_not_empty)
-      end if
+      _ASSERT_IN_SET(is_present, state_intent, [ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_INTERNAL])
+      _ASSERT_SPEC_VALUE(is_present, short_name, is_valid_identifier)
+      _ASSERT_IN_SET(is_present, itemType, [ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE])
 
-      _ASSERT_SPEC_VALUE(vector_component_names, make_string_vector_predicate())
-      _ASSERT_IN_SET(itemType, [ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE])
+      _ASSERT_EITHER_SPEC_VALUE_(is_present, standard_name, is_not_empty, long_name, is_not_empty)
 
-      _ASSERT_VALUE_IN(default_value, [real(kind=ESMF_KIND_R4)::])
-      _ASSERT_VALUE_IN(bracket_size, [integer::])
-      _ASSERT_SPEC_VALUE(expression, no_test)
+      _ASSERT_VALID_STRINGVECTOR(is_present, vector_component_names, StringVector())
+      _ASSERT_IN_RANGES(is_present, default_value, [real(kind=ESMF_KIND_R4)::])
 
-      make_string_vector_predicate
-      _ASSERT_VALID_STRINGVECTOR(service_items, StringVector())
-      _ASSERT_VALID_STRINGVECTOR(dependencies, StringVector())
-      _ASSERT_VALID_STRINGVECTOR(attributes, StringVector())
+      _ASSERT_IN_RANGES(is_present, bracket_size, [integer::])
 
-      call validate_typekind(spec%typekind, _RC)
-      
-      call validate_geom(spec%geom, _RC)
-      call validate_horizontal_dims_spec(spec%horizontal_dims_spec, _RC)
-      call validate_regrid_param_regrid_method(spec%regrid_param, spec%regrid_method, _RC)
-      call validate_timestep(spec%timestep, _RC)
-      call validate_offset(spec%offset, _RC)
-      call validate_ungridded_dims(spec%ungridded_dims, _RC)
+      _ASSERT_VALID_STRINGVECTOR(is_present, service_items, StringVector())
+
+      _ASSERT_SPEC_VALUE(is_present, expression, no_test)
+
+      _ASSERT_IN_SET(is_present, typekind, [ESMF_TYPEKIND_R4])
+
+      _ASSERT_SPEC_VALUE(is_present, geom, no_test)
+      _ASSERT_SPEC_VALUE(is_present, horizontal_dims_spec, no_test)
+
+      _ASSERT_EITHER_SPEC_VALUE(is_present, regrid_param, no_test, regrid_method, no_test)
+
+      _ASSERT_SPEC_VALUE(is_present, vertical_grid, no_test)
+      _ASSERT_SPEC_VALUE(is_present, vertical_stagger, no_test)
+
+      _ASSERT_SPEC_VALUE(is_present, units, no_test)
+
+      _ASSERT_SPEC_VALUE(is_present, accumulation_type, no_test)
+      _ASSERT_SPEC_VALUE(is_present, timeStep, no_test)
+      _ASSERT_SPEC_VALUE(is_present, offset, no_test)
+
+      _ASSERT_SPEC_VALUE(is_present, ungridded_dims, no_test)
+
+      _ASSERT_VALID_STRINGVECTOR(is_present, attributes, StringVector())
+
+      _ASSERT_VALID_STRINGVECTOR(is_present, dependencies, StringVector())
 
    end subroutine validate_variable_spec
-   
-   function ascii_ranges(bounds) result(ranges)
-      character(len=:), allocatable :: ranges
-      character(len=*), intent(in) :: bounds
-      integer :: i, j
-      integer :: range_index(2)
-      character(len=:), allocatable :: range
 
-      ranges = ''
-      do i=1, len(bounds)/2
-         range_index = [iachar(ranges(2*i-1:2*i-1)), iachar(ranges(2*i:2*i))]
-         range_index = [minval(range_index), maxval(range_index)]
-         allocate(range(range_index(2) - range_index(1)+1))
-         do j = range_index(1), range_index(2)
-            range(j:j) = achar(j)
-         end do
-         ranges = ranges // range 
+   function to_string(array) result(string)
+      character(len=:), allocatable :: string
+      character, intent(in) :: array(:)
+      integer :: i
+
+      allocate(string(size(array)))
+      do i = 1, size(array)
+         string(i:i) = array(i)
       end do
 
-   end function ascii_ranges
-      
-   logical function is_valid_identifier(s)
+   end function to_string
+
+   function get_ascii_range(bounds) result(range)
+      character, allocatable :: range(:)
+      character(len=2), intent(in) :: bounds
+      integer :: ibounds(2)
+
+      ibounds = iachar([bounds(1:1), bounds(2:2)])
+      range = [(achar(i), i=minval(ibounds), maxval(ibounds))]
+
+   end function get_ascii_range
+
+   logical function is_all_alpha(s)
       character(len=*), intent(in) :: s
-      
-      is_valid_identifier = is_all_alphanumeric_(s(1:1), alpha_only=.TRUE.) .and. is_all_alphanumeric_(s(2:))
+      character(len=*), parameter :: ALPHA = to_string(get_ascii_range('AZ') //&
+         & to_string(get_ascii_range('az'))
 
-   end function is_valid_identifier
+      is_all_alpha = verify(s, ALPHA) == 0
 
-   logical function is_all_alphanumeric_(s, alpha_only)
+   end function is_all_alpha(s)
+
+   logical function is_all_alphanumeric_(s)
       character(len=*), intent(in) :: s
-      logical, optional, intent(in) :: alpha_only
-      character(len=*), parameter :: ALPHA = ascii_ranges('AZaz')
-      character(len=*), parameter :: ALPHANUMERIC_ = ALPHA // ascii_ranges('09') // '_'
-      logical :: alpha_only_
+      character(len=*), parameter :: ALPHANUMERIC_ = to_string(get_ascii_range('AZ') //&
+         & to_string(get_ascii_range('az')) // to_string(get_ascii_range('09')
 
-      if(.not. present(alpha_only)) return (verify(s, ALPHANUMERIC_) == 0)
-      if(alpha_only) return verify(s, ALPHA) == 0
-      return verify(s, ALPHANUMERIC_) == 0
+      is_all_alphanumeric_ = verify(s, ALPHANUMERIC_)
 
    end function is_all_alphanumeric_
+
+   logical function is_valid_identifier(s)
+      character(len=*), intent(in) :: s
+
+      is_valid_identifier = is_all_alpha(s(1:1)) .and. is_all_alphanumeric_(s(2:))
+
+   end function is_valid_identifier
 
    logical function is_in_integer(n, bounds) result(lval)
       integer, intent(in) :: n
@@ -696,7 +702,7 @@ contains
          lval = .not. (n < minval(bounds(i-1) .or. n > maxval(bounds(i))
          if(lval) exit
       end do
-      
+
    end function is_in_integer
 
    logical function is_in_realR4(t, bounds) result(lval)
@@ -729,85 +735,37 @@ contains
 
    end function no_test
 
-   function make_string_vector_predicate(valid_strings, string_predicate) result(predicate)
-      procedure(StringVectorPredicate), pointer :: predicate
-      class(StringVector), intent(in), optional :: valid_strings
-      procedure(StringPredicate), optional, pointer :: string_predicate
-      procedure(StringPredicate), pointer :: fptr => null()
+   logical function string_in_vector(string, vector) result(in_vector)
+      character(len=*), intent(in) :: string
+      class(StringVector), intent(in) :: vector
+      type(StringVectorIterator) :: e, iter
 
-      fptr => default_string_predicate
-      if(present(string_predicate)) fptr => string_predicate
-      if(present(valid_strings)) fptr => string_in_vector
+      in_vector = .TRUE.
+      e = vector%end()
+      iter = vector%begin()
+      do while(iter /= e)
+         if(string == iter%of()) return
+         call iter%next()
+      end do
+      in_vector = .FALSE.
 
-      predicate => vector_predicate
+   end function string_in_vector
 
-   contains
+   logical function is_stringvector_subset(subset, vector) result(valid)
+      class(StringVector), intent(in) :: subset
+      class(StringVector), intent(in) :: vector
+      type(StringVectorIterator) :: iter, e
 
-      logical function vector_predicate(strings) result(valid)
-         class(StringVector), intent(in) :: strings
-         type(StringVectorIterator) :: iter, e
-         logical :: found, valid_strings_not_present
+      valid = .FALSE.
+      iter = subset%begin()
+      e = subset%end()
+      do while(iter /= e)
+         if(.not. string_in_vector(iter%of())) return
+         call iter%next()
+      end do
+      valid = .TRUE.
 
-         valid = .FALSE.
-         iter = strings%begin()
-         e = strings%end()
-         do while(iter /= e)
-            if(.not. fptr(iter%of())) return
-            call iter%next()
-         end do
-         valid = .TRUE.
-
-      end function vector_predicate
-
-      logical function default_string_predicate(string)
-         character(len=*), intent(in) :: string
-
-         default_string_predicate = .TRUE.
-
-      end function default_string_predicate
-
-      logical function string_in_vector(string, vector) result(in_vector)
-         character(len=*), intent(in) :: string
-         class(StringVector), intent(in) :: vector
-         type(StringVectorIterator) :: e, iter
-
-         in_vector = .TRUE.
-         e = vector%end()
-         iter = vector%begin()
-         do while(iter /= e)
-            if(string == iter%of()) return
-            call iter%next()
-         end do
-         in_vector = .FALSE.
-
-      end function string_in_vector
-
-   end function make_string_vector_predicate
-
-   logical function valid_r4(val, bounds, invert)
-      real(kind=ESMF_KIND_R4), optional, intent(in) :: val
-      real(kind=ESMF_KIND_R4), optional, intent(in) :: bounds(:)
-      logical, optional, intent(in) :: invert
-
-      valid_r4 = .TRUE.
-      if(.not.(present(val) .and. present(bounds))) return
-      valid_r4 = is_in(val, bounds)
-      if(present(invert)) valid_r4 = valid_r4 .eqv. .not. invert
-
-   end function valid_r4
-
-   logical function valid_integer(val, bounds, invert)
-      integer, intent(in) :: val
-      integer, optional, intent(in) :: bounds(:)
-      logical, optional, intent(in) :: invert
-
-      valid_integer = .TRUE.
-      if(.not. (present(val) .and. present(bounds))) return
-      valid_integer = is_in(val, bounds)
-      if(present(invert)) valid_integer = valid_intger .eqv. .not. invert
-
-   end function valid_integer
+   end function is_stringvector_subset
 
 end module mapl3g_VariableSpec
 #include "undef_macros.h"
-#include "meta_undef_macros.h"
