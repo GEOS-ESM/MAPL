@@ -94,7 +94,9 @@ module MAPL_EASEConversion
   ! EASEv1 global constants
 
   ! ***NEVER*** change these constants to GEOS MAPL constants!!!!
-    
+  !
+  ! These values are from the original definition of the EASE grids by NSIDC.
+  
   ! radius of the earth (km), authalic sphere based on International datum 
   
   real(kind=REAL64), parameter :: easeV1_RE_km                    = 6371.228
@@ -300,7 +302,7 @@ contains
     ! recall that EASE grid indexing is zero-based
 
     if (present(ll_lat))  call ease_inverse(EASElabel, 0., rows-0.5, ll_lat, tmplon, _RC)     
-    if (present(ur_lat))  call ease_inverse(EASElabel, cols-1.0,     -0.5, ur_lat, tmplon, _RC)     
+    if (present(ur_lat))  call ease_inverse(EASElabel, 0.,     -0.5, ur_lat, tmplon, _RC)     
     
     if (present(ll_lon))  ll_lon = -180.
     if (present(ur_lon))  ur_lon =  180.
@@ -673,8 +675,8 @@ contains
 
     ! local variables
     
-    integer   :: cols, rows, status
-    real(kind=REAL64)    :: phi, lam, map_scale_m, r0, s0, beta, x, y, qp
+    integer                      :: cols, rows, status
+    real(kind=REAL64)            :: phi, lam, map_scale_m, r0, s0, beta, x, y, qp
     real(kind=REAL64), parameter :: PI = easeV2_PI   
  
     ! ---------------------------------------------------------------------
@@ -794,6 +796,12 @@ contains
   end subroutine easeV2_get_params
 
   function get_ease_gridname_by_cols(cols, rc) result(name)
+
+    ! Obtain EASE grid name based on number of columns (longitudes).
+    !
+    ! This inverts subroutines easeV[x]_get_params(), with which consistency
+    !   must be maintained manually if more EASE grids are added. 
+    
       integer,           intent(in) :: cols
       integer, optional, intent(out):: rc
 

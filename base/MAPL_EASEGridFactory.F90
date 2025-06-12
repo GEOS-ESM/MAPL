@@ -1,11 +1,22 @@
 #include "MAPL_ErrLog.h"
 
 ! overload set interfaces in legacy
-! Document Pole :: XY
+! Document Pole :: XY 
 !          Date :: DE
 
-! This module generates ESMF_Grids that have equal grid areas.
-! spacing between lons is unformed and between lats is non-uniformed.
+! This module generates Equal Area Scalable Earth (EASE) grids as ESMF_Grids.
+! EASE grids have equal area across all grid cells.
+!
+! Only global cylindrical EASEv[x]_M[yy] grids are implemented:
+! - Spacing is uniform for lons and non-uniform for lats.
+! - Dateline is on the edge of the grid (dateline='DE'), min/max lon = -180:180.
+! - Poles are outside of the grid (pole='XY'), min/max lat ~ -85:85 (exact bounds depend on resolution).
+!
+! Polar EASE grids are not implemented.
+!
+! References: Brodzik et al 2012, doi:10.3390/ijgi1010032
+!   Brodzik et al 2012: doi:10.3390/ijgi1010032
+!   Brodzik et al 2014: doi:10.3390/ijgi3031154 -- correction of M25 "map_scale_m" parameters!
 
 module MAPL_EASEGridFactoryMod
    use MAPL_AbstractGridFactoryMod
@@ -378,7 +389,7 @@ contains
 
       regional  = (dateline == 'XY')
       if (regional) then
-         _FAIL('Not supported reginal lons')
+         _FAIL('Not supported regional lons')
          !delta = (this%lon_range%max - this%lon_range%min) / this%im_world
          !min_coord = this%lon_range%min
          !max_coord = this%lon_range%max
@@ -655,7 +666,7 @@ contains
             end if
          end if
 
-        ! TODO: if 'lat' and 'lon' are not present then
+        ! TODO: if 'lat' and 'lon' are not present then 
         ! assume ... pole/dateline are ?
 
         ! TODO: check radians vs degrees.  Assume degrees for now.
@@ -710,7 +721,7 @@ contains
            ! Assume lbound=1 and ubound=size for now
            i_min = 1 !lbound(this%lat_centers)
            i_max = size(this%lat_centers) !ubound(this%lat_centers)
-           d_lat = (this%lat_centers(i_max-1) - this%lat_centers(i_min+1))/&
+           d_lat = (this%lat_centers(i_max-1) - this%lat_centers(i_min+1))/&  
                     (size(this%lat_centers)-3)
            is_valid = .True.
            ! Check: is this a regular grid (i.e. constant spacing away from the poles)?
@@ -735,9 +746,9 @@ contains
            end if
         end if
 
-         ! Corners are the midpoints of centers (and extrapolated at the
+         ! Corners are the midpoints of centers (and extrapolated at the 
          ! poles for lats.)
-         if (.not. allocated(this%lon_corners)) then
+         if (.not. allocated(this%lon_corners)) then 
             allocate(this%lon_corners(im+1))
             this%lon_corners(1) = (this%lon_centers(im) + this%lon_centers(1))/2 - 180
             this%lon_corners(2:im) = (this%lon_centers(1:im-1) + this%lon_centers(2:im))/2
@@ -748,7 +759,7 @@ contains
          if (abs(this%lon_corners(1) + 180) < 1000*epsilon(1.0)) then
             this%dateline = 'DE'
          else ! assume 'XY'
-            this%dateline = 'XY'
+            this%dateline = 'XY' 
             this%lon_range = RealMinMax(this%lon_centers(1), this%lon_centers(jm))
          end if
          
@@ -1032,7 +1043,7 @@ contains
 
       ! Check regional vs global, EASE grid doesnot include poles
       _ASSERT(this%lat_range%min /= MAPL_UNDEFINED_REAL, 'uninitialized min for lat_range')
-      _ASSERT(this%lat_range%max /= MAPL_UNDEFINED_REAL, 'uninitialized min for lat_range')
+      _ASSERT(this%lat_range%max /= MAPL_UNDEFINED_REAL, 'uninitialized max for lat_range')
       _ASSERT(this%lon_range%min == MAPL_UNDEFINED_REAL, 'inconsistent min for lon_range')
       _ASSERT(this%lon_range%max == MAPL_UNDEFINED_REAL, 'inconsistent max for lon_range')
 

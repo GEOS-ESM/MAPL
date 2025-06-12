@@ -5571,9 +5571,8 @@ contains
           allocate(AVR(NT,9), STAT=STATUS) ! 9 columns for EASE grid
           _VERIFY(STATUS)
           allocate(AVR_transpose(9,NT))
-          ! WY note: In the old tile file, 
-          ! EASE grid name is in the form of SMAP-EASEvx-Mxx
-          ! It is changed to a standard form as EASEvx_Mxx
+          ! In older tile files, EASE grid name convention is "SMAP-EASEvx-Mxx".
+          ! Change her to revised convention "EASEvx_Mxx":
           Correct_ease_name = get_ease_gridname_by_cols(IM(1))
           GridNAME(1) = Correct_ease_name
       else
