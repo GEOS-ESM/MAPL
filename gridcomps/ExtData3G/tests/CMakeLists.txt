@@ -2,6 +2,7 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.extdata3g.tests")
 
 set (test_srcs
   Test_ExtDataNodeBracket.pf
+  Test_SimpleFileHandler.pf
   )
 
 add_pfunit_ctest(MAPL.extdata3g.tests
@@ -23,4 +24,6 @@ endif ()
 set_property(TEST MAPL.extdata3g.tests PROPERTY ENVIRONMENT "${LD_PATH}=${CMAKE_CURRENT_BINARY_DIR}/gridcomps:$ENV{${LD_PATH}}")
 
 add_dependencies(build-tests MAPL.extdata3g.tests)
+
+file(COPY data_sets DESTINATION .)
 
