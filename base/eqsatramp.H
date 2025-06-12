@@ -17,11 +17,11 @@ if ( ( URAMP==TMIX .OR. URAMP==0. ) .and. UTBL) then ! Use table
 
 ! Get saturation vapor pressure from table
 
-   TT  = (TI - TMINTBL)*DEGSUBS+1
-   IT  = int(TT)
+   TT = (TI - TMINTBL)*DEGSUBS+1
+   IT = int(TT)
 
-   DDQ = TABLE(IT+1)  - TABLE(IT)
-   EX  = (TT-IT)*DDQ  + TABLE(IT)
+   DDQ = TABLE(IT+1) - TABLE(IT)
+   EX  = (TT-IT)*DDQ + TABLE(IT)
    if (URAMP==TMIX) then
       DDQ = TABLEX(IT+1) - TABLEX(IT)
       EX  = (TT-IT)*DDQ  + TABLEX(IT)
@@ -57,17 +57,17 @@ else  ! Use exact formulation
       endif
    else
       if (present(PL)) then
-         QQ = FUNC(TX,PL=PP,DQ=DQQ,OverIce=.false.)
-         QI = FUNC(TX,PL=PP,DQ=DQI,OverIce=.true.)
-         TI = TI/URAMP
+         QQ  = FUNC(TX,PL=PP,DQ=DQQ,OverIce=.false.)
+         QI  = FUNC(TX,PL=PP,DQ=DQI,OverIce=.true.)
+         TI  = TI/URAMP
          DDQ = TI*(DQI - DQQ) + DQQ
-         EX = TI*( QI -  QQ) +  QQ
+         EX  = TI*( QI -  QQ) +  QQ
       else
-         QQ = FUNC(TX,DQ=DQQ,OverIce=.false.)
-         QI = FUNC(TX,DQ=DQI,OverIce=.true.)
-         TI = TI/URAMP
+         QQ  = FUNC(TX,DQ=DQQ,OverIce=.false.)
+         QI  = FUNC(TX,DQ=DQI,OverIce=.true.)
+         TI  = TI/URAMP
          DDQ = TI*(DQI - DQQ) + DQQ
-         EX = TI*( QI -  QQ) +  QQ
+         EX  = TI*( QI -  QQ) +  QQ
       endif
    endif
 
