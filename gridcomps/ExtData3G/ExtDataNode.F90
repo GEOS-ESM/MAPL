@@ -4,6 +4,8 @@ module mapl3g_ExtDataNode
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
+   use pFIO
+   use MAPL_FileMetadataUtilsMod
    implicit none
    private
 
@@ -44,6 +46,7 @@ module mapl3g_ExtDataNode
          procedure :: equals
          procedure :: validate
          procedure :: invalidate
+         procedure :: update_node_from_file
          generic :: operator(==) => equals
    end type
 
@@ -195,6 +198,55 @@ contains
       end if
       this%enabled = .false.
       this%update = .false.
+   end subroutine
+
+   subroutine update_node_from_file(this, filename, target_time, rc)
+      class(ExtDataNode), intent(inout) :: this
+      character(len=*), intent(in) :: filename
+      type(ESMF_Time), intent(in) :: target_time
+      integer, optional, intent(out) :: rc
+
+      integer :: status, i
+      type(FileMetaDataUtils) :: metadata
+      type(FileMetadata) :: basic_metadata
+      type(NetCDF4_FileFormatter) :: formatter
+      type(ESMF_Time), allocatable :: time_vector(:)
+
+      _ASSERT(this%node_side/=unknown_node, "node does not have a side")
+      call formatter%open(filename, pFIO_READ, _RC)
+      basic_metadata = formatter%read(_RC)
+      call formatter%close()
+      metadata = FileMetadataUtils(basic_metadata, filename)
+
+      call metadata%get_time_info(timeVector=time_vector, _RC)
+      select case(this%node_side)
+      case (left_node)
+         do i=size(time_vector),1,-1
+            if (target_time >= time_vector(i)) then
+               this%file = filename
+               this%interp_time = time_vector(i)
+               this%file_time = time_vector(i)
+               this%time_index = i
+               this%enabled = .true.
+               this%update = .true.
+               exit
+            end if
+         enddo
+      case (right_node)
+         do i=1,size(time_vector)
+            if (target_time < time_vector(i)) then
+               this%file = filename
+               this%interp_time = time_vector(i)
+               this%file_time = time_vector(i)
+               this%time_index = i
+               this%enabled = .true.
+               this%update = .true.
+               exit
+            end if
+         enddo
+      end select
+
+      _RETURN(_SUCCESS)
    end subroutine
 
 end module mapl3g_ExtDataNode

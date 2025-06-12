@@ -3,6 +3,7 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.extdata3g.tests")
 set (test_srcs
   Test_ExtDataNodeBracket.pf
   Test_SimpleFileHandler.pf
+  Test_Node.pf
   )
 
 add_pfunit_ctest(MAPL.extdata3g.tests

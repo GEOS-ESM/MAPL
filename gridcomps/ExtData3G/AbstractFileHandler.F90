@@ -7,8 +7,6 @@ module mapl3g_AbstractFileHandler
    use mapl3g_ExtDataBracket
    use mapl3g_ExtDataNode
    use mapl_StringTemplate
-   use pFIO
-   use MAPL_FileMetadataUtilsMod
    implicit none
    private
 
@@ -29,7 +27,6 @@ module mapl3g_AbstractFileHandler
       contains
          procedure :: find_any_file
          procedure :: compute_trial_time
-         procedure :: update_node_from_file
          procedure(I_update_file_bracket), deferred :: update_file_bracket
     end type
 
@@ -103,57 +100,6 @@ module mapl3g_AbstractFileHandler
        _RETURN(_SUCCESS)
        
     end function compute_trial_time 
-
-    subroutine update_node_from_file(this, filename, target_time, node, rc)
-       class(AbstractFileHandler), intent(inout) :: this
-       character(len=*), intent(in) :: filename
-       type(ESMF_Time), intent(in) :: target_time
-       type(ExtDataNode), intent(inout) :: node
-       integer, optional, intent(out) :: rc
-      
-       integer :: status, node_side, i
-       type(FileMetaDataUtils) :: metadata
-       type(FileMetadata) :: basic_metadata
-       type(NetCDF4_FileFormatter) :: formatter
-       type(ESMF_Time), allocatable :: time_vector(:)
-
-       node_side = node%get_node_side()
-       _ASSERT(node_side/=unknown_node, "node does not have a side")
-       call formatter%open(filename, pFIO_READ, _RC)
-       basic_metadata = formatter%read(_RC)
-       call formatter%close()
-       metadata = FileMetadataUtils(basic_metadata, filename)
-
-       call metadata%get_time_info(timeVector=time_vector, _RC)
-       select case(node_side)
-       case (left_node)
-          do i=size(time_vector),1,-1
-             if (target_time >= time_vector(i)) then
-                call node%set_file(filename)
-                call node%set_interp_time(time_vector(i))
-                call node%set_file_time(time_vector(i))
-                call node%set_time_index(i)
-                call node%set_enabled(.true.)
-                call node%set_update(.true.)
-                exit
-             end if 
-          enddo
-       case (right_node)
-          do i=1,size(time_vector)
-             if (target_time < time_vector(i)) then
-                call node%set_file(filename)
-                call node%set_interp_time(time_vector(i))
-                call node%set_file_time(time_vector(i))
-                call node%set_time_index(i)
-                call node%set_enabled(.true.)
-                call node%set_update(.true.)
-                exit
-             end if
-          enddo
-       end select
-
-       _RETURN(_SUCCESS)
-    end subroutine
 
 end module mapl3g_AbstractFileHandler
    

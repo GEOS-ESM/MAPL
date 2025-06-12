@@ -1,0 +1,52 @@
+#include "MAPL_TestErr.h"
+module Test_Node
+   use pfunit
+   use mapl3g_ExtDataNode
+   use esmf
+
+   implicit none
+
+contains
+
+   @test
+   subroutine test_Node_update_node_from_file()
+      integer :: status
+
+      type(ESMF_Time) :: current_time, file_time, expected_file_time
+      type(ExtDataNode) :: node
+      character(len=:), allocatable :: trial_file, node_file, expected_file
+      integer :: time_index, expected_time_index
+
+      trial_file = "data_sets/twelve_month_file/climatology.2004.nc4"
+      expected_file = trial_file 
+
+      call node%set_node_side(left_node)
+      call ESMF_TimeSet(current_time, yy=2004, mm=3, dd=3, h=0, m=0, s=0, _RC)
+      call ESMF_TimeSet(expected_file_time, yy=2004, mm=2, dd=15, h=21, m=0, s=0, _RC)
+      expected_file = trial_file 
+      expected_time_index = 2
+      call node%update_node_from_file(trial_file, current_time, _RC)
+      file_time = node%get_file_time()
+      time_index = node%get_time_index() 
+      node_file = node%get_file()
+      @assertTrue(time_index == expected_time_index) 
+      @assertTrue(file_time == expected_file_time)
+      @assertTrue(node_file == expected_file)
+
+      call node%set_node_side(right_node)
+      call ESMF_TimeSet(current_time, yy=2004, mm=11, dd=2, h=0, m=0, s=0, _RC)
+      call ESMF_TimeSet(expected_file_time, yy=2004, mm=11, dd=15, h=21, m=0, s=0, _RC)
+      expected_file = trial_file 
+      expected_time_index = 11
+      call node%update_node_from_file(trial_file, current_time, _RC)
+      file_time = node%get_file_time()
+      time_index = node%get_time_index() 
+      node_file = node%get_file()
+      @assertTrue(time_index == expected_time_index) 
+      @assertTrue(file_time == expected_file_time)
+      @assertTrue(node_file == expected_file)
+
+
+   end subroutine test_Node_update_node_from_file
+
+end module Test_Node

@@ -141,7 +141,7 @@ module mapl3g_SimpleFileHandler
           inquire(file=trial_file, exist=file_found)
           if (file_found) then 
              call node%invalidate()
-             call this%update_node_from_file(trial_file, current_time, node, _RC)
+             call node%update_node_from_file(trial_file, current_time, _RC)
              valid_node = node%validate(current_time, _RC)
              if (valid_node) exit 
           end if
