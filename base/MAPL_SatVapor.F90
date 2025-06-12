@@ -183,6 +183,12 @@ module MAPL_SatVaporMod
 
 contains
 
+   function set_optional(flag) result(flag_)
+      logical, optional, intent(in) :: flag
+      flag_ = .false.
+      if (present(flag)) flag_ = flag
+   end function
+
 !==============================================
 !>
 ! The subroutine `MAPL_EQsatSET` set behavior of MAPL_EQsat.
@@ -456,10 +462,9 @@ contains
     real(kind=REAL32) :: Ramp_
     real(kind=REAL32) :: PP, URAMP, QQ, QI, DQQ, DQI
 
-    UseRamp_ = .false.
-    if (present(UseRamp)) UseRamp_ = UseRamp
+    UseRamp_ = set_optional(UseRamp)
 
-    if (UseRamp_) Ramp_ = DefaultRamp
+    Ramp_ = DefaultRamp
     if (present(Ramp)) then
        UseRamp_ = .true.
        Ramp_    = Ramp
@@ -508,10 +513,9 @@ contains
     real(kind=REAL64) :: Ramp_
     real(kind=REAL64) :: PP, URAMP, QQ, QI, DQQ, DQI
 
-    UseRamp_ = .false.
-    if (present(UseRamp)) UseRamp_ = UseRamp
+    UseRamp_ = set_optional(UseRamp)
 
-    if (UseRamp_) Ramp_ = DefaultRamp
+    Ramp_ = DefaultRamp
     if (present(Ramp)) then
        UseRamp_ = .true.
        Ramp_    = Ramp
@@ -570,10 +574,9 @@ contains
     real(kind=REAL32) :: Ramp_
     real(kind=REAL32) :: PP, URAMP, QQ, QI, DQQ, DQI
 
-    UseRamp_ = .false.
-    if (present(UseRamp)) UseRamp_ = UseRamp
+    UseRamp_ = set_optional(UseRamp)
 
-    if (UseRamp_) Ramp_ = DefaultRamp
+    Ramp_ = DefaultRamp
     if (present(Ramp)) then
        UseRamp_ = .true.
        Ramp_    = Ramp
@@ -625,10 +628,9 @@ contains
     real(kind=REAL64) :: Ramp_
     real(kind=REAL64) :: PP, URAMP, QQ, QI, DQQ, DQI
 
-    UseRamp_ = .false.
-    if (present(UseRamp)) UseRamp_ = UseRamp
+    UseRamp_ = set_optional(UseRamp)
 
-    if (UseRamp_) Ramp_ = DefaultRamp
+    Ramp_ = DefaultRamp
     if (present(Ramp)) then
        UseRamp_ = .true.
        Ramp_    = Ramp
@@ -690,10 +692,9 @@ contains
     real(kind=REAL32) :: Ramp_
     real(kind=REAL32) :: PP, URAMP, QQ, QI, DQQ, DQI
 
-    UseRamp_ = .false.
-    if (present(UseRamp)) UseRamp_ = UseRamp
+    UseRamp_ = set_optional(UseRamp)
 
-    if (UseRamp_) Ramp_ = DefaultRamp
+    Ramp_ = DefaultRamp
     if (present(Ramp)) then
        UseRamp_ = .true.
        Ramp_    = Ramp
@@ -747,10 +748,9 @@ contains
     real(kind=REAL64) :: Ramp_
     real(kind=REAL64) :: PP, URAMP, QQ, QI, DQQ, DQI
 
-    UseRamp_ = .false.
-    if (present(UseRamp)) UseRamp_ = UseRamp
+    UseRamp_ = set_optional(UseRamp)
 
-    if (UseRamp_) Ramp_ = DefaultRamp
+    Ramp_ = DefaultRamp
     if (present(Ramp)) then
        UseRamp_ = .true.
        Ramp_    = Ramp
@@ -814,12 +814,9 @@ contains
     real(kind=REAL32) :: Ramp_
     real(kind=REAL32) :: PP, URAMP, QQ, QI, DQQ, DQI
 
-    UseRamp_ = .false.
-    if (present(UseRamp)) then
-       UseRamp_ = UseRamp
-    end if
+    UseRamp_ = set_optional(UseRamp)
 
-    if (UseRamp_) Ramp_ = DefaultRamp
+    Ramp_ = DefaultRamp
     if (present(Ramp)) then
        UseRamp_ = .true.
        Ramp_    = Ramp
@@ -875,10 +872,9 @@ contains
     real(kind=REAL64) :: Ramp_
     real(kind=REAL64) :: PP, URAMP, QQ, QI, DQQ, DQI
 
-    UseRamp_ = .false.
-    if (present(UseRamp)) UseRamp_ = UseRamp
+    UseRamp_ = set_optional(UseRamp)
 
-    if (UseRamp_) Ramp_ = DefaultRamp
+    Ramp_ = DefaultRamp
     if (present(Ramp)) then
        UseRamp_ = .true.
        Ramp_    = Ramp
@@ -917,7 +913,6 @@ contains
 #undef  EX
 
 #undef  KIND_
-
 
 end module MAPL_SatVaporMod
 
