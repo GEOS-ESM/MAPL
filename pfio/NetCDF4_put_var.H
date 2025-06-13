@@ -28,9 +28,11 @@
       _VERIFY(status)
      !$omp critical
 #if (_VARTYPE == 0)
+#if (_RANK == 0)
+     status = pfio_nf90_put_var_string(this%ncid, varid, values)
+#endif
 
 #if (_RANK == 1)
-     ! only support 1d string
      status = pfio_nf90_put_var_string(this%ncid, varid, values, start, count)
 #endif
 

@@ -21,7 +21,7 @@
       integer, optional, intent(out) :: rc
 
       integer :: status
-      integer :: varid
+      integer :: varid, vartype
       integer :: ncid
 
       ncid = this%ncid
@@ -37,10 +37,21 @@
      _ASSERT(status==0,"Variable not found: "//trim(var_name)//" in file: "//trim(this%origin_file))
      !$omp critical
 #if (_VARTYPE == 0)
+     status = nf90_inquire_variable(ncid, varid, xtype=vartype)
+#if (_RANK == 0)
+    if (vartype == NF90_STRING) then
+       status = pfio_nf90_get_var_string(ncid, varid, values)
+    else ! NF90_CHAR
+       status = nf90_get_var(ncid, varid, values)
+    endif
+#endif
 
 #if (_RANK == 1)
-    ! only support rank 1 of string
-    status = pfio_nf90_get_var_string(ncid, varid, values, start, count)
+    if (vartype == NF90_STRING) then
+      status = pfio_nf90_get_var_string(ncid, varid, values, start, count)
+    else ! NF90_CHAR
+      status = nf90_get_var(ncid, varid, values, start, count)
+    endif
 #endif
 
 #else
