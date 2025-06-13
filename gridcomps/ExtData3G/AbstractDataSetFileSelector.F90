@@ -1,6 +1,6 @@
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
-module mapl3g_AbstractFileHandler
+module mapl3g_AbstractDataSetFileSelector
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
@@ -9,7 +9,7 @@ module mapl3g_AbstractFileHandler
    implicit none
    private
 
-   public AbstractFileHandler
+   public AbstractDataSetFileSelector
    public file_not_found
    public NUM_SEARCH_TRIES
 
@@ -17,7 +17,7 @@ module mapl3g_AbstractFileHandler
    integer, parameter :: NUM_SEARCH_TRIES = 1
    character(len=*), parameter :: file_not_found = "NONE"
  
-   type, abstract :: AbstractFileHandler
+   type, abstract :: AbstractDataSetFileSelector
       character(:), allocatable :: file_template
       type(ESMF_TimeInterval)  :: frequency
       type(ESMF_Time) :: ref_time
@@ -33,8 +33,8 @@ module mapl3g_AbstractFileHandler
        subroutine I_update_file_bracket(this, current_time, bracket, rc)
           use ESMF, only: ESMF_Time
           use mapl3g_DataSetBracket
-          import AbstractFileHandler
-          class(AbstractFileHandler), intent(inout) :: this
+          import AbstractDataSetFileSelector
+          class(AbstractDataSetFileSelector), intent(inout) :: this
           type(ESMF_Time), intent(in) :: current_time
           type(DataSetBracket), intent(inout) :: bracket
           integer, optional, intent(out) :: rc
@@ -45,7 +45,7 @@ module mapl3g_AbstractFileHandler
 
     function find_any_file(this, rc) result(filename)
        character(len=:), allocatable :: filename
-       class(AbstractFileHandler), intent(inout) :: this
+       class(AbstractDataSetFileSelector), intent(inout) :: this
        integer, optional, intent(out) :: rc
 
 
@@ -77,7 +77,7 @@ module mapl3g_AbstractFileHandler
 
     function compute_trial_time(this, target_time, shift, rc) result(trial_time)
        type(ESMF_Time) :: trial_time
-       class(AbstractFileHandler), intent(inout) :: this
+       class(AbstractDataSetFileSelector), intent(inout) :: this
        type(ESMF_Time), intent(in) :: target_time
        integer, intent(in) :: shift
        integer, optional, intent(out) :: rc
@@ -100,5 +100,5 @@ module mapl3g_AbstractFileHandler
        
     end function compute_trial_time 
 
-end module mapl3g_AbstractFileHandler
+end module mapl3g_AbstractDataSetFileSelector
    

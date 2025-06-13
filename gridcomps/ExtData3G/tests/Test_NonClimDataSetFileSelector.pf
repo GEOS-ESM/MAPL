@@ -1,9 +1,9 @@
 #include "MAPL_TestErr.h"
-module Test_SimpleFileHandler
+module Test_NonClimDataSetFileSelector
    use pfunit
    use mapl3g_DataSetNode
    use mapl3g_DataSetBracket
-   use mapl3g_SimpleFileHandler
+   use mapl3g_NonClimDataSetFileSelector
    use mapl3g_DataSetNode
    use mapl3g_DataSetBracket
    use esmf
@@ -14,9 +14,9 @@ contains
 
 
    @test
-   subroutine test_SimpleFileHandler_get_any_file()
+   subroutine test_NonClimDataSetFileSelector_get_any_file()
       integer :: status
-      type(SimpleFileHandler) :: file_handler
+      type(NonClimDataSetFileSelector) :: file_handler
 
       character(len=:), allocatable :: template, sample_file
       type(ESMF_Time) :: ref_time
@@ -26,11 +26,11 @@ contains
       call ESMF_TimeSet(ref_time, yy=2004, mm=1, dd=31, h=21, m=0, s=0, _RC)
       call ESMF_TimeIntervalSet(frequency, h=1, _RC)
      
-      file_handler = SimpleFileHandler(template, ref_time=ref_time, frequency=frequency, _RC) 
+      file_handler = NonClimDataSetFileSelector(template, ref_time=ref_time, frequency=frequency, _RC) 
       sample_file = file_handler%find_any_file(_RC)
       
       @assertTrue(sample_file == "data_sets/hourly_files/hourly_files.20040131_2100z.nc4")
 
-   end subroutine Test_SimpleFileHandler_get_any_file
+   end subroutine Test_NonClimDataSetFileSelector_get_any_file
 
-end module Test_SimpleFileHandler
+end module Test_NonClimDataSetFileSelector

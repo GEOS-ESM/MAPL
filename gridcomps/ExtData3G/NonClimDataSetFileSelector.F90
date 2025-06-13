@@ -1,20 +1,20 @@
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
-module mapl3g_SimpleFileHandler
+module mapl3g_NonClimDataSetFileSelector
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
    use mapl3g_DataSetBracket
    use mapl3g_DataSetNode
-   use mapl3g_AbstractFileHandler
+   use mapl3g_AbstractDataSetFileSelector
    use mapl3g_ExtdataUtilities
    use mapl_StringTemplate
    implicit none
    private
 
-   public SimpleFileHandler
+   public NonClimDataSetFileSelector
  
-   type, extends(AbstractFileHandler):: SimpleFileHandler
+   type, extends(AbstractDataSetFileSelector):: NonClimDataSetFileSelector
       logical :: persist_closest = .false.
       contains
          procedure :: update_file_bracket
@@ -22,14 +22,14 @@ module mapl3g_SimpleFileHandler
          procedure :: update_node
     end type
 
-    interface SimpleFileHandler
-       procedure new_SimpleFileHandler
+    interface NonClimDataSetFileSelector
+       procedure new_NonClimDataSetFileSelector
     end interface
        
     contains
 
-    function new_SimpleFileHandler(file_template, frequency, ref_time, valid_range, persist_closest, enable_interpolation, rc) result(file_handler)
-       type(SimpleFileHandler) :: file_handler
+    function new_NonClimDataSetFileSelector(file_template, frequency, ref_time, valid_range, persist_closest, enable_interpolation, rc) result(file_handler)
+       type(NonClimDataSetFileSelector) :: file_handler
        character(len=*), intent(in) :: file_template
        type(ESMF_TimeInterval), intent(in), optional :: frequency
        type(ESMF_Time), intent(in), optional :: ref_time 
@@ -56,7 +56,7 @@ module mapl3g_SimpleFileHandler
     end function
 
     subroutine update_file_bracket(this, current_time, bracket,  rc)
-       class(SimpleFileHandler), intent(inout) :: this
+       class(NonClimDataSetFileSelector), intent(inout) :: this
        type(ESMF_Time), intent(in) :: current_time
        type(DataSetBracket), intent(inout) :: bracket
        integer, optional, intent(out) :: rc
@@ -133,7 +133,7 @@ module mapl3g_SimpleFileHandler
     end subroutine update_file_bracket
 
     subroutine update_node(this, current_time, node, rc)
-       class(SimpleFileHandler), intent(inout) :: this
+       class(NonClimDataSetFileSelector), intent(inout) :: this
        type(ESMF_Time), intent(in) :: current_time
        type(DataSetNode), intent(inout) :: node
        integer, optional, intent(out) :: rc
@@ -169,12 +169,12 @@ module mapl3g_SimpleFileHandler
 
     function not_in_range(this, target_time) result(target_in_range)
        logical :: target_in_range
-       class(SimpleFileHandler), intent(inout) :: this
+       class(NonClimDataSetFileSelector), intent(inout) :: this
        type(ESMF_Time), intent(in) :: target_time
   
        target_in_range = ((target_time < this%valid_range(1)) .or. (this%valid_range(2) < target_time))
     end function
        
 
-end module mapl3g_SimpleFileHandler
+end module mapl3g_NonClimDataSetFileSelector
    
