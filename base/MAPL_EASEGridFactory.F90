@@ -35,8 +35,6 @@ module MAPL_EASEGridFactoryMod
 
    public :: EASEGridFactory
 
-   integer, parameter :: NUM_DIM = 2
-
    type, extends(AbstractGridFactory) :: EASEGridFactory
       private
       logical :: is_evenspaced = .false.
@@ -145,7 +143,7 @@ contains
       integer, optional, intent(in) :: ims(:)
       integer, optional, intent(in) :: jms(:)
       logical, optional, intent(in) :: force_decomposition
-      integer, optional, intent(out) :: rc
+      integer, optional, intent(out):: rc
 
       integer :: status, cols, rows
       real    :: cell_area, ur_lat, ur_lon, ll_lat, ll_lon 
@@ -191,7 +189,6 @@ contains
 
    end function EASEGridFactory_from_parameters
 
-
    function make_new_grid(this, unusable, rc) result(grid)
       type (ESMF_Grid) :: grid
       class (EASEGridFactory), intent(in) :: this
@@ -208,8 +205,6 @@ contains
       _RETURN(_SUCCESS)
 
    end function make_new_grid
-
-
 
    function create_basic_grid(this, unusable, rc) result(grid)
       type (ESMF_Grid) :: grid
@@ -492,7 +487,6 @@ contains
       _UNUSED_DUMMY(unusable)
 
       allocate(lat_corners(this%jm_world+1))
-
      
       do row = 0, this%jm_world
          s = row - 0.5
@@ -581,7 +575,6 @@ contains
 
    end subroutine add_horz_coordinates
 
-
    subroutine initialize_from_file_metadata(this, file_metadata, unusable, force_file_coordinates, rc)
       use MAPL_KeywordEnforcerMod
       use MAPL_BaseMod, only: MAPL_DecomposeDim
@@ -594,20 +587,12 @@ contains
 
       integer :: status
 
-      class (CoordinateVariable), pointer :: v
-      class (*), pointer :: ptr(:)
-
       character(:), allocatable :: lon_name
-      character(:), allocatable :: lat_name
-      character(:), allocatable :: lev_name
       character(:), allocatable :: grid_name
-      integer :: i
-      logical :: hasLon, hasLat, hasLongitude, hasLatitude, hasLev,hasLevel,regLat,regLon
-      real(kind=REAL64) :: del12,delij
 
-      integer :: i_min, i_max
-      real(kind=REAL64) :: d_lat, d_lat_temp, extrap_lat
-      logical :: is_valid, use_file_coords, compute_lons, compute_lats, has_bnds
+      integer :: im, cols, rows
+      real    :: cell_area, ur_lat, ur_lon, ll_lat, ll_lon
+      logical :: use_file_coords, hasLon, hasLongitude
 
       _UNUSED_DUMMY(unusable)
 
@@ -617,158 +602,50 @@ contains
          use_file_coords = .false.
       end if
 
-      ! Cannot assume that lats and lons are evenly spaced
+      
       this%is_evenspaced = .false.
 
-      associate (im => this%im_world, jm => this%jm_world, lm => this%lm)
-         lon_name = 'lon'
-         hasLon = file_metadata%has_dimension(lon_name)
-         if (hasLon) then
-            im = file_metadata%get_dimension(lon_name, _RC)
-         else
-            lon_name = 'longitude'
-            hasLongitude = file_metadata%has_dimension(lon_name)
-            if (hasLongitude) then
-               im = file_metadata%get_dimension(lon_name, _RC)
-            else
-               _FAIL('no longitude coordinate')
-            end if
-         end if
+      lon_name = 'lon'
+      hasLon = file_metadata%has_dimension(lon_name)
+      if (hasLon) then
+        im = file_metadata%get_dimension(lon_name, _RC)
+      else
+        lon_name = 'longitude'
+        hasLongitude = file_metadata%has_dimension(lon_name)
+        if (hasLongitude) then
+           im = file_metadata%get_dimension(lon_name, _RC)
+        else
+           _FAIL('no longitude coordinate')
+        end if
+      end if
 
-         grid_name = get_ease_gridname_by_cols(im)
-         this%grid_name = grid_name
+      grid_name = get_ease_gridname_by_cols(im)
+      this%grid_name = grid_name
+   
+      call ease_extent(grid_name, cols, rows, cell_area=cell_area, ll_lon=ll_lon, ll_lat=ll_lat, ur_lon=ur_lon, ur_lat=ur_lat)
 
-         lat_name = 'lat'
-         hasLat = file_metadata%has_dimension(lat_name)
-         if (hasLat) then
-            jm = file_metadata%get_dimension(lat_name, _RC)
-         else
-            lat_name = 'latitude'
-            hasLatitude = file_metadata%has_dimension(lat_name)
-            if (hasLatitude) then
-               jm = file_metadata%get_dimension(lat_name, _RC)
-            else
-               _FAIL('no latitude coordinate')
-            end if
-         end if
+      call set_with_default(this%im_world, cols, MAPL_UNDEFINED_INTEGER)
+      call set_with_default(this%jm_world, rows, MAPL_UNDEFINED_INTEGER)
+      call set_with_default(this%lm, 1, MAPL_UNDEFINED_INTEGER)
 
-         hasLev=.false.
-         hasLevel=.false.
-         lev_name = 'lev'
-         hasLev = file_metadata%has_dimension(lev_name)
-         if (hasLev) then
-            lm = file_metadata%get_dimension(lev_name,_RC)
-         else
-            lev_name = 'levels'
-            hasLevel = file_metadata%has_dimension(lev_name)
-            if (hasLevel) then
-               lm = file_metadata%get_dimension(lev_name,_RC)
-            end if
-         end if
+      call set_with_default(this%pole,     'XY', MAPL_UNDEFINED_CHAR)
+      call set_with_default(this%dateline, 'DE', MAPL_UNDEFINED_CHAR)
 
-         v => file_metadata%get_coordinate_variable(lon_name, _RC)
-         ptr => v%get_coordinate_data()
-         _ASSERT(associated(ptr),'coordinate data not allocated')
-         select type (ptr)
-         type is (real(kind=REAL64))
-            this%lon_centers = ptr
-         type is (real(kind=REAL32))
-            this%lon_centers = ptr
-         class default
-            _FAIL('unsuppoted type of data; must be REAL32 or REAL64')
-         end select
+      this%lat_range =  RealMinMax(ll_lat, ur_lat)
 
-         if (any((this%lon_centers(2:im)-this%lon_centers(1:im-1))<0)) then
-            where(this%lon_centers > 180) this%lon_centers=this%lon_centers-360
-         end if
+      this%force_decomposition = .false.
 
-         has_bnds = coordinate_has_bounds(file_metadata, lon_name, _RC)
-         if (has_bnds) then
-            this%lon_bounds_name = get_coordinate_bounds_name(file_metadata, lon_name, _RC)
-            this%lon_corners = get_coordinate_bounds(file_metadata, lon_name, _RC)
-         end if
+      call this%check_and_fill_consistency(_RC)
 
-         v => file_metadata%get_coordinate_variable(lat_name, _RC)
-         ptr => v%get_coordinate_data()
-         _ASSERT(associated(ptr),'coordinate data not allocated')
-         select type (ptr)
-         type is (real(kind=REAL64))
-            this%lat_centers = ptr
-         type is (real(kind=REAL32))
-            this%lat_centers = ptr
-         class default
-            _FAIL('unsupported type of data; must be REAL32 or REAL64')
-         end select
-
-         has_bnds = coordinate_has_bounds(file_metadata, lat_name, _RC)
-         if (has_bnds) then
-            this%lat_bounds_name = get_coordinate_bounds_name(file_metadata, lat_name, _RC)
-            this%lat_corners = get_coordinate_bounds(file_metadata, lat_name, _RC)
-         end if
-
-         ! lon Corners are the midpoints of lon centers
-         if (.not. allocated(this%lon_corners)) then 
-            allocate(this%lon_corners(im+1))
-            this%lon_corners(1) = (this%lon_centers(im) + this%lon_centers(1))/2 - 180
-            this%lon_corners(2:im) = (this%lon_centers(1:im-1) + this%lon_centers(2:im))/2
-            this%lon_corners(im+1) = (this%lon_centers(im) + this%lon_centers(1))/2 + 180
-         end if
-
-         ! This section about pole/dateline is probably not needed in file data case.
-         if (abs(this%lon_corners(1) + 180) < 1000*epsilon(1.0)) then
-            this%dateline = 'DE'
-         else ! assume 'XY'
-            this%dateline = 'XY' 
-            this%lon_range = RealMinMax(this%lon_centers(1), this%lon_centers(jm))
-         end if
-         
-         if (.not. allocated(this%lat_corners)) then
-            this%lat_corners = this%compute_lat_corners(_RC)
-         end if
-
-         this%pole = 'XY'
-         this%lat_range = RealMinMax(this%lat_centers(1), this%lat_centers(jm))
-
-         regLon=.true.
-         regLat=.false.
-
-         this%is_evenspaced = (regLat .and. regLon)
-
-         if (use_file_coords) then
-            this%is_evenspaced = .false.
-            this%lon_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lon_centers
-            this%lat_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lat_centers
-            this%lon_corners = MAPL_DEGREES_TO_RADIANS_R8 * this%lon_corners
-            this%lat_corners = MAPL_DEGREES_TO_RADIANS_R8 * this%lat_corners
-         else
-            compute_lons=.false.
-            compute_lats=.false.
-            if (regLon .and. (this%dateline.ne.'XY')) then
-               compute_lons=.true.
-            end if
-            if (regLat .and. (this%pole.ne.'XY')) then
-               compute_lats=.true.
-            end if
-            if (compute_lons .and. compute_lats) then
-               this%lon_centers = this%compute_lon_centers(this%dateline, _RC)
-               this%lon_centers_degrees = this%compute_lon_centers(this%dateline, &
-                      convert_to_radians=.false., _RC)
-               this%lon_corners = this%compute_lon_corners(this%dateline, _RC)
-               this%lat_centers_degrees = this%compute_lat_centers(&
-                      convert_to_radians=.false., _RC)
-               this%lat_centers = this%compute_lat_centers( _RC)
-               this%lat_corners = this%compute_lat_corners( _RC)
-            else
-               this%lon_centers_degrees = this%lon_centers
-               this%lat_centers_degrees = this%lat_centers
-               this%lon_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lon_centers
-               this%lat_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lat_centers
-               this%lon_corners = MAPL_DEGREES_TO_RADIANS_R8 * this%lon_corners
-               this%lat_corners = MAPL_DEGREES_TO_RADIANS_R8 * this%lat_corners
-            end if
-         end if
-
-      end associate
+      ! Compute the centers and corners
+      this%lon_centers = this%compute_lon_centers(this%dateline, _RC)
+      this%lat_centers = this%compute_lat_centers(_RC)
+      this%lon_centers_degrees = this%compute_lon_centers(this%dateline, &
+            convert_to_radians = .false.,  _RC)
+      this%lat_centers_degrees = this%compute_lat_centers( &
+            convert_to_radians = .false.,  _RC)
+      this%lon_corners = this%compute_lon_corners(this%dateline, _RC)
+      this%lat_corners = this%compute_lat_corners(_RC)
 
       call this%make_arbitrary_decomposition(this%nx, this%ny, _RC)
 
@@ -784,8 +661,6 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine initialize_from_file_metadata
-
-
 
    subroutine initialize_from_config_with_prefix(this, config, prefix, unusable, rc)
       use esmf
