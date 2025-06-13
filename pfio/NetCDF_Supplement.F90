@@ -150,7 +150,6 @@ contains
       start_(1) = 1
       count_(1) = 1
       status = c_f_pfio_get_var_string(ncid, varid, c_loc(string), str_len,  c_loc(start_), c_loc(count_))
-      deallocate(start_, count_)
 
    end function pfio_nf90_get_var_string_0d
 
