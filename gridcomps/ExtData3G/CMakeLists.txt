@@ -3,8 +3,8 @@ esma_set_this (OVERRIDE MAPL.extdata3g)
 set(srcs
  ExtDataGridComp.F90
  ExtDataGridComp_private.F90
- ExtDataNode.F90
- ExtDataBracket.F90
+ DataSetNode.F90
+ DataSetBracket.F90
  AbstractFileHandler.F90
  SimpleFileHandler.F90
  ExtDataUtilities.F90

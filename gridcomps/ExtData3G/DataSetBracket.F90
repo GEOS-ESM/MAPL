@@ -1,18 +1,18 @@
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
-module mapl3g_ExtDataBracket
+module mapl3g_DataSetBracket
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
-   use mapl3g_ExtDataNode
+   use mapl3g_DataSetNode
    implicit none
    private
 
-   public :: ExtDataBracket
+   public :: DataSetBracket
 
-   type ExtDataBracket
-      type(ExtDataNode) :: left_node
-      type(ExtDataNode) :: right_node
+   type DataSetBracket
+      type(DataSetNode) :: left_node
+      type(DataSetNode) :: right_node
       logical          :: disable_interpolation = .false.
       contains
          procedure :: compute_bracket_weights 
@@ -20,15 +20,15 @@ module mapl3g_ExtDataBracket
          procedure :: set_parameters
          procedure :: get_left_node
          procedure :: get_right_node
-   end type ExtDataBracket
+   end type DataSetBracket
 
 contains
 
    subroutine set_parameters(this, disable_interpolation, left_node, right_node)
-      class(ExtDataBracket), intent(inout) :: this
+      class(DataSetBracket), intent(inout) :: this
       logical, intent(in), optional :: disable_interpolation
-      type(ExtDataNode), intent(in), optional :: left_node
-      type(ExtDataNode), intent(in), optional :: right_node
+      type(DataSetNode), intent(in), optional :: left_node
+      type(DataSetNode), intent(in), optional :: right_node
 
       if (present(disable_interpolation)) this%disable_interpolation = disable_interpolation
       if (present(left_node)) this%left_node = left_node
@@ -37,7 +37,7 @@ contains
 
    function time_in_bracket(this,time) result(in_bracket)
       logical :: in_bracket
-      class(ExtDataBracket), intent(inout) :: this
+      class(DataSetBracket), intent(inout) :: this
       type(ESMF_Time), intent(in) :: time
       type(ESMF_Time) :: left_time, right_time
       
@@ -49,9 +49,9 @@ contains
    end function time_in_bracket
 
    subroutine set_node(this, bracketside, node, rc)
-      class(ExtDataBracket), intent(inout) :: this
+      class(DataSetBracket), intent(inout) :: this
       character(len=*), intent(in) :: bracketside
-      type(ExtDataNode), intent(in) :: node
+      type(DataSetNode), intent(in) :: node
       integer, optional, intent(out) :: rc
 
       if (bracketside=='L') then
@@ -66,8 +66,8 @@ contains
    end subroutine set_node
 
    function get_right_node(this, rc) result(node)
-      type(ExtDataNode) :: node
-      class(ExtDataBracket), intent(inout) :: this
+      type(DataSetNode) :: node
+      class(DataSetBracket), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       node = this%right_node
@@ -76,8 +76,8 @@ contains
    end function get_right_node
 
    function get_left_node(this, rc) result(node)
-      type(ExtDataNode) :: node
-      class(ExtDataBracket), intent(inout) :: this
+      type(DataSetNode) :: node
+      class(DataSetBracket), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       node = this%left_node
@@ -87,7 +87,7 @@ contains
 
    function compute_bracket_weights(this,time,rc) result(weights)
       real :: weights(2)
-      class(ExtDataBracket), intent(inout) :: this
+      class(DataSetBracket), intent(inout) :: this
       type(ESMF_Time), intent(in) :: time
       integer, optional, intent(out) :: rc
 
@@ -112,4 +112,4 @@ contains
 
    end function compute_bracket_weights 
 
-end module mapl3g_ExtDataBracket
+end module mapl3g_DataSetBracket

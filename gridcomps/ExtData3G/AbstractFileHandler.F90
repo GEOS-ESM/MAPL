@@ -4,8 +4,7 @@ module mapl3g_AbstractFileHandler
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
-   use mapl3g_ExtDataBracket
-   use mapl3g_ExtDataNode
+   use mapl3g_DataSetBracket
    use mapl_StringTemplate
    implicit none
    private
@@ -33,11 +32,11 @@ module mapl3g_AbstractFileHandler
     abstract interface
        subroutine I_update_file_bracket(this, current_time, bracket, rc)
           use ESMF, only: ESMF_Time
-          use mapl3g_ExtDataBracket
+          use mapl3g_DataSetBracket
           import AbstractFileHandler
           class(AbstractFileHandler), intent(inout) :: this
           type(ESMF_Time), intent(in) :: current_time
-          type(ExtDataBracket), intent(inout) :: bracket
+          type(DataSetBracket), intent(inout) :: bracket
           integer, optional, intent(out) :: rc
        end subroutine I_update_file_bracket
     end interface

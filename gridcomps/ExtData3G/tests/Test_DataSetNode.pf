@@ -1,7 +1,7 @@
 #include "MAPL_TestErr.h"
-module Test_Node
+module Test_DataSetNode
    use pfunit
-   use mapl3g_ExtDataNode
+   use mapl3g_DataSetNode
    use esmf
 
    implicit none
@@ -13,7 +13,7 @@ contains
       integer :: status
 
       type(ESMF_Time) :: current_time, file_time, expected_file_time
-      type(ExtDataNode) :: node
+      type(DataSetNode) :: node
       character(len=:), allocatable :: trial_file, node_file, expected_file
       integer :: time_index, expected_time_index
 
@@ -49,4 +49,4 @@ contains
 
    end subroutine test_Node_update_node_from_file
 
-end module Test_Node
+end module Test_DataSetNode

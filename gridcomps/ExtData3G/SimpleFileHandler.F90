@@ -4,8 +4,8 @@ module mapl3g_SimpleFileHandler
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
-   use mapl3g_ExtDataBracket
-   use mapl3g_ExtDataNode
+   use mapl3g_DataSetBracket
+   use mapl3g_DataSetNode
    use mapl3g_AbstractFileHandler
    use mapl3g_ExtdataUtilities
    use mapl_StringTemplate
@@ -58,15 +58,15 @@ module mapl3g_SimpleFileHandler
     subroutine update_file_bracket(this, current_time, bracket,  rc)
        class(SimpleFileHandler), intent(inout) :: this
        type(ESMF_Time), intent(in) :: current_time
-       type(ExtDataBracket), intent(inout) :: bracket
+       type(DataSetBracket), intent(inout) :: bracket
        integer, optional, intent(out) :: rc
 
        type(ESMF_Time) :: target_time
        integer :: status
        logical :: establish_both, establish_left, establish_right
-       type(ExtDataNode) :: left_node, right_node
-       logical :: node_is_valid
-       character(len=:), allocatable :: node_file
+       type(DataSetNode) :: left_node, right_node
+       logical :: node_is_valid, left_node_valid, right_node_valid, both_created, both_new
+       character(len=:), allocatable :: left_file, right_file
 
        establish_both = .true. 
        establish_left = .false.
@@ -111,6 +111,23 @@ module mapl3g_SimpleFileHandler
           call bracket%set_parameters(right_node=right_node)
        end if
 
+       if (establish_both) then
+          left_node = bracket%get_left_node(_RC)
+          right_node = bracket%get_right_node(_RC)
+          left_file = left_node%get_file()
+          right_file = right_node%get_file()
+          both_created = allocated(left_file) .and. allocated(right_file)
+          both_new = (.not.allocated(left_file)) .and. (.not.allocated(right_file)) 
+          if (both_new) then
+             call this%update_node(current_time, left_node, _RC)
+             call this%update_node(current_time, right_node, _RC)
+          end if
+          if (both_created) then
+             left_node_valid = left_node%validate(current_time) 
+             right_node_valid = right_node%validate(current_time) 
+          end if
+       end if
+
        _RETURN(_SUCCESS)
 
     end subroutine update_file_bracket
@@ -118,7 +135,7 @@ module mapl3g_SimpleFileHandler
     subroutine update_node(this, current_time, node, rc)
        class(SimpleFileHandler), intent(inout) :: this
        type(ESMF_Time), intent(in) :: current_time
-       type(ExtDataNode), intent(inout) :: node
+       type(DataSetNode), intent(inout) :: node
        integer, optional, intent(out) :: rc
        
        integer :: status, local_search_stop, step,  node_side, i

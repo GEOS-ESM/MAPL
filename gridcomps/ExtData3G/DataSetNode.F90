@@ -1,6 +1,6 @@
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
-module mapl3g_ExtDataNode
+module mapl3g_DataSetNode
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
@@ -9,7 +9,7 @@ module mapl3g_ExtDataNode
    implicit none
    private
 
-   public :: ExtDataNode
+   public :: DataSetNode
    public :: left_node
    public :: right_node
    public :: unknown_node
@@ -20,9 +20,9 @@ module mapl3g_ExtDataNode
       enumerator :: unknown_node
    end enum      
 
-   type :: ExtDataNode
-      logical :: update = .false.
+   type :: DataSetNode
       integer :: node_side
+      logical :: update = .false.
       logical :: enabled = .false.
       type(ESMF_Time) :: interp_time
       type(ESMF_Time) :: file_time
@@ -50,14 +50,14 @@ module mapl3g_ExtDataNode
          generic :: operator(==) => equals
    end type
 
-   interface ExtDataNode
-      procedure new_ExtDataNode
+   interface DataSetNode
+      procedure new_DataSetNode
    end interface
 
 contains
 
-   function new_ExtDataNode(file, time_index, file_time, interp_time) result(node)
-      type(ExtDataNode) :: node
+   function new_DataSetNode(file, time_index, file_time, interp_time) result(node)
+      type(DataSetNode) :: node
       character(len=*), intent(in) :: file
       integer, intent(in) :: time_index
       type(ESMF_Time), intent(in) :: file_time
@@ -68,101 +68,101 @@ contains
       node%file = trim(file)
       node%time_index = time_index
       
-   end function new_ExtDataNode
+   end function new_DataSetNode
 
    subroutine set_file_time(this, file_time)
-      class(ExtDataNode), intent(inout) :: this
+      class(DataSetNode), intent(inout) :: this
       type(ESMF_Time), intent(in) :: file_time
       this%file_time=file_time
    end subroutine
 
    subroutine set_interp_time(this, interp_time)
-      class(ExtDataNode), intent(inout) :: this
+      class(DataSetNode), intent(inout) :: this
       type(ESMF_Time), intent(in) :: interp_time
       this%interp_time=interp_time
    end subroutine
 
    subroutine set_file(this, file)
-      class(ExtDataNode), intent(inout) :: this
+      class(DataSetNode), intent(inout) :: this
       character(len=*), intent(in) :: file
       this%file=file
    end subroutine
 
    subroutine set_time_index(this, time_index)
-      class(ExtDataNode), intent(inout) :: this
+      class(DataSetNode), intent(inout) :: this
       integer, intent(in) :: time_index
       this%time_index=time_index
    end subroutine
 
    subroutine set_node_side(this, node_side)
-      class(ExtDataNode), intent(inout) :: this
+      class(DataSetNode), intent(inout) :: this
       integer, intent(in) :: node_side
       this%node_side = node_side
    end subroutine
 
    subroutine set_enabled(this, enabled)
-      class(ExtDataNode), intent(inout) :: this
+      class(DataSetNode), intent(inout) :: this
       logical, intent(in) :: enabled
       this%enabled = enabled 
    end subroutine
 
    subroutine set_update(this, update)
-      class(ExtDataNode), intent(inout) :: this
+      class(DataSetNode), intent(inout) :: this
       logical, intent(in) :: update
       this%update = update 
    end subroutine
 
    function get_file_time(this) result(file_time)
       type(ESMF_Time) :: file_time
-      class(ExtDataNode), intent(inout) :: this
+      class(DataSetNode), intent(inout) :: this
       file_time=this%file_time
    end function
 
    function get_interp_time(this) result(interp_time)
       type(ESMF_Time) :: interp_time
-      class(ExtDataNode), intent(inout) :: this
+      class(DataSetNode), intent(inout) :: this
       interp_time=this%interp_time
    end function
 
    function get_file(this) result(file)
       character(len=:), allocatable :: file
-      class(ExtDataNode), intent(inout) :: this
+      class(DataSetNode), intent(inout) :: this
       file=this%file
    end function
 
    function get_time_index(this) result(time_index)
       integer :: time_index
-      class(ExtDataNode), intent(inout) :: this
+      class(DataSetNode), intent(inout) :: this
       time_index=this%time_index
    end function
 
    function get_node_side(this) result(node_side)
       integer :: node_side
-      class(ExtDataNode), intent(inout) :: this
+      class(DataSetNode), intent(inout) :: this
       node_side=this%node_side
    end function
 
    function get_update(this) result(update)
       logical :: update
-      class(ExtDataNode), intent(inout) :: this
+      class(DataSetNode), intent(inout) :: this
       update=this%update
    end function
 
    function get_enabled(this) result(enabled)
       logical :: enabled
-      class(ExtDataNode), intent(inout) :: this
+      class(DataSetNode), intent(inout) :: this
       enabled=this%enabled
    end function
 
    logical function equals(a,b)
-      class(ExtDataNode), intent(in) :: a
-      class(ExtDataNode), intent(in) :: b
+      class(DataSetNode), intent(in) :: a
+      class(DataSetNode), intent(in) :: b
 
       equals = (trim(a%file)==trim(b%file)) .and. (a%file_time==b%file_time) .and. (a%time_index==b%time_index) .and. (a%interp_time==b%interp_time)
    end function equals
 
    subroutine reset(this)
-      class(ExtDataNode), intent(inout) :: this
+      class(DataSetNode), intent(inout) :: this
       deallocate(this%file)
       this%enabled = .false.
       this%update = .false.
@@ -170,7 +170,7 @@ contains
 
    function validate(this, current_time, rc) result(node_is_valid)
       logical :: node_is_valid
-      class(ExtDataNode), intent(inout) :: this
+      class(DataSetNode), intent(inout) :: this
       type(ESMF_Time), intent(in) :: current_time
       integer, intent(out), optional :: rc
 
@@ -192,7 +192,7 @@ contains
    end function
 
    subroutine invalidate(this)
-      class(ExtDataNode), intent(inout) :: this
+      class(DataSetNode), intent(inout) :: this
       if (allocated(this%file)) then
          deallocate(this%file) 
       end if
@@ -201,7 +201,7 @@ contains
    end subroutine
 
    subroutine update_node_from_file(this, filename, target_time, rc)
-      class(ExtDataNode), intent(inout) :: this
+      class(DataSetNode), intent(inout) :: this
       character(len=*), intent(in) :: filename
       type(ESMF_Time), intent(in) :: target_time
       integer, optional, intent(out) :: rc
@@ -249,4 +249,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine
 
-end module mapl3g_ExtDataNode
+end module mapl3g_DataSetNode
