@@ -185,6 +185,7 @@ contains
 
    function set_optional(flag) result(flag_)
       logical, optional, intent(in) :: flag
+      logical :: flag_
       flag_ = .false.
       if (present(flag)) flag_ = flag
    end function
