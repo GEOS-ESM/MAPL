@@ -666,88 +666,47 @@ contains
             end if
          end if
 
-        ! TODO: if 'lat' and 'lon' are not present then 
-        ! assume ... pole/dateline are ?
+         v => file_metadata%get_coordinate_variable(lon_name, _RC)
+         ptr => v%get_coordinate_data()
+         _ASSERT(associated(ptr),'coordinate data not allocated')
+         select type (ptr)
+         type is (real(kind=REAL64))
+            this%lon_centers = ptr
+         type is (real(kind=REAL32))
+            this%lon_centers = ptr
+         class default
+            _FAIL('unsuppoted type of data; must be REAL32 or REAL64')
+         end select
 
-        ! TODO: check radians vs degrees.  Assume degrees for now.
+         if (any((this%lon_centers(2:im)-this%lon_centers(1:im-1))<0)) then
+            where(this%lon_centers > 180) this%lon_centers=this%lon_centers-360
+         end if
 
+         has_bnds = coordinate_has_bounds(file_metadata, lon_name, _RC)
+         if (has_bnds) then
+            this%lon_bounds_name = get_coordinate_bounds_name(file_metadata, lon_name, _RC)
+            this%lon_corners = get_coordinate_bounds(file_metadata, lon_name, _RC)
+         end if
 
-        ! TODO: modify CoordinateVariable so that get_coordinate_data() is overloaded
-        ! for different types (as subroutine) to avoid casting here.
-        ! TODO: add get_coordinate_variable() interface to avoid the need to cast
-        v => file_metadata%get_coordinate_variable(lon_name, _RC)
-        ptr => v%get_coordinate_data()
-        _ASSERT(associated(ptr),'coordinate data not allocated')
-        select type (ptr)
-        type is (real(kind=REAL64))
-           this%lon_centers = ptr
-        type is (real(kind=REAL32))
-           this%lon_centers = ptr
-        class default
-           _FAIL('unsuppoted type of data; must be REAL32 or REAL64')
-        end select
+         v => file_metadata%get_coordinate_variable(lat_name, _RC)
+         ptr => v%get_coordinate_data()
+         _ASSERT(associated(ptr),'coordinate data not allocated')
+         select type (ptr)
+         type is (real(kind=REAL64))
+            this%lat_centers = ptr
+         type is (real(kind=REAL32))
+            this%lat_centers = ptr
+         class default
+            _FAIL('unsupported type of data; must be REAL32 or REAL64')
+         end select
 
-        if (any((this%lon_centers(2:im)-this%lon_centers(1:im-1))<0)) then
-           where(this%lon_centers > 180) this%lon_centers=this%lon_centers-360
-        end if
+         has_bnds = coordinate_has_bounds(file_metadata, lat_name, _RC)
+         if (has_bnds) then
+            this%lat_bounds_name = get_coordinate_bounds_name(file_metadata, lat_name, _RC)
+            this%lat_corners = get_coordinate_bounds(file_metadata, lat_name, _RC)
+         end if
 
-        has_bnds = coordinate_has_bounds(file_metadata, lon_name, _RC)
-        if (has_bnds) then
-           this%lon_bounds_name = get_coordinate_bounds_name(file_metadata, lon_name, _RC)
-           this%lon_corners = get_coordinate_bounds(file_metadata, lon_name, _RC)
-        end if
-
-        v => file_metadata%get_coordinate_variable(lat_name, _RC)
-        ptr => v%get_coordinate_data()
-        _ASSERT(associated(ptr),'coordinate data not allocated')
-        select type (ptr)
-        type is (real(kind=REAL64))
-           this%lat_centers = ptr
-        type is (real(kind=REAL32))
-           this%lat_centers = ptr
-        class default
-           _FAIL('unsupported type of data; must be REAL32 or REAL64')
-        end select
-
-        has_bnds = coordinate_has_bounds(file_metadata, lat_name, _RC)
-        if (has_bnds) then
-           this%lat_bounds_name = get_coordinate_bounds_name(file_metadata, lat_name, _RC)
-           this%lat_corners = get_coordinate_bounds(file_metadata, lat_name, _RC)
-        end if
-
-
-        ! Check: is this a "mis-specified" pole-centered grid?
-        if (size(this%lat_centers) >= 4) then
-           ! Assume lbound=1 and ubound=size for now
-           i_min = 1 !lbound(this%lat_centers)
-           i_max = size(this%lat_centers) !ubound(this%lat_centers)
-           d_lat = (this%lat_centers(i_max-1) - this%lat_centers(i_min+1))/&  
-                    (size(this%lat_centers)-3)
-           is_valid = .True.
-           ! Check: is this a regular grid (i.e. constant spacing away from the poles)?
-           do i=(i_min+1),(i_max-2)
-              d_lat_temp = this%lat_centers(i+1) - this%lat_centers(i)
-              is_valid = (is_valid.and.(abs((d_lat_temp/d_lat)-1.0) < 1.0e-5))
-              if (.not. is_valid) then
-                 exit
-              end if
-           end do
-           if (is_valid) then
-              ! Should the southernmost point actually be at the pole?
-              extrap_lat = this%lat_centers(i_min+1) - d_lat
-              if (extrap_lat <= ((d_lat/20.0)-90.0)) then
-                 this%lat_centers(i_min) = -90.0
-              end if
-              ! Should the northernmost point actually be at the pole?
-              extrap_lat = this%lat_centers(i_max-1) + d_lat
-              if (extrap_lat >= (90.0-(d_lat/20.0))) then
-                 this%lat_centers(i_max) =  90.0
-              end if
-           end if
-        end if
-
-         ! Corners are the midpoints of centers (and extrapolated at the 
-         ! poles for lats.)
+         ! lon Corners are the midpoints of lon centers
          if (.not. allocated(this%lon_corners)) then 
             allocate(this%lon_corners(im+1))
             this%lon_corners(1) = (this%lon_centers(im) + this%lon_centers(1))/2 - 180
@@ -764,31 +723,15 @@ contains
          end if
          
          if (.not. allocated(this%lat_corners)) then
-            allocate(this%lat_corners(jm+1))
-            this%lat_corners(1) = this%lat_centers(1) - (this%lat_centers(2)-this%lat_centers(1))/2
-            this%lat_corners(2:jm) = (this%lat_centers(1:jm-1) + this%lat_centers(2:jm))/2
-            this%lat_corners(jm+1) = this%lat_centers(jm) - (this%lat_centers(jm-1)-this%lat_centers(jm))/2
+            this%lat_corners = this%compute_lat_corners(_RC)
          end if
 
          this%pole = 'XY'
          this%lat_range = RealMinMax(this%lat_centers(1), this%lat_centers(jm))
 
-         if (this%lat_corners(1) < -90) this%lat_corners(1)=-90
-         if (this%lat_corners(jm+1) > 90) this%lat_corners(jm+1)=90
-
-         ! check if evenly spaced
          regLon=.true.
-         do i=2,size(this%lon_centers)
-            del12=this%lon_centers(2)-this%lon_centers(1)
-            delij=this%lon_centers(i)-this%lon_centers(i-1)
-            if ((del12-delij)>epsilon(1.0)) regLon=.false.
-         end do
-         regLat=.true.
-         do i=2,size(this%lat_centers)
-            del12=this%lat_centers(2)-this%lat_centers(1)
-            delij=this%lat_centers(i)-this%lat_centers(i-1)
-            if ((del12-delij)>epsilon(1.0)) regLat=.false.
-         end do
+         regLat=.false.
+
          this%is_evenspaced = (regLat .and. regLon)
 
          if (use_file_coords) then
@@ -825,20 +768,20 @@ contains
             end if
          end if
 
-    end associate
+      end associate
 
-    call this%make_arbitrary_decomposition(this%nx, this%ny, _RC)
+      call this%make_arbitrary_decomposition(this%nx, this%ny, _RC)
 
-    ! Determine IMS and JMS with constraint for ESMF that each DE has at least an extent
-    ! of 2.  Required for ESMF_FieldRegrid().
-    allocate(this%ims(0:this%nx-1))
-    allocate(this%jms(0:this%ny-1))
-    call MAPL_DecomposeDim(this%im_world, this%ims, this%nx, min_DE_extent=2)
-    call MAPL_DecomposeDim(this%jm_world, this%jms, this%ny, min_DE_extent=2)
+      ! Determine IMS and JMS with constraint for ESMF that each DE has at least an extent
+      ! of 2.  Required for ESMF_FieldRegrid().
+      allocate(this%ims(0:this%nx-1))
+      allocate(this%jms(0:this%ny-1))
+      call MAPL_DecomposeDim(this%im_world, this%ims, this%nx, min_DE_extent=2)
+      call MAPL_DecomposeDim(this%jm_world, this%jms, this%ny, min_DE_extent=2)
 
-    call this%check_and_fill_consistency(_RC)
+      call this%check_and_fill_consistency(_RC)
 
-    _RETURN(_SUCCESS)
+      _RETURN(_SUCCESS)
 
    end subroutine initialize_from_file_metadata
 
