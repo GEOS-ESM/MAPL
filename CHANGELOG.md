@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Changed per-step diagnostic print from being hardcoded as `AGCM Date` to now trigger off of the `ROOT_NAME` in `CAP.rc`. So, if `ROOT_NAME` is `GEOSldas`, the print will be `GEOSldas Date` instead of `AGCM Date`.
+- Update the MAPL_EQsat code to the ramping version from CVS
 
 ### Removed
 
