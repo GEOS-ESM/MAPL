@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `StateFilterItem` => `MAPL_StateFilterItem` in **ACG**
 - Fix binary writes and reads in benchmark simulators
+- Removed `_HERE` macros left in ExtDataGridCompNG.F90 from debugging
 
 ### Added
 
