@@ -345,7 +345,7 @@ contains
 
       regional  = (dateline == 'XY')
       if (regional) then
-         _FAIL('Not supported reginal lons')
+         _FAIL('Not supported regional lons')
         ! delta = (this%lon_range%max - this%lon_range%min) / this%im_world
         ! min_coord = this%lon_range%min + delta/2
         ! max_coord = this%lon_range%max - delta/2
