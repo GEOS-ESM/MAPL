@@ -94,7 +94,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.1% of total for procedures.">47 statements</a>
+                 title=" 0.1% of total for procedures.">55 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -176,8 +176,8 @@
 <p><strong>Formulation</strong> sets the saturation vapor pressure function to use
  to use in generating tables or for <code>exact</code> calculations.
  Three formulations of saturation vapor pressure are supported:
-- the Starr code, as was used in NSIPP-1 (MAPL_UseStarrQsat), 
-- the Goff-Gratch formulation, as used in CAM (MAPL_UseGoffGratchQsat), and 
+- the Starr code, as was used in NSIPP-1 (MAPL_UseStarrQsat),
+- the Goff-Gratch formulation, as used in CAM (MAPL_UseGoffGratchQsat), and
 - Murphy and Koop (2005, QJRMS) (MAPL_UseMurphyKoopQsat).</p>
 <p>If it has not been set, the formulation is Starr (MAPL_UseStarrQsat).
  If not specified, the formulation is left unmodified.</p>
@@ -185,7 +185,7 @@
  vapor pressure tables. If never set, it is 100; if not specified, it is left unmodified.</p>
 <p><strong>MixingRatio</strong> sets whether MAPL_EQsat will return saturation mixing ratio (true)
  or saturation specific humidity (false) when the pressure is present
- (see MAPL_EQsat documentation). If never set, it is false; 
+ (see MAPL_EQsat documentation). If never set, it is false;
  if not specified, it is left unmodified.</p>
 <p>MAPL_EQsatSET also initializes the tables. If MAPL_EQsatSET is
  not called and tables are required, they will be initialized the first time
@@ -419,39 +419,40 @@ large graphs.</div>
 
 <span class="c">! Set the global flags</span>
 
-<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">UseTable</span><span class="w">   </span><span class="p">))</span><span class="w"> </span><span class="n">UTBL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UseTable</span>
-<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">Formulation</span><span class="p">))</span><span class="w"> </span><span class="k">TYPE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Formulation</span>
-<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">MixingRatio</span><span class="p">))</span><span class="w"> </span><span class="n">MXRT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MixingRatio</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">UseTable</span><span class="w">   </span><span class="p">))</span><span class="w"> </span><span class="n">UTBL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UseTable</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">Formulation</span><span class="p">))</span><span class="w"> </span><span class="k">TYPE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Formulation</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">MixingRatio</span><span class="p">))</span><span class="w"> </span><span class="n">MXRT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MixingRatio</span>
 
-<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">SubDivisions</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">SubDivisions</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
 <span class="k">       </span><span class="n">DEGSUBS</span><span class="w">    </span><span class="o">=</span><span class="w">  </span><span class="n">SubDivisions</span>
 <span class="w">       </span><span class="n">TABLESIZE</span><span class="w">  </span><span class="o">=</span><span class="w">  </span><span class="nb">nint</span><span class="p">(</span><span class="n">TMAXTBL</span><span class="o">-</span><span class="n">TMINTBL</span><span class="p">)</span><span class="o">*</span><span class="n">DEGSUBS</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
 <span class="w">       </span><span class="n">DELTA_T</span><span class="w">    </span><span class="o">=</span><span class="w">  </span><span class="mf">1.0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">DEGSUBS</span>
 <span class="w">    </span><span class="k">endif</span>
 
-<span class="k">    if</span><span class="p">(</span><span class="k">TYPE</span><span class="o">/=</span><span class="n">Starr</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="k">TYPE</span><span class="o">/=</span><span class="n">GOFFGRATCH</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="k">TYPE</span><span class="o">/=</span><span class="n">MurphyKoop</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">    if</span><span class="w"> </span><span class="p">(</span><span class="k">TYPE</span><span class="o">/=</span><span class="n">Starr</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="k">TYPE</span><span class="o">/=</span><span class="n">GoffGratch</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="k">TYPE</span><span class="o">/=</span><span class="n">MurphyKoop</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">       print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Bad argument to MAPL_EQsatSET: FORMULATION=&#39;</span><span class="p">,</span><span class="k">TYPE</span>
-<span class="k">       print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Must be one of: &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">Starr</span><span class="p">,</span><span class="w"> </span><span class="n">GOFFGRATCH</span><span class="p">,</span><span class="w"> </span><span class="n">MurphyKoop</span>
+<span class="k">       print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Must be one of: &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">Starr</span><span class="p">,</span><span class="w"> </span><span class="n">GoffGratch</span><span class="p">,</span><span class="w"> </span><span class="n">MurphyKoop</span>
 <span class="w">       </span><span class="k">stop </span><span class="mi">999</span>
 <span class="w">    </span><span class="k">end if</span>
 
 <span class="c">! Set the formulation dependent limits</span>
-<span class="w">    </span>
-<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="k">TYPE</span><span class="o">==</span><span class="n">MurphyKoop</span><span class="p">)</span><span class="w">  </span><span class="k">then</span>
+
+<span class="w">    </span><span class="n">TMIN</span><span class="p">(</span><span class="n">WATER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">TMINLQU</span>
+<span class="w">    </span><span class="n">TMIN</span><span class="p">(</span><span class="n">ICE</span><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">TMINICE</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">TYPE</span><span class="o">==</span><span class="n">MurphyKoop</span><span class="p">)</span><span class="w">  </span><span class="k">then</span>
 <span class="k">       </span><span class="n">TMIN</span><span class="p">(</span><span class="n">ICE</span><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="nb">max</span><span class="p">(</span><span class="n">TMINTBL</span><span class="p">,</span><span class="mi">11</span><span class="mf">0._REAL64</span><span class="p">)</span>
 <span class="w">       </span><span class="n">TMIN</span><span class="p">(</span><span class="n">WATER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="nb">max</span><span class="p">(</span><span class="n">TMINTBL</span><span class="p">,</span><span class="mi">12</span><span class="mf">3._REAL64</span><span class="p">)</span>
-<span class="w">    </span><span class="k">else</span>
-<span class="k">       </span><span class="n">TMIN</span><span class="p">(</span><span class="n">WATER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">TMINLQU</span>
-<span class="w">       </span><span class="n">TMIN</span><span class="p">(</span><span class="n">ICE</span><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">TMINICE</span>
 <span class="w">    </span><span class="k">endif</span>
 
 <span class="c">! Initialize or reset the tables, even if not needed.</span>
 
-<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">ESTBLE</span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">ESTBLE</span><span class="p">)</span>
-<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">ESTBLW</span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">ESTBLW</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">ESTBLE</span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">ESTBLE</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">ESTBLW</span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">ESTBLW</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">ESTBLX</span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">ESTBLX</span><span class="p">)</span>
 
 <span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">ESTBLE</span><span class="p">(</span><span class="n">TABLESIZE</span><span class="p">))</span>
 <span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">ESTBLW</span><span class="p">(</span><span class="n">TABLESIZE</span><span class="p">))</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">ESTBLX</span><span class="p">(</span><span class="n">TABLESIZE</span><span class="p">))</span>
 
 <span class="w">    </span><span class="k">call </span><span class="n">ESINIT</span>
 
@@ -462,10 +463,10 @@ large graphs.</div>
 
 <span class="w">    </span><span class="k">subroutine </span><span class="n">ESINIT</span>
 
-<span class="c">! Saturation vapor pressure table initialization. This is invoked if UTBL is true </span>
-<span class="c">! on the first call to any qsat routine or whenever MAPL_QsatSet is called </span>
+<span class="c">! Saturation vapor pressure table initialization. This is invoked if UTBL is true</span>
+<span class="c">! on the first call to any qsat routine or whenever MAPL_QsatSet is called</span>
 <span class="c">! N.B.--Tables are in Pa</span>
-<span class="w"> </span>
+
 <span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">I</span>
 <span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">T</span>
 <span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">UT</span>
@@ -479,17 +480,32 @@ large graphs.</div>
 <span class="c">! The size of the table and its resolution are currently hardwired.</span>
 
 <span class="w">      </span><span class="k">do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">TABLESIZE</span>
-<span class="w">       </span>
+
 <span class="w">         </span><span class="n">T</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">I</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">DELTA_T</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">TMINTBL</span>
 
 <span class="c">! The two standard tables. ESTBLW contains saturation vapor pressures over liquid</span>
-<span class="c">! for all temperatures. ESTBLE contains saturation vapor pressures over ice for </span>
+<span class="c">! for all temperatures. ESTBLE contains saturation vapor pressures over ice for</span>
 <span class="c">! temperatures below 0C and over water above 0C.</span>
-<span class="w">       </span>
+
 <span class="w">         </span><span class="n">ESTBLW</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QSATD0</span><span class="p">(</span><span class="n">T</span><span class="p">,</span><span class="n">OverIce</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.)</span>
 <span class="w">         </span><span class="n">ESTBLE</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QSATD0</span><span class="p">(</span><span class="n">T</span><span class="p">,</span><span class="n">OverIce</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"> </span><span class="p">)</span>
 
-<span class="w">      </span><span class="k">end do</span>
+<span class="c">! Now, like GEOS_Utilities, create ESTBLX which is a table created</span>
+<span class="c">! using the TMIX value above as a default Ramp</span>
+
+<span class="w">         </span><span class="n">T</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ZEROC</span>
+
+<span class="w">         </span><span class="n">ESTBLX</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESTBLE</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">TMIX</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">ESTBLX</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">T</span><span class="o">/</span><span class="n">TMIX</span><span class="w"> </span><span class="p">)</span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">ESTBLE</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ESTBLW</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ESTBLW</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+
+<span class="k">      end do</span>
+
+<span class="c">! Set ESTFRZ and ESTLQU (a la GEOS_Utilities)</span>
+
+<span class="w">      </span><span class="n">ESTFRZ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QSATD0</span><span class="p">(</span><span class="n">ZEROC</span><span class="w">  </span><span class="p">,</span><span class="n">OverIce</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.)</span>
+<span class="w">      </span><span class="n">ESTLQU</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QSATD0</span><span class="p">(</span><span class="n">TMINLQU</span><span class="p">,</span><span class="n">OverIce</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.)</span>
 
 <span class="c">! Reset UTBL to what it was on entry.</span>
 
@@ -498,7 +514,7 @@ large graphs.</div>
 <span class="c">! Mark table as initialized</span>
 
 <span class="w">      </span><span class="n">TableReady</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
-<span class="w">    </span>
+
 <span class="w">    </span><span class="k">end subroutine </span><span class="n">ESINIT</span>
 
 <span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_EQsatSET</span>
@@ -525,7 +541,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2025-06-12T15:14:29.185297+0000             </p>
+ on 2025-06-14T16:39:10.962122+0000             </p>
           </div>
         </div>
         <br>

@@ -1,105 +1,83 @@
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
-module mapl3g_ExtDataNode
+module MAPL_ExtDataNode
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
+   use MAPL_BaseMod, only: MAPL_UNDEF
    implicit none
    private
 
-   public :: ExtDataNode
-
-   type :: ExtDataNode
-      type(ESMF_Time)  :: interp_time
-      type(ESMF_Time)  :: file_time
-      character(len=:), allocatable :: file
-      integer :: time_index 
+   type, public :: ExtDataNode
+      type(ESMF_Field) :: field
+      type(ESMF_Time)  :: time
+      character(len=ESMF_MAXPATHLEN) :: file
+      integer :: time_index
+      logical :: was_set = .false.
       contains
-         procedure :: set_file_time
-         procedure :: set_interp_time
-         procedure :: set_time_index
-         procedure :: set_file
-         procedure :: get_file_time
-         procedure :: get_interp_time
-         procedure :: get_time_index
-         procedure :: get_file
+         procedure :: check_if_initialized
+         procedure :: set
+         procedure :: get
          procedure :: equals
          generic :: operator(==) => equals
    end type
 
-   interface ExtDataNode
-      procedure new_ExtDataNode
-   end interface
-
 contains
 
-   function new_ExtDataNode(file, time_index, file_time, interp_time) result(node)
-      type(ExtDataNode) :: node
-      character(len=*), intent(in) :: file
-      integer, intent(in) :: time_index
-      type(ESMF_Time), intent(in) :: file_time
-      type(ESMF_Time), intent(in) :: interp_time
-
-      node%file_time = file_time
-      node%interp_time = interp_time
-      node%file = trim(file)
-      node%time_index = time_index
-      
-   end function new_ExtDataNode
-
-   subroutine set_file_time(this, file_time)
+   function check_if_initialized(this,rc) result(field_initialized)
+      logical :: field_initialized
       class(ExtDataNode), intent(inout) :: this
-      type(ESMF_Time), intent(in) :: file_time
-      this%file_time=file_time
-   end subroutine
-
-   subroutine set_interp_time(this, interp_time)
-      class(ExtDataNode), intent(inout) :: this
-      type(ESMF_Time), intent(in) :: interp_time
-      this%interp_time=interp_time
-   end subroutine
-
-   subroutine set_file(this, file)
-      class(ExtDataNode), intent(inout) :: this
-      character(len=*), intent(in) :: file
-      this%file=file
-   end subroutine
-
-   subroutine set_time_index(this, time_index)
-      class(ExtDataNode), intent(inout) :: this
-      integer, intent(in) :: time_index
-      this%time_index=time_index
-   end subroutine
-
-   function get_file_time(this) result(file_time)
-      type(ESMF_Time) :: file_time
-      class(ExtDataNode), intent(inout) :: this
-      file_time=this%file_time
+      integer, intent(out), optional :: rc
+      integer :: status
+      field_initialized = ESMF_FieldIsCreated(this%field,_RC)
+      _RETURN(_SUCCESS)
    end function
 
-   function get_interp_time(this) result(interp_time)
-      type(ESMF_Time) :: interp_time
+   subroutine set(this, unusable, field, time, file, time_index, was_set, rc)
       class(ExtDataNode), intent(inout) :: this
-      interp_time=this%interp_time
-   end function
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      type(ESMF_Time), optional, intent(in) :: time
+      type(ESMF_Field), optional, intent(in) :: field
+      character(len=*), optional, intent(in) :: file
+      integer, optional, intent(in) :: time_index
+      logical, optional, intent(in) :: was_set
+      integer, optional, intent(out) :: rc
 
-   function get_file(this) result(file)
-      character(len=:), allocatable :: file
-      class(ExtDataNode), intent(inout) :: this
-      file=this%file
-   end function
+      _UNUSED_DUMMY(unusable)
+      if (present(time)) this%time = time
+      if (present(field)) this%field = field
+      if (present(file)) this%file = trim(file)
+      if (present(time_index)) this%time_index = time_index
+      if (present(was_set)) this%was_set = was_set
+      _RETURN(_SUCCESS)
 
-   function get_time_index(this) result(time_index)
-      integer :: time_index
+   end subroutine set
+
+   subroutine get(this, unusable, field, time, file, time_index, was_set, rc)
       class(ExtDataNode), intent(inout) :: this
-      time_index=this%time_index
-   end function
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      type(ESMF_Time), optional, intent(out) :: time
+      type(ESMF_Field), optional, intent(out) :: field
+      character(len=*), optional, intent(out) :: file
+      integer, optional, intent(out) :: time_index
+      logical, optional, intent(out) :: was_set
+      integer, optional, intent(out) :: rc
+
+      _UNUSED_DUMMY(unusable)
+      if (present(time)) time = this%time
+      if (present(field)) field = this%field
+      if (present(file)) file = trim(this%file)
+      if (present(time_index)) time_index = this%time_index
+      if (present(was_set)) was_set = this%was_set
+      _RETURN(_SUCCESS)
+
+   end subroutine get
 
    logical function equals(a,b)
       class(ExtDataNode), intent(in) :: a
       class(ExtDataNode), intent(in) :: b
-
-      equals = (trim(a%file)==trim(b%file)) .and. (a%file_time==b%file_time) .and. (a%time_index==b%time_index) .and. (a%interp_time==b%interp_time)
+ 
+      equals = (trim(a%file)==trim(b%file)) .and. (a%time==b%time) .and. (a%time_index==b%time_index)
    end function equals
 
-end module mapl3g_ExtDataNode
+end module MAPL_ExtDataNode
