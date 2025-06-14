@@ -17,6 +17,7 @@ module NCIOMod
   use MAPL_BaseMod
   use MAPL_CommsMod
   use MAPL_SortMod
+  use MAPL_EASEConversion, only:  get_ease_gridname_by_cols
   !use MAPL_RangeMod
   use MAPL_ShmemMod
   use MAPL_ExceptionHandling
@@ -5541,6 +5542,7 @@ contains
 
       integer :: unit, status, hdr(2), N
       real, pointer :: AVR_Transpose(:,:)
+      character(len=:), allocatable :: Correct_ease_name
 
       UNIT = GETFILE(FILENAME, form='FORMATTED', RC=status)
       _VERIFY(STATUS)
@@ -5569,6 +5571,10 @@ contains
           allocate(AVR(NT,9), STAT=STATUS) ! 9 columns for EASE grid
           _VERIFY(STATUS)
           allocate(AVR_transpose(9,NT))
+          ! In older tile files, EASE grid name convention is "SMAP-EASEvx-Mxx".
+          ! Change her to revised convention "EASEvx_Mxx":
+          Correct_ease_name = get_ease_gridname_by_cols(IM(1))
+          GridNAME(1) = Correct_ease_name
       else
          allocate(AVR(NT,NumGlobalVars+NumLocalVars*N_GRIDS), STAT=STATUS)
          _VERIFY(STATUS)
