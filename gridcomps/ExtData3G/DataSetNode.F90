@@ -58,17 +58,21 @@ module mapl3g_DataSetNode
 
 contains
 
-   function new_DataSetNode(file, time_index, file_time, interp_time) result(node)
+   function new_DataSetNode(file, time_index, file_time, interp_time, enabled, update) result(node)
       type(DataSetNode) :: node
       character(len=*), intent(in) :: file
       integer, intent(in) :: time_index
       type(ESMF_Time), intent(in) :: file_time
       type(ESMF_Time), intent(in) :: interp_time
+      logical, intent(in) :: enabled
+      logical, intent(in) :: update
 
       node%file_time = file_time
       node%interp_time = interp_time
       node%file = trim(file)
       node%time_index = time_index
+      node%enabled = enabled
+      node%update = update
       
    end function new_DataSetNode
 

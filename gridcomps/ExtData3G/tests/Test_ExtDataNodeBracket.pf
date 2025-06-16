@@ -28,8 +28,8 @@ contains
       index2 = 1
       file1 = "foo.nc4"
       file2 = "foo.nc4"
-      node1 = DataSetNode(file1, index1, file_time1, interp_time1)
-      node2 = DataSetNode(file2, index2, file_time2, interp_time2)
+      node1 = DataSetNode(file1, index1, file_time1, interp_time1, .true., .true.)
+      node2 = DataSetNode(file2, index2, file_time2, interp_time2, .true., .true.)
       @assertTrue(node1==node2)
 
       file = node1%get_file()
@@ -48,7 +48,7 @@ contains
       integer :: index1, index2 
       character(len=:), allocatable :: file1, file2
       real :: weights(2)
-      logical :: disable_interp
+      logical :: disable_interp, enable, update
 
       call ESMF_TimeSet(interp_time1,yy=2001, mm=4, dd=14, h=21, m=0, s=0, _RC)
       call ESMF_TimeSet(interp_time2,yy=2001, mm=4, dd=15, h=21, m=0, s=0, _RC)
@@ -58,8 +58,10 @@ contains
       index2 = 1
       file1 = "foo.nc4"
       file2 = "foo.nc4"
-      node1 = DataSetNode(file1, index1, file_time1, interp_time1)
-      node2 = DataSetNode(file2, index2, file_time2, interp_time2)
+      enable = .true.
+      update = .true.
+      node1 = DataSetNode(file1, index1, file_time1, interp_time1, enable, update)
+      node2 = DataSetNode(file2, index2, file_time2, interp_time2, enable, update)
 
       disable_interp = .true.
       call bracket%set_parameters(disable_interp, node1, node2)

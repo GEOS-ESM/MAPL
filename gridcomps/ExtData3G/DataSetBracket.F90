@@ -96,19 +96,33 @@ contains
       type(ESMF_Time) :: time1, time2
       real                       :: alpha
       integer :: status
+      type(DataSetNode) :: left_node, right_node
+      logical :: left_enabled, right_enabled
 
+      left_node = this%get_left_node(_RC)
+      right_node = this%get_right_node(_RC)
+      left_enabled = left_node%get_enabled()
+      right_enabled = right_node%get_enabled()
       alpha = 0.0
-      if ( this%disable_interpolation) then
+      if ((left_enabled .eqv. .true.) .and. (right_enabled .eqv. .false.)) then
          weights(1) = 1.0
          weights(2) = 0.0
-      else
-         time1 = this%left_node%get_interp_time()
-         time2 = this%right_node%get_interp_time()
-         tinv1 = time - time1
-         tinv2 = time2 - time1
-         alpha = tinv1/tinv2
-         weights(1) = alpha
-         weights(2) = 1.0 - alpha
+      else if ((left_enabled .eqv. .false.) .and. (right_enabled .eqv. .true.)) then
+         weights(1) = 0.0
+         weights(2) = 1.0
+      else if ((left_enabled .eqv. .true.) .and. (right_enabled .eqv. .true.)) then
+         if ( this%disable_interpolation) then ! assumes forward time
+            weights(1) = 1.0
+            weights(2) = 0.0
+         else
+            time1 = this%left_node%get_interp_time()
+            time2 = this%right_node%get_interp_time()
+            tinv1 = time - time1
+            tinv2 = time2 - time1
+            alpha = tinv1/tinv2
+            weights(1) = alpha
+            weights(2) = 1.0 - alpha
+         end if
       end if
 
    end function compute_bracket_weights 
