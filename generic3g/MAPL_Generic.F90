@@ -994,7 +994,7 @@ contains
       type(ESMF_Clock), intent(in) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_TimeInterval), optional, intent(out) :: timestep
-      real(ESMF_KIND_R8), optional, intent(out) :: dt ! timestep in seconds
+      real(ESMF_KIND_R4), optional, intent(out) :: dt ! timestep in seconds
       integer, optional, intent(out) :: rc
 
       type(ESMF_TimeInterval) :: timestep_
@@ -1004,7 +1004,7 @@ contains
       if (present(timestep)) timestep = timestep_
       if (present(dt)) then
          call ESMF_TimeIntervalGet(timestep_, s=seconds, _RC)
-         dt = real(seconds, kind=ESMF_KIND_R8)
+         dt = real(seconds, kind=ESMF_KIND_R4)
       end if
 
       _RETURN(_SUCCESS)
