@@ -20,7 +20,6 @@ module mapl3g_DataSetNode
       enumerator :: NODE_UNKNOWN
    end enum      
 
-   !character(len=*), parameter :: NULL_FILE="NULLLLLLL"
    type :: DataSetNode
       integer :: node_side
       logical :: update = .false.
@@ -28,7 +27,6 @@ module mapl3g_DataSetNode
       type(ESMF_Time) :: interp_time
       type(ESMF_Time) :: file_time
       character(len=:), allocatable :: file
-      !character(len=ESMF_MAXSTR) :: file = NULL_FILE
       integer :: time_index 
       contains
          procedure :: set_file_time
@@ -169,7 +167,6 @@ contains
    subroutine reset(this)
       class(DataSetNode), intent(inout) :: this
       deallocate(this%file)
-      !this%file = NULL_FILE
       this%enabled = .false.
       this%update = .false.
    end subroutine
@@ -182,7 +179,6 @@ contains
 
       integer :: status
       if (.not.allocated(this%file)) then
-      !if (trim(this%file)==NULL_FILE) then
          node_is_valid = .false.
          _RETURN(_SUCCESS)
       end if
@@ -203,7 +199,6 @@ contains
       if (allocated(this%file)) then
          deallocate(this%file) 
       end if
-      !this%file = NULL_FILE
       this%enabled = .false.
       this%update = .false.
    end subroutine
@@ -261,17 +256,24 @@ contains
       logical :: is_allocated
       class(DataSetNode), intent(inout) :: this
       is_allocated = allocated(this%file)
-      !is_allocated = trim(this%file) /= NULL_FILE
    end function
  
-   subroutine write_node(this, preString)
+   subroutine write_node(this, pre_string)
       class(DataSetNode), intent(inout) :: this
-      character(len=*), intent(in) :: prestring
-      print*,prestring//' writing node '
+      character(len=*), optional, intent(in) :: pre_string
+      if (present(pre_string)) then
+         print*,pre_string//'writing node '
+      else
+         print*,'writing node '
+      end if
       print*,'node_side: ',this%node_side
       print*,'update: ',this%update
       print*,'enabled: ',this%enabled
-      print*,'file ',trim(this%file)
+      if (allocated(this%file)) then
+         print*,'file: ',trim(this%file)
+      else
+         print*,'file not allocated'
+      end if
       print*,'time_index ',this%time_index
       call ESMF_TimePrint(this%interp_time, options='string', prestring='interp time: ')
       call ESMF_TimePrint(this%file_time, options='string', prestring='file time: ')

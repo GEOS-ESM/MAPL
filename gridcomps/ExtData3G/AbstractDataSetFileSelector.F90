@@ -22,10 +22,14 @@ module mapl3g_AbstractDataSetFileSelector
       type(ESMF_TimeInterval)  :: frequency
       type(ESMF_Time) :: ref_time
       type(ESMF_Time), allocatable :: valid_range(:)
-      logical :: enable_interpolation = .true.
+      type(ESMF_Time), allocatable :: last_updated
+      type(ESMF_TimeInterval), allocatable :: clock_dt 
       contains
          procedure :: find_any_file
          procedure :: compute_trial_time
+         procedure :: get_last_update
+         procedure :: set_last_update
+         procedure :: detect_time_flow
          procedure(I_update_file_bracket), deferred :: update_file_bracket
     end type
 
@@ -99,6 +103,46 @@ module mapl3g_AbstractDataSetFileSelector
        _RETURN(_SUCCESS)
        
     end function compute_trial_time 
+
+    subroutine set_last_update(this, update_time, rc)
+       class(AbstractDataSetFileSelector), intent(inout) :: this
+       type(ESMF_Time), intent(in) :: update_time
+       integer, optional, intent(out) :: rc
+
+       integer :: status
+       if (allocated(this%last_updated)) then
+          this%last_updated = update_time
+       else
+          allocate(this%last_updated, source=update_time, _STAT)
+       end if
+       _RETURN(_SUCCESS)
+    end subroutine
+
+    function get_last_update(this) result(last_update)
+       type(ESMF_Time), allocatable :: last_update
+       class(AbstractDataSetFileSelector), intent(inout) :: this
+       if (allocated(this%last_updated)) last_update = this%last_updated 
+    end function
+    
+    function detect_time_flow(this, current_time, rc) result(time_jumped)
+       logical :: time_jumped
+       class(AbstractDataSetFileSelector), intent(inout) :: this
+       type(ESMF_Time), intent(in) :: current_time
+       integer, optional, intent(inout) :: rc
+
+       integer :: status
+       type(ESMF_TimeInterval) :: time_interval
+       integer(ESMF_KIND_I8) :: f1, f2
+
+       time_jumped = .false.
+       if (allocated(this%last_updated) .and. allocated(this%clock_dt)) then
+          time_interval = current_time - this%last_updated
+          call ESMF_TimeIntervalGet(time_interval, s_i8=f1, _RC)
+          call ESMF_TimeIntervalGet(this%clock_dt, s_i8=f2, _RC)
+          time_jumped = f2 < abs(f1)
+       end if
+       _RETURN(_SUCCESS)
+    end function 
 
 end module mapl3g_AbstractDataSetFileSelector
    
