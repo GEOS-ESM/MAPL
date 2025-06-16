@@ -201,6 +201,7 @@ module mapl3g_Generic
 
    interface MAPL_ClockGet
       procedure :: clock_get
+      procedure :: ESMF_ClockGet
    end interface MAPL_ClockGet
 
 contains
