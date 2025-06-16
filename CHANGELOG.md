@@ -98,6 +98,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `StateFilterItem` => `MAPL_StateFilterItem` in **ACG**
 - Fix binary writes and reads in benchmark simulators
+- Removed `_HERE` macros left in ExtDataGridCompNG.F90 from debugging
 
 ### Added
 
@@ -106,6 +107,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Swapped order of output dimensions for tarjectory and mask samplers.   Now the leading dimension (Fortran convention) is level.
 
 ### Changed
+
+- Update the MAPL_EQsat code to the ramping version from CVS
 
 ### Removed
 
