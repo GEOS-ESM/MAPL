@@ -1570,17 +1570,14 @@ CONTAINS
            bracket_grid = MAPL_ExtDataGridChangeLev(grid,item%vcoord%num_levels,_RC)
            left_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
            call set_field_units(left_field, item%units, _RC)
-           _HERE
            call set_mw(left_field, item, _RC)
            right_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
            call set_field_units(right_field, item%units, _RC)
-           _HERE
            call set_mw(right_field, item, _RC)
            call item%modelGridFields%comp1%set_parameters(left_field=left_field,right_field=right_field, _RC)
            if (item%vcoord%num_levels /= lm) then
               temp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp1),_RC)
               call set_field_units(temp_field, item%units, _RC)
-           _HERE
               call set_mw(temp_field, item, _RC)
               call MAPL_FieldBundleAdd(item%t_interp_bundle, temp_field, _RC)
            else
