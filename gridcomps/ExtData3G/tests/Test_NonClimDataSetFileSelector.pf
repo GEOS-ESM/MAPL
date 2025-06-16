@@ -33,4 +33,92 @@ contains
 
    end subroutine Test_NonClimDataSetFileSelector_get_any_file
 
+   @test
+   subroutine test_establish_both_brackets_from_scratch_hourly()
+      integer :: status
+      type(NonClimDataSetFileSelector) :: file_handler
+      character(len=:), allocatable :: template, expected_file, found_file
+      type(ESMF_Time) :: ref_time, current_time
+      type(ESMF_TimeInterval) :: frequency
+      type(DataSetNode) :: left_node, right_node
+
+      template = "data_sets/hourly_files/hourly_files.%y4%m2%d2_%h200z.nc4"
+      call ESMF_TimeSet(ref_time, yy=2004, mm=1, dd=31, h=21, m=0, s=0, _RC)
+      call ESMF_TimeIntervalSet(frequency, h=1, _RC)
+      call ESMF_TimeSet(current_time, yy=2004, mm=1, dd=31, h=23, m=10, s=0, _RC)
+     
+      file_handler = NonClimDataSetFileSelector(template, ref_time=ref_time, frequency=frequency, _RC)
+      expected_file = "data_sets/hourly_files/hourly_files.20040131_2300z.nc4"
+      call left_node%set_node_side(NODE_LEFT)
+      call file_handler%update_node(current_time, left_node, _RC)
+      found_file = left_node%get_file()
+      @assertTrue(expected_file == found_file)
+
+      expected_file = "data_sets/hourly_files/hourly_files.20040201_0000z.nc4"
+      call right_node%set_node_side(NODE_RIGHT)
+      call file_handler%update_node(current_time, right_node, _RC)
+      found_file = right_node%get_file() 
+      @assertTrue(expected_file == found_file)
+
+   end subroutine test_establish_both_brackets_from_scratch_hourly
+       
+   @test
+   subroutine test_timestep_update_file_bracket()
+      integer :: status
+      type(NonClimDataSetFileSelector) :: file_handler
+
+      type(ESMF_Time) :: current_time, ref_time
+      type(ESMF_TimeInterval) :: frequency
+      type(DataSetNode) :: left_node, right_node
+      type(DataSetBracket) :: bracket
+      character(len=:), allocatable :: template, expected_file, found_file
+      logical :: update
+
+      call ESMF_TimeSet(current_time, yy=2004, mm=1, dd=31, h=23, m=10, s=0, _RC)
+      template = "data_sets/hourly_files/hourly_files.%y4%m2%d2_%h200z.nc4"
+      call ESMF_TimeSet(ref_time, yy=2004, mm=1, dd=31, h=21, m=0, s=0, _RC)
+      call ESMF_TimeIntervalSet(frequency, h=1, _RC)
+     
+      file_handler = NonClimDataSetFileSelector(template, ref_time=ref_time, frequency=frequency, _RC)
+      call right_node%set_node_side(NODE_RIGHT)
+      call left_node%set_node_side(NODE_LEFT)
+      call bracket%set_node(NODE_LEFT, left_node, _RC)
+      call bracket%set_node(NODE_RIGHT, right_node, _RC)
+     
+      call file_handler%update_file_bracket(current_time, bracket, _RC)
+      left_node = bracket%get_left_node()
+      right_node = bracket%get_right_node()
+
+      expected_file = "data_sets/hourly_files/hourly_files.20040131_2300z.nc4"
+      found_file = left_node%get_file() 
+      update = left_node%get_update()
+      @assertTrue(expected_file == found_file)
+      @assertTrue(update .eqv. .true.) 
+
+      expected_file = "data_sets/hourly_files/hourly_files.20040201_0000z.nc4"
+      found_file = right_node%get_file() 
+      update = right_node%get_update()
+      @assertTrue(expected_file == found_file)
+      @assertTrue(update .eqv. .true.) 
+
+      call ESMF_TimeSet(current_time, yy=2004, mm=1, dd=31, h=23, m=20, s=0, _RC)
+      call file_handler%update_file_bracket(current_time, bracket, _RC)
+      left_node = bracket%get_left_node()
+      right_node = bracket%get_right_node()
+
+      expected_file = "data_sets/hourly_files/hourly_files.20040131_2300z.nc4"
+      found_file = left_node%get_file() 
+      update = left_node%get_update()
+      @assertTrue(expected_file == found_file)
+      @assertTrue(update .eqv. .false.) 
+
+      expected_file = "data_sets/hourly_files/hourly_files.20040201_0000z.nc4"
+      found_file = right_node%get_file() 
+      update = right_node%get_update()
+      @assertTrue(expected_file == found_file)
+      @assertTrue(update .eqv. .false.) 
+     
+
+   end subroutine test_timestep_update_file_bracket
+
 end module Test_NonClimDataSetFileSelector

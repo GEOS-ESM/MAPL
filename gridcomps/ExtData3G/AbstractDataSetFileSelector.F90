@@ -94,7 +94,7 @@ module mapl3g_AbstractDataSetFileSelector
           trial_time = trial_time - this%frequency + shift*this%frequency
        else
           n = (target_time-this%ref_time)/this%frequency
-          trial_time = this%ref_time+shift*this%frequency 
+          trial_time = this%ref_time+(n+shift)*this%frequency
        end if
        _RETURN(_SUCCESS)
        

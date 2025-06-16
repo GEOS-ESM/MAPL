@@ -20,6 +20,7 @@ module mapl3g_DataSetBracket
          procedure :: set_parameters
          procedure :: get_left_node
          procedure :: get_right_node
+         procedure :: set_node
    end type DataSetBracket
 
 contains
@@ -27,8 +28,8 @@ contains
    subroutine set_parameters(this, disable_interpolation, left_node, right_node)
       class(DataSetBracket), intent(inout) :: this
       logical, intent(in), optional :: disable_interpolation
-      type(DataSetNode), intent(in), optional :: left_node
-      type(DataSetNode), intent(in), optional :: right_node
+      type(DataSetNode), intent(inout), optional :: left_node
+      type(DataSetNode), intent(inout), optional :: right_node
 
       if (present(disable_interpolation)) this%disable_interpolation = disable_interpolation
       if (present(left_node)) this%left_node = left_node
@@ -50,13 +51,13 @@ contains
 
    subroutine set_node(this, bracketside, node, rc)
       class(DataSetBracket), intent(inout) :: this
-      character(len=*), intent(in) :: bracketside
+      integer, intent(in) :: bracketside
       type(DataSetNode), intent(in) :: node
       integer, optional, intent(out) :: rc
 
-      if (bracketside=='L') then
+      if (bracketside==NODE_LEFT) then
          this%left_node = node
-      else if (bracketside=='R') then
+      else if (bracketside==NODE_RIGHT) then
          this%right_node = node
       else
          _FAIL('wrong bracket side')

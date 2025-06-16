@@ -64,22 +64,25 @@ module mapl3g_NonClimDataSetFileSelector
        type(ESMF_Time) :: target_time
        integer :: status
        logical :: establish_both, establish_left, establish_right
-       type(DataSetNode) :: left_node, right_node
-       logical :: node_is_valid, left_node_valid, right_node_valid, both_created, both_new
+       type(DataSetNode) :: left_node, right_node, test_node
+       logical :: node_is_valid, both_new, both_created, left_node_valid, right_node_valid, has_left_file, has_right_file
        character(len=:), allocatable :: left_file, right_file
 
        establish_both = .true. 
        establish_left = .false.
        establish_right = .false.
        target_time = current_time
-       if (this%persist_closest .and. this%not_in_range(target_time)) then
-          establish_both = .false.
-          if (current_time < this%valid_range(1)) then
-             establish_right = .true.
-             target_time = this%valid_range(1)       
-          else if (current_time > this%valid_range(2)) then
-             establish_left = .true.
-             target_time = this%valid_range(2)       
+       if (this%persist_closest) then
+          _ASSERT(allocated(this%valid_range), 'using persistence but not in range')
+          if (this%not_in_range(target_time)) then
+             establish_both = .false.
+             if (current_time < this%valid_range(1)) then
+                establish_right = .true.
+                target_time = this%valid_range(1)       
+             else if (current_time > this%valid_range(2)) then
+                establish_left = .true.
+                target_time = this%valid_range(2)       
+             end if
           end if
        end if
 
@@ -92,8 +95,6 @@ module mapl3g_NonClimDataSetFileSelector
           if (.not.node_is_valid) then
              call this%update_node(current_time, left_node, _RC)
           end if
-          node_is_valid = left_node%validate(current_time)
-          _ASSERT(node_is_valid, "left node not updated")
           call bracket%set_parameters(left_node=left_node)
        end if
 
@@ -106,25 +107,46 @@ module mapl3g_NonClimDataSetFileSelector
           if (.not.node_is_valid) then
              call this%update_node(current_time, right_node, _RC)
           end if
-          node_is_valid = right_node%validate(current_time)
-          _ASSERT(node_is_valid, "right node not updated")
           call bracket%set_parameters(right_node=right_node)
        end if
 
        if (establish_both) then
           left_node = bracket%get_left_node(_RC)
           right_node = bracket%get_right_node(_RC)
-          left_file = left_node%get_file()
-          right_file = right_node%get_file()
-          both_created = allocated(left_file) .and. allocated(right_file)
-          both_new = (.not.allocated(left_file)) .and. (.not.allocated(right_file)) 
+          has_left_file = left_node%file_allocated()
+          has_right_file = right_node%file_allocated()
+          both_new = (.not.has_left_file) .and. (.not.has_right_file)
+          both_created = has_left_file .and. has_right_file
           if (both_new) then
              call this%update_node(current_time, left_node, _RC)
+             call bracket%set_parameters(left_node=left_node)
              call this%update_node(current_time, right_node, _RC)
-          end if
-          if (both_created) then
-             left_node_valid = left_node%validate(current_time) 
-             right_node_valid = right_node%validate(current_time) 
+             call bracket%set_parameters(right_node=right_node)
+          else if (both_created) then 
+             left_node_valid =left_node%validate(current_time)
+             right_node_valid =right_node%validate(current_time)
+             if (left_node_valid .and. right_node_valid) then
+                call left_node%set_update(.false.)
+                call right_node%set_update(.false.)
+                call bracket%set_parameters(left_node=left_node)
+                call bracket%set_parameters(right_node=right_node)
+             else
+                ! try swapping nodes, assuming time forward for now
+                test_node = right_node
+                call test_node%set_node_side(NODE_LEFT)
+                node_is_valid = test_node%validate(current_time)
+                if (node_is_valid) then
+                   left_node = test_node 
+                   call left_node%set_update(.false.)
+                   call this%update_node(current_time, right_node, _RC)
+                   call bracket%set_parameters(right_node=right_node)
+                else 
+                   call this%update_node(current_time, left_node, _RC)
+                   call bracket%set_parameters(left_node=left_node)
+                   call this%update_node(current_time, right_node, _RC)
+                   call bracket%set_parameters(right_node=right_node)
+                end if
+             end if
           end if
        end if
 
@@ -140,18 +162,19 @@ module mapl3g_NonClimDataSetFileSelector
        
        integer :: status, local_search_stop, step,  node_side, i
        type(ESMF_Time) :: trial_time
-       character(len=:), allocatable :: trial_file
+       character(len=ESMF_MAXPATHLEN) :: trial_file
        logical :: file_found, valid_node
 
        node_side = node%get_node_side()
        select case(node_side)
-       case (left_node)
+       case (NODE_LEFT)
             local_search_stop = -NUM_SEARCH_TRIES
             step = -1
-       case (right_node)
+       case (NODE_RIGHT)
             local_search_stop = NUM_SEARCH_TRIES
             step = 1
        end select
+       valid_node = .false.
        do i=0,local_search_stop,step
           trial_time = this%compute_trial_time(current_time, i, _RC)
           call fill_grads_template(trial_file, this%file_template, time=trial_time, _RC)
@@ -163,7 +186,7 @@ module mapl3g_NonClimDataSetFileSelector
              if (valid_node) exit 
           end if
        enddo
-
+       _ASSERT(valid_node,"Could not find a valid node")
        _RETURN(_SUCCESS)
     end subroutine update_node
 

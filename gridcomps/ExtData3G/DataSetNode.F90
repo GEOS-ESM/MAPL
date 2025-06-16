@@ -10,16 +10,17 @@ module mapl3g_DataSetNode
    private
 
    public :: DataSetNode
-   public :: left_node
-   public :: right_node
-   public :: unknown_node
+   public :: NODE_LEFT
+   public :: NODE_RIGHT
+   public :: NODE_UNKNOWN
  
    enum, bind(c)
-      enumerator :: left_node
-      enumerator :: right_node
-      enumerator :: unknown_node
+      enumerator :: NODE_LEFT
+      enumerator :: NODE_RIGHT
+      enumerator :: NODE_UNKNOWN
    end enum      
 
+   !character(len=*), parameter :: NULL_FILE="NULLLLLLL"
    type :: DataSetNode
       integer :: node_side
       logical :: update = .false.
@@ -27,6 +28,7 @@ module mapl3g_DataSetNode
       type(ESMF_Time) :: interp_time
       type(ESMF_Time) :: file_time
       character(len=:), allocatable :: file
+      !character(len=ESMF_MAXSTR) :: file = NULL_FILE
       integer :: time_index 
       contains
          procedure :: set_file_time
@@ -47,6 +49,8 @@ module mapl3g_DataSetNode
          procedure :: validate
          procedure :: invalidate
          procedure :: update_node_from_file
+         procedure :: write_node
+         procedure :: file_allocated
          generic :: operator(==) => equals
    end type
 
@@ -127,7 +131,8 @@ contains
    function get_file(this) result(file)
       character(len=:), allocatable :: file
       class(DataSetNode), intent(inout) :: this
-      file=this%file
+      if (allocated(this%file)) file=this%file
+      !if (allocfile=this%file
    end function
 
    function get_time_index(this) result(time_index)
@@ -164,6 +169,7 @@ contains
    subroutine reset(this)
       class(DataSetNode), intent(inout) :: this
       deallocate(this%file)
+      !this%file = NULL_FILE
       this%enabled = .false.
       this%update = .false.
    end subroutine
@@ -176,16 +182,17 @@ contains
 
       integer :: status
       if (.not.allocated(this%file)) then
+      !if (trim(this%file)==NULL_FILE) then
          node_is_valid = .false.
          _RETURN(_SUCCESS)
       end if
-      if (this%node_side == unknown_node ) then
+      if (this%node_side == NODE_UNKNOWN ) then
          node_is_valid = .false.
          _RETURN(_SUCCESS)
       end if
-      if (this%node_side == left_node) then
+      if (this%node_side == NODE_LEFT) then
          node_is_valid = (current_time >= this%file_time)
-      else if (this%node_side == right_node) then
+      else if (this%node_side == NODE_RIGHT) then
          node_is_valid = (current_time < this%file_time)
       end if
       _RETURN(_SUCCESS)
@@ -196,6 +203,7 @@ contains
       if (allocated(this%file)) then
          deallocate(this%file) 
       end if
+      !this%file = NULL_FILE
       this%enabled = .false.
       this%update = .false.
    end subroutine
@@ -212,7 +220,7 @@ contains
       type(NetCDF4_FileFormatter) :: formatter
       type(ESMF_Time), allocatable :: time_vector(:)
 
-      _ASSERT(this%node_side/=unknown_node, "node does not have a side")
+      _ASSERT(this%node_side/=NODE_UNKNOWN, "node does not have a side")
       call formatter%open(filename, pFIO_READ, _RC)
       basic_metadata = formatter%read(_RC)
       call formatter%close()
@@ -220,7 +228,7 @@ contains
 
       call metadata%get_time_info(timeVector=time_vector, _RC)
       select case(this%node_side)
-      case (left_node)
+      case (NODE_LEFT)
          do i=size(time_vector),1,-1
             if (target_time >= time_vector(i)) then
                this%file = filename
@@ -232,7 +240,7 @@ contains
                exit
             end if
          enddo
-      case (right_node)
+      case (NODE_RIGHT)
          do i=1,size(time_vector)
             if (target_time < time_vector(i)) then
                this%file = filename
@@ -249,4 +257,23 @@ contains
       _RETURN(_SUCCESS)
    end subroutine
 
+   function file_allocated(this) result(is_allocated)
+      logical :: is_allocated
+      class(DataSetNode), intent(inout) :: this
+      is_allocated = allocated(this%file)
+      !is_allocated = trim(this%file) /= NULL_FILE
+   end function
+ 
+   subroutine write_node(this, preString)
+      class(DataSetNode), intent(inout) :: this
+      character(len=*), intent(in) :: prestring
+      print*,prestring//' writing node '
+      print*,'node_side: ',this%node_side
+      print*,'update: ',this%update
+      print*,'enabled: ',this%enabled
+      print*,'file ',trim(this%file)
+      print*,'time_index ',this%time_index
+      call ESMF_TimePrint(this%interp_time, options='string', prestring='interp time: ')
+      call ESMF_TimePrint(this%file_time, options='string', prestring='file time: ')
+  end subroutine
 end module mapl3g_DataSetNode
