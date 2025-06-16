@@ -48,7 +48,7 @@ module mapl3g_Generic
    use esmf, only: ESMF_StateIntent_Flag, ESMF_STATEINTENT_INTERNAL
    use esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
    use esmf, only: ESMF_KIND_R8, ESMF_KIND_R4
-   use esmf, only: ESMF_Time, ESMF_TimeInterval
+   use esmf, only: ESMF_Time, ESMF_TimeInterval, ESMF_TimeIntervalGet, ESMF_Clock, ESMF_ClockGet
    use esmf, only: ESMF_State, ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD
    use esmf, only: operator(==)
    use mapl3g_hconfig_get
@@ -84,6 +84,8 @@ module mapl3g_Generic
    public :: MAPL_GridCompSetGeometry
 
    public :: MAPL_GridcompGetResource
+
+   public :: MAPL_ClockGet
 
    ! Accessors
 !!$   public :: MAPL_GetOrbit
@@ -197,6 +199,10 @@ module mapl3g_Generic
       procedure :: gridcomp_connect_all
    end interface MAPL_GridCompConnectAll
 
+   interface MAPL_ClockGet
+      procedure :: clock_get
+      procedure :: ESMF_ClockGet
+   end interface MAPL_ClockGet
 
 contains
 
@@ -984,5 +990,20 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_reexport
+
+   subroutine clock_get(clock, dt, rc)
+      type(ESMF_Clock), intent(in) :: clock
+      real(ESMF_KIND_R4), intent(out) :: dt ! timestep in seconds
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_TimeInterval) :: timestep
+      integer :: seconds, status
+
+      call ESMF_ClockGet(clock, timeStep=timestep, _RC)
+      call ESMF_TimeIntervalGet(timestep, s=seconds, _RC)
+      dt = real(seconds, kind=ESMF_KIND_R4)
+
+      _RETURN(_SUCCESS)
+   end subroutine clock_get
 
 end module mapl3g_Generic
