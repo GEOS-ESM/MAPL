@@ -19,11 +19,11 @@ module mapl3g_AbstractDataSetFileSelector
  
    type, abstract :: AbstractDataSetFileSelector
       character(:), allocatable :: file_template
-      type(ESMF_TimeInterval)  :: frequency
+      type(ESMF_TimeInterval)  :: file_frequency
       type(ESMF_Time) :: ref_time
       type(ESMF_Time), allocatable :: valid_range(:)
       type(ESMF_Time), allocatable :: last_updated
-      type(ESMF_TimeInterval), allocatable :: clock_dt 
+      type(ESMF_TimeInterval), allocatable :: timeStep 
       contains
          procedure :: find_any_file
          procedure :: compute_trial_time
@@ -66,7 +66,7 @@ module mapl3g_AbstractDataSetFileSelector
           _RETURN(_SUCCESS)
        end if
        do i=1, MAX_TRIALS
-          useable_time = useable_time + this%frequency
+          useable_time = useable_time + this%file_frequency
           call fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
           inquire(file=trim(trial_file),exist=file_found)
           if (file_found) then
@@ -88,16 +88,16 @@ module mapl3g_AbstractDataSetFileSelector
        integer :: status, n
        integer(ESMF_KIND_I8) :: int_sec
        
-       call ESMF_TimeIntervalGet(this%frequency, s_i8=int_sec, _RC)
+       call ESMF_TimeIntervalGet(this%file_frequency, s_i8=int_sec, _RC)
        if (int_sec == 0) then
           trial_time = this%ref_time
           do while(trial_time <= target_time)
-             trial_time = trial_time + this%frequency
+             trial_time = trial_time + this%file_frequency
           enddo
-          trial_time = trial_time - this%frequency + shift*this%frequency
+          trial_time = trial_time - this%file_frequency + shift*this%file_frequency
        else
-          n = (target_time-this%ref_time)/this%frequency
-          trial_time = this%ref_time+(n+shift)*this%frequency
+          n = (target_time-this%ref_time)/this%file_frequency
+          trial_time = this%ref_time+(n+shift)*this%file_frequency
        end if
        _RETURN(_SUCCESS)
        
@@ -124,10 +124,10 @@ module mapl3g_AbstractDataSetFileSelector
        integer(ESMF_KIND_I8) :: f1, f2
 
        time_jumped = .false.
-       _RETURN_UNLESS(allocated(this%last_updated) .and. allocated(this%clock_dt))
+       _RETURN_UNLESS(allocated(this%last_updated) .and. allocated(this%timeStep))
        time_interval = current_time - this%last_updated
        call ESMF_TimeIntervalGet(time_interval, s_i8=f1, _RC)
-       call ESMF_TimeIntervalGet(this%clock_dt, s_i8=f2, _RC)
+       call ESMF_TimeIntervalGet(this%timeStep, s_i8=f2, _RC)
        time_jumped = abs(f1) > f2
        _RETURN(_SUCCESS)
     end function 

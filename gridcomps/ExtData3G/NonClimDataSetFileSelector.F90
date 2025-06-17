@@ -29,19 +29,19 @@ module mapl3g_NonClimDataSetFileSelector
        
     contains
 
-    function new_NonClimDataSetFileSelector(file_template, frequency, ref_time, clock_dt, valid_range, persist_closest, rc) result(file_handler)
+    function new_NonClimDataSetFileSelector(file_template, file_frequency, ref_time, timeStep, valid_range, persist_closest, rc) result(file_handler)
        type(NonClimDataSetFileSelector) :: file_handler
        character(len=*), intent(in) :: file_template
-       type(ESMF_TimeInterval), intent(in), optional :: frequency
+       type(ESMF_TimeInterval), intent(in), optional :: file_frequency
        type(ESMF_Time), intent(in), optional :: ref_time 
        type(ESMF_Time), intent(in), optional :: valid_range(:)
-       type(ESMF_TimeInterval), intent(in), optional :: clock_dt
+       type(ESMF_TimeInterval), intent(in), optional :: timeStep
        logical, intent(in), optional :: persist_closest
        integer, intent(out), optional :: rc
 
        integer :: status
        file_handler%file_template = file_template
-       if (present(frequency)) file_handler%frequency = frequency
+       if (present(file_frequency)) file_handler%file_frequency = file_frequency
        if (present(ref_time)) file_handler%ref_time = ref_time
        if (present(valid_range)) then
           _ASSERT(size(valid_range)==2,"Valid range must be 2")
@@ -53,8 +53,8 @@ module mapl3g_NonClimDataSetFileSelector
           _ASSERT(allocated(file_handler%valid_range),'Asking for persistence but out of range')
        end if
 
-       if (present(clock_dt)) then
-          allocate(file_handler%clock_dt, source=clock_dt, _STAT)
+       if (present(timeStep)) then
+          allocate(file_handler%timeStep, source=timeStep, _STAT)
        end if
 
        
@@ -83,7 +83,7 @@ module mapl3g_NonClimDataSetFileSelector
              establish_both = .false.
              if (current_time < this%valid_range(1)) then
                 establish_right = .true.
-                target_time = this%valid_range(1)-this%frequency !assuming forward time   
+                target_time = this%valid_range(1)-this%file_frequency !assuming forward time   
              else if (current_time > this%valid_range(2)) then
                 establish_left = .true.
                 target_time = this%valid_range(2)       
