@@ -57,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add unit tests for ACG3
 - Add enumerators for RESTART setting
 - Add `add2export` to ACG3
+- Changed `MAPL_GridCompAddFieldSpec` and ACG3 to use new RESTART enum
 - Add validation for VariableSpec
 
 ### Changed
@@ -95,15 +96,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+
 - `StateFilterItem` => `MAPL_StateFilterItem` in **ACG**
+- Fix binary writes and reads in benchmark simulators
+- Removed `_HERE` macros left in ExtDataGridCompNG.F90 from debugging
 
 ### Added
 
+- Added EASE grid Factory so the regridder can use it easily
 - Added new option to History, if you specify xlevels instead of levels, it will perform extrapolation below the surface, using ECMWF formulas for height and temperature, otherwise use lowest model level
 - Added `_USERRC` macro for use with ESMF commands that return both `rc` and `userrc`
-
+- Added new option for `raw_bw.x` to use netcdf rather than binary
+- Swapped order of output dimensions for trajectory and mask samplers.   Now the leading dimension (Fortran convention) is level.
 
 ### Changed
+
+- Changed per-step diagnostic print from being hardcoded as `AGCM Date` to now trigger off of the `ROOT_NAME` in `CAP.rc`. So, if `ROOT_NAME` is `GEOSldas`, the print will be `GEOSldas Date` instead of `AGCM Date`.
+- Update the MAPL_EQsat code to the ramping version from CVS
 
 ### Removed
 
@@ -175,6 +184,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed problem related to stale pointers to temp copies of dummy arguments in `MAPL_Cap.F90`.  Fix is to add `TARGET` attribute in select locations.
 - Fix for case where 2nd argument to `transfer()` was not allocated in the OpenMP support layer.  Was not detected by other compilers.  The fix is to use a literal integer array instead.
+- Add `schema.version: 1` to enable trajectory sampler using a single GRID_LABEL item
+- `index_var_names` keyword is introduced to simpify the specifications for IODA files
+- delete `obsfile_end_time` in trajectory sampler
+- change `geoval_fields` to `fields` in obs_platform
+- change `sampler_spec` to `sampler_type`
 - Fixed problem in History when no fields appear on the `fields:` line in a collection (issue #3525)
 - Fixed bug that broke SCM model in GEOS
 - Fix ExtData2G unit test for GNU on Discover

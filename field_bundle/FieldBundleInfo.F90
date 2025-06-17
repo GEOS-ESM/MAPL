@@ -86,8 +86,9 @@ contains
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, num_vgrid_levels=num_vgrid_levels, &
            units=units, long_name=long_name, standard_name=standard_name, is_active=is_active, _RC)
 
-
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
    contains
 
       function to_TypeKind(typekind_str) result(typekind)
@@ -110,7 +111,7 @@ contains
 
    subroutine fieldbundle_set_internal(info, unusable, &
         namespace, &
-         geom, &
+        geom, &
         fieldBundleType, typekind, interpolation_weights, &
         ungridded_dims, &
         num_levels, vert_staggerloc, &
@@ -164,7 +165,8 @@ contains
            units=units, long_name=long_name, standard_name=standard_name, &
            is_active=is_active, _RC)
 
-      _RETURN(_SUCCESS)
+       _RETURN(_SUCCESS)
+       _UNUSED_DUMMY(unusable)
 
    contains
 

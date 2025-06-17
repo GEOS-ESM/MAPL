@@ -16,7 +16,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           filter: blob:none
 
       - name: Build and Deploy Dev Docs
@@ -29,6 +28,7 @@ jobs:
           ford-input: mapl3docs-with-remote-esmf.md
           doc-folder: docs/Ford/mapl3-doc
           target-folder: mapl3-doc
+          deploy-token: ${{ secrets.DOCS_DEPLOY_PAT }}
 
   ##############################################################################
   # build-and-deploy-mapl3-dev-docs:                                           #
@@ -50,4 +50,5 @@ jobs:
   #         ford-input: mapl3docs-with-remote-esmf.public_private_protected.md #
   #         doc-folder: docs/Ford/mapl3-dev-doc                                #
   #         target-folder: mapl3-dev-doc                                       #
+  #         deploy-token: ${{ secrets.DOCS_DEPLOY_PAT }}                       #
   ##############################################################################
