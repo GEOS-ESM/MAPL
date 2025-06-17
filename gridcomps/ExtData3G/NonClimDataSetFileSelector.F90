@@ -54,7 +54,7 @@ module mapl3g_NonClimDataSetFileSelector
        end if
 
        if (present(timeStep)) then
-          allocate(file_handler%timeStep, source=timeStep, _STAT)
+         file_handler%timeStep = timeStep
        end if
 
        
