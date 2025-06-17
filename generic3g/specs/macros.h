@@ -1,12 +1,18 @@
-#include "meta_undef_macros"
-#include "meta_macros.h"
+#include "undef_macros.h"
+#if !defined(_SPEC_)
+#   define _SPEC_ spec
+#endif
+#define _SPEC(V) _SPEC_ ## % ## V
+#define _ALLOCATED(V) allocated(_SPEC(V))
 #define _INVALID(V) "Invalid " // #V
-#define _ASSERT_SPEC_VALUE__(V, F) _ASSERT(F(spec%V), _INVALID(V))
-#define _ASSERT_SPEC_VALUE_(P, V, F) P=present(spec%V); if(P) then; _ASSERT_SPEC_VALUE__(V, F)
-#define _ASSERT_SPEC_VALUE(P, V, F) _ASSERT_SPEC_VALUE_(P, V, F); P=.FALSE.
-#define _ASSERT_IN_SET(P, V, _SET) _ASSERT_SPEC_VALUE(P, V, _ISIN)
-#define _ASSERT_VALID_STRINGVECTOR(P, V, _SET) _ASSERT_SPEC_VALUE(P, V, _ISIN_STRINGVECTOR)
-#define _ASSERT_IN_RANGES(P, V, _SET) _ASSERT_SPEC_VALUE(P, V, _ISIN_RANGE)
-#define _ASSERT_EITHER_SPEC_VALUE_(P, V1, F1, V2, F2) _ASSERT_SPEC_VALUE_(P, V1, F1);\
-    if(.not. P) then; _ASSERT_SPEC_VALUE_(P, V2, F2)
-#define _ASSERT_EITHER_SPEC_VALUE(P, V1, F1, V2, F2) _ASSERT_EITHER_SPEC_VALUE_(P, V1, F1, V2, F2); P=.FALSE.
+#define _ASSERT_LOGICAL(FV, V) _ASSERT(FV, _INVALID(V))
+#define _ASSERT_FUNCTION_(F, V)  _ASSERT_LOGICAL(F(_SPEC(V)), V)
+#define _ASSERT_FUNCTION(F, V) if(_ALLOCATED(V)) then; _ASSERT_FUNCTION_(F, V); end if
+#define _ASSERT_IS_(V1, V2) _ASSERT_LOGICAL(_SPEC(V2) == V1, V2)
+#define _ASSERT_IS(V1, V2) if(_ALLOCATED(V1)) then; _ASSERT_IS_(V1, V2); end if
+#define _ASSERT_FUNCTIONS(F1, V1, F2, V2) if(_ALLOCATED(V1)) then;_ASSERT_FUNCTION_(F1, V1); else if(_ALLOCATED(V2)) then; _ASSERT_FUNCTION_(F2, V2); end if
+#define _ASSERT_PARAM_FUNC_(F, P, V) _ASSERT_LOGICAL(F(P, _SPEC_(V)), V)
+#define _ASSERT_PARAM_FUNC(F, P, V) if(_ALLOCATED(V)) then; _ASSERT_PARAM_FUNC_(F, P, M); end if
+#define _ASSERT_STRING_VECTOR_IN(V1, V2) _ASSERT_PARAM_FUNC(is_in, V1, V2)
+#define _ASSERT_IS_IN_(R, V) _ASSERT_PARAM_FUNC_(is_in, R, V)
+#define _ASSERT_IS_IN(R, V) if(_ALLOCATED(V)) then; _ASSERT_IS_IN(R, V); endif
