@@ -20,7 +20,7 @@ module mapl3g_ExtDataUtilities
       logical usable_open_end
       usable_open_end=.false.
       if (present(open_end)) usable_open_end = open_end
-      if (open_end) then
+      if (usable_open_end) then
          in_range = (t0 >= t1) .and. (t0 <= t2)
       else
          in_range = (t0 >= t1) .and. (t0 < t2)
