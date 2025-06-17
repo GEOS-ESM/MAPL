@@ -11,8 +11,5 @@
 #define _ASSERT_IS_(V1, V2) _ASSERT_LOGICAL(_SPEC(V2) == V1, V2)
 #define _ASSERT_IS(V1, V2) if(_ALLOCATED(V1)) then; _ASSERT_IS_(V1, V2); end if
 #define _ASSERT_FUNCTIONS(F1, V1, F2, V2) if(_ALLOCATED(V1)) then;_ASSERT_FUNCTION_(F1, V1); else if(_ALLOCATED(V2)) then; _ASSERT_FUNCTION_(F2, V2); end if
-#define _ASSERT_PARAM_FUNC_(F, P, V) _ASSERT_LOGICAL(F(P, _SPEC_(V)), V)
-#define _ASSERT_PARAM_FUNC(F, P, V) if(_ALLOCATED(V)) then; _ASSERT_PARAM_FUNC_(F, P, M); end if
-#define _ASSERT_STRING_VECTOR_IN(V1, V2) _ASSERT_PARAM_FUNC(is_in, V1, V2)
-#define _ASSERT_IS_IN_(R, V) _ASSERT_PARAM_FUNC_(is_in, R, V)
-#define _ASSERT_IS_IN(R, V) if(_ALLOCATED(V)) then; _ASSERT_IS_IN(R, V); endif
+#define _ASSERT_PARAM_FUNC_(F, P, V) _ASSERT_LOGICAL(F(P, _SPEC(V)), V)
+#define _ASSERT_PARAM_FUNC(F, P, V) if(_ALLOCATED(V)) then; _ASSERT_PARAM_FUNC_(F, P, V); end if

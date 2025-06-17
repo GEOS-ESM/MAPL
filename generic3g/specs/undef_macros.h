@@ -45,15 +45,3 @@
 #if defined(_ASSERT_PARAM_FUNC)
 #   undef _ASSERT_PARAM_FUNC
 #endif
-
-#if defined(_ASSERT_STRING_VECTOR_IN)
-#   undef _ASSERT_STRING_VECTOR_IN
-#endif
-
-#if defined(_ASSERT_IS_IN_)
-#   undef _ASSERT_IS_IN_
-#endif
-
-#if defined(_ASSERT_IS_IN)
-#   undef _ASSERT_IS_IN
-#endif
