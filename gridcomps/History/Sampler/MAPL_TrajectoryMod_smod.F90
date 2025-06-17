@@ -71,6 +71,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer                    :: unitr, unitw
          integer                    :: length_mx, mxseg, nseg
          type(GriddedIOitem)        :: item
+         character(len=3)           :: output_leading_dim
          type(Logger), pointer      :: lgr
 
          traj%clock=clock
@@ -175,6 +176,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          traj%obs(k)%name = ''
 
          call lgr%debug('%a %i8', 'nobs_type=', traj%nobs_type)
+
+         call ESMF_ConfigGetAttribute(config, value=output_leading_dim, default='lev', &
+              label=trim(string)//'output_leading_dim:', _RC)
+         traj%write_lev_first = ( output_leading_dim == 'lev' )
 
          _RETURN(_SUCCESS)
 
@@ -467,6 +472,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             end if
          end do
 
+         call ESMF_ConfigGetAttribute(config, value=traj%write_lev_first, default=.true., &
+              label=trim(string)//'write_lev_first:', _RC)
+
          _RETURN(_SUCCESS)
 
 105      format (1x,a,2x,a)
@@ -546,7 +554,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                v = Variable(type=PFIO_REAL64,dimensions=this%index_name_x)
             end if
             call v%add_attribute('units', this%datetime_units)
-            call v%add_attribute('long_name', 'dateTime')
+            call v%add_attribute('long_name', 'time')
             call this%obs(k)%metadata%add_variable(this%var_name_time,v)
 
             if (.NOT. this%restore_2_obs_vector) then
@@ -614,7 +622,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
         if (field_rank==2) then
            vdims = this%index_name_x
         else if (field_rank==3) then
-           vdims = trim(this%index_name_x)//",lev"
+           if (this%write_lev_first) then
+              vdims = "lev,"//trim(this%index_name_x)
+           else
+              vdims = trim(this%index_name_x)//",lev"
+           end if
         end if
         v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
         call v%add_attribute('units',trim(units))
@@ -1209,6 +1221,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          real(REAL32), pointer :: p_src(:,:),p_dst(:,:), p_dst_t(:,:)   ! _t: transpose
          real(REAL32), pointer :: p_dst_rt(:,:), p_acc_rt_3d(:,:)
          real(REAL32), pointer :: pt1(:), pt2(:)
+         real(REAL32), pointer :: p_rt_3d(:,:)
          real(REAL64), allocatable :: aux_R8(:)
          real(REAL64), allocatable :: aux_R4(:)
          integer, allocatable :: vec(:)
@@ -1496,21 +1509,39 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                      do k=1, this%nobs_type
                         is = 1
                         nx = this%obs(k)%nobs_epoch
+                        if (this%write_lev_first) then
+                           ! p_rt_3d  --> [nz,nx] for output nc4
+                           allocate(p_rt_3d, source=reshape(this%obs(k)%p3d, &
+                                [size(this%obs(k)%p3d,2),size(this%obs(k)%p3d,1)], order=[2,1]))
+                        endif
                         if (nx>0) then
                            if (this%schema_version==1) then
-                              call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p3d(:,:), &
-                                   start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
+                              if (this%write_lev_first) then
+                                 call this%obs(k)%file_handle%put_var(trim(item%xname), p_rt_3d(:,:), &
+                                      start=[1,is],count=[size(p_acc_rt_3d,2),nx])
+                                 !     lev,nx
+                              else
+                                 call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p3d(:,:), &
+                                      start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
+                              end if
                            else
                               do ig = 1, this%obs(k)%ngeoval
                                  if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
-                                    call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p3d(:,:), &
-                                         start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
+                                    if (this%write_lev_first) then
+                                       call this%obs(k)%file_handle%put_var(trim(item%xname), p_rt_3d(:,:), &
+                                            start=[1,is],count=[size(p_acc_rt_3d,2),nx])
+                                       !      lev,nx
+                                    else
+                                       call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p3d(:,:), &
+                                            start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
+                                    end if
                                  end if
                               end do
                            end if
                         endif
-                     enddo
-                     do k=1, this%nobs_type
+                        if (this%write_lev_first) then
+                           deallocate(p_rt_3d, _STAT)
+                        end if
                         deallocate (this%obs(k)%p3d, _STAT)
                      enddo
                   end if
