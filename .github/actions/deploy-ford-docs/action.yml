@@ -13,6 +13,9 @@ inputs:
     description: "The folder to deploy to"
     required: false
     default: ""
+  deploy-token:
+    description: "GitHub token for deployment"
+    required: true
 
 runs:
   using: "composite"
@@ -69,4 +72,6 @@ runs:
       with:
         folder: ${{ inputs.doc-folder }}
         target-folder: ${{ inputs.target-folder }}
-
+        branch: gh-pages
+        repository-name: GEOS-ESM/MAPL-docs
+        token: ${{ inputs.deploy-token }}
