@@ -14,6 +14,7 @@ module mapl3g_MaplFramework
    use pfio_MpiServerMod, only: MpiServer
    use pfio_ClientThreadMod, only: ClientThread
    use pfio_AbstractDirectoryServiceMod, only: PortInfo
+   use udunits2f, only: UDUNITS_Initialize => Initialize
    use pflogger, only: logging
    use pflogger, only: Logger
    use mpi
@@ -45,6 +46,7 @@ module mapl3g_MaplFramework
       procedure :: initialize_pflogger
 #endif
       procedure :: initialize_profilers
+      procedure :: initialize_udunits
       procedure :: initialize_servers
       procedure :: initialize_simple_servers
 
@@ -74,29 +76,32 @@ contains
    ! Type-bound procedures
 
    ! Note: HConfig is an output if ESMF is not already initialized.  Otherwise it is an input.
-   subroutine initialize(this, hconfig, unusable, is_model_pet, servers, mpiCommunicator, rc)
+   subroutine initialize(this, hconfig, unusable, is_model_pet, servers, mpiCommunicator, level_name, configFilenameFromArgNum, rc)
       class(MaplFramework), intent(inout) :: this
-      type(ESMF_HConfig), intent(inout) :: hconfig
+      type(ESMF_HConfig), optional, intent(inout) :: hconfig
       class(KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(out) :: is_model_pet
-      type(ESMF_GridComp), allocatable, intent(out) :: servers(:)
+      type(ESMF_GridComp), optional, allocatable, intent(out) :: servers(:)
       integer, optional, intent(in) :: mpiCommunicator
+      character(*), optional, intent(in) :: level_name
+      integer, optional, intent(in) :: configFilenameFromArgNum
       integer, optional, intent(out) :: rc
 
       integer :: status
 
+
       _ASSERT(.not. this%mapl_initialized, "MaplFramework object is already initialized")
       this%mapl_initialized = .true.
 
-      this%mapl_hconfig = hconfig
-      call this%initialize_esmf(hconfig, mpiCommunicator=mpiCommunicator, _RC)
+      if (present(hconfig)) this%mapl_hconfig = hconfig
+
+      call this%initialize_esmf(hconfig=hconfig, mpiCommunicator=mpiCommunicator, configFilenameFromArgNum=configFilenameFromArgNum, _RC)
       call ESMF_VMGetCurrent(this%mapl_vm, _RC)
 
-#ifdef BUILD_WITH_PFLOGGER
-      call this%initialize_pflogger(_RC)
-#endif
+      call this%initialize_pflogger(level_name=level_name, _RC)
       call this%initialize_profilers(_RC)
       call this%initialize_servers(is_model_pet=is_model_pet, servers=servers, _RC)
+      call this%initialize_udunits(_RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -105,25 +110,37 @@ contains
    ! If ESMF is already initialized, then we expect hconfig to be
    ! externally provided.  Otherwise, we retrieve the top level
    ! hconfig from ESMF_Initialize and return that.
-   subroutine initialize_esmf(this, hconfig, unusable, mpiCommunicator, rc)
+   subroutine initialize_esmf(this, hconfig, unusable, mpiCommunicator, configFilenameFromArgNum, rc)
       class(MaplFramework), intent(inout) :: this
-      type(ESMF_HConfig), intent(inout) :: hconfig
+      type(ESMF_HConfig), optional, intent(inout) :: hconfig
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: mpiCommunicator
+      integer, optional, intent(in) :: configFilenameFromArgNum
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(ESMF_Config) :: config
       logical :: esmf_is_initialized
+      integer :: argNum
+      
 
-     esmf_is_initialized = ESMF_IsInitialized(_RC)
+      esmf_is_initialized = ESMF_IsInitialized(_RC)
       _RETURN_IF(esmf_is_initialized)
 
       this%esmf_internally_initialized = .true.
-      call ESMF_Initialize(configFilenameFromArgNum=1, configKey=['esmf'], config=config, mpiCommunicator=mpiCommunicator, _RC)
 
-      call ESMF_ConfigGet(config, hconfig=hconfig, _RC)
-      this%mapl_hconfig = get_subconfig(hconfig, keystring='mapl', _RC)
+      argNum = 0
+      if (present(configFilenameFromArgNum)) argNum = configFilenameFromArgNum
+
+      if (argNum > 0) then
+         call ESMF_Initialize(configFilenameFromArgNum=argNum, configKey=['esmf'], config=config, mpiCommunicator=mpiCommunicator, _RC)
+         call ESMF_ConfigGet(config, hconfig=hconfig, _RC)
+         this%mapl_hconfig = get_subconfig(hconfig, keystring='mapl', _RC)
+      else
+         call ESMF_Initialize(mpiCommunicator=mpiCommunicator, defaultDefaultCalKind=ESMF_CALKIND_GREGORIAN, _RC)
+         this%mapl_hconfig = ESMF_HConfigCreate(content='{}', _RC)
+      end if
+
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -153,13 +170,14 @@ contains
    end subroutine initialize_esmf
 
 #ifdef BUILD_WITH_PFLOGGER
-   subroutine initialize_pflogger(this, unusable, rc)
+   subroutine initialize_pflogger(this, unusable, level_name, rc)
       use PFL_Formatter, only: get_sim_time
       use pflogger, only: pfl_initialize => initialize
       use mapl_SimulationTime, only: fill_time_dict
 
       class(MaplFramework), intent(inout) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(*), optional, intent(in) :: level_name
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -178,7 +196,8 @@ contains
       end if
 
       call ESMF_VMGet(this%mapl_vm, mpiCommunicator=world_comm, _RC)
-      call default_initialize_pflogger(world_comm=world_comm, _RC)
+      call default_initialize_pflogger(world_comm=world_comm, level_name=level_name, _RC)
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine initialize_pflogger
@@ -194,7 +213,7 @@ contains
       integer :: world_comm
       call ESMF_VMGet(this%mapl_vm, mpiCommunicator=world_comm, _RC)
 !#      call initialize_profiler(comm=world_comm, enable_global_timeprof=enable_global_timeprof, &
-!    #      enable_global_memprof=enable_global_memprof, _RC)
+!#      enable_global_memprof=enable_global_memprof, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -227,7 +246,7 @@ contains
 
       call ESMF_VMGet(this%mapl_vm, ssiMap=ssiMap, ssiCount=ssiCount, mpiCommunicator=world_comm, petCount=ignore, _RC)
       call MPI_Comm_group(world_comm, world_group, _IERROR)
-      model_petCount = get_model_petcount(this%mapl_hconfig, _RC)
+      model_petCount = get_model_petcount(this%mapl_vm, this%mapl_hconfig, _RC)
 
       has_server_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='servers', _RC)
       if (.not. has_server_section) then
@@ -372,16 +391,20 @@ contains
    end function get_ssis_per_server
 
 
-   integer function get_model_petCount(hconfig, rc) result(model_petcount)
+   integer function get_model_petCount(vm, hconfig, rc) result(model_petCount)
+      type(ESMF_VM), intent(in) :: vm
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
       integer :: status
       logical :: has_model_petcount
 
+      call ESMF_VMGet(vm, petcount=model_petCount, _RC)
+
       has_model_petcount = ESMF_HConfigIsDefined(hconfig, keystring='model_petcount', _RC)
-      _ASSERT(has_model_petcount, 'Unknown petcount reservation for model.')
-      model_petcount = ESMF_HConfigAsI4(hconfig, keystring='model_petcount', _RC)
+      if (has_model_petcount) then
+         model_petcount = ESMF_HConfigAsI4(hconfig, keystring='model_petcount', _RC)
+      end if
 
       _RETURN(_SUCCESS)
    end function get_model_petCount
@@ -393,7 +416,6 @@ contains
 
       integer :: status, stat_alloc
       type(ClientThread), pointer :: clientPtr
-
 
       call init_IO_ClientManager(this%model_comm, _RC)
 
@@ -468,8 +490,6 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-!#      integer :: status
-
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
       _UNUSED_DUMMY(this)
@@ -479,8 +499,6 @@ contains
       class(MaplFramework), intent(inout) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-
-!#      integer :: status
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -492,7 +510,6 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-!#      integer :: status
       call logging%free()
 
       _RETURN(_SUCCESS)
@@ -537,17 +554,18 @@ contains
    end subroutine mapl_get_mapl
 
 
-   subroutine mapl_initialize(hconfig, unusable, is_model_pet, servers, mpiCommunicator, rc)
-      type(ESMF_HConfig), intent(inout) :: hconfig
+   subroutine mapl_initialize(hconfig, unusable, is_model_pet, servers, mpiCommunicator, level_name, rc)
+      type(ESMF_HConfig), optional, intent(inout) :: hconfig
       class(KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(out) :: is_model_pet
-      integer, optional, intent(in) :: mpiCommunicator
       type(ESMF_GridComp), allocatable, optional, intent(out) :: servers(:)
+      integer, optional, intent(in) :: mpiCommunicator
+      character(*), optional, intent(in) :: level_name
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      call the_mapl_object%initialize(hconfig=hconfig, is_model_pet=is_model_pet, servers=servers, mpiCommunicator=mpiCommunicator, _RC)
+      call the_mapl_object%initialize(hconfig=hconfig, is_model_pet=is_model_pet, servers=servers, mpiCommunicator=mpiCommunicator, level_name=level_name, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -564,15 +582,16 @@ contains
    end subroutine mapl_finalize
 
 #ifdef BUILD_WITH_PFLOGGER
-   subroutine default_initialize_pflogger(world_comm, unusable, rc)
+   subroutine default_initialize_pflogger(world_comm, unusable, level_name, rc)
       use pflogger, only: StreamHandler, FileHandler, HandlerVector
       use pflogger, only: MpiLock, MpiFormatter
-      use pflogger, only: INFO, WARNING
+      use pflogger, only: INFO, WARNING, name_to_level
 
       use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
 
       integer, intent(in) :: world_comm
       class (KeywordEnforcer), optional, intent(in) :: unusable
+      character(*), optional, intent(in) :: level_name
       integer, optional, intent(out) :: rc
 
       type (HandlerVector) :: handlers
@@ -580,32 +599,36 @@ contains
       type (FileHandler) :: file_handler
       integer :: level,rank,status
       type(Logger), pointer :: lgr
+      character(:), allocatable :: level_name_
 
       ! Default configuration if no file provided
 
+      level_name_ = 'INFO'
+      if (present(level_name)) level_name_ = level_name
+
       call MPI_COMM_Rank(world_comm,rank,status)
+      level = WARNING ! except on root
+      if (rank == 0) then
+         level = name_to_level(level_name_)
+      end if
+
       console = StreamHandler(OUTPUT_UNIT)
-      call console%set_level(INFO)
-      call console%set_formatter(MpiFormatter(world_comm, fmt='%(short_name)a10~: %(message)a'))
+      call console%set_level(level)
+      call console%set_formatter(MpiFormatter(world_comm, fmt='%(name)a15~: %(message)a'))
       call handlers%push_back(console)
 
       file_handler = FileHandler('warnings_and_errors.log')
       call file_handler%set_level(WARNING)
-      call file_handler%set_formatter(MpiFormatter(world_comm, fmt='pe=%(mpi_rank)i5.5~: %(short_name)a~: %(message)a'))
+      call file_handler%set_formatter(MpiFormatter(world_comm, fmt='pe=%(mpi_rank)i5.5~: %(name)a~: %(message)a'))
       call file_handler%set_lock(MpiLock(world_comm))
       call handlers%push_back(file_handler)
-
-      level = WARNING
-      if (rank == 0) then
-         level = INFO
-      end if
 
       call logging%basic_config(level=level, handlers=handlers, rc=status)
       _VERIFY(status)
 
       if (rank == 0) then
-         lgr => logging%get_logger('MAPL')
-         call lgr%warning('No configure file specified for logging layer.  Using defaults.')
+         lgr => logging%get_logger('mapl')
+         call lgr%info('No configure file specified for logging layer.  Using defaults.')
       end if
 
       _RETURN(_SUCCESS)
@@ -637,6 +660,17 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_num_ssis
+
+   subroutine initialize_udunits(this, rc)
+      class(MaplFramework), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call UDUNITS_Initialize(_RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine initialize_udunits
 
 end module mapl3g_MaplFramework
 

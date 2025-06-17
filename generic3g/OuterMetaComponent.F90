@@ -61,7 +61,7 @@ module mapl3g_OuterMetaComponent
       procedure :: has_geom
       procedure :: get_geom
       procedure :: get_registry
-      procedure :: get_lgr
+      procedure :: get_logger
       procedure :: set
 
       procedure :: get_phases
@@ -402,10 +402,10 @@ module mapl3g_OuterMetaComponent
          class(OuterMetaComponent), intent(in) :: this
       end function get_internal_state
 
-      module function get_lgr(this) result(lgr)
+      module function get_logger(this) result(lgr)
          class(Logger), pointer :: lgr
          class(OuterMetaComponent), target, intent(in) :: this
-      end function get_lgr
+      end function get_logger
 
       module function get_user_gc_driver(this) result(user_gc_driver)
          type(GriddedComponentDriver), pointer :: user_gc_driver

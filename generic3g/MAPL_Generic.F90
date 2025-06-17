@@ -267,7 +267,7 @@ contains
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta_, _RC)
 
       if (present(hconfig)) hconfig = outer_meta_%get_hconfig()
-      if (present(logger)) logger => outer_meta_%get_lgr()
+      if (present(logger)) logger => outer_meta_%get_logger()
       if (present(geom)) geom = outer_meta_%get_geom(_RC)
       if (present(grid)) then
          geom_ = outer_meta_%get_geom(_RC)

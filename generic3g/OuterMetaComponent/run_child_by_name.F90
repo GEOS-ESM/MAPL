@@ -17,6 +17,7 @@ contains
       type(GriddedComponentDriver) :: child
       logical :: found
       integer :: phase_idx
+      class(Logger), pointer :: lgr
 
       child = this%get_child(child_name, _RC)
 
@@ -26,7 +27,10 @@ contains
          _ASSERT(found, "run phase: <"//phase_name//"> not found.")
       end if
 
+      lgr => this%get_logger()
+      call lgr%debug('%a run child <%a~> (phase=%a~)', this%get_name(), child_name, phase_name, _RC)
       call child%run(phase_idx=phase_idx, _RC)
+      call lgr%debug('  ... %a completed run child <%a~> (phase=%a~)', this%get_name(), child_name, phase_name, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

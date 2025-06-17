@@ -28,6 +28,7 @@ module mapl3g_FieldClassAspect
 
    use mapl_ErrorHandling
    use esmf
+   use pflogger
    implicit none(type,external)
    private
 
@@ -291,6 +292,9 @@ contains
         real, allocatable, intent(inout) :: dst
         real, allocatable, intent(in) :: src
 
+        character(100) :: buffer
+        class(Logger), pointer :: lgr
+
         if (.not. allocated(src)) return
 
         if (.not. allocated(dst)) then
@@ -300,8 +304,9 @@ contains
 
         ! TODO: Problematic case: both allocated with different values.
         if (dst /= src) then
-           _HERE, 'WARNING: mismatched default values for ', actual_pt
-           _HERE, '    src = ', src, '; dst = ',dst, ' (src value wins)'
+           lgr => logging%get_logger('mapl.generic')
+           write(buffer,*) actual_pt
+           call lgr%info('Mismatched default values for %a src = %g0~; dst = %g0 (src value wins)', trim(buffer), src, dst)
         end if
 
       end subroutine mirror

@@ -29,6 +29,7 @@ contains
       type(ESMF_GridComp) :: child_outer_gc
       type(OuterMetaComponent), pointer :: child_meta
       type(ESMF_HConfig) :: total_hconfig
+      class(Logger), pointer :: lgr
 
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
       _ASSERT(this%children%count(child_name) == 0, 'duplicate child name: <'//child_name//'>.')
@@ -46,6 +47,9 @@ contains
 
       child_driver = GriddedComponentDriver(child_outer_gc)
       call this%children%insert(child_name, child_driver)
+
+      lgr => this%get_logger()
+      call lgr%debug('%a added child <%a~>', this%get_name(), child_name, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine add_child_by_spec
