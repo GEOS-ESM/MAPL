@@ -33,7 +33,7 @@ contains
 
       integer :: status
 
-      call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, run, _RC)
+      call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, run, phase_name="run", _RC)
       call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, init_modify_advertised, phase_name='GENERIC::INIT_MODIFY_ADVERTISED', _RC)
       call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, init_modify_advertised2, phase_name='GENERIC::INIT_MODIFY_ADVERTISED2', _RC)
 
