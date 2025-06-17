@@ -88,6 +88,7 @@ module mapl3g_AbstractDataSetFileSelector
 
        integer :: status, n
        integer(ESMF_KIND_I8) :: int_sec
+       
        call ESMF_TimeIntervalGet(this%frequency, s_i8=int_sec, _RC)
        if (int_sec == 0) then
           trial_time = this%ref_time
