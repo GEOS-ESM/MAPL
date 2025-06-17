@@ -45,7 +45,7 @@ module mapl3g_NonClimDataSetFileSelector
        if (present(ref_time)) file_handler%ref_time = ref_time
        if (present(valid_range)) then
           _ASSERT(size(valid_range)==2,"Valid range must be 2")
-          allocate(file_handler%valid_range, source=valid_range, _STAT)
+          file_handler%valid_range = valid_range
        end if
        if (present(persist_closest)) file_handler%persist_closest = persist_closest
 
