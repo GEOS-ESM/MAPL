@@ -45,6 +45,7 @@ module mapl3g_VariableSpec
 
    public :: VariableSpec
    public :: make_VariableSpec
+   public :: validate_variable_spec
 
    ! This type provides components that might be needed for _any_
    ! state item.  This is largely to support legacy interfaces, but it
@@ -150,12 +151,6 @@ module mapl3g_VariableSpec
       procedure :: make_FrequencyAspect
       procedure :: make_ClassAspect
    end type VariableSpec
-
-   interface is_in
-      module procedure :: is_in_integer
-      module procedure :: is_in_realR4
-      module procedure :: is_vector_in_string_vector
-   end interface is_in
 
 contains
 
@@ -594,14 +589,12 @@ contains
       integer :: status
       logical :: is_present
 
-
       _ASSERT_FUNCTION_(valid_state_intent, state_intent)
-      _ASSERT(allocated(spec%short_name), 'short_name must be allocated.')
+      _ASSERT(_ALLOCATED(short_name), 'short_name must be allocated.')
       _ASSERT_FUNCTION_(is_valid_identifier, short_name)
       _ASSERT_FUNCTION_(valid_state_item, itemType)
-      _ASSERT(_ALLOCATED(standard_name) .or. _ALLOCATED(long_name), &
-         & 'Either standard_name or long_name must be allocated.')
       _ASSERT_FUNCTIONS(is_not_empty, standard_name, is_not_empty, long_name)
+
       _ASSERT_FUNCTION_(no_test, vector_component_names)
       _ASSERT_FUNCTION(no_test, default_value)
       _ASSERT_FUNCTION(no_test, bracket_size)
@@ -620,6 +613,8 @@ contains
       _ASSERT_FUNCTION_(no_test, ungridded_dims)
       _ASSERT_FUNCTION_(no_test, attributes)
       _ASSERT_FUNCTION_(no_test, dependencies)
+
+      _RETURN(_SUCCESS)
 
    end subroutine validate_variable_spec
 #include "undef_macros.h"
@@ -690,11 +685,11 @@ contains
       integer, intent(in) :: n
       integer :: i
 
-      lval = .TRUE.
+      lval = .FALSE.
       if(size(bounds) < 2) return
 
       do i = 2, mod(size(bounds), 2), 2
-         lval = .not. (n < bounds(i-1) .or. n > bounds(i))
+         lval = n >= bounds(i-1) .and. n <= bounds(i)
          if(lval) exit
       end do
 
@@ -705,11 +700,11 @@ contains
       real(kind=ESMF_KIND_R4), intent(in) :: t
       integer :: i
 
-      lval = .TRUE.
+      lval = .FALSE.
       if(size(bounds) < 2) return
 
       do i = 2, mod(size(bounds), 2), 2
-         lval = .not. (t < bounds(i-1) .or. t > bounds(i))
+         lval = t >= bounds(i-1) .and. t <= bounds(i)
          if(lval) exit
       end do
 
