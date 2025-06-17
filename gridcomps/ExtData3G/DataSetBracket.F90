@@ -104,26 +104,25 @@ contains
       left_enabled = left_node%get_enabled()
       right_enabled = right_node%get_enabled()
       alpha = 0.0
-      if ((left_enabled .eqv. .true.) .and. (right_enabled .eqv. .false.)) then
+      if (left_enabled .and. (.not. right_enabled)) then
          weights(1) = 1.0
          weights(2) = 0.0
-      else if ((left_enabled .eqv. .false.) .and. (right_enabled .eqv. .true.)) then
+      else if ((.not. left_enabled) .and. right_enabled) then
          weights(1) = 0.0
          weights(2) = 1.0
-      else if ((left_enabled .eqv. .true.) .and. (right_enabled .eqv. .true.)) then
-         if ( this%disable_interpolation) then ! assumes forward time
-            weights(1) = 1.0
-            weights(2) = 0.0
-         else
-            time1 = this%left_node%get_interp_time()
-            time2 = this%right_node%get_interp_time()
-            tinv1 = time - time1
-            tinv2 = time2 - time1
-            alpha = tinv1/tinv2
-            weights(1) = alpha
-            weights(2) = 1.0 - alpha
-         end if
+      else if (left_enabled .and. right_enabled) then
+         weights(1) = 1.0
+         weights(2) = 0.0
+         _RETURN_IF(this%disable_interpolation) 
+         time1 = this%left_node%get_interp_time()
+         time2 = this%right_node%get_interp_time()
+         tinv1 = time - time1
+         tinv2 = time2 - time1
+         alpha = tinv1/tinv2
+         weights(1) = alpha
+         weights(2) = 1.0 - alpha
       end if
+      _RETURN(_SUCCESS)
 
    end function compute_bracket_weights 
 
