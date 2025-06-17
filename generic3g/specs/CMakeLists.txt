@@ -42,4 +42,5 @@ target_sources(MAPL.generic3g PRIVATE
   ComponentSpec.F90
   macros.h
   undef_macros.h
+  is_in_set.h
 )
