@@ -1,7 +1,7 @@
 #include "MAPL_ErrLog.h"
 
 ! overload set interfaces in legacy
-! Document Pole :: XY 
+! Document Pole :: XY
 !          Date :: DE
 
 ! This module generates Equal Area Scalable Earth (EASE) grids as ESMF_Grids.
@@ -146,7 +146,7 @@ contains
       integer, optional, intent(out):: rc
 
       integer :: status, cols, rows
-      real    :: cell_area, ur_lat, ur_lon, ll_lat, ll_lon 
+      real    :: cell_area, ur_lat, ur_lon, ll_lat, ll_lon
 
       _UNUSED_DUMMY(unusable)
 
@@ -214,11 +214,12 @@ contains
 
       integer :: status
       type(ESMF_PoleKind_Flag) :: polekindflag(2)
+      type(ESMF_Info) :: infoh
 
       _UNUSED_DUMMY(unusable)
 
       if (this%periodic) then
-         if (this%pole == "XY") then 
+         if (this%pole == "XY") then
             polekindflag = ESMF_POLEKIND_NONE
          else
             polekindflag = ESMF_POLEKIND_MONOPOLE
@@ -253,13 +254,14 @@ contains
       call ESMF_GridAddCoord(grid, _RC)
       call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CORNER, _RC)
 
+      call ESMF_InfoGetFromHost(grid,infoh,_RC)
       if (this%lm /= MAPL_UNDEFINED_INTEGER) then
-         call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, _RC)
+         call ESMF_InfoSet(infoh, 'GRID_LM', this%lm, _RC)
       end if
 
-      call ESMF_AttributeSet(grid, 'GridType',  'EASE', _RC)
+      call ESMF_InfoSet(infoh, 'GridType', 'EASE', _RC)
       ! set to false. no pole in EASE
-      call ESMF_AttributeSet(grid, 'Global', .false., _RC)
+      call ESMF_InfoSet(infoh, 'Global', .false., _RC)
 
       _RETURN(_SUCCESS)
    end function create_basic_grid
@@ -455,12 +457,12 @@ contains
 
       allocate(lat_centers(this%jm_world))
 
-      ! 
+      !
       ! EASE grid counting from North to South, and the index is based on 0
-      ! 
+      !
       do row = 0, this%jm_world-1
          s = row*1.0
-         call ease_inverse(this%grid_name, 0., s, lat, tmplon) 
+         call ease_inverse(this%grid_name, 0., s, lat, tmplon)
          lat_centers(this%jm_world - row) = lat ! use lat-lon grid index to avoid confusion
       enddo
 
@@ -480,17 +482,17 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      real(kind=REAL32) :: s, lat, tmplon 
+      real(kind=REAL32) :: s, lat, tmplon
 
       integer :: status, row
 
       _UNUSED_DUMMY(unusable)
 
       allocate(lat_corners(this%jm_world+1))
-     
+
       do row = 0, this%jm_world
          s = row - 0.5
-         call ease_inverse(this%grid_name, 0., s, lat, tmplon) 
+         call ease_inverse(this%grid_name, 0., s, lat, tmplon)
          lat_corners(this%jm_world +1 -row) = lat
       enddo
 
@@ -602,7 +604,7 @@ contains
          use_file_coords = .false.
       end if
 
-      
+
       this%is_evenspaced = .false.
 
       lon_name = 'lon'
@@ -621,7 +623,7 @@ contains
 
       grid_name = get_ease_gridname_by_cols(im)
       this%grid_name = grid_name
-   
+
       call ease_extent(grid_name, cols, rows, cell_area=cell_area, ll_lon=ll_lon, ll_lat=ll_lat, ur_lon=ur_lon, ur_lat=ur_lat)
 
       call set_with_default(this%im_world, cols, MAPL_UNDEFINED_INTEGER)
@@ -1003,7 +1005,7 @@ contains
       integer :: status
       character(len=2) :: pole ,dateline
       character(len=:), allocatable :: grid_name
-     
+
       type (ESMF_Config) :: config
       type (ESMF_VM) :: vm
       integer :: nPet
@@ -1155,9 +1157,9 @@ contains
    function generate_grid_name(this) result(name)
       character(len=:), allocatable :: name
       class (EASEGridFactory), intent(in) :: this
-      
+
       name = get_ease_gridname_by_cols(this%im_world)
-   
+
    end function generate_grid_name
 
    function check_decomposition(this,unusable,rc) result(can_decomp)
@@ -1584,7 +1586,7 @@ contains
       type(FileMetadata), intent(in) :: metadata
       character(len=*), intent(in) :: coord_name
       integer, optional, intent(out) :: rc
-      
+
       type(Variable), pointer :: var
       integer :: status
 
@@ -1599,7 +1601,7 @@ contains
       type(FileMetadata), intent(in) :: metadata
       character(len=*), intent(in) :: coord_name
       integer, optional, intent(out) :: rc
-      
+
       type(Variable), pointer :: var
       type(Attribute), pointer :: attr
       integer :: status
@@ -1622,7 +1624,7 @@ contains
       type(FileMetadata), intent(in) :: metadata
       character(len=*), intent(in) :: coord_name
       integer, optional, intent(out) :: rc
-      
+
       type(Variable), pointer :: var
       type(Attribute), pointer :: attr
       integer :: status, im, i
@@ -1630,7 +1632,7 @@ contains
       character(len=:), allocatable :: bnds_name, source_file
       real(kind=REAL64), allocatable :: file_bounds(:,:)
       type(NetCDF4_FileFormatter) :: file_formatter
-      
+
 
       var => metadata%get_variable(coord_name, _RC)
       attr => var%get_attribute("bounds", _RC)
@@ -1644,7 +1646,7 @@ contains
       im = metadata%get_dimension(coord_name, _RC)
       allocate(coord_bounds(im+1), _STAT)
       allocate(file_bounds(2,im), _STAT)
-      source_file = metadata%get_source_file() 
+      source_file = metadata%get_source_file()
 
       call file_formatter%open(source_file, PFIO_READ, _RC)
       call file_formatter%get_var(bnds_name, file_bounds, _RC)
