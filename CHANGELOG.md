@@ -105,6 +105,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added EASE grid Factory so the regridder can use it easily
 - Added new option to History, if you specify xlevels instead of levels, it will perform extrapolation below the surface, using ECMWF formulas for height and temperature, otherwise use lowest model level
 - Added `_USERRC` macro for use with ESMF commands that return both `rc` and `userrc`
+- Added new option for `raw_bw.x` to use netcdf rather than binary
 - Swapped order of output dimensions for trajectory and mask samplers.   Now the leading dimension (Fortran convention) is level.
 
 ### Changed
