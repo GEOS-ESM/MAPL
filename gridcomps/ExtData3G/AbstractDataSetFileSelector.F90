@@ -27,7 +27,6 @@ module mapl3g_AbstractDataSetFileSelector
       contains
          procedure :: find_any_file
          procedure :: compute_trial_time
-         procedure :: get_last_update
          procedure :: set_last_update
          procedure :: detect_time_flow
          procedure(I_update_file_bracket), deferred :: update_file_bracket
@@ -114,12 +113,6 @@ module mapl3g_AbstractDataSetFileSelector
        _RETURN(_SUCCESS)
     end subroutine
 
-    function get_last_update(this) result(last_update)
-       type(ESMF_Time), allocatable :: last_update
-       class(AbstractDataSetFileSelector), intent(inout) :: this
-       if (allocated(this%last_updated)) last_update = this%last_updated 
-    end function
-    
     function detect_time_flow(this, current_time, rc) result(time_jumped)
        logical :: time_jumped
        class(AbstractDataSetFileSelector), intent(inout) :: this
