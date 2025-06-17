@@ -124,12 +124,11 @@ module mapl3g_AbstractDataSetFileSelector
        integer(ESMF_KIND_I8) :: f1, f2
 
        time_jumped = .false.
-       if (allocated(this%last_updated) .and. allocated(this%clock_dt)) then
-          time_interval = current_time - this%last_updated
-          call ESMF_TimeIntervalGet(time_interval, s_i8=f1, _RC)
-          call ESMF_TimeIntervalGet(this%clock_dt, s_i8=f2, _RC)
-          time_jumped = abs(f1) > f2
-       end if
+       _RETURN_UNLESS(allocated(this%last_updated) .and. allocated(this%clock_dt))
+       time_interval = current_time - this%last_updated
+       call ESMF_TimeIntervalGet(time_interval, s_i8=f1, _RC)
+       call ESMF_TimeIntervalGet(this%clock_dt, s_i8=f2, _RC)
+       time_jumped = abs(f1) > f2
        _RETURN(_SUCCESS)
     end function 
 
