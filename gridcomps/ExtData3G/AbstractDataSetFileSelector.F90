@@ -94,7 +94,6 @@ module mapl3g_AbstractDataSetFileSelector
           trial_time = this%ref_time
           do while(trial_time <= target_time)
              trial_time = trial_time + this%frequency
-        
           enddo
           trial_time = trial_time - this%frequency + shift*this%frequency
        else
