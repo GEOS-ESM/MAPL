@@ -139,7 +139,7 @@ module mapl3g_AbstractDataSetFileSelector
           time_interval = current_time - this%last_updated
           call ESMF_TimeIntervalGet(time_interval, s_i8=f1, _RC)
           call ESMF_TimeIntervalGet(this%clock_dt, s_i8=f2, _RC)
-          time_jumped = f2 < abs(f1)
+          time_jumped = abs(f1) > f2
        end if
        _RETURN(_SUCCESS)
     end function 
