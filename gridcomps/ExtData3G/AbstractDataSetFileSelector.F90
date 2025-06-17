@@ -111,11 +111,7 @@ module mapl3g_AbstractDataSetFileSelector
        integer, optional, intent(out) :: rc
 
        integer :: status
-       if (allocated(this%last_updated)) then
-          this%last_updated = update_time
-       else
-          allocate(this%last_updated, source=update_time, _STAT)
-       end if
+       this%last_updated = update_time
        _RETURN(_SUCCESS)
     end subroutine
 
