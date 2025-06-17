@@ -1,5 +1,4 @@
 #include "MAPL_Generic.h"
-#include "macros.h"
 
 module mapl3g_VariableSpec
    use mapl3g_StateItemSpec
@@ -134,7 +133,7 @@ module mapl3g_VariableSpec
       !=====================
       ! miscellaneous
       !=====================
-      type(StringVector) :: dependencies ! default emuty
+      type(StringVector) :: dependencies ! default empty
 
    contains
       procedure :: make_virtualPt
@@ -155,13 +154,8 @@ module mapl3g_VariableSpec
    interface is_in
       module procedure :: is_in_integer
       module procedure :: is_in_realR4
+      module procedure :: is_vector_in_string_vector
    end interface is_in
-
-   interface
-      logical function StringPredicate(string)
-         character(len=*), intent(in) :: string
-      end function StringPredicate
-   end interface
 
 contains
 
@@ -592,57 +586,49 @@ contains
 
    end function make_ClassAspect
 
-   subroutine validate_variable_spec(spec, rc)
-      class(VariableSpec), intent(in) :: spec
+#define _SPEC_ spec
+#include "macros.h"
+   subroutine validate_variable_spec(_SPEC_, rc)
+      class(VariableSpec), intent(in) :: _SPEC_
       integer, optional, intent(out) :: rc
       integer :: status
       logical :: is_present
 
-      _ASSERT_IN_SET(is_present, state_intent, [ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_INTERNAL])
-      _ASSERT_SPEC_VALUE(is_present, short_name, is_valid_identifier)
-      _ASSERT_IN_SET(is_present, itemType, [ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE])
 
-      _ASSERT_EITHER_SPEC_VALUE_(is_present, standard_name, is_not_empty, long_name, is_not_empty)
-
-      _ASSERT_VALID_STRINGVECTOR(is_present, vector_component_names, StringVector())
-      _ASSERT_IN_RANGES(is_present, default_value, [real(kind=ESMF_KIND_R4)::])
-
-      _ASSERT_IN_RANGES(is_present, bracket_size, [integer::])
-
-      _ASSERT_VALID_STRINGVECTOR(is_present, service_items, StringVector())
-
-      _ASSERT_SPEC_VALUE(is_present, expression, no_test)
-
-      _ASSERT_IN_SET(is_present, typekind, [ESMF_TYPEKIND_R4])
-
-      _ASSERT_SPEC_VALUE(is_present, geom, no_test)
-      _ASSERT_SPEC_VALUE(is_present, horizontal_dims_spec, no_test)
-
-      _ASSERT_EITHER_SPEC_VALUE(is_present, regrid_param, no_test, regrid_method, no_test)
-
-      _ASSERT_SPEC_VALUE(is_present, vertical_grid, no_test)
-      _ASSERT_SPEC_VALUE(is_present, vertical_stagger, no_test)
-
-      _ASSERT_SPEC_VALUE(is_present, units, no_test)
-
-      _ASSERT_SPEC_VALUE(is_present, accumulation_type, no_test)
-      _ASSERT_SPEC_VALUE(is_present, timeStep, no_test)
-      _ASSERT_SPEC_VALUE(is_present, offset, no_test)
-
-      _ASSERT_SPEC_VALUE(is_present, ungridded_dims, no_test)
-
-      _ASSERT_VALID_STRINGVECTOR(is_present, attributes, StringVector())
-
-      _ASSERT_VALID_STRINGVECTOR(is_present, dependencies, StringVector())
+      _ASSERT_FUNCTION_(valid_state_intent, state_intent)
+      _ASSERT(allocated(spec%short_name), 'short_name must be allocated.')
+      _ASSERT_FUNCTION_(is_valid_identifier, short_name)
+      _ASSERT_FUNCTION_(valid_state_item, itemType)
+      _ASSERT(_ALLOCATED(standard_name) .or. _ALLOCATED(long_name), &
+         & 'Either standard_name or long_name must be allocated.')
+      _ASSERT_FUNCTIONS(is_not_empty, standard_name, is_not_empty, long_name)
+      _ASSERT_FUNCTION_(no_test, vector_component_names)
+      _ASSERT_FUNCTION(no_test, default_value)
+      _ASSERT_FUNCTION(no_test, bracket_size)
+      _ASSERT_FUNCTION_(no_test, service_items)
+      _ASSERT_FUNCTION(no_test, expression)
+      _ASSERT_IS_(ESMF_TYPEKIND_R4, typekind)
+      _ASSERT_FUNCTION(no_test, geom)
+      _ASSERT_FUNCTION_(no_test, horizontal_dims_spec)
+      _ASSERT_FUNCTIONS(no_test, regrid_param, no_test, regrid_method)
+      _ASSERT_FUNCTION(no_test, vertical_grid)
+      _ASSERT_FUNCTION(no_test, vertical_stagger)
+      _ASSERT_FUNCTION(no_test, units)
+      _ASSERT_FUNCTION(no_test, accumulation_type)
+      _ASSERT_FUNCTION(no_test, timeStep)
+      _ASSERT_FUNCTION(no_test, offset)
+      _ASSERT_FUNCTION_(no_test, ungridded_dims)
+      _ASSERT_FUNCTION_(no_test, attributes)
+      _ASSERT_FUNCTION_(no_test, dependencies)
 
    end subroutine validate_variable_spec
+#include "undef_macros.h"
 
    function to_string(array) result(string)
-      character(len=:), allocatable :: string
       character, intent(in) :: array(:)
+      character(len=size(array)) :: string
       integer :: i
 
-      allocate(string(size(array)))
       do i = 1, size(array)
          string(i:i) = array(i)
       end do
@@ -653,69 +639,77 @@ contains
       character, allocatable :: range(:)
       character(len=2), intent(in) :: bounds
       integer :: ibounds(2)
+      integer :: i
 
       ibounds = iachar([bounds(1:1), bounds(2:2)])
       range = [(achar(i), i=minval(ibounds), maxval(ibounds))]
 
    end function get_ascii_range
 
+   function get_alpha() result(range)
+      character(len=:), allocatable :: range
+
+      range = to_string(get_ascii_range('AZ'))//to_string(get_ascii_range('az'))
+
+   end function get_alpha
+
+   function get_alpha_numeric_() result(range)
+       character(len=:), allocatable :: range
+
+       range = get_alpha() // to_string(get_ascii_range('09')) // '_'
+
+   end function get_alpha_numeric_
+   
    logical function is_all_alpha(s)
       character(len=*), intent(in) :: s
-      character(len=*), parameter :: ALPHA = to_string(get_ascii_range('AZ') //&
-         & to_string(get_ascii_range('az'))
+      
+      is_all_alpha = verify(s, get_alpha()) == 0
 
-      is_all_alpha = verify(s, ALPHA) == 0
-
-   end function is_all_alpha(s)
+   end function is_all_alpha
 
    logical function is_all_alphanumeric_(s)
       character(len=*), intent(in) :: s
-      character(len=*), parameter :: ALPHANUMERIC_ = to_string(get_ascii_range('AZ') //&
-         & to_string(get_ascii_range('az')) // to_string(get_ascii_range('09')
-
-      is_all_alphanumeric_ = verify(s, ALPHANUMERIC_)
+      
+      is_all_alphanumeric_ = verify(s, get_alpha_numeric_()) == 0
 
    end function is_all_alphanumeric_
 
    logical function is_valid_identifier(s)
       character(len=*), intent(in) :: s
 
-      is_valid_identifier = is_all_alpha(s(1:1)) .and. is_all_alphanumeric_(s(2:))
+      is_valid_identifier = .FALSE.
+      if(len_trim(s) == 0) return
+      if(verify(s, ' ') > 1) return
+      
+      is_valid_identifier = is_all_alpha(trim(s(1:1))) .and. is_all_alphanumeric_(trim(s(2:)))
 
    end function is_valid_identifier
 
-   logical function is_in_integer(n, bounds) result(lval)
-      integer, intent(in) :: n
+   logical function is_in_integer(bounds, n) result(lval)
       integer, intent(in) :: bounds(:)
+      integer, intent(in) :: n
       integer :: i
 
       lval = .TRUE.
-      if(size(bounds) < 1) return
+      if(size(bounds) < 2) return
 
-      if(size(bounds) == 1)
-         lval = n == bounds(1)
-         return
-      end if
-
-      lval = .FALSE.
       do i = 2, mod(size(bounds), 2), 2
-         lval = .not. (n < minval(bounds(i-1) .or. n > maxval(bounds(i))
+         lval = .not. (n < bounds(i-1) .or. n > bounds(i))
          if(lval) exit
       end do
 
    end function is_in_integer
 
-   logical function is_in_realR4(t, bounds) result(lval)
-      real(kind=ESMF_KIND_R4), intent(in) :: t
+   logical function is_in_realR4(bounds, t) result(lval)
       real(kind=ESMF_KIND_R4), intent(in) :: bounds(:)
+      real(kind=ESMF_KIND_R4), intent(in) :: t
       integer :: i
 
       lval = .TRUE.
-      if(size(bounds) < 1) return
+      if(size(bounds) < 2) return
 
-      lval = .FALSE.
       do i = 2, mod(size(bounds), 2), 2
-         lval = .not. (n < minval(bounds(i-1) .or. n > maxval(bounds(i))
+         lval = .not. (t < bounds(i-1) .or. t > bounds(i))
          if(lval) exit
       end do
 
@@ -751,21 +745,30 @@ contains
 
    end function string_in_vector
 
-   logical function is_stringvector_subset(subset, vector) result(valid)
-      class(StringVector), intent(in) :: subset
-      class(StringVector), intent(in) :: vector
+   logical function is_vector_in_string_vector(V0, V) result(lval)
+      class(StringVector), intent(in) :: V0
+      class(StringVector), intent(in) :: V
       type(StringVectorIterator) :: iter, e
 
-      valid = .FALSE.
-      iter = subset%begin()
-      e = subset%end()
+      lval = .FALSE.
+      iter = V%begin()
+      e = V%end()
       do while(iter /= e)
-         if(.not. string_in_vector(iter%of())) return
+         if(.not. string_in_vector(iter%of(), V0)) return
          call iter%next()
       end do
-      valid = .TRUE.
+      lval = .TRUE.
 
-   end function is_stringvector_subset
+   end function is_vector_in_string_vector
+
+#define FUNCNAME_ valid_state_intent
+#define TYPE_ ESMF_StateIntent_Flag
+#define SET_ [ESMF_STATEINTENT_EXPORT,ESMF_STATEINTENT_IMPORT,ESMF_STATEINTENT_INTERNAL]
+#include "is_in_set.h"
+
+#define FUNCNAME_ valid_state_item
+#define TYPE_ ESMF_StateItem_Flag
+#define SET_ [ESMF_STATEITEM_FIELD,ESMF_STATEITEM_FIELDBUNDLE]
+#include "is_in_set.h"
 
 end module mapl3g_VariableSpec
-#include "undef_macros.h"
