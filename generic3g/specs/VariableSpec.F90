@@ -41,7 +41,7 @@ module mapl3g_VariableSpec
    use nuopc
 
    implicit none
-   private
+   !private
 
    public :: VariableSpec
    public :: make_VariableSpec
@@ -585,56 +585,15 @@ contains
       class(VariableSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
       integer :: status
-      logical :: is_present
 
-#include "undef_macros.h"
-#define _SPEC(V) spec%V
-#define _ALLOC(V) allocated(_SPEC(V))
-#define _MSG(V) "Invalid " // V
-#define _ASSERT_VALUE(FV, N) _ASSERT(FV, _MSG(N))
-#define _ASSERT_FUNCTION_(F, V, M) _ASSERT(F(_SPEC(V)), M)
-#define _ASSERT_FUNCTION(F, V, M) if(_ALLOC(V)) then; _ASSERT_FUNCTION_(F, V, M); end if
-#define _ASSERT_EQUAL_(U, V, N) _ASSERT_VALUE(_SPEC(V) == U, N)
-#define _ASSERT_EQUAL(U, V, N) if(_ALLOC(V)) then;  _ASSERT_EQUAL_(U, V, N); end if
-
-      _ASSERT_FUNCTION_(valid_state_intent, state_intent, _MSG('state_intent'))
-      _ASSERT_FUNCTION_(is_valid_identifier, short_name, _MSG('short_name'))
-      _ASSERT_FUNCTION_(valid_state_item, itemType, _MSG('itemType'))
-
-      if(_ALLOC(standard_name)) then
-         _ASSERT_FUNCTION_(is_not_empty, standard_name, _MSG('standard_name'))
-      else if(_ALLOC(long_name)) then
-         _ASSERT_FUNCTION_(is_not_empty, long_name, _MSG('long_name'))
-      end if
-
-      if(_ALLOC(regrid_param)) then
-         _ASSERT(.not. _ALLOC(regrid_method), 'regrid_param and regrid_method are mutually exclusive.')
-      end if
-      _ASSERT_EQUAL_(ESMF_TYPEKIND_R4, typekind, 'typekind')
-
-      _ASSERT_FUNCTION_(no_test, vector_component_names, _MSG('vector_component_names'))
-      _ASSERT_FUNCTION(no_test, default_value, _MSG('default_value'))
-      _ASSERT_FUNCTION(no_test, bracket_size, _MSG('bracket_size'))
-      _ASSERT_FUNCTION_(no_test, service_items, _MSG('service_items'))
-      _ASSERT_FUNCTION(no_test, expression, _MSG('expression'))
-      _ASSERT_FUNCTION(no_test, geom, _MSG('geom'))
-      _ASSERT_FUNCTION_(no_test, horizontal_dims_spec, _MSG('horizontal_dims_spec'))
-      _ASSERT_FUNCTION(no_test, regrid_param, _MSG('regrid_param'))
-      _ASSERT_FUNCTION(no_test, regrid_method, _MSG('regrid_method'))
-      _ASSERT_FUNCTION(no_test, vertical_grid, _MSG('vertical_grid'))
-      _ASSERT_FUNCTION(no_test, vertical_stagger, _MSG('vertical_stagger'))
-      _ASSERT_FUNCTION(no_test, units, _MSG('units'))
-      _ASSERT_FUNCTION(no_test, accumulation_type, _MSG('accumulation_type'))
-      _ASSERT_FUNCTION(no_test, timeStep, _MSG('timeStep'))
-      _ASSERT_FUNCTION(no_test, offset, _MSG('offset'))
-      _ASSERT_FUNCTION_(no_test, ungridded_dims, _MSG('ungridded_dims'))
-      _ASSERT_FUNCTION_(no_test, attributes, _MSG('attributes'))
-      _ASSERT_FUNCTION_(no_test, dependencies, _MSG('dependencies'))
+      call validate_state_intent(spec%state_intent, _RC)
+      call validate_short_name(spec%short_name, _RC)
+      call validate_state_item(spec%itemType, _RC)
+      call validate_regrid(spec%regrid_param, spec%regrid_method, _RC)
 
       _RETURN(_SUCCESS)
 
    end subroutine validate_variable_spec
-#include "undef_macros.h"
 
    function to_string(array) result(string)
       character, intent(in) :: array(:)
@@ -772,6 +731,49 @@ contains
       lval = .TRUE.
 
    end function is_vector_in_string_vector
+
+   subroutine validate_short_name(v, rc)
+      character(len=*), intent(in) :: v
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _ASSERT(is_valid_identifier(v), 'Invalid value')
+      _RETURN(_SUCCESS)
+
+   end subroutine validate_short_name
+
+   subroutine validate_regrid(param, method, rc)
+      type(EsmfRegridderParam), optional, intent(in) :: param
+      type(ESMF_RegridMethod_Flag), optional, intent(in) :: method
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      if(present(param)) then
+         _ASSERT(.not. present(method), 'regrid_param and regrid_method are mutually exclusive.')
+      end if
+      _RETURN(_SUCCESS)
+
+   end subroutine validate_regrid
+
+   subroutine validate_state_intent(v, rc)
+      type(ESMF_StateIntent_Flag), intent(in) :: v
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _ASSERT(valid_state_intent(v), 'Invalid value')
+      _RETURN(_SUCCESS)
+
+   end subroutine validate_state_intent
+
+   subroutine validate_state_item(v, rc)
+      type(ESMF_StateItem_Flag), intent(in) :: v
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _ASSERT(valid_state_item(v), 'Invalid value')
+      _RETURN(_SUCCESS)
+
+   end subroutine validate_state_item
 
 #define FUNCNAME_ valid_state_intent
 #define TYPE_ ESMF_StateIntent_Flag
