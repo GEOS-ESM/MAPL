@@ -71,10 +71,10 @@ module mapl3g_AbstractDataSetFileSelector
           inquire(file=trim(trial_file),exist=file_found)
           if (file_found) then
              filename = trial_file
-             exit
+             _RETURN(_SUCCESS)
           end if
        enddo
-       _RETURN(_SUCCESS)
+       _FAIL("could not find a file") 
 
     end function find_any_file
 

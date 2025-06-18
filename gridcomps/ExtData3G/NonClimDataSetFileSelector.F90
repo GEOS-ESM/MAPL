@@ -18,7 +18,7 @@ module mapl3g_NonClimDataSetFileSelector
       logical :: persist_closest = .false.
       contains
          procedure :: update_file_bracket
-         procedure :: not_in_range
+         procedure :: in_valid_range
          procedure :: update_node
          procedure :: update_both_brackets
     end type
@@ -70,7 +70,7 @@ module mapl3g_NonClimDataSetFileSelector
        type(ESMF_Time) :: target_time
        integer :: status
        logical :: establish_both, establish_left, establish_right
-       type(DataSetNode) :: left_node, right_node, test_node
+       type(DataSetNode) :: left_node, right_node, test_node, target_node
        logical :: node_is_valid, both_valid, time_jumped
 
        establish_both = .true. 
@@ -79,7 +79,7 @@ module mapl3g_NonClimDataSetFileSelector
        target_time = current_time
        if (this%persist_closest) then
           _ASSERT(allocated(this%valid_range), 'using persistence but not in range')
-          if (this%not_in_range(target_time)) then
+          if (.not. this%in_valid_range(target_time)) then
              establish_both = .false.
              if (current_time < this%valid_range(1)) then
                 establish_right = .true.
@@ -104,6 +104,8 @@ module mapl3g_NonClimDataSetFileSelector
              call this%update_node(target_time, left_node, _RC)
              call bracket%set_parameters(left_node=left_node)
           end if
+          call this%set_last_update(current_time, _RC)
+          _RETURN(_SUCCESS)
        end if
 
        if (establish_right) then
@@ -119,34 +121,36 @@ module mapl3g_NonClimDataSetFileSelector
              call this%update_node(target_time, right_node, _RC)
              call bracket%set_parameters(right_node=right_node)
           end if
+          call this%set_last_update(current_time, _RC)
+          _RETURN(_SUCCESS)
        end if
 
-       if (establish_both) then
-          left_node = bracket%get_left_node(_RC)
-          right_node = bracket%get_right_node(_RC)
-          both_valid = left_node%validate(target_time) .and. right_node%validate(target_time) 
-          time_jumped = this%detect_time_flow(current_time)
+       _RETURN_UNLESS(establish_both)
 
-          if (time_jumped) then ! if time moved more than 1 clock dt, force update
-             call this%update_both_brackets(bracket, target_time, _RC)
-          else if (both_valid) then ! else if it did not, both still valid, don't update
+       left_node = bracket%get_left_node(_RC)
+       right_node = bracket%get_right_node(_RC)
+       both_valid = left_node%validate(target_time) .and. right_node%validate(target_time) 
+       time_jumped = this%detect_time_flow(current_time)
+
+       if (time_jumped) then ! if time moved more than 1 clock dt, force update
+          call this%update_both_brackets(bracket, target_time, _RC)
+       else if (both_valid) then ! else if it did not, both still valid, don't update
+          call left_node%set_update(.false.)
+          call right_node%set_update(.false.)
+          call bracket%set_parameters(left_node=left_node)
+          call bracket%set_parameters(right_node=right_node)
+       else ! finally need to update one of them, try swapping right to left and update left
+          test_node = right_node
+          call test_node%set_node_side(NODE_LEFT)
+          node_is_valid = test_node%validate(target_time)
+          if (node_is_valid) then
+             left_node = test_node 
              call left_node%set_update(.false.)
-             call right_node%set_update(.false.)
              call bracket%set_parameters(left_node=left_node)
+             call this%update_node(target_time, right_node, _RC)
              call bracket%set_parameters(right_node=right_node)
-          else ! finally need to update one of them, try swapping right to left and update left
-             test_node = right_node
-             call test_node%set_node_side(NODE_LEFT)
-             node_is_valid = test_node%validate(target_time)
-             if (node_is_valid) then
-                left_node = test_node 
-                call left_node%set_update(.false.)
-                call bracket%set_parameters(left_node=left_node)
-                call this%update_node(target_time, right_node, _RC)
-                call bracket%set_parameters(right_node=right_node)
-             else 
-                call this%update_both_brackets(bracket, target_time, _RC)
-             end if
+          else 
+             call this%update_both_brackets(bracket, target_time, _RC)
           end if
        end if
 
@@ -201,19 +205,18 @@ module mapl3g_NonClimDataSetFileSelector
              call node%invalidate()
              call node%update_node_from_file(trial_file, current_time, _RC)
              valid_node = node%validate(current_time, _RC)
-             if (valid_node) exit 
+             _RETURN_IF(valid_node)
           end if
        enddo
-       _ASSERT(valid_node,"Could not find a valid node")
-       _RETURN(_SUCCESS)
+       _FAIL("Could not find a valid node")
     end subroutine update_node
 
-    function not_in_range(this, target_time) result(target_in_range)
-       logical :: target_in_range
+    function in_valid_range(this, target_time) result(target_in_valid_range)
+       logical :: target_in_valid_range
        class(NonClimDataSetFileSelector), intent(inout) :: this
        type(ESMF_Time), intent(in) :: target_time
-  
-       target_in_range = ((target_time < this%valid_range(1)) .or. (this%valid_range(2) < target_time))
+ 
+       target_in_valid_range = (this%valid_range(1) < target_time) .and. (target_time < this%valid_range(2)) 
     end function
        
 
