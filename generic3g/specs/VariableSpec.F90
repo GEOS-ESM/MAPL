@@ -607,16 +607,18 @@ contains
          _ASSERT_FUNCTION_(is_not_empty, long_name, _MSG('long_name'))
       end if
 
+      if(_ALLOC(regrid_param)) then
+         _ASSERT(.not. _ALLOC(regrid_method), 'regrid_param and regrid_method are mutually exclusive.')
+      end if
+      _ASSERT_EQUAL_(ESMF_TYPEKIND_R4, typekind, 'typekind')
+
       _ASSERT_FUNCTION_(no_test, vector_component_names, _MSG('vector_component_names'))
       _ASSERT_FUNCTION(no_test, default_value, _MSG('default_value'))
       _ASSERT_FUNCTION(no_test, bracket_size, _MSG('bracket_size'))
       _ASSERT_FUNCTION_(no_test, service_items, _MSG('service_items'))
       _ASSERT_FUNCTION(no_test, expression, _MSG('expression'))
-      _ASSERT_EQUAL_(ESMF_TYPEKIND_R4, typekind, 'typekind')
       _ASSERT_FUNCTION(no_test, geom, _MSG('geom'))
       _ASSERT_FUNCTION_(no_test, horizontal_dims_spec, _MSG('horizontal_dims_spec'))
-      _ASSERT(.not. (_ALLOC(regrid_param) .and._ALLOC(regrid_method)),&
-         & 'regrid_param and regrid_method are mutually exclusive.')
       _ASSERT_FUNCTION(no_test, regrid_param, _MSG('regrid_param'))
       _ASSERT_FUNCTION(no_test, regrid_method, _MSG('regrid_method'))
       _ASSERT_FUNCTION(no_test, vertical_grid, _MSG('vertical_grid'))
