@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.57.0] - 2025-06-18
+
+### Fixed
+
 - `StateFilterItem` => `MAPL_StateFilterItem` in **ACG**
 - Fix binary writes and reads in benchmark simulators
 - Removed `_HERE` macros left in ExtDataGridCompNG.F90 from debugging
@@ -17,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added functions to read and write 0d string to nc4 file.
 - Added EASE grid Factory so the regridder can use it easily
+  - NOTE: This must be taken with a matching `GEOSgcm_GridComp` (v2.7.5) as the routines moved from there to here.
 - Added new option to History, if you specify xlevels instead of levels, it will perform extrapolation below the surface, using ECMWF formulas for height and temperature, otherwise use lowest model level
 - Added `_USERRC` macro for use with ESMF commands that return both `rc` and `userrc`
 - Added new option for `raw_bw.x` to use netcdf rather than binary
@@ -25,11 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Changed per-step diagnostic print from being hardcoded as `AGCM Date` to now trigger off of the `ROOT_NAME` in `CAP.rc`. So, if `ROOT_NAME` is `GEOSldas`, the print will be `GEOSldas Date` instead of `AGCM Date`.
-- Update the MAPL_EQsat code to the ramping version from CVS
-
-### Removed
-
-### Deprecated
+- Update the `MAPL_EQsat` code to the ramping version from CVS
 
 ## [2.56.1] - 2025-05-30
 
