@@ -29,7 +29,3 @@
 #if defined(_ASSERT_EQUAL)
 #   undef _ASSERT_EQUAL
 #endif
-
-#if defined(_IF_ALLOC)
-#   undef _IF_ALLOC
-#endif
