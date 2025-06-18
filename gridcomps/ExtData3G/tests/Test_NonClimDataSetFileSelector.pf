@@ -52,13 +52,13 @@ contains
       expected_file = "data_sets/hourly_files/hourly_files.20040131_2300z.nc4"
       call left_node%set_node_side(NODE_LEFT)
       call file_handler%update_node(current_time, left_node, _RC)
-      found_file = left_node%get_file()
+      call left_node%get_file(found_file)
       @assertTrue(expected_file == found_file)
 
       expected_file = "data_sets/hourly_files/hourly_files.20040201_0000z.nc4"
       call right_node%set_node_side(NODE_RIGHT)
       call file_handler%update_node(current_time, right_node, _RC)
-      found_file = right_node%get_file() 
+      call right_node%get_file(found_file) 
       @assertTrue(expected_file == found_file)
 
    end subroutine test_establish_both_brackets_from_scratch_hourly
@@ -91,13 +91,13 @@ contains
       right_node = bracket%get_right_node()
 
       expected_file = "data_sets/hourly_files/hourly_files.20040131_2300z.nc4"
-      found_file = left_node%get_file() 
+      call left_node%get_file(found_file) 
       update = left_node%get_update()
       @assertTrue(expected_file == found_file)
       @assertTrue(update .eqv. .true.) 
 
       expected_file = "data_sets/hourly_files/hourly_files.20040201_0000z.nc4"
-      found_file = right_node%get_file() 
+      call right_node%get_file(found_file) 
       update = right_node%get_update()
       @assertTrue(expected_file == found_file)
       @assertTrue(update .eqv. .true.) 
@@ -108,13 +108,13 @@ contains
       right_node = bracket%get_right_node()
 
       expected_file = "data_sets/hourly_files/hourly_files.20040131_2300z.nc4"
-      found_file = left_node%get_file() 
+      call left_node%get_file(found_file) 
       update = left_node%get_update()
       @assertTrue(expected_file == found_file)
       @assertTrue(update .eqv. .false.) 
 
       expected_file = "data_sets/hourly_files/hourly_files.20040201_0000z.nc4"
-      found_file = right_node%get_file() 
+      call right_node%get_file(found_file) 
       update = right_node%get_update()
       @assertTrue(expected_file == found_file)
       @assertTrue(update .eqv. .false.) 
@@ -125,13 +125,13 @@ contains
       right_node = bracket%get_right_node()
 
       expected_file = "data_sets/hourly_files/hourly_files.20040201_0000z.nc4"
-      found_file = left_node%get_file() 
+      call left_node%get_file(found_file) 
       update = left_node%get_update()
       @assertTrue(expected_file == found_file)
       @assertTrue(update .eqv. .false.) 
 
       expected_file = "data_sets/hourly_files/hourly_files.20040201_0100z.nc4"
-      found_file = right_node%get_file() 
+      call right_node%get_file(found_file) 
       update = right_node%get_update()
       @assertTrue(expected_file == found_file)
       @assertTrue(update .eqv. .true.) 
@@ -169,7 +169,7 @@ contains
       right_node = bracket%get_right_node()
 
       expected_file = "data_sets/hourly_files/hourly_files.20040201_2000z.nc4"
-      found_file = left_node%get_file() 
+      call left_node%get_file(found_file) 
       update = left_node%get_update()
       @assertTrue(expected_file == found_file)
       @assertTrue(update .eqv. .true.) 
@@ -185,7 +185,7 @@ contains
       right_node = bracket%get_right_node()
 
       expected_file = "data_sets/hourly_files/hourly_files.20040131_2100z.nc4"
-      found_file = right_node%get_file() 
+      call right_node%get_file(found_file) 
       update = right_node%get_update()
       @assertTrue(expected_file == found_file)
       @assertTrue(update .eqv. .true.) 
@@ -201,13 +201,13 @@ contains
       right_node = bracket%get_right_node()
 
       expected_file = "data_sets/hourly_files/hourly_files.20040131_2100z.nc4"
-      found_file = left_node%get_file() 
+      call left_node%get_file(found_file) 
       update = left_node%get_update()
       @assertTrue(expected_file == found_file)
       @assertTrue(update .eqv. .true.) 
 
       expected_file = "data_sets/hourly_files/hourly_files.20040131_2200z.nc4"
-      found_file = right_node%get_file() 
+      call right_node%get_file(found_file) 
       update = right_node%get_update()
       @assertTrue(expected_file == found_file)
       @assertTrue(update .eqv. .true.) 
@@ -218,13 +218,13 @@ contains
       right_node = bracket%get_right_node()
 
       expected_file = "data_sets/hourly_files/hourly_files.20040201_1800z.nc4"
-      found_file = left_node%get_file() 
+      call left_node%get_file(found_file) 
       update = left_node%get_update()
       @assertTrue(expected_file == found_file)
       @assertTrue(update .eqv. .true.) 
 
       expected_file = "data_sets/hourly_files/hourly_files.20040201_1900z.nc4"
-      found_file = right_node%get_file() 
+      call right_node%get_file(found_file) 
       update = right_node%get_update()
       @assertTrue(expected_file == found_file)
       @assertTrue(update .eqv. .true.) 

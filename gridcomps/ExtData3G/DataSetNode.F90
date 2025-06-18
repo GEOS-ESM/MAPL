@@ -130,12 +130,11 @@ contains
       interp_time=this%interp_time
    end function
 
-   function get_file(this) result(file)
-      character(len=:), allocatable :: file
+   subroutine get_file(this, file)
       class(DataSetNode), intent(inout) :: this
+      character(len=:), allocatable, intent(out) :: file
       if (allocated(this%file)) file=this%file
-      !if (allocfile=this%file
-   end function
+   end subroutine
 
    function get_time_index(this) result(time_index)
       integer :: time_index
