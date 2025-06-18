@@ -21,6 +21,7 @@ module mapl3g_NonClimDataSetFileSelector
          procedure :: in_valid_range
          procedure :: update_node
          procedure :: update_both_brackets
+         procedure :: update_half_bracket
     end type
 
     interface NonClimDataSetFileSelector
@@ -68,60 +69,32 @@ module mapl3g_NonClimDataSetFileSelector
        integer, optional, intent(out) :: rc
 
        type(ESMF_Time) :: target_time
-       integer :: status
-       logical :: establish_both, establish_left, establish_right
-       type(DataSetNode) :: left_node, right_node, test_node, target_node
+       integer :: status, node_side
+       logical :: establish_both, establish_single
+       type(DataSetNode) :: left_node, right_node, test_node
        logical :: node_is_valid, both_valid, time_jumped
 
        establish_both = .true. 
-       establish_left = .false.
-       establish_right = .false.
+       establish_single = .false.
        target_time = current_time
        if (this%persist_closest) then
           _ASSERT(allocated(this%valid_range), 'using persistence but not in range')
           if (.not. this%in_valid_range(target_time)) then
              establish_both = .false.
              if (current_time < this%valid_range(1)) then
-                establish_right = .true.
+                establish_single = .true.
+                node_side = NODE_RIGHT 
                 target_time = this%valid_range(1)-this%file_frequency !assuming forward time   
              else if (current_time > this%valid_range(2)) then
-                establish_left = .true.
+                establish_single = .true.
+                node_side = NODE_LEFT
                 target_time = this%valid_range(2)       
              end if
           end if
        end if
 
-       if (establish_left) then
-          right_node = bracket%get_right_node(_RC)
-          call right_node%set_enabled(.false.)
-          call right_node%set_update(.false.)
-          call bracket%set_parameters(right_node=right_node)
-
-          call left_node%set_update(.false.)
-          left_node = bracket%get_left_node(_RC)
-          node_is_valid = left_node%validate(current_time)
-          if (.not.node_is_valid) then
-             call this%update_node(target_time, left_node, _RC)
-             call bracket%set_parameters(left_node=left_node)
-          end if
-          call this%set_last_update(current_time, _RC)
-          _RETURN(_SUCCESS)
-       end if
-
-       if (establish_right) then
-          left_node = bracket%get_left_node(_RC)
-          call left_node%set_enabled(.false.)
-          call left_node%set_update(.false.)
-          call bracket%set_parameters(left_node=left_node)
-
-          call right_node%set_update(.false.)
-          right_node = bracket%get_right_node(_RC)
-          node_is_valid = right_node%validate(target_time)
-          if (.not.node_is_valid) then
-             call this%update_node(target_time, right_node, _RC)
-             call bracket%set_parameters(right_node=right_node)
-          end if
-          call this%set_last_update(current_time, _RC)
+       if (establish_single) then
+          call this%update_half_bracket(bracket, target_time, current_time, node_side, _RC)
           _RETURN(_SUCCESS)
        end if
 
@@ -157,6 +130,48 @@ module mapl3g_NonClimDataSetFileSelector
        call this%set_last_update(current_time, _RC)
        _RETURN(_SUCCESS)
     end subroutine update_file_bracket
+
+    subroutine update_half_bracket(this, bracket, target_time, current_time, node_side, rc)
+       class(NonClimDataSetFileSelector), intent(inout) :: this
+       type(DataSetBracket), intent(inout) :: bracket
+       type(ESMF_Time), intent(in) :: target_time
+       type(ESMF_Time), intent(in) :: current_time 
+       integer, intent(in) :: node_side
+       integer, optional, intent(out) :: rc
+
+       type(DataSetNode) :: active_node, inactive_node
+       integer :: status
+       logical :: node_is_valid
+    
+       select case(node_side)
+       case(NODE_LEFT)
+          active_node = bracket%get_left_node(_RC)
+          inactive_node = bracket%get_right_node(_RC)
+       case(NODE_RIGHT)
+          inactive_node = bracket%get_left_node(_RC)
+          active_node = bracket%get_right_node(_RC)
+       end select
+
+       call inactive_node%set_enabled(.false.)
+       call inactive_node%set_update(.false.)
+       call active_node%set_update(.false.)
+       node_is_valid = active_node%validate(target_time)
+       if (.not.node_is_valid) then
+          call this%update_node(target_time, active_node, _RC)
+       end if
+
+       select case(node_side)
+       case(NODE_LEFT)
+          call bracket%set_parameters(left_node=active_node)
+          call bracket%set_parameters(right_node=inactive_node)
+       case(NODE_RIGHT)
+          call bracket%set_parameters(left_node=inactive_node)
+          call bracket%set_parameters(right_node=active_node)
+       end select
+       call this%set_last_update(current_time, _RC)
+
+       _RETURN(_SUCCESS)
+    end subroutine update_half_bracket
 
     subroutine update_both_brackets(this, bracket, target_time, rc)
        class(NonClimDataSetFileSelector), intent(inout) :: this

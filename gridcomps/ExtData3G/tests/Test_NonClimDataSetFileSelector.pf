@@ -163,6 +163,7 @@ contains
       call bracket%set_node(NODE_LEFT, left_node, _RC)
       call bracket%set_node(NODE_RIGHT, right_node, _RC)
      
+      ! set time after valid range, so left should be updated
       call ESMF_TimeSet(current_time, yy=2004, mm=2, dd=2, h=23, m=10, s=0, _RC)
       call file_handler%update_file_bracket(current_time, bracket, _RC)
       left_node = bracket%get_left_node()
@@ -179,6 +180,7 @@ contains
       @assertTrue(enabled .eqv. .false.) 
       @assertTrue(update .eqv. .false.) 
      
+      ! set time before valid range, so right should be updated
       call ESMF_TimeSet(current_time, yy=2004, mm=1, dd=2, h=23, m=10, s=0, _RC)
       call file_handler%update_file_bracket(current_time, bracket, _RC)
       left_node = bracket%get_left_node()
@@ -195,6 +197,7 @@ contains
       @assertTrue(enabled .eqv. .false.) 
       @assertTrue(update .eqv. .false.) 
 
+      ! now put smack in middle of valid range
       call ESMF_TimeSet(current_time, yy=2004, mm=1, dd=31, h=21, m=10, s=0, _RC)
       call file_handler%update_file_bracket(current_time, bracket, _RC)
       left_node = bracket%get_left_node()
