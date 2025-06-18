@@ -8,17 +8,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- `StateFilterItem` => `MAPL_StateFilterItem` in **ACG**
 
 ### Added
-
-- Added `_USERRC` macro for use with ESMF commands that return both `rc` and `userrc`
 
 ### Changed
 
 ### Removed
 
 ### Deprecated
+
+## [2.57.0] - 2025-06-18
+
+### Fixed
+
+- `StateFilterItem` => `MAPL_StateFilterItem` in **ACG**
+- Fix binary writes and reads in benchmark simulators
+- Removed `_HERE` macros left in ExtDataGridCompNG.F90 from debugging
+
+### Added
+
+- Added functions to read and write 0d string to nc4 file.
+- Added EASE grid Factory so the regridder can use it easily
+  - NOTE: The public EASE routines moved to MAPL have been prefixed with `MAPL_`. This allows older versions of `GEOSgcm_GridComp` to use MAPL 2.57+ but have the old routines
+- Added new option to History, if you specify xlevels instead of levels, it will perform extrapolation below the surface, using ECMWF formulas for height and temperature, otherwise use lowest model level
+- Added `_USERRC` macro for use with ESMF commands that return both `rc` and `userrc`
+- Added new option for `raw_bw.x` to use netcdf rather than binary
+- Swapped order of output dimensions for trajectory and mask samplers.   Now the leading dimension (Fortran convention) is level.
+
+### Changed
+
+- Changed per-step diagnostic print from being hardcoded as `AGCM Date` to now trigger off of the `ROOT_NAME` in `CAP.rc`. So, if `ROOT_NAME` is `GEOSldas`, the print will be `GEOSldas Date` instead of `AGCM Date`.
+- Update the `MAPL_EQsat` code to the ramping version from CVS
+- Add `schema.version: 1` to enable trajectory sampler using a single GRID_LABEL item
+- `index_var_names` keyword is introduced to simpify the specifications for IODA files
+- delete `obsfile_end_time` in trajectory sampler
+- change `geoval_fields` to `fields` in obs_platform
+- change `sampler_spec` to `sampler_type`
 
 ## [2.56.1] - 2025-05-30
 
