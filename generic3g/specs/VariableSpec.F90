@@ -581,38 +581,55 @@ contains
 
    end function make_ClassAspect
 
-#define _SPEC_ spec
-#include "macros.h"
-   subroutine validate_variable_spec(_SPEC_, rc)
-      class(VariableSpec), intent(in) :: _SPEC_
+   subroutine validate_variable_spec(spec, rc)
+      class(VariableSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
       integer :: status
       logical :: is_present
 
-      _ASSERT_FUNCTION_(valid_state_intent, state_intent)
-      _ASSERT(_ALLOCATED(short_name), 'short_name must be allocated.')
-      _ASSERT_FUNCTION_(is_valid_identifier, short_name)
-      _ASSERT_FUNCTION_(valid_state_item, itemType)
-      _ASSERT_FUNCTIONS(is_not_empty, standard_name, is_not_empty, long_name)
+#include "undef_macros.h"
+#define _SPEC(V) spec%V
+#define _ALLOC(V) allocated(_SPEC(V))
+#define _MSG(V) "Invalid " // V
+#define _ASSERT_VALUE(FV, N) _ASSERT(FV, _MSG(N))
+#define _ASSERT_FUNCTION_(F, V, M) _ASSERT(F(_SPEC(V)), M)
+#define _ASSERT_FUNCTION(F, V, M) if(_ALLOC(V)) then; _ASSERT_FUNCTION_(F, V, M); end if
+#define _ASSERT_EQUAL_(U, V, N) _ASSERT_VALUE(_SPEC(V) == U, N)
+#define _ASSERT_EQUAL(U, V, N) if(_ALLOC(V)) then;  _ASSERT_EQUAL_(U, V, N); end if
+#define _IF_ALLOC(V, B) if(_ALLOC(V)) then; B; end if
 
-      _ASSERT_FUNCTION_(no_test, vector_component_names)
-      _ASSERT_FUNCTION(no_test, default_value)
-      _ASSERT_FUNCTION(no_test, bracket_size)
-      _ASSERT_FUNCTION_(no_test, service_items)
-      _ASSERT_FUNCTION(no_test, expression)
-      _ASSERT_IS_(ESMF_TYPEKIND_R4, typekind)
-      _ASSERT_FUNCTION(no_test, geom)
-      _ASSERT_FUNCTION_(no_test, horizontal_dims_spec)
-      _ASSERT_FUNCTIONS(no_test, regrid_param, no_test, regrid_method)
-      _ASSERT_FUNCTION(no_test, vertical_grid)
-      _ASSERT_FUNCTION(no_test, vertical_stagger)
-      _ASSERT_FUNCTION(no_test, units)
-      _ASSERT_FUNCTION(no_test, accumulation_type)
-      _ASSERT_FUNCTION(no_test, timeStep)
-      _ASSERT_FUNCTION(no_test, offset)
-      _ASSERT_FUNCTION_(no_test, ungridded_dims)
-      _ASSERT_FUNCTION_(no_test, attributes)
-      _ASSERT_FUNCTION_(no_test, dependencies)
+      _ASSERT_FUNCTION_(valid_state_intent, state_intent, _MSG('state_intent'))
+      _ASSERT(_ALLOC(short_name), _MSG('short_name'))
+      _ASSERT_FUNCTION_(is_valid_identifier, short_name, _MSG('short_name'))
+      _ASSERT_FUNCTION_(valid_state_item, itemType, _MSG('itemType'))
+
+      if(_ALLOC(standard_name)) then
+         _ASSERT_FUNCTION_(is_not_empty, standard_name, _MSG('standard_name'))
+      else if(_ALLOC(long_name)) then
+         _ASSERT_FUNCTION_(is_not_empty, long_name, _MSG('long_name'))
+      end if
+
+      _ASSERT_FUNCTION_(no_test, vector_component_names, _MSG('vector_component_names'))
+      _ASSERT_FUNCTION(no_test, default_value, _MSG('default_value'))
+      _ASSERT_FUNCTION(no_test, bracket_size, _MSG('bracket_size'))
+      _ASSERT_FUNCTION_(no_test, service_items, _MSG('service_items'))
+      _ASSERT_FUNCTION(no_test, expression, _MSG('expression'))
+      _ASSERT_EQUAL_(ESMF_TYPEKIND_R4, typekind, 'typekind')
+      _ASSERT_FUNCTION(no_test, geom, _MSG('geom'))
+      _ASSERT_FUNCTION_(no_test, horizontal_dims_spec, _MSG('horizontal_dims_spec'))
+      _ASSERT(.not. (_ALLOC(regrid_param) .and._ALLOC(regrid_method)),&
+         & 'regrid_param and regrid_method are mutually exclusive.')
+      _ASSERT_FUNCTION(no_test, regrid_param, _MSG('regrid_param'))
+      _ASSERT_FUNCTION(no_test, regrid_method, _MSG('regrid_method'))
+      _ASSERT_FUNCTION(no_test, vertical_grid, _MSG('vertical_grid'))
+      _ASSERT_FUNCTION(no_test, vertical_stagger, _MSG('vertical_stagger'))
+      _ASSERT_FUNCTION(no_test, units, _MSG('units'))
+      _ASSERT_FUNCTION(no_test, accumulation_type, _MSG('accumulation_type'))
+      _ASSERT_FUNCTION(no_test, timeStep, _MSG('timeStep'))
+      _ASSERT_FUNCTION(no_test, offset, _MSG('offset'))
+      _ASSERT_FUNCTION_(no_test, ungridded_dims, _MSG('ungridded_dims'))
+      _ASSERT_FUNCTION_(no_test, attributes, _MSG('attributes'))
+      _ASSERT_FUNCTION_(no_test, dependencies, _MSG('dependencies'))
 
       _RETURN(_SUCCESS)
 
