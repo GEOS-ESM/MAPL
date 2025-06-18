@@ -57,11 +57,11 @@ int pfio_get_var_string_len(int ncid, int varid, int *str_len, int str_size)
   
   // note: C-varid starts from 0, Fortran from 1 
   int varid_C = varid - 1;
-  char *string[str_size];
-  stat = nc_get_var(ncid, varid_C, string ); pfio_check(stat);
-
   char *p ;
   int i, j;
+  if (str_size == 0) str_size = 1; // for 0d string length
+  char *string[str_size];
+  stat = nc_get_var(ncid, varid_C, string ); pfio_check(stat);
   *str_len = 0;
   for (i = 0; i<str_size; i++){
     p = string[i];
@@ -118,7 +118,7 @@ int pfio_get_var_string(int ncid, int varid, char* value, int max_len, const siz
   return stat;
 }
 
-int pfio_put_var_string(int ncid, int varid, char* value, int max_len, int str_size, const size_t *start, const size_t *count)
+int pfio_put_vara_string(int ncid, int varid, char* value, int max_len, int str_size, const size_t *start, const size_t *count)
 {
   int stat;
 
@@ -136,6 +136,25 @@ int pfio_put_var_string(int ncid, int varid, char* value, int max_len, int str_s
   unsigned long start_C = S0-1;
   unsigned long count_C = C0; 
   stat = nc_put_vara_string(ncid, varid_C, &start_C, &count_C, (const char **) string_in ); pfio_check(stat);
+  //stat = nc_free_string(str_size, string_in); pfio_check(stat);
+  return stat;
+}
+
+
+int pfio_put_var_string(int ncid, int varid, char* value, int len_ )
+{
+  int stat;
+
+  // note: C-varid starts from 0, Fortran from 1 
+  int varid_C = varid - 1;
+
+  char *string_in[1];
+  // re-arrange string
+  for (int i=0; i<1; i++){
+    string_in[i] = value + i*len_;
+  }
+
+  stat = nc_put_var_string(ncid, varid_C,  (const char **) string_in ); pfio_check(stat);
   //stat = nc_free_string(str_size, string_in); pfio_check(stat);
   return stat;
 }

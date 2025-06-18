@@ -17,6 +17,7 @@ module NCIOMod
   use MAPL_BaseMod
   use MAPL_CommsMod
   use MAPL_SortMod
+  use MAPL_EASEConversion, only:  MAPL_get_ease_gridname_by_cols
   !use MAPL_RangeMod
   use MAPL_ShmemMod
   use MAPL_ExceptionHandling
@@ -4233,7 +4234,7 @@ contains
 
     else
 
-       pfio_mode = PFIO_NOCLOBBER 
+       pfio_mode = PFIO_NOCLOBBER
        if (clobber) pfio_mode = PFIO_CLOBBER
        if (arrdes%writers_comm /= mpi_comm_null) then
           if (arrdes%num_writers == 1) then
@@ -5363,7 +5364,7 @@ contains
    end subroutine MAPL_ReadTilingNC4
 
    subroutine MAPL_WriteTilingNC4(File, GridName, im, jm, nx, ny, iTable, rTable, N_PfafCat, rc)
-   
+
      character(*),      intent(IN) :: File
      character(*),      intent(IN) :: GridName(:)
      integer,           intent(IN) :: IM(:), JM(:)
@@ -5372,9 +5373,9 @@ contains
      real(REAL64),      intent(IN) :: rTable(:,:)
      integer, optional, intent(in) :: N_PfafCat
      integer, optional, intent(out):: rc
-   
+
      integer                       :: k, ll, ng, ip, status, n_pfafcat_
-   
+
      character(len=:), allocatable :: attr
      type (Variable)               :: v
      type (NetCDF4_FileFormatter)  :: formatter
@@ -5385,31 +5386,31 @@ contains
      logical                       :: EASE
      integer, parameter            :: deflate_level = 1
      integer, parameter            :: SRTM_maxcat = 291284
- 
+
      ng  = size(GridName)
      ip  = size(iTable,1)
-   
+
      EASE = .false.
      if (index(GridName(1), 'EASE') /=0) EASE = .true.
      ! number of Pfafstetter catchments defined in underlying raster file
-   
+
      n_pfafcat_ = SRTM_maxcat
-   
+
      if (present(N_PfafCat)) n_pfafcat_ = N_PfafCat
-   
+
      call metadata%add_dimension('tile', ip)
-   
+
      ! -------------------------------------------------------------------
-     !  
+     !
      ! create nc4 variables and write metadata
-   
+
      do ll = 1, ng
        if (ll == 1) then
          ocn_str = ''
        else
          ocn_str = '_ocn'
        endif
-   
+
        attr = 'Grid'//trim(ocn_str)//'_Name'
        call metadata%add_attribute( attr, trim(GridName(ll)))
        attr = 'IM'//trim(ocn_str)
@@ -5417,7 +5418,7 @@ contains
        attr = 'JM'//trim(ocn_str)
        call metadata%add_attribute( attr, JM(ll))
      enddo
-   
+
      attr = 'raster_nx'
      call metadata%add_attribute( attr, nx)
      attr = 'raster_ny'
@@ -5426,13 +5427,13 @@ contains
      call metadata%add_attribute( attr, n_pfafcat_)
      attr = 'N_Grids'
      call metadata%add_attribute( attr, ng)
-   
+
      v = Variable(type=PFIO_INT32, dimensions='tile')
      call v%add_attribute('units', '1')
      call v%add_attribute('long_name', 'tile_type')
      call v%set_deflation(DEFLATE_LEVEL)
      call metadata%add_variable('typ', v)
-   
+
      v = Variable(type=PFIO_REAL64, dimensions='tile')
      call v%add_attribute('units', 'radian2')
      call v%add_attribute('long_name', 'tile_area')
@@ -5440,7 +5441,7 @@ contains
      call v%add_attribute("_FillValue", UNDEF_REAL64)
      call v%set_deflation(DEFLATE_LEVEL)
      call metadata%add_variable('area', v)
-   
+
      v = Variable(type=PFIO_REAL64, dimensions='tile')
      call v%add_attribute('units', 'degree')
      call v%add_attribute('long_name', 'tile_center_of_mass_longitude')
@@ -5448,7 +5449,7 @@ contains
      call v%add_attribute("_FillValue", UNDEF_REAL64)
      call v%set_deflation(DEFLATE_LEVEL)
      call metadata%add_variable('com_lon', v)
-   
+
      v = Variable(type=PFIO_REAL64, dimensions='tile')
      call v%add_attribute('units', 'degree')
      call v%add_attribute('long_name', 'tile_center_of_mass_latitude')
@@ -5456,28 +5457,28 @@ contains
      call v%add_attribute("_FillValue", UNDEF_REAL64)
      call v%set_deflation(DEFLATE_LEVEL)
      call metadata%add_variable('com_lat', v)
-   
+
      do ll = 1, ng
         if (ll == 1) then
            ocn_str = ''
         else
            ocn_str = '_ocn'
         endif
-   
+
         v = Variable(type=PFIO_INT32, dimensions='tile')
         call v%add_attribute('units', '1')
         call v%add_attribute('long_name', 'GRID'//trim(ocn_str)//'_i_index_of_tile_in_global_grid')
         call v%add_attribute("missing_value",   MAPL_UNDEFINED_INTEGER)
         call v%set_deflation(DEFLATE_LEVEL)
         call metadata%add_variable('i_indg'//trim(ocn_str), v)
-   
+
         v = Variable(type=PFIO_INT32, dimensions='tile')
         call v%add_attribute('units', '1')
         call v%add_attribute('long_name', 'GRID'//trim(ocn_str)//'_j_index_of_tile_in_global_grid')
         call v%set_deflation(DEFLATE_LEVEL)
         call v%add_attribute("missing_value",   MAPL_UNDEFINED_INTEGER)
         call metadata%add_variable('j_indg'//trim(ocn_str), v)
-   
+
         v = Variable(type=PFIO_REAL64, dimensions='tile')
         call v%add_attribute('units', '1')
         call v%add_attribute('long_name', 'GRID'//trim(ocn_str)//'_area_fraction_of_tile_in_grid_cell')
@@ -5485,7 +5486,7 @@ contains
         call v%add_attribute("_FillValue",    UNDEF_REAL64)
         call v%set_deflation(DEFLATE_LEVEL)
         call metadata%add_variable('frac_cell'//trim(ocn_str), v)
-   
+
         v = Variable(type=PFIO_INT32, dimensions='tile')
         call v%add_attribute('units', '1')
         call v%add_attribute('long_name', 'internal_dummy_index_of_tile')
@@ -5493,63 +5494,63 @@ contains
         call v%set_deflation(DEFLATE_LEVEL)
         call metadata%add_variable('dummy_index'//trim(ocn_str), v)
      enddo
-   
+
      v = Variable(type=PFIO_INT32, dimensions='tile')
      call v%add_attribute('units', '1')
      call v%add_attribute('long_name', 'Pfafstetter_index_of_tile')
      call v%add_attribute("missing_value",   MAPL_UNDEFINED_INTEGER)
      call v%set_deflation(DEFLATE_LEVEL)
      call metadata%add_variable('pfaf_index', v)
-   
+
      v = Variable(type=PFIO_REAL64, dimensions='tile')
      call v%add_attribute('units', 'degree')
      call v%add_attribute('long_name', 'tile_minimum_longitude')
      call v%add_attribute("missing_value", UNDEF_REAL64)
      call v%set_deflation(DEFLATE_LEVEL)
      call metadata%add_variable('min_lon', v)
-   
+
      v = Variable(type=PFIO_REAL64, dimensions='tile')
      call v%add_attribute('units', 'degree')
      call v%add_attribute('long_name', 'tile_maximum_longitude')
      call v%add_attribute("missing_value", UNDEF_REAL64)
      call v%set_deflation(DEFLATE_LEVEL)
      call metadata%add_variable('max_lon', v)
-   
+
      v = Variable(type=PFIO_REAL64, dimensions='tile')
      call v%add_attribute('units', 'degree')
      call v%add_attribute('long_name', 'tile_minimum_latitude')
      call v%add_attribute("missing_value", UNDEF_REAL64)
      call v%set_deflation(DEFLATE_LEVEL)
      call metadata%add_variable('min_lat', v)
-   
+
      v = Variable(type=PFIO_REAL64, dimensions='tile')
      call v%add_attribute('units', 'degree')
      call v%add_attribute('long_name', 'tile_maximum_latitude')
      call v%add_attribute("missing_value", UNDEF_REAL64)
      call v%set_deflation(DEFLATE_LEVEL)
      call metadata%add_variable('max_lat', v)
-   
+
      v = Variable(type=PFIO_REAL64, dimensions='tile')
      call v%add_attribute('units', 'm')
      call v%add_attribute('long_name', 'tile_mean_elevation')
      call v%add_attribute("missing_value", UNDEF_REAL64)
      call v%set_deflation(DEFLATE_LEVEL)
      call metadata%add_variable('elev', v)
-   
+
      ! -------------------------------------------------------------------
-     !  
+     !
      ! write data into nc4 file
-   
+
      call formatter%create(File, mode=PFIO_NOCLOBBER, rc=status)
      call formatter%write(metadata,                   rc=status)
      call formatter%put_var('typ',     iTable(:,0),   rc=status)
      call formatter%put_var('area',    rTable(:,3),   rc=status)
      call formatter%put_var('com_lon', rTable(:,1),   rc=status)
      call formatter%put_var('com_lat', rTable(:,2),   rc=status)
-   
+
      allocate(fr(ip), pfaf(ip))
      fr = UNDEF_REAL64
-   
+
      do ll = 1, ng
         if (ng == 1) then
            if (EASE) then
@@ -5561,20 +5562,20 @@ contains
         else
            KK = iTable(:,5+ll)
         endif
-   
+
         II = iTable(:,ll*2    )
         JJ = iTable(:,ll*2 + 1)
-   
+
         where( rTable(:,3+ll) /=0.0)
            fr = rTable(:,3)/rTable(:,3+ll)
         endwhere
-   
+
         if (ll == 1) then
           ocn_str=''
         else
           ocn_str='_ocn'
         endif
-   
+
         if (ll == 2) then
           pfaf = MAPL_UNDEFINED_INTEGER
           where (iTable(:,0) == 100)
@@ -5586,28 +5587,28 @@ contains
           where (iTable(:,0) == 20)
             pfaf = 200000000
           endwhere
-   
+
           where (iTable(:,0) /=0 )
             II = MAPL_UNDEFINED_INTEGER
             JJ = MAPL_UNDEFINED_INTEGER
             fr = UNDEF_REAL64
           endwhere
         endif
-   
+
         call formatter%put_var('i_indg'    //trim(ocn_str), II, rc=status)
         call formatter%put_var('j_indg'    //trim(ocn_str), JJ, rc=status)
         call formatter%put_var('frac_cell' //trim(ocn_str), fr, rc=status)
         call formatter%put_var('dummy_index'//trim(ocn_str), KK, rc=status)
-   
+
         if (EASE .or. ll == 2) call formatter%put_var('pfaf_index', pfaf, rc=status)
      enddo
-   
+
      call formatter%put_var('min_lon', rTable(:, 6), rc=status)
      call formatter%put_var('max_lon', rTable(:, 7), rc=status)
      call formatter%put_var('min_lat', rTable(:, 8), rc=status)
      call formatter%put_var('max_lat', rTable(:, 9), rc=status)
      call formatter%put_var('elev',    rTable(:,10), rc=status)
-   
+
      call formatter%close(rc=status)
      _RETURN(_SUCCESS)
    end subroutine MAPL_WriteTilingNC4
@@ -5625,6 +5626,7 @@ contains
 
       integer :: unit, status, hdr(2), N
       real, pointer :: AVR_Transpose(:,:)
+      character(len=:), allocatable :: Correct_ease_name
 
       UNIT = GETFILE(FILENAME, form='FORMATTED', RC=status)
       _VERIFY(STATUS)
@@ -5636,7 +5638,7 @@ contains
        _VERIFY(STATUS)
        NT        = hdr(1)
        N_PfafCat = hdr(2)
-       
+
       call READ_PARALLEL(layout, N_GRIDS, unit=UNIT, rc=status)
       _VERIFY(STATUS)
 
@@ -5653,6 +5655,10 @@ contains
           allocate(AVR(NT,9), STAT=STATUS) ! 9 columns for EASE grid
           _VERIFY(STATUS)
           allocate(AVR_transpose(9,NT))
+          ! In older tile files, EASE grid name convention is "SMAP-EASEvx-Mxx".
+          ! Change her to revised convention "EASEvx_Mxx":
+          Correct_ease_name = MAPL_get_ease_gridname_by_cols(IM(1))
+          GridNAME(1) = Correct_ease_name
       else
          allocate(AVR(NT,NumGlobalVars+NumLocalVars*N_GRIDS), STAT=STATUS)
          _VERIFY(STATUS)

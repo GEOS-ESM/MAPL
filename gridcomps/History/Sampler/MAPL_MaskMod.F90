@@ -40,6 +40,7 @@ module MaskSamplerMod
 
   type :: var3d_unit
      real(kind=REAL32), allocatable :: array_xz(:,:)
+     real(kind=REAL32), allocatable :: array_zx(:,:)
   end type var3d_unit
 
 
@@ -68,6 +69,7 @@ module MaskSamplerMod
      character(len=ESMF_MAXSTR)  :: ofile
      integer :: write_collection_id
      logical :: use_pfio
+     logical :: write_lev_first
      !
      integer                        :: nobs
      integer                        :: obs_written
@@ -117,7 +119,6 @@ module MaskSamplerMod
      integer                        :: nobs_dur
      integer                        :: nobs_dur_sum
      type(ESMF_Time)                :: obsfile_start_time   ! user specify
-     type(ESMF_Time)                :: obsfile_end_time
      type(ESMF_TimeInterval)        :: obsfile_interval
      integer                        :: obsfile_Ts_index     ! for epoch
      integer                        :: obsfile_Te_index

@@ -6,6 +6,8 @@ module mapl3g_VariableSpec
 
    use mapl3g_ClassAspect
    use mapl3g_FieldClassAspect
+   use mapl3g_FieldBundleClassAspect
+   use mapl3g_StateClassAspect
    use mapl3g_VectorClassAspect
    use mapl3g_BracketClassAspect
    use mapl3g_WildcardClassAspect
@@ -548,6 +550,10 @@ contains
       select case (this%itemType%ot)
       case (MAPL_STATEITEM_FIELD%ot)
          aspect = FieldClassAspect(standard_name=this%standard_name, default_value=this%default_value)
+      case (MAPL_STATEITEM_FIELDBUNDLE%ot)
+         aspect = FieldBundleClassAspect(standard_name=this%standard_name)
+      case (MAPL_STATEITEM_STATE%ot)
+         aspect = StateClassAspect(state_intent=this%state_intent, standard_name=this%standard_name)
       case (MAPL_STATEITEM_VECTOR%ot)
          call split_name(this%standard_name, std_name_1, std_name_2, _RC)
          aspect = VectorClassAspect(this%vector_component_names, &
@@ -566,7 +572,7 @@ contains
          aspect = ExpressionClassAspect(registry=registry, expression=this%expression)
       case default
          aspect=FieldClassAspect('') ! must allocate something
-         _FAIL('Unsupported itemType.')
+         _FAIL('Unsupported itemType')
       end select
       
       _RETURN(_SUCCESS)

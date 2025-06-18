@@ -16,6 +16,7 @@
 !---------------------------------------------------------------------
 
 module mapl3g_Generic
+
    use mapl3g_InnerMetaComponent, only: InnerMetaComponent
    use mapl3g_InnerMetaComponent, only: get_inner_meta
    use mapl3g_OuterMetaComponent, only: OuterMetaComponent
@@ -32,6 +33,8 @@ module mapl3g_Generic
    use mapl_InternalConstantsMod
    use mapl3g_HorizontalDimsSpec, only: HorizontalDimsSpec, HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_GEOM
    use mapl3g_UngriddedDims, only: UngriddedDims
+   use mapl3g_StateItem, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
+   use mapl3g_ESMF_Utilities, only: esmf_state_intent_to_string
    use esmf, only: ESMF_Info
    use esmf, only: ESMF_InfoGetFromHost
    use esmf, only: ESMF_InfoGet
@@ -42,15 +45,18 @@ module mapl3g_Generic
    use esmf, only: ESMF_STAGGERLOC_INVALID
    use esmf, only: ESMF_HConfig
    use esmf, only: ESMF_Method_Flag
-   use esmf, only: ESMF_StateIntent_Flag
+   use esmf, only: ESMF_StateIntent_Flag, ESMF_STATEINTENT_INTERNAL
    use esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
    use esmf, only: ESMF_KIND_R8, ESMF_KIND_R4
-   use esmf, only: ESMF_Time, ESMF_TimeInterval
+   use esmf, only: ESMF_Time, ESMF_TimeInterval, ESMF_TimeIntervalGet, ESMF_Clock, ESMF_ClockGet
    use esmf, only: ESMF_State, ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD
+   use esmf, only: operator(==)
    use mapl3g_hconfig_get
+   use mapl3g_RestartHandler
    use pflogger, only: logger_t => logger
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
+
    implicit none
    private
 
@@ -61,7 +67,7 @@ module mapl3g_Generic
 
    ! These should be available to users
    public :: MAPL_GridCompAddVarSpec
-   public :: MAPL_GridCompAddFieldSpec
+   public :: MAPL_GridCompAddSpec
    public :: MAPL_GridCompIsGeneric
    public :: MAPL_GridCompIsUser
 
@@ -77,7 +83,9 @@ module mapl3g_Generic
 
    public :: MAPL_GridCompSetGeometry
 
-    public :: MAPL_GridcompGetResource
+   public :: MAPL_GridcompGetResource
+
+   public :: MAPL_ClockGet
 
    ! Accessors
 !!$   public :: MAPL_GetOrbit
@@ -92,6 +100,11 @@ module mapl3g_Generic
    public :: MAPL_GridCompReexport
    public :: MAPL_GridCompConnectAll
 
+   ! Spec types
+   public :: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
+
+   ! Restart types
+   public :: MAPL_RESTART, MAPL_RESTART_SKIP
 
    ! Interfaces
 
@@ -140,9 +153,9 @@ module mapl3g_Generic
       procedure :: gridcomp_add_varspec_basic
    end interface MAPL_GridCompAddVarSpec
 
-   interface MAPL_GridCompAddFieldSpec
-      procedure :: gridcomp_add_fieldspec
-   end interface MAPL_GridCompAddFieldSpec
+   interface MAPL_GridCompAddSpec
+      procedure :: gridcomp_add_spec
+   end interface MAPL_GridCompAddSpec
 
    interface MAPL_GridCompSetGeometry
       procedure :: gridcomp_set_geometry
@@ -186,6 +199,10 @@ module mapl3g_Generic
       procedure :: gridcomp_connect_all
    end interface MAPL_GridCompConnectAll
 
+   interface MAPL_ClockGet
+      procedure :: clock_get
+      procedure :: ESMF_ClockGet
+   end interface MAPL_ClockGet
 
 contains
 
@@ -431,7 +448,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gridcomp_add_varspec_basic
 
-   subroutine gridcomp_add_fieldspec( &
+   subroutine gridcomp_add_spec( &
         gridcomp, &
         state_intent, &
         short_name, &
@@ -443,9 +460,11 @@ contains
         unusable, &
         units, &
         restart, &
+        itemType, &
+        add_to_export, &
         rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
-      type(Esmf_StateIntent_Flag), intent(in) :: state_intent
+      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
       character(*), intent(in) :: standard_name
       character(*), intent(in) :: dims
@@ -454,10 +473,11 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: ungridded_dims(:)
       character(*), optional, intent(in) :: units
-      logical, optional, intent(in) :: restart
+      integer(kind=kind(MAPL_RESTART)), optional, intent(in) :: restart
+      type(ESMF_StateItem_Flag), optional, intent(in) :: itemType
+      logical, optional, intent(in) :: add_to_export
       integer, optional, intent(out) :: rc
 
-      type(ESMF_StateItem_Flag), parameter :: itemtype = ESMF_STATEITEM_FIELD
       type(VariableSpec) :: var_spec
       type(HorizontalDimsSpec) :: horizontal_dims_spec
       type(OuterMetaComponent), pointer :: outer_meta
@@ -480,7 +500,7 @@ contains
            short_name, &
            standard_name=standard_name, &
            units=units_, &
-           itemtype=itemtype, &
+           itemType=itemType, &
            vertical_stagger=vstagger, &
            ungridded_dims=dim_specs_vec, &
            horizontal_dims_spec=horizontal_dims_spec, &
@@ -489,10 +509,22 @@ contains
       component_spec => outer_meta%get_component_spec()
       call component_spec%var_specs%push_back(var_spec)
 
+      if (present(add_to_export)) then
+         if (add_to_export) then
+            _ASSERT((state_intent==ESMF_STATEINTENT_INTERNAL), "cannot reexport a non-internal spec")
+            call gridcomp_reexport( &
+                 gridcomp=gridcomp, &
+                 src_comp="<self>", &
+                 src_name=short_name, &
+                 src_intent=esmf_state_intent_to_string(state_intent), &
+                 _RC)
+         end if
+      end if
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
       _UNUSED_DUMMY(restart)
-   end subroutine gridcomp_add_fieldspec
+   end subroutine gridcomp_add_spec
 
    subroutine MAPL_GridCompSetVerticalGrid(gridcomp, vertical_grid, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
@@ -933,6 +965,7 @@ contains
       call component_spec%add_connectivity(src_comp=src_comp, src_names=src_names, dst_comp=dst_comp, dst_names=dst_names, _RC)
       
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_add_simple_connectivity
 
 
@@ -955,6 +988,22 @@ contains
            new_name=new_name, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_reexport
+
+   subroutine clock_get(clock, dt, rc)
+      type(ESMF_Clock), intent(in) :: clock
+      real(ESMF_KIND_R4), intent(out) :: dt ! timestep in seconds
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_TimeInterval) :: timestep
+      integer :: seconds, status
+
+      call ESMF_ClockGet(clock, timeStep=timestep, _RC)
+      call ESMF_TimeIntervalGet(timestep, s=seconds, _RC)
+      dt = real(seconds, kind=ESMF_KIND_R4)
+
+      _RETURN(_SUCCESS)
+   end subroutine clock_get
 
 end module mapl3g_Generic

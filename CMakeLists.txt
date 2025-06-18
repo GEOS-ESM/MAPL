@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.55.1
+  VERSION 2.57.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
@@ -198,7 +198,6 @@ add_definitions(-Dsys${CMAKE_SYSTEM_NAME})
 # Support for automated code generation
 include(mapl_acg)
 include(mapl_create_stub_component)
-add_subdirectory (Apps)
 
 # Special case - MAPL_cfio is built twice with two different precisions.
 add_subdirectory (MAPL_cfio MAPL_cfio_r4)
@@ -254,6 +253,7 @@ endif ()
 include(mapl_acg)
 include(mapl_create_stub_component)
 
+add_subdirectory (Apps)
 add_subdirectory (Tests)
 
 # @env will exist here if MAPL is built as itself but not as part of, say, GEOSgcm
@@ -271,6 +271,9 @@ install (
    DESTINATION ${INSTALL_DATA_DIR}
    FILES_MATCHING PATTERN "mapl_*.cmake"
    )
+
+configure_file(BUILD_INFO.rc.in BUILD_INFO.rc @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/BUILD_INFO.rc DESTINATION etc)
 
 # https://www.scivision.dev/cmake-auto-gitignore-build-dir/
 # --- auto-ignore build directory

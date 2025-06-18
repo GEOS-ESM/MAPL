@@ -107,6 +107,14 @@ class ParameterizedEmitFunction:
         parameter_values = tuple(parameters.get(key) for key in self.parameter_keys)
         return self.emit(name, parameter_values)
 
+# Make a procedure call
+def make_procedure_call(name, is_function=False, delimiter=', ', terminator=None, *args, **kwargs):
+    preamble = '' if is_function else 'call '
+    arguments = [f"{a}" for a in args] + [f"{k}={v}" for k, v in kwargs.items()]
+    str_termination = f"{delimiter}{terminator}" if terminator else ')'
+    arg_list_str = f"({delimiter.join(arguments)}{str_termination}"
+    return f"{preamble}{name}{arg_list_str}"
+
 
 ##################### EMIT functions for writing AddSpecs ######################
 # Return the value
@@ -137,6 +145,16 @@ logical_emit = lambda s: TRUE_VALUE if lstripped(s) in TRUE_VALUES else FALSE_VA
 RESTART_EMIT = make_entry_emit({'OPT'  : 'MAPL_RestartOptional', 'SKIP' : 'MAPL_RestartSkip',
         'REQ'  : 'MAPL_RestartRequired', 'BOOT' : 'MAPL_RestartBoot',
         'SKIPI': 'MAPL_RestartSkipInitial'})
+
+
+############################ Special EMIT functions ############################
+
+# This emit function emits the name of the variable for the config argument
+# based the value of the FILTER column.
+emit_cf = lambda value: 'CF' if value else ''
+
+# This emit function emits a Python bool value based on the FILTER column.
+emit_filter = lambda value: (value.lower() in TRUE_VALUES) if value else False
 
 
 ################################### OPTIONS ####################################
@@ -203,10 +221,13 @@ Option = Enum(value = 'Option', names = {
         'ALIAS': ('alias', identity_emit, False, False),
         'CONDITION': ('condition', identity_emit, False, False),
         'COND': ('condition', identity_emit, False, False),
+        'CONFIG': ('config', emit_cf, False, False),
         'ALLOC': ('alloc', identity_emit, False, False),
         'MANGLED_NAME': ('mangled_name', mangle_name, False, False),
         'INTERNAL_NAME': ('internal_name', make_internal_name, False, False),
-        'RANK': ('rank', None, False, False)
+        'RANK': ('rank', None, False, False),
+        'FILTER': ('filter', identity_emit, False, False),
+        'STATE': ('state', identity_emit, False, False)
     }, type = OptionType) 
  
 
@@ -297,6 +318,7 @@ class MAPL_DataSpec:
         self.internal_name = spec_values[Option.INTERNAL_NAME]
         self.condition = spec_values.get(Option.CONDITION)
         self.spec_values = spec_values
+        self.filtered = spec_values.get(Option.FILTER)
 
     def newline(self):
         return "\n" + " "*self.indent
@@ -307,26 +329,24 @@ class MAPL_DataSpec:
     def emit_specs(self):
         return self.emit_header() + self.emit_args() + self.emit_trailer(nullify=False)
 
-    # Pointers must be declared regardless of COND status.  Deactivated
-    # pointers should not be _referenced_ but such sections should still
-    # compile, so we must declare the pointers
-    def emit_declare_pointers(self):
+    # Variable must be declared regardless of COND status so that the code compiles.
+    # If the condition is .FALSE. and the variable is not used, it is deactivated and
+    # it should not be _referenced_.
+    def emit_declare_dynamic_variable(self):
         dimension = 'dimension(:' + ',:'*(self.spec_values[Option.RANK]-1) + ')'
-        text = self.newline() + 'real'
-        if Option.PRECISION in self.spec_values:
-            kind = self.spec_values.get(Option.PRECISION)
-            text = text + '(kind=' + str(kind) + ')'
-        text = text +', pointer, ' + dimension + ' :: ' + self.internal_name
-        return text
+        vartype = 'allocatable' if self.filtered else 'pointer'
+        precision = self.spec_values.get(Option.PRECISION)
+        kind = f"(kind={precision})" if precision else ''
+        return f"{self.newline()}real{kind}, {vartype}, {dimension} :: {self.internal_name}"
 
-    def emit_get_pointers(self):
+    def emit_get_pointer(self):
         """ Generate MAPL_GetPointer calls for the MAPL_DataSpec (self) """
         """ Creates string by joining list of generated and literal strings """
         """ including if block (emit_header) and 'alloc = value' (emit_pointer_alloc) """
         return MAPL_DataSpec.DELIMITER.join(
             [ self.emit_header() + "call MAPL_GetPointer(" + self.category,
               self.internal_name, self.mangled_name] + self.emit_pointer_alloc() +
-            [ MAPL_DataSpec.TERMINATOR + self.emit_trailer(nullify=True) ] )
+            [ MAPL_DataSpec.TERMINATOR + self.emit_trailer(nullify=True) ])
 
     def emit_pointer_alloc(self):
         EMPTY_LIST = []
@@ -339,6 +359,19 @@ class MAPL_DataSpec:
             listout = EMPTY_LIST
         return listout
 
+    def emit_get_allocatable_variable(self):
+        args = [('itemName', self.spec_values[Option.SHORT_NAME])]
+        other_options = (Option[name] for name in 'STATE CONFIG INTERNAL_NAME'.split())
+        other_args = [(option.name, self.spec_values[option]) for option in other_options]
+        args.extend(other_args)
+        delimiter = MAPL_DataSpec.DELIMITER
+        procedure_call = make_procedure_call("MAPL_StateFilterItem", delimiter=delimiter,
+            terminator=MAPL_DataSpec.TERMINATOR, **dict(args))
+        return ''.join([self.emit_header(), procedure_call, self.emit_trailer()])
+
+    def emit_get_dynamic_variable(self):
+        return self.emit_get_allocatable_variable() if self.filtered else self.emit_get_pointer()
+        
     def emit_header(self):
         text = self.newline()
         condition = self.condition
@@ -466,6 +499,8 @@ def digest(specs, args):
             ungridded = None
             alias = None
             option_values = dict() # dict of option values
+            option = Option.STATE
+            option_values[option] = option.emit(category)
             for column in spec: # for spec emit value
                 column_value = spec[column]
                 option = Option[column.upper()] # use column name to find Option
@@ -486,6 +521,8 @@ def digest(specs, args):
                     alias = Option.ALIAS(column_value)
             if alias:
                 option_values[Option.INTERNAL_NAME] = alias
+            option = Option.CONFIG
+            option_values[option] = option.emit(option_values.get(Option.FILTER))
 # MANDATORY
             for option in mandatory_options:
                 if option not in option_values:
@@ -541,9 +578,9 @@ def emit_values(specs, args):
                 if f_specs[category]:
                     f_specs[category].write(spec.emit_specs())
                 if f_declare_pointers:
-                    f_declare_pointers.write(spec.emit_declare_pointers())
+                    f_declare_pointers.write(spec.emit_declare_dynamic_variable())
                 if f_get_pointers:
-                    f_get_pointers.write(spec.emit_get_pointers())
+                    f_get_pointers.write(spec.emit_get_dynamic_variable())
 
 # Close output files
     for category, f in list(f_specs.items()):

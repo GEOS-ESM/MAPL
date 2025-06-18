@@ -13,10 +13,16 @@ module mapl3g_RestartHandler
    use pFIO, only: i_Clients, o_Clients
    use pFlogger, only: logging, logger
 
-   implicit none
+   implicit none(type, external)
    private
 
    public :: RestartHandler
+   public :: MAPL_RESTART
+   public :: MAPL_RESTART_OPTIONAL
+   public :: MAPL_RESTART_SKIP
+   public :: MAPL_RESTART_REQUIRED
+   public :: MAPL_RESTART_BOOT
+   public :: MAPL_RESTART_SKIP_INITIAL
 
    type :: RestartHandler
       private
@@ -34,6 +40,15 @@ module mapl3g_RestartHandler
    interface RestartHandler
       procedure new_RestartHandler
    end interface RestartHandler
+
+   enum, bind(C)
+      enumerator :: MAPL_RESTART
+      enumerator :: MAPL_RESTART_OPTIONAL
+      enumerator :: MAPL_RESTART_SKIP
+      enumerator :: MAPL_RESTART_REQUIRED
+      enumerator :: MAPL_RESTART_BOOT
+      enumerator :: MAPL_RESTART_SKIP_INITIAL
+   end enum
 
 contains
 

@@ -7,6 +7,7 @@ import csv
 from collections.abc import Sequence
 from functools import partial, reduce
 from operator import concat
+from re import compile
 
 ################################# CONSTANTS ####################################
 SUCCESS = 0
@@ -35,6 +36,7 @@ GC_ARGNAME = 'gridcomp'
 GET = 'get'
 MAKE_BLOCK = 'make_block'
 INTENT_PREFIX = 'ESMF_STATEINTENT_'
+LOGICAL = 'logical'
 MANDATORY = 'mandatory'
 MAPPED = 'mapped' 
 MAPPING = 'mapping'
@@ -48,6 +50,7 @@ STRING = 'string'
 VALUES_NOT_FOUND = 'values_not_found'
 
 #could be read from YAML list
+ADD_TO_EXPORT = 'add_to_export'
 ALIAS = 'alias'
 ALLOC = 'alloc'
 ARRAY = 'array'
@@ -75,7 +78,7 @@ GC_VARIABLE = 'gridcomp_variable'
 GC_VARIABLE_DEFAULT = 'gc'
 STANDARD_NAME_PREFIX = "standard_name_prefix"
 # procedure names
-ADDSPEC = "MAPL_GridCompAddFieldSpec"
+ADDSPEC = "MAPL_GridCompAddSpec"
 GETPOINTER = "MAPL_StateGetPointer"
 TO_STRING_VECTOR = "toStringVector"
 # Fortran keywords
@@ -86,6 +89,7 @@ TRUE_VALUE = '.true.'
 TRUE_VALUES = {'t', 'true', 'yes', 'y'}
 # identity function (id is a builtin function, so this is capitalized.)
 ID = lambda u: u
+BRACKET_RE = compile('[][]')
 
 ##################################### FLAGS ####################################
 def get_set(o):
@@ -144,16 +148,19 @@ def get_options(args):
              'N': 'VERTICAL_STAGGER_NONE'}},
         ALIAS: {FLAGS: {STORE}}, 
         ALLOC: {FLAGS: {STORE}}, 
+        ADD_TO_EXPORT: {MAPPING: LOGICAL},
         'attributes' : {MAPPING: STRINGVECTOR}, 
         CONDITION: {FLAGS: {STORE}}, 
         'dependencies': {MAPPING: STRINGVECTOR}, 
         'itemtype': {}, 
         'orientation': {}, 
         'regrid_method': {}, 
-        'restart': {MAPPING: dict(
-                [(b, TRUE_VALUE) for b in 'T TRUE true t True'.split()] + 
-                [(b, FALSE_VALUE) for b in 'F FALSE false f False'.split()]
-            )},
+        'restart': {MAPPING: {
+            'OPTIONAL': 'MAPL_RESTART_OPTIONAL',
+            'SKIP': 'MAPL_RESTART_SKIP',
+            'REQUIRED': 'MAPL_RESTART_REQUIRED',
+            'BOOT': 'MAPL_RESTART_BOOT',
+            'SKIP_INITIAL': 'MAPL_RESTART_SKIP_INITIAL'}},
         STATE: {FLAGS: {MANDATORY, STORE}}, 
         'typekind': {MAPPING: { 
             'R4': 'ESMF_Typekind_R4',
@@ -173,7 +180,8 @@ def get_options(args):
         'name': SHORT_NAME,
         'prec': PRECISION,
         'vloc': VSTAGGER,
-        'vlocation': VSTAGGER
+        'vlocation': VSTAGGER,
+        'add2export': ADD_TO_EXPORT
     }
 
     options[CONTROLS] = {MAKE_BLOCK: {MAPPING: MAKE_BLOCK, FLAGS: CONTROL, FROM: CONDITION}} 
@@ -338,7 +346,7 @@ def digest_spec(spec, options):
     tuples = [(k, spec[k]) for k, v in spec.items() if k in options and spec[k]]
     spec_options = [options[k] for k, _ in tuples]
     mapping_functions = [fetch_mapping_function(so.get(MAPPING)) for so in spec_options]
-    values = dict((n, f(v)) for (n, v), f in zip(tuples, mapping_functions))
+    values = dict((n, f(v)) for (n, v), f in zip(tuples, mapping_functions) if f(v))
     return values, set(spec).difference(values)
 
 def map_spec_values(values, options):
@@ -439,17 +447,32 @@ def add_quotes(s):
     return f"'{rm_quotes(s)}'"
 mk_array = lambda s: '[ ' + str(s).strip().strip('[]') + ']' if s else None
 rm_quotes = lambda s: s.replace('"', '').replace("'", '') if s else None
+def rm_brackets(s):
+    return BRACKET_RE.sub(EMPTY, s)
+count_true = lambda it, pred: sum(map(pred, it))
+split_bracketed = lambda s, d: (p.strip() for p in s.strip().strip('][').split(d))
+count_by_delim = lambda s, d: s.count(d)+1
+count_not_empty = lambda s, d: count_true(split_bracketed(s, d), lambda p: len(p) > 0)
+
 construct_string_vector = lambda value: f"{TO_STRING_VECTOR}({add_quotes(value)})" if value else None
 
 def convert_to_fortran_logical(b):
+     if b is None:
+         return FALSE_VALUE
      return TRUE_VALUE if b.strip().strip('.').lower() in TRUE_VALUES else FALSE_VALUE 
 
 def compute_rank(dims, ungridded):
-    RANK_LOOKUP = {"'z'": 1, "'xy'": 2, "'xyz'": 3}
-    base_rank = RANK_LOOKUP.get(dims)
+    stripped_len = lambda s: len(s.strip())
+    base_rank = {"'z'": 1, "'xy'": 2, "'xyz'": 3}.get(dims)
     if base_rank is None:
         return None
-    extra_rank = len(ungridded.strip('][').split(',')) if ungridded else 0
+    extra_rank = 0
+    if ungridded:
+        r0 = count_by_delim(ungridded, DIMDELIM)
+        r1 = count_not_empty(ungridded, DIMDELIM)
+        if r0 != r1:
+            return None
+        extra_rank = r0
     return base_rank + extra_rank
 
 def header():
@@ -485,7 +508,7 @@ def mangle_standard_name(name, prefix):
     return add_quotes(name)
 
 def mkiterable(o, exclude_string = True):
-    return o if isiterable(o) else [o]
+    return o if isiterable(o, exclude_string=exclude_string) else [o]
 
 def isiterable(o, exclude_string = True):
     if o is None or exclude_string and isinstance(o, str):
@@ -515,10 +538,11 @@ NAMED_MAPPINGS = {
         STRING: lambda value: add_quotes(value),
         STRINGVECTOR: lambda value: construct_string_vector(value),
         ARRAY: lambda value: mk_array(value),
-        MANGLED: lambda name: add_quotes(name.replace("*","'//trim(comp_name)//'")) if name else None,
+        MANGLED: lambda name: f"'{rm_quotes(name).replace("*","'//trim(comp_name)//'")}'" if name else None,
         STANDARD_NAME: mangle_standard_name,
         RANK: compute_rank, 
-        MAKE_BLOCK: lambda value: partial(make_block, value)
+        MAKE_BLOCK: lambda value: partial(make_block, value),
+        LOGICAL: convert_to_fortran_logical
         }
 
 def fetch_mapping_function(m, func_dict=NAMED_MAPPINGS):

@@ -49,9 +49,9 @@ module MAPL_StateFilter
       if (name_Present) then
          call ESMF_ConfigGetAttribute(config, filter_expression, label="FILTER"//separator//trim(itemName)//":", _RC)
       else
-         call ESMF_ConfigFindLabel(config, "FILTER"//separator//"*:", isPresent=default_Present, _RC)
+         call ESMF_ConfigFindLabel(config, "FILTER"//separator//var_placeholder//":", isPresent=default_Present, _RC)
          _RETURN_UNLESS(default_present)
-         call ESMF_ConfigGetAttribute(config, filter_expression, label="FILTER"//separator//"*:", _RC)
+         call ESMF_ConfigGetAttribute(config, filter_expression, label="FILTER"//separator//var_placeholder//":", _RC)
       end if
 
       call FieldClone(old_field, new_field, _RC)
@@ -102,9 +102,9 @@ module MAPL_StateFilter
       if (name_Present) then
          call ESMF_ConfigGetAttribute(config, filter_expression, label="FILTER"//separator//trim(itemName)//":", _RC)
       else
-         call ESMF_ConfigFindLabel(config, "FILTER"//separator//"*:", isPresent=default_Present, _RC)
+         call ESMF_ConfigFindLabel(config, "FILTER"//separator//var_placeholder//":", isPresent=default_Present, _RC)
          _RETURN_UNLESS(default_present)
-         call ESMF_ConfigGetAttribute(config, filter_expression, label="FILTER"//separator//"*:", _RC)
+         call ESMF_ConfigGetAttribute(config, filter_expression, label="FILTER"//separator//var_placeholder//":", _RC)
       end if
 
       call FieldClone(old_field, new_field, _RC)
