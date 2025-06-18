@@ -81,7 +81,7 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine write_bin_file
-      
+
 
    subroutine delete_bin_file(filename, rc)
       character(*), intent(in) :: filename
@@ -108,7 +108,7 @@ contains
 
       status = NF90_Create(filename, IOR(NF90_CLOBBER, NF90_NETCDF4), unit)
       _VERIFY(status)
-      status = NF90_def_dim(unit, "dim1", size(buffer), dimid) 
+      status = NF90_def_dim(unit, "dim1", size(buffer), dimid)
       _VERIFY(status)
       status = NF90_def_var(unit, 'var1', NF90_FLOAT, [dimid], varid)
       _VERIFY(status)
@@ -135,14 +135,16 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine write_netcdf_file
-      
+
 
    subroutine delete_netcdf_file(filename, rc)
       character(*), intent(in) :: filename
       integer, optional, intent(out) :: rc
+      integer :: status
 
-      call SYSTEM('rm '//filename)
-      
+      call execute_command_line('rm '//filename, exitstat=status)
+      _VERIFY(status)
+
       _RETURN(_SUCCESS)
    end subroutine delete_netcdf_file
 
