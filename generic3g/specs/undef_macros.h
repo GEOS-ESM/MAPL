@@ -1,47 +1,35 @@
-#if defined(_SPEC_)
-#   undef _SPEC_
-#endif
-
 #if defined(_SPEC)
 #   undef _SPEC
 #endif
 
-#if defined(_ALLOCATED)
-#   undef _ALLOCATED
+#if defined(_ALLOC)
+#   undef _ALLOC
 #endif
 
-#if defined(_INVALID)
-#  undef _INVALID
+#if defined(_MSG)
+#  undef _MSG
 #endif
 
-#if defined(_ASSERT_LOGICAL)
-#   undef _ASSERT_LOGICAL
-#endif
-
-#if defined(_ASSERT_FUNCTION)
-#   undef _ASSERT_FUNCTION
+#if defined(_ASSERT_VALUE)
+#   undef _ASSERT_VALUE
 #endif
 
 #if defined(_ASSERT_FUNCTION_)
 #   undef _ASSERT_FUNCTION_
 #endif
 
-#if defined(_ASSERT_IS)
-#   undef _ASSERT_IS
+#if defined(_ASSERT_FUNCTION)
+#   undef _ASSERT_FUNCTION
 #endif
 
-#if defined(_ASSERT_IS_)
-#   undef _ASSERT_IS_
+#if defined(_ASSERT_EQUAL_)
+#   undef _ASSERT_EQUAL_
 #endif
 
-#if defined(_ASSERT_FUNCTIONS)
-#   undef _ASSERT_FUNCTIONS
+#if defined(_ASSERT_EQUAL)
+#   undef _ASSERT_EQUAL
 #endif
 
-#if defined(_ASSERT_PARAM_FUNC_)
-#   undef _ASSERT_PARAM_FUNC_
-#endif
-
-#if defined(_ASSERT_PARAM_FUNC)
-#   undef _ASSERT_PARAM_FUNC
+#if defined(_IF_ALLOC)
+#   undef _IF_ALLOC
 #endif
