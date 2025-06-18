@@ -39,6 +39,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Changed per-step diagnostic print from being hardcoded as `AGCM Date` to now trigger off of the `ROOT_NAME` in `CAP.rc`. So, if `ROOT_NAME` is `GEOSldas`, the print will be `GEOSldas Date` instead of `AGCM Date`.
 - Update the `MAPL_EQsat` code to the ramping version from CVS
+- Add `schema.version: 1` to enable trajectory sampler using a single GRID_LABEL item
+- `index_var_names` keyword is introduced to simpify the specifications for IODA files
+- delete `obsfile_end_time` in trajectory sampler
+- change `geoval_fields` to `fields` in obs_platform
+- change `sampler_spec` to `sampler_type`
 
 ## [2.56.1] - 2025-05-30
 
@@ -106,11 +111,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed problem related to stale pointers to temp copies of dummy arguments in `MAPL_Cap.F90`.  Fix is to add `TARGET` attribute in select locations.
 - Fix for case where 2nd argument to `transfer()` was not allocated in the OpenMP support layer.  Was not detected by other compilers.  The fix is to use a literal integer array instead.
-- Add `schema.version: 1` to enable trajectory sampler using a single GRID_LABEL item
-- `index_var_names` keyword is introduced to simpify the specifications for IODA files
-- delete `obsfile_end_time` in trajectory sampler
-- change `geoval_fields` to `fields` in obs_platform
-- change `sampler_spec` to `sampler_type`
 - Fixed problem in History when no fields appear on the `fields:` line in a collection (issue #3525)
 - Fixed bug that broke SCM model in GEOS
 - Fix ExtData2G unit test for GNU on Discover
