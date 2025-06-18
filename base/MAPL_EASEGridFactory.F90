@@ -156,7 +156,7 @@ contains
       call set_with_default(factory%nx, nx, MAPL_UNDEFINED_INTEGER)
       call set_with_default(factory%ny, ny, MAPL_UNDEFINED_INTEGER)
 
-      call ease_extent(grid_name, cols, rows, cell_area=cell_area, ll_lon=ll_lon, ll_lat=ll_lat, ur_lon=ur_lon, ur_lat=ur_lat)
+      call MAPL_ease_extent(grid_name, cols, rows, cell_area=cell_area, ll_lon=ll_lon, ll_lat=ll_lat, ur_lon=ur_lon, ur_lat=ur_lat)
 
       call set_with_default(factory%im_world, cols, MAPL_UNDEFINED_INTEGER)
       call set_with_default(factory%jm_world, rows, MAPL_UNDEFINED_INTEGER)
@@ -462,7 +462,7 @@ contains
       !
       do row = 0, this%jm_world-1
          s = row*1.0
-         call ease_inverse(this%grid_name, 0., s, lat, tmplon)
+         call MAPL_ease_inverse(this%grid_name, 0., s, lat, tmplon)
          lat_centers(this%jm_world - row) = lat ! use lat-lon grid index to avoid confusion
       enddo
 
@@ -492,7 +492,7 @@ contains
 
       do row = 0, this%jm_world
          s = row - 0.5
-         call ease_inverse(this%grid_name, 0., s, lat, tmplon)
+         call MAPL_ease_inverse(this%grid_name, 0., s, lat, tmplon)
          lat_corners(this%jm_world +1 -row) = lat
       enddo
 
@@ -621,10 +621,10 @@ contains
         end if
       end if
 
-      grid_name = get_ease_gridname_by_cols(im)
+      grid_name = MAPL_get_ease_gridname_by_cols(im)
       this%grid_name = grid_name
 
-      call ease_extent(grid_name, cols, rows, cell_area=cell_area, ll_lon=ll_lon, ll_lat=ll_lat, ur_lon=ur_lon, ur_lat=ur_lat)
+      call MAPL_ease_extent(grid_name, cols, rows, cell_area=cell_area, ll_lon=ll_lon, ll_lat=ll_lat, ur_lon=ur_lon, ur_lat=ur_lat)
 
       call set_with_default(this%im_world, cols, MAPL_UNDEFINED_INTEGER)
       call set_with_default(this%jm_world, rows, MAPL_UNDEFINED_INTEGER)
@@ -690,7 +690,7 @@ contains
 
       ! given grid_name, im_world and jm_world are comupted
 
-      call ease_extent(this%grid_name, this%im_world, this%jm_world, ll_lat=ll_lat, ur_lat=ur_lat)
+      call MAPL_ease_extent(this%grid_name, this%im_world, this%jm_world, ll_lat=ll_lat, ur_lat=ur_lat)
 
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'IMS_FILE:', rc=status)
       if ( status == _SUCCESS ) then
@@ -1028,7 +1028,7 @@ contains
       call MAPL_ConfigSetAttribute(config, max_index(2,1), 'JM_WORLD:', _RC)
       call MAPL_ConfigSetAttribute(config, max_index(3,1), 'LM:', _RC)
 
-      grid_name = get_ease_gridname_by_cols(max_index(1,1))
+      grid_name = MAPL_get_ease_gridname_by_cols(max_index(1,1))
       call MAPL_ConfigSetAttribute(config, grid_name, 'GRIDNAME:', _RC)
 
       lon => null()
@@ -1158,7 +1158,7 @@ contains
       character(len=:), allocatable :: name
       class (EASEGridFactory), intent(in) :: this
 
-      name = get_ease_gridname_by_cols(this%im_world)
+      name = MAPL_get_ease_gridname_by_cols(this%im_world)
 
    end function generate_grid_name
 
