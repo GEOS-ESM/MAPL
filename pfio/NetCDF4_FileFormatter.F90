@@ -44,6 +44,7 @@ module pFIO_NetCDF4_FileFormatterMod
 
 #include "new_overload.macro"
 
+      procedure :: ___SUB(get_var,string,0)
       procedure :: ___SUB(get_var,string,1)
 
       procedure :: ___SUB(get_var,int32,0)
@@ -67,6 +68,7 @@ module pFIO_NetCDF4_FileFormatterMod
       procedure :: ___SUB(get_var,real64,3)
       procedure :: ___SUB(get_var,real64,4)
 
+      procedure :: ___SUB(put_var,string,0)
       procedure :: ___SUB(put_var,string,1)
       procedure :: ___SUB(put_var,int32,0)
       procedure :: ___SUB(put_var,int32,1)
@@ -90,6 +92,7 @@ module pFIO_NetCDF4_FileFormatterMod
       procedure :: ___SUB(put_var,real64,4)
 
 
+      generic :: get_var => ___SUB(get_var,string,0)
       generic :: get_var => ___SUB(get_var,string,1)
       generic :: get_var => ___SUB(get_var,int32,0)
       generic :: get_var => ___SUB(get_var,int32,1)
@@ -112,6 +115,7 @@ module pFIO_NetCDF4_FileFormatterMod
       generic :: get_var => ___SUB(get_var,real64,3)
       generic :: get_var => ___SUB(get_var,real64,4)
 
+      generic :: put_var => ___SUB(put_var,string,0)
       generic :: put_var => ___SUB(put_var,string,1)
       generic :: put_var => ___SUB(put_var,int32,0)
       generic :: put_var => ___SUB(put_var,int32,1)
@@ -1347,6 +1351,10 @@ contains
 
    ! string
 #define _VARTYPE 0
+#  define _RANK 0
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
 #  define _RANK 1
 #    include "NetCDF4_get_var.H"
 #    include "NetCDF4_put_var.H"
