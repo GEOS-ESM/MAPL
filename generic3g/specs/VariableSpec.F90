@@ -596,10 +596,8 @@ contains
 #define _ASSERT_FUNCTION(F, V, M) if(_ALLOC(V)) then; _ASSERT_FUNCTION_(F, V, M); end if
 #define _ASSERT_EQUAL_(U, V, N) _ASSERT_VALUE(_SPEC(V) == U, N)
 #define _ASSERT_EQUAL(U, V, N) if(_ALLOC(V)) then;  _ASSERT_EQUAL_(U, V, N); end if
-#define _IF_ALLOC(V, B) if(_ALLOC(V)) then; B; end if
 
       _ASSERT_FUNCTION_(valid_state_intent, state_intent, _MSG('state_intent'))
-      _ASSERT(_ALLOC(short_name), _MSG('short_name'))
       _ASSERT_FUNCTION_(is_valid_identifier, short_name, _MSG('short_name'))
       _ASSERT_FUNCTION_(valid_state_item, itemType, _MSG('itemType'))
 

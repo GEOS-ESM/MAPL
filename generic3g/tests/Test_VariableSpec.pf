@@ -26,10 +26,6 @@ contains
       call validate_variable_spec(spec, rc=status)
       @assertExceptionRaised("Invalid short_name")
 
-      if(allocated(spec%short_name)) deallocate(spec%short_name)
-      call validate_variable_spec(spec, rc=status)
-      @assertExceptionRaised('short_name must be allocated.')
-
       spec%short_name = 'F00'
       spec%state_intent = ESMF_STATEINTENT_UNSPECIFIED
       call validate_variable_spec(spec, rc=status)
