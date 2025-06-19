@@ -24,9 +24,10 @@ contains
       found = .false.
       do i = 1, this%factories%size()
          factory => this%factories%of(i)
-         if (.not. factory%supports(spec)) cycle
-         found = .true.
-         exit
+         if (factory%supports(spec)) then
+            found = .true.
+            exit
+         end if
       end do
       _ASSERT(found, 'No factory supports spec.')
 

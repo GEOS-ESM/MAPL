@@ -5,9 +5,9 @@ module mapl3g_Geom_API
    use mapl3g_GeomSpec, only: GeomSpec
    use mapl3g_GeomManager, only: GeomManager, geom_manager, get_geom_manager
    use mapl3g_GeomUtilities, only: MAPL_SameGeom, MAPL_GeomGetId
-   use esmf, only: ESMF_Grid, ESMF_KIND_R4, ESMF_KIND_R8
+   use esmf, only: ESMF_Grid, ESMF_KIND_R4
 
-   implicit none
+   implicit none(type,external)
 
    private
 
