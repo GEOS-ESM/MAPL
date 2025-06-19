@@ -49,6 +49,7 @@ module mapl3g_Generic
    use esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
    use esmf, only: ESMF_KIND_R8, ESMF_KIND_R4
    use esmf, only: ESMF_Time, ESMF_TimeInterval, ESMF_TimeIntervalGet, ESMF_Clock, ESMF_ClockGet
+   use esmf, only: MAPL_ClockGet => ESMF_ClockGet
    use esmf, only: ESMF_State, ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD
    use esmf, only: operator(==)
    use mapl3g_hconfig_get
@@ -201,7 +202,6 @@ module mapl3g_Generic
 
    interface MAPL_ClockGet
       procedure :: clock_get
-      procedure :: ESMF_ClockGet
    end interface MAPL_ClockGet
 
 contains
