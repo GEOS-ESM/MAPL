@@ -89,7 +89,7 @@ contains
          if (duplicate_key) cycle
 
          val = ESMF_HConfigCreateAtMapVal(iter, _RC)
-         call ESMF_HConfigSet(child_hconfig, keystring=key, content=val, _RC)
+         call ESMF_HConfigSet(total_hconfig, keystring=key, content=val, _RC)
       end do
 
       _RETURN(_SUCCESS)
