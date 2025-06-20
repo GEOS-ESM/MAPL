@@ -9,7 +9,10 @@ module mapl3g_ESMF_Subset
    ! types
 
    use:: esmf, only: &
+        ESMF_VM, &
         ESMF_Clock, &
+        ESMF_Time, &
+        ESMF_TimeInterval, &
         ESMF_Config, &
         ESMF_Field, &
         ESMF_HConfig, &
@@ -27,7 +30,8 @@ module mapl3g_ESMF_Subset
         ESMF_METHOD_RUN, &
         ESMF_STATEINTENT_EXPORT, &
         ESMF_STATEINTENT_IMPORT, &
-        ESMF_SUCCESS
+        ESMF_SUCCESS, &
+        ESMF_CALKIND_GREGORIAN
         
    ! procedures
    use :: esmf, only: &
@@ -39,7 +43,9 @@ module mapl3g_ESMF_Subset
         ESMF_HConfigIterBegin, &
         ESMF_HConfigIterEnd, &
         ESMF_HConfigIterLoop, &
-        ESMF_HConfigGetSize
+        ESMF_HConfigGetSize, &
+        ESMF_VMGet, &
+        ESMF_ClockGet
 
     use :: esmf, only: &
          ESMF_InfoGetFromHost, &

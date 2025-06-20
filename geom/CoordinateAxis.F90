@@ -2,7 +2,7 @@ module mapl3g_CoordinateAxis
    use mapl_RangeMod
    use esmf, only: ESMF_KIND_R8
    use pfio
-   implicit none
+   implicit none(type,external)
    private
 
    public :: CoordinateAxis
