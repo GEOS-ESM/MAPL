@@ -202,7 +202,7 @@ module mapl3g_Generic
 
    interface MAPL_ClockGet
       procedure :: clock_get
-   end interface MAPL_ClockGet
+   end interface
 
 contains
 
