@@ -1,10 +1,9 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_CoordinateAxis) equal_to_smod
-   use esmf, only: ESMF_UtilStringLowerCase
    use mapl_ErrorHandling
    use gftl2_StringVector
-   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
+   implicit none(type,external)
 
 contains
    
