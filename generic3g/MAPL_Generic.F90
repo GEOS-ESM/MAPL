@@ -1000,6 +1000,7 @@ contains
       type(ESMF_TimeInterval) :: timestep
       integer :: seconds, status
 
+      call ESMF_ClockGet(clock, timeStep=timestep, _RC)
       call ESMF_TimeIntervalGet(timestep, s=seconds, _RC)
       dt = real(seconds, kind=ESMF_KIND_R4)
 
