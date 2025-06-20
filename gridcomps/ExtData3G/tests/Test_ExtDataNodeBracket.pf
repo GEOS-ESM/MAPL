@@ -1,8 +1,8 @@
 #include "MAPL_TestErr.h"
 module Test_ExtDataNodeBracket
    use pfunit
-   use mapl3g_ExtDataNode
-   use mapl3g_ExtDataBracket
+   use mapl3g_DataSetNode
+   use mapl3g_DataSetBracket
    use esmf
 
    implicit none
@@ -13,7 +13,7 @@ contains
    @test
    subroutine test_extdata_node()
       integer :: status
-      type(ExtDataNode) :: node1, node2
+      type(DataSetNode) :: node1, node2
 
       type(ESMF_Time) :: interp_time1, interp_time2
       type(ESMF_Time) :: file_time1, file_time2
@@ -28,11 +28,11 @@ contains
       index2 = 1
       file1 = "foo.nc4"
       file2 = "foo.nc4"
-      node1 = ExtDataNode(file1, index1, file_time1, interp_time1)
-      node2 = ExtDataNode(file2, index2, file_time2, interp_time2)
+      node1 = DataSetNode(file1, index1, file_time1, interp_time1, .true., .true.)
+      node2 = DataSetNode(file2, index2, file_time2, interp_time2, .true., .true.)
       @assertTrue(node1==node2)
 
-      file = node1%get_file()
+      call node1%get_file(file)
       @assertTrue(file=="foo.nc4")
 
    end subroutine test_extdata_node
@@ -40,15 +40,15 @@ contains
    @test 
    subroutine test_bracket()
       integer :: status
-      type(ExtDataNode) :: node1, node2
-      type(ExtDataBracket) :: bracket
+      type(DataSetNode) :: node1, node2
+      type(DataSetBracket) :: bracket
       type(ESMF_Time) :: interp_time1, interp_time2
       type(ESMF_Time) :: file_time1, file_time2
       type(ESMF_Time) :: time
       integer :: index1, index2 
       character(len=:), allocatable :: file1, file2
       real :: weights(2)
-      logical :: disable_interp
+      logical :: disable_interp, enable, update
 
       call ESMF_TimeSet(interp_time1,yy=2001, mm=4, dd=14, h=21, m=0, s=0, _RC)
       call ESMF_TimeSet(interp_time2,yy=2001, mm=4, dd=15, h=21, m=0, s=0, _RC)
@@ -58,8 +58,10 @@ contains
       index2 = 1
       file1 = "foo.nc4"
       file2 = "foo.nc4"
-      node1 = ExtDataNode(file1, index1, file_time1, interp_time1)
-      node2 = ExtDataNode(file2, index2, file_time2, interp_time2)
+      enable = .true.
+      update = .true.
+      node1 = DataSetNode(file1, index1, file_time1, interp_time1, enable, update)
+      node2 = DataSetNode(file2, index2, file_time2, interp_time2, enable, update)
 
       disable_interp = .true.
       call bracket%set_parameters(disable_interp, node1, node2)

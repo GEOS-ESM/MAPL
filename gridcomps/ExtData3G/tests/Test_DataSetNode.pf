@@ -1,0 +1,80 @@
+#include "MAPL_TestErr.h"
+module Test_DataSetNode
+   use pfunit
+   use mapl3g_DataSetNode
+   use esmf
+
+   implicit none
+
+contains
+
+   @test
+   subroutine test_Node_update_node_from_multi_time_file()
+      integer :: status
+
+      type(ESMF_Time) :: current_time, file_time, expected_file_time
+      type(DataSetNode) :: node
+      character(len=:), allocatable :: trial_file, node_file, expected_file
+      integer :: time_index, expected_time_index
+
+      trial_file = "/home/bmauer/extdata3g_test_data/twelve_month_file/climatology.2004.nc4"
+      expected_file = trial_file 
+
+      call node%set_node_side(NODE_LEFT)
+      call ESMF_TimeSet(current_time, yy=2004, mm=3, dd=3, h=0, m=0, s=0, _RC)
+      call ESMF_TimeSet(expected_file_time, yy=2004, mm=2, dd=15, h=21, m=0, s=0, _RC)
+      expected_file = trial_file 
+      expected_time_index = 2
+      call node%update_node_from_file(trial_file, current_time, _RC)
+      file_time = node%get_file_time()
+      time_index = node%get_time_index() 
+      call node%get_file(node_file)
+      @assertTrue(time_index == expected_time_index) 
+      @assertTrue(file_time == expected_file_time)
+      @assertTrue(node_file == expected_file)
+
+      call node%set_node_side(NODE_RIGHT)
+      call ESMF_TimeSet(current_time, yy=2004, mm=11, dd=2, h=0, m=0, s=0, _RC)
+      call ESMF_TimeSet(expected_file_time, yy=2004, mm=11, dd=15, h=21, m=0, s=0, _RC)
+      expected_file = trial_file 
+      expected_time_index = 11
+      call node%update_node_from_file(trial_file, current_time, _RC)
+      file_time = node%get_file_time()
+      time_index = node%get_time_index() 
+      call node%get_file(node_file)
+      @assertTrue(time_index == expected_time_index) 
+      @assertTrue(file_time == expected_file_time)
+      @assertTrue(node_file == expected_file)
+
+
+   end subroutine test_Node_update_node_from_multi_time_file
+
+   @test
+   subroutine test_Node_update_node_from_single_time_file()
+      integer :: status
+
+      type(ESMF_Time) :: current_time, file_time, expected_file_time
+      type(DataSetNode) :: node
+      character(len=:), allocatable :: trial_file, node_file, expected_file
+      integer :: time_index, expected_time_index
+
+      trial_file = "/home/bmauer/extdata3g_test_data/hourly_files/hourly_files.20040201_0800z.nc4"
+      expected_file = trial_file 
+
+      call node%set_node_side(NODE_LEFT)
+      call ESMF_TimeSet(current_time, yy=2004, mm=2, dd=1, h=8, m=15, s=0, _RC)
+      call ESMF_TimeSet(expected_file_time, yy=2004, mm=2, dd=1, h=8, m=0, s=0, _RC)
+      expected_file = trial_file 
+      expected_time_index = 1
+      call node%update_node_from_file(trial_file, current_time, _RC)
+      file_time = node%get_file_time()
+      time_index = node%get_time_index() 
+      call node%get_file(node_file)
+      @assertTrue(time_index == expected_time_index) 
+      @assertTrue(file_time == expected_file_time)
+      @assertTrue(node_file == expected_file)
+
+
+   end subroutine test_Node_update_node_from_single_time_file
+
+end module Test_DataSetNode
