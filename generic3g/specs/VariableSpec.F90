@@ -588,7 +588,6 @@ contains
 
       call validate_state_intent(spec%state_intent, _RC)
       call validate_short_name(spec%short_name, _RC)
-      call validate_state_item(spec%itemType, _RC)
       call validate_regrid(spec%regrid_param, spec%regrid_method, _RC)
 
       _RETURN(_SUCCESS)
