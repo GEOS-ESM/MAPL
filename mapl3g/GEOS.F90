@@ -11,7 +11,7 @@ program geos
    logical :: is_model_pet
    type(ESMF_GridComp), allocatable :: servers(:)
 
-   call MAPL_Initialize(hconfig=hconfig, is_model_pet=is_model_pet, servers=servers, configFileNameFromArgNum=1, _RC)
+   call MAPL_Initialize(hconfig=hconfig, is_model_pet=is_model_pet, servers=servers, _RC)
    call run_geos(hconfig, is_model_pet=is_model_pet, servers=servers, _RC)
    call MAPL_Finalize(_RC)
 
