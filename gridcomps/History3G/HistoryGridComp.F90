@@ -1,15 +1,11 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_HistoryGridComp
+   use mapl3
    use mapl3g_HistoryGridComp_private
    use mapl3g_HistoryCollectionGridComp, only: collection_setServices => setServices
    use MAPL_TimeStringConversion
-   use mapl3g_ChildSpec
-   use generic3g
-   use mapl_ErrorHandling
    use pFlogger, only: logger
-   use esmf
-   use pfio
    implicit none(type,external)
    private
 
