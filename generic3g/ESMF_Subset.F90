@@ -14,7 +14,14 @@ module mapl3g_ESMF_Subset
         ESMF_Time, &
         ESMF_TimeInterval, &
         ESMF_Config, &
+        ESMF_Geom, &
+        ESMF_Grid, &
+        ESMF_Mesh, &
+        ESMF_LocStream, &
+        ESMF_Xgrid, &
         ESMF_Field, &
+        ESMF_FieldBundle, &
+        ESMF_State, &
         ESMF_HConfig, &
         ESMF_HConfigIter, &
         ESMF_GridComp, &
@@ -35,7 +42,11 @@ module mapl3g_ESMF_Subset
         
    ! procedures
    use :: esmf, only: &
+        ESMF_TimePrint, &
+        ESMF_TimeSet, &
+        ESMF_CalendarSetDefault, &
         ESMF_HConfigAsStringMapKey, &
+        ESMF_HConfigAsString, &
         ESMF_HConfigCreate, &
         ESMF_HConfigCreateAt, &
         ESMF_HConfigDestroy, &
@@ -45,7 +56,19 @@ module mapl3g_ESMF_Subset
         ESMF_HConfigIterLoop, &
         ESMF_HConfigGetSize, &
         ESMF_VMGet, &
-        ESMF_ClockGet
+        ESMF_VMGetCurrent, &
+        ESMF_ClockCreate, &
+        ESMF_ClockGet, &
+        operator(+), &
+        operator(-), &
+        operator(/), &
+        operator(*), &
+        operator(==), &
+        operator(/=), &
+        operator(<), &
+        operator(<=), &
+        operator(>), &
+        operator(>=)
 
     use :: esmf, only: &
          ESMF_InfoGetFromHost, &

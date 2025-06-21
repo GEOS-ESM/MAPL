@@ -2,14 +2,6 @@
 module mapl3g_CapGridComp
    use :: generic3g
    use :: mapl_ErrorHandling 
-   use :: esmf, only: ESMF_GridComp
-   use :: esmf, only: ESMF_Config
-   use :: esmf, only: ESMF_HConfig
-   use :: esmf, only: ESMF_State
-   use :: esmf, only: ESMF_Clock
-   use :: esmf, only: ESMF_METHOD_INITIALIZE
-   use :: esmf, only: ESMF_METHOD_RUN
-   use :: esmf, only: ESMF_SUCCESS
    implicit none
 
    private
