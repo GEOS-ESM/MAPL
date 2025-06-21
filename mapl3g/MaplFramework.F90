@@ -98,7 +98,9 @@ contains
       call this%initialize_esmf(hconfig=hconfig, mpiCommunicator=mpiCommunicator, configFilenameFromArgNum=configFilenameFromArgNum, _RC)
       call ESMF_VMGetCurrent(this%mapl_vm, _RC)
 
+#ifdef BUILD_WITH_PFLOGGER
       call this%initialize_pflogger(level_name=level_name, _RC)
+#endif
       call this%initialize_profilers(_RC)
       call this%initialize_servers(is_model_pet=is_model_pet, servers=servers, _RC)
       call this%initialize_udunits(_RC)
