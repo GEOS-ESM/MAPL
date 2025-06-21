@@ -46,6 +46,7 @@ module mapl3g_VariableSpec
 
    public :: VariableSpec
    public :: make_VariableSpec
+   public :: validate_variable_spec
 
    ! This type provides components that might be needed for _any_
    ! state item.  This is largely to support legacy interfaces, but it
@@ -592,6 +593,158 @@ contains
 
       _RETURN(_SUCCESS)
 
+      _RETURN(_SUCCESS)
+
    end subroutine validate_variable_spec
+
+#include "undef_macros.h"
+
+   function to_string(array) result(string)
+      character, intent(in) :: array(:)
+      character(len=size(array)) :: string
+      integer :: i
+
+      do i = 1, size(array)
+         string(i:i) = array(i)
+      end do
+
+   end function to_string
+
+   function get_ascii_range(bounds) result(range)
+      character, allocatable :: range(:)
+      character(len=2), intent(in) :: bounds
+      integer :: ibounds(2)
+      integer :: i
+
+      ibounds = iachar([bounds(1:1), bounds(2:2)])
+      range = [(achar(i), i=minval(ibounds), maxval(ibounds))]
+
+   end function get_ascii_range
+
+   function get_alpha() result(range)
+      character(len=:), allocatable :: range
+
+      range = to_string(get_ascii_range('AZ'))//to_string(get_ascii_range('az'))
+
+   end function get_alpha
+
+   function get_alpha_numeric_() result(range)
+       character(len=:), allocatable :: range
+
+       range = get_alpha() // to_string(get_ascii_range('09')) // '_'
+
+   end function get_alpha_numeric_
+   
+   logical function is_all_alpha(s)
+      character(len=*), intent(in) :: s
+      
+      is_all_alpha = verify(s, get_alpha()) == 0
+
+   end function is_all_alpha
+
+   logical function is_all_alphanumeric_(s)
+      character(len=*), intent(in) :: s
+      
+      is_all_alphanumeric_ = verify(s, get_alpha_numeric_()) == 0
+
+   end function is_all_alphanumeric_
+
+   logical function is_valid_identifier(s)
+      character(len=*), intent(in) :: s
+
+      is_valid_identifier = .FALSE.
+      if(len_trim(s) == 0) return
+      if(verify(s, ' ') > 1) return
+      
+      is_valid_identifier = is_all_alpha(trim(s(1:1))) .and. is_all_alphanumeric_(trim(s(2:)))
+
+   end function is_valid_identifier
+
+   logical function is_in_integer(bounds, n) result(lval)
+      integer, intent(in) :: bounds(:)
+      integer, intent(in) :: n
+      integer :: i
+
+      lval = .FALSE.
+      if(size(bounds) < 2) return
+
+      do i = 2, mod(size(bounds), 2), 2
+         lval = n >= bounds(i-1) .and. n <= bounds(i)
+         if(lval) exit
+      end do
+
+   end function is_in_integer
+
+   logical function is_in_realR4(bounds, t) result(lval)
+      real(kind=ESMF_KIND_R4), intent(in) :: bounds(:)
+      real(kind=ESMF_KIND_R4), intent(in) :: t
+      integer :: i
+
+      lval = .FALSE.
+      if(size(bounds) < 2) return
+
+      do i = 2, mod(size(bounds), 2), 2
+         lval = t >= bounds(i-1) .and. t <= bounds(i)
+         if(lval) exit
+      end do
+
+   end function is_in_realR4
+
+   logical function is_not_empty(string)
+      character(len=*), intent(in) :: string
+
+      is_not_empty = len_trim(string) > 0
+
+   end function is_not_empty
+
+   logical function no_test(v)
+      class(*), intent(in) :: v
+
+      no_test = .TRUE.
+
+   end function no_test
+
+   logical function string_in_vector(string, vector) result(in_vector)
+      character(len=*), intent(in) :: string
+      class(StringVector), intent(in) :: vector
+      type(StringVectorIterator) :: e, iter
+
+      in_vector = .TRUE.
+      e = vector%end()
+      iter = vector%begin()
+      do while(iter /= e)
+         if(string == iter%of()) return
+         call iter%next()
+      end do
+      in_vector = .FALSE.
+
+   end function string_in_vector
+
+   logical function is_vector_in_string_vector(V0, V) result(lval)
+      class(StringVector), intent(in) :: V0
+      class(StringVector), intent(in) :: V
+      type(StringVectorIterator) :: iter, e
+
+      lval = .FALSE.
+      iter = V%begin()
+      e = V%end()
+      do while(iter /= e)
+         if(.not. string_in_vector(iter%of(), V0)) return
+         call iter%next()
+      end do
+      lval = .TRUE.
+
+   end function is_vector_in_string_vector
+
+#define FUNCNAME_ valid_state_intent
+#define TYPE_ ESMF_StateIntent_Flag
+#define SET_ [ESMF_STATEINTENT_EXPORT,ESMF_STATEINTENT_IMPORT,ESMF_STATEINTENT_INTERNAL]
+#include "is_in_set.h"
+
+#define FUNCNAME_ valid_state_item
+#define TYPE_ ESMF_StateItem_Flag
+#define SET_ [ESMF_STATEITEM_FIELD,ESMF_STATEITEM_FIELDBUNDLE]
+#include "is_in_set.h"
+>>>>>>> 50d8397b12d (All tests pass.)
 
 end module mapl3g_VariableSpec

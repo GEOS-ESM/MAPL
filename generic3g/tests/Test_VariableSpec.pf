@@ -1,0 +1,87 @@
+#include "MAPL_TestErr.h"
+module Test_VariableSpec
+   use mapl3g_VariableSpec
+   use esmf
+   use pfunit
+   use ESMF_TestMethod_mod
+   implicit none(type,external)
+
+   character(len=*), parameter :: NONZERO = 'Non-zero status returned'
+
+contains
+
+   @Test
+   subroutine test_validate_variable_spec()
+      type(VariableSpec) :: spec
+      integer :: status
+      character(len=*), parameter :: STANDARD_NAME = 'standard_name'
+      character(len=*), parameter :: LONG_NAME = 'long_name'
+
+      spec%short_name = 'F00'
+      spec%state_intent = ESMF_STATEINTENT_IMPORT
+      call validate_variable_spec(spec, rc=status)
+      @assertEqual(0, status, NONZERO)
+
+      spec%short_name = '0F00'
+      call validate_variable_spec(spec, rc=status)
+      @assertExceptionRaised("Invalid short_name")
+
+      if(allocated(spec%short_name)) deallocate(spec%short_name)
+      call validate_variable_spec(spec, rc=status)
+      @assertExceptionRaised('short_name must be allocated.')
+
+      spec%short_name = 'F00'
+      spec%state_intent = ESMF_STATEINTENT_UNSPECIFIED
+      call validate_variable_spec(spec, rc=status)
+      @assertExceptionRaised('Invalid state_intent')
+
+      spec%state_intent = ESMF_STATEINTENT_IMPORT
+      
+      spec%long_name = 'Foo Baz'
+      call validate_variable_spec(spec, rc=status)
+      @assertEqual(0, status, NONZERO)
+
+      spec%long_name = ' '
+      call validate_variable_spec(spec, rc=status)
+      @assertExceptionRaised(invalid('long_name'))
+
+      spec%standard_name = ' '
+      call validate_variable_spec(spec, rc=status)
+      @assertExceptionRaised(invalid('standard_name'))
+
+      spec%standard_name = ''
+      call validate_variable_spec(spec, rc=status)
+      @assertExceptionRaised(invalid('standard_name'))
+
+      spec%standard_name = 'Foo Bar'
+      call validate_variable_spec(spec, rc=status)
+      @assertEqual(0, status, NONZERO)
+      
+      spec%typekind = ESMF_TYPEKIND_R8
+      call validate_variable_spec(spec, rc=status)
+      @assertExceptionRaised(invalid('typekind'))
+
+      spec%typekind = ESMF_TYPEKIND_R4
+      spec%itemType = ESMF_STATEITEM_STATE
+      call validate_variable_spec(spec, rc=status)
+      @assertExceptionRaised(invalid('itemType'))
+
+      spec%itemType = ESMF_STATEITEM_FIELDBUNDLE
+      call validate_variable_spec(spec, rc=status)
+      @assertEqual(0, status, NONZERO)
+
+      spec%itemType = ESMF_STATEITEM_FIELD
+      call validate_variable_spec(spec, rc=status)
+      @assertEqual(0, status, NONZERO)
+
+   end subroutine test_validate_variable_spec
+
+   function invalid(name) result(msg)
+      character(len=:), allocatable :: msg
+      character(len=*), intent(in) :: name
+
+      msg = 'Invalid ' // name
+
+   end function invalid
+
+end module Test_VariableSpec
