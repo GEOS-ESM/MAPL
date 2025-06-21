@@ -1,16 +1,10 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_Cap
+   use mapl3
    use mapl3g_CapGridComp, only: cap_setservices => setServices
-   use esmf
-   use generic3g
-   use mapl3g_GenericPhases
-   use mapl3g_MultiState
-   use mapl_KeywordEnforcerMod
-   use mapl_ErrorHandling
-   use mapl3g_Generic
-   use mapl3g_esmf_subset
    use MAPL_TimeStringConversion, only: hconfig_to_esmf_timeinterval
+   use esmf, only: ESMF_GridCompSetServices
    implicit none
    private
 
@@ -67,7 +61,7 @@ contains
       call ESMF_GridCompSetServices(cap_gridcomp, generic_setServices, userRC=user_status, _RC)
       _VERIFY(user_status)
 
-      driver = GriddedComponentDriver(cap_gridcomp, MultiState(), clock)
+      driver = GriddedComponentDriver(cap_gridcomp, clock=clock)
 
       _RETURN(_SUCCESS)
    end function make_driver

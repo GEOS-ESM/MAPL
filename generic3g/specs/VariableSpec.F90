@@ -46,6 +46,7 @@ module mapl3g_VariableSpec
 
    public :: VariableSpec
    public :: make_VariableSpec
+   public :: validate_variable_spec
 
    ! This type provides components that might be needed for _any_
    ! state item.  This is largely to support legacy interfaces, but it

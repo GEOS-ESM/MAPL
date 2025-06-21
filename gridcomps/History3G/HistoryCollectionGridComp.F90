@@ -1,17 +1,10 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_HistoryCollectionGridComp
-   use mapl_ErrorHandlingMod
-   use generic3g
-   use mapl3g_esmf_utilities
+   use mapl3
    use mapl3g_HistoryCollectionGridComp_private
-   use mapl3g_BasicVerticalGrid
-   use mapl3g_geomio
-   use mapl3g_Geom_API
-   use mapl_StringTemplate
-   use pfio
    use esmf
-   
+   use MAPL_StringTemplate, only: fill_grads_template_esmf
    implicit none
    private
 

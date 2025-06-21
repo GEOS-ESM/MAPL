@@ -1,22 +1,8 @@
 #include "MAPL_Generic.h"
 module mapl3g_HistoryCollectionGridComp_private
-
-   use generic3g
-   use mapl3g_VariableSpec, only: VariableSpec, make_VariableSpec
+   use mapl3
    use esmf
-   use Mapl_ErrorHandling
    use gFTL2_StringVector
-   use mapl3g_Geom_API
-   use MAPL_StateArithmeticParserMod, only: parser_variables_in_expression
-   use MAPL_TimeStringConversion
-   use MAPL_BaseMod, only: MAPL_UnpackTime
-   use mapl3g_UngriddedDims
-   use mapl3g_FieldClassAspect
-   use mapl3g_FrequencyAspect, only: FrequencyAspect
-   use mapl3g_TypekindAspect, only: TypekindAspect
-   use mapl3g_UnitsAspect, only: UnitsAspect
-   use mapl3g_VerticalGridAspect, only: VerticalGridAspect
-   use mapl3g_VerticalStaggerLoc, only: VERTICAL_STAGGER_MIRROR
    use gFTL2_StringSet
 
    implicit none(type,external)
@@ -90,7 +76,6 @@ contains
       character(len=:), allocatable :: alias, short_name
       type(ESMF_Field) :: field, new_field
       type(ESMF_Info) :: info, new_info
-      type(ESMF_StateItem_Flag) :: itemType
 
       var_list = ESMF_HConfigCreateAt(hconfig, keystring=VAR_LIST_KEY, _RC)
       iter_begin = ESMF_HConfigIterBegin(var_list,_RC)
@@ -118,7 +103,7 @@ contains
       integer, intent(out), optional :: rc
 
       integer :: status
-      logical :: has_start, has_stop, has_timespec
+      logical :: has_start, has_stop
       character(len=:), allocatable :: time_string
       type(ESMF_HConfig) :: time_hconfig
 
@@ -221,7 +206,7 @@ contains
       type(StringVector) :: raw_vars
       type(StringVectorIterator) :: iter
 
-      raw_vars = parser_variables_in_expression(expression, _RC)
+      raw_vars = MAPL_ParserVariablesInExpression(expression, _RC)
       iter = raw_vars%begin()
       do while(iter /= raw_vars%end())
         call variables%push_back(replace_delimiter(iter%of()))
