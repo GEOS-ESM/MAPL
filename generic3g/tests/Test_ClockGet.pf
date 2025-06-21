@@ -24,7 +24,7 @@ contains
       clock = ESMF_ClockCreate(timestep, start_time, _RC)
 
       call MAPL_ClockGet(clock, dt=dt, _RC)
-      @assertEqual(3903., dt)
+      @assert_that(dt, is(3903.))
 
    end subroutine test_timestep
 

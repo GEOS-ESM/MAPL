@@ -2,12 +2,14 @@
 
 module mapl3g_Cap
    use mapl3g_CapGridComp, only: cap_setservices => setServices
+   use esmf
    use generic3g
    use mapl3g_GenericPhases
    use mapl3g_MultiState
    use mapl_KeywordEnforcerMod
    use mapl_ErrorHandling
-   use esmf
+   use mapl3g_Generic
+   use mapl3g_esmf_subset
    use MAPL_TimeStringConversion, only: hconfig_to_esmf_timeinterval
    implicit none
    private
@@ -154,7 +156,7 @@ contains
          call driver%clock_advance(_RC)
          call ESMF_ClockGet(clock, currTime=currTime, _RC)
       end do
-      call ESMF_TimePrint(currTime, options='string', preString='Cap time after loop: ', _RC)
+      call esmf_TimePrint(currTime, options='string', preString='Cap time after loop: ', _RC)
 
       _RETURN(_SUCCESS)
       
