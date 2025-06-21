@@ -554,18 +554,20 @@ contains
    end subroutine mapl_get_mapl
 
 
-   subroutine mapl_initialize(hconfig, unusable, is_model_pet, servers, mpiCommunicator, level_name, rc)
+   subroutine mapl_initialize(hconfig, unusable, is_model_pet, servers, mpiCommunicator, configFilenameFromArgNum, level_name, rc)
       type(ESMF_HConfig), optional, intent(inout) :: hconfig
       class(KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(out) :: is_model_pet
       type(ESMF_GridComp), allocatable, optional, intent(out) :: servers(:)
       integer, optional, intent(in) :: mpiCommunicator
+      integer, optional, intent(in) :: configFilenameFromArgNum
       character(*), optional, intent(in) :: level_name
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      call the_mapl_object%initialize(hconfig=hconfig, is_model_pet=is_model_pet, servers=servers, mpiCommunicator=mpiCommunicator, level_name=level_name, _RC)
+      call the_mapl_object%initialize(hconfig=hconfig, is_model_pet=is_model_pet, servers=servers, mpiCommunicator=mpiCommunicator, &
+           configFilenameFromArgNum=configFilenameFromArgNum, level_name=level_name, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
