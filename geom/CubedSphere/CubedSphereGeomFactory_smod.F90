@@ -12,8 +12,9 @@ submodule (mapl3g_CubedSphereGeomFactory) CubedSphereGeomFactory_smod
    use gFTL2_StringVector
    use esmf
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
-   implicit none
-   real(kind=ESMF_Kind_R8) :: undef_schmidt = 1d15
+   implicit none(type,external)
+
+   real(kind=ESMF_Kind_R8), parameter :: UNDEF_SCHMIDT = 1d15
 
 contains
 
@@ -29,6 +30,7 @@ contains
       geom_spec = make_CubedSphereGeomSpec(hconfig, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function make_geom_spec_from_hconfig
 
 
@@ -43,6 +45,7 @@ contains
       geom_spec = make_CubedSphereGeomSpec(file_metadata, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function make_geom_spec_from_metadata
 
 
@@ -54,6 +57,7 @@ contains
 
       supports = same_type_as(geom_spec, reference)
 
+      _UNUSED_DUMMY(this)
    end function supports_spec
 
    logical module function supports_hconfig(this, hconfig, rc) result(supports)
@@ -67,6 +71,7 @@ contains
       supports = spec%supports(hconfig, _RC)
       
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function supports_hconfig
 
    logical module function supports_metadata(this, file_metadata, rc) result(supports)
@@ -80,6 +85,7 @@ contains
       supports = spec%supports(file_metadata, _RC)
       
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function supports_metadata
 
 
@@ -99,6 +105,7 @@ contains
       end select
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function make_geom
 
 
@@ -176,6 +183,7 @@ contains
       end select
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function make_gridded_dims
 
 
@@ -199,7 +207,9 @@ contains
       end select
 
       _RETURN(_SUCCESS)
-   end function make_file_metadata
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(unusable)
+  end function make_file_metadata
 
    function typesafe_make_file_metadata(geom_spec, unusable, chunksizes, rc) result(file_metadata)
       type(FileMetadata) :: file_metadata
@@ -353,15 +363,16 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end function typesafe_make_file_metadata
+      _UNUSED_DUMMY(chunksizes)
+  end function typesafe_make_file_metadata
 
    function is_stretched_cube(schmidt_parameters) result(is_stretched)
       logical :: is_stretched
       type(ESMF_CubedSphereTransform_Args), intent(in) :: schmidt_parameters
 
-      is_stretched = (schmidt_parameters%target_lat /= undef_schmidt) .and. &
-                          (schmidt_parameters%target_lon /= undef_schmidt) .and. &
-                          (schmidt_parameters%stretch_factor /= undef_schmidt) 
+      is_stretched = (schmidt_parameters%target_lat /= UNDEF_SCHMIDT) .and. &
+                          (schmidt_parameters%target_lon /= UNDEF_SCHMIDT) .and. &
+                          (schmidt_parameters%stretch_factor /= UNDEF_SCHMIDT) 
    end function is_stretched_cube
 
 end submodule CubedSphereGeomFactory_smod

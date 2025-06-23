@@ -1,4 +1,5 @@
 #include "MAPL_Generic.h"
+
 module mapl3g_VariableSpec
    use mapl3g_StateItemSpec
    use mapl3g_StateItemAspect
@@ -38,12 +39,14 @@ module mapl3g_VariableSpec
    use esmf
    use gFTL2_StringVector
    use nuopc
+   use mapl3g_VariableSpec_private
 
    implicit none
    private
 
    public :: VariableSpec
    public :: make_VariableSpec
+   public :: validate_variable_spec
 
    ! This type provides components that might be needed for _any_
    ! state item.  This is largely to support legacy interfaces, but it
@@ -86,7 +89,7 @@ module mapl3g_VariableSpec
       !---------------------
       character(:), allocatable :: expression ! default empt
 
-      
+
       !=====================
       ! typekind aspect
       !=====================
@@ -132,7 +135,7 @@ module mapl3g_VariableSpec
       !=====================
       ! miscellaneous
       !=====================
-      type(StringVector) :: dependencies ! default emuty
+      type(StringVector) :: dependencies ! default empty
 
    contains
       procedure :: make_virtualPt
@@ -262,7 +265,7 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine split_name
-   
+
 
    function make_virtualPt(this) result(v_pt)
       type(VirtualConnectionPt) :: v_pt
@@ -291,7 +294,7 @@ contains
       type(EsmfRegridderParam) :: regrid_param
       type(EsmfRegridderParam), optional, intent(in) :: requested_param
       character(*), optional, intent(in) :: standard_name
-      
+
       type(ESMF_RegridMethod_Flag) :: regrid_method
       integer :: status
 
@@ -388,11 +391,11 @@ contains
       type(AspectMap) :: aspects
       type(VirtualConnectionPtVector) :: dependencies
       integer :: status
-      
+
       aspects = this%make_aspects(registry, component_geom, vertical_grid, timestep=timestep, offset=offset, _RC)
       dependencies = this%make_dependencies(_RC)
       spec = new_StateItemSpec(aspects, dependencies=dependencies)
-      
+
 
       _RETURN(_SUCCESS)
    end function make_StateitemSpec
@@ -414,7 +417,7 @@ contains
 
       aspect = this%make_UnitsAspect(RC)
       call aspects%insert(UNITS_ASPECT_ID, aspect)
-      
+
       aspect = this%make_TypekindAspect(_RC)
       call aspects%insert(TYPEKIND_ASPECT_ID, aspect)
 
@@ -423,10 +426,10 @@ contains
 
       aspect = this%make_UngriddedDimsAspect(_RC)
       call aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, aspect)
-      
+
       aspect = this%make_AttributesAspect(_RC)
       call aspects%insert(ATTRIBUTES_ASPECT_ID, aspect)
-      
+
       aspect = this%make_VerticalGridAspect(vertical_grid, &
            component_geom=component_geom, _RC)
       call aspects%insert(VERTICAL_GRID_ASPECT_ID, aspect)
@@ -436,7 +439,7 @@ contains
 
       aspect = this%make_ClassAspect(registry, _RC)
       call aspects%insert(CLASS_ASPECT_ID, aspect)
-      
+
       _RETURN(_SUCCESS)
    end function make_aspects
 
@@ -485,7 +488,7 @@ contains
       aspect = UngriddedDimsAspect(this%ungridded_dims)
       _RETURN(_SUCCESS)
    end function make_UngriddedDimsAspect
-  
+
    function make_AttributesAspect(this, rc) result(aspect)
       type(AttributesAspect) :: aspect
       class(VariableSpec), intent(in) :: this
@@ -493,7 +496,7 @@ contains
       aspect = AttributesAspect(this%attributes)
       _RETURN(_SUCCESS)
    end function make_AttributesAspect
-  
+
    function make_VerticalGridAspect(this, vertical_grid, component_geom, time_dependent, rc) result(aspect)
       type(VerticalGridAspect) :: aspect
       class(VariableSpec), intent(in) :: this
@@ -537,13 +540,13 @@ contains
       aspect = FrequencyAspect(timestep, offset, this%accumulation_type)
       _RETURN(_SUCCESS)
    end function make_FrequencyAspect
-   
+
    function make_ClassAspect(this, registry, rc) result(aspect)
       class(ClassAspect), allocatable :: aspect
       class(VariableSpec), intent(in) :: this
       type(StateRegistry), pointer, optional, intent(in) :: registry
       integer, optional, intent(out) :: rc
-      
+
       integer :: status
       character(:), allocatable :: std_name_1, std_name_2
 
@@ -574,10 +577,22 @@ contains
          aspect=FieldClassAspect('') ! must allocate something
          _FAIL('Unsupported itemType')
       end select
-      
+
       _RETURN(_SUCCESS)
-      
+
    end function make_ClassAspect
-      
-   
+
+   subroutine validate_variable_spec(spec, rc)
+      class(VariableSpec), intent(in) :: spec
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      call validate_state_intent(spec%state_intent, _RC)
+      call validate_short_name(spec%short_name, _RC)
+      call validate_regrid(spec%regrid_param, spec%regrid_method, _RC)
+
+      _RETURN(_SUCCESS)
+
+   end subroutine validate_variable_spec
+
 end module mapl3g_VariableSpec

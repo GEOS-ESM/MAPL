@@ -1,16 +1,16 @@
 #include "MAPL_Generic.h"
 
-submodule (mapl3g_OuterMetaComponent) get_lgr_smod
+submodule (mapl3g_OuterMetaComponent) get_logger_smod
    implicit none
 
 contains
 
-   module function get_lgr(this) result(lgr)
+   module function get_logger(this) result(lgr)
       class(Logger), pointer :: lgr
       class(OuterMetaComponent), target, intent(in) :: this
 
       lgr => this%lgr
 
-   end function get_lgr
+   end function get_logger
 
-end submodule get_lgr_smod
+end submodule get_logger_smod
