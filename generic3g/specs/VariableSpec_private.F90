@@ -101,7 +101,6 @@ contains
       integer :: status
       character(len=*), parameter :: M='short_name must begin with a letter and include alphanumeric characters or _ only.'
 
-      _ASSERT(present(v), 'short_name not allocated')
       _ASSERT(valid_identifier(v), M)
       _RETURN(_SUCCESS)
 
