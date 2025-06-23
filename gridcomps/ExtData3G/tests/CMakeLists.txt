@@ -4,7 +4,7 @@ set (test_srcs
   Test_ExtDataNodeBracket.pf
   )
 
-if (${GEOS_SITE} MATCHES "NCCS" OR MATCHES "GMAO.desktop") 
+if (${GEOS_SITE} MATCHES "NCCS" OR ${GEOS_SITE} MATCHES "GMAO.desktop") 
   list(APPEND test_srcs Test_NonClimDataSetFileSelector.pf)
   list(APPEND test_srcs Test_DataSetNode.pf)
 endif ()
