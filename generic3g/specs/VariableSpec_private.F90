@@ -96,7 +96,7 @@ contains
    end function valid_state_intent
 
    subroutine validate_short_name(v, rc)
-      character(len=*), optional, intent(in) :: v
+      character(len=*), intent(in) :: v
       integer, optional, intent(out) :: rc
       integer :: status
       character(len=*), parameter :: M='short_name must begin with a letter and include alphanumeric characters or _ only.'
