@@ -56,6 +56,7 @@ module mapl3g_ComponentSpecParser
    character(*), parameter :: COMPONENT_ACTIVATE_ALL_EXPORTS = 'activate_all_exports'
    character(*), parameter :: COMPONENT_ACTIVATE_ALL_IMPORTS = 'activate_all_imports'
    character(*), parameter :: COMPONENT_WRITE_EXPORTS = 'write_exports'
+   character(*), parameter :: COMPONENT_READ_RESTARTS = 'read_restarts'
 
    character(*), parameter :: KEY_DEFAULT_VALUE = 'default_value'
    character(*), parameter :: KEY_UNGRIDDED_DIMS = 'ungridded_dims'

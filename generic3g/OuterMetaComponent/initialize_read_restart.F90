@@ -25,6 +25,8 @@ contains
       type(RestartHandler) :: restart_handler
       integer :: status
 
+      _RETURN_UNLESS(this%component_spec%read_restarts)
+
       driver => this%get_user_gc_driver()
       name = driver%get_name()
       if (this%has_geom()) then

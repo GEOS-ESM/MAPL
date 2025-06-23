@@ -43,23 +43,30 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: has_activate_all_exports, has_activate_all_imports, has_write_exports
 
-      has_activate_all_exports = ESMF_HConfigIsDefined(hconfig,keyString=COMPONENT_ACTIVATE_ALL_EXPORTS, _RC)
-      if (has_activate_all_exports) then
-         spec%activate_all_exports = ESMF_HConfigASLogical(hconfig, keyString=COMPONENT_ACTIVATE_ALL_EXPORTS, _RC)
-      end if
-      has_activate_all_imports = ESMF_HConfigIsDefined(hconfig,keyString=COMPONENT_ACTIVATE_ALL_IMPORTS, _RC)
-      if (has_activate_all_imports) then
-         spec%activate_all_imports = ESMF_HConfigASLogical(hconfig, keyString=COMPONENT_ACTIVATE_ALL_IMPORTS, _RC)
-      end if
-      has_write_exports = ESMF_HConfigIsDefined(hconfig,keyString=COMPONENT_WRITE_EXPORTS, _RC)
-      if (has_write_exports) then
-         spec%write_exports = ESMF_HConfigASLogical(hconfig, keyString=COMPONENT_WRITE_EXPORTS, _RC)
-      end if
+      call parse_item(hconfig, key=COMPONENT_ACTIVATE_ALL_EXPORTS, value=spec%activate_all_exports, _RC)
+      call parse_item(hconfig, key=COMPONENT_ACTIVATE_ALL_IMPORTS, value=spec%activate_all_imports, _RC)
+      call parse_item(hconfig, key=COMPONENT_WRITE_EXPORTS, value=spec%write_exports, _RC)
+      call parse_item(hconfig, key=COMPONENT_READ_RESTARTS, value=spec%read_restarts, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine parse_misc
+
+   subroutine parse_item(hconfig, key, value, rc)
+      type(ESMF_HConfig), intent(in) :: hconfig
+      character(*), intent(in) :: key
+      logical, intent(inout) :: value
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: has_key
+
+      has_key = ESMF_HConfigIsDefined(hconfig,keyString=key, _RC)
+      _RETURN_UNLESS(has_key)
+      value = ESMF_HConfigAsLogical(hconfig, keyString=key, _RC)
+      
+      _RETURN(_SUCCESS)
+   end subroutine parse_item
 
 end submodule parse_component_spec_smod
 

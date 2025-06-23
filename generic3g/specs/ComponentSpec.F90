@@ -31,6 +31,7 @@ module mapl3g_ComponentSpec
       logical :: activate_all_exports = .false. ! used for testing in isolation
       logical :: activate_all_imports = .false. ! used for testing in isolation
       logical :: write_exports = .false. ! used for testing in isolation
+      logical :: read_restarts = .true.
 
    contains
       procedure :: has_geom_hconfig
