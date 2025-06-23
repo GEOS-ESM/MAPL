@@ -25,7 +25,9 @@ contains
       type(RestartHandler) :: restart_handler
       integer :: status
 
-      _RETURN_UNLESS(this%component_spec%read_restarts)
+      call recurse(this, phase_idx=GENERIC_INIT_READ_RESTART, _RC)
+
+      _RETURN_IF(this%component_spec%misc%cold_start)
 
       driver => this%get_user_gc_driver()
       name = driver%get_name()
@@ -39,7 +41,6 @@ contains
       end if
 
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
-      call recurse(this, phase_idx=GENERIC_INIT_READ_RESTART, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)

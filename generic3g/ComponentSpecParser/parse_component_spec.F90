@@ -26,7 +26,7 @@ contains
       spec%connections = parse_connections(mapl_cfg, _RC)
       spec%children = parse_children(mapl_cfg, _RC)
 
-      call parse_misc(spec, mapl_cfg, _RC)
+      spec%misc = parse_misc(mapl_cfg, _RC)
 
       call ESMF_HConfigDestroy(mapl_cfg, _RC)
 
@@ -37,20 +37,26 @@ contains
    ! should wait to see what else goes there.  Or maybe a `test`
    ! section?
    
-   subroutine parse_misc(spec, hconfig, rc)
-      type(ComponentSpec), intent(inout) :: spec
+   function parse_misc(hconfig, rc) result(misc)
+      type(MiscellaneousComponentSpec) :: misc
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
       integer :: status
+      logical :: has_misc_section
+      type(ESMF_HConfig) :: misc_cfg
 
-      call parse_item(hconfig, key=COMPONENT_ACTIVATE_ALL_EXPORTS, value=spec%activate_all_exports, _RC)
-      call parse_item(hconfig, key=COMPONENT_ACTIVATE_ALL_IMPORTS, value=spec%activate_all_imports, _RC)
-      call parse_item(hconfig, key=COMPONENT_WRITE_EXPORTS, value=spec%write_exports, _RC)
-      call parse_item(hconfig, key=COMPONENT_READ_RESTARTS, value=spec%read_restarts, _RC)
+      has_misc_section = ESMF_HConfigIsDefined(hconfig, keyString=COMPONENT_MISC_SECTION, _RC)
+      _RETURN_UNLESS(has_misc_section)
+      misc_cfg = ESMF_HConfigCreateAt(hconfig, keyString=COMPONENT_MISC_SECTION, _RC)
+
+      call parse_item(misc_cfg, key=COMPONENT_ACTIVATE_ALL_EXPORTS, value=misc%activate_all_exports, _RC)
+      call parse_item(misc_cfg, key=COMPONENT_ACTIVATE_ALL_IMPORTS, value=misc%activate_all_imports, _RC)
+      call parse_item(misc_cfg, key=COMPONENT_WRITE_EXPORTS, value=misc%write_exports, _RC)
+      call parse_item(misc_cfg, key=COMPONENT_COLD_START, value=misc%cold_start, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine parse_misc
+   end function parse_misc
 
    subroutine parse_item(hconfig, key, value, rc)
       type(ESMF_HConfig), intent(in) :: hconfig

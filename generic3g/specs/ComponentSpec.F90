@@ -20,6 +20,15 @@ module mapl3g_ComponentSpec
    private
 
    public :: ComponentSpec
+   public :: MiscellaneousComponentSpec
+
+   type :: MiscellaneousComponentSpec
+      ! misc bits
+      logical :: activate_all_exports = .false. ! used for testing in isolation
+      logical :: activate_all_imports = .false. ! used for testing in isolation
+      logical :: write_exports = .false. ! used for testing in isolation
+      logical :: cold_start = .false. ! primarily to avoid warnings in unit tests
+   end type MiscellaneousComponentSpec
 
    type :: ComponentSpec
       !!$      private
@@ -28,11 +37,7 @@ module mapl3g_ComponentSpec
       type(ConnectionVector) :: connections
       type(ChildSpecMap) :: children
       type(ESMF_HConfig), allocatable :: geom_hconfig ! optional
-      logical :: activate_all_exports = .false. ! used for testing in isolation
-      logical :: activate_all_imports = .false. ! used for testing in isolation
-      logical :: write_exports = .false. ! used for testing in isolation
-      logical :: read_restarts = .true.
-
+      type(MiscellaneousComponentSpec) :: misc
    contains
       procedure :: has_geom_hconfig
       procedure :: add_var_spec
