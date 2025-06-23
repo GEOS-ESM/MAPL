@@ -6,6 +6,11 @@ set (test_srcs
   Test_DataSetNode.pf
   )
 
+if (${DETECTED_SITE} MATCHES "NCCS" OR  "GMAO.desktop") 
+  list(APPEND test_srcs Test_NonClimDataSetFileSelector.pf)
+  list(APPEND test_srcs Test_DataSetNode.pf)
+endif ()
+
 add_pfunit_ctest(MAPL.extdata3g.tests
                 TEST_SOURCES ${test_srcs}
                 LINK_LIBRARIES MAPL.extdata3g MAPL.pfunit
