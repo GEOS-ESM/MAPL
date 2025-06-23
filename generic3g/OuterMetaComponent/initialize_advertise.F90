@@ -75,12 +75,12 @@ contains
            this%geom, this%vertical_grid, timestep=this%user_timestep, offset=this%user_offset, _RC)
       call item_spec%create(_RC)
       
-      if (this%component_spec%activate_all_exports) then
+      if (this%component_spec%misc%activate_all_exports) then
          if (var_spec%state_intent == ESMF_STATEINTENT_EXPORT) then
             call item_spec%activate(_RC)
          end if
       end if
-      if (this%component_spec%activate_all_imports) then
+      if (this%component_spec%misc%activate_all_imports) then
          if (var_spec%state_intent == ESMF_STATEINTENT_IMPORT) then
             call item_spec%activate(_RC)
          end if
