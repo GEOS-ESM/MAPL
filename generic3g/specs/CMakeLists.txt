@@ -40,4 +40,6 @@ target_sources(MAPL.generic3g PRIVATE
   ChildSpecMap.F90
 
   ComponentSpec.F90
+  is_in_set.h
+  VariableSpec_private.F90
 )

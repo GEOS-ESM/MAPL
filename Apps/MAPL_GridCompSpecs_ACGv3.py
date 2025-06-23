@@ -78,7 +78,7 @@ GC_VARIABLE = 'gridcomp_variable'
 GC_VARIABLE_DEFAULT = 'gc'
 STANDARD_NAME_PREFIX = "standard_name_prefix"
 # procedure names
-ADDSPEC = "MAPL_GridCompAddFieldSpec"
+ADDSPEC = "MAPL_GridCompAddSpec"
 GETPOINTER = "MAPL_StateGetPointer"
 TO_STRING_VECTOR = "toStringVector"
 # Fortran keywords

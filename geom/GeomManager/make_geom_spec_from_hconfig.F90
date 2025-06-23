@@ -1,8 +1,8 @@
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_GeomManager) make_geom_spec_from_hconfig_smod
-
-   implicit none
+   use mapl3g_NullGeomSpec, only: NULL_GEOM_SPEC
+   implicit none(type,external)
 
 contains
    
@@ -15,7 +15,7 @@ contains
       class(GeomFactory), pointer :: factory
       integer :: status
       
-      geom_spec = NullGeomSpec()
+      geom_spec = NULL_GEOM_SPEC
       factory => find_factory(this%factories, supports_hconfig, _RC)
       deallocate(geom_spec)
       geom_spec = factory%make_spec(hconfig, _RC)

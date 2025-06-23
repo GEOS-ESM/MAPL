@@ -1128,7 +1128,7 @@ contains
       call m_p%start('children')
       call initialize_children_and_couplers(_RC)
       call m_p%stop('children')
-      call MAPL_TimerOn(STATE,"generic")
+      call MAPL_TimerOn(STATE,"generic",_RC)
 
       call m_p%start('import vars')
       call create_import_and_initialize_state_variables(_RC)
@@ -1292,7 +1292,7 @@ contains
                   gridcomp => STATE%GET_CHILD_GRIDCOMP(I)
                   call ESMF_GridCompGet( gridcomp, NAME=CHILD_NAME, _RC )
 
-                  call MAPL_TimerOn (STATE,trim(CHILD_NAME))
+                  call MAPL_TimerOn (STATE,trim(CHILD_NAME), _RC)
                   child_import_state => STATE%get_child_import_state(i)
                   child_export_state => STATE%get_child_export_state(i)
                   call ESMF_GridCompInitialize (gridcomp, &
@@ -1301,7 +1301,7 @@ contains
                        clock=CLOCK, PHASE=CHLDMAPL(I)%PTR%PHASE_INIT(PHASE), &
                        userRC=userRC, _RC )
                   _VERIFY(userRC)
-                  call MAPL_TimerOff(STATE,trim(CHILD_NAME))
+                  call MAPL_TimerOff(STATE,trim(CHILD_NAME), _RC)
                end if
             end do
             deallocate(CHLDMAPL)
@@ -1855,7 +1855,7 @@ contains
 
       if (associated(timers)) then
          do i = 1, size(timers)
-            call MAPL_TimerOn (STATE,timers(i))
+            call MAPL_TimerOn (STATE,timers(i), _RC)
          end do
       end if
 
@@ -2189,7 +2189,7 @@ contains
                call ESMF_GridCompGet( gridcomp, NAME=CHILD_NAME, RC=status )
                _VERIFY(status)
 
-               call MAPL_TimerOn (STATE,trim(CHILD_NAME))
+               call MAPL_TimerOn (STATE,trim(CHILD_NAME), _RC)
                child_import_state => STATE%get_child_import_state(i)
                child_export_state => STATE%get_child_export_state(i)
 
@@ -2200,7 +2200,7 @@ contains
                     userRC=userRC, _RC )
                _VERIFY(userRC)
 
-                call MAPL_TimerOff(STATE,trim(CHILD_NAME))
+                call MAPL_TimerOff(STATE,trim(CHILD_NAME), _RC)
             end if
 
             !ALT question for Max - if user wants to run particular phase only, when should we run couplers
@@ -2322,7 +2322,7 @@ contains
                call ESMF_GridCompGet( gridcomp, NAME=CHILD_NAME, RC=status )
                _VERIFY(status)
 
-               call MAPL_TimerOn (STATE,trim(CHILD_NAME))
+               call MAPL_TimerOn (STATE,trim(CHILD_NAME), _RC)
                child_import_state => STATE%get_child_import_state(i)
                child_export_state => STATE%get_child_export_state(i)
                call ESMF_GridCompFinalize (gridcomp, &
@@ -2337,7 +2337,7 @@ contains
       end do
       deallocate(CHLDMAPL)
 
-      call MAPL_TimerOn(STATE,"generic")
+      call MAPL_TimerOn(STATE,"generic", _RC)
 
       call MAPL_GetResource( STATE, RECFIN, LABEL="RECORD_FINAL:", &
            RC=status )
@@ -2623,7 +2623,7 @@ contains
       do I = 1, STATE%get_num_children()
          call ESMF_GridCompGet( STATE%GET_CHILD_GRIDCOMP(I), NAME=CHILD_NAME, RC=status )
          _VERIFY(status)
-         call MAPL_TimerOn (STATE,trim(CHILD_NAME))
+         call MAPL_TimerOn (STATE,trim(CHILD_NAME), _RC)
          gridcomp => STATE%GET_CHILD_GRIDCOMP(I)
          child_import_state => STATE%get_child_import_state(i)
          child_export_state => STATE%get_child_export_state(i)
@@ -2632,12 +2632,12 @@ contains
               exportState=child_export_state, &
               clock=CLOCK, userRC=userRC, _RC ) ! number of phases is currently limited to 1
          _VERIFY(userRC)
-         call MAPL_TimerOff(STATE,trim(CHILD_NAME))
+         call MAPL_TimerOff(STATE,trim(CHILD_NAME), _RC)
       enddo
 
       ! Do my "own" record
       ! ------------------
-      call MAPL_TimerOn(STATE,"generic")
+      call MAPL_TimerOn(STATE,"generic", _RC)
 
       if (associated(STATE%RECORD)) then
 
@@ -2845,14 +2845,14 @@ contains
       call state%t_profiler%start(_RC)
       call state%t_profiler%start('Refresh',_RC)
 
-      call MAPL_TimerOn(STATE,"GenRefreshTot")
+      call MAPL_TimerOn(STATE,"GenRefreshTot", _RC)
       ! Refresh the children
       ! ---------------------
       do I=1,STATE%get_num_children()
          gridcomp => STATE%GET_CHILD_GRIDCOMP(I)
          call ESMF_GridCompGet( gridcomp, NAME=CHILD_NAME, RC=status )
          _VERIFY(status)
-         call MAPL_TimerOn (STATE,trim(CHILD_NAME))
+         call MAPL_TimerOn (STATE,trim(CHILD_NAME), _RC)
          child_import_state => STATE%get_child_import_state(i)
          child_export_state => STATE%get_child_export_state(i)
          call MAPL_GenericRefresh (gridcomp, child_import_state, child_export_state, CLOCK, &
@@ -2863,7 +2863,7 @@ contains
 
       ! Do my "own" refresh
       ! ------------------
-      call MAPL_TimerOn(STATE,"GenRefreshMine")
+      call MAPL_TimerOn(STATE,"GenRefreshMine", _RC)
 
       if (associated(STATE%RECORD)) then
 
@@ -5716,6 +5716,7 @@ contains
 
       character(len=ESMF_MAXSTR), parameter :: IAm = "MAPL_GenericStateClockOff"
       integer :: status
+
 
       if (trim(name) == 'TOTAL') then
          _RETURN(ESMF_SUCCESS)
@@ -10568,7 +10569,7 @@ contains
 
       ! Do my "own" refresh
       ! ------------------
-      call MAPL_TimerOn(STATE,"GenRefreshMine")
+      call MAPL_TimerOn(STATE,"GenRefreshMine", _RC)
 
       if (allocated(STATE%initial_state%imp_fname)) then
          call MAPL_ESMFStateReadFromFile(IMPORT, CLOCK, &

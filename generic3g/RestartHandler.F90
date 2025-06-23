@@ -64,7 +64,7 @@ contains
       restart_handler%gc_name = ESMF_UtilStringLowerCase(trim(gc_name), _RC)
       call ESMF_Clockget(gc_clock, currTime = restart_handler%current_time, _RC)
       restart_handler%gc_geom = gc_geom
-      restart_handler%lgr => logging%get_logger('MAPL.GENERIC')
+      restart_handler%lgr => logging%get_logger('mapl.restart')
 
       _RETURN(_SUCCESS)
    end function new_RestartHandler
@@ -85,7 +85,7 @@ contains
       if (item_count > 0) then
          ! TODO: the file_name should come from OuterMetaComponents's hconfig
          file_name = trim(this%gc_name) // "_" // trim(state_type) // "_checkpoint.nc4"
-         call this%lgr%info("Writing checkpoint: %a", trim(file_name))
+         call this%lgr%debug("Writing checkpoint: %a", trim(file_name))
          out_bundle = MAPL_FieldBundleCreate(state, _RC)
          call this%write_bundle_(out_bundle, file_name, rc)
       end if
@@ -115,7 +115,7 @@ contains
             call this%lgr%info("Restart file << %a >> does not exist. Skip reading!", trim(file_name))
             _RETURN(_SUCCESS)
          end if
-         call this%lgr%info("Reading restart: %a", trim(file_name))
+         call this%lgr%debug("Reading restart: %a", trim(file_name))
          call this%read_fields_(file_name, state, _RC)
       end if
 

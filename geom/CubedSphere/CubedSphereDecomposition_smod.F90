@@ -36,7 +36,6 @@ contains
       end associate
 
       decomp = CubedSphereDecomposition(dims, topology=[nx, petCount/nx])
-
    end function new_CubedSphereDecomposition_petcount
 
    pure module function new_CubedSphereDecomposition_topo(dims, unusable, topology) result(decomp)

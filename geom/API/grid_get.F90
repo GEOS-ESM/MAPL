@@ -1,11 +1,11 @@
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_Geom_API) grid_get_smod
-
    use mapl_ErrorHandling
    use mapl3g_VectorBasis, only: GridGetCoords
+   use esmf, only: ESMF_KIND_R8
 
-   implicit none
+   implicit none(type,external)
 
 contains
 
