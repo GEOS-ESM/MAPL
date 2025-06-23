@@ -69,10 +69,10 @@ contains
       _RETURN(_SUCCESS)
    end function new_RestartHandler
 
-   subroutine write(this, state_type, state, rc)
+   subroutine write(this, state_intent, state, rc)
       ! Arguments
       class(RestartHandler), intent(inout) :: this
-      character(len=*), intent(in) :: state_type
+      character(len=*), intent(in) :: state_intent
       type(ESMF_State), intent(in) :: state
       integer, optional, intent(out) :: rc
 
@@ -84,7 +84,7 @@ contains
       call ESMF_StateGet(state, itemCount=item_count, _RC)
       if (item_count > 0) then
          ! TODO: the file_name should come from OuterMetaComponents's hconfig
-         file_name = trim(this%gc_name) // "_" // trim(state_type) // "_checkpoint.nc4"
+         file_name = trim(this%gc_name) // "_" // trim(state_intent) // "_checkpoint.nc4"
          call this%lgr%debug("Writing checkpoint: %a", trim(file_name))
          out_bundle = MAPL_FieldBundleCreate(state, _RC)
          call this%write_bundle_(out_bundle, file_name, rc)
@@ -93,10 +93,10 @@ contains
       _RETURN(_SUCCESS)
    end subroutine write
 
-   subroutine read(this, state_type, state, rc)
+   subroutine read(this, state_intent, state, rc)
       ! Arguments
       class(RestartHandler), intent(inout) :: this
-      character(len=*), intent(in) :: state_type
+      character(len=*), intent(in) :: state_intent
       type(ESMF_State), intent(inout) :: state
       integer, optional, intent(out) :: rc
 
@@ -108,11 +108,11 @@ contains
       call ESMF_StateGet(state, itemCount=item_count, _RC)
       if (item_count > 0) then
          ! TODO: the file_name should come from OuterMetaComponents's hconfig
-         file_name = trim(this%gc_name) // "_" // trim(state_type) // "_rst.nc4"
+         file_name = trim(this%gc_name) // "_" // trim(state_intent) // "_rst.nc4"
          inquire(file=trim(file_name), exist=file_exists)
          if (.not. file_exists) then
             ! TODO: Need to decide what happens in that case. Bootstrapping variables?
-            call this%lgr%info("Restart file << %a >> does not exist. Skip reading!", trim(file_name))
+            call this%lgr%warning("Restart file << %a >> does not exist. Skip reading!", trim(file_name))
             _RETURN(_SUCCESS)
          end if
          call this%lgr%debug("Reading restart: %a", trim(file_name))

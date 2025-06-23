@@ -62,7 +62,7 @@ module mapl3g_OuterMetaComponent
       procedure :: get_geom
       procedure :: get_registry
       procedure :: get_logger
-      procedure :: set
+      procedure :: set_misc
 
       procedure :: get_phases
 
@@ -453,23 +453,27 @@ module mapl3g_OuterMetaComponent
 
 contains
 
-   subroutine set(this, unusable, activate_all_exports, activate_all_imports, write_exports)
+   subroutine set_misc(this, unusable, activate_all_exports, activate_all_imports, write_exports, cold_start)
       class(OuterMetaComponent), intent(inout) :: this
       class(KE), optional, intent(in) :: unusable
       logical, optional, intent(in) :: activate_all_exports
       logical, optional, intent(in) :: activate_all_imports
       logical, optional, intent(in) :: write_exports
+      logical, optional, intent(in) :: cold_start
 
       if (present(activate_all_exports)) then
-         this%component_spec%activate_all_exports = activate_all_exports
+         this%component_spec%misc%activate_all_exports = activate_all_exports
       end if
       if (present(activate_all_imports)) then
-         this%component_spec%activate_all_imports = activate_all_imports
+         this%component_spec%misc%activate_all_imports = activate_all_imports
       end if
       if (present(write_exports)) then
-         this%component_spec%write_exports = write_exports
+         this%component_spec%misc%write_exports = write_exports
+      end if
+      if (present(cold_start)) then
+         this%component_spec%misc%cold_start = cold_start
       end if
 
-   end subroutine set
+   end subroutine set_misc
 
 end module mapl3g_OuterMetaComponent

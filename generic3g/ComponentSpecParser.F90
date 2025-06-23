@@ -53,9 +53,11 @@ module mapl3g_ComponentSpecParser
    character(*), parameter :: COMPONENT_INTERNAL_STATE_SECTION = 'internal'
    character(*), parameter :: COMPONENT_CONNECTIONS_SECTION = 'connections'
    character(*), parameter :: COMPONENT_CHILDREN_SECTION = 'children'
+   character(*), parameter :: COMPONENT_MISC_SECTION = 'misc'
    character(*), parameter :: COMPONENT_ACTIVATE_ALL_EXPORTS = 'activate_all_exports'
    character(*), parameter :: COMPONENT_ACTIVATE_ALL_IMPORTS = 'activate_all_imports'
    character(*), parameter :: COMPONENT_WRITE_EXPORTS = 'write_exports'
+   character(*), parameter :: COMPONENT_COLD_START = 'cold_start'
 
    character(*), parameter :: KEY_DEFAULT_VALUE = 'default_value'
    character(*), parameter :: KEY_UNGRIDDED_DIMS = 'ungridded_dims'

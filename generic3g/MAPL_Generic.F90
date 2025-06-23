@@ -300,21 +300,24 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_get
 
-   subroutine gridcomp_set(gridcomp, unusable, activate_all_exports, activate_all_imports, write_exports, rc)
+   subroutine gridcomp_set(gridcomp, unusable, activate_all_exports, activate_all_imports, write_exports, cold_start, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       class(KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(in) :: activate_all_exports
       logical, optional, intent(in) :: activate_all_imports
       logical, optional, intent(in) :: write_exports
+      logical, optional, intent(in) :: cold_start
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
-      call outer_meta%set(activate_all_exports=activate_all_exports)
-      call outer_meta%set(activate_all_imports=activate_all_imports)
-      call outer_meta%set(write_exports=write_exports)
+      call outer_meta%set_misc( &
+           activate_all_exports=activate_all_exports, &
+           activate_all_imports=activate_all_imports, &
+           write_exports=write_exports, &
+           cold_start=cold_start)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

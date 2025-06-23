@@ -32,7 +32,7 @@ contains
          call restart_handler%write("import", importState, _RC)
          internal_state = this%get_internal_state()
          call restart_handler%write("internal", internal_state, _RC)
-         if (this%component_spec%write_exports) then
+         if (this%component_spec%misc%write_exports) then
             call restart_handler%write("export", exportState, _RC)
          end if
       end if
