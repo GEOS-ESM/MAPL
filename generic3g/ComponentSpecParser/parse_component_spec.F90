@@ -26,7 +26,7 @@ contains
       spec%connections = parse_connections(mapl_cfg, _RC)
       spec%children = parse_children(mapl_cfg, _RC)
 
-      call parse_misc(spec, mapl_cfg, _RC)
+      spec%misc = parse_misc(mapl_cfg, _RC)
 
       call ESMF_HConfigDestroy(mapl_cfg, _RC)
 
@@ -37,29 +37,42 @@ contains
    ! should wait to see what else goes there.  Or maybe a `test`
    ! section?
    
-   subroutine parse_misc(spec, hconfig, rc)
-      type(ComponentSpec), intent(inout) :: spec
+   function parse_misc(hconfig, rc) result(misc)
+      type(MiscellaneousComponentSpec) :: misc
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: has_activate_all_exports, has_activate_all_imports, has_write_exports
+      logical :: has_misc_section
+      type(ESMF_HConfig) :: misc_cfg
 
-      has_activate_all_exports = ESMF_HConfigIsDefined(hconfig,keyString=COMPONENT_ACTIVATE_ALL_EXPORTS, _RC)
-      if (has_activate_all_exports) then
-         spec%activate_all_exports = ESMF_HConfigASLogical(hconfig, keyString=COMPONENT_ACTIVATE_ALL_EXPORTS, _RC)
-      end if
-      has_activate_all_imports = ESMF_HConfigIsDefined(hconfig,keyString=COMPONENT_ACTIVATE_ALL_IMPORTS, _RC)
-      if (has_activate_all_imports) then
-         spec%activate_all_imports = ESMF_HConfigASLogical(hconfig, keyString=COMPONENT_ACTIVATE_ALL_IMPORTS, _RC)
-      end if
-      has_write_exports = ESMF_HConfigIsDefined(hconfig,keyString=COMPONENT_WRITE_EXPORTS, _RC)
-      if (has_write_exports) then
-         spec%write_exports = ESMF_HConfigASLogical(hconfig, keyString=COMPONENT_WRITE_EXPORTS, _RC)
-      end if
+      has_misc_section = ESMF_HConfigIsDefined(hconfig, keyString=COMPONENT_MISC_SECTION, _RC)
+      _RETURN_UNLESS(has_misc_section)
+      misc_cfg = ESMF_HConfigCreateAt(hconfig, keyString=COMPONENT_MISC_SECTION, _RC)
+
+      call parse_item(misc_cfg, key=COMPONENT_ACTIVATE_ALL_EXPORTS, value=misc%activate_all_exports, _RC)
+      call parse_item(misc_cfg, key=COMPONENT_ACTIVATE_ALL_IMPORTS, value=misc%activate_all_imports, _RC)
+      call parse_item(misc_cfg, key=COMPONENT_WRITE_EXPORTS, value=misc%write_exports, _RC)
+      call parse_item(misc_cfg, key=COMPONENT_COLD_START, value=misc%cold_start, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine parse_misc
+   end function parse_misc
+
+   subroutine parse_item(hconfig, key, value, rc)
+      type(ESMF_HConfig), intent(in) :: hconfig
+      character(*), intent(in) :: key
+      logical, intent(inout) :: value
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: has_key
+
+      has_key = ESMF_HConfigIsDefined(hconfig,keyString=key, _RC)
+      _RETURN_UNLESS(has_key)
+      value = ESMF_HConfigAsLogical(hconfig, keyString=key, _RC)
+      
+      _RETURN(_SUCCESS)
+   end subroutine parse_item
 
 end submodule parse_component_spec_smod
 
