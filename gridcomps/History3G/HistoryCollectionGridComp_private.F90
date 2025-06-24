@@ -442,7 +442,6 @@ contains
       allocate(item_type_list(item_count), _STAT)
       call ESMF_FieldBundleGet(bundle, fieldNameList=item_names, _RC)
       do i=1,item_count
-         write(*,*)'bmaa getting '//trim(item_names(i))
          call ESMF_FieldBundleGet(bundle, item_names(i), field=field, _RC)
          call ESMF_FieldGet(field, geom=geom ,_RC)
          geom_id = MAPL_GeomGetID(geom, _RC)
