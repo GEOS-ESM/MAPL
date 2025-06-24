@@ -2,9 +2,9 @@ The Earth System Modeling Framework (ESMF) is a suite of software tools for deve
 
 ESMF supports the development of these complex applications in a number of ways. It introduces a set of simple, consistent component interfaces that apply to all types of components, including couplers themselves. These interfaces expose in an obvious way the inputs and outputs of each component. It offers a variety of data structures for transferring data between components, and libraries for regridding, time advancement, and other common modeling functions. Finally, it provides a growing set of tools for using metadata to describe components and their input and output fields. This capability is important because components that are self-describing can be integrated more easily into automated workflows, model and dataset distribution and analysis portals, and other emerging “semantically enabled” computational environments.
 
-As ESMF has become available and has evolved to be a robust software framework, several groups have been involved in adopting its use in climate and weather prediction models and in data assimilation systems. Existing programs have been converted to use the superstructure of the framework at MIT, NCAR, GFDL, Goddard, NCEP and the DoD (see impacts).
-One of the most complete attempts to use ESMF has been the development of the [GEOS Systems](https://gmao.gsfc.nasa.gov/GEOS_systems/), a model targeted by the NASA MAP program.
-The GEOS various applications have been built ‘from the ground up’ using the latest available versions of ESMF superstructure and infrastructure.
+As ESMF has become available and has evolved to be a robust software framework, several groups have been involved in adopting its use in climate and weather prediction models and in data assimilation systems. Existing programs have been converted to use the superstructure of the framework at MIT, NCAR, GFDL, Goddard, NCEP and the DoD (see impacts). 
+One of the most complete attempts to use ESMF has been the development of the [GEOS Systems](https://gmao.gsfc.nasa.gov/GEOS_systems/), a model targeted by the [NASA MAP program](https://map.nasa.gov/models/GEOS-5.php). 
+The GEOS various applications have been built ‘from the ground up’ using the latest available versions of ESMF superstructure and infrastructure. 
 Figure 1 (below) represents a hierarchical (tree) implementation of the component-based GEOS-5 software where each box is an ESMF component performing some specific function and the root of the tree serves as the top level control point.
 
 
