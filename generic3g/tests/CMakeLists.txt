@@ -44,7 +44,6 @@ set (test_srcs
   Test_propagate_time_varying.pf
   Test_ClockGet.pf
   Test_VariableSpec_private.pf
-  Test_VariableSpec.pf
 )
 
 add_pfunit_ctest(

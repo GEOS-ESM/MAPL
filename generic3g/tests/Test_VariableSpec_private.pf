@@ -11,69 +11,69 @@ module Test_VariableSpec_private
 
 contains
 
-!#   function valid_message(val, var)
-!#      character(len=:), allocatable :: valid_message
-!#      character(len=*), intent(in) :: val, var
-!#      
-!#      valid_message = val // ' is a valid ' // var // ' value.'
-!#
-!#   end function valid_message
-!#
-!#   @Test
-!#   subroutine test_validate_short_name()
-!#      integer :: status
-!#      character(len=*), parameter :: EXCMSG =&
-!#         & 'short_name must begin with a letter and include alphanumeric characters or _ only.'
-!#      character(len=*), parameter :: VAR = 'short_name'
-!#
-!#      call validate_short_name('F00', rc=status)
-!#      @assert_that(valid_message('F00', VAR), status, is(0))
-!#
-!#      call validate_short_name('0F00', rc=status)
-!#      @assertExceptionRaised(EXCMSG)
-!#
-!#      call validate_short_name('_F00', rc=status)
-!#      @assertExceptionRaised(EXCMSG)
-!#
-!#      call validate_short_name('F_', rc=status)
-!#      @assert_that(valid_message('F_', VAR), status, is(0))
-!#
-!#   end subroutine test_validate_short_name
-!#
-!#   @Test
-!#   subroutine test_validate_state_intent()
-!#      integer :: status
-!#      character(len=*), parameter :: EXCMSG = 'The state intent is not an allowed flag value.'
-!#      character(len=*), parameter :: VAR = 'state intent'
-!#
-!#      call validate_state_intent(ESMF_STATEINTENT_IMPORT, rc=status)
-!#      @assert_that(valid_message('ESMF_STATEINTENT_IMPORT', VAR), status, is(0))
-!#      
-!#      call validate_state_intent(ESMF_STATEINTENT_EXPORT, rc=status)
-!#      @assert_that(valid_message('ESMF_STATEINTENT_EXPORT', VAR), status, is(0))
-!#      
-!#      call validate_state_intent(ESMF_STATEINTENT_INTERNAL, rc=status)
-!#      @assert_that(valid_message('ESMF_STATEINTENT_INTERNAL', VAR), status, is(0))
-!#
-!#      call validate_state_intent(ESMF_STATEINTENT_UNSPECIFIED, rc=status)
-!#      @assertExceptionRaised(EXCMSG)
-!#      
-!#   end subroutine test_validate_state_intent
-!#
-!#   @Test
-!#   subroutine test_validate_regrid()
-!#      integer :: status
-!#      character(len=*), parameter :: VALMSG='The parameter and method flag are not both allocated.'
-!#
-!#      call validate_regrid(p=EsmfRegridderParam(), rc=status)
-!#      @assert_that(VALMSG, status, is(0))
-!#
-!#      call validate_regrid(f=ESMF_REGRIDMETHOD_BILINEAR, rc=status)
-!#      @assert_that(VALMSG, status, is(0))
-!#
-!#      call validate_regrid(EsmfRegridderParam(), ESMF_REGRIDMETHOD_BILINEAR, rc=status)
-!#      @assertExceptionRaised('regrid_param and regrid_method are mutually exclusive.')
-!#
-!#   end subroutine test_validate_regrid
+   function valid_message(val, var)
+      character(len=:), allocatable :: valid_message
+      character(len=*), intent(in) :: val, var
+      
+      valid_message = val // ' is a valid ' // var // ' value.'
+
+   end function valid_message
+
+   @Test
+   subroutine test_validate_short_name()
+      integer :: status
+      character(len=*), parameter :: EXCMSG =&
+         & 'short_name must begin with a letter and include alphanumeric characters or _ only.'
+      character(len=*), parameter :: VAR = 'short_name'
+
+      call validate_short_name('F00', rc=status)
+      @assert_that(valid_message('F00', VAR), status, is(0))
+
+      call validate_short_name('0F00', rc=status)
+      @assertExceptionRaised(EXCMSG)
+
+      call validate_short_name('_F00', rc=status)
+      @assertExceptionRaised(EXCMSG)
+
+      call validate_short_name('F_', rc=status)
+      @assert_that(valid_message('F_', VAR), status, is(0))
+
+   end subroutine test_validate_short_name
+
+   @Test
+   subroutine test_validate_state_intent()
+      integer :: status
+      character(len=*), parameter :: EXCMSG = 'The state intent is not an allowed flag value.'
+      character(len=*), parameter :: VAR = 'state intent'
+
+      call validate_state_intent(ESMF_STATEINTENT_IMPORT, rc=status)
+      @assert_that(valid_message('ESMF_STATEINTENT_IMPORT', VAR), status, is(0))
+      
+      call validate_state_intent(ESMF_STATEINTENT_EXPORT, rc=status)
+      @assert_that(valid_message('ESMF_STATEINTENT_EXPORT', VAR), status, is(0))
+      
+      call validate_state_intent(ESMF_STATEINTENT_INTERNAL, rc=status)
+      @assert_that(valid_message('ESMF_STATEINTENT_INTERNAL', VAR), status, is(0))
+
+      call validate_state_intent(ESMF_STATEINTENT_UNSPECIFIED, rc=status)
+      @assertExceptionRaised(EXCMSG)
+      
+   end subroutine test_validate_state_intent
+
+   @Test
+   subroutine test_validate_regrid()
+      integer :: status
+      character(len=*), parameter :: VALMSG='The parameter and method flag are not both allocated.'
+
+      call validate_regrid(p=EsmfRegridderParam(), rc=status)
+      @assert_that(VALMSG, status, is(0))
+
+      call validate_regrid(f=ESMF_REGRIDMETHOD_BILINEAR, rc=status)
+      @assert_that(VALMSG, status, is(0))
+
+      call validate_regrid(EsmfRegridderParam(), ESMF_REGRIDMETHOD_BILINEAR, rc=status)
+      @assertExceptionRaised('regrid_param and regrid_method are mutually exclusive.')
+
+   end subroutine test_validate_regrid
 
 end module Test_VariableSpec_private
