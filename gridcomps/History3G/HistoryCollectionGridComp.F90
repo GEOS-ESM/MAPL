@@ -82,7 +82,7 @@ contains
       call collection_gridcomp%writer%initialize(metadata, mapl_geom, _RC)
 
       collection_gridcomp%start_stop_times = set_start_stop_time(clock, hconfig, _RC)
-
+      collection_gridcomp%timeStep = get_frequency(hconfig, _RC)
       collection_gridcomp%current_file = null_file
       collection_gridcomp%template = ESMF_HConfigAsString(hconfig, keyString='template', _RC)
       

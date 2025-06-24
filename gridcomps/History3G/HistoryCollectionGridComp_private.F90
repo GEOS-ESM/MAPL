@@ -14,6 +14,7 @@ module mapl3g_HistoryCollectionGridComp_private
    public :: create_output_bundle
    public :: set_start_stop_time
    public :: get_current_time_index
+   public :: get_frequency
    ! These are public for testing.
    public :: parse_item_common
    public :: replace_delimiter
@@ -446,5 +447,25 @@ contains
       enddo 
       _RETURN(_SUCCESS)
    end function detect_geom
+
+   function get_frequency(hconfig, rc) result(frequency)
+      type(ESMF_TimeInterval) :: frequency
+      type(ESMF_HConfig), intent(in) :: hconfig
+      integer, intent(out), optional :: rc
+
+      integer :: status
+      type(ESMF_HConfig) :: time_hconfig
+      logical :: hasKey
+      character(len=:), allocatable :: mapVal
+
+      time_hconfig = ESMF_HConfigCreateAt(hconfig, keyString='time_spec', _RC)
+      hasKey = ESMF_HConfigIsDefined(time_hconfig, keyString=KEY_TIMESTEP, _RC)
+      if(hasKey) then
+         mapVal = ESMF_HConfigAsString(time_hconfig, keyString=KEY_TIMESTEP, _RC)
+         call ESMF_TimeIntervalSet(frequency, timeIntervalString=mapVal, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end function get_frequency
 
 end module mapl3g_HistoryCollectionGridComp_private
