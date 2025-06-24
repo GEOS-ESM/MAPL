@@ -438,7 +438,6 @@ contains
 
       call ESMF_FieldBundleGet(bundle, fieldCount=item_count, _RC)
       allocate(item_names(item_count), _STAT)
-      allocate(item_type_list(item_count), _STAT)
       call ESMF_FieldBundleGet(bundle, fieldNameList=item_names, _RC)
       do i=1,item_count
          call ESMF_FieldBundleGet(bundle, item_names(i), field=field, _RC)
