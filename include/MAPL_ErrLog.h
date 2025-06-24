@@ -97,38 +97,38 @@
 #  ifdef _ierror
 #    undef _ierror
 #  endif
-#  ifdef _return
-#    undef _return
+#  ifdef _return__
+#    undef _return__
 #  endif
-#  ifdef _rc
-#    undef _rc
+#  ifdef _rc__
+#    undef _rc__
 #  endif
 
 
 #  define IGNORE_(a) continue
 
 #  ifdef I_AM_MAIN
-#    define _return call MAPL_abort()
-#    define _rc(rc)
+#    define _return__ call MAPL_abort()
+#    define _rc__(rc)
 #  else
-#    define _return return
-#    define _rc(rc) ,rc
+#    define _return__ return
+#    define _rc__(rc) ,rc
 #  endif
 
 #    define _HERE print*,__FILE__,__LINE__
 
 #  ifdef ANSI_CPP
 
-#    define RETURN_(...)   if(MAPL_RTRN(__VA_ARGS__,Iam,__LINE__ _rc(rc))) _return
-#    define VERIFY_(...)   if(MAPL_VRFY(__VA_ARGS__,Iam,__LINE__ _rc(rc))) _return
-#    define ASSERT_(...)   if(MAPL_ASRT(__VA_ARGS__,Iam,__LINE__ _rc(rc))) _return
+#    define RETURN_(...)   if(MAPL_RTRN(__VA_ARGS__,Iam,__LINE__ _rc__(rc))) _return__
+#    define VERIFY_(...)   if(MAPL_VRFY(__VA_ARGS__,Iam,__LINE__ _rc__(rc))) _return__
+#    define ASSERT_(...)   if(MAPL_ASRT(__VA_ARGS__,Iam,__LINE__ _rc__(rc))) _return__
 
 #  else
 
 ! Old
-#    define RETURN_(A)     if(MAPL_RTRN(A,Iam,__LINE__ _rc(rc))) _return
-#    define VERIFY_(A)     if(MAPL_VRFY(A,Iam,__LINE__ _rc(rc))) _return
-#    define ASSERT_(A)     if(MAPL_ASRT(A,Iam,__LINE__ _rc(rc))) _return
+#    define RETURN_(A)     if(MAPL_RTRN(A,Iam,__LINE__ _rc__(rc))) _return__
+#    define VERIFY_(A)     if(MAPL_VRFY(A,Iam,__LINE__ _rc__(rc))) _return__
+#    define ASSERT_(A)     if(MAPL_ASRT(A,Iam,__LINE__ _rc__(rc))) _return__
 
 ! New
 #    define _success 0
@@ -148,18 +148,18 @@
 #       define _verify(A)     call assert_that(A, is(0), SourceLocation(_FILE_,__LINE__));if(anyExceptions(this%context))return
 #       define _VERIFY(A) _verify(a)
 #    else
-#       define _return(A)     call MAPL_Return(A,_FILE_,__LINE__ _rc(rc)); _return
+#       define _return(A)     call MAPL_Return(A,_FILE_,__LINE__ _rc__(rc)); _return__
 #       define _RETURN(A) _return(A)
-#       define _return_if(cond)     if(cond)then;_RETURN(_SUCCESS);endif
+#       define _return_if(cond)     if(cond)then;_return(_success);endif
 #       define _RETURN_IF(cond) _return_if(cond)
-#       define _return_unless(cond)     if(.not.(cond))then;_RETURN(_SUCCESS);endif
+#       define _return_unless(cond)     if(.not.(cond))then;_return(_success);endif
 #       define _RETURN_UNLESS(cond) _return_unless(cond)
-#       define _verify(A)     if(MAPL_Verify(A,_FILE_,__LINE__ _rc(rc))) _return
+#       define _verify(A)     if(MAPL_Verify(A,_FILE_,__LINE__ _rc__(rc))) _return__
 #       define _VERIFY(A) _verify(A)
 #    endif
-#    define _rc_(rc,status) rc=status);_VERIFY(status
+#    define _rc_(rc,status) rc=status);_verify(status
 #    define _RC_(rc,status) _rc_(rc,status)
-#    define _userrc userRC=user_status, rc=status); _VERIFY(status); _VERIFY(user_status
+#    define _userrc userRC=user_status, rc=status); _verify(status); _verify(user_status
 #    define _USERRC _userrc
 #    define _rc _rc_(rc,status)
 #    define _RC _rc_(rc,status)
@@ -176,12 +176,10 @@
 #    define _iostat _rc_(iostat,status)
 #    define _IOSTAT _rc_(iostat,status)
 
-#    define _assert_msg_and_loc_and_rc(A,msg,stat,file,line,rc)  if(MAPL_Assert(A,msg,stat,file,line _rc(rc))) _return
-#    define _ASSERT_MSG_AND_LOC_AND_RC(A,msg,stat,file,line,rc) _assert_msg_and_loc_and_rc(A,msg,stat,file,line,rc)
+#    define _assert_msg_and_loc_and_rc(A,msg,stat,file,line,rc)  if(MAPL_Assert(A,msg,stat,file,line _rc__(rc))) _return__
 
 ! Assumes status is passed back in dummy called "rc"
 #    define _assert_msg_and_loc(A,msg,stat,file,line) _assert_msg_and_loc_and_rc(A,msg,stat,file,line,rc)
-#    define _ASSERT_MSG_AND_LOC(A,msg,stat,file,line) _assert_msg_and_loc(A,msg,stat,file,line)
 ! Assumes __FILE__ and __LINE__ are appropriate
 #    define _assert(A,msg) _assert_msg_and_loc(A,msg,1,_FILE_,__LINE__)
 #    define _ASSERT(A,msg) _assert(A,msg)

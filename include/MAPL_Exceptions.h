@@ -49,6 +49,10 @@
 #undef _VERIFY
 #endif
 
+#ifdef  _verify
+#undef _verify
+#endif
+
 #ifdef  IGNORE_
 #undef IGNORE_
 #endif
@@ -123,12 +127,12 @@
 ! Automatic exception hanler
 !
 
-#define __RC__         RC=STATUS); _VERIFY(STATUS
-#define __STAT__       STAT=STATUS); _VERIFY(STATUS
+#define __RC__         RC=STATUS); _verify(STATUS
+#define __STAT__       STAT=STATUS); _verify(STATUS
 
 !
 ! Try & catch exception functionality; the __rc__ macro is similar
-! to the __RC__ macro above but it does not invole the _VERIFY(STATUS)
+! to the __RC__ macro above but it does not invole the _verify(STATUS)
 ! macro. Instead, it jumps out of the TRY block.
 !
 
