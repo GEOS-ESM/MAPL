@@ -46,7 +46,6 @@ module mapl3g_VariableSpec
 
    public :: VariableSpec
    public :: make_VariableSpec
-   public :: validate_variable_spec
 
    ! This type provides components that might be needed for _any_
    ! state item.  This is largely to support legacy interfaces, but it
@@ -588,6 +587,11 @@ contains
       integer :: status
 
       call validate_state_intent(spec%state_intent, _RC)
+      ! VariableSpec%short_name is allocatable because the length is unknown until instantiation,
+      ! but it should always be allocated. short_name is not an optional argument to
+      ! make_VariableSpec so VariableSpec%short_name should be set. Because VariableSpec
+      ! members are public, so I check to make short short_name is allocated before validating it.
+      _ASSERT(allocated(spec%short_name), 'short_name must be allocated.')
       call validate_short_name(spec%short_name, _RC)
       call validate_regrid(spec%regrid_param, spec%regrid_method, _RC)
 
