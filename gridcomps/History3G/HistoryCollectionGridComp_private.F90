@@ -434,7 +434,6 @@ contains
       integer :: status
       integer :: item_count, i, geom_id, last_id
       character(len=ESMF_MAXSTR), allocatable :: item_names(:)
-      type(ESMF_StateItem_Flag), allocatable :: item_type_list(:)
       type(ESMF_Field) :: field
 
       call ESMF_FieldBundleGet(bundle, fieldCount=item_count, _RC)
