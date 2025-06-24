@@ -107,7 +107,7 @@ CONTAINS
 
 !   Get my name and set-up traceback handle
 !   ---------------------------------------
-    call ESMF_GridCompGet( GC, name=comp_name, _RC )
+    call ESMF_GridCompGet( GC, name=comp_name, __RC )
     Iam = trim(comp_name) // '::' // trim(Iam)
 
 !   Greetings
@@ -119,22 +119,22 @@ CONTAINS
 
 !   Set the Initialize, Run, Finalize entry points
 !   ----------------------------------------------
-    call MAPL_GridCompSetEntryPoint ( GC, ESMF_SETINIT,  Initialize_, _RC )
-    call MAPL_GridCompSetEntryPoint ( GC, ESMF_SETRUN,   Run_,        _RC )
-    call MAPL_GridCompSetEntryPoint ( GC, ESMF_SETFINAL, Finalize_,   _RC )
+    call MAPL_GridCompSetEntryPoint ( GC, ESMF_SETINIT,  Initialize_, __RC )
+    call MAPL_GridCompSetEntryPoint ( GC, ESMF_SETRUN,   Run_,        __RC )
+    call MAPL_GridCompSetEntryPoint ( GC, ESMF_SETFINAL, Finalize_,   __RC )
 
 !   Add the ExtData as a child
 !   --------------------------
-    ExtData = MAPL_AddChild ( GC, NAME='ExtData', SS=ExtData_SetServices, _RC )
+    ExtData = MAPL_AddChild ( GC, NAME='ExtData', SS=ExtData_SetServices, __RC )
 
 !   Generic Set Services
 !   --------------------
-    call MAPL_GenericSetServices ( GC, _RC )
+    call MAPL_GenericSetServices ( GC, __RC )
 
 !   All done
 !   --------
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
 
   END SUBROUTINE SetServices
 
@@ -182,21 +182,21 @@ CONTAINS
   
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
-   call ESMF_GridCompGet( GC, name=comp_name, config=CF, _RC )
+   call ESMF_GridCompGet( GC, name=comp_name, config=CF, __RC )
    Iam = trim(comp_name) // '::' // trim(Iam)
 
 !  Create grid for this GC
 !  ------------------------
-   call MAPL_GridCreate  (GC, _RC )
-   call ESMF_GridCompGet (GC, grid=GRID, _RC)
+   call MAPL_GridCreate  (GC, __RC )
+   call ESMF_GridCompGet (GC, grid=GRID, __RC)
 
 !  Initialize MAPL Generic
 !  -----------------------
-   call MAPL_GenericInitialize ( GC, IMPORT, EXPORT, clock,  _RC )
+   call MAPL_GenericInitialize ( GC, IMPORT, EXPORT, clock,  __RC )
 
 !  All done
 !  --------
-   _RETURN(ESMF_SUCCESS)
+   __RETURN(ESMF_SUCCESS)
 
    END SUBROUTINE Initialize_
 
@@ -243,17 +243,17 @@ CONTAINS
 
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
-   call ESMF_GridCompGet( GC, name=comp_name, _RC )
+   call ESMF_GridCompGet( GC, name=comp_name, __RC )
    Iam = trim(comp_name) // '::' // trim(Iam)
 
 !   Call Run for every Child
 !   -------------------------
-    call MAPL_GenericRunChildren ( GC, IMPORT, EXPORT, CLOCK,  _RC)
+    call MAPL_GenericRunChildren ( GC, IMPORT, EXPORT, CLOCK,  __RC)
 
 
 !  All done
 !  --------
-   _RETURN(ESMF_SUCCESS)
+   __RETURN(ESMF_SUCCESS)
 
    END SUBROUTINE Run_
 
@@ -297,16 +297,16 @@ CONTAINS
 
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
-   call ESMF_GridCompGet( GC, name=comp_name, _RC )
+   call ESMF_GridCompGet( GC, name=comp_name, __RC )
    Iam = trim(comp_name) // trim(Iam)
 
 !  Finalize MAPL Generic
 !  ---------------------
-   call MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK,  _RC )
+   call MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK,  __RC )
 
 !  All done
 !  --------
-   _RETURN(ESMF_SUCCESS)
+   __RETURN(ESMF_SUCCESS)
 
  end SUBROUTINE Finalize_
 

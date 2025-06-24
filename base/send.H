@@ -32,15 +32,15 @@
     type(ESMF_VM)                         :: vm
 
     call ESMF_DELayoutGet(layout, vm=vm, rc=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     call ESMF_VMGet(vm, mpiCommunicator=COMM, rc=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     call MPI_Send(DATA, count, MPITYPE_, dest, msg_tag, COMM, IERR)
-    _VERIFY(IERR)
+    __VERIFY(IERR)
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
   END SUBROUTINE SUB_
 
 #undef NAME_

@@ -178,11 +178,11 @@ contains
 
       if(associated(SPEC)) then
          if(MAPL_VarSpecGetIndex(SPEC, SHORT_NAME)/=-1) then
-            _RETURN(ESMF_FAILURE)
+            __RETURN(ESMF_FAILURE)
          endif
       else
          allocate(SPEC(0),stat=STATUS)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
       endif
 
       if(present(STAT)) then
@@ -280,7 +280,7 @@ contains
          usableGRID=GRID
       else
          !         usableGRID = ESMF_GridEmptyCreate(RC=STATUS)
-         !         _VERIFY(STATUS)
+         !         __VERIFY(STATUS)
          !         call ESMF_GridDestroy(usableGRID) !ALT we do not need RC
 
          ! Initialize this grid object as invalid
@@ -291,9 +291,9 @@ contains
          usableFIELD=>FIELD
       else
          allocate(usableFIELD, STAT=STATUS)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
          !         usableFIELD = ESMF_FieldEmptyCreate(NAME=SHORT_NAME,RC=STATUS)
-         !         _VERIFY(STATUS)
+         !         __VERIFY(STATUS)
          !         call ESMF_FieldDestroy(usableFIELD) !ALT we do not need RC
 
          ! Initialize this field object as invalid
@@ -304,9 +304,9 @@ contains
          usableBUNDLE=>BUNDLE
       else
          allocate(usableBUNDLE, STAT=STATUS)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
          !         usableBUNDLE = ESMF_FieldBundleCreate(NAME=SHORT_NAME,RC=STATUS)
-         !         _VERIFY(STATUS)
+         !         __VERIFY(STATUS)
          !         call ESMF_FieldBundleDestroy(usableBUNDLE) !ALT we do not need RC
 
          ! Initialize this fieldBundle object as invalid
@@ -317,9 +317,9 @@ contains
          usableSTATE=>STATE
       else
          allocate(usableSTATE, STAT=STATUS)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
          !         usableSTATE = ESMF_StateCreate(NAME=SHORT_NAME,RC=STATUS)
-         !         _VERIFY(STATUS)
+         !         __VERIFY(STATUS)
          !         call ESMF_StateDestroy(usableSTATE) !ALT we do not need RC
 
          ! Initialize this state object as invalid
@@ -347,14 +347,14 @@ contains
       ! Sanity checks
       if (usablePRECISION /= ESMF_KIND_R4 .AND. usablePRECISION /= ESMF_KIND_R8) then
          ! only those 2 values are allowed
-         _RETURN(ESMF_FAILURE) 
+         __RETURN(ESMF_FAILURE) 
       end if
 
       szRNAMES = 0
       if (present(ATTR_RNAMES)) then
          szRNAMES = size(ATTR_RNAMES)
          allocate(usableATTR_RNAMES(szRNAMES), stat=status)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
          usableATTR_RNAMES = ATTR_RNAMES
       end if
 
@@ -362,7 +362,7 @@ contains
       if (present(ATTR_INAMES)) then
          szINAMES = size(ATTR_INAMES)
          allocate(usableATTR_INAMES(szINAMES), stat=status)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
          usableATTR_INAMES = ATTR_INAMES
       end if
 
@@ -370,7 +370,7 @@ contains
       if (present(ATTR_RVALUES)) then
          szRVALUES = size(ATTR_RVALUES)
          allocate(usableATTR_RVALUES(szRVALUES), stat=status)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
          usableATTR_RVALUES = ATTR_RVALUES
       end if
 
@@ -378,17 +378,17 @@ contains
       if (present(ATTR_IVALUES)) then
          szIVALUES = size(ATTR_INAMES)
          allocate(usableATTR_IVALUES(szIVALUES), stat=status)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
          usableATTR_IVALUES = ATTR_IVALUES
       end if
-      _ASSERT(szIVALUES == szINAMES,'needs informative message')
-      _ASSERT(szRVALUES == szRNAMES,'needs informative message')
+      __ASSERT(szIVALUES == szINAMES,'needs informative message')
+      __ASSERT(szRVALUES == szRNAMES,'needs informative message')
 
       szUNGRD = 0
       if (present(UNGRIDDED_DIMS)) then
          szUNGRD = size(UNGRIDDED_DIMS)
          allocate(usableUNGRIDDED_DIMS(szUNGRD), stat=status)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
          usableUNGRIDDED_DIMS = UNGRIDDED_DIMS
       else
          NULLIFY(usableUNGRIDDED_DIMS)
@@ -409,7 +409,7 @@ contains
       if (present(UNGRIDDED_COORDS)) then
          szUNGRD = size(UNGRIDDED_COORDS)
          allocate(usableUNGRIDDED_COORDS(szUNGRD), stat=status)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
          usableUNGRIDDED_COORDS = UNGRIDDED_COORDS
       end if
 
@@ -422,13 +422,13 @@ contains
       I = size(SPEC)
 
       allocate(TMP(I+1),stat=STATUS)
-      _VERIFY(STATUS)
+      __VERIFY(STATUS)
 
       TMP(1:I) = SPEC
       deallocate(SPEC)
 
       allocate(TMP(I+1)%SPECPtr,stat=STATUS)
-      _VERIFY(STATUS)
+      __VERIFY(STATUS)
 
       TMP(I+1)%SPECPtr%SHORT_NAME =  SHORT_NAME
       TMP(I+1)%SPECPtr%LONG_NAME  =  usableLONG
@@ -492,7 +492,7 @@ contains
 
       SPEC => TMP
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_VarSpecCreateInList
 
@@ -509,7 +509,7 @@ contains
 
 
       if(.not.associated(ITEM%SPECPtr)) then
-         _RETURN(ESMF_FAILURE)
+         __RETURN(ESMF_FAILURE)
       endif
 
       call MAPL_VarSpecCreateInList(SPEC,                                             &
@@ -538,9 +538,9 @@ contains
            ROTATION        = ITEM%SPECPTR%ROTATION,          &
            GRID            = ITEM%SPECPTR%GRID,              &
            RC=STATUS  )     
-      _VERIFY(STATUS)
+      __VERIFY(STATUS)
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_VarSpecAddFromItem
 
@@ -559,10 +559,10 @@ contains
 
       do I=1,size(ITEM)
          call MAPL_VarSpecAddFromItem(SPEC,ITEM(I),RC=STATUS)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
       enddo
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_VarSpecAddFromList
 
@@ -579,7 +579,7 @@ contains
          deallocate(SPEC%SPECPtr)
       endif
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_VarSpecDestroy0
 
@@ -599,7 +599,7 @@ contains
          deallocate(SPEC)
       end if
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_VarSpecDestroy1
 
@@ -644,7 +644,7 @@ contains
 
 
       if(.not.associated(SPEC%SPECPtr)) then
-         _RETURN(ESMF_FAILURE)
+         __RETURN(ESMF_FAILURE)
       endif
 
       if(present(SHORT_NAME)) then
@@ -727,7 +727,7 @@ contains
          SPEC%SPECPtr%alwaysAllocate = alwaysAllocate
       endif
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_VarSpecSetRegular
 
@@ -741,12 +741,12 @@ contains
 
 
       if(.not.associated(SPEC%SPECPtr)) then
-         _RETURN(ESMF_FAILURE)
+         __RETURN(ESMF_FAILURE)
       endif
 
       SPEC%SPECPtr%FIELD => FIELDPTR
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_VarSpecSetFieldPtr
 
@@ -760,12 +760,12 @@ contains
 
 
       if(.not.associated(SPEC%SPECPtr)) then
-         _RETURN(ESMF_FAILURE)
+         __RETURN(ESMF_FAILURE)
       endif
 
       SPEC%SPECPtr%BUNDLE => BUNDLEPTR
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_VarSpecSetBundlePtr
 
@@ -779,12 +779,12 @@ contains
 
 
       if(.not.associated(SPEC%SPECPtr)) then
-         _RETURN(ESMF_FAILURE)
+         __RETURN(ESMF_FAILURE)
       endif
 
       SPEC%SPECPtr%STATE => STATEPTR
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_VarSpecSetStatePtr
 
@@ -860,7 +860,7 @@ contains
 
 
       if(.not.associated(SPEC%SPECPtr)) then
-         _RETURN(ESMF_FAILURE)
+         __RETURN(ESMF_FAILURE)
       endif
 
       if(present(STAT)) then
@@ -1013,7 +1013,7 @@ contains
          positive = SPEC%SPECPtr%positive
       end if
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_VarSpecGetRegular
 
@@ -1216,7 +1216,7 @@ contains
          alwaysAllocate = SPEC%alwaysAllocate
       endif
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_VarSpecGetNew
 
@@ -1231,12 +1231,12 @@ contains
 
 
       if(.not.associated(SPEC%SPECPtr)) then
-         _RETURN(ESMF_FAILURE)
+         __RETURN(ESMF_FAILURE)
       endif
 
       FIELDPTR => SPEC%SPECPtr%FIELD
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_VarSpecGetFieldPtr
 
@@ -1250,12 +1250,12 @@ contains
 
 
       if(.not.associated(SPEC%SPECPtr)) then
-         _RETURN(ESMF_FAILURE)
+         __RETURN(ESMF_FAILURE)
       endif
 
       BUNDLEPTR => SPEC%SPECPtr%BUNDLE
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_VarSpecGetBundlePtr
 
@@ -1270,12 +1270,12 @@ contains
 
 
       if(.not.associated(SPEC%SPECPtr)) then
-         _RETURN(ESMF_FAILURE)
+         __RETURN(ESMF_FAILURE)
       endif
 
       STATEPTR => SPEC%SPECPtr%STATE
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_VarSpecGetStatePtr
 
@@ -1296,7 +1296,7 @@ contains
       END DO
 
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
    END subroutine MAPL_VarSpecAddChildName
 
 
@@ -1316,56 +1316,56 @@ contains
       integer I
 
       if(.not.associated(ITEM%SPECPtr)) then
-         _RETURN(ESMF_FAILURE)
+         __RETURN(ESMF_FAILURE)
       endif
 
       if(.not.associated(SPEC)) then
-         _RETURN(ESMF_FAILURE)
+         __RETURN(ESMF_FAILURE)
       endif
 
       I=MAPL_VarSpecGetIndex(SPEC, ITEM, RC=STATUS)
-      _VERIFY(STATUS)
+      __VERIFY(STATUS)
 
       if (I == -1) then
-         _RETURN(ESMF_FAILURE)
+         __RETURN(ESMF_FAILURE)
       endif
 
       if (associated(ITEM%SPECptr%FIELD)) then
          deallocate(ITEM%SPECptr%FIELD, STAT=STATUS)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
       end if
       call MAPL_VarSpecGet(SPEC(I), FIELDPTR=FIELD, RC=STATUS)
-      _VERIFY(STATUS)
+      __VERIFY(STATUS)
 
       call MAPL_VarSpecSet(ITEM, FIELDPTR=FIELD, RC=STATUS)
-      _VERIFY(STATUS)
+      __VERIFY(STATUS)
 
       if (associated(ITEM%SPECptr%BUNDLE)) then
          deallocate(ITEM%SPECptr%BUNDLE, STAT=STATUS)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
       end if
       call MAPL_VarSpecGet(SPEC(I), BUNDLEPTR=BUNDLE, RC=STATUS)
-      _VERIFY(STATUS)
+      __VERIFY(STATUS)
 
       call MAPL_VarSpecSet(ITEM, BUNDLEPTR=BUNDLE, RC=STATUS)
-      _VERIFY(STATUS)
+      __VERIFY(STATUS)
 
       if (associated(ITEM%SPECptr%STATE)) then
          deallocate(ITEM%SPECptr%STATE, STAT=STATUS)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
       end if
       call MAPL_VarSpecGet(SPEC(I), STATEPTR=STATE, RC=STATUS)
-      _VERIFY(STATUS)
+      __VERIFY(STATUS)
 
       call MAPL_VarSpecSet(ITEM, STATEPTR=STATE, RC=STATUS)
-      _VERIFY(STATUS)
+      __VERIFY(STATUS)
 
       !      deallocate(ITEM%SPECptr, stat=status)
-      !      _VERIFY(STATUS)
+      !      __VERIFY(STATUS)
 
       !      ITEM%SPECptr => SPEC(I)%SPECPtr
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
 
    end subroutine MAPL_VarSpecReconnect
@@ -1420,7 +1420,7 @@ contains
       class(Logger), pointer :: lgr
 
       if(.not.associated(SPEC%SPECPtr)) then
-         _RETURN(ESMF_FAILURE)
+         __RETURN(ESMF_FAILURE)
       endif
 
       call lgr%info('NAME = %a~:%a~:%i3.3', &
@@ -1430,7 +1430,7 @@ contains
 !C$    call lgr%info('DIMS   = %i0',SPEC%SPECPtr%DIMS)
 !C$    call lgr%info('LOCATION = %dims   = %i0',SPEC%SPECPtr%location)
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
    end subroutine MAPL_VarSpecPrintOne
 
    subroutine MAPL_VarSpecPrintMany(SPEC, RC )
@@ -1444,15 +1444,15 @@ contains
       integer                               :: I
 
       !    if(.not.associated(SPEC)) then
-      !       _RETURN(ESMF_FAILURE)
+      !       __RETURN(ESMF_FAILURE)
       !    endif
 
       DO I = 1, size(SPEC)
          call MAPL_VarSpecPrint(Spec(I), RC=status)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
       END DO
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
    end subroutine MAPL_VarSpecPrintMany
 
 
@@ -1467,10 +1467,10 @@ contains
 
       do I = 1, size(spec)
          call MAPL_VarSpecPrint1CSV(Spec(I), compName, RC=status)
-         _VERIFY(status)
+         __VERIFY(status)
       end do
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
    end subroutine MAPL_VarSpecPrintCSV
 
    subroutine MAPL_VarSpecPrint1CSV(spec, compName, rc )
@@ -1483,7 +1483,7 @@ contains
       character(len=:), allocatable :: item_type
 
       if(.not.associated(SPEC%SPECPtr)) then
-         _RETURN(ESMF_FAILURE)
+         __RETURN(ESMF_FAILURE)
       endif
 
       if (iand(spec%specptr%stat,MAPL_BundleItem) /= 0) then
@@ -1499,7 +1499,7 @@ contains
            trim(compName), trim(spec%specptr%short_name), trim(spec%specptr%long_name), &
            trim(spec%specptr%units),spec%specptr%dims,item_type)
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
    end subroutine MAPL_VarSpecPrint1CSV
 
    subroutine MAPL_VarSpecAddRefFromItem(SPEC, ITEM, ALLOW_DUPLICATES, RC)
@@ -1527,13 +1527,13 @@ contains
 
 
       if(.not.associated(ITEM%SPECPtr)) then
-         _RETURN(ESMF_FAILURE)
+         __RETURN(ESMF_FAILURE)
       endif
 
       if(associated(SPEC)) then
          if (.not. usableALLOW_DUPLICATES) then
             I = MAPL_VarSpecGetIndex(SPEC, ITEM, RC=STATUS)
-            _VERIFY(STATUS)
+            __VERIFY(STATUS)
             if(I /= -1) then
                if (SPEC(I) == ITEM) THEN
                   if(present(RC)) then
@@ -1545,19 +1545,19 @@ contains
                   call lgr%error("Duplicate SHORT_NAME %a with different attributes.", trim(ITEM%SPECPtr%short_name))
                   call MAPL_VarSpecPrint(ITEM)
                   call MAPL_VarSpecPrint(SPEC(I))
-                  _RETURN(ESMF_FAILURE)
+                  __RETURN(ESMF_FAILURE)
                end if
             endif
          end if
       else
          allocate(SPEC(0),stat=STATUS)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
       endif
 
       I = size(SPEC)
 
       allocate(TMP(I+1),stat=STATUS)
-      _VERIFY(STATUS)
+      __VERIFY(STATUS)
 
       TMP(1:I) = SPEC
       deallocate(SPEC)
@@ -1565,7 +1565,7 @@ contains
       TMP(I+1)%SPECPtr => ITEM%SPECPtr
       SPEC => TMP
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
 
    end subroutine MAPL_VarSpecAddRefFromItem
@@ -1585,11 +1585,11 @@ contains
       do I=1,size(ITEM)
          call MAPL_VarSpecAddRefFromItem(SPEC,ITEM(I),RC=STATUS)
          IF (STATUS /= MAPL_DuplicateEntry) then
-            _VERIFY(STATUS)
+            __VERIFY(STATUS)
          END IF
       enddo
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_VarSpecAddRefFromList
 
@@ -1606,16 +1606,16 @@ contains
 
       do I = 1, size(SPEC)
          if(.not.associated(SPEC(I)%SPECPtr)) then
-            _RETURN(ESMF_FAILURE)
+            __RETURN(ESMF_FAILURE)
          endif
          if (trim(SPEC(I)%SPECPtr%SHORT_NAME) == trim(NAME)) then
             INDEX = I
-            _RETURN(ESMF_SUCCESS)
+            __RETURN(ESMF_SUCCESS)
          endif
       enddo
 
       INDEX = -1 ! not found
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end function MAPL_VarSpecGetIndexByName
 
@@ -1636,17 +1636,17 @@ contains
 
       do I = 1, size(SPEC)
          if(.not.associated(SPEC(I)%SPECPtr)) then
-            _RETURN(ESMF_FAILURE)
+            __RETURN(ESMF_FAILURE)
          endif
 
          if (trim(SPEC(I)%SPECPtr%SHORT_NAME) == trim(NAME)) then
             call MAPL_VarSpecGetData(SPEC(I),PTR1,PTR2,PTR3,RC=STATUS)
-            _VERIFY(STATUS)
-            _RETURN(ESMF_SUCCESS)
+            __VERIFY(STATUS)
+            __RETURN(ESMF_SUCCESS)
          endif
       enddo
 
-      _RETURN(ESMF_FAILURE)
+      __RETURN(ESMF_FAILURE)
 
    end subroutine MAPL_VarSpecGetDataByName
 
@@ -1664,34 +1664,34 @@ contains
       type(ESMF_Array) :: ARRAY
 
       if(.not.associated(SPEC%SPECPtr)) then
-         _RETURN(ESMF_FAILURE)
+         __RETURN(ESMF_FAILURE)
       endif
 
       call ESMF_FieldGet(SPEC%SPECPtr%FIELD,Array=ARRAY,rc=STATUS)
-      _VERIFY(STATUS)
+      __VERIFY(STATUS)
 
       if (present(PTR1)) then
          call ESMF_ArrayGet(ARRAY, localDE=0, farrayptr=PTR1, RC=STATUS)
-         _VERIFY(STATUS)
-         _ASSERT(.not.present(PTR2),'needs informative message')
-         _ASSERT(.not.present(PTR3),'needs informative message')
-         _RETURN(ESMF_SUCCESS)
+         __VERIFY(STATUS)
+         __ASSERT(.not.present(PTR2),'needs informative message')
+         __ASSERT(.not.present(PTR3),'needs informative message')
+         __RETURN(ESMF_SUCCESS)
       endif
 
       if (present(PTR2)) then
          call ESMF_ArrayGet(ARRAY, localDE=0, farrayptr=PTR2, RC=STATUS)
-         _VERIFY(STATUS)
-         _ASSERT(.not.present(PTR3),'needs informative message')
-         _RETURN(ESMF_SUCCESS)
+         __VERIFY(STATUS)
+         __ASSERT(.not.present(PTR3),'needs informative message')
+         __RETURN(ESMF_SUCCESS)
       endif
 
       if (present(PTR3)) then
          call ESMF_ArrayGet(ARRAY, localDE=0, farrayptr=PTR3, RC=STATUS)
-         _VERIFY(STATUS)
-         _RETURN(ESMF_SUCCESS)
+         __VERIFY(STATUS)
+         __RETURN(ESMF_SUCCESS)
       endif
 
-      _RETURN(ESMF_FAILURE)
+      __RETURN(ESMF_FAILURE)
 
    end subroutine MAPL_VarSpecGetData
 
@@ -1707,19 +1707,19 @@ contains
 
       do I = 1, size(SPEC)
          if(.not.associated(SPEC(I)%SPECPtr)) then
-            _RETURN(ESMF_FAILURE)
+            __RETURN(ESMF_FAILURE)
          endif
 
          if (trim(SPEC(I)%SPECPtr%SHORT_NAME) == trim(ITEM%SPECPtr%SHORT_NAME)) then
             if (SPEC(I) == ITEM) then
                INDEX = I
-               _RETURN(ESMF_SUCCESS)
+               __RETURN(ESMF_SUCCESS)
             end if
          endif
       enddo
 
       INDEX = -1 ! not found
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end function MAPL_VarSpecGetIndexOfItem
 

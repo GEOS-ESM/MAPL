@@ -11,13 +11,13 @@ program main
    integer :: status
       
    call mpi_init(status)
-   _VERIFY(status)
+   __VERIFY(status)
    spec = make_GathervSpec() ! CLI
 
-   call run(spec, _RC)
+   call run(spec, __RC)
 
    call MPI_Barrier(MPI_COMM_WORLD, status)
-   _VERIFY(status)
+   __VERIFY(status)
    call mpi_finalize(status)
 
    stop
@@ -45,28 +45,28 @@ contains
 
       integer :: color, rank, npes
       call MPI_Comm_rank(MPI_COMM_WORLD, rank, status)
-      _VERIFY(status)
+      __VERIFY(status)
       call MPI_Comm_size(MPI_COMM_WORLD, npes, status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       color = (rank*spec%n_writers) / npes
       call MPI_Comm_split(MPI_COMM_WORLD, color, 0, gather_comm, status)
-      _VERIFY(status)
+      __VERIFY(status)
       
       call MPI_Comm_rank(gather_comm, rank, status)
-      _VERIFY(status)
+      __VERIFY(status)
       call MPI_Comm_split(MPI_COMM_WORLD, rank, 0, writer_comm, status)
-      _VERIFY(status)
+      __VERIFY(status)
 
-      kernel = make_GathervKernel(spec, gather_comm, _RC)
+      kernel = make_GathervKernel(spec, gather_comm, __RC)
 
-      call write_header(MPI_COMM_WORLD, _RC)
+      call write_header(MPI_COMM_WORLD, __RC)
 
       tot_time = 0
       tot_time_sq = 0
       associate (n => spec%n_tries)
         do i = 1, n
-           t = time(kernel, writer_comm, _RC)
+           t = time(kernel, writer_comm, __RC)
            tot_time = tot_time + t
            tot_time_sq = tot_time_sq + t**2
         end do
@@ -78,9 +78,9 @@ contains
         end if
       end associate
 
-      call report(spec, avg_time, rel_std_time, MPI_COMM_WORLD, _RC)
+      call report(spec, avg_time, rel_std_time, MPI_COMM_WORLD, __RC)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine run
 
 
@@ -93,16 +93,16 @@ contains
       real :: t0, t1
 
       call MPI_Barrier(comm, status)
-      _VERIFY(status)
+      __VERIFY(status)
       t0 = MPI_Wtime()
-      call kernel%run(_RC)
+      call kernel%run(__RC)
       call MPI_Barrier(comm, status)
-      _VERIFY(status)
+      __VERIFY(status)
       t1 = MPI_Wtime()
 
       time = t1 - t0
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function time
 
    subroutine write_header(comm, rc)
@@ -113,12 +113,12 @@ contains
       integer :: rank
 
       call MPI_Comm_rank(comm, rank, status)
-      _VERIFY(status)
-      _RETURN_UNLESS(rank == 0)
+      __VERIFY(status)
+      __RETURN_UNLESS(rank == 0)
       
       write(*,'(4(a6,","),3(a15,:,","))',iostat=status) 'NX', '# levs', '# writers', 'group size', 'Time (s)', 'Rel. Std. dev.', 'BW (GB/sec)'
 
-      _RETURN(status)
+      __RETURN(status)
    end subroutine write_header
 
 
@@ -137,17 +137,17 @@ contains
       integer, parameter :: WORD=4
 
       call MPI_Comm_rank(comm, rank, status)
-      _VERIFY(status)
-      _RETURN_UNLESS(rank == 0)
+      __VERIFY(status)
+      __RETURN_UNLESS(rank == 0)
 
       call MPI_Comm_size(MPI_COMM_WORLD, npes, status)
-      _VERIFY(status)
+      __VERIFY(status)
       group = npes /spec%n_writers
 
       bw_gb = 1.e-9 * WORD * (spec%nx**2)*6*spec%n_levs / avg_time
       write(*,'(4(i6.0,","),3(f15.4,:,","))') spec%nx, spec%n_levs, spec%n_writers, group, avg_time, rel_std_time, bw_gb
  
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine report
 
 

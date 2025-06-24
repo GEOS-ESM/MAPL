@@ -57,8 +57,8 @@ contains
       integer, optional, intent(in) :: hints
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(rc)
+      __UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(rc)
 
       spec%grid_in = grid_in
       spec%grid_out = grid_out
@@ -100,17 +100,17 @@ contains
 
       integer :: status
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
       if (present(grid_type_in)) then
          call ESMF_AttributeGet(this%grid_in,'GridType',grid_type_in,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
       end if
       if (present(grid_type_out)) then
          call ESMF_AttributeGet(this%grid_out,'GridType',grid_type_out,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
       end if
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine get_grid_type
 
@@ -171,5 +171,5 @@ contains
    end function less_than
 
 end module MAPL_RegridderSpec
-#undef _UNUSED_DUMMY
+#undef __UNUSED_DUMMY
 

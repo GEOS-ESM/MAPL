@@ -73,14 +73,14 @@ contains
           buffer=[buffer,serialize_intrinsic(key)]
           var_ptr => iter%value()
           call var_ptr%serialize(tmp_buffer, status)
-          _VERIFY(status)
+          __VERIFY(status)
           buffer = [buffer, tmp_buffer]
           deallocate(tmp_buffer)
           call iter%next()
        enddo
        length = serialize_buffer_length(length)+size(buffer)
        buffer = [serialize_intrinsic(length),buffer]
-       _RETURN(_SUCCESS)
+       __RETURN(__SUCCESS)
     end subroutine StringVariableMap_serialize
 
     subroutine StringVariableMap_deserialize(buffer, map, rc)
@@ -96,7 +96,7 @@ contains
 
        n = 1
        call deserialize_intrinsic(buffer(n:),length)
-       _ASSERT(length <= size(buffer), "stringVarmap length does not match")
+       __ASSERT(length <= size(buffer), "stringVarmap length does not match")
 
        n0 = serialize_buffer_length(length)
        n = n + n0
@@ -113,11 +113,11 @@ contains
 
           if (v_type == Variable_SERIALIZE_TYPE) then
              call Variable_deserialize(buffer(n:n+n2-1),v, status)
-             _VERIFY(status)
+             __VERIFY(status)
              call map%insert(key,v)
           else if (v_type == Coord_SERIALIZE_TYPE) then
              call CoordinateVariable_deserialize(buffer(n:n+n2-1),c, status)
-             _VERIFY(status)
+             __VERIFY(status)
              call map%insert(key,c)
           endif
 
@@ -125,7 +125,7 @@ contains
           length = length - n1 - n2
           deallocate(key)
        enddo
-       _RETURN(_SUCCESS)
+       __RETURN(__SUCCESS)
     end subroutine StringVariableMap_deserialize
 
 end module pFIO_StringVariableMapUtilMod

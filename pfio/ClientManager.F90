@@ -109,9 +109,9 @@ contains
 
       c_manager%client_comm = client_comm
       call MPI_Comm_rank(client_comm, c_manager%rank, rc)
-      _VERIFY(rc)
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __VERIFY(rc)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
    end function new_ClientManager
 
    function add_ext_collection(this, template, unusable, rc) result(collection_id)
@@ -129,8 +129,8 @@ contains
          collection_id = clientPtr%add_ext_collection(template)
       enddo
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
    end function add_ext_collection
 
    function add_hist_collection(this, fmd, unusable,mode, rc) result(hist_collection_id)
@@ -148,8 +148,8 @@ contains
          hist_collection_id = clientPtr%add_hist_collection(fmd, mode=mode)
       enddo
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
    end function add_hist_collection
 
    subroutine prefetch_data(this, collection_id, file_name, var_name, data_reference, &
@@ -167,11 +167,11 @@ contains
       integer :: request_id, status
 
       clientPtr => this%current()
-      request_id = clientPtr%prefetch_data(collection_id, file_name, var_name, data_reference, start=start, _RC)
+      request_id = clientPtr%prefetch_data(collection_id, file_name, var_name, data_reference, start=start, __RC)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(request_id)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(request_id)
    end subroutine prefetch_data
 
    subroutine modify_metadata(this, collection_id, unusable,var_map, rc)
@@ -186,10 +186,10 @@ contains
 
       ClientPtr => this%current()
       call clientPtr%modify_metadata(collection_id, var_map = var_map, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
    end subroutine modify_metadata
 
    subroutine replace_metadata(this, collection_id, fmd, rc)
@@ -203,9 +203,9 @@ contains
 
       ClientPtr => this%current()
       call clientPtr%replace_metadata(collection_id, fmd, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine replace_metadata
 
    subroutine modify_metadata_all(this, collection_id, unusable,var_map,rc)
@@ -221,11 +221,11 @@ contains
       do i = 1, this%clients%size()
          ClientPtr => this%clients%at(i)
          call clientPtr%modify_metadata(collection_id, var_map = var_map, rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
       enddo
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
    end subroutine modify_metadata_all
 
    subroutine replace_metadata_all(this, collection_id, fmd, rc)
@@ -240,10 +240,10 @@ contains
       do i = 1, this%clients%size()
          ClientPtr => this%clients%at(i)
          call clientPtr%replace_metadata(collection_id, fmd, rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
       enddo
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine replace_metadata_all
 
    subroutine collective_prefetch_data(this, collection_id, file_name, var_name, data_reference, &
@@ -265,10 +265,10 @@ contains
       clientPtr =>this%current()
       request_id = clientPtr%collective_prefetch_data(collection_id, file_name, var_name, data_reference, start=start, &
                    global_start = global_start, global_count=global_count, rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(request_id)
+      __VERIFY(status)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(request_id)
    end subroutine collective_prefetch_data
 
    subroutine stage_data(this, collection_id, file_name, var_name, data_reference, &
@@ -287,10 +287,10 @@ contains
 
       clientPtr =>this%current()
       request_id = clientPtr%stage_data(collection_id, file_name, var_name, data_reference, start=start, rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(request_id)
+      __VERIFY(status)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(request_id)
    end subroutine stage_data
 
    subroutine collective_stage_data(this, collection_id, file_name, var_name, data_reference, &
@@ -312,10 +312,10 @@ contains
       clientPtr =>this%current()
       request_id = clientPtr%collective_stage_data(collection_id, file_name, var_name, data_reference, start=start, global_start=global_start, &
                    global_count=global_count, rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(request_id)
+      __VERIFY(status)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(request_id)
    end subroutine collective_stage_data
 
    subroutine stage_nondistributed_data(this, collection_id, file_name, var_name, data_reference, unusable, rc)
@@ -331,11 +331,11 @@ contains
       integer :: request_id, status
 
       clientPtr => this%current()
-      request_id = clientPtr%collective_stage_data(collection_id, file_name, var_name, data_reference, _RC)
+      request_id = clientPtr%collective_stage_data(collection_id, file_name, var_name, data_reference, __RC)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(request_id)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(request_id)
    end subroutine stage_nondistributed_data
 
    subroutine shake_hand(this, unusable, rc)
@@ -346,10 +346,10 @@ contains
       class (ClientThread), pointer :: clientPtr
 
       clientPtr =>this%current()
-      call clientPtr%shake_hand(_RC)
+      call clientPtr%shake_hand(__RC)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
    end subroutine shake_hand
 
    subroutine done_prefetch(this, unusable, rc)
@@ -361,10 +361,10 @@ contains
       class (ClientThread), pointer :: clientPtr
 
       clientPtr =>this%current()
-      call clientPtr%done_prefetch(_RC)
+      call clientPtr%done_prefetch(__RC)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
    end subroutine done_prefetch
 
    subroutine done_collective_prefetch(this, unusable, rc)
@@ -375,10 +375,10 @@ contains
       class (ClientThread), pointer :: clientPtr
 
       clientPtr =>this%current()
-      call clientPtr%done_collective_prefetch(_RC)
+      call clientPtr%done_collective_prefetch(__RC)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
    end subroutine done_collective_prefetch
 
    subroutine done_stage(this, unusable, rc)
@@ -389,10 +389,10 @@ contains
       class (ClientThread), pointer :: clientPtr
 
       clientPtr =>this%current()
-      call clientPtr%done_stage(_RC)
+      call clientPtr%done_stage(__RC)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
    end subroutine done_stage
 
    subroutine done_collective_stage(this, unusable, rc)
@@ -404,10 +404,10 @@ contains
       integer :: status
 
       clientPtr =>this%current()
-      call clientPtr%done_collective_stage(_RC)
+      call clientPtr%done_collective_stage(__RC)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
    end subroutine done_collective_stage
 
    subroutine wait(this, unusable, rc)
@@ -418,10 +418,10 @@ contains
       class (ClientThread), pointer :: clientPtr
 
       clientPtr =>this%current()
-      call clientPtr%wait_all(_RC)
+      call clientPtr%wait_all(__RC)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
    end subroutine wait
 
    subroutine post_wait(this, unusable, rc)
@@ -433,10 +433,10 @@ contains
       class (ClientThread), pointer :: clientPtr
 
       clientPtr =>this%current()
-      call clientPtr%post_wait_all(_RC)
+      call clientPtr%post_wait_all(__RC)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
    end subroutine post_wait
 
    subroutine terminate(this, unusable, rc)
@@ -450,12 +450,12 @@ contains
 
       do i = 1, this%size()
          clientPtr =>this%clients%at(i)
-         call clientPtr%wait_all(_RC)
+         call clientPtr%wait_all(__RC)
          call clientPtr%terminate()
       enddo
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
    end subroutine terminate
 
    subroutine next_(this)
@@ -471,10 +471,10 @@ contains
       integer :: ith_
       ith_ = 1
       if (present(ith)) ith_ = ith
-      _ASSERT( ith_>=1, 'needs at least one client number')
-      _ASSERT( ith_<=this%size(), "exceeding the clients number")
+      __ASSERT( ith_>=1, 'needs at least one client number')
+      __ASSERT( ith_<=this%size(), "exceeding the clients number")
       this%current_client = ith_
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine set_current
 
    function current(this) result(clientPtr)
@@ -503,11 +503,11 @@ contains
 
       if (ssize == 0) then
          call this%next()
-         call this%wait(_RC)
-         _RETURN(_SUCCESS)
+         call this%wait(__RC)
+         __RETURN(__SUCCESS)
       endif
 
-      _ASSERT(lsize > 0,'large server pool must be great than zero')
+      __ASSERT(lsize > 0,'large server pool must be great than zero')
 
       if (.not. allocated (nwritings)) allocate (nwritings(tsize), source = 0)
       if (.not. allocated (nwritings_large)) allocate (nwritings_large(lsize), source = 0)
@@ -556,10 +556,10 @@ contains
          nwritings_small(1:ssize-1) = nwritings_small(2:ssize)
          nwritings_small(ssize) = nwriting
       end if
-      call this%wait(_RC)
+      call this%wait(__RC)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
    end subroutine set_optimal_server
 
    subroutine split_server_pools(this, unusable, n_server_split, n_hist_split, rc)
@@ -576,7 +576,7 @@ contains
       tsize = this%server_sizes%size()
       if (tsize == 1) then
          if (this%rank == 0) print*, " oserver is not split"
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
       endif
 
       nsplit = 0
@@ -625,8 +625,8 @@ contains
          print*, "Large pool oserver npes: ", server_sizes(pos+1:tsize)
       endif
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
 
    end subroutine split_server_pools
 
@@ -636,10 +636,10 @@ contains
       class (KeywordEnforcer),  optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
       call this%server_sizes%push_back(server_size)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine set_server_size
 
    function size(this) result(n_client)
@@ -659,8 +659,8 @@ contains
 
       i_Clients = ClientManager(client_comm, n_client = n_i, rc=status)
       o_Clients = ClientManager(client_comm, n_client = n_o, fast_oclient = fast_oclient, rc=status)
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
    end subroutine init_ClientManager
 
 end module pFIO_ClientManagerMod

@@ -38,10 +38,10 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      call s%init(comm, port_name, profiler_name=profiler_name, with_profiler = with_profiler, _RC)
+      call s%init(comm, port_name, profiler_name=profiler_name, with_profiler = with_profiler, __RC)
       s%port_name = trim(port_name)
       s%threads = ServerThreadVector()
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function new_MpiServer
 
    subroutine start(this, rc)
@@ -68,7 +68,7 @@ contains
 
             thread_ptr=>this%threads%at(i)
             !handle the message
-            call thread_ptr%run(_RC)
+            call thread_ptr%run(__RC)
             !delete the thread object if it terminates
             if(thread_ptr%do_terminate()) then
                mask(i) = .true.
@@ -82,9 +82,9 @@ contains
       call this%threads%clear()
       deallocate(mask)
 
-      call this%report_profile(_RC)
+      call this%report_profile(__RC)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine start
 
 end module pFIO_MpiServerMod

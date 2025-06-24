@@ -22,9 +22,9 @@ contains
       integer(ut_status) :: status
 
       call initialize_udunits_system(rc=status)
-      @assertEqual(_SUCCESS, status, 'Failed to initialize')
+      @assertEqual(__SUCCESS, status, 'Failed to initialize')
       call get_converter(conv, KM, M, rc=status)
-      @assertEqual(_SUCCESS, status, 'Failed to get converter')
+      @assertEqual(__SUCCESS, status, 'Failed to get converter')
       @assertFalse(conv%is_free(), 'cv_converter is not set')
       cptr = conv%get_cptr()
       @assertTrue(c_associated(cptr), 'c_ptr is not associated')
@@ -45,9 +45,9 @@ contains
       character(len=*), parameter :: TO_STRING = M
 
       call initialize_udunits_system(rc=status)
-      @assertEqual(_SUCCESS, status, 'Failed to initialize')
+      @assertEqual(__SUCCESS, status, 'Failed to initialize')
       call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
-      @assertEqual(_SUCCESS, status, 'Failed to get converter')
+      @assertEqual(__SUCCESS, status, 'Failed to get converter')
       actual = conv%convert(FROM)
       @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
       call conv%free()
@@ -66,9 +66,9 @@ contains
       character(len=*), parameter :: TO_STRING = M
 
       call initialize_udunits_system(rc=status)
-      @assertEqual(_SUCCESS, status, 'Failed to initialize')
+      @assertEqual(__SUCCESS, status, 'Failed to initialize')
       call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
-      @assertEqual(_SUCCESS, status, 'Failed to get converter')
+      @assertEqual(__SUCCESS, status, 'Failed to get converter')
       actual = conv%convert(FROM)
       @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
       call conv%free()
@@ -87,9 +87,9 @@ contains
       character(len=*), parameter :: TO_STRING = M
 
       call initialize_udunits_system(rc=status)
-      @assertEqual(_SUCCESS, status, 'Failed to initialize')
+      @assertEqual(__SUCCESS, status, 'Failed to initialize')
       call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
-      @assertEqual(_SUCCESS, status, 'Failed to get converter')
+      @assertEqual(__SUCCESS, status, 'Failed to get converter')
       actual = conv%convert(FROM)
       @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
       call conv%free()
@@ -108,9 +108,9 @@ contains
       character(len=*), parameter :: TO_STRING = M
 
       call initialize_udunits_system(rc=status)
-      @assertEqual(_SUCCESS, status, 'Failed to initialize')
+      @assertEqual(__SUCCESS, status, 'Failed to initialize')
       call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
-      @assertEqual(_SUCCESS, status, 'Failed to get converter')
+      @assertEqual(__SUCCESS, status, 'Failed to get converter')
       actual = conv%convert(FROM)
       @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
       call conv%free()

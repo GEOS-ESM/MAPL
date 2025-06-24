@@ -35,7 +35,7 @@
     
 ! This version works only for 1D arrays! 
 
-    _ASSERT(RANK_ == 1, 'only rank = 1 is supported')
+    __ASSERT(RANK_ == 1, 'only rank = 1 is supported')
 
     if(present(srcPe)) then
       srcDE = srcPe 
@@ -44,12 +44,12 @@
     end if
 
     call ESMF_VMGet(vm, localPet=deId, petCount=ndes, rc=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
-    _ASSERT(size(sendCounts) == nDEs, 'sendcounts must match nDEs')
+    __ASSERT(size(sendCounts) == nDEs, 'sendcounts must match nDEs')
 
     allocate (displs(0:nDEs), stat=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     displs(0) = 0
     do I = 1,nDEs
@@ -63,12 +63,12 @@
 
     call ESMF_VMScatterV(vm, global_array, sendcounts, displs, &
                          local_array, recvcount, srcDE, rc=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     deallocate(displs, stat=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
   end subroutine SUB_
 
 #undef NAME_

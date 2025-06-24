@@ -27,7 +27,7 @@ contains
    function new_DummyMessage() result(message)
       type (DummyMessage) :: message
       return
-      _UNUSED_DUMMY(message)
+      __UNUSED_DUMMY(message)
    end function new_DummyMessage
 
    integer function get_type_id() result(type_id)
@@ -38,7 +38,7 @@ contains
       class (DummyMessage), intent(in) :: this
       length = 0
       return
-      _UNUSED_DUMMY(this) 
+      __UNUSED_DUMMY(this) 
    end function get_length
 
    subroutine serialize(this, buffer, rc)
@@ -47,17 +47,17 @@ contains
       integer, optional, intent(out) :: rc
       integer :: empty(0)
       buffer = empty
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(this)
    end subroutine serialize
 
    subroutine deserialize(this, buffer, rc)
       class (DummyMessage), intent(inout) :: this
       integer(kind=INT32), intent(in) :: buffer(:)
       integer, optional, intent(out) :: rc
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(buffer)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(buffer)
    end subroutine deserialize
    
 end module pFIO_DummyMessageMod

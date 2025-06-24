@@ -66,14 +66,14 @@ contains
 
       s%Inter_Comm = MPI_COMM_NULL
       s%nwriters = nwriters
-      _ASSERT(s%nwriters > 1 ,' nwriters should be >=2. pfio_writer.x has captain-soldier structure')
+      __ASSERT(s%nwriters > 1 ,' nwriters should be >=2. pfio_writer.x has captain-soldier structure')
 
       call MPI_Comm_spawn( pfio_writer , MPI_ARGV_NULL, s%nwriters, MPI_INFO_NULL, 0, &
                    s%comm, s%Inter_Comm, MPI_ERRCODES_IGNORE, ierror)
-      _VERIFY(ierror)
+      __VERIFY(ierror)
       s%port_name = trim(port_name)
       s%threads = ServerThreadVector()
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function new_MultiLayerServer
 
    subroutine start(this, rc)
@@ -99,7 +99,7 @@ contains
 
             thread_ptr=>this%threads%at(i)
             !handle the message
-            call thread_ptr%run(_RC)
+            call thread_ptr%run(__RC)
             !delete the thread object if it terminates
             if(thread_ptr%do_terminate()) then
                mask(i) = .true.
@@ -113,7 +113,7 @@ contains
       call this%threads%clear()
       call this%terminate_writers()
       deallocate(mask)
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine start
 
    subroutine terminate_writers(this)
@@ -126,9 +126,9 @@ contains
       ! if no syncrohization, the writer may be still writing while the main testing node is comparing
       if( this%rank == 0 .and. this%nwriters > 1 ) then
         call MPI_send(terminate, 1, MPI_INTEGER, 0, pFIO_s_tag, this%Inter_Comm, ierr)
-        _VERIFY(ierr)
+        __VERIFY(ierr)
         call MPI_recv(terminate, 1, MPI_INTEGER, 0, pFIO_s_tag, this%Inter_Comm, MPI_STAT, ierr)
-        _VERIFY(ierr)
+        __VERIFY(ierr)
       endif
 
    end subroutine terminate_writers
@@ -177,7 +177,7 @@ contains
                  type is (RDMAReference)
                     remotePtr=>dataRefPtr
                  class default
-                    _FAIL( "remote is a must")
+                    __FAIL( "remote is a must")
                  end select
 
                  request_iter = this%stage_offset%find(i_to_string(q%request_id)//'done')
@@ -200,9 +200,9 @@ contains
                     if (.not. f_exist) then
                        allocate(formatter)
                        call formatter%create(trim(q%file_name),rc=status)
-                       _VERIFY(status)
+                       __VERIFY(status)
                        call formatter%write(hist_collection%fmd, rc=status)
-                       _VERIFY(status)
+                       __VERIFY(status)
                        call formatter%close()
                        deallocate(formatter)
                     endif
@@ -220,7 +220,7 @@ contains
               call forData%clear()
            endif
            call MPI_Barrier(this%comm, status)
-           _VERIFY(status)
+           __VERIFY(status)
         endif ! first thread n==1
         call threadPtr%clear_backlog()
         call threadPtr%clear_hist_collections()
@@ -229,7 +229,7 @@ contains
      !if( t1-t0 > 0) then
      !   print*, "this rank",this%rank,"spending ", t1-t0, " seconds writing"
      !endif
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
    contains
 
       subroutine forward_DataToWriter(forwardVec, forwardData, rc)
@@ -247,26 +247,26 @@ contains
          bsize = size(buffer)
 
          call MPI_send(command, 1, MPI_INTEGER, 0, pFIO_s_tag, this%Inter_Comm, ierr)
-         _VERIFY(ierr)
+         __VERIFY(ierr)
          call MPI_recv(writer_rank, 1, MPI_INTEGER, &
                    0, pFIO_s_tag, this%Inter_Comm , &
                    MPI_STAT, ierr)
-         _VERIFY(ierr)
+         __VERIFY(ierr)
          !forward Message
          call MPI_send(bsize,  1,     MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
-         _VERIFY(ierr)
+         __VERIFY(ierr)
          call MPI_send(buffer, bsize, MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
-         _VERIFY(ierr)
+         __VERIFY(ierr)
          !send number of collections
          call StringAttributeMap_serialize(forwardData,buffer)
          bsize = size(buffer)
          call MPI_send(bsize,  1, MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
-         _VERIFY(ierr)
+         __VERIFY(ierr)
          call MPI_send(buffer, bsize, MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
-         _VERIFY(ierr)
+         __VERIFY(ierr)
          !2) send the data
 
-         _RETURN(_SUCCESS)
+         __RETURN(__SUCCESS)
       end subroutine forward_dataToWriter
 
    end subroutine put_DataToFile

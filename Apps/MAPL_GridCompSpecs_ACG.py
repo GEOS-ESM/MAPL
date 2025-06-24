@@ -309,7 +309,7 @@ class MAPL_DataSpec:
        MAPL Gridded component"""
 
     DELIMITER = ', '
-    TERMINATOR = '_RC)'
+    TERMINATOR = '__RC)'
 
     def __init__(self, category, spec_values, indent=3):
         self.category = category

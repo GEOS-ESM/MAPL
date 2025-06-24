@@ -46,7 +46,7 @@ contains
 
       adjusted_time = time+this%offset
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function
 
    function get_offset(this) result(offset)
@@ -74,7 +74,7 @@ contains
       logical :: is_heartbeat
 
       this%last_checked = time
-      call ESMF_ClockGet(clock, timestep=timestep, _RC)
+      call ESMF_ClockGet(clock, timestep=timestep, __RC)
       if (update_freq == "-") then
          this%single_shot = .true.
       else if (update_freq /= "PT0S") then
@@ -83,25 +83,25 @@ contains
          hour=int_time/10000
          minute=mod(int_time/100,100)
          second=mod(int_time,100)
-         call ESMF_TimeGet(time,yy=year,mm=month,dd=day,_RC)
-         call ESMF_TimeSet(this%reference_time,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,_RC)
+         call ESMF_TimeGet(time,yy=year,mm=month,dd=day,__RC)
+         call ESMF_TimeSet(this%reference_time,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,__RC)
          this%last_ring = this%reference_time
-         this%update_freq = string_to_esmf_timeinterval(update_freq,_RC)
+         this%update_freq = string_to_esmf_timeinterval(update_freq,__RC)
       end if
       i = index(update_offset,"-") + 1
       j = index(update_offset, '+') + 1
-      _ASSERT(i==1 .or. j==1, '"+" and "-" cannot both be present in update_offset string.')
+      __ASSERT(i==1 .or. j==1, '"+" and "-" cannot both be present in update_offset string.')
       negative_offset = i > 1
       if(.not. negative_offset) i = j
       call parse_heartbeat_timestring(update_offset(i:), is_heartbeat=is_heartbeat, multiplier=multiplier)
       if(is_heartbeat) then
          this%offset = multiplier * timestep
       else
-         this%offset=string_to_esmf_timeinterval(update_offset(i:),_RC)
+         this%offset=string_to_esmf_timeinterval(update_offset(i:),__RC)
       end if
       if(negative_offset) this%offset = -this%offset
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(clock)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(clock)
 
    end subroutine create_from_parameters
 
@@ -115,7 +115,7 @@ contains
       integer :: status
 
       multiplier = 1
-      upper = ESMF_UtilStringUpperCase(timestring, _RC)
+      upper = ESMF_UtilStringUpperCase(timestring, __RC)
       call split_on(upper, HEARTBEAT_STRING, found_string=found_string)
       is_heartbeat = len(found_string) > 0
       ! For now, multiplier is simply set to 1. In the future, as needed, the before_string
@@ -172,7 +172,7 @@ contains
 
       if (this%disabled) then
          do_update = .false.
-         _RETURN(_SUCCESS)
+         __RETURN(__SUCCESS)
       end if
       if (this%simple_alarm_created) then
          use_time = this%get_adjusted_time(current_time)

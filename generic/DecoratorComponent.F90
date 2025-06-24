@@ -61,10 +61,10 @@ contains
 
       integer :: status
       
-      _UNUSED_DUMMY(unusable)
-      call this%decorated%initialize(import_state, export_state, clock, phase, _RC)
+      __UNUSED_DUMMY(unusable)
+      call this%decorated%initialize(import_state, export_state, clock, phase, __RC)
       
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine initialize
 
    
@@ -79,10 +79,10 @@ contains
 
       integer :: status
 
-      _UNUSED_DUMMY(unusable)
-      call this%decorated%run(import_state, export_state, clock, phase, _RC)
+      __UNUSED_DUMMY(unusable)
+      call this%decorated%run(import_state, export_state, clock, phase, __RC)
       
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine run
 
    
@@ -97,10 +97,10 @@ contains
 
       integer :: status
 
-      _UNUSED_DUMMY(unusable)
-      call this%decorated%finalize(import_state, export_state, clock, phase, _RC)
+      __UNUSED_DUMMY(unusable)
+      call this%decorated%finalize(import_state, export_state, clock, phase, __RC)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine finalize
 
    subroutine run_child(this, name, clock, phase, unusable, rc)
@@ -113,10 +113,10 @@ contains
 
       integer :: status
 
-      _UNUSED_DUMMY(unusable)
-      call this%decorated%run_child(name, clock, phase, _RC)
+      __UNUSED_DUMMY(unusable)
+      call this%decorated%run_child(name, clock, phase, __RC)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine run_child
 
    subroutine set_name(this, name)

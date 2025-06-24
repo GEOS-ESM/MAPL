@@ -12,7 +12,7 @@ if(do_print) then
          type is(TYPE_) 
             value_is_default = ARE_EQUAL(VALUE_, default) 
          class default 
-            _FAIL(MISMATCH_MESSAGE) 
+            __FAIL(MISMATCH_MESSAGE) 
          end select 
       else 
          ! There is no default to compare to, so .FALSE.
@@ -39,10 +39,10 @@ if(do_print) then
 #endif
       formatted_value = EMPTY_STRING
       !wdb FIXME Probably don't want this to cause failure provided value is set.
-      _ASSERT(len_trim(type_format) > 0, 'Type format is empty: ')
+      __ASSERT(len_trim(type_format) > 0, 'Type format is empty: ')
       write(formatted_value, type_format, iostat=io_stat) VALUE_ 
       !wdb FIXME Probably don't want this to cause failure provided value is set.
-      _ASSERT(io_stat == 0, 'Error producing formatted value: ' // trim(actual_label) // trim(formatted_value))
+      __ASSERT(io_stat == 0, 'Error producing formatted value: ' // trim(actual_label) // trim(formatted_value))
 #endif
    else 
       ! DonD

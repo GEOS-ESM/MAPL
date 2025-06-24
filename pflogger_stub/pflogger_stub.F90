@@ -1,9 +1,9 @@
 #include "MAPL_ErrLog.h"
-#define _SUCCESS 0
-#ifdef _RETURN
-#undef _RETURN
+#define __SUCCESS 0
+#ifdef __RETURN
+#undef __RETURN
 #endif
-#define _RETURN(status) if(present(rc))rc=status; return
+#define __RETURN(status) if(present(rc))rc=status; return
 
 module PFL_SeverityLevels
    implicit none
@@ -57,7 +57,7 @@ contains
 
    subroutine free(this)
       class (Logger), intent(inout) :: this
-      _UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(this)
    end subroutine free
 
    subroutine debug(this, message, ARG_LIST, unusable, extra, line, file, rc)
@@ -70,23 +70,23 @@ contains
       character(*), optional, intent(in) :: file
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(message)
-      _UNUSED_DUMMY(arg1)
-      _UNUSED_DUMMY(arg2)
-      _UNUSED_DUMMY(arg3)
-      _UNUSED_DUMMY(arg4)
-      _UNUSED_DUMMY(arg5)
-      _UNUSED_DUMMY(arg6)
-      _UNUSED_DUMMY(arg7)
-      _UNUSED_DUMMY(arg8)
-      _UNUSED_DUMMY(arg9)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(extra)
-      _UNUSED_DUMMY(line)
-      _UNUSED_DUMMY(file)
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(message)
+      __UNUSED_DUMMY(arg1)
+      __UNUSED_DUMMY(arg2)
+      __UNUSED_DUMMY(arg3)
+      __UNUSED_DUMMY(arg4)
+      __UNUSED_DUMMY(arg5)
+      __UNUSED_DUMMY(arg6)
+      __UNUSED_DUMMY(arg7)
+      __UNUSED_DUMMY(arg8)
+      __UNUSED_DUMMY(arg9)
+      __UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(extra)
+      __UNUSED_DUMMY(line)
+      __UNUSED_DUMMY(file)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine debug
 
    subroutine info(this, message, ARG_LIST, unusable, extra, line, file, rc)
@@ -99,23 +99,23 @@ contains
       character(*), optional, intent(in) :: file
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(message)
-      _UNUSED_DUMMY(arg1)
-      _UNUSED_DUMMY(arg2)
-      _UNUSED_DUMMY(arg3)
-      _UNUSED_DUMMY(arg4)
-      _UNUSED_DUMMY(arg5)
-      _UNUSED_DUMMY(arg6)
-      _UNUSED_DUMMY(arg7)
-      _UNUSED_DUMMY(arg8)
-      _UNUSED_DUMMY(arg9)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(extra)
-      _UNUSED_DUMMY(line)
-      _UNUSED_DUMMY(file)
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(message)
+      __UNUSED_DUMMY(arg1)
+      __UNUSED_DUMMY(arg2)
+      __UNUSED_DUMMY(arg3)
+      __UNUSED_DUMMY(arg4)
+      __UNUSED_DUMMY(arg5)
+      __UNUSED_DUMMY(arg6)
+      __UNUSED_DUMMY(arg7)
+      __UNUSED_DUMMY(arg8)
+      __UNUSED_DUMMY(arg9)
+      __UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(extra)
+      __UNUSED_DUMMY(line)
+      __UNUSED_DUMMY(file)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine info
 
    subroutine warning(this, message, ARG_LIST, unusable, extra, line, file, rc)
@@ -128,23 +128,23 @@ contains
       character(*), optional, intent(in) :: file
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(message)
-      _UNUSED_DUMMY(arg1)
-      _UNUSED_DUMMY(arg2)
-      _UNUSED_DUMMY(arg3)
-      _UNUSED_DUMMY(arg4)
-      _UNUSED_DUMMY(arg5)
-      _UNUSED_DUMMY(arg6)
-      _UNUSED_DUMMY(arg7)
-      _UNUSED_DUMMY(arg8)
-      _UNUSED_DUMMY(arg9)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(extra)
-      _UNUSED_DUMMY(line)
-      _UNUSED_DUMMY(file)
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(message)
+      __UNUSED_DUMMY(arg1)
+      __UNUSED_DUMMY(arg2)
+      __UNUSED_DUMMY(arg3)
+      __UNUSED_DUMMY(arg4)
+      __UNUSED_DUMMY(arg5)
+      __UNUSED_DUMMY(arg6)
+      __UNUSED_DUMMY(arg7)
+      __UNUSED_DUMMY(arg8)
+      __UNUSED_DUMMY(arg9)
+      __UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(extra)
+      __UNUSED_DUMMY(line)
+      __UNUSED_DUMMY(file)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine warning
 
    subroutine error(this, message, ARG_LIST, unusable, extra, line, file, rc)
@@ -158,23 +158,23 @@ contains
       character(*), optional, intent(in) :: file
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(message)
-      _UNUSED_DUMMY(arg1)
-      _UNUSED_DUMMY(arg2)
-      _UNUSED_DUMMY(arg3)
-      _UNUSED_DUMMY(arg4)
-      _UNUSED_DUMMY(arg5)
-      _UNUSED_DUMMY(arg6)
-      _UNUSED_DUMMY(arg7)
-      _UNUSED_DUMMY(arg8)
-      _UNUSED_DUMMY(arg9)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(extra)
-      _UNUSED_DUMMY(line)
-      _UNUSED_DUMMY(file)
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(message)
+      __UNUSED_DUMMY(arg1)
+      __UNUSED_DUMMY(arg2)
+      __UNUSED_DUMMY(arg3)
+      __UNUSED_DUMMY(arg4)
+      __UNUSED_DUMMY(arg5)
+      __UNUSED_DUMMY(arg6)
+      __UNUSED_DUMMY(arg7)
+      __UNUSED_DUMMY(arg8)
+      __UNUSED_DUMMY(arg9)
+      __UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(extra)
+      __UNUSED_DUMMY(line)
+      __UNUSED_DUMMY(file)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine error
 
    subroutine critical(this, message, ARG_LIST, unusable, extra, line, file, rc)
@@ -187,23 +187,23 @@ contains
       character(*), optional, intent(in) :: file
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(message)
-      _UNUSED_DUMMY(arg1)
-      _UNUSED_DUMMY(arg2)
-      _UNUSED_DUMMY(arg3)
-      _UNUSED_DUMMY(arg4)
-      _UNUSED_DUMMY(arg5)
-      _UNUSED_DUMMY(arg6)
-      _UNUSED_DUMMY(arg7)
-      _UNUSED_DUMMY(arg8)
-      _UNUSED_DUMMY(arg9)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(extra)
-      _UNUSED_DUMMY(line)
-      _UNUSED_DUMMY(file)
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(message)
+      __UNUSED_DUMMY(arg1)
+      __UNUSED_DUMMY(arg2)
+      __UNUSED_DUMMY(arg3)
+      __UNUSED_DUMMY(arg4)
+      __UNUSED_DUMMY(arg5)
+      __UNUSED_DUMMY(arg6)
+      __UNUSED_DUMMY(arg7)
+      __UNUSED_DUMMY(arg8)
+      __UNUSED_DUMMY(arg9)
+      __UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(extra)
+      __UNUSED_DUMMY(line)
+      __UNUSED_DUMMY(file)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine critical
 
    logical function isEnabledFor(this, level)
@@ -241,7 +241,7 @@ contains
       class (LoggerManager), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
       lgr => this%log_
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function get_logger_root
 
    function get_logger_name(this, name, rc) result(lgr)
@@ -249,14 +249,14 @@ contains
       class (LoggerManager), target, intent(inout) :: this
       character(len=*), intent(in) :: name
       integer, optional, intent(out) :: rc
-      _UNUSED_DUMMY(name)
+      __UNUSED_DUMMY(name)
       lgr => this%log_
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function get_logger_name
 
    subroutine free(this)
       class(LoggerManager), intent(inout) :: this
-      _UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(this)
    end subroutine free
 
 end module PFL_LoggerManager
@@ -291,11 +291,11 @@ contains
       character(len=*), optional,intent(in) :: logging_config
       character(len=*), optional,intent(in) :: logger_name
       integer, optional, intent(out) :: rc
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(comm)
-      _UNUSED_DUMMY(logging_config)
-      _UNUSED_DUMMY(logger_name)
-      _RETURN(_SUCCESS)
+      __UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(comm)
+      __UNUSED_DUMMY(logging_config)
+      __UNUSED_DUMMY(logger_name)
+      __RETURN(__SUCCESS)
    end subroutine initialize
 
    subroutine finalize()

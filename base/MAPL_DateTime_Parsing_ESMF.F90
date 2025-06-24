@@ -27,36 +27,36 @@ contains
       ! Set ESMF_TimeInterval
 
       if(duration % year_is_set()) then
-         call ESMF_TimeIntervalSet(interval, yy = duration % year, _RC)
+         call ESMF_TimeIntervalSet(interval, yy = duration % year, __RC)
       end if
 
       if(duration % month_is_set()) then
-         call ESMF_TimeIntervalSet(interval, yy = duration % month, _RC)
+         call ESMF_TimeIntervalSet(interval, yy = duration % month, __RC)
       end if
 
       if(duration % day_is_set()) then
-         call ESMF_TimeIntervalSet(interval, yy = duration % day, _RC)
+         call ESMF_TimeIntervalSet(interval, yy = duration % day, __RC)
       end if
 
       if(duration % hour_is_real()) then
-         call ESMF_TimeIntervalSet(interval, h_r8 = duration % hour_real, _RC)
+         call ESMF_TimeIntervalSet(interval, h_r8 = duration % hour_real, __RC)
       else if(duration % hour_is_set()) then
-         call ESMF_TimeIntervalSet(interval, h = duration % hour, _RC)
+         call ESMF_TimeIntervalSet(interval, h = duration % hour, __RC)
       end if
          
       if(duration % minute_is_real()) then
-         call ESMF_TimeIntervalSet(interval, m_r8 = duration % minute_real, _RC)
+         call ESMF_TimeIntervalSet(interval, m_r8 = duration % minute_real, __RC)
       else if(duration % minute_is_set()) then
-         call ESMF_TimeIntervalSet(interval, m = duration % minute, _RC)
+         call ESMF_TimeIntervalSet(interval, m = duration % minute, __RC)
       end if
 
       if(duration % second_is_real()) then
-         call ESMF_TimeIntervalSet(interval, s_r8 = duration % second_real, _RC)
+         call ESMF_TimeIntervalSet(interval, s_r8 = duration % second_real, __RC)
       else if(duration % second_is_set()) then
-         call ESMF_TimeIntervalSet(interval, s = duration % second, _RC)
+         call ESMF_TimeIntervalSet(interval, s = duration % second, __RC)
       end if
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine set_ESMF_TimeInterval_from_datetime_duration
 
@@ -66,9 +66,9 @@ contains
        integer, optional, intent(out) :: rc
        integer :: status
 
-       call ESMF_TimeSet(time, isostring, _RC)
+       call ESMF_TimeSet(time, isostring, __RC)
 
-       _RETURN(_SUCCESS)
+       __RETURN(__SUCCESS)
 
    end subroutine set_ESMF_Time_from_ISO8601
    

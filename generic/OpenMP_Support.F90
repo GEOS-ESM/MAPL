@@ -70,11 +70,11 @@ module MAPL_OpenMP_Support
         integer :: status
         type(Interval), allocatable :: bounds(:)
 
-        call MAPL_GridGet(primary_grid,localcellcountPerDim=local_count, _RC)
+        call MAPL_GridGet(primary_grid,localcellcountPerDim=local_count, __RC)
         bounds = find_bounds(local_count(2), num_grids)
-        subgrids = make_subgrids(primary_grid, bounds, _RC)
-        _RETURN(ESMF_SUCCESS)
-        _UNUSED_DUMMY(unusable)
+        subgrids = make_subgrids(primary_grid, bounds, __RC)
+        __RETURN(ESMF_SUCCESS)
+        __UNUSED_DUMMY(unusable)
     end function make_subgrids_from_num_grids
 
     function make_subgrids_from_bounds(primary_grid, bounds, unusable, rc) result(subgrids)
@@ -97,16 +97,16 @@ module MAPL_OpenMP_Support
         character(len=ESMF_MAXSTR) :: name
         logical :: isPresent
 
-        call ESMF_GridGet(primary_grid, name=name, _RC)
+        call ESMF_GridGet(primary_grid, name=name, __RC)
          !print*, 'Printing bounds for ', trim(name)
         !do i = 1, size(bounds)
         !   print*, trim(name), ',', i, ':', 'Bounds min:', bounds(i)%min, 'Bounds max:', bounds(i)%max
         !end do
 
         allocate(subgrids(size(bounds)))
-        call MAPL_GridGet(primary_grid,localcellcountPerDim=local_count, globalCellCountPerDim=global_count, _RC)
-        call ESMF_VMGetCurrent(vm, _RC)
-        call ESMF_VMGet(vm, localPET=myPET, _RC)
+        call MAPL_GridGet(primary_grid,localcellcountPerDim=local_count, globalCellCountPerDim=global_count, __RC)
+        call ESMF_VMGetCurrent(vm, __RC)
+        call ESMF_VMGet(vm, localPET=myPET, __RC)
 
         petMap(1,1,1) = myPet
         do i = 1, size(bounds)
@@ -121,17 +121,17 @@ module MAPL_OpenMP_Support
                 coordSys=ESMF_COORDSYS_SPH_RAD, &
                 petMap = petMap, &
                 name = name, &
-                _RC)
+                __RC)
 
-           call ESMF_GridAddCoord(grid=subgrids(i), staggerloc=ESMF_STAGGERLOC_CENTER, _RC)
-           call ESMF_AttributeCopy(primary_grid, subgrids(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
+           call ESMF_GridAddCoord(grid=subgrids(i), staggerloc=ESMF_STAGGERLOC_CENTER, __RC)
+           call ESMF_AttributeCopy(primary_grid, subgrids(i), attcopy=ESMF_ATTCOPY_VALUE, __RC)
 
            ! delete corner lon/lat atttributes in the subgrid
-           call ESMF_AttributeGet(subgrids(i), name='GridCornerLons:', isPresent=isPresent, _RC)
+           call ESMF_AttributeGet(subgrids(i), name='GridCornerLons:', isPresent=isPresent, __RC)
            if (isPresent) then
               call ESMF_AttributeRemove(subgrids(i), name='GridCornerLons:')
            end if
-           call ESMF_AttributeGet(subgrids(i), name='GridCornerLats:', isPresent=isPresent, _RC)
+           call ESMF_AttributeGet(subgrids(i), name='GridCornerLats:', isPresent=isPresent, __RC)
            if (isPresent) then
               call ESMF_AttributeRemove(subgrids(i), name='GridCornerLats:')
            end if
@@ -139,24 +139,24 @@ module MAPL_OpenMP_Support
 
         ! get lons/lats from original grid
         call ESMF_GridGetCoord(grid=primary_grid, coordDim=1, localDE=0, &
-             staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lons, _RC)
+             staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lons, __RC)
         call ESMF_GridGetCoord(grid=primary_grid, coordDim=2, localDE=0, &
-             staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lats, _RC)
+             staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lats, __RC)
 
         ! get corner lons/lats from original grid
         allocate(corner_lons(local_count(1)+1,local_count(2)+1))
         allocate(corner_lats(local_count(1)+1,local_count(2)+1))
-        call MAPL_GridGetCorners(primary_grid, corner_lons, corner_lats, _RC)
+        call MAPL_GridGetCorners(primary_grid, corner_lons, corner_lats, __RC)
 
         do i = 1, size(bounds)
            call ESMF_GridGetCoord(grid=subgrids(i), coordDim=1, localDE=0, &
                 staggerloc=ESMF_STAGGERLOC_CENTER, &
-                farrayPtr=new_lons, _RC)
+                farrayPtr=new_lons, __RC)
            new_lons = subset_array(lons, bounds(i))
 
            call ESMF_GridGetCoord(grid=subgrids(i), coordDim=2, localDE=0, &
                 staggerloc=ESMF_STAGGERLOC_CENTER, &
-                farrayPtr=new_lats, _RC)
+                farrayPtr=new_lats, __RC)
            new_lats = subset_array(lats, bounds(i))
 
            allocate(new_corner_lons(size(new_lons,1)+1,size(new_lons,2)+1))
@@ -180,9 +180,9 @@ module MAPL_OpenMP_Support
 
            ! add the these arrays as attributes in the subgrids
            call ESMF_AttributeSet(subgrids(i), name='GridCornerLons:', &
-                itemCount = count, valueList=lons1d, _RC)
+                itemCount = count, valueList=lons1d, __RC)
            call ESMF_AttributeSet(subgrids(i), name='GridCornerLats:', &
-                itemCount = count, valueList=lats1d, _RC)
+                itemCount = count, valueList=lats1d, __RC)
            block
               integer :: global_grid_info(11)
               integer :: i1,i2,j1,j2
@@ -198,14 +198,14 @@ module MAPL_OpenMP_Support
               global_grid_info(10) = j1 + bounds(i)%max - 1
               global_grid_info(11) = bounds(i)%min
               call ESMF_AttributeSet(subgrids(i), name="GLOBAL_GRID_INFO",  &
-                   itemCount=11, valueList=global_grid_info, _RC)
+                   itemCount=11, valueList=global_grid_info, __RC)
            end block
 
             deallocate(lons1d, lats1d)
             deallocate(new_corner_lons, new_corner_lats)
         end do
-        _RETURN(ESMF_SUCCESS)
-        _UNUSED_DUMMY(unusable)
+        __RETURN(ESMF_SUCCESS)
+        __UNUSED_DUMMY(unusable)
     end function make_subgrids_from_bounds
 
 
@@ -249,12 +249,12 @@ module MAPL_OpenMP_Support
         type(ESMF_Grid) :: primary_grid
 
 
-        call ESMF_FieldGet(primary_field, grid=primary_grid, typekind=typekind, rank=rank, name=name,  _RC)
+        call ESMF_FieldGet(primary_field, grid=primary_grid, typekind=typekind, rank=rank, name=name,  __RC)
         !print*, 'No failure with field named:', name
-        call MAPL_GridGet(primary_grid,localcellcountPerDim=local_count, _RC)
+        call MAPL_GridGet(primary_grid,localcellcountPerDim=local_count, __RC)
 
         bounds = find_bounds(local_count(2), num_subgrids)
-        subgrids = make_subgrids(primary_grid, num_subgrids, _RC)
+        subgrids = make_subgrids(primary_grid, num_subgrids, __RC)
         allocate(subfields(size(bounds)))
         !print *, __FILE__,__LINE__, num_subgrids, size(bounds), trim(name)
 
@@ -263,116 +263,116 @@ module MAPL_OpenMP_Support
            subfields = spread(primary_field, dim=1, ncopies=num_subgrids)
         ! 2d, r4
         else if (typekind == ESMF_TYPEKIND_R4 .AND. rank == 2) then
-           call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_2d_r4,  _RC)
+           call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_2d_r4,  __RC)
            do i = 1, size(bounds)
               new_ptr_2d_r4 => old_ptr_2d_r4(:,bounds(i)%min:bounds(i)%max)
-              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_2d_r4, name=name,  _RC)
-              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
+              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_2d_r4, name=name,  __RC)
+              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, __RC)
            end do
 
         ! 2d, r8
         else if (typekind == ESMF_TYPEKIND_R8 .AND. rank == 2) then
-           call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_2d_r8,  _RC)
+           call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_2d_r8,  __RC)
            do i = 1, size(bounds)
               new_ptr_2d_r8 => old_ptr_2d_r8(:,bounds(i)%min:bounds(i)%max)
-              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_2d_r8, name=name,  _RC)
-              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
+              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_2d_r8, name=name,  __RC)
+              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, __RC)
            end do
 
         ! 3d, r4
         else if (typekind == ESMF_TYPEKIND_R4 .AND. rank == 3) then
-           call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_3d_r4,  _RC)
+           call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_3d_r4,  __RC)
            do i = 1, size(bounds)
               new_ptr_3d_r4(1:,1:,lbound(old_ptr_3d_r4,3):) => old_ptr_3d_r4(:,bounds(i)%min:bounds(i)%max,lbound(old_ptr_3d_r4,3):)
-              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_3d_r4, name=name, _RC)
-              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
+              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_3d_r4, name=name, __RC)
+              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, __RC)
            end do
 
         ! 3d, r8
         else if (typekind == ESMF_TYPEKIND_R8 .AND. rank == 3) then
-           call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_3d_r8,  _RC)
+           call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_3d_r8,  __RC)
            do i = 1, size(bounds)
               new_ptr_3d_r8(1:,1:,lbound(old_ptr_3d_r8,3):) => old_ptr_3d_r8(:,bounds(i)%min:bounds(i)%max,lbound(old_ptr_3d_r8,3):)
-              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_3d_r8, name=name,  _RC)
-              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
+              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_3d_r8, name=name,  __RC)
+              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, __RC)
            end do
 
         ! 4d, r4
         else if (typekind == ESMF_TYPEKIND_R4 .AND. rank == 4) then
-           call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_4d_r4,  _RC)
+           call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_4d_r4,  __RC)
            do i = 1, size(bounds)
               new_ptr_4d_r4 => old_ptr_4d_r4(:,bounds(i)%min:bounds(i)%max,:,:)
-              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_4d_r4, name=name,  _RC)
-              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
+              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_4d_r4, name=name,  __RC)
+              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, __RC)
            end do
 
         ! 4d, r8
         else if (typekind == ESMF_TYPEKIND_R8 .AND. rank == 4) then
-           call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_4d_r8,  _RC)
+           call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_4d_r8,  __RC)
            do i = 1, size(bounds)
               new_ptr_4d_r8 => old_ptr_4d_r8(:,bounds(i)%min:bounds(i)%max,:,:)
-              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_4d_r8, name=name,  _RC)
-              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
+              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_4d_r8, name=name,  __RC)
+              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, __RC)
            end do
 
         ! 2d, i4
         else if (typekind == ESMF_TYPEKIND_I4 .AND. rank == 2) then
-           call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_2d_i4, _RC)
+           call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_2d_i4, __RC)
            do i = 1, size(bounds)
               new_ptr_2d_i4 => old_ptr_2d_i4(:,bounds(i)%min:bounds(i)%max)
-              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_2d_i4, name=name, _RC)
-              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
+              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_2d_i4, name=name, __RC)
+              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, __RC)
            end do
 
         ! 3d, i4
         else if (typekind == ESMF_TYPEKIND_I4 .AND. rank == 3) then
-           call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_3d_i4,  _RC)
+           call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_3d_i4,  __RC)
            do i = 1, size(bounds)
               new_ptr_3d_i4 => old_ptr_3d_i4(:,bounds(i)%min:bounds(i)%max,:)
-              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_3d_i4, name=name, _RC)
-              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
+              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_3d_i4, name=name, __RC)
+              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, __RC)
            end do
 
         ! 4d, i4
         else if (typekind == ESMF_TYPEKIND_I4 .AND. rank == 4) then
-           call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_4d_i4,  _RC)
+           call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_4d_i4,  __RC)
            do i = 1, size(bounds)
               new_ptr_4d_i4 => old_ptr_4d_i4(:,bounds(i)%min:bounds(i)%max,:,:)
-              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_4d_i4, name=name, _RC)
-              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
+              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_4d_i4, name=name, __RC)
+              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, __RC)
            end do
 
         ! 2d, i8
         else if (typekind == ESMF_TYPEKIND_I8 .AND. rank == 2) then
-            call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_2d_i8,  _RC)
+            call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_2d_i8,  __RC)
            do i = 1, size(bounds)
               new_ptr_2d_i8 => old_ptr_2d_i8(:,bounds(i)%min:bounds(i)%max)
-              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_2d_i8, name=name, _RC)
-              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
+              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_2d_i8, name=name, __RC)
+              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, __RC)
            end do
 
         ! 3d, i8
         else if (typekind == ESMF_TYPEKIND_I8 .AND. rank == 3) then
-            call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_3d_i8,  _RC)
+            call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_3d_i8,  __RC)
            do i = 1, size(bounds)
               new_ptr_3d_i8 => old_ptr_3d_i8(:,bounds(i)%min:bounds(i)%max,:)
-              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_3d_i8, name=name, _RC)
-              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
+              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_3d_i8, name=name, __RC)
+              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, __RC)
            end do
 
         ! 4d, i8
         else if (typekind == ESMF_TYPEKIND_I8 .AND. rank == 4) then
-            call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_4d_i8,  _RC)
+            call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_4d_i8,  __RC)
            do i = 1, size(bounds)
               new_ptr_4d_i8 => old_ptr_4d_i8(:,bounds(i)%min:bounds(i)%max,:,:)
-              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_4d_i8, name=name, _RC)
-              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
+              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_4d_i8, name=name, __RC)
+              call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, __RC)
            end do
 
         end if
 
-        _RETURN(ESMF_SUCCESS)
-        _UNUSED_DUMMY(unusable)
+        __RETURN(ESMF_SUCCESS)
+        __UNUSED_DUMMY(unusable)
     end function make_subfields_from_num_grids
 
 
@@ -440,24 +440,24 @@ module MAPL_OpenMP_Support
        allocate(sub_bundles(num_grids))
 
        ! get number of fields and field list from field bundle
-       call ESMF_FieldBundleGet(bundle, fieldCount=num_fields, name=name, _RC)
+       call ESMF_FieldBundleGet(bundle, fieldCount=num_fields, name=name, __RC)
        allocate(field_list(num_fields))
-       call ESMF_FieldBundleGet(bundle, fieldList=field_list, _RC)
+       call ESMF_FieldBundleGet(bundle, fieldList=field_list, __RC)
 
        ! make subfields for each field and add each subfield to corresponding field bundle
        do i = 1, num_grids
-          sub_bundles(i) = ESMF_FieldBundleCreate(name=name, _RC)
-          call ESMF_AttributeCopy(bundle, sub_bundles(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
+          sub_bundles(i) = ESMF_FieldBundleCreate(name=name, __RC)
+          call ESMF_AttributeCopy(bundle, sub_bundles(i), attcopy=ESMF_ATTCOPY_VALUE, __RC)
        end do
        do i = 1, size(field_list)
-          subfields = make_subfields(field_list(i), num_grids, _RC)
+          subfields = make_subfields(field_list(i), num_grids, __RC)
           do j = 1, size(subfields)
-             call ESMF_FieldBundleAdd(sub_bundles(j), subfields(j:j), _RC)
+             call ESMF_FieldBundleAdd(sub_bundles(j), subfields(j:j), __RC)
           end do
        end do
 
-       _RETURN(ESMF_SUCCESS)
-       _UNUSED_DUMMY(unusable)
+       __RETURN(ESMF_SUCCESS)
+       __UNUSED_DUMMY(unusable)
     end function make_subFieldBundles_ordinary
 
     recursive function make_substates_from_num_grids(state, num_subgrids, unusable, rc) result(substates)
@@ -480,52 +480,52 @@ module MAPL_OpenMP_Support
 
       allocate(substates(num_subgrids))
       ! get information about state contents in order they were added
-      call ESMF_StateGet(state, itemCount=count, name=name, _RC)
+      call ESMF_StateGet(state, itemCount=count, name=name, __RC)
 
       allocate(item_names(count))
       allocate(item_types(count))
       call ESMF_StateGet(state, itemOrderFlag=ESMF_ITEMORDER_ADDORDER, itemNameList=item_names, &
-           itemTypeList=item_types,  _RC)
+           itemTypeList=item_types,  __RC)
 
       do i = 1, num_subgrids
-         substates(i) = ESMF_StateCreate(name=name, _RC)
-         call ESMF_AttributeCopy(state, substates(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
+         substates(i) = ESMF_StateCreate(name=name, __RC)
+         call ESMF_AttributeCopy(state, substates(i), attcopy=ESMF_ATTCOPY_VALUE, __RC)
       end do
 
       do i = 1, count
          if (item_types(i) == ESMF_STATEITEM_FIELD) then
-            call ESMF_StateGet(state, item_names(i), field, _RC)
-            call ESMF_FieldGet(field, status=fieldStatus, _RC)
+            call ESMF_StateGet(state, item_names(i), field, __RC)
+            call ESMF_FieldGet(field, status=fieldStatus, __RC)
             if (fieldStatus /= ESMF_FIELDSTATUS_COMPLETE) then
                subfields = spread(field, dim=1, ncopies=num_subgrids)
             else
-               subfields = make_subfields(field, num_subgrids, _RC)
+               subfields = make_subfields(field, num_subgrids, __RC)
             end if
             ! add subfields to appropriate substate
             do j = 1, size(subfields)
-               call ESMF_StateAdd(substates(j), subfields(j:j), _RC)
+               call ESMF_StateAdd(substates(j), subfields(j:j), __RC)
             end do
          else if (item_types(i) == ESMF_STATEITEM_FIELDBUNDLE) then
-            call ESMF_StateGet(state, item_names(i), bundle, _RC)
-            sub_bundles = make_subFieldBundles(bundle, num_subgrids, _RC)
+            call ESMF_StateGet(state, item_names(i), bundle, __RC)
+            sub_bundles = make_subFieldBundles(bundle, num_subgrids, __RC)
             ! add sub_bundles to appropriate substate
             do j = 1, size(sub_bundles)
-                call ESMF_StateAdd(substates(j), sub_bundles(j:j), _RC)
+                call ESMF_StateAdd(substates(j), sub_bundles(j:j), __RC)
             end do
          else if (item_types(i) == ESMF_STATEITEM_STATE) then
-            call ESMF_StateGet(state, item_names(i), nested_state, _RC)
-            sub_nested_states = make_substates(nested_state, num_subgrids, _RC)
+            call ESMF_StateGet(state, item_names(i), nested_state, __RC)
+            sub_nested_states = make_substates(nested_state, num_subgrids, __RC)
             ! add the nested substates to appropriate larger substate
             do j = 1, size(sub_nested_states)
-               call ESMF_StateAdd(substates(j), sub_nested_states(j:j), _RC)
+               call ESMF_StateAdd(substates(j), sub_nested_states(j:j), __RC)
             end do
          end if
       end do
 
-      call copy_callbacks(state, substates, _RC)
+      call copy_callbacks(state, substates, __RC)
 
-      _RETURN(0)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(0)
+      __UNUSED_DUMMY(unusable)
     end function make_substates_from_num_grids
 
     function make_subgridcomps(GridComp, run_entry_points, num_grids, unusable, rc) result(subgridcomps)
@@ -557,18 +557,18 @@ module MAPL_OpenMP_Support
 
         allocate(subgridcomps(num_grids))
 
-        call ESMF_VMGetCurrent(vm, _RC)
-        call ESMF_VMGet(vm, localPET=myPET, _RC)
+        call ESMF_VMGetCurrent(vm, __RC)
+        call ESMF_VMGet(vm, localPET=myPET, __RC)
 
-        call ESMF_GridCompGet(GridComp, config=CF, name=comp_name, _RC)
-        call ESMF_InternalStateGet(GridComp, labelList=labels, _RC)
+        call ESMF_GridCompGet(GridComp, config=CF, name=comp_name, __RC)
+        call ESMF_InternalStateGet(GridComp, labelList=labels, __RC)
 
         do i = 1, num_grids
           associate (gc => subgridcomps(i) )
             gc = ESMF_GridCompCreate(name=trim(comp_name), config=CF, petlist=[myPet], &
-                 & contextflag=ESMF_CONTEXT_OWN_VM, _RC)
-            call ESMF_GridCompSetServices(gc, set_services, userrc=user_status, _RC)
-            _VERIFY(user_status)
+                 & contextflag=ESMF_CONTEXT_OWN_VM, __RC)
+            call ESMF_GridCompSetServices(gc, set_services, userrc=user_status, __RC)
+            __VERIFY(user_status)
           end associate
         end do
 
@@ -579,14 +579,14 @@ module MAPL_OpenMP_Support
               associate (gc => subgridcomps(i) )
                 if (has_private_state) then
                    call ESMF_UserCompSetInternalState(gc, trim(labels(ilabel)), wrap, status)
-                   _VERIFY(status)
+                   __VERIFY(status)
                 end if
               end associate
            end do
         end do
 
-        _RETURN(ESMF_SUCCESS)
-        _UNUSED_DUMMY(unusable)
+        __RETURN(ESMF_SUCCESS)
+        __UNUSED_DUMMY(unusable)
 
         contains
 
@@ -599,10 +599,10 @@ module MAPL_OpenMP_Support
                if(associated(run_entry_point%run_entry_point)) then
                   user_method => run_entry_point%run_entry_point
 
-                  call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, phase=phase, userroutine=user_method, _RC)
+                  call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, phase=phase, userroutine=user_method, __RC)
                 end if
             end do
-           _RETURN(ESMF_SUCCESS)
+           __RETURN(ESMF_SUCCESS)
         end subroutine set_services
 
     end function make_subgridcomps
@@ -622,21 +622,21 @@ module MAPL_OpenMP_Support
        procedure(), pointer :: userRoutine
 
        n_multi = size(multi_states)
-       call get_callbacks(state, callbacks, _RC)
-       _ASSERT(associated(callbacks), 'callbacks must be associated')
+       call get_callbacks(state, callbacks, __RC)
+       __ASSERT(associated(callbacks), 'callbacks must be associated')
        associate( e => callbacks%end())
           iter = callbacks%begin()
           do while (iter /= e)
              wrapper => iter%second()
              do i = 1, n_multi
                 userRoutine => wrapper%userRoutine
-                call ESMF_MethodAdd(multi_states(i), label=iter%first(), userRoutine=userRoutine, _RC)
+                call ESMF_MethodAdd(multi_states(i), label=iter%first(), userRoutine=userRoutine, __RC)
              end do
              call iter%next()
           end do
        end associate
 
-       _RETURN(ESMF_SUCCESS)
+       __RETURN(ESMF_SUCCESS)
 
     end subroutine copy_callbacks
 
@@ -656,21 +656,21 @@ module MAPL_OpenMP_Support
        end type
        type(CallbackMapWrapper) :: wrapper
 
-       call ESMF_AttributeGet(state, name='MAPL_CALLBACK_MAP', isPresent=isPresent, _RC)
+       call ESMF_AttributeGet(state, name='MAPL_CALLBACK_MAP', isPresent=isPresent, __RC)
        if (.not. isPresent) then ! create callback map for this state
           allocate(callbacks)
           wrapper%map => callbacks
           valueList = transfer(wrapper, [1])
-          call ESMF_AttributeSet(state, name='MAPL_CALLBACK_MAP', valueList=valueList, _RC)
+          call ESMF_AttributeSet(state, name='MAPL_CALLBACK_MAP', valueList=valueList, __RC)
        end if
 
        ! Ugly hack to decode ESMF attribute as a gFTL map
        valueList = transfer(wrapper, [1])
-       call ESMF_AttributeGet(state, name='MAPL_CALLBACK_MAP', valueList=valueList, _RC)
+       call ESMF_AttributeGet(state, name='MAPL_CALLBACK_MAP', valueList=valueList, __RC)
        wrapper = transfer(valueList, wrapper)
        callbacks => wrapper%map
 
-       _RETURN(ESMF_SUCCESS)
+       __RETURN(ESMF_SUCCESS)
 
     end subroutine get_callbacks
 

@@ -48,7 +48,7 @@ contains
       integer, optional, intent(out) :: rc
      
       integer :: status
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
       driver%name = name
       driver%set_services => set_services
@@ -61,8 +61,8 @@ contains
       call MAPL_Initialize(comm=MPI_COMM_WORLD, &
            logging_config=driver%cap_options%logging_config, &
            rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+      __VERIFY(status)
+      __RETURN(__SUCCESS)
    end function newExtDataDriver
 
    subroutine run(this,RC)
@@ -90,31 +90,31 @@ contains
 
       CommCap = MPI_COMM_WORLD
 
-      call this%initialize_io_clients_servers(commCap, rc = status); _VERIFY(status)
+      call this%initialize_io_clients_servers(commCap, rc = status); __VERIFY(status)
       call this%cap_server%get_splitcomm(split_comm)
       select case(split_comm%get_name())
       case('model')
          call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, &
               & mpiCommunicator=split_comm%get_subcommunicator(), rc=status)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
 
          config = ESMF_ConfigCreate(rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          call ESMF_ConfigLoadFile   ( config, 'CAP.rc', rc=STATUS )
-         _VERIFY(status)
+         __VERIFY(status)
          call ESMF_ConfigGetDim(config,lineCount,columnCount,label='CASES::',rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          call ESMF_ConfigFindLabel(config,label='CASES::',rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          do i=1,lineCount
             call ESMF_ConfigNextLine(config,rc=status)
-            _VERIFY(status)
+            __VERIFY(status)
             call ESMF_ConfigGetAttribute(config,ctemp,rc=status)
-            _VERIFY(status)
+            __VERIFY(status)
             call cases%push_back(trim(ctemp))
          enddo
          call ESMF_ConfigDestroy(config, rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
 
          iter = cases%begin()
          do while (iter /= cases%end())
@@ -123,15 +123,15 @@ contains
             cname => iter%get()
             cap = new_ExtData_DriverGridComp(root_setservices, name=this%name, configFileName=cname)
             call cap%set_services(rc = status)
-            _VERIFY(status)
+            __VERIFY(status)
             call cap%initialize(rc = status)
-            _VERIFY(status)
+            __VERIFY(status)
 
             call cap%run(rc=status)
-            _VERIFY(status)
+            __VERIFY(status)
 
             call cap%finalize(rc = status)
-            _VERIFY(status)
+            __VERIFY(status)
 
             call iter%next()
          enddo
@@ -142,7 +142,7 @@ contains
 !  ------------------
 
      call MPI_Comm_Rank(CommCap,rank,status)
-     _VERIFY(status)
+     __VERIFY(status)
      if (rank==0) then
         close(99)
         open(99,file='egress',form='formatted')
@@ -151,11 +151,11 @@ contains
    
       call this%finalize_io_clients_servers()
       call MAPL_Finalize(rc=status)
-      _VERIFY(status) 
+      __VERIFY(status) 
       call mpi_finalize(status)
-      _VERIFY(STATUS)
+      __VERIFY(STATUS)
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
 
    end subroutine run
@@ -169,7 +169,7 @@ contains
   
      integer :: status
 
-     _UNUSED_DUMMY(unusable)
+     __UNUSED_DUMMY(unusable)
 
      call this%cap_server%initialize(comm, &
          application_size=this%cap_options%npes_model, &
@@ -183,8 +183,8 @@ contains
          fast_oclient  = this%cap_options%fast_oclient, &
          with_profiler = this%cap_options%with_io_profiler, &
          rc=status) 
-     _VERIFY(status)
-     _RETURN(_SUCCESS)
+     __VERIFY(status)
+     __RETURN(__SUCCESS)
 
    end subroutine initialize_io_clients_servers
 
@@ -194,7 +194,7 @@ contains
      integer, optional, intent(out) :: rc
      type(SplitCommunicator) :: split_comm
 
-     _UNUSED_DUMMY(unusable)
+     __UNUSED_DUMMY(unusable)
      call this%cap_server%get_splitcomm(split_comm)
      select case(split_comm%get_name())
      case('model')
@@ -202,7 +202,7 @@ contains
         call o_Clients%terminate()
      end select
      call this%cap_server%finalize()
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
 
    end subroutine finalize_io_clients_servers
 
@@ -214,22 +214,22 @@ contains
       integer :: ierror
       integer :: npes_world
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
       call MPI_Init(ierror)
-      _VERIFY(ierror)
+      __VERIFY(ierror)
 
       this%comm_world=MPI_COMM_WORLD
-      call MPI_Comm_rank(this%comm_world, this%rank, ierror); _VERIFY(ierror)
-      call MPI_Comm_size(this%comm_world, npes_world, ierror); _VERIFY(ierror)
+      call MPI_Comm_rank(this%comm_world, this%rank, ierror); __VERIFY(ierror)
+      call MPI_Comm_size(this%comm_world, npes_world, ierror); __VERIFY(ierror)
 
       if ( this%cap_options%npes_model == -1) then
          ! just a feed back to cap_options to maintain integrity
           this%cap_options%npes_model = npes_world
       endif
-      _ASSERT(npes_world >= this%cap_options%npes_model, "npes_world is smaller than npes_model")
+      __ASSERT(npes_world >= this%cap_options%npes_model, "npes_world is smaller than npes_model")
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine initialize_mpi
 

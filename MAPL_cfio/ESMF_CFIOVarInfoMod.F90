@@ -112,7 +112,7 @@
       type(ESMF_CFIOVarInfo) :: varObj ! a CFIO grid object
       integer :: rtcode = 0
 
-      _UNUSED_DUMMY(vName)
+      __UNUSED_DUMMY(vName)
 
       varObj%grid = ESMF_CFIOGridCreate(rc=rtcode)
       if (rtcode .ne. 0) then 

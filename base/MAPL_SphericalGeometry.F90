@@ -62,9 +62,9 @@ contains
 
     npts = size(lats)
 
-    _ASSERT(size(lats)==size(lons),"lats and lons do not match")
-    _ASSERT(npts==size(ii),"size of ii does not match")
-    _ASSERT(npts==size(ii),"size of jj does not match")
+    __ASSERT(size(lats)==size(lons),"lats and lons do not match")
+    __ASSERT(npts==size(ii),"size of ii does not match")
+    __ASSERT(npts==size(ii),"size of jj does not match")
 
     im=size(corner_lons,1)-1
     jm=size(corner_lons,2)-1
@@ -135,7 +135,7 @@ contains
        ii(i)=ifound
        jj(i)=jfound
     enddo
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
          
  end subroutine get_points_in_spherical_domain 
 

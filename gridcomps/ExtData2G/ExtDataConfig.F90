@@ -69,97 +69,97 @@ contains
       logical :: is_right_type
       character(len=:), allocatable :: sub_configs(:)
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
       inquire(file=trim(config_file),exist=file_found)
-      _ASSERT(file_found,"could not find: "//trim(config_file))
+      __ASSERT(file_found,"could not find: "//trim(config_file))
 
-      input_config = ESMF_HConfigCreate(filename=trim(config_file),_RC)
+      input_config = ESMF_HConfigCreate(filename=trim(config_file),__RC)
 
       if (ESMF_HConfigIsDefined(input_config,keyString="subconfigs")) then
-         is_right_type = ESMF_HConfigIsSequence(input_config,keyString='subconfigs',_RC)
-         _ASSERT(is_right_type,"subconfig list is not a sequence")
-         sub_configs = ESMF_HConfigAsStringSeq(input_config,ESMF_MAXPATHLEN,keyString='subconfigs',_RC)
+         is_right_type = ESMF_HConfigIsSequence(input_config,keyString='subconfigs',__RC)
+         __ASSERT(is_right_type,"subconfig list is not a sequence")
+         sub_configs = ESMF_HConfigAsStringSeq(input_config,ESMF_MAXPATHLEN,keyString='subconfigs',__RC)
          do i=1,size(sub_configs)
-            call new_ExtDataConfig_from_yaml(ext_config,sub_configs(i),current_time,_RC)
+            call new_ExtDataConfig_from_yaml(ext_config,sub_configs(i),current_time,__RC)
          enddo
       end if
 
       if (ESMF_HConfigIsDefined(input_config,keyString="Samplings")) then
-         temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Samplings",_RC)
+         temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Samplings",__RC)
          hconfigIterBegin = ESMF_HConfigIterBegin(temp_configs)
          hconfigIter = hconfigIterBegin
          hconfigIterEnd = ESMF_HConfigIterEnd(temp_configs)
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
-            hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
-            single_sample = ESMF_HConfigCreateAtMapVal(hconfigIter,_RC)
-            ts = ExtDataTimeSample(single_sample,_RC)
+            hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,__RC)
+            single_sample = ESMF_HConfigCreateAtMapVal(hconfigIter,__RC)
+            ts = ExtDataTimeSample(single_sample,__RC)
             call ext_config%sample_map%insert(trim(hconfig_key),ts)
          enddo
          call ESMF_HConfigDestroy(temp_configs)
       end if
 
       if (ESMF_HConfigIsDefined(input_config,keyString="Collections")) then
-         temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Collections",_RC)
+         temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Collections",__RC)
          hconfigIterBegin = ESMF_HConfigIterBegin(temp_configs)
          hconfigIter = hconfigIterBegin
          hconfigIterEnd = ESMF_HConfigIterEnd(temp_configs)
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
-            hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
+            hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,__RC)
             temp_ds => ext_config%file_stream_map%at(hconfig_key)
-           _ASSERT(.not.associated(temp_ds),"defined duplicate named collection " // trim(hconfig_key))
-            single_collection = ESMF_HConfigCreateAtMapVal(hconfigIter,_RC)
-            ds = ExtDataFileStream(single_collection,current_time,_RC)
+           __ASSERT(.not.associated(temp_ds),"defined duplicate named collection " // trim(hconfig_key))
+            single_collection = ESMF_HConfigCreateAtMapVal(hconfigIter,__RC)
+            ds = ExtDataFileStream(single_collection,current_time,__RC)
             call ext_config%file_stream_map%insert(trim(hconfig_key),ds)
          enddo
          call ESMF_HConfigDestroy(temp_configs)
       end if
 
       if (ESMF_HConfigIsDefined(input_config,keyString="Exports")) then
-         temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Exports",_RC)
+         temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Exports",__RC)
          hconfigIterBegin = ESMF_HConfigIterBegin(temp_configs)
          hconfigIter = hconfigIterBegin
          hconfigIterEnd = ESMF_HConfigIterEnd(temp_configs)
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
-            hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
-            hconfig_val = ESMF_HConfigCreateAtMapVal(hconfigIter,_RC)
+            hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,__RC)
+            hconfig_val = ESMF_HConfigCreateAtMapVal(hconfigIter,__RC)
             if (ESMF_HConfigIsMap(hconfig_val)) then
-               call ext_config%add_new_rule(hconfig_key,hconfig_val,_RC)
+               call ext_config%add_new_rule(hconfig_key,hconfig_val,__RC)
             else if (ESMF_HConfigIsSequence(hconfig_val)) then
-               sorted_rules = sort_rules_by_start(hconfig_val,_RC)
-               num_rules = ESMF_HConfigGetSize(hconfig_val,_RC)
+               sorted_rules = sort_rules_by_start(hconfig_val,__RC)
+               num_rules = ESMF_HConfigGetSize(hconfig_val,__RC)
                do i=1,num_rules
-                  rule_map = ESMF_HConfigCreateAt(hconfig_val,index=sorted_rules(i),_RC)
+                  rule_map = ESMF_HConfigCreateAt(hconfig_val,index=sorted_rules(i),__RC)
                   write(i_char,'(I1)')i
                   new_key = hconfig_key//rule_sep//i_char
-                  call ext_config%add_new_rule(new_key,rule_map,multi_rule=.true.,_RC)
+                  call ext_config%add_new_rule(new_key,rule_map,multi_rule=.true.,__RC)
                enddo
             else
-               _FAIL("Unsupported type")
+               __FAIL("Unsupported type")
             end if
          enddo
       end if
 
       if (ESMF_HConfigIsDefined(input_config,keyString="Derived")) then
-         temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Derived",_RC)
+         temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Derived",__RC)
          hconfigIterBegin = ESMF_HConfigIterBegin(temp_configs)
          hconfigIter = hconfigIterBegin
          hconfigIterEnd = ESMF_HConfigIterEnd(temp_configs)
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
-            hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
-            single_export = ESMF_HConfigCreateAtMapVal(hconfigIter,_RC)
-            derived = ExtDataDerived(single_export,_RC)
+            hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,__RC)
+            single_export = ESMF_HConfigCreateAtMapVal(hconfigIter,__RC)
+            derived = ExtDataDerived(single_export,__RC)
             temp_derived => ext_config%derived_map%at(trim(hconfig_key))
-             _ASSERT(.not.associated(temp_derived),"duplicated derived entry key")
+             __ASSERT(.not.associated(temp_derived),"duplicated derived entry key")
             call ext_config%derived_map%insert(trim(hconfig_key),derived)
          end do
       end if
 
       if (ESMF_HConfigIsDefined(input_config,keyString="debug") )then
-         ext_config%debug =  ESMF_HConfigAsI4(input_config,keyString="debug",_RC)
+         ext_config%debug =  ESMF_HConfigAsI4(input_config,keyString="debug",__RC)
       end if
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine new_ExtDataConfig_from_yaml
 
    function count_rules_for_item(this,item_name,rc) result(number_of_rules)
@@ -184,7 +184,7 @@ contains
          call rule_iterator%next()
       enddo
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function count_rules_for_item
 
    function get_time_range(this,item_name,rc) result(time_range)
@@ -219,10 +219,10 @@ contains
       do i=1,num_rules
           time_range(i) = string_to_esmf_time(start_times%at(i))
       enddo
-      call ESMF_TimeSet(very_future_time,yy=2365,mm=1,dd=1,_RC)
+      call ESMF_TimeSet(very_future_time,yy=2365,mm=1,dd=1,__RC)
       time_range(num_rules+1) = very_future_time
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function get_time_range
 
    function sort_rules_by_start(hconfig_sequence,rc) result(sorted_index)
@@ -238,15 +238,15 @@ contains
       type(ESMF_Time) :: temp_time
       integer :: status
 
-      num_rules = ESMF_HConfigGetSize(hconfig_sequence,_RC)
+      num_rules = ESMF_HConfigGetSize(hconfig_sequence,__RC)
       allocate(start_times(num_rules))
       allocate(sorted_index(num_rules),source=[(i,i=1,num_rules)])
 
       do i=1,num_rules
-         hconfig_dict = ESMF_HConfigCreateAt(hconfig_sequence,index=i,_RC)
+         hconfig_dict = ESMF_HConfigCreateAt(hconfig_sequence,index=i,__RC)
          found_start = ESMF_HConfigIsDefined(hconfig_dict,keyString="starting")
-         _ASSERT(found_start,"no start key in multirule export of extdata")
-         start_time = ESMF_HConfigAsString(hconfig_dict,keyString="starting",_RC)
+         __ASSERT(found_start,"no start key in multirule export of extdata")
+         start_time = ESMF_HConfigAsString(hconfig_dict,keyString="starting",__RC)
          start_times(i) = string_to_esmf_time(start_time)
       enddo
 
@@ -263,7 +263,7 @@ contains
             end if
          enddo
       enddo
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function sort_rules_by_start
 
    function get_item_type(this,item_name,unusable,rc) result(item_type)
@@ -280,7 +280,7 @@ contains
       character(len=:), allocatable :: found_key
       logical :: found_rule
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
       item_type=ExtData_not_found
 
       found_rule = .false.
@@ -314,7 +314,7 @@ contains
          item_type=derived_type
          found_rule = .true.
       end if
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function get_item_type
 
    subroutine add_new_rule(this,key,export_rule,multi_rule,rc)
@@ -338,8 +338,8 @@ contains
       end if
 
       call rule%set_defaults(rc=status)
-      _VERIFY(status)
-      rule = ExtDataRule(export_rule,this%sample_map,key,multi_rule=usable_multi_rule,_RC)
+      __VERIFY(status)
+      rule = ExtDataRule(export_rule,this%sample_map,key,multi_rule=usable_multi_rule,__RC)
       semi_pos = index(key,";")
       if (semi_pos > 0) then
          rule_n_pos = index(key,rule_sep)
@@ -356,17 +356,17 @@ contains
          end if
 
          temp_rule => this%rule_map%at(trim(uname))
-         _ASSERT(.not.associated(temp_rule),"duplicated export entry key: "//trim(uname))
+         __ASSERT(.not.associated(temp_rule),"duplicated export entry key: "//trim(uname))
          call this%rule_map%insert(trim(uname),ucomp)
          temp_rule => this%rule_map%at(trim(vname))
-         _ASSERT(.not.associated(temp_rule),"duplicated export entry key: "//trim(vname))
+         __ASSERT(.not.associated(temp_rule),"duplicated export entry key: "//trim(vname))
          call this%rule_map%insert(trim(vname),vcomp)
       else
          temp_rule => this%rule_map%at(trim(key))
-         _ASSERT(.not.associated(temp_rule),"duplicated export entry key: "//trim(key))
+         __ASSERT(.not.associated(temp_rule),"duplicated export entry key: "//trim(key))
          call this%rule_map%insert(trim(key),rule)
       end if
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine add_new_rule
 
    function get_extra_derived_items(this,primary_items,derived_items,rc) result(needed_vars)
@@ -385,14 +385,14 @@ contains
       integer :: i
 
       if (derived_items%size() ==0) then
-         _RETURN(_SUCCESS)
+         __RETURN(__SUCCESS)
       end if
 
       string_iter = derived_items%begin()
       do while(string_iter /= derived_items%end() )
          derived_name => string_iter%get()
          derived_item => this%derived_map%at(derived_name)
-         variables_in_expression = derived_item%get_variables_in_expression(_RC)
+         variables_in_expression = derived_item%get_variables_in_expression(__RC)
          ! now we have a stringvector of the variables involved in the expression
          ! check which of this are already in primary_items list, if any are not
          ! then we need to createa new list of needed variables and the "derived field"
@@ -401,15 +401,15 @@ contains
             sval => variables_in_expression%at(i)
             in_primary = string_in_stringVector(sval,primary_items)
             if (.not.in_primary) then
-               found_rule = this%has_rule_for(sval,_RC)
-               _ASSERT(found_rule,"no rule for "//trim(sval)//" needed by "//trim(derived_name))
+               found_rule = this%has_rule_for(sval,__RC)
+               __ASSERT(found_rule,"no rule for "//trim(sval)//" needed by "//trim(derived_name))
                call needed_vars%push_back(sval//","//derived_name)
             end if
          enddo
          call string_iter%next()
       enddo
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function get_extra_derived_items
 
    function has_rule_for(this,base_name,rc) result(found_rule)
@@ -435,7 +435,7 @@ contains
          if (found_rule) exit
          call iter%next()
       enddo
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function
 
 end module MAPL_ExtDataConfig

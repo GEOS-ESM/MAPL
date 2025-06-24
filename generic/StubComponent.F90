@@ -32,13 +32,13 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(import_state)
-      _UNUSED_DUMMY(export_state)
-      _UNUSED_DUMMY(clock)
-      _UNUSED_DUMMY(phase)
-      _UNUSED_DUMMY(unusable)
-      _RETURN(_FAILURE)
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(import_state)
+      __UNUSED_DUMMY(export_state)
+      __UNUSED_DUMMY(clock)
+      __UNUSED_DUMMY(phase)
+      __UNUSED_DUMMY(unusable)
+      __RETURN(__FAILURE)
 
    end subroutine initialize
 
@@ -51,13 +51,13 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(import_state)
-      _UNUSED_DUMMY(export_state)
-      _UNUSED_DUMMY(clock)
-      _UNUSED_DUMMY(phase)
-      _UNUSED_DUMMY(unusable)
-      _RETURN(_FAILURE)
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(import_state)
+      __UNUSED_DUMMY(export_state)
+      __UNUSED_DUMMY(clock)
+      __UNUSED_DUMMY(phase)
+      __UNUSED_DUMMY(unusable)
+      __RETURN(__FAILURE)
    end subroutine run
    
    subroutine finalize(this, import_state, export_state, clock, phase, unusable, rc)
@@ -69,13 +69,13 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(import_state)
-      _UNUSED_DUMMY(export_state)
-      _UNUSED_DUMMY(clock)
-      _UNUSED_DUMMY(phase)
-      _UNUSED_DUMMY(unusable)
-      _RETURN(_FAILURE)
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(import_state)
+      __UNUSED_DUMMY(export_state)
+      __UNUSED_DUMMY(clock)
+      __UNUSED_DUMMY(phase)
+      __UNUSED_DUMMY(unusable)
+      __RETURN(__FAILURE)
    end subroutine finalize
 
 end module MAPL_StubComponent

@@ -6,8 +6,8 @@
 !
 #include "MAPL_ErrLog.h"
 
-#define DEALOC_(A) if(associated(A))then;A=0;if(MAPL_ShmInitialized)then; call MAPL_DeAllocNodeArray(A,rc=STATUS);else; deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
-#define DEALOC__(A) if(associated(A))then;A=.false.;if(MAPL_ShmInitialized)then; call MAPL_DeAllocNodeArray(A,rc=STATUS);else; deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
+#define DEALOC_(A) if(associated(A))then;A=0;if(MAPL_ShmInitialized)then; call MAPL_DeAllocNodeArray(A,rc=STATUS);else; deallocate(A,stat=STATUS);endif;__VERIFY(STATUS);NULLIFY(A);endif
+#define DEALOC__(A) if(associated(A))then;A=.false.;if(MAPL_ShmInitialized)then; call MAPL_DeAllocNodeArray(A,rc=STATUS);else; deallocate(A,stat=STATUS);endif;__VERIFY(STATUS);NULLIFY(A);endif
 #include "unused_dummy.H"
 
 !------------------------------------------------------------------------------
@@ -166,7 +166,7 @@ contains
 
     MAPL_LocStreamIsAssociated = associated(LocStream%Ptr)
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
   end function MAPL_LocStreamIsAssociated
 
 !===================================================================
@@ -179,7 +179,7 @@ contains
 
     MAPL_LocStreamXformIsAssociated = associated(Xform%Ptr)
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
   end function MAPL_LocStreamXformIsAssociated
 
 !===================================================================
@@ -239,7 +239,7 @@ contains
 
     if (present(tilekind)) then
        PRINT *, 'IN LocStreamGet TILEKIND  NO LONGER VALID ARGUMENT'
-       _FAIL('needs informative message')
+       __FAIL('needs informative message')
 !       tilekind => locstream%Ptr%Local_GeoLocation(:)%u
     end if
 
@@ -311,7 +311,7 @@ contains
        local_j => locstream%Ptr%LOCAL_INDEXLOCATION(:)%j
     end if
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
   end subroutine MAPL_LocStreamGet
 
 !===================================================================
@@ -392,7 +392,7 @@ contains
 
     LocStream%Ptr => null()
     allocate(LocStream%Ptr, STAT=STATUS)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     STREAM => LocStream%Ptr
 
@@ -405,7 +405,7 @@ contains
 
 ! Use some heuristics to determine filetype (choices are BINARY and ASCII)
 !------------------------------------------------------------------------
-    call MAPL_NCIOGetFileType(FILENAME, filetype, _RC)
+    call MAPL_NCIOGetFileType(FILENAME, filetype, __RC)
 
     isnc4   = (filetype == MAPL_FILETYPE_NC4)
     isascii = (filetype == MAPL_FILETYPE_TXT)
@@ -417,7 +417,7 @@ contains
 
        if (isnc4) then
           if (MAPL_AM_I_root()) then
-            call MAPL_ReadTilingNC4(FILENAME, GridName=GridNames, IM=IMs, JM=JMs, N_Grids=N_Grids, N_PfafCat=N_PfafCat, AVR=AVR, _RC)
+            call MAPL_ReadTilingNC4(FILENAME, GridName=GridNames, IM=IMs, JM=JMs, N_Grids=N_Grids, N_PfafCat=N_PfafCat, AVR=AVR, __RC)
             NT = size(AVR,1)
           endif
           call MAPL_CommsBcast(layout, NT,        1,    MAPL_Root, status)
@@ -440,12 +440,12 @@ contains
        endif
 
        if (isascii) then
-          call MAPL_ReadTilingASCII(layout, FILENAME, GridNames, NT, IMs, JMs, N_Grids, N_PfafCat, AVR, _RC)
+          call MAPL_ReadTilingASCII(layout, FILENAME, GridNames, NT, IMs, JMs, N_Grids, N_PfafCat, AVR, __RC)
        endif
 
        STREAM%N_GRIDS = N_Grids
        allocate(STREAM%TILING(STREAM%N_GRIDS), STAT=STATUS)
-       _VERIFY(STATUS)
+       __VERIFY(STATUS)
 
        do N = 1, N_Grids
           STREAM%TILING(N)%NAME = GridNames(N)
@@ -479,7 +479,7 @@ contains
 !--------------------------------------------------------------------
 
        allocate(MSK(NT), STAT=STATUS)
-       _VERIFY(STATUS)
+       __VERIFY(STATUS)
 
 ! We include any tile whose type matches any element of the mask
 !---------------------------------------------------------------
@@ -500,11 +500,11 @@ contains
 
        if (present(GRID)) then
           allocate(ISMINE(STREAM%NT_GLOBAL), STAT=STATUS)
-          _VERIFY(STATUS)
+          __VERIFY(STATUS)
           ISMINE = .false.
           call MAPL_GRID_INTERIOR  (GRID, I1,IN,J1,JN)
           call ESMF_GridGet(grid, name=gname, rc=status)
-          _VERIFY(STATUS)
+          __VERIFY(STATUS)
           read_always = .false.
        else
           gname = ""
@@ -536,7 +536,7 @@ contains
           end do
           STREAM%NT_LOCAL = count(ISMINE)
           allocate(STREAM%LOCAL_IndexLocation(STREAM%NT_LOCAL), STAT=STATUS)
-          _VERIFY(STATUS)
+          __VERIFY(STATUS)
 
           do N=1,STREAM%N_GRIDS
              if (gname == STREAM%TILING(N)%NAME) then
@@ -563,13 +563,13 @@ contains
 !--------------------------------------------------------
 
        allocate(STREAM%GLOBAL_ID         (STREAM%NT_GLOBAL), STAT=STATUS)
-       _VERIFY(STATUS)
+       __VERIFY(STATUS)
        allocate(STREAM%GLOBAL_GEOLOCATION(STREAM%NT_GLOBAL), STAT=STATUS)
-       _VERIFY(STATUS)
+       __VERIFY(STATUS)
 
 !C       do N=1,STREAM%N_GRIDS
 !C          allocate(STREAM%TILING(N)%GLOBAL_IndexLocation(STREAM%NT_GLOBAL), STAT=STATUS)
-!C          _VERIFY(STATUS)
+!C          __VERIFY(STATUS)
 !C       end do
 
 ! Fill global stream parameters subject to mask
@@ -605,7 +605,7 @@ contains
 !-------------------------------
 
        UNIT = GETFILE(FILENAME, form='UNFORMATTED', RC=status)
-       _VERIFY(STATUS)
+       __VERIFY(STATUS)
 
 ! Total number of tiles in exchange grid
 !---------------------------------------
@@ -628,7 +628,7 @@ contains
 !-----------------------------------------------------
 
        allocate(STREAM%TILING(STREAM%N_GRIDS), STAT=STATUS)
-       _VERIFY(STATUS)
+       __VERIFY(STATUS)
 
 ! The names and sizes of the grids to be tiled
 !---------------------------------------------
@@ -656,9 +656,9 @@ contains
 !---------------------------------------
 
        call MAPL_AllocateShared(AVR, (/NT,1/), TransRoot=.true., RC=STATUS)
-       _VERIFY(STATUS)
+       __VERIFY(STATUS)
 
-       call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
+       call MAPL_SyncSharedMemory(RC=STATUS); __VERIFY(STATUS)
        if ( MAPL_am_I_root() ) then
          read(UNIT) AVR
          read(unit)
@@ -670,7 +670,7 @@ contains
 !--------------------------------------------------------------------
 
        call MAPL_AllocateShared(MSK, (/NT/), TransRoot=.true., RC=STATUS)
-       _VERIFY(STATUS)
+       __VERIFY(STATUS)
 
 ! We include any tile whose type matches any element of the mask
 !---------------------------------------------------------------
@@ -685,7 +685,7 @@ contains
              MSK = .true.
           end if
        end if
-       call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
+       call MAPL_SyncSharedMemory(RC=STATUS); __VERIFY(STATUS)
 
 ! The number of tiles in the new stream
 !--------------------------------------
@@ -694,11 +694,11 @@ contains
 
        if (present(GRID)) then
           allocate(ISMINE(STREAM%NT_GLOBAL), STAT=STATUS)
-          _VERIFY(STATUS)
+          __VERIFY(STATUS)
           ISMINE = .false.
           call MAPL_GRID_INTERIOR  (GRID, I1,IN,J1,JN)
           call ESMF_GridGet(grid, name=gname, rc=status)
-          _VERIFY(STATUS)
+          __VERIFY(STATUS)
           read_always = .false.
        else
           gname = ""
@@ -710,7 +710,7 @@ contains
     if (present(GRID)) then
        do N=1,STREAM%N_GRIDS
           if (read_always .or. gname == STREAM%TILING(N)%NAME) then
-             call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
+             call MAPL_SyncSharedMemory(RC=STATUS); __VERIFY(STATUS)
              if ( MAPL_am_I_root() ) read(UNIT) AVR
              call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
              K = 0
@@ -722,7 +722,7 @@ contains
                    endif
                 end if
              end do
-             call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
+             call MAPL_SyncSharedMemory(RC=STATUS); __VERIFY(STATUS)
              if ( MAPL_am_I_root() ) read(UNIT) AVR
              call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
              !if (use_pfaf_) avr(:,1)=1
@@ -744,7 +744,7 @@ contains
        end do
        STREAM%NT_LOCAL = count(ISMINE)
        allocate(STREAM%LOCAL_IndexLocation(STREAM%NT_LOCAL), STAT=STATUS)
-       _VERIFY(STATUS)
+       __VERIFY(STATUS)
     end if
 
        if ( MAPL_am_I_root() ) then
@@ -770,7 +770,7 @@ contains
 
        do N=1,STREAM%N_GRIDS
           if (read_always .or. gname == STREAM%TILING(N)%NAME) then
-             call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
+             call MAPL_SyncSharedMemory(RC=STATUS); __VERIFY(STATUS)
              if ( MAPL_am_I_root() ) read(UNIT) AVR
              call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
              K = 0
@@ -785,7 +785,7 @@ contains
                 end if
              end do
 
-             call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
+             call MAPL_SyncSharedMemory(RC=STATUS); __VERIFY(STATUS)
              if ( MAPL_am_I_root() ) read(UNIT) AVR
              call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
              K = 0
@@ -801,7 +801,7 @@ contains
                 end if
              end do
 
-             call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
+             call MAPL_SyncSharedMemory(RC=STATUS); __VERIFY(STATUS)
              if ( MAPL_am_I_root() ) read(UNIT) AVR
              call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
              K = 0
@@ -831,17 +831,17 @@ contains
     if (present(GRID)) then
        call MAPL_LocStreamAttachGrid(LocStream, GRID, &
             ISMINE=ISMINE, RC=STATUS)
-       _VERIFY(STATUS)
+       __VERIFY(STATUS)
 
 ! Allocate Local arrays. Note STREAM%NT_LOCAL was defined in call to attach
 !--------------------------------------------------------------------------
 
        allocate(STREAM%LOCAL_ID         (STREAM%NT_LOCAL), STAT=STATUS)
-       _VERIFY(STATUS)
+       __VERIFY(STATUS)
        allocate(STREAM%LOCAL_GeoLocation(STREAM%NT_LOCAL), STAT=STATUS)
-       _VERIFY(STATUS)
+       __VERIFY(STATUS)
        allocate(STREAM%D      (-1:1,-1:1,STREAM%NT_LOCAL), STAT=STATUS)
-       _VERIFY(STATUS)
+       __VERIFY(STATUS)
     end if
 
 ! For flat files we economize on space by rereading the file to get
@@ -875,7 +875,7 @@ contains
           end if
        end do
 
-       call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
+       call MAPL_SyncSharedMemory(RC=STATUS); __VERIFY(STATUS)
        if ( MAPL_am_I_root() ) read(UNIT) AVR
        call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
        K = 0
@@ -891,7 +891,7 @@ contains
           end if
        end do
 
-       call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
+       call MAPL_SyncSharedMemory(RC=STATUS); __VERIFY(STATUS)
        if ( MAPL_am_I_root() ) read(UNIT) AVR
        call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
        K = 0
@@ -906,7 +906,7 @@ contains
           end if
        end do
 
-       call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
+       call MAPL_SyncSharedMemory(RC=STATUS); __VERIFY(STATUS)
        if ( MAPL_am_I_root() ) read(UNIT) AVR
        call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
        K = 0
@@ -921,7 +921,7 @@ contains
           end if
        end do
 
-       call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
+       call MAPL_SyncSharedMemory(RC=STATUS); __VERIFY(STATUS)
        if ( MAPL_am_I_root() ) then
           do I=1, 3*STREAM%N_GRIDS ! skip I,J,W
              read(UNIT)
@@ -929,12 +929,12 @@ contains
           read(UNIT, iostat=iostat) AVR
        end if
        call MAPL_CommsBcast(vm, DATA=iostat, N=1, ROOT=0, RC=status)
-       _VERIFY(STATUS)
+       __VERIFY(STATUS)
 
        STREAM%IsTileAreaValid = iostat == 0
        if (STREAM%IsTileAreaValid) then
           call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
-          _VERIFY(STATUS)
+          __VERIFY(STATUS)
           K = 0
           L = 0
           do I=1, NT
@@ -977,7 +977,7 @@ contains
 
        I  = index(TILING%NAME,'-',.true.) !bmaa got rid
        if ( I <=0) then
-          _ASSERT(index(TILING%NAME,'EASE') /=0, "The new EASE grid name only contains underscore _ ")
+          __ASSERT(index(TILING%NAME,'EASE') /=0, "The new EASE grid name only contains underscore _ ")
        endif
        I  = I+1
 
@@ -1011,14 +1011,14 @@ contains
                Location = ESMF_STAGGERLOC_CENTER  , &
                Units    = MAPL_UnitsRadians      , &
                RC       = STATUS                    )
-          _VERIFY(STATUS)
+          __VERIFY(STATUS)
 
           call ESMFL_GridCoordGet(GRID, LONS       , &
                Name     = "Longitude"             , &
                Location = ESMF_STAGGERLOC_CENTER  , &
                Units    = MAPL_UnitsRadians      , &
                RC       = STATUS                    )
-          _VERIFY(STATUS)
+          __VERIFY(STATUS)
           isc = lbound(LATS,1)
           iec = ubound(LATS,1)
           jsc = lbound(LATS,2)
@@ -1029,17 +1029,17 @@ contains
           jed = jec + 1
 
           allocate(hlats(isd:ied,jsd:jed), stat=status)
-          _VERIFY(STATUS)
+          __VERIFY(STATUS)
           allocate(hlons(isd:ied,jsd:jed), stat=status)
-          _VERIFY(STATUS)
+          __VERIFY(STATUS)
 
           hlats(isc:iec,jsc:jec) = lats
           hlons(isc:iec,jsc:jec) = lons
 
           call ESMFL_Halo(grid, hlats, rc=status)
-          _VERIFY(STATUS)
+          __VERIFY(STATUS)
           call ESMFL_Halo(grid, hlons, rc=status)
-          _VERIFY(STATUS)
+          __VERIFY(STATUS)
 #else
           call MAPL_GRID_INTERIOR  (GRID, I1,IN,J1,JN)
 #endif
@@ -1052,7 +1052,7 @@ contains
              call GetBilinearCoeffs(hlons(ii-1:ii+1,jj-1:jj+1),&
                                     hlats(ii-1:ii+1,jj-1:jj+1),&
                                     lon,lat,Stream%D(:,:,I),RC=STATUS)
-             _VERIFY(STATUS)
+             __VERIFY(STATUS)
 #else
              X  = STREAM%LOCAL_GeoLocation(I)%X*(180./MAPL_PI)
              if(X>XE) X = X - 360.0
@@ -1079,11 +1079,11 @@ contains
 ! Create a tile grid
 !-------------------
     call MAPL_LocStreamCreateTileGrid(LocStream, GRID, RC=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
 
-100 _RETURN(ESMF_FAILURE)
+100 __RETURN(ESMF_FAILURE)
 
   contains
 
@@ -1134,7 +1134,7 @@ contains
         D(-1,-1) = DX0*DY0
       end if
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
    end subroutine GetBilinearCoeffs
 #else
   subroutine GetBilinearCoeffs(lons,lats,lon,lat,D,RC)
@@ -1253,7 +1253,7 @@ contains
 
 #undef ToXYZ
 
-     _RETURN(ESMF_SUCCESS)
+     __RETURN(ESMF_SUCCESS)
    end subroutine GetBilinearCoeffs
 
 #endif
@@ -1330,21 +1330,21 @@ contains
 ! Begin
 !------
 
-    _ASSERT(     associated(LocStreamIn %Ptr),'needs informative message')
+    __ASSERT(     associated(LocStreamIn %Ptr),'needs informative message')
 
 ! Allocate the Location Stream
 !-----------------------------
 
     LocStreamOut%Ptr => null()
     allocate(LocStreamOut%Ptr, STAT=STATUS)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     STREAMOUT => LocStreamOut%Ptr
     STREAMIN  => LocStreamIn %Ptr
 
 ! Make sure that the input stream is attached
 !--------------------------------------------
-    _ASSERT(STREAMIN%CURRENT_TILING > 0,'needs informative message')
+    __ASSERT(STREAMIN%CURRENT_TILING > 0,'needs informative message')
 
 ! New stream has the same identifier as old
 !------------------------------------------
@@ -1361,7 +1361,7 @@ contains
 !-----------------------------------------------------------------------
 
     allocate(STREAMOUT%TILING(STREAMOUT%N_GRIDS), STAT=STATUS)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     STREAMOUT%Tiling     = STREAMIN%Tiling
 
@@ -1374,7 +1374,7 @@ contains
 !--------------------------------------------------------------------
 
     allocate(MSK(NT), STAT=STATUS)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
 ! We include any tile whose type matches any element of the mask
 !---------------------------------------------------------------
@@ -1394,22 +1394,22 @@ contains
 
     NT_LOCAL(1) = STREAMOUT%NT_LOCAL
     call ESMF_VMGetCurrent(vm, rc=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
     call ESMF_VMAllFullReduce(vm, sendData=nt_local, recvData=STREAMOUT%NT_GLOBAL, &
          count=1, reduceflag=ESMF_REDUCE_SUM, rc=STATUS)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
 ! Allocate space for local versions of stream parameters
 !--------------------------------------------------------
 
     allocate(STREAMOUT%LOCAL_ID         (STREAMOUT%NT_LOCAL), STAT=STATUS)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
     allocate(STREAMOUT%LOCAL_GEOLOCATION(STREAMOUT%NT_LOCAL), STAT=STATUS)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
     allocate(STREAMOUT%LOCAL_INDEXLOCATION(STREAMOUT%NT_LOCAL), STAT=STATUS)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
     allocate(STREAMOUT%D(-1:1,-1:1,STREAMOUT%NT_LOCAL), STAT=STATUS)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
 ! Fill local stream parameters subject to mask
 !----------------------------------------------
@@ -1436,9 +1436,9 @@ contains
 ! Create a tile grid
 !-------------------
     call MAPL_LocStreamCreateTileGrid(LocStreamOut, STREAMIN%GRID, RC=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_LocStreamCreateFromStream
 
@@ -1467,12 +1467,12 @@ contains
 ! Begin
 !------
 
-  _UNUSED_DUMMY(ISMINE)
+  __UNUSED_DUMMY(ISMINE)
 
 ! Make sure Location stream has been created
 !-------------------------------------------
 
-    _ASSERT(associated(LocStream%Ptr),'needs informative message')
+    __ASSERT(associated(LocStream%Ptr),'needs informative message')
 
 ! Alias to the pointer
 !---------------------
@@ -1482,13 +1482,13 @@ contains
 ! Location stream must have some allowed grids
 !---------------------------------------------
 
-    _ASSERT(STREAM%N_GRIDS>0,'needs informative message')
+    __ASSERT(STREAM%N_GRIDS>0,'needs informative message')
 
 ! Find the given grid among the allowed grids
 !--------------------------------------------
 
     STREAM%CURRENT_TILING = GRIDINDEX(STREAM, GRID, RC=STATUS)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     TILING => STREAM%TILING(STREAM%CURRENT_TILING)
 
@@ -1503,17 +1503,17 @@ contains
 !---------------------------------------
 
     call ESMF_GridGet(GRID, dimCount=gridRank, rc=STATUS)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
     call MAPL_GridGet(GRID, globalCellCountPerDim=DIMS, RC=STATUS)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     IM_WORLD = DIMS(1)
     JM_WORLD = DIMS(2)
 
-    _ASSERT(IM_WORLD==TILING%IM,'needs informative message')
+    __ASSERT(IM_WORLD==TILING%IM,'needs informative message')
     if (JM_WORLD /= TILING%JM) then
        print *,'error tiling jm/jm ',jm_world, tiling%jm
-       _RETURN(_FAILURE)
+       __RETURN(__FAILURE)
     end if
 
 ! Find out which tiles are in local PE
@@ -1527,7 +1527,7 @@ contains
     STREAM%LOCAL_IndexLocation(:)%I = STREAM%LOCAL_IndexLocation(:)%I-I1+1
     STREAM%LOCAL_IndexLocation(:)%J = STREAM%LOCAL_IndexLocation(:)%J-J1+1
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_LocStreamAttachGrid
 
@@ -1560,7 +1560,7 @@ contains
 ! Make sure Location stream has been created
 !-------------------------------------------
 
-    _ASSERT(associated(LocStream%Ptr),'needs informative message')
+    __ASSERT(associated(LocStream%Ptr),'needs informative message')
 
 ! Alias to the pointer
 !---------------------
@@ -1572,20 +1572,20 @@ contains
 !-----------------------------
 
     call ESMF_GridGet(GRID, NAME=GNAME, RC=STATUS)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
 ! Create TILEGRID
 !----------------
     distgrid = ESMF_DistGridCreate( &
          arbSeqIndexList=STREAM%LOCAL_ID, rc=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     TILEGRID = ESMF_GridEmptyCreate(rc=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     arbIndexCount = size(STREAM%LOCAL_ID)
     allocate(arbIndex(arbIndexCount,1), stat=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     arbIndex(:,1) = STREAM%LOCAL_ID
     call ESMF_GridSet(tilegrid,  &
@@ -1598,14 +1598,14 @@ contains
          minIndex=(/1/), &
          maxIndex=(/STREAM%NT_GLOBAL/), &
          rc=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     deallocate(arbIndex)
     call ESMF_GridCommit(tilegrid, rc=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     call ESMF_AttributeSet(tilegrid, name='GRID_EXTRADIM', value=DUMMY_NSUBTILES, rc=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     STREAM%TILEGRID = TILEGRID
 
@@ -1614,9 +1614,9 @@ contains
     call c_MAPL_LocStreamRetrievePtr(LocStream, ADDR)
     call ESMF_AttributeSet(tilegrid, name='TILEGRID_LOCSTREAM_ADDR', &
          value=ADDR, rc=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_LocStreamCreateTileGrid
 
@@ -1647,10 +1647,10 @@ contains
     if (stream%current_tiling > 0) then
        call ESMF_AttributeSet(stream%tilegrid, name='GRID_EXTRADIM', &
             value=NSUBTILES, rc=status)
-       _VERIFY(STATUS)
+       __VERIFY(STATUS)
     end if
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_LocStreamAdjustNsubtiles
 !======================================================
@@ -1696,7 +1696,7 @@ contains
   NT = LocStream%Ptr%NT_LOCAL
 
   allocate(MSK(NT),STAT=STATUS)
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
 
   if(present(MASK)) then
      do N = 1, NT
@@ -1707,49 +1707,49 @@ contains
   end if
 
   call ESMF_FieldGet     (OUTPUT,   GRID=OUTGRID, RC=STATUS)
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
   call ESMF_FieldGet(OUTPUT, Array=OUTARRAY,     RC=STATUS)
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
   call ESMF_ArrayGet     (OUTARRAY, RANK=OUTRANK, RC=STATUS)
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
 
   call ESMF_FieldGet     (INPUT,    GRID=INGRID,  RC=STATUS)
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
   call ESMF_FieldGet(INPUT, Array=INARRAY,      RC=STATUS)
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
   call ESMF_ArrayGet     (INARRAY,  RANK=INRANK,  RC=STATUS)
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
 
   if    ( INRANK==1 .and. OUTRANK==2) then ! T2G
      call ESMF_ArrayGet(OUTARRAY, localDE=0, farrayptr=GRIDVAR, RC=STATUS)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
      call ESMF_ArrayGet( INARRAY, localDE=0, farrayptr=TILEVAR, RC=STATUS)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
 
-     _ASSERT(size(TILEVAR)==NT,'needs informative message')
+     __ASSERT(size(TILEVAR)==NT,'needs informative message')
 
      call MAPL_LocStreamTransformT2G (LOCSTREAM, GRIDVAR, TILEVAR, MASK=MSK, RC=STATUS)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
 
    elseif( OUTRANK==1 .and. INRANK==2) then ! G2T
      call ESMF_ArrayGet(OUTARRAY, localDE=0, farrayptr=TILEVAR, RC=STATUS)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
      call ESMF_ArrayGet( INARRAY, localDE=0, farrayptr=GRIDVAR, RC=STATUS)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
 
-     _ASSERT(size(TILEVAR)==NT,'needs informative message')
+     __ASSERT(size(TILEVAR)==NT,'needs informative message')
 
      call MAPL_LocStreamTransformG2T(LOCSTREAM, TILEVAR, GRIDVAR, MSK, &
           GRID_ID, GLOBAL, ISMINE, INTERP, RC=STATUS)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
 
   else
-     _RETURN(ESMF_FAILURE)
+     __RETURN(ESMF_FAILURE)
   end if
 
   deallocate(MSK)
 
-  _RETURN(ESMF_SUCCESS)
+  __RETURN(ESMF_SUCCESS)
 
 end subroutine MAPL_LocStreamTransformField
 
@@ -1768,12 +1768,12 @@ subroutine MAPL_LocStreamFracArea (LocStream, TYPE, AREA, RC )
 ! Make sure Location stream has been created...
 !----------------------------------------------
 
-  _ASSERT(associated(LocStream%Ptr),'needs informative message')
+  __ASSERT(associated(LocStream%Ptr),'needs informative message')
 
 ! and a grid attached...
 !-----------------------
 
-  _ASSERT(LocStream%Ptr%Current_Tiling > 0,'needs informative message')
+  __ASSERT(LocStream%Ptr%Current_Tiling > 0,'needs informative message')
 
 ! Compute area over masked locations
 !-----------------------------------------------
@@ -1788,7 +1788,7 @@ subroutine MAPL_LocStreamFracArea (LocStream, TYPE, AREA, RC )
      end if
   end do
 
-  _RETURN(ESMF_SUCCESS)
+  __RETURN(ESMF_SUCCESS)
 
 end subroutine MAPL_LocStreamFracArea
 
@@ -1824,29 +1824,29 @@ subroutine MAPL_LocStreamTransformT2G (LocStream, OUTPUT, INPUT, MASK, SAMPLE, T
 ! Make sure Location stream has been created...
 !----------------------------------------------
 
-  _ASSERT(associated(LocStream%Ptr),'needs informative message')
+  __ASSERT(associated(LocStream%Ptr),'needs informative message')
 
 ! and a grid attached...
 !-----------------------
 
-  _ASSERT(LocStream%Ptr%Current_Tiling > 0,'needs informative message')
+  __ASSERT(LocStream%Ptr%Current_Tiling > 0,'needs informative message')
 
 ! that's the size of the output array
 !------------------------------------
 
   call MAPL_GRID_INTERIOR  (LocStream%Ptr%GRID, I1,IN,J1,JN)
 
-  _ASSERT(IN-I1+1==size(OUTPUT,1),'needs informative message')
-  _ASSERT(JN-J1+1==size(OUTPUT,2),'needs informative message')
+  __ASSERT(IN-I1+1==size(OUTPUT,1),'needs informative message')
+  __ASSERT(JN-J1+1==size(OUTPUT,2),'needs informative message')
 
 ! Allocate space for mask and cumulative weight at each grid point
 !------------------------------------------------------------
 
   allocate(FF(size(OUTPUT,1),size(OUTPUT,2)), stat=STATUS)
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
   FF = 0.0
   allocate(usableMASK(size(INPUT)), STAT=STATUS)
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
 
 ! Make usable mask from optional argument
 !----------------------------------------
@@ -1876,11 +1876,11 @@ subroutine MAPL_LocStreamTransformT2G (LocStream, OUTPUT, INPUT, MASK, SAMPLE, T
   end if
 
   if (computeVariance .and. usableTranspose) then
-     _FAIL("Can not compute variance and transpose in LocStream!")
+     __FAIL("Can not compute variance and transpose in LocStream!")
   end if
 
   if (computeVariance .and. uSample) then
-     _FAIL("Can not compute variance and sample in LocStream!")
+     __FAIL("Can not compute variance and sample in LocStream!")
   end if
 
 ! Compute weighted average over masked locations
@@ -1941,7 +1941,7 @@ subroutine MAPL_LocStreamTransformT2G (LocStream, OUTPUT, INPUT, MASK, SAMPLE, T
 
   if (computeVariance) then
      allocate(tmpOut(size(OUTPUT,1),size(OUTPUT,2)), stat=STATUS)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
      tmpOut=Output
      outPut=0.0
      ff=0.0
@@ -1965,7 +1965,7 @@ subroutine MAPL_LocStreamTransformT2G (LocStream, OUTPUT, INPUT, MASK, SAMPLE, T
   deallocate(usableMASK)
   deallocate(FF)
 
-  _RETURN(ESMF_SUCCESS)
+  __RETURN(ESMF_SUCCESS)
 
 end subroutine MAPL_LocStreamTransformT2G
 
@@ -2007,7 +2007,7 @@ subroutine MAPL_LocStreamTransformG2T ( LocStream, OUTPUT, INPUT,      &
 
   integer, parameter :: HALOWIDTH = 1
 
-  _UNUSED_DUMMY(ISMINE)
+  __UNUSED_DUMMY(ISMINE)
 
   IM = size(INPUT,1)
   JM = size(INPUT,2)
@@ -2039,30 +2039,30 @@ subroutine MAPL_LocStreamTransformG2T ( LocStream, OUTPUT, INPUT,      &
 ! Make sure Location stream has been created...
 !----------------------------------------------
 
-  _ASSERT(associated(LocStream%Ptr),'needs informative message')
+  __ASSERT(associated(LocStream%Ptr),'needs informative message')
 
 ! and a grid attached...
 !-----------------------
 
   if (usableATTACHED) then
-     _ASSERT(LocStream%Ptr%Current_Tiling > 0,'needs informative message')
+     __ASSERT(LocStream%Ptr%Current_Tiling > 0,'needs informative message')
 
 ! that's the size of the output array
 !------------------------------------
 
      call MAPL_GRID_INTERIOR  (LocStream%Ptr%GRID, I1,IN,J1,JN)
 
-     _ASSERT(IN-I1+1==IM,'needs informative message')
-     _ASSERT(JN-J1+1==JM,'needs informative message')
+     __ASSERT(IN-I1+1==IM,'needs informative message')
+     __ASSERT(JN-J1+1==JM,'needs informative message')
   else
-     _ASSERT(GRID_ID <= LocStream%Ptr%N_GRIDS,'needs informative message')
+     __ASSERT(GRID_ID <= LocStream%Ptr%N_GRIDS,'needs informative message')
   endif
 
 ! Make usable mask from optional argument
 !----------------------------------------
 
   allocate(usableMASK(size(OUTPUT)), STAT=STATUS)
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
 
   if (present(MASK)) then
      usableMASK = MASK
@@ -2072,7 +2072,7 @@ subroutine MAPL_LocStreamTransformG2T ( LocStream, OUTPUT, INPUT,      &
 
   if(usableINTERP) then
      allocate(ghostedINPUT(1-HALOWIDTH:IM+HALOWIDTH,1-HALOWIDTH:JM+HALOWIDTH),STAT=STATUS)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
      ghostedINPUT = MAPL_UNDEF ! ALT: this initializion should not be necessary
                                ! but ifort is not happy in SendRecv
      ghostedINPUT(1:IM,1:JM) = INPUT
@@ -2087,7 +2087,7 @@ subroutine MAPL_LocStreamTransformG2T ( LocStream, OUTPUT, INPUT,      &
 
   if (usableGLOBAL) then
      PRINT *, 'IN G2T GLOBAL NO LONGER VALID ARGUMENT'
-     _FAIL('needs informative message')
+     __FAIL('needs informative message')
   else
      do N = 1, size(OUTPUT)
         if(usableMASK(N)) then
@@ -2132,11 +2132,11 @@ subroutine MAPL_LocStreamTransformG2T ( LocStream, OUTPUT, INPUT,      &
 
   if(usableINTERP) then
      deallocate(ghostedINPUT,STAT=STATUS)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
   end if
   deallocate(usableMASK)
 
-  _RETURN(ESMF_SUCCESS)
+  __RETURN(ESMF_SUCCESS)
 
 end subroutine MAPL_LocStreamTransformG2T
 
@@ -2162,7 +2162,7 @@ subroutine MAPL_LocStreamTileWeight ( LocStream, OUTPUT, INPUT, RC )
                           LOCSTREAM%Ptr%LOCAL_INDEXLOCATION(N)%J  )
      end do
 
-  _RETURN(ESMF_SUCCESS)
+  __RETURN(ESMF_SUCCESS)
 
 end subroutine MAPL_LocStreamTileWeight
 
@@ -2202,7 +2202,7 @@ subroutine MAPL_LocStreamTransformT2T ( OUTPUT, XFORM, INPUT, RC )
   use_lock = .false.
 #endif
 
-  _ASSERT(associated(Xform%PTR),'needs informative message')
+  __ASSERT(associated(Xform%PTR),'needs informative message')
 
   do N = 1,Xform%PTR%LastLocal
      OUTPUT(Xform%PTR%IndexOut(N)) = INPUT(Xform%PTR%IndexIn(N))
@@ -2218,37 +2218,37 @@ subroutine MAPL_LocStreamTransformT2T ( OUTPUT, XFORM, INPUT, RC )
      count = size(input)
      NumReceivers = size(Xform%PTR%receivers)
      allocate(request(NumReceivers), stat=status)
-     _VERIFY(status)
+     __VERIFY(status)
      do n=1, NumReceivers
         call MPI_ISend(input, count, MPI_REAL, &
                        Xform%PTR%receivers(n), msg_tag, &
                        Xform%PTR%Comm, request(n), status)
-        _VERIFY(status)
+        __VERIFY(status)
      end do
 
 #elif defined(ONE_SIDED_COMM)
      if (use_lock) then
         call MPI_WIN_LOCK(MPI_LOCK_EXCLUSIVE, me, 0, Xform%PTR%window, status)
-        _VERIFY(STATUS)
+        __VERIFY(STATUS)
      end if
 
      Xform%Ptr%Buff = input
      if (use_lock) then
         call MPI_WIN_UNLOCK(me, Xform%PTR%window, status)
-        _VERIFY(STATUS)
+        __VERIFY(STATUS)
 
         call mpi_Barrier(Xform%PTR%Comm,STATUS)
-        _VERIFY(STATUS)
+        __VERIFY(STATUS)
      end if
 #endif
 
      allocate(FULLINPUT(Xform%Ptr%InputLen),STAT=STATUS)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
 
 #if defined(ONE_SIDED_COMM)
      if (.not. use_lock) then
         call mpi_win_fence(0, Xform%PTR%window, status)
-        _VERIFY(STATUS)
+        __VERIFY(STATUS)
      endif
 #endif
 
@@ -2261,23 +2261,23 @@ subroutine MAPL_LocStreamTransformT2T ( OUTPUT, XFORM, INPUT, RC )
            call MPI_RECV(FULLINPUT(offset), Xform%PTR%len(N), MPI_REAL, &
                          Xform%PTR%senders(N), msg_tag, &
                          Xform%Ptr%Comm, mpstatus, status)
-           _VERIFY(STATUS)
+           __VERIFY(STATUS)
 
 #elif defined(ONE_SIDED_COMM)
            if (use_lock) then
               call MPI_WIN_LOCK(MPI_LOCK_SHARED, Xform%PTR%senders(N), &
                    0, Xform%PTR%window, status)
-              _VERIFY(STATUS)
+              __VERIFY(STATUS)
            end if
 
            call MPI_GET(FULLINPUT(offset),       Xform%PTR%len(N), MPI_REAL, &
                         Xform%PTR%senders(N), 0, Xform%PTR%len(N), MPI_REAL, &
                         Xform%PTR%window,                               STATUS)
-           _VERIFY(STATUS)
+           __VERIFY(STATUS)
 
            if (use_lock) then
               call MPI_WIN_UNLOCK(Xform%PTR%senders(N), Xform%PTR%window, status)
-              _VERIFY(STATUS)
+              __VERIFY(STATUS)
            end if
 #endif
 
@@ -2288,22 +2288,22 @@ subroutine MAPL_LocStreamTransformT2T ( OUTPUT, XFORM, INPUT, RC )
 #if defined(TWO_SIDED_COMM)
      do n=1, NumReceivers
         call MPI_Wait(request(n),MPI_STATUS_IGNORE,status)
-        _VERIFY(STATUS)
+        __VERIFY(STATUS)
      end do
      if (allocated(request)) deallocate(request)
 #elif defined(ONE_SIDED_COMM)
      if (.not. use_lock) then
         call mpi_win_fence(0, Xform%PTR%window, status)
-        _VERIFY(STATUS)
+        __VERIFY(STATUS)
      endif
 #endif
 
      else
      allocate(FULLINPUT(Xform%Ptr%InputStream%Ptr%NT_GLOBAL),STAT=STATUS)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
 
      call ESMFL_FCOLLECT(Xform%Ptr%InputStream%Ptr%TILEGRID, FULLINPUT, INPUT, RC=STATUS)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
      endif
 
      do N = Xform%PTR%LastLocal+1,Xform%PTR%Count
@@ -2314,7 +2314,7 @@ subroutine MAPL_LocStreamTransformT2T ( OUTPUT, XFORM, INPUT, RC )
 
   end if
 
-  _RETURN(ESMF_SUCCESS)
+  __RETURN(ESMF_SUCCESS)
 
 end subroutine MAPL_LocStreamTransformT2T
 
@@ -2342,7 +2342,7 @@ subroutine MAPL_LocStreamTransformT2TR4R8 ( OUTPUT, XFORM, INPUT, RC )
   integer                     :: N
   real,   allocatable         :: FULLINPUT(:)
 
-  _ASSERT(associated(Xform%PTR),'needs informative message')
+  __ASSERT(associated(Xform%PTR),'needs informative message')
 
   do N = 1,Xform%PTR%LastLocal
      OUTPUT(Xform%PTR%IndexOut(N)) = INPUT(Xform%PTR%IndexIn(N))
@@ -2351,10 +2351,10 @@ subroutine MAPL_LocStreamTransformT2TR4R8 ( OUTPUT, XFORM, INPUT, RC )
   if(.not.Xform%PTR%Local) then
 
      allocate(FULLINPUT(Xform%Ptr%InputStream%Ptr%NT_GLOBAL),STAT=STATUS)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
 
      call ESMFL_FCOLLECT(Xform%Ptr%InputStream%Ptr%TILEGRID, FULLINPUT, INPUT, RC=STATUS)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
 
      do N = Xform%PTR%LastLocal+1,Xform%PTR%Count
         OUTPUT(Xform%PTR%IndexOut(N)) = FULLINPUT(Xform%PTR%IndexIn(N))
@@ -2371,7 +2371,7 @@ subroutine MAPL_LocStreamTransformT2TR4R8 ( OUTPUT, XFORM, INPUT, RC )
 
   OUTSIZE = size(OUTPUT)
   allocate(OUTPUTR4(OUTSIZE),STAT=STATUS)
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
 
   OUTPUTR4 = OUTPUT
 
@@ -2381,7 +2381,7 @@ subroutine MAPL_LocStreamTransformT2TR4R8 ( OUTPUT, XFORM, INPUT, RC )
 
 #endif
 
-  _RETURN(ESMF_SUCCESS)
+  __RETURN(ESMF_SUCCESS)
 
 end subroutine MAPL_LocStreamTransformT2TR4R8
 
@@ -2409,7 +2409,7 @@ subroutine MAPL_LocStreamTransformT2TR8R4 ( OUTPUT, XFORM, INPUT, RC )
   integer                     :: N
   real(kind=ESMF_KIND_R8),  allocatable  :: FULLINPUT(:)
 
-  _ASSERT(associated(Xform%PTR),'needs informative message')
+  __ASSERT(associated(Xform%PTR),'needs informative message')
 
   do N = 1,Xform%PTR%LastLocal
      OUTPUT(Xform%PTR%IndexOut(N)) = real(INPUT(Xform%PTR%IndexIn(N)))
@@ -2418,10 +2418,10 @@ subroutine MAPL_LocStreamTransformT2TR8R4 ( OUTPUT, XFORM, INPUT, RC )
   if(.not.Xform%PTR%Local) then
 
      allocate(FULLINPUT(Xform%Ptr%InputStream%Ptr%NT_GLOBAL),STAT=STATUS)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
 
      call ESMFL_FCOLLECT(Xform%Ptr%InputStream%Ptr%TILEGRID, FULLINPUT, INPUT, RC=STATUS)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
 
      do N = Xform%PTR%LastLocal+1,Xform%PTR%Count
         OUTPUT(Xform%PTR%IndexOut(N)) = FULLINPUT(Xform%PTR%IndexIn(N))
@@ -2438,7 +2438,7 @@ subroutine MAPL_LocStreamTransformT2TR8R4 ( OUTPUT, XFORM, INPUT, RC )
 
   INPUTSIZE = size(INPUT)
   allocate(INPUTR4(INPUTSIZE),STAT=STATUS)
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
 
   INPUTR4 = INPUT
 
@@ -2447,7 +2447,7 @@ subroutine MAPL_LocStreamTransformT2TR8R4 ( OUTPUT, XFORM, INPUT, RC )
 
 #endif
 
-  _RETURN(ESMF_SUCCESS)
+  __RETURN(ESMF_SUCCESS)
 
 end subroutine MAPL_LocStreamTransformT2TR8R4
 
@@ -2487,10 +2487,10 @@ subroutine MAPL_LocStreamCreateXform ( Xform, LocStreamOut, LocStreamIn, NAME, M
 ! The parent stream is usually an exchange grid.
 !-----------------------------------------------
 
-  _ASSERT(trim(LocStreamOut%PTR%ROOTNAME)==trim(LocStreamIn%PTR%ROOTNAME),'needs informative message')
+  __ASSERT(trim(LocStreamOut%PTR%ROOTNAME)==trim(LocStreamIn%PTR%ROOTNAME),'needs informative message')
 
   allocate(XFORM%Ptr, STAT=STATUS)
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
 
   Xform%Ptr%InputStream  = LocStreamIn
   Xform%Ptr%OutputStream = LocStreamOut
@@ -2517,15 +2517,15 @@ subroutine MAPL_LocStreamCreateXform ( Xform, LocStreamOut, LocStreamIn, NAME, M
   Xform%Ptr%count = count(.not.DONE)
 
   ALLOCATE(Xform%Ptr%IndexOut(Xform%Ptr%count), stat=STATUS)
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
   ALLOCATE(Xform%Ptr%IndexIn (Xform%Ptr%count), stat=STATUS)
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
 
   MM=1
     Hash  = MAPL_HashCreate(8*1024)
     do M = 1, LocStreamIn%Ptr%NT_local
        n = MAPL_HashIncrement(Hash,LocStreamIn%Ptr%Local_Id(M))
-       _ASSERT(N==M,'needs informative message')
+       __ASSERT(N==M,'needs informative message')
     enddo
     do N = 1, LocStreamOut%Ptr%NT_local
        if(DONE(N)) cycle
@@ -2545,18 +2545,18 @@ subroutine MAPL_LocStreamCreateXform ( Xform, LocStreamOut, LocStreamIn, NAME, M
 !-------------------------------------------------
 
   call ESMF_VMGetCurrent ( vm, rc=status )
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
 
   call ESMF_VMGet ( vm, petCount=nDEs, &
        mpiCommunicator=Xform%Ptr%Comm, rc=status )
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
 
   allocate(IsDone(NDES))
   dn(1) = all(done)
 
   call MAPL_CommsAllGather(vm, dn, 1, &
                            isdone, 1, rc=status)
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
 
   Xform%Ptr%Local = all(isdone)
   deallocate(IsDone)
@@ -2568,21 +2568,21 @@ subroutine MAPL_LocStreamCreateXform ( Xform, LocStreamOut, LocStreamIn, NAME, M
 #if defined(ONE_SIDED_COMM)
      allocate(Xform%Ptr%Buff(LocStreamIn%Ptr%NT_LOCAL))
      allocate(Xform%Ptr%Len(NDES), stat=status)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
 
      CALL MPI_TYPE_GET_EXTENT(MPI_REAL, lb, SizeOfReal, status)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
 
      call mpi_Win_Create(Xform%Ptr%Buff,LocStreamIn%Ptr%NT_LOCAL*SizeOfReal, &
           SizeOfReal,MPI_INFO_NULL,Xform%Ptr%Comm,Xform%Ptr%Window,status)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
 #endif
 
      MyLen(1) = LocStreamIn%Ptr%NT_LOCAL
 
      call MAPL_CommsAllGather(vm, MyLen, 1, &
                                  PELens, 1, rc=status)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
 
      Begs(1) = 1
      Ends(1) = PELens(1)
@@ -2591,18 +2591,18 @@ subroutine MAPL_LocStreamCreateXform ( Xform, LocStreamOut, LocStreamIn, NAME, M
         Ends(i) = Ends(i-1) + PELens(i)
      end do
 
-     _ASSERT(Ends(NDES) == LocStreamIn%Ptr%NT_GLOBAL,'needs informative message')
+     __ASSERT(Ends(NDES) == LocStreamIn%Ptr%NT_GLOBAL,'needs informative message')
      endif
 
      allocate(GLOBAL_IdByPe(LocStreamIn%Ptr%NT_GLOBAL), STAT=STATUS)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
 
 ! Collect all tile ides in the input stream's pe order
 !-----------------------------------------------------
 
      call ESMFL_FCOLLECT(LocStreamIn%Ptr%TILEGRID, GLOBAL_IdByPe, &
           LocStreamIn%Ptr%LOCAL_ID, RC=STATUS)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
 
 ! Make a Hash of the tile locations by input order
 !-------------------------------------------------
@@ -2610,7 +2610,7 @@ subroutine MAPL_LocStreamCreateXform ( Xform, LocStreamOut, LocStreamIn, NAME, M
      Hash  = MAPL_HashCreate(8*1024)
      do M = 1, LocStreamIn%Ptr%NT_global
         n = MAPL_HashIncrement(Hash,Global_IdByPe(M))
-        _ASSERT(N==M,'needs informative message')
+        __ASSERT(N==M,'needs informative message')
      enddo
 
      if(Xform%Ptr%do_not_use_fcollect) then
@@ -2638,9 +2638,9 @@ subroutine MAPL_LocStreamCreateXform ( Xform, LocStreamOut, LocStreamIn, NAME, M
      NumSenders = count(IsNeeded)
 
      allocate(Xform%Ptr%senders(NumSenders), stat=status)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
      allocate(Xform%Ptr%    len(NumSenders), stat=status)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
 
      First = 1
      Last  = 0
@@ -2662,7 +2662,7 @@ subroutine MAPL_LocStreamCreateXform ( Xform, LocStreamOut, LocStreamIn, NAME, M
      Xform%Ptr%InputLen = Last
 
      call ESMF_VmGet(VM, localPet=MYID, rc=status)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
      Xform%Ptr%myId = myid
 
 #if defined(TWO_SIDED_COMM)
@@ -2672,17 +2672,17 @@ subroutine MAPL_LocStreamCreateXform ( Xform, LocStreamOut, LocStreamIn, NAME, M
        integer :: k
 #if 0
      allocate(allSenders(ndes,ndes), stat=status)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
      allSenders(:,myId+1) = -1
      if (m>0) allSenders(1:M,myId+1) = Xform%Ptr%senders
 
      do I=1,NDES
         call MAPL_CommsBcast(vm, DATA=allSenders(:,I), N=ndes, ROOT=I-1, RC=status)
-        _VERIFY(STATUS)
+        __VERIFY(STATUS)
      end do
      NumReceivers = count(allSenders == myId)
      allocate(Xform%Ptr%receivers(NumReceivers), stat=status)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
 
      M = 0
      do I=1,NDES
@@ -2696,11 +2696,11 @@ subroutine MAPL_LocStreamCreateXform ( Xform, LocStreamOut, LocStreamIn, NAME, M
            end if
         end do
      end do
-     _ASSERT(NumReceivers==M,'needs informative message')
+     __ASSERT(NumReceivers==M,'needs informative message')
      deallocate(allSenders)
 #else
      allocate(allSenders(ndes,1), stat=status)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
      block
        integer :: lNumReceivers
 
@@ -2710,18 +2710,18 @@ subroutine MAPL_LocStreamCreateXform ( Xform, LocStreamOut, LocStreamIn, NAME, M
           call MPI_GATHER(  lNumReceivers, 1, MPI_INTEGER, &
                allSenders(:,1), 1, MPI_INTEGER, &
                I-1, Xform%Ptr%Comm,  status )
-          _VERIFY(status)
+          __VERIFY(status)
        enddo
      end block
      call ESMF_VMBarrier(vm, rc=status)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
 
      NumReceivers = 0
      do I=1,NDES
         NumReceivers = NumReceivers + allSenders(I,1)
      end do
      allocate(Xform%Ptr%receivers(NumReceivers), stat=status)
-     _VERIFY(STATUS)
+     __VERIFY(STATUS)
 
      M = 0
      do I=1,NDES
@@ -2732,7 +2732,7 @@ subroutine MAPL_LocStreamCreateXform ( Xform, LocStreamOut, LocStreamIn, NAME, M
         end do
      end do
 
-     _ASSERT(NumReceivers==M,'needs informative message')
+     __ASSERT(NumReceivers==M,'needs informative message')
      deallocate(allSenders)
 #endif
      end block
@@ -2746,7 +2746,7 @@ subroutine MAPL_LocStreamCreateXform ( Xform, LocStreamOut, LocStreamIn, NAME, M
      Hash  = MAPL_HashCreate(8*1024)
      do M = 1, Xform%Ptr%InputLen
         n = MAPL_HashIncrement(Hash,Global_IdByPe(M))
-        _ASSERT(N==M,'needs informative message')
+        __ASSERT(N==M,'needs informative message')
      enddo
 
 ! Pick out the ones we need fromthose brought over
@@ -2772,9 +2772,9 @@ subroutine MAPL_LocStreamCreateXform ( Xform, LocStreamOut, LocStreamIn, NAME, M
 ! Make sure that did it
 !----------------------
 
-  _ASSERT(all(DONE),'needs informative message')
+  __ASSERT(all(DONE),'needs informative message')
 
-  _RETURN(ESMF_SUCCESS)
+  __RETURN(ESMF_SUCCESS)
 
 end subroutine MAPL_LocStreamCreateXform
 
@@ -2795,7 +2795,7 @@ integer function GRIDINDEX(STREAM,GRID,RC)
 !--------------------------------------------
 
   call ESMF_GridGet(GRID, NAME=NAME, RC=STATUS)
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
 
   GridIndex = 0
 
@@ -2807,9 +2807,9 @@ integer function GRIDINDEX(STREAM,GRID,RC)
   end do
   if (trim(name)=="CATCHMENT_GRID") GridIndex=2
 
-  _ASSERT(GridIndex/=0,'needs informative message')
+  __ASSERT(GridIndex/=0,'needs informative message')
 
-  _RETURN(ESMF_SUCCESS)
+  __RETURN(ESMF_SUCCESS)
 
 end function GRIDINDEX
 
@@ -2838,13 +2838,13 @@ subroutine MAPL_GridCoordAdjust(GRID, LOCSTREAM, RC)
 
 ! get grid name
   call ESMF_GridGet(grid, name=gridname, rc=status)
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
 
   call MAPL_LocstreamGet(LOCSTREAM, GRIDNAMES = GNAMES, RC=STATUS)
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
 ! query loc_in for ngrids
   ngrids = size(gnames)
-  _ASSERT(ngrids==2,'needs informative message')
+  __ASSERT(ngrids==2,'needs informative message')
 
 ! validate that gridname_in is there
   found = .false.
@@ -2854,15 +2854,15 @@ subroutine MAPL_GridCoordAdjust(GRID, LOCSTREAM, RC)
         exit
      ENDIF
   ENDDO
-  _ASSERT(FOUND,'needs informative message')
+  __ASSERT(FOUND,'needs informative message')
 
 ! get id of the grid we just found
   IG = I
-  _ASSERT(IG == LocStream%Ptr%Current_Tiling,'needs informative message')
+  __ASSERT(IG == LocStream%Ptr%Current_Tiling,'needs informative message')
 
 ! get IM, JM and IM_WORLD, JM_WORLD
   call MAPL_GridGet(GRID, localCellCountPerDim=COUNTS, RC=STATUS)
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
 
   IM = COUNTS(1)
   JM = COUNTS(2)
@@ -2871,15 +2871,15 @@ subroutine MAPL_GridCoordAdjust(GRID, LOCSTREAM, RC)
   call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
        staggerloc=ESMF_STAGGERLOC_CENTER, &
        farrayPtr=gridX, rc=status)
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
 
   call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
        staggerloc=ESMF_STAGGERLOC_CENTER, &
        farrayPtr=gridY, rc=status)
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
 
   allocate(sumxw(IM, JM), sumyw(IM, JM), sumw (IM, JM), stat=status)
-  _VERIFY(STATUS)
+  __VERIFY(STATUS)
 
   SUMW = 0.0
   SUMXW = 0.0
@@ -2927,7 +2927,7 @@ subroutine MAPL_GridCoordAdjust(GRID, LOCSTREAM, RC)
 
 ! All done
 !---------
-  _RETURN(ESMF_SUCCESS)
+  __RETURN(ESMF_SUCCESS)
 
 end subroutine MAPL_GridCoordAdjust
 

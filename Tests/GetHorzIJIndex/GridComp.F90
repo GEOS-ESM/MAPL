@@ -25,16 +25,16 @@ module GridComp
      logical :: use_threads
      integer :: num_threads
 
-     call MAPL_GetObjectFromGC (gc, MAPL, _RC)
-     call ESMF_GridCompGet(gc, config=cf, _RC)
-     call ESMF_ConfigGetAttribute(cf, use_threads, label='use_threads:', default=.FALSE., _RC)
+     call MAPL_GetObjectFromGC (gc, MAPL, __RC)
+     call ESMF_GridCompGet(gc, config=cf, __RC)
+     call ESMF_ConfigGetAttribute(cf, use_threads, label='use_threads:', default=.FALSE., __RC)
      call MAPL%set_use_threads(use_threads)
 
-     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_INITIALIZE,  initialize, _RC)
-     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_RUN,  run, _RC)
-     call MAPL_GenericSetServices(gc, _RC)
+     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_INITIALIZE,  initialize, __RC)
+     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_RUN,  run, __RC)
+     call MAPL_GenericSetServices(gc, __RC)
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
 
   end subroutine setservices
 
@@ -49,12 +49,12 @@ module GridComp
      type (MAPL_MetaComp),       pointer    :: MAPL
      integer :: status
 
-     call MAPL_GridCreate(gc, _RC)
-     call MAPL_GetObjectFromGC (gc, MAPL, _RC)
+     call MAPL_GridCreate(gc, __RC)
+     call MAPL_GetObjectFromGC (gc, MAPL, __RC)
      print *, 'Num threads = ', MAPL_get_num_threads(), ' for this run'
-     call MAPL_GenericInitialize(gc, import, export, clock, _RC)
+     call MAPL_GenericInitialize(gc, import, export, clock, __RC)
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
 
   end subroutine initialize
 
@@ -66,11 +66,11 @@ module GridComp
      integer :: status
      integer :: dims(3)
 
-      call MAPL_GridGet(grid, globalCellCountPerDim=dims,_RC)
+      call MAPL_GridGet(grid, globalCellCountPerDim=dims,__RC)
 
-      _ASSERT(dims(1)*6 == dims(2), 'Mini grid should act as a cubed sphere grid for global extents')
+      __ASSERT(dims(1)*6 == dims(2), 'Mini grid should act as a cubed sphere grid for global extents')
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
 
   end subroutine check_dim
 
@@ -87,26 +87,26 @@ module GridComp
       call ESMFL_GridCoordGet(   grid, LATS                      , &
                               Name     = "Latitude"              , &
                               Location = ESMF_STAGGERLOC_CENTER  , &
-                              Units    = MAPL_UnitsRadians    , _RC)
+                              Units    = MAPL_UnitsRadians    , __RC)
 
       call ESMFL_GridCoordGet(   grid, LONS                      , &
                               Name     = "Longitude"             , &
                               Location = ESMF_STAGGERLOC_CENTER  , &
-                              Units    = MAPL_UnitsRadians    , _RC)
-      _ASSERT(all(shape(LATS) == shape(LONS)), 'LATS and LONS must have the same shape')
+                              Units    = MAPL_UnitsRadians    , __RC)
+      __ASSERT(all(shape(LATS) == shape(LONS)), 'LATS and LONS must have the same shape')
 
       do j = 1, size(LATS,2)
          do i = 1, size(LATS, 1)
             lon = lons(i,j)
             lat = lats(i,j)
             call MAPL_GetHorzIJIndex(1, II, JJ,  &
-                grid=grid, lon=lon, lat=lat, _RC)
-            _ASSERT(II(1) == i, 'I-index of cell center (i,j) should be i')
-            _ASSERT(JJ(1) == j, 'J-index of cell center (i,j) should be j')
+                grid=grid, lon=lon, lat=lat, __RC)
+            __ASSERT(II(1) == i, 'I-index of cell center (i,j) should be i')
+            __ASSERT(JJ(1) == j, 'J-index of cell center (i,j) should be j')
          end do
       end do
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
 
   end subroutine check_expected_index
 
@@ -123,29 +123,29 @@ module GridComp
       call ESMFL_GridCoordGet(   grid, lats                      , &
                               Name     = "Latitude"              , &
                               Location = ESMF_STAGGERLOC_CENTER  , &
-                              Units    = MAPL_UnitsRadians    , _RC)
+                              Units    = MAPL_UnitsRadians    , __RC)
 
       call ESMFL_GridCoordGet(   grid, lons                      , &
                               Name     = "Longitude"             , &
                               Location = ESMF_STAGGERLOC_CENTER  , &
-                              Units    = MAPL_UnitsRadians    , _RC)
+                              Units    = MAPL_UnitsRadians    , __RC)
       ! centers of antipodal points
        lons = lons + MAPL_PI
        lats = -lats
-      _ASSERT(all(shape(LATS) == shape(LONS)), 'LATS and LONS must have the same shape')
+      __ASSERT(all(shape(LATS) == shape(LONS)), 'LATS and LONS must have the same shape')
 
       do j = 1, size(lats,2)
          do i = 1, size(lats, 1)
             lon = lons(i,j)
             lat = lats(i,j)
             call MAPL_GetHorzIJIndex(1, II(1), JJ(1),  &
-                grid=grid, lon=lon, lat=lat, _RC)
-            _ASSERT(II(1) == -1, 'Expected -1 for point outside of domain')
-            _ASSERT(JJ(1) == -1, 'Expected -1 for point outside of domain') 
+                grid=grid, lon=lon, lat=lat, __RC)
+            __ASSERT(II(1) == -1, 'Expected -1 for point outside of domain')
+            __ASSERT(JJ(1) == -1, 'Expected -1 for point outside of domain') 
          end do         
       end do
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
 
   end subroutine check_unexpected_index
 
@@ -161,19 +161,19 @@ module GridComp
      type (ESMF_Grid)                  :: grid
      integer :: status
 
-      call MAPL_GetObjectFromGC (gc, MAPL, _RC)
-      call MAPL_Get (MAPL, grid=grid, _RC)
-      call ESMF_GridValidate(grid,_RC)
+      call MAPL_GetObjectFromGC (gc, MAPL, __RC)
+      call MAPL_Get (MAPL, grid=grid, __RC)
+      call ESMF_GridValidate(grid,__RC)
 
-      call check_dim(grid, _RC)
-      call check_expected_index(grid, _RC)
-      call check_unexpected_index(grid, _RC)
+      call check_dim(grid, __RC)
+      call check_expected_index(grid, __RC)
+      call check_unexpected_index(grid, __RC)
 
-     _UNUSED_DUMMY(import)
-     _UNUSED_DUMMY(export)
-     _UNUSED_DUMMY(clock)
+     __UNUSED_DUMMY(import)
+     __UNUSED_DUMMY(export)
+     __UNUSED_DUMMY(clock)
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
 
   end subroutine run
 

@@ -62,12 +62,12 @@ contains
 
       type (RegridderSpec) :: regridder_spec
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
       regridder_spec = RegridderSpec(grid_in, grid_out, regrid_method)
       call regridder%initialize(regridder_spec)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
         
    end function newLatLonToLatLonRegridder
 
@@ -96,12 +96,12 @@ contains
          do
             if(Xout(j_out  ) <= Xin(j0+1)) exit
             j0=j0+1
-            _ASSERT(j0 < N_in, 'index error')
+            __ASSERT(j0 < N_in, 'index error')
          end do
          j1 = j0 + 1
 
          allocate(weight(j_out)%f(j0:j1), stat=status)
-         _VERIFY(status)
+         __VERIFY(status)
 
          associate (b => weight(j_out)%f)
            b(j0  ) = (Xin(j1)-Xout(j_out))/(Xin(j1)-Xin(j0))
@@ -141,18 +141,18 @@ contains
        do           
           if(Xout(j_out  )>=Xin(j0) .and. Xout(j_out  )<=Xin(j0+1)) exit
           j0=j0+1
-          _ASSERT(j0 <= N_in, 'index error')
+          __ASSERT(j0 <= N_in, 'index error')
        end do
 
        j1 = j0
        do
           if(Xout(j_out+1)>=Xin(j1) .and. Xout(j_out+1)<=Xin(j1+1)) exit
           j1=j1+1
-          _ASSERT(j1 <= N_in, 'index error')
+          __ASSERT(j1 <= N_in, 'index error')
        end do
 
        allocate(weight(j_out)%f(j0:j1), stat=status)
-       _VERIFY(status)
+       __VERIFY(status)
        associate (b => weight (j_out)%f)
 
          if(j0==j1) then
@@ -204,7 +204,7 @@ contains
 
       logical :: redistribute
 
-      _ASSERT(size(q_in,3) == size(q_out,3), 'inconsistent array shape')
+      __ASSERT(size(q_in,3) == size(q_out,3), 'inconsistent array shape')
 
       spec = this%get_spec()
 
@@ -213,7 +213,7 @@ contains
         integer :: dims(5)
 
         call MAPL_GridGet(spec%grid_in, globalCellCountPerDim=dims, rc=status)
-        _VERIFY(status)
+        __VERIFY(status)
         N_in = dims(1:2)
 
         if ((N_in(1) /= size(q_in,1)) .or. (N_in(2) /= size(q_in,2))) then
@@ -233,10 +233,10 @@ contains
            q_in_global=> null()
 
            call MAPL_CollectiveGather3D(spec%grid_in, q_in, q_in_global, rc=status)
-           _VERIFY(status)
+           __VERIFY(status)
 
            call MAPL_GridGet(spec%grid_out, globalCellCountPerDim=dims, rc=status)
-           _VERIFY(status)
+           __VERIFY(status)
            N_out = dims(1:2)
 
            allocate(q_out_global(n_out(1), n_out(2), size(q_in_global,3)))
@@ -244,14 +244,14 @@ contains
            if (size(q_in_global) > 1) then
               do k = 1, size(q_in_global,3)
                  call this%regrid(q_in_global(:,:,k), q_out_global(:,:,k), rc=status)
-                 _VERIFY(status)
+                 __VERIFY(status)
               end do
            end if
 
            deallocate(q_in_global)
 
            call MAPL_CollectiveScatter3D(spec%grid_out, q_out_global, q_out, rc=status)
-           _VERIFY(status)
+           __VERIFY(status)
 
            deallocate(q_out_global)
          end block
@@ -259,12 +259,12 @@ contains
          if (size(q_in) > 1) then
             do k = 1, size(q_in,3)
                call this%regrid(q_in(:,:,k), q_out(:,:,k), rc=status)
-               _VERIFY(status)
+               __VERIFY(status)
             end do
          end if
       end if
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine regrid_scalar_3d_real32   
 
@@ -281,7 +281,7 @@ contains
 
       real(kind=REAL32) :: undef
 
-      _UNUSED_DUMMY(rc)
+      __UNUSED_DUMMY(rc)
 
       undef = -HUGE(1.)
 
@@ -329,7 +329,7 @@ contains
          end associate
       end do
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine apply_weights_real32
 
@@ -346,7 +346,7 @@ contains
 
       real(kind=REAL64) :: undef
 
-      _UNUSED_DUMMY(rc)
+      __UNUSED_DUMMY(rc)
 
       undef = -HUGE(1.d0)
 
@@ -394,7 +394,7 @@ contains
            end do
          end associate
       end do
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine apply_weights_real64
 
@@ -411,7 +411,7 @@ contains
       integer :: j, jm
       real    :: dx
 
-      _UNUSED_DUMMY(rc)
+      __UNUSED_DUMMY(rc)
 
 
       if (present(stagger)) then
@@ -492,42 +492,42 @@ contains
       type(dimensionSpec) :: dimspec
       character(len=ESMF_MAXSTR) :: grid_type
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
       spec = this%get_spec()
 
       ! Verify that grids are of the support type: 'LatLon'
       call ESMF_AttributeGet(spec%grid_in , name="GridType", value=grid_type, rc=status)
-      _VERIFY(status)
-      _ASSERT(trim(grid_type) == 'LatLon', 'unsupported grid_in type: '//trim(grid_type))
+      __VERIFY(status)
+      __ASSERT(trim(grid_type) == 'LatLon', 'unsupported grid_in type: '//trim(grid_type))
         
       call ESMF_AttributeGet(spec%grid_out , name="GridType", value=grid_type, rc=status)
-      _VERIFY(status)
-      _ASSERT(trim(grid_type) == 'LatLon', 'unsupported grid_out type: '//trim(grid_type))
+      __VERIFY(status)
+      __ASSERT(trim(grid_type) == 'LatLon', 'unsupported grid_out type: '//trim(grid_type))
       
       call MAPL_GridGet(spec%grid_in, globalCellCountPerDim=this%num_points_in, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       call MAPL_GridGet(spec%grid_out, globalCellCountPerDim=this%num_points_out, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       do dim = 1, NUM_DIMS
 
          nin = this%num_points_in(dim)
          nsize = this%num_points_out(dim)
          allocate(this%mappings(dim)%weightlist(nsize), stat=status)
-         _VERIFY(status)
+         __VERIFY(status)
          Weightlist => this%mappings(dim)%WeightList
 
          allocate(xg_out(nsize),stat=status)
-         _VERIFY(status)
+         __VERIFY(status)
          allocate(xg_in(nin),stat=status)
-         _VERIFY(status)
+         __VERIFY(status)
             
          call MAPL_GetLatLonCoord(spec%grid_in,dim,xg_in,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          call MAPL_GetLatLonCoord(spec%grid_out,dim,xg_out,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          xMaxIn=maxval(xg_in)
          xMaxOut=maxval(xg_out)
          xMinIn=minval(xg_in)
@@ -548,12 +548,12 @@ contains
          dimspec%x_max=xMaxIn
          dimspec%num_points = this%num_points_in(dim)
          xf_in = get_coordinates(dimspec,.true.,stagger,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          dimspec%x_min=xMinOut
          dimspec%x_max=xMaxOut
          dimspec%num_points = this%num_points_out(dim)
          xf_out = get_coordinates(dimspec,.false.,stagger,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
 
          if (cyclic_dim) then
             if (this%num_points_in(dim) > 1) then
@@ -566,30 +566,30 @@ contains
             else
                rngOut = 0
             end if
-!!$            _ASSERT(abs( (rngIn-rngOut)/rngIn ) < 1.e-5, 'range to small')
+!!$            __ASSERT(abs( (rngIn-rngOut)/rngIn ) < 1.e-5, 'range to small')
             if(xf_out(1) < xf_in(1)) then
                xf_out  = xf_out + int((xf_in(1)-xf_out(1))/rngIn+(MAPL_PI_R8/180.0d0))*rngIn
             else
                xf_out  = xf_out + int((xf_in(1)-xf_out(1))/rngIn)*rngIn
             end if
          end if
-         _ASSERT(xf_in(size(xf_in)) >= xf_out(size(xf_out)), 'incorrect bracketing?')
-         _ASSERT(xf_in(1) <= xf_out(1),'incorrect bracketing?')
+         __ASSERT(xf_in(size(xf_in)) >= xf_out(size(xf_out)), 'incorrect bracketing?')
+         __ASSERT(xf_in(1) <= xf_out(1),'incorrect bracketing?')
          select case (spec%regrid_method)
          case (REGRID_METHOD_BILINEAR)
             call compute_linear_weights(this%mappings(dim)%WeightList, xf_in, xf_out, rc=status)
-            _VERIFY(status)
+            __VERIFY(status)
          case (REGRID_METHOD_CONSERVE)
             call compute_binning_weights(this%mappings(dim)%WeightList,xf_in,xf_out,hasPoles,rc=status)
-            _VERIFY(status)
+            __VERIFY(status)
          case default
-            _FAIL('unsupported regrid method')
+            __FAIL('unsupported regrid method')
          end select
          deallocate(xg_in,xg_out,xf_in,xf_out)
          
       end do
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine initialize_subclass
    

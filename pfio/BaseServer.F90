@@ -66,17 +66,17 @@ contains
          threadPtr=>this%threads%at(i)
          ! receive output data and save them on Shmem_reference
          call threadPtr%receive_output_data(rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
      enddo
 
      do i = 1, this%dataRefPtrs%size()
         dataRefPtr => this%get_dataReference(i)
         call dataRefPtr%fence(rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
      enddo
 
      if (associated(ioserver_profiler)) call ioserver_profiler%stop("receive_data")
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
    end subroutine receive_output_data
 
    subroutine put_DataToFile(this, rc)
@@ -101,7 +101,7 @@ contains
      !t1 = -1.0d0
      num_clients = this%threads%size()
      if (num_clients == 0) then
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
      endif
 
      if (associated(ioserver_profiler)) call ioserver_profiler%start("write_data")
@@ -124,7 +124,7 @@ contains
            type is (RDMAReference)
               remotePtr=>dataRefPtr
            class default
-              _FAIL( "remote is a must")
+              __FAIL( "remote is a must")
            end select
 
            request_iter = this%stage_offset%find(i_to_string(q%request_id)//'done')
@@ -134,7 +134,7 @@ contains
               offset     = this%stage_offset%at(i_to_string(q%request_id))
               offset_address   = c_loc(i_ptr(offset+1))
              ! (2) write data
-              call threadPtr%put_DataToFile(q,offset_address, _RC)
+              call threadPtr%put_DataToFile(q,offset_address, __RC)
              ! (3) leave a mark, it has been written
               call this%stage_offset%insert(i_to_string(q%request_id)//'done',0_MPI_ADDRESS_KIND)
               !t1 = mpi_wtime()
@@ -154,7 +154,7 @@ contains
      !   print*, "this rank",this%rank,"spending ", t1-t0, " seconds writing"
      !endif
      if (associated(ioserver_profiler)) call ioserver_profiler%stop("write_data")
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
    end subroutine put_DataToFile
 
    subroutine get_DataFromMem(this, multi, rc)
@@ -171,10 +171,10 @@ contains
          threadPtr=>this%threads%at(i)
          ! get data from Shmem_reference and send it back to app
          call threadPtr%get_DataFromMem(multi, rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
      enddo
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
    end subroutine get_DataFromMem
 
    subroutine add_connection(this, socket)
@@ -208,7 +208,7 @@ contains
       if (n <= 0 ) then
          allocate(dmessage,source = DummyMessage())
          print*, "WARNING: no serverthread"
-         _RETURN(_SUCCESS)
+         __RETURN(__SUCCESS)
       endif
 
       thread_ptr=>this%threads%at(1)
@@ -218,10 +218,10 @@ contains
       type is (MpiSocket)
          allocate(dmessage,source = DummyMessage())
       class default
-         _FAIL( "wrong socket type")
+         __FAIL( "wrong socket type")
       end select
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function
 
    subroutine clear_RequestHandle(this, rc)
@@ -234,9 +234,9 @@ contains
 
       do i = 1, n
          thread_ptr => this%threads%at(i)
-         call thread_ptr%clear_RequestHandle(_RC)
+         call thread_ptr%clear_RequestHandle(__RC)
       enddo
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine clear_RequestHandle
 
@@ -327,7 +327,7 @@ contains
       enddo
 
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("create_shared_mem")
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine create_remote_win
 

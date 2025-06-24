@@ -28,7 +28,7 @@ end if
 Note that most MAPL and all ESMF procedures have optional return codes. In addition, other libraries also provide these such as MPI to name one. If you had to write code that in every place that would get tedious fast. As a service to uses MAPL defines a slew of macros to automate this boilerplate code and provide different behaviours and more informative error trapping. 
 
 ## A Note About "good" vs "bad" Return Values
-Generally most libraries that use integer return codes have the convention that 0 is "success" and anything not 0 is a "failure". In some libraries the non-zero return codes have specific meanings that give a clue to error condition e.g. ESMF and NetCDF. ESMF even goes so far as to provide a constant ESMF_SUCCESS (which is just an integer set to 0) See the _SUCCESS and _FAILURE macros for more information.
+Generally most libraries that use integer return codes have the convention that 0 is "success" and anything not 0 is a "failure". In some libraries the non-zero return codes have specific meanings that give a clue to error condition e.g. ESMF and NetCDF. ESMF even goes so far as to provide a constant ESMF_SUCCESS (which is just an integer set to 0) See the __SUCCESS and __FAILURE macros for more information.
 
 ## Advice
 Error handling is most useful if it is used everywhere in the calling chain. If something throws a fault, but then execution continues because some procedure in the calling tree did not check the return code from one of the procedures it calls, well this is bad. If something threw an error, there was probably a good reason but if not trapped it will probably just lead to some other problem later and will result in more confusion during debugging. The bottom line, if the procedure you are calling has an optional rc code check it! If you are creating a new procedure include a return code if there any any failure conditions that can be trapped, including calling other procedures that themselves have error codes!
@@ -45,45 +45,45 @@ use MAPL
 end module
 ```
 
-## _VERIFY
-_VERIFY handles the case when you have called a subroutine/function from some program unit (another subroutine or function) and included the optional return code like so:
+## __VERIFY
+__VERIFY handles the case when you have called a subroutine/function from some program unit (another subroutine or function) and included the optional return code like so:
 ```
 integer :: status
 
 call foo(...,rc=status)
 ```
-Now you want to check that the status is a good or bad value, otherwise what's the point of adding the rc=status argument. Generally if the value is "bad" you would want to return rather than continue execution of the program unit. It would be even better if you got message with the status and maybe where you failed. That's what _VERIFY is for. You can just add this after the call to foo:
+Now you want to check that the status is a good or bad value, otherwise what's the point of adding the rc=status argument. Generally if the value is "bad" you would want to return rather than continue execution of the program unit. It would be even better if you got message with the status and maybe where you failed. That's what __VERIFY is for. You can just add this after the call to foo:
 ```
 call foo(...,rc=status)
-_VERIFY(status)
+__VERIFY(status)
 ```
-the _VERIFY macro will check that status is the "good" value, if it is execution of the program unit will continue. If the status is anything but the good value the _VERIFY will trigger a premature return from the program unit. Before it exits it will **print the status, filename, and line number** to standard out. Finally if the program unit itself has an optional rc argument, rc will be set to status.
+the __VERIFY macro will check that status is the "good" value, if it is execution of the program unit will continue. If the status is anything but the good value the __VERIFY will trigger a premature return from the program unit. Before it exits it will **print the status, filename, and line number** to standard out. Finally if the program unit itself has an optional rc argument, rc will be set to status.
 
-## _RC
-We can take the _VERIFY a step further. This is valid Fortran:
+## __RC
+We can take the __VERIFY a step further. This is valid Fortran:
 ```
-call foo(...,rc=status); _VERIFY(status)
+call foo(...,rc=status); __VERIFY(status)
 ```
-note that everything is nicely on one line, but wouldn't it be nice if there was a macro so you didn't have to type the ```rc=status); _VERIFY(status)``` there is, it is _RC. The code above can be replaced with:
+note that everything is nicely on one line, but wouldn't it be nice if there was a macro so you didn't have to type the ```rc=status); __VERIFY(status)``` there is, it is __RC. The code above can be replaced with:
 ```
-call foo(...,_RC)
+call foo(...,__RC)
 ```
 for even more compact and readable code. We suggest using this.
 
-## _ASSERT
-Sometimes you may have some logical condition you want to check in your procedure, if met just continue but if not met you would want to return, report the filename, line number, and a message to standard out, and set the return status to the failure value if it was passed. The _ASSERT macro provides this ability. It can be used like so:
+## __ASSERT
+Sometimes you may have some logical condition you want to check in your procedure, if met just continue but if not met you would want to return, report the filename, line number, and a message to standard out, and set the return status to the failure value if it was passed. The __ASSERT macro provides this ability. It can be used like so:
 ```
 logical :: my_conditional
 
 ! code does stuff
 ! code sets my_conditional
-_ASSERT(my_conditional,"Provide informative message here")
+__ASSERT(my_conditional,"Provide informative message here")
 ```
 
-Note that if you want to do `_ASSERT(.FALSE.,"Informative message")`, just use `_FAIL("Informative message")` as described below as they are equivalent and `_FAIL()` is more readable.
+Note that if you want to do `__ASSERT(.FALSE.,"Informative message")`, just use `__FAIL("Informative message")` as described below as they are equivalent and `__FAIL()` is more readable.
 
-## _FAIL
-_FAIL simply forces the procedure to return with a bad value and a message. It reports the filename, line number, and the message to standard out the _FAIL is call on, sets the rc code to the failure value if the rc was passed, and returns.   This construct is most often useful within `SELECT CASE` and `SELECT TYPE` constructs where an additional conditional is unwarranted.   Otherwise, `_ASSERT` can usually be used more effectively.
+## __FAIL
+__FAIL simply forces the procedure to return with a bad value and a message. It reports the filename, line number, and the message to standard out the __FAIL is call on, sets the rc code to the failure value if the rc was passed, and returns.   This construct is most often useful within `SELECT CASE` and `SELECT TYPE` constructs where an additional conditional is unwarranted.   Otherwise, `__ASSERT` can usually be used more effectively.
 For example:
 ```
 select case(number)
@@ -92,11 +92,11 @@ case(2)
 case(1)
 
 case(0)
-   _FAIL("Informative Message")
+   __FAIL("Informative Message")
 end if
 ```
 
-## _RETURN
+## __RETURN
 When you return from a procedure, if the procedure has an optional rc value you want to set to the success value so that if the calling is checking this they get the "success" value. If someone is checking it. I.E.
 ```
 if (present(rc)) then
@@ -104,39 +104,39 @@ if (present(rc)) then
 end if
 RETURN
 ```
-The _RC macro just implements the above can be used like so:
+The __RC macro just implements the above can be used like so:
 ```
-_RETURN(success_value)
+__RETURN(success_value)
 ```
-Note you can technically _RETURN with any value, not just the success_value. But you want to return and pass a failure, that's what _FAIL is for and what we recommend.
+Note you can technically __RETURN with any value, not just the success_value. But you want to return and pass a failure, that's what __FAIL is for and what we recommend.
 
-## _SUCCESS
-_SUCCESS is just a macro that represents the integer constant ESMF_SUCCESS (which itself is just 0). Still good practice to use _SUCCESS rather than 0 in your code. Every procedure that has an optional integer rc return code should end with:
+## __SUCCESS
+__SUCCESS is just a macro that represents the integer constant ESMF_SUCCESS (which itself is just 0). Still good practice to use __SUCCESS rather than 0 in your code. Every procedure that has an optional integer rc return code should end with:
 ```
-_RETURN(_SUCCESS)
+__RETURN(__SUCCESS)
 ```
 We merely include this so that if someday everyone decides 0 should not be the "good" value we don't have to change this in a gazillion places.
 
-## _FAILURE
-Similarly _FAILURE is just a macro that evaluates to ESMF_FAILURE (which itself is just a non-zero integer). However the user should not have need for this in their code. If you want to return with a failure we recommend using _FAIL or _ASSERT.
+## __FAILURE
+Similarly __FAILURE is just a macro that evaluates to ESMF_FAILURE (which itself is just a non-zero integer). However the user should not have need for this in their code. If you want to return with a failure we recommend using __FAIL or __ASSERT.
 
-## _STAT
+## __STAT
 This can be used when using the fortran OPEN statement. That returns an integer error code, but the keyword is state, not rc. So if you call open 
 ```
-open(...,stat=status); _VERIFY(status)
+open(...,stat=status); __VERIFY(status)
 ```
-we provide a _STAT macro that allow you to write the above as:
+we provide a __STAT macro that allow you to write the above as:
 ```
-open(...,_STAT)
+open(...,__STAT)
 ```
 
-## _IOSTAT
+## __IOSTAT
 
 # Error Handling at the "program" scope
 What happens though if the scope you are in is the "main" program rather than a subroutine or function. When you check the return code from a call there is nowhere to return to; rather you want to stop execution of your program at this point. MAPL does have something to handle this.
 
 # Legacy Macros
-In GEOS code outside of MAPL you will probably see macros that start, or start and end with an underscore (`VERIFY_, ASSERT_, __RC__` etc) and see a variable named IAM defined. These are legacy macros. They generally provide similar functionality to what has been described above (i.e. VERIFY_ and _VERIFY handle the same case, checking the return value after a procedure call) to handle procedures with optional return parameters. There is one crucial difference that makes the use of these not recommended which will be explained below.
+In GEOS code outside of MAPL you will probably see macros that start, or start and end with an underscore (`VERIFY_, ASSERT_, __RC__` etc) and see a variable named IAM defined. These are legacy macros. They generally provide similar functionality to what has been described above (i.e. VERIFY_ and __VERIFY handle the same case, checking the return value after a procedure call) to handle procedures with optional return parameters. There is one crucial difference that makes the use of these not recommended which will be explained below.
 
 **NEW CODE SHOULD NOT USE THESE AND WE HIGHLY ENCOURAGE THAT IF YOU HAVE EXISTING CODE YOU MAINTAIN TO UPDATE TO THE NEW ONES AS THE OLD ONES ARE ERROR PRONE AND LESS INFORMATIVE.** 
 

@@ -27,7 +27,7 @@ contains
     type (ProvidedServiceItemVectorIterator) :: iter
     type (ProvidedServiceType), pointer :: item
     
-    _ASSERT(provider_list%size()>0,'provider_list should not be empty')
+    __ASSERT(provider_list%size()>0,'provider_list should not be empty')
     
     found = .false.
     iter = provider_list%begin()
@@ -40,9 +40,9 @@ contains
           exit
        end if
     end do
-    _ASSERT(found, 'No match found for service')
+    __ASSERT(found, 'No match found for service')
     call iter%next()
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
   end subroutine ProvidedServiceGet
    
   subroutine ProvidedServiceSet(provider_list, state, rc)
@@ -54,7 +54,7 @@ contains
     type (ProvidedServiceItemVectorIterator) :: iter
     type (ProvidedServiceType), pointer :: item
     
-    _ASSERT(provider_list%size()>0,'provider_list should not be empty')
+    __ASSERT(provider_list%size()>0,'provider_list should not be empty')
     
     iter = provider_list%begin()
     ! loop over provided services
@@ -62,11 +62,11 @@ contains
        item => iter%get()
        call ESMF_StateGet(state, item%bundle_name, &
             item%bundle, rc=status)
-       _VERIFY(status)
+       __VERIFY(status)
        call iter%next()
     end do
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
   end subroutine ProvidedServiceSet
    
   subroutine RequestedServiceGet(request_list, service, bundle, rc)
@@ -79,7 +79,7 @@ contains
     type (RequestedServiceItemVectorIterator) :: iter
     type (RequestedServiceType), pointer :: item
     
-    _ASSERT(request_list%size()>0,'request_list should not be empty')
+    __ASSERT(request_list%size()>0,'request_list should not be empty')
     
     found = .false.
     iter = request_list%begin()
@@ -92,8 +92,8 @@ contains
           exit
        end if
     END DO
-    _ASSERT(found, 'No match found for service')
-    _RETURN(_SUCCESS)
+    __ASSERT(found, 'No match found for service')
+    __RETURN(__SUCCESS)
   end subroutine RequestedServiceGet
    
   subroutine FillRequestBundle(request_list, state, rc)
@@ -107,7 +107,7 @@ contains
     type (RequestedServiceItemVectorIterator) :: iter
     type (RequestedServiceType), pointer :: item
     
-    _ASSERT(request_list%size()>0,'request_list should not be empty')
+    __ASSERT(request_list%size()>0,'request_list should not be empty')
 
     iter = request_list%begin()
     ! loop over requested services
@@ -116,20 +116,20 @@ contains
        if (allocated(item%var_list)) then
           nl = size(item%var_list)
           allocate(fields(nl), stat=status)
-          _VERIFY(status)
+          __VERIFY(status)
           do i=1, nl
              call ESMF_StateGet(state, item%var_list(i), &
                   fields(i), rc=status)
-             _VERIFY(status)
+             __VERIFY(status)
           end do
           call ESMF_FieldBundleAdd(item%bundle, fields, rc=status)
-          _VERIFY(status)
+          __VERIFY(status)
           deallocate(fields)
        end if
        call iter%next()
     end do
     
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
   end subroutine FillRequestBundle
    
 end module mapl_ServiceServices

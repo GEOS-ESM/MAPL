@@ -51,7 +51,7 @@ Usually, each of these, except `Run` and `Record`, is executed only once.
    character(len=18) :: Iam="Main"
 
    call MAPL_CAP(ROOT_SetServices, rc=STATUS)
-   _VERIFY(STATUS)
+   __VERIFY(STATUS)
 
    call exit(0)
 

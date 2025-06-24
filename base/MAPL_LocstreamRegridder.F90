@@ -43,7 +43,7 @@ contains
       real, pointer :: pt2d(:,:), pt1d(:)
       integer :: status
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
       if (present(regrid_method)) then
          local_regrid_method = regrid_method
       else
@@ -51,26 +51,26 @@ contains
       end if
 
       src_field = ESMF_FieldCreate(grid,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1,2],rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       dst_field = ESMF_FieldCreate(locstream,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1],rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
-      call ESMF_FieldGet(src_field, localDE=0, farrayPtr=pt2d, _RC)
-      call ESMF_FieldGet(dst_field, localDE=0, farrayPtr=pt1d, _RC)
+      call ESMF_FieldGet(src_field, localDE=0, farrayPtr=pt2d, __RC)
+      call ESMF_FieldGet(dst_field, localDE=0, farrayPtr=pt1d, __RC)
       pt2d = 0.0
       pt1d = 0.0
 
       call ESMF_FieldRegridStore(srcField=src_field,dstField=dst_field, &
            routeHandle=regridder%route_handle,regridmethod=local_regrid_method,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call ESMF_FieldDestroy(src_field,noGarbage=.true.,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call ESMF_FieldDestroy(dst_field,noGarbage=.true.,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       regridder%grid=grid
       regridder%locstream=locstream
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
  
    end function new_LocstreamRegridder
 
@@ -87,24 +87,24 @@ contains
     
       dst_field=ESMF_FieldCreate(this%locstream,typekind=ESMF_TYPEKIND_R4, &
            gridToFieldMap=[1],rc=status)
-      _VERIFY(status)      
+      __VERIFY(status)      
       src_field=ESMF_FieldCreate(this%grid,typekind=ESMF_TYPEKIND_R4, &
            gridToFieldMap=[1,2],rc=status)
-      _VERIFY(status)      
+      __VERIFY(status)      
 
       call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       p_src=q_in
       call ESMF_FieldRegrid(src_field,dst_field,this%route_handle,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       q_out=p_dst
       call ESMF_FieldDestroy(dst_field,noGarbage=.true.,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call ESMF_FieldDestroy(src_field,noGarbage=.true.,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
    end subroutine regrid_2d_real32
 
@@ -119,30 +119,30 @@ contains
 
       type(ESMF_Field) :: dst_field,src_field
       real(kind=REAL32), pointer :: p_src(:,:,:),p_dst(:,:)
-      _ASSERT(size(q_in,3)==size(q_out,2),"Input and output arrays size inconsistent in 3D locstream regridder")
+      __ASSERT(size(q_in,3)==size(q_out,2),"Input and output arrays size inconsistent in 3D locstream regridder")
 
       lm = size(q_in,3)
     
       dst_field=ESMF_FieldCreate(this%locstream,typekind=ESMF_TYPEKIND_R4, &
            gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],rc=status)
-      _VERIFY(status)      
+      __VERIFY(status)      
       src_field=ESMF_FieldCreate(this%grid,typekind=ESMF_TYPEKIND_R4, &
            gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[lm],rc=status)
-      _VERIFY(status)      
+      __VERIFY(status)      
 
       call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       p_src= reshape(q_in,shape(p_src), order = [2,3,1])
       call ESMF_FieldRegrid(src_field,dst_field,this%route_handle,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       q_out=reshape(p_dst, shape(q_out), order=[2,1])
       call ESMF_FieldDestroy(dst_field,noGarbage=.true.,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call ESMF_FieldDestroy(src_field,noGarbage=.true.,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
    end subroutine regrid_3d_real32
 
@@ -152,10 +152,10 @@ contains
      integer, optional, intent(out) :: rc     
      integer :: status
      
-     call ESMF_RouteHandleDestroy(this%route_handle, noGarbage=.true., _RC)
-     call ESMF_LocStreamDestroy (this%locstream, noGarbage=.true., _RC)
+     call ESMF_RouteHandleDestroy(this%route_handle, noGarbage=.true., __RC)
+     call ESMF_LocStreamDestroy (this%locstream, noGarbage=.true., __RC)
       
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
      
    end subroutine destroy_route_handle
    

@@ -64,7 +64,7 @@ contains
 
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
       cap_options%cap_rc_file = 'CAP.rc'
       cap_options%egress_file = 'EGRESS'
@@ -81,7 +81,7 @@ contains
       if (present(ensemble_subdir_prefix)) cap_options%ensemble_subdir_prefix = ensemble_subdir_prefix
       if (present(esmf_logging_mode)) cap_options%esmf_logging_mode = esmf_logging_mode
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end function new_CapOptions
 

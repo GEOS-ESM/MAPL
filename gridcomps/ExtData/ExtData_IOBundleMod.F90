@@ -73,7 +73,7 @@ contains
     io_bundle%server_coll_id=server_coll_id
     io_bundle%items=items
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
   end function new_ExtData_IoBundle
 
 
@@ -83,9 +83,9 @@ contains
 
     integer :: status
     call ESMF_FieldBundleDestroy(this%pbundle, noGarbage=.true.,rc=status)
-    _VERIFY(status)
+    __VERIFY(status)
     
-     _RETURN(ESMF_SUCCESS)
+     __RETURN(ESMF_SUCCESS)
 
   end subroutine clean
 
@@ -99,7 +99,7 @@ contains
                         metadata_collection_id = this%metadata_coll_id, fraction = this%fraction, &
                         items=this%items)
 
-     _RETURN(ESMF_SUCCESS)
+     __RETURN(ESMF_SUCCESS)
 
    end subroutine make_cfio
 

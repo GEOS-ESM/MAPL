@@ -181,19 +181,19 @@
        this%tripolar_file_out = "empty"
     end if
     this%regridMethod = regrid_method_string_to_int(regridMth)
-    _ASSERT(this%regridMethod/=UNSPECIFIED_REGRID_METHOD,"improper regrid method chosen")
+    __ASSERT(this%regridMethod/=UNSPECIFIED_REGRID_METHOD,"improper regrid method chosen")
 
     this%filenames = split_string(cfilenames,',')
     this%outputfiles = split_string(coutputfiles,',')
-    _ASSERT(this%filenames%size() > 0, 'no input files')
-    _ASSERT(this%outputfiles%size() >0, 'no ouput files specified')
-    _ASSERT(this%filenames%size() == this%outputfiles%size(), 'different number of input and output files')
+    __ASSERT(this%filenames%size() > 0, 'no input files')
+    __ASSERT(this%outputfiles%size() >0, 'no ouput files specified')
+    __ASSERT(this%filenames%size() == this%outputfiles%size(), 'different number of input and output files')
     if (.not.this%alltimes) then
-       _ASSERT(this%filenames%size() == 1,'if selecting time from file, can only regrid a single file')
+       __ASSERT(this%filenames%size() == 1,'if selecting time from file, can only regrid a single file')
     end if
 
-    call this%create_grid(gridname,_RC)
-    _RETURN(_SUCCESS)
+    call this%create_grid(gridname,__RC)
+    __RETURN(__SUCCESS)
 
     end subroutine process_command_line
 
@@ -214,23 +214,23 @@
 
     filename = this%filenames%at(1)
 
-    call formatter%open(trim(filename),pFIO_Read,_RC)
-    basic_metadata=formatter%read(_RC)
+    call formatter%open(trim(filename),pFIO_Read,__RC)
+    basic_metadata=formatter%read(__RC)
     call metadata%create(basic_metadata,trim(filename))
 
-    call formatter%close(_RC)
+    call formatter%close(__RC)
 
     lm_world=0
     lev_name=metadata%get_level_name()
     if (trim(lev_name)/='') then
-       lm_world = metadata%get_dimension(lev_name,_RC)
+       lm_world = metadata%get_dimension(lev_name,__RC)
     end if
     call UnpackGridName(Grid_name,im_world,jm_world,dateline,pole)
 
-    cfoutput = create_cf(grid_name,im_world,jm_world,this%nx,this%ny,lm_world,this%cs_stretch_param,this%lon_range,this%lat_range,this%tripolar_file_out,_RC)
-    this%new_grid=grid_manager%make_grid(cfoutput,prefix=trim(grid_name)//".",_RC)
+    cfoutput = create_cf(grid_name,im_world,jm_world,this%nx,this%ny,lm_world,this%cs_stretch_param,this%lon_range,this%lat_range,this%tripolar_file_out,__RC)
+    this%new_grid=grid_manager%make_grid(cfoutput,prefix=trim(grid_name)//".",__RC)
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
     end subroutine create_grid
 
     function has_level(this,rc) result(file_has_level)
@@ -238,9 +238,9 @@
        class(regrid_support), intent(in) :: this
        integer, intent(out), optional :: rc
        integer :: global_dims(3),status
-       call MAPL_GridGet(this%new_grid,globalCellCountPerDim=global_dims,_RC)
+       call MAPL_GridGet(this%new_grid,globalCellCountPerDim=global_dims,__RC)
        file_has_level = (global_dims(3) /= 0)
-       _RETURN(_SUCCESS)
+       __RETURN(__SUCCESS)
     end function
 
     function create_cf(grid_name,im_world,jm_world,nx,ny,lm,cs_stretch_param,lon_range,lat_range,tripolar_file,rc) result(cf)
@@ -264,38 +264,38 @@
        dateline=grid_name(nn-1:nn)
        pole=grid_name(1:2)
 
-       cf = MAPL_ConfigCreate(_RC)
-       call MAPL_ConfigSetAttribute(cf,value=NX, label=trim(grid_name)//".NX:",_RC)
-       call MAPL_ConfigSetAttribute(cf,value=lm, label=trim(grid_name)//".LM:",_RC)
+       cf = MAPL_ConfigCreate(__RC)
+       call MAPL_ConfigSetAttribute(cf,value=NX, label=trim(grid_name)//".NX:",__RC)
+       call MAPL_ConfigSetAttribute(cf,value=lm, label=trim(grid_name)//".LM:",__RC)
        if (dateline=='CF') then
-          call MAPL_ConfigSetAttribute(cf,value="Cubed-Sphere", label=trim(grid_name)//".GRID_TYPE:",_RC)
-          call MAPL_ConfigSetAttribute(cf,value=6, label=trim(grid_name)//".NF:",_RC)
-          call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",_RC)
-          call MAPL_ConfigSetAttribute(cf,value=ny/6, label=trim(grid_name)//".NY:",_RC)
+          call MAPL_ConfigSetAttribute(cf,value="Cubed-Sphere", label=trim(grid_name)//".GRID_TYPE:",__RC)
+          call MAPL_ConfigSetAttribute(cf,value=6, label=trim(grid_name)//".NF:",__RC)
+          call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",__RC)
+          call MAPL_ConfigSetAttribute(cf,value=ny/6, label=trim(grid_name)//".NY:",__RC)
           if (any(cs_stretch_param/=uninit)) then
-             call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(1),label=trim(grid_name)//".STRETCH_FACTOR:",_RC)
-             call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(2),label=trim(grid_name)//".TARGET_LON:",_RC)
-             call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(3),label=trim(grid_name)//".TARGET_LAT:",_RC)
+             call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(1),label=trim(grid_name)//".STRETCH_FACTOR:",__RC)
+             call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(2),label=trim(grid_name)//".TARGET_LON:",__RC)
+             call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(3),label=trim(grid_name)//".TARGET_LAT:",__RC)
           end if
        else if (dateline=='TM') then
-          call MAPL_ConfigSetAttribute(cf,value="Tripolar", label=trim(grid_name)//".GRID_TYPE:",_RC)
-          call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",_RC)
-          call MAPL_ConfigSetAttribute(cf,value=jm_world,label=trim(grid_name)//".JM_WORLD:",_RC)
-          call MAPL_ConfigSetAttribute(cf,value=ny, label=trim(grid_name)//".NY:",_RC)
-          _ASSERT(tripolar_file /= "empty","asked for tripolar output but did not specify the coordinate file")
-          call MAPL_ConfigSetAttribute(cf,value=tripolar_file,label=trim(grid_name)//".GRIDSPEC:",_RC)
+          call MAPL_ConfigSetAttribute(cf,value="Tripolar", label=trim(grid_name)//".GRID_TYPE:",__RC)
+          call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",__RC)
+          call MAPL_ConfigSetAttribute(cf,value=jm_world,label=trim(grid_name)//".JM_WORLD:",__RC)
+          call MAPL_ConfigSetAttribute(cf,value=ny, label=trim(grid_name)//".NY:",__RC)
+          __ASSERT(tripolar_file /= "empty","asked for tripolar output but did not specify the coordinate file")
+          call MAPL_ConfigSetAttribute(cf,value=tripolar_file,label=trim(grid_name)//".GRIDSPEC:",__RC)
        else
-          call MAPL_ConfigSetAttribute(cf,value="LatLon", label=trim(grid_name)//".GRID_TYPE:",_RC)
-          call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",_RC)
-          call MAPL_ConfigSetAttribute(cf,value=jm_world,label=trim(grid_name)//".JM_WORLD:",_RC)
-          call MAPL_ConfigSetAttribute(cf,value=ny, label=trim(grid_name)//".NY:",_RC)
-          call MAPL_ConfigSetAttribute(cf,value=pole, label=trim(grid_name)//".POLE:",_RC)
-          call MAPL_ConfigSetAttribute(cf,value=dateline, label=trim(grid_name)//".DATELINE:",_RC)
+          call MAPL_ConfigSetAttribute(cf,value="LatLon", label=trim(grid_name)//".GRID_TYPE:",__RC)
+          call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",__RC)
+          call MAPL_ConfigSetAttribute(cf,value=jm_world,label=trim(grid_name)//".JM_WORLD:",__RC)
+          call MAPL_ConfigSetAttribute(cf,value=ny, label=trim(grid_name)//".NY:",__RC)
+          call MAPL_ConfigSetAttribute(cf,value=pole, label=trim(grid_name)//".POLE:",__RC)
+          call MAPL_ConfigSetAttribute(cf,value=dateline, label=trim(grid_name)//".DATELINE:",__RC)
           if (pole=='XY' .and. dateline=='XY') then
-             _ASSERT(all(lon_range/=uninit),'if regional must specify lon_range')
-             _ASSERT(all(lat_range/=uninit),'if regional must specify lat_range')
-             call MAPL_ConfigSetAttribute(cf,value=lon_range,label=trim(grid_name)//".LON_RANGE:",_RC)
-             call MAPL_ConfigSetAttribute(cf,value=lat_range,label=trim(grid_name)//".LAT_RANGE:",_RC)
+             __ASSERT(all(lon_range/=uninit),'if regional must specify lon_range')
+             __ASSERT(all(lat_range/=uninit),'if regional must specify lat_range')
+             call MAPL_ConfigSetAttribute(cf,value=lon_range,label=trim(grid_name)//".LON_RANGE:",__RC)
+             call MAPL_ConfigSetAttribute(cf,value=lat_range,label=trim(grid_name)//".LAT_RANGE:",__RC)
           end if
        end if
 
@@ -375,32 +375,32 @@ CONTAINS
    type(ServerManager) :: io_server
 
 
-   call ESMF_Initialize (LogKindFlag=ESMF_LOGKIND_NONE, vm=vm, _RC)
+   call ESMF_Initialize (LogKindFlag=ESMF_LOGKIND_NONE, vm=vm, __RC)
    call ESMF_VMGet(vm, localPET=myPET, petCount=nPet)
-   call MAPL_Initialize(_RC)
-   call MAPL_GetNodeInfo (comm=MPI_COMM_WORLD, _RC)
-   call ESMF_CalendarSetDefault ( ESMF_CALKIND_GREGORIAN, _RC )
+   call MAPL_Initialize(__RC)
+   call MAPL_GetNodeInfo (comm=MPI_COMM_WORLD, __RC)
+   call ESMF_CalendarSetDefault ( ESMF_CALKIND_GREGORIAN, __RC )
 
-   call support%process_command_line(_RC)
+   call support%process_command_line(__RC)
 
    t_prof=DistributedProfiler('Regrid_Util',MpiTimerGauge(),MPI_COMM_WORLD)
-   call t_prof%start(_RC)
+   call t_prof%start(__RC)
 
    call io_server%initialize(mpi_comm_world)
 
    filename = support%filenames%at(1)
    if (allocated(tSeries)) deallocate(tSeries)
-   call get_file_times(filename,support%itime,support%allTimes,tseries,timeInterval,tint,tsteps,_RC)
-   has_vertical_level = support%has_level(_RC)
+   call get_file_times(filename,support%itime,support%allTimes,tseries,timeInterval,tint,tsteps,__RC)
+   has_vertical_level = support%has_level(__RC)
    if (has_vertical_level) then
-      call get_file_levels(filename,vertical_data,_RC)
+      call get_file_levels(filename,vertical_data,__RC)
    end if
 
    Clock = ESMF_ClockCreate ( name="Eric", timeStep=TimeInterval, &
-                               startTime=tSeries(1), _RC )
+                               startTime=tSeries(1), __RC )
 
-   bundle=ESMF_FieldBundleCreate(name="cfio_bundle",_RC)
-   call ESMF_FieldBundleSet(bundle,grid=support%new_grid,_RC)
+   bundle=ESMF_FieldBundleCreate(name="cfio_bundle",__RC)
+   call ESMF_FieldBundleSet(bundle,grid=support%new_grid,__RC)
 
    writer_created=.false.
    do j=1,support%filenames%size()
@@ -408,12 +408,12 @@ CONTAINS
       filename = support%filenames%at(j)
       if (j>1) then
          if (allocated(tSeries)) deallocate(tSeries)
-         call get_file_times(filename,support%itime,support%allTimes,tseries,timeInterval,tint,tsteps,_RC)
+         call get_file_times(filename,support%itime,support%allTimes,tseries,timeInterval,tint,tsteps,__RC)
       end if
       outputfile = support%outputfiles%at(j)
 
       inquire(file=trim(outputfile),exist=file_exists)
-      _ASSERT(.not.file_exists,"output file already exists: exiting!")
+      __ASSERT(.not.file_exists,"output file already exists: exiting!")
 
       fileCreated=.false.
       do i=1,tsteps
@@ -422,45 +422,45 @@ CONTAINS
          if (mapl_am_i_root()) write(*,*)'processing timestep from '//trim(filename)
          time = tSeries(i)
          if (support%onlyvars) then
-            call MAPL_Read_bundle(bundle,trim(filename),time=time,regrid_method=support%regridMethod,only_vars=support%vars,file_weights=support%use_weights, _RC)
+            call MAPL_Read_bundle(bundle,trim(filename),time=time,regrid_method=support%regridMethod,only_vars=support%vars,file_weights=support%use_weights, __RC)
          else
-            call MAPL_Read_bundle(bundle,trim(filename),time=time,regrid_method=support%regridMethod,file_weights=support%use_weights, _RC)
+            call MAPL_Read_bundle(bundle,trim(filename),time=time,regrid_method=support%regridMethod,file_weights=support%use_weights, __RC)
          end if
          call t_prof%stop("Read")
 
          call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
-         _VERIFY(status)
+         __VERIFY(status)
 
          call t_prof%start("write")
 
          if (mapl_am_I_root()) write(*,*) "moving on to writing "//trim(outputfile)
 
-         call ESMF_ClockSet(clock,currtime=time,_RC)
+         call ESMF_ClockSet(clock,currtime=time,__RC)
          if (.not. writer_created) then
-            call newWriter%create_from_bundle(bundle,clock,n_steps=tsteps,time_interval=tint,nbits_to_keep=support%shave,deflate=support%deflate,vertical_data=vertical_data,quantize_algorithm=support%quantize_algorithm,quantize_level=support%quantize_level,zstandard_level=support%zstandard_level,_RC)
+            call newWriter%create_from_bundle(bundle,clock,n_steps=tsteps,time_interval=tint,nbits_to_keep=support%shave,deflate=support%deflate,vertical_data=vertical_data,quantize_algorithm=support%quantize_algorithm,quantize_level=support%quantize_level,zstandard_level=support%zstandard_level,__RC)
             writer_created=.true.
          end if
 
          if (.not.fileCreated) then
-            call newWriter%start_new_file(outputFile,_RC)
+            call newWriter%start_new_file(outputFile,__RC)
             fileCreated=.true.
          end if
-         call newWriter%write_to_file(_RC)
+         call newWriter%write_to_file(__RC)
          call t_prof%stop("write")
 
       end do
    enddo
 !   All done
 !   --------
-   call ESMF_VMBarrier(VM,_RC)
+   call ESMF_VMBarrier(VM,__RC)
 
    call io_server%finalize()
    call t_prof%stop()
    call t_prof%reduce()
    call t_prof%finalize()
    call generate_report()
-   call MAPL_Finalize(_RC)
-   call ESMF_Finalize ( _RC )
+   call MAPL_Finalize(__RC)
+   call ESMF_Finalize ( __RC )
 
    end subroutine main
 
@@ -481,18 +481,18 @@ CONTAINS
       real, allocatable, target :: levs(:)
       real, pointer :: plevs(:)
 
-      call formatter%open(trim(filename),pFIO_Read,_RC)
-      basic_metadata=formatter%read(_RC)
+      call formatter%open(trim(filename),pFIO_Read,__RC)
+      basic_metadata=formatter%read(__RC)
       call metadata%create(basic_metadata,trim(filename))
-      lev_name = metadata%get_level_name(_RC)
+      lev_name = metadata%get_level_name(__RC)
       call metadata%get_coordinate_info(lev_name,coords=levs,coordUnits=lev_units,long_name=long_name,&
-           standard_name=standard_name,coordinate_attr=vcoord,_RC)
+           standard_name=standard_name,coordinate_attr=vcoord,__RC)
       plevs => levs
       vertical_data = VerticalData(levels=plevs,vunit=lev_units,vcoord=vcoord,standard_name=standard_name,long_name=long_name, &
-                      force_no_regrid=.true.,_RC)
+                      force_no_regrid=.true.,__RC)
       nullify(plevs)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine get_file_levels
 
@@ -512,31 +512,31 @@ CONTAINS
       type(FileMetadata) :: basic_metadata
       type(FileMetadataUtils) :: metadata
 
-      call formatter%open(trim(filename),pFIO_Read,_RC)
-      basic_metadata=formatter%read(_RC)
+      call formatter%open(trim(filename),pFIO_Read,__RC)
+      basic_metadata=formatter%read(__RC)
       call metadata%create(basic_metadata,trim(filename))
 
-      call formatter%close(_RC)
+      call formatter%close(__RC)
 
-      tsteps = metadata%get_dimension('time',_RC)
-      call metadata%get_time_info(timeVector=tSeries,_RC)
+      tsteps = metadata%get_dimension('time',__RC)
+      call metadata%get_time_info(timeVector=tSeries,__RC)
 
       if (.not.allTimes) then
          tSteps=1
          call UnpackDateTIme(itime,year,month,day,hour,minute,second)
          deallocate(tSeries)
          allocate(tSeries(1))
-         call ESMF_TimeSet(tSeries(1), yy=year, mm=month, dd=day,  h=hour,  m=minute, s=second,_RC)
+         call ESMF_TimeSet(tSeries(1), yy=year, mm=month, dd=day,  h=hour,  m=minute, s=second,__RC)
       end if
       if (tSteps == 1) then
-         call ESMF_TimeIntervalSet( TimeInterval, h=6, m=0, s=0, _RC )
+         call ESMF_TimeIntervalSet( TimeInterval, h=6, m=0, s=0, __RC )
       else
          TimeInterval=tSeries(2)-tSeries(1)
       end if
-      call ESMF_TimeIntervalGet(TimeInterval,h=hour,m=minute,s=second,_RC)
+      call ESMF_TimeIntervalGet(TimeInterval,h=hour,m=minute,s=second,__RC)
       tint=hour*10000+minute*100+second
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine get_file_times
 

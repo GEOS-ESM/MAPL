@@ -73,7 +73,7 @@ contains
       use MAPL_BaseMod
       type (EsmfRegridder) :: regridder
 
-      _UNUSED_DUMMY(regridder)
+      __UNUSED_DUMMY(regridder)
 
       ! Nothing to do here
    end function new_EsmfRegridder
@@ -83,7 +83,7 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
       supports = any(spec%regrid_method  == &
            [ &
@@ -99,7 +99,7 @@ contains
            REGRID_METHOD_NEAREST_STOD ])
 !!$      supports = .true.
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function supports
 
 
@@ -125,10 +125,10 @@ contains
                   gridToFieldMap=[1,2],&
                   rc=status)
       HasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (HasDE) then
          call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          p_src = q_in
       end if
 
@@ -137,24 +137,24 @@ contains
                   gridToFieldMap=[1,2],&
                   rc=status)
       HasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (HasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       if (HasDE) q_out = p_dst
 
       call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine regrid_scalar_2d_real32
 
@@ -180,10 +180,10 @@ contains
                   gridToFieldMap=[1,2],&
                   rc=status)
       HasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (HasDE) then
          call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          p_src = q_in
       end if
 
@@ -192,24 +192,24 @@ contains
                   gridToFieldMap=[1,2],&
                   rc=status)
       HasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (HasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       if (HasDE) q_out = p_dst
 
       call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine regrid_scalar_2d_real64
 
@@ -233,10 +233,10 @@ contains
                   gridToFieldMap=[1,2],&
                   rc=status)
       HasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (HasDE) then
          call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          p_src = q_in
       end if
 
@@ -244,24 +244,24 @@ contains
                   gridToFieldMap=[1,2],&
                   rc=status)
       HasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (HasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, doTranspose=.true., rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       if (hasDE) q_out = p_dst
 
       call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine transpose_regrid_scalar_2d_real32
 
@@ -287,64 +287,64 @@ contains
 
       ! Note: tranposing km to leading index
       call ESMF_VMGetCurrent(vm,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       HasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
          km = size(q_in,3)
       else
          km = 0
       end if
       call ESMF_VMAllReduce(vm,sendData=km,recvData=kin,reduceflag=ESMF_REDUCE_MAX,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       if (hasDE) then
-          _ASSERT(kin == size(q_in,3),'inconsistent array shape')
+          __ASSERT(kin == size(q_in,3),'inconsistent array shape')
       end if
       src_field = ESMF_FieldCreate(spec%grid_in, typekind=ESMF_TYPEKIND_R4, &
                   gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[kin],&
                   rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (HasDE) then
          call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          p_src = reshape(q_in,shape(p_src), order=[2,3,1])
       end if
 
 
       HasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
          km = size(q_out,3)
       else
          km = 0
       end if
       call ESMF_VMAllReduce(vm,sendData=km,recvData=kout,reduceflag=ESMF_REDUCE_MAX,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
-          _ASSERT(km == size(q_out,3),'inconsistent array shape')
+          __ASSERT(km == size(q_out,3),'inconsistent array shape')
       end if
       dst_field = ESMF_FieldCreate(spec%grid_out, typekind=ESMF_TYPEKIND_R4, &
                   gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[kout],&
                   rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (HasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       if (HasDE) q_out = reshape(p_dst, shape(q_out), order=[3,1,2])
 
       call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine regrid_scalar_3d_real32
 
@@ -370,64 +370,64 @@ contains
 
       ! Note: tranposing km to leading index
       call ESMF_VMGetCurrent(vm,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       HasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
          km = size(q_in,3)
       else
          km = 0
       end if
       call ESMF_VMAllReduce(vm,sendData=km,recvData=kin,reduceflag=ESMF_REDUCE_MAX,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       if (hasDE) then
-          _ASSERT(kin == size(q_in,3),'inconsistent array shape')
+          __ASSERT(kin == size(q_in,3),'inconsistent array shape')
       end if
       src_field = ESMF_FieldCreate(spec%grid_in, typekind=ESMF_TYPEKIND_R8, &
                   gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[kin],&
                   rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (HasDE) then
          call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          p_src = reshape(q_in,shape(p_src), order=[2,3,1])
       end if
 
 
       HasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
          km = size(q_out,3)
       else
          km = 0
       end if
       call ESMF_VMAllReduce(vm,sendData=km,recvData=kout,reduceflag=ESMF_REDUCE_MAX,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
-          _ASSERT(km == size(q_out,3),'inconsistent array shape')
+          __ASSERT(km == size(q_out,3),'inconsistent array shape')
       end if
       dst_field = ESMF_FieldCreate(spec%grid_out, typekind=ESMF_TYPEKIND_R8, &
                   gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[kout],&
                   rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (HasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       if (HasDE) q_out = reshape(p_dst, shape(q_out), order=[3,1,2])
 
       call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine regrid_scalar_3d_real64
 
@@ -450,65 +450,65 @@ contains
       type(ESMF_VM) :: vm
 
       call ESMF_VMGetCurrent(vm,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       spec = this%get_spec()
 
       km = size(q_in,3)
-      _ASSERT(km == size(q_out,3),'inconsistent array shape')
+      __ASSERT(km == size(q_out,3),'inconsistent array shape')
 
       HasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
          km = size(q_in,3)
       else
          km = 0
       end if
       call ESMF_VMAllReduce(vm,sendData=km,recvData=kin,reduceFlag=ESMF_REDUCE_MAX,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
-          _ASSERT(kin == size(q_in,3),'inconsistent array shape')
+          __ASSERT(kin == size(q_in,3),'inconsistent array shape')
       end if
       src_field = ESMF_FieldCreate(spec%grid_out, typekind=ESMF_TYPEKIND_R4, &
                   gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[kin],&
                   rc=status)
       if (HasDE) then
          call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          p_src = reshape(q_in,shape(p_src), order=[2,3,1])
       end if
 
       HasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
          km = size(q_out,3)
       else
          km = 0
       end if
       call ESMF_VMAllReduce(vm,sendData=km,recvData=kout,reduceFlag=ESMF_REDUCE_MAX,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
-          _ASSERT(kout == size(q_out,3),'inconsistent array shape')
+          __ASSERT(kout == size(q_out,3),'inconsistent array shape')
       end if
       dst_field = ESMF_FieldCreate(spec%grid_in, typekind=ESMF_TYPEKIND_R4, &
                   gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[kout],&
                   rc=status)
       if (HasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, doTranspose=.true., rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       if (HasDE) q_out = reshape(p_dst, shape(q_out), order=[3,1,2])
 
       call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine transpose_regrid_scalar_3d_real32
 
@@ -540,13 +540,13 @@ contains
 
       im_src = size(u_in,1)
       jm_src = size(u_in,2)
-      _ASSERT(im_src == size(v_in,1),'inconsistent array shape')
-      _ASSERT(jm_src == size(v_in,2),'inconsistent array shape')
+      __ASSERT(im_src == size(v_in,1),'inconsistent array shape')
+      __ASSERT(jm_src == size(v_in,2),'inconsistent array shape')
 
       im_dst = size(u_out,1)
       jm_dst = size(u_out,2)
-      _ASSERT(im_dst == size(v_out,1),'inconsistent array shape')
-      _ASSERT(jm_dst == size(v_out,2),'inconsistent array shape')
+      __ASSERT(im_dst == size(v_out,1),'inconsistent array shape')
+      __ASSERT(jm_dst == size(v_out,2),'inconsistent array shape')
 
       grid_axis_in = 'north-south'
       grid_axis_out = 'north-south'
@@ -558,51 +558,51 @@ contains
       end if
 
       factory => grid_manager%get_factory(spec%grid_in,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       ! TODO support other staggerings
       src_field = ESMF_FieldCreate(spec%grid_in, typekind=ESMF_TYPEKIND_R4, &
            & gridToFieldMap=[3,4], UngriddedLBound=[1,1], ungriddedUBound=[3,1], &
            & rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       hasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
          call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          call factory%spherical_to_cartesian(u_in, v_in, p_src, grid_axis_in, rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
       end if
 
 
       dst_field = ESMF_FieldCreate(spec%grid_out, typekind=ESMF_TYPEKIND_R4, &
            & gridToFieldMap=[3,4], UngriddedLBound=[1,1], ungriddedUBound=[3,1], &
            & rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       hasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       factory => grid_manager%get_factory(spec%grid_out,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
          call factory%cartesian_to_spherical(p_dst, u_out, v_out, grid_axis_out, rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
       end if
 
       call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine regrid_vector_2d_real32
 
@@ -634,13 +634,13 @@ contains
 
      im_src = size(u_in,1)
      jm_src = size(u_in,2)
-     _ASSERT(im_src == size(v_in,1),'inconsistent array shape')
-     _ASSERT(jm_src == size(v_in,2),'inconsistent array shape')
+     __ASSERT(im_src == size(v_in,1),'inconsistent array shape')
+     __ASSERT(jm_src == size(v_in,2),'inconsistent array shape')
 
      im_dst = size(u_out,1)
      jm_dst = size(u_out,2)
-     _ASSERT(im_dst == size(v_out,1),'inconsistent array shape')
-     _ASSERT(jm_dst == size(v_out,2),'inconsistent array shape')
+     __ASSERT(im_dst == size(v_out,1),'inconsistent array shape')
+     __ASSERT(jm_dst == size(v_out,2),'inconsistent array shape')
 
       grid_axis_in = 'north-south'
       grid_axis_out = 'north-south'
@@ -652,51 +652,51 @@ contains
       end if
 
      factory => grid_manager%get_factory(spec%grid_in,rc=status)
-     _VERIFY(status)
+     __VERIFY(status)
 
      ! TODO support other staggerings
      src_field = ESMF_FieldCreate(spec%grid_in, typekind=ESMF_TYPEKIND_R8, &
           & gridToFieldMap=[3,4], UngriddedLBound=[1,1], ungriddedUBound=[3,1], &
           & rc=status)
-     _VERIFY(status)
+     __VERIFY(status)
      hasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
-     _VERIFY(status)
+     __VERIFY(status)
      if (hasDE) then
         call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
-        _VERIFY(status)
+        __VERIFY(status)
         call factory%spherical_to_cartesian(u_in, v_in, p_src, grid_axis_in, rc=status)
-        _VERIFY(status)
+        __VERIFY(status)
      end if
 
 
      dst_field = ESMF_FieldCreate(spec%grid_out, typekind=ESMF_TYPEKIND_R8, &
           & gridToFieldMap=[3,4], UngriddedLBound=[1,1], ungriddedUBound=[3,1], &
           & rc=status)
-     _VERIFY(status)
+     __VERIFY(status)
      hasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
-     _VERIFY(status)
+     __VERIFY(status)
      if (hasDE) then
         call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
-        _VERIFY(status)
+        __VERIFY(status)
         p_dst = MAPL_UNDEF
      end if
 
      call this%do_regrid(src_field, dst_field, rc=status)
-     _VERIFY(status)
+     __VERIFY(status)
 
      factory => grid_manager%get_factory(spec%grid_out,rc=status)
-     _VERIFY(status)
+     __VERIFY(status)
      if (hasDE) then
         call factory%cartesian_to_spherical(p_dst, u_out, v_out, grid_axis_out, rc=status)
-        _VERIFY(status)
+        __VERIFY(status)
      end if
 
      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
-     _VERIFY(status)
+     __VERIFY(status)
      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
-     _VERIFY(status)
+     __VERIFY(status)
 
-     _RETURN(ESMF_SUCCESS)
+     __RETURN(ESMF_SUCCESS)
 
    end subroutine regrid_vector_2d_real64
 
@@ -728,13 +728,13 @@ contains
 
       im_src = size(u_in,1)
       jm_src = size(u_in,2)
-      _ASSERT(im_src == size(v_in,1),'inconsistent array shape')
-      _ASSERT(jm_src == size(v_in,2),'inconsistent array shape')
+      __ASSERT(im_src == size(v_in,1),'inconsistent array shape')
+      __ASSERT(jm_src == size(v_in,2),'inconsistent array shape')
 
       im_dst = size(u_out,1)
       jm_dst = size(u_out,2)
-      _ASSERT(im_dst == size(v_out,1),'inconsistent array shape')
-      _ASSERT(jm_dst == size(v_out,2),'inconsistent array shape')
+      __ASSERT(im_dst == size(v_out,1),'inconsistent array shape')
+      __ASSERT(jm_dst == size(v_out,2),'inconsistent array shape')
 
       grid_axis_in = 'north-south'
       grid_axis_out = 'north-south'
@@ -746,47 +746,47 @@ contains
       end if
 
       factory => grid_manager%get_factory(spec%grid_out,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       hasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       src_field = ESMF_FieldCreate(spec%grid_out, typekind = ESMF_TYPEKIND_R4, &
            & gridToFieldMap=[3,4],ungriddedLBound=[1,1],ungriddedUBound=[3,1],rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
          call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          call factory%spherical_to_cartesian(u_in, v_in, p_src, grid_axis_in, rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
       end if
 
 
       hasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       dst_field = ESMF_FieldCreate(spec%grid_in, typekind = ESMF_TYPEKIND_R4, &
            & gridToFieldMap=[3,4],ungriddedLBound=[1,1],ungriddedUBound=[3,1],rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, doTranspose=.true., rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       factory => grid_manager%get_factory(spec%grid_in,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
          call factory%cartesian_to_spherical(p_dst, u_out, v_out, grid_axis_out, rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
       end if
 
       call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine transpose_regrid_vector_2d_real32
 
@@ -817,25 +817,25 @@ contains
       type(ESMF_VM) :: vm
 
       call ESMF_VMGetCurrent(vm,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       spec = this%get_spec()
 
       km = size(u_in,3)
-      _ASSERT(km == size(v_in,3),'inconsistent array shape')
+      __ASSERT(km == size(v_in,3),'inconsistent array shape')
       if (size(u_out) /= 0) then
-         _ASSERT(km == size(u_out,3),'inconsistent array shape')
-         _ASSERT(km == size(v_out,3),'inconsistent array shape')
+         __ASSERT(km == size(u_out,3),'inconsistent array shape')
+         __ASSERT(km == size(v_out,3),'inconsistent array shape')
       end if
 
       im_src = size(u_in,1)
       jm_src = size(u_in,2)
-      _ASSERT(im_src == size(v_in,1),'inconsistent array shape')
-      _ASSERT(jm_src == size(v_in,2),'inconsistent array shape')
+      __ASSERT(im_src == size(v_in,1),'inconsistent array shape')
+      __ASSERT(jm_src == size(v_in,2),'inconsistent array shape')
 
       im_dst = size(u_out,1)
       jm_dst = size(u_out,2)
-      _ASSERT(im_dst == size(v_out,1),'inconsistent array shape')
-      _ASSERT(jm_dst == size(v_out,2),'inconsistent array shape')
+      __ASSERT(im_dst == size(v_out,1),'inconsistent array shape')
+      __ASSERT(jm_dst == size(v_out,2),'inconsistent array shape')
 
       grid_axis_in = 'north-south'
       grid_axis_out = 'north-south'
@@ -847,62 +847,62 @@ contains
       end if
 
       factory => grid_manager%get_factory(spec%grid_in,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       hasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
          km = size(u_in,3)
       else
          km = 0
       end if
       call ESMF_VMAllReduce(vm,sendData=km,recvData=kin,reduceFlag=ESMF_REDUCE_MAX,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       src_field = ESMF_FieldCreate(spec%grid_in, typekind = ESMF_TYPEKIND_R4, &
            & gridToFieldMap=[3,4],ungriddedLBound=[1,1],ungriddedUBound=[3,kin],rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
          call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          call factory%spherical_to_cartesian(u_in, v_in, p_src, grid_axis_in, rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
       end if
 
       hasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       hasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
          km = size(u_out,3)
       else
          km = 0
       end if
       call ESMF_VMAllReduce(vm,sendData=km,recvData=kout,reduceFlag=ESMF_REDUCE_MAX,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       dst_field = ESMF_FieldCreate(spec%grid_out, typekind = ESMF_TYPEKIND_R4, &
            & gridToFieldMap=[3,4],ungriddedLBound=[1,1],ungriddedUBound=[3,kout],rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       factory => grid_manager%get_factory(spec%grid_out,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
          call factory%cartesian_to_spherical(p_dst, u_out, v_out, grid_axis_out,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
       end if
 
       call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine regrid_vector_3d_real32
 
@@ -932,86 +932,86 @@ contains
      type(ESMF_VM) :: vm
 
      call ESMF_VMGetCurrent(vm,rc=status)
-     _VERIFY(status)
+     __VERIFY(status)
      spec = this%get_spec()
 
      km = size(u_in,3)
-     _ASSERT(km == size(v_in,3),'inconsistent array shape')
+     __ASSERT(km == size(v_in,3),'inconsistent array shape')
       if (size(u_out) /= 0) then
-         _ASSERT(km == size(u_out,3),'inconsistent array shape')
-         _ASSERT(km == size(v_out,3),'inconsistent array shape')
+         __ASSERT(km == size(u_out,3),'inconsistent array shape')
+         __ASSERT(km == size(v_out,3),'inconsistent array shape')
       end if
 
      im_src = size(u_in,1)
      jm_src = size(u_in,2)
-     _ASSERT(im_src == size(v_in,1),'inconsistent array shape')
-     _ASSERT(jm_src == size(v_in,2),'inconsistent array shape')
+     __ASSERT(im_src == size(v_in,1),'inconsistent array shape')
+     __ASSERT(jm_src == size(v_in,2),'inconsistent array shape')
 
      im_dst = size(u_out,1)
      jm_dst = size(u_out,2)
-     _ASSERT(im_dst == size(v_out,1),'inconsistent array shape')
-     _ASSERT(jm_dst == size(v_out,2),'inconsistent array shape')
+     __ASSERT(im_dst == size(v_out,1),'inconsistent array shape')
+     __ASSERT(jm_dst == size(v_out,2),'inconsistent array shape')
 
      grid_axis_in = 'north-south'
      grid_axis_out = 'north-south'
 
      factory => grid_manager%get_factory(spec%grid_in,rc=status)
-     _VERIFY(status)
+     __VERIFY(status)
      hasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
-     _VERIFY(status)
+     __VERIFY(status)
      if (hasDE) then
         km = size(u_in,3)
      else
         km = 0
      end if
      call ESMF_VMAllReduce(vm,sendData=km,recvData=kin,reduceFlag=ESMF_REDUCE_MAX,rc=status)
-     _VERIFY(status)
+     __VERIFY(status)
      src_field = ESMF_FieldCreate(spec%grid_in, typekind = ESMF_TYPEKIND_R8, &
           & gridToFieldMap=[3,4],ungriddedLBound=[1,1],ungriddedUBound=[3,kin],rc=status)
-     _VERIFY(status)
+     __VERIFY(status)
      if (hasDE) then
         call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
-        _VERIFY(status)
+        __VERIFY(status)
         call factory%spherical_to_cartesian(u_in, v_in, p_src, grid_axis_in, rc=status)
-        _VERIFY(status)
+        __VERIFY(status)
      end if
 
      hasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
-     _VERIFY(status)
+     __VERIFY(status)
      hasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
-     _VERIFY(status)
+     __VERIFY(status)
      if (hasDE) then
         km = size(u_out,3)
      else
         km = 0
      end if
      call ESMF_VMAllReduce(vm,sendData=km,recvData=kout,reduceFlag=ESMF_REDUCE_MAX,rc=status)
-     _VERIFY(status)
+     __VERIFY(status)
      dst_field = ESMF_FieldCreate(spec%grid_out, typekind = ESMF_TYPEKIND_R8, &
           & gridToFieldMap=[3,4],ungriddedLBound=[1,1],ungriddedUBound=[3,kout],rc=status)
-     _VERIFY(status)
+     __VERIFY(status)
      if (hasDE) then
         call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
-        _VERIFY(status)
+        __VERIFY(status)
         p_dst = MAPL_UNDEF
      end if
 
      call this%do_regrid(src_field, dst_field, rc=status)
-     _VERIFY(status)
+     __VERIFY(status)
 
      factory => grid_manager%get_factory(spec%grid_out,rc=status)
-     _VERIFY(status)
+     __VERIFY(status)
      if (hasDE) then
         call factory%cartesian_to_spherical(p_dst, u_out, v_out, grid_axis_out,rc=status)
-        _VERIFY(status)
+        __VERIFY(status)
      end if
 
      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
-     _VERIFY(status)
+     __VERIFY(status)
      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
-     _VERIFY(status)
+     __VERIFY(status)
 
-     _RETURN(ESMF_SUCCESS)
+     __RETURN(ESMF_SUCCESS)
 
    end subroutine regrid_vector_3d_real64
 
@@ -1043,24 +1043,24 @@ contains
 
       spec = this%get_spec()
       call ESMF_VMGetCurrent(vm,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       km = size(u_in,3)
-      _ASSERT(km == size(v_in,3),'inconsistent array shape')
+      __ASSERT(km == size(v_in,3),'inconsistent array shape')
       if (size(u_out) /= 0) then
-         _ASSERT(km == size(u_out,3),'inconsistent array shape')
-         _ASSERT(km == size(v_out,3),'inconsistent array shape')
+         __ASSERT(km == size(u_out,3),'inconsistent array shape')
+         __ASSERT(km == size(v_out,3),'inconsistent array shape')
       end if
 
       im_src = size(u_in,1)
       jm_src = size(u_in,2)
-      _ASSERT(im_src == size(v_in,1),'inconsistent array shape')
-      _ASSERT(jm_src == size(v_in,2),'inconsistent array shape')
+      __ASSERT(im_src == size(v_in,1),'inconsistent array shape')
+      __ASSERT(jm_src == size(v_in,2),'inconsistent array shape')
 
       im_dst = size(u_out,1)
       jm_dst = size(u_out,2)
-      _ASSERT(im_dst == size(v_out,1),'inconsistent array shape')
-      _ASSERT(jm_dst == size(v_out,2),'inconsistent array shape')
+      __ASSERT(im_dst == size(v_out,1),'inconsistent array shape')
+      __ASSERT(jm_dst == size(v_out,2),'inconsistent array shape')
 
       allocate(p_src(3,km,im_src,jm_src))
       allocate(p_dst(3,km,im_dst,jm_dst))
@@ -1075,63 +1075,63 @@ contains
       end if
 
       factory => grid_manager%get_factory(spec%grid_out,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       hasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
          km = size(u_in,3)
       else
          km = 0
       end if
       call ESMF_VMAllReduce(vm,sendData=km,recvData=kin,reduceFlag=ESMF_REDUCE_MAX,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       src_field = ESMF_FieldCreate(spec%grid_out, typekind = ESMF_TYPEKIND_R4, &
            & gridToFieldMap=[3,4],ungriddedLBound=[1,1],ungriddedUBound=[3,kin],rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
          call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          call factory%spherical_to_cartesian(u_in, v_in, p_src, grid_axis_in, rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
       end if
 
       hasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
          km = size(u_out,3)
       else
          km = 0
       end if
       call ESMF_VMAllReduce(vm,sendData=km,recvData=kout,reduceFlag=ESMF_REDUCE_MAX,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       dst_field = ESMF_FieldCreate(spec%grid_in, typekind = ESMF_TYPEKIND_R4, &
            & gridToFieldMap=[3,4],ungriddedLBound=[1,1],ungriddedUBound=[3,kout],rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, doTranspose=.true.,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       factory => grid_manager%get_factory(spec%grid_in,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       if (hasDE) then
          call factory%cartesian_to_spherical(p_dst, u_out, v_out, grid_axis_out,rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
       end if
 
       call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       deallocate(p_src)
       deallocate(p_dst)
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine transpose_regrid_vector_3d_real32
 
@@ -1145,7 +1145,7 @@ contains
       integer :: i, j, k, n
       real(ESMF_KIND_R4), allocatable  :: renorm(:)
 
-      _UNUSED_DUMMY(dynamicDstMaskValue)
+      __UNUSED_DUMMY(dynamicDstMaskValue)
 
       if (associated(dynamicMaskList)) then
          n = size(dynamicMaskList(1)%srcElement(1)%ptr)
@@ -1186,7 +1186,7 @@ contains
       integer :: i, j, k, n
       real(ESMF_KIND_R4), allocatable  :: renorm(:),max_input(:),min_input(:)
 
-      _UNUSED_DUMMY(dynamicDstMaskValue)
+      __UNUSED_DUMMY(dynamicDstMaskValue)
 
       if (associated(dynamicMaskList)) then
          n = size(dynamicMaskList(1)%srcElement(1)%ptr)
@@ -1245,7 +1245,7 @@ contains
       integer :: i, j, k, n
       real(ESMF_KIND_R4), allocatable  :: renorm(:)
 
-      _UNUSED_DUMMY(dynamicDstMaskValue)
+      __UNUSED_DUMMY(dynamicDstMaskValue)
 
       if (associated(dynamicMaskList)) then
          n = size(dynamicMaskList(1)%srcElement(1)%ptr)
@@ -1286,7 +1286,7 @@ contains
       integer :: i, j, k, n
       real(ESMF_KIND_R4), allocatable  :: renorm(:)
 
-      _UNUSED_DUMMY(dynamicDstMaskValue)
+      __UNUSED_DUMMY(dynamicDstMaskValue)
 
       if (associated(dynamicMaskList)) then
          n = size(dynamicMaskList(1)%srcElement(1)%ptr)
@@ -1328,17 +1328,17 @@ contains
       character(*), parameter :: Iam = 'MAPL_EsmfRegridder::do_regrid()'
       integer :: status
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
       call ESMF_FieldGet(src_field, typekind = src_kind, rc = status)
-      _VERIFY(status)
+      __VERIFY(status)
       call ESMF_FieldGet(dst_field, typekind = dst_kind, rc = status)
-      _VERIFY(status)
+      __VERIFY(status)
 
-      _ASSERT(src_kind == dst_kind,'inconsistent kinds')
+      __ASSERT(src_kind == dst_kind,'inconsistent kinds')
 
       route_handle = this%select_route_handle(src_kind, do_transpose = doTranspose, rc = status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       spec = this%get_spec()
 
@@ -1349,14 +1349,14 @@ contains
               & termorderflag=ESMF_TERMORDER_SRCSEQ, &
               & zeroregion=ESMF_REGION_SELECT, &
               & rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
       else
          call ESMF_FieldRegrid(src_field, dst_field, &
               & routeHandle=route_handle, &
               & termorderflag=ESMF_TERMORDER_SRCSEQ, &
               & zeroregion=ESMF_REGION_SELECT, &
               & rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
       end if
 
    end subroutine do_regrid
@@ -1373,14 +1373,14 @@ contains
      character(len=*), parameter :: Iam = 'initialize_subclass'
      type (RegridderSpec) :: spec
 
-     _UNUSED_DUMMY(unusable)
+     __UNUSED_DUMMY(unusable)
 
      spec = this%get_spec()
 
      this%regrid_method = spec%regrid_method
 
      call this%create_route_handle(ESMF_TYPEKIND_R4, rc = status)
-     _VERIFY(status)
+     __VERIFY(status)
 
      ! TODO: should get missing value from source file
      select case (spec%regrid_method)
@@ -1389,31 +1389,31 @@ contains
              & dynamicSrcMaskValue=MAPL_undef, &
              & dynamicMaskRoutine=simpleDynMaskProcV, &
              & rc=rc)
-        _VERIFY(rc)
+        __VERIFY(rc)
      case (REGRID_METHOD_BILINEAR_MONOTONIC, REGRID_METHOD_CONSERVE_MONOTONIC)
         call ESMF_DynamicMaskSetR4R8R4V(this%dynamic_mask, &
              & dynamicSrcMaskValue=MAPL_undef, &
              & dynamicMaskRoutine=monotonicDynMaskProcV, &
              & handleAllElements=.true., &
              & rc=rc)
-        _VERIFY(rc)
+        __VERIFY(rc)
      case (REGRID_METHOD_VOTE)
         call ESMF_DynamicMaskSetR4R8R4V(this%dynamic_mask, &
              & dynamicSrcMaskValue=MAPL_undef, &
              & dynamicMaskRoutine=voteDynMaskProcV, &
              & handleAllElements=.true., &
              & rc=rc)
-        _VERIFY(rc)
+        __VERIFY(rc)
      case (REGRID_METHOD_FRACTION)
         call ESMF_DynamicMaskSetR4R8R4V(this%dynamic_mask, &
              & dynamicSrcMaskValue=MAPL_undef, &
              & dynamicMaskRoutine=fractionDynMaskProcV, &
              & handleAllElements=.true., &
              & rc=rc)
-        _VERIFY(rc)
+        __VERIFY(rc)
      end select
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
 
    end subroutine initialize_subclass
 
@@ -1453,7 +1453,7 @@ contains
         route_handles => route_handles_r8
         transpose_route_handles => transpose_route_handles_r8
      else
-        _FAIL('unsupported type kind (must be R4 or R8)')
+        __FAIL('unsupported type kind (must be R4 or R8)')
      end if
 
      unmappedaction = ESMF_UNMAPPEDACTION_ERROR
@@ -1465,7 +1465,7 @@ contains
         compute_transpose = IAND(spec%hints,REGRID_HINT_COMPUTE_TRANSPOSE) /= 0
 
         if (file_weights) then
-           rh_file = generate_rh_name(spec%grid_in,spec%grid_out,spec%regrid_method,_RC)
+           rh_file = generate_rh_name(spec%grid_in,spec%grid_out,spec%regrid_method,__RC)
            rh_trans_file = "transpose_"//rh_file
            inquire(file=rh_file,exist=rh_file_exists)
         else
@@ -1473,51 +1473,51 @@ contains
         end if
         if (rh_file_exists) then
            call lgr%info('Reading weight file: %a', trim(rh_file))
-           route_handle = ESMF_RouteHandleCreate(rh_file,_RC)
+           route_handle = ESMF_RouteHandleCreate(rh_file,__RC)
            call route_handles%insert(spec, route_handle)
            if (compute_transpose) then
-              transpose_route_handle = ESMF_RouteHandleCreate(rh_trans_file,_RC)
+              transpose_route_handle = ESMF_RouteHandleCreate(rh_trans_file,__RC)
               call transpose_route_handles%insert(spec, transpose_route_handle)
            end if
         else
            src_field = ESMF_FieldCreate(spec%grid_in, typekind=kind, &
                 & indexflag=ESMF_INDEX_DELOCAL, staggerloc=ESMF_STAGGERLOC_CENTER, rc=status)
-           _VERIFY(status)
+           __VERIFY(status)
 
            if (MAPL_GridHasDE(spec%grid_in)) then
               if (kind == ESMF_TYPEKIND_R4) then
                  call ESMF_FieldGet(src_field, localDe=0, farrayPtr=src_dummy_r4, rc=status)
-                 _VERIFY(status)
+                 __VERIFY(status)
                  src_dummy_r4 = 0
               else if (kind == ESMF_TYPEKIND_R8) then
                  call ESMF_FieldGet(src_field, localDe=0, farrayPtr=src_dummy_r8, rc=status)
-                 _VERIFY(status)
+                 __VERIFY(status)
                  src_dummy_r8 = 0
               end if
            end if
 
            dst_field = ESMF_FieldCreate(spec%grid_out, typekind=kind, &
                 & indexflag=ESMF_INDEX_DELOCAL, staggerloc=ESMF_STAGGERLOC_CENTER, rc=status)
-           _VERIFY(status)
+           __VERIFY(status)
            if (MAPL_GridHasDE(spec%grid_out)) then
               if (kind == ESMF_TYPEKIND_R4) then
                  call ESMF_FieldGet(dst_field, localDe=0, farrayPtr=dst_dummy_r4, rc=status)
-                 _VERIFY(status)
+                 __VERIFY(status)
                  dst_dummy_r4 = 0
               else if (kind == ESMF_TYPEKIND_R8) then
                  call ESMF_FieldGet(dst_field, localDe=0, farrayPtr=dst_dummy_r8, rc=status)
-                 _VERIFY(status)
+                 __VERIFY(status)
                  dst_dummy_r8 = 0
               end if
            end if
            call ESMF_GridGetItem(spec%grid_out,itemflag=ESMF_GRIDITEM_MASK, &
-           staggerloc=ESMF_STAGGERLOC_CENTER, isPresent = has_mask, _RC)
-           call ESMF_AttributeGet(spec%grid_out, name=MAPL_DESTINATIONMASK, isPresent=has_dstMaskValues, _RC)
+           staggerloc=ESMF_STAGGERLOC_CENTER, isPresent = has_mask, __RC)
+           call ESMF_AttributeGet(spec%grid_out, name=MAPL_DESTINATIONMASK, isPresent=has_dstMaskValues, __RC)
            if (has_dstMaskValues) then
-              _ASSERT(has_mask, "masking destination values when no masks is present")
-              call ESMF_AttributeGet(spec%grid_out, name=MAPL_DESTINATIONMASK, itemcount=num_mask_values, _RC)
-              allocate(dstMaskValues(num_mask_values), _STAT)
-              call ESMF_AttributeGet(spec%grid_out, name=MAPL_DESTINATIONMASK, valuelist=dstMaskValues, _RC)
+              __ASSERT(has_mask, "masking destination values when no masks is present")
+              call ESMF_AttributeGet(spec%grid_out, name=MAPL_DESTINATIONMASK, itemcount=num_mask_values, __RC)
+              allocate(dstMaskValues(num_mask_values), __STAT)
+              call ESMF_AttributeGet(spec%grid_out, name=MAPL_DESTINATIONMASK, valuelist=dstMaskValues, __RC)
            end if
 
            counter = counter + 1
@@ -1538,7 +1538,7 @@ contains
                    & srcTermProcessing = srcTermProcessing, &
                    & factorList=factorList, factorIndexList=factorIndexList, &
                    & routehandle=route_handle, unmappedaction=unmappedaction, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
            case (REGRID_METHOD_PATCH)
 
               call ESMF_FieldRegridStore(src_field, dst_field, &
@@ -1548,7 +1548,7 @@ contains
                    & srcTermProcessing = srcTermProcessing, &
                    & factorList=factorList, factorIndexList=factorIndexList, &
                    & routehandle=route_handle, unmappedaction=unmappedaction, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
            case (REGRID_METHOD_CONSERVE_2ND)
 
               call ESMF_FieldRegridStore(src_field, dst_field, &
@@ -1558,7 +1558,7 @@ contains
                    & srcTermProcessing = srcTermProcessing, &
                    & factorList=factorList, factorIndexList=factorIndexList, &
                    & routehandle=route_handle, unmappedaction=unmappedaction, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
            case (REGRID_METHOD_CONSERVE, REGRID_METHOD_CONSERVE_MONOTONIC, REGRID_METHOD_VOTE, REGRID_METHOD_FRACTION)
 
               call ESMF_FieldRegridStore(src_field, dst_field, &
@@ -1567,7 +1567,7 @@ contains
                    & srcTermProcessing = srcTermProcessing, &
                    & factorList=factorList, factorIndexList=factorIndexList, &
                    & routehandle=route_handle, unmappedaction=unmappedaction, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
            case (REGRID_METHOD_NEAREST_STOD)
 
               call ESMF_FieldRegridStore(src_field, dst_field, &
@@ -1575,9 +1575,9 @@ contains
                    & dstMaskValues = dstMaskValues, &
                    & factorList=factorList, factorIndexList=factorIndexList, &
                    & routehandle=route_handle, unmappedaction=unmappedaction, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
            case default
-              _FAIL('unknown regrid method')
+              __FAIL('unknown regrid method')
            end select
            call route_handles%insert(spec, route_handle)
 
@@ -1585,7 +1585,7 @@ contains
               call ESMF_FieldSMMStore(src_field,dst_field,dummy_rh,transpose_route_handle, &
                   & factorList,factorIndexList,srcTermProcessing=srcTermProcessing, &
                   & rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call transpose_route_handles%insert(spec, transpose_route_handle)
            end if
 
@@ -1593,21 +1593,21 @@ contains
            deallocate(factorList,factorIndexList)
 
            call ESMF_FieldDestroy(src_field, rc=status)
-           _VERIFY(status)
+           __VERIFY(status)
            call ESMF_FieldDestroy(dst_field, rc=status)
-           _VERIFY(status)
+           __VERIFY(status)
            if (file_weights) then
               call lgr%info('Writing weight file: %a', trim(rh_file))
-              call ESMF_RouteHandleWrite(route_handle,rh_file,_RC)
+              call ESMF_RouteHandleWrite(route_handle,rh_file,__RC)
               if (compute_transpose) then
                  call lgr%info('Writing transpose weight file: %a', trim(rh_trans_file))
-                 call ESMF_RouteHandleWrite(transpose_route_handle,rh_trans_file,_RC)
+                 call ESMF_RouteHandleWrite(transpose_route_handle,rh_trans_file,__RC)
               end if
            end if
         end if
      end if
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
    end subroutine create_route_handle
 
 
@@ -1633,13 +1633,13 @@ contains
         route_handles => route_handles_r8
         transpose_route_handles => transpose_route_handles_r8
      else
-        _FAIL('unsuported typekind (must be R4 or R8)')
+        __FAIL('unsuported typekind (must be R4 or R8)')
      end if
 
      ! Create route-handle if none exist
      if (route_handles%count(spec) == 0) then
         call this%create_route_handle(kind, rc = status)
-        _VERIFY(status)
+        __VERIFY(status)
      end if
 
      ! select proper route-handle
@@ -1654,7 +1654,7 @@ contains
         route_handle = transpose_route_handles%at(spec)
      end if
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
 
    end function select_route_handle
 
@@ -1663,9 +1663,9 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      call this%destroy_route_handle(ESMF_TYPEKIND_R4, _RC)
+      call this%destroy_route_handle(ESMF_TYPEKIND_R4, __RC)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine destroy
 
 
@@ -1689,27 +1689,27 @@ contains
         route_handles => route_handles_r8
         transpose_route_handles => transpose_route_handles_r8
      else
-        _FAIL('unsupported type kind (must be R4 or R8)')
+        __FAIL('unsupported type kind (must be R4 or R8)')
      end if
 
      spec = this%get_spec()
 
-     _ASSERT(route_handles%count(spec) == 1, 'Did not find this spec in route handle table.')
+     __ASSERT(route_handles%count(spec) == 1, 'Did not find this spec in route handle table.')
      route_handle = route_handles%at(spec)
-     call ESMF_RouteHandleDestroy(route_handle, noGarbage=.true.,_RC)
+     call ESMF_RouteHandleDestroy(route_handle, noGarbage=.true.,__RC)
      iter = route_handles%find(spec)
      call route_handles%erase(iter)
 
      compute_transpose = IAND(spec%hints,REGRID_HINT_COMPUTE_TRANSPOSE) /= 0
      if (compute_transpose) then
-        _ASSERT(transpose_route_handles%count(spec) == 1, 'Did not find this spec in route handle table.')
+        __ASSERT(transpose_route_handles%count(spec) == 1, 'Did not find this spec in route handle table.')
         route_handle = transpose_route_handles%at(spec)
-        call ESMF_RouteHandleDestroy(route_handle, noGarbage=.true., _RC)
+        call ESMF_RouteHandleDestroy(route_handle, noGarbage=.true., __RC)
         iter = transpose_route_handles%find(spec)
         call transpose_route_handles%erase(iter)
      end if
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine destroy_route_handle
 
    function generate_rh_name(grid_in,grid_out,regrid_method,rc) result(file_name)
@@ -1727,7 +1727,7 @@ contains
       integer :: temp(3),layout(2)
       integer :: status
 
-      call MAPL_GridGet(grid_in,GlobalCellCountPerDim=temp,layout=layout,_RC)
+      call MAPL_GridGet(grid_in,GlobalCellCountPerDim=temp,layout=layout,__RC)
       im_in = temp(1)
       jm_in = temp(2)
       nx_in = layout(1)
@@ -1736,7 +1736,7 @@ contains
       write(cjm_in,'(I5.5)')jm_in
       write(cnx_in,'(I5.5)')nx_in
       write(cny_in,'(I5.5)')ny_in
-      call MAPL_GridGet(grid_out,GlobalCellCountPerDim=temp,layout=layout,_RC)
+      call MAPL_GridGet(grid_out,GlobalCellCountPerDim=temp,layout=layout,__RC)
       im_out = temp(1)
       jm_out = temp(2)
       nx_out = layout(1)
@@ -1747,7 +1747,7 @@ contains
       write(cny_out,'(I5.5)')ny_out
       write(cmeth,'(I2.2)')regrid_method
       file_name = "rh_"//cim_in//"x"//cjm_in//"_"//cnx_in//"x"//cny_in//"_"//cim_out//"x"//cjm_out//"_"//cnx_out//"x"//cny_out//"_method_"//cmeth
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end function
 

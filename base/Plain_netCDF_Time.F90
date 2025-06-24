@@ -60,7 +60,7 @@ contains
   logical function is_success(c)
      integer, intent(in) :: c
 
-     is_success = (c == _SUCCESS)
+     is_success = (c == __SUCCESS)
 
   end function is_success
 
@@ -75,27 +75,27 @@ contains
     integer :: status
     character(len=ESMF_MAXSTR) :: lon_name, lat_name, time_name
 
-    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
+    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), __RC)
     if(present(key_lon)) then
        lon_name=trim(key_lon)
-       call check_nc_status(nf90_inq_dimid(ncid, trim(lon_name), dimid), _RC)
-       call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlon), _RC)
+       call check_nc_status(nf90_inq_dimid(ncid, trim(lon_name), dimid), __RC)
+       call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlon), __RC)
     endif
 
     if(present(key_lat)) then
        lat_name=trim(key_lat)
-       call check_nc_status(nf90_inq_dimid(ncid, trim(lat_name), dimid), _RC)
-       call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlat), _RC)
+       call check_nc_status(nf90_inq_dimid(ncid, trim(lat_name), dimid), __RC)
+       call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlat), __RC)
     endif
 
     if(present(key_time)) then
        time_name=trim(key_time)
-       call check_nc_status(nf90_inq_dimid(ncid, trim(time_name), dimid), _RC)
-       call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=tdim), _RC)
+       call check_nc_status(nf90_inq_dimid(ncid, trim(time_name), dimid), __RC)
+       call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=tdim), __RC)
     endif
-    call check_nc_status(nf90_close(ncid), _RC)
+    call check_nc_status(nf90_close(ncid), __RC)
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
   end subroutine get_ncfile_dimension
 
@@ -115,24 +115,24 @@ contains
     integer(kind=C_INT) :: c_ncid, c_varid
     character(len=100) :: str2
 
-    call check_nc_status(nf90_open(fileName, NF90_NOWRITE, ncid2), _RC)
+    call check_nc_status(nf90_open(fileName, NF90_NOWRITE, ncid2), __RC)
     if (group_name/='') then
-       call check_nc_status(nf90_inq_ncid(ncid2, group_name, ncid), _RC)
+       call check_nc_status(nf90_inq_ncid(ncid2, group_name, ncid), __RC)
     else
        ncid = ncid2
     end if
-    call check_nc_status(nf90_inq_varid(ncid, var_name, varid), _RC)
-    call check_nc_status(nf90_inquire_attribute(ncid, varid, attr_name, xtype, len=len), _RC)
+    call check_nc_status(nf90_inq_varid(ncid, var_name, varid), __RC)
+    call check_nc_status(nf90_inquire_attribute(ncid, varid, attr_name, xtype, len=len), __RC)
     c_ncid= ncid
     c_varid= varid
     select case (xtype)
     case(NF90_STRING)
-       _ASSERT(is_success(pfio_get_att_string(c_ncid, c_varid, attr_name, str)), 'Error return from pfio_get_att_string')
+       __ASSERT(is_success(pfio_get_att_string(c_ncid, c_varid, attr_name, str)), 'Error return from pfio_get_att_string')
     case(NF90_CHAR)
        allocate(character(len=len) :: str)
-       call check_nc_status(nf90_get_att(ncid, varid, trim(attr_name), str), _RC)
+       call check_nc_status(nf90_get_att(ncid, varid, trim(attr_name), str), __RC)
     case default
-       _FAIL('code works only with string attribute')
+       __FAIL('code works only with string attribute')
     end select
     i=index(str, 'since')
     ! get rid of T in 1970-01-01T00:00:0
@@ -144,9 +144,9 @@ contains
     endif
     attr = str(1:i+5)//trim(str2)
     deallocate(str)
-    call check_nc_status(nf90_close(ncid2), _RC)
+    call check_nc_status(nf90_close(ncid2), __RC)
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
   end subroutine get_attribute_from_group
 
@@ -163,9 +163,9 @@ contains
     real    :: scale_factor, add_offset
     integer :: iret
 
-    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
-    call check_nc_status(nf90_inq_varid(ncid, name, varid), _RC)
-    call check_nc_status(nf90_get_var(ncid, varid, array), _RC)
+    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), __RC)
+    call check_nc_status(nf90_inq_varid(ncid, name, varid), __RC)
+    call check_nc_status(nf90_get_var(ncid, varid, array), __RC)
 
     iret = nf90_get_att(ncid, varid, 'scale_factor', scale_factor)
     if(iret .eq. 0) array = array * scale_factor
@@ -173,9 +173,9 @@ contains
     iret = nf90_get_att(ncid, varid, 'add_offset', add_offset)
     if(iret .eq. 0) array = array + add_offset
     !
-    call check_nc_status(nf90_close(ncid), _RC)
+    call check_nc_status(nf90_close(ncid), __RC)
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
   end subroutine get_v2d_netcdf_R4
 
@@ -192,9 +192,9 @@ contains
     real    :: scale_factor, add_offset
     integer :: iret
 
-    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
-    call check_nc_status(nf90_inq_varid(ncid, name, varid), _RC)
-    call check_nc_status(nf90_get_var(ncid, varid, array), _RC)
+    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), __RC)
+    call check_nc_status(nf90_inq_varid(ncid, name, varid), __RC)
+    call check_nc_status(nf90_get_var(ncid, varid, array), __RC)
 
     iret = nf90_get_att(ncid, varid, 'scale_factor', scale_factor)
     if(iret .eq. 0) array = array * scale_factor
@@ -202,9 +202,9 @@ contains
     iret = nf90_get_att(ncid, varid, 'add_offset', add_offset)
     if(iret .eq. 0) array = array + add_offset
     !
-    call check_nc_status(nf90_close(ncid), _RC)
+    call check_nc_status(nf90_close(ncid), __RC)
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
   end subroutine get_v2d_netcdf_R8
 
@@ -220,20 +220,20 @@ contains
     integer :: status
     integer :: ncid, varid, ncid2, ncid_sv
 
-    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
+    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), __RC)
     ncid_sv = ncid
 
     if(present(group_name)) then
        if(group_name/='') then
           ncid2= ncid
-          call check_nc_status(nf90_inq_ncid(ncid2, group_name, ncid), _RC)
+          call check_nc_status(nf90_inq_ncid(ncid2, group_name, ncid), __RC)
        end if
     end if
-    call check_nc_status(nf90_inq_varid(ncid, name, varid), _RC)
-    call check_nc_status(nf90_get_var(ncid, varid, array), _RC)
+    call check_nc_status(nf90_inq_varid(ncid, name, varid), __RC)
+    call check_nc_status(nf90_get_var(ncid, varid, array), __RC)
 
-    call check_nc_status(nf90_close(ncid_sv), _RC)
-    _RETURN(_SUCCESS)
+    call check_nc_status(nf90_close(ncid_sv), __RC)
+    __RETURN(__SUCCESS)
 
   end subroutine get_v1d_netcdf_R8
 
@@ -254,17 +254,17 @@ contains
     integer :: varid
     real(REAL32) :: scale_factor, add_offset
 
-    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
+    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), __RC)
     ncid_sv = ncid
     if(present(group_name)) then
        if(group_name/='') then
-          call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), _RC)
+          call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), __RC)
           ! mod
           ncid = ncid_grp
        end if
     end if
-    call check_nc_status(nf90_inq_varid(ncid, varname, varid), _RC)
-    call check_nc_status(nf90_get_var(ncid, varid, array), _RC)
+    call check_nc_status(nf90_inq_varid(ncid, varname, varid), __RC)
+    call check_nc_status(nf90_get_var(ncid, varid, array), __RC)
 
     iret = nf90_get_att(ncid, varid, 'scale_factor', scale_factor)
     if(iret .eq. 0) array = array * scale_factor
@@ -273,12 +273,12 @@ contains
     if(iret .eq. 0) array = array + add_offset
 
     if(present(att_name)) then
-       call check_nc_status(nf90_get_att(ncid, varid, att_name, att_value), _RC)
+       call check_nc_status(nf90_get_att(ncid, varid, att_name, att_value), __RC)
     end if
 
-    call check_nc_status(nf90_close(ncid_sv), _RC)
+    call check_nc_status(nf90_close(ncid_sv), __RC)
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
   end subroutine get_v1d_netcdf_R8_complete
 
@@ -296,20 +296,20 @@ contains
     integer :: ncid, ncid_grp, ncid_sv
     integer :: varid
 
-    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
+    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), __RC)
     ncid_sv = ncid
     if(present(group_name)) then
        if(group_name/='') then
-          call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), _RC)
+          call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), __RC)
           ! overwrite
           ncid = ncid_grp
        end if
     end if
-    call check_nc_status(nf90_inq_varid(ncid, varname, varid), _RC)
-    call check_nc_status(nf90_get_att(ncid, varid, att_name, att_value), _RC)
-    call check_nc_status(nf90_close(ncid_sv), _RC)
+    call check_nc_status(nf90_inq_varid(ncid, varname, varid), __RC)
+    call check_nc_status(nf90_get_att(ncid, varid, att_name, att_value), __RC)
+    call check_nc_status(nf90_close(ncid_sv), __RC)
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
   end subroutine get_att_real_netcdf
 
@@ -326,20 +326,20 @@ contains
     integer :: ncid, ncid_grp, ncid_sv
     integer :: varid
 
-    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
+    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), __RC)
     ncid_sv = ncid
     if(present(group_name)) then
        if(group_name/='') then
-          call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), _RC)
+          call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), __RC)
           ! overwrite
           ncid = ncid_grp
        end if
     end if
-    call check_nc_status(nf90_inq_varid(ncid, varname, varid), _RC)
-    call check_nc_status(nf90_get_att(ncid, varid, att_name, att_value), _RC)
-    call check_nc_status(nf90_close(ncid_sv), _RC)
+    call check_nc_status(nf90_inq_varid(ncid, varname, varid), __RC)
+    call check_nc_status(nf90_get_att(ncid, varid, att_name, att_value), __RC)
+    call check_nc_status(nf90_close(ncid_sv), __RC)
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
   end subroutine get_att_char_netcdf
 
@@ -350,8 +350,8 @@ contains
     integer, intent(in) :: status
     integer, intent(out), optional :: rc
 
-    _ASSERT(status == nf90_noerr, 'netCDF error: '//trim(nf90_strerror(status)))
-    _RETURN(_SUCCESS)
+    __ASSERT(status == nf90_noerr, 'netCDF error: '//trim(nf90_strerror(status)))
+    __RETURN(__SUCCESS)
 
   end subroutine check_nc_status
 
@@ -370,15 +370,15 @@ contains
     type(ESMF_TimeInterval) :: dt
     integer :: iyy,imm,idd,ih,im,is
 
-    call parse_timeunit(tunit, n, time0, dt, _RC)
+    call parse_timeunit(tunit, n, time0, dt, __RC)
     time = time0 + dt
 
     ! check
     ! -----
-    call ESMF_timeGet(time, yy=iyy, mm=imm, dd=idd, h=ih, m=im, s=is, _RC)
+    call ESMF_timeGet(time, yy=iyy, mm=imm, dd=idd, h=ih, m=im, s=is, __RC)
     write(6, *) 'obs_start: iyy,imm,idd,ih,im,is', iyy,imm,idd,ih,im,is
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
   end subroutine time_nc_int_2_esmf
 
@@ -397,14 +397,14 @@ contains
     type(ESMF_TimeInterval) :: dt
 
     n=0
-    call parse_timeunit(tunit, n, time0, dt, _RC)
+    call parse_timeunit(tunit, n, time0, dt, __RC)
     dt = time - time0
 
     ! assume unit is second
     !
-    call ESMF_TimeIntervalGet(dt, s_i8=n, _RC)
+    call ESMF_TimeIntervalGet(dt, s_i8=n, __RC)
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
   end subroutine time_esmf_2_nc_int
 
@@ -426,8 +426,8 @@ contains
     integer(ESMF_KIND_I8) :: n8
 
     n8 = n
-    call parse_timeunit(tunit, n8, t0, dt, _RC)
-   _RETURN(_SUCCESS)
+    call parse_timeunit(tunit, n8, t0, dt, __RC)
+   __RETURN(__SUCCESS)
 
   end subroutine parse_timeunit_i4
 
@@ -466,12 +466,12 @@ contains
     elseif (trim(s_unit) == 'hours') then
        isec=n * 3600
     else
-       _FAIL ('time_unit not implemented')
+       __FAIL ('time_unit not implemented')
     end if
 
-    call ESMF_timeSet(t0, yy=y,mm=m,dd=d,h=hour,m=min,s=sec, _RC)
-    call ESMF_timeintervalSet(dt, d=0, h=0, m=0, s_i8=isec, _RC)
-    _RETURN(_SUCCESS)
+    call ESMF_timeSet(t0, yy=y,mm=m,dd=d,h=hour,m=min,s=sec, __RC)
+    call ESMF_timeintervalSet(dt, d=0, h=0, m=0, s_i8=isec, __RC)
+    __RETURN(__SUCCESS)
 
   end subroutine parse_timeunit_i8
 
@@ -494,15 +494,15 @@ contains
     integer :: i, status, sec
 
     n1=0; n2=0
-    call parse_timeunit (tunit1, n1, t1_base, dt1, _RC)
-    call parse_timeunit (tunit2, n2, t2_base, dt2, _RC)
+    call parse_timeunit (tunit1, n1, t1_base, dt1, __RC)
+    call parse_timeunit (tunit2, n2, t2_base, dt2, __RC)
     deltaT_base = t2_base - t1_base
     if (present(dt_esmf)) dt_esmf = deltaT_base
 
     i=index(trim(tunit1), 'since')
     s_unit=trim(tunit1(1:i-1))
 
-    call ESMF_TimeIntervalGet(deltaT_base, s=sec, _RC)
+    call ESMF_TimeIntervalGet(deltaT_base, s=sec, __RC)
     if (trim(s_unit) == 'seconds') then
        x = sec
     elseif (trim(s_unit) == 'minutes') then
@@ -510,7 +510,7 @@ contains
     elseif (trim(s_unit) == 'hours') then
        x = sec /3600.d0
     else
-       _FAIL ('time_unit not implemented')
+       __FAIL ('time_unit not implemented')
     end if
 
     !!write(6,*) 'tunit1=', tunit1
@@ -518,7 +518,7 @@ contains
     !!write(6,*) 'del sec', sec
     !!write(6,*) 'del x',  x
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
   end subroutine diff_two_timeunits
 
 
@@ -530,14 +530,14 @@ contains
     integer :: yy, mm, dd, h, m, s
     integer :: status
 
-    call ESMF_TimeGet(time, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
+    call ESMF_TimeGet(time, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, __RC)
 
     i2=h*10000 + m*100 + s
     i1=yy*10000 + mm*100 + dd
     itime(1)=i1
     itime(2)=i2
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
   end subroutine ESMF_time_to_two_integer
 
@@ -560,9 +560,9 @@ contains
     m= mod(i2, 10000)/100
     s= mod(i2, 100)
 
-    call ESMF_TimeSet(time, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
+    call ESMF_TimeSet(time, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, __RC)
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
   end subroutine two_integer_to_ESMF_time
 
@@ -634,7 +634,7 @@ contains
        endif
     enddo
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
   end subroutine bisect_find_LB_R8_I8
 
@@ -653,9 +653,9 @@ contains
     s2=trim(shms)
     read(s2, '(3i2)') hh, mm, ss
 
-    call ESMF_TimeIntervalSet(interval, yy=y, mm=m, d=d, h=hh, m=mm, s=ss, _RC)
+    call ESMF_TimeIntervalSet(interval, yy=y, mm=m, d=d, h=hh, m=mm, s=ss, __RC)
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
   end subroutine convert_twostring_2_esmfinterval
 

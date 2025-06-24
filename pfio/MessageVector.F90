@@ -46,7 +46,7 @@ contains
      enddo
 
      if(size(tmp, kind=INT64) > huge(0)) then
-       _FAIL("need to increase oserver's nfront")
+       __FAIL("need to increase oserver's nfront")
      endif
 
      i = size(tmp)+1
@@ -77,13 +77,13 @@ contains
        n = n + msg%get_length()+1 
        deallocate(msg)
      enddo
-     _ASSERT(n-1 == length, "wrong length of message vector")
+     __ASSERT(n-1 == length, "wrong length of message vector")
 
     ! lazy UNIT test! W.J notes: ifor passes, gfortran fails
     ! call serialize_message_vector(msgVec,buffer_test)
-    ! _ASSERT(all(buffer(1:length) == buffer_test), "serialize-deserialize error")
+    ! __ASSERT(all(buffer(1:length) == buffer_test), "serialize-deserialize error")
     
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
   end subroutine
 
 end module pFIO_MessageVectorUtilMod

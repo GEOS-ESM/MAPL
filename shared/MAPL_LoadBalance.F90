@@ -118,7 +118,7 @@ contains
     endif
 
     if(THE_STRATEGIES(ISTRAT)%PASSES>0) then ! We have a defined strategy
-       _ASSERT(associated(THE_STRATEGIES(ISTRAT)%NOP),'needs informative message')
+       __ASSERT(associated(THE_STRATEGIES(ISTRAT)%NOP),'needs informative message')
 
 ! Initialize CURSOR, which is the location in the first block of A where
 ! the next read or write is to occur. K1 and K2 are the limits
@@ -158,34 +158,34 @@ contains
              VLength = LENGTH
           else
              call MPI_Type_VECTOR(Jdim, Length, Idim, MPI_REAL, Vtype, STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             __ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
              call MPI_TYPE_COMMIT(Vtype,STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             __ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
              VLength = 1
           end if
 
           if(SEND) then ! -- SENDER
              CURSOR = CURSOR - LENGTH
              call MPI_SEND(A(CURSOR), VLength, Vtype, PROCESSOR, PASS, COMM, STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             __ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
           endif
 
 
           if(RECV) then ! -- RECEIVER
              call MPI_RECV(A(CURSOR), VLength, Vtype, PROCESSOR, PASS, COMM, &
                                                           MPI_STATUS_IGNORE, STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             __ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
              CURSOR = CURSOR + LENGTH
           endif
 
           if(Jdim>1) then
              call MPI_TYPE_FREE(Vtype,STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             __ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
           end if
        enddo
     end if
 
-    _RETURN(LDB_SUCCESS)
+    __RETURN(LDB_SUCCESS)
   end subroutine MAPL_BalanceWork4
 
 !---------------------------------------------------------------------------
@@ -222,7 +222,7 @@ contains
     endif
 
     if(THE_STRATEGIES(ISTRAT)%PASSES>0) then ! We have a defined strategy
-       _ASSERT(associated(THE_STRATEGIES(ISTRAT)%NOP),'needs informative message')
+       __ASSERT(associated(THE_STRATEGIES(ISTRAT)%NOP),'needs informative message')
 
 ! Initialize CURSOR, which is the location in the first block of A where
 ! the next read or write is to occur. K1 and K2 are the limits
@@ -262,34 +262,34 @@ contains
              VLength = LENGTH
           else
              call MPI_Type_VECTOR(Jdim, Length, Idim, MPI_DOUBLE_PRECISION, Vtype, STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             __ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
              call MPI_TYPE_COMMIT(Vtype,STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             __ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
              VLength = 1
           end if
 
           if(SEND) then ! -- SENDER
              CURSOR = CURSOR - LENGTH
              call MPI_SEND(A(CURSOR), VLength, Vtype, PROCESSOR, PASS, COMM, STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             __ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
           endif
 
 
           if(RECV) then ! -- RECEIVER
              call MPI_RECV(A(CURSOR), VLength, Vtype, PROCESSOR, PASS, COMM, &
                                                           MPI_STATUS_IGNORE, STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             __ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
              CURSOR = CURSOR + LENGTH
           endif
 
           if(Jdim>1) then
              call MPI_TYPE_FREE(Vtype,STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             __ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
           end if
        enddo
     end if
 
-    _RETURN(LDB_SUCCESS)
+    __RETURN(LDB_SUCCESS)
   end subroutine MAPL_BalanceWork8
 
 !---------------------------------------------------------------------------
@@ -343,22 +343,22 @@ contains
 !----------------------------
 
     call MPI_COMM_RANK(Comm, MyPE, STATUS)
-    _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+    __ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
     call MPI_COMM_SIZE(Comm, NPES, STATUS)
-    _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+    __ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
 
 ! Allocate temporary space
 !-------------------------
 
     allocate(NOP(2,MaxPasses_), Work(NPES), Rank(NPES), stat=STATUS)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
 ! Initialize global lists of work load and corresponding rank
 !------------------------------------------------------------
 
     call MPI_AllGather(OrgLen,1,MPI_INTEGER,&
                        Work  ,1,MPI_INTEGER,Comm,status)
-    _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+    __ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
 
     do concurrent (J=1:NPES)
        Rank(J) = J-1
@@ -376,7 +376,7 @@ contains
           if(.not.associated(THE_STRATEGIES(Balance)%NOP)) exit
        enddo
 
-       _ASSERT(Balance <= MAX_NUM_STRATEGIES,'needs informative message')
+       __ASSERT(Balance <= MAX_NUM_STRATEGIES,'needs informative message')
        Handle  = Balance
     else
        Balance = 0
@@ -401,7 +401,7 @@ contains
 
     deallocate(NOP)
 
-    _RETURN(LDB_SUCCESS)
+    __RETURN(LDB_SUCCESS)
 
   contains
 
@@ -489,8 +489,8 @@ contains
     integer :: Handle_
 
     if (present(Handle)) then
-       _ASSERT(Handle>=0, 'Handle is less than 0')
-       _ASSERT(Handle<=MAX_NUM_STRATEGIES,'Handle is greater than MAX_NUM_STRATEGIES')
+       __ASSERT(Handle>=0, 'Handle is less than 0')
+       __ASSERT(Handle<=MAX_NUM_STRATEGIES,'Handle is greater than MAX_NUM_STRATEGIES')
        Handle_ = Handle
     else
        ! If we do not pass in a Handle, assume we wish to destroy
@@ -509,7 +509,7 @@ contains
     THE_STRATEGIES(Handle_)%PASSES            =-1
     THE_STRATEGIES(Handle_)%COMM              =-1
 
-    _RETURN(LDB_SUCCESS)
+    __RETURN(LDB_SUCCESS)
   end subroutine MAPL_BalanceDestroy
 
 !---------------------------------------------------------------------------
@@ -519,10 +519,10 @@ contains
     integer, optional, intent(OUT) :: BalLen, BufLen, Passes, Comm
     integer, optional, intent(OUT) :: rc
 
-    _ASSERT(Handle>=0, 'Handle is less than 0')
-    _ASSERT(Handle<=MAX_NUM_STRATEGIES,'Handle is greater than MAX_NUM_STATEGIES')
+    __ASSERT(Handle>=0, 'Handle is less than 0')
+    __ASSERT(Handle<=MAX_NUM_STRATEGIES,'Handle is greater than MAX_NUM_STATEGIES')
 
-    _ASSERT(associated(THE_STRATEGIES(Handle)%NOP),'needs informative message')
+    __ASSERT(associated(THE_STRATEGIES(Handle)%NOP),'needs informative message')
 
     if(present(BalLen)) &
          BalLen = THE_STRATEGIES(Handle)%BALANCED_LENGTH
@@ -533,7 +533,7 @@ contains
     if(present(Comm  )) &
          Comm   = THE_STRATEGIES(Handle)%COMM
 
-    _RETURN(LDB_SUCCESS)
+    __RETURN(LDB_SUCCESS)
   end subroutine MAPL_BalanceGet
 
 end module MAPL_LOADBALANCEMOD

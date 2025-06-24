@@ -137,11 +137,11 @@ contains
       integer,allocatable :: count(:),start(:)
       integer :: full_rank
 
-      _RETURN_UNLESS(C_ASSOCIATED(this%base_address))
+      __RETURN_UNLESS(C_ASSOCIATED(this%base_address))
 
       full_rank = size(global_shape)
       if(size(this%shape) > full_rank) then
-        _FAIL("ranks do not agree (probably fixable)")
+        __FAIL("ranks do not agree (probably fixable)")
       endif
 
       allocate(count(full_rank))
@@ -177,7 +177,7 @@ contains
                call c_f_pointer(offset_address, all_real64_0d)
                values_real64_0d=all_real64_0d
             case default
-               _FAIL("type not supported yet")
+               __FAIL("type not supported yet")
             end select
          case(1)
             s1=start(1)
@@ -200,7 +200,7 @@ contains
                call c_f_pointer(offset_address, all_real64_1d,   global_shape)
                values_real64_1d=all_real64_1d(s1:e1)
             case default
-               _FAIL("type not supported yet")
+               __FAIL("type not supported yet")
             end select
         case(2)
             s1=start(1)
@@ -225,7 +225,7 @@ contains
                call c_f_pointer(offset_address, all_real64_2d,   global_shape)
                values_real64_2d=all_real64_2d(s1:e1,s2:e2)
             case default
-               _FAIL("type not supported yet")
+               __FAIL("type not supported yet")
             end select
         case (3)
             s1=start(1)
@@ -252,7 +252,7 @@ contains
                call c_f_pointer(offset_address, all_real64_3d,   global_shape)
                values_real64_3d=all_real64_3d(s1:e1,s2:e2,s3:e3)
             case default
-               _FAIL("type not supported yet")
+               __FAIL("type not supported yet")
             end select
         case (4)
             s1=start(1)
@@ -281,7 +281,7 @@ contains
                call c_f_pointer(offset_address, all_real64_4d,   global_shape)
                values_real64_4d=all_real64_4d(s1:e1,s2:e2,s3:e3,s4:e4)
             case default
-               _FAIL("type not supported yet")
+               __FAIL("type not supported yet")
             end select
 
         case (5)
@@ -313,13 +313,13 @@ contains
                call c_f_pointer(offset_address, all_real64_5d,   global_shape)
                values_real64_5d=all_real64_5d(s1:e1,s2:e2,s3:e3,s4:e4,s5:e5)
             case default
-               _FAIL("type not supported yet")
+               __FAIL("type not supported yet")
             end select
 
          case default
-            _FAIL("dimension not supported yet")
+            __FAIL("dimension not supported yet")
       end select
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine fetch_data
 
    integer function get_length_base(this) result(length)
@@ -361,7 +361,7 @@ contains
       buffer(n+1)  = this%type_kind
       buffer(n+2)  = rank
       if (rank > 0) buffer(n+3:) = this%shape
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine serialize_base
 
    subroutine deserialize_base(this, buffer, rc)
@@ -372,14 +372,14 @@ contains
       integer :: n_base, n_rank
       
       n_base = size(transfer(this%base_address,[1]))
-      _ASSERT( size(buffer) >= n_base+2, "buffer size is too small")
+      __ASSERT( size(buffer) >= n_base+2, "buffer size is too small")
 
       this%base_address = transfer(buffer(1:n_base), this%base_address)
       this%type_kind = buffer(n_base+1)
       n_rank = buffer(n_base+2)
       allocate(this%shape(n_rank))
       this%shape = buffer(n_base+3:n_base+3+n_rank-1)
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine deserialize_base
       
    logical function equal(a, b)
@@ -408,16 +408,16 @@ contains
    subroutine allocate(this, rc)
       class (AbstractDataReference), intent(inout) :: this
       integer, optional, intent(out) :: rc
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(this)
    end subroutine allocate
 
    subroutine deallocate(this, rc)
       class (AbstractDataReference), intent(inout) :: this
       integer, optional, intent(out) :: rc
       !print*, "WARNNING: i am not the ownwer. nothing deallocate"
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(this)
    end subroutine deallocate
 
    function convert_addr(this) result(long)
@@ -432,8 +432,8 @@ contains
      class(AbstractDataReference),intent(inout) :: this
      integer, optional, intent(out) :: rc
      !print*, "WARNNING: should fence in the sub class"
-     _RETURN(_SUCCESS)
-     _UNUSED_DUMMY(this)
+     __RETURN(__SUCCESS)
+     __UNUSED_DUMMY(this)
    end subroutine fence
 
    subroutine copy_data_to(this,to, rc)
@@ -447,17 +447,17 @@ contains
      integer(kind=INT64) :: n_words,n
 
      n_words = product(int(this%shape,INT64))*word_size(this%type_kind)
-     _RETURN_IF(n_words == 0)
+     __RETURN_IF(n_words == 0)
 
      n       = product(int(to%shape,INT64))*word_size(to%type_kind)
      
-     _ASSERT(this%type_kind == to%type_kind,"copy type_kind not match")
-     _ASSERT(n_words == n, "copy size does not match")
+     __ASSERT(this%type_kind == to%type_kind,"copy type_kind not match")
+     __ASSERT(n_words == n, "copy size does not match")
      call c_f_pointer(this%base_address,fromPtr,[n])
      call c_f_pointer(to%base_address,toPtr,[n])
      toPtr(1:n) = fromPtr(1:n)
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
    end subroutine copy_data_to
 
 end module pFIO_AbstractDataReferenceMod

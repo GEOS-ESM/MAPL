@@ -65,8 +65,8 @@ contains
       if ( k < 0 ) then
          message%start = [message%start,[(1,i=1,-k)]]
       endif
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
    end subroutine init
  
    integer function get_length(this) result(length)
@@ -95,7 +95,7 @@ contains
            & serialize_intrinsic(this%type_kind), &
            & serialize_intrinsic(this%start), &
            & serialize_intrinsic(this%count)]
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine serialize
 
    subroutine deserialize(this, buffer, rc)
@@ -120,7 +120,7 @@ contains
       n = n + serialize_buffer_length(this%start)
       call deserialize_intrinsic(buffer(n:), this%count)
       n = n + serialize_buffer_length(this%count)
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine deserialize
 
 end module pFIO_AbstractDataMessageMod

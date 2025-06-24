@@ -41,7 +41,7 @@ contains
       class (IDMessage), intent(in) :: this
       length = 1
       return
-      _UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(this)
    end function get_length
 
    subroutine serialize(this, buffer, rc)
@@ -50,7 +50,7 @@ contains
       integer, optional, intent(out) :: rc
   
       buffer = [this%id]
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine serialize
 
    subroutine deserialize(this, buffer, rc)
@@ -59,7 +59,7 @@ contains
       integer, optional, intent(out) :: rc
 
       this%id = buffer(1)
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine deserialize
    
 end module pFIO_IDMessageMod

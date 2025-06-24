@@ -213,7 +213,7 @@ contains
         end associate
       end associate
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    contains
 

@@ -59,10 +59,10 @@ contains
       type (TerminateMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(message)
+      __UNUSED_DUMMY(message)
       call this%prefix('handle_Terminate()')
       call this%set_terminate()
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine handle_Terminate
 
    subroutine handle_Done(this, message, rc)
@@ -70,9 +70,9 @@ contains
       type (DoneMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(message)
+      __UNUSED_DUMMY(message)
       call this%prefix('handle_Done()')
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine handle_Done
 
    subroutine handle_Done_prefetch(this, message, rc)
@@ -80,9 +80,9 @@ contains
       type (PrefetchDoneMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(message)
+      __UNUSED_DUMMY(message)
       call this%prefix('handle_Done_prefetch()')
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine handle_Done_prefetch
 
    subroutine handle_AddExtCollection(this, message, rc)
@@ -90,10 +90,10 @@ contains
       type (AddExtCollectionMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(message)
+      __UNUSED_DUMMY(message)
 
       call this%prefix('handle_AddExtCollection()')
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine handle_AddExtCollection
 
    subroutine handle_PrefetchData(this, message, rc)
@@ -101,9 +101,9 @@ contains
       type (PrefetchDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(message)
+      __UNUSED_DUMMY(message)
       call this%prefix('handle_PrefetchData()')
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine handle_PrefetchData
 
 end module MockServerThreadMod

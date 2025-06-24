@@ -59,9 +59,9 @@ contains
       integer,allocatable :: tmp_buffer(:) ! no-op
       integer :: status
       call this%fmd%serialize(tmp_buffer, status)
-      _VERIFY(status)
+      __VERIFY(status)
       buffer = [tmp_buffer,serialize_intrinsic(this%create_mode)]
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine serialize
 
 
@@ -73,11 +73,11 @@ contains
 
       n = 1
       call FileMetaData_deserialize(buffer(n:), this%fmd, status)
-      _VERIFY(status)
+      __VERIFY(status)
       call deserialize_intrinsic(buffer(n:), length)
       n = n + length 
       call deserialize_intrinsic(buffer(n:), this%create_mode)
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine deserialize
 
 end module pFIO_AddHistCollectionMessageMod

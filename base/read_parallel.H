@@ -40,7 +40,7 @@ subroutine SUB_ ( layout, DATA, UNIT, FORMAT, arrdes, RC)
   if (MAPL_AM_I_ROOT(layout)) then
    if(arrdes%offset>0) then
       call MPI_FILE_SEEK(UNIT, arrdes%offset, MPI_SEEK_SET, STATUS)
-      _VERIFY(STATUS)
+      __VERIFY(STATUS)
    endif
 
 #if (RANK_ == 0)
@@ -52,7 +52,7 @@ subroutine SUB_ ( layout, DATA, UNIT, FORMAT, arrdes, RC)
 #else
    call MPI_FILE_READ(UNIT, data, size(data), MPITYPE_, MPI_STATUS_IGNORE, STATUS)
 #endif
-   _VERIFY(STATUS)
+   __VERIFY(STATUS)
   endif
 
 #if (RANK_ == 0)
@@ -64,7 +64,7 @@ subroutine SUB_ ( layout, DATA, UNIT, FORMAT, arrdes, RC)
 #else
    call MAPL_CommsBcast(layout, data, size(data), MAPL_Root, status)
 #endif
-   _VERIFY(status)
+   __VERIFY(status)
 
 #if (RANK_ == 0)
 #if (VARTYPE_ == 0)
@@ -76,7 +76,7 @@ subroutine SUB_ ( layout, DATA, UNIT, FORMAT, arrdes, RC)
    arrdes%offset = arrdes%offset + size(data)*EKIND_ + 8
 #endif
 
-   _RETURN(ESMF_SUCCESS)
+   __RETURN(ESMF_SUCCESS)
  endif
 
 
@@ -91,15 +91,15 @@ subroutine SUB_ ( layout, DATA, UNIT, FORMAT, arrdes, RC)
 
 #if (RANK_ > 2 || VARTYPE_ <= 0)
 
-     _FAIL('needs informative message')
+     __FAIL('needs informative message')
 
 #else
 
-     _ASSERT(-USABLE_UNIT<=LAST_UNIT,'needs informative message')
+     __ASSERT(-USABLE_UNIT<=LAST_UNIT,'needs informative message')
      munit => MEM_units(-USABLE_UNIT)
      munit%prevrec = munit%prevrec + 1
 #if (RANK_ > 0)
-     _ASSERT(associated(munit%Records(munit%prevrec)%TKR_),'needs informative message')
+     __ASSERT(associated(munit%Records(munit%prevrec)%TKR_),'needs informative message')
 #endif
      data = munit%Records(munit%prevrec)%TKR_
 
@@ -145,7 +145,7 @@ subroutine SUB_ ( layout, DATA, UNIT, FORMAT, arrdes, RC)
                  FILENAME = 'UNNAMED'
               end if
               print *, "Premature end of file ",FILENAME
-              _RETURN(ESMF_FAILURE)
+              __RETURN(ESMF_FAILURE)
            end if
         else
            if (present(FORMAT)) then; read(*, FORMAT ) DATA
@@ -163,11 +163,11 @@ subroutine SUB_ ( layout, DATA, UNIT, FORMAT, arrdes, RC)
 #else
      call MAPL_CommsBcast(layout, data, product(shape(data)), MAPL_Root, status)
 #endif
-     _VERIFY(status)
+     __VERIFY(status)
 
   end if
 
-  _RETURN(ESMF_SUCCESS)
+  __RETURN(ESMF_SUCCESS)
 END SUBROUTINE SUB_
 
 !---------------------------

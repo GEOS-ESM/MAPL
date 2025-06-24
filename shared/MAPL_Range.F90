@@ -34,7 +34,7 @@ contains
      integer :: i
      real(kind=REAL64) :: delta
 
-     _ASSERT(((n /= 1) .or. (x0 == x1)),'needs informative message')
+     __ASSERT(((n /= 1) .or. (x0 == x1)),'needs informative message')
      allocate(range(n))
      
      range(1) = x0
@@ -51,7 +51,7 @@ contains
         range = range * conversion_factor
      end if
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
         
   end function MAPL_Range_REAL64
 
@@ -66,7 +66,7 @@ contains
      integer :: i
      real(kind=REAL64) :: delta
 
-     _ASSERT((n /= 1) .or. (x0 == x1),'needs informative message')
+     __ASSERT((n /= 1) .or. (x0 == x1),'needs informative message')
      allocate(range(n))
      
      range(1) = x0
@@ -83,7 +83,7 @@ contains
         range = range * conversion_factor
      end if
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
         
   end function MAPL_Range_REAL32
 

@@ -60,7 +60,7 @@ contains
           call map%insert(key,value)
           deallocate(key)
        enddo
-       _RETURN(_SUCCESS)
+       __RETURN(__SUCCESS)
     end subroutine StringIntegerMap_deserialize
 
 end module pFIO_StringIntegerMapUtilMod

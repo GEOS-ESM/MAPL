@@ -19,7 +19,7 @@ program main
 
 !------------------------------------------------------------------------------
 
-      call run(_RC)
+      call run(__RC)
 
    contains
 
@@ -33,7 +33,7 @@ program main
          character(len=:), allocatable :: input_file
 
          call MPI_Init(status)
-         _VERIFY(status)
+         __VERIFY(status)
 
          ! Read and parse the command line, and set parameters
          ! If you have extra options you make a procedure as seen below and add arguments
@@ -41,7 +41,7 @@ program main
          cli = MAPL_FargparseCLI(extra=extra_options)
 
          ! This does the casting of arguments into cap_options for CAP
-         cap_options = MAPL_CapOptions(cli, _RC)
+         cap_options = MAPL_CapOptions(cli, __RC)
 
          write(*,*) "done with MAPL_FargparseCLI"
          write(*,*) "  cap_options%with_esmf_moab = ", cap_options%with_esmf_moab
@@ -52,13 +52,13 @@ program main
          write(*,*) "  cap_options%egress_file = ", cap_options%egress_file
 
          ! For our extra options we have to explicitly cast them
-         call cast(cli%options%at('file'), input_file, _RC)
+         call cast(cli%options%at('file'), input_file, __RC)
 
          write(*,*) ""
          write(*,*) "Extra arguments"
          write(*,*) "  input file = ", input_file
 
-         _RETURN(_SUCCESS)
+         __RETURN(__SUCCESS)
 
       end subroutine run
 
@@ -72,7 +72,7 @@ program main
               default='default.config', &
               action='store')
 
-         !_RETURN(_SUCCESS)
+         !__RETURN(__SUCCESS)
          if (present(rc)) rc = 0
 
       end subroutine extra_options

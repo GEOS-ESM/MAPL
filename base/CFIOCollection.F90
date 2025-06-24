@@ -109,11 +109,11 @@ contains
        call this%file_ids%insert(trim(file_name), int(this%formatters%size()))
 
        call fmtr%open(trim(file_name), mode=pFIO_READ, rc=status)
-       _VERIFY(status)
+       __VERIFY(status)
        ! file is the metadata, not the file name
        call this%files%push_back(fmtr%read())
        call fmtr%close(rc=status)
-       _VERIFY(status)
+       __VERIFY(status)
        this%file => this%files%back()
        if (allocated(this%src_grid)) then
        end if
@@ -126,7 +126,7 @@ contains
        
     end if
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
   end function find
 

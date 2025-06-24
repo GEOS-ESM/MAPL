@@ -66,6 +66,49 @@
 #    undef __rc
 #  endif
 
+! new double-underscore
+#  ifdef __HERE
+#     undef __HERE
+#  endif
+#  ifdef __RETURN
+#    undef __RETURN
+#  endif
+#  ifdef __RETURN_IF
+#    undef __RETURN_IF
+#  endif
+#  ifdef __RETURN_UNLESS
+#    undef __RETURN_UNLESS
+#  endif
+#  ifdef __VERIFY
+#    undef __VERIFY
+#  endif
+#  ifdef __ASSERT
+#    undef __ASSERT
+#  endif
+#  ifdef __UNUSED_DUMMY
+#    undef __UNUSED_DUMMY
+#  endif
+#  ifdef __RC
+#    undef __RC
+#  endif
+#  ifdef __USERRC
+#    undef __USERRC
+#  endif
+#  ifdef __STAT
+#    undef __STAT
+#  endif
+#  ifdef __IOSTAT
+#    undef __IOSTAT
+#  endif
+#  ifdef __IERROR
+#    undef __IERROR
+#  endif
+#  ifdef __return
+#    undef __return
+#  endif
+#  ifdef __rc
+#    undef __rc
+#  endif
 
 #  define IGNORE_(a) continue
 
@@ -77,7 +120,8 @@
 #    define __rc(rc) ,rc
 #  endif
 
-#    define _HERE print*,__FILE__,__LINE__
+#    define __HERE print*,__FILE__,__LINE__
+#    define _HERE __HERE__
 
 #  ifdef ANSI_CPP
 
@@ -93,43 +137,65 @@
 #    define ASSERT_(A)     if(MAPL_ASRT(A,Iam,__LINE__ __rc(rc))) __return
 
 ! New
-#    define _SUCCESS 0
-#    define _FAILURE 1
-#    define _UNUSED_DUMMY(x) if (.false.) print*,shape(x)
+#    define __SUCCESS 0
+#    define _SUCCESS __SUCCESS
+#    define __FAILURE 1
+#    define _FAILURE __FAILURE
+#    define __UNUSED_DUMMY(x) if (.false.) print*,shape(x)
+#    define _UNUSED_DUMMY(x) __UNUSED_DUMMY(x)
 
 
 #    define _FILE_ __FILE__
 #    if defined(I_AM_FUNIT)
-#       define _VERIFY(A)     call assert_that(A, is(0), SourceLocation(_FILE_,__LINE__));if(anyExceptions())return
+#       define __VERIFY(A) call assert_that(A, is(0), SourceLocation(_FILE_,__LINE__));if(anyExceptions())return
+#       define _VERIFY(A) __VERIFY(A)
 #    elif defined(I_AM_PFUNIT)
-#       define _VERIFY(A)     call assert_that(A, is(0), SourceLocation(_FILE_,__LINE__));if(anyExceptions(this%context))return
+#       define __VERIFY(A) call assert_that(A, is(0), SourceLocation(_FILE_,__LINE__));if(anyExceptions(this%context))return
+#       define _VERIFY(A) __VERIFY(A)
 #    else
-#       define _RETURN(A)     call MAPL_Return(A,_FILE_,__LINE__ __rc(rc)); __return
-#       define _RETURN_IF(cond)     if(cond)then;_RETURN(_SUCCESS);endif
-#       define _RETURN_UNLESS(cond)     if(.not.(cond))then;_RETURN(_SUCCESS);endif
-#       define _VERIFY(A)     if(MAPL_Verify(A,_FILE_,__LINE__ __rc(rc))) __return
+#       define __RETURN(A) call MAPL_Return(A,_FILE_,__LINE__ __rc(rc)); __return
+#       define _RETURN(A) __RETURN(A)
+#       define __RETURN_IF(cond) if(cond)then;_RETURN(_SUCCESS);endif
+#       define _RETURN_IF(cond) __RETURN_IF(cond)
+#       define __RETURN_UNLESS(cond) if(.not.(cond))then;_RETURN(_SUCCESS);endif
+#       define _RETURN_UNLESS(cond) __RETURN_UNLESS(cond)
+#       define __VERIFY(A)     if(MAPL_Verify(A,_FILE_,__LINE__ __rc(rc))) __return
+#       define _VERIFY(A) __VERIFY(A)
 #    endif
-#    define _RC_(rc,status) rc=status);_VERIFY(status
-#    define _USERRC userRC=user_status, rc=status); _VERIFY(status); _VERIFY(user_status
-#    define _RC _RC_(rc,status)
+#    define __RC__(rc,status) rc=status);__VERIFY(status
+#    define _RC_(rc,status) __RC__(rc,status)
+#    define __USERRC userRC=user_status, rc=status); _VERIFY(status); _VERIFY(user_status
+#    define _USERRC __USERRC
+#    define __RC __RC__(rc,status)
+#    define _RC __RC__(rc,status)
 
-#    define _STAT _RC_(stat,status)
+#    define __STAT __RC__(stat,status)
+#    define _STAT __STAT
 #if defined(SUPPORT_FOR_MPI_IERROR_KEYWORD)
-#    define _IERROR _RC_(ierror,status)
+#    define __IERROR __RC__(ierror,status)
+#    define _IERROR __IERROR
 #else
-#    define _IERROR _RC_(ierr,status)
+#    define __IERROR __RC__(ierr,status)
+#    define _IERROR __IERROR
 #endif
-#    define _IOSTAT _RC_(iostat,status)
+#    define __IOSTAT __RC__(iostat,status)
+#    define _IOSTAT __IOSTAT
 
-#    define _ASSERT_MSG_AND_LOC_AND_RC(A,msg,stat,file,line,rc)  if(MAPL_Assert(A,msg,stat,file,line __rc(rc))) __return
+#    define __ASSERT_MSG_AND_LOC_AND_RC(A,msg,stat,file,line,rc)  if(MAPL_Assert(A,msg,stat,file,line __rc(rc))) __return
+#    define _ASSERT_MSG_AND_LOC_AND_RC(A,msg,stat,file,line,rc) __ASSERT_MSG_AND_LOC_AND_RC(A,msg,stat,file,line,rc)
 
 ! Assumes status is passed back in dummy called "rc"
-#    define _ASSERT_MSG_AND_LOC(A,msg,stat,file,line) _ASSERT_MSG_AND_LOC_AND_RC(A,msg,stat,file,line,rc)
+#    define __ASSERT_MSG_AND_LOC(A,msg,stat,file,line) _ASSERT_MSG_AND_LOC_AND_RC(A,msg,stat,file,line,rc)
+#    define _ASSERT_MSG_AND_LOC(A,msg,stat,file,line) __ASSERT_MSG_AND_LOC(A,msg,stat,file,line)
 ! Assumes __FILE__ and __LINE__ are appropriate
-#    define _ASSERT(A,msg) _ASSERT_MSG_AND_LOC(A,msg,1,_FILE_,__LINE__)
-#    define _ASSERT_RC(A,msg,stat) _ASSERT_MSG_AND_LOC(A,msg,stat,_FILE_,__LINE__)
-#    define _ASSERT_NOMSG(A) _ASSERT(A,'needs informative message')
-#    define _FAIL(msg) _ASSERT(.false.,msg)
+#    define __ASSERT(A,msg) __ASSERT_MSG_AND_LOC(A,msg,1,_FILE_,__LINE__)
+#    define _ASSERT(A,msg) __ASSERT(A,msg)
+#    define __ASSERT_RC(A,msg,stat) __ASSERT_MSG_AND_LOC(A,msg,stat,_FILE_,__LINE__)
+#    define _ASSERT_RC(A,msg,stat) __ASSERT_RC(A,msg,stat)
+#    define __ASSERT_NOMSG(A) __ASSERT(A,'needs informative message')
+#    define _ASSERT_NOMSG(A) __ASSERT_NOMSG(A)
+#    define __FAIL(msg) __ASSERT(.false.,msg)
+#    define _FAIL(msg) __FAIL(msg)
 
 #  endif
 

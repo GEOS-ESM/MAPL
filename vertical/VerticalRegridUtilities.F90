@@ -34,8 +34,8 @@ contains
          dst_mass = dst_mass + dst_values(i)*delp/MAPL_GRAV
       enddo
       if (src_mass .ne. 0.0) then
-      _HERE, src_mass,dst_mass
-      _HERE,(dst_mass-src_mass)/src_mass
+      __HERE, src_mass,dst_mass
+      __HERE,(dst_mass-src_mass)/src_mass
       end if
    end subroutine check_conservation
 

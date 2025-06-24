@@ -55,19 +55,19 @@ contains
 
       fargparse_cli%parser = ArgParser()
 
-      call fargparse_cli%add_command_line_options(fargparse_cli%parser, _RC)
+      call fargparse_cli%add_command_line_options(fargparse_cli%parser, __RC)
 
       if (present(extra)) then
-         call extra(fargparse_cli%parser, _RC)
+         call extra(fargparse_cli%parser, __RC)
       end if
 
       fargparse_cli%options = fargparse_cli%parser%parse_args()
 
-      call fargparse_cli%fill_cap_options(cap_options, _RC)
+      call fargparse_cli%fill_cap_options(cap_options, __RC)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(dummy)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(dummy)
    end function new_CapOptions_from_fargparse
 
    function new_CapOptions_from_fargparse_back_comp(unusable, extra, rc) result (fargparsecap)
@@ -80,16 +80,16 @@ contains
       call fargparsecap%parser%initialize('executable')
 
 
-      call fargparsecap%add_command_line_options(fargparsecap%parser, _RC)
+      call fargparsecap%add_command_line_options(fargparsecap%parser, __RC)
 
       if (present(extra)) then
-         call extra(fargparsecap%parser, _RC)
+         call extra(fargparsecap%parser, __RC)
       end if
 
       fargparsecap%options = fargparsecap%parser%parse_args()
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
    end function new_CapOptions_from_fargparse_back_comp
 
    ! Static method
@@ -224,8 +224,8 @@ contains
            help='Enables use of MOAB library for ESMF meshes', &
            action='store_true')
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
 
    end subroutine add_command_line_options
 
@@ -244,26 +244,26 @@ contains
 
       option => fargparseCLI%options%at('root_dso')
       if (associated(option)) then
-         call cast(option, cap_options%root_dso, _RC)
+         call cast(option, cap_options%root_dso, __RC)
       end if
 
       option => fargparseCLI%options%at('egress_file')
       if (associated(option)) then
-         call cast(option, cap_options%egress_file, _RC)
+         call cast(option, cap_options%egress_file, __RC)
       end if
 
       option => fargparseCLI%options%at('use_sub_comm')
       if (associated(option)) then
-         call cast(option, use_sub_comm, _RC)
+         call cast(option, use_sub_comm, __RC)
          cap_options%use_comm_world = .not. use_sub_comm
       end if
 
       if ( .not. cap_options%use_comm_world) then
          option => fargparseCLI%options%at('comm_model')
          if (associated(option)) then
-            call cast(option, buffer, _RC)
-            _ASSERT(trim(buffer) /= '*', "Should provide comm for model")
-            call cast(option, cap_options%comm, _RC)
+            call cast(option, buffer, __RC)
+            __ASSERT(trim(buffer) /= '*', "Should provide comm for model")
+            call cast(option, cap_options%comm, __RC)
          end if
       else
         ! comm will be set to MPI_COMM_WORLD later on in initialize_mpi
@@ -272,40 +272,40 @@ contains
 
       option => fargparseCLI%options%at('npes_model')
       if (associated(option)) then
-         call cast(option, cap_options%npes_model, _RC)
+         call cast(option, cap_options%npes_model, __RC)
       end if
 
       option => fargparseCLI%options%at('compress_nodes')
       if (associated(option)) then
-         call cast(option, compress_nodes, _RC)
+         call cast(option, compress_nodes, __RC)
          cap_options%isolate_nodes = .not. compress_nodes
       end if
 
       option => fargparseCLI%options%at('fast_oclient')
       if (associated(option)) then
-         call cast(option, cap_options%fast_oclient, _RC)
+         call cast(option, cap_options%fast_oclient, __RC)
       end if
 
       option => fargparseCLI%options%at('with_io_profiler')
       if (associated(option)) then
-         call cast(option, cap_options%with_io_profiler, _RC)
+         call cast(option, cap_options%with_io_profiler, __RC)
       end if
 
       option => fargparseCLI%options%at('with_esmf_moab')
       if (associated(option)) then
-         call cast(option, cap_options%with_esmf_moab, _RC)
+         call cast(option, cap_options%with_esmf_moab, __RC)
       end if
 
       ! We only allow one of npes_input_server or nodes_input_server
       option_npes => fargparseCLI%options%at('npes_input_server')
-      call cast(option_npes, tmp_npes_vector, _RC)
+      call cast(option_npes, tmp_npes_vector, __RC)
       option_nodes => fargparseCLI%options%at('nodes_input_server')
-      call cast(option_nodes, tmp_nodes_vector, _RC)
-      _ASSERT(.not.(tmp_npes_vector%of(1) /= NO_VALUE_PASSED_IN .and. tmp_nodes_vector%of(1) /= NO_VALUE_PASSED_IN), 'Cannot specify both --npes_input_server and --nodes_input_server')
+      call cast(option_nodes, tmp_nodes_vector, __RC)
+      __ASSERT(.not.(tmp_npes_vector%of(1) /= NO_VALUE_PASSED_IN .and. tmp_nodes_vector%of(1) /= NO_VALUE_PASSED_IN), 'Cannot specify both --npes_input_server and --nodes_input_server')
 
       ! npes_input_server is a gFTL IntegerVector that we need to convert to an integer array
       option => fargparseCLI%options%at('npes_input_server')
-      call cast(option, tmp_int_vector, _RC)
+      call cast(option, tmp_int_vector, __RC)
       if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
          cap_options%npes_input_server = tmp_int_vector%data()
       else
@@ -314,7 +314,7 @@ contains
 
       ! nodes_input_server is a gFTL IntegerVector that we need to convert to an integer array
       option => fargparseCLI%options%at('nodes_input_server')
-      call cast(option, tmp_int_vector, _RC)
+      call cast(option, tmp_int_vector, __RC)
       if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
          cap_options%nodes_input_server = tmp_int_vector%data()
       else
@@ -323,14 +323,14 @@ contains
 
       ! We only allow one of npes_output_server or nodes_output_server
       option_npes => fargparseCLI%options%at('npes_output_server')
-      call cast(option_npes, tmp_npes_vector, _RC)
+      call cast(option_npes, tmp_npes_vector, __RC)
       option_nodes => fargparseCLI%options%at('nodes_output_server')
-      call cast(option_nodes, tmp_nodes_vector, _RC)
-      _ASSERT(.not.(tmp_npes_vector%of(1) /= NO_VALUE_PASSED_IN .and. tmp_nodes_vector%of(1) /= NO_VALUE_PASSED_IN), 'Cannot specify both --npes_output_server and --nodes_output_server')
+      call cast(option_nodes, tmp_nodes_vector, __RC)
+      __ASSERT(.not.(tmp_npes_vector%of(1) /= NO_VALUE_PASSED_IN .and. tmp_nodes_vector%of(1) /= NO_VALUE_PASSED_IN), 'Cannot specify both --npes_output_server and --nodes_output_server')
 
       ! npes_output_server is a gFTL IntegerVector that we need to convert to an integer array
       option => fargparseCLI%options%at('npes_output_server')
-      call cast(option, tmp_int_vector, _RC)
+      call cast(option, tmp_int_vector, __RC)
       if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
          cap_options%npes_output_server = tmp_int_vector%data()
       else
@@ -339,7 +339,7 @@ contains
 
       ! nodes_output_server is a gFTL IntegerVector that we need to convert to an integer array
       option => fargparseCLI%options%at('nodes_output_server')
-      call cast(option, tmp_int_vector, _RC)
+      call cast(option, tmp_int_vector, __RC)
       if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
          nodes_output_server = tmp_int_vector%data()
       else
@@ -348,7 +348,7 @@ contains
 
       option => fargparseCLI%options%at('one_node_output')
       if (associated(option)) then
-         call cast(option, one_node_output, _RC)
+         call cast(option, one_node_output, __RC)
       else
          one_node_output = .false.
       end if
@@ -363,7 +363,7 @@ contains
 
       option => fargparseCLI%options%at('esmf_logtype')
       if (associated(option)) then
-         call cast(option, buffer, _RC)
+         call cast(option, buffer, __RC)
       end if
       ! set_esmf_logging_mode
       select case (trim(buffer))
@@ -376,43 +376,43 @@ contains
       case ('multi_on_error')
          cap_options%esmf_logging_mode = ESMF_LOGKIND_MULTI_ON_ERROR
       case default
-         _FAIL("Unsupported ESMF logging option: "//trim(buffer))
+         __FAIL("Unsupported ESMF logging option: "//trim(buffer))
       end select
 
       ! Ensemble specific options
       option => fargparseCLI%options%at('prefix')
       if (associated(option)) then
-         call cast(option, cap_options%ensemble_subdir_prefix, _RC)
+         call cast(option, cap_options%ensemble_subdir_prefix, __RC)
       end if
 
       option => fargparseCLI%options%at('n_members')
       if (associated(option)) then
-         call cast(option, cap_options%n_members, _RC)
+         call cast(option, cap_options%n_members, __RC)
       end if
 
       option => fargparseCLI%options%at('cap_rc')
       if (associated(option)) then
-         call cast(option, cap_options%cap_rc_file, _RC)
+         call cast(option, cap_options%cap_rc_file, __RC)
       end if
 
       ! Logging options
       option => fargparseCLI%options%at('logging_config')
       if (associated(option)) then
-         call cast(option, cap_options%logging_config, _RC)
+         call cast(option, cap_options%logging_config, __RC)
       end if
 
       option => fargparseCLI%options%at('oserver_type')
       if (associated(option)) then
-         call cast(option, cap_options%oserver_type, _RC)
+         call cast(option, cap_options%oserver_type, __RC)
       end if
 
       option => fargparseCLI%options%at('npes_backend_pernode')
       if (associated(option)) then
-         call cast(option, cap_options%npes_backend_pernode, _RC)
+         call cast(option, cap_options%npes_backend_pernode, __RC)
       end if
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
    end subroutine fill_cap_options
 
    !Function for backward compatibility. Remove for 3.0
@@ -431,26 +431,26 @@ contains
 
       option => fargparseCLI%options%at('root_dso')
       if (associated(option)) then
-         call cast(option, cap_options%root_dso, _RC)
+         call cast(option, cap_options%root_dso, __RC)
       end if
 
       option => fargparseCLI%options%at('egress_file')
       if (associated(option)) then
-         call cast(option, cap_options%egress_file, _RC)
+         call cast(option, cap_options%egress_file, __RC)
       end if
 
       option => fargparseCLI%options%at('use_sub_comm')
       if (associated(option)) then
-         call cast(option, use_sub_comm, _RC)
+         call cast(option, use_sub_comm, __RC)
          cap_options%use_comm_world = .not. use_sub_comm
       end if
 
       if ( .not. cap_options%use_comm_world) then
          option => fargparseCLI%options%at('comm_model')
          if (associated(option)) then
-            call cast(option, buffer, _RC)
-            _ASSERT(trim(buffer) /= '*', "Should provide comm for model")
-            call cast(option, cap_options%comm, _RC)
+            call cast(option, buffer, __RC)
+            __ASSERT(trim(buffer) /= '*', "Should provide comm for model")
+            call cast(option, cap_options%comm, __RC)
          end if
       else
         ! comm will be set to MPI_COMM_WORLD later on in initialize_mpi
@@ -459,40 +459,40 @@ contains
 
       option => fargparseCLI%options%at('npes_model')
       if (associated(option)) then
-         call cast(option, cap_options%npes_model, _RC)
+         call cast(option, cap_options%npes_model, __RC)
       end if
 
       option => fargparseCLI%options%at('compress_nodes')
       if (associated(option)) then
-         call cast(option, compress_nodes, _RC)
+         call cast(option, compress_nodes, __RC)
          cap_options%isolate_nodes = .not. compress_nodes
       end if
 
       option => fargparseCLI%options%at('fast_oclient')
       if (associated(option)) then
-         call cast(option, cap_options%fast_oclient, _RC)
+         call cast(option, cap_options%fast_oclient, __RC)
       end if
 
       option => fargparseCLI%options%at('with_io_profiler')
       if (associated(option)) then
-         call cast(option, cap_options%with_io_profiler, _RC)
+         call cast(option, cap_options%with_io_profiler, __RC)
       end if
 
       option => fargparseCLI%options%at('with_esmf_moab')
       if (associated(option)) then
-         call cast(option, cap_options%with_esmf_moab, _RC)
+         call cast(option, cap_options%with_esmf_moab, __RC)
       end if
 
       ! We only allow one of npes_input_server or nodes_input_server
       option_npes => fargparseCLI%options%at('npes_input_server')
-      call cast(option_npes, tmp_npes_vector, _RC)
+      call cast(option_npes, tmp_npes_vector, __RC)
       option_nodes => fargparseCLI%options%at('nodes_input_server')
-      call cast(option_nodes, tmp_nodes_vector, _RC)
-      _ASSERT(.not.(tmp_npes_vector%of(1) /= NO_VALUE_PASSED_IN .and. tmp_nodes_vector%of(1) /= NO_VALUE_PASSED_IN), 'Cannot specify both --npes_input_server and --nodes_input_server')
+      call cast(option_nodes, tmp_nodes_vector, __RC)
+      __ASSERT(.not.(tmp_npes_vector%of(1) /= NO_VALUE_PASSED_IN .and. tmp_nodes_vector%of(1) /= NO_VALUE_PASSED_IN), 'Cannot specify both --npes_input_server and --nodes_input_server')
 
       ! npes_input_server is a gFTL IntegerVector that we need to convert to an integer array
       option => fargparseCLI%options%at('npes_input_server')
-      call cast(option, tmp_int_vector, _RC)
+      call cast(option, tmp_int_vector, __RC)
       if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
          cap_options%npes_input_server = tmp_int_vector%data()
       else
@@ -501,7 +501,7 @@ contains
 
       ! nodes_input_server is a gFTL IntegerVector that we need to convert to an integer array
       option => fargparseCLI%options%at('nodes_input_server')
-      call cast(option, tmp_int_vector, _RC)
+      call cast(option, tmp_int_vector, __RC)
       if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
          cap_options%nodes_input_server = tmp_int_vector%data()
       else
@@ -510,14 +510,14 @@ contains
 
       ! We only allow one of npes_output_server or nodes_output_server
       option_npes => fargparseCLI%options%at('npes_output_server')
-      call cast(option_npes, tmp_npes_vector, _RC)
+      call cast(option_npes, tmp_npes_vector, __RC)
       option_nodes => fargparseCLI%options%at('nodes_output_server')
-      call cast(option_nodes, tmp_nodes_vector, _RC)
-      _ASSERT(.not.(tmp_npes_vector%of(1) /= NO_VALUE_PASSED_IN .and. tmp_nodes_vector%of(1) /= NO_VALUE_PASSED_IN), 'Cannot specify both --npes_output_server and --nodes_output_server')
+      call cast(option_nodes, tmp_nodes_vector, __RC)
+      __ASSERT(.not.(tmp_npes_vector%of(1) /= NO_VALUE_PASSED_IN .and. tmp_nodes_vector%of(1) /= NO_VALUE_PASSED_IN), 'Cannot specify both --npes_output_server and --nodes_output_server')
 
       ! npes_output_server is a gFTL IntegerVector that we need to convert to an integer array
       option => fargparseCLI%options%at('npes_output_server')
-      call cast(option, tmp_int_vector, _RC)
+      call cast(option, tmp_int_vector, __RC)
       if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
          cap_options%npes_output_server = tmp_int_vector%data()
       else
@@ -526,7 +526,7 @@ contains
 
       ! nodes_output_server is a gFTL IntegerVector that we need to convert to an integer array
       option => fargparseCLI%options%at('nodes_output_server')
-      call cast(option, tmp_int_vector, _RC)
+      call cast(option, tmp_int_vector, __RC)
       if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
          nodes_output_server = tmp_int_vector%data()
       else
@@ -535,7 +535,7 @@ contains
 
       option => fargparseCLI%options%at('one_node_output')
       if (associated(option)) then
-         call cast(option, one_node_output, _RC)
+         call cast(option, one_node_output, __RC)
       else
          one_node_output = .false.
       end if
@@ -550,7 +550,7 @@ contains
 
       option => fargparseCLI%options%at('esmf_logtype')
       if (associated(option)) then
-         call cast(option, buffer, _RC)
+         call cast(option, buffer, __RC)
       end if
       ! set_esmf_logging_mode
       select case (trim(buffer))
@@ -563,43 +563,43 @@ contains
       case ('multi_on_error')
          cap_options%esmf_logging_mode = ESMF_LOGKIND_MULTI_ON_ERROR
       case default
-         _FAIL("Unsupported ESMF logging option: "//trim(buffer))
+         __FAIL("Unsupported ESMF logging option: "//trim(buffer))
       end select
 
       ! Ensemble specific options
       option => fargparseCLI%options%at('prefix')
       if (associated(option)) then
-         call cast(option, cap_options%ensemble_subdir_prefix, _RC)
+         call cast(option, cap_options%ensemble_subdir_prefix, __RC)
       end if
 
       option => fargparseCLI%options%at('n_members')
       if (associated(option)) then
-         call cast(option, cap_options%n_members, _RC)
+         call cast(option, cap_options%n_members, __RC)
       end if
 
       option => fargparseCLI%options%at('cap_rc')
       if (associated(option)) then
-         call cast(option, cap_options%cap_rc_file, _RC)
+         call cast(option, cap_options%cap_rc_file, __RC)
       end if
 
       ! Logging options
       option => fargparseCLI%options%at('logging_config')
       if (associated(option)) then
-         call cast(option, cap_options%logging_config, _RC)
+         call cast(option, cap_options%logging_config, __RC)
       end if
 
       option => fargparseCLI%options%at('oserver_type')
       if (associated(option)) then
-         call cast(option, cap_options%oserver_type, _RC)
+         call cast(option, cap_options%oserver_type, __RC)
       end if
 
       option => fargparseCLI%options%at('npes_backend_pernode')
       if (associated(option)) then
-         call cast(option, cap_options%npes_backend_pernode, _RC)
+         call cast(option, cap_options%npes_backend_pernode, __RC)
       end if
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
    end function old_CapOptions_from_Fargparse
 
 end module MAPL_FargparseCLIMod

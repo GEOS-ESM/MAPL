@@ -59,38 +59,38 @@ CONTAINS
 !   Initialize framework
 !   --------------------
     call ESMF_Initialize (vm=vm, rc=status)
-    _VERIFY(status)
+    __VERIFY(status)
 
     IamRoot = MAPL_am_I_root()
 
 !   Get the global vm
 !   -----------------
     call ESMF_VMGetGlobal(vm, rc=status)
-    _VERIFY(status)
+    __VERIFY(status)
 
 !   Create a grid
 !   -------------
     call MyGridCreate_ ( vm, grid2d, grid3d, rc=status )
-    _VERIFY(status)
+    __VERIFY(status)
 
 !   Set the time as the one on the hardwired file name
 !   --------------------------------------------------
     call ESMF_CalendarSetDefault ( ESMF_CALKIND_GREGORIAN, rc=status )
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
     call ESMF_TimeSet(Time2,  yy=2001, mm=1, dd=1,  h=0,  m=0, s=0, rc=status )
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
     call ESMF_TimeSet(Time3,  yy=2001, mm=1, dd=14, h=12, m=0, s=0, rc=status )
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
     call ESMF_TimeSet(Time2a, yy=2001, mm=3, dd=1,  h=12, m=0, s=0, rc=status )
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
     call ESMF_TimeSet(Times,  yy=1971, mm=6, dd=5,  h=0, m=0, s=0, rc=status )
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
 !   Get Local dimensions
 !   --------------------
     call MAPL_GridGet ( GRID3D, &
                         localCellCountPerDim=DIMS,RC=STATUS)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
 !   Allocate arrays
 !   ---------------
@@ -98,7 +98,7 @@ CONTAINS
     allocate( emcoterp(im,jm), emconvoc(im,jm), &
               oh(im,jm,km), ch4(im,jm,km), &
               stat=STATUS ) 
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
 !   Read 2D arrays from file
 !   ------------------------
@@ -106,35 +106,35 @@ CONTAINS
     call ESMF_ioRead  ( 'du_src', src_Filename, Times, grid3d, emcoterp,  &
                         verbose=.true., force_regrid=.true.,                &
                         time_is_cyclic = .true., rc=STATUS                  )
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
     call ESMF_ioRead  ( 'emcoterp', f2d_Filename, Time2, grid3d, emcoterp,  &
                         verbose=.true., force_regrid=.true.,                &
                         time_is_cyclic = .true., rc=STATUS                  )
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
     call ESMF_ioRead  ( 'emconvoc', f2d_Filename, Time2, grid3d, emconvoc,  &
                         verbose=.true., force_regrid=.true.,                &
                         time_is_cyclic = .true., rc=STATUS                  )
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
     call ESMF_ioRead  ( 'OH',       f3d_Filename, Time3, grid3d, oh,        &
                         verbose=.true., force_regrid=.true., rc=STATUS      )
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
     call ESMF_ioRead  ( 'CH4',       f3d_Filename, Time3, grid3d, ch4,      &
                         verbose=.true., force_regrid=.true., rc=STATUS      )
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     if ( IamRoot ) print *, 'Re-reading w/ time interpolation...'
     call ESMF_ioRead  ( 'emconvoc', f2d_Filename, Time2a, grid3d, emconvoc, &
                         verbose=.true., force_regrid=.true.,                &
                         time_is_cyclic = .true., time_interp=.true.,        &
                         rc=STATUS                  )
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     deallocate(oh,ch4,emconvoc)
 
     allocate( xa(im,jm,km), xb(im,jm,km), xc(im,jm,km), &
               xm(im,jm,km), xe(im,jm,km),               &
               stat=STATUS ) 
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     print *
 
@@ -148,16 +148,16 @@ CONTAINS
                         verbose=.true., force_regrid=.true.,                &
                         time_interp = .true.,                               &
                         rc=STATUS      )
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     call ESMF_ioRead  ( 'CH4',       f3d_Filename, Time3b, grid3d, xb,      &
                         verbose=.true., force_regrid=.true., rc=STATUS,     &
                         time_interp = .true.                                )
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
     call ESMF_ioRead  ( 'CH4',       f3d_Filename, Time3c, grid3d, xc,      &
                         verbose=.true., force_regrid=.true., rc=STATUS,     &
                         time_interp = .true.                                )
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     xm = ( xa + xc ) / 2.
     xe = abs ( xb  - xm )
@@ -188,7 +188,7 @@ CONTAINS
 !   All done
 !   --------
     call ESMF_Finalize ( rc=status )
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
     
   end subroutine test_main
 
@@ -247,7 +247,7 @@ CONTAINS
     minCoord(3) = deltaZ/2.
 
     layout = ESMF_DELayoutCreate(vm, deCountList=(/NX, NY/), rc=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     if ( MAPL_Am_I_Root() ) then
        print *
@@ -269,14 +269,14 @@ CONTAINS
          horzStagger=ESMF_Grid_Horz_Stagger_A,   &
          periodic=(/ESMF_TRUE, ESMF_FALSE/),     &
          name='Grid2d', rc=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     call ESMF_GridDistribute(grid2d,               &
          deLayout=layout,                        &
          countsPerDEDim1=imxy,                   &
          countsPerDEDim2=jmxy,                   &
          rc=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
 
 !   3D Grid
@@ -288,19 +288,19 @@ CONTAINS
          horzStagger=ESMF_Grid_Horz_Stagger_A,   &
          periodic=(/ESMF_TRUE, ESMF_FALSE/),     &
          name='Grid3d', rc=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     call ESMF_GridAddVertHeight(grid3d,            &
          delta=(/(deltaZ, L=1,LM) /),            &
          rc=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     call ESMF_GridDistribute(grid3d,               &
          deLayout=layout,                        &
          countsPerDEDim1=imxy,                   &
          countsPerDEDim2=jmxy,                   &
          rc=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     call MAPL_GridGetLatLons ( grid3d, lons, lats )
 
@@ -318,7 +318,7 @@ CONTAINS
     deallocate(imxy)
     deallocate(jmxy)
 
-    _RETURN(STATUS)
+    __RETURN(STATUS)
 
   end subroutine MyGridCreate_
 
@@ -345,7 +345,7 @@ CONTAINS
        call ESMF_GridGet ( grid, horzRelloc=ESMF_CELL_CENTER, &
                            vertRelLoc=ESMF_CELL_CENTER, &
                            globalCellCountPerDim=DIMS, RC=STATUS)
-       _VERIFY(STATUS)
+       __VERIFY(STATUS)
 
        IM_WORLD = dims(1)
        JM_WORLD = dims(2)
@@ -357,33 +357,33 @@ CONTAINS
        else
             if(size(LONS,1) /= IM_WORLD) STATUS = 1
        end if
-       _VERIFY(status)
+       __VERIFY(status)
        if ( .not. associated(lats) ) then
             allocate(lats(JM_WORLD), stat=STATUS)
        else
             if(size(LATS,1) /= JM_WORLD) STATUS = 1
        end if
-       _VERIFY(status)
+       __VERIFY(status)
 
 !      Retrieve the ESMF array with coordinates 
 !      ----------------------------------------
        call ESMF_GridGetCoord ( grid, horzRelLoc =ESMF_CELL_CENTER, &
                                 centerCoord=eARRAY, RC=STATUS ) 
-       _VERIFY(STATUS) 
+       __VERIFY(STATUS) 
 
 !      Local work space
 !      ----------------
        allocate(LONS2d(IM_WORLD,JM_WORLD), LATS2d(IM_WORLD,JM_WORLD), &
                 STAT=status)             
-       _VERIFY(status)
+       __VERIFY(status)
 
 !      Get the local longitudes and gather them into a global array
 !      ------------------------------------------------------------
        call ESMF_ArrayGetData(EARRAY(1), R8D2, RC=STATUS)
-       _VERIFY(STATUS)
+       __VERIFY(STATUS)
 
        allocate(LONSLOCAL(size(R8D2,1),size(R8D2,2)), STAT=status)             
-       _VERIFY(status)
+       __VERIFY(status)
 
        LONSLOCAL = R8D2*(180/MAPL_PI)
 
@@ -392,15 +392,15 @@ CONTAINS
 !      Get the local longitudes and gather them into a global array
 !      ------------------------------------------------------------
        call ESMF_ArrayGetData(eARRAY(2), R8D2, RC=STATUS)
-       _VERIFY(STATUS)
+       __VERIFY(STATUS)
 
        allocate(LATSLOCAL(size(R8D2,1),size(R8D2,2)), STAT=status)             
-       _VERIFY(status)
+       __VERIFY(status)
 
        LATSlocal = R8D2*(180/MAPL_PI)
 
        call ArrayGather(LATSLOCAL, LATS2D, GRID, RC=STATUS)
-       _VERIFY(STATUS)
+       __VERIFY(STATUS)
 
 !      Return 1D arrays
 !      ----------------

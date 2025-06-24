@@ -79,7 +79,7 @@ contains
       ! two words in header
       length = 1 + 1 + (1 + (n-1)/CHARS_PER_INT32)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function serialize_buffer_length_string
 
    integer function serialize_buffer_length_int32_0d(scalar, rc) result(length)
@@ -87,8 +87,8 @@ contains
       integer, optional, intent(out) :: rc
 
       length = 1
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(scalar)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(scalar)
    end function serialize_buffer_length_int32_0d
 
    integer function serialize_buffer_length_int32_1d(array, rc) result(length)
@@ -96,7 +96,7 @@ contains
       integer, optional, intent(out) :: rc
 
       length = 1 + size(array)
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function serialize_buffer_length_int32_1d
 
    integer function serialize_buffer_length_int64_0d(scalar, rc) result(length)
@@ -104,8 +104,8 @@ contains
       integer, optional, intent(out) :: rc
 
       length = 2
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(scalar)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(scalar)
    end function serialize_buffer_length_int64_0d
 
    integer function serialize_buffer_length_int64_1d(array, rc) result(length)
@@ -113,7 +113,7 @@ contains
       integer, optional, intent(out) :: rc
 
       length = 1 + size(array)*word_size(pFIO_INT64)
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function serialize_buffer_length_int64_1d
 
    integer function serialize_buffer_length_real32_0d(scalar,rc) result(length)
@@ -121,8 +121,8 @@ contains
       integer, optional, intent(out) :: rc
 
       length = word_size(pFIO_REAL32)
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(scalar)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(scalar)
    end function serialize_buffer_length_real32_0d
 
    integer function serialize_buffer_length_real32_1d(array, rc) result(length)
@@ -131,7 +131,7 @@ contains
 
       length = 1 + size(array)*word_size(pFIO_REAL32)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function serialize_buffer_length_real32_1d
 
    integer function serialize_buffer_length_real64_0d(scalar, rc) result(length)
@@ -139,8 +139,8 @@ contains
       integer, optional, intent(out) :: rc
 
       length = word_size(pFIO_REAL64)
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(scalar)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(scalar)
    end function serialize_buffer_length_real64_0d
 
 
@@ -149,7 +149,7 @@ contains
       integer, optional, intent(out) :: rc
 
       length = 1 + size(array)*word_size(pFIO_REAL64)
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function serialize_buffer_length_real64_1d
 
    integer function serialize_buffer_length_logical_0d(scalar, rc) result(length)
@@ -157,8 +157,8 @@ contains
       integer, optional, intent(out) :: rc
 
       length = word_size(pFIO_LOGICAL)
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(scalar)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(scalar)
    end function serialize_buffer_length_logical_0d
 
 
@@ -167,7 +167,7 @@ contains
       integer, optional, intent(out) :: rc
 
       length = 1 + size(array)*word_size(pFIO_LOGICAL)
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function serialize_buffer_length_logical_1d
 
 !-> serializing
@@ -183,7 +183,7 @@ contains
       buffer = [0, str_len, transfer(str,[1])]
       buffer(1) = size(buffer)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function serialize_string
 
 
@@ -194,7 +194,7 @@ contains
 
       buffer = [scalar]
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function serialize_int32_0d
 
 
@@ -207,7 +207,7 @@ contains
 
       n = size(array)
       buffer = [n+1, array]
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function serialize_int32_1d
 
    function serialize_int64_0d(scalar, rc) result(buffer)
@@ -217,7 +217,7 @@ contains
 
       buffer = [transfer(scalar,[1])]
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function serialize_int64_0d
 
    function serialize_int64_1d(array, rc) result(buffer)
@@ -230,7 +230,7 @@ contains
       n = size(array)*word_size(pFIO_INT64)
       buffer = [n+1, transfer(array,[1])]
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function serialize_int64_1d
 
    function serialize_real32_0d(scalar, rc) result(buffer)
@@ -240,7 +240,7 @@ contains
 
       buffer = [transfer(scalar,1)]
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function serialize_real32_0d
 
 
@@ -254,7 +254,7 @@ contains
       n = size(array)*word_size(pFIO_REAL32)
       buffer = [n+1, transfer(array,[1])]
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function serialize_real32_1d
 
    function serialize_real64_0d(scalar, rc) result(buffer)
@@ -264,7 +264,7 @@ contains
 
       buffer = [transfer(scalar,[1])]
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function serialize_real64_0d
 
 
@@ -278,7 +278,7 @@ contains
       n = size(array)*word_size(pFIO_REAL64)
       buffer = [n+1, transfer(array,[1])]
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function serialize_real64_1d
 
    function serialize_logical_0d(scalar, rc) result(buffer)
@@ -289,7 +289,7 @@ contains
       allocate(buffer(1), source = 0)
       if(scalar) buffer(1) = 1
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function serialize_logical_0d
 
 
@@ -308,7 +308,7 @@ contains
       endwhere
       buffer = [n+1, itmp]
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function serialize_logical_1d
 
 !-> deserializing
@@ -320,14 +320,14 @@ contains
 
       integer(kind=INT32) :: buf_size, str_len
       
-      _ASSERT(size(buffer) >= 2, "wrong buffer")      
+      __ASSERT(size(buffer) >= 2, "wrong buffer")      
 
       buf_size = buffer(1)
       str_len = buffer(2)
       allocate(character(str_len) :: str)
       str = transfer(buffer(3:buf_size), str)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine deserialize_string
 
    
@@ -336,10 +336,10 @@ contains
       integer(kind=INT32), intent(out) :: scalar
       integer, optional, intent(out) :: rc
 
-      _ASSERT(size(buffer) >= 1, "wrong buffer")      
+      __ASSERT(size(buffer) >= 1, "wrong buffer")      
       scalar = buffer(1)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine deserialize_int32_0d
 
 
@@ -350,12 +350,12 @@ contains
 
       integer(kind=INT32) :: n
 
-      _ASSERT(size(buffer) >= 1, "wrong buffer")      
+      __ASSERT(size(buffer) >= 1, "wrong buffer")      
 
       n = buffer(1)
       array = buffer(2:n)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine deserialize_int32_1d
 
    subroutine deserialize_int64_0d(buffer, scalar, rc)
@@ -363,11 +363,11 @@ contains
       integer(kind=INT64), intent(out) :: scalar
       integer, optional, intent(out) :: rc
 
-      _ASSERT(size(buffer) >= 1, "wrong buffer")      
+      __ASSERT(size(buffer) >= 1, "wrong buffer")      
 
       scalar = transfer(buffer(1:), scalar)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine deserialize_int64_0d
 
 
@@ -378,13 +378,13 @@ contains
 
       integer(kind=INT32) :: n
 
-      _ASSERT(size(buffer) >= 1, "wrong buffer")      
+      __ASSERT(size(buffer) >= 1, "wrong buffer")      
 
       n = buffer(1)
       allocate(array(n-1))
       array = transfer(buffer(2:n),array)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine deserialize_int64_1d
 
    subroutine deserialize_real32_0d(buffer, scalar, rc)
@@ -392,9 +392,9 @@ contains
       real(kind=REAL32), intent(out) :: scalar
       integer, optional, intent(out) :: rc
 
-      _ASSERT(size(buffer) >= 1, "wrong buffer")      
+      __ASSERT(size(buffer) >= 1, "wrong buffer")      
       scalar = transfer(buffer(1),scalar)
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine deserialize_real32_0d
 
 
@@ -405,13 +405,13 @@ contains
 
       integer(kind=INT32) :: n
 
-      _ASSERT(size(buffer) >= 1, "wrong buffer")      
+      __ASSERT(size(buffer) >= 1, "wrong buffer")      
 
       n = buffer(1)
       allocate(array(n-1))
       array = transfer(buffer(2:n),array)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine deserialize_real32_1d
 
    subroutine deserialize_real64_0d(buffer, scalar, rc)
@@ -419,9 +419,9 @@ contains
       real(kind=REAL64), intent(out) :: scalar
       integer, optional, intent(out) :: rc
 
-      _ASSERT(size(buffer) >= 1, "wrong buffer")      
+      __ASSERT(size(buffer) >= 1, "wrong buffer")      
       scalar = transfer(buffer(1:),scalar)
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine deserialize_real64_0d
 
 
@@ -433,12 +433,12 @@ contains
       integer(kind=INT32) :: n
 
 
-      _ASSERT(size(buffer) >= 1, "wrong buffer")      
+      __ASSERT(size(buffer) >= 1, "wrong buffer")      
       n = buffer(1)
       allocate(array(n-1))
       array = transfer(buffer(2:n),array)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine deserialize_real64_1d
 
    subroutine deserialize_logical_0d(buffer, scalar, rc)
@@ -446,10 +446,10 @@ contains
       logical, intent(out) :: scalar
       integer, optional, intent(out) :: rc
 
-      _ASSERT(size(buffer) >= 1, "wrong buffer")      
+      __ASSERT(size(buffer) >= 1, "wrong buffer")      
       scalar = buffer(1) /= 0
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine deserialize_logical_0d
 
 
@@ -460,13 +460,13 @@ contains
 
       integer(kind=INT32) :: n
 
-      _ASSERT(size(buffer) >= 1, "wrong buffer")      
+      __ASSERT(size(buffer) >= 1, "wrong buffer")      
       n = buffer(1)
       allocate(array(n-1))
      
       array = buffer(2:n) /= 0
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine deserialize_logical_1d
 
    elemental function nearlyEqual_real32(r1, r2) result(yes)
@@ -510,10 +510,10 @@ contains
       case (pFIO_INT64)
          word_size = c_sizeof(i64)/c_sizeof(i32)
       case default
-         _FAIL( "unsupported type kind")
+         __FAIL( "unsupported type kind")
       end select
          
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function word_size
 
    function i_to_string(count, rc) result(str)
@@ -521,11 +521,11 @@ contains
       integer, intent(in) :: count
       integer, optional, intent(out) :: rc
       character(len=9)    :: buffer
-      _ASSERT( count <= 10**8, "too big to hold")
+      __ASSERT( count <= 10**8, "too big to hold")
       write(buffer,'(i0)') count
       str = trim(buffer)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function i_to_string
 
 end module pFIO_UtilitiesMod

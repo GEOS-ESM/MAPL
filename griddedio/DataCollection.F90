@@ -97,11 +97,11 @@ contains
 
        allocate(metadata)
        call formatter%open(file_name, pFIO_READ,rc=status)
-       _VERIFY(status)
+       __VERIFY(status)
        basic_metadata = formatter%read(rc=status)
-       _VERIFY(status)
+       __VERIFY(status)
        call formatter%close(rc=status)
-       _VERIFY(status)
+       __VERIFY(status)
        call metadata%create(basic_metadata,file_name)
        call this%metadatas%push_back(metadata)
        deallocate(metadata)
@@ -117,7 +117,7 @@ contains
        ! size() returns 64-bit integer;  cast to 32 bit for this usage.
        call this%file_ids%insert(file_name, int(this%metadatas%size()))
     end if
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
   end function find
 
 end module MAPL_DataCollectionMod

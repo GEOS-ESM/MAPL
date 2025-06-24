@@ -148,7 +148,7 @@ contains
       integer :: status
 
       if (MAPL_AM_I_Root()) then
-         call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, _RC)
+         call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, __RC)
          do_print = (printrc == PRINT_ALL) .or. (printrc == PRINT_DIFFERENT)
          print_nondefault_only = (printrc == PRINT_DIFFERENT) .and. default_is_present
       else
@@ -239,7 +239,7 @@ contains
       integer :: i
       integer :: status
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
       label_is_present = .false.
 
@@ -251,13 +251,13 @@ contains
       do i = 1, size(labels_to_try)
          actual_label = trim(labels_to_try(i))
          if (len_trim(actual_label) == 0 ) cycle
-         call ESMF_ConfigFindLabel(config, label = actual_label, isPresent = label_is_present, _RC)
+         call ESMF_ConfigFindLabel(config, label = actual_label, isPresent = label_is_present, __RC)
          if (label_is_present) exit
       end do
 
       if (.not. label_is_present) actual_label = trim(label)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine get_actual_label
 
    !>
@@ -287,7 +287,7 @@ contains
       integer :: io_stat
       integer :: status
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
 #if defined(IS_ARRAY)
 #undef IS_ARRAY
@@ -317,10 +317,10 @@ contains
       value_is_default = .FALSE.
 
       if (default_is_present) then
-         _ASSERT(same_type_as(val, default), "Value and default must have same type")
+         __ASSERT(same_type_as(val, default), "Value and default must have same type")
       end if
 
-      call get_actual_label(config, label, label_is_present, actual_label, component_name = component_name, _RC)
+      call get_actual_label(config, label, label_is_present, actual_label, component_name = component_name, __RC)
 
       if(.not. (label_is_present .or. default_is_present)) then
          ! label or default must be present
@@ -328,7 +328,7 @@ contains
          return
       end if
 
-      call get_print_settings(config, default_is_present, do_print, print_nondefault_only, _RC)
+      call get_print_settings(config, default_is_present, do_print, print_nondefault_only, __RC)
 
       select type(val)
 
@@ -392,14 +392,14 @@ contains
 #undef TYPENUM
 
       class default
-         _FAIL( "Unsupported type")
+         __FAIL( "Unsupported type")
       end select
 
       if(do_print) then
-         call print_resource(type_string, actual_label, formatted_value, value_is_default, iunit=iunit, _RC)
+         call print_resource(type_string, actual_label, formatted_value, value_is_default, iunit=iunit, __RC)
       end if
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
 #undef TYPE_
 #undef TYPENUM
@@ -436,7 +436,7 @@ contains
       integer :: io_stat
       integer :: status
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
 #if defined(TYPE_)
 #undef TYPE_
@@ -470,10 +470,10 @@ contains
       value_is_default = .FALSE.
 
       if (default_is_present) then
-         _ASSERT(same_type_as(val, default), "Value and default must have same type")
+         __ASSERT(same_type_as(val, default), "Value and default must have same type")
       end if
 
-      call get_actual_label(config, label, label_is_present, actual_label, component_name = component_name, _RC)
+      call get_actual_label(config, label, label_is_present, actual_label, component_name = component_name, __RC)
 
       ! label or default must be present
       if (.not. label_is_present .and. .not. default_is_present) then
@@ -482,7 +482,7 @@ contains
       end if
 
       ! only print if root
-      call get_print_settings(config, default_is_present, do_print, print_nondefault_only, _RC)
+      call get_print_settings(config, default_is_present, do_print, print_nondefault_only, __RC)
 
       count = size(val)
 
@@ -549,14 +549,14 @@ contains
 
 
       class default
-         _FAIL( "Unsupported type")
+         __FAIL( "Unsupported type")
       end select
 
       if(do_print) then
-         call print_resource(type_string, actual_label, formatted_value, value_is_default, iunit=iunit, _RC)
+         call print_resource(type_string, actual_label, formatted_value, value_is_default, iunit=iunit, __RC)
       end if
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_GetResource_config_array
 
@@ -583,7 +583,7 @@ contains
       character(len=MAX_LINE_LENGTH) :: final_output
       integer :: max_length_value_out
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
       if(value_is_default) then
          trailer = DEFAULT_
@@ -620,7 +620,7 @@ contains
          write(*, fmt='(a)') trim(final_output)
       end if
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine print_resource
 

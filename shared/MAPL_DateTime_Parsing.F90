@@ -905,7 +905,7 @@ contains
 
       this % year = val
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine set_year_datetime_duration
 
@@ -916,7 +916,7 @@ contains
 
       this % month = val
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine set_month_datetime_duration
 
@@ -927,7 +927,7 @@ contains
 
       this % day = val
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine set_day_datetime_duration
 
@@ -938,7 +938,7 @@ contains
 
       call set_field_value(val, this % hour, this % hour_real)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine set_hour_datetime_duration
 
@@ -949,7 +949,7 @@ contains
 
       call set_field_value(val, this % hour_real, this % hour)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine set_hour_real_datetime_duration
 
@@ -960,7 +960,7 @@ contains
 
       call set_field_value(val, this % minute, this % minute_real)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine set_minute_datetime_duration
 
@@ -971,7 +971,7 @@ contains
 
       call set_field_value(val, this % minute_real, this % minute)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine set_minute_real_datetime_duration
 
@@ -982,7 +982,7 @@ contains
 
       call set_field_value(val, this % second, this % second_real)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine set_second_datetime_duration
 
@@ -993,7 +993,7 @@ contains
 
       call set_field_value(val, this % second_real, this % second)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine set_second_real_datetime_duration
 
@@ -1017,10 +1017,10 @@ contains
       case (SECOND_TIME_UNIT)
          call this % set_second(val)
       case default
-         _FAIL('Invalid Time Unit')
+         __FAIL('Invalid Time Unit')
       end select
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine set_integer_value_datetime_duration
 
@@ -1038,10 +1038,10 @@ contains
       case (SECOND_TIME_UNIT)
          call this % set_second_real(val)
       case default
-         _FAIL('Invalid Time Unit')
+         __FAIL('Invalid Time Unit')
       end select
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine set_real_value_datetime_duration
 
@@ -1075,7 +1075,7 @@ contains
       undelimited = adjustl(undelimit_all(datetime_string))
       undelimited_length=len_trim(undelimited)
       if(undelimited_length < MIN_LEN) then
-         _RETURN(_FAILURE)
+         __RETURN(__FAILURE)
       end if
 
       intermediate = undelimited(N(1,YY):N(2,YY)) // ISO_DD // &
@@ -1089,7 +1089,7 @@ contains
 
       iso_string = intermediate
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine convert_to_ISO8601DateTime
 
@@ -1178,7 +1178,7 @@ contains
 
       strlen = len(string)
       if(strlen == 0) then
-         _FAIL('Empty string')
+         __FAIL('Empty string')
       end if
 
       start = 1
@@ -1187,14 +1187,14 @@ contains
          if(.not. (next > start)) exit
          last = next - 1
          if(last <= strlen) then
-            _FAIL('Exceeded string length')
+            __FAIL('Exceeded string length')
          end if
          call parts % push_back(string(start:(next-1)))
          start = next
          if(start > len(string)) exit
       end do
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine split_digit_string_delimited
 
@@ -1222,7 +1222,7 @@ contains
          call parts % push_back(string(n(1):n(2)))
       end do
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine split_digit_string_indexed
 

@@ -101,9 +101,9 @@ contains
       type (IdMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
       !this%collection_id = message%id
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(message)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(message)
    end subroutine handle_Id
 
    function add_ext_collection(this, template, rc) result(collection_id)
@@ -117,15 +117,15 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(AddExtCollectionMessage(template),_RC)
+      call connection%send(AddExtCollectionMessage(template),__RC)
       message => connection%receive()
       select type(message)
       type is(IDMessage)
         collection_id = message%id
       class default
-        _FAIL( " should get id message")
+        __FAIL( " should get id message")
       end select
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function add_ext_collection
 
    function add_hist_collection(this, fmd, unusable,  mode, rc) result(hist_collection_id)
@@ -147,11 +147,11 @@ contains
       type is(IDMessage)
         hist_collection_id = message%id
       class default
-        _FAIL( " should get id message")
+        __FAIL( " should get id message")
       end select
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
    end function add_hist_collection
 
    function prefetch_data(this, collection_id, file_name, var_name, data_reference, &
@@ -177,7 +177,7 @@ contains
            collection_id, &
            file_name, &
            var_name, &
-           data_reference,unusable=unusable,start=start),_RC)
+           data_reference,unusable=unusable,start=start),__RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
@@ -185,7 +185,7 @@ contains
         ! the get call iRecv
         call this%insert_RequestHandle(id, connection%get(id, data_reference))
       end associate
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function prefetch_data
 
    subroutine modify_metadata(this, collection_id, unusable,var_map, rc)
@@ -202,12 +202,12 @@ contains
       connection=>this%get_connection()
       call connection%send(ModifyMetadataMessage( &
            collection_id, &
-           var_map=var_map),_RC)
+           var_map=var_map),__RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
    end subroutine modify_metadata
 
    subroutine replace_metadata(this, collection_id, fmd, rc)
@@ -221,11 +221,11 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(ReplaceMetadataMessage(collection_id,fmd),_RC)
+      call connection%send(ReplaceMetadataMessage(collection_id,fmd),__RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine replace_metadata
 
    function collective_prefetch_data(this, collection_id, file_name, var_name, data_reference, &
@@ -256,7 +256,7 @@ contains
            file_name, &
            var_name, &
            data_reference,unusable=unusable, start=start,&
-           global_start=global_start,global_count=global_count),_RC)
+           global_start=global_start,global_count=global_count),__RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
@@ -265,7 +265,7 @@ contains
         call this%insert_RequestHandle(id, connection%get(id, data_reference))
       end associate
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function collective_prefetch_data
 
    function stage_data(this, collection_id, file_name, var_name, data_reference, &
@@ -291,7 +291,7 @@ contains
            collection_id, &
            file_name, &
            var_name, &
-           data_reference,unusable=unusable,start=start),_RC)
+           data_reference,unusable=unusable,start=start),__RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
@@ -299,7 +299,7 @@ contains
         ! the put call iSend
         call this%insert_RequestHandle(id, connection%put(id, data_reference))
       end associate
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function stage_data
 
    function collective_stage_data(this, collection_id, file_name, var_name, data_reference, &
@@ -330,7 +330,7 @@ contains
            file_name, &
            var_name, &
            data_reference,unusable=unusable, start=start,&
-           global_start=global_start,global_count=global_count),_RC)
+           global_start=global_start,global_count=global_count),__RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
@@ -339,7 +339,7 @@ contains
         call this%insert_RequestHandle(id, connection%put(id, data_reference))
       end associate
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function collective_stage_data
 
    function stage_nondistributed_data(this, collection_id, file_name, var_name, data_reference, rc) result(request_id)
@@ -371,7 +371,7 @@ contains
         ! the put call iSend
         call this%insert_RequestHandle(id, connection%put(id, data_reference))
       end associate
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function stage_nondistributed_data
 
    subroutine shake_hand(this, rc)
@@ -383,12 +383,12 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(HandShakeMessage(),_RC)
+      call connection%send(HandShakeMessage(),__RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine shake_hand
    ! Tell server that ClientThread is done making new requests for the
    ! moment.  This allows the server to be more responsive during the
@@ -400,8 +400,8 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(DoneMessage(),_RC)
-      _RETURN(_SUCCESS)
+      call connection%send(DoneMessage(),__RC)
+      __RETURN(__SUCCESS)
    end subroutine done
 
    subroutine done_prefetch(this, rc)
@@ -411,12 +411,12 @@ contains
       integer :: status
 
       if (this%isEmpty_RequestHandle()) then
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
       endif
     
       connection=>this%get_connection()
-      call connection%send(PrefetchDoneMessage(),_RC)
-      _RETURN(_SUCCESS)
+      call connection%send(PrefetchDoneMessage(),__RC)
+      __RETURN(__SUCCESS)
    end subroutine done_prefetch
 
    subroutine done_collective_prefetch(this, rc)
@@ -426,12 +426,12 @@ contains
       integer :: status
   
       if (this%isEmpty_RequestHandle()) then
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
       endif
 
       connection=>this%get_connection()
-      call connection%send(CollectivePrefetchDoneMessage(),_RC)
-      _RETURN(_SUCCESS)
+      call connection%send(CollectivePrefetchDoneMessage(),__RC)
+      __RETURN(__SUCCESS)
    end subroutine done_collective_prefetch
 
    subroutine done_stage(this, rc)
@@ -441,12 +441,12 @@ contains
       integer :: status
 
       if (this%isEmpty_RequestHandle()) then
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
       endif
 
       connection=>this%get_connection()
-      call connection%send(StageDoneMessage(),_RC)
-      _RETURN(_SUCCESS)
+      call connection%send(StageDoneMessage(),__RC)
+      __RETURN(__SUCCESS)
    end subroutine done_stage
 
    subroutine done_collective_stage(this, rc)
@@ -456,12 +456,12 @@ contains
       integer :: status
 
       if (this%isEmpty_RequestHandle()) then
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
       endif
      
       connection=>this%get_connection()
-      call connection%send(CollectiveStageDoneMessage(),_RC)
-      _RETURN(_SUCCESS)
+      call connection%send(CollectiveStageDoneMessage(),__RC)
+      __RETURN(__SUCCESS)
    end subroutine done_collective_stage
 
    subroutine wait(this, request_id, rc)
@@ -476,7 +476,7 @@ contains
       call handle%wait()
       call handle%data_reference%deallocate()
       call this%erase_RequestHandle(request_id)
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
   
    end subroutine wait
 
@@ -485,9 +485,9 @@ contains
       class (ClientThread), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
       integer:: status
-      call this%clear_RequestHandle(_RC)
+      call this%clear_RequestHandle(__RC)
       !call this%shake_hand()
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine wait_all
 
@@ -496,8 +496,8 @@ contains
       class (ClientThread), target, intent(inout) :: this
       integer, optional, intent(out):: rc
       integer :: status
-      call this%wait_all(_RC)
-      _RETURN(_SUCCESS)
+      call this%wait_all(__RC)
+      __RETURN(__SUCCESS)
    end subroutine post_wait_all
 
    integer function get_unique_request_id(this) result(request_id)
@@ -527,8 +527,8 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(TerminateMessage(),_RC)
-      _RETURN(_SUCCESS)
+      call connection%send(TerminateMessage(),__RC)
+      __RETURN(__SUCCESS)
    end subroutine terminate
 
 end module pFIO_ClientThreadMod

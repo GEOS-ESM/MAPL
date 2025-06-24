@@ -19,13 +19,13 @@ contains
  
       integer :: status, rc
 
-      grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[3], countsPerDeDim2=[3], _RC)
-      field_2d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="field_2d", _RC)
-      field_3d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="field_3d",ungriddedLBound=[1],ungriddedUBound=[2], _RC)
-      extra_2d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="extra_2d", _RC)
-      extra_3d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="extra_3d",ungriddedLBound=[1],ungriddedUBound=[2], _RC)
-      mask_field = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="region_mask", _RC)
-		state = ESMF_StateCreate(fieldList=[field_2d,field_3d,mask_field,extra_2d,extra_3d], _RC)
+      grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[3], countsPerDeDim2=[3], __RC)
+      field_2d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="field_2d", __RC)
+      field_3d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="field_3d",ungriddedLBound=[1],ungriddedUBound=[2], __RC)
+      extra_2d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="extra_2d", __RC)
+      extra_3d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="extra_3d",ungriddedLBound=[1],ungriddedUBound=[2], __RC)
+      mask_field = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="region_mask", __RC)
+		state = ESMF_StateCreate(fieldList=[field_2d,field_3d,mask_field,extra_2d,extra_3d], __RC)
 
    end subroutine set_up_data
 
@@ -50,18 +50,18 @@ contains
       real(ESMF_KIND_R4) :: rval
       character(len=:), allocatable :: expr
 
-      call ESMF_FieldGet(extra_2d, 0, farrayPtr=extra_ptr, _RC)
-      call ESMF_FieldGet(field_2d, 0, farrayPtr=ptr2d, _RC)
+      call ESMF_FieldGet(extra_2d, 0, farrayPtr=extra_ptr, __RC)
+      call ESMF_FieldGet(field_2d, 0, farrayPtr=ptr2d, __RC)
       expr = "field_2d+2.0*sqrt(extra_2d)"
       rval = 17.0 
       ptr2d = rval
       rval = 16.0
       extra_ptr = rval
-      allocate(expected_array(3,3),_STAT)
+      allocate(expected_array(3,3),__STAT)
       expected_array = 17.0 + 2.0*sqrt(16.0) 
-      call  MAPL_StateEval(state, expr, field_2d, _RC)
+      call  MAPL_StateEval(state, expr, field_2d, __RC)
       @assertEqual(expected_array, ptr2d)
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine test_arithmetic_2d
 
@@ -75,18 +75,18 @@ contains
       real(ESMF_KIND_R4) :: rval
       character(len=:), allocatable :: expr
 
-      call ESMF_FieldGet(extra_3d, 0, farrayPtr=extra_ptr, _RC)
-      call ESMF_FieldGet(field_3d, 0, farrayPtr=ptr3d, _RC)
+      call ESMF_FieldGet(extra_3d, 0, farrayPtr=extra_ptr, __RC)
+      call ESMF_FieldGet(field_3d, 0, farrayPtr=ptr3d, __RC)
       expr = "field_3d+2.0*sqrt(extra_3d)"
       rval = 17.0 
       ptr3d = rval
       rval = 16.0
       extra_ptr = rval
-      allocate(expected_array(3,3,2),_STAT)
+      allocate(expected_array(3,3,2),__STAT)
       expected_array = 17.0 + 2.0*sqrt(16.0) 
-      call  MAPL_StateEval(state, expr, field_3d, _RC)
+      call  MAPL_StateEval(state, expr, field_3d, __RC)
       @assertEqual(expected_array, ptr3d)
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine test_arithmetic_3d
 
@@ -100,18 +100,18 @@ contains
       real(ESMF_KIND_R4) :: rval
       character(len=:), allocatable :: expr
 
-      call ESMF_FieldGet(extra_2d, 0, farrayPtr=extra_ptr, _RC)
-      call ESMF_FieldGet(field_3d, 0, farrayPtr=ptr3d, _RC)
+      call ESMF_FieldGet(extra_2d, 0, farrayPtr=extra_ptr, __RC)
+      call ESMF_FieldGet(field_3d, 0, farrayPtr=ptr3d, __RC)
       expr = "field_3d*extra_2d"
       rval = 5.0 
       ptr3d = rval
       rval = 3.0
       extra_ptr = rval
-      allocate(expected_array(3,3,2),_STAT)
+      allocate(expected_array(3,3,2),__STAT)
       expected_array = 15.0
-      call  MAPL_StateEval(state, expr, field_3d, _RC)
+      call  MAPL_StateEval(state, expr, field_3d, __RC)
       @assertEqual(expected_array, ptr3d)
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine test_arithmetic_mixed
 

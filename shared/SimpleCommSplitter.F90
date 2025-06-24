@@ -52,7 +52,7 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: base_name
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
       call splitter%set_shared_communicator(communicator)
 
       if (present(base_name)) then
@@ -73,7 +73,7 @@ contains
       character(*), optional, intent(in) :: base_name
 
       integer :: i
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
       splitter = SimpleCommSplitter(communicator, base_name=base_name)
       do i = 1, n_members
@@ -96,16 +96,16 @@ contains
       type (CommGroupDescription), pointer :: group_description => null()
       character(:), allocatable :: name
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
       color = this%compute_color(rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       
       call MPI_Comm_split(this%get_shared_communicator(), color, 0, subcommunicator, ierror)
-      _VERIFY(ierror)
+      __VERIFY(ierror)
 
       if (subcommunicator == MPI_COMM_NULL) then
-         _ASSERT(color == MPI_UNDEFINED, "color should not be defined")
+         __ASSERT(color == MPI_UNDEFINED, "color should not be defined")
          name = NULL_SUBCOMMUNICATOR_NAME
       else
          group_description => this%group_descriptions%at(color)
@@ -114,7 +114,7 @@ contains
 
       split_communicator = SplitCommunicator(subcommunicator, color, name)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function split
 
    subroutine add_group_simple(this, unusable, npes, nnodes, isolate_nodes, npes_per_node, name, rc)
@@ -133,7 +133,7 @@ contains
 
       character(24) :: buffer
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
       if (present(name)) then
          name_ = name
@@ -154,17 +154,17 @@ contains
       nnodes_ = 0
       if (present(nnodes)) then
          nnodes_ = nnodes
-         _ASSERT( nnodes_ ==0 .or. npes_ == 0, "npes and nnodes are exclusive")
+         __ASSERT( nnodes_ ==0 .or. npes_ == 0, "npes and nnodes are exclusive")
       endif
 
       if (nnodes_ > 0) then
-         _ASSERT(isolate_nodes, " nnodes should be isolated")
+         __ASSERT(isolate_nodes, " nnodes should be isolated")
       endif
 
       call this%group_descriptions%push_back(CommGroupDescription(npes_, nnodes_, isolate_nodes_, name_, npes_per_node = npes_per_node, rc=status))
-      _VERIFY(status)
+      __VERIFY(status)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine add_group_simple
    
    integer function compute_color(this, unusable, rc) result(color)
@@ -184,7 +184,7 @@ contains
       type (CommGroupDescription), pointer :: group_descr
       integer :: info = MPI_INFO_NULL
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
 
       ! Note that the shared communicator may not be ordered with pe's contiguous
@@ -193,11 +193,11 @@ contains
       ! never be exercised in the nontrivial case.
       shared_communicator = this%get_shared_communicator()
       call MPI_Comm_split_type(shared_communicator, MPI_COMM_TYPE_SHARED, 0, info, node_comm, ierror)
-      _VERIFY(ierror)
-      call MPI_Comm_rank(node_comm, rank_on_node, ierror); _VERIFY(ierror)
+      __VERIFY(ierror)
+      call MPI_Comm_rank(node_comm, rank_on_node, ierror); __VERIFY(ierror)
 
-      node_id = this%get_node_id(rc=status); _VERIFY(status)
-      node_sizes = this%get_node_sizes(rc=status); _VERIFY(status)
+      node_id = this%get_node_id(rc=status); __VERIFY(status)
+      node_sizes = this%get_node_sizes(rc=status); __VERIFY(status)
 
       color = MPI_UNDEFINED ! unless ...
 
@@ -221,9 +221,9 @@ contains
       enddo
 
       call Mpi_Comm_free(node_comm, ierror)
-      _VERIFY(ierror)
+      __VERIFY(ierror)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
       
    end function compute_color
 
@@ -243,18 +243,18 @@ contains
       integer, allocatable :: node_ranks(:)
       integer :: info = MPI_INFO_NULL
       
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
       shared_communicator = this%get_shared_communicator()
       call MPI_Comm_split_type(shared_communicator, MPI_COMM_TYPE_SHARED, 0, info, node_comm, ierror)
-      _VERIFY(ierror)
-      call MPI_Comm_size(shared_communicator, npes, ierror); _VERIFY(ierror)
-      call MPI_Comm_rank(shared_communicator, rank, ierror); _VERIFY(ierror)
-      call MPI_Comm_rank(node_comm, rank_on_node, ierror); _VERIFY(ierror)
+      __VERIFY(ierror)
+      call MPI_Comm_size(shared_communicator, npes, ierror); __VERIFY(ierror)
+      call MPI_Comm_rank(shared_communicator, rank, ierror); __VERIFY(ierror)
+      call MPI_Comm_rank(node_comm, rank_on_node, ierror); __VERIFY(ierror)
 
-      allocate(node_ranks(0:npes-1), stat=status);  _VERIFY(status)
+      allocate(node_ranks(0:npes-1), stat=status);  __VERIFY(status)
       call MPI_Allgather(rank_on_node, 1, MPI_INTEGER, node_ranks, 1, MPI_INTEGER, shared_communicator, ierror)
-      _VERIFY(ierror)
+      __VERIFY(ierror)
 
       if (rank_on_node == 0) then
          node_id = 1 + count(node_ranks(0:rank-1) == 0)  ! Numbering starts at _1_.
@@ -262,11 +262,11 @@ contains
 
       ! Share node_id with other processes on same node
       call MPI_Bcast(node_id, 1, MPI_INTEGER, 0, node_comm, ierror)
-      _VERIFY(ierror)
+      __VERIFY(ierror)
 
       call Mpi_Comm_free(node_comm, ierror)
-      _VERIFY(ierror)
-      _RETURN(_SUCCESS)
+      __VERIFY(ierror)
+      __RETURN(__SUCCESS)
 
    end function get_node_id
 
@@ -283,31 +283,31 @@ contains
       integer :: rank_on_node, npes_on_node
       integer :: info = MPI_INFO_NULL
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
      
       shared_communicator = this%get_shared_communicator()
       call MPI_Comm_split_type(shared_communicator, MPI_COMM_TYPE_SHARED, 0, info, node_comm, ierror)
-      _VERIFY(ierror)
+      __VERIFY(ierror)
  
-      call MPI_Comm_size(shared_communicator, npes, ierror); _VERIFY(ierror)
-      allocate(node_sizes(0:npes-1), stat=status);  _VERIFY(status)
+      call MPI_Comm_size(shared_communicator, npes, ierror); __VERIFY(ierror)
+      allocate(node_sizes(0:npes-1), stat=status);  __VERIFY(status)
 
-      call MPI_Comm_rank(node_comm, rank_on_node, ierror); _VERIFY(ierror)
+      call MPI_Comm_rank(node_comm, rank_on_node, ierror); __VERIFY(ierror)
       if (rank_on_node == 0) then
-         call MPI_Comm_size(node_comm, npes_on_node, ierror); _VERIFY(ierror)
+         call MPI_Comm_size(node_comm, npes_on_node, ierror); __VERIFY(ierror)
       else
          npes_on_node = -1 ! do not use
       end if
 
       call MPI_Allgather(npes_on_node, 1, MPI_INTEGER, node_sizes, 1, MPI_INTEGER, shared_communicator, ierror)
-      _VERIFY(ierror)
+      __VERIFY(ierror)
 
       node_sizes = pack(node_sizes, (node_sizes /= -1))
 
       call Mpi_Comm_free(node_comm, ierror)
-      _VERIFY(ierror)
+      __VERIFY(ierror)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function get_node_sizes
 
    subroutine free_sub_comm(this)

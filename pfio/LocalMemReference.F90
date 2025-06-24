@@ -53,8 +53,8 @@ contains
       reference%shape = shp
       reference%type_kind = type_kind
       call reference%allocate(rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+      __VERIFY(status)
+      __RETURN(__SUCCESS)
    end function new_LocalMemReference
 
 
@@ -71,29 +71,29 @@ contains
       select type (scalar)
       type is (integer(kind=INT32))
          reference = LocalMemReference(pFIO_INT32, shape(scalar), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          call c_f_pointer(reference%base_address, int32Ptr)
          int32Ptr = scalar
       type is (integer(kind=INT64))
          reference = LocalMemReference(pFIO_INT64, shape(scalar), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          call c_f_pointer(reference%base_address, int64Ptr)
          int64Ptr = scalar
       type is (real(kind=REAL32))
          reference = LocalMemReference(pFIO_REAL32, shape(scalar), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          call c_f_pointer(reference%base_address, real32Ptr)
          real32Ptr = scalar
       type is (real(kind=REAL64))
          reference = LocalMemReference(pFIO_REAL64, shape(scalar), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          call c_f_pointer(reference%base_address, real64Ptr)
          real64Ptr = scalar
       class default
-         _FAIL( "LocalMemRef does not support this type")
+         __FAIL( "LocalMemRef does not support this type")
       end select
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function new_LocalMemReference_0d
 
    function new_LocalMemReference_1d(array, rc) result(reference)
@@ -109,41 +109,41 @@ contains
       select type (array)
       type is (integer(kind=INT32))
          reference = LocalMemReference( pFIO_INT32, shape(array), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          if (.not. c_associated(reference%base_address)) then
-            _RETURN(_SUCCESS)
+            __RETURN(__SUCCESS)
          endif
          call c_f_pointer(reference%base_address, int32Ptr, shape=shape(array))
          int32Ptr = array
       type is (integer(kind=INT64))
          reference = LocalMemReference( pFIO_INT64, shape(array), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          if (.not. c_associated(reference%base_address)) then
-            _RETURN(_SUCCESS)
+            __RETURN(__SUCCESS)
          endif
          call c_f_pointer(reference%base_address, int64Ptr, shape=shape(array))
          int64Ptr = array
       type is (real(kind=REAL32))
          reference = LocalMemReference( pFIO_REAL32, shape(array), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          if (.not. c_associated(reference%base_address)) then
-            _RETURN(_SUCCESS)
+            __RETURN(__SUCCESS)
          endif
          call c_f_pointer(reference%base_address, real32Ptr, shape=shape(array))
          real32Ptr = array
       type is (real(kind=REAL64))
          reference = LocalMemReference( pFIO_REAL64, shape(array), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          if (.not. c_associated(reference%base_address)) then
-            _RETURN(_SUCCESS)
+            __RETURN(__SUCCESS)
          endif
          call c_f_pointer(reference%base_address, real64Ptr, shape=shape(array))
          real64Ptr = array
       class default
-         _FAIL( "LocalMemRef does not support this type")
+         __FAIL( "LocalMemRef does not support this type")
       end select
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end function new_LocalMemReference_1d
 
@@ -160,41 +160,41 @@ contains
       select type (array)
       type is (integer(kind=INT32))
          reference = LocalMemReference( pFIO_INT32, shape(array), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          if (.not. c_associated(reference%base_address)) then
-            _RETURN(_SUCCESS)
+            __RETURN(__SUCCESS)
          endif
          call c_f_pointer(reference%base_address, int32Ptr, shape=shape(array))
          int32Ptr = array
       type is (integer(kind=INT64))
          reference = LocalMemReference( pFIO_INT64, shape(array), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          if (.not. c_associated(reference%base_address)) then
-            _RETURN(_SUCCESS)
+            __RETURN(__SUCCESS)
          endif
          call c_f_pointer(reference%base_address, int64Ptr, shape=shape(array))
          int64Ptr = array
       type is (real(kind=REAL32))
          reference = LocalMemReference( pFIO_REAL32, shape(array), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          if (.not. c_associated(reference%base_address)) then
-            _RETURN(_SUCCESS)
+            __RETURN(__SUCCESS)
          endif
          call c_f_pointer(reference%base_address, real32Ptr, shape=shape(array))
          real32Ptr = array
       type is (real(kind=REAL64))
          reference = LocalMemReference( pFIO_REAL64, shape(array), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          if (.not. c_associated(reference%base_address)) then
-            _RETURN(_SUCCESS)
+            __RETURN(__SUCCESS)
          endif
          call c_f_pointer(reference%base_address, real64Ptr, shape=shape(array))
          real64Ptr = array
       class default
-         _FAIL( "LocalMemRef does not support this type")
+         __FAIL( "LocalMemRef does not support this type")
       end select
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end function new_LocalMemReference_2d
 
@@ -211,41 +211,41 @@ contains
       select type (array)
       type is (integer(kind=INT32))
          reference = LocalMemReference( pFIO_INT32, shape(array), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          if (.not. c_associated(reference%base_address)) then
-            _RETURN(_SUCCESS)
+            __RETURN(__SUCCESS)
          endif
          call c_f_pointer(reference%base_address, int32Ptr, shape=shape(array))
          int32Ptr = array
       type is (integer(kind=INT64))
          reference = LocalMemReference( pFIO_INT64, shape(array), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          if (.not. c_associated(reference%base_address)) then
-            _RETURN(_SUCCESS)
+            __RETURN(__SUCCESS)
          endif
          call c_f_pointer(reference%base_address, int64Ptr, shape=shape(array))
          int64Ptr = array
       type is (real(kind=REAL32))
          reference = LocalMemReference( pFIO_REAL32, shape(array), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          if (.not. c_associated(reference%base_address)) then
-            _RETURN(_SUCCESS)
+            __RETURN(__SUCCESS)
          endif
          call c_f_pointer(reference%base_address, real32Ptr, shape=shape(array))
          real32Ptr = array
       type is (real(kind=REAL64))
          reference = LocalMemReference( pFIO_REAL64, shape(array), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          if (.not. c_associated(reference%base_address)) then
-            _RETURN(_SUCCESS)
+            __RETURN(__SUCCESS)
          endif
          call c_f_pointer(reference%base_address, real64Ptr, shape=shape(array))
          real64Ptr = array
       class default
-         _FAIL( "LocalMemRef does not support this type")
+         __FAIL( "LocalMemRef does not support this type")
       end select
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end function new_LocalMemReference_3d
 
@@ -262,41 +262,41 @@ contains
       select type (array)
       type is (integer(kind=INT32))
          reference = LocalMemReference( pFIO_INT32, shape(array), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          if (.not. c_associated(reference%base_address)) then
-            _RETURN(_SUCCESS)
+            __RETURN(__SUCCESS)
          endif
          call c_f_pointer(reference%base_address, int32Ptr, shape=shape(array))
          int32Ptr = array
       type is (integer(kind=INT64))
          reference = LocalMemReference( pFIO_INT64, shape(array), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          if (.not. c_associated(reference%base_address)) then
-            _RETURN(_SUCCESS)
+            __RETURN(__SUCCESS)
          endif
          call c_f_pointer(reference%base_address, int64Ptr, shape=shape(array))
          int64Ptr = array
       type is (real(kind=REAL32))
          reference = LocalMemReference( pFIO_REAL32, shape(array), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          if (.not. c_associated(reference%base_address)) then
-            _RETURN(_SUCCESS)
+            __RETURN(__SUCCESS)
          endif
          call c_f_pointer(reference%base_address, real32Ptr, shape=shape(array))
          real32Ptr = array
       type is (real(kind=REAL64))
          reference = LocalMemReference( pFIO_REAL64, shape(array), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          if (.not. c_associated(reference%base_address)) then
-            _RETURN(_SUCCESS)
+            __RETURN(__SUCCESS)
          endif
          call c_f_pointer(reference%base_address, real64Ptr, shape=shape(array))
          real64Ptr = array
       class default
-         _FAIL( "LocalMemRef does not support this type")
+         __FAIL( "LocalMemRef does not support this type")
       end select
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end function new_LocalMemReference_4d
 
@@ -313,41 +313,41 @@ contains
       select type (array)
       type is (integer(kind=INT32))
          reference = LocalMemReference( pFIO_INT32, shape(array), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          if (.not. c_associated(reference%base_address)) then
-            _RETURN(_SUCCESS)
+            __RETURN(__SUCCESS)
          endif
          call c_f_pointer(reference%base_address, int32Ptr, shape=shape(array))
          int32Ptr = array
       type is (integer(kind=INT64))
          reference = LocalMemReference( pFIO_INT64, shape(array), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          if (.not. c_associated(reference%base_address)) then
-            _RETURN(_SUCCESS)
+            __RETURN(__SUCCESS)
          endif
          call c_f_pointer(reference%base_address, int64Ptr, shape=shape(array))
          int64Ptr = array
       type is (real(kind=REAL32))
          reference = LocalMemReference( pFIO_REAL32, shape(array), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          if (.not. c_associated(reference%base_address)) then
-            _RETURN(_SUCCESS)
+            __RETURN(__SUCCESS)
          endif
          call c_f_pointer(reference%base_address, real32Ptr, shape=shape(array))
          real32Ptr = array
       type is (real(kind=REAL64))
          reference = LocalMemReference( pFIO_REAL64, shape(array), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          if (.not. c_associated(reference%base_address)) then
-            _RETURN(_SUCCESS)
+            __RETURN(__SUCCESS)
          endif
          call c_f_pointer(reference%base_address, real64Ptr, shape=shape(array))
          real64Ptr = array
       class default
-         _FAIL( "LocalMemRef does not support this type")
+         __FAIL( "LocalMemRef does not support this type")
       end select
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end function new_LocalMemReference_5d
 
@@ -361,7 +361,7 @@ contains
       n = product(int(this%shape,INT64))
       n_words = n * word_size(this%type_kind)
       allocate(this%i_ptr(n_words), stat=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
 #ifdef __NAG_COMPILER_BUILD
       if (n > 0) then
@@ -372,7 +372,7 @@ contains
 #else 
       this%base_address = c_loc(this%i_ptr)
 #endif
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine allocate
 
@@ -382,7 +382,7 @@ contains
 
       if (associated(this%i_ptr)) deallocate(this%i_ptr)
       this%base_address = C_NULL_PTR
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine deallocate
 
@@ -401,8 +401,8 @@ contains
       integer, allocatable :: buffer(:)
       integer :: status
       call this%serialize_base(buffer, rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+      __VERIFY(status)
+      __RETURN(__SUCCESS)
    end subroutine serialize
 
    subroutine deserialize(this, buffer, rc)
@@ -411,8 +411,8 @@ contains
       integer, intent(in) :: buffer(:)
       integer :: status
       call this%deserialize_base(buffer, rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+      __VERIFY(status)
+      __RETURN(__SUCCESS)
    end subroutine deserialize
 
 end module pFIO_LocalMemReferenceMod

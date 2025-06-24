@@ -107,21 +107,21 @@ contains
          select case (argument)
          case ('-i', '--ifile')
             regridder%in_file = get_next_argument()
-            _ASSERT(regridder%in_file(1:1) /= '-','bad format')
+            __ASSERT(regridder%in_file(1:1) /= '-','bad format')
          case ('-o', '--ofile')
              regridder%out_file = get_next_argument()
-            _ASSERT(regridder%in_file(1:1) /= '-','bad format')
+            __ASSERT(regridder%in_file(1:1) /= '-','bad format')
          case ('--nlats')
             buffer  = get_next_argument()
-            _ASSERT(buffer(1:1) /= '-','bad format')
+            __ASSERT(buffer(1:1) /= '-','bad format')
             read(buffer,*) regridder%JM
          case ('--nlons')
             buffer  = get_next_argument()
-            _ASSERT(buffer(1:1) /= '-','bad format')
+            __ASSERT(buffer(1:1) /= '-','bad format')
             read(buffer,*) regridder%IM
          case ('--vars')
             buffer = get_next_argument()
-            _ASSERT(buffer(1:1) /= '-','bad format')
+            __ASSERT(buffer(1:1) /= '-','bad format')
             regridder%requested_variables = parse_vars(buffer)
          case ('-d', '--debug')
             regridder%debug = .true.
@@ -374,21 +374,21 @@ contains
          attributes => var%get_attributes()
          long_name_attr => attributes%at('long_name')
          if (.not. associated(long_name_attr)) then
-            _RETURN(_SUCCESS)
+            __RETURN(__SUCCESS)
          end if
 
          a => long_name_attr%get_value()
-         _ASSERT(associated(a),'invalid pointer')
+         __ASSERT(associated(a),'invalid pointer')
          select type (a)
          type is (character(len=*))
             long_name = ESMF_UtilStringLowerCase(a, rc=STATUS)
          class default
-            _FAIL('incorrect type')
+            __FAIL('incorrect type')
          end select
 
          if (index(long_name, 'east') > 0) then ! East component of a vector
             north_component = find_north_component(vars, long_name)
-            _ASSERT(north_component /= '','needs informative message')
+            __ASSERT(north_component /= '','needs informative message')
             call this%vector_variables(1)%push_back(var_name)
             call this%vector_variables(2)%push_back(north_component)
          elseif (index(long_name, 'north') == 0) then !
@@ -435,12 +435,12 @@ contains
 
             if (associated(attr)) then
                a => attr%get_value()
-               _ASSERT(associated(a),'invalid pointer')
+               __ASSERT(associated(a),'invalid pointer')
                select type (a)
                type is (character(len=*))
                   trial = ESMF_UtilStringLowerCase(a, rc=status)
                class default
-                  _FAIL('incorrect type')
+                  __FAIL('incorrect type')
                end select
 
                idx = index(trial, 'north')
@@ -566,7 +566,7 @@ contains
 
       call mpi_allgather(len(local), 1, MPI_INTEGER, &
            & counts, 1, MPI_INTEGER, MPI_COMM_WORLD, ierror)
-      _VERIFY(ierror)
+      __VERIFY(ierror)
 
       displs(0) = 0
       do p = 1, pet_count - 1
@@ -576,7 +576,7 @@ contains
       allocate(character(len=sum(counts)) :: global)
       call mpi_allgatherv(local, len(local), MPI_CHAR, &
            global, counts, displs, MPI_CHAR, MPI_COMM_WORLD, ierror)
-      _VERIFY(ierror)
+      __VERIFY(ierror)
 
    end function all_gather
 
@@ -602,7 +602,7 @@ contains
      if (present(missing)) then
         have_missing = any(missing == src_array)
         call MPI_AllReduce(have_missing, any_missing, 1, MPI_LOGICAL, MPI_LOR, MPI_COMM_WORLD, ierror)
-        _VERIFY(ierror)
+        __VERIFY(ierror)
         if (any_missing) then
            local_key = run_length_encode(reshape(src_array,[size(src_array)]) == missing)
            global_key = all_gather(local_key)
@@ -612,12 +612,12 @@ contains
               allocate(handle)
 
               call ESMF_FieldGet(srcfield, grid=grid, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_GridGetItem(grid, staggerLoc=ESMF_STAGGERLOC_CENTER, &
                    & itemflag=ESMF_GRIDITEM_MASK, array=mask_array, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_ArrayGet(mask_array, farrayptr=mask, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
 
               where (src_array == missing)
                  mask = 0
@@ -631,7 +631,7 @@ contains
                    & srcMaskValues = [0], &
                    & unmappedAction=ESMF_UNMAPPEDACTION_IGNORE, &
                    & routehandle=handle, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
 
               call route_handles%insert(global_key, handle)
 
@@ -643,9 +643,9 @@ contains
                 & termorderflag=ESMF_TERMORDER_SRCSEQ, &
                 & zeroregion=ESMF_REGION_SELECT, &
                 & rc=status)
-           _VERIFY(status)
+           __VERIFY(status)
 
-           _RETURN(_SUCCESS)
+           __RETURN(__SUCCESS)
         else
            handle => default_route_handle
         end if
@@ -655,9 +655,9 @@ contains
 
      call ESMF_FieldRegrid(srcField, dstField, routeHandle=handle, &
           & termorderflag=ESMF_TERMORDER_SRCSEQ, rc=status)
-     _VERIFY(status)
+     __VERIFY(status)
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
    end subroutine regrid
 
    ! This routine does the big work of reading data from one file, regridding, and
@@ -752,17 +752,17 @@ contains
       ! Create fields
       ll_scalar_field = ESMF_FieldCreate(this%grid_lat_lon, ll_scalar_patch(:,:), ESMF_INDEX_DELOCAL, &
            & datacopyflag=ESMF_DATACOPY_REFERENCE, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       cs_scalar_field = ESMF_FieldCreate(this%grid_cubed_sphere, cs_scalar_patch(:,:), ESMF_INDEX_DELOCAL, &
            & datacopyflag=ESMF_DATACOPY_REFERENCE, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       do d = 1, 3
          ll_uvw_field(d) = ESMF_FieldCreate(this%grid_lat_lon, ll_uvw(:,:,d), ESMF_INDEX_DELOCAL, &
               & datacopyflag=ESMF_DATACOPY_REFERENCE, rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          cs_uvw_field(d) = ESMF_FieldCreate(this%grid_cubed_sphere, cs_uvw(:,:,d), ESMF_INDEX_DELOCAL, &
               & datacopyflag=ESMF_DATACOPY_REFERENCE, rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
       end do
 
       ! Create regrid
@@ -772,7 +772,7 @@ contains
            & regridmethod=ESMF_REGRIDMETHOD_BILINEAR, lineType=ESMF_LINETYPE_GREAT_CIRCLE, &
            & srcTermProcessing=srcTerm, &
            & routehandle=default_route_handle, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call system_clock(c1,crate)
       if (local_pet == 0) then
          print*,'regrid store: ', real(c1-c0)/crate
@@ -865,9 +865,9 @@ contains
                   if (is_east_vector_component) then ! vector
 
                      call cs_fmtr%get_var(var_name, cs_vector_patch(:,:,1), start=cs_start,count=cs_count, rc=status)
-                     _VERIFY(status)
+                     __VERIFY(status)
                      call cs_fmtr%get_var(north_component, cs_vector_patch(:,:,2), start=cs_start,count=cs_count, rc=status)
-                     _VERIFY(status)
+                     __VERIFY(status)
 
                      call ESMF_GridGetCoord(this%grid_cubed_sphere, coordDim=1, localDE=0, &
                           & staggerLoc=ESMF_STAGGERLOC_CENTER, farrayPtr=lon,rc=status)
@@ -890,10 +890,10 @@ contains
                      do d = 1, 3
                         if (associated(missing)) then
                            call regrid(srcField=cs_uvw_field(d), dstField=ll_uvw_field(d), missing=missing, rc=status)
-                           _VERIFY(status)
+                           __VERIFY(status)
                         else
                            call regrid(srcField=cs_uvw_field(d), dstField=ll_uvw_field(d), rc=status)
-                           _VERIFY(status)
+                           __VERIFY(status)
                         end if
                      end do
 
@@ -913,22 +913,22 @@ contains
                      end associate
 
                      call ll_fmtr%put_var(var_name, ll_vector_patch(:,:,1), start=ll_start, count=ll_count, rc=status)
-                     _VERIFY(status)
+                     __VERIFY(status)
                      call ll_fmtr%put_var(north_component, ll_vector_patch(:,:,2), start=ll_start, count=ll_count, rc=status)
-                     _VERIFY(status)
+                     __VERIFY(status)
 
                   else ! scalar
                      call cs_fmtr%get_var(var_name, cs_scalar_patch, start=cs_start,count=cs_count, rc=status)
-                     _VERIFY(status)
+                     __VERIFY(status)
                      if (associated(missing)) then
                         call regrid(srcField=cs_scalar_field, dstField=ll_scalar_field, missing=missing, rc=status)
-                        _VERIFY(status)
+                        __VERIFY(status)
                      else
                         call regrid(srcField=cs_scalar_field, dstField=ll_scalar_field, rc=status)
-                        _VERIFY(status)
+                        __VERIFY(status)
                      end if
                      call ll_fmtr%put_var(var_name, ll_scalar_patch, start=ll_start, count=ll_count, rc=status)
-                     _VERIFY(status)
+                     __VERIFY(status)
 
                   end if
 
@@ -955,17 +955,17 @@ contains
 
 !$$      if (local_pet == 0) then
          call this%formatter_lat_lon%create_par(this%out_file, comm=MPI_COMM_WORLD, rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          call this%formatter_lat_lon%write(this%cfio_lat_lon, rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          call this%formatter_lat_lon%close(rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
 !$$       end if
 
       call ESMF_VMGetGlobal(vm_global, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call ESMF_VMBarrier(vm_global, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
    end subroutine write_metadata
 
@@ -996,11 +996,11 @@ contains
 
 
       call this%create_cubed_sphere_grid(rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call this%create_lat_lon_grid(rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
 
    end subroutine create_esmf_grids
@@ -1039,22 +1039,22 @@ contains
       enddo
 
       this%grid_cubed_sphere = ESMF_GridCreateCubedSphere(this%Xdim, regDecompPTile=ijms, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       call ESMF_GridGet(this%grid_cubed_sphere, distgrid=distgrid,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call ESMF_DistGridGet(distgrid, deToTileMap=deToTileMap, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call MAPL_DistGridGet(distgrid, MaxIndex=maxIndex, MinIndex=minIndex, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       this%my_tile = deToTileMap(local_pet)
 
       call ESMF_GridGet(this%grid_cubed_sphere,localDE=0,staggerloc=ESMF_STAGGERLOC_CENTER, &
            exclusiveCount=lcnts,rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call ESMF_GridAddItem(this%grid_cubed_sphere,itemflag=ESMF_GRIDITEM_MASK,staggerloc=ESMF_STAGGERLOC_CENTER, &
            & itemTypeKind=ESMF_TYPEKIND_I4, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       this%nx_loc=lcnts(1)
       this%ny_loc=lcnts(2)
       select case (this%my_tile)
@@ -1090,7 +1090,7 @@ contains
             this%y_n=maxIndex(2,local_pet) - 2*this%Xdim
       end select
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine create_cubed_sphere_grid
 
 
@@ -1137,7 +1137,7 @@ contains
            & )
 
       call ESMF_GridAddCoord(this%grid_lat_lon, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       px = mod(local_pet, npx)
       py = local_pet / npx
@@ -1150,10 +1150,10 @@ contains
       call ESMF_GridGetCoord(this%grid_lat_lon, coordDim=1, localDE=0, &
            staggerloc=ESMF_STAGGERLOC_CENTER, &
            farrayPtr=centers, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       this%longitudes = MAPL_RANGE(-180.d0, 180.d0 - (360.d0/this%IM), this%IM, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       centers(:,1) = this%longitudes(this%i_1:this%i_n)
       do j = 2, size(centers,2)
@@ -1164,17 +1164,17 @@ contains
       call ESMF_GridGetCoord(this%grid_lat_lon, coordDim=2, localDE=0, &
            staggerloc=ESMF_STAGGERLOC_CENTER, &
            farrayPtr=centers, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       this%latitudes = MAPL_RANGE(-90.d0, +90.d0, this%JM, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       centers(1,:) = this%latitudes(this%j_1:this%j_n)
       do i = 2, size(centers,1)
         centers(i,:) = centers(1,:)
       end do
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine create_lat_lon_grid
 
 
@@ -1202,10 +1202,10 @@ program main
    call ESMF_Initialize(logKindFlag=ESMF_LOGKIND_NONE)
 
    call check_resources(rc=status)
-   _VERIFY(status)
+   __VERIFY(status)
 
    call regridder%process_command_line(rc=status)
-   _VERIFY(status)
+   __VERIFY(status)
 
    call system_clock(c0,crate)
    c00 = c0
@@ -1238,7 +1238,7 @@ program main
 
 
    call system_clock(c0)
-   call regridder%write_data(_RC)
+   call regridder%write_data(__RC)
    call system_clock(c1)
    if (local_pet == 0) then
      print*,'write_data()', real(c1-c0)/crate
@@ -1270,10 +1270,10 @@ contains
          if (local_pet == 0) then
             write(*,*)'The number of mpi processes must be a multile of 6.'
          end if
-         _RETURN(_FAILURE)
+         __RETURN(__FAILURE)
       end if
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine check_resources
 

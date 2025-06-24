@@ -78,11 +78,11 @@ contains
       s%world_remote_rank = remote_rank
 
       call MPI_Comm_rank(comm, local_rank, ierror)
-      _VERIFY(ierror)
+      __VERIFY(ierror)
       s%world_local_rank = local_rank
 
       call MPI_Comm_group(comm, world_group, ierror)
-      _VERIFY(ierror)
+      __VERIFY(ierror)
 
       ! Enforce consistent ordering in new communicator/group
       if (local_rank < remote_rank) then
@@ -95,10 +95,10 @@ contains
          s%pair_remote_rank = 0
       end if
       call MPI_Group_incl(world_group, 2, ranks, pair_group, ierror)
-      _VERIFY(ierror)
+      __VERIFY(ierror)
       call MPI_Comm_create_group(comm, pair_group, PAIR_TAG, s%pair_comm, ierror)
-      _VERIFY(ierror)
-      _RETURN(_SUCCESS)
+      __VERIFY(ierror)
+      __RETURN(__SUCCESS)
    end function new_MpiSocket
 
    function receive(this, rc) result(message)
@@ -112,17 +112,17 @@ contains
       integer :: count
 
       call MPI_Probe(this%pair_remote_rank, MESSAGE_TAG, this%pair_comm, status, ierror)
-      _VERIFY(ierror)
+      __VERIFY(ierror)
       call MPI_Get_count(status, MPI_INTEGER, count, ierror)
-      _VERIFY(ierror)
+      __VERIFY(ierror)
 
       allocate(buffer(count))
       call MPI_Recv(buffer, count, MPI_INTEGER, this%pair_remote_rank, MESSAGE_TAG, this%pair_comm, &
            & status, ierror)
-      _VERIFY(ierror)
+      __VERIFY(ierror)
 
       allocate(message, source=this%parser%decode(buffer))
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function receive
 
    subroutine send(this, message, rc)
@@ -136,8 +136,8 @@ contains
       buffer = this%parser%encode(message)
       call MPI_Send(buffer, size(buffer), MPI_INTEGER, this%pair_remote_rank, MESSAGE_TAG, this%pair_comm, &
            & ierror)
-      _VERIFY(ierror)
-      _RETURN(_SUCCESS)      
+      __VERIFY(ierror)
+      __RETURN(__SUCCESS)      
    end subroutine send
 
 
@@ -168,15 +168,15 @@ contains
       tag = make_tag(request_id)
 
       big_n   = product(int(local_reference%shape, INT64)) * word_size(local_reference%type_kind)
-      _ASSERT( big_n < huge(0), "Increase the number of processors to decrease the local size of data to be sent")
+      __ASSERT( big_n < huge(0), "Increase the number of processors to decrease the local size of data to be sent")
       n_words = big_n
       call c_f_pointer(local_reference%base_address, data, shape=[n_words])
       if (n_words ==0) allocate(data(1))
       call MPI_Isend(data, n_words, MPI_INTEGER, this%pair_remote_rank, tag, this%pair_comm, request, ierror)
-      _VERIFY(ierror)
+      __VERIFY(ierror)
       allocate(handle, source=MpiRequestHandle(local_reference, request))
       if (n_words ==0) deallocate(data)
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function put
 
    function get(this, request_id, local_reference, rc) result(handle)
@@ -199,10 +199,10 @@ contains
       call c_f_pointer(local_reference%base_address, data, shape=[n_words])
       if (n_words ==0) allocate(data(1))
       call MPI_Irecv(data, n_words, MPI_INTEGER, this%pair_remote_rank, tag, this%pair_comm, request, ierror)
-      _VERIFY(ierror)
+      __VERIFY(ierror)
       allocate(handle, source=MpiRequestHandle(local_reference, request))
       if (n_words ==0) deallocate(data)
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function get
 
    subroutine wait(this, rc)
@@ -213,8 +213,8 @@ contains
       integer :: status(MPI_STATUS_SIZE)
 
       call MPI_Wait(this%mpi_request, status, ierror)
-      _VERIFY(ierror)
-      _RETURN(_SUCCESS)
+      __VERIFY(ierror)
+      __RETURN(__SUCCESS)
    end subroutine wait
 
    integer function get_next_tag() result(tag)

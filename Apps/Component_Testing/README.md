@@ -51,8 +51,8 @@ Essentially you need to add an extra `SetServices` that uses the `SetServices` o
 #### GRIDNAME
 Finally in the GWD component there is a line you will have to change to run in the standalone:
 ```diff
--     call MAPL_GetResource(MAPL,GRIDNAME,'AGCM.GRIDNAME:', _RC)
-+     call MAPL_GetResource(MAPL,GRIDNAME,'GRIDNAME:', _RC)
+-     call MAPL_GetResource(MAPL,GRIDNAME,'AGCM.GRIDNAME:', __RC)
++     call MAPL_GetResource(MAPL,GRIDNAME,'GRIDNAME:', __RC)
 ```
 
 ## Run

@@ -64,38 +64,38 @@ contains
          select case (argument)
          case ('-nc', '--npes_client')
             buffer = get_next_argument()
-            _ASSERT(buffer /= '-', "no extrea - ")
+            __ASSERT(buffer /= '-', "no extrea - ")
             read(buffer,*) options%npes_client
          case ('-nsi', '--npes_iserver')
             buffer = get_next_argument()
-            _ASSERT(buffer /= '-', "no extrea - ")
+            __ASSERT(buffer /= '-', "no extrea - ")
             read(buffer,*) options%npes_iserver
          case ('-ngi', '--ng_iserver')
             buffer = get_next_argument()
-            _ASSERT(buffer /= '-', "no extrea - ")
+            __ASSERT(buffer /= '-', "no extrea - ")
             read(buffer,*) options%N_ig
          case ('-nso', '--npes_oserver')
             buffer = get_next_argument()
-            _ASSERT(buffer /= '-', "no extrea - ")
+            __ASSERT(buffer /= '-', "no extrea - ")
             read(buffer,*) options%npes_oserver
          case ('-ngo', '--ng_oserver')
             buffer = get_next_argument()
-            _ASSERT(buffer /= '-', "no extrea - ")
+            __ASSERT(buffer /= '-', "no extrea - ")
             read(buffer,*) options%N_og
          case ('-nw', '--n_writer')
             buffer = get_next_argument()
-            _ASSERT(buffer /= '-', "no extrea - ")
+            __ASSERT(buffer /= '-', "no extrea - ")
             read(buffer,*) options%N_writer
          case ('-w', '--pfio_writer')
             options%writer = get_next_argument()
-            _ASSERT(options%server_type /= '-', "no extrea - ")
+            __ASSERT(options%server_type /= '-', "no extrea - ")
          case ('-v', '--var')
             buffer = get_next_argument()
-            _ASSERT(buffer(1:1) /= '-', "no extrea - ")
+            __ASSERT(buffer(1:1) /= '-', "no extrea - ")
             options%requested_variables = parse_vars(buffer)
          case ('-s', '--server_type')
             options%server_type = get_next_argument()
-            _ASSERT(options%server_type /= '-', "no extrea - ")
+            __ASSERT(options%server_type /= '-', "no extrea - ")
          case ('-d', '--debug')
             options%debug = .true.
          case default
@@ -103,7 +103,7 @@ contains
          end select
 
       end do
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    contains
       
       function get_next_argument() result(argument)
@@ -218,7 +218,7 @@ contains
       do i = 1, N_iclient_g
          allocate(threadPtr, source = ClientThread())
          call app_ds%connect_to_server('iserver',threadPtr, comms(i), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          !call threadPtr%init_connection(app_ds(i)%dsPtr, comms(i),'i_server')
          call this%ic_vec%push_back(threadPtr)
          nullify(threadPtr)
@@ -227,7 +227,7 @@ contains
       do i = 1 + N_iclient_g, N_iclient_g + N_oclient_g
          allocate(threadPtr, source = ClientThread())
          call app_ds%connect_to_server('oserver',threadPtr, comms(i), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          !call threadPtr%init_connection(app_ds(i)%dsPtr, comms(i),'o_server')
          call this%oc_vec%push_back(threadPtr)
          nullify(threadPtr)
@@ -258,13 +258,13 @@ contains
  
          do k = 1, this%vars%size()
             call test_metadata%add_variable(this%vars%at(k),Variable(type=pFIO_REAL32, dimensions='Xdim,Ydim,nf,lev,time'), rc=status)
-            _VERIFY(status)
+            __VERIFY(status)
          enddo
 
          call test_formatter%create('test_in.nc4', rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          call test_formatter%write(test_metadata, rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
 
          allocate(testValues(48,48,6,72,1))
 
@@ -361,7 +361,7 @@ contains
                  & icPtr%collective_prefetch_data(collection_id,'test_in.nc4', this%vars%at(i_var), ref,&
                  & start=[Xdim0,Ydim0,nf,1,1], &
                  & global_start=[1,1,1,1,1],global_count=[this%Xdim,this%Ydim,this%nf, this%lev,1], rc=status)
-            _VERIFY(status)
+            __VERIFY(status)
 
          end do
          call icPtr%done_collective_prefetch()
@@ -384,7 +384,7 @@ contains
 
          do i_var = 1, this%vars%size() 
             call fmd%add_variable( this%vars%at(i_var),T, rc=status)
-            _VERIFY(status)
+            __VERIFY(status)
          enddo
 
          ocPtr=> this%oc_vec%at(1)
@@ -404,7 +404,7 @@ contains
                  & ocPtr%collective_stage_data(file_md_id, 'test_out'//i_to_string(md_id)//'.nc4', this%vars%at(i_var), ref,&
                  & start=[Xdim0,Ydim0,nf,1, 1], &
                  & global_start=[1,1,1,1,1],global_count=[this%Xdim,this%Ydim, this%nf, this%lev,1], rc=status)
-               _VERIFY(status)
+               __VERIFY(status)
             end do
          enddo
 
@@ -420,7 +420,7 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1         
       end select
-      _RETURN(_SUCCESS)      
+      __RETURN(__SUCCESS)      
    end subroutine run
 
 

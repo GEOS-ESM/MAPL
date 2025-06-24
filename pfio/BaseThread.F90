@@ -38,9 +38,9 @@ contains
       class (BaseThread), target, intent(in) :: this
       class (AbstractSocket), pointer :: connection
       integer, optional, intent(out) :: rc
-      _ASSERT(allocated(this%connection), "no connection")
+      __ASSERT(allocated(this%connection), "no connection")
       connection => this%connection
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function get_connection
 
    subroutine set_connection(this, connection, rc)
@@ -51,7 +51,7 @@ contains
       if(allocated(this%connection)) deallocate(this%connection)
       allocate(this%connection, source=connection)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine set_connection
    
    function get_RequestHandle(this,request_id, rc) result(rh_ptr)
@@ -62,9 +62,9 @@ contains
       type (IntegerRequestMapIterator) :: iter
 
       iter = this%open_requests%find(request_id)
-      _ASSERT( iter /= this%open_requests%end(), "could not find the request handle id")
+      __ASSERT( iter /= this%open_requests%end(), "could not find the request handle id")
       rh_Ptr => iter%value()
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function get_RequestHandle
 
    function isEmpty_RequestHandle(this, rc) result(empty)
@@ -75,7 +75,7 @@ contains
 
       iter  = this%open_requests%begin()
       empty = (iter == this%open_requests%end())
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function isEmpty_RequestHandle
 
    subroutine insert_RequestHandle(this,request_id, handle, rc) 
@@ -86,7 +86,7 @@ contains
 
       call this%open_requests%insert(request_id, handle)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine insert_RequestHandle
 
    subroutine erase_RequestHandle(this,request_id, rc)
@@ -98,7 +98,7 @@ contains
       iter = this%open_requests%find(request_id)
       call  this%open_requests%erase(iter)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine erase_RequestHandle
 
    subroutine clear_RequestHandle(this, rc)
@@ -114,13 +114,13 @@ contains
         rh_ptr => iter%value()
         call rh_ptr%wait()
         call rh_ptr%data_reference%deallocate(status)
-        _VERIFY(status)
+        __VERIFY(status)
 
         call this%open_requests%erase(iter)
         iter = this%open_requests%begin()
       enddo
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine clear_RequestHandle
 
 end module pFIO_BaseThreadMod

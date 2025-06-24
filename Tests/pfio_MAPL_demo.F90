@@ -91,7 +91,7 @@ program main
       ! Initialize MPI if MPI_Init has not been called
       call initialize_mpi(MPI_COMM_WORLD)
 
-      call MPI_Comm_size(MPI_COMM_WORLD, npes, _IERROR)
+      call MPI_Comm_size(MPI_COMM_WORLD, npes, __IERROR)
       if ( cap_options%npes_model == -1) then
           cap_options%npes_model = npes
       endif
@@ -112,10 +112,10 @@ program main
             CALL ESMF_Initialize(logKindFlag=ESMF_LOGKIND_NONE, mpiCommunicator=client_comm, rc=status)
 
             ! Get the number of PEs used for the model
-            call MPi_Comm_size(client_comm, npes, _IERROR)
+            call MPi_Comm_size(client_comm, npes, __IERROR)
 
             ! Get the PE id
-            call MPI_Comm_rank(client_comm, pe_id, _IERROR)
+            call MPI_Comm_rank(client_comm, pe_id, __IERROR)
             if (npes /= cap_options%npes_model) stop "sanity check failed"
 
             !------------------------------------------------
@@ -155,7 +155,7 @@ program main
 
       call ioserver_manager%finalize()
 
-      call MPI_finalize(_IERROR)
+      call MPI_finalize(__IERROR)
 
 !------------------------------------------------------------------------------
 CONTAINS
@@ -177,10 +177,10 @@ CONTAINS
       subcommunicator = MPI_COMM_NULL ! in case of failure
       splitter = SimpleCommSplitter(comm, n_members, npes_member)
       split_comm = splitter%split(rc=status)
-      ! _VERIFY(status)
+      ! __VERIFY(status)
       subcommunicator = split_comm%get_subcommunicator()
 
-      _UNUSED_DUMMY(rc)
+      __UNUSED_DUMMY(rc)
 
    end function create_member_subcommunicator
 !------------------------------------------------------------------------------
@@ -196,12 +196,12 @@ CONTAINS
       call MPI_Initialized(mpi_already_initialized, ierror)
       if (.not. mpi_already_initialized) then
          call MPI_Init_thread(MPI_THREAD_SINGLE, provided, ierror)
-         _VERIFY(ierror)
-         _ASSERT(provided == MPI_THREAD_SINGLE, "MPI_THREAD_SINGLE not supported by this MPI.")
+         __VERIFY(ierror)
+         __ASSERT(provided == MPI_THREAD_SINGLE, "MPI_THREAD_SINGLE not supported by this MPI.")
       end if
 
-      call MPI_Comm_rank(comm, pe_rank, ierror); _VERIFY(ierror)
-      call MPI_Comm_size(comm, npes_world, ierror); _VERIFY(ierror)
+      call MPI_Comm_rank(comm, pe_rank, ierror); __VERIFY(ierror)
+      call MPI_Comm_size(comm, npes_world, ierror); __VERIFY(ierror)
 
    end subroutine initialize_mpi
 !------------------------------------------------------------------------------
@@ -222,7 +222,7 @@ CONTAINS
                     fast_oclient         = cap_options%fast_oclient, &
                     with_profiler        = cap_options%with_io_profiler, &
                  rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
    end subroutine initialize_ioserver
 !------------------------------------------------------------------------------
 !>
@@ -446,7 +446,7 @@ CONTAINS
       call fvar%add_attribute("vmin", pfio_vmin)
       call fvar%add_attribute("vmax", pfio_vmax)
       call cf%add_variable(TRIM(vname), fvar, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
    end subroutine add_fvar
 !------------------------------------------------------------------------------
 !>

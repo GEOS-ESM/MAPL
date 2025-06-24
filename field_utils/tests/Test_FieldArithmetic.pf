@@ -35,14 +35,14 @@ contains
       allocate(y8array, source=R8_ARRAY_DEFAULT)
       y4array = y4array + ADD_R4
       y8array = y8array + ADD_R8
-      XR4 = mk_field(R4_ARRAY_DEFAULT, name = 'XR4', _RC)
-      YR4 = mk_field(y4array, name = 'YR4', _RC)
-      XR8 = mk_field(R8_ARRAY_DEFAULT, name = 'XR8', _RC)
-      YR8 = mk_field(y8array, name = 'YR8', _RC)
-      call ESMF_AttributeSet(xr4,name="missing_value",value=undef,_RC)
-      call ESMF_AttributeSet(xr8,name="missing_value",value=undef,_RC)
-      call ESMF_AttributeSet(yr4,name="missing_value",value=undef,_RC)
-      call ESMF_AttributeSet(yr8,name="missing_value",value=undef,_RC)
+      XR4 = mk_field(R4_ARRAY_DEFAULT, name = 'XR4', __RC)
+      YR4 = mk_field(y4array, name = 'YR4', __RC)
+      XR8 = mk_field(R8_ARRAY_DEFAULT, name = 'XR8', __RC)
+      YR8 = mk_field(y8array, name = 'YR8', __RC)
+      call ESMF_AttributeSet(xr4,name="missing_value",value=undef,__RC)
+      call ESMF_AttributeSet(xr8,name="missing_value",value=undef,__RC)
+      call ESMF_AttributeSet(yr4,name="missing_value",value=undef,__RC)
+      call ESMF_AttributeSet(yr8,name="missing_value",value=undef,__RC)
 
    end subroutine set_up_data
 
@@ -62,16 +62,16 @@ contains
       real(kind=ESMF_KIND_R4), allocatable :: y4array(:,:)
 
       allocate(y4array, source=R4_ARRAY_DEFAULT)
-      x = mk_r4field(R4_ARRAY_DEFAULT, 'XR4', _RC)
-      y = mk_r4field(y4array, 'YR4', _RC)
-      call ESMF_FieldGet(x , farrayPtr = x_ptr, _RC)
-      call ESMF_FieldGet(y , farrayPtr = y_ptr, _RC)
+      x = mk_r4field(R4_ARRAY_DEFAULT, 'XR4', __RC)
+      y = mk_r4field(y4array, 'YR4', __RC)
+      call ESMF_FieldGet(x , farrayPtr = x_ptr, __RC)
+      call ESMF_FieldGet(y , farrayPtr = y_ptr, __RC)
 
       x_ptr = 2.0
       y_ptr = 3.0
       result_array = x_ptr
       result_array = 5.0
-      call FieldAdd(y, x, y, _RC)
+      call FieldAdd(y, x, y, __RC)
       @assertEqual(y_ptr, result_array)
 
    end subroutine test_FieldAddR4
@@ -87,14 +87,14 @@ contains
 
       x = XR4
       y = YR4
-      call ESMF_FieldGet(x , farrayPtr = x_ptr, _RC)
-      call ESMF_FieldGet(y , farrayPtr = y_ptr, _RC)
+      call ESMF_FieldGet(x , farrayPtr = x_ptr, __RC)
+      call ESMF_FieldGet(y , farrayPtr = y_ptr, __RC)
 
       x_ptr = reshape(source=[2.0,2.0,2.0,undef],shape=[2,2])
       y_ptr = reshape(source=[undef,3.0,3.0,undef],shape=[2,2])
       result_array = x_ptr
       result_array = reshape(source=[undef,5.0,5.0,undef],shape=[2,2])
-      call FieldAdd(y, x, y, _RC)
+      call FieldAdd(y, x, y, __RC)
       @assertEqual(y_ptr, result_array)
    end subroutine test_FieldAddR4_missing
 
@@ -109,16 +109,16 @@ contains
       real(kind=ESMF_KIND_R8), allocatable :: y8array(:,:)
 
       allocate(y8array, source=R8_ARRAY_DEFAULT)
-      x = mk_r8field(R8_ARRAY_DEFAULT, 'XR8', _RC)
-      y = mk_r8field(y8array, 'YR8', _RC)
-      call ESMF_FieldGet(x , farrayPtr = x_ptr, _RC)
-      call ESMF_FieldGet(y , farrayPtr = y_ptr, _RC)
+      x = mk_r8field(R8_ARRAY_DEFAULT, 'XR8', __RC)
+      y = mk_r8field(y8array, 'YR8', __RC)
+      call ESMF_FieldGet(x , farrayPtr = x_ptr, __RC)
+      call ESMF_FieldGet(y , farrayPtr = y_ptr, __RC)
 
       x_ptr = 2.d0
       y_ptr = 3.d0
       result_array = x_ptr
       result_array = 5.d0
-      call FieldAdd(y, x, y, _RC)
+      call FieldAdd(y, x, y, __RC)
       @assertEqual(y_ptr, result_array)
    end subroutine test_FieldAddR8
 
@@ -132,13 +132,13 @@ contains
       real :: expo
 
       x = XR4
-      call ESMF_FieldGet(x , farrayPtr = x_ptr, _RC)
+      call ESMF_FieldGet(x , farrayPtr = x_ptr, __RC)
 
       x_ptr = 2.0
       expo = 4.0
       result_array = x_ptr
       result_array = 2.0**expo
-      call FieldPow(x, x, expo, _RC)
+      call FieldPow(x, x, expo, __RC)
       @assertEqual(x_ptr, result_array)
    end subroutine test_FieldPowR4
 
@@ -152,13 +152,13 @@ contains
       real :: expo
 
       x = XR8
-      call ESMF_FieldGet(x , farrayPtr = x_ptr, _RC)
+      call ESMF_FieldGet(x , farrayPtr = x_ptr, __RC)
 
       x_ptr = 2.d0
       expo = 4.0
       result_array = x_ptr
       result_array = 2.d0**expo
-      call FieldPow(x, x, expo, _RC)
+      call FieldPow(x, x, expo, __RC)
       @assertEqual(x_ptr, result_array)
    end subroutine test_FieldPowR8
 
@@ -171,12 +171,12 @@ contains
       integer :: status, rc
 
       x = XR4
-      call ESMF_FieldGet(x , farrayPtr = x_ptr, _RC)
+      call ESMF_FieldGet(x , farrayPtr = x_ptr, __RC)
 
       x_ptr = 2.0
       result_array = x_ptr
       result_array = sin(2.0)
-      call FieldSin(x, x, _RC)
+      call FieldSin(x, x, __RC)
       @assertEqual(x_ptr, result_array)
    end subroutine test_FieldSinR4
 
@@ -189,12 +189,12 @@ contains
       integer :: status, rc
 
       x = XR4
-      call ESMF_FieldGet(x , farrayPtr = x_ptr, _RC)
+      call ESMF_FieldGet(x , farrayPtr = x_ptr, __RC)
 
       x_ptr = 2.0
       result_array = x_ptr
       result_array = -2.0
-      call FieldNegate(x, _RC)
+      call FieldNegate(x, __RC)
       @assertEqual(x_ptr, result_array)
    end subroutine test_FieldNegR4
 

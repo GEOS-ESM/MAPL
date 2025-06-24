@@ -82,9 +82,9 @@ contains
       class (SimpleSocket), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      _ASSERT(allocated(this%msg),"simple socket receive nothing")
+      __ASSERT(allocated(this%msg),"simple socket receive nothing")
       allocate(message, source=this%msg)
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function receive
 
    recursive subroutine send(this, message, rc)
@@ -100,12 +100,12 @@ contains
       type is (SimpleSocket)
          if (allocated(connection%msg)) deallocate(connection%msg)
          allocate(connection%msg , source = message)
-         call connection%msg%dispatch(this%visitor, _RC)
+         call connection%msg%dispatch(this%visitor, __RC)
       class default
-         _FAIL("Simple should connect Simple")
+         __FAIL("Simple should connect Simple")
       end select
-      _RETURN(_SUCCESS)
-     ! call message%dispatch(this%visitor,_RC)
+      __RETURN(__SUCCESS)
+     ! call message%dispatch(this%visitor,__RC)
    end subroutine send
 
    function put(this, request_id, local_reference, rc) result(handle)
@@ -120,9 +120,9 @@ contains
 
       visitor_handle =>this%visitor%get_RequestHandle(request_id)
       call local_reference%copy_data_to(visitor_handle%data_reference, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       allocate(handle, source=SimpleHandle(local_reference))
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function put
 
    function get(this, request_id, local_reference, rc) result(handle)
@@ -132,16 +132,16 @@ contains
       integer, intent(in) :: request_id
       integer, optional, intent(out) :: rc
       allocate(handle, source=SimpleHandle(local_reference))
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(request_id)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(request_id)
    end function get
 
    subroutine wait(this, rc)
       class (SimpleHandle), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(this)
    end subroutine wait
 
    function to_string(this) result(string)
@@ -149,7 +149,7 @@ contains
       character(len=:), allocatable :: string
       string = 'SimpleSocket::info'
       return
-      _UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(this)
    end function to_string
 
 end module pFIO_SimpleSocketMod

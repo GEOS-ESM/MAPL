@@ -88,7 +88,7 @@ contains
            & serialize_intrinsic(this%type_kind), &
            & serialize_intrinsic(this%count), &
            & serialize_intrinsic(this%offset)]
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine serialize
 
    subroutine deserialize(this, buffer, rc)
@@ -113,7 +113,7 @@ contains
       n = n + serialize_buffer_length(this%count)
       call deserialize_intrinsic(buffer(n:), this%offset)
       n = n + serialize_buffer_length(this%offset)
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine deserialize
 
 end module pFIO_ForwardDataMessageMod

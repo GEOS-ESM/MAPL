@@ -53,8 +53,8 @@ contains
       integer :: status
 
       func => dsin ! Is this right?
-      call intrinsic_real64_func(func, f, func_f=sinf, _RC)
-      _RETURN(_SUCCESS)
+      call intrinsic_real64_func(func, f, func_f=sinf, __RC)
+      __RETURN(__SUCCESS)
    end function sin_field
 
 end module FieldBLASIntrinicFunctions

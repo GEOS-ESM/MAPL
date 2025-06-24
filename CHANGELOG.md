@@ -13,11 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Added RC for Timer call in MAPL_Generic.F90
+- Added RC for Timer call in `MAPL_Generic.F90`
+- Added double-underscore variants of our macros
 
 ### Removed
 
 ### Deprecated
+
+- We will eventually deprecate the single-underscore macros due to upcoming Fortran 2028 preprocessor support
 
 ## [2.57.0] - 2025-06-18
 

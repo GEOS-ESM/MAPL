@@ -57,7 +57,7 @@ contains
       character(16) :: buffer
       character(:), allocatable :: pid_str
 
-      _UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(this)
       pid = getpid()
       write(buffer,'(i0)')pid
       pid_str = trim(buffer)

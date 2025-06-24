@@ -53,7 +53,7 @@
       DISABLED = .true.
       !$omp end master
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
       
     end subroutine MAPL_ProfDisable
 
@@ -68,7 +68,7 @@
       DISABLED = .false.
       !$omp end master
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
       
     end subroutine MAPL_ProfEnable
 

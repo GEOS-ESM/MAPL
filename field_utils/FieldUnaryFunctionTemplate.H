@@ -15,20 +15,20 @@
       real(kind=ESMF_KIND_R8), pointer :: ptr_r8_in(:),ptr_r8_out(:)
       logical :: has_undef, conformable
       
-      conformable = FieldsAreConformable(field_in,field_out,_RC) 
-      _ASSERT(conformable,"Fields passed unary function are not conformable")
+      conformable = FieldsAreConformable(field_in,field_out,__RC) 
+      __ASSERT(conformable,"Fields passed unary function are not conformable")
 
       fields(1) = field_in
       fields(2) = field_out
-      has_undef = FieldsHaveUndef(fields,_RC)
-      call ESMF_FieldGet(field_in,typekind=tk_in,_RC)
-      call ESMF_FieldGet(field_out,typekind=tk_out,_RC)
-      _ASSERT(tk_in == tk_out, "For now input and output field must be of same type for a field function")
+      has_undef = FieldsHaveUndef(fields,__RC)
+      call ESMF_FieldGet(field_in,typekind=tk_in,__RC)
+      call ESMF_FieldGet(field_out,typekind=tk_out,__RC)
+      __ASSERT(tk_in == tk_out, "For now input and output field must be of same type for a field function")
       if (tk_in ==ESMF_TypeKind_R4) then
-         call assign_fptr(field_in,ptr_r4_in,_RC)
-         call assign_fptr(field_out,ptr_r4_out,_RC)
+         call assign_fptr(field_in,ptr_r4_in,__RC)
+         call assign_fptr(field_out,ptr_r4_out,__RC)
          if (has_undef) then
-            call GetFieldsUndef(fields,undef_r4,_RC)
+            call GetFieldsUndef(fields,undef_r4,__RC)
             where(ptr_r4_in /= undef_r4(1))
                ptr_r4_out = _FUNC(ptr_r4_in)
             elsewhere
@@ -38,10 +38,10 @@
             ptr_r4_out = _FUNC(ptr_r4_in)
          end if
       else if (tk_in == ESMF_TypeKind_R8) then
-         call assign_fptr(field_in,ptr_r8_in,_RC)
-         call assign_fptr(field_out,ptr_r8_out,_RC)
+         call assign_fptr(field_in,ptr_r8_in,__RC)
+         call assign_fptr(field_out,ptr_r8_out,__RC)
          if (has_undef) then
-            call GetFieldsUndef(fields,undef_r8,_RC)
+            call GetFieldsUndef(fields,undef_r8,__RC)
             where(ptr_r8_in /= undef_r8(1))
                ptr_r8_out = _FUNC(ptr_r8_in)
             elsewhere
@@ -51,9 +51,9 @@
             ptr_r8_out = _FUNC(ptr_r8_in)
          end if
       else
-          _FAIL("unsupported type")
+          __FAIL("unsupported type")
       end if
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine _SUB
 
 #include "undo_function_overload.macro"

@@ -35,17 +35,17 @@ module ACG_GridComp
 
      integer :: status
 
-     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_INITIALIZE,  initialize, _RC)
-     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_RUN,  run, _RC)
+     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_INITIALIZE,  initialize, __RC)
+     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_RUN,  run, __RC)
 
 #include "ACG_Export___.h"
 #include "ACG_Import___.h"
 
 !   Set generic services
 !   ----------------------------------
-     call MAPL_GenericSetServices(GC, _RC)
+     call MAPL_GenericSetServices(GC, __RC)
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
 
   end subroutine SetServices
 
@@ -65,13 +65,13 @@ module ACG_GridComp
 ! Locals
      integer :: status
 
-     call MAPL_GridCreate(GC, _RC)
+     call MAPL_GridCreate(GC, __RC)
 
 !   Call Generic Initialize
 !   ----------------------------------------
-     call MAPL_GenericInitialize(GC, import, export, clock, _RC)
+     call MAPL_GenericInitialize(GC, import, export, clock, __RC)
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
 
   end subroutine initialize
 
@@ -98,15 +98,15 @@ module ACG_GridComp
 
      !   Get my internal MAPL_Generic state
      !   -----------------------------------
-     call MAPL_GetObjectFromGC ( GC, MAPL, _RC)
+     call MAPL_GetObjectFromGC ( GC, MAPL, __RC)
 
 #include "ACG_GetPointer___.h"
 
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
 
-     _UNUSED_DUMMY(import)
-     _UNUSED_DUMMY(clock)
+     __UNUSED_DUMMY(import)
+     __UNUSED_DUMMY(clock)
 
   end subroutine run
 

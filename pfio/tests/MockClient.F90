@@ -18,7 +18,7 @@ contains
 
    function new_MockClient() result(c)
       type (MockClient) :: c
-      _UNUSED_DUMMY(c)
+      __UNUSED_DUMMY(c)
    end function new_MockClient
    
    

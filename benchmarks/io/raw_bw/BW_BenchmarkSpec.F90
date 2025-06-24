@@ -37,28 +37,28 @@ contains
       options = parser%parse_args()
       
       option => options%at('nx')
-      _ASSERT(associated(option), 'nx not found')
-      call cast(option, spec%nx, _RC)
+      __ASSERT(associated(option), 'nx not found')
+      call cast(option, spec%nx, __RC)
 
       option => options%at('n_levs')
-      _ASSERT(associated(option), 'n_levs not found')
-      call cast(option, spec%n_levs, _RC)
+      __ASSERT(associated(option), 'n_levs not found')
+      call cast(option, spec%n_levs, __RC)
 
 
       option => options%at('n_writers')
-      _ASSERT(associated(option), 'n_writers not found')
-      call cast(option, spec%n_writers, _RC)
+      __ASSERT(associated(option), 'n_writers not found')
+      call cast(option, spec%n_writers, __RC)
 
 
       option => options%at('n_tries')
-      _ASSERT(associated(option), 'n_tries not found')
-      call cast(option, spec%n_tries, _RC)
+      __ASSERT(associated(option), 'n_tries not found')
+      call cast(option, spec%n_tries, __RC)
 
       option => options%at('file_type')
-      _ASSERT(associated(option), 'file_type not found')
+      __ASSERT(associated(option), 'file_type not found')
       call cast(option, spec%file_type)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function make_BW_BenchmarkSpec
 
    subroutine add_cli_options(parser)
@@ -106,17 +106,17 @@ contains
       integer :: rank
 
       associate (packet_size => int(spec%nx,kind=INT64)**2 * 6* spec%n_levs/spec%n_writers)
-        allocate(benchmark%buffer(packet_size), _STAT)
+        allocate(benchmark%buffer(packet_size), __STAT)
         call random_number(benchmark%buffer)
       end associate
 
       call MPI_Comm_rank(comm, rank, status)
-      _VERIFY(status)
-      benchmark%filename = make_filename(base='scratch.', rank=rank, width=5, _RC)
+      __VERIFY(status)
+      benchmark%filename = make_filename(base='scratch.', rank=rank, width=5, __RC)
       if (spec%file_type == 'binary') benchmark%file_type = BINARY_FILE
       if (spec%file_type == 'netcdf') benchmark%file_type = NETCDF_FILE
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function make_BW_Benchmark
 
    ! helper function
@@ -132,13 +132,13 @@ contains
       character(30) :: fmt
 
       write(fmt,'("(i",i0,".",i0,")")', iostat=status) width, width
-      _VERIFY(status)
+      __VERIFY(status)
 
       write(suffix,trim(fmt), iostat=status) rank
-      _VERIFY(status)
+      __VERIFY(status)
       filename = base // suffix
       
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function make_filename
 
 end module mapl_BW_BenchmarkSpec

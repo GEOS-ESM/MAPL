@@ -41,46 +41,46 @@
 
    if(loc/=0) then
       call ESMF_StateGet(state, name(:loc-1), itemType=itemType, rc=status)
-      _VERIFY(STATUS)
+      __VERIFY(STATUS)
       if (itemType /= ESMF_STATEITEM_FIELDBUNDLE .and. IsOk) then
-         _RETURN(ESMF_SUCCESS)
+         __RETURN(ESMF_SUCCESS)
       else
          call ESMF_StateGet(state, name(:loc-1), Bundle, rc=status)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
       end if
 
       call ESMF_StateGet(state, name(loc+2:), itemType=itemType, rc=status)
-      _VERIFY(STATUS)
+      __VERIFY(STATUS)
       if (itemType /= ESMF_STATEITEM_FIELD .and. IsOk) then
-         _RETURN(ESMF_SUCCESS)
+         __RETURN(ESMF_SUCCESS)
       else
          call ESMF_StateGet(state, name(loc+2:), Field, rc=status)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
       end if
    else
       call ESMF_StateGet(state, name, itemType=itemType, rc=status)
-      _VERIFY(STATUS)
+      __VERIFY(STATUS)
       if (itemType /= ESMF_STATEITEM_FIELD .and. IsOk) then
-         _RETURN(ESMF_SUCCESS)
+         __RETURN(ESMF_SUCCESS)
       else
          call ESMF_StateGet(state, name, Field, rc=status)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
       end if
    end if
 
    call ESMF_FieldGet(field, status=fieldStatus, rc=status)
-   _VERIFY(STATUS)
+   __VERIFY(STATUS)
      if (fieldStatus == ESMF_FIELDSTATUS_COMPLETE) then
       call ESMF_FieldGet(field, 0, Ptr, rc=status)
-      _VERIFY(STATUS)
+      __VERIFY(STATUS)
    end if
 
    if (present(alloc)) then
       if (alloc .and. (.not. associated(PTR))) then
          call MAPL_AllocateCoupling(Field, rc=STATUS)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
          call ESMF_FieldGet(field, 0, Ptr, rc=status)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
       endif
    endif
    
@@ -101,7 +101,7 @@
    end block
 #endif
 
-   _RETURN(ESMF_SUCCESS)
+   __RETURN(ESMF_SUCCESS)
    
  end subroutine SUB_
 

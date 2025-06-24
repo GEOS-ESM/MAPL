@@ -47,19 +47,19 @@ CONTAINS
 !   Initialize framework
 !   --------------------
     call ESMF_Initialize (vm=vm, rc=status)
-    _VERIFY(status)
+    __VERIFY(status)
 
     IamRoot = GEOS_am_I_root()
 
 !   Get the global vm
 !   -----------------
     call ESMF_VMGetGlobal(vm, rc=status)
-    _VERIFY(status)
+    __VERIFY(status)
 
 !   Create a grid
 !   -------------
     grid = MyGridCreate_ ( vm, rc=status )
-    _VERIFY(status)
+    __VERIFY(status)
 
 !   Get local im, jm
 !   ----------------
@@ -85,7 +85,7 @@ CONTAINS
 !   All done
 !   --------
     call ESMF_Finalize ( status )
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
     
   end subroutine test_main
 
@@ -149,7 +149,7 @@ CONTAINS
     minCoord(3) = deltaZ/2.
 
     layout = ESMF_DELayoutCreate(vm, deCountList=(/NX, NY/), rc=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     grid = ESMF_GridCreateHorzLatLonUni(         &
          counts = (/IM_WORLD, JM_WORLD/),        &
@@ -158,24 +158,24 @@ CONTAINS
          horzStagger=ESMF_Grid_Horz_Stagger_A,   &
          periodic=(/ESMF_TRUE, ESMF_FALSE/),     &
          name='Beatrice', rc=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     call ESMF_GridAddVertHeight(grid,            &
          delta=(/(deltaZ, L=1,LM) /),            &
          rc=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     call ESMF_GridDistribute(grid,               &
          deLayout=layout,                        &
          countsPerDEDim1=imxy,                   &
          countsPerDEDim2=jmxy,                   &
          rc=status)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
     deallocate(imxy)
     deallocate(jmxy)
 
-    _RETURN(STATUS)
+    __RETURN(STATUS)
 
   end function MyGridCreate_
 

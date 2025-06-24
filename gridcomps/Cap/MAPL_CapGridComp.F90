@@ -128,13 +128,13 @@ contains
     character(*), parameter :: cap_name = "CAP"
     type(StubComponent) :: stub_component
 
-    _UNUSED_DUMMY(unusable)
+    __UNUSED_DUMMY(unusable)
 
     cap%cap_rc_file = cap_rc
     if (present(root_set_services)) cap%root_set_services => root_set_services
     if (present(root_dso)) cap%root_dso = root_dso
     if (present(root_dso) .and. present(root_set_services)) then
-       _FAIL("can only specify a setservice pointer or a dso to use")
+       __FAIL("can only specify a setservice pointer or a dso to use")
     end if
     if (present(final_file)) then
        allocate(cap%final_file, source=final_file)
@@ -142,25 +142,25 @@ contains
     cap%n_run_phases = 1
     if (present(n_run_phases)) cap%n_run_phases = n_run_phases
 
-    cap%config = ESMF_ConfigCreate(_RC)
-    call ESMF_ConfigLoadFile(cap%config, cap%cap_rc_file,_RC)
+    cap%config = ESMF_ConfigCreate(__RC)
+    call ESMF_ConfigLoadFile(cap%config, cap%cap_rc_file,__RC)
 
     allocate(cap%name, source=name)
-    cap%gc = ESMF_GridCompCreate(name=cap_name, config=cap%config, _RC)
+    cap%gc = ESMF_GridCompCreate(name=cap_name, config=cap%config, __RC)
 
     meta => null()
-    call MAPL_InternalStateCreate(cap%gc, meta, _RC)
-    call MAPL_Set(meta, CF=cap%config, _RC)
+    call MAPL_InternalStateCreate(cap%gc, meta, __RC)
+    call MAPL_Set(meta, CF=cap%config, __RC)
 
 
-    call MAPL_Set(meta, name=cap_name, component=stub_component, _RC)
+    call MAPL_Set(meta, name=cap_name, component=stub_component, __RC)
 
     cap_wrapper%ptr => cap
     call ESMF_UserCompSetInternalState(cap%gc, internal_cap_name, cap_wrapper, status)
-    _VERIFY(status)
+    __VERIFY(status)
 
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
   end subroutine MAPL_CapGridCompCreate
 
@@ -226,21 +226,21 @@ contains
     type(ESMF_Clock) :: cap_clock
     logical :: use_extdata2g
 
-    _UNUSED_DUMMY(import_state)
-    _UNUSED_DUMMY(export_state)
-    _UNUSED_DUMMY(clock)
+    __UNUSED_DUMMY(import_state)
+    __UNUSED_DUMMY(export_state)
+    __UNUSED_DUMMY(clock)
 
-    cap => get_CapGridComp_from_gc(gc, _RC)
-    call MAPL_InternalStateRetrieve(gc, maplobj, _RC)
+    cap => get_CapGridComp_from_gc(gc, __RC)
+    call MAPL_InternalStateRetrieve(gc, maplobj, __RC)
 
     t_p => get_global_time_profiler()
 
-    call ESMF_GridCompGet(gc, vm = cap%vm, _RC)
-    call ESMF_VMGet(cap%vm, petcount = NPES, mpiCommunicator = comm, _RC)
+    call ESMF_GridCompGet(gc, vm = cap%vm, __RC)
+    call ESMF_VMGet(cap%vm, petcount = NPES, mpiCommunicator = comm, __RC)
 
     AmIRoot_ = MAPL_Am_I_Root(cap%vm)
 
-    call MAPL_GetNodeInfo(comm = comm, _RC)
+    call MAPL_GetNodeInfo(comm = comm, __RC)
 
     AmIRoot_ = MAPL_Am_I_Root(cap%vm)
 
@@ -252,24 +252,24 @@ contains
     ! Note the call to GetLogger must be _after_ the call to MAPL_Set().
     ! That call establishes the name of this component which is used in
     ! retrieving this component's logger.
-    call MAPL_GetLogger(gc, lgr, _RC)
+    call MAPL_GetLogger(gc, lgr, __RC)
 
     ! Check if user wants to use node shared memory (default is no)
     !--------------------------------------------------------------
     call MAPL_GetResource(MAPLOBJ, useShmem,  label = 'USE_SHMEM:',  default = 0, rc = status)
     if (useShmem /= 0) then
-       call MAPL_InitializeShmem (_RC)
+       call MAPL_InitializeShmem (__RC)
     end if
 
     ! Check if a valid clock was provided externally
     !-----------------------------------------------
 
-    call ESMF_GridCompGet(gc, clockIsPresent=cap_clock_is_present, _RC)
+    call ESMF_GridCompGet(gc, clockIsPresent=cap_clock_is_present, __RC)
 
     if (cap_clock_is_present) then
-        call ESMF_GridCompGet(gc, clock=cap_clock, _RC)
-        call ESMF_ClockValidate(cap_clock, _RC)
-        cap%clock = ESMF_ClockCreate(cap_clock, _RC)
+        call ESMF_GridCompGet(gc, clock=cap_clock, __RC)
+        call ESMF_ClockValidate(cap_clock, __RC)
+        cap%clock = ESMF_ClockCreate(cap_clock, __RC)
         ! NOTE: We assume the MAPL components will only advance by
         ! one time step when driven with an external clock.
         !---------------------------------------------------------
@@ -284,7 +284,7 @@ contains
     !   were after the last advance before the previous Finalize.
     !---------------------------------------------------------------------------
 
-        call MAPL_ClockInit(MAPLOBJ, cap%clock, nsteps, _RC)
+        call MAPL_ClockInit(MAPLOBJ, cap%clock, nsteps, __RC)
         cap%nsteps = nsteps
         cap%compute_throughput = .true.
     end if
@@ -293,11 +293,11 @@ contains
     call set_reference_clock(cap%clock)
 #endif
 
-    call ESMF_ClockGet(cap%clock,currTime=cap%cap_restart_time,_RC)
+    call ESMF_ClockGet(cap%clock,currTime=cap%cap_restart_time,__RC)
 
-    cap%clock_hist = ESMF_ClockCreate(cap%clock, _RC)  ! Create copy for HISTORY
+    cap%clock_hist = ESMF_ClockCreate(cap%clock, __RC)  ! Create copy for HISTORY
 
-    CoresPerNode = MAPL_CoresPerNodeGet(comm,_RC)
+    CoresPerNode = MAPL_CoresPerNodeGet(comm,__RC)
 
     ! We check resource for CoresPerNode (no longer needed to be in CAP.rc)
     ! If it is set in the resource, we issue an warning if the
@@ -310,36 +310,36 @@ contains
        end if
     end if
 
-    call ESMF_VMGet(cap%vm, petcount=npes, mpicommunicator=comm, _RC)
-     _ASSERT(CoresPerNode <= npes, 'something impossible happened')
+    call ESMF_VMGet(cap%vm, petcount=npes, mpicommunicator=comm, __RC)
+     __ASSERT(CoresPerNode <= npes, 'something impossible happened')
 
     if (cap_clock_is_present) then
-       call ESMF_ClockGet(cap%clock, timeStep=frequency, _RC)
-       call ESMF_TimeIntervalGet(frequency, s=heartbeat_dt, _RC)
+       call ESMF_ClockGet(cap%clock, timeStep=frequency, __RC)
+       call ESMF_TimeIntervalGet(frequency, s=heartbeat_dt, __RC)
     else
-       call ESMF_ConfigGetAttribute(cap%config, value = heartbeat_dt, Label = "HEARTBEAT_DT:", _RC)
-       call ESMF_TimeIntervalSet(frequency, s = heartbeat_dt, _RC)
+       call ESMF_ConfigGetAttribute(cap%config, value = heartbeat_dt, Label = "HEARTBEAT_DT:", __RC)
+       call ESMF_TimeIntervalSet(frequency, s = heartbeat_dt, __RC)
     end if
 
     cap%heartbeat_dt = heartbeat_dt
 
 
-    perpetual = ESMF_AlarmCreate(clock = cap%clock_hist, name = 'PERPETUAL', ringinterval = frequency, sticky = .false., _RC)
-    call ESMF_AlarmRingerOff(perpetual, _RC)
+    perpetual = ESMF_AlarmCreate(clock = cap%clock_hist, name = 'PERPETUAL', ringinterval = frequency, sticky = .false., __RC)
+    call ESMF_AlarmRingerOff(perpetual, __RC)
 
     ! Set CLOCK for AGCM if not externally provided
     ! ---------------------------------------------
 
     if (.not.cap_clock_is_present) then
-       call MAPL_GetResource(MAPLOBJ, cap%perpetual_year, label='PERPETUAL_YEAR:',  default = -999, _RC)
-       call MAPL_GetResource(MAPLOBJ, cap%perpetual_month, label='PERPETUAL_MONTH:', default = -999, _RC)
-       call MAPL_GetResource(MAPLOBJ, cap%perpetual_day, label='PERPETUAL_DAY:',   default = -999, _RC)
+       call MAPL_GetResource(MAPLOBJ, cap%perpetual_year, label='PERPETUAL_YEAR:',  default = -999, __RC)
+       call MAPL_GetResource(MAPLOBJ, cap%perpetual_month, label='PERPETUAL_MONTH:', default = -999, __RC)
+       call MAPL_GetResource(MAPLOBJ, cap%perpetual_day, label='PERPETUAL_DAY:',   default = -999, __RC)
 
        cap%lperp = ((cap%perpetual_day /= -999) .or. (cap%perpetual_month /= -999) .or. (cap%perpetual_year  /= -999))
 
        if (cap%perpetual_day /= -999) then
-          _ASSERT(cap%perpetual_month /= -999, 'Must specify a value for PERPETUAL_MONTH in cap.')
-          _ASSERT(cap%perpetual_year  /= -999, 'Must specify a value for PERPETUAL_YEAR in cap.')
+          __ASSERT(cap%perpetual_month /= -999, 'Must specify a value for PERPETUAL_MONTH in cap.')
+          __ASSERT(cap%perpetual_year  /= -999, 'Must specify a value for PERPETUAL_YEAR in cap.')
        endif
 
        if (cap%lperp) then
@@ -355,7 +355,7 @@ contains
           clockname = trim(clockname) // '_PERPETUAL'
           call ESMF_Clockset(cap%clock_hist, name = clockname, rc = status)
 
-          call Perpetual_Clock(cap, _RC)
+          call Perpetual_Clock(cap, __RC)
        endif
     endif
 
@@ -366,114 +366,114 @@ contains
     !BOR
 
     ! !RESOURCE_ITEM: string :: Name of ROOT's config file
-    call MAPL_GetResource(MAPLOBJ, ROOT_CF, "ROOT_CF:", default = "ROOT.rc", _RC)
+    call MAPL_GetResource(MAPLOBJ, ROOT_CF, "ROOT_CF:", default = "ROOT.rc", __RC)
 
     ! !RESOURCE_ITEM: string :: Name to assign to the ROOT component
-    call MAPL_GetResource(MAPLOBJ, ROOT_NAME, "ROOT_NAME:", default = "ROOT", _RC)
+    call MAPL_GetResource(MAPLOBJ, ROOT_NAME, "ROOT_NAME:", default = "ROOT", __RC)
     cap%root_name = trim(ROOT_NAME)
 
     ! !RESOURCE_ITEM: string :: Name of HISTORY's config file
-    call MAPL_GetResource(MAPLOBJ, HIST_CF, "HIST_CF:", default = "HIST.rc", _RC)
+    call MAPL_GetResource(MAPLOBJ, HIST_CF, "HIST_CF:", default = "HIST.rc", __RC)
 
     ! !RESOURCE_ITEM: string :: Name of ExtData's config file
-    call MAPL_GetResource(MAPLOBJ, EXTDATA_CF, "EXTDATA_CF:", default = 'ExtData.rc', _RC)
+    call MAPL_GetResource(MAPLOBJ, EXTDATA_CF, "EXTDATA_CF:", default = 'ExtData.rc', __RC)
 
     ! !RESOURCE_ITEM: string :: Control Timers
-    call MAPL_GetResource(MAPLOBJ, enableTimers, "MAPL_ENABLE_TIMERS:", default = 'NO', _RC)
+    call MAPL_GetResource(MAPLOBJ, enableTimers, "MAPL_ENABLE_TIMERS:", default = 'NO', __RC)
 
     ! !RESOURCE_ITEM: string :: Control Memory Diagnostic Utility
-    call MAPL_GetResource(MAPLOBJ, enableMemUtils, "MAPL_ENABLE_MEMUTILS:", default='NO', _RC)
-    call MAPL_GetResource(MAPLOBJ, MemUtilsMode, "MAPL_MEMUTILS_MODE:", default = MAPL_MemUtilsModeBase, _RC)
+    call MAPL_GetResource(MAPLOBJ, enableMemUtils, "MAPL_ENABLE_MEMUTILS:", default='NO', __RC)
+    call MAPL_GetResource(MAPLOBJ, MemUtilsMode, "MAPL_MEMUTILS_MODE:", default = MAPL_MemUtilsModeBase, __RC)
     !EOR
-    enableTimers = ESMF_UtilStringUpperCase(enableTimers, _RC)
-    call MAPL_GetResource(maplobj,use_extdata2g,"USE_EXTDATA2G:",default=.false.,_RC)
+    enableTimers = ESMF_UtilStringUpperCase(enableTimers, __RC)
+    call MAPL_GetResource(maplobj,use_extdata2g,"USE_EXTDATA2G:",default=.false.,__RC)
 
     if (enableTimers /= 'YES') then
-       call MAPL_ProfDisable(_RC)
+       call MAPL_ProfDisable(__RC)
     else
        call MAPL_GetResource(MAPLOBJ, timerModeStr, "MAPL_TIMER_MODE:", &
-            default='MINMAX', _RC )
+            default='MINMAX', __RC )
 
-       timerModeStr = ESMF_UtilStringUpperCase(timerModeStr, _RC)
+       timerModeStr = ESMF_UtilStringUpperCase(timerModeStr, __RC)
 
     end if
     cap%started_loop_timer=.false.
 
-    enableMemUtils = ESMF_UtilStringUpperCase(enableMemUtils, _RC)
+    enableMemUtils = ESMF_UtilStringUpperCase(enableMemUtils, __RC)
 
     if (enableMemUtils /= 'YES') then
-       call MAPL_MemUtilsDisable( _RC )
+       call MAPL_MemUtilsDisable( __RC )
     else
-       call MAPL_MemUtilsInit( mode=MemUtilsMode, _RC )
+       call MAPL_MemUtilsInit( mode=MemUtilsMode, __RC )
     end if
 
-    call MAPL_GetResource( MAPLOBJ, cap%printSpec, label='PRINTSPEC:', default = 0, _RC )
+    call MAPL_GetResource( MAPLOBJ, cap%printSpec, label='PRINTSPEC:', default = 0, __RC )
 
-    call dirpaths%append(".",_RC)
-    call ESMF_ConfigFindLabel(cap%config,Label='USER_DIRPATH:',isPresent=foundPath,_RC)
+    call dirpaths%append(".",__RC)
+    call ESMF_ConfigFindLabel(cap%config,Label='USER_DIRPATH:',isPresent=foundPath,__RC)
     if (foundPath) then
        tend=.false.
        do while (.not.tend)
-          call ESMF_ConfigGetAttribute(cap%config,value=user_dirpath,default='',_RC)
+          call ESMF_ConfigGetAttribute(cap%config,value=user_dirpath,default='',__RC)
           if (tempstring /= '') then
-             call dirpaths%append(user_dirpath,_RC)
+             call dirpaths%append(user_dirpath,__RC)
           end if
-          call ESMF_ConfigNextLine(cap%config,tableEnd=tend,_RC)
+          call ESMF_ConfigNextLine(cap%config,tableEnd=tend,__RC)
        enddo
     end if
 
     ! Handle RUN_DT in ROOT_CF
     !-------------------------
 
-    cap%cf_root = ESMF_ConfigCreate(_RC )
-    call ESMF_ConfigLoadFile(cap%cf_root, ROOT_CF, _RC )
+    cap%cf_root = ESMF_ConfigCreate(__RC )
+    call ESMF_ConfigLoadFile(cap%cf_root, ROOT_CF, __RC )
 
     call ESMF_ConfigGetAttribute(cap%cf_root, value=RUN_DT, Label="RUN_DT:", rc=status)
     if (STATUS == ESMF_SUCCESS) then
        if (heartbeat_dt /= run_dt) then
           call lgr%error('inconsistent values of HEARTBEAT_DT (%g0) and root RUN_DT (%g0)', heartbeat_dt, run_dt)
-          _FAIL('inconsistent values of HEARTBEAT_DT and RUN_DT')
+          __FAIL('inconsistent values of HEARTBEAT_DT and RUN_DT')
        end if
     else
-       call MAPL_ConfigSetAttribute(cap%cf_root, value=heartbeat_dt, Label="RUN_DT:", _RC)
+       call MAPL_ConfigSetAttribute(cap%cf_root, value=heartbeat_dt, Label="RUN_DT:", __RC)
     endif
 
     ! Add EXPID and EXPDSC from HISTORY.rc to AGCM.rc
     !------------------------------------------------
-    cap%cf_hist = ESMF_ConfigCreate(_RC )
-    call ESMF_ConfigLoadFile(cap%cf_hist, HIST_CF, _RC )
+    cap%cf_hist = ESMF_ConfigCreate(__RC )
+    call ESMF_ConfigLoadFile(cap%cf_hist, HIST_CF, __RC )
 
-    call MAPL_ConfigSetAttribute(cap%cf_hist, value=HIST_CF, Label="HIST_CF:", _RC)
+    call MAPL_ConfigSetAttribute(cap%cf_hist, value=HIST_CF, Label="HIST_CF:", __RC)
 
-    call ESMF_ConfigGetAttribute(cap%cf_hist, value=EXPID,  Label="EXPID:", default='',  _RC)
-    call ESMF_ConfigGetAttribute(cap%cf_hist, value=EXPDSC, Label="EXPDSC:", default='', _RC)
+    call ESMF_ConfigGetAttribute(cap%cf_hist, value=EXPID,  Label="EXPID:", default='',  __RC)
+    call ESMF_ConfigGetAttribute(cap%cf_hist, value=EXPDSC, Label="EXPDSC:", default='', __RC)
 
-    call MAPL_ConfigSetAttribute(cap%cf_hist, value=heartbeat_dt, Label="RUN_DT:", _RC)
+    call MAPL_ConfigSetAttribute(cap%cf_hist, value=heartbeat_dt, Label="RUN_DT:", __RC)
 
-    call MAPL_ConfigSetAttribute(cap%cf_root, value=EXPID,  Label="EXPID:",  _RC)
-    call MAPL_ConfigSetAttribute(cap%cf_root, value=EXPDSC, Label="EXPDSC:", _RC)
+    call MAPL_ConfigSetAttribute(cap%cf_root, value=EXPID,  Label="EXPID:",  __RC)
+    call MAPL_ConfigSetAttribute(cap%cf_root, value=EXPDSC, Label="EXPDSC:", __RC)
 
-    call ESMF_ConfigGetAttribute(cap%cf_root, value = NX, Label="NX:", _RC)
-    call ESMF_ConfigGetAttribute(cap%cf_root, value = NY, Label="NY:", _RC)
-    call MAPL_ConfigSetAttribute(cap%cf_hist, value=NX,  Label="NX:",  _RC)
-    call MAPL_ConfigSetAttribute(cap%cf_hist, value=NY,  Label="NY:",  _RC)
+    call ESMF_ConfigGetAttribute(cap%cf_root, value = NX, Label="NX:", __RC)
+    call ESMF_ConfigGetAttribute(cap%cf_root, value = NY, Label="NY:", __RC)
+    call MAPL_ConfigSetAttribute(cap%cf_hist, value=NX,  Label="NX:",  __RC)
+    call MAPL_ConfigSetAttribute(cap%cf_hist, value=NY,  Label="NY:",  __RC)
 
     ! Add CoresPerNode from CAP.rc to HISTORY.rc and AGCM.rc
     !-------------------------------------------------------
-    call MAPL_ConfigSetAttribute(cap%cf_root, value=CoresPerNode,  Label="CoresPerNode:",  _RC)
-    call MAPL_ConfigSetAttribute(cap%cf_hist, value=CoresPerNode,  Label="CoresPerNode:",  _RC)
+    call MAPL_ConfigSetAttribute(cap%cf_root, value=CoresPerNode,  Label="CoresPerNode:",  __RC)
+    call MAPL_ConfigSetAttribute(cap%cf_hist, value=CoresPerNode,  Label="CoresPerNode:",  __RC)
 
     ! Add a SINGLE_COLUMN flag in HISTORY.rc based on DYCORE value(from AGCM.rc)
     !---------------------------------------------------------------------------
-    call ESMF_ConfigGetAttribute(cap%cf_root, value=DYCORE,  Label="DYCORE:",  default = 'FV3', _RC)
+    call ESMF_ConfigGetAttribute(cap%cf_root, value=DYCORE,  Label="DYCORE:",  default = 'FV3', __RC)
     if (DYCORE == 'DATMO') then
        snglcol = 1
-       call MAPL_ConfigSetAttribute(cap%cf_hist, value=snglcol,  Label="SINGLE_COLUMN:",  _RC)
+       call MAPL_ConfigSetAttribute(cap%cf_hist, value=snglcol,  Label="SINGLE_COLUMN:",  __RC)
     end if
 
     ! Detect if this a regular replay in the AGCM.rc
     ! ----------------------------------------------
-    call ESMF_ConfigGetAttribute(cap%cf_root, value=ReplayMode, Label="REPLAY_MODE:", default="NoReplay", _RC)
+    call ESMF_ConfigGetAttribute(cap%cf_root, value=ReplayMode, Label="REPLAY_MODE:", default="NoReplay", __RC)
 
 
     ! Register the children with MAPL
@@ -481,77 +481,77 @@ contains
 
     !  Create Root child
     !-------------------
-    call MAPL_Set(MAPLOBJ, CF=CAP%CF_ROOT, _RC)
+    call MAPL_Set(MAPLOBJ, CF=CAP%CF_ROOT, __RC)
 
     root_set_services => cap%root_set_services
 
     call t_p%start('SetService')
     if (.not.allocated(cap%root_dso)) then
-       cap%root_id = MAPL_AddChild(MAPLOBJ, name = root_name, SS = root_set_services, _RC)
+       cap%root_id = MAPL_AddChild(MAPLOBJ, name = root_name, SS = root_set_services, __RC)
     else
        sharedObj = trim(cap%root_dso)
-       cap%root_id = MAPL_AddChild(MAPLOBJ, root_name, 'setservices_', sharedObj=sharedObj, _RC)
+       cap%root_id = MAPL_AddChild(MAPLOBJ, root_name, 'setservices_', sharedObj=sharedObj, __RC)
     end if
     root_gc => maplobj%get_child_gridcomp(cap%root_id)
-    call MAPL_GetObjectFromGC(root_gc, root_obj, _RC)
-    _ASSERT(cap%n_run_phases <= SIZE(root_obj%phase_run),"n_run_phases in cap_gc should not exceed n_run_phases in root")
+    call MAPL_GetObjectFromGC(root_gc, root_obj, __RC)
+    __ASSERT(cap%n_run_phases <= SIZE(root_obj%phase_run),"n_run_phases in cap_gc should not exceed n_run_phases in root")
 
     !  Create History child
     !----------------------
 
-    call MAPL_Set(MAPLOBJ, CF=CAP%CF_HIST, _RC)
+    call MAPL_Set(MAPLOBJ, CF=CAP%CF_HIST, __RC)
 
-    cap%history_id = MAPL_AddChild( MAPLOBJ, name = 'HIST', SS = HIST_SetServices, _RC)
+    cap%history_id = MAPL_AddChild( MAPLOBJ, name = 'HIST', SS = HIST_SetServices, __RC)
 
 
     !  Create ExtData child
     !----------------------
-    cap%cf_ext = ESMF_ConfigCreate(_RC )
-    call ESMF_ConfigLoadFile(cap%cf_ext, EXTDATA_CF, _RC )
+    cap%cf_ext = ESMF_ConfigCreate(__RC )
+    call ESMF_ConfigLoadFile(cap%cf_ext, EXTDATA_CF, __RC )
 
     call ESMF_ConfigGetAttribute(cap%cf_ext, value=RUN_DT, Label="RUN_DT:", rc=status)
     if (STATUS == ESMF_SUCCESS) then
        if (heartbeat_dt /= run_dt) then
           call lgr%error('inconsistent values of HEARTBEAT_DT (%g0) and ExtData RUN_DT (%g0)', heartbeat_dt, run_dt)
-          _FAIL('inconsistent values of HEARTBEAT_DT and RUN_DT')
+          __FAIL('inconsistent values of HEARTBEAT_DT and RUN_DT')
        end if
     else
-       call MAPL_ConfigSetAttribute(cap%cf_ext, value=heartbeat_dt, Label="RUN_DT:", _RC)
+       call MAPL_ConfigSetAttribute(cap%cf_ext, value=heartbeat_dt, Label="RUN_DT:", __RC)
     endif
 
-    call MAPL_Set(MAPLOBJ, CF=CAP%CF_EXT, _RC)
+    call MAPL_Set(MAPLOBJ, CF=CAP%CF_EXT, __RC)
 
     if (use_extdata2g) then
 #if defined(BUILD_WITH_EXTDATA2G)
-       cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData2G_SetServices, _RC)
+       cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData2G_SetServices, __RC)
 #else
        call lgr%error('ExtData2G requested but not built')
-       _FAIL('ExtData2G requested but not built')
+       __FAIL('ExtData2G requested but not built')
 #endif
     else
-       cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData1G_SetServices, _RC)
+       cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData1G_SetServices, __RC)
     end if
     call t_p%stop('SetService')
 
     ! Add NX and NY from AGCM.rc to ExtData.rc as well as name of ExtData rc file
-    call ESMF_ConfigGetAttribute(cap%cf_root, value = NX, Label="NX:", _RC)
-    call ESMF_ConfigGetAttribute(cap%cf_root, value = NY, Label="NY:", _RC)
-    call MAPL_ConfigSetAttribute(cap%cf_ext, value=NX,  Label="NX:",  _RC)
-    call MAPL_ConfigSetAttribute(cap%cf_ext, value=NY,  Label="NY:",  _RC)
-    call MAPL_ConfigSetAttribute(cap%cf_ext, value=EXTDATA_CF,  Label="CF_EXTDATA:",  _RC)
-    call MAPL_ConfigSetAttribute(cap%cf_ext, value=EXPID,  Label="EXPID:",  _RC)
+    call ESMF_ConfigGetAttribute(cap%cf_root, value = NX, Label="NX:", __RC)
+    call ESMF_ConfigGetAttribute(cap%cf_root, value = NY, Label="NY:", __RC)
+    call MAPL_ConfigSetAttribute(cap%cf_ext, value=NX,  Label="NX:",  __RC)
+    call MAPL_ConfigSetAttribute(cap%cf_ext, value=NY,  Label="NY:",  __RC)
+    call MAPL_ConfigSetAttribute(cap%cf_ext, value=EXTDATA_CF,  Label="CF_EXTDATA:",  __RC)
+    call MAPL_ConfigSetAttribute(cap%cf_ext, value=EXPID,  Label="EXPID:",  __RC)
 
     !  Query MAPL for the the children's for GCS, IMPORTS, EXPORTS
     !-------------------------------------------------------------
 
     call MAPL_Get(MAPLOBJ, childrens_gridcomps = cap%gcs, &
-         childrens_import_states = cap%child_imports, childrens_export_states = cap%child_exports, _RC)
+         childrens_import_states = cap%child_imports, childrens_export_states = cap%child_exports, __RC)
 
 
     !  Inject grid to root child if grid has been set externally
     !-----------------------------------------------------------
 
-    call cap%inject_external_grid(_RC)
+    call cap%inject_external_grid(__RC)
 
     ! Run as usual unless PRINTSPEC> 0 as set in CAP.rc. If set then
     ! model will not run completely and instead it will simply run MAPL_SetServices
@@ -560,8 +560,8 @@ contains
 
 
     if (cap%printSpec>0) then
-       call MAPL_StatePrintSpecCSV(cap%gcs(cap%root_id), cap%printspec, _RC)
-       call ESMF_VMBarrier(cap%vm, _RC)
+       call MAPL_StatePrintSpecCSV(cap%gcs(cap%root_id), cap%printspec, __RC)
+       call ESMF_VMBarrier(cap%vm, __RC)
     else
        !  Initialize the Computational Hierarchy
        !----------------------------------------
@@ -569,21 +569,21 @@ contains
        call t_p%start('Initialize')
        call ESMF_GridCompInitialize(cap%gcs(cap%root_id), importState = cap%child_imports(cap%root_id), &
             exportState = cap%child_exports(cap%root_id), clock = cap%clock, userRC = status)
-       _VERIFY(status)
+       __VERIFY(status)
 
-       call cap%initialize_history(_RC)
+       call cap%initialize_history(__RC)
 
-       call cap%initialize_extdata(root_gc,_RC)
+       call cap%initialize_extdata(root_gc,__RC)
 
        ! Finally check is this is a regular replay
        ! If so stuff gc and input state for ExtData in GCM internal state
        ! -----------------------------------------------------------------
        if (trim(replayMode)=="Regular") then
-          call MAPL_GCGet(CAP%GCS(cap%root_id),"GCM",gcmGC,_RC)
-          call ESMF_GridCompGet(gcmGC,vm=gcmVM,_RC)
-          _ASSERT(cap%vm==gcmVM,'CAP and GCM should agree on their VMs.')
+          call MAPL_GCGet(CAP%GCS(cap%root_id),"GCM",gcmGC,__RC)
+          call ESMF_GridCompGet(gcmGC,vm=gcmVM,__RC)
+          __ASSERT(cap%vm==gcmVM,'CAP and GCM should agree on their VMs.')
           call ESMF_UserCompGetInternalState(gcmGC,'ExtData_state',wrap,status)
-          _VERIFY(STATUS)
+          __VERIFY(STATUS)
           ExtData_internal_state => wrap%ptr
           ExtData_internal_state%gc = CAP%GCS(cap%extdata_id)
           ExtData_internal_state%expState = CAP%CHILD_EXPORTS(cap%extdata_id)
@@ -592,7 +592,7 @@ contains
     end if
 
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
   end subroutine initialize_gc
 
 
@@ -606,13 +606,13 @@ contains
     if (present(rc)) rc = ESMF_SUCCESS
     ! All the EXPORTS of the Hierachy are made IMPORTS of History
     !------------------------------------------------------------
-    call ESMF_StateAdd(cap%child_imports(cap%history_id), [cap%child_exports(cap%root_id)], _RC)
+    call ESMF_StateAdd(cap%child_imports(cap%history_id), [cap%child_exports(cap%root_id)], __RC)
 
-    allocate(lswrap%ptr, _STAT)
+    allocate(lswrap%ptr, __STAT)
     call ESMF_UserCompSetInternalState(cap%gcs(cap%history_id), 'MAPL_LocStreamList', &
          lswrap, STATUS)
-    _VERIFY(STATUS)
-    call MAPL_GetAllExchangeGrids(CAP%GCS(cap%root_id), LSADDR, _RC)
+    __VERIFY(STATUS)
+    call MAPL_GetAllExchangeGrids(CAP%GCS(cap%root_id), LSADDR, __RC)
     lswrap%ptr%LSADDR_PTR => LSADDR
 
     ! Initialize the History
@@ -620,9 +620,9 @@ contains
 
     call ESMF_GridCompInitialize (CAP%GCS(cap%history_id), importState=CAP%CHILD_IMPORTS(cap%history_id), &
          exportState=CAP%CHILD_EXPORTS(cap%history_id), clock=CAP%CLOCK_HIST, userRC=STATUS )
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
   end subroutine initialize_history
 
 
@@ -643,8 +643,8 @@ contains
 
     ! Prepare EXPORTS for ExtData
     ! ---------------------------
-    cap_imports_vec = get_vec_from_config(cap%config, "CAP_IMPORTS", _RC)
-    cap_exports_vec = get_vec_from_config(cap%config, "CAP_EXPORTS", _RC)
+    cap_imports_vec = get_vec_from_config(cap%config, "CAP_IMPORTS", __RC)
+    cap_exports_vec = get_vec_from_config(cap%config, "CAP_EXPORTS", __RC)
     extdata_imports_vec = get_vec_from_config(cap%config, "EXTDATA_IMPORTS")
 
     cap%import_state = ESMF_StateCreate(name = "Cap_Imports", stateintent = ESMF_STATEINTENT_IMPORT)
@@ -659,9 +659,9 @@ contains
           field_name = trim(field_name(1:index(field_name, ",")-1))
           call MAPL_ExportStateGet([cap%child_exports(cap%root_id)], component_name, &
                component_state, status)
-          _VERIFY(status)
-          call ESMF_StateGet(component_state, trim(field_name), field, _RC)
-          call MAPL_StateAdd(cap%export_state, field, _RC)
+          __VERIFY(status)
+          call ESMF_StateGet(component_state, trim(field_name), field, __RC)
+          call MAPL_StateAdd(cap%export_state, field, __RC)
           call iter%next()
        end do
     end if
@@ -676,19 +676,19 @@ contains
           field_name = trim(field_name(1:index(field_name, ",")-1))
 
           call MAPL_ExportStateGet([cap%child_exports(cap%root_id)], component_name, &
-               component_state, _RC)
-          call ESMF_StateGet(component_state, trim(field_name), field, _RC)
-          call MAPL_StateAdd(cap%child_imports(cap%extdata_id), field, _RC)
+               component_state, __RC)
+          call ESMF_StateGet(component_state, trim(field_name), field, __RC)
+          call MAPL_StateAdd(cap%child_imports(cap%extdata_id), field, __RC)
           call iter%next()
        end do
     end if
 
-    call ESMF_StateGet(cap%child_imports(cap%root_id), itemcount = item_count, _RC)
-    allocate(item_names(item_count), _STAT)
-    allocate(item_types(item_count), _STAT)
+    call ESMF_StateGet(cap%child_imports(cap%root_id), itemcount = item_count, __RC)
+    allocate(item_names(item_count), __STAT)
+    allocate(item_types(item_count), __STAT)
 
     call ESMF_StateGet(cap%child_imports(cap%root_id), itemnamelist = item_names, &
-         itemtypelist = item_types, _RC)
+         itemtypelist = item_types, __RC)
 
     root_imports = cap%child_imports(cap%root_id)
     do i = 1, item_count
@@ -698,12 +698,12 @@ contains
           state = cap%child_exports(cap%extdata_id)
        end if
        if (item_types(i) == ESMF_StateItem_Field) then
-          call ESMF_StateGet(root_imports, item_names(i), field, _RC)
-          call MAPL_AddAttributeToFields(root_gc,trim(item_names(i)),'RESTART',MAPL_RestartSkip,_RC)
-          call MAPL_StateAdd(state, field, _RC)
+          call ESMF_StateGet(root_imports, item_names(i), field, __RC)
+          call MAPL_AddAttributeToFields(root_gc,trim(item_names(i)),'RESTART',MAPL_RestartSkip,__RC)
+          call MAPL_StateAdd(state, field, __RC)
        else if (item_types(i) == ESMF_StateItem_FieldBundle) then
-          call ESMF_StateGet(root_imports, item_names(i), bundle, _RC)
-          call MAPL_StateAdd(state, bundle, _RC)
+          call ESMF_StateGet(root_imports, item_names(i), bundle, __RC)
+          call MAPL_StateAdd(state, bundle, __RC)
        end if
     end do
 
@@ -716,9 +716,9 @@ contains
     call ESMF_GridCompInitialize (cap%gcs(cap%extdata_id), importState = cap%child_imports(cap%extdata_id), &
          exportState = cap%child_exports(cap%extdata_id), &
          clock = cap%clock, userRc = status)
-    _VERIFY(status)
+    __VERIFY(status)
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
 
   end subroutine initialize_extdata
 
@@ -734,22 +734,22 @@ contains
     integer :: status, phase
     class (BaseProfiler), pointer :: t_p
 
-    _UNUSED_DUMMY(import)
-    _UNUSED_DUMMY(export)
-    _UNUSED_DUMMY(clock)
+    __UNUSED_DUMMY(import)
+    __UNUSED_DUMMY(export)
+    __UNUSED_DUMMY(clock)
 
     t_p => get_global_time_profiler()
     call t_p%start('Run')
 
-    call ESMF_GridCompGet( gc, currentPhase=phase, _RC )
+    call ESMF_GridCompGet( gc, currentPhase=phase, __RC )
     VERIFY_(status)
 
-    call run_MAPL_GridComp(gc, phase=phase, _RC)
-    _VERIFY(status)
+    call run_MAPL_GridComp(gc, phase=phase, __RC)
+    __VERIFY(status)
 
     call t_p%stop('Run')
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
 
   end subroutine run_gc
 
@@ -766,12 +766,12 @@ contains
     type(MAPL_MetaComp), pointer :: maplobj
     class (BaseProfiler), pointer :: t_p
 
-    _UNUSED_DUMMY(import_state)
-    _UNUSED_DUMMY(export_state)
-    _UNUSED_DUMMY(clock)
+    __UNUSED_DUMMY(import_state)
+    __UNUSED_DUMMY(export_state)
+    __UNUSED_DUMMY(clock)
 
-    cap => get_CapGridComp_from_gc(gc, _RC)
-    call MAPL_GetObjectFromGC(gc, maplobj, _RC)
+    cap => get_CapGridComp_from_gc(gc, __RC)
+    call MAPL_GetObjectFromGC(gc, maplobj, __RC)
 
     t_p => get_global_time_profiler()
     call t_p%start('Finalize')
@@ -780,25 +780,25 @@ contains
 
        call ESMF_GridCompFinalize(cap%gcs(cap%root_id), importstate = cap%child_imports(cap%root_id), &
             exportstate=cap%child_exports(cap%root_id), clock = cap%clock, userrc = status)
-       _VERIFY(status)
+       __VERIFY(status)
 
        call ESMF_GridCompFinalize(cap%gcs(cap%history_id), importstate = cap%child_imports(cap%history_id), &
             exportstate = cap%child_exports(cap%history_id), clock = cap%clock_hist, userrc = status)
-       _VERIFY(status)
+       __VERIFY(status)
 
        call ESMF_GridCompFinalize(cap%gcs(cap%extdata_id), importstate = cap%child_imports(cap%extdata_id), &
             exportstate = cap%child_exports(cap%extdata_id), clock = cap%clock, userrc = status)
-       _VERIFY(status)
+       __VERIFY(status)
 
 
-       call CAP_Finalize(CAP%CLOCK_HIST, "cap_restart", _RC)
+       call CAP_Finalize(CAP%CLOCK_HIST, "cap_restart", __RC)
 
-       call ESMF_ConfigDestroy(cap%cf_ext, _RC)
-       call ESMF_ConfigDestroy(cap%cf_hist, _RC)
-       call ESMF_ConfigDestroy(cap%cf_root, _RC)
-       call ESMF_ConfigDestroy(cap%config, _RC)
+       call ESMF_ConfigDestroy(cap%cf_ext, __RC)
+       call ESMF_ConfigDestroy(cap%cf_hist, __RC)
+       call ESMF_ConfigDestroy(cap%cf_root, __RC)
+       call ESMF_ConfigDestroy(cap%config, __RC)
 
-       call MAPL_FinalizeShmem(_RC)
+       call MAPL_FinalizeShmem(__RC)
 
        ! Write EGRESS file
        !------------------
@@ -815,7 +815,7 @@ contains
 
     call t_p%stop('Finalize')
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
   end subroutine finalize_gc
 
 
@@ -826,15 +826,15 @@ contains
     integer :: status, phase
     type(MAPL_CapGridComp), pointer :: cap
 
-    cap => get_CapGridComp_from_gc(gc, _RC)
-    call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, userRoutine = initialize_gc, _RC)
+    cap => get_CapGridComp_from_gc(gc, __RC)
+    call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, userRoutine = initialize_gc, __RC)
 
     do phase = 1, cap%n_run_phases
-       call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, userRoutine = run_gc, _RC)
+       call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, userRoutine = run_gc, __RC)
     enddo
 
-    call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_FINALIZE, userRoutine = finalize_gc, _RC)
-    _RETURN(ESMF_SUCCESS)
+    call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_FINALIZE, userRoutine = finalize_gc, __RC)
+    __RETURN(ESMF_SUCCESS)
 
   end subroutine set_services_gc
 
@@ -844,8 +844,8 @@ contains
     integer, optional, intent(out) :: rc
     integer :: status
 
-    call ESMF_GridCompSetServices(this%gc, set_services_gc, _RC)
-    _RETURN(ESMF_SUCCESS)
+    call ESMF_GridCompSetServices(this%gc, set_services_gc, __RC)
+    __RETURN(ESMF_SUCCESS)
   end subroutine set_services
 
 
@@ -856,8 +856,8 @@ contains
     integer :: status
 
     call ESMF_GridCompInitialize(this%gc, userRC=status)
-    _VERIFY(status)
-    _RETURN(ESMF_SUCCESS)
+    __VERIFY(status)
+    __RETURN(ESMF_SUCCESS)
   end subroutine initialize
 
 
@@ -872,9 +872,9 @@ contains
     phase_ = 1
     if (present(phase)) phase_ = phase
 
-    call ESMF_GridCompRun(this%gc, phase=phase_, userrc=userrc, _RC)
-    _VERIFY(userrc)
-    _RETURN(ESMF_SUCCESS)
+    call ESMF_GridCompRun(this%gc, phase=phase_, userrc=userrc, __RC)
+    __VERIFY(userrc)
+    __RETURN(ESMF_SUCCESS)
 
   end subroutine run
 
@@ -884,8 +884,8 @@ contains
 
     integer :: status
 
-    call ESMF_GridCompFinalize(this%gc, _RC)
-    _RETURN(ESMF_SUCCESS)
+    call ESMF_GridCompFinalize(this%gc, __RC)
+    __RETURN(ESMF_SUCCESS)
   end subroutine finalize
 
   function get_model_duration(this, rc) result (duration)
@@ -897,7 +897,7 @@ contains
 
     duration = this%nsteps * this%heartbeat_dt
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
 
   end function get_model_duration
 
@@ -911,7 +911,7 @@ contains
 
     amiroot = this%amiroot
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
 
   end function get_am_i_root
 
@@ -923,7 +923,7 @@ contains
 
     heartbeatdt = this%heartbeat_dt
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
 
   end function get_heartbeat_dt
 
@@ -932,9 +932,9 @@ contains
     type(ESMF_Time) :: current_time
     integer, optional, intent(out) :: rc
     integer :: status
-    call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
+    call ESMF_ClockGet(this%clock,currTime=current_time,__RC)
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
 
   end function get_current_time
 
@@ -967,10 +967,10 @@ contains
     integer :: status
 
     call ESMF_UserCompGetInternalState(gc, internal_cap_name, cap_wrapper, status)
-    _VERIFY(status)
+    __VERIFY(status)
 
     cap => cap_wrapper%ptr
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
   end function get_CapGridComp_from_gc
 
 
@@ -984,17 +984,17 @@ contains
     integer :: status
     character(len=ESMF_MAXSTR) :: value
 
-    call ESMF_ConfigFindLabel(config, key//":", isPresent = present, _RC)
+    call ESMF_ConfigFindLabel(config, key//":", isPresent = present, __RC)
 
     if (present) then
        do
-          call ESMF_ConfigNextLine(config, tableEnd=tableEnd, _RC)
+          call ESMF_ConfigNextLine(config, tableEnd=tableEnd, __RC)
           if (tableEnd) exit
-          call ESMF_ConfigGetAttribute(config, value, _RC)
+          call ESMF_ConfigGetAttribute(config, value, __RC)
           call vec%push_back(trim(value))
        end do
     end if
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
   end function get_vec_from_config
 
@@ -1033,8 +1033,8 @@ contains
     type (MAPL_MetaComp), pointer :: MAPLOBJ
     procedure(), pointer :: root_set_services
 
-    cap => get_CapGridComp_from_gc(gc, _RC)
-    call MAPL_GetObjectFromGC(gc, maplobj, _RC)
+    cap => get_CapGridComp_from_gc(gc, __RC)
+    call MAPL_GetObjectFromGC(gc, maplobj, __RC)
 
     phase_ = 1
     if (present(phase)) phase_ = phase
@@ -1044,7 +1044,7 @@ contains
        ! Time Loop starts by checking for Segment Ending Time
        !-----------------------------------------------------
        if (cap%compute_throughput) then
-          call ESMF_VMBarrier(cap%vm,_RC)
+          call ESMF_VMBarrier(cap%vm,__RC)
           cap%starts%loop_start_timer = MPI_WTime()
           cap%started_loop_timer = .true.
        end if
@@ -1055,21 +1055,21 @@ contains
 
           call cap%increment_step_counter()
 
-          call MAPL_MemUtilsWrite(cap%vm, 'MAPL_Cap:TimeLoop', _RC)
+          call MAPL_MemUtilsWrite(cap%vm, 'MAPL_Cap:TimeLoop', __RC)
 
           if (.not.cap%lperp) then
-             done = ESMF_ClockIsStopTime(cap%clock_hist, _RC)
+             done = ESMF_ClockIsStopTime(cap%clock_hist, __RC)
              if (done) exit
           endif
 
-          call cap%step(phase=phase_, _RC)
+          call cap%step(phase=phase_, __RC)
 
           ! Reset loop average timer to get a better
           ! estimate of true run time left by ignoring
           ! initialization costs in the averageing.
           !-------------------------------------------
           if (n == 1 .and. cap%compute_throughput) then
-             call ESMF_VMBarrier(cap%vm,_RC)
+             call ESMF_VMBarrier(cap%vm,__RC)
              cap%starts%loop_start_timer = MPI_WTime()
           endif
 
@@ -1077,7 +1077,7 @@ contains
 
     end if
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
   end subroutine run_MAPL_GridComp
 
 
@@ -1090,7 +1090,7 @@ contains
     integer :: status, phase_
     real(kind=REAL64) :: END_RUN_TIMER, END_TIMER
 
-    _UNUSED_DUMMY(unusable)
+    __UNUSED_DUMMY(unusable)
     phase_ = 1
     if (present(phase)) phase_ = phase
 
@@ -1100,7 +1100,7 @@ contains
     ! --------------------------
     if (phase_ == 1) then
 
-      call first_phase(_RC)
+      call first_phase(__RC)
 
     endif ! phase_ == 1
     ! Run the Gridded Component
@@ -1108,16 +1108,16 @@ contains
     call ESMF_GridCompRun(this%gcs(this%root_id), importstate = this%child_imports(this%root_id), &
          exportstate = this%child_exports(this%root_id), &
          clock = this%clock, phase=phase_, userrc = status)
-    _VERIFY(status)
+    __VERIFY(status)
     ! Advance the Clock and run History and Record
     ! ---------------------------------------------------
     if (phase_ == this%n_run_phases) then
 
-       call last_phase(_RC)
+       call last_phase(__RC)
 
     endif !phase_ == last
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
 
   contains
 
@@ -1136,25 +1136,25 @@ contains
         call ESMF_GridCompRun(this%gcs(this%extdata_id), importState = this%child_imports(this%extdata_id), &
              exportState = this%child_exports(this%extdata_id), &
              clock = this%clock, userrc = status)
-         _VERIFY(status)
+         __VERIFY(status)
         ! Call Record for intermediate checkpoint (if desired)
         ! ------------------------------------------------------
         call ESMF_GridCompWriteRestart(this%gcs(this%root_id), importstate = this%child_imports(this%root_id), &
              exportstate = this%child_exports(this%root_id), &
              clock = this%clock_hist, userrc = status)
-        _VERIFY(status)
+        __VERIFY(status)
 
         call ESMF_GridCompWriteRestart(this%gcs(this%history_id), importstate = this%child_imports(this%history_id), &
              exportstate = this%child_exports(this%history_id), &
              clock = this%clock_hist, userrc = status)
-        _VERIFY(status)
+        __VERIFY(status)
 
         if (this%compute_throughput) then
-           call ESMF_VMBarrier(this%vm,_RC)
+           call ESMF_VMBarrier(this%vm,__RC)
            this%starts%start_run_timer = MPI_WTime()
         end if
 
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
 
      end subroutine
 
@@ -1163,31 +1163,31 @@ contains
         integer :: status
 
         if (this%compute_throughput) then
-           call ESMF_VMBarrier(this%vm,_RC)
+           call ESMF_VMBarrier(this%vm,__RC)
            end_run_timer = MPI_WTime()
         end if
 
-        call ESMF_ClockAdvance(this%clock, _RC)
-        call ESMF_ClockAdvance(this%clock_hist, _RC)
+        call ESMF_ClockAdvance(this%clock, __RC)
+        call ESMF_ClockAdvance(this%clock_hist, __RC)
 
         ! Update Perpetual Clock
         ! ----------------------
         if (this%lperp) then
            call Perpetual_Clock(this, status)
-           _VERIFY(status)
+           __VERIFY(status)
         end if
 
         call ESMF_GridCompRun(this%gcs(this%history_id), importstate=this%child_imports(this%history_id), &
              exportstate = this%child_exports(this%history_id), &
              clock = this%clock_hist, userrc = status)
-        _VERIFY(status)
+        __VERIFY(status)
         ! Estimate throughput times
         ! ---------------------------
         if (this%compute_throughput) then
-           call print_throughput(_RC)
+           call print_throughput(__RC)
         end if
 
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
 
      end subroutine
 
@@ -1207,16 +1207,16 @@ contains
         integer                 :: HRS_R, MIN_R, SEC_R
 
 
-        call ESMF_ClockGet(this%clock, CurrTime = currTime, _RC)
+        call ESMF_ClockGet(this%clock, CurrTime = currTime, __RC)
         call ESMF_TimeGet(CurrTime, YY = AGCM_YY, &
             MM = AGCM_MM, &
             DD = AGCM_DD, &
             H  = AGCM_H , &
             M  = AGCM_M , &
-            S  = AGCM_S, _RC)
+            S  = AGCM_S, __RC)
         delt=currTime-this%cap_restart_time
         ! Call system clock to estimate throughput simulated Days/Day
-        call ESMF_VMBarrier( this%vm, _RC )
+        call ESMF_VMBarrier( this%vm, __RC )
         END_TIMER = MPI_Wtime()
         n=this%get_step_counter()
         !GridCompRun Timer [Inst]
@@ -1233,9 +1233,9 @@ contains
         ! Reset Inst timer
         this%starts%start_timer = END_TIMER
         ! Get percent of used memory
-        call MAPL_MemUsed ( mem_total, mem_used, mem_used_percent, _RC )
+        call MAPL_MemUsed ( mem_total, mem_used, mem_used_percent, __RC )
         ! Get percent of committed memory
-        call MAPL_MemCommited ( mem_total, mem_commit, mem_committed_percent, _RC )
+        call MAPL_MemCommited ( mem_total, mem_commit, mem_committed_percent, __RC )
 
         if( mapl_am_I_Root(this%vm) ) write(6,1000) this%root_name, AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S,&
                                       LOOP_THROUGHPUT,INST_THROUGHPUT,RUN_THROUGHPUT,HRS_R,MIN_R,SEC_R,&
@@ -1244,7 +1244,7 @@ contains
                 2x,'Throughput(days/day)[Avg Tot Run]: ',f12.1,1x,f12.1,1x,f12.1,2x,'TimeRemaining(Est) ',i3.3,':',i2.2,':',i2.2,2x, &
                 f5.1,'% : ',f5.1,'% Mem Comm:Used')
 
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
 
      end subroutine
 
@@ -1258,21 +1258,21 @@ contains
 
     integer :: nalarms,i
 
-    call MAPL_GetObjectFromGC(this%gcs(this%root_id),maplobj,_RC)
+    call MAPL_GetObjectFromGC(this%gcs(this%root_id),maplobj,__RC)
     call MAPL_GenericStateSave(this%gcs(this%root_id),this%child_imports(this%root_id), &
-           this%child_exports(this%root_id),this%clock,_RC)
+           this%child_exports(this%root_id),this%clock,__RC)
 
-    call ESMF_ClockGet(this%clock,alarmCount=nalarms,_RC)
+    call ESMF_ClockGet(this%clock,alarmCount=nalarms,__RC)
 
-    allocate(this%alarm_list(nalarms),this%ringingState(nalarms),this%alarmRingTime(nalarms),_STAT)
+    allocate(this%alarm_list(nalarms),this%ringingState(nalarms),this%alarmRingTime(nalarms),__STAT)
     call ESMF_ClockGetAlarmList(this%clock, alarmListFlag=ESMF_ALARMLIST_ALL, &
-         alarmList=this%alarm_list, _RC)
+         alarmList=this%alarm_list, __RC)
     do i = 1, nalarms
-       call ESMF_AlarmGet(this%alarm_list(I), ringTime=this%alarmRingTime(I), ringing=this%ringingState(I), _RC)
+       call ESMF_AlarmGet(this%alarm_list(I), ringTime=this%alarmRingTime(I), ringing=this%ringingState(I), __RC)
        VERIFY_(STATUS)
     end do
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
   end subroutine record_state
 
@@ -1283,12 +1283,12 @@ contains
 
     integer :: i
     call MAPL_GenericStateRestore(this%gcs(this%root_id),this%child_imports(this%root_id), &
-             this%child_exports(this%root_id),this%clock,_RC)
+             this%child_exports(this%root_id),this%clock,__RC)
     DO I = 1, size(this%alarm_list)
-       call ESMF_AlarmSet(this%alarm_list(I), ringTime=this%alarmRingTime(I), ringing=this%ringingState(I), _RC)
+       call ESMF_AlarmSet(this%alarm_list(I), ringTime=this%alarmRingTime(I), ringing=this%ringingState(I), __RC)
     END DO
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
   end subroutine refresh_state
 
@@ -1303,9 +1303,9 @@ contains
     type(ESMF_State) :: state
 
     call MAPL_ImportStateGet(this%gcs(this%root_id),this%child_imports(this%root_id),&
-         state_name,state,_RC)
-    call ESMF_StateGet(state,trim(field_name),field,_RC)
-    _RETURN(_SUCCESS)
+         state_name,state,__RC)
+    call ESMF_StateGet(state,trim(field_name),field,__RC)
+    __RETURN(__SUCCESS)
 
   end subroutine get_field_from_import
 
@@ -1319,9 +1319,9 @@ contains
 
     type(ESMF_State) :: state
 
-    call MAPL_InternalESMFStateGet(this%gcs(this%root_id),state_name,state,_RC)
-    call ESMF_StateGet(state,trim(field_name),field,_RC)
-    _RETURN(_SUCCESS)
+    call MAPL_InternalESMFStateGet(this%gcs(this%root_id),state_name,state,__RC)
+    call ESMF_StateGet(state,trim(field_name),field,__RC)
+    __RETURN(__SUCCESS)
 
   end subroutine get_field_from_internal
 
@@ -1339,37 +1339,37 @@ contains
      character(len=ESMF_MAXSTR):: grid_type_
 
 
-     _UNUSED_DUMMY(unusable)
+     __UNUSED_DUMMY(unusable)
 
-     external_grid_factory = ExternalGridFactory(grid=grid, lm=lm, _RC)
-     mapl_grid = grid_manager%make_grid(external_grid_factory, _RC)
+     external_grid_factory = ExternalGridFactory(grid=grid, lm=lm, __RC)
+     mapl_grid = grid_manager%make_grid(external_grid_factory, __RC)
      ! grid_type is an optional parameter that allows GridType to be set explicitly.
      call ESMF_ConfigGetAttribute(this%config, value = grid_type_, Label="GridType:", default="", rc=status)
      if (status == ESMF_RC_OBJ_NOT_CREATED) then
        grid_type_ = ""
      else
-       _VERIFY(status)
+       __VERIFY(status)
      endif
      if (present(grid_type)) then
         if(grid_type_ /= "") then
-          _ASSERT(grid_type_ == grid_type, "The grid types don't match")
+          __ASSERT(grid_type_ == grid_type, "The grid types don't match")
         endif
         if (grid_manager%is_valid_prototype(grid_type)) then
-           call ESMF_AttributeSet(mapl_grid, 'GridType', grid_type, _RC)
+           call ESMF_AttributeSet(mapl_grid, 'GridType', grid_type, __RC)
         else
-           _RETURN(_FAILURE)
+           __RETURN(__FAILURE)
         end if
      else if (grid_type_ /= "") then
         if (grid_manager%is_valid_prototype(grid_type_)) then
-           call ESMF_AttributeSet(mapl_grid, 'GridType', grid_type_, _RC)
+           call ESMF_AttributeSet(mapl_grid, 'GridType', grid_type_, __RC)
         else
-           _RETURN(_FAILURE)
+           __RETURN(__FAILURE)
         end if
      endif
 
-     call ESMF_GridCompSet(this%gc, grid=mapl_grid, _RC)
+     call ESMF_GridCompSet(this%gc, grid=mapl_grid, __RC)
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
   end subroutine set_grid
 
   subroutine inject_external_grid(this, unusable, rc)
@@ -1382,28 +1382,28 @@ contains
      logical                   :: cap_grid_is_present, root_grid_is_present
      integer                   :: status
 
-     _UNUSED_DUMMY(unusable)
+     __UNUSED_DUMMY(unusable)
 
-     call ESMF_GridCompGet(this%gc, gridIsPresent=cap_grid_is_present, _RC)
+     call ESMF_GridCompGet(this%gc, gridIsPresent=cap_grid_is_present, __RC)
 
      if (cap_grid_is_present) then
-        call ESMF_GridCompGet(this%gc, grid=cap_grid, _RC)
-        call ESMF_GridValidate(cap_grid, _RC)
+        call ESMF_GridCompGet(this%gc, grid=cap_grid, __RC)
+        call ESMF_GridValidate(cap_grid, __RC)
 
-        call ESMF_GridCompGet(this%gcs(this%root_id), gridIsPresent=root_grid_is_present, _RC)
+        call ESMF_GridCompGet(this%gcs(this%root_id), gridIsPresent=root_grid_is_present, __RC)
 
         if (root_grid_is_present) then
-           call ESMF_GridCompGet(this%gcs(this%root_id), grid=root_grid, _RC)
-           call ESMF_GridValidate(root_grid, _RC)
+           call ESMF_GridCompGet(this%gcs(this%root_id), grid=root_grid, __RC)
+           call ESMF_GridValidate(root_grid, __RC)
 
-           grid_match = ESMF_GridMatch(cap_grid, root_grid, _RC)
-           _ASSERT(grid_match == ESMF_GRIDMATCH_EXACT, "Attempting to override root grid with non-matching external grid")
+           grid_match = ESMF_GridMatch(cap_grid, root_grid, __RC)
+           __ASSERT(grid_match == ESMF_GRIDMATCH_EXACT, "Attempting to override root grid with non-matching external grid")
         else
-            call ESMF_GridCompSet(this%gcs(this%root_id), grid=cap_grid, _RC)
+            call ESMF_GridCompSet(this%gcs(this%root_id), grid=cap_grid, __RC)
         end if
      end if
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
   end subroutine inject_external_grid
 
   subroutine set_clock(this, clock, unusable, rc)
@@ -1414,11 +1414,11 @@ contains
 
      integer :: status
 
-     _UNUSED_DUMMY(unusable)
+     __UNUSED_DUMMY(unusable)
 
-     call ESMF_GridCompSet(this%gc, clock=clock, _RC)
+     call ESMF_GridCompSet(this%gc, clock=clock, __RC)
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
   end subroutine set_clock
 
   subroutine destroy_state(this, rc)
@@ -1426,13 +1426,13 @@ contains
     integer, intent(out) :: rc
     integer :: status
 
-    call MAPL_DestroyStateSave(this%gcs(this%root_id),_RC)
+    call MAPL_DestroyStateSave(this%gcs(this%root_id),__RC)
 
      if (allocated(this%alarm_list)) deallocate(this%alarm_list)
      if (allocated(this%AlarmRingTime)) deallocate(this%alarmRingTime)
      if (allocated(this%ringingState)) deallocate(this%ringingState)
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
   end subroutine destroy_state
 
@@ -1443,30 +1443,30 @@ contains
     integer :: status
     type(ESMF_Time) :: current_time,ct
 
-    call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
+    call ESMF_ClockGet(this%clock,currTime=current_time,__RC)
     if (current_time >  time) then
-       call ESMF_ClockSet(this%clock,direction=ESMF_DIRECTION_REVERSE,_RC)
+       call ESMF_ClockSet(this%clock,direction=ESMF_DIRECTION_REVERSE,__RC)
        do
-          call ESMF_ClockAdvance(this%clock,_RC)
-          call ESMF_ClockGet(this%clock,currTime=ct,_RC)
+          call ESMF_ClockAdvance(this%clock,__RC)
+          call ESMF_ClockGet(this%clock,currTime=ct,__RC)
           if (ct==time) exit
        enddo
-       call ESMF_ClockSet(this%clock,direction=ESMF_DIRECTION_FORWARD,_RC)
+       call ESMF_ClockSet(this%clock,direction=ESMF_DIRECTION_FORWARD,__RC)
     end if
 
-    call ESMF_ClockGet(this%clock_hist,currTime=current_time,_RC)
+    call ESMF_ClockGet(this%clock_hist,currTime=current_time,__RC)
     if (current_time >  time) then
-       call ESMF_ClockSet(this%clock_hist,direction=ESMF_DIRECTION_REVERSE,_RC)
+       call ESMF_ClockSet(this%clock_hist,direction=ESMF_DIRECTION_REVERSE,__RC)
        do
-          call ESMF_ClockAdvance(this%clock_hist,_RC)
-          call ESMF_ClockGet(this%clock_hist,currTime=ct,_RC)
+          call ESMF_ClockAdvance(this%clock_hist,__RC)
+          call ESMF_ClockGet(this%clock_hist,currTime=ct,__RC)
           if (ct==time) exit
        enddo
-       call ESMF_ClockSet(this%clock_hist,direction=ESMF_DIRECTION_FORWARD,_RC)
+       call ESMF_ClockSet(this%clock_hist,direction=ESMF_DIRECTION_FORWARD,__RC)
     end if
 
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
   end subroutine rewind_clock
 
 
@@ -1546,101 +1546,101 @@ contains
 
     !BOR
 
-    call MAPL_GetResource( MAPLOBJ, datetime, label='BEG_DATE:', _RC )
+    call MAPL_GetResource( MAPLOBJ, datetime, label='BEG_DATE:', __RC )
     if(STATUS==ESMF_SUCCESS) then
-       _ASSERT(is_valid_date(datetime(1)),'Invalid date in BEG_DATE')
-       _ASSERT(is_valid_time(datetime(2)),'Invalid time in BEG_DATE')
+       __ASSERT(is_valid_date(datetime(1)),'Invalid date in BEG_DATE')
+       __ASSERT(is_valid_time(datetime(2)),'Invalid time in BEG_DATE')
        CALL MAPL_UnpackDateTime(DATETIME, BEG_YY, BEG_MM, BEG_DD, BEG_H, BEG_M, BEG_S)
     else
 
        ! !RESOURCE_ITEM: year :: Beginning year (integer)
-       call MAPL_GetResource( MAPLOBJ, BEG_YY, label='BEG_YY:', DEFAULT=1, _RC )
+       call MAPL_GetResource( MAPLOBJ, BEG_YY, label='BEG_YY:', DEFAULT=1, __RC )
        ! !RESOURCE_ITEM: month :: Beginning month (integer 1-12)
-       call MAPL_GetResource( MAPLOBJ, BEG_MM, label='BEG_MM:', default=1, _RC )
+       call MAPL_GetResource( MAPLOBJ, BEG_MM, label='BEG_MM:', default=1, __RC )
        ! !RESOURCE_ITEM: day  :: Beginning day of month (integer 1-31)
-       call MAPL_GetResource( MAPLOBJ, BEG_DD, label='BEG_DD:', default=1, _RC )
+       call MAPL_GetResource( MAPLOBJ, BEG_DD, label='BEG_DD:', default=1, __RC )
        ! !RESOURCE_ITEM: hour :: Beginning hour of day (integer 0-23)
-       call MAPL_GetResource( MAPLOBJ, BEG_H , label='BEG_H:' , default=0, _RC )
+       call MAPL_GetResource( MAPLOBJ, BEG_H , label='BEG_H:' , default=0, __RC )
        ! !RESOURCE_ITEM: minute :: Beginning minute (integer 0-59)
-       call MAPL_GetResource( MAPLOBJ, BEG_M , label='BEG_M:' , default=0, _RC )
+       call MAPL_GetResource( MAPLOBJ, BEG_M , label='BEG_M:' , default=0, __RC )
        ! !RESOURCE_ITEM: second :: Beginning second (integer 0-59)
-       call MAPL_GetResource( MAPLOBJ, BEG_S , label='BEG_S:' , default=0, _RC )
+       call MAPL_GetResource( MAPLOBJ, BEG_S , label='BEG_S:' , default=0, __RC )
     end if
 
-    call MAPL_GetResource( MAPLOBJ, datetime, label='END_DATE:', _RC )
+    call MAPL_GetResource( MAPLOBJ, datetime, label='END_DATE:', __RC )
     if(STATUS==ESMF_SUCCESS) then
-       _ASSERT(is_valid_date(datetime(1)),'Invalid date in END_DATE')
-       _ASSERT(is_valid_time(datetime(2)),'Invalid time in END_DATE')
+       __ASSERT(is_valid_date(datetime(1)),'Invalid date in END_DATE')
+       __ASSERT(is_valid_time(datetime(2)),'Invalid time in END_DATE')
        CALL MAPL_UnpackDateTime(DATETIME, END_YY, END_MM, END_DD, END_H, END_M, END_S)
     else
        ! !RESOURCE_ITEM: year :: Ending year (integer)
-       call MAPL_GetResource( MAPLOBJ, END_YY, label='END_YY:', DEFAULT=1, _RC )
+       call MAPL_GetResource( MAPLOBJ, END_YY, label='END_YY:', DEFAULT=1, __RC )
        ! !RESOURCE_ITEM: month :: Ending month (integer 1-12)
-       call MAPL_GetResource( MAPLOBJ, END_MM, label='END_MM:', default=1, _RC )
+       call MAPL_GetResource( MAPLOBJ, END_MM, label='END_MM:', default=1, __RC )
        ! !RESOURCE_ITEM: day  :: Ending day of month (integer 1-31)
-       call MAPL_GetResource( MAPLOBJ, END_DD, label='END_DD:', default=1, _RC )
+       call MAPL_GetResource( MAPLOBJ, END_DD, label='END_DD:', default=1, __RC )
        ! !RESOURCE_ITEM: hour :: Ending hour of day (integer 0-23)
-       call MAPL_GetResource( MAPLOBJ, END_H , label='END_H:' , default=0, _RC )
+       call MAPL_GetResource( MAPLOBJ, END_H , label='END_H:' , default=0, __RC )
        ! !RESOURCE_ITEM: minute :: Ending minute (integer 0-59)
-       call MAPL_GetResource( MAPLOBJ, END_M , label='END_M:' , default=0, _RC )
+       call MAPL_GetResource( MAPLOBJ, END_M , label='END_M:' , default=0, __RC )
        ! !RESOURCE_ITEM: second :: Ending second (integer 0-59)
-       call MAPL_GetResource( MAPLOBJ, END_S , label='END_S:' , default=0, _RC )
+       call MAPL_GetResource( MAPLOBJ, END_S , label='END_S:' , default=0, __RC )
     end if
 
     ! Replace JOB_DURATION with JOB_SGMT as prefered RC parameter
     ! -----------------------------------------------------------
-    call MAPL_GetResource( MAPLOBJ, datetime, label='JOB_SGMT:',     _RC )
+    call MAPL_GetResource( MAPLOBJ, datetime, label='JOB_SGMT:',     __RC )
     if(STATUS/=ESMF_SUCCESS) then
-       call MAPL_GetResource( MAPLOBJ, datetime, label='JOB_DURATION:', _RC )
+       call MAPL_GetResource( MAPLOBJ, datetime, label='JOB_DURATION:', __RC )
     end if
 
     if(STATUS==ESMF_SUCCESS) then
        CALL MAPL_UnpackDateTime(DATETIME, DUR_YY, DUR_MM, DUR_DD, DUR_H, DUR_M, DUR_S)
     else
        ! !RESOURCE_ITEM: year :: Ending year (integer)
-       call MAPL_GetResource( MAPLOBJ, DUR_YY, label='DUR_YY:', DEFAULT=0, _RC )
+       call MAPL_GetResource( MAPLOBJ, DUR_YY, label='DUR_YY:', DEFAULT=0, __RC )
        ! !RESOURCE_ITEM: month :: Ending month (integer 1-12)
-       call MAPL_GetResource( MAPLOBJ, DUR_MM, label='DUR_MM:', default=0, _RC )
+       call MAPL_GetResource( MAPLOBJ, DUR_MM, label='DUR_MM:', default=0, __RC )
        ! !RESOURCE_ITEM: day  :: Ending day of month (integer 1-31)
-       call MAPL_GetResource( MAPLOBJ, DUR_DD, label='DUR_DD:', default=1, _RC )
+       call MAPL_GetResource( MAPLOBJ, DUR_DD, label='DUR_DD:', default=1, __RC )
        ! !RESOURCE_ITEM: hour :: Ending hour of day (integer 0-23)
-       call MAPL_GetResource( MAPLOBJ, DUR_H , label='DUR_H:' , default=0, _RC )
+       call MAPL_GetResource( MAPLOBJ, DUR_H , label='DUR_H:' , default=0, __RC )
        ! !RESOURCE_ITEM: minute :: Ending minute (integer 0-59)
-       call MAPL_GetResource( MAPLOBJ, DUR_M , label='DUR_M:' , default=0, _RC )
+       call MAPL_GetResource( MAPLOBJ, DUR_M , label='DUR_M:' , default=0, __RC )
        ! !xRESOURCE_ITEM: second :: Ending second (integer 0-59)
-       call MAPL_GetResource( MAPLOBJ, DUR_S , label='DUR_S:' , default=0, _RC )
+       call MAPL_GetResource( MAPLOBJ, DUR_S , label='DUR_S:' , default=0, __RC )
     end if
 
     ! !RESOURCE_ITEM: seconds :: Interval of the application clock (the Heartbeat)
-    call MAPL_GetResource( MAPLOBJ, HEARTBEAT_DT, label='HEARTBEAT_DT:',            _RC )
+    call MAPL_GetResource( MAPLOBJ, HEARTBEAT_DT, label='HEARTBEAT_DT:',            __RC )
     ! !RESOURCE_ITEM: 1 :: numerator of decimal fraction of time step
-    call MAPL_GetResource( MAPLOBJ, NUM_DT, label='NUM_DT:', default=0, _RC )
+    call MAPL_GetResource( MAPLOBJ, NUM_DT, label='NUM_DT:', default=0, __RC )
     ! !RESOURCE_ITEM: 1 :: denominator of decimal fraction of time step
-    call MAPL_GetResource( MAPLOBJ, DEN_DT, label='DEN_DT:', default=1, _RC )
+    call MAPL_GetResource( MAPLOBJ, DEN_DT, label='DEN_DT:', default=1, __RC )
     ! !RESOURCE_ITEM: string :: Calendar type
-    call MAPL_GetResource( MAPLOBJ, calendar, label='CALENDAR:', default="GREGORIAN", _RC )
+    call MAPL_GetResource( MAPLOBJ, calendar, label='CALENDAR:', default="GREGORIAN", __RC )
 
     !EOR
 
-    _ASSERT(NUM_DT>=0, 'NUM_DT should be >= 0.')
-    _ASSERT(DEN_DT> 0, 'DEN_DT should be > 0.')
-    _ASSERT(NUM_DT<DEN_DT, 'NUM_DT should be < DEN_DT')
-    _ASSERT(HEARTBEAT_DT>=0, 'HEARTBEAT_DT should be >= 0.')
+    __ASSERT(NUM_DT>=0, 'NUM_DT should be >= 0.')
+    __ASSERT(DEN_DT> 0, 'DEN_DT should be > 0.')
+    __ASSERT(NUM_DT<DEN_DT, 'NUM_DT should be < DEN_DT')
+    __ASSERT(HEARTBEAT_DT>=0, 'HEARTBEAT_DT should be >= 0.')
 
     ! initialize calendar to be Gregorian type
     ! ----------------------------------------
 
     if    (calendar=="GREGORIAN") then
-       cal = ESMF_CalendarCreate( ESMF_CALKIND_GREGORIAN, name="ApplicationCalendar", _RC )
-       call ESMF_CalendarSetDefault(ESMF_CALKIND_GREGORIAN, _RC)
+       cal = ESMF_CalendarCreate( ESMF_CALKIND_GREGORIAN, name="ApplicationCalendar", __RC )
+       call ESMF_CalendarSetDefault(ESMF_CALKIND_GREGORIAN, __RC)
     elseif(calendar=="JULIAN"   ) then
-       cal = ESMF_CalendarCreate( ESMF_CALKIND_JULIAN, name="ApplicationCalendar", _RC )
-       call ESMF_CalendarSetDefault(ESMF_CALKIND_JULIAN, _RC)
+       cal = ESMF_CalendarCreate( ESMF_CALKIND_JULIAN, name="ApplicationCalendar", __RC )
+       call ESMF_CalendarSetDefault(ESMF_CALKIND_JULIAN, __RC)
     elseif(calendar=="NOLEAP"   ) then
-       cal = ESMF_CalendarCreate( ESMF_CALKIND_NOLEAP, name="ApplicationCalendar", _RC )
-       call ESMF_CalendarSetDefault(ESMF_CALKIND_NOLEAP, _RC)
+       cal = ESMF_CalendarCreate( ESMF_CALKIND_NOLEAP, name="ApplicationCalendar", __RC )
+       call ESMF_CalendarSetDefault(ESMF_CALKIND_NOLEAP, __RC)
     else
-       _FAIL('Unsupported calendar:'//trim(calendar))
+       __FAIL('Unsupported calendar:'//trim(calendar))
     endif
 
     ! initialize start time for Alarm frequencies
@@ -1652,7 +1652,7 @@ contains
          H = BEG_H , &
          M = BEG_M , &
          S = BEG_S , &
-         calendar=cal, _RC)
+         calendar=cal, __RC)
 
     call ESMF_TimeSet(   EndTime, YY = END_YY, &
          MM = END_MM, &
@@ -1660,7 +1660,7 @@ contains
          H = END_H , &
          M = END_M , &
          S = END_S , &
-         calendar=cal,  _RC)
+         calendar=cal,  __RC)
 
     ! Read CAP Restart File for Current Time
     ! --------------------------------------
@@ -1672,17 +1672,17 @@ contains
     CUR_M  = BEG_M
     CUR_S  = BEG_S
 
-    UNIT = GETFILE ( "cap_restart", form="formatted", ALL_PES=.true., _RC )
+    UNIT = GETFILE ( "cap_restart", form="formatted", ALL_PES=.true., __RC )
 
     rewind(UNIT)
     read(UNIT,100,err=999,end=999) datetime
 100 format(i8.8,1x,i6.6)
 
-    _ASSERT(is_valid_date(DATETIME(1)),'Invalid date in cap_restart')
-    _ASSERT(is_valid_time(DATETIME(2)),'Invalid time in cap_restart')
+    __ASSERT(is_valid_date(DATETIME(1)),'Invalid date in cap_restart')
+    __ASSERT(is_valid_time(DATETIME(2)),'Invalid time in cap_restart')
     CALL MAPL_UnpackDateTime(DATETIME, CUR_YY, CUR_MM, CUR_DD, CUR_H, CUR_M, CUR_S)
 
-    call MAPL_GetLogger(MAPLOBJ, lgr, _RC)
+    call MAPL_GetLogger(MAPLOBJ, lgr, __RC)
 
     call lgr%info('Read CAP restart properly, Current Date =   %i4.4~/%i2.2~/%i2.2', CUR_YY, CUR_MM, CUR_DD)
     call lgr%info('                           Current Time =   %i2.2~:%i2.2~:%i2.2', CUR_H, CUR_M, CUR_S)
@@ -1698,7 +1698,7 @@ contains
          H = CUR_H , &
          M = CUR_M , &
          S = CUR_S , &
-         calendar=cal, _RC)
+         calendar=cal, __RC)
 
 
     ! initialize final stop time
@@ -1711,7 +1711,7 @@ contains
          M = DUR_M , &
          S = DUR_S , &
          startTime = currTime, &
-         _RC)
+         __RC)
 
     maxDuration = EndTime - currTime
     if (duration > maxDuration) duration = maxDuration
@@ -1721,7 +1721,7 @@ contains
     ! initialize model time step
     ! --------------------------
 
-    call ESMF_TimeIntervalSet( timeStep, S=HEARTBEAT_DT, sN=NUM_DT, sD=DEN_DT, _RC )
+    call ESMF_TimeIntervalSet( timeStep, S=HEARTBEAT_DT, sN=NUM_DT, sD=DEN_DT, __RC )
 
     nsteps = duration/timestep
 
@@ -1732,15 +1732,15 @@ contains
 
     if (endTime < stopTime) then
        clock = ESMF_ClockCreate( name="ApplClock", timeStep=timeStep, &
-            startTime=StartTime, stopTime=EndTime, _RC )
+            startTime=StartTime, stopTime=EndTime, __RC )
     else
        clock = ESMF_ClockCreate( name="ApplClock", timeStep=timeStep, &
-            startTime=StartTime, stopTime=StopTime, _RC )
+            startTime=StartTime, stopTime=StopTime, __RC )
     end if
 
-    call ESMF_ClockSet ( clock, CurrTime=CurrTime, _RC )
+    call ESMF_ClockSet ( clock, CurrTime=CurrTime, __RC )
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
   end subroutine MAPL_ClockInit
 
 
@@ -1764,13 +1764,13 @@ contains
     ! Retrieve Current Time for Cap Restart
     ! -------------------------------------
 
-    call ESMF_ClockGet ( clock, currTime=currentTime, _RC )
+    call ESMF_ClockGet ( clock, currTime=currentTime, __RC )
     call ESMF_TimeGet  ( CurrentTime, YY = YY, &
          MM = MM, &
          DD = DD, &
          H  = H , &
          M  = M , &
-         S  = S, _RC )
+         S  = S, __RC )
 
     CALL MAPL_PackDateTime(DATETIME, YY, MM, DD, H, M, S)
 
@@ -1784,7 +1784,7 @@ contains
        call FREE_FILE (UNIT)
     endif
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
   end subroutine CAP_FINALIZE
 
   subroutine Perpetual_Clock (this, rc)
@@ -1810,26 +1810,26 @@ contains
     perpetual_year = this%perpetual_year
     perpetual_month = this%perpetual_month
     perpetual_day = this%perpetual_day
-    call MAPL_GetLogger(this%gc, lgr, _RC)
+    call MAPL_GetLogger(this%gc, lgr, __RC)
 
-    call ESMF_ClockGetAlarm ( clock_HIST, alarmName='PERPETUAL', alarm=PERPETUAL, _RC )
-    call ESMF_AlarmRingerOff( PERPETUAL, _RC )
+    call ESMF_ClockGetAlarm ( clock_HIST, alarmName='PERPETUAL', alarm=PERPETUAL, __RC )
+    call ESMF_AlarmRingerOff( PERPETUAL, __RC )
 
-    call ESMF_ClockGet ( clock, currTime=currTime, calendar=cal, _RC )
+    call ESMF_ClockGet ( clock, currTime=currTime, calendar=cal, __RC )
     call ESMF_TimeGet  ( CurrTime, YY = AGCM_YY, &
          MM = AGCM_MM, &
          DD = AGCM_DD, &
          H  = AGCM_H , &
          M  = AGCM_M , &
-         S  = AGCM_S, _RC )
+         S  = AGCM_S, __RC )
 
-    call ESMF_ClockGet ( clock_HIST, CurrTime=CurrTime, calendar=cal, _RC )
+    call ESMF_ClockGet ( clock_HIST, CurrTime=CurrTime, calendar=cal, __RC )
     call ESMF_TimeGet  ( CurrTime, YY = HIST_YY, &
          MM = HIST_MM, &
          DD = HIST_DD, &
          H  = HIST_H , &
          M  = HIST_M , &
-         S  = HIST_S, _RC )
+         S  = HIST_S, __RC )
 
     call lgr%debug('Inside PERP M0:   %i4.4~/%i2.2~/%i2.2  Time: %i2.2~/%i2.2~/%i2.2', AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S)
     call lgr%debug('Inside PERP H0:   %i4.4~/%i2.2~/%i2.2  Time: %i2.2~/%i2.2~/%i2.2', HIST_YY,HIST_MM,HIST_DD,HIST_H,HIST_M,HIST_S)
@@ -1848,7 +1848,7 @@ contains
        if( HIST_MM /= PERPETUAL_MONTH ) then
           HIST_MM  = PERPETUAL_MONTH
           if( PERPETUAL_MONTH /= 12) HIST_YY  = HIST_YY + 1
-          call ESMF_AlarmRingerOn( PERPETUAL, _RC )
+          call ESMF_AlarmRingerOn( PERPETUAL, __RC )
        endif
 
        call lgr%debug('Inside PERP M0:   %i4.4~/%i2.2~/%i2.2  Time: %i2.2~/%i2.2~/%i2.2', AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S)
@@ -1864,7 +1864,7 @@ contains
           HIST_MM  = PERPETUAL_MONTH
           if( PERPETUAL_MONTH /= 12) HIST_YY  = HIST_YY + 1
           AGCM_YY  = HIST_YY
-          call ESMF_AlarmRingerOn( PERPETUAL, _RC )
+          call ESMF_AlarmRingerOn( PERPETUAL, __RC )
        endif
     endif
 
@@ -1877,7 +1877,7 @@ contains
        if( HIST_MM /= PERPETUAL_MONTH ) then
           HIST_MM  = PERPETUAL_MONTH
           if( PERPETUAL_MONTH /= 12) HIST_YY  = HIST_YY + 1
-          call ESMF_AlarmRingerOn( PERPETUAL, _RC )
+          call ESMF_AlarmRingerOn( PERPETUAL, __RC )
        endif
     endif
 
@@ -1887,8 +1887,8 @@ contains
          H = AGCM_H , &
          M = AGCM_M , &
          S = AGCM_S , &
-         calendar=cal,  _RC)
-    call ESMFL_ClockSet ( clock, CurrTime=CurrTime, _RC )
+         calendar=cal,  __RC)
+    call ESMFL_ClockSet ( clock, CurrTime=CurrTime, __RC )
 
     call ESMF_TimeSet( CurrTime, YY = HIST_YY, &
          MM = HIST_MM, &
@@ -1896,10 +1896,10 @@ contains
          H = HIST_H , &
          M = HIST_M , &
          S = HIST_S , &
-         calendar=cal,  _RC)
-    call ESMFL_ClockSet ( clock_HIST, CurrTime=CurrTime, _RC )
+         calendar=cal,  __RC)
+    call ESMFL_ClockSet ( clock_HIST, CurrTime=CurrTime, __RC )
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
   end subroutine Perpetual_Clock
 
   subroutine ESMFL_ClockSet(clock, currTime, rc)
@@ -1927,44 +1927,44 @@ contains
     targetTime = currTime
 
     ! get the CurrentTime from the clock
-    call ESMF_ClockGet(clock, alarmCount = nalarms, currTime=cTime, _RC)
+    call ESMF_ClockGet(clock, alarmCount = nalarms, currTime=cTime, __RC)
 
     delt = targetTime - cTime
 
-    call ESMF_TimeIntervalSet(zero, _RC)
+    call ESMF_TimeIntervalSet(zero, __RC)
 
     ! Get the list of current alarms in the clock
-    allocate (alarmList(nalarms), _STAT)
+    allocate (alarmList(nalarms), __STAT)
     call ESMF_ClockGetAlarmList(clock, alarmListFlag=ESMF_ALARMLIST_ALL, &
-         alarmList=alarmList, alarmCount = nalarms, _RC)
+         alarmList=alarmList, alarmCount = nalarms, __RC)
 
     ! Loop over all alarms
     DO I = 1, nalarms
        call ESMF_AlarmGet(alarmList(I), ringTime=ringTime, ringInterval=ringInterval, &
-            ringing=ringing, _RC)
+            ringing=ringing, __RC)
 
        ! skip alarms with zero ringing interval
        if (ringInterval == zero) cycle
 
-       _ASSERT(mod(delt,ringInterval) == zero, 'Time-shift should be a multiple of ringing interval.')
+       __ASSERT(mod(delt,ringInterval) == zero, 'Time-shift should be a multiple of ringing interval.')
        ringTime=ringTime + delt
 
-       call ESMF_AlarmSet(alarmList(I), ringTime=ringTime, ringing=ringing, _RC)
+       call ESMF_AlarmSet(alarmList(I), ringTime=ringTime, ringing=ringing, __RC)
 
     END DO
 
     ! Protection in case we reset the clock outside of StopTime
-    call ESMF_ClockStopTimeDisable(clock, _RC)
+    call ESMF_ClockStopTimeDisable(clock, __RC)
 
-    call ESMF_ClockSet(clock, currTime=targetTime, _RC)
+    call ESMF_ClockSet(clock, currTime=targetTime, __RC)
 
     ! We do not need the protection anymore
-    call ESMF_ClockStopTimeEnable(clock, _RC)
+    call ESMF_ClockStopTimeEnable(clock, __RC)
 
     ! clean-up
     deallocate(alarmList)
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
   end subroutine ESMFL_ClockSet
 
 end module MAPL_CapGridCompMod

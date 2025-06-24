@@ -98,12 +98,12 @@ contains
       integer :: status
       class(AbstractComponent), pointer :: user_component
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
       user_component => this%get_component()
-      call user_component%run(this%import_state, this%export_state, clock, phase, _RC)
+      call user_component%run(this%import_state, this%export_state, clock, phase, __RC)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine stub
 
    subroutine stub_child(this, name, clock, phase, unusable, rc)
@@ -117,12 +117,12 @@ contains
       class(AbstractFrameworkComponent), pointer :: child
       integer :: status
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
       child => this%get_child(name)
-      call child%run(clock, phase, _RC)
+      call child%run(clock, phase, __RC)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine stub_child
 
 
@@ -161,34 +161,34 @@ contains
       character(:), pointer :: phase_name
 
       call ESMF_UserCompGetInternalState(gridcomp, "MaplComponent", wrapper, status)
-      _VERIFY(status)
+      __VERIFY(status)
       component => wrapper%component
 
-      call ESMF_GridCompGet( gridcomp, name=name, currentPhase=phase, currentMethod=method, _RC)
+      call ESMF_GridCompGet( gridcomp, name=name, currentPhase=phase, currentMethod=method, __RC)
 
       if (method == ESMF_METHOD_INITIALIZE) then
 
 !!$         phase_name => component%init_phase_map%at(phase)
-!!$         _ASSERT(associated(phase_name),'no such phase')
-         call component%initialize(import, export, clock, phase_name, _RC)
+!!$         __ASSERT(associated(phase_name),'no such phase')
+         call component%initialize(import, export, clock, phase_name, __RC)
 
       else if (method == ESMF_METHOD_RUN) then
 
 !!$         phase_name = component%run_phase_map%at(phase)
-!!$         _ASSERT(associated(phase_name),'no such phase')
-         call component%run(import, export, clock, phase_name, _RC)
+!!$         __ASSERT(associated(phase_name),'no such phase')
+         call component%run(import, export, clock, phase_name, __RC)
 
       else if (method == ESMF_METHOD_FINALIZE) then
 
 !!$         phase_name = component%finalize_phase_map%at(phase)
-!!$         _ASSERT(associated(phase_name),'no such phase')
-         call component%finalize(import, export, clock, phase_name, _RC)
+!!$         __ASSERT(associated(phase_name),'no such phase')
+         call component%finalize(import, export, clock, phase_name, __RC)
 
       else
-         _FAIL('unknown value for ESMF_METHOD_FLAG')
+         __FAIL('unknown value for ESMF_METHOD_FLAG')
       end if
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine generic_entry_point
 
    function get_logger(this) result(lgr)
@@ -299,7 +299,7 @@ contains
      num_children = this%get_num_children()
 
      if (.NOT. allocated(this%subcomponents)) then
-        call this%create_subobjects(num_threads, _RC)
+        call this%create_subobjects(num_threads, __RC)
      end if
 
      do i = 1, num_children
@@ -308,11 +308,11 @@ contains
         class is (MaplGenericComponent)
            call child%activate_threading(num_threads)
         class default
-           _FAIL('illegal type for child')
+           __FAIL('illegal type for child')
         end select
      end do
-     _RETURN(0)
-     _UNUSED_DUMMY(unusable)
+     __RETURN(0)
+     __UNUSED_DUMMY(unusable)
    end subroutine activate_threading
 
    subroutine create_subobjects(this, num_threads, unusable, rc)
@@ -325,20 +325,20 @@ contains
 
      allocate(this%subcomponents(num_threads))
 
-     this%subcomponents(:)%import_state = make_substates(this%import_state, num_threads, _RC)
-     this%subcomponents(:)%export_state = make_substates(this%export_state, num_threads, _RC)
-     this%subcomponents(:)%internal_state = make_substates(this%internal_state, num_threads, _RC)
+     this%subcomponents(:)%import_state = make_substates(this%import_state, num_threads, __RC)
+     this%subcomponents(:)%export_state = make_substates(this%export_state, num_threads, __RC)
+     this%subcomponents(:)%internal_state = make_substates(this%internal_state, num_threads, __RC)
 
-     subgrids = make_subgrids(this%grid%ESMFGrid, num_threads, _RC) ! make_subgrids requires grid of type ESMF_Grid
+     subgrids = make_subgrids(this%grid%ESMFGrid, num_threads, __RC) ! make_subgrids requires grid of type ESMF_Grid
      do i = 1, size(subgrids)
-        call this%subcomponents(i)%grid%set(subgrids(i), _RC)
+        call this%subcomponents(i)%grid%set(subgrids(i), __RC)
      end do
      deallocate(subgrids)
 
-     this%subcomponents(:)%gridcomp = make_subgridcomps(this%gridcomp, this%run_entry_points, num_threads, _RC)
+     this%subcomponents(:)%gridcomp = make_subgridcomps(this%gridcomp, this%run_entry_points, num_threads, __RC)
 
-     _RETURN(0)
-     _UNUSED_DUMMY(unusable)
+     __RETURN(0)
+     __UNUSED_DUMMY(unusable)
    end subroutine create_subobjects
 
    recursive subroutine deactivate_threading(this, unusable, rc)
@@ -355,13 +355,13 @@ contains
         class is (MaplGenericComponent)
            call child%deactivate_threading()
         class default
-           _FAIL('illegal type for child')
+           __FAIL('illegal type for child')
         end select
      end do
 
      this%threading_active = .FALSE.
-     _RETURN(0)
-     _UNUSED_DUMMY(unusable)
+     __RETURN(0)
+     __UNUSED_DUMMY(unusable)
    end subroutine deactivate_threading
 
 

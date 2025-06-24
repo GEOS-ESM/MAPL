@@ -25,7 +25,7 @@
      !$omp critical
       status = nf90_inq_varid(this%ncid, name=var_name, varid=varid)
      !$omp end critical
-      _VERIFY(status)
+      __VERIFY(status)
      !$omp critical
 #if (_VARTYPE == 0)
 #if (_RANK == 0)
@@ -45,10 +45,10 @@
 #endif
 #endif
      !$omp end critical
-      _VERIFY(status)
+      __VERIFY(status)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
 
    end subroutine _SUB
 

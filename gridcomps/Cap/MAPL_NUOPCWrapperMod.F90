@@ -114,7 +114,7 @@ contains
 
         print*,"Wrapper finish SetServices"
 
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
     end subroutine SetServices
 
     subroutine initialize_p0(model, import_state, export_state, clock, rc)
@@ -133,65 +133,65 @@ contains
         type(MAPL_CapOptions) :: cap_options
         logical, save         :: first = .true.
 
-        _UNUSED_DUMMY(import_state)
-        _UNUSED_DUMMY(export_state)
-        _UNUSED_DUMMY(clock)
+        __UNUSED_DUMMY(import_state)
+        __UNUSED_DUMMY(export_state)
+        __UNUSED_DUMMY(clock)
 
         call NUOPC_CompFilterPhaseMap(model, ESMF_METHOD_INITIALIZE, &
                 acceptStringList=(/"IPDv05p"/), rc=rc)
         VERIFY_NUOPC_(rc)
 
         call ESMF_GridCompGet(model, vm=vm, rc=status)
-        _VERIFY(status)
+        __VERIFY(status)
         call ESMF_VMGet(vm, localPet=my_rank, petCount=npes, &
                 mpiCommunicator=mpi_comm, rc=status)
-        _VERIFY(status)
+        __VERIFY(status)
 
         !call MPI_Comm_dup(mpi_comm, dup_comm, status)
         dup_comm = mpi_comm
 
         cap_params = get_cap_parameters_from_gc(model, status)
-        _VERIFY(status)
+        __VERIFY(status)
 
         cap_options = MAPL_CapOptions(cap_rc_file=cap_params%cap_rc_file, rc=status)
-        _VERIFY(status)
+        __VERIFY(status)
         cap_options%use_comm_world = .false.
         cap_options%comm = dup_comm
         ! cap_options%logging_config = "logging.yaml"
         cap_options%logging_config = ''
         call MPI_Comm_size(dup_comm, cap_options%npes_model, status)
-        _VERIFY(status)
+        __VERIFY(status)
 
         allocate(cap)
         cap = MAPL_Cap(cap_params%name, cap_params%set_services,  &
                 cap_options=cap_options, rc=status)
-        _VERIFY(status)
+        __VERIFY(status)
         wrapped_cap%ptr => cap
 
         call ESMF_UserCompSetInternalState(model, "MAPL_Cap", &
                 wrapped_cap, status)
-        _VERIFY(status)
+        __VERIFY(status)
 
         call cap%initialize_mpi(rc = status)
-        _VERIFY(status)
+        __VERIFY(status)
 
         subcommunicator = cap%create_member_subcommunicator(cap%get_comm_world(), rc=status)
-        _VERIFY(status)
+        __VERIFY(status)
 
         if (first) then
             call cap%initialize_io_clients_servers(subcommunicator, rc=status)
-            _VERIFY(status)
+            __VERIFY(status)
             first = .false.
         end if
 
         call cap%initialize_cap_gc()
 
         call cap%cap_gc%set_services(rc=status)
-        _VERIFY(status)
+        __VERIFY(status)
         call cap%cap_gc%initialize(rc=status)
-        _VERIFY(status)
+        __VERIFY(status)
 
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
     end subroutine initialize_p0
 
     subroutine set_clock(model, rc)
@@ -216,7 +216,7 @@ contains
         call ESMF_ClockSet(model_clock, timeStep=time_step)
         VERIFY_NUOPC_(rc)
 
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
     end subroutine set_clock
 
     subroutine advertise_fields(model, import_state, export_state, clock, rc)
@@ -228,7 +228,7 @@ contains
         type(MAPL_Cap), pointer             :: cap
         type(Field_Attributes), allocatable :: export_attributes(:), import_attributes(:)
 
-        _UNUSED_DUMMY(clock)
+        __UNUSED_DUMMY(clock)
 
         cap => get_cap_from_gc(model, rc)
         VERIFY_NUOPC_(rc)
@@ -239,7 +239,7 @@ contains
         call advertise_to_state(import_state, import_attributes)
         call advertise_to_state(export_state, export_attributes)
 
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
     contains
         subroutine advertise_to_state(state, fields)
             type(ESMF_State),       intent(inout) :: state
@@ -272,7 +272,7 @@ contains
         type(Field_Attributes), allocatable :: export_attributes(:), import_attributes(:)
         integer                             :: i, status
 
-        _UNUSED_DUMMY(clock)
+        __UNUSED_DUMMY(clock)
 
         cap => get_cap_from_gc(model, rc)
         VERIFY_NUOPC_(rc)
@@ -282,7 +282,7 @@ contains
         do i = 1, size(export_attributes)
             associate(export => export_attributes(i))
                 call MAPL_AllocateCoupling(export%field, status)
-                _VERIFY(status)
+                __VERIFY(status)
                 call NUOPC_Realize(export_state, field=export%field, rc=status)
                 VERIFY_NUOPC_(status)
             end associate
@@ -297,7 +297,7 @@ contains
             end associate
         end do
 
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
     end subroutine realize_fields
 
     subroutine CheckImport(model, rc)
@@ -311,9 +311,9 @@ contains
         ! at the future stopTime, as it does its forward stepping from currentTime
         ! to stopTime.
 
-        _UNUSED_DUMMY(model)
+        __UNUSED_DUMMY(model)
 
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
     end subroutine CheckImport
 
     subroutine initialize_data(model, rc)
@@ -356,7 +356,7 @@ contains
                 name="InitializeDataComplete", value="true", rc=rc)
         VERIFY_NUOPC_(rc)
 
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
     end subroutine initialize_data
 
     subroutine model_advance(model, rc)
@@ -369,9 +369,9 @@ contains
         VERIFY_NUOPC_(rc)
 
         call cap%step_model(rc=rc)
-        _VERIFY(rc)
+        __VERIFY(rc)
 
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
     end subroutine model_advance
 
     subroutine model_finalize(model, rc)
@@ -382,19 +382,19 @@ contains
         class(BaseProfiler), pointer :: t_p
 
         cap => get_cap_from_gc(model, rc)
-        _VERIFY(rc)
+        __VERIFY(rc)
         call cap%cap_gc%finalize(rc=rc)
-        _VERIFY(rc)
+        __VERIFY(rc)
 
         call cap%finalize_io_clients_servers(rc=rc)
-        _VERIFY(rc)
+        __VERIFY(rc)
 
         t_p => get_global_time_profiler()
         call t_p%stop()
 
         call cap%splitter%free_sub_comm()
 
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
     end subroutine model_finalize
 
     function get_cap_from_gc(gc, rc) result(cap)
@@ -409,7 +409,7 @@ contains
 
         cap => wrapped_cap%ptr
 
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
     end function get_cap_from_gc
 
     function get_field_attributes_from_state(state) result(attributes)
@@ -465,7 +465,7 @@ contains
 
         cap_params = parameters_wrapper%ptr
 
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
     end function get_cap_parameters_from_gc
 
     subroutine add_wrapper_comp(driver, name, cap_rc_file, root_set_services, pet_list, wrapper_gc, rc)
@@ -490,7 +490,7 @@ contains
         call ESMF_UserCompSetInternalState(wrapper_gc, internal_parameters_name, wrapper, rc)
         VERIFY_NUOPC_(rc)
 
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
     end subroutine add_wrapper_comp
 
     subroutine init_wrapper(wrapper_gc, name, cap_rc_file, root_set_services, rc)
@@ -507,6 +507,6 @@ contains
         call ESMF_UserCompSetInternalState(wrapper_gc, internal_parameters_name, wrapper, rc)
         VERIFY_NUOPC_(rc)
 
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
     end subroutine init_wrapper
 end module MAPL_NUOPCWrapperMod

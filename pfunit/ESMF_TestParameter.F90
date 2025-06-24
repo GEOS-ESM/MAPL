@@ -69,7 +69,7 @@ contains
    function toString(this) result(string)
       class (ESMF_TestParameter), intent(in) :: this
       character(:), allocatable :: string
-      _UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(this)
 
       string = ''
 

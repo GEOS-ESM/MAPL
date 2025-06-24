@@ -144,7 +144,7 @@ module MAPL_HistoryCollectionMod
         call global_attributes%insert("Filename",trim(this%filename))
         call global_attributes%insert("Comment",trim(this%comment))
 
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
      end function define_collection_attributes
 
      subroutine AddGrid(this,output_grids,resolution,rc)
@@ -172,29 +172,29 @@ module MAPL_HistoryCollectionMod
         im_world=resolution(1)
         jm_world=resolution(2)
 
-        cfg = MAPL_ConfigCreate(_RC)
+        cfg = MAPL_ConfigCreate(__RC)
         if (resolution(2)==resolution(1)*6) then
-           call MAPL_MakeDecomposition(nx,ny,reduceFactor=6,_RC)
+           call MAPL_MakeDecomposition(nx,ny,reduceFactor=6,__RC)
         else
-           call MAPL_MakeDecomposition(nx,ny,_RC)
+           call MAPL_MakeDecomposition(nx,ny,__RC)
         end if
-        call MAPL_ConfigSetAttribute(cfg,value=nx, label=trim(tlabel)//".NX:",_RC)
-        call MAPL_ConfigSetAttribute(cfg,value=ny, label=trim(tlabel)//".NY:",_RC)
+        call MAPL_ConfigSetAttribute(cfg,value=nx, label=trim(tlabel)//".NX:",__RC)
+        call MAPL_ConfigSetAttribute(cfg,value=ny, label=trim(tlabel)//".NY:",__RC)
 
         if (resolution(2)==resolution(1)*6) then
-          call MAPL_ConfigSetAttribute(cfg,value="Cubed-Sphere", label=trim(tlabel)//".GRID_TYPE:",_RC)
-          call MAPL_ConfigSetAttribute(cfg,value=6, label=trim(tlabel)//".NF:",_RC)
-          call MAPL_ConfigSetAttribute(cfg,value=im_world,label=trim(tlabel)//".IM_WORLD:",_RC)
+          call MAPL_ConfigSetAttribute(cfg,value="Cubed-Sphere", label=trim(tlabel)//".GRID_TYPE:",__RC)
+          call MAPL_ConfigSetAttribute(cfg,value=6, label=trim(tlabel)//".NF:",__RC)
+          call MAPL_ConfigSetAttribute(cfg,value=im_world,label=trim(tlabel)//".IM_WORLD:",__RC)
         else
-          call MAPL_ConfigSetAttribute(cfg,value="LatLon", label=trim(tlabel)//".GRID_TYPE:",_RC)
-          call MAPL_ConfigSetAttribute(cfg,value=im_world,label=trim(tlabel)//".IM_WORLD:",_RC)
-          call MAPL_ConfigSetAttribute(cfg,value=jm_world,label=trim(tlabel)//".JM_WORLD:",_RC)
-          call MAPL_ConfigSetAttribute(cfg,value='PC', label=trim(tlabel)//".POLE:",_RC)
-          call MAPL_ConfigSetAttribute(cfg,value='DC', label=trim(tlabel)//".DATELINE:",_RC)
+          call MAPL_ConfigSetAttribute(cfg,value="LatLon", label=trim(tlabel)//".GRID_TYPE:",__RC)
+          call MAPL_ConfigSetAttribute(cfg,value=im_world,label=trim(tlabel)//".IM_WORLD:",__RC)
+          call MAPL_ConfigSetAttribute(cfg,value=jm_world,label=trim(tlabel)//".JM_WORLD:",__RC)
+          call MAPL_ConfigSetAttribute(cfg,value='PC', label=trim(tlabel)//".POLE:",__RC)
+          call MAPL_ConfigSetAttribute(cfg,value='DC', label=trim(tlabel)//".DATELINE:",__RC)
         end if
-        output_grid = grid_manager%make_grid(cfg,prefix=trim(tlabel)//'.',_RC)
+        output_grid = grid_manager%make_grid(cfg,prefix=trim(tlabel)//'.',__RC)
 
-        factory => grid_manager%get_factory(output_grid,_RC)
+        factory => grid_manager%get_factory(output_grid,__RC)
         this%output_grid_label = factory%generate_grid_name()
         lgrid => output_grids%at(trim(this%output_grid_label))
         if (.not.associated(lgrid)) call output_grids%insert(this%output_grid_label,output_grid)

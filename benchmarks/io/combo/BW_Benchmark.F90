@@ -30,11 +30,11 @@ contains
       integer :: status
       integer :: unit
 
-      unit = open_file(this%filename, _RC)
-      call write_file(this%buffer, unit, _RC)
-      call delete_file(this%filename, _RC)
+      unit = open_file(this%filename, __RC)
+      call write_file(this%buffer, unit, __RC)
+      call delete_file(this%filename, __RC)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine run
 
    function open_file(filename, rc) result(unit)
@@ -46,9 +46,9 @@ contains
 
       unit = -1 ! unless
       open(file=filename, newunit=unit, &
-           status='new', form='unformatted', access='sequential', _IOSTAT)
+           status='new', form='unformatted', access='sequential', __IOSTAT)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function open_file
 
    subroutine write_file(buffer, unit, rc)
@@ -60,12 +60,12 @@ contains
       integer :: i
 
       write(unit, iostat=status) buffer
-      _VERIFY(status)
+      __VERIFY(status)
 
       ! Without the close, maybe the writing is not done?
-      close(unit, _IOSTAT)
+      close(unit, __IOSTAT)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine write_file
       
 
@@ -77,10 +77,10 @@ contains
       integer :: unit
 
       open(file=filename, newunit=unit, &
-           status='old', form='unformatted', access='sequential', _IOSTAT)
-      close(unit, status='delete', _IOSTAT)
+           status='old', form='unformatted', access='sequential', __IOSTAT)
+      close(unit, status='delete', __IOSTAT)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine delete_file
 
 end module mapl_BW_Benchmark

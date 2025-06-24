@@ -51,11 +51,11 @@ end
 
 This would get very tedious, not to mention make the code hard to read if the user had to do this after every subroutine or function call. To assist the developer MAPL defines a collection of preprocessor macros for error checking .
 
-You will notice that all subroutine calls in this example end with `_RC`. This is a preprocessor macro that expands to `rc=status); _VERIFY(status`.
+You will notice that all subroutine calls in this example end with `__RC`. This is a preprocessor macro that expands to `rc=status); __VERIFY(status`.
 
-`_VERIFY` itself is another macro that essentially implements the lines after the call to `ESMF_Foo` in the previous example. It will check the status and if there is an error report the file and line and return.
+`__VERIFY` itself is another macro that essentially implements the lines after the call to `ESMF_Foo` in the previous example. It will check the status and if there is an error report the file and line and return.
 
-At the end of each subroutine you will notice another macro, `_RETURN(_SUCCESS)`. This macro ensures that if the optional rc code is passed, it will be set to the "succes" value if the caller is checking the return code. It general placed at the very end of a subroutine.
+At the end of each subroutine you will notice another macro, `__RETURN(__SUCCESS)`. This macro ensures that if the optional rc code is passed, it will be set to the "succes" value if the caller is checking the return code. It general placed at the very end of a subroutine.
 
 All new functions and subroutines should have an optional rc code and use these macros. It will make debugging and crash analysis much easier.
 

@@ -21,8 +21,8 @@ program ExtData_Driver
   cli = MAPL_FargparseCLI()
   cap_options=MAPL_CapOptions(cli)
 
-  driver = ExtDataDriver('ExtDataApp',Root_SetServices,cap_options=cap_options,_RC)
-  call driver%run(_RC)
+  driver = ExtDataDriver('ExtDataApp',Root_SetServices,cap_options=cap_options,__RC)
+  call driver%run(__RC)
 
   stop
 

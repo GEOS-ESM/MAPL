@@ -45,21 +45,21 @@ contains
       type (WrapArray1d) :: wrapper
       class (*), intent(in) :: array(:)
       wrapper%placeholder = 0
-      _UNUSED_DUMMY(array)
+      __UNUSED_DUMMY(array)
    end function wrap1d
 
    function wrap2d(array) result(wrapper)
       type (WrapArray2d) :: wrapper
       class (*), intent(in) :: array(:,:)
       wrapper%placeholder = 0
-      _UNUSED_DUMMY(array)
+      __UNUSED_DUMMY(array)
    end function wrap2d
 
    function wrap3d(array) result(wrapper)
       type (WrapArray3d) :: wrapper
       class (*), intent(in) :: array(:,:,:)
       wrapper%placeholder = 0
-      _UNUSED_DUMMY(array)
+      __UNUSED_DUMMY(array)
    end function wrap3d
 
 
@@ -67,14 +67,14 @@ contains
       type (WrapArray4d) :: wrapper
       class (*), intent(in) :: array(:,:,:,:)
       wrapper%placeholder = 0
-      _UNUSED_DUMMY(array)
+      __UNUSED_DUMMY(array)
    end function wrap4d
 
    function wrap5d(array) result(wrapper)
       type (WrapArray5d) :: wrapper
       class (*), intent(in) :: array(:,:,:,:,:)
       wrapper%placeholder = 0
-      _UNUSED_DUMMY(array)
+      __UNUSED_DUMMY(array)
    end function wrap5d
    
 end module PFL_WrapArray

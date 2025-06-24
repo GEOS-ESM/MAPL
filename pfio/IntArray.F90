@@ -47,7 +47,7 @@ contains
 
       allocate(attr%values, source=values)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function new_IntArray_1d
 
    function new_IntArray_1d_size(size, rc) result(attr)
@@ -57,14 +57,14 @@ contains
 
       allocate(attr%values(size))
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function new_IntArray_1d_size
 
    subroutine destroy(this, rc)
       class (IntArray), intent(inout) :: this
       integer, optional, intent(out) :: rc
       if(associated(this%values)) deallocate(this%values)
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine destroy
 
    function get_values(this, rc) result(values)
@@ -77,7 +77,7 @@ contains
       else
         values => null()
       end if
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function get_values
 
 end module pFIO_IntArrayMod

@@ -29,8 +29,8 @@ contains
       class(ExtDataNode), intent(inout) :: this
       integer, intent(out), optional :: rc
       integer :: status
-      field_initialized = ESMF_FieldIsCreated(this%field,_RC)
-      _RETURN(_SUCCESS)
+      field_initialized = ESMF_FieldIsCreated(this%field,__RC)
+      __RETURN(__SUCCESS)
    end function
 
    subroutine set(this, unusable, field, time, file, time_index, was_set, rc)
@@ -43,13 +43,13 @@ contains
       logical, optional, intent(in) :: was_set
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
       if (present(time)) this%time = time
       if (present(field)) this%field = field
       if (present(file)) this%file = trim(file)
       if (present(time_index)) this%time_index = time_index
       if (present(was_set)) this%was_set = was_set
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine set
 
@@ -63,13 +63,13 @@ contains
       logical, optional, intent(out) :: was_set
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
       if (present(time)) time = this%time
       if (present(field)) field = this%field
       if (present(file)) file = trim(this%file)
       if (present(time_index)) time_index = this%time_index
       if (present(was_set)) was_set = this%was_set
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine get
 

@@ -263,8 +263,8 @@ contains
       integer, intent(out) :: iostat
       character(*), intent(inout) :: iomsg
 
-      _UNUSED_DUMMY(iotype)
-      _UNUSED_DUMMY(v_list)
+      __UNUSED_DUMMY(iotype)
+      __UNUSED_DUMMY(v_list)
 
       write(unit,'(a)') this%string
       iostat = 0

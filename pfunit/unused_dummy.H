@@ -7,7 +7,7 @@
 ! compiler will optimize the line away.  (Hopefully without
 ! reintroducing the warning!)
 
-#ifdef _UNUSED_DUMMY
-#  undef _UNUSED_DUMMY
+#ifdef __UNUSED_DUMMY
+#  undef __UNUSED_DUMMY
 #endif
-#define _UNUSED_DUMMY(x) if (.false.) print*,shape(x)
+#define __UNUSED_DUMMY(x) if (.false.) print*,shape(x)

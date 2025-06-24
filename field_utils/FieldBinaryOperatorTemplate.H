@@ -19,25 +19,25 @@
       fields(1)=field_a
       fields(2)=field_b
       fields(3)=field_out
-      conformable = FieldsAreConformable(field_a,field_out,_RC)
-      _ASSERT(conformable,"Fields passed binary operator are not conformable")
-      conformable = FieldsAreConformable(field_b,field_out,_RC)
-      _ASSERT(conformable,"Fields passed binary operator are not conformable")
+      conformable = FieldsAreConformable(field_a,field_out,__RC)
+      __ASSERT(conformable,"Fields passed binary operator are not conformable")
+      conformable = FieldsAreConformable(field_b,field_out,__RC)
+      __ASSERT(conformable,"Fields passed binary operator are not conformable")
 
-      has_undef = FieldsHaveUndef(fields,_RC)
-      call ESMF_FieldGet(field_a,typekind=tk_a,_RC)
-      call ESMF_FieldGet(field_b,typekind=tk_b,_RC)
-      call ESMF_FieldGet(field_out,typekind=tk_out,_RC)
+      has_undef = FieldsHaveUndef(fields,__RC)
+      call ESMF_FieldGet(field_a,typekind=tk_a,__RC)
+      call ESMF_FieldGet(field_b,typekind=tk_b,__RC)
+      call ESMF_FieldGet(field_out,typekind=tk_out,__RC)
 
-      _ASSERT(tk_a==tk_out, "For now we will only allow operations on same type fields")
-      _ASSERT(tk_b==tk_out, "For now we will only allow operations on same type fields")
+      __ASSERT(tk_a==tk_out, "For now we will only allow operations on same type fields")
+      __ASSERT(tk_b==tk_out, "For now we will only allow operations on same type fields")
 
       if (tk_a ==ESMF_TypeKind_R4) then
-         call assign_fptr(field_a,ptr1_r4,_RC)
-         call assign_fptr(field_b,ptr2_r4,_RC)
-         call assign_fptr(field_out,ptr_out_r4,_RC)
+         call assign_fptr(field_a,ptr1_r4,__RC)
+         call assign_fptr(field_b,ptr2_r4,__RC)
+         call assign_fptr(field_out,ptr_out_r4,__RC)
          if (has_undef) then
-            call GetFieldsUndef(fields,undef_r4,_RC)
+            call GetFieldsUndef(fields,undef_r4,__RC)
             where( (ptr1_r4 /= undef_r4(1)) .and. (ptr2_r4 /= undef_r4(2)) )
                ptr_out_r4 = ptr1_r4  _OP ptr2_r4
             elsewhere
@@ -47,11 +47,11 @@
             ptr_out_r4 = ptr1_r4  _OP ptr2_r4
          end if
       else if (tk_A == ESMF_TypeKind_R8) then
-         call assign_fptr(field_a,ptr1_r8,_RC)
-         call assign_fptr(field_b,ptr2_r8,_RC)
-         call assign_fptr(field_out,ptr_out_r8,_RC)
+         call assign_fptr(field_a,ptr1_r8,__RC)
+         call assign_fptr(field_b,ptr2_r8,__RC)
+         call assign_fptr(field_out,ptr_out_r8,__RC)
          if (has_undef) then
-            call GetFieldsUndef(fields,undef_r8,_RC)
+            call GetFieldsUndef(fields,undef_r8,__RC)
             where( (ptr1_r8 /= undef_r8(1)) .and. (ptr2_r8 /= undef_r8(2)) )
                ptr_out_r8 = ptr1_r8  _OP ptr2_r8
             else where
@@ -61,9 +61,9 @@
             ptr_out_r8 = ptr1_r8  _OP ptr2_r8
          end if
       else
-          _FAIL("unsupported type")
+          __FAIL("unsupported type")
       end if
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine _SUB
 
 #include "undo_function_overload.macro"

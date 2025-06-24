@@ -52,10 +52,10 @@ contains
       real(kind=REAL64),optional, intent(in) :: ref_pressure
       integer, optional, intent(inout) :: rc
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
-      _ASSERT(size(ak) >= 2, 'size of ak should be >=2')
-      _ASSERT(size(ak) == size(bk), ' size of ak should be the same as that of bk')
+      __ASSERT(size(ak) >= 2, 'size of ak should be >=2')
+      __ASSERT(size(ak) == size(bk), ' size of ak should be the same as that of bk')
 
       grid%ak = ak
       grid%bk = bk
@@ -81,25 +81,25 @@ contains
       real(kind=REAL64) :: ref_pressure
       character(len=32) :: data_label
  
-      _UNUSED_DUMMY(unusable)
-      call ESMF_ConfigGetAttribute(config, num_levels,label='NUM_LEVELS:', _RC )
+      __UNUSED_DUMMY(unusable)
+      call ESMF_ConfigGetAttribute(config, num_levels,label='NUM_LEVELS:', __RC )
       call ESMF_ConfigGetAttribute(config, ref_pressure,label='REF_PRESSURE:', &
-                                   default = DEFAULT_REFERENCE_PRESSURE, _RC )
+                                   default = DEFAULT_REFERENCE_PRESSURE, __RC )
 
       data_label = "ak-bk:"
 
       allocate(ak(num_levels+1), bk(num_levels+1))
 
-      call ESMF_ConfigFindLabel(config, trim(data_label), _RC )
+      call ESMF_ConfigFindLabel(config, trim(data_label), __RC )
 
       ! get ak and bk
       do k = 1, num_levels+1
          call ESMF_ConfigNextLine(config, &
-            _RC )
+            __RC )
          call ESMF_ConfigGetAttribute(config, ak(k), &
-            _RC )
+            __RC )
          call ESMF_ConfigGetAttribute(config, bk(k), &
-            _RC )
+            __RC )
       enddo
 
       grid = EtaHybridVerticalCoordinate(ak, bk, ref_pressure=ref_pressure)
@@ -115,8 +115,8 @@ contains
       type (ESMF_Config) :: config
       integer :: status
 
-      _UNUSED_DUMMY(unusable)
-      call ESMF_ConfigLoadFile (config, filename, _RC) 
+      __UNUSED_DUMMY(unusable)
+      call ESMF_ConfigLoadFile (config, filename, __RC) 
  
       grid = EtaHybridVerticalCoordinate(config)
 
@@ -132,8 +132,8 @@ contains
       integer, optional, intent(out) :: rc
       integer :: num_levels, k, ks
 
-      _UNUSED_DUMMY(unusable)
-     _ASSERT(this%num_levels == size(ak) - 1 ,"size vertical grid should be consistent")      
+      __UNUSED_DUMMY(unusable)
+     __ASSERT(this%num_levels == size(ak) - 1 ,"size vertical grid should be consistent")      
 
      ak = this%ak
      bk = this%bk
@@ -151,7 +151,7 @@ contains
      ptop = this%ak(1)
      pint = this%ak(ks+1)
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
 
    end subroutine get_eta_r8
 
@@ -170,7 +170,7 @@ contains
       real(kind=REAL64) :: pint8 ! transition to p (Pa)
       integer :: num_levels     
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
       num_levels = this%num_levels
       allocate(ak8(num_levels+1))
       allocate(bk8(num_levels+1))
@@ -185,7 +185,7 @@ contains
 
       deallocate(ak8,bk8)
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
    end subroutine get_eta_r4
 
    subroutine get_eta_onestep_r4(filename, ptop, pint, ak, bk, unusable, rc)
@@ -199,10 +199,10 @@ contains
       integer :: status
       type (EtaHybridVerticalCoordinate) :: vgrid
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
       vgrid = EtaHybridVerticalCoordinate(filename)
-      call vgrid%get_eta(ptop, pint, ak, bk, _RC )
+      call vgrid%get_eta(ptop, pint, ak, bk, __RC )
 
    end subroutine get_eta_onestep_r4
 
@@ -217,9 +217,9 @@ contains
       integer :: status
       type (EtaHybridVerticalCoordinate) :: vgrid
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
       vgrid = EtaHybridVerticalCoordinate(filename)
-      call vgrid%get_eta(ptop, pint, ak, bk, _RC )
+      call vgrid%get_eta(ptop, pint, ak, bk, __RC )
 
    end subroutine get_eta_onestep_r8
 
@@ -232,9 +232,9 @@ contains
       real(kind=REAL64) :: p0
       integer :: k, num_levels
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
       num_levels = this%num_levels
-      _ASSERT(size(pressure_levels) == num_levels, 'incorrect array size for pressure_levels dummy argument')
+      __ASSERT(size(pressure_levels) == num_levels, 'incorrect array size for pressure_levels dummy argument')
 
       if (present(reference_pressure)) then
          p0 = reference_pressure
@@ -270,9 +270,9 @@ contains
       integer :: num_levels
       real(kind=REAL64), allocatable :: plevels(:)
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
       num_levels = this%num_levels
-      _ASSERT(size(pressure_levels) == num_levels, 'incorrect array size for pressure_levels dummy argument')
+      __ASSERT(size(pressure_levels) == num_levels, 'incorrect array size for pressure_levels dummy argument')
 
       if (present(reference_pressure)) then
          p0 = reference_pressure
@@ -299,11 +299,11 @@ contains
       integer :: i, j, k, isize, jsize, ksize
       real(kind=REAL64), allocatable :: levels(:)
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
       isize = size(pressures,1)
       jsize = size(pressures,2)
       ksize = size(pressures,3)
-      _ASSERT(this%num_levels == ksize, "pressure levels should match") 
+      __ASSERT(this%num_levels == ksize, "pressure levels should match") 
       allocate(levels(ksize))
       call this%get_pressure_levels(levels(:), reference_pressure = 0._REAL64)
 
@@ -327,11 +327,11 @@ contains
       integer :: i, j, k, isize, jsize, ksize
       real(kind=REAL32), allocatable :: levels(:)
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
       isize = size(pressures,1)
       jsize = size(pressures,2)
       ksize = size(pressures,3)
-      _ASSERT(this%num_levels == ksize, "pressure levels should match") 
+      __ASSERT(this%num_levels == ksize, "pressure levels should match") 
       allocate(levels(ksize))
       call this%get_pressure_levels(levels(:), reference_pressure = 0._REAL32)
 

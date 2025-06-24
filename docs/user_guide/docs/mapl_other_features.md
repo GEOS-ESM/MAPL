@@ -28,9 +28,9 @@ simple interfaces to them.
 The error handling utility consists of the three macros:
 
 ```fortran
-  _VERIFY(STATUS)
-  _RETURN(ESMF_Success|ESMF_Failure)
-  _ASSERT(logical expr,'needs informative message')
+  __VERIFY(STATUS)
+  __RETURN(ESMF_Success|ESMF_Failure)
+  __ASSERT(logical expr,'needs informative message')
 ```
 
 These are used by setting the local character string variable `Iam` to
@@ -99,7 +99,7 @@ used:
 
 
 
-#### Physical Constants 
+#### Physical Constants
 
 | __Constant__  | __Value__ | __Unit__ |
 | --- |  --- | --- |

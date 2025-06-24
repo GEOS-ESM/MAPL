@@ -525,7 +525,7 @@ SUBROUTINE find_waypointslat(iSat, time_sec, sim_start,sim_end, distlat,   &
       INTEGER :: say, i
       INTEGER :: ierr1, ierr2, ierr3
 !
-      _UNUSED_DUMMY(distlat)
+      __UNUSED_DUMMY(distlat)
 
           IF (time_sec.LE.0.0) THEN
               print*, "Error: time is negative. For now it is not allowed"

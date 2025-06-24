@@ -67,17 +67,17 @@ module MAPL_AbstractMeter
         ierror = 0
         if (dist_initialized) then
            call MPI_type_free(type_dist_struct, ierror)
-           _VERIFY(ierror)
+           __VERIFY(ierror)
            call MPI_type_free(type_dist_real64, ierror)
-           _VERIFY(ierror)
+           __VERIFY(ierror)
            call MPI_type_free(type_dist_integer, ierror)
-           _VERIFY(ierror)
+           __VERIFY(ierror)
            call MPI_Op_free(dist_reduce_op,ierror)
-           _VERIFY(ierror)
+           __VERIFY(ierror)
            dist_initialized = .false.
         endif
         if (present(rc)) rc = ierror
-        _UNUSED_DUMMY(this)
+        __UNUSED_DUMMY(this)
       end subroutine
 
 end module MAPL_AbstractMeter

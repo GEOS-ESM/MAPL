@@ -57,7 +57,7 @@ contains
          message%global_count = data_reference%shape
       end if
 
-      _ASSERT(size(message%global_start) == size(message%global_count),"global count and global start should mactch")
+      __ASSERT(size(message%global_start) == size(message%global_count),"global count and global start should mactch")
 
       if(present(start)) then
          k = size(message%global_start) - size(start)
@@ -68,8 +68,8 @@ contains
               
       call message%init(request_id,collection_id, &
           file_name,var_name,data_reference,unusable=unusable,start=st, rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+      __VERIFY(status)
+      __RETURN(__SUCCESS)
    end subroutine initCollective
  
    integer function get_length(this) result(length)
@@ -103,7 +103,7 @@ contains
            & serialize_intrinsic(this%count), &
            & serialize_intrinsic(this%global_start), &
            & serialize_intrinsic(this%global_count)]
-       _RETURN(_SUCCESS)
+       __RETURN(__SUCCESS)
    end subroutine serialize
 
    subroutine deserialize(this, buffer, rc)
@@ -131,7 +131,7 @@ contains
       call deserialize_intrinsic(buffer(n:), this%global_start)
       n = n + serialize_buffer_length(this%global_start)
       call deserialize_intrinsic(buffer(n:), this%global_count)
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine deserialize
    
 end module pFIO_AbstractCollectiveDataMessageMod

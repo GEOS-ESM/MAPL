@@ -278,7 +278,7 @@ contains
          usableGRID=GRID
       else
 !         usableGRID = ESMF_GridEmptyCreate(RC=STATUS)
-!         _VERIFY(STATUS)
+!         __VERIFY(STATUS)
 !         call ESMF_GridDestroy(usableGRID) !ALT we do not need RC
 
          ! Initialize this grid object as invalid
@@ -289,9 +289,9 @@ contains
          usableFIELD=>FIELD
       else
          allocate(usableFIELD, STAT=STATUS)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
 !         usableFIELD = ESMF_FieldEmptyCreate(NAME=SHORT_NAME,RC=STATUS)
-!         _VERIFY(STATUS)
+!         __VERIFY(STATUS)
 !         call ESMF_FieldDestroy(usableFIELD) !ALT we do not need RC
 
          ! Initialize this field object as invalid
@@ -302,9 +302,9 @@ contains
          usableBUNDLE=>BUNDLE
       else
          allocate(usableBUNDLE, STAT=STATUS)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
 !         usableBUNDLE = ESMF_FieldBundleCreate(NAME=SHORT_NAME,RC=STATUS)
-!         _VERIFY(STATUS)
+!         __VERIFY(STATUS)
 !         call ESMF_FieldBundleDestroy(usableBUNDLE) !ALT we do not need RC
 
          ! Initialize this fieldBundle object as invalid
@@ -315,9 +315,9 @@ contains
          usableSTATE=>STATE
       else
          allocate(usableSTATE, STAT=STATUS)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
 !         usableSTATE = ESMF_StateCreate(NAME=SHORT_NAME,RC=STATUS)
-!         _VERIFY(STATUS)
+!         __VERIFY(STATUS)
 !         call ESMF_StateDestroy(usableSTATE) !ALT we do not need RC
 
          ! Initialize this state object as invalid
@@ -350,14 +350,14 @@ contains
 ! Sanity checks
       if (usablePRECISION /= ESMF_KIND_R4 .AND. usablePRECISION /= ESMF_KIND_R8) then
          ! only those 2 values are allowed
-         _RETURN(ESMF_FAILURE) 
+         __RETURN(ESMF_FAILURE) 
       end if
 
       szRNAMES = 0
       if (present(ATTR_RNAMES)) then
          szRNAMES = size(ATTR_RNAMES)
          allocate(usableATTR_RNAMES(szRNAMES), stat=status)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
          usableATTR_RNAMES = ATTR_RNAMES
       end if
 
@@ -365,7 +365,7 @@ contains
       if (present(ATTR_INAMES)) then
          szINAMES = size(ATTR_INAMES)
          allocate(usableATTR_INAMES(szINAMES), stat=status)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
          usableATTR_INAMES = ATTR_INAMES
       end if
 
@@ -373,7 +373,7 @@ contains
       if (present(ATTR_RVALUES)) then
          szRVALUES = size(ATTR_RVALUES)
          allocate(usableATTR_RVALUES(szRVALUES), stat=status)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
          usableATTR_RVALUES = ATTR_RVALUES
       end if
 
@@ -381,17 +381,17 @@ contains
       if (present(ATTR_IVALUES)) then
          szIVALUES = size(ATTR_INAMES)
          allocate(usableATTR_IVALUES(szIVALUES), stat=status)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
          usableATTR_IVALUES = ATTR_IVALUES
       end if
-      _ASSERT(szIVALUES == szINAMES,'needs informative message')
-      _ASSERT(szRVALUES == szRNAMES,'needs informative message')
+      __ASSERT(szIVALUES == szINAMES,'needs informative message')
+      __ASSERT(szRVALUES == szRNAMES,'needs informative message')
 
       szUNGRD = 0
       if (present(UNGRIDDED_DIMS)) then
          szUNGRD = size(UNGRIDDED_DIMS)
          allocate(usableUNGRIDDED_DIMS(szUNGRD), stat=status)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
          usableUNGRIDDED_DIMS = UNGRIDDED_DIMS
       else
          NULLIFY(usableUNGRIDDED_DIMS)
@@ -412,7 +412,7 @@ contains
       if (present(UNGRIDDED_COORDS)) then
          szUNGRD = size(UNGRIDDED_COORDS)
          allocate(usableUNGRIDDED_COORDS(szUNGRD), stat=status)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
          usableUNGRIDDED_COORDS = UNGRIDDED_COORDS
       end if
 
@@ -494,7 +494,7 @@ contains
       call spec%var_specs%push_back(tmp)
       call spec%update_legacy()
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_VarSpecCreateInListNew
 
@@ -522,12 +522,12 @@ contains
 
 
     if(.not.associated(ITEM%SPECPtr)) then
-       _RETURN(ESMF_FAILURE)
+       __RETURN(ESMF_FAILURE)
     endif
     if (spec%var_specs%size() > 0) then
        if (.not. usableALLOW_DUPLICATES) then
           I = MAPL_VarSpecGetIndex(SPEC%old_var_specs, ITEM, RC=STATUS)
-          _VERIFY(STATUS)
+          __VERIFY(STATUS)
           if(I /= -1) then
              if (SPEC%old_var_specs(I) == ITEM) THEN
                 if(present(RC)) then
@@ -539,7 +539,7 @@ contains
                 call lgr%error("Duplicate SHORT_NAME %a with different attributes.", trim(ITEM%SPECPtr%short_name))
                 call MAPL_VarSpecPrint(ITEM)
                 call MAPL_VarSpecPrint(SPEC%old_var_specs(I))
-                _RETURN(ESMF_FAILURE)
+                __RETURN(ESMF_FAILURE)
              end if
           endif
        end if
@@ -547,7 +547,7 @@ contains
       call spec%var_specs%push_back(item)
       call spec%update_legacy()
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
 
    end subroutine MAPL_VarSpecAddRefFromItemNew

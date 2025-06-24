@@ -59,17 +59,17 @@ contains
        inquire(file=file_name, exist=f_exist)
        if(.not. f_exist) then
          call fm%create(trim(file_name),rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          call fm%write(this%fmd, rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
        else
-          call fm%open(trim(file_name), pFIO_WRITE, _RC)
+          call fm%open(trim(file_name), pFIO_WRITE, __RC)
        endif
        call this%formatters%insert( trim(file_name),fm)
        iter = this%formatters%find(trim(file_name))
     end if
     formatter => iter%value()
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
    end function find_
 
   subroutine  ModifyMetadata(this,var_map,rc)
@@ -83,12 +83,12 @@ contains
 
     iter = var_map%begin()
     do while (iter /= var_map%end())
-       call this%fmd%modify_variable(iter%key(), iter%value(), _RC)
+       call this%fmd%modify_variable(iter%key(), iter%value(), __RC)
 
        call iter%next()
     enddo
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
   end subroutine ModifyMetadata
 
   subroutine  ReplaceMetadata(this, fmd,rc)
@@ -100,7 +100,7 @@ contains
 
     this%fmd = fmd
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
   end subroutine ReplaceMetadata
 
   subroutine clear(this, rc)
@@ -117,12 +117,12 @@ contains
       file_name => iter%key()
       f_ptr => this%formatters%at(file_name)
       call f_ptr%close(rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       ! remove the files
       call this%formatters%erase(iter)
       iter = this%formatters%begin()
     enddo
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
   end subroutine clear
 
 end module pFIO_HistoryCollectionMod

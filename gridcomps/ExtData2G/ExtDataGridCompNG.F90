@@ -151,11 +151,11 @@ CONTAINS
 
 !   Get my name and set-up traceback handle
 !   ---------------------------------------
-    call ESMF_GridCompGet( GC, name=comp_name, _RC )
+    call ESMF_GridCompGet( GC, name=comp_name, __RC )
 
 !   Wrap internal state for storing in GC; rename legacyState
 !   -------------------------------------
-    allocate ( self, _STAT )
+    allocate ( self, __STAT )
     wrap%ptr => self
 
 !                       ------------------------
@@ -164,42 +164,42 @@ CONTAINS
 
 !   Set the Initialize, Run, Finalize entry points
 !   ----------------------------------------------
-    call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_INITIALIZE,  Initialize_, _RC )
-    call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_RUN,   Run_,        _RC )
-    call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_FINALIZE, Finalize_,   _RC )
+    call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_INITIALIZE,  Initialize_, __RC )
+    call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_RUN,   Run_,        __RC )
+    call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_FINALIZE, Finalize_,   __RC )
 
 !   Store internal state in GC
 !   --------------------------
     call ESMF_UserCompSetInternalState ( GC, 'MAPL_ExtData_state', wrap, STATUS )
 
-    call MAPL_TimerAdd(gc,name="Initialize", _RC)
-    call MAPL_TimerAdd(gc,name="Run", _RC)
-    call MAPL_TimerAdd(gc,name="-Read_Loop", _RC)
-    call MAPL_TimerAdd(gc,name="--CheckUpd", _RC)
-    call MAPL_TimerAdd(gc,name="--Read", _RC)
-    call MAPL_TimerAdd(gc,name="--GridCreate", _RC)
-    call MAPL_TimerAdd(gc,name="--IclientWait", _RC)
-    call MAPL_TimerAdd(gc,name="--PRead", _RC)
-    call MAPL_TimerAdd(gc,name="---CreateCFIO", _RC)
-    call MAPL_TimerAdd(gc,name="---prefetch", _RC)
-    call MAPL_TimerAdd(gc,name="----add-collection", _RC)
-    call MAPL_TimerAdd(gc,name="----make-reference", _RC)
-    call MAPL_TimerAdd(gc,name="----RegridStore", _RC)
-    call MAPL_TimerAdd(gc,name="----request", _RC)
-    call MAPL_TimerAdd(gc,name="---IclientDone", _RC)
-    call MAPL_TimerAdd(gc,name="----RegridApply", _RC)
-    call MAPL_TimerAdd(gc,name="---read-prefetch", _RC)
-    call MAPL_TimerAdd(gc,name="--Swap", _RC)
-    call MAPL_TimerAdd(gc,name="--Bracket", _RC)
-    call MAPL_TimerAdd(gc,name="-Interpolate", _RC)
+    call MAPL_TimerAdd(gc,name="Initialize", __RC)
+    call MAPL_TimerAdd(gc,name="Run", __RC)
+    call MAPL_TimerAdd(gc,name="-Read_Loop", __RC)
+    call MAPL_TimerAdd(gc,name="--CheckUpd", __RC)
+    call MAPL_TimerAdd(gc,name="--Read", __RC)
+    call MAPL_TimerAdd(gc,name="--GridCreate", __RC)
+    call MAPL_TimerAdd(gc,name="--IclientWait", __RC)
+    call MAPL_TimerAdd(gc,name="--PRead", __RC)
+    call MAPL_TimerAdd(gc,name="---CreateCFIO", __RC)
+    call MAPL_TimerAdd(gc,name="---prefetch", __RC)
+    call MAPL_TimerAdd(gc,name="----add-collection", __RC)
+    call MAPL_TimerAdd(gc,name="----make-reference", __RC)
+    call MAPL_TimerAdd(gc,name="----RegridStore", __RC)
+    call MAPL_TimerAdd(gc,name="----request", __RC)
+    call MAPL_TimerAdd(gc,name="---IclientDone", __RC)
+    call MAPL_TimerAdd(gc,name="----RegridApply", __RC)
+    call MAPL_TimerAdd(gc,name="---read-prefetch", __RC)
+    call MAPL_TimerAdd(gc,name="--Swap", __RC)
+    call MAPL_TimerAdd(gc,name="--Bracket", __RC)
+    call MAPL_TimerAdd(gc,name="-Interpolate", __RC)
 !   Generic Set Services
 !   --------------------
-    call MAPL_GenericSetServices ( GC, _RC )
+    call MAPL_GenericSetServices ( GC, __RC )
 
 !   All done
 !   --------
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
 
   END SUBROUTINE SetServices
 
@@ -266,27 +266,27 @@ CONTAINS
 
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
-   call ESMF_GridCompGet( GC, name=comp_name, config=CF_master, vm=vm, _RC )
-   call MAPL_GetLogger(gc, extdata_lgr, _RC)
+   call ESMF_GridCompGet( GC, name=comp_name, config=CF_master, vm=vm, __RC )
+   call MAPL_GetLogger(gc, extdata_lgr, __RC)
 
 !  Extract relevant runtime information
 !  ------------------------------------
-   call extract_ ( GC, self, CF_master, _RC)
+   call extract_ ( GC, self, CF_master, __RC)
    self%CF = CF_master
 
 !  Start Some Timers
 !  -----------------
-   call MAPL_GetObjectFromGC ( gc, MAPLSTATE, _RC)
+   call MAPL_GetObjectFromGC ( gc, MAPLSTATE, __RC)
    call MAPL_TimerOn(MAPLSTATE,"TOTAL")
    call MAPL_TimerOn(MAPLSTATE,"Initialize")
 
-   call ESMF_ConfigGetAttribute(cf_master,new_rc_file,label="EXTDATA_YAML_FILE:",default="extdata.yaml",_RC)
-   call get_global_options(new_rc_file,self%active,self%file_weights,_RC)
+   call ESMF_ConfigGetAttribute(cf_master,new_rc_file,label="EXTDATA_YAML_FILE:",default="extdata.yaml",__RC)
+   call get_global_options(new_rc_file,self%active,self%file_weights,__RC)
 
-   call ESMF_ClockGet(CLOCK, currTIME=time, _RC)
+   call ESMF_ClockGet(CLOCK, currTIME=time, __RC)
 ! Get information from export state
 !----------------------------------
-    call ESMF_StateGet(EXPORT, ITEMCOUNT=ItemCount, _RC)
+    call ESMF_StateGet(EXPORT, ITEMCOUNT=ItemCount, __RC)
 
     ! no need to run ExtData if there are no imports to fill
     if (ItemCount == 0) then
@@ -296,31 +296,31 @@ CONTAINS
     if (.not.self%active) then
        call MAPL_TimerOff(MAPLSTATE,"Initialize")
        call MAPL_TimerOff(MAPLSTATE,"TOTAL")
-       _RETURN(ESMF_SUCCESS)
+       __RETURN(ESMF_SUCCESS)
     end if
 
-    call new_ExtDataOldTypesCreator(config_yaml, new_rc_file, time, _RC)
+    call new_ExtDataOldTypesCreator(config_yaml, new_rc_file, time, __RC)
 
-    allocate(ITEMNAMES(ITEMCOUNT), _STAT)
-    allocate(ITEMTYPES(ITEMCOUNT), _STAT)
+    allocate(ITEMNAMES(ITEMCOUNT), __STAT)
+    allocate(ITEMTYPES(ITEMCOUNT), __STAT)
 
-    call ESMF_StateGet(EXPORT, ITEMNAMELIST=ITEMNAMES, ITEMTYPELIST=ITEMTYPES, _RC)
+    call ESMF_StateGet(EXPORT, ITEMNAMELIST=ITEMNAMES, ITEMTYPELIST=ITEMTYPES, __RC)
 
 !                               --------
 !  Initialize MAPL Generic
 !  -----------------------
-   call MAPL_GenericInitialize ( GC, IMPORT, EXPORT, clock,  _RC )
+   call MAPL_GenericInitialize ( GC, IMPORT, EXPORT, clock,  __RC )
 
 !                         ---------------------------
 !                         Parse ExtData Resource File
 !                         ---------------------------
-   self%ExtDataState = ESMF_StateCreate(Name="ExtDataNameSpace",_RC)
+   self%ExtDataState = ESMF_StateCreate(Name="ExtDataNameSpace",__RC)
    num_primary=0
    num_derived=0
    primaryitemcount=0
    deriveditemcount=0
    do i=1,size(itemnames)
-      item_type = config_yaml%get_item_type(trim(itemnames(i)), _RC)
+      item_type = config_yaml%get_item_type(trim(itemnames(i)), __RC)
       found_in_config = (item_type/= ExtData_not_found)
       if (.not.found_in_config) call unsatisfied_imports%push_back(itemnames(i))
       if (item_type == derived_type) then
@@ -328,10 +328,10 @@ CONTAINS
          deriveditemcount=deriveditemcount+1
       else if (item_type==Primary_Type_Scalar .or. item_type==Primary_Type_Vector_comp1) then
          call self%primary%import_names%push_back(trim(itemnames(i)))
-         primaryitemcount=primaryitemcount+config_yaml%count_rules_for_item(trim(itemnames(i)),_RC)
+         primaryitemcount=primaryitemcount+config_yaml%count_rules_for_item(trim(itemnames(i)),__RC)
       end if
    enddo
-   extra_variables_needed = config_yaml%get_extra_derived_items(self%primary%import_names,self%derived%import_names,_RC)
+   extra_variables_needed = config_yaml%get_extra_derived_items(self%primary%import_names,self%derived%import_names,__RC)
    siter = extra_variables_needed%begin()
    do while(siter/=extra_variables_needed%end())
       extra_var => siter%get()
@@ -339,18 +339,18 @@ CONTAINS
       primary_var_name = extra_var(:idx-1)
       derived_var_name = extra_var(idx+1:)
       if (.not.string_in_stringVector(primary_var_name,self%primary%import_names)) then
-         call create_holding_field(self%ExtDataState,primary_var_name,derived_var_name,_RC)
+         call create_holding_field(self%ExtDataState,primary_var_name,derived_var_name,__RC)
          call self%primary%import_names%push_back(primary_var_name)
-         primaryItemCount=primaryItemCount+config_yaml%count_rules_for_item(primary_var_name,_RC)
+         primaryItemCount=primaryItemCount+config_yaml%count_rules_for_item(primary_var_name,__RC)
       end if
       call siter%next()
    enddo
-   call ESMF_VMBarrier(vm,_RC)
+   call ESMF_VMBarrier(vm,__RC)
    if (unsatisfied_imports%size() > 0) then
       do i=1,unsatisfied_imports%size()
          call extdata_lgr%error("In ExtData resource file, could not find: "//trim(unsatisfied_imports%at(i)))
       enddo
-      _FAIL("Unsatisfied imports in ExtData")
+      __FAIL("Unsatisfied imports in ExtData")
    end if
 
    num_primary=0
@@ -358,19 +358,19 @@ CONTAINS
    do i=1,self%primary%import_names%size()
       current_base_name => self%primary%import_names%at(i)
       num_rules = config_yaml%count_rules_for_item(current_base_name)
-      _ASSERT(num_rules > 0,"no rule found for "//trim(current_base_name))
+      __ASSERT(num_rules > 0,"no rule found for "//trim(current_base_name))
       call self%primary%number_of_rules%push_back(num_rules)
       call self%primary%export_id_start%push_back(num_primary+1)
       if (num_rules > 1) then
          if (allocated(time_ranges)) deallocate(time_ranges)
          allocate(time_ranges(num_rules))
-         time_ranges = config_yaml%get_time_range(current_base_name,_RC)
+         time_ranges = config_yaml%get_time_range(current_base_name,__RC)
          do j=1,num_rules
             num_primary=num_primary+1
             write(sidx,'(I1)')j
             allocate(temp_item)
-            call config_yaml%fillin_primary(current_base_name//"+"//sidx,current_base_name,temp_item,time,clock,_RC)
-            _ASSERT(status==0, "ExtData multi-rule problem with BASE NAME "//TRIM(current_base_name))
+            call config_yaml%fillin_primary(current_base_name//"+"//sidx,current_base_name,temp_item,time,clock,__RC)
+            __ASSERT(status==0, "ExtData multi-rule problem with BASE NAME "//TRIM(current_base_name))
             allocate(temp_item%start_end_time(2))
             temp_item%start_end_time(1)=time_ranges(j)
             temp_item%start_end_time(2)=time_ranges(j+1)
@@ -380,20 +380,20 @@ CONTAINS
       else
          num_primary=num_primary+1
          allocate(temp_item)
-         call config_yaml%fillin_primary(current_base_name,current_base_name,temp_item,time,clock,_RC)
+         call config_yaml%fillin_primary(current_base_name,current_base_name,temp_item,time,clock,__RC)
          call self%primary%item_vec%push_back(temp_item)
          deallocate(temp_item)
-         _ASSERT(status==0, "ExtData single-rule problem with BASE NAME "//TRIM(current_base_name))
+         __ASSERT(status==0, "ExtData single-rule problem with BASE NAME "//TRIM(current_base_name))
       end if
-      call ESMF_StateGet(Export,current_base_name,state_item_type,_RC)
+      call ESMF_StateGet(Export,current_base_name,state_item_type,__RC)
       if (state_item_type /= ESMF_STATEITEM_NOTFOUND) then
-         call ESMF_StateGet(Export,current_base_name,field,_RC)
-         call MAPL_StateAdd(self%ExtDataState,field,_RC)
+         call ESMF_StateGet(Export,current_base_name,field,__RC)
+         call MAPL_StateAdd(self%ExtDataState,field,__RC)
          item_type = config_yaml%get_item_type(current_base_name)
          if (item_type == Primary_Type_Vector_comp1) then
             item => self%primary%item_vec%at(num_primary)
-            call ESMF_StateGet(Export,item%vcomp2,field,_RC)
-            call MAPL_StateAdd(self%ExtDataState,field,_RC)
+            call ESMF_StateGet(Export,item%vcomp2,field,__RC)
+            call MAPL_StateAdd(self%ExtDataState,field,__RC)
          end if
       end if
    enddo
@@ -405,7 +405,7 @@ CONTAINS
       do j=1,self%primary%number_of_rules%at(i)
          item => self%primary%item_vec%at(i_start+j-1)
          item%pfioCOllection_id = MAPL_DataAddCollection(item%file_template)
-         call GetLevs(item, time, _RC)
+         call GetLevs(item, time, __RC)
       enddo
 
    enddo
@@ -415,20 +415,20 @@ CONTAINS
       current_base_name => self%derived%import_names%at(i)
       num_derived=num_derived+1
       allocate(derived_item)
-      call config_yaml%fillin_derived(current_base_name,derived_item,time,clock,_RC)
+      call config_yaml%fillin_derived(current_base_name,derived_item,time,clock,__RC)
       call self%derived%item_vec%push_back(derived_item)
-      call ESMF_StateGet(Export,current_base_name,field,_RC)
-      call MAPL_StateAdd(self%ExtDataState,field,_RC)
+      call ESMF_StateGet(Export,current_base_name,field,__RC)
+      call MAPL_StateAdd(self%ExtDataState,field,__RC)
       deallocate(derived_item)
    enddo
 
    ! now see if we have to allocate any primary fields due to a derived item
    PrimaryLoop: do i=1,self%primary%import_names%size()
       current_base_name => self%primary%import_names%at(i)
-      idx = self%primary%get_item_index(current_base_name,time,_RC)
+      idx = self%primary%get_item_index(current_base_name,time,__RC)
       item => self%primary%item_vec%at(idx)
 
-      call create_primary_field(item,self%ExtDataState,time,_RC)
+      call create_primary_field(item,self%ExtDataState,time,__RC)
    end do PrimaryLoop
 
    ! also see if we have to allocate any primary fields due to PS
@@ -460,7 +460,7 @@ CONTAINS
             call copy_primary(item,new_item,'PS')
             call self%primary%item_vec%push_back(new_item)
             ! make a new name ps_importname, if that's not already in import names
-            call create_aux_field(new_item, self%ExtDataState, item, 2, _RC)
+            call create_aux_field(new_item, self%ExtDataState, item, 2, __RC)
          enddo
 
          num_rules = self%primary%number_of_rules%of(i)
@@ -481,7 +481,7 @@ CONTAINS
             call copy_primary(item,new_item,'Q')
             call self%primary%item_vec%push_back(new_item)
             ! make a new name ps_importname, if that's not already in import names
-            call create_aux_field(new_item, self%ExtDataState, item, 3, _RC)
+            call create_aux_field(new_item, self%ExtDataState, item, 3, __RC)
          enddo
 
          num_rules = self%primary%number_of_rules%of(i)
@@ -491,7 +491,7 @@ CONTAINS
       end if
    enddo
 
-   call confirm_imports_for_vregrid(self%primary, import, _RC)
+   call confirm_imports_for_vregrid(self%primary, import, __RC)
 
    call extdata_lgr%info('*******************************************************')
    call extdata_lgr%info('** Variables to be provided by the ExtData Component **')
@@ -516,7 +516,7 @@ CONTAINS
 
    call extdata_lgr%debug('ExtData Initialize_(): End')
 
-   _RETURN(ESMF_SUCCESS)
+   __RETURN(ESMF_SUCCESS)
 
    END SUBROUTINE Initialize_
 
@@ -568,33 +568,33 @@ CONTAINS
    type(ESMF_Config) :: cf_master
    type(ESMF_Time) :: adjusted_time
 
-   _UNUSED_DUMMY(IMPORT)
-   _UNUSED_DUMMY(EXPORT)
+   __UNUSED_DUMMY(IMPORT)
+   __UNUSED_DUMMY(EXPORT)
 
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
-   call ESMF_GridCompGet( GC, name=comp_name, config=CF_master, _RC )
+   call ESMF_GridCompGet( GC, name=comp_name, config=CF_master, __RC )
 
 !  Extract relevant runtime information
 !  ------------------------------------
-   call extract_ ( GC, self, CF, _RC )
+   call extract_ ( GC, self, CF, __RC )
 
    if (.not. self%active) then
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
    end if
 
-   call MAPL_GetObjectFromGC ( gc, MAPLSTATE, _RC)
+   call MAPL_GetObjectFromGC ( gc, MAPLSTATE, __RC)
    call MAPL_TimerOn(MAPLSTATE,"TOTAL")
    call MAPL_TimerOn(MAPLSTATE,"Run")
 
-   call ESMF_ClockGet(CLOCK, currTIME=current_time, _RC)
+   call ESMF_ClockGet(CLOCK, currTIME=current_time, __RC)
 
 !  Fill in the internal state with data from the files
 !  ---------------------------------------------------
 
-   allocate(do_pointer_update(self%primary%item_vec%size()),_STAT)
+   allocate(do_pointer_update(self%primary%item_vec%size()),__STAT)
    do_pointer_update = .false.
-   allocate(useTime(self%primary%item_vec%size()),_STAT)
+   allocate(useTime(self%primary%item_vec%size()),__STAT)
 
    call MAPL_TimerOn(MAPLSTATE,"-Read_Loop")
 
@@ -604,13 +604,13 @@ CONTAINS
    READ_LOOP: do i=1,self%primary%import_names%size()
 
       current_base_name => self%primary%import_names%at(i)
-      idx = self%primary%get_item_index(current_base_name,current_time,_RC)
+      idx = self%primary%get_item_index(current_base_name,current_time,__RC)
       item => self%primary%item_vec%at(idx)
 
       if (.not.item%initialized) then
          item%pfioCollection_id = MAPL_DataAddCollection(item%file_template)
          if (item%isConst) then
-            call set_constant_field(item,self%extDataState,_RC)
+            call set_constant_field(item,self%extDataState,__RC)
             cycle
          end if
          item%initialized=.true.
@@ -628,17 +628,17 @@ CONTAINS
 
       call MAPL_TimerOn(MAPLSTATE,"--CheckUpd")
 
-      call item%update_freq%check_update(do_pointer_update(i),use_time,current_time,.not.hasRun,_RC)
+      call item%update_freq%check_update(do_pointer_update(i),use_time,current_time,.not.hasRun,__RC)
       adjusted_time = item%update_freq%get_adjusted_time(current_time)
       call MAPL_TimerOff(MAPLSTATE,"--CheckUpd")
 
       !call extdata_lgr%info('Going to update %a with file template: %a ',current_base_name, item%file_template)
       call item%modelGridFields%comp1%reset()
-      call item%filestream%get_file_bracket(use_time,item%source_time, item%modelGridFields%comp1,item%fail_on_missing_file, _RC)
+      call item%filestream%get_file_bracket(use_time,item%source_time, item%modelGridFields%comp1,item%fail_on_missing_file, __RC)
       if (item%vartype == MAPL_VectorField) then
-         call item%filestream%get_file_bracket(use_time,item%source_time, item%modelGridFields%comp2, item%fail_on_missing_file,_RC)
+         call item%filestream%get_file_bracket(use_time,item%source_time, item%modelGridFields%comp2, item%fail_on_missing_file,__RC)
       end if
-      call create_bracketing_fields(item,self%ExtDataState, _RC)
+      call create_bracketing_fields(item,self%ExtDataState, __RC)
       call IOBundle_Add_Entry(IOBundles,item,idx)
       useTime(i)=use_time
 
@@ -654,29 +654,29 @@ CONTAINS
       file_Processed = io_bundle%file_name
       item => self%primary%item_vec%at(entry_num)
 
-      io_bundle%pbundle = ESMF_FieldBundleCreate(_RC)
+      io_bundle%pbundle = ESMF_FieldBundleCreate(__RC)
 
-      call MAPL_ExtDataPopulateBundle(item,bracket_side,io_bundle%pbundle,_RC)
+      call MAPL_ExtDataPopulateBundle(item,bracket_side,io_bundle%pbundle,__RC)
       call bundle_iter%next()
    enddo
 
    call MAPL_TimerOn(MAPLSTATE,"--PRead")
    call MAPL_TimerOn(MAPLSTATE,"---CreateCFIO")
-   call MAPL_ExtDataCreateCFIO(IOBundles, _RC)
+   call MAPL_ExtDataCreateCFIO(IOBundles, __RC)
    call MAPL_TimerOff(MAPLSTATE,"---CreateCFIO")
 
    call MAPL_TimerOn(MAPLSTATE,"---prefetch")
-   call MAPL_ExtDataPrefetch(IOBundles, file_weights=self%file_weights, _RC)
+   call MAPL_ExtDataPrefetch(IOBundles, file_weights=self%file_weights, __RC)
    call MAPL_TimerOff(MAPLSTATE,"---prefetch")
    call MAPL_TimerOn(MAPLSTATE,"---IclientDone")
 
-   call i_Clients%done_collective_prefetch(_RC)
-   call i_Clients%wait(_RC)
+   call i_Clients%done_collective_prefetch(__RC)
+   call i_Clients%wait(__RC)
 
    call MAPL_TimerOff(MAPLSTATE,"---IclientDone")
 
    call MAPL_TimerOn(MAPLSTATE,"---read-prefetch")
-   call MAPL_ExtDataReadPrefetch(IOBundles,_RC)
+   call MAPL_ExtDataReadPrefetch(IOBundles,__RC)
    call MAPL_TimerOff(MAPLSTATE,"---read-prefetch")
    call MAPL_TimerOff(MAPLSTATE,"--PRead")
 
@@ -686,10 +686,10 @@ CONTAINS
       bracket_side = io_bundle%bracket_side
       entry_num = io_bundle%entry_index
       item => self%primary%item_vec%at(entry_num)
-      call MAPL_ExtDataFlipBracketSide(item,bracket_side,_RC)
+      call MAPL_ExtDataFlipBracketSide(item,bracket_side,__RC)
       call bundle_iter%next()
    enddo
-   call MAPL_ExtDataDestroyCFIO(IOBundles,_RC)
+   call MAPL_ExtDataDestroyCFIO(IOBundles,__RC)
 
    call MAPL_TimerOff(MAPLSTATE,"-Read_Loop")
 
@@ -700,7 +700,7 @@ CONTAINS
    INTERP_LOOP: do i=1,self%primary%import_names%size()
 
       current_base_name => self%primary%import_names%at(i)
-      idx = self%primary%get_item_index(current_base_name,current_time,_RC)
+      idx = self%primary%get_item_index(current_base_name,current_time,__RC)
       item => self%primary%item_vec%at(idx)
 
       if (do_pointer_update(i)) then
@@ -708,7 +708,7 @@ CONTAINS
          call extdata_lgr%debug('ExtData Run_: INTERP_LOOP: interpolating between bracket times, variable: %a, file: %a', &
               & trim(current_base_name), trim(item%file_template))
 
-         call MAPL_ExtDataInterpField(item,self%ExtDataState,useTime(i),_RC)
+         call MAPL_ExtDataInterpField(item,self%ExtDataState,useTime(i),__RC)
 
       endif
 
@@ -719,12 +719,12 @@ CONTAINS
    VINTERP_LOOP: do i=1,self%primary%import_names%size()
 
       current_base_name => self%primary%import_names%at(i)
-      idx = self%primary%get_item_index(current_base_name,current_time,_RC)
+      idx = self%primary%get_item_index(current_base_name,current_time,__RC)
       item => self%primary%item_vec%at(idx)
 
       if (do_pointer_update(i)) then
 
-         call MAPL_ExtDataVerticalInterpolate(self,item,import,_RC)
+         call MAPL_ExtDataVerticalInterpolate(self,item,import,__RC)
 
       endif
 
@@ -741,11 +741,11 @@ CONTAINS
 
       derivedItem => self%derived%item_vec%at(i)
 
-      call derivedItem%update_freq%check_update(doUpdate_,use_time,current_time,.not.hasRun,_RC)
+      call derivedItem%update_freq%check_update(doUpdate_,use_time,current_time,.not.hasRun,__RC)
 
       if (doUpdate_) then
 
-         call derivedItem%evaluate_derived_field(self%ExtDataState,_RC)
+         call derivedItem%evaluate_derived_field(self%ExtDataState,__RC)
 
       end if
 
@@ -761,7 +761,7 @@ CONTAINS
    call MAPL_TimerOff(MAPLSTATE,"Run")
    call MAPL_TimerOff(MAPLSTATE,"TOTAL")
 
-   _RETURN(ESMF_SUCCESS)
+   __RETURN(ESMF_SUCCESS)
 
    END SUBROUTINE Run_
 
@@ -788,11 +788,11 @@ CONTAINS
 
 !  Finalize MAPL Generic
 !  ---------------------
-   call MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK,  _RC )
+   call MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK,  __RC )
 
 !  All done
 !  --------
-   _RETURN(ESMF_SUCCESS)
+   __RETURN(ESMF_SUCCESS)
 
  end SUBROUTINE Finalize_
 
@@ -816,7 +816,7 @@ CONTAINS
 
 !   Get my name and set-up traceback handle
 !   ---------------------------------------
-    call ESMF_GridCompGet( GC, NAME=comp_name, _RC )
+    call ESMF_GridCompGet( GC, NAME=comp_name, __RC )
 
     If (present(rc))  rc=ESMF_SUCCESS
 
@@ -827,10 +827,10 @@ CONTAINS
 
 !   Get the configuration
 !   ---------------------
-    call ESMF_GridCompGet ( GC, config=CF, _RC )
+    call ESMF_GridCompGet ( GC, config=CF, __RC )
 
 
-    _RETURN(ESMF_SUCCESS)
+    __RETURN(ESMF_SUCCESS)
 
   end subroutine extract_
 
@@ -878,45 +878,45 @@ CONTAINS
         real :: molecular_weight
 
         if (trim(item%file_template) == "/dev/null") then
-           _RETURN(_SUCCESS)
+           __RETURN(__SUCCESS)
         end if
-        filename = item%filestream%find_any_file(current_time, item%fail_on_missing_file, _RC)
+        filename = item%filestream%find_any_file(current_time, item%fail_on_missing_file, __RC)
         if (.not.(item%fail_on_missing_file) .and. filename == 'NONE') then
            item%file_template = "/dev/null"
            item%isConst = .true.
-           _RETURN(_SUCCESS)
+           __RETURN(__SUCCESS)
         end if
         collection => DataCollections%at(item%pfioCollection_id)
-        metadata => collection%find(filename,_RC)
+        metadata => collection%find(filename,__RC)
         item%file_metadata = metadata
-        item%units = metadata%get_var_attr_string(item%var,'units',_RC) 
+        item%units = metadata%get_var_attr_string(item%var,'units',__RC) 
 
         if (item%vartype == MAPL_VectorField) then
            var=>item%file_metadata%get_variable(trim(item%fcomp1))
-           _ASSERT(associated(var),"Variable "//TRIM(item%fcomp1)//" not found in file "//TRIM(item%file_template))
+           __ASSERT(associated(var),"Variable "//TRIM(item%fcomp1)//" not found in file "//TRIM(item%file_template))
            var => null()
            var=>item%file_metadata%get_variable(trim(item%fcomp2))
-           _ASSERT(associated(var),"Variable "//TRIM(item%fcomp2)//" not found in file "//TRIM(item%file_template))
+           __ASSERT(associated(var),"Variable "//TRIM(item%fcomp2)//" not found in file "//TRIM(item%file_template))
         else
            var=>item%file_metadata%get_variable(trim(item%var))
-           _ASSERT(associated(var),"Variable "//TRIM(item%var)//" not found in file "//TRIM(item%file_template))
+           __ASSERT(associated(var),"Variable "//TRIM(item%var)//" not found in file "//TRIM(item%file_template))
         end if
 
-        item%vcoord = verticalCoordinate(metadata, item%var, _RC)
+        item%vcoord = verticalCoordinate(metadata, item%var, __RC)
         if (item%vcoord%vertical_type /= NO_COORD .and. item%vcoord%vertical_type /= SIMPLE_COORD .and. &
             (item%enable_vertical_regrid .eqv. .true.)) item%allow_vertical_regrid = .true.
         
         if (item%allow_vertical_regrid) then
-           _ASSERT(item%vcoord%vertical_type == model_pressure, "Vertical regridding requested in ExtData2G, but file is not on hybrid sigma levels")
+           __ASSERT(item%vcoord%vertical_type == model_pressure, "Vertical regridding requested in ExtData2G, but file is not on hybrid sigma levels")
            item%aux_ps = item%vcoord%surf_name
            if (index(item%units,mol_per_mol) > 0) then
-              molecular_weight = metadata%get_var_attr_real32(item%var, 'molecular_weight', _RC) 
+              molecular_weight = metadata%get_var_attr_real32(item%var, 'molecular_weight', __RC) 
               allocate(item%molecular_weight,source=molecular_weight)
-              q_name = find_q(metadata, _RC)
+              q_name = find_q(metadata, __RC)
               item%aux_q = q_name
            end if
         end if
-        _RETURN(ESMF_SUCCESS)
+        __RETURN(ESMF_SUCCESS)
 
      contains 
 
@@ -936,17 +936,17 @@ CONTAINS
         var_iter = vars%begin()
         do while (var_iter /= vars%end())
            var_name => var_iter%key()
-           has_longname = metadata%var_has_attr(var_name,'long_name',_RC)
-           has_units = metadata%var_has_attr(var_name,'units',_RC)
+           has_longname = metadata%var_has_attr(var_name,'long_name',__RC)
+           has_units = metadata%var_has_attr(var_name,'units',__RC)
            if (has_longname .and. has_units) then
-              long_name = metadata%get_var_attr_string(var_name,'long_name',_RC) 
-              units = metadata%get_var_attr_string(var_name,'units',_RC) 
+              long_name = metadata%get_var_attr_string(var_name,'long_name',__RC) 
+              units = metadata%get_var_attr_string(var_name,'units',__RC) 
               if (long_name == "specific_humidity" .and. units == "kg kg-1") q_name = var_name 
            end if
            call var_iter%next()
         enddo
-        _ASSERT(allocated(q_name), "could not find specific humidity in source file needed for volume mixing regridding")
-        _RETURN(_SUCCESS)
+        __ASSERT(allocated(q_name), "could not find specific humidity in source file needed for volume mixing regridding")
+        __RETURN(__SUCCESS)
      end function find_q
 
      end subroutine GetLevs
@@ -963,22 +963,22 @@ CONTAINS
      ! if we didn't actually create bracketing fields we had a gap in the data
      ! in this case, get the ultimate pointer to fill
      call ESMF_FieldBundleValidate(item%t_interp_bundle, rc=status)
-     if (status /= _SUCCESS) then
-        call ESMF_StateGet(state,item%vcomp1,field,_RC)
+     if (status /= __SUCCESS) then
+        call ESMF_StateGet(state,item%vcomp1,field,__RC)
      else
-        call ESMF_FieldBundleGet(item%t_interp_bundle, item%vcomp1, field=field, _RC)
+        call ESMF_FieldBundleGet(item%t_interp_bundle, item%vcomp1, field=field, __RC)
      end if
-     call item%modelGridFields%comp1%interpolate_to_time(field,time,_RC)
+     call item%modelGridFields%comp1%interpolate_to_time(field,time,__RC)
      if (item%vartype == MAPL_VectorField) then
         call ESMF_FieldBundleValidate(item%t_interp_bundle, rc=status)
-        if (status /= _SUCCESS) then
-           call ESMF_StateGet(state,item%vcomp2,field,_RC)
+        if (status /= __SUCCESS) then
+           call ESMF_StateGet(state,item%vcomp2,field,__RC)
         else
-           call ESMF_FieldBundleGet(item%t_interp_bundle, item%vcomp2, field=field, _RC)
+           call ESMF_FieldBundleGet(item%t_interp_bundle, item%vcomp2, field=field, __RC)
         end if
-        call item%modelGridFields%comp2%interpolate_to_time(field,time,_RC)
+        call item%modelGridFields%comp2%interpolate_to_time(field,time,__RC)
      end if
-     _RETURN(ESMF_SUCCESS)
+     __RETURN(ESMF_SUCCESS)
   end subroutine MAPL_ExtDataInterpField
 
   subroutine MAPL_ExtDataFlipBracketSide(item,bracket_side,rc)
@@ -989,13 +989,13 @@ CONTAINS
      integer :: status
 
      if (item%vcoord%vertical_type == NO_COORD) then
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
      end if
 
      if (item%vcoord%positive /= item%importVDir) then
-        call MAPL_ExtDataFlipVertical(item,bracket_side,_RC)
+        call MAPL_ExtDataFlipVertical(item,bracket_side,__RC)
      end if
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
   end subroutine MAPL_ExtDataFlipBracketSide
 
   subroutine MAPL_ExtDataVerticalInterpolate(MAPLExtState,item,import,rc)
@@ -1018,28 +1018,28 @@ CONTAINS
 
      if (item%vcoord%vertical_type == NO_COORD &
         .or. (.not.item%delivered_item)) then
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
      end if
 
      if (item%allow_vertical_regrid .and. (item%vcoord%vertical_type == model_pressure)) then
 
         call extdata_lgr%info('ExtData vertical conservative regridding of '//trim(item%name))
-        call ESMF_StateGet(import, "PLE", dst_ple, _RC)
-        call ESMF_FieldGet(dst_ple,farrayPtr=dst_ple_ptr,_RC)
+        call ESMF_StateGet(import, "PLE", dst_ple, __RC)
+        call ESMF_FieldGet(dst_ple,farrayPtr=dst_ple_ptr,__RC)
         src_ps_name = item%vcoord%surf_name//"_"//trim(item%vcomp1)
-        call ESMF_StateGet(MAPLExtState%ExtDataState, src_ps_name, src_ps, _RC)
-        call ESMF_FieldGet(src_ps, farrayPtr=src_ps_ptr, _RC) 
-        src_ple_ptr = item%vcoord%compute_ple(src_ps_ptr, _RC)
-        call ESMF_StateGet(MAPLExtState%ExtDataState,trim(item%vcomp1),dst_field,_RC)
-        call ESMF_FieldGet(dst_field,rank=fieldRank,_RC)
-        _ASSERT(fieldRank==3, "Trying to regrid non 3D field")
-        call ESMF_FieldGet(dst_field,farrayPtr=dst_ptr3d,_RC)
-        call ESMF_FieldBundleGet(item%t_interp_bundle, trim(item%vcomp1), field=src_field, _RC)
-        call ESMF_FieldGet(src_field,farrayPtr=src_ptr3d,_RC)
+        call ESMF_StateGet(MAPLExtState%ExtDataState, src_ps_name, src_ps, __RC)
+        call ESMF_FieldGet(src_ps, farrayPtr=src_ps_ptr, __RC) 
+        src_ple_ptr = item%vcoord%compute_ple(src_ps_ptr, __RC)
+        call ESMF_StateGet(MAPLExtState%ExtDataState,trim(item%vcomp1),dst_field,__RC)
+        call ESMF_FieldGet(dst_field,rank=fieldRank,__RC)
+        __ASSERT(fieldRank==3, "Trying to regrid non 3D field")
+        call ESMF_FieldGet(dst_field,farrayPtr=dst_ptr3d,__RC)
+        call ESMF_FieldBundleGet(item%t_interp_bundle, trim(item%vcomp1), field=src_field, __RC)
+        call ESMF_FieldGet(src_field,farrayPtr=src_ptr3d,__RC)
 
-        units_in = get_field_units(src_field, _RC)
-        units_out = get_field_units(dst_field, _RC)
-        _ASSERT(units_in == units_out, "Going to vertical regrid and units of source and destination do not match")
+        units_in = get_field_units(src_field, __RC)
+        units_out = get_field_units(dst_field, __RC)
+        __ASSERT(units_in == units_out, "Going to vertical regrid and units of source and destination do not match")
      
         units_in = strip_per_second(units_in) 
         if (units_in == mol_per_mol) constituent_type = volume_mixing 
@@ -1052,23 +1052,23 @@ CONTAINS
         case(emission) 
            call vremap_conserve_emission(src_ple_ptr,src_ptr3d,dst_ple_ptr,dst_ptr3d)
         case (volume_mixing)
-           call ESMF_AttributeGet(src_field,name='molecular_weight',value=molecular_weight, _RC)
-           call ESMF_StateGet(import, 'Q', q_field, _RC)
-           call ESMF_FieldGet(q_field,0, farrayPtr=dst_q, _RC)
+           call ESMF_AttributeGet(src_field,name='molecular_weight',value=molecular_weight, __RC)
+           call ESMF_StateGet(import, 'Q', q_field, __RC)
+           call ESMF_FieldGet(q_field,0, farrayPtr=dst_q, __RC)
            src_q_name = item%aux_q//"_"//trim(item%vcomp1)
-           call ESMF_StateGet(MAPLExtState%ExtDataState, src_q_name, q_field, _RC) 
-           call ESMF_FieldGet(q_field,0, farrayPtr=src_q, _RC)
-           call vremap_conserve_vol_mixing(src_ple_ptr, src_q, molecular_weight, src_ptr3d, dst_ple_ptr, dst_q, dst_ptr3d, _RC)
+           call ESMF_StateGet(MAPLExtState%ExtDataState, src_q_name, q_field, __RC) 
+           call ESMF_FieldGet(q_field,0, farrayPtr=src_q, __RC)
+           call vremap_conserve_vol_mixing(src_ple_ptr, src_q, molecular_weight, src_ptr3d, dst_ple_ptr, dst_q, dst_ptr3d, __RC)
         case default
-           _FAIL(trim(units_in)//" not supported for vertical regridding")
+           __FAIL(trim(units_in)//" not supported for vertical regridding")
         end select
      else if (item%vcoord%vertical_type == simple_coord .and. item%do_fill) then
         call extdata_lgr%info('ExtData filling destination with available layers of source for '//trim(item%name))
-        call ESMF_FieldBundleGet(item%t_interp_bundle, trim(item%vcomp1), field=src_field, _RC)
-        call ESMF_StateGet(MAPLExtState%ExtDataState,trim(item%vcomp1),dst_field,_RC)
-        call MAPL_ExtDataFillField(item, dst_field, src_field, _RC) 
+        call ESMF_FieldBundleGet(item%t_interp_bundle, trim(item%vcomp1), field=src_field, __RC)
+        call ESMF_StateGet(MAPLExtState%ExtDataState,trim(item%vcomp1),dst_field,__RC)
+        call MAPL_ExtDataFillField(item, dst_field, src_field, __RC) 
      end if
-     _RETURN(ESMF_SUCCESS)
+     __RETURN(ESMF_SUCCESS)
 
     contains 
 
@@ -1079,7 +1079,7 @@ CONTAINS
        integer :: status
        character(len=ESMF_MAXSTR) :: temp_char
 
-       call ESMF_AttributeGet(field,name='UNITS',value=temp_char, _RC)
+       call ESMF_AttributeGet(field,name='UNITS',value=temp_char, __RC)
        field_units = temp_char
     end function get_field_units
 
@@ -1109,13 +1109,13 @@ CONTAINS
      class (AbstractGridFactory), pointer :: factory
      integer :: factory_id
 
-     factory => get_factory(grid, _RC)
-     NewGrid = factory%make_grid(force_new_grid=.true., _RC)
-     call ESMF_AttributeSet(NewGrid, name='GRID_LM', value=lm, _RC)
-     call ESMF_AttributeGet(Grid, name=factory_id_attribute_public,value=factory_id,_RC)
-     call ESMF_AttributeSet(NewGrid, name=factory_id_attribute_public,value=factory_id,_RC)
+     factory => get_factory(grid, __RC)
+     NewGrid = factory%make_grid(force_new_grid=.true., __RC)
+     call ESMF_AttributeSet(NewGrid, name='GRID_LM', value=lm, __RC)
+     call ESMF_AttributeGet(Grid, name=factory_id_attribute_public,value=factory_id,__RC)
+     call ESMF_AttributeSet(NewGrid, name=factory_id_attribute_public,value=factory_id,__RC)
 
-     _RETURN(ESMF_SUCCESS)
+     __RETURN(ESMF_SUCCESS)
 
   end function MAPL_ExtDataGridChangeLev
 
@@ -1134,39 +1134,39 @@ CONTAINS
         if (present(field)) then
 
            if (Bside == MAPL_ExtDataLeft .and. vcomp == 1) then
-              call item%modelGridFields%comp1%get_parameters('L',field=field,_RC)
-              _RETURN(ESMF_SUCCESS)
+              call item%modelGridFields%comp1%get_parameters('L',field=field,__RC)
+              __RETURN(ESMF_SUCCESS)
            else if (Bside == MAPL_ExtDataLeft .and. vcomp == 2) then
-              call item%modelGridFields%comp2%get_parameters('L',field=field,_RC)
-              _RETURN(ESMF_SUCCESS)
+              call item%modelGridFields%comp2%get_parameters('L',field=field,__RC)
+              __RETURN(ESMF_SUCCESS)
            else if (Bside == MAPL_ExtDataRight .and. vcomp == 1) then
-              call item%modelGridFields%comp1%get_parameters('R',field=field,_RC)
-              _RETURN(ESMF_SUCCESS)
+              call item%modelGridFields%comp1%get_parameters('R',field=field,__RC)
+              __RETURN(ESMF_SUCCESS)
            else if (Bside == MAPL_ExtDataRight .and. vcomp == 2) then
-              call item%modelGridFields%comp2%get_parameters('R',field=field,_RC)
-              _RETURN(ESMF_SUCCESS)
+              call item%modelGridFields%comp2%get_parameters('R',field=field,__RC)
+              __RETURN(ESMF_SUCCESS)
            end if
 
         else if (present(bundle)) then
-           _RETURN(ESMF_FAILURE)
+           __RETURN(ESMF_FAILURE)
         end if
 
      else
 
         if (present(field)) then
            if (Bside == MAPL_ExtDataLeft) then
-              call item%modelGridFields%comp1%get_parameters('L',field=field,_RC)
-              _RETURN(ESMF_SUCCESS)
+              call item%modelGridFields%comp1%get_parameters('L',field=field,__RC)
+              __RETURN(ESMF_SUCCESS)
            else if (Bside == MAPL_ExtDataRight) then
-              call item%modelGridFields%comp1%get_parameters('R',field=field,_RC)
-              _RETURN(ESMF_SUCCESS)
+              call item%modelGridFields%comp1%get_parameters('R',field=field,__RC)
+              __RETURN(ESMF_SUCCESS)
            end if
         else if (present(bundle)) then
-           _RETURN(ESMF_FAILURE)
+           __RETURN(ESMF_FAILURE)
         end if
 
      end if
-     _RETURN(ESMF_FAILURE)
+     __RETURN(ESMF_FAILURE)
 
   end subroutine MAPL_ExtDataGetBracket
 
@@ -1182,12 +1182,12 @@ CONTAINS
   real, pointer :: ptrF(:,:,:),ptrR(:,:,:)
   integer :: lm_in,lm_out,i
 
-  call ESMF_FieldGet(FieldF,0,farrayPtr=ptrF,_RC)
-  call ESMF_FieldGet(FieldR,0,farrayPtr=ptrR,_RC)
+  call ESMF_FieldGet(FieldF,0,farrayPtr=ptrF,__RC)
+  call ESMF_FieldGet(FieldR,0,farrayPtr=ptrR,__RC)
   ptrF = 0.0
   lm_in= size(ptrR,3)
   lm_out = size(ptrF,3)
-  _ASSERT(lm_out > lm_in, "trying to fillin but destination has less levels than source")
+  __ASSERT(lm_out > lm_in, "trying to fillin but destination has less levels than source")
   if (trim(item%importVDir)=="down") then
 
      if (trim(item%vcoord%positive)=="down") then
@@ -1211,7 +1211,7 @@ CONTAINS
      end if
   end if
 
-  _RETURN(ESMF_SUCCESS)
+  __RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_ExtDataFillField
 
@@ -1233,19 +1233,19 @@ CONTAINS
       if (item%vartype == MAPL_VectorField) then
 
          if (local_filec /= MAPL_ExtDataResult) then
-            call MAPL_ExtDataGetBracket(item,local_filec,field=Field1,vcomp=1,_RC)
-            call MAPL_ExtDataGetBracket(item,local_filec,field=Field2,vcomp=2,_RC)
+            call MAPL_ExtDataGetBracket(item,local_filec,field=Field1,vcomp=1,__RC)
+            call MAPL_ExtDataGetBracket(item,local_filec,field=Field2,vcomp=2,__RC)
          else
-            _FAIL("not yet implemented")
+            __FAIL("not yet implemented")
          end if
 
-         call ESMF_FieldGet(Field1,0,farrayPtr=ptr,_RC)
-         allocate(ptemp,source=ptr,_STAT)
+         call ESMF_FieldGet(Field1,0,farrayPtr=ptr,__RC)
+         allocate(ptemp,source=ptr,__STAT)
          ls = lbound(ptr,3)
          le = ubound(ptr,3)
          ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
 
-         call ESMF_FieldGet(Field2,0,farrayPtr=ptr,_RC)
+         call ESMF_FieldGet(Field2,0,farrayPtr=ptr,__RC)
          ptemp=ptr
          ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
 
@@ -1254,20 +1254,20 @@ CONTAINS
       else
 
          if (local_filec /= MAPL_ExtDataResult) then 
-            call MAPL_ExtDataGetBracket(item,local_filec,field=Field,_RC)
+            call MAPL_ExtDataGetBracket(item,local_filec,field=Field,__RC)
          else
-            call ESMF_FieldBundleGet(item%t_interp_bundle, item%vcomp1, field=field, _RC)
+            call ESMF_FieldBundleGet(item%t_interp_bundle, item%vcomp1, field=field, __RC)
          end if
 
-         call ESMF_FieldGet(Field,0,farrayPtr=ptr,_RC)
-         allocate(ptemp,source=ptr,_STAT)
+         call ESMF_FieldGet(Field,0,farrayPtr=ptr,__RC)
+         allocate(ptemp,source=ptr,__STAT)
          ls = lbound(ptr,3)
          le = ubound(ptr,3)
          ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
          deallocate(ptemp)
       end if
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_ExtDataFlipVertical
 
@@ -1284,25 +1284,25 @@ CONTAINS
 
       if (item%vartype == MAPL_VectorField) then
 
-         call MAPL_ExtDataGetBracket(item,filec,field=Field1,vcomp=1,_RC)
-         call MAPL_ExtDataGetBracket(item,filec,field=Field2,vcomp=2,_RC)
+         call MAPL_ExtDataGetBracket(item,filec,field=Field1,vcomp=1,__RC)
+         call MAPL_ExtDataGetBracket(item,filec,field=Field2,vcomp=2,__RC)
 
-         call ESMF_FieldGet(Field1,grid=grid,_RC)
-         call ESMF_FieldBundleSet(pbundle,grid=grid,_RC)
-         call MAPL_FieldBundleAdd(pbundle,Field1,_RC)
-         call MAPL_FieldBundleAdd(pbundle,Field2,_RC)
+         call ESMF_FieldGet(Field1,grid=grid,__RC)
+         call ESMF_FieldBundleSet(pbundle,grid=grid,__RC)
+         call MAPL_FieldBundleAdd(pbundle,Field1,__RC)
+         call MAPL_FieldBundleAdd(pbundle,Field2,__RC)
 
       else
 
-         call MAPL_ExtDataGetBracket(item,filec,field=Field,_RC)
+         call MAPL_ExtDataGetBracket(item,filec,field=Field,__RC)
 
-         call ESMF_FieldGet(Field,grid=grid,_RC)
-         call ESMF_FieldBundleSet(pbundle,grid=grid,_RC)
-         call MAPL_FieldBundleAdd(pbundle,Field,_RC)
+         call ESMF_FieldGet(Field,grid=grid,__RC)
+         call ESMF_FieldBundleSet(pbundle,grid=grid,__RC)
+         call MAPL_FieldBundleAdd(pbundle,Field,__RC)
 
       end if
 
-      _RETURN(ESMF_SUCCESS)
+      __RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_ExtDataPopulateBundle
 
@@ -1317,11 +1317,11 @@ CONTAINS
      bundle_iter = IOBundles%begin()
      do while (bundle_iter /= IOBundles%end())
         io_bundle => bundle_iter%get()
-        call io_bundle%make_io(_RC)
+        call io_bundle%make_io(__RC)
         call bundle_iter%next()
      enddo
 
-     _RETURN(ESMF_SUCCESS)
+     __RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_ExtDataCreateCFIO
 
@@ -1336,12 +1336,12 @@ CONTAINS
      bundle_iter = IOBundles%begin()
      do while (bundle_iter /= IOBundles%end())
         io_bundle => bundle_iter%get()
-        call io_bundle%clean(_RC)
+        call io_bundle%clean(__RC)
         call bundle_iter%next
      enddo
      call IOBundles%clear()
 
-     _RETURN(ESMF_SUCCESS)
+     __RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_ExtDataDestroyCFIO
 
@@ -1362,14 +1362,14 @@ CONTAINS
      do n = 1, nfiles
         io_bundle => IOBundles%at(n)
         if (io_bundle%on_tiles) then
-           call io_bundle%tile_io%request_data_from_file(io_bundle%file_name,io_bundle%time_index,_RC)
+           call io_bundle%tile_io%request_data_from_file(io_bundle%file_name,io_bundle%time_index,__RC)
         else
            call io_bundle%grid_io%set_param(regrid_hints=regrid_hints)
-           call io_bundle%grid_io%request_data_from_file(io_bundle%file_name,io_bundle%time_index,_RC)
+           call io_bundle%grid_io%request_data_from_file(io_bundle%file_name,io_bundle%time_index,__RC)
         end if
      enddo
 
-     _RETURN(ESMF_SUCCESS)
+     __RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_ExtDataPrefetch
 
@@ -1386,13 +1386,13 @@ CONTAINS
      do n=1, nfiles
         io_bundle => IOBundles%at(n)
         if (io_bundle%on_tiles) then
-           call io_bundle%tile_io%process_data_from_file(_RC)
+           call io_bundle%tile_io%process_data_from_file(__RC)
         else
-           call io_bundle%grid_io%process_data_from_file(_RC)
+           call io_bundle%grid_io%process_data_from_file(__RC)
         end if
      enddo
 
-     _RETURN(ESMF_SUCCESS)
+     __RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_ExtDataReadPrefetch
 
@@ -1421,7 +1421,7 @@ CONTAINS
         if (trim(current_file)/=file_not_found) then
            call itemsL%push_back(item%fileVars)
            io_bundle = ExtDataNG_IOBundle(MAPL_ExtDataLeft, entry_num, current_file, time_index, item%trans, item%fracval, item%file_template, &
-               item%pfioCollection_id,item%iclient_collection_id,itemsL,on_tiles,_RC)
+               item%pfioCollection_id,item%iclient_collection_id,itemsL,on_tiles,__RC)
            call IOBundles%push_back(io_bundle)
            call extdata_lgr%info('%a updated L bracket with: %a at time index %i0 ',item%name, current_file, time_index)
         end if
@@ -1431,13 +1431,13 @@ CONTAINS
         if (trim(current_file)/=file_not_found) then
            call itemsR%push_back(item%fileVars)
            io_bundle = ExtDataNG_IOBundle(MAPL_ExtDataRight, entry_num, current_file, time_index, item%trans, item%fracval, item%file_template, &
-               item%pfioCollection_id,item%iclient_collection_id,itemsR,on_tiles,_RC)
+               item%pfioCollection_id,item%iclient_collection_id,itemsR,on_tiles,__RC)
            call IOBundles%push_back(io_bundle)
            call extdata_lgr%info('%a updated R bracket with: %a at time index %i0 ',item%name,current_file, time_index)
         end if
      end if
 
-     _RETURN(ESMF_SUCCESS)
+     __RETURN(ESMF_SUCCESS)
 
   end subroutine IOBundle_Add_Entry
 
@@ -1450,28 +1450,28 @@ CONTAINS
      type(ESMF_Field) :: field
 
      if (item%vartype == MAPL_FieldItem) then
-        call ESMF_StateGet(ExtDataState,trim(item%name),field,_RC)
+        call ESMF_StateGet(ExtDataState,trim(item%name),field,__RC)
         if (item%modelGridFields%comp1%exact) then
-           call FieldSet(field, MAPL_UNDEF, _RC)
+           call FieldSet(field, MAPL_UNDEF, __RC)
         else
-           call FieldSet(field, item%const, _RC)
+           call FieldSet(field, item%const, __RC)
         end if
      else if (item%vartype == MAPL_VectorField) then
-        call ESMF_StateGet(ExtDataState,trim(item%vcomp1),field,_RC)
+        call ESMF_StateGet(ExtDataState,trim(item%vcomp1),field,__RC)
         if (item%modelGridFields%comp1%exact) then
-           call FieldSet(field, MAPL_UNDEF, _RC)
+           call FieldSet(field, MAPL_UNDEF, __RC)
         else
-           call FieldSet(field, item%const, _RC)
+           call FieldSet(field, item%const, __RC)
         end if
-        call ESMF_StateGet(ExtDataState,trim(item%vcomp2),field,_RC)
+        call ESMF_StateGet(ExtDataState,trim(item%vcomp2),field,__RC)
         if (item%modelGridFields%comp2%exact) then
-           call FieldSet(field, MAPL_UNDEF, _RC)
+           call FieldSet(field, MAPL_UNDEF, __RC)
         else
-           call FieldSet(field, item%const, _RC)
+           call FieldSet(field, item%const, __RC)
         end if
       end if
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
   end subroutine set_constant_field
 
   subroutine create_bracketing_fields(item,ExtDataState,rc)
@@ -1490,7 +1490,7 @@ CONTAINS
      type(ESMF_Field) :: temp_field
 
      if (item%modelGridFields%initialized) then
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
      else
         found_file = .false.
         call item%modelGridFields%comp1%get_parameters('L',file=file_left)
@@ -1506,7 +1506,7 @@ CONTAINS
         end if
         if (found_file) then
            collection => DataCollections%at(item%pfioCollection_id)
-           metadata => collection%find(filename,_RC)
+           metadata => collection%find(filename,__RC)
            item%file_metadata = metadata
            item%modelGridFields%initialized = .true.
         end if
@@ -1514,15 +1514,15 @@ CONTAINS
 
      if (found_file) then
         item%iclient_collection_id=i_clients%add_ext_collection(trim(item%file_template))
-        item%t_interp_bundle = ESMF_FieldBundleCreate(_RC)
+        item%t_interp_bundle = ESMF_FieldBundleCreate(__RC)
         if (item%vartype == MAPL_FieldItem) then
 
-           call ESMF_StateGet(ExtDataState, trim(item%name), field,_RC)
-           call ESMF_FieldGet(field,grid=grid,rank=fieldRank,_RC)
+           call ESMF_StateGet(ExtDataState, trim(item%name), field,__RC)
+           call ESMF_FieldGet(field,grid=grid,rank=fieldRank,__RC)
 
            lm=0
            if (fieldRank==3) then
-              call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_RC)
+              call ESMF_FieldGet(field,0,farrayPtr=ptr3d,__RC)
               lm = size(ptr3d,3)
            end if
            if (item%vcoord%num_levels /= lm .and. lm /= 0 .and. (item%vcoord%vertical_type == model_pressure)) then
@@ -1531,34 +1531,34 @@ CONTAINS
               item%do_Fill = .true.
            end if
 
-           bracket_grid = MAPL_ExtDataGridChangeLev(grid,item%vcoord%num_levels,_RC)
-           left_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
-           call set_field_units(left_field, item%units, _RC)
-           call set_mw(left_field, item, _RC)
-           right_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
-           call set_field_units(right_field, item%units, _RC)
-           call set_mw(right_field, item, _RC)
+           bracket_grid = MAPL_ExtDataGridChangeLev(grid,item%vcoord%num_levels,__RC)
+           left_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),__RC)
+           call set_field_units(left_field, item%units, __RC)
+           call set_mw(left_field, item, __RC)
+           right_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),__RC)
+           call set_field_units(right_field, item%units, __RC)
+           call set_mw(right_field, item, __RC)
 
            
            if ((item%vcoord%num_levels /= lm) .and. (lm > 0)) then
-              temp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp1),_RC)
-              call set_field_units(temp_field, item%units, _RC)
-              call set_mw(temp_field, item, _RC)
-              call MAPL_FieldBundleAdd(item%t_interp_bundle, temp_field, _RC)
+              temp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp1),__RC)
+              call set_field_units(temp_field, item%units, __RC)
+              call set_mw(temp_field, item, __RC)
+              call MAPL_FieldBundleAdd(item%t_interp_bundle, temp_field, __RC)
            else
-              call MAPL_FieldBundleAdd(item%t_interp_bundle, field, _RC)
+              call MAPL_FieldBundleAdd(item%t_interp_bundle, field, __RC)
            end if
         
-           call item%modelGridFields%comp1%set_parameters(left_field=left_field,right_field=right_field, _RC)
+           call item%modelGridFields%comp1%set_parameters(left_field=left_field,right_field=right_field, __RC)
 
         else if (item%vartype == MAPL_VectorField) then
 
-           call ESMF_StateGet(ExtDataState, trim(item%vcomp1), field,_RC)
-           call ESMF_FieldGet(field,grid=grid,rank=fieldRank,_RC)
+           call ESMF_StateGet(ExtDataState, trim(item%vcomp1), field,__RC)
+           call ESMF_FieldGet(field,grid=grid,rank=fieldRank,__RC)
 
            lm = 0
            if (fieldRank==3) then
-              call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_RC)
+              call ESMF_FieldGet(field,0,farrayPtr=ptr3d,__RC)
               lm = size(ptr3d,3)
            end if
            if (item%vcoord%num_levels /= lm .and. lm /= 0 .and. (item%vcoord%vertical_type == model_pressure)) then
@@ -1567,46 +1567,46 @@ CONTAINS
               item%do_Fill = .true.
            end if
 
-           bracket_grid = MAPL_ExtDataGridChangeLev(grid,item%vcoord%num_levels,_RC)
-           left_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
-           call set_field_units(left_field, item%units, _RC)
-           call set_mw(left_field, item, _RC)
-           right_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
-           call set_field_units(right_field, item%units, _RC)
-           call set_mw(right_field, item, _RC)
-           call item%modelGridFields%comp1%set_parameters(left_field=left_field,right_field=right_field, _RC)
+           bracket_grid = MAPL_ExtDataGridChangeLev(grid,item%vcoord%num_levels,__RC)
+           left_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),__RC)
+           call set_field_units(left_field, item%units, __RC)
+           call set_mw(left_field, item, __RC)
+           right_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),__RC)
+           call set_field_units(right_field, item%units, __RC)
+           call set_mw(right_field, item, __RC)
+           call item%modelGridFields%comp1%set_parameters(left_field=left_field,right_field=right_field, __RC)
            if (item%vcoord%num_levels /= lm) then
-              temp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp1),_RC)
-              call set_field_units(temp_field, item%units, _RC)
-              call set_mw(temp_field, item, _RC)
-              call MAPL_FieldBundleAdd(item%t_interp_bundle, temp_field, _RC)
+              temp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp1),__RC)
+              call set_field_units(temp_field, item%units, __RC)
+              call set_mw(temp_field, item, __RC)
+              call MAPL_FieldBundleAdd(item%t_interp_bundle, temp_field, __RC)
            else
-              call MAPL_FieldBundleAdd(item%t_interp_bundle, field, _RC)
+              call MAPL_FieldBundleAdd(item%t_interp_bundle, field, __RC)
            end if
 
 
-           call ESMF_StateGet(ExtDataState, trim(item%vcomp2), field,_RC)
-           left_field = MAPL_FieldCreate(field,item%fcomp2,doCopy=.true.,_RC)
-           call set_field_units(left_field, item%units, _RC)
-           call set_mw(left_field, item, _RC)
-           right_field = MAPL_FieldCreate(field,item%fcomp2,doCopy=.true.,_RC)
-           call set_field_units(right_field, item%units, _RC)
-           call set_mw(right_field, item, _RC)
-           call item%modelGridFields%comp2%set_parameters(left_field=left_field,right_field=right_field, _RC)
+           call ESMF_StateGet(ExtDataState, trim(item%vcomp2), field,__RC)
+           left_field = MAPL_FieldCreate(field,item%fcomp2,doCopy=.true.,__RC)
+           call set_field_units(left_field, item%units, __RC)
+           call set_mw(left_field, item, __RC)
+           right_field = MAPL_FieldCreate(field,item%fcomp2,doCopy=.true.,__RC)
+           call set_field_units(right_field, item%units, __RC)
+           call set_mw(right_field, item, __RC)
+           call item%modelGridFields%comp2%set_parameters(left_field=left_field,right_field=right_field, __RC)
            if (item%vcoord%num_levels /= lm) then
-              temp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp2),_RC)
-              call set_field_units(temp_field, item%units, _RC)
-              call set_mw(temp_field, item, _RC)
-              call MAPL_FieldBundleAdd(item%t_interp_bundle, temp_field, _RC)
+              temp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp2),__RC)
+              call set_field_units(temp_field, item%units, __RC)
+              call set_mw(temp_field, item, __RC)
+              call MAPL_FieldBundleAdd(item%t_interp_bundle, temp_field, __RC)
            else
-              call MAPL_FieldBundleAdd(item%t_interp_bundle, field, _RC)
+              call MAPL_FieldBundleAdd(item%t_interp_bundle, field, __RC)
            end if
         
         end if
 
      end if
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
 
      contains
 
@@ -1616,8 +1616,8 @@ CONTAINS
         integer, optional, intent(out) :: rc
         integer :: status
 
-        call ESMF_AttributeSet(field,name='UNITS',value=units, _RC)
-        _RETURN(_SUCCESS)
+        call ESMF_AttributeSet(field,name='UNITS',value=units, __RC)
+        __RETURN(__SUCCESS)
      end subroutine set_field_units
 
      subroutine set_mw(field, item, rc)
@@ -1627,9 +1627,9 @@ CONTAINS
         integer :: status
 
         if (allocated(item%molecular_weight)) then
-           call ESMF_AttributeSet(field,name='molecular_weight',value=item%molecular_weight, _RC)
+           call ESMF_AttributeSet(field,name='molecular_weight',value=item%molecular_weight, __RC)
         end if
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
      end subroutine set_mw
 
   end subroutine create_bracketing_fields
@@ -1643,11 +1643,11 @@ CONTAINS
      integer :: status
      type(ESMF_Field) :: field
 
-     field = ESMF_FieldEmptyCreate(name=primary_name,_RC)
-     call ESMF_AttributeSet(field,name="derived_source",value=derived_name,_RC)
-     call MAPL_StateAdd(state,field,_RC)
+     field = ESMF_FieldEmptyCreate(name=primary_name,__RC)
+     call ESMF_AttributeSet(field,name="derived_source",value=derived_name,__RC)
+     call MAPL_StateAdd(state,field,__RC)
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
   end subroutine
 
   subroutine create_aux_field(item,ExtDataState,old_item,rank,rc)
@@ -1662,27 +1662,27 @@ CONTAINS
      type(ESMF_Grid)  :: grid
      type(ESMF_StateItem_Flag) :: item_type
 
-     call ESMF_StateGet(ExtDataState,trim(old_item%name),field,_RC)
+     call ESMF_StateGet(ExtDataState,trim(old_item%name),field,__RC)
      if (index(old_item%file_template,"/dev/null")/=0) then
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
      end if
 
-     call ESMF_StateGet(ExtDataState, itemName=item%name, itemType=item_type, _RC)
+     call ESMF_StateGet(ExtDataState, itemName=item%name, itemType=item_type, __RC)
      if (item_type == ESMF_STATEITEM_FIELD) then
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
      end if     
 
-     call ESMF_FieldGet(field,grid=grid,_RC)
+     call ESMF_FieldGet(field,grid=grid,__RC)
   
      if (rank==2) then
-        new_field=ESMF_FieldCreate(grid,name=item%name,typekind=ESMF_TYPEKIND_R4,_RC)
+        new_field=ESMF_FieldCreate(grid,name=item%name,typekind=ESMF_TYPEKIND_R4,__RC)
      else if (rank==3) then
         new_field=ESMF_FieldCreate(grid,name=item%name,typekind=ESMF_TYPEKIND_R4, &
-         ungriddedLBound=[1], ungriddedUBound=[item%vcoord%num_levels],_RC)
+         ungriddedLBound=[1], ungriddedUBound=[item%vcoord%num_levels],__RC)
      end if
-     call MAPL_StateAdd(ExtDataState,new_field,_RC)
+     call MAPL_StateAdd(ExtDataState,new_field,__RC)
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
 
   end subroutine create_aux_field
 
@@ -1702,42 +1702,42 @@ CONTAINS
      character(len=ESMF_MAXPATHLEN) :: filename
      logical :: file_found
 
-     call ESMF_StateGet(ExtDataState,trim(item%name),field,_RC)
-     call ESMF_FieldValidate(field,_RC)
-     call ESMF_AttributeGet(field,name="derived_source",isPresent=must_create,_RC)
+     call ESMF_StateGet(ExtDataState,trim(item%name),field,__RC)
+     call ESMF_FieldValidate(field,__RC)
+     call ESMF_AttributeGet(field,name="derived_source",isPresent=must_create,__RC)
      if (.not.must_create) then
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
      end if
      if (index(item%file_template,"/dev/null")/=0) then
-        _FAIL("Asking for ExtData to allocate a field when no file is provided")
+        __FAIL("Asking for ExtData to allocate a field when no file is provided")
      end if
 
 
-     call ESMF_AttributeGet(field,name="derived_source",value=derived_field_name,_RC)
-     call ESMF_StateGet(ExtDataState,trim(derived_field_name),derived_field,_RC)
-     call ESMF_FieldGet(derived_field,grid=grid,_RC)
+     call ESMF_AttributeGet(field,name="derived_source",value=derived_field_name,__RC)
+     call ESMF_StateGet(ExtDataState,trim(derived_field_name),derived_field,__RC)
+     call ESMF_FieldGet(derived_field,grid=grid,__RC)
 
-     call ESMF_StateRemove(ExtDataState,[trim(item%name)],_RC)
-     call ESMF_FieldDestroy(field,noGarbage=.true.,_RC)
+     call ESMF_StateRemove(ExtDataState,[trim(item%name)],__RC)
+     call ESMF_FieldDestroy(field,noGarbage=.true.,__RC)
 
-     call fill_grads_template(filename,item%file_template,time=current_time,_RC )
+     call fill_grads_template(filename,item%file_template,time=current_time,__RC )
      inquire(file=trim(filename),exist=file_found)
-     _ASSERT(file_found,"Forcing extdata to allocate primary field but have gaps in data, not implemented currently")
+     __ASSERT(file_found,"Forcing extdata to allocate primary field but have gaps in data, not implemented currently")
      collection => DataCollections%at(item%pfioCollection_id)
-     metadata => collection%find(filename,_RC)
+     metadata => collection%find(filename,__RC)
      item%file_metadata = metadata
 
      if (item%vartype == MAPL_FieldItem) then
-        field = create_simple_field(item%name,grid,item%vcoord%num_levels,_RC)
-        call MAPL_StateAdd(ExtDataState,field,_RC)
+        field = create_simple_field(item%name,grid,item%vcoord%num_levels,__RC)
+        call MAPL_StateAdd(ExtDataState,field,__RC)
      else if (item%vartype == MAPL_VectorField) then
-        field = create_simple_field(item%vcomp1,grid,item%vcoord%num_levels,_RC)
-        call MAPL_StateAdd(ExtDataState,field,_RC)
-        field = create_simple_field(item%vcomp2,grid,item%vcoord%num_levels,_RC)
-        call MAPL_StateAdd(ExtDataState,field,_RC)
+        field = create_simple_field(item%vcomp1,grid,item%vcoord%num_levels,__RC)
+        call MAPL_StateAdd(ExtDataState,field,__RC)
+        field = create_simple_field(item%vcomp2,grid,item%vcoord%num_levels,__RC)
+        call MAPL_StateAdd(ExtDataState,field,__RC)
      end if
 
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
 
      contains
 
@@ -1751,15 +1751,15 @@ CONTAINS
         integer :: status
         real, pointer :: ptr2d(:,:), ptr3d(:,:,:)
         if (num_levels ==0) then
-           new_field=ESMF_FieldCreate(grid,name=field_name,typekind=ESMF_TYPEKIND_R4,_RC)
-           call ESMF_FieldGet(new_field,0,farrayPtr=ptr2d,_RC)
+           new_field=ESMF_FieldCreate(grid,name=field_name,typekind=ESMF_TYPEKIND_R4,__RC)
+           call ESMF_FieldGet(new_field,0,farrayPtr=ptr2d,__RC)
            ptr2d=0.0
         else
-           new_field=ESMF_FieldCreate(grid,name=field_name,typekind=ESMF_TYPEKIND_R4,ungriddedLBound=[1],ungriddedUBound=[num_levels],_RC)
-           call ESMF_FieldGet(new_field,0,farrayPtr=ptr3d,_RC)
+           new_field=ESMF_FieldCreate(grid,name=field_name,typekind=ESMF_TYPEKIND_R4,ungriddedLBound=[1],ungriddedUBound=[num_levels],__RC)
+           call ESMF_FieldGet(new_field,0,farrayPtr=ptr3d,__RC)
            ptr3d=0.0
         end if
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
      end function
 
   end subroutine create_primary_field
@@ -1788,7 +1788,7 @@ CONTAINS
            exit
         end if
      enddo
-     _ASSERT(found,"ExtData no item with basename '"//TRIM(base_name)//"' found")
+     __ASSERT(found,"ExtData no item with basename '"//TRIM(base_name)//"' found")
 
      item_index = -1
      if (num_rules == 1) then
@@ -1803,8 +1803,8 @@ CONTAINS
            endif
         enddo
      end if
-     _ASSERT(item_index/=-1,"ExtData did not find item index for basename "//TRIM(base_name))
-     _RETURN(_SUCCESS)
+     __ASSERT(item_index/=-1,"ExtData did not find item index for basename "//TRIM(base_name))
+     __RETURN(__SUCCESS)
   end function get_item_index
 
   subroutine get_global_options(yaml_file,am_running,use_file_weights,rc)
@@ -1817,15 +1817,15 @@ CONTAINS
 
      am_running=.true.
      use_file_weights=.false.
-     config = ESMF_HConfigCreate(filename = trim(yaml_file),_RC)
+     config = ESMF_HConfigCreate(filename = trim(yaml_file),__RC)
      if (ESMF_HConfigIsDefined(config,keyString="USE_EXTDATA")) then
-        am_running  = ESMF_HConfigAsLogical(config,keyString="USE_EXTDATA",_RC)
+        am_running  = ESMF_HConfigAsLogical(config,keyString="USE_EXTDATA",__RC)
      end if
      if (ESMF_HConfigIsDefined(config,keyString="file_weights")) then
-        use_file_weights  = ESMF_HConfigAsLogical(config,keyString="file_weights",_RC)
+        use_file_weights  = ESMF_HConfigAsLogical(config,keyString="file_weights",__RC)
      end if
      call ESMF_HConfigDestroy(config)
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
   end subroutine get_global_options
 
   subroutine confirm_imports_for_vregrid(primary_exports, import_state, rc)
@@ -1851,11 +1851,11 @@ CONTAINS
      end do
      if (found_allowed) then
         do i=1,size(required_imports)
-           call ESMF_StateGet(import_state, required_imports(i), item_type, _RC)
-           _ASSERT(item_type == ESMF_STATEITEM_FIELD, "Vertically regridding in extdata is allowed but required import "//trim(required_imports(i))//" not present, modify cap to import PLE")
+           call ESMF_StateGet(import_state, required_imports(i), item_type, __RC)
+           __ASSERT(item_type == ESMF_STATEITEM_FIELD, "Vertically regridding in extdata is allowed but required import "//trim(required_imports(i))//" not present, modify cap to import PLE")
         enddo
      end if
-     _RETURN(_SUCCESS)
+     __RETURN(__SUCCESS)
 
   end subroutine confirm_imports_for_vregrid
 

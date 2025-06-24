@@ -112,8 +112,8 @@ contains
 
       _ASSERT_RC(empty_stack,"Timer "//this%root_node%get_name()// " is not a fresh self start",INCORRECTLY_NESTED_METERS)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
    end subroutine start_self
 
 
@@ -166,7 +166,7 @@ contains
       _ASSERT_RC(stack_is_not_empty, "Timer <"//name// "> should not start when empty.",INCORRECTLY_NESTED_METERS)
       call this%start(node)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine start_name
 
 
@@ -192,7 +192,7 @@ contains
 
       _ASSERT_RC(name_is_node_name,"Timer <"//name// "> does not match start timer <"//node%get_name()//">",INCORRECTLY_NESTED_METERS)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine stop_name
 
    subroutine stop_self(this, rc)
@@ -216,7 +216,7 @@ contains
       end if
       !$omp end master
       _ASSERT_RC(stack_size_is_one,"Stack not empty when timer stopped.",INCORRECTLY_NESTED_METERS)
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine stop_self
 
    subroutine stop_node(this, node)

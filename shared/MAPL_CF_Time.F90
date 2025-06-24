@@ -107,9 +107,9 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       
-      call extract_ISO8601_from_CF_Time(CF_Time_Integer(0, units), isostring, _RC)
+      call extract_ISO8601_from_CF_Time(CF_Time_Integer(0, units), isostring, __RC)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine extract_ISO8601_from_CF_Time_units
 
@@ -120,10 +120,10 @@ contains
 
       if(cft % is_valid) then
          isostring = convert_CF_Time_datetime_string_to_ISO8601(cft % base_datetime)
-         _RETURN(_SUCCESS)
+         __RETURN(__SUCCESS)
       end if
       
-      _RETURN(_FAILURE)
+      __RETURN(__FAILURE)
 
    end subroutine extract_ISO8601_from_CF_Time_cf_time
    
@@ -134,10 +134,10 @@ contains
       
       if(cft % is_valid) then
          duration = cft % duration
-         _RETURN(_SUCCESS)
+         __RETURN(__SUCCESS)
       end if
 
-      _RETURN(_FAILURE)
+      __RETURN(__FAILURE)
 
    end subroutine extract_CF_Time_duration_cf_time_real
 
@@ -148,10 +148,10 @@ contains
       
       if(cft % is_valid) then
          duration = cft % duration
-         _RETURN(_SUCCESS)
+         __RETURN(__SUCCESS)
       end if
 
-      _RETURN(_FAILURE)
+      __RETURN(__FAILURE)
       
    end subroutine extract_CF_Time_duration_cf_time_integer
    
@@ -162,10 +162,10 @@ contains
 
       if(cft % is_valid) then
          time_unit = cft % time_unit
-         _RETURN(_SUCCESS)
+         __RETURN(__SUCCESS)
       end if
 
-      _RETURN(_FAILURE)
+      __RETURN(__FAILURE)
 
    end subroutine extract_CF_Time_unit_cf_time
 
@@ -175,9 +175,9 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      call extract_CF_Time_unit(CF_Time_Integer(0, units), time_unit, _RC)
+      call extract_CF_Time_unit(CF_Time_Integer(0, units), time_unit, __RC)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine extract_CF_Time_unit_units
 
@@ -188,15 +188,15 @@ contains
       integer(kind(TIME_UNIT)) :: tu
 
       if(.not. cft % is_valid) then
-         _RETURN(_FAILURE)
+         __RETURN(__FAILURE)
       end if
 
       tu = get_time_unit(cft % time_unit)
-      _ASSERT(tu /= UNKNOWN_TIME_UNIT, 'Unable to find TIME_UNIT ' // cft % time_unit) 
+      __ASSERT(tu /= UNKNOWN_TIME_UNIT, 'Unable to find TIME_UNIT ' // cft % time_unit) 
 
       call dt_duration % set_value(tu, cft % duration)
       
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine convert_CF_Time_to_datetime_duration_integer
    
@@ -207,15 +207,15 @@ contains
       integer(kind(TIME_UNIT)) :: tu
 
       if(.not. cft % is_valid) then
-         _RETURN(_FAILURE)
+         __RETURN(__FAILURE)
       end if
 
       tu = get_time_unit(cft % time_unit)
-      _ASSERT(tu /= UNKNOWN_TIME_UNIT, 'Unable to find TIME_UNIT ' // cft % time_unit) 
+      __ASSERT(tu /= UNKNOWN_TIME_UNIT, 'Unable to find TIME_UNIT ' // cft % time_unit) 
 
       call dt_duration % set_value(tu, cft % duration)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine convert_CF_Time_to_datetime_duration_real
 
@@ -226,9 +226,9 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      call convert_CF_Time_to_datetime_duration(CF_Time_Integer(duration, units), dt_duration, _RC)
+      call convert_CF_Time_to_datetime_duration(CF_Time_Integer(duration, units), dt_duration, __RC)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine convert_CF_Time_to_datetime_duration_integer_duration
    
@@ -239,9 +239,9 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      call convert_CF_Time_to_datetime_duration(CF_Time_Real(duration, units), dt_duration, _RC)
+      call convert_CF_Time_to_datetime_duration(CF_Time_Real(duration, units), dt_duration, __RC)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine convert_CF_Time_to_datetime_duration_real_duration
    

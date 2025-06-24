@@ -142,7 +142,7 @@ CONTAINS
     __Iam__('MAPL_SimpleBundleCreateEmpty')
 !                           ------
 
-    _UNUSED_DUMMY(Iam)
+    __UNUSED_DUMMY(Iam)
     self%Bundle => null()
 !   Name the SimpleBundle
     if (present(name)) then
@@ -160,7 +160,7 @@ CONTAINS
 !                             Coordinate variables
 !                             --------------------
     self%grid = grid
-    call MAPL_GridGet(self%Grid, localCellCountPerDim = dims, _RC)
+    call MAPL_GridGet(self%Grid, localCellCountPerDim = dims, __RC)
     im = dims(1);  jm = dims(2);  km = dims(3)
     allocate(self%coords%Lons(im,jm), self%coords%Lats(im,jm), self%coords%Levs(km), __STAT__)
 
@@ -168,10 +168,10 @@ CONTAINS
 !   -----------------------------------------------------
    call ESMF_GridGetCoord (self%Grid, coordDim=1, localDE=0, &
                            staggerloc=ESMF_STAGGERLOC_CENTER, &
-                           farrayPtr=LonsRad, _RC)
+                           farrayPtr=LonsRad, __RC)
    call ESMF_GridGetCoord (self%Grid, coordDim=2, localDE=0, &
                            staggerloc=ESMF_STAGGERLOC_CENTER, &
-                           farrayPtr=LatsRad, _RC)
+                           farrayPtr=LatsRad, __RC)
    self%coords%Lons(:,:) = ( 180. / MAPL_PI) * LonsRad(:,:)
    self%coords%Lats(:,:) = ( 180. / MAPL_PI) * LatsRad(:,:)
 
@@ -181,7 +181,7 @@ CONTAINS
       if ( size(Levs) == km ) then
          self%coords%Levs(:) = Levs(:)
       else
-         _FAIL('Levs different than Levs from ESMF_Grid')
+         __FAIL('Levs different than Levs from ESMF_Grid')
       end if
    else
       self%coords%Levs(:) = [(i, i = 1, km)]
@@ -202,7 +202,7 @@ CONTAINS
       self%coords%lcv%delp => NULL()
    end if
 
-   _RETURN(_SUCCESS)
+   __RETURN(__SUCCESS)
 
   end Function MAPL_SimpleBundleCreateEmpty
 
@@ -269,7 +269,7 @@ CONTAINS
 
     call ESMF_FieldBundleGet (BUNDLE, name=bundleName, &
                                       grid=self%grid, &
-                                      FieldCount=NumVars, _RC )
+                                      FieldCount=NumVars, __RC )
 
     if (present(name)) then
        if (len_trim(name) > ESMF_MAXSTR) then
@@ -298,19 +298,19 @@ CONTAINS
 
     if (present(only_vars)) then
        n_vars = csv_tokens_count_(only_vars)
-       _ASSERT(n_vars <= NumVars,'needs informative message')
+       __ASSERT(n_vars <= NumVars,'needs informative message')
 
        allocate(var_list(n_vars), __STAT__)
 
        var_list = '__NONE__'
-       call csv_tokens_get_(only_vars, var_list, _RC)
+       call csv_tokens_get_(only_vars, var_list, __RC)
 
        do i = 1, size(var_list)
           isPresent = .false.
 
           do n = 1, NumVars
-             call MAPL_FieldBundleGet(BUNDLE, n, FIELD, _RC)
-             call ESMF_FieldGet (FIELD, name=fieldName, _RC)
+             call MAPL_FieldBundleGet(BUNDLE, n, FIELD, __RC)
+             call ESMF_FieldGet (FIELD, name=fieldName, __RC)
 
              if (fieldName == var_list(i)) then
                 isPresent = .true.
@@ -338,7 +338,7 @@ CONTAINS
 !                             Coordinate variables
 !                             --------------------
 
-    call MAPL_GridGet(self%Grid, localCellCountPerDim = dims, _RC)
+    call MAPL_GridGet(self%Grid, localCellCountPerDim = dims, __RC)
     im = dims(1);  jm = dims(2);  km = dims(3)
     allocate(self%coords%Lons(im,jm), self%coords%Lats(im,jm), self%coords%Levs(km), __STAT__)
 
@@ -346,10 +346,10 @@ CONTAINS
 !   -----------------------------------------------------
    call ESMF_GridGetCoord (self%Grid, coordDim=1, localDE=0, &
                            staggerloc=ESMF_STAGGERLOC_CENTER, &
-                           farrayPtr=LonsRad, _RC)
+                           farrayPtr=LonsRad, __RC)
    call ESMF_GridGetCoord (self%Grid, coordDim=2, localDE=0, &
                            staggerloc=ESMF_STAGGERLOC_CENTER, &
-                           farrayPtr=LatsRad, _RC)
+                           farrayPtr=LatsRad, __RC)
    self%coords%Lons(:,:) = ( 180. / MAPL_PI) * LonsRad(:,:)
    self%coords%Lats(:,:) = ( 180. / MAPL_PI) * LatsRad(:,:)
 
@@ -360,7 +360,7 @@ CONTAINS
          self%coords%Levs(:) = Levs(:)
       else
          STATUS = 77
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
       end if
    else
       self%coords%Levs(:) = (/ (i, i = 1, km) /)
@@ -382,25 +382,25 @@ CONTAINS
 
       haveDelp = .FALSE.
       call ESMF_FieldBundleGet (Bundle, fieldName='DELP', isPresent=isPresentBundle, RC=STATUS)
-      _VERIFY(STATUS)
+      __VERIFY(STATUS)
       if (isPresentBundle) then
          call ESMF_FieldBundleGet (Bundle, fieldName='DELP', field=Field, RC=STATUS)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
          haveDelp = .TRUE.
       else
          call ESMF_FieldBundleGet (Bundle, fieldName='delp', isPresent=isPresentBundle, RC=STATUS)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
          if (isPresentBundle) then
             call ESMF_FieldBundleGet (Bundle, fieldName='delp', field=Field, RC=STATUS)
-            _VERIFY(STATUS)
+            __VERIFY(STATUS)
             haveDelp = .TRUE.
          end if
       end if
 
       if (haveDelp) then
-         call ESMF_FieldGet(Field, status=fieldStatus, _RC)
+         call ESMF_FieldGet(Field, status=fieldStatus, __RC)
          if (fieldStatus == ESMF_FIELDSTATUS_COMPLETE) then
-            call ESMF_FieldGet(Field, 0, self%coords%lcv%delp, _RC)
+            call ESMF_FieldGet(Field, 0, self%coords%lcv%delp, __RC)
          end if
       end if
    end if
@@ -421,12 +421,12 @@ CONTAINS
     n3d = 0
     DO I = 1, NumVars
 
-       call MAPL_FieldBundleGet(BUNDLE, I, FIELD, _RC)
-       call ESMF_FieldGet (FIELD, name=fieldName, status=fieldStatus, _RC)
+       call MAPL_FieldBundleGet(BUNDLE, I, FIELD, __RC)
+       call ESMF_FieldGet (FIELD, name=fieldName, status=fieldStatus, __RC)
 
        if (fieldStatus == ESMF_FIELDSTATUS_COMPLETE .and. isRequested(I)) then
-          call ESMF_FieldGet (FIELD, ARRAY=array, _RC )
-          call ESMF_ArrayGet (array, rank=arrayRank, typeKind = typeKind, _RC )
+          call ESMF_FieldGet (FIELD, ARRAY=array, __RC )
+          call ESMF_ArrayGet (array, rank=arrayRank, typeKind = typeKind, __RC )
        else
           cycle
        end if
@@ -436,25 +436,25 @@ CONTAINS
        if ( typeKind == ESMF_TYPEKIND_R4 ) then
           if ( arrayRank == 1 ) then
              n1d = n1d + 1
-             call ESMF_FieldGet(Field, localDE=0, farrayPtr=self%r1(n1d)%qr4, _RC )
+             call ESMF_FieldGet(Field, localDE=0, farrayPtr=self%r1(n1d)%qr4, __RC )
              self%r1(n1d)%name = trim(fieldName)
              self%r1(n1d)%myKind = ESMF_KIND_R4
              self%r1(n1d)%q => self%r1(n1d)%qr4 ! convenience alias
           else if ( arrayRank == 2 ) then
              n2d = n2d + 1
-             call ESMF_FieldGet(Field, localDE=0, farrayPtr=self%r2(n2d)%qr4, _RC )
+             call ESMF_FieldGet(Field, localDE=0, farrayPtr=self%r2(n2d)%qr4, __RC )
              self%r2(n2d)%name = trim(fieldName)
              self%r2(n2d)%myKind = ESMF_KIND_R4
              self%r2(n2d)%q => self%r2(n2d)%qr4 ! convenience alias
          else if ( arrayRank == 3 ) then
              n3d = n3d + 1
-             call ESMF_FieldGet(Field, localDE=0, farrayPtr=self%r3(n3d)%qr4, _RC )
+             call ESMF_FieldGet(Field, localDE=0, farrayPtr=self%r3(n3d)%qr4, __RC )
              self%r3(n3d)%name = trim(fieldName)
              self%r3(n3d)%myKind = ESMF_KIND_R4
              self%r3(n3d)%q => self%r3(n3d)%qr4 ! convenience alias
           else
              STATUS = 77
-             _VERIFY(STATUS)
+             __VERIFY(STATUS)
           end if
 
 !      Real*8
@@ -462,29 +462,29 @@ CONTAINS
        else if ( typeKind == ESMF_TYPEKIND_R8 ) then
           if ( arrayRank == 1 ) then
              n1d = n1d + 1
-             call ESMF_FieldGet(Field, localDE=0, farrayPtr=self%r1(n1d)%qr8, _RC )
+             call ESMF_FieldGet(Field, localDE=0, farrayPtr=self%r1(n1d)%qr8, __RC )
              self%r1(n1d)%name = trim(fieldName)
              self%r1(n1d)%myKind = ESMF_KIND_R8
           else if ( arrayRank == 2 ) then
              n2d = n2d + 1
-             call ESMF_FieldGet(Field, localDE=0, farrayPtr=self%r2(n2d)%qr8, _RC )
+             call ESMF_FieldGet(Field, localDE=0, farrayPtr=self%r2(n2d)%qr8, __RC )
              self%r2(n2d)%name = trim(fieldName)
              self%r2(n2d)%myKind = ESMF_KIND_R8
           else if ( arrayRank == 3 ) then
              n3d = n3d + 1
-             call ESMF_FieldGet(Field, localDE=0, farrayPtr=self%r3(n3d)%qr8, _RC )
+             call ESMF_FieldGet(Field, localDE=0, farrayPtr=self%r3(n3d)%qr8, __RC )
              self%r3(n3d)%name = trim(fieldName)
              self%r3(n3d)%myKind = ESMF_KIND_R8
           else
              STATUS = 77
-             _VERIFY(STATUS)
+             __VERIFY(STATUS)
           end if
 
 !      Unknown kind
 !      ------------
        else
           STATUS = 88
-          _VERIFY(STATUS)
+          __VERIFY(STATUS)
        end if
 
     end do
@@ -495,7 +495,7 @@ CONTAINS
 
     deallocate(isRequested, __STAT__)
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
   contains
 
@@ -627,7 +627,7 @@ CONTAINS
 
     integer :: status
 
-    call ESMF_StateGet(State, name=stateName, _RC)
+    call ESMF_StateGet(State, name=stateName, __RC)
 
     if (present(name)) then
        if (len_trim(name) > ESMF_MAXSTR) then
@@ -641,13 +641,13 @@ CONTAINS
        bundleName = stateName
     end if
 
-    Bundle = ESMF_FieldBundleCreate(name=bundleName, _RC)
-    call ESMFL_BundleAddState ( Bundle, State, _RC)
+    Bundle = ESMF_FieldBundleCreate(name=bundleName, __RC)
+    call ESMFL_BundleAddState ( Bundle, State, __RC)
     self = MAPL_SimpleBundleCreateFromBundle ( Bundle, Levs=Levs, LevUnits=LevUnits, &
                                                ptop=ptop, delp=delp, only_vars=only_vars, &
-                                               strict=strict, name=name, _RC )
+                                               strict=strict, name=name, __RC )
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
   end Function MAPL_SimpleBundleCreateFromState
 
@@ -672,14 +672,14 @@ CONTAINS
     if(associated(self%r3)) deallocate(self%r3)
 
     if (associated(self%bundle)) then
-       call MAPL_FieldBundleDestroy(self%bundle, _RC)
+       call MAPL_FieldBundleDestroy(self%bundle, __RC)
     end if
 
     if (self%bundleAlloc) then
        deallocate(self%bundle, __STAT__)
     end if
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
   end subroutine MAPL_SimpleBundleDestroy
 
@@ -711,18 +711,18 @@ CONTAINS
     type(ESMF_FieldBundle),  pointer :: Bundle
 
     allocate(Bundle, stat=STATUS)
-    _VERIFY(STATUS)
+    __VERIFY(STATUS)
 
-    Bundle = ESMF_FieldBundleCreate ( name=bundle_name, _RC )
-    call ESMF_FieldBundleSet ( bundle, grid=Grid, _RC )
+    Bundle = ESMF_FieldBundleCreate ( name=bundle_name, __RC )
+    call ESMF_FieldBundleSet ( bundle, grid=Grid, __RC )
     call MAPL_CFIORead  ( filename, Time, Bundle, verbose=verbose, &
-                          ONLY_VARS=only_vars, expid=expid, voting=voting, _RC )
-    self = MAPL_SimpleBundleCreate ( Bundle, _RC )
+                          ONLY_VARS=only_vars, expid=expid, voting=voting, __RC )
+    self = MAPL_SimpleBundleCreate ( Bundle, __RC )
     self%bundleAlloc = .true.
 
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
-    _UNUSED_DUMMY(unusable)
+    __UNUSED_DUMMY(unusable)
 
   end function MAPL_SimpleBundleRead
 
@@ -742,10 +742,10 @@ CONTAINS
     type(MAPL_CFIO)            :: cfio
     integer                    :: status
 
-    call MAPL_CFIOCreate ( cfio, filename, clock, self%Bundle, _RC)
-    call MAPL_CFIOWrite  ( cfio, Clock, self%Bundle, verbose=verbose, _RC)
-    call MAPL_CFIODestroy ( cfio, _RC )
-    _RETURN(_SUCCESS)
+    call MAPL_CFIOCreate ( cfio, filename, clock, self%Bundle, __RC)
+    call MAPL_CFIOWrite  ( cfio, Clock, self%Bundle, verbose=verbose, __RC)
+    call MAPL_CFIODestroy ( cfio, __RC )
+    __RETURN(__SUCCESS)
 
   end subroutine MAPL_SimpleBundleWrite1
 
@@ -768,13 +768,13 @@ CONTAINS
     type(MAPL_CFIO)            :: cfio
     integer                    :: status
 
-    call ESMF_TimeIntervalSet( TimeStep, h=0, m=30, s=0, _RC )
-    CLOCK = ESMF_ClockCreate ( name="Clock", timeStep=TimeStep, startTime=Time, _RC )
+    call ESMF_TimeIntervalSet( TimeStep, h=0, m=30, s=0, __RC )
+    CLOCK = ESMF_ClockCreate ( name="Clock", timeStep=TimeStep, startTime=Time, __RC )
 
-    call MAPL_CFIOCreate ( cfio, filename, clock, self%Bundle, _RC)
-    call MAPL_CFIOWrite  ( cfio, Clock, self%Bundle, verbose=verbose, _RC)
-    call MAPL_CFIODestroy ( cfio, _RC )
-    _RETURN(_SUCCESS)
+    call MAPL_CFIOCreate ( cfio, filename, clock, self%Bundle, __RC)
+    call MAPL_CFIOWrite  ( cfio, Clock, self%Bundle, verbose=verbose, __RC)
+    call MAPL_CFIODestroy ( cfio, __RC )
+    __RETURN(__SUCCESS)
 
   end subroutine MAPL_SimpleBundleWrite2
 
@@ -918,10 +918,10 @@ end subroutine MAPL_SimpleBundlePrint
              __raise__(MAPL_RC_ERROR,message)
           end if
        else
-          _RETURN(ESMF_SUCCESS)
+          __RETURN(ESMF_SUCCESS)
        end if
     end if
-    _RETURN(_SUCCESS)
+    __RETURN(__SUCCESS)
 
   end function MAPL_SimpleBundleGetIndex
 

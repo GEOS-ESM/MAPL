@@ -60,7 +60,7 @@ contains
            collection_id, &
            file_name, &
            var_name, &
-           data_reference,unusable=unusable,start=start),_RC)
+           data_reference,unusable=unusable,start=start),__RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
@@ -74,13 +74,13 @@ contains
             mem_data_reference = LocalMemReference(data_reference%type_kind, data_reference%shape)
             ! copy data out so the client can move on after done message is send
             call data_reference%copy_data_to(mem_data_reference, rc=status)
-            _VERIFY(status)
+            __VERIFY(status)
             ! put calls iSend
             call this%insert_RequestHandle(id, connection%put(id, mem_data_reference))
          end select
 
       end associate
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function stage_data
 
    function collective_stage_data(this, collection_id, file_name, var_name, data_reference, &
@@ -111,7 +111,7 @@ contains
            file_name, &
            var_name, &
            data_reference,unusable=unusable, start=start,&
-           global_start=global_start,global_count=global_count),_RC)
+           global_start=global_start,global_count=global_count),__RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
@@ -125,14 +125,14 @@ contains
               mem_data_reference = LocalMemReference(data_reference%type_kind, data_reference%shape)
               ! copy data out so the client can move on after done message is send
               call data_reference%copy_data_to(mem_data_reference, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               ! put calls iSend
               call this%insert_RequestHandle(id, connection%put(id, mem_data_reference))
            end select
 
       end associate
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function collective_stage_data
 
    function stage_nondistributed_data(this, collection_id, file_name, var_name, data_reference, rc) result(request_id)
@@ -157,7 +157,7 @@ contains
            collection_id, &
            file_name, &
            var_name, &
-           data_reference),_RC)
+           data_reference),__RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
@@ -171,14 +171,14 @@ contains
             mem_data_reference = LocalMemReference(data_reference%type_kind, data_reference%shape)
             ! copy data out so the client can move on after done message is send
             call data_reference%copy_data_to(mem_data_reference, rc=status)
-            _VERIFY(status)
+            __VERIFY(status)
             ! put calls iSend
             call this%insert_RequestHandle(id, connection%put(id, mem_data_reference))
          end select
 
       end associate
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function stage_nondistributed_data
 
    ! The data has been copied out and post no wait after isend
@@ -187,7 +187,7 @@ contains
       class (FastClientThread), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
       ! do nothing on purpose
-      _UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(this)
    end subroutine post_wait_all
 
 end module pFIO_FastClientThreadMod

@@ -35,24 +35,24 @@ contains
       options = parser%parse_args()
       
       option => options%at('nx')
-      _ASSERT(associated(option), 'nx not found')
-      call cast(option, spec%nx, _RC)
+      __ASSERT(associated(option), 'nx not found')
+      call cast(option, spec%nx, __RC)
 
       option => options%at('n_levs')
-      _ASSERT(associated(option), 'n_levs not found')
-      call cast(option, spec%n_levs, _RC)
+      __ASSERT(associated(option), 'n_levs not found')
+      call cast(option, spec%n_levs, __RC)
 
 
       option => options%at('n_writers')
-      _ASSERT(associated(option), 'n_writers not found')
-      call cast(option, spec%n_writers, _RC)
+      __ASSERT(associated(option), 'n_writers not found')
+      call cast(option, spec%n_writers, __RC)
 
 
       option => options%at('n_tries')
-      _ASSERT(associated(option), 'n_tries not found')
-      call cast(option, spec%n_tries, _RC)
+      __ASSERT(associated(option), 'n_tries not found')
+      call cast(option, spec%n_tries, __RC)
       
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function make_GathervSpec
 
 
@@ -96,13 +96,13 @@ contains
       integer :: n
 
       call MPI_Comm_size(MPI_COMM_WORLD, npes, status)
-      _VERIFY(status)
+      __VERIFY(status)
       n = int(spec%nx,kind=INT64)**2 * 6 * spec%n_levs / npes
 
       kernel = GathervKernel(n, comm)
-      call kernel%init(_RC)
+      call kernel%init(__RC)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function make_GathervKernel
 
 end module mapl_GathervSpec

@@ -45,11 +45,11 @@ contains
       reference%msize_word = msize_word
       reference%type_kind  = type_kind
       call Mpi_comm_dup(InNode_Comm,reference%InNode_Comm,status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       call reference%allocate(rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+      __VERIFY(status)
+      __RETURN(__SUCCESS)
    end function new_ShmemReference
 
    integer function get_length(this) result(length)
@@ -75,14 +75,14 @@ contains
       allocate(buffer(this%get_length()))
 
       call this%serialize_base(tmp_buff, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       n = this%get_length_base()
       buffer(1:n)  = tmp_buff(:)
       buffer(n+1)  = this%win
       buffer(n+2)  = this%InNode_Comm
       buffer(n+3:n+3) = serialize_intrinsic(this%shmem_allocated)
       buffer(n+4:) = transfer(this%msize_word, [1])
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine serialize
 
    subroutine deserialize(this, buffer, rc)
@@ -100,8 +100,8 @@ contains
       call  deserialize_intrinsic(buffer(n1-2:n1-2), this%InNode_Comm)
       call  deserialize_intrinsic(buffer(n1-3:n1-3), this%win)
       call  this%deserialize_base(buffer(1:n1-4), rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+      __VERIFY(status)
+      __RETURN(__SUCCESS)
    end subroutine deserialize
 
    subroutine allocate(this, rc)
@@ -118,7 +118,7 @@ contains
       n_bytes =  this%msize_word * 4_MPI_ADDRESS_KIND
 
       call MPI_Comm_rank(this%InNode_Comm,InNode_Rank,ierr)
-      _VERIFY(ierr)
+      __VERIFY(ierr)
 
       disp_unit  = 1
       windowsize = 0_MPI_ADDRESS_KIND
@@ -127,27 +127,27 @@ contains
 #if defined(SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
       call MPI_Win_allocate_shared(windowsize, disp_unit, MPI_INFO_NULL, this%InNode_Comm, &
                this%base_address, this%win, ierr)
-      _VERIFY(ierr)
+      __VERIFY(ierr)
 #else
       call MPI_Win_allocate_shared(windowsize, disp_unit, MPI_INFO_NULL, this%InNode_Comm, &
                baseaddr, this%win, ierr)
-      _VERIFY(ierr)
+      __VERIFY(ierr)
       this%base_address = transfer(baseaddr, this%base_address)
 #endif
 
       if (InNode_Rank /= 0)  then
 #if defined(SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
           call MPI_Win_shared_query(this%win, 0, windowsize, disp_unit, this%base_address,ierr)
-          _VERIFY(ierr)
+          __VERIFY(ierr)
 #else
           call MPI_Win_shared_query(this%win, 0, windowsize, disp_unit, baseaddr,ierr)
           this%base_address = transfer(baseaddr, this%base_address)
-          _VERIFY(ierr)
+          __VERIFY(ierr)
 #endif
       endif
 
       this%shmem_allocated = .true.
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine allocate
 
    subroutine deallocate(this, rc)
@@ -156,17 +156,17 @@ contains
       integer :: ierr
 
       if (.not. this%shmem_allocated)  then
-         _RETURN(_SUCCESS)
+         __RETURN(__SUCCESS)
       endif
 
       call MPI_Win_fence(0, this%win, ierr)
-      _VERIFY(ierr)
+      __VERIFY(ierr)
       call MPI_Win_free(this%win,ierr)
-      _VERIFY(ierr)
+      __VERIFY(ierr)
       call MPI_Comm_free(this%InNode_Comm, ierr)
-      _VERIFY(ierr)
+      __VERIFY(ierr)
       this%shmem_allocated = .false.
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine deallocate
 
    subroutine fence(this, rc)
@@ -175,11 +175,11 @@ contains
      integer :: ierr
 
      if(.not. this%shmem_allocated) then
-        _RETURN(_SUCCESS)
+        __RETURN(__SUCCESS)
      endif
      call Mpi_Win_fence(0, this%win, ierr)
-      _VERIFY(ierr)
-      _RETURN(_SUCCESS)
+      __VERIFY(ierr)
+      __RETURN(__SUCCESS)
    end subroutine fence
 
 end module pFIO_ShmemReferenceMod

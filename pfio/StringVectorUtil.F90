@@ -55,7 +55,7 @@ contains
           length = length - n1
           deallocate(str)
        enddo
-       _RETURN(_SUCCESS)
+       __RETURN(__SUCCESS)
    end subroutine StringVector_deserialize
 
    function string_in_stringVector(target_string,string_vector) result(in_vector)

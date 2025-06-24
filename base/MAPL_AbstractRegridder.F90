@@ -125,11 +125,11 @@ contains
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_scalar_2d_real32'
-      _FAIL( 'unimplemented - must override in subclass')
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(q_in)
+      __FAIL( 'unimplemented - must override in subclass')
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(q_in)
       q_out = 0
-      _RETURN(_FAILURE)
+      __RETURN(__FAILURE)
 
    end subroutine regrid_scalar_2d_real32
 
@@ -141,11 +141,11 @@ contains
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_scalar_2d_real64'
 
-      _FAIL( 'unimplemented - must override in subclass')
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(q_in)
+      __FAIL( 'unimplemented - must override in subclass')
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(q_in)
       q_out = 0
-      _RETURN(_FAILURE)
+      __RETURN(__FAILURE)
 
    end subroutine regrid_scalar_2d_real64
 
@@ -157,11 +157,11 @@ contains
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_scalar_3d_real32'
 
-      _FAIL( 'unimplemented - must override in subclass')
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(q_in)
+      __FAIL( 'unimplemented - must override in subclass')
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(q_in)
       q_out = 0
-      _RETURN(_FAILURE)
+      __RETURN(__FAILURE)
 
    end subroutine regrid_scalar_3d_real32
 
@@ -173,11 +173,11 @@ contains
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_scalar_3d_real64'
 
-      _FAIL( 'unimplemented - must override in subclass')
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(q_in)
+      __FAIL( 'unimplemented - must override in subclass')
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(q_in)
       q_out = 0
-      _RETURN(_FAILURE)
+      __RETURN(__FAILURE)
 
    end subroutine regrid_scalar_3d_real64
 
@@ -192,14 +192,14 @@ contains
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_vector_2d_real32'
 
-      _FAIL( 'unimplemented - must override in subclass')
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(u_in)
-      _UNUSED_DUMMY(v_in)
-      _UNUSED_DUMMY(rotate)
+      __FAIL( 'unimplemented - must override in subclass')
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(u_in)
+      __UNUSED_DUMMY(v_in)
+      __UNUSED_DUMMY(rotate)
       u_out = 0
       v_out = 0
-      _RETURN(_FAILURE)
+      __RETURN(__FAILURE)
 
    end subroutine regrid_vector_2d_real32
 
@@ -214,14 +214,14 @@ contains
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_vector_2d_real64'
 
-      _FAIL( 'unimplemented - must override in subclass')
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(u_in)
-      _UNUSED_DUMMY(v_in)
-      _UNUSED_DUMMY(rotate)
+      __FAIL( 'unimplemented - must override in subclass')
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(u_in)
+      __UNUSED_DUMMY(v_in)
+      __UNUSED_DUMMY(rotate)
       u_out = 0
       v_out = 0
-      _RETURN(_FAILURE)
+      __RETURN(__FAILURE)
 
    end subroutine regrid_vector_2d_real64
 
@@ -235,14 +235,14 @@ contains
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_vector_3d_real32'
 
-      _FAIL( 'unimplemented - must override in subclass')
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(u_in)
-      _UNUSED_DUMMY(v_in)
-      _UNUSED_DUMMY(rotate)
+      __FAIL( 'unimplemented - must override in subclass')
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(u_in)
+      __UNUSED_DUMMY(v_in)
+      __UNUSED_DUMMY(rotate)
       u_out = 0
       v_out = 0
-      _RETURN(_FAILURE)
+      __RETURN(__FAILURE)
 
    end subroutine regrid_vector_3d_real32
 
@@ -256,13 +256,13 @@ contains
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_vector_3d_real64'
 
-      _FAIL( 'unimplemented - must override in subclass')
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(u_in)
-      _UNUSED_DUMMY(v_in)
+      __FAIL( 'unimplemented - must override in subclass')
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(u_in)
+      __UNUSED_DUMMY(v_in)
       u_out = 0
       v_out = 0
-      _RETURN(_FAILURE)
+      __RETURN(__FAILURE)
 
    end subroutine regrid_vector_3d_real64
 
@@ -286,12 +286,12 @@ contains
       integer :: status
 
       call ESMF_FieldGet(f_in, rank=rank_in, typekind=typekind_in, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call ESMF_FieldGet(f_out, rank=rank_out, typekind=typekind_out, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
-      _ASSERT(rank_in == rank_out, 'in-out rank mismatch')
-      _ASSERT(typekind_in%dkind == typekind_out%dkind, 'in-out typekind mismatch')
+      __ASSERT(rank_in == rank_out, 'in-out rank mismatch')
+      __ASSERT(typekind_in%dkind == typekind_out%dkind, 'in-out typekind mismatch')
 
       select case (rank_in)
 
@@ -305,11 +305,11 @@ contains
               real(REAL32), pointer :: q_in(:,:), q_out(:,:)
 
               call ESMF_FieldGet(f_in , 0, q_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out , 0, q_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call this%regrid(q_in, q_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
             end block
 
          case (ESMF_TYPEKIND_R8%dkind)
@@ -318,15 +318,15 @@ contains
               real(REAL64), pointer :: q_in(:,:), q_out(:,:)
 
               call ESMF_FieldGet(f_in , 0, q_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out , 0, q_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call this%regrid(q_in, q_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
             end block
 
          case default
-            _FAIL( 'unsupported typekind')
+            __FAIL( 'unsupported typekind')
          end select
 
       case (3)
@@ -337,12 +337,12 @@ contains
               real(REAL32), pointer :: q_in(:,:,:), q_out(:,:,:)
 
               call ESMF_FieldGet(f_in , 0, q_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out , 0, q_out, rc=status)
-              _VERIFY(status)
-              _ASSERT(size(q_in,3) == size(q_out,3), 'array bounds mismatch')
+              __VERIFY(status)
+              __ASSERT(size(q_in,3) == size(q_out,3), 'array bounds mismatch')
               call this%regrid(q_in, q_out,rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
             end block
 
          case (ESMF_TYPEKIND_R8%dkind)
@@ -351,22 +351,22 @@ contains
               real(REAL64), pointer :: q_in(:,:,:), q_out(:,:,:)
 
               call ESMF_FieldGet(f_in , 0, q_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out , 0, q_out, rc=status)
-              _VERIFY(status)
-              _ASSERT(size(q_in,3) == size(q_out,3), 'array bounds mismatch')
+              __VERIFY(status)
+              __ASSERT(size(q_in,3) == size(q_out,3), 'array bounds mismatch')
               call this%regrid(q_in, q_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
             end block
          case default ! unsupported type/kind
-            _FAIL( 'unsupported type kind')
+            __FAIL( 'unsupported type kind')
          end select
 
       case default ! unsupported rank
-         _FAIL( 'unsupported rank')
+         __FAIL( 'unsupported rank')
       end select
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine regrid_esmf_fields_scalar
 
@@ -393,19 +393,19 @@ contains
 
       do d = 1, NUM_DIM
          call ESMF_FieldGet(f_in(d), rank=rank_in(d), typekind=typekind_in(d), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          call ESMF_FieldGet(f_out(d), rank=rank_out(d), typekind=typekind_out(d), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
       end do
 
       ! Check consistent type/kind/rank for all arguments
-      _ASSERT(all(rank_in == rank_in(1)), 'rank mismatch across input vector components')
-      _ASSERT(all(typekind_in%dkind == typekind_in(1)%dkind), 'typekind mismatch across input vector components')
-      _ASSERT(all(rank_out == rank_out(1)),'rank mismatch across output vectory components')
-      _ASSERT(all(typekind_out%dkind == typekind_out(1)%dkind),'typekind mismatch across output vector coomponents')
+      __ASSERT(all(rank_in == rank_in(1)), 'rank mismatch across input vector components')
+      __ASSERT(all(typekind_in%dkind == typekind_in(1)%dkind), 'typekind mismatch across input vector components')
+      __ASSERT(all(rank_out == rank_out(1)),'rank mismatch across output vectory components')
+      __ASSERT(all(typekind_out%dkind == typekind_out(1)%dkind),'typekind mismatch across output vector coomponents')
 
-      _ASSERT(rank_in(1) == rank_out(1), 'in-out rank mismatch')
-      _ASSERT(typekind_in(1)%dkind == typekind_out(1)%dkind,'in-out typekind mismatch')
+      __ASSERT(rank_in(1) == rank_out(1), 'in-out rank mismatch')
+      __ASSERT(typekind_in(1)%dkind == typekind_out(1)%dkind,'in-out typekind mismatch')
 
       select case (rank_in(1))
 
@@ -420,15 +420,15 @@ contains
               real(REAL32), pointer :: u_out(:,:), v_out(:,:)
 
               call ESMF_FieldGet(f_in(1) , 0, u_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_in(2) , 0, v_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out(1) , 0, u_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out(2) , 0, v_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call this%regrid(u_in, v_in, u_out, v_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
             end block
 
          case (ESMF_TYPEKIND_R8%dkind)
@@ -438,19 +438,19 @@ contains
               real(REAL64), pointer :: u_out(:,:), v_out(:,:)
 
               call ESMF_FieldGet(f_in(1) , 0, u_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_in(2) , 0, v_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out(1) , 0, u_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out(2) , 0, v_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call this%regrid(u_in, v_in, u_out, v_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
             end block
 
          case default ! unsupported typekind
-            _FAIL( 'unsupported typekind')
+            __FAIL( 'unsupported typekind')
          end select
 
       case (3)
@@ -462,15 +462,15 @@ contains
               real(REAL32), pointer :: u_out(:,:,:), v_out(:,:,:)
 
               call ESMF_FieldGet(f_in(1) , 0, u_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_in(2) , 0, v_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out(1) , 0, u_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out(2) , 0, v_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call this%regrid(u_in, v_in, u_out, v_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
             end block
 
          case (ESMF_TYPEKIND_R8%dkind)
@@ -480,26 +480,26 @@ contains
               real(REAL64), pointer :: u_out(:,:,:), v_out(:,:,:)
 
               call ESMF_FieldGet(f_in(1) , 0, u_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_in(2) , 0, v_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out(1) , 0, u_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out(2) , 0, v_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call this%regrid(u_in, v_in, u_out, v_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
             end block
 
          case default ! unsupported type/kind
-            _FAIL( 'unsupported type-kind')
+            __FAIL( 'unsupported type-kind')
          end select
 
       case default ! unsupported rank
-         _FAIL( 'unsupported rank')
+         __FAIL( 'unsupported rank')
       end select
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
 
    end subroutine regrid_esmf_fields_vector
@@ -514,11 +514,11 @@ contains
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_scalar_2d_real32'
-      _FAIL( 'unimplemented - must override in subclass')
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(q_in)
+      __FAIL( 'unimplemented - must override in subclass')
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(q_in)
       q_out = 0
-      _RETURN(_FAILURE)
+      __RETURN(__FAILURE)
    end subroutine transpose_regrid_scalar_2d_real32
 
 
@@ -529,11 +529,11 @@ contains
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_scalar_2d_real64'
-      _FAIL( 'unimplemented - must override in subclass')
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(q_in)
+      __FAIL( 'unimplemented - must override in subclass')
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(q_in)
       q_out = 0
-      _RETURN(_FAILURE)
+      __RETURN(__FAILURE)
    end subroutine transpose_regrid_scalar_2d_real64
 
 
@@ -544,11 +544,11 @@ contains
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_scalar_3d_real32'
-      _FAIL( 'unimplemented - must override in subclass')
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(q_in)
+      __FAIL( 'unimplemented - must override in subclass')
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(q_in)
       q_out = 0
-      _RETURN(_FAILURE)
+      __RETURN(__FAILURE)
 
    end subroutine transpose_regrid_scalar_3d_real32
 
@@ -560,11 +560,11 @@ contains
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_scalar_3d_real64'
-      _FAIL( 'unimplemented - must override in subclass')
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(q_in)
+      __FAIL( 'unimplemented - must override in subclass')
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(q_in)
       q_out = 0
-      _RETURN(_FAILURE)
+      __RETURN(__FAILURE)
 
    end subroutine transpose_regrid_scalar_3d_real64
 
@@ -580,16 +580,16 @@ contains
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_vector_2d_real32'
 
-      _FAIL( 'unimplemented - must override in subclass')
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(u_in)
-      _UNUSED_DUMMY(v_in)
-      _UNUSED_DUMMY(u_out)
-      _UNUSED_DUMMY(v_out)
-      _UNUSED_DUMMY(rotate)
+      __FAIL( 'unimplemented - must override in subclass')
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(u_in)
+      __UNUSED_DUMMY(v_in)
+      __UNUSED_DUMMY(u_out)
+      __UNUSED_DUMMY(v_out)
+      __UNUSED_DUMMY(rotate)
       u_out = 0
       v_out = 0
-      _RETURN(_FAILURE)
+      __RETURN(__FAILURE)
 
    end subroutine transpose_regrid_vector_2d_real32
 
@@ -605,16 +605,16 @@ contains
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_vector_2d_real64'
 
-      _FAIL( 'unimplemented - must override in subclass')
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(u_in)
-      _UNUSED_DUMMY(v_in)
-      _UNUSED_DUMMY(u_out)
-      _UNUSED_DUMMY(v_out)
-      _UNUSED_DUMMY(rotate)
+      __FAIL( 'unimplemented - must override in subclass')
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(u_in)
+      __UNUSED_DUMMY(v_in)
+      __UNUSED_DUMMY(u_out)
+      __UNUSED_DUMMY(v_out)
+      __UNUSED_DUMMY(rotate)
       u_out = 0
       v_out = 0
-      _RETURN(_FAILURE)
+      __RETURN(__FAILURE)
 
    end subroutine transpose_regrid_vector_2d_real64
 
@@ -630,16 +630,16 @@ contains
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_vector_3d_real32'
 
-      _FAIL( 'unimplemented - must override in subclass')
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(u_in)
-      _UNUSED_DUMMY(v_in)
-      _UNUSED_DUMMY(u_out)
-      _UNUSED_DUMMY(v_out)
-      _UNUSED_DUMMY(rotate)
+      __FAIL( 'unimplemented - must override in subclass')
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(u_in)
+      __UNUSED_DUMMY(v_in)
+      __UNUSED_DUMMY(u_out)
+      __UNUSED_DUMMY(v_out)
+      __UNUSED_DUMMY(rotate)
       u_out = 0
       v_out = 0
-      _RETURN(_FAILURE)
+      __RETURN(__FAILURE)
 
    end subroutine transpose_regrid_vector_3d_real32
 
@@ -654,15 +654,15 @@ contains
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_vector_3d_real64'
 
-      _FAIL( 'unimplemented - must override in subclass')
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(u_in)
-      _UNUSED_DUMMY(v_in)
-      _UNUSED_DUMMY(u_out)
-      _UNUSED_DUMMY(v_out)
+      __FAIL( 'unimplemented - must override in subclass')
+      __UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(u_in)
+      __UNUSED_DUMMY(v_in)
+      __UNUSED_DUMMY(u_out)
+      __UNUSED_DUMMY(v_out)
       u_out = 0
       v_out = 0
-      _RETURN(_FAILURE)
+      __RETURN(__FAILURE)
 
    end subroutine transpose_regrid_vector_3d_real64
 
@@ -686,12 +686,12 @@ contains
       integer :: status
 
       call ESMF_FieldGet(f_in, rank=rank_in, typekind=typekind_in, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call ESMF_FieldGet(f_out, rank=rank_out, typekind=typekind_out, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
-      _ASSERT(rank_in == rank_out, 'in-out rank mismatch')
-      _ASSERT(typekind_in%dkind == typekind_out%dkind, 'in-out typekind mismatch')
+      __ASSERT(rank_in == rank_out, 'in-out rank mismatch')
+      __ASSERT(typekind_in%dkind == typekind_out%dkind, 'in-out typekind mismatch')
 
       select case (rank_in)
 
@@ -705,11 +705,11 @@ contains
               real(REAL32), pointer :: q_in(:,:), q_out(:,:)
 
               call ESMF_FieldGet(f_in , 0, q_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out , 0, q_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call this%transpose_regrid(q_in, q_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
             end block
 
          case (ESMF_TYPEKIND_R8%dkind)
@@ -718,15 +718,15 @@ contains
               real(REAL64), pointer :: q_in(:,:), q_out(:,:)
 
               call ESMF_FieldGet(f_in , 0, q_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out , 0, q_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call this%transpose_regrid(q_in, q_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
             end block
 
          case default ! unsupported typekind
-            _FAIL( 'unsupported typekind')
+            __FAIL( 'unsupported typekind')
          end select
 
       case (3)
@@ -737,12 +737,12 @@ contains
               real(REAL32), pointer :: q_in(:,:,:), q_out(:,:,:)
 
               call ESMF_FieldGet(f_in , 0, q_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out , 0, q_out, rc=status)
-              _VERIFY(status)
-              _ASSERT(size(q_in,3) == size(q_out,3), 'in-out shape mismatch')
+              __VERIFY(status)
+              __ASSERT(size(q_in,3) == size(q_out,3), 'in-out shape mismatch')
               call this%transpose_regrid(q_in, q_out,rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
             end block
 
          case (ESMF_TYPEKIND_R8%dkind)
@@ -751,22 +751,22 @@ contains
               real(REAL64), pointer :: q_in(:,:,:), q_out(:,:,:)
 
               call ESMF_FieldGet(f_in , 0, q_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out , 0, q_out, rc=status)
-              _VERIFY(status)
-              _ASSERT(size(q_in,3) == size(q_out,3), 'in-out shape mismatch')
+              __VERIFY(status)
+              __ASSERT(size(q_in,3) == size(q_out,3), 'in-out shape mismatch')
               call this%transpose_regrid(q_in, q_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
             end block
          case default ! unsupported type/kind
-            _FAIL( 'unsupported typekind')
+            __FAIL( 'unsupported typekind')
          end select
 
       case default ! unsupported rank
-         _FAIL( 'unsupported rank')
+         __FAIL( 'unsupported rank')
       end select
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine transpose_regrid_esmf_fields_scalar
 
@@ -793,19 +793,19 @@ contains
 
       do d = 1, NUM_DIM
          call ESMF_FieldGet(f_in(d), rank=rank_in(d), typekind=typekind_in(d), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          call ESMF_FieldGet(f_out(d), rank=rank_out(d), typekind=typekind_out(d), rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
       end do
 
       ! Check consistent type/kind/rank for all arguments
-      _ASSERT(all(rank_in == rank_in(1)), 'rank mismatch across input vector components')
-      _ASSERT(all(typekind_in%dkind == typekind_in(1)%dkind), 'typekind mismatch across input vector components')
-      _ASSERT(all(rank_out == rank_out(1)),'rank mismatch across output vectory components')
-      _ASSERT(all(typekind_out%dkind == typekind_out(1)%dkind),'typekind mismatch across output vector coomponents')
+      __ASSERT(all(rank_in == rank_in(1)), 'rank mismatch across input vector components')
+      __ASSERT(all(typekind_in%dkind == typekind_in(1)%dkind), 'typekind mismatch across input vector components')
+      __ASSERT(all(rank_out == rank_out(1)),'rank mismatch across output vectory components')
+      __ASSERT(all(typekind_out%dkind == typekind_out(1)%dkind),'typekind mismatch across output vector coomponents')
 
-      _ASSERT(rank_in(1) == rank_out(1), 'in-out rank mismatch')
-      _ASSERT(typekind_in(1)%dkind == typekind_out(1)%dkind,'in-out typekind mismatch')
+      __ASSERT(rank_in(1) == rank_out(1), 'in-out rank mismatch')
+      __ASSERT(typekind_in(1)%dkind == typekind_out(1)%dkind,'in-out typekind mismatch')
 
       select case (rank_in(1))
 
@@ -820,15 +820,15 @@ contains
               real(REAL32), pointer :: u_out(:,:), v_out(:,:)
 
               call ESMF_FieldGet(f_in(1) , 0, u_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_in(2) , 0, v_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out(1) , 0, u_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out(2) , 0, v_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call this%transpose_regrid(u_in, v_in, u_out, v_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
             end block
 
          case (ESMF_TYPEKIND_R8%dkind)
@@ -838,19 +838,19 @@ contains
               real(REAL64), pointer :: u_out(:,:), v_out(:,:)
 
               call ESMF_FieldGet(f_in(1) , 0, u_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_in(2) , 0, v_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out(1) , 0, u_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out(2) , 0, v_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call this%transpose_regrid(u_in, v_in, u_out, v_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
             end block
 
          case default ! unsupported typekind
-            _FAIL( 'unsupported typekind')
+            __FAIL( 'unsupported typekind')
          end select
 
       case (3)
@@ -862,15 +862,15 @@ contains
               real(REAL32), pointer :: u_out(:,:,:), v_out(:,:,:)
 
               call ESMF_FieldGet(f_in(1) , 0, u_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_in(2) , 0, v_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out(1) , 0, u_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out(2) , 0, v_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call this%transpose_regrid(u_in, v_in, u_out, v_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
             end block
 
          case (ESMF_TYPEKIND_R8%dkind)
@@ -880,26 +880,26 @@ contains
               real(REAL64), pointer :: u_out(:,:,:), v_out(:,:,:)
 
               call ESMF_FieldGet(f_in(1) , 0, u_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_in(2) , 0, v_in, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out(1) , 0, u_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call ESMF_FieldGet(f_out(2) , 0, v_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
               call this%transpose_regrid(u_in, v_in, u_out, v_out, rc=status)
-              _VERIFY(status)
+              __VERIFY(status)
             end block
 
          case default ! unsupported type/kind
-            _FAIL( 'unsupported typekind')
+            __FAIL( 'unsupported typekind')
          end select
 
       case default ! unsupported rank
-         _FAIL( 'unsupported rank')
+         __FAIL( 'unsupported rank')
       end select
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
 
    end subroutine transpose_regrid_esmf_fields_vector
@@ -955,7 +955,7 @@ contains
    function isTranspose(this) result(amTranspose)
       logical :: amTranspose
       class (AbstractRegridder), intent(in) :: this
-      _UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(this)
       amTranspose = .false.
    end function isTranspose
 
@@ -969,14 +969,14 @@ contains
 
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME//'initialize_base'
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
       this%spec = spec
       ! Do the rest in the child type
       call this%initialize(rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine initialize_base
 
@@ -996,12 +996,12 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(spec)
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(spec)
+      __UNUSED_DUMMY(unusable)
 
       supports = .false.
-      _FAIL('unimplemented')
-      _RETURN(_SUCCESS)
+      __FAIL('unimplemented')
+      __RETURN(__SUCCESS)
 
    end function supports
 
@@ -1016,7 +1016,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine destroy
 
    subroutine destroy_route_handle(this, kind, rc)
@@ -1024,7 +1024,7 @@ contains
       type(ESMF_TypeKind_Flag), intent(in) :: kind
       integer, optional, intent(out) :: rc
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine destroy_route_handle
 
 end module MAPL_AbstractRegridderMod

@@ -117,18 +117,18 @@ contains
       integer :: idx_tiling_out
       type (RegridderSpec) :: spec
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
       call this%find_tile_file(file_name, swap, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       select case (this%file_type)
       case (GEOS_BINARY)
          tile_file = read_geos_binary(file_name, rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
       case (TEMPEST)
          tile_file = read_tempest(file_name, rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
       end select
 
       if (swap) then
@@ -142,10 +142,10 @@ contains
       ! Copy tile_file into global_x_tiles
       if(MAPL_ShmInitialized) then
          call MAPL_AllocNodeArray( this%global_x_tiles,(/tile_file%n_tiles/),rc=status)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
       else
          allocate(this%global_x_tiles(tile_file%n_tiles),stat=status)
-         _VERIFY(STATUS)
+         __VERIFY(STATUS)
       end if
       if (.not. MAPL_ShmInitialized  .or. MAPL_AmNodeRoot) then
          associate (tiles => this%global_x_tiles)
@@ -157,7 +157,7 @@ contains
          end associate
       end if
       call MAPL_SyncSharedMemory(rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       ! Copy local subset of global_x_tiles into local_x_tiles
       call this%copy_global_to_local()
@@ -172,7 +172,7 @@ contains
          _DEALOCS(this%global_x_tiles)
       end if
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine initialize_subclass
 
@@ -199,28 +199,28 @@ contains
       type (ESMF_VM) :: vm
 
       call ESMF_VMGetCurrent(vm, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
       call ESMF_VmGet(VM, localPet=deId, petCount=npes, rc=status)
-      _VERIFY(status)
+      __VERIFY(status)
 
       am_i_root = (deId == 0)
 
       if (am_i_root) then
          open(file=file_name, newunit=unit, form='unformatted', iostat=status)
-         _VERIFY(status)
+         __VERIFY(status)
       end if
 
       call read_integer(n_tiles)
-      _VERIFY(status)
+      __VERIFY(status)
       tile_file%n_tiles = n_tiles
 
       call read_integer(n_grids)
-      _VERIFY(status)
-      _ASSERT(n_grids == 2, 'illegal value for n_grids (must be 2)')
+      __VERIFY(status)
+      __ASSERT(n_grids == 2, 'illegal value for n_grids (must be 2)')
 
       do idx_grid = 1, n_grids
          call read_tiling_metadata(tile_file%grid_tiles(idx_grid)) ! in
-         _VERIFY(status)
+         __VERIFY(status)
       end do
 
       ! Skip records that are not used here
@@ -232,15 +232,15 @@ contains
 
       do idx_grid = 1, n_grids ! always 2
          call read_tiling_data(tile_file%n_tiles, tile_file%grid_tiles(idx_grid))
-         _VERIFY(status)
+         __VERIFY(status)
       end do
 
       if (am_i_root) then
          close(unit)
       end if
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(unusable)
 
    contains
 
@@ -273,18 +273,18 @@ contains
          end if
          
          call MAPL_CommsBcast(vm, data=length, N=1, ROOT=0, RC=status)
-         _VERIFY(status)
+         __VERIFY(status)
          call MAPL_CommsBcast(vm, data=buffer, N=length, ROOT=0, RC=status)
-         _VERIFY(status)
+         __VERIFY(status)
          tiling%grid_name = buffer(1:length)
 
          call MAPL_CommsBcast(vm, data=tiling%im, N=1, ROOT=0, RC=status)
-         _VERIFY(status)
+         __VERIFY(status)
          call MAPL_CommsBcast(vm, data=tiling%jm, N=1, ROOT=0, RC=status)
-         _VERIFY(status)
+         __VERIFY(status)
 
-         _RETURN(_SUCCESS)
-         _UNUSED_DUMMY(unusable)
+         __RETURN(__SUCCESS)
+         __UNUSED_DUMMY(unusable)
       end subroutine read_tiling_metadata
 
       
@@ -311,35 +311,35 @@ contains
 !!$         end if
 
          call MAPL_AllocateShared(buffer, [n_tiles], TransRoot=TransRoot, rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
 
          if (am_i_root) read(unit) buffer
          call MAPL_BcastShared(vm, data=buffer, N=n_tiles, ROOT=0, RootOnly=RootOnly_, rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          allocate(tiling%i_indices(n_tiles))
          tiling%i_indices = nint(buffer)
 
 
          if (am_i_root) read(unit) buffer
          call MAPL_BcastShared(vm, data=buffer, N=n_tiles, ROOT=0, RootOnly=RootOnly_, rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          allocate(tiling%j_indices(n_tiles))
          tiling%j_indices = nint(buffer)
 
          if (am_i_root) read(unit) buffer
          call MAPL_BcastShared(vm, data=buffer, N=n_tiles, ROOT=0, RootOnly=RootOnly_, rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          allocate(tiling%weights(n_tiles))
          tiling%weights = buffer
 
          call MAPL_SyncSharedMemory(rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          if (associated(buffer)) then
             _DEALOCS(buffer)
          end if
 
-         _RETURN(_SUCCESS)
-         _UNUSED_DUMMY(unusable)
+         __RETURN(__SUCCESS)
+         __UNUSED_DUMMY(unusable)
       end subroutine read_tiling_data
 
     end function read_geos_binary
@@ -362,8 +362,8 @@ contains
       tile_file%grid_tiles(1)%j_indices = JJ_out
       tile_file%grid_tiles(1)%weights = W
 
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(rc)
+      __UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(rc)
    end function read_tempest
 
    !--------------------------------------------------------------------------------
@@ -393,7 +393,7 @@ contains
       character(len=:), allocatable :: trial_name
       logical :: exists
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
       spec = this%get_spec()
 
@@ -423,7 +423,7 @@ contains
       if (exists) then
          file_name = trial_name
          this%file_type = GEOS_BINARY
-         _RETURN(_SUCCESS)
+         __RETURN(__SUCCESS)
       end if
          
       ! Next we search for a tempest ".nc4" file
@@ -436,17 +436,17 @@ contains
          trial_name = make_tile_file_name(grid_name_out, grid_name_in, '.nc4')
          inquire(file=trial_name, exist=exists)
          ! This was the last chance - fail if we still have not found the file.
-         _ASSERT(exists, 'could not find tempest file')
+         __ASSERT(exists, 'could not find tempest file')
       end if
 
       if (exists) then
          file_name = trial_name
          this%file_type = TEMPEST
-         _RETURN(_SUCCESS)
+         __RETURN(__SUCCESS)
       end if
 
-      _RETURN(_FAILURE)
-      _UNUSED_DUMMY(unusable)
+      __RETURN(__FAILURE)
+      __UNUSED_DUMMY(unusable)
 
    contains
 
@@ -460,7 +460,7 @@ contains
          character(len=MAPL_TileNameLength) :: buffer
          
          call ESMF_GridGet(grid, name=buffer, rc=status)
-         _VERIFY(status)
+         __VERIFY(status)
          name = trim(buffer)
          
       end function get_grid_name
@@ -477,8 +477,8 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(rc)
+      __UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(rc)
 
       name = grid_name_1 // '_' // grid_name_2 // suffix
 
@@ -550,7 +550,7 @@ contains
       real (kind=REAL32), allocatable :: fraction(:,:)
       type (RegridderSpec) :: spec
 
-      _ASSERT(.not. this%has_undef_value(), 'undefined value')
+      __ASSERT(.not. this%has_undef_value(), 'undefined value')
 
       call this%init_regrid(q_out)
       allocate(fraction, source = q_out)
@@ -561,13 +561,13 @@ contains
       if (all(shape(q_out) == this%out_shape)) then
          call this%loop_over_tiles(this%global_x_tiles, q_in, q_out, fraction)
       else
-         _ASSERT(iand(spec%hints, REGRID_HINT_LOCAL) /= 0, 'bad hint')
+         __ASSERT(iand(spec%hints, REGRID_HINT_LOCAL) /= 0, 'bad hint')
          call this%loop_over_tiles(this%local_x_tiles, q_in, q_out, fraction)
       end if
 
       call this%final_regrid(q_out, fraction)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end subroutine regrid_scalar_2d_real32
 
@@ -639,17 +639,17 @@ contains
       type(XTile) :: xdummy
 
       if(.not.MAPL_ShmInitialized) then
-         _RETURN(MAPL_NoShm)
+         __RETURN(MAPL_NoShm)
       endif
       ! Xtile type has 4 32-bit integers, and 1 real 4
       memsize=storage_size(xdummy)
       intsize=storage_size(1)
       len=shp(1)*(memsize/intsize)
       call GetSharedMemory(Caddr, len, rc=STATUS)
-      _VERIFY(STATUS)
+      __VERIFY(STATUS)
 
       call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
-      _RETURN(0)
+      __RETURN(0)
 
    end subroutine MAPL_AllocNodeArray_Tiling
    
@@ -663,15 +663,15 @@ contains
       character(len=*), parameter :: Iam = 'MAPL_DeAllocNodeArray_Tiling'
 
       if(.not.MAPL_ShmInitialized) then
-         _RETURN(MAPL_NoShm)
+         __RETURN(MAPL_NoShm)
       endif
 
       Caddr = C_Loc(Ptr(lbound(Ptr,1)))
 
       call ReleaseSharedMemory(Caddr,rc=STATUS)
-      _VERIFY(status)
+      __VERIFY(status)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
     end subroutine MAPL_DeAllocNodeArray_Tiling
    
 end module MAPL_TilingRegridderMod

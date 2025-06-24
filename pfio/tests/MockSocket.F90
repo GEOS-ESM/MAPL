@@ -134,7 +134,7 @@ contains
       else
          message => null()
       end if
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function receive
 
 
@@ -160,7 +160,7 @@ contains
       class default
          call this%prefix('send<unknown>')
       end select
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine send
 
    
@@ -191,8 +191,8 @@ contains
 
       allocate(handle, source=MockHandle(this))
       allocate(handle%data_reference , source=local_reference)
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(request_id)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(request_id)
    end function put
       
    function get(this, request_id, local_reference, rc) result(handle)
@@ -219,8 +219,8 @@ contains
          values_1d = this%q2
       end select
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(request_id)
+      __RETURN(__SUCCESS)
+      __UNUSED_DUMMY(request_id)
    end function get
 
    subroutine wait(this, rc)
@@ -231,13 +231,13 @@ contains
       type is (MockSocket)
          call q%prefix('wait()')
       end select
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end subroutine wait
 
    function to_string(this) result(string)
       class (MockSocket), intent(in) :: this
       character(len=:), allocatable :: string
-      _UNUSED_DUMMY(this)
+      __UNUSED_DUMMY(this)
       string = 'MockSocket::info'
    end function to_string
 

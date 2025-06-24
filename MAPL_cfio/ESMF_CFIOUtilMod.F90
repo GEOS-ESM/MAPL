@@ -1522,7 +1522,7 @@
 !
 !-------------------------------------------------------------------------
 
-      _UNUSED_DUMMY(count)
+      __UNUSED_DUMMY(count)
 
       rc = NF90_REDEF ( fid )
       if (err("PutCharAtt: could not enter define mode",rc,-55) .NE. 0) &
@@ -2417,7 +2417,7 @@
       logical outRange
       logical outPRange
 
-      _UNUSED_DUMMY(jm)
+      __UNUSED_DUMMY(jm)
 
 ! Variable initialization
 

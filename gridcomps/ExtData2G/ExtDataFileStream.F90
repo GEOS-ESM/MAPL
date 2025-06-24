@@ -43,14 +43,14 @@ contains
       character(len=:), allocatable :: file_frequency, file_reff_time,range_str
       logical :: is_present
 
-      _UNUSED_DUMMY(unusable)
+      __UNUSED_DUMMY(unusable)
 
 
-      is_present = ESMF_HConfigIsDefined(config,keyString="template",_RC)
-      _ASSERT(is_present,"no file template in the collection")
+      is_present = ESMF_HConfigIsDefined(config,keyString="template",__RC)
+      __ASSERT(is_present,"no file template in the collection")
 
       if (is_present) then
-         data_set%file_template = ESMF_HConfigAsString(config,keyString="template",_RC)
+         data_set%file_template = ESMF_HConfigAsString(config,keyString="template",__RC)
          file_frequency = get_string_with_default(config,"freq")
          file_reff_time = get_string_with_default(config,"ref_time")
          range_str = get_string_with_default(config,"valid_range")
@@ -64,19 +64,19 @@ contains
             token = data_set%file_template(last_token+1:last_token+2)
             select case(token)
             case("y4")
-               call ESMF_TimeIntervalSet(data_set%frequency,yy=1,_RC)
+               call ESMF_TimeIntervalSet(data_set%frequency,yy=1,__RC)
             case("m2")
-               call ESMF_TimeIntervalSet(data_set%frequency,mm=1,_RC)
+               call ESMF_TimeIntervalSet(data_set%frequency,mm=1,__RC)
             case("d2")
-               call ESMF_TimeIntervalSet(data_set%frequency,d=1,_RC)
+               call ESMF_TimeIntervalSet(data_set%frequency,d=1,__RC)
             case("h2")
-               call ESMF_TimeIntervalSet(data_set%frequency,h=1,_RC)
+               call ESMF_TimeIntervalSet(data_set%frequency,h=1,__RC)
             case("n2")
-               call ESMF_TimeIntervalSet(data_set%frequency,m=1,_RC)
+               call ESMF_TimeIntervalSet(data_set%frequency,m=1,__RC)
             end select
          else
             ! couldn't find any tokens so all the data must be on one file
-            call ESMF_TimeIntervalSet(data_set%frequency,_RC)
+            call ESMF_TimeIntervalSet(data_set%frequency,__RC)
          end if
       end if
 
@@ -85,19 +85,19 @@ contains
       else
          last_token = index(data_set%file_template,'%',back=.true.)
          if (last_token.gt.0) then
-            call ESMF_TimeGet(current_time, yy=iyy, mm=imm, dd=idd,h=ihh, m=imn, s=isc  ,_RC)
+            call ESMF_TimeGet(current_time, yy=iyy, mm=imm, dd=idd,h=ihh, m=imn, s=isc  ,__RC)
             token = data_set%file_template(last_token+1:last_token+2)
             select case(token)
             case("y4")
-               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=1,dd=1,h=0,m=0,s=0,_RC)
+               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=1,dd=1,h=0,m=0,s=0,__RC)
             case("m2")
-               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=1,h=0,m=0,s=0,_RC)
+               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=1,h=0,m=0,s=0,__RC)
             case("d2")
-               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=0,m=0,s=0,_RC)
+               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=0,m=0,s=0,__RC)
             case("h2")
-               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=0,s=0,_RC)
+               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=0,s=0,__RC)
             case("n2")
-               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,s=0,_RC)
+               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,s=0,__RC)
             end select
          else
             data_set%reff_time = current_time
@@ -106,7 +106,7 @@ contains
 
       if (range_str /= '') then
          idx = index(range_str,'/')
-         _ASSERT(idx/=0,'invalid specification of time range')
+         __ASSERT(idx/=0,'invalid specification of time range')
          if (allocated(data_set%valid_range)) deallocate(data_set%valid_range)
          allocate(data_set%valid_range(2))
          data_set%valid_range(1)=string_to_esmf_time(range_str(:idx-1))
@@ -114,26 +114,26 @@ contains
 
          last_token = index(data_set%file_template,'%',back=.true.)
          if (last_token.gt.0) then
-            call ESMF_TimeGet(data_set%valid_range(1), yy=iyy, mm=imm, dd=idd,h=ihh, m=imn, s=isc  ,_RC)
+            call ESMF_TimeGet(data_set%valid_range(1), yy=iyy, mm=imm, dd=idd,h=ihh, m=imn, s=isc  ,__RC)
             token = data_set%file_template(last_token+1:last_token+2)
             select case(token)
             case("y4")
-               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=1,dd=1,h=0,m=0,s=0,_RC)
+               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=1,dd=1,h=0,m=0,s=0,__RC)
             case("m2")
-               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=1,h=0,m=0,s=0,_RC)
+               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=1,h=0,m=0,s=0,__RC)
             case("d2")
-               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=0,m=0,s=0,_RC)
+               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=0,m=0,s=0,__RC)
             case("h2")
-               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=0,s=0,_RC)
+               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=0,s=0,__RC)
             case("n2")
-               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,s=0,_RC)
+               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,s=0,__RC)
             end select
          end if
 
       end if
       data_set%collection_id = MAPL_DataAddCollection(data_set%file_template)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
       contains
 
@@ -143,7 +143,7 @@ contains
             character(len=:), allocatable :: string
 
             if (ESMF_HConfigIsDefined(config,keyString=selector)) then
-               string = ESMF_HConfigAsString(config,keyString=selector,_RC)
+               string = ESMF_HConfigAsString(config,keyString=selector,__RC)
             else
                string=''
             end if
@@ -166,7 +166,7 @@ contains
       integer :: status
 
       if (multi_rule) then
-         _ASSERT(allocated(this%valid_range),"must use a collection with valid range")
+         __ASSERT(allocated(this%valid_range),"must use a collection with valid range")
       end if
 
       if (present(get_range)) then
@@ -179,17 +179,17 @@ contains
       if (get_range_ .and. (.not.allocated(this%valid_range))) then
          if (index('%',this%file_template) == 0) then
             metadata => collection%find(this%file_template)
-            call metadata%get_time_info(timeVector=time_series,_RC)
+            call metadata%get_time_info(timeVector=time_series,__RC)
             allocate(this%valid_range(2))
             this%valid_range(1)=time_series(1)
             this%valid_range(2)=time_series(size(time_series))
          end if
       end if
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
-      _UNUSED_DUMMY(metadata_out)
-      _UNUSED_DUMMY(time)
+      __UNUSED_DUMMY(metadata_out)
+      __UNUSED_DUMMY(time)
 
    end subroutine detect_metadata
 

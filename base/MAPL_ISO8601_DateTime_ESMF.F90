@@ -24,13 +24,13 @@ contains
       type(ISO8601DateTime) :: datetime
       integer :: status
 
-      datetime = ISO8601DateTime(isostring, _RC)
+      datetime = ISO8601DateTime(isostring, __RC)
 
       call ESMF_TimeSet(time,yy = datetime%get_year(), mm = datetime%get_month(), &
          dd = datetime%get_day(), h = datetime%get_hour(), m = datetime%get_minute(), &
-         s= datetime%get_second(), _RC)
+         s= datetime%get_second(), __RC)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
 
    end function convert_ISO8601_to_esmf_time
 
@@ -42,14 +42,14 @@ contains
       type(ISO8601Duration) :: duration
       integer :: status
 
-      duration = ISO8601Duration(isostring, 0, 1, _RC)
+      duration = ISO8601Duration(isostring, 0, 1, __RC)
 
       call ESMF_TimeIntervalSet(interval, yy=duration%get_years(), &
          mm=duration%get_months(), d=duration%get_days(), &
          h=duration%get_hours(), m=duration%get_minutes(), &
-         s=duration%get_seconds(), _RC)
+         s=duration%get_seconds(), __RC)
 
-      _RETURN(_SUCCESS)
+      __RETURN(__SUCCESS)
    end function convert_ISO8601_to_esmf_timeinterval
 
 end module MAPL_ISO8601_DateTime_ESMF

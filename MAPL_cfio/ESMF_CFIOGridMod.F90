@@ -178,8 +178,8 @@
        integer :: i, j
        !integer :: sz
 
-       _UNUSED_DUMMY(sigma)
-       _UNUSED_DUMMY(reduceGrid)
+       __UNUSED_DUMMY(sigma)
+       __UNUSED_DUMMY(reduceGrid)
 
        if ( present(gName) ) grid%gName = gName
        if ( present(im) ) grid%im = im
