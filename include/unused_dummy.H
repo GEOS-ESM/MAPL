@@ -7,11 +7,11 @@
 ! compiler will optimize the line away.  (Hopefully without
 ! reintroducing the warning!)
 
-#ifdef _UNUSED_DUMMY
-#  undef _UNUSED_DUMMY
+#ifdef _unused_dummy
+#  undef _unused_dummy
 #endif
 #if defined(__flang__)
-#  define _UNUSED_DUMMY(x) if (.false.) then; print*, shape(x); endif
+#  define _unused_dummy(x) if (.false.) then; print*, shape(x); endif
 #else
-#  define _UNUSED_DUMMY(x) if (.false.) then; associate (q____ => x); end associate; endif
+#  define _unused_dummy(x) if (.false.) then; associate (q____ => x); end associate; endif
 #endif
