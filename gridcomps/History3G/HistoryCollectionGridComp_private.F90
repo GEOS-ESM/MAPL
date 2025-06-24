@@ -9,6 +9,7 @@ module mapl3g_HistoryCollectionGridComp_private
    private
 
    public :: make_geom
+   public :: detect_geom
    public :: register_imports
    public :: create_output_bundle
    public :: set_start_stop_time
@@ -273,7 +274,6 @@ contains
       type(HistoryOptions), intent(in) :: opts
       integer, optional, intent(out) :: rc
       integer :: status
-      character(len=:), allocatable :: item_name
       type(StringVectorIterator) :: ftn_iter, ftn_end
       type(VariableSpec) :: varspec
       character(len=:), allocatable :: short_name
@@ -425,5 +425,26 @@ contains
       _ASSERT(tk_found, 'Typekind was not found.')
 
    end function get_typekind
+
+   function detect_geom(bundle, collection_name, rc) result(geom)
+      type(ESMF_Geom) :: geom
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      character(len=*), intent(in) :: collection_name
+      integer, optional, intent(out) :: rc
+      integer :: status
+      integer :: i, geom_id, last_id
+      type(ESMF_Field), allocatable :: fields(:)
+
+      call MAPL_FieldBundleGet(bundle, fieldList=fields, _RC)
+      do i=1,size(fields)
+         call ESMF_FieldGet(fields(i), geom=geom ,_RC)
+         geom_id = MAPL_GeomGetID(geom, _RC)
+         if (i > 1) then
+            _ASSERT(geom_id == last_id,"Items in collections "//trim(collection_name)//" have inconsistent geoms")
+         end if 
+         last_id=geom_id
+      enddo 
+      _RETURN(_SUCCESS)
+   end function detect_geom
 
 end module mapl3g_HistoryCollectionGridComp_private

@@ -74,7 +74,7 @@ contains
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
       collection_gridcomp%output_bundle = create_output_bundle(hconfig, importState, _RC)
 
-      call MAPL_GridCompGet(gridcomp, geom=geom, _RC)
+      geom = detect_geom(collection_gridcomp%output_bundle, name, _RC)
       metadata = bundle_to_metadata(collection_gridcomp%output_bundle, geom, _RC)
       mapl_geom => get_mapl_geom(geom, _RC)
       allocate(collection_gridcomp%writer, source=make_geom_pfio(metadata, rc=status))
@@ -101,10 +101,14 @@ contains
       integer :: status
       type(ESMF_HConfig) :: hconfig
       type(ESMF_Geom) :: geom
+      logical :: has_geom
 
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
-      geom = make_geom(hconfig)
-      call MAPL_GridCompSetGeom(gridcomp, geom, _RC)
+      has_geom = ESMF_HConfigIsDefined(hconfig, keystring='geom', _RC)
+      if (has_geom) then
+         geom = make_geom(hconfig)
+         call MAPL_GridCompSetGeom(gridcomp, geom, _RC)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine init_geom
