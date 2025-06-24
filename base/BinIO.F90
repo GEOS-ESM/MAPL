@@ -5,7 +5,7 @@
 !------------------------------------------------------------------------------
 !
 #include "MAPL_ErrLog.h"
-#define DEALOC_(A) if(associated(A))then;if(MAPL_ShmInitialized)then;call MAPL_SyncSharedMemory(rc=STATUS);call MAPL_DeAllocNodeArray(A,rc=STATUS);else;deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
+#define DEALOC_(A) if(associated(A))then;if(MAPL_ShmInitialized)then;call MAPL_SyncSharedMemory(rc=STATUS);call MAPL_DeAllocNodeArray(A,rc=STATUS);else;deallocate(A,stat=STATUS);endif;_verify(STATUS);NULLIFY(A);endif
 !
 !>
 !### MODULE: `BinIO`
@@ -233,8 +233,8 @@ module  BinIOMod
 
     if(UNIT < 0) then
 
-      _ASSERT(-UNIT<=LAST_UNIT, 'illegal io unit')
-      _ASSERT(MTAKEN(-UNIT), 'illegal io unit')
+      _assert(-UNIT<=LAST_UNIT, 'illegal io unit')
+      _assert(MTAKEN(-UNIT), 'illegal io unit')
       MEM_units(-unit)%PREVREC=0
 
     ELSE
@@ -245,7 +245,7 @@ module  BinIOMod
 
        IF (UNIT.LT.1 .OR. UNIT.GT.LAST_UNIT) THEN
           WRITE (0,*) ' BAD UNIT NUMBER  ZFILCLR  UNIT = ', UNIT
-          _RETURN(ESMF_FAILURE)
+          _return(ESMF_FAILURE)
        ELSE
           TAKEN(UNIT) = .FALSE.
           MTAKEN(UNIT) = .FALSE.
@@ -254,7 +254,7 @@ module  BinIOMod
 
     END IF
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   END SUBROUTINE FREE_FILE
 
 !---------------------------------------------------------------------------
@@ -320,41 +320,41 @@ module  BinIOMod
     integer                                 :: natt
 
     call ESMF_StateGet(STATE,ITEMCOUNT=ITEMCOUNT,RC=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
-    _ASSERT(ITEMCOUNT>0, 'itemcount must be > 0')
+    _assert(ITEMCOUNT>0, 'itemcount must be > 0')
 
     allocate(ITEMNAMES(ITEMCOUNT),STAT=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     allocate(ITEMTYPES(ITEMCOUNT),STAT=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     allocate(     DOIT(ITEMCOUNT),STAT=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     call ESMF_StateGet(STATE,ITEMNAMELIST=ITEMNAMES,&
                        ITEMTYPELIST=ITEMTYPES,RC=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     if(present(NAME)) then
        DOIT = ITEMNAMES==NAME
-       _ASSERT(count(DOIT)/=0, 'cont(doit) must be > 0')
+       _assert(count(DOIT)/=0, 'cont(doit) must be > 0')
     else
        DOIT = .true.
     endif
 
     attrName = MAPL_StateItemOrderList
     call ESMF_AttributeGet(state, NAME=attrName, itemcount=natt, RC=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
-    _ASSERT(natt > 0, 'natt not > 0')
+    _assert(natt > 0, 'natt not > 0')
     allocate(orderlist(natt), stat=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     allocate(currList(natt), stat=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     ! get the current list
     call ESMF_AttributeGet(state, NAME=attrName, VALUELIST=currList, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     orderList = -1 ! not found
     do i = 1, natt
@@ -387,14 +387,14 @@ module  BinIOMod
 
           if (ITEMTYPES(I) == ESMF_StateItem_FieldBundle) then
              call ESMF_StateGet(state, itemnames(i), bundle, rc=status)
-             _VERIFY(STATUS)
+             _verify(STATUS)
 
              skipReading = .false.
              call ESMF_AttributeGet(bundle, name='RESTART', isPresent=isPresent, rc=status)
-             _VERIFY(STATUS)
+             _verify(STATUS)
              if (isPresent) then
                 call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
-                _VERIFY(STATUS)
+                _verify(STATUS)
              else
                 RST = MAPL_RestartOptional
              end if
@@ -406,18 +406,18 @@ module  BinIOMod
              end if
              call MAPL_BundleRead(unit, bundle, arrdes=arrdes, &
                   bootstrapable=bootstrapable_, rc=status)
-             _VERIFY(STATUS)
+             _verify(STATUS)
 
           else if (ITEMTYPES(I) == ESMF_StateItem_Field) then
              call ESMF_StateGet(state, itemnames(i), field, rc=status)
-             _VERIFY(STATUS)
+             _verify(STATUS)
 
              skipReading = .false.
              call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
-             _VERIFY(STATUS)
+             _verify(STATUS)
              if (isPresent) then
                 call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
-                _VERIFY(STATUS)
+                _verify(STATUS)
              else
                 RST = MAPL_RestartOptional
              end if
@@ -425,10 +425,10 @@ module  BinIOMod
 
              if (skipReading) cycle
              call ESMF_AttributeGet(field, name='doNotAllocate', isPresent=isPresent, rc=status)
-             _VERIFY(STATUS)
+             _verify(STATUS)
              if (isPresent) then
                 call ESMF_AttributeGet(field, name='doNotAllocate', value=dna, rc=status)
-                _VERIFY(STATUS)
+                _verify(STATUS)
                 skipReading = (dna /= 0)
              end if
              if (skipReading) cycle
@@ -440,22 +440,22 @@ module  BinIOMod
 
              if(.not.associated(MASK)) then
                 call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
-                _VERIFY(STATUS)
+                _verify(STATUS)
                 if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                    call ESMF_FieldGet   (field, grid=grid, rc=status)
-                   _VERIFY(STATUS)
+                   _verify(STATUS)
                    call MAPL_TileMaskGet(grid,  mask, rc=status)
-                   _VERIFY(STATUS)
+                   _verify(STATUS)
 !@                else
 !@                   allocate(Mask(1))
                 endif
              endif
 
              call MAPL_FieldRead(unit, field, arrdes=arrdes, HomePE=Mask, ignoreEOF=ignoreEOF, rc=status)
-             _VERIFY(STATUS)
+             _verify(STATUS)
 
 !ALT          else
-!ALT             _FAIL('failed mapl_statevarread')
+!ALT             _fail('failed mapl_statevarread')
 
           end if
 
@@ -471,7 +471,7 @@ module  BinIOMod
        DEALOC_(MASK)
     end if
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_StateVarRead
 !---------------------------
 
@@ -495,12 +495,12 @@ module  BinIOMod
     logical                            :: isPresent
 
     call ESMF_FieldBundleGet(bundle, fieldCount=N, name=BundleName, rc=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     allocate(namelist(N), stat=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     call ESMF_FieldBundleGet(bundle, fieldNameList=nameList, fieldCount=FieldCount,  rc=STATUS)
-    _VERIFY(STATUS)
-    _ASSERT(N==fieldCount, 'inconsistent fieldCount')
+    _verify(STATUS)
+    _assert(N==fieldCount, 'inconsistent fieldCount')
 
     if (present(bootstrapable)) then
        bootstrapable_ = bootstrapable
@@ -510,13 +510,13 @@ module  BinIOMod
 
     do J = 1, N
        call MAPL_FieldBundleGet(bundle, fieldIndex=J, field=field, rc=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
        call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        if (isPresent) then
           call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        else
           RST = MAPL_RestartOptional
        end if
@@ -529,11 +529,11 @@ module  BinIOMod
        end if
 
        call MAPL_FieldRead(unit, field, arrdes=ARRDES,  ignoreEOF=ignoreEOF, rc=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
     end do
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_BundleRead
 
 
@@ -582,11 +582,11 @@ module  BinIOMod
     end if
 
     call ESMF_FieldGet(field, grid=grid, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     if (ignoreEOF_ .and. (unit > 0)) then
        ! test for end-of-file by
@@ -596,64 +596,64 @@ module  BinIOMod
           read (UNIT, IOSTAT=status)
        end if
        call MAPL_CommsBcast(layout, status, n=1, ROOT=MAPL_Root, rc=stat)
-       _VERIFY(STAT)
+       _verify(STAT)
 
        if (status == IOSTAT_END) then
-          _RETURN(ESMF_SUCCESS)
+          _return(ESMF_SUCCESS)
        end if
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
        call MAPL_Backspace(UNIT, layout, rc=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end if
 
     call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
        if(present(HomePE)) then
           mask => HomePE
        else
           call MAPL_TileMaskGet(grid, mask, rc=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        endif
     end if
 
     call ESMF_FieldGet(field, Array=array, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     call ESMF_ArrayGet(array, typekind=tk, rank=rank, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     if (rank == 1) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_1d, rc=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           if (associated(var_1d)) then
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                 call MAPL_VarRead(unit, grid, var_1d, arrdes=arrdes, mask=mask, rc=status)
-                _VERIFY(STATUS)
+                _verify(STATUS)
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
                 call READ_PARALLEL(layout, var_1d, unit, arrdes=arrdes, rc=status)
              else
-                _RETURN(ESMF_FAILURE)
+                _return(ESMF_FAILURE)
              endif
           end if
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_1d, rc=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           if (associated(vr8_1d)) then
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                 call MAPL_VarRead(unit, grid, vr8_1d, arrdes=arrdes, mask=mask, rc=status)
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
                 call READ_PARALLEL(layout, vr8_1d, unit, arrdes=arrdes, rc=status)
              else
-                _RETURN(ESMF_FAILURE)
+                _return(ESMF_FAILURE)
              endif
           end if
        end if
     else if (rank == 2) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_2d, rc=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           if (associated(var_2d)) then !ALT: temp kludge
              if (FORMATTED=="YES") THEN
                 call READ_PARALLEL(layout, &
@@ -672,7 +672,7 @@ module  BinIOMod
           end if
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_2d, rc=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           if (associated(vr8_2d)) then !ALT: temp kludge
              if (FORMATTED=="YES") THEN
                 call READ_PARALLEL(layout, &
@@ -693,7 +693,7 @@ module  BinIOMod
     else if (rank == 3) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_3d, rc=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           if (associated(var_3d)) then !ALT: temp kludge
              if (FORMATTED=="YES") THEN
                 call READ_PARALLEL(layout, &
@@ -712,7 +712,7 @@ module  BinIOMod
           end if
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_3d, rc=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           if (associated(vr8_3d)) then !ALT: temp kludge
              if (FORMATTED=="YES") THEN
                 call READ_PARALLEL(layout, &
@@ -733,17 +733,17 @@ module  BinIOMod
     else if (rank == 4) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_4d, rc=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MAPL_VarRead(unit, grid, var_4d, rc=status)
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_4d, rc=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MAPL_VarRead(unit, grid, vr8_4d, rc=status)
        end if
     else
-       _FAIL( "ERROR: unsupported RANK")
+       _fail( "ERROR: unsupported RANK")
     endif
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
        if(.not.present(HomePE)) then
@@ -751,7 +751,7 @@ module  BinIOMod
        end if
     end if
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_FieldRead
 
 !---------------------------
@@ -796,24 +796,24 @@ module  BinIOMod
     logical :: amIRoot
 
     if(present(arrdes)) then
-       _ASSERT(present(mask), 'mask must be present if arrdes is present')
+       _assert(present(mask), 'mask must be present if arrdes is present')
 
        IM_WORLD = arrdes%im_world
 
        call mpi_comm_size(arrdes%ioscattercomm,npes ,status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        if(arrdes%readers_comm /= MPI_COMM_NULL) then
           call mpi_comm_rank(arrdes%readers_comm,mypeRd ,status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call mpi_comm_size(arrdes%readers_comm,nrdrs,status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        else
           mypeRd = -1
        endif
        call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call MAPL_CommsBcast(layout, nrdrs, 1, 0, rc = status)
 
        Rsize = im_world/nrdrs + 1
@@ -829,13 +829,13 @@ module  BinIOMod
 #endif
 
        allocate(VAR(Rsize), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        allocate(msk(Rsize), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        allocate (sendcounts(0:npes-1), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        allocate (r2g(0:nrdrs-1), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
        if(arrdes%readers_comm /= MPI_COMM_NULL) then
           if(arrdes%offset<=0) then
@@ -847,20 +847,20 @@ module  BinIOMod
           loffset = offset + (first-1)*4
           cnt = Rsize
           call MPI_FILE_READ_AT_ALL(UNIT, loffset, VAR, cnt, MPI_REAL, mpistatus, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MPI_GET_COUNT( mpistatus, MPI_REAL, numread, STATUS )
-          _VERIFY(STATUS)
-          _ASSERT(cnt == numread, 'inconsistent numread')
+          _verify(STATUS)
+          _assert(cnt == numread, 'inconsistent numread')
 #ifdef DEBUG_MPIIO
           write(*,'(3i,1f)') IM_WORLD, loffset, numread, VAR(1)
 #endif
 
-          _ASSERT( (lbound(mask,1) <= first), 'location not in bounds')
-          _ASSERT( (ubound(mask,1) >= last ), 'location not in bounds')
+          _assert( (lbound(mask,1) <= first), 'location not in bounds')
+          _assert( (ubound(mask,1) >= last ), 'location not in bounds')
           msk = mask(first:last)
 
           allocate(idx(Rsize), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
 
           do i=1,Rsize
              idx(i) = i
@@ -874,25 +874,25 @@ module  BinIOMod
        endif
 
        call mpi_comm_rank(arrdes%ioscattercomm,mype ,status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
        call MPI_COMM_GROUP (arrdes%ioscattercomm, GROUP, STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
 #if 1
        if (arrdes%readers_comm /= MPI_COMM_NULL) then
           allocate(rpes(0:nrdrs-1), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
 
           call MPI_COMM_GROUP (arrdes%readers_comm, NEWGROUP, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           do n=0,nrdrs-1
              rpes(n) = n
           end do
           call MPI_Group_translate_ranks(newgroup, nrdrs, rpes, group, r2g, status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nrdrs, 0, rc = status)
@@ -926,11 +926,11 @@ module  BinIOMod
              nactive = nactive + 1
           end if
           allocate (activeranks(0:nactive-1), activesendcounts(0:nactive-1), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           allocate(pes(0:nactive-1), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           allocate (displs(0:nactive), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           k = 0
           do i=0, npes-1
              if (sendcounts(i) > 0) then
@@ -940,18 +940,18 @@ module  BinIOMod
           enddo
           if (k /= nactive) then
              k = k+1
-             _ASSERT(k == nactive, 'inconsistent nactive')
-             _ASSERT(sendcounts(r2g(n)) == 0, 'sendcounts should be 0')
+             _assert(k == nactive, 'inconsistent nactive')
+             _assert(sendcounts(r2g(n)) == 0, 'sendcounts should be 0')
              pes(nactive-1) = r2g(n)
           end if
           call MPI_GROUP_INCL (GROUP, nactive, PES, newgroup, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MPI_COMM_CREATE(arrdes%ioscattercomm, newgroup, thiscomm, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MPI_Group_translate_ranks(group, nactive, pes, newgroup, activeranks, status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
 
           if (thiscomm /= MPI_COMM_NULL) then
              activesendcounts = 0
@@ -985,9 +985,9 @@ module  BinIOMod
                                    a(offset),   recvcount,  MPI_REAL, &
                                    ntransl, thiscomm,    status )
              endif
-             _VERIFY(STATUS)
+             _verify(STATUS)
              call MPI_Comm_Free(thiscomm, status)
-             _VERIFY(STATUS)
+             _verify(STATUS)
              offset = offset + recvcount
           end if
           deallocate (displs)
@@ -997,9 +997,9 @@ module  BinIOMod
        enddo
 
        call MPI_Barrier(arrdes%ioscattercomm, status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call MPI_GROUP_FREE (GROUP, STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        deallocate(var,msk)
        deallocate (r2g)
        deallocate(sendcounts)
@@ -1009,22 +1009,22 @@ module  BinIOMod
 
     elseif(unit < 0) then
 
-       _ASSERT(-UNIT<=LAST_UNIT, 'illegal unit')
+       _assert(-UNIT<=LAST_UNIT, 'illegal unit')
        munit => MEM_units(-unit)
        munit%prevrec = munit%prevrec + 1
-       _ASSERT(associated(munit%Records(munit%prevrec)%R4_1), 'unassociated pointer')
-       _ASSERT(size(A)==size(munit%Records(munit%prevrec)%R4_1), 'inconsistent array size')
+       _assert(associated(munit%Records(munit%prevrec)%R4_1), 'unassociated pointer')
+       _assert(size(A)==size(munit%Records(munit%prevrec)%R4_1), 'inconsistent array size')
        A = munit%Records(munit%prevrec)%R4_1
 
     else
 
        call MAPL_GridGet(grid, globalCellCountPerDim=DIMS, RC=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
        call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
        amIRoot = MAPL_am_i_root(layout)
        IM_WORLD = DIMS(1)
@@ -1032,35 +1032,35 @@ module  BinIOMod
        if (.not. MAPL_ShmInitialized) then
           if (amIRoot) then
              allocate(VAR(IM_WORLD), stat=status)
-             _VERIFY(STATUS)
+             _verify(STATUS)
           else
              allocate(VAR(0), stat=status)
-             _VERIFY(STATUS)
+             _verify(STATUS)
           end if
        else
           call MAPL_AllocNodeArray(var,(/IM_WORLD/),rc=STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        end if
 
        if (amIRoot) then
           read (UNIT, IOSTAT=status) VAR
-          _VERIFY(STATUS)
+          _verify(STATUS)
        end if
 
        if (.not. MAPL_ShmInitialized) then
           call ArrayScatter(A, VAR, grid, mask=mask, rc=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
 
           deallocate(VAR)
        else
           call ArrayScatterShm(A, VAR, grid, mask=mask, rc=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MAPL_DeAllocNodeArray(VAR,rc=STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        end if
     end if
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R4_1d
 
 !---------------------------
@@ -1101,7 +1101,7 @@ module  BinIOMod
 
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
-  _VERIFY(STATUS)
+  _verify(STATUS)
   itime_beg = MPI_Wtime()
 #endif
 
@@ -1127,15 +1127,15 @@ module  BinIOMod
        JM_WORLD = arrdes%jm_world
 
        call mpi_comm_rank(arrdes%ycomm,myrow,status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call mpi_comm_rank(arrdes%ioscattercomm,myiorank,status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call mpi_comm_size(arrdes%ioscattercomm,num_io_rows,status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        num_io_rows=num_io_rows/ndes_x
 
        allocate (sendcounts(ndes_x*num_io_rows), displs(ndes_x*num_io_rows), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
        if(myiorank==0) then
           do j=1,num_io_rows
@@ -1153,9 +1153,9 @@ module  BinIOMod
              jsize=jsize + (arrdes%jn(myrow+j) - arrdes%j1(myrow+j) + 1)
           enddo
           allocate(VAR(IM_WORLD,jsize), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           allocate(buf(IM_WORLD*jsize), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
 
           if(arrdes%offset<=0) then
              offset = 4
@@ -1166,10 +1166,10 @@ module  BinIOMod
           offset = offset + (arrdes%j1(myrow+1)-1)*IM_WORLD*4
           cnt = IM_WORLD*jsize
           call MPI_FILE_READ_AT_ALL(UNIT, offset, VAR, cnt, MPI_REAL, mpistatus, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MPI_GET_COUNT( mpistatus, MPI_REAL, numread, STATUS )
-          _VERIFY(STATUS)
-          _ASSERT(cnt == numread, 'inconsistent numread')
+          _verify(STATUS)
+          _assert(cnt == numread, 'inconsistent numread')
           offset = offset - (arrdes%j1(myrow+1)-1)*IM_WORLD*4
 
           arrdes%offset = offset + IM_WORLD*JM_WORLD*4 + 8
@@ -1198,89 +1198,89 @@ module  BinIOMod
 !DSK avoid "Attempt to fetch from allocatable variable BUF when it is not allocated"
        if(myiorank/=0) then
           allocate(buf(0), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        endif
 
        call mpi_scatterv( buf, sendcounts, displs, MPI_REAL, &
             a,  size(a),  MPI_REAL, &
             0, arrdes%ioscattercomm, status )
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
        if(myiorank==0) then
           deallocate(VAR, stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
 !          deallocate(buf, stat=status)
-!          _VERIFY(STATUS)
+!          _verify(STATUS)
        endif
        deallocate(buf, stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        deallocate (sendcounts, displs, stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
        end if
 
     elseif(unit < 0) then
 
-      _ASSERT(-UNIT<=LAST_UNIT, 'illegal unit')
+      _assert(-UNIT<=LAST_UNIT, 'illegal unit')
       munit => MEM_units(-unit)
       munit%prevrec = munit%prevrec + 1
-      _ASSERT(associated(munit%Records(munit%prevrec)%R4_2), 'pointer not associated')
-      _ASSERT(size(A)==size(munit%Records(munit%prevrec)%R4_2), 'inconsistent array size')
+      _assert(associated(munit%Records(munit%prevrec)%R4_2), 'pointer not associated')
+      _assert(size(A)==size(munit%Records(munit%prevrec)%R4_2), 'inconsistent array size')
       A = munit%Records(munit%prevrec)%R4_2
 
     else
 
     call ESMF_GridGet(GRID, dimCount=gridRank, rc=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     call MAPL_GridGet(GRID, globalCellCountPerDim=DIMS, RC=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     IM_WORLD = DIMS(1)
     JM_WORLD = DIMS(2)
     if (present(MASK)) JM_WORLD=size(A,2)
 
     call ESMF_GridGet(grid, distGrid=distGrid, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     am_i_root = MAPL_am_i_root(layout)
     if (am_i_root) then
        allocate(VAR(IM_WORLD,JM_WORLD), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        read (UNIT, IOSTAT=status) VAR
-       _VERIFY(STATUS)
+       _verify(STATUS)
     else
        allocate(VAR(0,JM_WORLD), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end if
 
     if (MAPL_ShmInitialized .and. present(mask)) then
        call MAPL_AllocNodeArray(var1d,(/IM_WORLD/),rc=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        do j=1,JM_WORLD
           if (am_i_root) then
              var1d = var(:,j)
           end if
           call ArrayScatterShm(A(:,j), VAR1d, grid, mask=mask, rc=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        end do
        call MAPL_DeAllocNodeArray(VAR1d,rc=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
     else
        call ArrayScatter(A, VAR, grid, mask=mask, rc=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end if
 
     deallocate(VAR)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     END IF
 
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
-  _VERIFY(STATUS)
+  _verify(STATUS)
   itime_end = MPI_Wtime()
   bwidth = REAL(IM_WORLD*JM_WORLD*4/1024.0/1024.0,kind=8)
   bwidth = bwidth/(itime_end-itime_beg)
@@ -1292,7 +1292,7 @@ module  BinIOMod
   endif
 #endif
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R4_2d
 
 !---------------------------
@@ -1312,10 +1312,10 @@ module  BinIOMod
 
     do L = 1, size(A,3)
        call MAPL_VarRead(UNIT, GRID, A(:,:,L), ARRDES=arrdes, rc=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end do
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R4_3d
 
 !---------------------------
@@ -1335,10 +1335,10 @@ module  BinIOMod
 
     do L = 1, size(A,4)
        call MAPL_VarRead(UNIT, GRID, A(:,:,:,L), ARRDES=arrdes, rc=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end do
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R4_4d
 
 !---------------------------
@@ -1381,24 +1381,24 @@ module  BinIOMod
     integer :: cnt
 
     if(present(arrdes)) then
-       _ASSERT(present(mask), 'mask must be present if arrdes is present')
+       _assert(present(mask), 'mask must be present if arrdes is present')
 
        IM_WORLD = arrdes%im_world
 
        call mpi_comm_size(arrdes%ioscattercomm,npes ,status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        if(arrdes%readers_comm /= MPI_COMM_NULL) then
           call mpi_comm_rank(arrdes%readers_comm,mypeRd ,status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call mpi_comm_size(arrdes%readers_comm,nrdrs,status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        else
           mypeRd = -1
        endif
        call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call MAPL_CommsBcast(layout, nrdrs, 1, 0, rc = status)
 
        Rsize = im_world/nrdrs + 1
@@ -1414,13 +1414,13 @@ module  BinIOMod
 #endif
 
        allocate(VAR(Rsize), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        allocate(msk(Rsize), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        allocate (sendcounts(0:npes-1), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        allocate (r2g(0:nrdrs-1), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
        if(arrdes%readers_comm /= MPI_COMM_NULL) then
           if(arrdes%offset<=0) then
@@ -1433,20 +1433,20 @@ module  BinIOMod
           cnt = Rsize
           call MPI_FILE_READ_AT_ALL(UNIT, loffset, VAR, cnt, &
                MPI_DOUBLE_PRECISION, mpistatus, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MPI_GET_COUNT( mpistatus, MPI_DOUBLE_PRECISION, numread, STATUS )
-          _VERIFY(STATUS)
-          _ASSERT(cnt == numread, 'inconsistent numread')
+          _verify(STATUS)
+          _assert(cnt == numread, 'inconsistent numread')
 #ifdef DEBUG_MPIIO
           write(*,'(3i,1f)') IM_WORLD, loffset, numread, VAR(1)
 #endif
 
-          _ASSERT( (lbound(mask,1) <= first), 'out of bounds' )
-          _ASSERT( (ubound(mask,1) >= last ), 'out of bounds' )
+          _assert( (lbound(mask,1) <= first), 'out of bounds' )
+          _assert( (ubound(mask,1) >= last ), 'out of bounds' )
           msk = mask(first:last)
 
           allocate(idx(Rsize), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
 
           do i=1,Rsize
              idx(i) = i
@@ -1460,25 +1460,25 @@ module  BinIOMod
        endif
 
        call mpi_comm_rank(arrdes%ioscattercomm,mype ,status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
        call MPI_COMM_GROUP (arrdes%ioscattercomm, GROUP, STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
 #if 1
        if (arrdes%readers_comm /= MPI_COMM_NULL) then
           allocate(rpes(0:nrdrs-1), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
 
           call MPI_COMM_GROUP (arrdes%readers_comm, NEWGROUP, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           do n=0,nrdrs-1
              rpes(n) = n
           end do
           call MPI_Group_translate_ranks(newgroup, nrdrs, rpes, group, r2g, status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nrdrs, 0, rc = status)
@@ -1512,11 +1512,11 @@ module  BinIOMod
              nactive = nactive + 1
           end if
           allocate (activeranks(0:nactive-1), activesendcounts(0:nactive-1), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           allocate(pes(0:nactive-1), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           allocate (displs(0:nactive), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           k = 0
           do i=0, npes-1
              if (sendcounts(i) > 0) then
@@ -1526,18 +1526,18 @@ module  BinIOMod
           enddo
           if (k /= nactive) then
              k = k+1
-             _ASSERT(k == nactive, 'inconsistent nactive')
-             _ASSERT(sendcounts(r2g(n)) == 0, 'sendcounts should be 0')
+             _assert(k == nactive, 'inconsistent nactive')
+             _assert(sendcounts(r2g(n)) == 0, 'sendcounts should be 0')
              pes(nactive-1) = r2g(n)
           end if
           call MPI_GROUP_INCL (GROUP, nactive, PES, newgroup, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MPI_COMM_CREATE(arrdes%ioscattercomm, newgroup, thiscomm, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MPI_Group_translate_ranks(group, nactive, pes, newgroup, activeranks, status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
 
           if (thiscomm /= MPI_COMM_NULL) then
              activesendcounts = 0
@@ -1573,9 +1573,9 @@ module  BinIOMod
                                    a(offset),   recvcount,  MPI_DOUBLE_PRECISION, &
                                    ntransl, thiscomm,    status )
              endif
-             _VERIFY(STATUS)
+             _verify(STATUS)
              call MPI_Comm_Free(thiscomm, status)
-             _VERIFY(STATUS)
+             _verify(STATUS)
              offset = offset + recvcount
           end if
           deallocate (displs)
@@ -1585,7 +1585,7 @@ module  BinIOMod
        enddo
 
        call MPI_GROUP_FREE (GROUP, STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        deallocate(var,msk)
        deallocate (r2g)
        deallocate(sendcounts)
@@ -1595,41 +1595,41 @@ module  BinIOMod
 
     elseif(unit < 0) then
 
-       _ASSERT(-UNIT<=LAST_UNIT, 'illegal unit')
+       _assert(-UNIT<=LAST_UNIT, 'illegal unit')
        munit => MEM_units(-unit)
        munit%prevrec = munit%prevrec + 1
-       _ASSERT(associated(munit%Records(munit%prevrec)%R8_1), 'pointer not associated')
-       _ASSERT(size(A)==size(munit%Records(munit%prevrec)%R8_1), 'inconsistent array size')
+       _assert(associated(munit%Records(munit%prevrec)%R8_1), 'pointer not associated')
+       _assert(size(A)==size(munit%Records(munit%prevrec)%R8_1), 'inconsistent array size')
        A = munit%Records(munit%prevrec)%R8_1
 
     else
 
 
     call MAPL_GridGet(GRID, globalCellCountPerDim=DIMS, RC=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     IM_WORLD = DIMS(1)
 
     allocate(VAR(IM_WORLD), stat=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     call ESMF_GridGet(grid, distGrid=distGrid, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     if (MAPL_am_i_root(layout)) then
        read (UNIT, IOSTAT=status) VAR
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end if
 
     call ArrayScatter(A, VAR, grid, mask=mask, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     deallocate(VAR)
 
     end if
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R8_1d
 
 !---------------------------
@@ -1670,7 +1670,7 @@ module  BinIOMod
 #endif
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
-  _VERIFY(STATUS)
+  _verify(STATUS)
   itime_beg = MPI_Wtime()
 #endif
 
@@ -1695,15 +1695,15 @@ module  BinIOMod
        JM_WORLD = arrdes%jm_world
 
        call mpi_comm_rank(arrdes%ycomm,myrow,status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call mpi_comm_rank(arrdes%ioscattercomm,myiorank,status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call mpi_comm_size(arrdes%ioscattercomm,num_io_rows,status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        num_io_rows=num_io_rows/ndes_x
 
        allocate (sendcounts(ndes_x*num_io_rows), displs(ndes_x*num_io_rows), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
        if(myiorank==0) then
           do j=1,num_io_rows
@@ -1721,9 +1721,9 @@ module  BinIOMod
              jsize=jsize + (arrdes%jn(myrow+j) - arrdes%j1(myrow+j) + 1)
           enddo
           allocate(VAR(IM_WORLD,jsize), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           allocate(buf(IM_WORLD*jsize), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
 
           if(arrdes%offset<=0) then
              offset = 4
@@ -1734,10 +1734,10 @@ module  BinIOMod
           offset = offset + (arrdes%j1(myrow+1)-1)*IM_WORLD*8
           cnt = IM_WORLD*jsize
           call MPI_FILE_READ_AT_ALL(UNIT, offset, VAR, cnt, MPI_DOUBLE_PRECISION, mpistatus, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MPI_GET_COUNT( mpistatus, MPI_DOUBLE_PRECISION, numread, STATUS )
-          _VERIFY(STATUS)
-          _ASSERT(cnt == numread, 'inconsistent numread')
+          _verify(STATUS)
+          _assert(cnt == numread, 'inconsistent numread')
           offset = offset - (arrdes%j1(myrow+1)-1)*IM_WORLD*8
 
           arrdes%offset = offset + IM_WORLD*JM_WORLD*8 + 8
@@ -1766,43 +1766,43 @@ module  BinIOMod
 !DSK avoid "Attempt to fetch from allocatable variable BUF when it is not allocated"
        if(myiorank/=0) then
           allocate(buf(0), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        endif
 
        call mpi_scatterv( buf, sendcounts, displs, MPI_DOUBLE_PRECISION, &
                           a,  size(a),  MPI_DOUBLE_PRECISION, &
                           0, arrdes%ioscattercomm, status )
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
        if(myiorank==0) then
           deallocate(VAR, stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
 !          deallocate(buf, stat=status)
-!          _VERIFY(STATUS)
+!          _verify(STATUS)
        endif
        deallocate(buf, stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        deallocate (sendcounts, displs, stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
        endif
 
     elseif(unit < 0) then
 
-      _ASSERT(-UNIT<=LAST_UNIT, 'illegal unit')
+      _assert(-UNIT<=LAST_UNIT, 'illegal unit')
       munit => MEM_units(-unit)
       munit%prevrec = munit%prevrec + 1
-      _ASSERT(associated(munit%Records(munit%prevrec)%R8_2), 'pointer not associated')
-      _ASSERT(size(A)==size(munit%Records(munit%prevrec)%R8_2), 'array size mismatch')
+      _assert(associated(munit%Records(munit%prevrec)%R8_2), 'pointer not associated')
+      _assert(size(A)==size(munit%Records(munit%prevrec)%R8_2), 'array size mismatch')
       A = munit%Records(munit%prevrec)%R8_2
 
     else
 
 
     call ESMF_GridGet(GRID, dimCount=gridRank, rc=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     call MAPL_GridGet(GRID, globalCellCountPerDim=DIMS, RC=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     IM_WORLD = DIMS(1)
     JM_WORLD = DIMS(2)
@@ -1810,19 +1810,19 @@ module  BinIOMod
 
 
     allocate(VAR(IM_WORLD,JM_WORLD), stat=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     call ESMF_GridGet(grid, distGrid=distGrid, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     if (MAPL_am_i_root(layout)) then
        read (UNIT, IOSTAT=status) VAR
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end if
     call ArrayScatter(A, VAR, grid, mask=mask, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     deallocate(VAR)
 
@@ -1830,7 +1830,7 @@ module  BinIOMod
 
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
-  _VERIFY(STATUS)
+  _verify(STATUS)
   itime_end = MPI_Wtime()
   bwidth = REAL(IM_WORLD*JM_WORLD*8/1024.0/1024.0,kind=8)
   bwidth = bwidth/(itime_end-itime_beg)
@@ -1842,7 +1842,7 @@ module  BinIOMod
   endif
 #endif
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R8_2d
 
 !---------------------------
@@ -1862,10 +1862,10 @@ module  BinIOMod
 
     do L = 1, size(A,3)
        call MAPL_VarRead(UNIT, GRID, A(:,:,L), ARRDES=arrdes, rc=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end do
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R8_3d
 
 !---------------------------
@@ -1885,10 +1885,10 @@ module  BinIOMod
 
     do L = 1, size(A,4)
        call MAPL_VarRead(UNIT, GRID, A(:,:,:,L), ARRDES=arrdes, rc=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end do
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R8_4d
 
 !---------------------------
@@ -1926,19 +1926,19 @@ module  BinIOMod
     logical                                 :: isPresent
 
     call ESMF_StateGet(STATE,ITEMCOUNT=ITEMCOUNT,RC=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
-    _ASSERT(ITEMCOUNT>0, 'itemcount must be > 0')
+    _assert(ITEMCOUNT>0, 'itemcount must be > 0')
 
     allocate(ITEMNAMES(ITEMCOUNT),STAT=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     allocate(ITEMTYPES(ITEMCOUNT),STAT=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     allocate(DOIT     (ITEMCOUNT),STAT=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     call ESMF_StateGet(STATE,ITEMNAMELIST=ITEMNAMES,itemTypeList=ITEMTYPES,RC=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     forceWriteNoRestart_ = .false.
     if(present(forceWriteNoRestart)) then
@@ -1947,24 +1947,24 @@ module  BinIOMod
 
     if(present(NAME)) then
        DOIT = ITEMNAMES==NAME
-       _ASSERT(count(DOIT)/=0, 'count(doit) should not be 0')
+       _assert(count(DOIT)/=0, 'count(doit) should not be 0')
     else
        DOIT = .true.
     endif
 
     attrName = MAPL_StateItemOrderList
     call ESMF_AttributeGet(state, NAME=attrName, itemcount=natt, RC=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
-    _ASSERT(natt > 0, 'natt not > 0')
+    _assert(natt > 0, 'natt not > 0')
     allocate(orderlist(natt), stat=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     allocate(currList(natt), stat=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     ! get the current list
     call ESMF_AttributeGet(state, NAME=attrName, VALUELIST=currList, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     orderList = -1 ! not found
     do i = 1, natt
@@ -1990,61 +1990,61 @@ module  BinIOMod
 
           IF (ITEMTYPES(I) == ESMF_StateItem_FieldBundle) then
              call ESMF_StateGet(state, itemnames(i), bundle, rc=status)
-             _VERIFY(STATUS)
+             _verify(STATUS)
 
              skipWriting = .false.
              if (.not. forceWriteNoRestart_) then
                 call ESMF_AttributeGet(bundle, name='RESTART', isPresent=isPresent, rc=status)
-                _VERIFY(STATUS)
+                _verify(STATUS)
                 if (isPresent) then
                    call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
-                   _VERIFY(STATUS)
+                   _verify(STATUS)
                    skipWriting = (RST == MAPL_RestartSkip)
                 end if
              end if
              if (skipWriting) cycle
 
              call MAPL_BundleWrite(unit, bundle, arrdes=arrdes, rc=status)
-             _VERIFY(STATUS)
+             _verify(STATUS)
 
           ELSE IF (ITEMTYPES(I) == ESMF_StateItem_Field) THEN
              call ESMF_StateGet(state, itemnames(i), field, rc=status)
-             _VERIFY(STATUS)
+             _verify(STATUS)
 
              skipWriting = .false.
              if (.not. forceWriteNoRestart_) then
                 call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
-                _VERIFY(STATUS)
+                _verify(STATUS)
                 if (isPresent) then
                    call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
-                   _VERIFY(STATUS)
+                   _verify(STATUS)
                    skipWriting = (RST == MAPL_RestartSkip)
                 end if
              end if
              if (skipWriting) cycle
 
              call ESMF_AttributeGet(field, name='doNotAllocate', isPresent=isPresent, rc=status)
-             _VERIFY(STATUS)
+             _verify(STATUS)
              if (isPresent) then
                 call ESMF_AttributeGet(field, name='doNotAllocate', value=dna, rc=status)
-                _VERIFY(STATUS)
+                _verify(STATUS)
                 skipWriting = (dna /= 0)
              endif
              if (skipWriting) cycle
 
              if(.not.associated(MASK)) then
                 call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
-                _VERIFY(STATUS)
+                _verify(STATUS)
                 if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                    call ESMF_FieldGet   (field, grid=grid, rc=status)
-                   _VERIFY(STATUS)
+                   _verify(STATUS)
                    call MAPL_TileMaskGet(grid,  mask, rc=status)
-                   _VERIFY(STATUS)
+                   _verify(STATUS)
                 endif
              endif
 
              call MAPL_FieldWrite(unit, field, arrdes=arrdes, HomePE=mask, rc=status)
-             _VERIFY(STATUS)
+             _verify(STATUS)
 
           end IF
        END IF
@@ -2059,7 +2059,7 @@ module  BinIOMod
        DEALOC_(MASK)
     end if
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_StateVarWrite
 !---------------------------
 
@@ -2078,25 +2078,25 @@ module  BinIOMod
     character(len=ESMF_MAXSTR)              :: BundleName
 
     call ESMF_FieldBundleGet(bundle, fieldCount=N, name=BundleName, rc=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     allocate(namelist(N), stat=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     call ESMF_FieldBundleGet(bundle, fieldNameList=nameList, fieldCount=FieldCount, rc=STATUS)
-    _VERIFY(STATUS)
-    _ASSERT(N==fieldCount, 'inconsistent fieldcount')
+    _verify(STATUS)
+    _assert(N==fieldCount, 'inconsistent fieldcount')
 
     DO J = 1, N
        call MAPL_FieldBundleGet(bundle, fieldIndex=J, field=field, rc=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
        call MAPL_FieldWrite(unit, field, arrdes=ARRDES, rc=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
     END DO
 
     deallocate(nameList)
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_BundleWrite
 
 !---------------------------
@@ -2137,57 +2137,57 @@ module  BinIOMod
     end if
 
     call ESMF_FieldGet(field, grid=grid, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
        if(present(HomePE)) then
           mask => HomePE
        else
           call MAPL_TileMaskGet(grid, mask, rc=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        endif
     end if
 
     call ESMF_FieldGet(field, Array=array, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     call ESMF_ArrayGet(array, typekind=tk, rank=rank, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     if (rank == 1) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_1d, rc=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           if (associated(var_1d)) then
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                 call MAPL_VarWrite(unit, grid, var_1d, arrdes=arrdes, mask=mask, rc=status)
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
                 call WRITE_PARALLEL(var_1d, unit, arrdes=arrdes, rc=status)
              else
-                _RETURN(ESMF_FAILURE)
+                _return(ESMF_FAILURE)
              end if
           end if
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_1d, rc=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           if (associated(vr8_1d)) then
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                 call MAPL_VarWrite(unit, grid, vr8_1d, arrdes=arrdes, mask=mask, rc=status)
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
                 call WRITE_PARALLEL(vr8_1d, unit, arrdes=arrdes, rc=status)
              else
-                _RETURN(ESMF_FAILURE)
+                _return(ESMF_FAILURE)
              end if
           end if
        endif
     else if (rank == 2) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_2d, rc=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           if (associated(var_2d)) then !ALT: temp kludge
              if (FORMATTED=="YES") THEN
                 call WRITE_PARALLEL( &
@@ -2206,7 +2206,7 @@ module  BinIOMod
           end if
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_2d, rc=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           if (associated(vr8_2d)) then !ALT: temp kludge
              if (FORMATTED=="YES") THEN
                 call WRITE_PARALLEL( &
@@ -2227,7 +2227,7 @@ module  BinIOMod
     else if (rank == 3) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_3d, rc=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           if (associated(var_3d)) then !ALT: temp kludge
              if (FORMATTED=="YES") THEN
                 call WRITE_PARALLEL( &
@@ -2246,7 +2246,7 @@ module  BinIOMod
           end if
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_3d, rc=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           if (associated(vr8_3d)) then !ALT: temp kludge
              if (FORMATTED=="YES") THEN
                 call WRITE_PARALLEL( &
@@ -2267,18 +2267,18 @@ module  BinIOMod
     else if (rank == 4) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_4d, rc=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MAPL_VarWrite(unit, grid, var_4d, rc=status)
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_4d, rc=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MAPL_VarWrite(unit, grid, vr8_4d, rc=status)
        endif
     else
        print *, "ERROR: unsupported RANK"
-       _RETURN(ESMF_FAILURE)
+       _return(ESMF_FAILURE)
     endif
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
        if(.not.present(HomePE)) then
@@ -2286,7 +2286,7 @@ module  BinIOMod
        end if
     end if
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_FieldWrite
 
 
@@ -2313,45 +2313,45 @@ module  BinIOMod
       munit%prevrec = munit%prevrec + 1
       if(.not.associated(munit%Records)) then
          allocate(munit%Records(16),stat=status)
-         _VERIFY(STATUS)
+         _verify(STATUS)
       elseif(size(munit%Records)< munit%prevrec) then
          allocate(REC(munit%prevrec*2),stat=status)
-         _VERIFY(STATUS)
+         _verify(STATUS)
          REC(:munit%prevrec-1) = munit%Records
          deallocate(munit%Records)
          munit%Records => REC
       endif
       call alloc_(munit%Records(munit%prevrec),i4_1,size(A),rc=status)
-      _VERIFY(STATUS)
+      _verify(STATUS)
       munit%Records(munit%prevrec)%I4_1  = A
 
     else
 
     call MAPL_GridGet(GRID, globalCellCountPerDim=DIMS, RC=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     IM_WORLD = DIMS(1)
 
     allocate(VAR(IM_WORLD), stat=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     call ArrayGather(A, VAR, grid, mask=mask, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     if (MAPL_am_i_root(layout)) then
        write (UNIT, IOSTAT=status) VAR
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end if
 
     deallocate(VAR)
 
     endif
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_I4_1d
 
 !---------------------------
@@ -2406,25 +2406,25 @@ module  BinIOMod
     end if
 
     if(present(arrdes)) then
-       _ASSERT(present(mask), 'mask must be present if arrdes is present')
+       _assert(present(mask), 'mask must be present if arrdes is present')
 
        IM_WORLD = arrdes%im_world
        recl = IM_WORLD*4
 
        call mpi_comm_size(arrdes%iogathercomm,npes ,status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
           call mpi_comm_rank(arrdes%writers_comm,mypeWr ,status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call mpi_comm_size(arrdes%writers_comm,nwrts,status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        else
           mypeWr = -1
        endif
        call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call MAPL_CommsBcast(layout, nwrts, 1, 0, rc = status)
 
        Rsize = im_world/nwrts + 1
@@ -2441,39 +2441,39 @@ module  BinIOMod
 
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
           allocate(GVAR(Rsize), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        end if
        allocate(VAR(Rsize), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        allocate(msk(Rsize), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        allocate (recvcounts(0:npes-1), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        allocate (r2g(0:nwrts-1), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        allocate(inv_pes(0:npes-1),stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
        call mpi_comm_rank(arrdes%iogathercomm,mype ,status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
        call MPI_COMM_GROUP (arrdes%iogathercomm, GROUP, STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
 #if 1
        if (arrdes%writers_comm /= MPI_COMM_NULL) then
           allocate(rpes(0:nwrts-1), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
 
           call MPI_COMM_GROUP (arrdes%writers_comm, NEWGROUP, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           do n=0,nwrts-1
              rpes(n) = n
           end do
           call MPI_Group_translate_ranks(newgroup, nwrts, rpes, group, r2g, status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nwrts, 0, rc = status)
@@ -2506,11 +2506,11 @@ module  BinIOMod
              nactive = nactive + 1
           end if
           allocate (activeranks(0:nactive-1), activerecvcounts(0:nactive-1), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           allocate(pes(0:nactive-1), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           allocate (displs(0:nactive), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           k = 0
           do i=0, npes-1
              if (recvcounts(i) > 0) then
@@ -2520,18 +2520,18 @@ module  BinIOMod
           enddo
           if (k /= nactive) then
              k = k+1
-             _ASSERT(k == nactive, 'inconsistent nactive')
-             _ASSERT(recvcounts(r2g(n)) == 0, 'recvcounts must be 0')
+             _assert(k == nactive, 'inconsistent nactive')
+             _assert(recvcounts(r2g(n)) == 0, 'recvcounts must be 0')
              pes(nactive-1) = r2g(n)
           end if
           call MPI_GROUP_INCL (GROUP, nactive, PES, newgroup, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MPI_COMM_CREATE(arrdes%iogathercomm, newgroup, thiscomm, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MPI_Group_translate_ranks(group, nactive, pes, newgroup, activeranks, status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           inv_pes = -1 ! initialized to invalid
           do i=0,nactive-1
              inv_pes(pes(i)) = i
@@ -2559,9 +2559,9 @@ module  BinIOMod
                                   var, activerecvcounts, displs, MPI_REAL, &
                                   ntransl, thiscomm, status )
              endif
-             _VERIFY(STATUS)
+             _verify(STATUS)
              call MPI_Comm_Free(thiscomm, status)
-             _VERIFY(STATUS)
+             _verify(STATUS)
 
              if(n==mypeWr) then
                 msk = mask(first:last)
@@ -2588,9 +2588,9 @@ module  BinIOMod
           endif
           if(useWriteFCtrl .and. mypeWr==0) then
              call MPI_FILE_SEEK(UNIT, offset-4, MPI_SEEK_SET, STATUS)
-             _VERIFY(STATUS)
+             _verify(STATUS)
              call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-             _VERIFY(STATUS)
+             _verify(STATUS)
           endif
 
           Rsize = im_world/nwrts + 1
@@ -2601,30 +2601,30 @@ module  BinIOMod
           endif
           last  = first + Rsize - 1
 
-          _ASSERT( (lbound(mask,1) <= first), 'out of bounds' )
-          _ASSERT( (ubound(mask,1) >= last ), 'out of bounds' )
+          _assert( (lbound(mask,1) <= first), 'out of bounds' )
+          _assert( (ubound(mask,1) >= last ), 'out of bounds' )
 
           loffset = offset + (first-1)*4
           call MPI_FILE_WRITE_AT_ALL(UNIT, loffset, GVAR, Rsize, MPI_REAL, mpistatus, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
 
 #ifdef DEBUG_MPIIO
           call MPI_GET_COUNT( mpistatus, MPI_REAL, numwrite, STATUS )
-          _VERIFY(STATUS)
+          _verify(STATUS)
           write(*,'(4i,1f)') IM_WORLD, loffset, numwrite, GVAR(1)
 #endif
 
           if(useWriteFCtrl .and. mypeWr==0) then
              call MPI_FILE_SEEK(UNIT, offset+recl, MPI_SEEK_SET, STATUS)
-             _VERIFY(STATUS)
+             _verify(STATUS)
              call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-             _VERIFY(STATUS)
+             _verify(STATUS)
           endif
           arrdes%offset = offset + recl + 8
        endif
 
        call MPI_GROUP_FREE (GROUP, STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        deallocate(var,msk)
        deallocate (inv_pes)
        deallocate (r2g)
@@ -2639,52 +2639,52 @@ module  BinIOMod
       munit%prevrec = munit%prevrec + 1
       if(.not.associated(munit%Records)) then
          allocate(munit%Records(16),stat=status)
-         _VERIFY(STATUS)
+         _verify(STATUS)
       elseif(size(munit%Records)< munit%prevrec) then
          allocate(REC(munit%prevrec*2),stat=status)
-         _VERIFY(STATUS)
+         _verify(STATUS)
          REC(:munit%prevrec-1) = munit%Records
          deallocate(munit%Records)
          munit%Records => REC
       endif
       call alloc_(munit%Records(munit%prevrec),R4_1,size(A),rc=status)
-      _VERIFY(STATUS)
+      _verify(STATUS)
       munit%Records(munit%prevrec)%R4_1  = A
 
     else
 
     call MAPL_GridGet(GRID, globalCellCountPerDim=DIMS, RC=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     IM_WORLD = DIMS(1)
 
     call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     amIRoot = MAPL_am_i_root(layout)
 
     if (amIRoot) then
        allocate(VAR(IM_WORLD), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     else
        allocate(VAR(0), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end if
 
     call ArrayGather(A, VAR, grid, mask=mask, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     if (MAPL_am_i_root(layout)) then
        write (UNIT, IOSTAT=status) VAR
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end if
 
     deallocate(VAR)
 
     end if
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R4_1d
 
 !---------------------------
@@ -2727,7 +2727,7 @@ module  BinIOMod
 
 #ifdef TIME_MPIIO
     call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     itime_beg = MPI_Wtime()
 
 #endif
@@ -2739,7 +2739,7 @@ module  BinIOMod
        mypeWr = -1 !mark it invalid
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
           call mpi_comm_rank(arrdes%writers_comm,mypeWr ,status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        end if
 
        if(present(mask)) then
@@ -2759,9 +2759,9 @@ module  BinIOMod
 
              if(mypeWr==0) then
                 call MPI_FILE_SEEK(UNIT, offset-4, MPI_SEEK_SET, STATUS)
-                _VERIFY(STATUS)
+                _verify(STATUS)
                 call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-                _VERIFY(STATUS)
+                _verify(STATUS)
              endif
           end if
 
@@ -2776,9 +2776,9 @@ module  BinIOMod
           if(arrdes%writers_comm /= MPI_COMM_NULL) then
              if(mypeWr==0) then
                 call MPI_FILE_SEEK(UNIT, offset+recl, MPI_SEEK_SET, STATUS)
-                _VERIFY(STATUS)
+                _verify(STATUS)
                 call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-                _VERIFY(STATUS)
+                _verify(STATUS)
              endif
           end if
 
@@ -2787,15 +2787,15 @@ module  BinIOMod
        ndes_x = size(arrdes%in)
 
        call mpi_comm_rank(arrdes%ycomm,myrow,status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call mpi_comm_rank(arrdes%iogathercomm,myiorank,status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call mpi_comm_size(arrdes%iogathercomm,num_io_rows,status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        num_io_rows=num_io_rows/ndes_x
 
        allocate (sendcounts(ndes_x*num_io_rows), displs(ndes_x*num_io_rows), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
        if(myiorank==0) then
           do j=1,num_io_rows
@@ -2813,20 +2813,20 @@ module  BinIOMod
              jsize=jsize + (arrdes%jn(myrow+j) - arrdes%j1(myrow+j) + 1)
           enddo
           allocate(VAR(IM_WORLD,jsize), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           allocate(buf(IM_WORLD*jsize), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        end if
 
 !DSK avoid "Attempt to fetch from allocatable variable BUF when it is not allocated"
        if(myiorank/=0) then
           allocate(buf(0), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        endif
 
        call mpi_gatherv( a, size(a), MPI_REAL, buf, sendcounts, displs, MPI_REAL, &
             0, arrdes%iogathercomm, status )
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
        if(myiorank==0) then
 
@@ -2858,23 +2858,23 @@ module  BinIOMod
                 print*, offset, recl, offset + IM_WORLD*JM_WORLD*4 + 8
 #endif
              call MPI_FILE_SEEK(UNIT, offset, MPI_SEEK_SET, STATUS)
-             _VERIFY(STATUS)
+             _verify(STATUS)
              call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-             _VERIFY(STATUS)
+             _verify(STATUS)
           endif
           offset = offset + 4
 
           offset = offset + (arrdes%j1(myrow+1)-1)*IM_WORLD*4
           call MPI_FILE_WRITE_AT_ALL(UNIT, offset, VAR, IM_WORLD*jsize, MPI_REAL, mpistatus, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           offset = offset - (arrdes%j1(myrow+1)-1)*IM_WORLD*4
 
           offset = offset + IM_WORLD*JM_WORLD*4
           if (mypeWr==0) then
              call MPI_FILE_SEEK(UNIT, offset, MPI_SEEK_SET, STATUS)
-             _VERIFY(STATUS)
+             _verify(STATUS)
              call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-             _VERIFY(STATUS)
+             _verify(STATUS)
           endif
 
           arrdes%offset = offset + 4
@@ -2883,14 +2883,14 @@ module  BinIOMod
 
        if(myiorank==0) then
           deallocate(VAR, stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
 !          deallocate(buf, stat=status)
-!          _VERIFY(STATUS)
+!          _verify(STATUS)
        endif
        deallocate(buf, stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        deallocate (sendcounts, displs, stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     endif
 
     elseif(unit < 0) then
@@ -2899,49 +2899,49 @@ module  BinIOMod
       munit%prevrec = munit%prevrec + 1
       if(.not.associated(munit%Records)) then
          allocate(munit%Records(16),stat=status)
-         _VERIFY(STATUS)
+         _verify(STATUS)
       elseif(size(munit%Records)< munit%prevrec) then
          allocate(REC(munit%prevrec*2),stat=status)
-         _VERIFY(STATUS)
+         _verify(STATUS)
          REC(:munit%prevrec-1) = munit%Records
          deallocate(munit%Records)
          munit%Records => REC
       endif
       call alloc_(munit%Records(munit%prevrec),r4_2,size(A,1),size(a,2),rc=status)
-      _VERIFY(STATUS)
+      _verify(STATUS)
       munit%Records(munit%prevrec)%R4_2  = A
 
     else
 
       call ESMF_GridGet(GRID, dimCount=gridRank, rc=STATUS)
-      _VERIFY(STATUS)
+      _verify(STATUS)
       call MAPL_GridGet(GRID, globalCellCountPerDim=DIMS, RC=STATUS)
-      _VERIFY(STATUS)
+      _verify(STATUS)
 
       IM_WORLD = DIMS(1)
       JM_WORLD = DIMS(2)
       if(present(MASK)) JM_WORLD=size(a,2)
 
       call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-      _VERIFY(STATUS)
+      _verify(STATUS)
       call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-      _VERIFY(STATUS)
+      _verify(STATUS)
 
       amIRoot = MAPL_am_i_root(layout)
       if (amIRoot) then
          allocate(VAR(IM_WORLD,JM_WORLD), stat=status)
-         _VERIFY(STATUS)
+         _verify(STATUS)
       else
          allocate(VAR(0,JM_WORLD), stat=status)
-         _VERIFY(STATUS)
+         _verify(STATUS)
       end if
 
       call ArrayGather(A, VAR, grid, mask=mask, rc=status)
-      _VERIFY(STATUS)
+      _verify(STATUS)
       if (amIRoot) then
 
          write (UNIT, IOSTAT=status) VAR
-         _VERIFY(STATUS)
+         _verify(STATUS)
       end if
 
       deallocate(VAR)
@@ -2950,7 +2950,7 @@ module  BinIOMod
 
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
-  _VERIFY(STATUS)
+  _verify(STATUS)
   itime_end = MPI_Wtime()
   bwidth = REAL(IM_WORLD*JM_WORLD*4/1024.0/1024.0,kind=8)
   bwidth = bwidth/(itime_end-itime_beg)
@@ -2962,7 +2962,7 @@ module  BinIOMod
   endif
 #endif
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R4_2d
 
 !---------------------------
@@ -2982,10 +2982,10 @@ module  BinIOMod
 
     do L = 1, size(A,3)
        call MAPL_VarWrite(UNIT, GRID, A(:,:,L), ARRDES=ARRDES, rc=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end do
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R4_3d
 
 !---------------------------
@@ -3005,10 +3005,10 @@ module  BinIOMod
 
     do L = 1, size(A,4)
        call MAPL_VarWrite(UNIT, GRID, A(:,:,:,L), ARRDES=ARRDES, rc=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end do
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R4_4d
 
 !---------------------------
@@ -3062,25 +3062,25 @@ module  BinIOMod
     end if
 
     if(present(arrdes)) then
-       _ASSERT(present(mask), 'mask must be present if arrdes is present')
+       _assert(present(mask), 'mask must be present if arrdes is present')
 
        IM_WORLD = arrdes%im_world
        recl = IM_WORLD*8
 
        call mpi_comm_size(arrdes%iogathercomm,npes ,status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
           call mpi_comm_rank(arrdes%writers_comm,mypeWr ,status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call mpi_comm_size(arrdes%writers_comm,nwrts,status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        else
           mypeWr = -1
        endif
        call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call MAPL_CommsBcast(layout, nwrts, 1, 0, rc = status)
 
        Rsize = im_world/nwrts + 1
@@ -3097,39 +3097,39 @@ module  BinIOMod
 
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
           allocate(GVAR(Rsize), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        end if
        allocate(VAR(Rsize), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        allocate(msk(Rsize), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        allocate (recvcounts(0:npes-1), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        allocate (r2g(0:nwrts-1), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        allocate(inv_pes(0:npes-1),stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
        call mpi_comm_rank(arrdes%iogathercomm,mype ,status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
        call MPI_COMM_GROUP (arrdes%iogathercomm, GROUP, STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
 #if 1
        if (arrdes%writers_comm /= MPI_COMM_NULL) then
           allocate(rpes(0:nwrts-1), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
 
           call MPI_COMM_GROUP (arrdes%writers_comm, NEWGROUP, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           do n=0,nwrts-1
              rpes(n) = n
           end do
           call MPI_Group_translate_ranks(newgroup, nwrts, rpes, group, r2g, status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nwrts, 0, rc = status)
@@ -3162,11 +3162,11 @@ module  BinIOMod
              nactive = nactive + 1
           end if
           allocate (activeranks(0:nactive-1), activerecvcounts(0:nactive-1), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           allocate(pes(0:nactive-1), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           allocate (displs(0:nactive), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           k = 0
           do i=0, npes-1
              if (recvcounts(i) > 0) then
@@ -3176,18 +3176,18 @@ module  BinIOMod
           enddo
           if (k /= nactive) then
              k = k+1
-             _ASSERT(k == nactive, 'inconsistent nactive')
-             _ASSERT(recvcounts(r2g(n)) == 0, 'recvcounts must be 0')
+             _assert(k == nactive, 'inconsistent nactive')
+             _assert(recvcounts(r2g(n)) == 0, 'recvcounts must be 0')
              pes(nactive-1) = r2g(n)
           end if
           call MPI_GROUP_INCL (GROUP, nactive, PES, newgroup, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MPI_COMM_CREATE(arrdes%iogathercomm, newgroup, thiscomm, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MPI_Group_translate_ranks(group, nactive, pes, newgroup, activeranks, status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           inv_pes = -1 ! initialized to invalid
           do i=0,nactive-1
              inv_pes(pes(i)) = i
@@ -3215,9 +3215,9 @@ module  BinIOMod
                                   var, activerecvcounts, displs, MPI_DOUBLE_PRECISION, &
                                   ntransl, thiscomm, status )
              endif
-             _VERIFY(STATUS)
+             _verify(STATUS)
              call MPI_Comm_Free(thiscomm, status)
-             _VERIFY(STATUS)
+             _verify(STATUS)
 
              if(n==mypeWr) then
                 msk = mask(first:last)
@@ -3244,9 +3244,9 @@ module  BinIOMod
           endif
           if(useWriteFCtrl .and. mypeWr==0) then
              call MPI_FILE_SEEK(UNIT, offset-4, MPI_SEEK_SET, STATUS)
-             _VERIFY(STATUS)
+             _verify(STATUS)
              call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-             _VERIFY(STATUS)
+             _verify(STATUS)
           endif
 
           Rsize = im_world/nwrts + 1
@@ -3257,30 +3257,30 @@ module  BinIOMod
           endif
           last  = first + Rsize - 1
 
-          _ASSERT( (lbound(mask,1) <= first), 'out of bounds')
-          _ASSERT( (ubound(mask,1) >= last ), 'out of bounds' )
+          _assert( (lbound(mask,1) <= first), 'out of bounds')
+          _assert( (ubound(mask,1) >= last ), 'out of bounds' )
 
           loffset = offset + (first-1)*8
           call MPI_FILE_WRITE_AT_ALL(UNIT, loffset, GVAR, Rsize, MPI_DOUBLE_PRECISION, mpistatus, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
 
 #ifdef DEBUG_MPIIO
           call MPI_GET_COUNT( mpistatus, MPI_DOUBLE_PRECISION, numwrite, STATUS )
-          _VERIFY(STATUS)
+          _verify(STATUS)
           write(*,'(4i,1f)') IM_WORLD, loffset, numwrite, GVAR(1)
 #endif
 
           if(useWriteFCtrl .and. mypeWr==0) then
              call MPI_FILE_SEEK(UNIT, offset+recl, MPI_SEEK_SET, STATUS)
-             _VERIFY(STATUS)
+             _verify(STATUS)
              call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-             _VERIFY(STATUS)
+             _verify(STATUS)
           endif
           arrdes%offset = offset + recl + 8
        endif
 
        call MPI_GROUP_FREE (GROUP, STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        deallocate(var,msk)
        deallocate (inv_pes)
        deallocate (r2g)
@@ -3295,45 +3295,45 @@ module  BinIOMod
       munit%prevrec = munit%prevrec + 1
       if(.not.associated(munit%Records)) then
          allocate(munit%Records(16),stat=status)
-         _VERIFY(STATUS)
+         _verify(STATUS)
       elseif(size(munit%Records)< munit%prevrec) then
          allocate(REC(munit%prevrec*2),stat=status)
-         _VERIFY(STATUS)
+         _verify(STATUS)
          REC(:munit%prevrec-1) = munit%Records
          deallocate(munit%Records)
          munit%Records => REC
       endif
       call alloc_(munit%Records(munit%prevrec),R8_1,size(A),rc=status)
-      _VERIFY(STATUS)
+      _verify(STATUS)
       munit%Records(munit%prevrec)%R8_1  = A
 
     else
 
     call MAPL_GridGet(GRID, globalCellCountPerDim=DIMS, RC=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     IM_WORLD = DIMS(1)
 
     allocate(VAR(IM_WORLD), stat=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     call ArrayGather(A, VAR, grid, mask=mask, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     if (MAPL_am_i_root(layout)) then
        write (UNIT, IOSTAT=status) VAR
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end if
 
     deallocate(VAR)
 
     end if
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R8_1d
 
 !---------------------------
@@ -3373,7 +3373,7 @@ module  BinIOMod
 
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
-  _VERIFY(STATUS)
+  _verify(STATUS)
   itime_beg = MPI_Wtime()
 #endif
 
@@ -3384,11 +3384,11 @@ module  BinIOMod
        mypeWr = -1 !mark it invalid
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
           call mpi_comm_rank(arrdes%writers_comm,mypeWr ,status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        end if
 
        if(present(mask)) then
-          _ASSERT(JM_WORLD==size(A,2), 'inconsistent array shape')
+          _assert(JM_WORLD==size(A,2), 'inconsistent array shape')
 
 !          arrdes%offset = 0
 
@@ -3404,9 +3404,9 @@ module  BinIOMod
 
              if(mypeWr==0) then
                 call MPI_FILE_SEEK(UNIT, offset-4, MPI_SEEK_SET, STATUS)
-                _VERIFY(STATUS)
+                _verify(STATUS)
                 call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-                _VERIFY(STATUS)
+                _verify(STATUS)
              endif
           end if
 
@@ -3421,9 +3421,9 @@ module  BinIOMod
           if(arrdes%writers_comm /= MPI_COMM_NULL) then
              if(mypeWr==0) then
                 call MPI_FILE_SEEK(UNIT, offset+recl, MPI_SEEK_SET, STATUS)
-                _VERIFY(STATUS)
+                _verify(STATUS)
                 call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-                _VERIFY(STATUS)
+                _verify(STATUS)
              endif
           end if
 
@@ -3432,15 +3432,15 @@ module  BinIOMod
        ndes_x = size(arrdes%in)
 
        call mpi_comm_rank(arrdes%ycomm,myrow,status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call mpi_comm_rank(arrdes%iogathercomm,myiorank,status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call mpi_comm_size(arrdes%iogathercomm,num_io_rows,status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        num_io_rows=num_io_rows/ndes_x
 
        allocate (sendcounts(ndes_x*num_io_rows), displs(ndes_x*num_io_rows), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
        if(myiorank==0) then
           do j=1,num_io_rows
@@ -3458,20 +3458,20 @@ module  BinIOMod
              jsize=jsize + (arrdes%jn(myrow+j) - arrdes%j1(myrow+j) + 1)
           enddo
           allocate(VAR(IM_WORLD,jsize), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           allocate(buf(IM_WORLD*jsize), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        end if
 
 !DSK avoid "Attempt to fetch from allocatable variable BUF when it is not allocated"
        if(myiorank/=0) then
           allocate(buf(0), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        endif
 
        call mpi_gatherv( a, size(a), MPI_DOUBLE_PRECISION, buf, sendcounts, displs, MPI_DOUBLE_PRECISION, &
             0, arrdes%iogathercomm, status )
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
        if(myiorank==0) then
 
@@ -3503,23 +3503,23 @@ module  BinIOMod
         print*, offset, recl, offset + IM_WORLD*JM_WORLD*8 + 8
 #endif
              call MPI_FILE_SEEK(UNIT, offset, MPI_SEEK_SET, STATUS)
-             _VERIFY(STATUS)
+             _verify(STATUS)
              call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-             _VERIFY(STATUS)
+             _verify(STATUS)
           endif
           offset = offset + 4
 
           offset = offset + (arrdes%j1(myrow+1)-1)*IM_WORLD*8
           call MPI_FILE_WRITE_AT_ALL(UNIT, offset, VAR, IM_WORLD*jsize, MPI_DOUBLE_PRECISION, mpistatus, STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           offset = offset - (arrdes%j1(myrow+1)-1)*IM_WORLD*8
 
           offset = offset + IM_WORLD*JM_WORLD*8
           if (mypeWr==0) then
              call MPI_FILE_SEEK(UNIT, offset, MPI_SEEK_SET, STATUS)
-             _VERIFY(STATUS)
+             _verify(STATUS)
              call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-             _VERIFY(STATUS)
+             _verify(STATUS)
           endif
 
           arrdes%offset = offset + 4
@@ -3528,14 +3528,14 @@ module  BinIOMod
 
        if(myiorank==0) then
           deallocate(VAR, stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
 !          deallocate(buf, stat=status)
-!          _VERIFY(STATUS)
+!          _verify(STATUS)
        endif
        deallocate(buf, stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        deallocate (sendcounts, displs, stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     endif
 
     elseif(unit < 0) then
@@ -3544,43 +3544,43 @@ module  BinIOMod
       munit%prevrec = munit%prevrec + 1
       if(.not.associated(munit%Records)) then
          allocate(munit%Records(16),stat=status)
-         _VERIFY(STATUS)
+         _verify(STATUS)
       elseif(size(munit%Records)< munit%prevrec) then
          allocate(REC(munit%prevrec*2),stat=status)
-         _VERIFY(STATUS)
+         _verify(STATUS)
          REC(:munit%prevrec-1) = munit%Records
          deallocate(munit%Records)
          munit%Records => REC
       endif
       call alloc_(munit%Records(munit%prevrec),r8_2,size(A,1),size(a,2),rc=status)
-      _VERIFY(STATUS)
+      _verify(STATUS)
       munit%Records(munit%prevrec)%R8_2  = A
 
     else
 
       call ESMF_GridGet(GRID, dimCount=gridRank, rc=STATUS)
-      _VERIFY(STATUS)
+      _verify(STATUS)
       call MAPL_GridGet(GRID, globalCellCountPerDim=DIMS, RC=STATUS)
-      _VERIFY(STATUS)
+      _verify(STATUS)
 
       IM_WORLD = DIMS(1)
       JM_WORLD = DIMS(2)
       if (present(MASK)) JM_WORLD=size(A,2)
 
       allocate(VAR(IM_WORLD,JM_WORLD), stat=status)
-      _VERIFY(STATUS)
+      _verify(STATUS)
 
       call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-      _VERIFY(STATUS)
+      _verify(STATUS)
       call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-      _VERIFY(STATUS)
+      _verify(STATUS)
 
       call ArrayGather(A, VAR, grid, mask=mask, rc=status)
-      _VERIFY(STATUS)
+      _verify(STATUS)
       if (MAPL_am_i_root(layout)) then
 
          write (UNIT, IOSTAT=status) VAR
-         _VERIFY(STATUS)
+         _verify(STATUS)
       end if
 
       deallocate(VAR)
@@ -3589,7 +3589,7 @@ module  BinIOMod
 
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
-  _VERIFY(STATUS)
+  _verify(STATUS)
   itime_end = MPI_Wtime()
   bwidth = REAL(IM_WORLD*JM_WORLD*8/1024.0/1024.0,kind=8)
   bwidth = bwidth/(itime_end-itime_beg)
@@ -3601,7 +3601,7 @@ module  BinIOMod
   endif
 #endif
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R8_2d
 
 !---------------------------
@@ -3621,10 +3621,10 @@ module  BinIOMod
 
     do L = 1, size(A,3)
        call MAPL_VarWrite(UNIT, GRID, A(:,:,L), ARRDES=ARRDES, rc=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end do
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R8_3d
 
 !---------------------------
@@ -3644,10 +3644,10 @@ module  BinIOMod
 
     do L = 1, size(A,4)
        call MAPL_VarWrite(UNIT, GRID, A(:,:,:,L), ARRDES=ARRDES, rc=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end do
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R8_4d
 
 !---------------------------
@@ -3706,12 +3706,12 @@ module  BinIOMod
     ! --------------------------------------------------------------------------
 
         NFLD = size(NAMES)
-        _ASSERT(NFLD>0, 'NFLD must be > 0')
+        _assert(NFLD>0, 'NFLD must be > 0')
 
         allocate(PREV(NFLD),stat=STATUS)
-        _VERIFY(STATUS)
+        _verify(STATUS)
         allocate(NEXT(NFLD),stat=STATUS)
-        _VERIFY(STATUS)
+        _verify(STATUS)
 
     ! --------------------------------------------------------------------------
     ! get the fields from the state
@@ -3719,26 +3719,26 @@ module  BinIOMod
 
         do I=1,NFLD
            call ESMF_StateGet ( STATE, trim(NAMES(I))//'_PREV', PREV(I), RC=STATUS )
-           _VERIFY(STATUS)
+           _verify(STATUS)
            call ESMF_StateGet ( STATE, trim(NAMES(I))//'_NEXT', NEXT(I), RC=STATUS )
-           _VERIFY(STATUS)
+           _verify(STATUS)
         end do
 
         call ESMF_FieldGet(PREV(1), GRID=GRID,    RC=STATUS)
-        _VERIFY(STATUS)
+        _verify(STATUS)
         call ESMF_GridGet    (GRID,   distGrid=distGrid, rc=STATUS)
-        _VERIFY(STATUS)
+        _verify(STATUS)
         call ESMF_DistGridGet(distGRID, delayout=layout, rc=STATUS)
-        _VERIFY(STATUS)
+        _verify(STATUS)
 
     ! --------------------------------------------------------------------------
     ! Find out the times of next, prev from the field attributes
     ! --------------------------------------------------------------------------
 
         call MAPL_FieldGetTime ( PREV(1), BEFORE, RC=STATUS )
-        _VERIFY(STATUS)
+        _verify(STATUS)
         call MAPL_FieldGetTime ( NEXT(1), AFTER , RC=STATUS )
-        _VERIFY(STATUS)
+        _verify(STATUS)
 
     ! --------------------------------------------------------------------------
     ! check to see if albedos need to be refreshed in the
@@ -3747,7 +3747,7 @@ module  BinIOMod
     ! --------------------------------------------------------------------------
 
         call ESMF_TimeGet ( BEFORE, yy=I, rc=STATUS )
-        _VERIFY(STATUS)
+        _verify(STATUS)
 
         DONE = 0
         if( I > 0) then
@@ -3763,39 +3763,39 @@ module  BinIOMod
     ! --------------------------------------------------------------------------
 
            call MAPL_GetClimMonths ( CURRENT_TIME, BEFORE, AFTER,  RC=STATUS )
-           _VERIFY(STATUS)
+           _verify(STATUS)
 
            call ESMF_TimeGet ( BEFORE, MM=M1, rc=STATUS )
-           _VERIFY(STATUS)
+           _verify(STATUS)
            call ESMF_TimeGet ( AFTER , MM=M2, rc=STATUS )
-           _VERIFY(STATUS)
+           _verify(STATUS)
 
     ! --------------------------------------------------------------------------
     !  Read the albedo climatologies from file
     ! --------------------------------------------------------------------------
 
            UNIT = GETFILE(FILE, form="unformatted",  RC=STATUS)
-           _VERIFY(STATUS)
+           _verify(STATUS)
 
            DONE = 0
            do M=1,12
               if    (M==M1) then
                  do I=1,NFLD
                     call MAPL_VarRead(UNIT, PREV(I), RC=STATUS)
-                    _VERIFY(STATUS)
+                    _verify(STATUS)
                  end do
                  if(DONE==1) exit
                  DONE = DONE + 1
               elseif(M==M2) then
                  do I=1,NFLD
                     call MAPL_VarRead(UNIT, NEXT(I), RC=STATUS)
-                    _VERIFY(STATUS)
+                    _verify(STATUS)
                  end do
                  if(DONE==1) exit
                  DONE = DONE + 1
               else
                  call MAPL_Skip(UNIT,LAYOUT,COUNT=NFLD,rc=status)
-                 _VERIFY(STATUS)
+                 _verify(STATUS)
               end if
            end do
 
@@ -3807,9 +3807,9 @@ module  BinIOMod
 
            do I=1,NFLD
               call MAPL_FieldSetTime (  PREV(I), BEFORE, rc=STATUS )
-              _VERIFY(STATUS)
+              _verify(STATUS)
               call MAPL_FieldSetTime (  NEXT(I), AFTER , rc=STATUS )
-              _VERIFY(STATUS)
+              _verify(STATUS)
            end do
 
         endif
@@ -3817,7 +3817,7 @@ module  BinIOMod
         deallocate(NEXT)
         deallocate(PREV)
 
-        _RETURN(ESMF_SUCCESS)
+        _return(ESMF_SUCCESS)
       end subroutine MAPL_ClimUpdate
 
 
@@ -3833,23 +3833,23 @@ module  BinIOMod
         type(ESMF_TimeInterval) :: oneMonth
 
         call ESMF_TimeIntervalSet(oneMonth, MM = 1, RC=STATUS )
-        _VERIFY(STATUS)
+        _verify(STATUS)
         call ESMF_TimeGet(CURRENT_TIME, midMonth=midMonth, mm=MonthCurr, RC=STATUS )
-        _VERIFY(STATUS)
+        _verify(STATUS)
 
         if( CURRENT_TIME < midMonth ) then
            AFTER    = midMonth
            midMonth = midMonth - oneMonth
            call ESMF_TimeGet (midMonth, midMonth=BEFORE, rc=STATUS )
-           _VERIFY(STATUS)
+           _verify(STATUS)
         else
            BEFORE   = midMonth
            midMonth = midMonth + oneMonth
            call ESMF_TimeGet (midMonth, midMonth=AFTER , rc=STATUS )
-           _VERIFY(STATUS)
+           _verify(STATUS)
         endif
 
-        _RETURN(ESMF_SUCCESS)
+        _return(ESMF_SUCCESS)
     end subroutine MAPL_GetClimMonths
 
   subroutine MAPL_Skip(UNIT, LAYOUT, COUNT, RC)
@@ -3873,18 +3873,18 @@ module  BinIOMod
     if (unit < 0) then
        munit => MEM_units(-unit)
        munit%prevrec = munit%prevrec + NN
-       _RETURN(ESMF_SUCCESS)
+       _return(ESMF_SUCCESS)
     endif
 
     if (MAPL_AM_I_ROOT(LAYOUT)) then
 
        do N=1,NN
           read (unit=UNIT, IOSTAT=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        end do
     end if
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_Skip
 
   subroutine MAPL_Backspace(UNIT, LAYOUT, COUNT, RC)
@@ -3908,11 +3908,11 @@ module  BinIOMod
 
        do N=1,NN
           backspace(unit=UNIT, IOSTAT=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        end do
     end if
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_Backspace
 
   subroutine MAPL_Rewind(UNIT, LAYOUT, RC)
@@ -3927,10 +3927,10 @@ module  BinIOMod
 
     if (MAPL_AM_I_ROOT(LAYOUT)) then
        rewind(unit=UNIT, IOSTAT=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end if
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_Rewind
 
   INTEGER FUNCTION GETFILE( NAME, DO_OPEN, FORM, ALL_PES, &
@@ -3954,13 +3954,13 @@ module  BinIOMod
 
     if(INDEX(NAME,'*') /= 0) then
         getfile = getfilemem(name,rc=status)
-    _VERIFY(STATUS)
-        _RETURN(ESMF_SUCCESS)
+    _verify(STATUS)
+        _return(ESMF_SUCCESS)
     endif
 
     if (NAME == "stdout" .or. NAME== "STDOUT") then
        GETFILE = STD_OUT_UNIT_NUMBER
-       _RETURN(ESMF_SUCCESS)
+       _return(ESMF_SUCCESS)
     end if
 
     if (.not. present(DO_OPEN)) then
@@ -3976,7 +3976,7 @@ module  BinIOMod
 
     if (.not. MAPL_AM_I_ROOT() .and. .not. ALL_PES_) then
        GETFILE = UNDEF
-       _RETURN(ESMF_SUCCESS)
+       _return(ESMF_SUCCESS)
     end if
 
 !   Check if the file is already open
@@ -4004,7 +4004,7 @@ module  BinIOMod
                 if ( status /= 0 ) then
                    write (0,*) 'ERROR opening "',trim(Name),'" using GETFILE'
                    write (0,*) ' IOSTAT = ',status
-                   _RETURN(ESMF_FAILURE)
+                   _return(ESMF_FAILURE)
                 endif
 
                 GETFILE = I
@@ -4021,12 +4021,12 @@ module  BinIOMod
 !
        IF ( .NOT. FOUND ) THEN
           WRITE (0,*) ' COULD NOT FIND ANY AVAILABLE UNITS '
-          _RETURN(ESMF_FAILURE)
+          _return(ESMF_FAILURE)
        ENDIF
 
     ENDIF ! the file isnt already open
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   END FUNCTION GETFILE
 
   INTEGER FUNCTION GETFILEMEM(name,  RC )
@@ -4095,9 +4095,9 @@ module  BinIOMod
     end if
 
     open(UNIT,FILE=FILE,FORM=usableFORM,IOSTAT=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_OPEN
 
 

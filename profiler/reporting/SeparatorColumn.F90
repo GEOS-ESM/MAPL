@@ -65,7 +65,7 @@ contains
 
    integer function get_num_rows_header(this) result(num_rows)
       class(SeparatorColumn), intent(in) :: this
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
       num_rows = 1
    end function get_num_rows_header
    

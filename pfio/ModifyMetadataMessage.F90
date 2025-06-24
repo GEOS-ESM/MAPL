@@ -39,8 +39,8 @@ contains
       message%collection_id = collection_id
       if (present(var_map)) message%var_map = var_map
  
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end function new_ModifyMetadataMessage
 
    integer function get_type_id() result(type_id)
@@ -65,11 +65,11 @@ contains
       integer :: status
 
       call StringVariableMap_serialize(this%var_map, map_buf, rc=status)
-      _VERIFY(status)
+      _verify(status)
       buffer = [ &
            & serialize_intrinsic(this%collection_id), &
            & map_buf]
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine serialize
 
    subroutine deserialize(this, buffer, rc)
@@ -84,8 +84,8 @@ contains
       n = n + serialize_buffer_length(this%collection_id)
 
       call StringVariableMap_deserialize(buffer(n:), this%var_map, rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+      _verify(status)
+      _return(_success)
    end subroutine deserialize
 
 end module pFIO_ModifyMetadataMessageMod

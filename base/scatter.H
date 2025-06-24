@@ -29,22 +29,22 @@
     integer                               :: comm
 
     call ESMF_DELayoutGet(layout, vm=vm, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 #if 1
     call ESMF_VMGet(vm, mpiCommunicator = comm, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     call mpi_scatterv( sendbuf, sendcnts, displs,  MPITYPE_, &
                        recvbuf, recvcnt, MPITYPE_,           &
                        root, comm, status )
-    _VERIFY(STATUS)
+    _verify(STATUS)
 #else
     call ESMF_VMScatterv( vm, sendbuf, sendcnts, displs,  &
                        recvbuf, recvcnt,                  &
                        root, status )
-    _VERIFY(STATUS)
+    _verify(STATUS)
 #endif
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   END SUBROUTINE SUB_
 
 #undef NAME_

@@ -190,7 +190,7 @@ contains
     else if (index(EASELabel,'M01') /=0 ) then
        grid='M01'
     else
-       _FAIL("MAPL_ease_convert(): unknown grid projection and resolution: "//trim(EASELabel)//"  STOPPING.")
+       _fail("MAPL_ease_convert(): unknown grid projection and resolution: "//trim(EASELabel)//"  STOPPING.")
     endif
 
     if(     index(EASELabel,'EASEv2') /=0) then
@@ -198,10 +198,10 @@ contains
     else if(index(EASELabel,'EASEv1') /=0) then
        call easeV1_convert(grid,lat,lon,r,s)
     else
-       _FAIL("MAPL_ease_convert(): unknown grid version: "//trim(EASELabel)//"  STOPPING.")
+       _fail("MAPL_ease_convert(): unknown grid version: "//trim(EASELabel)//"  STOPPING.")
     endif
 
-    _RETURN(_SUCCESS)
+    _return(_success)
 
   end subroutine MAPL_ease_convert
 
@@ -231,18 +231,18 @@ contains
     else if (index(EASELabel,'M01') /=0 ) then
        grid='M01'
     else
-       _FAIL("MAPL_ease_inverse(): unknown grid projection and resolution: "//trim(EASELabel)//"  STOPPING.")
+       _fail("MAPL_ease_inverse(): unknown grid projection and resolution: "//trim(EASELabel)//"  STOPPING.")
     endif
 
     if(     index(EASELabel,'EASEv2') /=0) then
-       call easeV2_inverse(grid,r,s,lat,lon, _RC)
+       call easeV2_inverse(grid,r,s,lat,lon, _rc)
     else if(index(EASELabel,'EASEv1') /=0) then
-       call easeV1_inverse(grid,r,s,lat,lon, _RC)
+       call easeV1_inverse(grid,r,s,lat,lon, _rc)
     else
-       _FAIL("MAPL_ease_inverse(): unknown grid version: "//trim(EASELabel)//"  STOPPING.")
+       _fail("MAPL_ease_inverse(): unknown grid version: "//trim(EASELabel)//"  STOPPING.")
     endif
 
-    _RETURN(_SUCCESS)
+    _return(_success)
 
   end subroutine MAPL_ease_inverse
 
@@ -278,36 +278,36 @@ contains
     else if (index(EASELabel,'M01') /=0 ) then
        grid='M01'
     else
-       _FAIL("MAPL_ease_extent(): unknown grid projection and resolution: "//trim(EASELabel)//"  STOPPING.")
+       _fail("MAPL_ease_extent(): unknown grid projection and resolution: "//trim(EASELabel)//"  STOPPING.")
     endif
 
     if(     index(EASELabel,'EASEv2') /=0) then
 
-       call easeV2_get_params(grid, map_scale_m, cols, rows, r0, s0, _RC)
+       call easeV2_get_params(grid, map_scale_m, cols, rows, r0, s0, _rc)
 
        if(present(cell_area)) cell_area = map_scale_m**2
 
     else if(index(EASELabel,'EASEv1') /=0) then
 
-       call easeV1_get_params(grid, CELL_km, cols, rows, r0, s0, Rg, _RC)
+       call easeV1_get_params(grid, CELL_km, cols, rows, r0, s0, Rg, _rc)
 
        if(present(cell_area)) cell_area = CELL_km**2 * 1000. * 1000.
 
     else
-       _FAIL("MAPL_ease_extent(): unknown grid version: "//trim(EASELabel)//"  STOPPING.")
+       _fail("MAPL_ease_extent(): unknown grid version: "//trim(EASELabel)//"  STOPPING.")
     endif
 
     ! get lat/lon of corner grid cells
     !
     ! recall that EASE grid indexing is zero-based
 
-    if (present(ll_lat))  call MAPL_ease_inverse(EASElabel, 0., rows-0.5, ll_lat, tmplon, _RC)
-    if (present(ur_lat))  call MAPL_ease_inverse(EASElabel, 0.,     -0.5, ur_lat, tmplon, _RC)
+    if (present(ll_lat))  call MAPL_ease_inverse(EASElabel, 0., rows-0.5, ll_lat, tmplon, _rc)
+    if (present(ur_lat))  call MAPL_ease_inverse(EASElabel, 0.,     -0.5, ur_lat, tmplon, _rc)
 
     if (present(ll_lon))  ll_lon = -180.
     if (present(ur_lon))  ur_lon =  180.
 
-    _RETURN(_SUCCESS)
+    _return(_success)
 
   end subroutine MAPL_ease_extent
 
@@ -350,7 +350,7 @@ contains
     real(kind=REAL64), parameter :: PI = easeV1_PI
     ! ---------------------------------------------------------------------
 
-    call easeV1_get_params( grid, CELL_km, cols, rows, r0, s0, Rg, _RC)
+    call easeV1_get_params( grid, CELL_km, cols, rows, r0, s0, Rg, _rc)
 
     phi = lat*PI/180.   ! convert from degree to radians
     lam = lon*PI/180.   ! convert from degree to radians
@@ -370,10 +370,10 @@ contains
        s = s0 - Rg * sin(phi) / easeV1_COS_PHI1
 
     else
-       _FAIL('Unsupported v1 convert')
+       _fail('Unsupported v1 convert')
     endif
 
-    _RETURN(_SUCCESS)
+    _return(_success)
 
   end subroutine easeV1_convert
 
@@ -414,7 +414,7 @@ contains
 
     ! ---------------------------------------------------------------------
 
-    call easeV1_get_params( grid, CELL_km, cols, rows, r0, s0, Rg, _RC)
+    call easeV1_get_params( grid, CELL_km, cols, rows, r0, s0, Rg, _rc)
 
     x = r - r0
     y = -(s - s0)
@@ -475,10 +475,10 @@ contains
        lat = phi*180./PI   ! convert from radians to degree
        lon = lam*180./PI   ! convert from radians to degree
     else
-       _FAIL('Unsupported v1 grid')
+       _fail('Unsupported v1 grid')
     endif
 
-    _RETURN(_SUCCESS)
+    _return(_success)
 
   end subroutine easeV1_inverse
 
@@ -506,7 +506,7 @@ contains
 
     if ((grid(1:1).eq.'N').or.(grid(1:1).eq.'S')) then
 
-       _FAIL('easeV1_get_params(): polar projections not implemented yet')
+       _fail('easeV1_get_params(): polar projections not implemented yet')
 
     else if (grid(1:1).eq.'M') then
 
@@ -546,16 +546,16 @@ contains
           s0 = 7343.5
 
        else
-          _FAIL( 'easeV1_get_params(): unknown resolution: ' // grid)
+          _fail( 'easeV1_get_params(): unknown resolution: ' // grid)
        endif
 
     else
-       _FAIL('easeV1_get_params(): unknown projection: '// grid)
+       _fail('easeV1_get_params(): unknown projection: '// grid)
     endif
 
     Rg = easeV1_RE_km/CELL_km
 
-    _RETURN(_SUCCESS)
+    _return(_success)
 
   end subroutine easeV1_get_params
 
@@ -599,7 +599,7 @@ contains
 
     ! ---------------------------------------------------------------------
 
-    call easeV2_get_params( grid, map_scale_m, cols, rows, r0, s0, _RC)
+    call easeV2_get_params( grid, map_scale_m, cols, rows, r0, s0, _rc)
 
     epsilon = 1.e-6
     dlon = lon
@@ -637,14 +637,14 @@ contains
 
     else
 
-       _FAIL('EASEv2_convert(): Polar projections not implemented yet')
+       _fail('EASEv2_convert(): Polar projections not implemented yet')
 
     endif
 
     row_ind = s0 - (y/map_scale_m)
     col_ind = r0 + (x/map_scale_m)
 
-    _RETURN(_SUCCESS)
+    _return(_success)
 
   end subroutine easeV2_convert
 
@@ -681,7 +681,7 @@ contains
 
     ! ---------------------------------------------------------------------
 
-    call easeV2_get_params( grid, map_scale_m, cols, rows, r0, s0, _RC)
+    call easeV2_get_params( grid, map_scale_m, cols, rows, r0, s0, _rc)
 
     x =  (r - r0)*map_scale_m
     y = -(s - s0)*map_scale_m
@@ -701,7 +701,7 @@ contains
 
     else
 
-       _FAIL('EASEv2_inverse(): Polar projections not implemented yet')
+       _fail('EASEv2_inverse(): Polar projections not implemented yet')
 
     endif
 
@@ -716,7 +716,7 @@ contains
     if (lon .lt. -180.0) lon = lon + 360.0
     if (lon .gt.  180.0) lon = lon - 360.0
 
-    _RETURN(_SUCCESS)
+    _return(_success)
 
   end subroutine easeV2_inverse
 
@@ -777,21 +777,21 @@ contains
 
        else
 
-          _FAIL('easeV2_get_params(): unknown resolution: '//grid)
+          _fail('easeV2_get_params(): unknown resolution: '//grid)
 
        endif
 
     else if ((grid(1:1).eq.'N').or.(grid(1:1).eq.'S')) then
 
-       _FAIL('easeV2_get_params(): Polar projections not implemented yet')
+       _fail('easeV2_get_params(): Polar projections not implemented yet')
 
     else
 
-       _FAIL('easeV2_get_params(): unknown projection: '// grid)
+       _fail('easeV2_get_params(): unknown projection: '// grid)
 
     endif
 
-    _RETURN(_SUCCESS)
+    _return(_success)
 
   end subroutine easeV2_get_params
 
@@ -831,9 +831,9 @@ contains
       case (34668)
         name = 'EASEv1_M01'
       case default
-        _FAIL('EASEGridFactory does not support this solution')
+        _fail('EASEGridFactory does not support this solution')
       end select
-      _RETURN(_SUCCESS)
+      _return(_success)
   end function
 
   ! *******************************************************************

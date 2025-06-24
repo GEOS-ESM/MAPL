@@ -123,9 +123,9 @@ contains
 
 
       call factory%check_and_fill_consistency(rc=status)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function LlcGridFactory_from_parameters
 
@@ -139,15 +139,15 @@ contains
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'make_geos_grid'
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       grid = this%create_basic_grid(rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call this%add_horz_coordinates(grid, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function make_new_grid
 
@@ -162,7 +162,7 @@ contains
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'create_basic_grid'
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
        grid = ESMF_GridCreate1PeriDim( &
             name=trim(this%grid_name) ,&
@@ -175,21 +175,21 @@ contains
             coordDep2=[1,2], &
             poleKindFlag=[ESMF_POLEKIND_MONOPOLE,ESMF_POLEKIND_BIPOLE], &
             coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       ! Allocate coords at default stagger location
       call ESMF_GridAddCoord(grid, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       if (this%lm /= MAPL_UNDEFINED_INTEGER) then
          call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, rc=status)
-         _VERIFY(status)
+         _verify(status)
       end if
 
       call ESMF_AttributeSet(grid, 'GridType', 'Llc', rc=status)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function create_basic_grid
 
    subroutine add_horz_coordinates(this, grid, unusable, rc)
@@ -221,10 +221,10 @@ contains
       real(ESMF_KIND_R8), allocatable :: x(:,:), y(:,:)
       real(ESMF_KIND_R8), pointer :: gridx(:,:), gridy(:,:)
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 ! get IM, JM and IM_WORLD, JM_WORLD
      call MAPL_GridGet(GRID, localCellCountPerDim=COUNTS, globalCellCountPerDim=DIMS, RC=STATUS)
-     _VERIFY(STATUS)
+     _verify(STATUS)
 
      IM = COUNTS(1)
      JM = COUNTS(2)
@@ -238,22 +238,22 @@ contains
      call ESMF_GridGetCoord(grid, localDE=0, coordDim=1, &
           staggerloc=ESMF_STAGGERLOC_CENTER, &
           farrayPtr=gridx, rc=status)
-     _VERIFY(STATUS)
+     _verify(STATUS)
 
      call ESMF_GridGetCoord(grid, localDE=0, coordDim=2, &
           staggerloc=ESMF_STAGGERLOC_CENTER, &
           farrayPtr=gridy, rc=status)
-     _VERIFY(STATUS)
+     _verify(STATUS)
 
      allocate(x(IM_WORLD, JM_WORLD), stat=status)
-     _VERIFY(STATUS)
+     _verify(STATUS)
      allocate(y(IM_WORLD, JM_WORLD), stat=status)
-     _VERIFY(STATUS)
+     _verify(STATUS)
 
      call ESMF_GridGet    (GRID,   distGrid=distGrid, rc=STATUS)
-     _VERIFY(STATUS)
+     _verify(STATUS)
      call ESMF_DistGridGet(distGRID, delayout=layout, rc=STATUS)
-     _VERIFY(STATUS)
+     _verify(STATUS)
 
      UNIT = GETFILE(this%grid_file_name, form="formatted", rc=status)
      call READ_PARALLEL(LAYOUT, X, unit=UNIT)
@@ -270,7 +270,7 @@ contains
      deallocate(y)
      deallocate(x)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine add_horz_coordinates
 
@@ -285,10 +285,10 @@ contains
 
       character(len=*), parameter :: Iam= MOD_NAME // 'initialize_from_file_metadata()'
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(rc)
-      _UNUSED_DUMMY(force_file_coordinates)
+      _unused_dummy(this)
+      _unused_dummy(unusable)
+      _unused_dummy(rc)
+      _unused_dummy(force_file_coordinates)
 
    end subroutine initialize_from_file_metadata
 
@@ -310,7 +310,7 @@ contains
       this%grid_name = trim(tmp)
 
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDSPEC:', rc=status)
-      _VERIFY(status)
+      _verify(status)
       this%grid_file_name = trim(tmp)
 
       call ESMF_ConfigGetAttribute(config, this%nx, label=prefix//'NX:', default=MAPL_UNDEFINED_INTEGER)
@@ -323,7 +323,7 @@ contains
 
       call this%init_halo()
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    contains
 
@@ -339,16 +339,16 @@ contains
          logical :: isPresent
 
          call ESMF_ConfigFindLabel(config, label=prefix//label,isPresent=isPresent,rc=status)
-         _VERIFY(status)
+         _verify(status)
          if (.not. isPresent) then
-            _RETURN(_SUCCESS)
+            _return(_success)
          end if
 
          ! First pass:  count values
          n = 0
          do
             call ESMF_ConfigGetAttribute(config, tmp, rc=status)
-            if (status /= _SUCCESS) then
+            if (status /= _success) then
                exit
             else
                n = n + 1
@@ -357,15 +357,15 @@ contains
 
          ! Second pass: allocate and fill
          allocate(values(n), stat=status) ! no point in checking status
-         _VERIFY(status)
+         _verify(status)
          call ESMF_ConfigFindLabel(config, label=prefix//label,rc=status)
-         _VERIFY(status)
+         _verify(status)
          do i = 1, n
             call ESMF_ConfigGetAttribute(config, values(i), rc=status)
-            _VERIFY(status)
+            _verify(status)
          end do
 
-         _RETURN(_SUCCESS)
+         _return(_success)
 
       end subroutine get_multi_integer
 
@@ -377,7 +377,7 @@ contains
       character(len=:), allocatable :: string
       class (LlcGridFactory), intent(in) :: this
 
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
       string = 'LlcGridFactory'
 
    end function to_string
@@ -393,7 +393,7 @@ contains
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'check_and_fill_consistency'
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       if (.not. allocated(this%grid_name)) then
          this%grid_name = MAPL_GRID_NAME_DEFAULT
@@ -401,8 +401,8 @@ contains
 
       ! Check decomposition/bounds
       ! LLc/Tripolar requires even divisibility
-      _ASSERT(mod(this%im_world, this%nx) == 0, 'uneven decomposition')
-      _ASSERT(mod(this%jm_world, this%ny) == 0, 'uneven decomposition')
+      _assert(mod(this%im_world, this%nx) == 0, 'uneven decomposition')
+      _assert(mod(this%jm_world, this%ny) == 0, 'uneven decomposition')
 
       ! local extents
       call verify(this%nx, this%im_world, this%ims, rc=status)
@@ -410,7 +410,7 @@ contains
       !this%ims = spread(this%im_world / this%nx, 1, this%nx)
       !this%jms = spread(this%jm_world / this%ny, 1, this%ny)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    contains
 
@@ -423,31 +423,31 @@ contains
          integer :: status
 
          if (allocated(ms)) then
-            _ASSERT(size(ms) > 0, 'degenerate topology')
+            _assert(size(ms) > 0, 'degenerate topology')
 
             if (n == MAPL_UNDEFINED_INTEGER) then
                n = size(ms)
             else
-               _ASSERT(n == size(ms), 'inconsistent topology')
+               _assert(n == size(ms), 'inconsistent topology')
             end if
 
             if (m_world == MAPL_UNDEFINED_INTEGER) then
                m_world = sum(ms)
             else
-               _ASSERT(m_world == sum(ms), 'inconsistent decomposition')
+               _assert(m_world == sum(ms), 'inconsistent decomposition')
             end if
 
          else
 
-            _ASSERT(n /= MAPL_UNDEFINED_INTEGER, 'uninitialized topology')
-            _ASSERT(m_world /= MAPL_UNDEFINED_INTEGER, 'uninitialized dimension')
+            _assert(n /= MAPL_UNDEFINED_INTEGER, 'uninitialized topology')
+            _assert(m_world /= MAPL_UNDEFINED_INTEGER, 'uninitialized dimension')
             allocate(ms(n), stat=status)
-            _VERIFY(status)
+            _verify(status)
             call MAPL_DecomposeDim(m_world, ms, n)
 
          end if
 
-         _RETURN(_SUCCESS)
+         _return(_success)
 
       end subroutine verify
 
@@ -497,13 +497,13 @@ contains
 
       character(len=*), parameter :: Iam = MOD_NAME // 'initialize_from_esmf_distGrid'
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(dist_grid)
-      _UNUSED_DUMMY(lon_array)
-      _UNUSED_DUMMY(lat_array)
+      _unused_dummy(this)
+      _unused_dummy(unusable)
+      _unused_dummy(dist_grid)
+      _unused_dummy(lon_array)
+      _unused_dummy(lat_array)
 
-      _FAIL('unsupported')
+      _fail('unsupported')
    end subroutine initialize_from_esmf_distGrid
 
    function decomps_are_equal(this,a) result(equal)
@@ -579,7 +579,7 @@ contains
       character(len=:), allocatable :: name
       class (LlcGridFactory), intent(in) :: this
 
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
 
       name = ''
       ! needs to be implemented
@@ -609,38 +609,38 @@ contains
 
       real(kind=REAL64), allocatable :: lons(:,:), lats(:,:)
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       call ESMF_VMGetCurrent(vm, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call ESMF_VMGet(vm, localpet=pet, petCount=ndes, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       i_am_root = (pet == 0)
 
       if (i_am_root) then
          allocate(longitudes(this%im_world, this%jm_world), stat=status)
-         _VERIFY(status)
+         _verify(status)
          allocate(latitudes(this%im_world, this%jm_world), stat=status)
-         _VERIFY(status)
+         _verify(status)
 
          ncid = ncopn(this%grid_file_name, NCNOWRIT, status)
-         _VERIFY(status)
+         _verify(status)
 
          xid = ncvid(ncid, 'x_T', status)
-         _VERIFY(status)
+         _verify(status)
 
          yid = ncvid(ncid, 'y_T', status)
-         _VERIFY(status)
+         _verify(status)
 
          call ncvgt(ncid, xid, start, counts, lons, status)
-         _VERIFY(status)
+         _verify(status)
          call ncvgt(ncid, yid, start, counts, lats, status)
-         _VERIFY(status)
+         _verify(status)
 
          call ncclos(ncid, status)
-         _VERIFY(status)
+         _verify(status)
       else
          allocate(longitudes(0,0))
          allocate(latitudes(0,0))
@@ -670,38 +670,38 @@ contains
       integer :: ncid
       type (ESMF_VM) :: vm
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       call ESMF_VMGetCurrent(vm, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call ESMF_VMGet(vm, localpet=pet, petCount=ndes, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       i_am_root = (pet == 0)
 
       if (i_am_root) then
          ncid = ncopn(this%grid_file_name, NCNOWRIT, status)
-         _VERIFY(status)
+         _verify(status)
 
          xid = ncvid(ncid, 'x_T', status)
-         _VERIFY(status)
+         _verify(status)
 
          call ncvinq (ncid, xid, name, type, n, dims, natt, status)
-         _VERIFY(status)
+         _verify(status)
 
          associate (im => this%im_world, jm => this%jm_world)
            call ncdinq(ncid, dims(1), name, im, status)
-           _VERIFY(status)
+           _verify(status)
            call ncdinq(ncid, dims(2), name, jm, status)
-           _VERIFY(status)
+           _verify(status)
          end associate
       end if
 
       call MAPL_CommsBCast(vm, this%im_world, 1, root=0, rc=status)
-      _VERIFY(status)
+      _verify(status)
       call MAPL_CommsBCast(vm, this%jm_world, 1, root=0, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
 
    end subroutine read_grid_dimensions
@@ -721,26 +721,26 @@ contains
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'init_halo'
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       grid = this%make_grid(rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call ESMF_GridGet(grid,   distGrid=dist_grid, dimCount=dim_count, rc=status)
-      _VERIFY(status)
+      _verify(status)
       call ESMF_DistGridGet(dist_grid, delayout=this%layout, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call ESMF_DELayoutGet (this%layout, vm=vm, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call ESMF_VmGet(vm, localPet=pet, petCount=ndes, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       this%px = mod(pet, this%nx)
       this%py = pet / this%nx
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine init_halo
 
@@ -762,9 +762,9 @@ contains
       integer :: pet_east
       integer :: pet_west
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
       ! not yet implmented, default halo_width=1
-      _UNUSED_DUMMY(halo_width)
+      _unused_dummy(halo_width)
       associate (nx => this%nx, ny => this%ny, px => this%px, py => this%py)
         ! Nearest neighbors processor' ids
         pet_north = get_pet(px, py+1, nx, ny)
@@ -773,20 +773,20 @@ contains
         pet_west  = get_pet(px-1, py, nx, ny)
 
         call fill_south(array, rc=status)
-        _VERIFY(status)
+        _verify(status)
 
         call fill_north(array, rc=status)
-        _VERIFY(status)
+        _verify(status)
 
         call fill_east(array, rc=status)
-        _VERIFY(status)
+        _verify(status)
 
         call fill_west(array, rc=status)
-        _VERIFY(status)
+        _verify(status)
 
       end associate
 
-      _RETURN(ESMF_SUCCESS)
+      _return(ESMF_SUCCESS)
 
    contains
 
@@ -826,13 +826,13 @@ contains
                  array(:,2        ),  len,  pet_south,  &
                  array(:,last+1   ),  len,  pet_north,  &
                  rc=status)
-            _VERIFY(status)
+            _verify(status)
          else
             call MAPL_CommsSendRecv(this%layout,        &
                  array(:,last     ),  len,  pet_north,  &
                  array(:,last+1   ),  len,  pet_north,  &
                  rc=status)
-            _VERIFY(status)
+            _verify(status)
             ! reflect results
             block
               integer :: n, i, ii
@@ -847,7 +847,7 @@ contains
             end block
          end if
 
-         _RETURN(_SUCCESS)
+         _return(_success)
 
       end subroutine fill_north
 
@@ -869,13 +869,13 @@ contains
               array(:,last     ),  len,  pet_north,  &
               array(:,1        ),  len,  pet_south,  &
               rc=status)
-         _VERIFY(status)
+         _verify(status)
 
          if(this%py==0) then
             array(:,1   ) = MAPL_UNDEF
          endif
 
-         _RETURN(_SUCCESS)
+         _return(_success)
 
       end subroutine fill_south
 
@@ -896,9 +896,9 @@ contains
              array(2     , : ),  len,  pet_west,  &
              array(last+1, : ),  len,  pet_east,  &
              rc=status)
-         _VERIFY(status)
+         _verify(status)
 
-         _RETURN(_SUCCESS)
+         _return(_success)
 
       end subroutine fill_east
 
@@ -919,9 +919,9 @@ contains
               array(last  , : ),  len,  pet_west,  &
               array(1     , : ),  len,  pet_east,  &
               rc=status)
-         _VERIFY(status)
+         _verify(status)
 
-         _RETURN(_SUCCESS)
+         _return(_success)
 
       end subroutine fill_west
 
@@ -942,7 +942,7 @@ contains
       class (LlcGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
 
       vars = 'lon,lat'
 
@@ -952,7 +952,7 @@ contains
       class (LlcGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
 
       vars = 'lon,lat'
 
@@ -961,8 +961,8 @@ contains
    subroutine append_variable_metadata(this,var)
       class (LlcGridFactory), intent(inout) :: this
       type(Variable), intent(inout) :: var
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(var)
+      _unused_dummy(this)
+      _unused_dummy(var)
    end subroutine append_variable_metadata
 
    subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,metadata,rc)
@@ -980,14 +980,14 @@ contains
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
 
       call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
-      _VERIFY(status)
+      _verify(status)
       call MAPL_GridGetInterior(grid,i1,in,j1,jn)
       allocate(local_start,source=[i1,j1])
       allocate(global_start,source=[1,1])
       allocate(global_count,source=[global_dim(1),global_dim(2)])
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(metadata)
+      _unused_dummy(this)
+      _unused_dummy(metadata)
    end subroutine generate_file_bounds
 
    subroutine generate_file_corner_bounds(this,grid,local_start,global_start,global_count,rc)
@@ -1001,13 +1001,13 @@ contains
 
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_corner_bounds'
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(grid)
-      _UNUSED_DUMMY(local_start)
-      _UNUSED_DUMMY(global_start)
-      _UNUSED_DUMMY(global_count)
+      _unused_dummy(this)
+      _unused_dummy(grid)
+      _unused_dummy(local_start)
+      _unused_dummy(global_start)
+      _unused_dummy(global_count)
 
-      _FAIL('unsupported')
+      _fail('unsupported')
 
    end subroutine generate_file_corner_bounds
 
@@ -1017,7 +1017,7 @@ contains
       class(LlcGridFactory), intent(inout) :: this
       real, pointer, intent(in) :: fpointer(:,:)
       ref = ArrayReference(fpointer)
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
    end function generate_file_reference2D
 
    function generate_file_reference3D(this,fpointer,metadata) result(ref)
@@ -1027,8 +1027,8 @@ contains
       type(FileMetaData), intent(in), optional :: metaData
       real, pointer, intent(in) :: fpointer(:,:,:)
       ref = ArrayReference(fpointer)
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(metadata)
+      _unused_dummy(this)
+      _unused_dummy(metadata)
    end function generate_file_reference3D
 
 end module MAPL_LlcGridFactoryMod

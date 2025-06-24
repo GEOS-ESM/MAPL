@@ -15,7 +15,7 @@ program main
    character(:), allocatable :: output_filename
 
    call MPI_Init(ierror)
-   _VERIFY(ierror)
+   _verify(ierror)
 
    call cli%init(description='potential reproducer of parallel netcdf problem on SCU12')
    call add_cli_options(cli)
@@ -89,9 +89,9 @@ contains
       character(3) :: field_idx_str
 
       call mpi_comm_size(MPI_COMM_WORLD, npes, ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
       call mpi_comm_rank(MPI_COMM_WORLD, rank, ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
 
       jm = im*6 ! pseudo cubed sphere
       call metadata%add_dimension('IM_WORLD', im)

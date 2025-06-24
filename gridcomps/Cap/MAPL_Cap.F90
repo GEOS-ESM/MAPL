@@ -106,15 +106,15 @@ contains
       endif
 
       call cap%initialize_mpi(rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call MAPL_Initialize(comm=cap%comm_world, &
                            logging_config=cap%cap_options%logging_config, &
                            rc=status)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
 
     end function new_MAPL_Cap_from_set_services
 
@@ -142,15 +142,15 @@ contains
       endif
 
       call cap%initialize_mpi(rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call MAPL_Initialize(comm=cap%comm_world, &
                            logging_config=cap%cap_options%logging_config, &
                            rc=status)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
 
     end function new_MAPL_Cap_from_dso
 
@@ -165,12 +165,12 @@ contains
 !
 
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
-      call this%run_ensemble(rc=status); _VERIFY(status)
-      call this%finalize_mpi(rc=status); _VERIFY(status)
+      call this%run_ensemble(rc=status); _verify(status)
+      call this%finalize_mpi(rc=status); _verify(status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
     end subroutine run
 
@@ -185,17 +185,17 @@ contains
       integer :: status
       integer :: subcommunicator
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
-      subcommunicator = this%create_member_subcommunicator(this%comm_world, rc=status); _VERIFY(status)
+      subcommunicator = this%create_member_subcommunicator(this%comm_world, rc=status); _verify(status)
       if (subcommunicator /= MPI_COMM_NULL) then
-         call this%initialize_io_clients_servers(subcommunicator, rc = status); _VERIFY(status)
-         call this%run_member(rc=status); _VERIFY(status)
+         call this%initialize_io_clients_servers(subcommunicator, rc = status); _verify(status)
+         call this%run_member(rc=status); _verify(status)
          call this%finalize_io_clients_servers()
          call this%splitter%free_sub_comm()
       end if
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine run_ensemble
 
@@ -206,7 +206,7 @@ contains
      integer, optional, intent(out) :: rc
      type(SplitCommunicator) :: split_comm
 
-     _UNUSED_DUMMY(unusable)
+     _unused_dummy(unusable)
      call this%cap_server%get_splitcomm(split_comm)
      select case(split_comm%get_name())
      case('model')
@@ -214,7 +214,7 @@ contains
         call o_Clients%terminate()
      end select
      call this%cap_server%finalize()
-     _RETURN(_SUCCESS)
+     _return(_success)
 
    end subroutine finalize_io_clients_servers
 
@@ -225,7 +225,7 @@ contains
      integer, optional, intent(out) :: rc
      integer :: status
 
-     _UNUSED_DUMMY(unusable)
+     _unused_dummy(unusable)
      call this%cap_server%initialize(comm, &
          application_size=this%cap_options%npes_model, &
          nodes_input_server=this%cap_options%nodes_input_server, &
@@ -238,8 +238,8 @@ contains
          fast_oclient  = this%cap_options%fast_oclient, &
          with_profiler = this%cap_options%with_io_profiler, &
          rc=status)
-     _VERIFY(status)
-     _RETURN(_SUCCESS)
+     _verify(status)
+     _return(_success)
 
    end subroutine initialize_io_clients_servers
 
@@ -256,10 +256,10 @@ contains
       call this%cap_server%get_splitcomm(split_comm)
       select case(split_comm%get_name())
       case('model')
-         call this%run_model(comm=split_comm%get_subcommunicator(), rc=status); _VERIFY(status)
+         call this%run_model(comm=split_comm%get_subcommunicator(), rc=status); _verify(status)
       end select
 
-     _RETURN(_SUCCESS)
+     _return(_success)
 
    end subroutine run_member
 
@@ -280,7 +280,7 @@ contains
       character(len=:), allocatable :: esmfComm, esmfConfigFile
       integer :: esmfConfigFileLen
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       call start_timer()
 
@@ -288,7 +288,7 @@ contains
       ! broadcast the result to the other ranks
 
       call MPI_COMM_RANK(comm, rank, status)
-      _VERIFY(status)
+      _verify(status)
 
       ! We look to see if the user has set an environment variable for the
       ! name of the ESMF configuration file. If they have, we use that. If not,
@@ -307,16 +307,16 @@ contains
          deallocate(esmfConfigFile)
          allocate(character(len = esmfConfigFileLen) :: esmfConfigFile)
          call get_environment_variable('ESMF_CONFIG_FILE', value=esmfConfigFile, status=status)
-         _VERIFY(status)
+         _verify(status)
       end if
 
       if (rank == 0) then
          inquire(file=esmfConfigFile, exist=esmfConfigFileExists)
       end if
       call MPI_BCAST(esmfConfigFileExists, 1, MPI_LOGICAL, 0, comm, status)
-      _VERIFY(status)
+      _verify(status)
       call MPI_BCAST(esmfConfigFile, esmfConfigFileLen, MPI_CHARACTER, 0, comm, status)
-      _VERIFY(status)
+      _verify(status)
 
       lgr => logging%get_logger('MAPL')
 
@@ -324,42 +324,42 @@ contains
       ! use the one from the command line arguments
       if (esmfConfigFileExists) then
          call lgr%info("Using ESMF configuration file: %a", esmfConfigFile)
-         call ESMF_Initialize (configFileName=esmfConfigFile, mpiCommunicator=comm, vm=vm, _RC)
+         call ESMF_Initialize (configFileName=esmfConfigFile, mpiCommunicator=comm, vm=vm, _rc)
       else
-         call ESMF_Initialize (logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, vm=vm, _RC)
+         call ESMF_Initialize (logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, vm=vm, _rc)
       end if
 
       ! We check to see if ESMF_COMM was built as mpiuni which is not allowed for MAPL
-      call ESMF_VmGet(vm, esmfComm = esmfComm, _RC)
-      _ASSERT( esmfComm /= 'mpiuni', 'ESMF_COMM=mpiuni is not allowed for MAPL')
+      call ESMF_VmGet(vm, esmfComm = esmfComm, _rc)
+      _assert( esmfComm /= 'mpiuni', 'ESMF_COMM=mpiuni is not allowed for MAPL')
 
       ! Note per ESMF this is a temporary routine as eventually MOAB will
       ! be the only mesh generator. But until then, this allows us to
       ! test it
       call ESMF_MeshSetMOAB(this%cap_options%with_esmf_moab, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call lgr%info("Running with MOAB library for ESMF Mesh: %l1", this%cap_options%with_esmf_moab)
 
       call this%initialize_cap_gc(rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call this%cap_gc%set_services(rc = status)
-      _VERIFY(status)
+      _verify(status)
       call this%cap_gc%initialize(rc=status)
-      _VERIFY(status)
+      _verify(status)
       call this%cap_gc%run(rc=status)
-      _VERIFY(status)
+      _verify(status)
       call this%cap_gc%finalize(rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call ESMF_Finalize(endflag=ESMF_END_KEEPMPI, rc=status)
-      _VERIFY(status)
+      _verify(status)
       call stop_timer()
 
       call report_throughput()
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    contains
 
       subroutine start_timer()
@@ -377,7 +377,7 @@ contains
          real(kind=REAL64) :: model_duration, wall_time, model_days_per_day
 
          call MPI_Comm_rank(this%comm_world, rank, ierror)
-         _VERIFY(ierror)
+         _verify(ierror)
 
          if (rank == 0) then
             model_duration = this%cap_gc%get_model_duration()
@@ -403,21 +403,21 @@ contains
      integer :: status
      type(ESMF_PIN_Flag) :: pinflag
 
-     _UNUSED_DUMMY(unusable)
+     _unused_dummy(unusable)
 
-     pinflag = GetPinFlagFromConfig(this%cap_options%cap_rc_file, _RC)
+     pinflag = GetPinFlagFromConfig(this%cap_options%cap_rc_file, _rc)
      call MAPL_PinFlagSet(pinflag)
 
      if (this%non_dso) then
         call MAPL_CapGridCompCreate(this%cap_gc, this%get_cap_rc_file(), &
            this%name, this%get_egress_file(), n_run_phases=n_run_phases, root_set_services = this%set_services,rc=status)
      else
-        _ASSERT(this%cap_options%root_dso /= 'none',"No set services specified, must pass a dso")
+        _assert(this%cap_options%root_dso /= 'none',"No set services specified, must pass a dso")
         call MAPL_CapGridCompCreate(this%cap_gc, this%get_cap_rc_file(), &
            this%name, this%get_egress_file(), n_run_phases=n_run_phases, root_dso = this%cap_options%root_dso,rc=status)
      end if
-     _VERIFY(status)
-     _RETURN(_SUCCESS)
+     _verify(status)
+     _return(_success)
    end subroutine initialize_cap_gc
 
 
@@ -425,8 +425,8 @@ contains
      class(MAPL_Cap), intent(inout) :: this
      integer, intent(out) :: rc
      integer :: status
-     call this%cap_gc%step(rc = status); _VERIFY(status)
-     _RETURN(_SUCCESS)
+     call this%cap_gc%step(rc = status); _verify(status)
+     _return(_success)
    end subroutine step_model
 
    subroutine rewind_model(this, time, rc)
@@ -434,8 +434,8 @@ contains
      type(ESMF_Time), intent(inout) :: time
      integer, intent(out) :: rc
      integer :: status
-     call this%cap_gc%rewind_clock(time,rc = status); _VERIFY(status)
-     _RETURN(_SUCCESS)
+     call this%cap_gc%rewind_clock(time,rc = status); _verify(status)
+     _return(_success)
    end subroutine rewind_model
 
    integer function create_member_subcommunicator(this, comm, unusable, rc) result(subcommunicator)
@@ -450,20 +450,20 @@ contains
       character(:), allocatable :: dir_name
 !!$      external :: chdir
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       subcommunicator = MPI_COMM_NULL ! in case of failure
       this%splitter = SimpleCommSplitter(comm, this%cap_options%n_members, this%npes_member, base_name=this%cap_options%ensemble_subdir_prefix)
-      split_comm = this%splitter%split(rc=status); _VERIFY(status)
+      split_comm = this%splitter%split(rc=status); _verify(status)
       subcommunicator = split_comm%get_subcommunicator()
 
       if (this%cap_options%n_members > 1) then
          dir_name = split_comm%get_name()
          status = c_chdir(dir_name)
-         _VERIFY(status)
+         _verify(status)
       end if
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function create_member_subcommunicator
 
@@ -478,13 +478,13 @@ contains
       integer :: npes_world
       logical :: halting_mode(5)
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       call MPI_Initialized(this%mpi_already_initialized, ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
 
       if (.not. this%mpi_already_initialized) then
-         call ESMF_InitializePreMPI(_RC)
+         call ESMF_InitializePreMPI(_rc)
 
          ! Testing with GCC 14 + MVAPICH 4 found that it was failing with
          ! a SIGFPE in MPI_Init_thread(). Turning off ieee halting
@@ -492,7 +492,7 @@ contains
          call ieee_get_halting_mode(ieee_all, halting_mode)
          call ieee_set_halting_mode(ieee_all, .false.)
          call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierror)
-         _VERIFY(ierror)
+         _verify(ierror)
          call ieee_set_halting_mode(ieee_all, halting_mode)
 
       else
@@ -500,25 +500,25 @@ contains
          ! and we are just using it. But we need to make sure that the user
          ! has initialized MPI with the correct threading level.
          call MPI_Query_thread(provided, ierror)
-         _VERIFY(ierror)
+         _verify(ierror)
       end if
-      _ASSERT(provided >= MPI_THREAD_SERIALIZED, 'ESMF requires minimum thread level is MPI_THREAD_SERIALIZED. Please replace MPI lib or use MPI (initialize MPI or launch MPI) in an appropriate way.')
+      _assert(provided >= MPI_THREAD_SERIALIZED, 'ESMF requires minimum thread level is MPI_THREAD_SERIALIZED. Please replace MPI lib or use MPI (initialize MPI or launch MPI) in an appropriate way.')
 
       call MPI_Comm_rank(this%comm_world, this%rank, status)
-      _VERIFY(status)
+      _verify(status)
       call MPI_Comm_size(this%comm_world, npes_world, status)
-      _VERIFY(status)
+      _verify(status)
 
       if ( this%cap_options%npes_model == -1) then
          ! just a feed back to cap_options to maintain integrity
           this%cap_options%npes_model = npes_world
       endif
-      _ASSERT(npes_world >= this%cap_options%npes_model, "npes_world is smaller than npes_model")
+      _assert(npes_world >= this%cap_options%npes_model, "npes_world is smaller than npes_model")
 
       this%npes_member = npes_world / this%cap_options%n_members
 
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine initialize_mpi
 
@@ -542,14 +542,14 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       call MAPL_Finalize(comm=this%comm_world)
       if (.not. this%mpi_already_initialized) then
          call MPI_Finalize(status)
       end if
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine finalize_mpi
 
@@ -598,10 +598,10 @@ contains
      integer :: status
      type(ESMF_Config) :: config
 
-     config = ESMF_ConfigCreate(_RC)
-     call ESMF_ConfigLoadFile(config,rcfile, _RC)
+     config = ESMF_ConfigCreate(_rc)
+     call ESMF_ConfigLoadFile(config,rcfile, _rc)
      call ESMF_ConfigGetAttribute(config, value=pinflag_str, &
-          label='ESMF_PINFLAG:', default='SSI_CONTIG', _RC)
+          label='ESMF_PINFLAG:', default='SSI_CONTIG', _rc)
 
      select case (pinflag_str)
      case ('PET')
@@ -613,11 +613,11 @@ contains
      case ('SSI_CONTIG')
         pinflag = ESMF_PIN_DE_TO_SSI_CONTIG
      case default
-        _ASSERT(.false.,'Unsupported PIN flag')
+        _assert(.false.,'Unsupported PIN flag')
      end select
 
-     call ESMF_ConfigDestroy(config, _RC)
-     _RETURN(_SUCCESS)
+     call ESMF_ConfigDestroy(config, _rc)
+     _return(_success)
    end function GetPinFlagFromConfig
 
 end module MAPL_CapMod

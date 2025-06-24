@@ -37,24 +37,24 @@ contains
       options = parser%parse_args()
       
       option => options%at('nx')
-      _ASSERT(associated(option), 'nx not found')
-      call cast(option, spec%nx, _RC)
+      _assert(associated(option), 'nx not found')
+      call cast(option, spec%nx, _rc)
 
       option => options%at('n_levs')
-      _ASSERT(associated(option), 'n_levs not found')
-      call cast(option, spec%n_levs, _RC)
+      _assert(associated(option), 'n_levs not found')
+      call cast(option, spec%n_levs, _rc)
 
 
       option => options%at('n_writers')
-      _ASSERT(associated(option), 'n_writers not found')
-      call cast(option, spec%n_writers, _RC)
+      _assert(associated(option), 'n_writers not found')
+      call cast(option, spec%n_writers, _rc)
 
 
       option => options%at('n_tries')
-      _ASSERT(associated(option), 'n_tries not found')
-      call cast(option, spec%n_tries, _RC)
+      _assert(associated(option), 'n_tries not found')
+      call cast(option, spec%n_tries, _rc)
       
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function make_ComboSpec
 
 
@@ -97,13 +97,13 @@ contains
       integer :: npes
       integer :: n
 
-      call MPI_Comm_size(MPI_COMM_WORLD, npes, _IERROR)
+      call MPI_Comm_size(MPI_COMM_WORLD, npes, _ierror)
       n = int(spec%nx,kind=INT64)**2 * 6 * spec%n_levs / npes
 
       kernel = GathervKernel(n, comm)
-      call kernel%init(_RC)
+      call kernel%init(_rc)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function make_GathervKernel
 
    ! (1) Allocate and initialize buffer
@@ -118,14 +118,14 @@ contains
       integer :: rank
 
       associate (packet_size => int(spec%nx,kind=INT64)**2 * 6* spec%n_levs/spec%n_writers)
-        allocate(benchmark%buffer(packet_size), _STAT)
+        allocate(benchmark%buffer(packet_size), _stat)
         call random_number(benchmark%buffer)
       end associate
 
-      call MPI_Comm_rank(comm, rank, _IERROR)
-      benchmark%filename = make_filename(base='scratch.', rank=rank, width=5, _RC)
+      call MPI_Comm_rank(comm, rank, _ierror)
+      benchmark%filename = make_filename(base='scratch.', rank=rank, width=5, _rc)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function make_BW_Benchmark
 
    ! helper function
@@ -141,13 +141,13 @@ contains
       character(30) :: fmt
 
       write(fmt,'("(i",i0,".",i0,")")', iostat=status) width, width
-      _VERIFY(status)
+      _verify(status)
 
       write(suffix,trim(fmt), iostat=status) rank
-      _VERIFY(status)
+      _verify(status)
       filename = base // suffix
       
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function make_filename
 
 end module mapl_ComboSpec

@@ -63,7 +63,7 @@ contains
       logical, optional, intent(in) :: was_set
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
       if (bracketside=='L') then
          if (present(field)) this%left_node%field=field
          if (present(time)) this%left_node%time=time
@@ -77,9 +77,9 @@ contains
          if (present(file)) this%right_node%file=file
          if (present(was_set)) this%right_node%was_set=was_set
       else
-         _FAIL('wrong bracket side')
+         _fail('wrong bracket side')
       end if
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine set_node
 
@@ -94,7 +94,7 @@ contains
       logical, optional, intent(out) :: was_set
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
       if (bracketside=='L') then
          if (present(field)) field=this%left_node%field
          if (present(time)) time=this%left_node%time
@@ -108,9 +108,9 @@ contains
          if (present(file)) file=this%right_node%file
          if (present(was_set)) was_set=this%right_node%was_set
       else
-         _FAIL('wrong bracket side')
+         _fail('wrong bracket side')
       end if
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine get_node
 
@@ -126,7 +126,7 @@ contains
       logical, optional, intent(in) :: exact
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
       if (present(linear_trans)) then
          this%offset=linear_trans(1)
          this%scale_factor=linear_trans(2)
@@ -136,7 +136,7 @@ contains
       if (present(right_field)) this%right_node%field=right_field
       if (present(intermittent_disable)) this%intermittent_disable = intermittent_disable
       if (present(exact)) this%exact = exact
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine set_parameters
 
@@ -151,7 +151,7 @@ contains
       logical,          optional, intent(out) :: update
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
       if (bracket_side == 'L') then
           if (present(field))  field = this%left_node%field
           if (present(file)) file = trim(this%left_node%file)
@@ -165,9 +165,9 @@ contains
           if (present(time_index)) time_index = this%right_node%time_index
           if (present(update)) update = this%new_file_right
       else
-         _FAIL('invalid bracket side!')
+         _fail('invalid bracket side!')
       end if
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine get_parameters
 
@@ -185,8 +185,8 @@ contains
       integer :: status
       logical :: right_node_set, left_node_set
 
-      right_node_set = this%right_node%check_if_initialized(_RC)
-      left_node_set = this%left_node%check_if_initialized(_RC)
+      right_node_set = this%right_node%check_if_initialized(_rc)
+      left_node_set = this%left_node%check_if_initialized(_rc)
 
       alpha = 0.0
       if ( (.not.this%disable_interpolation) .and. (.not.this%intermittent_disable) .and. right_node_set .and. left_node_set) then
@@ -194,12 +194,12 @@ contains
          tinv2 = this%right_node%time - this%left_node%time
          alpha = tinv1/tinv2
       end if
-      call assign_fptr(field,var1d,_RC)
+      call assign_fptr(field,var1d,_rc)
       if (right_node_set) then
-         call assign_fptr(this%right_node%field,var1d_right,_RC)
+         call assign_fptr(this%right_node%field,var1d_right,_rc)
       end if
       if (left_node_set) then
-         call assign_fptr(this%left_node%field,var1d_left,_RC)
+         call assign_fptr(this%left_node%field,var1d_left,_rc)
       end if
       if ( left_node_set .and. (time == this%left_node%time .or. this%disable_interpolation)) then
          var1d = var1d_left
@@ -227,7 +227,7 @@ contains
          where(var1d /= MAPL_UNDEF) var1d=var1d*this%scale_factor+this%offset
       end if
       
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine interpolate_to_time
 
@@ -238,15 +238,15 @@ contains
       real, pointer :: left_ptr(:), right_ptr(:)
       logical :: left_created, right_created
 
-      left_created  = ESMF_FieldIsCreated(this%left_node%field,_RC)
-      right_created = ESMF_FieldIsCreated(this%right_node%field,_RC)
-      left_created  = ESMF_FieldIsCreated(this%left_node%field,_RC)
+      left_created  = ESMF_FieldIsCreated(this%left_node%field,_rc)
+      right_created = ESMF_FieldIsCreated(this%right_node%field,_rc)
+      left_created  = ESMF_FieldIsCreated(this%left_node%field,_rc)
       if (left_created .and. right_created) then     
-         call assign_fptr(this%left_node%field,left_ptr,_RC) 
-         call assign_fptr(this%right_node%field,right_ptr,_RC) 
+         call assign_fptr(this%left_node%field,left_ptr,_rc) 
+         call assign_fptr(this%right_node%field,right_ptr,_rc) 
          left_ptr = right_ptr
       end if
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine swap_node_fields
 
 end module MAPL_ExtDataBracket

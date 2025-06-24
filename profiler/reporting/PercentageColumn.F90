@@ -92,8 +92,8 @@ contains
       row = 0
       allocate(row,source=0) ! to eliminate compiler warning.
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(node)
+      _unused_dummy(this)
+      _unused_dummy(node)
    end function get_row
    
 end module MAPL_PercentageColumn

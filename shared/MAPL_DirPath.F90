@@ -31,7 +31,7 @@ contains
       character(len=:), pointer :: dir
       logical :: exist
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       iter = this%begin()
       do while (iter /= this%end())
@@ -62,7 +62,7 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       call this%push_back(directory)
 

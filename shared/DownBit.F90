@@ -149,7 +149,7 @@ contains
 
        xr = x   ! compiled r8 this will convert to r4.
        xbits = 24 - nbits_to_keep
-       call compute_min_max(xr,min_value,max_value,undef_,useable_mpi_comm,_RC)
+       call compute_min_max(xr,min_value,max_value,undef_,useable_mpi_comm,_rc)
        if (useable_mpi_comm/=MPI_COMM_NULL) passed_minmax = 1
        rc = MAPL_ShaveMantissa32 ( xr, xr, size(x), xbits, has_undef, undef_, size(x), passed_minmax, min_value, max_value )
        return
@@ -241,14 +241,14 @@ contains
       local_max_value = maxval(array,mask=undef_mask)
       if (mpi_comm /= MPI_COMM_NULL) then
          call MPI_AllReduce(local_min_value,min_value,1,MPI_FLOAT,MPI_MIN,mpi_comm,status)
-         _VERIFY(status)
+         _verify(status)
          call MPI_AllReduce(local_max_value,max_value,1,MPI_FLOAT,MPI_MAX,mpi_comm,status)
-         _VERIFY(status)
+         _verify(status)
       else
          min_value = local_min_value
          max_value = local_max_value
       end if
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine 
 
 end module MAPL_DownbitMod

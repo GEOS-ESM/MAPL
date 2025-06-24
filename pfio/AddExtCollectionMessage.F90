@@ -51,7 +51,7 @@ contains
       integer, intent(inout) :: buffer(:) ! no-op
       integer, optional, intent(out) :: rc
       buffer = serialize_intrinsic(this%template)
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine serialize
 
 
@@ -61,7 +61,7 @@ contains
       integer, optional, intent(out) :: rc
 
       call deserialize_intrinsic(buffer, this%template)
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine deserialize
 
 end module pFIO_AddExtCollectionMessageMod

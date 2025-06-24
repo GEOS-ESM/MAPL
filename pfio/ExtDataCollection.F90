@@ -61,7 +61,7 @@ contains
        if (this%formatters%size() >= MAX_FORMATTERS) then
           formatter => this%formatters%front()
           call formatter%close(rc=status)
-          _VERIFY(status)
+          _verify(status)
           call this%formatters%erase(this%formatters%begin())
           !deallocate(formatter)
           nullify(formatter)
@@ -88,14 +88,14 @@ contains
 
        allocate(formatter)
 
-       call formatter%open(file_name, pFIO_READ, _RC)
+       call formatter%open(file_name, pFIO_READ, _rc)
        call this%formatters%push_back(formatter)
        deallocate(formatter)
        formatter => this%formatters%back()
        ! size() returns 64-bit integer;  cast to 32 bit for this usage.
        call this%file_ids%insert(file_name, int(this%formatters%size()))
     end if
-    _RETURN(_SUCCESS)
+    _return(_success)
   end function find
 
   subroutine unfind(this)

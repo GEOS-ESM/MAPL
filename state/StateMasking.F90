@@ -41,9 +41,9 @@ module MAPL_StateMaskMod
       integer :: i1,len
 
       i1 = index(mask_expression,"(")
-      _ASSERT(i1 > 0,'Incorrect format for function expression: missing "("')
+      _assert(i1 > 0,'Incorrect format for function expression: missing "("')
       function_name = adjustl(mask_expression(:i1-1))
-      function_name = ESMF_UtilStringLowerCase(function_name, _RC)
+      function_name = ESMF_UtilStringLowerCase(function_name, _rc)
 
       if (index(function_name,"regionmask") /= 0) then
          new_mask%mask_type = "regionmask"
@@ -52,15 +52,15 @@ module MAPL_StateMaskMod
       else if (index(function_name,"boxmask") /= 0) then
          new_mask%mask_type = "boxmask"
       else
-         _FAIL("Invalid mask type")
+         _fail("Invalid mask type")
       end if
 
       len = len_trim(mask_expression)
       arguments = adjustl(mask_expression(i1+1:len-1))
       i1 = index(arguments,",")
-      _ASSERT(i1 > 0,'Incorrect format for function expression: missing ","')
+      _assert(i1 > 0,'Incorrect format for function expression: missing ","')
       new_mask%mask_arguments = arguments
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function
 
    function get_mask_variables(this,rc) result(variables_in_mask)
@@ -86,7 +86,7 @@ module MAPL_StateMaskMod
        tmpstring1 = this%mask_arguments(1:i1-1)
          variables_in_mask = parser_variables_in_expression(tmpstring1)
       end if
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function
 
@@ -99,13 +99,13 @@ module MAPL_StateMaskMod
       integer :: status
       select case(this%mask_type)
       case("regionmask")
-         call this%evaluate_region_mask(state,field,_RC)
+         call this%evaluate_region_mask(state,field,_rc)
       case("zonemask")
-         call this%evaluate_zone_mask(state,field,_RC)
+         call this%evaluate_zone_mask(state,field,_rc)
       case("boxmask")
-         call this%evaluate_box_mask(state,field,_RC)
+         call this%evaluate_box_mask(state,field,_rc)
       end select
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine evaluate_mask
 
    subroutine evaluate_region_mask(this,state,field,rc)
@@ -126,7 +126,7 @@ module MAPL_StateMaskMod
       real, pointer        :: out_var3d(:,:,:)
       integer              :: rank,ib,ie
 
-      call ESMF_FieldGet(field,rank=rank,_RC)
+      call ESMF_FieldGet(field,rank=rank,_rc)
 
        ! get mask string
        ib = index(this%mask_arguments,";")
@@ -137,33 +137,33 @@ module MAPL_StateMaskMod
        vartomask = this%mask_arguments(:ib-1)
        maskname = this%mask_arguments(ib+1:ie-1)
 
-       call MAPL_GetPointer(state,rmask,maskName,_RC)
+       call MAPL_GetPointer(state,rmask,maskName,_rc)
        if (rank == 2) then
-          call ESMF_FieldGet(field,0,farrayPtr=out_var2d,_RC)
-          call MAPL_GetPointer(state,var2d, vartomask, _RC)
+          call ESMF_FieldGet(field,0,farrayPtr=out_var2d,_rc)
+          call MAPL_GetPointer(state,var2d, vartomask, _rc)
        else if (rank == 3) then
-          call ESMF_FieldGet(field,0,farrayPtr=out_var3d,_RC)
-          call MAPL_GetPointer(state,var3d, vartomask, _RC)
+          call ESMF_FieldGet(field,0,farrayPtr=out_var3d,_rc)
+          call MAPL_GetPointer(state,var3d, vartomask, _rc)
        else
-          _FAIL('Rank must be 2 or 3')
+          _fail('Rank must be 2 or 3')
        end if
 
        k=32
        allocate(regionNumbers(k), flag(k), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        regionNumbers = 0
        call ExtDataExtractIntegers(maskString,k,regionNumbers,rc=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        flag(:) = 1
        WHERE(regionNumbers(:) == 0) flag(:) = 0
        k = SUM(flag)
        deallocate(flag,stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
    !   Set local mask to 1 where gridMask matches each integer (within precision!)
    !   ---------------------------------------------------------------------------
        allocate(mask(size(rmask,1),size(rmask,2)),stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        mask = 0
        DO i=1,k
         WHERE(regionNumbers(i)-0.01 <= rmask .AND. &
@@ -181,7 +181,7 @@ module MAPL_StateMaskMod
        end if
        deallocate( mask)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine evaluate_region_mask
 
    subroutine evaluate_zone_mask(this,state,field,rc)
@@ -204,7 +204,7 @@ module MAPL_StateMaskMod
        integer              :: rank,ib,is
        type(ESMF_CoordSys_Flag) :: coordSys
 
-       call ESMF_FieldGet(field,rank=rank,grid=grid,_RC)
+       call ESMF_FieldGet(field,rank=rank,grid=grid,_rc)
 
        ib = index(this%mask_arguments,",")
        vartomask = this%mask_arguments(:ib-1)
@@ -212,27 +212,27 @@ module MAPL_StateMaskMod
        clatS = this%mask_arguments(ib+1:is-1)
        clatN = this%mask_arguments(is+1:)
        READ(clatS,*,IOSTAT=status) limitS
-       _VERIFY(status)
+       _verify(status)
        READ(clatN,*,IOSTAT=status) limitN
-       _VERIFY(status)
+       _verify(status)
 
        call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
             staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lats, rc=status)
-       _VERIFY(status)
-       call ESMF_GridGet(grid,coordsys=coordsys,_RC)
+       _verify(status)
+       call ESMF_GridGet(grid,coordsys=coordsys,_rc)
        if (coordsys == ESMF_COORDSYS_SPH_RAD) then
           limitN=limitN*MAPL_PI_R8/180.0d0
           limitS=limitS*MAPL_PI_R8/180.0d0
        end if
 
        if (rank == 2) then
-          call ESMF_FieldGet(field,0,farrayPtr=out_var2d,_RC)
-          call MAPL_GetPointer(state,var2d, vartomask, _RC)
+          call ESMF_FieldGet(field,0,farrayPtr=out_var2d,_rc)
+          call MAPL_GetPointer(state,var2d, vartomask, _rc)
        else if (rank == 3) then
-          call ESMF_FieldGet(field,0,farrayPtr=out_var3d,_RC)
-          call MAPL_GetPointer(state,var3d, vartomask, _RC)
+          call ESMF_FieldGet(field,0,farrayPtr=out_var3d,_rc)
+          call MAPL_GetPointer(state,var3d, vartomask, _rc)
        else
-          _FAIL('Rank must be 2 or 3')
+          _fail('Rank must be 2 or 3')
        end if
 
        if (rank == 2) then
@@ -245,7 +245,7 @@ module MAPL_StateMaskMod
           enddo
        end if
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine evaluate_zone_mask
 
    subroutine evaluate_box_mask(this,state,field,rc)
@@ -275,8 +275,8 @@ module MAPL_StateMaskMod
        character(len=ESMF_MAXSTR) :: args(5)
        type(ESMF_CoordSys_Flag) :: coordSys
 
-       call ESMF_FieldGet(field,rank=rank,grid=grid,_RC)
-       call ESMF_GridGet(grid,coordsys=coordsys,_RC)
+       call ESMF_FieldGet(field,rank=rank,grid=grid,_rc)
+       call ESMF_GridGet(grid,coordsys=coordsys,_rc)
 
        strtmp = this%mask_arguments
        do nargs=1,5
@@ -292,28 +292,28 @@ module MAPL_StateMaskMod
        varToMask=args(1)
 
        READ(args(2),*,IOSTAT=status) limitS
-       _VERIFY(status)
+       _verify(status)
        READ(args(3),*,IOSTAT=status) limitN
-       _VERIFY(status)
+       _verify(status)
        READ(args(4),*,IOSTAT=status) limitW
-       _VERIFY(status)
+       _verify(status)
        READ(args(5),*,IOSTAT=status) limitE
-       _VERIFY(status)
-       _ASSERT(limitE > limitW,'LimitE must be greater than limitW')
-       _ASSERT(limitE /= limitW,'LimitE cannot equal limitW')
-       _ASSERT(limitN /= limitS,'LimitN cannot equal LimitS')
-       _ASSERT((limitE-limitW)<=360.0d0,'(LimitE - LimitW) must be less than or equal to 360')
+       _verify(status)
+       _assert(limitE > limitW,'LimitE must be greater than limitW')
+       _assert(limitE /= limitW,'LimitE cannot equal limitW')
+       _assert(limitN /= limitS,'LimitN cannot equal LimitS')
+       _assert((limitE-limitW)<=360.0d0,'(LimitE - LimitW) must be less than or equal to 360')
 
        call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
             staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lons, rc=status)
-       _VERIFY(status)
+       _verify(status)
        call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
             staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lats, rc=status)
-       _VERIFY(status)
+       _verify(status)
 
        ! do some tests if cube goes from 0 to 360, lat-lon -180 to 180
        call MAPL_GridGet(grid, globalCellCountPerDim=COUNTS,rc=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        if (counts(2)==6*counts(1)) then
           isCube=.true.
        else
@@ -373,13 +373,13 @@ module MAPL_StateMaskMod
        end if
 
        if (rank == 2) then
-          call ESMF_FieldGet(field,0,farrayPtr=out_var2d,_RC)
-          call MAPL_GetPointer(state,var2d, vartomask, _RC)
+          call ESMF_FieldGet(field,0,farrayPtr=out_var2d,_rc)
+          call MAPL_GetPointer(state,var2d, vartomask, _rc)
        else if (rank == 3) then
-          call ESMF_FieldGet(field,0,farrayPtr=out_var3d,_RC)
-          call MAPL_GetPointer(state,var3d, vartomask, _RC)
+          call ESMF_FieldGet(field,0,farrayPtr=out_var3d,_rc)
+          call MAPL_GetPointer(state,var3d, vartomask, _rc)
        else
-          _FAIL('Rank must be 2 or 3')
+          _fail('Rank must be 2 or 3')
        end if
 
        if (rank == 2) then
@@ -394,7 +394,7 @@ module MAPL_StateMaskMod
 
        if (twoBox) then
           allocate(temp2d(size(var2d,1),size(var2d,2)),stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           if (rank == 2) then
              out_var2d = 0.0
              temp2d = 0.0
@@ -411,7 +411,7 @@ module MAPL_StateMaskMod
           deallocate(temp2d)
        end if
 
-       _RETURN(_SUCCESS)
+       _return(_success)
   end subroutine evaluate_box_mask
 
 !------------------------------------------------------------------------------
@@ -507,7 +507,7 @@ module MAPL_StateMaskMod
 ! ----------------------------
  lenStr = LEN_TRIM(string)
  IF(lenStr == 0) THEN
-  _FAIL("ERROR - Found zero-length string.")
+  _fail("ERROR - Found zero-length string.")
  END IF
 
 ! Default delimiter is a comma
@@ -583,12 +583,12 @@ module MAPL_StateMaskMod
 ! Check size
 ! ----------
   IF(count > iSize) THEN
-   _FAIL("ERROR - iValues does not have enough elements.")
+   _fail("ERROR - iValues does not have enough elements.")
   END IF
 
  END DO Parse
 
- _RETURN(ESMF_SUCCESS)
+ _return(ESMF_SUCCESS)
 
  END SUBROUTINE ExtDataExtractIntegers
 end module MAPL_StateMaskMod

@@ -45,17 +45,17 @@ contains
       integer :: status
 
       
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
       
       supports = (spec%regrid_method == REGRID_METHOD_CONSERVE_HFLUX)
       if (.not. supports) return
 
-      call MAPL_GridGet(spec%grid_in, localCellCountPerDim=counts_in, _RC)
-      call MAPL_GridGet(spec%grid_out, localCellCountPerDim=counts_out, _RC)
+      call MAPL_GridGet(spec%grid_in, localCellCountPerDim=counts_in, _rc)
+      call MAPL_GridGet(spec%grid_out, localCellCountPerDim=counts_out, _rc)
 
       supports = all(mod(counts_in(1:2), counts_out(1:2)) == 0) .or. all(mod(counts_out, counts_in) == 0)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function supports
 
    subroutine initialize_subclass(this, unusable, rc)
@@ -70,30 +70,30 @@ contains
      integer :: counts(5)
      integer :: status
 
-     _UNUSED_DUMMY(unusable)
+     _unused_dummy(unusable)
      spec = this%get_spec()
 
      associate (grid_in => spec%grid_in, grid_out => spec%grid_out)
 
        associate (IM_in => this%IM_in, JM_in => this%JM_in, IM_out => this%IM_out, JM_out => this%JM_out)
          
-         call MAPL_GridGet(grid_in, localCellCountPerDim=counts, _RC)
+         call MAPL_GridGet(grid_in, localCellCountPerDim=counts, _rc)
          IM_in = counts(1)
          JM_in = counts(2)
          
-         call MAPL_GridGet(grid_out, localCellCountPerDim=counts, _RC)
+         call MAPL_GridGet(grid_out, localCellCountPerDim=counts, _rc)
          IM_out = counts(1)
          JM_out = counts(2)
 
-         _ASSERT(mod(IM_in, IM_out) == 0, 'grids not nested')
-         _ASSERT(mod(JM_in, JM_out) == 0, 'grids not nested')
-         _ASSERT((IM_in / IM_out) == (JM_in / JM_out), 'inconsistent aspect ratio')
+         _assert(mod(IM_in, IM_out) == 0, 'grids not nested')
+         _assert(mod(JM_in, JM_out) == 0, 'grids not nested')
+         _assert((IM_in / IM_out) == (JM_in / JM_out), 'inconsistent aspect ratio')
          
          this%resolution_ratio = (IM_in / IM_out)
        end associate
      end associate
      
-     _RETURN(_SUCCESS)
+     _return(_success)
   end subroutine initialize_subclass
 
    subroutine regrid_vector_2d_real32(this, u_in, v_in, u_out, v_out, rotate, rc)
@@ -108,16 +108,16 @@ contains
       integer :: i, j, ii, jj
       real(kind=REAL32) :: m_x, m_y
 
-      _UNUSED_DUMMY(rotate)
+      _unused_dummy(rotate)
 
-      _ASSERT(size(u_in,1) == this%IM_in, 'mismatch in IM for input')
-      _ASSERT(size(v_in,1) == this%IM_in, 'mismatch in IM for input')
-      _ASSERT(size(u_in,2) == this%JM_in, 'mismatch in JM for input')
-      _ASSERT(size(v_in,2) == this%JM_in, 'mismatch in JM for input')
-      _ASSERT(size(u_out,1) == this%IM_out, 'mismatch in IM for output')
-      _ASSERT(size(v_out,1) == this%IM_out, 'mismatch in IM for output')
-      _ASSERT(size(u_out,2) == this%JM_out, 'mismatch in JM for output')
-      _ASSERT(size(v_out,2) == this%JM_out, 'mismatch in JM for output')
+      _assert(size(u_in,1) == this%IM_in, 'mismatch in IM for input')
+      _assert(size(v_in,1) == this%IM_in, 'mismatch in IM for input')
+      _assert(size(u_in,2) == this%JM_in, 'mismatch in JM for input')
+      _assert(size(v_in,2) == this%JM_in, 'mismatch in JM for input')
+      _assert(size(u_out,1) == this%IM_out, 'mismatch in IM for output')
+      _assert(size(v_out,1) == this%IM_out, 'mismatch in IM for output')
+      _assert(size(u_out,2) == this%JM_out, 'mismatch in JM for output')
+      _assert(size(v_out,2) == this%JM_out, 'mismatch in JM for output')
 
       associate (N => this%resolution_ratio)
         associate (IM => size(u_out,1), JM => size(u_out,2))
@@ -150,7 +150,7 @@ contains
       end associate
 
       
-      _RETURN(ESMF_SUCCESS)
+      _return(ESMF_SUCCESS)
    end subroutine regrid_vector_2d_real32
 
    subroutine regrid_vector_2d_real64(this, u_in, v_in, u_out, v_out, rotate, rc)
@@ -165,16 +165,16 @@ contains
       integer :: i, j, ii, jj
       real(REAL64) :: m_x, m_y
 
-      _UNUSED_DUMMY(rotate)
+      _unused_dummy(rotate)
       
-      _ASSERT(size(u_in,1) == this%IM_in, 'mismatch in IM for input')
-      _ASSERT(size(v_in,1) == this%IM_in, 'mismatch in IM for input')
-      _ASSERT(size(u_in,2) == this%JM_in, 'mismatch in JM for input')
-      _ASSERT(size(v_in,2) == this%JM_in, 'mismatch in JM for input')
-      _ASSERT(size(u_out,1) == this%IM_out, 'mismatch in IM for output')
-      _ASSERT(size(v_out,1) == this%IM_out, 'mismatch in IM for output')
-      _ASSERT(size(u_out,2) == this%JM_out, 'mismatch in JM for output')
-      _ASSERT(size(v_out,2) == this%JM_out, 'mismatch in JM for output')
+      _assert(size(u_in,1) == this%IM_in, 'mismatch in IM for input')
+      _assert(size(v_in,1) == this%IM_in, 'mismatch in IM for input')
+      _assert(size(u_in,2) == this%JM_in, 'mismatch in JM for input')
+      _assert(size(v_in,2) == this%JM_in, 'mismatch in JM for input')
+      _assert(size(u_out,1) == this%IM_out, 'mismatch in IM for output')
+      _assert(size(v_out,1) == this%IM_out, 'mismatch in IM for output')
+      _assert(size(u_out,2) == this%JM_out, 'mismatch in JM for output')
+      _assert(size(v_out,2) == this%JM_out, 'mismatch in JM for output')
 
       associate (N => this%resolution_ratio)
         associate (IM => size(u_out,1), JM => size(u_out,2))
@@ -206,7 +206,7 @@ contains
         end associate
       end associate
 
-      _RETURN(ESMF_SUCCESS)
+      _return(ESMF_SUCCESS)
    end subroutine regrid_vector_2d_real64
 
    
@@ -221,22 +221,22 @@ contains
 
       integer :: k, status
 
-      _UNUSED_DUMMY(rotate)
+      _unused_dummy(rotate)
       
-      _ASSERT(size(u_in,3) == size(u_out,3), 'mismatch in number of levels')
-      _ASSERT(size(v_in,3) == size(v_out,3), 'mismatch in number of levels')
-      _ASSERT(size(u_in,3) == size(v_in,3), 'mismatch in number of levels')
+      _assert(size(u_in,3) == size(u_out,3), 'mismatch in number of levels')
+      _assert(size(v_in,3) == size(v_out,3), 'mismatch in number of levels')
+      _assert(size(u_in,3) == size(v_in,3), 'mismatch in number of levels')
 
       associate (LM => size(u_in,3))
         
         do k = 1, LM
            call this%regrid(u_in(:,:,k),v_in(:,:,k), u_out(:,:,k), v_out(:,:,k), rotate, rc=status)
-           _VERIFY(status)
+           _verify(status)
         end do
 
       end associate
 
-      _RETURN(ESMF_SUCCESS)
+      _return(ESMF_SUCCESS)
    end subroutine regrid_vector_3d_real32
 
    subroutine regrid_vector_3d_real64(this, u_in, v_in, u_out, v_out, rc)
@@ -249,20 +249,20 @@ contains
 
       integer :: k, status
 
-      _ASSERT(size(u_in,3) == size(u_out,3), 'mismatch in number of levels')
-      _ASSERT(size(v_in,3) == size(v_out,3), 'mismatch in number of levels')
-      _ASSERT(size(u_in,3) == size(v_in,3), 'mismatch in number of levels')
+      _assert(size(u_in,3) == size(u_out,3), 'mismatch in number of levels')
+      _assert(size(v_in,3) == size(v_out,3), 'mismatch in number of levels')
+      _assert(size(u_in,3) == size(v_in,3), 'mismatch in number of levels')
 
       associate (LM => size(u_in,3))
         
         do k = 1, LM
            call this%regrid(u_in(:,:,k),v_in(:,:,k), u_out(:,:,k), v_out(:,:,k), rc=status)
-           _VERIFY(status)
+           _verify(status)
         end do
 
       end associate
 
-      _RETURN(ESMF_SUCCESS)
+      _return(ESMF_SUCCESS)
    end subroutine regrid_vector_3d_real64
 
    

@@ -44,7 +44,7 @@ contains
    function make_meter(this) result(meter)
       class(AbstractMeter), allocatable :: meter
       class(TimeProfiler), intent(in) :: this
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
       meter = AdvancedMeter(MpiTimerGauge())
    end function make_meter
 
@@ -109,7 +109,7 @@ contains
       time_profiler => get_global_time_profiler()
       time_profiler = TimeProfiler(name_, comm_world = world_comm)
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
    end subroutine initialize_global_time_profiler
 
    subroutine finalize_global_time_profiler()
@@ -129,9 +129,9 @@ contains
 
       time_profiler => get_global_time_profiler()
       call time_profiler%start(rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _verify(status)
+      _return(_success)
+      _unused_dummy(unusable)
    end subroutine start_global_time_profiler
 
    subroutine stop_global_time_profiler(unusable, rc)
@@ -142,9 +142,9 @@ contains
 
       time_profiler => get_global_time_profiler()
       call time_profiler%stop(rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _verify(status)
+      _return(_success)
+      _unused_dummy(unusable)
    end subroutine stop_global_time_profiler
 
 end module mapl_TimeProfiler

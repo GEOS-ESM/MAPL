@@ -38,17 +38,17 @@ contains
       logical :: uninitialized
 
       status = SUCCESS
-      uninitialized = .not. ESMF_IsInitialized(_RC)
+      uninitialized = .not. ESMF_IsInitialized(_rc)
       if(uninitialized) then
-         call ESMF_Initialize(defaultCalKind=ESMF_CALKIND_GREGORIAN, logKindFlag=ESMF_LOGKIND_NONE, defaultLogKindFlag=ESMF_LOGKIND_NONE, _RC)
+         call ESMF_Initialize(defaultCalKind=ESMF_CALKIND_GREGORIAN, logKindFlag=ESMF_LOGKIND_NONE, defaultLogKindFlag=ESMF_LOGKIND_NONE, _rc)
       end if
-      call ESMF_TimeIntervalSet(time_interval, _RC)
-      call ESMF_TimeIntervalSet(timestep, s=TIME_STEP_IN_SECONDS, _RC)
-      call make_esmf_time(START_TIME_FIELDS, start_time, _RC)
-      call make_esmf_time(DEFAULT_TIME_FIELDS, default_time, _RC)
-      call make_esmf_time(UPDATE_TIME_FIELDS, update_time, _RC)
-      call make_esmf_time(REFERENCE_TIME_FIELDS, reference_time, _RC)
-      clock = ESMF_ClockCreate(timestep=timestep, startTime=start_time, _RC)
+      call ESMF_TimeIntervalSet(time_interval, _rc)
+      call ESMF_TimeIntervalSet(timestep, s=TIME_STEP_IN_SECONDS, _rc)
+      call make_esmf_time(START_TIME_FIELDS, start_time, _rc)
+      call make_esmf_time(DEFAULT_TIME_FIELDS, default_time, _rc)
+      call make_esmf_time(UPDATE_TIME_FIELDS, update_time, _rc)
+      call make_esmf_time(REFERENCE_TIME_FIELDS, reference_time, _rc)
+      clock = ESMF_ClockCreate(timestep=timestep, startTime=start_time, _rc)
 
    end subroutine set_up
 
@@ -56,13 +56,13 @@ contains
    subroutine tear_down()
       integer :: status, rc
 
-      call ESMF_TimeSet(start_time, _RC)
-      call ESMF_TimeIntervalSet(timestep, _RC)
-      call ESMF_ClockDestroy(clock, _RC)
-      call ESMF_TimeSet(default_time, _RC)
-      call ESMF_TimeIntervalSet(time_interval, _RC)
-      call ESMF_TimeSet(update_time, _RC)
-      call ESMF_TimeSet(reference_time, _RC)
+      call ESMF_TimeSet(start_time, _rc)
+      call ESMF_TimeIntervalSet(timestep, _rc)
+      call ESMF_ClockDestroy(clock, _rc)
+      call ESMF_TimeSet(default_time, _rc)
+      call ESMF_TimeIntervalSet(time_interval, _rc)
+      call ESMF_TimeSet(update_time, _rc)
+      call ESMF_TimeSet(reference_time, _rc)
 
    end subroutine tear_down
 
@@ -74,8 +74,8 @@ contains
       integer :: status
 
       status = 0
-      call ESMF_TimeSet(datetime, yy=f(1), mm=f(2), dd=f(3), h=f(4), m=f(5), s=f(6), _RC)
-      _RETURN(_SUCCESS)
+      call ESMF_TimeSet(datetime, yy=f(1), mm=f(2), dd=f(3), h=f(4), m=f(5), s=f(6), _rc)
+      _return(_success)
 
    end subroutine make_esmf_time
 
@@ -88,9 +88,9 @@ contains
 
       status = 0
       n = -1
-      call ESMF_TimeGet(datetime, yy=n(1), mm=n(2), dd=n(3), h=n(4), m=n(5), s=n(6), _RC)
+      call ESMF_TimeGet(datetime, yy=n(1), mm=n(2), dd=n(3), h=n(4), m=n(5), s=n(6), _rc)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine get_int_time
 
@@ -101,8 +101,8 @@ contains
       integer :: status
 
       write(offset_string, fmt='("PT", I0, "S")', iostat=status) offset
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+      _verify(status)
+      _return(_success)
 
    end subroutine make_offset_string
 
@@ -117,11 +117,11 @@ contains
       integer :: expected(NF), actual(NF)
 
       write(offset_string, fmt='("PT", I03, "S")', iostat=ios) OFFSET_IN_SECONDS
-      _VERIFY(ios)
-      call ESMF_TimeIntervalSet(offset, s=OFFSET_IN_SECONDS, _RC)
-      call get_int_time(default_time+offset, expected, _RC)
-      call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, offset_string, default_time, clock, _RC)
-      call get_int_time(ex%get_adjusted_time(default_time), actual, _RC)
+      _verify(ios)
+      call ESMF_TimeIntervalSet(offset, s=OFFSET_IN_SECONDS, _rc)
+      call get_int_time(default_time+offset, expected, _rc)
+      call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, offset_string, default_time, clock, _rc)
+      call get_int_time(ex%get_adjusted_time(default_time), actual, _rc)
       @assertEqual(expected, actual, 'Adjusted time does match expected time.')
 
    end subroutine test_get_adjusted_time
@@ -135,11 +135,11 @@ contains
       integer :: expected, actual
       type(ESMF_TimeInterval) :: interval
 
-      call make_offset_string(OFFSET_IN_SECONDS, offset_string, _RC)
+      call make_offset_string(OFFSET_IN_SECONDS, offset_string, _rc)
       expected = OFFSET_IN_SECONDS
-      call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, offset_string, default_time, clock, _RC)
+      call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, offset_string, default_time, clock, _rc)
       interval = ex%get_offset()
-      call ESMF_TimeIntervalGet(interval, s=actual, _RC)
+      call ESMF_TimeIntervalGet(interval, s=actual, _rc)
       @assertEqual(expected, actual, ERR_MSG)
 
    end subroutine test_create_from_parameters_string_positive
@@ -153,12 +153,12 @@ contains
       integer :: expected, actual
       type(ESMF_TimeInterval) :: interval
 
-      call make_offset_string(OFFSET_IN_SECONDS, offset_string, _RC)
+      call make_offset_string(OFFSET_IN_SECONDS, offset_string, _rc)
       offset_string = '-' // offset_string
       expected = -OFFSET_IN_SECONDS
-      call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, offset_string, default_time, clock, _RC)
+      call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, offset_string, default_time, clock, _rc)
       interval = ex%get_offset()
-      call ESMF_TimeIntervalGet(interval, s=actual, _RC)
+      call ESMF_TimeIntervalGet(interval, s=actual, _rc)
       @assertEqual(expected, actual, ERR_MSG)
 
    end subroutine test_create_from_parameters_string_negative
@@ -172,10 +172,10 @@ contains
       integer :: expected, actual
 
       offset = timestep
-      call ESMF_TimeIntervalGet(offset, s=expected, _RC)
-      call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, OFFSET_STRING, default_time, clock, _RC)
+      call ESMF_TimeIntervalGet(offset, s=expected, _rc)
+      call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, OFFSET_STRING, default_time, clock, _rc)
       interval = ex%get_offset()
-      call ESMF_TimeIntervalGet(interval, s=actual, _RC)
+      call ESMF_TimeIntervalGet(interval, s=actual, _rc)
       @assertEqual(expected, actual, ERR_MSG)
 
    end subroutine test_create_from_parameters_heartbeat_positive
@@ -189,10 +189,10 @@ contains
       integer :: expected, actual
 
       offset = -timestep
-      call ESMF_TimeIntervalGet(offset, s=expected, _RC)
-      call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, OFFSET_STRING, default_time, clock, _RC)
+      call ESMF_TimeIntervalGet(offset, s=expected, _rc)
+      call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, OFFSET_STRING, default_time, clock, _rc)
       interval = ex%get_offset()
-      call ESMF_TimeIntervalGet(interval, s=actual, _RC)
+      call ESMF_TimeIntervalGet(interval, s=actual, _rc)
       @assertEqual(expected, actual, ERR_MSG)
 
    end subroutine test_create_from_parameters_heartbeat_negative
@@ -205,15 +205,15 @@ contains
       integer :: expected, actual
       character(len=STRLEN) :: offset_string
 
-      call make_offset_string(TIME_STEP_IN_SECONDS, offset_string, _RC)
+      call make_offset_string(TIME_STEP_IN_SECONDS, offset_string, _rc)
 
-      call ex_str%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, offset_string, default_time, clock, _RC)
+      call ex_str%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, offset_string, default_time, clock, _rc)
       intv_str = ex_str%get_offset()
-      call ESMF_TimeIntervalGet(intv_str, s=expected, _RC)
+      call ESMF_TimeIntervalGet(intv_str, s=expected, _rc)
 
-      call ex_hb%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, HEARTBEAT_STRING, default_time, clock, _RC)
+      call ex_hb%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, HEARTBEAT_STRING, default_time, clock, _rc)
       intv_hb = ex_hb%get_offset()
-      call ESMF_TimeIntervalGet(intv_hb, s=actual, _RC)
+      call ESMF_TimeIntervalGet(intv_hb, s=actual, _rc)
 
       @assertEqual(expected, actual, ERR_MSG)
 
@@ -227,16 +227,16 @@ contains
       integer :: expected, actual
       character(len=STRLEN) :: offset_string
 
-      call make_offset_string(TIME_STEP_IN_SECONDS, offset_string, _RC)
+      call make_offset_string(TIME_STEP_IN_SECONDS, offset_string, _rc)
       offset_string = '-' // offset_string
 
-      call ex_str%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, offset_string, default_time, clock, _RC)
+      call ex_str%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, offset_string, default_time, clock, _rc)
       intv_str = ex_str%get_offset()
-      call ESMF_TimeIntervalGet(intv_str, s=expected, _RC)
+      call ESMF_TimeIntervalGet(intv_str, s=expected, _rc)
 
-      call ex_hb%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, '-' // HEARTBEAT_STRING, default_time, clock, _RC)
+      call ex_hb%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, '-' // HEARTBEAT_STRING, default_time, clock, _rc)
       intv_hb = ex_hb%get_offset()
-      call ESMF_TimeIntervalGet(intv_hb, s=actual, _RC)
+      call ESMF_TimeIntervalGet(intv_hb, s=actual, _rc)
 
       @assertEqual(expected, actual, ERR_MSG)
 
@@ -251,10 +251,10 @@ contains
       integer :: expected, actual
 
       offset = timestep
-      call ESMF_TimeIntervalGet(offset, s=expected, _RC)
-      call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, OFFSET_STRING, default_time, clock, _RC)
+      call ESMF_TimeIntervalGet(offset, s=expected, _rc)
+      call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, OFFSET_STRING, default_time, clock, _rc)
       interval = ex%get_offset()
-      call ESMF_TimeIntervalGet(interval, s=actual, _RC)
+      call ESMF_TimeIntervalGet(interval, s=actual, _rc)
       @assertEqual(expected, actual, ERR_MSG)
 
    end subroutine test_create_from_parameters_heartbeat_positive_explicit
@@ -268,7 +268,7 @@ contains
       integer :: expected, actual
 
       offset = timestep
-      call ESMF_TimeIntervalGet(offset, s=expected, _RC)
+      call ESMF_TimeIntervalGet(offset, s=expected, _rc)
       call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, OFFSET_STRING, default_time, clock, rc=status)
       @assertExceptionRaised('"+" and "-" cannot both be present in update_offset string.')
       @assertFalse(status == 0, 'An exception should have been thrown.')
@@ -284,7 +284,7 @@ contains
       integer :: expected, actual
 
       offset = timestep
-      call ESMF_TimeIntervalGet(offset, s=expected, _RC)
+      call ESMF_TimeIntervalGet(offset, s=expected, _rc)
       call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, OFFSET_STRING, default_time, clock, rc=status)
       @assertExceptionRaised('"+" and "-" cannot both be present in update_offset string.')
       @assertFalse(status == 0, 'An exception should have been thrown.')

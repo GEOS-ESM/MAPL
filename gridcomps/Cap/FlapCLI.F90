@@ -57,19 +57,19 @@ contains
         authors     = trim(authors))
 
       call flap_cli%add_command_line_options(flap_cli%cli_options, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       if (present(extra)) then
-         call extra(flap_cli%cli_options, _RC)
+         call extra(flap_cli%cli_options, _rc)
       end if
 
-      call flap_cli%cli_options%parse(error=status); _VERIFY(status)
+      call flap_cli%cli_options%parse(error=status); _verify(status)
 
       call flap_cli%fill_cap_options(cap_options, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end function new_CapOptions_from_flap
 
    function new_CapOptions_from_flap_back_comp(unusable, description, authors, extra, rc) result (flapcap)
@@ -87,17 +87,17 @@ contains
         authors     = trim(authors))
 
       call flapcap%add_command_line_options(flapcap%cli_options, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       if (present(extra)) then
-         call extra(flapcap%cli_options, _RC)
+         call extra(flapcap%cli_options, _rc)
       end if
 
-      call flapcap%cli_options%parse(error=status); _VERIFY(status)
-      _VERIFY(status)
+      call flapcap%cli_options%parse(error=status); _verify(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end function new_CapOptions_from_flap_back_comp
 
    ! Static method
@@ -107,7 +107,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       call options%add(switch='--root_dso',        &
            help='name of root dso to use',                   &
@@ -115,7 +115,7 @@ contains
            def='none',                                 &
            act='store',                                &
            error=status)
-      _VERIFY(status)
+      _verify(status)
       call options%add(switch='--esmf_logtype',                   &
            help='ESMF Logging type',                   &
            required=.false.,                           &
@@ -123,7 +123,7 @@ contains
            def='none',                                 &
            act='store',                                &
            error=status)
-      _VERIFY(status)
+      _verify(status)
       call options%add(switch='--egress_file', &
                   help='Egress file name', &
                   required=.false.,        &
@@ -131,14 +131,14 @@ contains
                   act='store',             &
                   hidden=.true.,           &
                   error=status)
-      _VERIFY(status)
+      _verify(status)
       call options%add(switch='--cap_rc',            &
            help='CAP resource file name', &
            required=.false.,              &
            def='CAP.rc',                  &
            act='store',                   &
            error=status)
-      _VERIFY(status)
+      _verify(status)
 
 
       call options%add(switch='--npes_model', &
@@ -147,7 +147,7 @@ contains
            act='store', &
            def='-1', &
            error=status)
-      _VERIFY(status)
+      _verify(status)
 
       call options%add(switch='--n_members', &
            help='# MPI processes used by model CapGridComp1', &
@@ -155,7 +155,7 @@ contains
            act='store', &
            def='1', &
            error=status)
-      _VERIFY(status)
+      _verify(status)
 
       call options%add(switch='--use_sub_comm', &
            help='# The model by default is using MPI_COMM_WORLD : .true. or .false.', &
@@ -163,7 +163,7 @@ contains
            def='.false.',     &
            act='store_true',      &
            error=status)
-      _VERIFY(status)
+      _verify(status)
 
       call options%add(switch='--comm_model', &
            help='# The model will use the communitator passed in', &
@@ -171,7 +171,7 @@ contains
            act='store',      &
            def='*',     &
            error=status)
-      _VERIFY(status)
+      _verify(status)
 
       call options%add(switch='--prefix', &
            help='prefix for ensemble subdirectories', &
@@ -179,7 +179,7 @@ contains
            act='store', &
            def='mem', &
            error=status)
-      _VERIFY(status)
+      _verify(status)
 
       call options%add(switch='--npes_input_server', &
            help='# MPI processes used by input server', &
@@ -189,7 +189,7 @@ contains
            exclude = '--nodes_input_server', &
            act='store', &
            error=status)
-      _VERIFY(status)
+      _verify(status)
 
       call options%add(switch='--npes_output_server', &
            help='# MPI processes used by output server', &
@@ -199,7 +199,7 @@ contains
            exclude = '--nodes_output_server', &
            act='store', &
            error=status)
-      _VERIFY(status)
+      _verify(status)
 
       call options%add(switch='--nodes_input_server', &
            help='# NCCS nodes (28 or more processors ) used by input server', &
@@ -209,7 +209,7 @@ contains
            exclude = '--npes_input_server', &
            act='store', &
            error=status)
-      _VERIFY(status)
+      _verify(status)
 
       call options%add(switch='--nodes_output_server', &
            help='# NCCS nodes (28 or more processors) used by output server', &
@@ -219,7 +219,7 @@ contains
            exclude = '--npes_output_server', &
            act='store', &
            error=status)
-      _VERIFY(status)
+      _verify(status)
 
       call options%add(switch='--logging_config', &
            help='Configuration file for logging', &
@@ -227,7 +227,7 @@ contains
            def='', &
            act='store', &
            error=status)
-      _VERIFY(status)
+      _verify(status)
 
       call options%add(switch='--oserver_type', &
            help='Output Server Type', &
@@ -235,7 +235,7 @@ contains
            def='single', &
            act='store', &
            error=status)
-      _VERIFY(status)
+      _verify(status)
 
       call options%add(switch='--npes_backend_pernode', &
            help='# MPI processes used by the backend output', &
@@ -243,7 +243,7 @@ contains
            def='0', &
            act='store', &
            error=status)
-      _VERIFY(status)
+      _verify(status)
 
       call options%add(switch='--compress_nodes', &
            help='MPI processes continue on the nodes even MPI communicator is divided', &
@@ -251,7 +251,7 @@ contains
            def='.false.', &
            act='store_true', &
            error=status)
-      _VERIFY(status)
+      _verify(status)
 
       call options%add(switch='--fast_oclient', &
            help='Copying data before isend. Client would wait until it is re-used', &
@@ -259,7 +259,7 @@ contains
            def='.false.', &
            act='store_true', &
            error=status)
-      _VERIFY(status)
+      _verify(status)
 
      call options%add(switch='--one_node_output', &
            help='Specify if each output server has only one nodes', &
@@ -274,7 +274,7 @@ contains
            def='.false.', &
            act='store_true', &
            error=status)
-      _VERIFY(status)
+      _verify(status)
 
       call options%add(switch='--with_esmf_moab', &
            help='Enables use of MOAB library for ESMF meshes', &
@@ -282,9 +282,9 @@ contains
            def='.false.', &
            act='store_true', &
            error=status)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine add_command_line_options
 
@@ -299,35 +299,35 @@ contains
 
       integer, allocatable :: nodes_output_server(:)
 
-      call flapCLI%cli_options%get(val=buffer, switch='--root_dso', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=buffer, switch='--root_dso', error=status); _verify(status)
       cap_options%root_dso = trim(buffer)
 
-      call flapCLI%cli_options%get(val=buffer, switch='--egress_file', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=buffer, switch='--egress_file', error=status); _verify(status)
       cap_options%egress_file = trim(buffer)
 
-      call flapCLI%cli_options%get(val=use_sub_comm, switch='--use_sub_comm', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=use_sub_comm, switch='--use_sub_comm', error=status); _verify(status)
       cap_options%use_comm_world = .not. use_sub_comm
 
       if ( .not. cap_options%use_comm_world) then
-         call flapCLI%cli_options%get(val=buffer, switch='--comm_model', error=status); _VERIFY(status)
-         _ASSERT(trim(buffer) /= '*', "Should provide comm for model")
-         call flapCLI%cli_options%get(val=cap_options%comm, switch='--comm_model', error=status); _VERIFY(status)
+         call flapCLI%cli_options%get(val=buffer, switch='--comm_model', error=status); _verify(status)
+         _assert(trim(buffer) /= '*', "Should provide comm for model")
+         call flapCLI%cli_options%get(val=cap_options%comm, switch='--comm_model', error=status); _verify(status)
       else
         ! comm will be set to MPI_COMM_WORLD later on in initialize_mpi
         ! npes will be set to npes_world later on in initialize_mpi
       endif
 
-      call flapCLI%cli_options%get(val=cap_options%npes_model, switch='--npes_model', error=status); _VERIFY(status)
-      call flapCLI%cli_options%get(val=compress_nodes, switch='--compress_nodes', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=cap_options%npes_model, switch='--npes_model', error=status); _verify(status)
+      call flapCLI%cli_options%get(val=compress_nodes, switch='--compress_nodes', error=status); _verify(status)
       cap_options%isolate_nodes = .not. compress_nodes
-      call flapCLI%cli_options%get(val=cap_options%fast_oclient, switch='--fast_oclient', error=status); _VERIFY(status)
-      call flapCLI%cli_options%get(val=cap_options%with_io_profiler, switch='--with_io_profiler', error=status); _VERIFY(status)
-      call flapCLI%cli_options%get(val=cap_options%with_esmf_moab, switch='--with_esmf_moab', error=status); _VERIFY(status)
-      call flapCLI%cli_options%get_varying(val=cap_options%npes_input_server, switch='--npes_input_server', error=status); _VERIFY(status)
-      call flapCLI%cli_options%get_varying(val=cap_options%npes_output_server, switch='--npes_output_server', error=status); _VERIFY(status)
-      call flapCLI%cli_options%get_varying(val=cap_options%nodes_input_server, switch='--nodes_input_server', error=status); _VERIFY(status)
-      call flapCLI%cli_options%get_varying(val=nodes_output_server, switch='--nodes_output_server', error=status); _VERIFY(status)
-      call flapCLI%cli_options%get(val=one_node_output, switch='--one_node_output', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=cap_options%fast_oclient, switch='--fast_oclient', error=status); _verify(status)
+      call flapCLI%cli_options%get(val=cap_options%with_io_profiler, switch='--with_io_profiler', error=status); _verify(status)
+      call flapCLI%cli_options%get(val=cap_options%with_esmf_moab, switch='--with_esmf_moab', error=status); _verify(status)
+      call flapCLI%cli_options%get_varying(val=cap_options%npes_input_server, switch='--npes_input_server', error=status); _verify(status)
+      call flapCLI%cli_options%get_varying(val=cap_options%npes_output_server, switch='--npes_output_server', error=status); _verify(status)
+      call flapCLI%cli_options%get_varying(val=cap_options%nodes_input_server, switch='--nodes_input_server', error=status); _verify(status)
+      call flapCLI%cli_options%get_varying(val=nodes_output_server, switch='--nodes_output_server', error=status); _verify(status)
+      call flapCLI%cli_options%get(val=one_node_output, switch='--one_node_output', error=status); _verify(status)
       if (one_node_output) then
          allocate(cap_options%nodes_output_server(sum(nodes_output_server)), source =1)
       else
@@ -337,7 +337,7 @@ contains
       cap_options%n_iserver_group = max(size(cap_options%npes_input_server),size(cap_options%nodes_input_server))
       cap_options%n_oserver_group = max(size(cap_options%npes_output_server),size(cap_options%nodes_output_server))
 
-      call flapCLI%cli_options%get(val=buffer, switch='--esmf_logtype', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=buffer, switch='--esmf_logtype', error=status); _verify(status)
       ! set_esmf_logging_mode
       select case (trim(buffer))
       case ('none')
@@ -349,27 +349,27 @@ contains
       case ('multi_on_error')
          cap_options%esmf_logging_mode = ESMF_LOGKIND_MULTI_ON_ERROR
       case default
-         _FAIL("Unsupported ESMF logging option: "//trim(buffer))
+         _fail("Unsupported ESMF logging option: "//trim(buffer))
       end select
 
       ! Ensemble specific options
-      call flapCLI%cli_options%get(val=buffer, switch='--prefix', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=buffer, switch='--prefix', error=status); _verify(status)
       cap_options%ensemble_subdir_prefix = trim(buffer)
-      call flapCLI%cli_options%get(val=cap_options%n_members, switch='--n_members', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=cap_options%n_members, switch='--n_members', error=status); _verify(status)
 
-      call flapCLI%cli_options%get(val=buffer, switch='--cap_rc', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=buffer, switch='--cap_rc', error=status); _verify(status)
       cap_options%cap_rc_file = trim(buffer)
 
       ! Logging options
-      call flapCLI%cli_options%get(val=buffer, switch='--logging_config', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=buffer, switch='--logging_config', error=status); _verify(status)
       cap_options%logging_config = trim(buffer)
       ! ouput server type options
-      call flapCLI%cli_options%get(val=buffer, switch='--oserver_type', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=buffer, switch='--oserver_type', error=status); _verify(status)
       cap_options%oserver_type = trim(buffer)
-      call flapCLI%cli_options%get(val=cap_options%npes_backend_pernode, switch='--npes_backend_pernode', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=cap_options%npes_backend_pernode, switch='--npes_backend_pernode', error=status); _verify(status)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end subroutine fill_cap_options
 
    !Function for backward compatibility. Remove for 3.0
@@ -384,34 +384,34 @@ contains
 
       integer, allocatable :: nodes_output_server(:)
 
-      call flapCLI%cli_options%get(val=buffer, switch='--root_dso', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=buffer, switch='--root_dso', error=status); _verify(status)
       cap_options%root_dso = trim(buffer)
-      call flapCLI%cli_options%get(val=buffer, switch='--egress_file', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=buffer, switch='--egress_file', error=status); _verify(status)
       cap_options%egress_file = trim(buffer)
 
-      call flapCLI%cli_options%get(val=use_sub_comm, switch='--use_sub_comm', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=use_sub_comm, switch='--use_sub_comm', error=status); _verify(status)
       cap_options%use_comm_world = .not. use_sub_comm
 
       if ( .not. cap_options%use_comm_world) then
-         call flapCLI%cli_options%get(val=buffer, switch='--comm_model', error=status); _VERIFY(status)
-         _ASSERT(trim(buffer) /= '*', "Should provide comm for model")
-         call flapCLI%cli_options%get(val=cap_options%comm, switch='--comm_model', error=status); _VERIFY(status)
+         call flapCLI%cli_options%get(val=buffer, switch='--comm_model', error=status); _verify(status)
+         _assert(trim(buffer) /= '*', "Should provide comm for model")
+         call flapCLI%cli_options%get(val=cap_options%comm, switch='--comm_model', error=status); _verify(status)
       else
         ! comm will be set to MPI_COMM_WORLD later on in initialize_mpi
         ! npes will be set to npes_world later on in initialize_mpi
       endif
 
-      call flapCLI%cli_options%get(val=cap_options%npes_model, switch='--npes_model', error=status); _VERIFY(status)
-      call flapCLI%cli_options%get(val=compress_nodes, switch='--compress_nodes', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=cap_options%npes_model, switch='--npes_model', error=status); _verify(status)
+      call flapCLI%cli_options%get(val=compress_nodes, switch='--compress_nodes', error=status); _verify(status)
       cap_options%isolate_nodes = .not. compress_nodes
-      call flapCLI%cli_options%get(val=cap_options%fast_oclient, switch='--fast_oclient', error=status); _VERIFY(status)
-      call flapCLI%cli_options%get(val=cap_options%with_io_profiler, switch='--with_io_profiler', error=status); _VERIFY(status)
-      call flapCLI%cli_options%get(val=cap_options%with_esmf_moab, switch='--with_esmf_moab', error=status); _VERIFY(status)
-      call flapCLI%cli_options%get_varying(val=cap_options%npes_input_server, switch='--npes_input_server', error=status); _VERIFY(status)
-      call flapCLI%cli_options%get_varying(val=cap_options%npes_output_server, switch='--npes_output_server', error=status); _VERIFY(status)
-      call flapCLI%cli_options%get_varying(val=cap_options%nodes_input_server, switch='--nodes_input_server', error=status); _VERIFY(status)
-      call flapCLI%cli_options%get_varying(val=nodes_output_server, switch='--nodes_output_server', error=status); _VERIFY(status)
-      call flapCLI%cli_options%get(val=one_node_output, switch='--one_node_output', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=cap_options%fast_oclient, switch='--fast_oclient', error=status); _verify(status)
+      call flapCLI%cli_options%get(val=cap_options%with_io_profiler, switch='--with_io_profiler', error=status); _verify(status)
+      call flapCLI%cli_options%get(val=cap_options%with_esmf_moab, switch='--with_esmf_moab', error=status); _verify(status)
+      call flapCLI%cli_options%get_varying(val=cap_options%npes_input_server, switch='--npes_input_server', error=status); _verify(status)
+      call flapCLI%cli_options%get_varying(val=cap_options%npes_output_server, switch='--npes_output_server', error=status); _verify(status)
+      call flapCLI%cli_options%get_varying(val=cap_options%nodes_input_server, switch='--nodes_input_server', error=status); _verify(status)
+      call flapCLI%cli_options%get_varying(val=nodes_output_server, switch='--nodes_output_server', error=status); _verify(status)
+      call flapCLI%cli_options%get(val=one_node_output, switch='--one_node_output', error=status); _verify(status)
       if (one_node_output) then
          allocate(cap_options%nodes_output_server(sum(nodes_output_server)), source =1)
       else
@@ -421,7 +421,7 @@ contains
       cap_options%n_iserver_group = max(size(cap_options%npes_input_server),size(cap_options%nodes_input_server))
       cap_options%n_oserver_group = max(size(cap_options%npes_output_server),size(cap_options%nodes_output_server))
 
-      call flapCLI%cli_options%get(val=buffer, switch='--esmf_logtype', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=buffer, switch='--esmf_logtype', error=status); _verify(status)
       ! set_esmf_logging_mode
       select case (trim(buffer))
       case ('none')
@@ -433,26 +433,26 @@ contains
       case ('multi_on_error')
          cap_options%esmf_logging_mode = ESMF_LOGKIND_MULTI_ON_ERROR
       case default
-         _FAIL("Unsupported ESMF logging option: "//trim(buffer))
+         _fail("Unsupported ESMF logging option: "//trim(buffer))
       end select
 
       ! Ensemble specific options
-      call flapCLI%cli_options%get(val=buffer, switch='--prefix', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=buffer, switch='--prefix', error=status); _verify(status)
       cap_options%ensemble_subdir_prefix = trim(buffer)
-      call flapCLI%cli_options%get(val=cap_options%n_members, switch='--n_members', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=cap_options%n_members, switch='--n_members', error=status); _verify(status)
 
-      call flapCLI%cli_options%get(val=buffer, switch='--cap_rc', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=buffer, switch='--cap_rc', error=status); _verify(status)
       cap_options%cap_rc_file = trim(buffer)
 
       ! Logging options
-      call flapCLI%cli_options%get(val=buffer, switch='--logging_config', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=buffer, switch='--logging_config', error=status); _verify(status)
       cap_options%logging_config = trim(buffer)
       ! ouput server type options
-      call flapCLI%cli_options%get(val=buffer, switch='--oserver_type', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=buffer, switch='--oserver_type', error=status); _verify(status)
       cap_options%oserver_type = trim(buffer)
-      call flapCLI%cli_options%get(val=cap_options%npes_backend_pernode, switch='--npes_backend_pernode', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=cap_options%npes_backend_pernode, switch='--npes_backend_pernode', error=status); _verify(status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function old_CapOptions_from_Flap
 
 end module MAPL_FlapCLIMod

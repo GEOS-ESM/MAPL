@@ -28,9 +28,9 @@ simple interfaces to them.
 The error handling utility consists of the three macros:
 
 ```fortran
-  _VERIFY(STATUS)
-  _RETURN(ESMF_Success|ESMF_Failure)
-  _ASSERT(logical expr,'needs informative message')
+  _verify(STATUS)
+  _return(ESMF_Success|ESMF_Failure)
+  _assert(logical expr,'needs informative message')
 ```
 
 These are used by setting the local character string variable `Iam` to

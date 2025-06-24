@@ -158,9 +158,9 @@ contains
 
       call factory%check_and_fill_consistency(rc=status)
 
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function CubedSphereGridFactory_from_parameters
 
@@ -174,12 +174,12 @@ contains
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'make_grid'
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       grid = this%create_basic_grid(rc=status)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function make_new_grid
 
@@ -198,7 +198,7 @@ contains
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'create_basic_grid'
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       if (this%grid_type <=3) then
          nTile=6
@@ -212,7 +212,7 @@ contains
       enddo
 
       if(allocated(this%jms_2d)) then
-         _ASSERT(size(this%jms_2d,2) == 6,'incompatible shape')
+         _assert(size(this%jms_2d,2) == 6,'incompatible shape')
          allocate(jms, source = this%jms_2d)
       else
          allocate(jms(this%ny,nTile))
@@ -230,21 +230,21 @@ contains
                       countsPerDEDim2PTile=jms ,name=this%grid_name, &
                       staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, &
                       transformArgs=transformArgument,rc=status)
-            _VERIFY(status)
+            _verify(status)
             if (this%stretch_factor/=MAPL_UNDEFINED_REAL .and. this%target_lon/=MAPL_UNDEFINED_REAL .and. &
                 this%target_lat/=MAPL_UNDEFINED_REAL) then
                call ESMF_AttributeSet(grid, name='STRETCH_FACTOR', value=this%stretch_factor,rc=status)
-               _VERIFY(status)
+               _verify(status)
                call ESMF_AttributeSet(grid, name='TARGET_LON', value=this%target_lon_degrees,rc=status)
-               _VERIFY(status)
+               _verify(status)
                call ESMF_AttributeSet(grid, name='TARGET_LAT', value=this%target_lat_degrees,rc=status)
-               _VERIFY(status)
+               _verify(status)
             end if
          else
             grid = ESMF_GridCreateCubedSPhere(this%im_world,countsPerDEDim1PTile=ims, &
                       countsPerDEDim2PTile=jms ,name=this%grid_name, &
                       staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
-            _VERIFY(status)
+            _verify(status)
          end if
          call ESMF_AttributeSet(grid, name='GridType', value='Cubed-Sphere', rc=status)
       else
@@ -259,20 +259,20 @@ contains
               & coordDep2=[1,2], &
               & coordSys=ESMF_COORDSYS_SPH_RAD, &
               & rc=status)
-         _VERIFY(status)
+         _verify(status)
          call ESMF_AttributeSet(grid, 'GridType', 'Doubly-Periodic', rc=status)
-         _VERIFY(status)
+         _verify(status)
          call ESMF_GridAddCoord(grid,rc=status)
-         _VERIFY(status)
+         _verify(status)
          call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
            staggerloc=ESMF_STAGGERLOC_CENTER, &
            farrayPtr=lons, rc=status)
-         _VERIFY(status)
+         _verify(status)
          lons=0.0
          call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
            staggerloc=ESMF_STAGGERLOC_CENTER, &
            farrayPtr=lats, rc=status)
-         _VERIFY(status)
+         _verify(status)
          lats=0.0
 
       end if
@@ -281,13 +281,13 @@ contains
 
       if (this%lm /= MAPL_UNDEFINED_INTEGER) then
          call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, rc=status)
-         _VERIFY(status)
+         _verify(status)
       end if
 
       call ESMF_AttributeSet(grid, name='NEW_CUBE', value=1,rc=status)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function create_basic_grid
 
    subroutine initialize_from_file_metadata(this, file_metadata, unusable, force_file_coordinates, rc)
@@ -313,16 +313,16 @@ contains
          hasLon = file_metadata%has_dimension('lon',rc=status)
          if (hasXdim .and. (.not.haslon)) then
             im = file_metadata%get_dimension('Xdim',rc=status)
-            _VERIFY(status)
+            _verify(status)
          else if (hasLon .and. (.not.hasXdim)) then
             im = file_metadata%get_dimension('lon',rc=status)
-            _VERIFY(status)
+            _verify(status)
          else
-            _FAIL("can not identify dimenions of cubed-sphere file")
+            _fail("can not identify dimenions of cubed-sphere file")
          end if
       end associate
       call this%make_arbitrary_decomposition(this%nx, this%ny, reduceFactor=6, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       is_stretched = file_metadata%has_attribute('STRETCH_FACTOR') .and. &
                      file_metadata%has_attribute('TARGET_LON') .and. &
@@ -334,7 +334,7 @@ contains
          type is (real(kind=REAL32))
             this%stretch_factor = q(1)
          class default
-            _FAIL('unsupport subclass for stretch params')
+            _fail('unsupport subclass for stretch params')
          end select
          attr => file_metadata%get_attribute('TARGET_LAT')
          attr_val => attr%get_values()
@@ -344,7 +344,7 @@ contains
          type is (real(kind=REAL64))
             this%target_lat = q(1)
          class default
-            _FAIL('unsupport subclass for stretch params')
+            _fail('unsupport subclass for stretch params')
          end select
          attr => file_metadata%get_attribute('TARGET_LON')
          attr_val => attr%get_values()
@@ -354,7 +354,7 @@ contains
          type is (real(kind=REAL64))
             this%target_lon = q(1)
          class default
-            _FAIL('unsupport subclass for stretch params')
+            _fail('unsupport subclass for stretch params')
          end select
       end if
 
@@ -365,13 +365,13 @@ contains
       hasLev = file_metadata%has_dimension(lev_name)
       if (hasLev) then
          this%lm = file_metadata%get_dimension(lev_name,rc=status)
-         _VERIFY(status)
+         _verify(status)
       else
          lev_name = 'levels'
          hasLevel = file_metadata%has_dimension(lev_name)
          if (hasLevel) then
             this%lm = file_metadata%get_dimension(lev_name,rc=status)
-            _VERIFY(status)
+            _verify(status)
          end if
       end if
 
@@ -380,10 +380,10 @@ contains
       call MAPL_DecomposeDim(this%im_world, this%ims, this%nx, min_DE_extent=2)
       call MAPL_DecomposeDim(this%im_world, this%jms, this%ny, min_DE_extent=2)
       call this%check_and_fill_consistency(rc=status)
-      _VERIFY(status)
+      _verify(status)
 
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(force_file_coordinates)
+      _unused_dummy(unusable)
+      _unused_dummy(force_file_coordinates)
    end subroutine initialize_from_file_metadata
 
 
@@ -404,7 +404,7 @@ contains
       if (present(unusable)) print*,shape(unusable)
 
       call ESMF_VMGetCurrent(vm, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDNAME:', default=MAPL_GRID_NAME_DEFAULT)
       this%grid_name = trim(tmp)
@@ -421,29 +421,29 @@ contains
       call ESMF_ConfigGetAttribute(config, this%target_lat, label=prefix//'TARGET_LAT:', default=MAPL_UNDEFINED_REAL)
 
       call get_multi_integer(this%ims, 'IMS:', rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'JMS_FILE:', rc=status)
-      if (status == _SUCCESS) then
+      if (status == _success) then
          call get_jms_from_file(this%jms_2d, trim(tmp),this%ny, rc=status)
-         _VERIFY(status)
+         _verify(status)
       else
          call get_multi_integer(this%jms, 'JMS:', rc=status)
-         _VERIFY(status)
+         _verify(status)
       endif
 
       call ESMF_ConfigGetAttribute(config, this%lm, label=prefix//'LM:', default=MAPL_UNDEFINED_INTEGER)
 
       call this%check_and_fill_consistency(rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       ! halo initialization
 
       call ESMF_VmGet(VM, mpicommunicator=vmcomm, petCount=ndes, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    contains
 
@@ -459,16 +459,16 @@ contains
          logical :: isPresent
 
          call ESMF_ConfigFindLabel(config, label=prefix//label,isPresent=isPresent,rc=status)
-         _VERIFY(status)
+         _verify(status)
          if (.not. isPresent) then
-            _RETURN(_SUCCESS)
+            _return(_success)
          end if
 
          ! First pass:  count values
          n = 0
          do
             call ESMF_ConfigGetAttribute(config, tmp, default=MAPL_UNDEFINED_INTEGER, rc=status)
-            if (status /= _SUCCESS) then
+            if (status /= _success) then
                exit
             else
                n = n + 1
@@ -477,15 +477,15 @@ contains
 
          ! Second pass: allocate and fill
          allocate(values(n), stat=status) ! no point in checking status
-         _VERIFY(status)
+         _verify(status)
          call ESMF_ConfigFindLabel(config, label=prefix//label,isPresent=isPresent,rc=status)
-         _VERIFY(status)
+         _verify(status)
          do i = 1, n
             call ESMF_ConfigGetAttribute(config, values(i), rc=status)
-            _VERIFY(status)
+            _verify(status)
          end do
 
-         _RETURN(_SUCCESS)
+         _return(_success)
 
       end subroutine get_multi_integer
 
@@ -503,21 +503,21 @@ contains
 
          N_proc = n*6 ! it has been devided by 6. get back the original NY
          allocate(values_tmp(N_proc), stat=status) ! no point in checking status
-         _VERIFY(status)
+         _verify(status)
 
          inquire(FILE = trim(file_name), EXIST=FileExists)
          if ( .not. FileExists) then
             print*, file_name //  " does not exist"
-             _RETURN(_FAILURE)
+             _return(_failure)
 
          elseif (MAPL_AM_I_Root(VM)) then
 
             open(newunit=UNIT,file=trim(file_name), form="formatted", iostat=status )
-            _VERIFY(STATUS)
+            _verify(STATUS)
             read(UNIT,*) total, max_procs
             if (total /= N_proc) then
                 print*, "n /= total"
-                _RETURN(_FAILURE)
+                _return(_failure)
             endif
             do i = 1,total
                 read(UNIT,*) values_tmp(i)
@@ -527,7 +527,7 @@ contains
 
          call MAPL_CommsBcast(VM, max_procs,  n=1, ROOT=MAPL_Root, rc=status)
          call MAPL_CommsBcast(VM, values_tmp, n=N_proc, ROOT=MAPL_Root, rc=status)
-         _VERIFY(STATUS)
+         _verify(STATUS)
 
          ! distributed to 6 faces
          allocate(values_(max_procs,6))
@@ -544,7 +544,7 @@ contains
           enddo
           values = values_
 
-         _RETURN(_SUCCESS)
+         _return(_success)
 
       end subroutine get_jms_from_file
 
@@ -557,18 +557,18 @@ contains
          logical :: isPresent
 
          call ESMF_ConfigFindLabel(config, label=prefix//label,isPresent=isPresent,rc=status)
-         _VERIFY(status)
+         _verify(status)
          if (.not. isPresent) then
-            _RETURN(_SUCCESS)
+            _return(_success)
          end if
 
          ! Must be 2 values: min and max
          call ESMF_ConfigGetAttribute(config, bounds%min, rc=status)
-         _VERIFY(status)
+         _verify(status)
          call ESMF_ConfigGetAttribute(config, bounds%max, rc=status)
-         _VERIFY(status)
+         _verify(status)
 
-         _RETURN(_SUCCESS)
+         _return(_success)
 
       end subroutine get_bounds
 
@@ -593,19 +593,19 @@ contains
       end if
 
       grid => this%get_grid(rc=status)
-      _VERIFY(status)
+      _verify(status)
       field = ESMF_FieldCreate(grid,ESMF_TYPEKIND_R4, &
               totalLWidth=[useableHalo_width,useableHalo_width], &
               totalUWidth=[useableHalo_width,useableHalo_width], &
               rc=status)
-      _VERIFY(status)
+      _verify(status)
       call ESMF_FieldGet(field,farrayPtr=ptr,rc=status)
-      _VERIFY(status)
+      _verify(status)
       ptr=0.0
       call ESMF_FieldHaloStore(field,this%rh,rc=status)
-      _VERIFY(status)
+      _verify(status)
       call ESMF_FieldDestroy(field,rc=status)
-      _VERIFY(status)
+      _verify(status)
 
    end subroutine halo_init
 
@@ -613,7 +613,7 @@ contains
       character(len=:), allocatable :: string
       class (CubedSphereGridFactory), intent(in) :: this
 
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
       string = 'CubedSphereGridFactory'
 
    end function to_string
@@ -628,7 +628,7 @@ contains
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'check_and_fill_consistency'
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       if (.not. allocated(this%grid_name)) then
          this%grid_name = MAPL_GRID_NAME_DEFAULT
@@ -641,8 +641,8 @@ contains
       if ( (this%target_lon /= MAPL_UNDEFINED_REAL) .and. &
            (this%target_lat /= MAPL_UNDEFINED_REAL) .and. &
            (this%stretch_factor /= MAPL_UNDEFINED_REAL) ) then
-         _ASSERT(this%target_lat >= -90.0, 'Latitude should be greater than -90.0 degrees')
-         _ASSERT(this%target_lat <= 90, 'Latitude should be less than 90.0 degrees')
+         _assert(this%target_lat >= -90.0, 'Latitude should be greater than -90.0 degrees')
+         _assert(this%target_lat <= 90, 'Latitude should be less than 90.0 degrees')
          this%stretched_cube = .true.
          this%target_lon_degrees = this%target_lon
          this%target_lat_degrees = this%target_lat
@@ -652,16 +652,16 @@ contains
 
       ! Check decomposition/bounds
       ! WY notes: not necessary for this assert
-      !_ASSERT(allocated(this%ims) .eqv. allocated(this%jms),'inconsistent options')
+      !_assert(allocated(this%ims) .eqv. allocated(this%jms),'inconsistent options')
       call verify(this%nx, this%im_world, this%ims, rc=status)
       if (allocated(this%jms_2d)) then
-        _ASSERT(size(this%jms_2d,2)==6, 'incompatible shape')
-        _ASSERT(sum(this%jms_2d) == 6*this%im_world, 'incompatible shape')
+        _assert(size(this%jms_2d,2)==6, 'incompatible shape')
+        _assert(sum(this%jms_2d) == 6*this%im_world, 'incompatible shape')
       else
          call verify(this%ny, this%im_world, this%jms, rc=status)
       endif
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    contains
 
@@ -674,32 +674,32 @@ contains
          integer :: status
 
          if (allocated(ms)) then
-            _ASSERT(size(ms) > 0, 'must be > 0 PEs in each dimension')
+            _assert(size(ms) > 0, 'must be > 0 PEs in each dimension')
 
             if (n == MAPL_UNDEFINED_INTEGER) then
                n = size(ms)
             else
-               _ASSERT(n == size(ms), 'inconsistent specs')
+               _assert(n == size(ms), 'inconsistent specs')
             end if
 
             if (m_world == MAPL_UNDEFINED_INTEGER) then
                m_world = sum(ms)
             else
-               _ASSERT(m_world == sum(ms), 'inconsistent specs')
+               _assert(m_world == sum(ms), 'inconsistent specs')
             end if
 
          else
 
-            _ASSERT(n /= MAPL_UNDEFINED_INTEGER,'n not specified')
-            _ASSERT(m_world /= MAPL_UNDEFINED_INTEGER,'m_world not specified')
+            _assert(n /= MAPL_UNDEFINED_INTEGER,'n not specified')
+            _assert(m_world /= MAPL_UNDEFINED_INTEGER,'m_world not specified')
             allocate(ms(n), stat=status)
-            _VERIFY(status)
+            _verify(status)
 
             call MAPL_DecomposeDim (m_world, ms, n, symmetric=.true.)
 
          end if
 
-         _RETURN(_SUCCESS)
+         _return(_success)
 
       end subroutine verify
 
@@ -867,13 +867,13 @@ contains
 
       character(len=*), parameter :: Iam = MOD_NAME // 'CubedSphereGridFactory_initialize_from_esmf_distGrid'
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(dist_grid)
-      _UNUSED_DUMMY(lon_array)
-      _UNUSED_DUMMY(lat_array)
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(this)
+      _unused_dummy(dist_grid)
+      _unused_dummy(lon_array)
+      _unused_dummy(lat_array)
+      _unused_dummy(unusable)
 
-      _FAIL('not implemented')
+      _fail('not implemented')
 
    end subroutine initialize_from_esmf_distGrid
 
@@ -892,7 +892,7 @@ contains
       real, pointer :: ptr(:,:)
       integer :: useableHalo_width
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       if (.not. this%halo_initialized) then
          call this%halo_init(halo_width = halo_width)
@@ -909,17 +909,17 @@ contains
               totalLWidth=[useableHalo_width,useableHalo_width], &
               totalUWidth=[useableHalo_width,useableHalo_width], &
               rc=status)
-      _VERIFY(status)
+      _verify(status)
       call ESMF_FieldGet(field,farrayPtr=ptr,rc=status)
-      _VERIFY(status)
+      _verify(status)
       ptr = array
       call ESMF_FieldHalo(field,this%rh,rc=status)
-      _VERIFY(status)
+      _verify(status)
       array = ptr
       call ESMF_FieldDestroy(field,rc=status)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine halo
 
@@ -1087,7 +1087,7 @@ contains
       class (CubedSphereGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
 
       vars = 'Xdim,Ydim,nf'
 
@@ -1097,7 +1097,7 @@ contains
       class (CubedSphereGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
 
       vars = 'Xdim,Ydim,nf,anchor,lons,lats,corner_lons,corner_lats,nf,ncontact,cubed_sphere,contacts,orientation'
 
@@ -1106,7 +1106,7 @@ contains
    subroutine append_variable_metadata(this,var)
       class (CubedSphereGridFactory), intent(inout) :: this
       type(Variable), intent(inout) :: var
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
 
       call var%add_attribute('coordinates','lons lats')
       call var%add_attribute('grid_mapping','cubed_sphere')
@@ -1140,20 +1140,20 @@ contains
 
       character(len=*), parameter :: Iam = MOD_NAME // 'get_fake_longitudes()'
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       grid = this%make_grid()
 
       call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
            staggerloc=ESMF_STAGGERLOC_CENTER, &
            farrayPtr=centers, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call ESMF_VMGetCurrent(vm, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call ESMF_VMGet(vm, mpiCommunicator=comm_grid, petcount=npes, localpet=pet, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call MAPL_grid_interior(grid, i_1, i_n, j_1, j_n)
 
@@ -1173,7 +1173,7 @@ contains
       allocate(counts(0:npes-1), displs(0:npes-1))
 
       call MPI_Allgather(n_loc, 1, MPI_INTEGER, counts, 1, MPI_INTEGER, comm_grid, ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
 
       displs(0) = 0
       do p = 1, npes-1
@@ -1182,7 +1182,7 @@ contains
 
       allocate(longitudes(this%im_world))
       call MPI_Allgatherv(piece, n_loc, MPI_REAL8, longitudes, counts, displs, MPI_REAL8, comm_grid, ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
 
       longitudes = longitudes * MAPL_RADIANS_TO_DEGREES
 
@@ -1212,20 +1212,20 @@ contains
 
       character(len=*), parameter :: Iam = MOD_NAME // 'get_fake_latitudes()'
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       grid = this%make_grid()
 
       call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
            staggerloc=ESMF_STAGGERLOC_CENTER, &
            farrayPtr=centers, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call ESMF_VMGetCurrent(vm, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call ESMF_VMGet(vm, mpiCommunicator=comm_grid, petcount=npes, localpet=pet, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call MAPL_grid_interior(grid, i_1, i_n, j_1, j_n)
 
@@ -1245,7 +1245,7 @@ contains
       allocate(counts(0:npes-1), displs(0:npes-1))
 
       call MPI_Allgather(n_loc, 1, MPI_INTEGER, counts, 1, MPI_INTEGER, comm_grid, ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
 
       displs(0) = 0
       do p = 1, npes-1
@@ -1254,7 +1254,7 @@ contains
 
       allocate(latitudes(this%im_world))
       call MPI_Allgatherv(piece, n_loc, MPI_REAL8, latitudes, counts, displs, MPI_REAL8, comm_grid, ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
 
       latitudes = latitudes * MAPL_RADIANS_TO_DEGREES
 
@@ -1282,7 +1282,7 @@ contains
          face_format = .true.
       end if
       call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
-      _VERIFY(status)
+      _verify(status)
       call MAPL_GridGetInterior(grid,i1,in,j1,jn)
       if (face_format) then
          tile = 1 + (j1-1)/global_dim(1)
@@ -1295,8 +1295,8 @@ contains
          allocate(global_count,source=[global_dim(1),global_dim(2)])
       end if
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
+      _return(_success)
+      _unused_dummy(this)
 
    end subroutine generate_file_bounds
 
@@ -1313,10 +1313,10 @@ contains
       integer :: global_dim(3),i1,j1,in,jn,tile
       integer :: face_j1, is, js
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
 
       call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
-      _VERIFY(status)
+      _verify(status)
       call MAPL_GridGetInterior(grid,i1,in,j1,jn)
       tile = 1 + (j1-1)/global_dim(1)
       face_j1 = j1-(tile-1)*global_dim(1)
@@ -1326,7 +1326,7 @@ contains
       allocate(global_start,source=[1,1,1])
       allocate(global_count,source=[global_dim(1)+1,global_dim(1)+1,6])
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine generate_file_corner_bounds
 
@@ -1335,7 +1335,7 @@ contains
       type(ArrayReference) :: ref
       class(CubedSphereGridFactory), intent(inout) :: this
       real, pointer, intent(in) :: fpointer(:,:)
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
       ref = ArrayReference(fpointer)
    end function generate_file_reference2D
 
@@ -1364,7 +1364,7 @@ contains
          ref = ArrayReference(fpointer)
       end if
 
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
    end function generate_file_reference3D
 
 end module MAPL_CubedSphereGridFactoryMod

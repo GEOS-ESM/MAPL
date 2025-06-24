@@ -56,10 +56,10 @@ contains
 
       integer :: status
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
       call this%framework%run_child(name, clock, phase, rc=status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine run_child
 
 

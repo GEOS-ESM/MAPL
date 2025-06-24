@@ -56,25 +56,25 @@ contains
       character(len=MAX_CHARACTER_LENGTH) :: tunit_
       integer :: status
       
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
-      _ASSERT((len_trim(adjustl(units_string)) > 0), 'units empty')
+      _assert((len_trim(adjustl(units_string)) > 0), 'units empty')
 
       cft = CF_Time_Integer(duration, units_string)
-      call convert_CF_Time_to_datetime_duration(cft, dt_duration, _RC)
-      call set_ESMF_TimeInterval(interval, dt_duration, _RC)
+      call convert_CF_Time_to_datetime_duration(cft, dt_duration, _rc)
+      call set_ESMF_TimeInterval(interval, dt_duration, _rc)
 
-      call extract_ISO8601_from_CF_Time(cft, isostring, _RC)
-      call set_ESMF_Time_from_ISO8601(basetime, isostring, _RC)
+      call extract_ISO8601_from_CF_Time(cft, isostring, _rc)
+      call set_ESMF_Time_from_ISO8601(basetime, isostring, _rc)
 
       if(present(time)) time = basetime + interval
 
       if(present(time_unit)) then
-         call extract_CF_Time_unit(cft, tunit_, _RC)
+         call extract_CF_Time_unit(cft, tunit_, _rc)
          time_unit = trim(tunit_)
       end if
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine get_ESMF_Time_from_NetCDF_DateTime_integer
 
@@ -98,25 +98,25 @@ contains
       character(len=MAX_CHARACTER_LENGTH) :: tunit_
       integer :: status
       
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
-      _ASSERT((len_trim(adjustl(units_string)) > 0), 'units empty')
+      _assert((len_trim(adjustl(units_string)) > 0), 'units empty')
 
       cft = CF_Time_Real(duration, units_string)
-      call convert_CF_Time_to_datetime_duration(cft, dt_duration, _RC)
-      call set_ESMF_TimeInterval(interval, dt_duration, _RC)
+      call convert_CF_Time_to_datetime_duration(cft, dt_duration, _rc)
+      call set_ESMF_TimeInterval(interval, dt_duration, _rc)
 
-      call extract_ISO8601_from_CF_Time(cft, isostring, _RC)
-      call set_ESMF_Time_from_ISO8601(basetime, isostring, _RC)
+      call extract_ISO8601_from_CF_Time(cft, isostring, _rc)
+      call set_ESMF_Time_from_ISO8601(basetime, isostring, _rc)
 
       if(present(time)) time = basetime + interval
 
       if(present(time_unit)) then
-         call extract_CF_Time_unit(cft, tunit_, _RC)
+         call extract_CF_Time_unit(cft, tunit_, _rc)
          time_unit = trim(tunit_)
       end if
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine get_ESMF_Time_from_NetCDF_DateTime_real
 

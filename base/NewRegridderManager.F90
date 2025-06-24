@@ -65,18 +65,18 @@ contains
 
       class(AbstractRegridder), pointer :: prototype
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       if (.not. this%is_initialized()) call this%initialize()
 
       id_in = get_factory_id(grid_in,rc=status)
-      _VERIFY(status)
+      _verify(status)
       id_out = get_factory_id(grid_out,rc=status)
-      _VERIFY(status)
+      _verify(status)
       ! Special case if two grids are the same
       if (id_in == id_out) then
          regridder => identity_regridder()
-         _RETURN(_SUCCESS)
+         _return(_success)
       end if
 
       ! If manager already has suitable regridder, use it.
@@ -84,19 +84,19 @@ contains
 
       regridder => find(this%regridders, spec)
       if (associated(regridder)) then
-         _RETURN(_SUCCESS)
+         _return(_success)
       end if
 
       ! Else build from prototype
       prototype => this%find_prototype(spec, rc=status)
-      _VERIFY(status)
+      _verify(status)
       
       call this%regridders%push_back(prototype)
       regridder => this%regridders%back()
       call regridder%initialize(spec, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    contains
 
@@ -131,20 +131,20 @@ contains
       logical :: supports
       type(RegridderVectorIterator) :: iter
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       iter = this%prototypes%begin()
       do while (iter /= this%prototypes%end())
          prototype => iter%get()
-         supports = prototype%supports(spec,_RC)
+         supports = prototype%supports(spec,_rc)
          if (supports) then
-            _RETURN(_SUCCESS)
+            _return(_success)
          end if
          call iter%next()
       end do
 
       ! not found
-      _RETURN(_FAILURE)
+      _return(_failure)
    end function find_prototype
 
    logical function is_initialized(this)

@@ -136,9 +136,9 @@ subroutine SORT2SS(A,B,DIM)
   else
      uDIM = 2
   end if
-  _ASSERT(uDIM>0, 'uDim needs to be greater than 0')
-  _ASSERT(uDIM<3, 'uDim needs to be less than 3')
-  _ASSERT(size(A)==size(B,uDIM),'needs informative message')
+  _assert(uDIM>0, 'uDim needs to be greater than 0')
+  _assert(uDIM<3, 'uDim needs to be less than 3')
+  _assert(size(A)==size(B,uDIM),'needs informative message')
   if(uDIM==1) then
      call QSORTS(A,B,size(A),-size(B,2))
   else
@@ -159,9 +159,9 @@ subroutine SORT2SR(A,B,DIM)
   else
      uDIM = 2
   end if
-  _ASSERT(uDIM>0, 'uDim needs to be greater than 0')
-  _ASSERT(uDIM<3, 'uDim needs to be less than 3')  
-  _ASSERT(size(A)==size(B,uDIM),'needs informative message')
+  _assert(uDIM>0, 'uDim needs to be greater than 0')
+  _assert(uDIM<3, 'uDim needs to be less than 3')  
+  _assert(size(A)==size(B,uDIM),'needs informative message')
   if(uDIM==1) then
      call QSORTS(A,B,size(A),-size(B,2))
   else
@@ -182,9 +182,9 @@ subroutine SORT2SD(A,B,DIM)
   else
      uDIM = 2
   end if
-  _ASSERT(uDIM>0, 'uDim needs to be greater than 0')
-  _ASSERT(uDIM<3, 'uDim needs to be less than 3')
-  _ASSERT(size(A)==size(B,uDIM),'needs informative message')
+  _assert(uDIM>0, 'uDim needs to be greater than 0')
+  _assert(uDIM<3, 'uDim needs to be less than 3')
+  _assert(size(A)==size(B,uDIM),'needs informative message')
   if(uDIM==1) then
      call QSORTS(A,B,size(A),-size(B,2)*2)
   else
@@ -205,9 +205,9 @@ subroutine SORT2LS(A,B,DIM)
   else
      uDIM = 2
   end if
-  _ASSERT(uDIM>0, 'uDim needs to be greater than 0')
-  _ASSERT(uDIM<3, 'uDim needs to be less than 3')  
-  _ASSERT(size(A)==size(B,uDIM),'needs informative message')
+  _assert(uDIM>0, 'uDim needs to be greater than 0')
+  _assert(uDIM<3, 'uDim needs to be less than 3')  
+  _assert(size(A)==size(B,uDIM),'needs informative message')
   if(uDIM==1) then
      call QSORTL(A,B,size(A),-size(B,2))
   else
@@ -227,9 +227,9 @@ subroutine SORT2LR(A,B,DIM)
   else
      uDIM = 2
   end if
-  _ASSERT(uDIM>0, 'uDim needs to be greater than 0')
-  _ASSERT(uDIM<3, 'uDim needs to be less than 3')  
-  _ASSERT(size(A)==size(B,uDIM),'needs informative message')
+  _assert(uDIM>0, 'uDim needs to be greater than 0')
+  _assert(uDIM<3, 'uDim needs to be less than 3')  
+  _assert(size(A)==size(B,uDIM),'needs informative message')
   if(uDIM==1) then
      call QSORTL(A,B,size(A),-size(B,2))
   else
@@ -249,9 +249,9 @@ subroutine SORT2LD(A,B,DIM)
   else
      uDIM = 2
   end if
-  _ASSERT(uDIM>0, 'uDim needs to be greater than 0')
-  _ASSERT(uDIM<3, 'uDim needs to be less than 3')  
-  _ASSERT(size(A)==size(B,uDIM),'needs informative message')
+  _assert(uDIM>0, 'uDim needs to be greater than 0')
+  _assert(uDIM<3, 'uDim needs to be less than 3')  
+  _assert(size(A)==size(B,uDIM),'needs informative message')
   if(uDIM==1) then
      call QSORTL(A,B,size(A),-size(B,2)*2)
   else
@@ -271,8 +271,8 @@ subroutine SORT2AS(B,DIM)
      uDIM = 2
   end if
 
-  _ASSERT(uDIM>0, 'uDim needs to be greater than 0')
-  _ASSERT(uDIM<3, 'uDim needs to be less than 3')
+  _assert(uDIM>0, 'uDim needs to be greater than 0')
+  _assert(uDIM<3, 'uDim needs to be less than 3')
 
   if(uDIM==1) then
      call QSORTS(B(:,1),B(:,2:),size(B,1),-(size(B,2)-1))
@@ -293,8 +293,8 @@ subroutine SORT2AL(B,DIM)
      uDIM = 2
   end if
 
-  _ASSERT(uDIM>0, 'uDim needs to be greater than 0')
-  _ASSERT(uDIM<3, 'uDim needs to be less than 3')
+  _assert(uDIM>0, 'uDim needs to be greater than 0')
+  _assert(uDIM<3, 'uDim needs to be less than 3')
 
   if(uDIM==1) then
      call QSORTL(B(:,1),B(:,2:),size(B,1),-(size(B,2)-1)*2)

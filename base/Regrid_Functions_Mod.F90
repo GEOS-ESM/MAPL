@@ -532,7 +532,7 @@
          Integer                 :: JJ0(nVal)
          Integer                 :: I
 
-         _UNUSED_DUMMY(nY)
+         _unused_dummy(nY)
 
          ! Copy input
          II0 = II
@@ -564,7 +564,7 @@
          Integer                 :: I
          Logical                 :: flipII, flipJJ
 
-         _UNUSED_DUMMY(nY)
+         _unused_dummy(nY)
 
          ! Copy input
          II0 = II
@@ -598,7 +598,7 @@
          Integer                 :: I
          Integer, Parameter      :: faceMap(6) = (/4,5,1,2,6,3/)
 
-         _UNUSED_DUMMY(nY)
+         _unused_dummy(nY)
 
          ! Copy input
          JJ0 = JJ
@@ -875,7 +875,7 @@
       Logical                  :: isDE_
       Logical                  :: isPC_
 
-      _UNUSED_DUMMY(rc)
+      _unused_dummy(rc)
 
       !=================================================================
       ! genGridName starts here!

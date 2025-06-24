@@ -109,7 +109,7 @@ module MAPL_GriddedIOMod
         if (present(metadata_collection_id)) GriddedIO%metadata_collection_id=metadata_collection_id
         if (present(items)) GriddedIO%items=items
         if (present(fraction)) GriddedIO%fraction=fraction
-        _RETURN(ESMF_SUCCESS)
+        _return(ESMF_SUCCESS)
      end function new_MAPL_GriddedIO
 
      subroutine CreateFileMetaData(this,items,bundle,timeInfo,vdata,ogrid,global_attributes,rc)
@@ -137,24 +137,24 @@ module MAPL_GriddedIOMod
         if ( allocated (this%metadata) ) deallocate(this%metadata)
         allocate(this%metadata)
 
-        call MAPL_FieldBundleDestroy(this%output_bundle, _RC)
+        call MAPL_FieldBundleDestroy(this%output_bundle, _rc)
 
         this%items = items
         this%input_bundle = bundle
         this%output_bundle = ESMF_FieldBundleCreate(rc=status)
-        _VERIFY(status)
+        _verify(status)
         this%timeInfo = timeInfo
         call ESMF_FieldBundleGet(this%input_bundle,grid=input_grid,rc=status)
-        _VERIFY(status)
+        _verify(status)
         if (present(ogrid)) then
            this%output_grid=ogrid
         else
            call ESMF_FieldBundleGet(this%input_bundle,grid=this%output_grid,rc=status)
-           _VERIFY(status)
+           _verify(status)
         end if
 
         this%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%output_grid,this%regrid_method,hints=this%regrid_hints,rc=status)
-        _VERIFY(status)
+        _verify(status)
 
 
         ! We get the regrid_method here because in the case of Identity, we set it to
@@ -164,9 +164,9 @@ module MAPL_GriddedIOMod
         this%regrid_method = this%regrid_handle%get_regrid_method()
 
         call ESMF_FieldBundleSet(this%output_bundle,grid=this%output_grid,rc=status)
-        _VERIFY(status)
+        _verify(status)
         factory => get_factory(this%output_grid,rc=status)
-        _VERIFY(status)
+        _verify(status)
         call factory%append_metadata(this%metadata)
         coord_var => this%metadata%get_variable('lons')
         if (associated(coord_var)) call coord_var%set_deflation(this%deflateLevel)
@@ -182,31 +182,31 @@ module MAPL_GriddedIOMod
            this%vdata=vdata
         else
            this%vdata=VerticalData(rc=status)
-           _VERIFY(status)
+           _verify(status)
         end if
         call this%vdata%append_vertical_metadata(this%metadata,this%input_bundle,rc=status)
-        _VERIFY(status)
+        _verify(status)
         this%doVertRegrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
         if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%input_bundle,rc=status)
-        _VERIFY(status)
+        _verify(status)
 
         call this%timeInfo%add_time_to_metadata(this%metadata,rc=status)
-        _VERIFY(status)
+        _verify(status)
 
         if (.not.allocated(this%chunking)) then
            call this%set_default_chunking(rc=status)
-           _VERIFY(status)
+           _verify(status)
         else
-           call this%check_chunking(this%vdata%lm,_RC)
+           call this%check_chunking(this%vdata%lm,_rc)
         end if
 
         order = this%metadata%get_order(rc=status)
-        _VERIFY(status)
+        _verify(status)
         metadataVarsSize = order%size()
 
         ! If quantize algorithm is set, create a quantization_info variable
         if (this%quantizeAlgorithm /= MAPL_NOQUANTIZE) then
-           call this%CreateQuantizationInfo(_RC)
+           call this%CreateQuantizationInfo(_rc)
         end if
 
         iter = this%items%begin()
@@ -214,19 +214,19 @@ module MAPL_GriddedIOMod
            item => iter%get()
            if (item%itemType == ItemTypeScalar) then
               call this%CreateVariable(item%xname,rc=status)
-              _VERIFY(status)
+              _verify(status)
            else if (item%itemType == ItemTypeVector) then
               call this%CreateVariable(item%xname,rc=status)
-              _VERIFY(status)
+              _verify(status)
               call this%CreateVariable(item%yname,rc=status)
-              _VERIFY(status)
+              _verify(status)
            end if
            call iter%next()
         enddo
 
         if (this%itemOrderAlphabetical) then
            call this%alphabatize_variables(metadataVarsSize,rc=status)
-           _VERIFY(status)
+           _verify(status)
         end if
 
         if (present(global_attributes)) then
@@ -234,11 +234,11 @@ module MAPL_GriddedIOMod
            do while(s_iter /= global_attributes%end())
               attr_name => s_iter%key()
               attr_val => s_iter%value()
-              call this%metadata%add_attribute(attr_name,attr_val,_RC)
+              call this%metadata%add_attribute(attr_name,attr_val,_rc)
               call s_iter%next()
            enddo
         end if
-        _RETURN(_SUCCESS)
+        _return(_success)
 
       end subroutine CreateFileMetaData
 
@@ -247,7 +247,7 @@ module MAPL_GriddedIOMod
         class (MAPL_GriddedIO), intent(inout) :: this
         integer, intent(out), optional :: rc
         if(allocated(this%chunking)) deallocate(this%chunking)
-        _RETURN(_SUCCESS)
+        _return(_success)
       end subroutine destroy
 
 
@@ -275,12 +275,12 @@ module MAPL_GriddedIOMod
         if (present(zstandard_level)) this%zstandardLevel = zstandard_level
         if (present(chunking)) then
            allocate(this%chunking,source=chunking,stat=status)
-           _VERIFY(status)
+           _verify(status)
         end if
         if (present(itemOrder)) this%itemOrderAlphabetical = itemOrder
         if (present(write_collection_id)) this%write_collection_id=write_collection_id
         if (present(regrid_hints)) this%regrid_hints = regrid_hints
-        _RETURN(ESMF_SUCCESS)
+        _return(ESMF_SUCCESS)
 
      end subroutine set_param
 
@@ -292,7 +292,7 @@ module MAPL_GriddedIOMod
         integer :: status
 
         call MAPL_GridGet(this%output_grid,globalCellCountPerDim=global_dim,rc=status)
-        _VERIFY(status)
+        _verify(status)
         if (global_dim(1)*6 == global_dim(2)) then
            allocate(this%chunking(5))
            this%chunking(1) = global_dim(1)
@@ -307,7 +307,7 @@ module MAPL_GriddedIOMod
            this%chunking(3) = 1
            this%chunking(4) = 1
         endif
-        _RETURN(ESMF_SUCCESS)
+        _return(ESMF_SUCCESS)
 
      end subroutine set_default_chunking
 
@@ -321,35 +321,35 @@ module MAPL_GriddedIOMod
         character(len=5) :: c1,c2
 
         call MAPL_GridGet(this%output_grid,globalCellCountPerDim=global_dim,rc=status)
-        _VERIFY(status)
+        _verify(status)
         if (global_dim(1)*6 == global_dim(2)) then
            write(c2,'(I5)')global_dim(1)
            write(c1,'(I5)')this%chunking(1)
-           _ASSERT(this%chunking(1) <= global_dim(1), "Chunk for Xdim "//c1//" must be less than or equal to "//c2)
+           _assert(this%chunking(1) <= global_dim(1), "Chunk for Xdim "//c1//" must be less than or equal to "//c2)
            write(c1,'(I5)')this%chunking(2)
-           _ASSERT(this%chunking(2) <= global_dim(1), "Chunk for Ydim "//c1//" must be less than or equal to "//c2)
-           _ASSERT(this%chunking(3) <= 6, "Chunksize for face dimension must be 6 or less")
+           _assert(this%chunking(2) <= global_dim(1), "Chunk for Ydim "//c1//" must be less than or equal to "//c2)
+           _assert(this%chunking(3) <= 6, "Chunksize for face dimension must be 6 or less")
            if (lev_size > 0) then
               write(c2,'(I5)')lev_size
               write(c1,'(I5)')this%chunking(4)
-              _ASSERT(this%chunking(4) <= lev_size, "Chunk for level size "//c1//" must be less than or equal to "//c2)
+              _assert(this%chunking(4) <= lev_size, "Chunk for level size "//c1//" must be less than or equal to "//c2)
            end if
-           _ASSERT(this%chunking(5) == 1, "Time must have chunk size of 1")
+           _assert(this%chunking(5) == 1, "Time must have chunk size of 1")
         else
            write(c2,'(I5)')global_dim(1)
            write(c1,'(I5)')this%chunking(1)
-           _ASSERT(this%chunking(1) <= global_dim(1), "Chunk for lon "//c1//" must be less than or equal to "//c2)
+           _assert(this%chunking(1) <= global_dim(1), "Chunk for lon "//c1//" must be less than or equal to "//c2)
            write(c2,'(I5)')global_dim(2)
            write(c1,'(I5)')this%chunking(2)
-           _ASSERT(this%chunking(2) <= global_dim(2), "Chunk for lat "//c1//" must be less than or equal to "//c2)
+           _assert(this%chunking(2) <= global_dim(2), "Chunk for lat "//c1//" must be less than or equal to "//c2)
            if (lev_size > 0) then
               write(c2,'(I5)')lev_size
               write(c1,'(I5)')this%chunking(3)
-              _ASSERT(this%chunking(3) <= lev_size, "Chunk for level size "//c1//" must be less than or equal to "//c2)
+              _assert(this%chunking(3) <= lev_size, "Chunk for level size "//c1//" must be less than or equal to "//c2)
            end if
-           _ASSERT(this%chunking(4) == 1, "Time must have chunk size of 1")
+           _assert(this%chunking(4) == 1, "Time must have chunk size of 1")
         endif
-        _RETURN(ESMF_SUCCESS)
+        _return(ESMF_SUCCESS)
 
      end subroutine check_chunking
 
@@ -370,27 +370,27 @@ module MAPL_GriddedIOMod
         type(Variable) :: v
 
         call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,rc=status)
-        _VERIFY(status)
+        _verify(status)
         factory => get_factory(this%output_grid,rc=status)
-        _VERIFY(status)
+        _verify(status)
 
         call ESMF_FieldGet(field,rank=fieldRank,rc=status)
-        _VERIFY(status)
+        _verify(status)
         call ESMF_FieldGet(field,name=varName,rc=status)
-        _VERIFY(status)
+        _verify(status)
         call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=isPresent,rc=status)
-        _VERIFY(status)
+        _verify(status)
         if ( isPresent ) then
            call ESMF_AttributeGet  (FIELD, NAME="LONG_NAME",VALUE=LongName, RC=STATUS)
-           _VERIFY(STATUS)
+           _verify(STATUS)
         else
            LongName = varName
         endif
         call ESMF_AttributeGet(field,name="UNITS",isPresent=isPresent,rc=status)
-        _VERIFY(status)
+        _verify(status)
         if ( isPresent ) then
            call ESMF_AttributeGet  (FIELD, NAME="UNITS",VALUE=units, RC=STATUS)
-           _VERIFY(STATUS)
+           _verify(STATUS)
         else
            units = 'unknown'
         endif
@@ -401,7 +401,7 @@ module MAPL_GriddedIOMod
            else if (fieldRank==3) then
               vdims=grid_dims//",lev,time"
            else
-              _FAIL( 'Unsupported field rank')
+              _fail( 'Unsupported field rank')
            end if
         else
            if (fieldRank==2) then
@@ -409,7 +409,7 @@ module MAPL_GriddedIOMod
            else if (fieldRank==3) then
               vdims=grid_dims//",lev"
            else
-              _FAIL( 'Unsupported field rank')
+              _fail( 'Unsupported field rank')
            end if
         end if
         v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking,deflation=this%deflateLevel,quantize_algorithm=this%quantizeAlgorithm,quantize_level=this%quantizeLevel,zstandard_level=this%zstandardLevel)
@@ -459,20 +459,20 @@ module MAPL_GriddedIOMod
 
         call factory%append_variable_metadata(v)
         call this%metadata%add_variable(trim(varName),v,rc=status)
-        _VERIFY(status)
+        _verify(status)
         ! finally make a new field if neccessary
         if (this%doVertRegrid .and. (fieldRank ==3) ) then
            newField = MAPL_FieldCreate(field,this%output_grid,lm=this%vData%lm,rc=status)
-           _VERIFY(status)
+           _verify(status)
            call MAPL_FieldBundleAdd(this%output_bundle,newField,rc=status)
-           _VERIFY(status)
+           _verify(status)
         else
            newField = MAPL_FieldCreate(field,this%output_grid,rc=status)
-           _VERIFY(status)
+           _verify(status)
            call MAPL_FieldBundleAdd(this%output_bundle,newField,rc=status)
-           _VERIFY(status)
+           _verify(status)
         end if
-        _RETURN(_SUCCESS)
+        _return(_success)
 
      end subroutine CreateVariable
 
@@ -506,7 +506,7 @@ module MAPL_GriddedIOMod
         character(len=:), allocatable :: varName, netcdf_version
         type(Variable) :: v
 
-        factory => get_factory(this%output_grid,_RC)
+        factory => get_factory(this%output_grid,_rc)
 
         v = Variable(type=PFIO_CHAR)
 
@@ -524,7 +524,7 @@ module MAPL_GriddedIOMod
         case (MAPL_QUANTIZE_GRANULAR_BITROUND)
            call v%add_attribute('algorithm', 'granular_bitround')
         case default
-           _FAIL('Unknown quantization algorithm')
+           _fail('Unknown quantization algorithm')
         end select
 
         ! Next add the implementation details
@@ -545,9 +545,9 @@ module MAPL_GriddedIOMod
         ! need a different implementation string
 
         call factory%append_variable_metadata(v)
-        call this%metadata%add_variable(trim(varName),v,_RC)
+        call this%metadata%add_variable(trim(varName),v,_rc)
 
-        _RETURN(_SUCCESS)
+        _return(_success)
 
      end subroutine CreateQuantizationInfo
 
@@ -561,18 +561,18 @@ module MAPL_GriddedIOMod
         integer :: status
 
         if (this%timeInfo%is_initialized) then
-           v = this%timeInfo%define_time_variable(_RC)
+           v = this%timeInfo%define_time_variable(_rc)
            call this%metadata%modify_variable('time',v,rc=status)
-           _VERIFY(status)
+           _verify(status)
            if (present(oClients)) then
               call var_map%insert('time',v)
               call oClients%modify_metadata(this%write_collection_id, var_map=var_map, rc=status)
-              _VERIFY(status)
+              _verify(status)
            end if
         else
-           _FAIL("Time was not initialized for the GriddedIO class instance")
+           _fail("Time was not initialized for the GriddedIO class instance")
         end if
-        _RETURN(ESMF_SUCCESS)
+        _return(ESMF_SUCCESS)
 
      end subroutine modifyTime
 
@@ -585,12 +585,12 @@ module MAPL_GriddedIOMod
 
         if (this%timeInfo%is_initialized) then
            call this%timeInfo%setFrequency(frequency, rc=status)
-           _VERIFY(status)
+           _verify(status)
         else
-           _FAIL("Time was not initialized for the GriddedIO class instance")
+           _fail("Time was not initialized for the GriddedIO class instance")
         end if
 
-        _RETURN(ESMF_SUCCESS)
+        _return(ESMF_SUCCESS)
 
       end subroutine modifyTimeIncrement
 
@@ -613,22 +613,22 @@ module MAPL_GriddedIOMod
 
         if (have_time) then
            this%times = this%timeInfo%compute_time_vector(this%metadata,rc=status)
-           _VERIFY(status)
+           _verify(status)
            ref = ArrayReference(this%times)
            call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
 
            tindex = size(this%times)
            if (tindex==1) then
-              call this%stage2DLatLon(filename,oClients=oClients,_RC)
+              call this%stage2DLatLon(filename,oClients=oClients,_rc)
            end if
         else
            tindex = -1
-           call this%stage2DLatLon(filename,oClients=oClients,_RC)
+           call this%stage2DLatLon(filename,oClients=oClients,_rc)
         end if
 
         if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
            call this%vdata%setup_eta_to_pressure(regrid_handle=this%regrid_handle,output_grid=this%output_grid,rc=status)
-           _VERIFY(status)
+           _verify(status)
         end if
 
         iter = this%items%begin()
@@ -636,39 +636,39 @@ module MAPL_GriddedIOMod
            item => iter%get()
            if (item%itemType == ItemTypeScalar) then
               call this%RegridScalar(item%xname,rc=status)
-              _VERIFY(status)
+              _verify(status)
               call ESMF_FieldBundleGet(this%output_bundle,item%xname,field=outField,rc=status)
-              _VERIFY(status)
+              _verify(status)
               if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV .and. (this%vdata%extrap_below_surf .eqv. .false.)) then
                  call this%vdata%correct_topo(outField,rc=status)
-                 _VERIFY(status)
+                 _verify(status)
               end if
               call this%stageData(outField,filename,tIndex, oClients=oClients,rc=status)
-              _VERIFY(status)
+              _verify(status)
            else if (item%itemType == ItemTypeVector) then
               call this%RegridVector(item%xname,item%yname,rc=status)
-              _VERIFY(status)
+              _verify(status)
               call ESMF_FieldBundleGet(this%output_bundle,item%xname,field=outField,rc=status)
-              _VERIFY(status)
+              _verify(status)
               if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV .and. (this%vdata%extrap_below_surf .eqv. .false.)) then
                  call this%vdata%correct_topo(outField,rc=status)
-                 _VERIFY(status)
+                 _verify(status)
               end if
               call this%stageData(outField,filename,tIndex,oClients=oClients,rc=status)
-              _VERIFY(status)
+              _verify(status)
               call ESMF_FieldBundleGet(this%output_bundle,item%yname,field=outField,rc=status)
-              _VERIFY(status)
+              _verify(status)
               if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV .and. (this%vdata%extrap_below_surf .eqv. .false.)) then
                  call this%vdata%correct_topo(outField,rc=status)
-                 _VERIFY(status)
+                 _verify(status)
               end if
               call this%stageData(outField,filename,tIndex,oClients=oClients,rc=status)
-              _VERIFY(status)
+              _verify(status)
            end if
            call iter%next()
         enddo
 
-        _RETURN(ESMF_SUCCESS)
+        _return(ESMF_SUCCESS)
 
      end subroutine bundlepost
 
@@ -691,44 +691,44 @@ module MAPL_GriddedIOMod
         ptr3d => null()
 
         call ESMF_FieldBundleGet(this%output_bundle,itemName,field=outField,rc=status)
-        _VERIFY(status)
+        _verify(status)
         long_name = 'unknown'
-        call ESMF_AttributeGet(outField, name="LONG_NAME", isPresent=isPresent, _RC)
+        call ESMF_AttributeGet(outField, name="LONG_NAME", isPresent=isPresent, _rc)
         if ( isPresent ) then
-           call ESMF_AttributeGet(outField, name="LONG_NAME",value=long_name, _RC)
+           call ESMF_AttributeGet(outField, name="LONG_NAME",value=long_name, _rc)
         endif
         call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
-        _VERIFY(status)
+        _verify(status)
         call ESMF_FieldBundleGet(this%output_bundle,grid=gridOut,rc=status)
-        _VERIFY(status)
+        _verify(status)
         hasDE_in = MAPL_GridHasDE(gridIn,rc=status)
-        _VERIFY(status)
+        _verify(status)
         hasDE_out = MAPL_GridHasDE(gridOut,rc=status)
-        _VERIFY(status)
+        _verify(status)
 
         if (this%doVertRegrid) then
            call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,rc=status)
-           _VERIFY(status)
+           _verify(status)
            call ESMF_FieldGet(Field,rank=fieldRank,rc=status)
-           _VERIFY(status)
+           _verify(status)
            if (fieldRank==3) then
               if (hasDE_in) then
                  call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
-                 _VERIFY(status)
+                 _verify(status)
               else
                  allocate(ptr3d(0,0,0))
               end if
               allocate(ptr3d_inter(size(ptr3d,1),size(ptr3d,2),this%vdata%lm),stat=status)
-              _VERIFY(status)
+              _verify(status)
               if (this%vdata%regrid_type==VERTICAL_METHOD_SELECT) then
                  call this%vdata%regrid_select_level(ptr3d,ptr3d_inter,rc=status)
-                 _VERIFY(status)
+                 _verify(status)
               else if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
                  call this%vdata%regrid_eta_to_pressure(ptr3d,ptr3d_inter,var_name=long_name,rc=status)
-                 _VERIFY(status)
+                 _verify(status)
               else if (this%vdata%regrid_type==VERTICAL_METHOD_FLIP) then
                  call this%vdata%flip_levels(ptr3d,ptr3d_inter,rc=status)
-                 _VERIFY(status)
+                 _verify(status)
               end if
               ptr3d => ptr3d_inter
            end if
@@ -737,19 +737,19 @@ module MAPL_GriddedIOMod
         end if
 
         call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,rc=status)
-        _VERIFY(status)
+        _verify(status)
         call ESMF_FieldGet(field,rank=fieldRank,rc=status)
-        _VERIFY(status)
+        _verify(status)
         if (fieldRank==2) then
            if (hasDE_in) then
               call MAPL_FieldGetPointer(field,ptr2d,rc=status)
-              _VERIFY(status)
+              _verify(status)
            else
               allocate(ptr2d(0,0))
            end if
            if (hasDE_out) then
               call MAPL_FieldGetPointer(OutField,outptr2d,rc=status)
-              _VERIFY(status)
+              _verify(status)
            else
               allocate(outptr2d(0,0))
            end if
@@ -758,20 +758,20 @@ module MAPL_GriddedIOMod
            else
               if (this%regrid_method==REGRID_METHOD_FRACTION) ptr2d=ptr2d-this%fraction
               call this%regrid_handle%regrid(ptr2d,outPtr2d,rc=status)
-              _VERIFY(status)
+              _verify(status)
            end if
         else if (fieldRank==3) then
            if (.not.associated(ptr3d)) then
               if (hasDE_in) then
                  call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
-                 _VERIFY(status)
+                 _verify(status)
               else
                  allocate(ptr3d(0,0,0))
               end if
            end if
            if (hasDE_out) then
               call MAPL_FieldGetPointer(OutField,outptr3d,rc=status)
-              _VERIFY(status)
+              _verify(status)
            else
               allocate(outptr3d(0,0,0))
            end if
@@ -780,14 +780,14 @@ module MAPL_GriddedIOMod
            else
               if (this%regrid_method==REGRID_METHOD_FRACTION) ptr3d=ptr3d-this%fraction
               call this%regrid_handle%regrid(ptr3d,outPtr3d,rc=status)
-              _VERIFY(status)
+              _verify(status)
            end if
         else
-           _FAIL('rank not supported')
+           _fail('rank not supported')
         end if
 
         if (allocated(ptr3d_inter)) deallocate(ptr3d_inter)
-        _RETURN(_SUCCESS)
+        _return(_success)
 
      end subroutine RegridScalar
 
@@ -813,78 +813,78 @@ module MAPL_GriddedIOMod
         character(len=ESMF_MAXSTR) :: long_name_x, long_name_y
 
         call ESMF_FieldBundleGet(this%output_bundle,xName,field=xoutField,rc=status)
-        _VERIFY(status)
+        _verify(status)
         long_name_x = 'unknown'
-        call ESMF_AttributeGet(xoutField, name="LONG_NAME", isPresent=isPresent, _RC)
+        call ESMF_AttributeGet(xoutField, name="LONG_NAME", isPresent=isPresent, _rc)
         if ( isPresent ) then
-           call ESMF_AttributeGet(xoutField, name="LONG_NAME",value=long_name_x, _RC)
+           call ESMF_AttributeGet(xoutField, name="LONG_NAME",value=long_name_x, _rc)
         endif
 
         call ESMF_FieldBundleGet(this%output_bundle,yName,field=youtField,rc=status)
-        _VERIFY(status)
+        _verify(status)
         long_name_y = 'unknown'
-        call ESMF_AttributeGet(youtField, name="LONG_NAME", isPresent=isPresent, _RC)
+        call ESMF_AttributeGet(youtField, name="LONG_NAME", isPresent=isPresent, _rc)
         if ( isPresent ) then
-           call ESMF_AttributeGet(youtField, name="LONG_NAME",value=long_name_y, _RC)
+           call ESMF_AttributeGet(youtField, name="LONG_NAME",value=long_name_y, _rc)
         endif
 
         call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
-        _VERIFY(status)
+        _verify(status)
         call ESMF_FieldBundleGet(this%output_bundle,grid=gridOut,rc=status)
-        _VERIFY(status)
+        _verify(status)
         hasDE_in = MAPL_GridHasDE(gridIn,rc=status)
-        _VERIFY(status)
+        _verify(status)
         hasDE_out = MAPL_GridHasDE(gridOut,rc=status)
-        _VERIFY(status)
+        _verify(status)
 
         if (this%doVertRegrid) then
            call ESMF_FieldBundleGet(this%input_bundle,xName,field=xfield,rc=status)
-           _VERIFY(status)
+           _verify(status)
            call ESMF_FieldGet(xField,rank=fieldRank,rc=status)
-           _VERIFY(status)
+           _verify(status)
            if (fieldRank==3) then
               if (hasDE_in) then
                  call ESMF_FieldGet(xfield,farrayPtr=xptr3d,rc=status)
-                 _VERIFY(status)
+                 _verify(status)
               else
                  allocate(xptr3d(0,0,0))
               end if
               allocate(xptr3d_inter(size(xptr3d,1),size(xptr3d,2),this%vdata%lm),stat=status)
-              _VERIFY(status)
+              _verify(status)
               if (this%vdata%regrid_type==VERTICAL_METHOD_SELECT) then
                  call this%vdata%regrid_select_level(xptr3d,xptr3d_inter,rc=status)
-                 _VERIFY(status)
+                 _verify(status)
               else if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
                  call this%vdata%regrid_eta_to_pressure(xptr3d,xptr3d_inter,var_name=long_name_x,rc=status)
-                 _VERIFY(status)
+                 _verify(status)
               else if (this%vdata%regrid_type==VERTICAL_METHOD_FLIP) then
                  call this%vdata%flip_levels(xptr3d,xptr3d_inter,rc=status)
-                 _VERIFY(status)
+                 _verify(status)
               end if
               xptr3d => xptr3d_inter
            end if
            call ESMF_FieldBundleGet(this%input_bundle,yName,field=yfield,rc=status)
-           _VERIFY(status)
+           _verify(status)
            call ESMF_FieldGet(yField,rank=fieldRank,rc=status)
-           _VERIFY(status)
+           _verify(status)
            if (fieldRank==3) then
               if (hasDE_in) then
                  call ESMF_FieldGet(yfield,farrayPtr=yptr3d,rc=status)
-                 _VERIFY(status)
+                 _verify(status)
               else
                  allocate(yptr3d(0,0,0))
               end if
               allocate(yptr3d_inter(size(yptr3d,1),size(yptr3d,2),this%vdata%lm),stat=status)
-              _VERIFY(status)
+              _verify(status)
               if (this%vdata%regrid_type==VERTICAL_METHOD_SELECT) then
                  call this%vdata%regrid_select_level(yptr3d,yptr3d_inter,rc=status)
-                 _VERIFY(status)
+                 _verify(status)
               else if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
                  call this%vdata%regrid_eta_to_pressure(yptr3d,yptr3d_inter,var_name=long_name_y,rc=status)
-                 _VERIFY(status)
+                 _verify(status)
               else if (this%vdata%regrid_type==VERTICAL_METHOD_FLIP) then
                  call this%vdata%flip_levels(yptr3d,yptr3d_inter,rc=status)
-                 _VERIFY(status)
+                 _verify(status)
               end if
               yptr3d => yptr3d_inter
            end if
@@ -894,17 +894,17 @@ module MAPL_GriddedIOMod
         end if
 
         call ESMF_FieldBundleGet(this%input_bundle,xname,field=xfield,rc=status)
-        _VERIFY(status)
+        _verify(status)
         call ESMF_FieldBundleGet(this%input_bundle,yname,field=yfield,rc=status)
-        _VERIFY(status)
+        _verify(status)
         call ESMF_FieldGet(xfield,rank=fieldRank,rc=status)
-        _VERIFY(status)
+        _verify(status)
         if (fieldRank==2) then
            if (hasDE_in) then
               call MAPL_FieldGetPointer(xfield,xptr2d,rc=status)
-              _VERIFY(status)
+              _verify(status)
               call MAPL_FieldGetPointer(yfield,yptr2d,rc=status)
-              _VERIFY(status)
+              _verify(status)
            else
               allocate(xptr2d(0,0))
               allocate(yptr2d(0,0))
@@ -912,9 +912,9 @@ module MAPL_GriddedIOMod
 
            if (hasDE_in) then
               call MAPL_FieldGetPointer(xOutField,xoutptr2d,rc=status)
-              _VERIFY(status)
+              _verify(status)
               call MAPL_FieldGetPointer(yOutField,youtptr2d,rc=status)
-              _VERIFY(status)
+              _verify(status)
            else
               allocate(xoutptr2d(0,0))
               allocate(youtptr2d(0,0))
@@ -926,13 +926,13 @@ module MAPL_GriddedIOMod
               youtPtr2d=yptr2d
            else
               call this%regrid_handle%regrid(xptr2d,yptr2d,xoutPtr2d,youtPtr2d,rc=status)
-              _VERIFY(status)
+              _verify(status)
            end if
         else if (fieldRank==3) then
            if (.not.associated(xptr3d)) then
               if (hasDE_in) then
                  call MAPL_FieldGetPointer(xfield,xptr3d,rc=status)
-                 _VERIFY(status)
+                 _verify(status)
               else
                  allocate(xptr3d(0,0,0))
               end if
@@ -940,7 +940,7 @@ module MAPL_GriddedIOMod
            if (.not.associated(yptr3d)) then
               if (hasDE_in) then
                  call MAPL_FieldGetPointer(yfield,yptr3d,rc=status)
-                 _VERIFY(status)
+                 _verify(status)
               else
                  allocate(yptr3d(0,0,0))
               end if
@@ -948,9 +948,9 @@ module MAPL_GriddedIOMod
 
            if (hasDE_out) then
               call MAPL_FieldGetPointer(xOutField,xoutptr3d,rc=status)
-              _VERIFY(status)
+              _verify(status)
               call MAPL_FieldGetPointer(yOutField,youtptr3d,rc=status)
-              _VERIFY(status)
+              _verify(status)
            else
               allocate(xoutptr3d(0,0,0))
               allocate(youtptr3d(0,0,0))
@@ -961,13 +961,13 @@ module MAPL_GriddedIOMod
               youtPtr3d=yptr3d
            else
               call this%regrid_handle%regrid(xptr3d,yptr3d,xoutPtr3d,youtPtr3d,rc=status)
-              _VERIFY(status)
+              _verify(status)
            end if
         end if
 
         if (allocated(xptr3d_inter)) deallocate(xptr3d_inter)
         if (allocated(yptr3d_inter)) deallocate(yptr3d_inter)
-        _RETURN(_SUCCESS)
+        _return(_success)
 
      end subroutine RegridVector
 
@@ -991,14 +991,14 @@ module MAPL_GriddedIOMod
      hasll = associated(var_lon) .and. associated(var_lat)
      if (hasll) then
         factory => get_factory(this%output_grid,rc=status)
-        _VERIFY(status)
+        _verify(status)
 
         call factory%generate_file_bounds(this%output_grid,LocalStart,GlobalStart,GlobalCount,rc=status)
-        _VERIFY(status)
+        _verify(status)
         call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=1, &
         staggerloc=ESMF_STAGGERLOC_CENTER, &
         farrayPtr=ptr2d, rc=status)
-        _VERIFY(STATUS)
+        _verify(STATUS)
         this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
 
         ref = ArrayReference(this%lons)
@@ -1008,7 +1008,7 @@ module MAPL_GriddedIOMod
         call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
         staggerloc=ESMF_STAGGERLOC_CENTER, &
         farrayPtr=ptr2d, rc=status)
-        _VERIFY(STATUS)
+        _verify(STATUS)
         if (.not.allocated(this%lats)) allocate(this%lats(size(ptr2d,1),size(ptr2d,2)))
         this%lats=ptr2d*MAPL_RADIANS_TO_DEGREES
         ref = ArrayReference(this%lats)
@@ -1023,14 +1023,14 @@ module MAPL_GriddedIOMod
      hasll = associated(var_lon) .and. associated(var_lat)
      if (hasll) then
         factory => get_factory(this%output_grid,rc=status)
-        _VERIFY(status)
+        _verify(status)
 
         call factory%generate_file_corner_bounds(this%output_grid,LocalStart,GlobalStart,GlobalCount,rc=status)
-        _VERIFY(status)
+        _verify(status)
         call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=1, &
         staggerloc=ESMF_STAGGERLOC_CORNER, &
         farrayPtr=ptr2d, rc=status)
-        _VERIFY(STATUS)
+        _verify(STATUS)
         this%corner_lons=ptr2d*MAPL_RADIANS_TO_DEGREES
         ref = ArrayReference(this%corner_lons)
          call oClients%collective_stage_data(this%write_collection_id,trim(filename),'corner_lons', &
@@ -1038,7 +1038,7 @@ module MAPL_GriddedIOMod
         call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
         staggerloc=ESMF_STAGGERLOC_CORNER, &
         farrayPtr=ptr2d, rc=status)
-        _VERIFY(STATUS)
+        _verify(STATUS)
         if (.not.allocated(this%corner_lats)) allocate(this%corner_lats(size(ptr2d,1),size(ptr2d,2)))
         this%corner_lats=ptr2d*MAPL_RADIANS_TO_DEGREES
         ref = ArrayReference(this%corner_lats)
@@ -1046,7 +1046,7 @@ module MAPL_GriddedIOMod
               ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
      end if
 
-     _RETURN(_SUCCESS)
+     _return(_success)
 
   end subroutine stage2DLatLon
 
@@ -1073,27 +1073,27 @@ module MAPL_GriddedIOMod
      type(ESMF_VM) :: vm
      integer :: mpi_comm
 
-     call ESMF_VMGetCurrent(vm,_RC)
-     call ESMF_VMGet(vm,mpiCommunicator=mpi_comm,_RC)
+     call ESMF_VMGetCurrent(vm,_rc)
+     call ESMF_VMGet(vm,mpiCommunicator=mpi_comm,_rc)
 
      factory => get_factory(this%output_grid,rc=status)
-     _VERIFY(status)
+     _verify(status)
      hasDE = MAPL_GridHasDE(this%output_grid,rc=status)
-     _VERIFY(status)
+     _verify(status)
      lm = this%vdata%lm
      call ESMF_FieldGet(field,rank=fieldRank,name=fieldName,rc=status)
-     _VERIFY(status)
+     _verify(status)
 
      call factory%generate_file_bounds(this%output_grid,gridLocalStart,gridGlobalStart,gridGlobalCount,rc=status)
-     _VERIFY(status)
+     _verify(status)
      if (fieldRank==2) then
         if (hasDE) then
            call ESMF_FieldGet(Field,farrayPtr=ptr2d,rc=status)
-           _VERIFY(status)
+           _verify(status)
            if (this%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
               allocate(temp_2d,source=ptr2d)
               call DownBit(temp_2d,ptr2d,this%nbits_to_keep,undef=MAPL_undef,mpi_comm=mpi_comm,rc=status)
-              _VERIFY(status)
+              _verify(status)
            end if
         else
            allocate(ptr2d(0,0))
@@ -1111,11 +1111,11 @@ module MAPL_GriddedIOMod
       else if (fieldRank==3) then
          if (HasDE) then
             call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
-            _VERIFY(status)
+            _verify(status)
             if (this%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
                allocate(temp_3d,source=ptr3d)
                call DownBit(temp_3d,ptr3d,this%nbits_to_keep,undef=MAPL_undef,mpi_comm=mpi_comm,rc=status)
-               _VERIFY(status)
+               _verify(status)
             end if
          else
             allocate(ptr3d(0,0,0))
@@ -1131,12 +1131,12 @@ module MAPL_GriddedIOMod
             allocate(globalCount,source=[gridGlobalCount,lm])
          end if
       else
-         _FAIL( "Rank not supported")
+         _fail( "Rank not supported")
       end if
 
       call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(fieldName), &
            ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
-      _RETURN(_SUCCESS)
+      _return(_success)
 
   end subroutine stageData
 
@@ -1155,7 +1155,7 @@ module MAPL_GriddedIOMod
      integer :: status
 
      order = this%metadata%get_order(rc=status)
-     _VERIFY(status)
+     _verify(status)
      n = Order%size()
      allocate(temp(nFixedVars+1:n))
      do i=1,n
@@ -1185,10 +1185,10 @@ module MAPL_GriddedIOMod
         call newOrder%push_back(trim(temp(i)))
      enddo
      call this%metadata%set_order(newOrder,rc=status)
-     _VERIFY(status)
+     _verify(status)
      deallocate(temp)
 
-     _RETURN(_SUCCESS)
+     _return(_success)
 
   end subroutine alphabatize_variables
 
@@ -1217,44 +1217,44 @@ module MAPL_GriddedIOMod
      integer :: regrid_hints
 
      collection => Datacollections%at(this%metadata_collection_id)
-     this%current_file_metadata => collection%find(filename, _RC)
+     this%current_file_metadata => collection%find(filename, _rc)
      filegrid = collection%src_grid
      factory => get_factory(filegrid)
      hasDE=MAPL_GridHasDE(filegrid,rc=status)
-     _VERIFY(status)
+     _verify(status)
      call ESMF_FieldBundleGet(this%output_bundle,grid=output_grid,rc=status)
-     _VERIFY(status)
+     _verify(status)
      if (filegrid/=output_grid) then
         this%regrid_handle => new_regridder_manager%make_regridder(filegrid,output_grid,this%regrid_method,hints=this%regrid_hints,rc=status)
-        _VERIFY(status)
+        _verify(status)
      end if
      call MAPL_GridGet(filegrid,globalCellCountPerdim=dims,rc=status)
-     _VERIFY(status)
+     _verify(status)
      call factory%generate_file_bounds(fileGrid,gridLocalStart,gridGlobalStart,gridGlobalCount,metadata=this%current_file_metadata%fileMetadata,rc=status)
-     _VERIFY(status)
+     _verify(status)
      ! create input bundle
      call ESMF_FieldBundleGet(this%output_bundle,fieldCount=numVars,rc=status)
-     _VERIFY(status)
+     _verify(status)
      allocate(names(numVars),stat=status)
-     _VERIFY(status)
+     _verify(status)
      allocate(input_fields(numVars),stat=status)
-     _VERIFY(status)
+     _verify(status)
      call ESMF_FieldBundleGet(this%output_bundle,fieldNameList=names,rc=status)
-     _VERIFY(status)
+     _verify(status)
      do i=1,numVars
         call ESMF_FieldBundleGet(this%output_bundle,names(i),field=output_field,rc=status)
-        _VERIFY(status)
+        _verify(status)
         call ESMF_FieldGet(output_field,rank=rank,rc=status)
-        _VERIFY(status)
+        _verify(status)
         if (rank==2) then
            input_fields(i) = ESMF_FieldCreate(filegrid,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1,2],name=trim(names(i)),rc=status)
-           _VERIFY(status)
+           _verify(status)
            if (hasDE) then
               call ESMF_FieldGet(input_fields(I),0,farrayPtr=ptr2d,rc=status)
-              _VERIFY(status)
+              _verify(status)
            else
               allocate(ptr2d(0,0),stat=status)
-              _VERIFY(status)
+              _verify(status)
            end if
            ref=factory%generate_file_reference2D(ptr2d)
            allocate(localStart,source=[gridLocalStart,timeIndex])
@@ -1262,17 +1262,17 @@ module MAPL_GriddedIOMod
            allocate(globalCount,source=[gridGlobalCount,1])
         else if (rank==3) then
            call ESMF_FieldGet(output_field,ungriddedLBound=lb,ungriddedUBound=ub,rc=status)
-           _VERIFY(status)
+           _verify(status)
            lm=ub(1)-lb(1)+1
            input_fields(i) = ESMF_FieldCreate(filegrid,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1,2], &
               ungriddedLBound=lb,ungriddedUBound=ub,name=trim(names(i)),rc=status)
-           _VERIFY(status)
+           _verify(status)
            if (hasDE) then
               call ESMF_FieldGet(input_fields(I),0,farrayPtr=ptr3d,rc=status)
-              _VERIFY(status)
+              _verify(status)
            else
               allocate(ptr3d(0,0,0),stat=status)
-              _VERIFY(status)
+              _verify(status)
            end if
            ref=factory%generate_file_reference3D(ptr3d,metadata=this%current_file_metadata%filemetadata)
            allocate(localStart,source=[gridLocalStart,1,timeIndex])
@@ -1281,13 +1281,13 @@ module MAPL_GriddedIOMod
         end if
         call i_Clients%collective_prefetch_data( &
              this%read_collection_id, fileName, trim(names(i)), &
-             & ref, start=localStart, global_start=globalStart, global_count=globalCount, _RC)
+             & ref, start=localStart, global_start=globalStart, global_count=globalCount, _rc)
         deallocate(localStart,globalStart,globalCount)
      enddo
      deallocate(gridLocalStart,gridGlobalStart,gridGlobalCount)
      this%input_bundle = ESMF_FieldBundleCreate(fieldList=input_fields,rc=status)
-     _VERIFY(status)
-     _RETURN(_SUCCESS)
+     _verify(status)
+     _return(_success)
 
   end subroutine request_data_from_file
 
@@ -1303,36 +1303,36 @@ module MAPL_GriddedIOMod
      type(GriddedIOitemVectorIterator) :: iter
 
      call ESMF_FieldBundleGet(this%output_bundle,fieldCount=numVars,rc=status)
-     _VERIFY(status)
+     _verify(status)
      allocate(names(numVars),stat=status)
-     _VERIFY(status)
+     _verify(status)
      call ESMF_FieldBundleGet(this%output_bundle,fieldNameList=names,rc=status)
-     _VERIFY(status)
+     _verify(status)
      iter = this%items%begin()
      do while(iter /= this%items%end())
         item => iter%get()
         if (item%itemType == ItemTypeScalar) then
-           call this%swap_undef_value(trim(item%xname),_RC)
+           call this%swap_undef_value(trim(item%xname),_rc)
            call this%regridScalar(trim(item%xname),rc=status)
-           _VERIFY(status)
+           _verify(status)
         else if (item%itemType == ItemTypeVector) then
-           call this%swap_undef_value(trim(item%xname),_RC)
-           call this%swap_undef_value(trim(item%yname),_RC)
+           call this%swap_undef_value(trim(item%xname),_rc)
+           call this%swap_undef_value(trim(item%yname),_rc)
            call this%regridVector(trim(item%xname),trim(item%yname),rc=status)
-           _VERIFY(status)
+           _verify(status)
         end if
         call iter%next()
      enddo
 
      do i=1,numVars
         call ESMF_FieldBundleGet(this%input_bundle,trim(names(i)),field=field,rc=status)
-        _VERIFY(status)
+        _verify(status)
         call ESMF_FieldDestroy(field,noGarbage=.true., rc=status)
-        _VERIFY(status)
+        _verify(status)
      enddo
      call ESMF_FieldBundleDestroy(this%input_bundle,noGarbage=.true.,rc=status)
-     _VERIFY(status)
-     _RETURN(_SUCCESS)
+     _verify(status)
+     _return(_success)
 
   end subroutine process_data_from_file
 
@@ -1352,19 +1352,19 @@ module MAPL_GriddedIOMod
      real(REAL32) :: fill_value
 
      if ( .not. this%current_file_metadata%var_has_missing_value(fname) ) then
-        _RETURN(_SUCCESS)
+        _return(_success)
      endif
 
-     fill_value = this%current_file_metadata%var_get_missing_value(fname,_RC)
+     fill_value = this%current_file_metadata%var_get_missing_value(fname,_rc)
 
-     call ESMF_FieldBundleGet(this%input_bundle,fname,field=field,_RC)
-     call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,_RC)
-     call ESMF_FieldGet(field,rank=fieldRank,_RC)
-     hasDE_in = MAPL_GridHasDE(gridIn,_RC)
+     call ESMF_FieldBundleGet(this%input_bundle,fname,field=field,_rc)
+     call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,_rc)
+     call ESMF_FieldGet(field,rank=fieldRank,_rc)
+     hasDE_in = MAPL_GridHasDE(gridIn,_rc)
 
      if (fieldRank==2) then
         if (hasDE_in) then
-           call MAPL_FieldGetPointer(field,ptr2d,_RC)
+           call MAPL_FieldGetPointer(field,ptr2d,_rc)
         else
            allocate(ptr2d(0,0))
         end if
@@ -1377,7 +1377,7 @@ module MAPL_GriddedIOMod
 
      else if (fieldRank==3) then
         if (hasDE_in) then
-           call ESMF_FieldGet(field,farrayPtr=ptr3d,_RC)
+           call ESMF_FieldGet(field,farrayPtr=ptr3d,_rc)
         else
            allocate(ptr3d(0,0,0))
         end if
@@ -1389,10 +1389,10 @@ module MAPL_GriddedIOMod
         endif
 
      else
-        _FAIL('rank not supported')
+        _fail('rank not supported')
      end if
 
-     _RETURN(_SUCCESS)
+     _return(_success)
 
   end subroutine swap_undef_value
 

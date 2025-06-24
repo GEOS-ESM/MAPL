@@ -19,7 +19,7 @@ program Example_Driver
    cli = MAPL_FargparseCLI()
    cap_options = MAPL_CapOptions(cli)
    cap = MAPL_Cap('example', cap_options = cap_options)
-   call cap%run(_RC)
+   call cap%run(_rc)
 
 end program Example_Driver
 

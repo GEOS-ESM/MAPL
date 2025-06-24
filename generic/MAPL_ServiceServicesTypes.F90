@@ -70,7 +70,7 @@ contains
        requester = item%requester_name
     end if
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine ServiceConnectionGet
 
 end module mapl_ServiceServicesTypes

@@ -67,8 +67,8 @@ contains
       config%cptr%next_line = 1
       config%cptr%value_begin = 1
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end function MAPL_ConfigCreate
 
 !------------------------------------------------------------------------------
@@ -138,7 +138,7 @@ contains
         if ( (j-i) .gt. LSZ) then
            write(logmsg, *) ", attribute label, value & EOL are ", j-i, &
                " characters long, only ", LSZ, " characters allowed per line"
-           _RETURN(ESMF_RC_LONG_STR)
+           _return(ESMF_RC_LONG_STR)
         endif
 
         ! check if enough space left in config buffer
@@ -146,7 +146,7 @@ contains
            write(logmsg, *) ", attribute label & value require ", j-i+1, &
                " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                " characters left in config buffer"
-           _RETURN(ESMF_RC_LONG_STR)
+           _return(ESMF_RC_LONG_STR)
         endif
       endif
 
@@ -171,7 +171,7 @@ contains
             if (j-m+1 .gt. LSZ) then
                write(logmsg, *) ", attribute label, value & EOL are ", j-m+1, &
                   " characters long, only ", LSZ, " characters allowed per line"
-               _RETURN(ESMF_RC_LONG_STR)
+               _return(ESMF_RC_LONG_STR)
             endif
 
             ! check if enough space left in config buffer to extend line
@@ -179,7 +179,7 @@ contains
                write(logmsg, *) ", attribute label & value require ", j-m+1, &
                    " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                    " characters left in config buffer"
-               _RETURN(ESMF_RC_LONG_STR)
+               _return(ESMF_RC_LONG_STR)
             endif
 
             ninsert = nchar - lenThisLine
@@ -284,7 +284,7 @@ contains
         if ( (j-i) .gt. LSZ) then
            write(logmsg, *) ", attribute label, value & EOL are ", j-i, &
                " characters long, only ", LSZ, " characters allowed per line"
-           _RETURN(ESMF_RC_LONG_STR)
+           _return(ESMF_RC_LONG_STR)
         endif
 
         ! check if enough space left in config buffer
@@ -292,7 +292,7 @@ contains
            write(logmsg, *) ", attribute label & value require ", j-i+1, &
                " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                " characters left in config buffer"
-           _RETURN(ESMF_RC_LONG_STR)
+           _return(ESMF_RC_LONG_STR)
         endif
       endif
 
@@ -317,7 +317,7 @@ contains
             if (j-m+1 .gt. LSZ) then
                write(logmsg, *) ", attribute label, value & EOL are ", j-m+1, &
                   " characters long, only ", LSZ, " characters allowed per line"
-               _RETURN(ESMF_RC_LONG_STR)
+               _return(ESMF_RC_LONG_STR)
             endif
 
             ! check if enough space left in config buffer to extend line
@@ -325,7 +325,7 @@ contains
                write(logmsg, *) ", attribute label & value require ", j-m+1, &
                    " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                    " characters left in config buffer"
-               _RETURN(ESMF_RC_LONG_STR)
+               _return(ESMF_RC_LONG_STR)
             endif
 
             ninsert = nchar - lenThisLine
@@ -430,7 +430,7 @@ contains
         if ( (j-i) .gt. LSZ) then
            write(logmsg, *) ", attribute label, value & EOL are ", j-i, &
                " characters long, only ", LSZ, " characters allowed per line"
-           _RETURN(ESMF_RC_LONG_STR)
+           _return(ESMF_RC_LONG_STR)
         endif
 
         ! check if enough space left in config buffer
@@ -438,7 +438,7 @@ contains
            write(logmsg, *) ", attribute label & value require ", j-i+1, &
                " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                " characters left in config buffer"
-           _RETURN(ESMF_RC_LONG_STR)
+           _return(ESMF_RC_LONG_STR)
         endif
       endif
 
@@ -463,7 +463,7 @@ contains
             if (j-m+1 .gt. LSZ) then
                write(logmsg, *) ", attribute label, value & EOL are ", j-m+1, &
                   " characters long, only ", LSZ, " characters allowed per line"
-               _RETURN(ESMF_RC_LONG_STR)
+               _return(ESMF_RC_LONG_STR)
             endif
 
             ! check if enough space left in config buffer to extend line
@@ -471,7 +471,7 @@ contains
                write(logmsg, *) ", attribute label & value require ", j-m+1, &
                    " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                    " characters left in config buffer"
-               _RETURN(ESMF_RC_LONG_STR)
+               _return(ESMF_RC_LONG_STR)
             endif
 
             ninsert = nchar - lenThisLine
@@ -535,12 +535,12 @@ contains
         j = len_trim(buffer)
         write(tmpStr, *) value(i) ! ALT: check if enough space to write
         newVal = adjustl(tmpStr)
-        _ASSERT(j + len_trim(newVal) <= LSZ,'not enough space to write')
+        _assert(j + len_trim(newVal) <= LSZ,'not enough space to write')
         write(buffer(j+1:), *) trim(newVal)
      end do
-     call MAPL_ConfigSetAttribute(config, value=buffer, label=label, _RC)
+     call MAPL_ConfigSetAttribute(config, value=buffer, label=label, _rc)
 
-     _RETURN(ESMF_SUCCESS)
+     _return(ESMF_SUCCESS)
    end subroutine MAPL_ConfigSetAttribute_ints32
 
    subroutine MAPL_ConfigSetAttribute_reals32( config, value, label, rc )
@@ -579,12 +579,12 @@ contains
         j = len_trim(buffer)
         write(tmpStr, *) value(i) ! ALT: check if enough space to write
         newVal = adjustl(tmpStr)
-        _ASSERT(j + len_trim(newVal) <= LSZ,'not enough space to write')
+        _assert(j + len_trim(newVal) <= LSZ,'not enough space to write')
         write(buffer(j+1:), *) trim(newVal)
      end do
-     call MAPL_ConfigSetAttribute(config, value=buffer, label=label, _RC)
+     call MAPL_ConfigSetAttribute(config, value=buffer, label=label, _rc)
 
-     _RETURN(ESMF_SUCCESS)
+     _return(ESMF_SUCCESS)
    end subroutine MAPL_ConfigSetAttribute_reals32
 
 !------------------------------------------------------------------------------
@@ -650,7 +650,7 @@ contains
         if ( (j-i) .gt. LSZ) then
            write(logmsg, *) ", attribute label, value & EOL are ", j-i, &
                " characters long, only ", LSZ, " characters allowed per line"
-           _RETURN(ESMF_RC_LONG_STR)
+           _return(ESMF_RC_LONG_STR)
         endif
 
         ! check if enough space left in config buffer
@@ -658,7 +658,7 @@ contains
            write(logmsg, *) ", attribute label & value require ", j-i+1, &
                " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                " characters left in config buffer"
-           _RETURN(ESMF_RC_LONG_STR)
+           _return(ESMF_RC_LONG_STR)
         endif
       endif
 
@@ -682,7 +682,7 @@ contains
             if (j-m+1 .gt. LSZ) then
                write(logmsg, *) ", attribute label, value & EOL are ", j-m+1, &
                   " characters long, only ", LSZ, " characters allowed per line"
-               _RETURN(ESMF_RC_LONG_STR)
+               _return(ESMF_RC_LONG_STR)
             endif
 
             ! check if enough space left in config buffer to extend line
@@ -690,7 +690,7 @@ contains
                write(logmsg, *) ", attribute label & value require ", j-m+1, &
                    " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                    " characters left in config buffer"
-               _RETURN(ESMF_RC_LONG_STR)
+               _return(ESMF_RC_LONG_STR)
             endif
 
             ninsert = nchar - lenThisLine
@@ -725,7 +725,7 @@ contains
         rc = iret
       endif
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine MAPL_ConfigSetAttribute_string
 

@@ -114,7 +114,7 @@ contains
       ! setServices or initialize of the component that defines the grid.
       !---------------
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       if (.not. this%initialized) then
         call this%init()
@@ -122,27 +122,27 @@ contains
 
       ! Special case if two grids are the same
       id_in = get_factory_id(grid_in,rc=status)
-      _VERIFY(status)
+      _verify(status)
       id_out = get_factory_id(grid_out,rc=status)
-      _VERIFY(status)
+      _verify(status)
       if (id_in==id_out) then
          regridder => identity_regridder()
-         _RETURN(_SUCCESS)
+         _return(_success)
       end if
       
       ! If manager already has suitable regridder, use it.
       spec = RegridderSpec(grid_in, grid_out, regrid_method, hints=hints)
       regridder => find(this%regridders, spec)
       if (associated(regridder)) then
-         _RETURN(_SUCCESS)
+         _return(_success)
       end if
 
 
       ! Else, if we have a prototype, clone it and configure
       grid_type_in = get_grid_type(grid_in, rc=status)
-      _VERIFY(status)
+      _verify(status)
       grid_type_out = get_grid_type(grid_out, rc=status)
-      _VERIFY(status)
+      _verify(status)
       
       type_spec = RegridderTypeSpec(grid_type_in, grid_type_out, regrid_method)
 
@@ -152,15 +152,15 @@ contains
         call this%regridders%push_back(prototype%clone())
         regridder => this%regridders%back()
         call regridder%initialize(spec, rc=status)
-        _VERIFY(status)
-        _RETURN(_SUCCESS)
+        _verify(status)
+        _return(_success)
       end if
       
       print*,__FILE__,__LINE__,'I cannot create this regridder. types are <',&
            & grid_type_in,',',grid_type_out,'>'
 
       ! Do not know how to make this type of regridder
-      _RETURN(_FAILURE)
+      _return(_failure)
 
    contains
 
@@ -193,12 +193,12 @@ contains
          character(len=ESMF_MAXSTR) :: buffer
 
          call ESMF_AttributeGet(grid, 'GridType', buffer, rc=status)
-         _VERIFY(status)
+         _verify(status)
 
          grid_type = trim(buffer)
 
-         _RETURN(_SUCCESS)
-         _UNUSED_DUMMY(unusable)
+         _return(_success)
+         _unused_dummy(unusable)
       end function get_grid_type
 
    end function make_regridder_from_grids

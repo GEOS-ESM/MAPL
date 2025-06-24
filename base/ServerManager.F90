@@ -33,7 +33,7 @@ contains
 
 
       split_comm=this%split_comm
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine get_splitcomm
 
@@ -63,13 +63,13 @@ contains
       type(ClientThread), pointer :: clientPtr
       logical :: isolated_
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       if (present(application_size)) then
          npes_model = application_size
       else
          call MPI_COMM_Size(comm,npes_model,status)
-         _VERIFY(status)
+         _verify(status)
       end if
       if (present(npes_input_server)) then
          npes_in = npes_input_server
@@ -106,13 +106,13 @@ contains
 
       if (oserver_type_ == "multilayer" .or. oserver_type_ == 'multigroup') then
          if (nodes_out(1) == 0) then
-            _ASSERT(npes_out_backend >=2, "captain-soldier needs at least two backend")
+            _assert(npes_out_backend >=2, "captain-soldier needs at least two backend")
          else
-            _ASSERT(nodes_out(1)*npes_out_backend >=2, "captain-soldier needs at least two backend")
+            _assert(nodes_out(1)*npes_out_backend >=2, "captain-soldier needs at least two backend")
          endif
       endif
       if (oserver_type_ == "multicomm") then
-         _ASSERT(npes_out_backend >=1, "needs at least one backend for multicomm server")
+         _assert(npes_out_backend >=1, "needs at least one backend for multicomm server")
       endif
 
 
@@ -146,14 +146,14 @@ contains
         enddo
      endif
 
-     this%split_comm = this%splitter%split(rc=status); _VERIFY(status)
+     this%split_comm = this%splitter%split(rc=status); _verify(status)
 
      s_name = this%split_comm%get_name()
 
      if ( index(s_name, 'model') /=0 ) then
         client_comm = this%split_comm%get_subcommunicator()
         call MPI_Comm_Rank(client_comm,rank,status)
-        _VERIFY(status)
+        _verify(status)
         if (npes_in(1)  == 0 .and. nodes_in(1)  == 0) profiler_name = "i_server_client"
         if (npes_out(1) == 0 .and. nodes_out(1) == 0) profiler_name = "o_server_client"
         if (npes_out(1) == 0 .and. nodes_out(1) == 0 .and. &
@@ -162,8 +162,8 @@ contains
         if (npes_in(1) == 0 .and. nodes_in(1) == 0) then
            allocate(this%i_server, source = MpiServer(client_comm, 'i_server'//trim(i_to_string(1)),profiler_name=profiler_name, &
                                                       with_profiler=with_profiler, rc=status), stat=stat_alloc)
-           _VERIFY(status)
-           _VERIFY(stat_alloc)
+           _verify(status)
+           _verify(stat_alloc)
            call this%directory_service%publish(PortInfo('i_server'//trim(i_to_string(1)), this%i_server), this%i_server)
            if (rank == 0 ) then
               write(*,'(A,I0,A)')" Starting pFIO input server on Clients"
@@ -172,8 +172,8 @@ contains
         if (npes_out(1) == 0 .and. nodes_out(1) == 0) then
            allocate(this%o_server, source = MpiServer(client_comm, 'o_server'//trim(i_to_string(1)),profiler_name=profiler_name, &
                                                       with_profiler=with_profiler, rc=status), stat=stat_alloc)
-           _VERIFY(status)
-           _VERIFY(stat_alloc)
+           _verify(status)
+           _verify(stat_alloc)
 
            call this%directory_service%publish(PortInfo('o_server'//trim(i_to_string(1)), this%o_server), this%o_server)
            if (rank == 0 ) then
@@ -181,7 +181,7 @@ contains
            endif
         end if
         call init_IO_ClientManager(client_comm, n_i = n_iserver_group, n_o = n_oserver_group, fast_oclient=fast_oclient, rc = status)
-        _VERIFY(status)
+        _verify(status)
      endif
 
      ! establish i_server group one by one
@@ -189,13 +189,13 @@ contains
 
         if ( trim(s_name) =='i_server'//trim(i_to_string(i)) ) then
            allocate(this%i_server, source = MpiServer(this%split_comm%get_subcommunicator(), s_name, with_profiler=with_profiler, rc=status), stat=stat_alloc)
-           _VERIFY(status)
-           _VERIFY(stat_alloc)
+           _verify(status)
+           _verify(stat_alloc)
 
            call this%directory_service%publish(PortInfo(s_name,this%i_server), this%i_server)
            call this%directory_service%connect_to_client(s_name, this%i_server)
            call MPI_Comm_Rank(this%split_comm%get_subcommunicator(),rank,status)
-           _VERIFY(status)
+           _verify(status)
            if (rank == 0 .and. nodes_in(1) /=0 ) then
               write(*,'(A,I0,A)')"Starting pFIO input server on ",nodes_in(i)," nodes"
            else if (rank==0 .and. npes_in(1) /=0 ) then
@@ -212,7 +212,7 @@ contains
         endif
 
         call mpi_barrier(comm, status)
-        _VERIFY(status)
+        _verify(status)
 
      enddo
 
@@ -234,22 +234,22 @@ contains
  
               allocate(this%o_server, source = MultiGroupServer(this%split_comm%get_subcommunicator(), s_name, npes_out_backend, &
                                                                 with_profiler=with_profiler, rc=status), stat=stat_alloc)
-              _VERIFY(status)
-              _VERIFY(stat_alloc)
+              _verify(status)
+              _verify(stat_alloc)
               if (nodes_out(i) > 0 .and. this%o_server%node_num /= nodes_out(i)) then
-                 _FAIL("Inconsistent output server number. " // "The requested "//i_to_string(nodes_out(i)) //" nodes for output server is different from available "//i_to_string(this%o_server%node_num)// " nodes")
+                 _fail("Inconsistent output server number. " // "The requested "//i_to_string(nodes_out(i)) //" nodes for output server is different from available "//i_to_string(this%o_server%node_num)// " nodes")
               endif
            else
 
               allocate(this%o_server, source = MpiServer(this%split_comm%get_subcommunicator(), s_name, with_profiler=with_profiler, rc=status), stat=stat_alloc)
-              _VERIFY(status)
-              _VERIFY(stat_alloc)
+              _verify(status)
+              _verify(stat_alloc)
 
            endif
            call this%directory_service%publish(PortInfo(s_name,this%o_server), this%o_server)
            call this%directory_service%connect_to_client(s_name, this%o_server)
            call MPI_Comm_Rank(this%split_comm%get_subcommunicator(),rank,status)
-           _VERIFY(status)
+           _verify(status)
            if (rank == 0 .and. nodes_out(1) /=0 ) then
               write(*,'(A,I0,A)')"Starting pFIO output server on ",nodes_out(i)," nodes"
            else if (rank==0 .and. npes_out(1) /=0 ) then
@@ -266,16 +266,16 @@ contains
         endif
 
         call mpi_barrier(comm, status)
-        _VERIFY(status)
+        _verify(status)
 
      enddo
 
      if ( index(s_name, 'o_server') /=0 ) then
-        call this%o_server%start(_RC)
+        call this%o_server%start(_rc)
      endif
 
      if ( index(s_name, 'i_server') /=0 ) then
-        call this%i_server%start(_RC)
+        call this%i_server%start(_rc)
      endif
 
      if ( index(s_name, 'model') /=0 ) then
@@ -283,9 +283,9 @@ contains
         call o_Clients%set_current(1) ! set current to be the first
      end if
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(this)
+      _unused_dummy(unusable)
    end subroutine initialize
 
    subroutine finalize(this,rc)
@@ -295,17 +295,17 @@ contains
       ! reporting here is for client_server in the same process which don't call start()
       ! problem here: all servers should coordinate to report one by one to avoid messy output
       if (associated(this%i_server)) then
-         call this%i_server%report_profile(_RC)
+         call this%i_server%report_profile(_rc)
          deallocate(this%i_server)
       endif
 
       if (associated(this%o_server)) then
-         call this%o_server%report_profile(_RC)
+         call this%o_server%report_profile(_rc)
          deallocate(this%o_server)
       endif
       call this%directory_service%free_directory_resources()
       call this%splitter%free_sub_comm()
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine finalize
 
 end module MAPL_ServerManager

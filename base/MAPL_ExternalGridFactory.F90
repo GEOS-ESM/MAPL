@@ -65,9 +65,9 @@ contains
       if (present(grid)) factory%external_grid = grid
       if (present(grid)) factory%lm = lm
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
    end function ExternalGridFactory_from_parameters
 
    function make_new_grid(this, unusable, rc) result(grid)
@@ -82,27 +82,27 @@ contains
       if (allocated(this%external_grid)) then
          grid = this%external_grid
       else
-         _FAIL('grid not allocated')
+         _fail('grid not allocated')
       end if
 
       if (allocated(this%lm)) then
          call ESMF_AttributeGet(grid, name='GRID_LM', isPresent=is_present, rc=status)
-         _VERIFY(status)
+         _verify(status)
 
          if (is_present) then
             call ESMF_AttributeGet(grid, name='GRID_LM', value=lm, rc=status)
-            _VERIFY(status)
+            _verify(status)
 
-            _ASSERT(lm == this%lm,'inconsistent levels')
+            _assert(lm == this%lm,'inconsistent levels')
          else
             call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, rc=status)
-            _VERIFY(status)
+            _verify(status)
          end if
       end if
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
    end function make_new_grid
 
    function decomps_are_equal(this,a) result(equal)
@@ -118,7 +118,7 @@ contains
          equal = .true.
       end select
 
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
    end function decomps_are_equal
 
    function physical_params_are_equal(this,a) result(equal)
@@ -134,7 +134,7 @@ contains
          equal = .true.
       end select
 
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
    end function physical_params_are_equal
 
    logical function equals(a, b)
@@ -149,7 +149,7 @@ contains
          equals = .true.
       end select
 
-      _UNUSED_DUMMY(a)
+      _unused_dummy(a)
    end function equals
 
    subroutine initialize_from_file_metadata(this, file_metadata, unusable, force_file_coordinates, rc)
@@ -159,12 +159,12 @@ contains
       logical, optional, intent(in) :: force_file_coordinates
       integer,                optional, intent(  out) :: rc
 
-      _RETURN(_FAILURE)
+      _return(_failure)
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(file_metadata)
-      _UNUSED_DUMMY(force_file_coordinates)
+      _unused_dummy(this)
+      _unused_dummy(unusable)
+      _unused_dummy(file_metadata)
+      _unused_dummy(force_file_coordinates)
    end subroutine initialize_from_file_metadata
 
    subroutine initialize_from_config_with_prefix(this, config, prefix, unusable, rc)
@@ -174,12 +174,12 @@ contains
       class(KeywordEnforcer), optional, intent(in   ) :: unusable
       integer,                optional, intent(  out) :: rc
 
-      _RETURN(_FAILURE)
+      _return(_failure)
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(config)
-      _UNUSED_DUMMY(prefix)
+      _unused_dummy(this)
+      _unused_dummy(unusable)
+      _unused_dummy(config)
+      _unused_dummy(prefix)
    end subroutine initialize_from_config_with_prefix
 
    subroutine initialize_from_esmf_distGrid(this, dist_grid, lon_array, lat_array, unusable, rc)
@@ -190,13 +190,13 @@ contains
       class(KeywordEnforcer), optional, intent(in   ) :: unusable
       integer,                optional, intent(  out) :: rc
 
-      _RETURN(_FAILURE)
+      _return(_failure)
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(dist_grid)
-      _UNUSED_DUMMY(lon_array)
-      _UNUSED_DUMMY(lat_array)
+      _unused_dummy(this)
+      _unused_dummy(unusable)
+      _unused_dummy(dist_grid)
+      _unused_dummy(lon_array)
+      _unused_dummy(lat_array)
    end subroutine initialize_from_esmf_distGrid
 
    subroutine halo(this, array, unusable, halo_width, rc)
@@ -206,12 +206,12 @@ contains
       integer,                optional, intent(in   ) :: halo_width
       integer,                optional, intent(  out) :: rc
 
-      _RETURN(_FAILURE)
+      _return(_failure)
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(array)
-      _UNUSED_DUMMY(halo_width)
+      _unused_dummy(this)
+      _unused_dummy(unusable)
+      _unused_dummy(array)
+      _unused_dummy(halo_width)
    end subroutine halo
 
    function generate_grid_name(this) result(name)
@@ -220,7 +220,7 @@ contains
 
       name = 'EXTERNAL'
 
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
    end function generate_grid_name
 
    subroutine append_metadata(this, metadata)
@@ -229,8 +229,8 @@ contains
 
       ! Unimplemented
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(metadata)
+      _unused_dummy(this)
+      _unused_dummy(metadata)
    end subroutine append_metadata
 
    function get_grid_vars(this) result(vars)
@@ -238,7 +238,7 @@ contains
       class(ExternalGridFactory), intent(inout) :: this
 
       vars = ''
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
    end function get_grid_vars
 
    function get_file_format_vars(this) result(vars)
@@ -246,7 +246,7 @@ contains
       class(ExternalGridFactory), intent(inout) :: this
 
       vars = ''
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
    end function get_file_format_vars
 
    subroutine append_variable_metadata(this, var)
@@ -254,8 +254,8 @@ contains
       type(Variable),             intent(inout) :: var
 
       ! TODO: fill in the rest
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(var)
+      _unused_dummy(this)
+      _unused_dummy(var)
    end subroutine append_variable_metadata
 
    subroutine generate_file_bounds(this, grid, local_start, global_start, global_count, metadata, rc)
@@ -267,14 +267,14 @@ contains
       type(FileMetaData), intent(in), optional :: metaData
       integer,      optional,     intent(  out) :: rc
 
-      _RETURN(_FAILURE)
+      _return(_failure)
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(grid)
-      _UNUSED_DUMMY(local_start)
-      _UNUSED_DUMMY(global_start)
-      _UNUSED_DUMMY(global_count)
-      _UNUSED_DUMMY(metaData)
+      _unused_dummy(this)
+      _unused_dummy(grid)
+      _unused_dummy(local_start)
+      _unused_dummy(global_start)
+      _unused_dummy(global_count)
+      _unused_dummy(metaData)
    end subroutine generate_file_bounds
 
    subroutine generate_file_corner_bounds(this, grid, local_start, global_start, global_count, rc)
@@ -285,13 +285,13 @@ contains
       integer,      allocatable,  intent(  out) :: global_count(:)
       integer,      optional,     intent(  out) :: rc
 
-      _RETURN(_FAILURE)
+      _return(_failure)
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(grid)
-      _UNUSED_DUMMY(local_start)
-      _UNUSED_DUMMY(global_start)
-      _UNUSED_DUMMY(global_count)
+      _unused_dummy(this)
+      _unused_dummy(grid)
+      _unused_dummy(local_start)
+      _unused_dummy(global_start)
+      _unused_dummy(global_count)
    end subroutine generate_file_corner_bounds
 
    function generate_file_reference2D(this, fpointer) result(ref)
@@ -300,7 +300,7 @@ contains
       real, pointer,              intent(in   ) :: fpointer(:,:)
 
       ref = ArrayReference(fpointer)
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
    end function generate_file_reference2D
 
    function generate_file_reference3D(this, fpointer, metadata) result(ref)
@@ -311,8 +311,8 @@ contains
 
       ref = ArrayReference(fpointer)
  
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(metaData)
+      _unused_dummy(this)
+      _unused_dummy(metaData)
    end function generate_file_reference3D
 
 end module MAPL_ExternalGridFactoryMod

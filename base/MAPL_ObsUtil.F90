@@ -125,7 +125,7 @@ contains
     obsfile_Ts_index = n1 - 1   ! downshift by 1
     obsfile_Te_index = n2
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
 
   end subroutine get_obsfile_Tbracket_from_epoch
 
@@ -142,15 +142,15 @@ contains
     integer :: nymd, nhms
     integer :: status
 
-    _FAIL ('DO not use get_filename_from_template')
-    call ESMF_time_to_two_integer(time, itime, _RC)
+    _fail ('DO not use get_filename_from_template')
+    call ESMF_time_to_two_integer(time, itime, _rc)
     print*, 'two integer time, itime(:)', itime(1:2)
     nymd = itime(1)
     nhms = itime(2)
     call fill_grads_template ( filename, file_template, &
-         experiment_id='', nymd=nymd, nhms=nhms, _RC )
+         experiment_id='', nymd=nymd, nhms=nhms, _rc )
     print*, 'ck: obsFile_T=', trim(filename)
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
 
   end function get_filename_from_template
 
@@ -176,11 +176,11 @@ contains
     do i=1, len
        int_time = times_R8_1d(i)
        call convert_NetCDF_DateTime_to_ESMF(int_time, datetime_units, interval, &
-            time0, time=time1, time_unit=tunit, _RC)
+            time0, time=time1, time_unit=tunit, _rc)
        times_esmf_1d(i) = time1
     enddo
 
-    _RETURN(_SUCCESS)
+    _return(_success)
   end subroutine time_real_to_ESMF
 
 
@@ -204,25 +204,25 @@ contains
     len = size (times_esmf_1d)
     int_time = 0
     call convert_NetCDF_DateTime_to_ESMF(int_time, datetime_units, interval, &
-         time0, time=time1, time_unit=tunit, _RC)
+         time0, time=time1, time_unit=tunit, _rc)
 
     do i=1, len
        t_interval = times_esmf_1d(i) - time0
        select case(trim(tunit))
        case ('days')
-          call ESMF_TimeIntervalGet(t_interval,d_r8=times_R8_1d(i),_RC)
+          call ESMF_TimeIntervalGet(t_interval,d_r8=times_R8_1d(i),_rc)
        case ('hours')
-          call ESMF_TimeIntervalGet(t_interval,h_r8=times_R8_1d(i),_RC)
+          call ESMF_TimeIntervalGet(t_interval,h_r8=times_R8_1d(i),_rc)
        case ('minutes')
-          call ESMF_TimeIntervalGet(t_interval,m_r8=times_R8_1d(i),_RC)
+          call ESMF_TimeIntervalGet(t_interval,m_r8=times_R8_1d(i),_rc)
        case ('seconds')
-          call ESMF_TimeIntervalGet(t_interval,s_r8=times_R8_1d(i),_RC)
+          call ESMF_TimeIntervalGet(t_interval,s_r8=times_R8_1d(i),_rc)
        case default
-          _FAIL('illegal value for tunit: '//trim(tunit))
+          _fail('illegal value for tunit: '//trim(tunit))
        end select
     enddo
 
-    _RETURN(_SUCCESS)
+    _return(_success)
   end subroutine time_ESMF_to_real
 
 
@@ -236,13 +236,13 @@ contains
     integer :: status
     character(len=ESMF_MAXSTR) :: string
 
-    call ESMF_timeget (time, timestring=string, _RC)
+    call ESMF_timeget (time, timestring=string, _rc)
     datetime_units = 'seconds'
     if (present(input_unit)) datetime_units = trim(input_unit)
     datetime_units = trim(datetime_units) // trim(string)
     !!print*, 'datetime_units:', trim(datetime_units)
 
-    _RETURN(_SUCCESS)
+    _return(_success)
   end subroutine create_timeunit
 
 
@@ -253,12 +253,12 @@ contains
     integer :: i,status,h,m,yp,mp,dp,s,ms,us,ns
     integer :: year,month,day
 
-    call ESMF_TimeGet(current_time,yy=year,mm=month,dd=day,_RC)
+    call ESMF_TimeGet(current_time,yy=year,mm=month,dd=day,_rc)
     do i=1,size(times_1d)
-       call ESMF_TimeGet(times_1d(i),yy=yp,mm=mp,dd=dp,h=h,m=m,s=s,ms=ms,us=us,ns=ns,_RC)
-       call ESMF_TimeSet(times_1d(i),yy=year,mm=month,dd=day,h=h,m=m,s=s,ms=ms,us=us,ns=ns,_RC)
+       call ESMF_TimeGet(times_1d(i),yy=yp,mm=mp,dd=dp,h=h,m=m,s=s,ms=ms,us=us,ns=ns,_rc)
+       call ESMF_TimeSet(times_1d(i),yy=year,mm=month,dd=day,h=h,m=m,s=s,ms=ms,us=us,ns=ns,_rc)
     enddo
-    _RETURN(_SUCCESS)
+    _return(_success)
   end subroutine reset_times_to_current_day
 
 
@@ -344,10 +344,10 @@ contains
     end do
     M=j
 
-    _ASSERT ( M < size(filenames) , 'code crash, number of files exceeds upper bound')
-    _ASSERT (M/=0, 'M is zero, no files found for currTime')
+    _assert ( M < size(filenames) , 'code crash, number of files exceeds upper bound')
+    _assert (M/=0, 'M is zero, no files found for currTime')
 
-    _RETURN(_SUCCESS)
+    _return(_success)
 
   end subroutine Find_M_files_for_currTime
 
@@ -388,7 +388,7 @@ contains
 
     !__ s1. get Xdim Ydim
     M = size(filenames)
-    _ASSERT(M/=0, 'M is zero, no files found')
+    _assert(M/=0, 'M is zero, no files found')
     lgr => logging%get_logger('MAPL.Sampler')
 
     allocate(nlons(M), nlats(M))
@@ -396,7 +396,7 @@ contains
     do i = 1, M
        filename = filenames(i)
        CALL get_ncfile_dimension(filename, nlon=nlon, nlat=nlat, &
-            key_lon=index_name_lon, key_lat=index_name_lat, _RC)
+            key_lon=index_name_lon, key_lat=index_name_lat, _rc)
        nlons(i)=nlon
        nlats(i)=nlat
        jx=jx+nlat
@@ -415,7 +415,7 @@ contains
 
     if ( present(Tfilter) .AND. Tfilter ) then
        if ( .not. (present(time) .AND. present(lon) .AND. present(lat)) ) then
-          _FAIL('when Tfilter present, time/lon/lat must also present')
+          _fail('when Tfilter present, time/lon/lat must also present')
        end if
 
        !
@@ -427,7 +427,7 @@ contains
           nlon = nlons(i)
           nlat = nlats(i)
           allocate (time_loc_R8(nlon, nlat))
-          call get_var_from_name_w_group (var_name_time, time_loc_R8, filename, _RC)
+          call get_var_from_name_w_group (var_name_time, time_loc_R8, filename, _rc)
 !!          write(6,*) 'af ith, filename', i, trim(filename)
 
           do j=1, nlat
@@ -472,11 +472,11 @@ contains
           !!write(6,'(2x,a)') 'time_loc_r8'
           !
           allocate (time_loc_R8(nlon, nlat))
-          call get_var_from_name_w_group (var_name_time, time_loc_R8, filename, _RC)
+          call get_var_from_name_w_group (var_name_time, time_loc_R8, filename, _rc)
           allocate (lon_loc(nlon, nlat))
-          call get_var_from_name_w_group (var_name_lon, lon_loc, filename, _RC)
+          call get_var_from_name_w_group (var_name_lon, lon_loc, filename, _rc)
           allocate (lat_loc(nlon, nlat))
-          call get_var_from_name_w_group (var_name_lat, lat_loc, filename, _RC)
+          call get_var_from_name_w_group (var_name_lat, lat_loc, filename, _rc)
           !
           do j=1, nlat
              !
@@ -518,13 +518,13 @@ contains
           nlat = nlats(i)
 
           if (present(var_name_time).AND.present(time)) then
-             call get_var_from_name_w_group (var_name_time, time(1:nlon,jx+1:jx+nlat), filename, _RC)
+             call get_var_from_name_w_group (var_name_time, time(1:nlon,jx+1:jx+nlat), filename, _rc)
           end if
           if (present(var_name_lon).AND.present(lon)) then
-             call get_var_from_name_w_group (var_name_lon, lon(1:nlon,jx+1:jx+nlat), filename, _RC)
+             call get_var_from_name_w_group (var_name_lon, lon(1:nlon,jx+1:jx+nlat), filename, _rc)
           end if
           if (present(var_name_lat).AND.present(lat)) then
-             call get_var_from_name_w_group (var_name_lat, lat(1:nlon,jx+1:jx+nlat), filename, _RC)
+             call get_var_from_name_w_group (var_name_lat, lat(1:nlon,jx+1:jx+nlat), filename, _rc)
           end if
 
           jx = jx + nlat
@@ -532,7 +532,7 @@ contains
 
     end if
 
-    _RETURN(_SUCCESS)
+    _return(_success)
   end subroutine read_M_files_4_swath
 
 
@@ -569,7 +569,7 @@ contains
     call ESMF_TimeIntervalSet(dT, s_r8=s, rc=status)
     time = obsfile_start_time + dT
 
-    call ESMF_time_to_two_integer(time, itime, _RC)
+    call ESMF_time_to_two_integer(time, itime, _rc)
     nymd = itime(1)
     nhms = itime(2)
 
@@ -577,9 +577,9 @@ contains
     !
     allow_wild_char=.true.
     j= index(file_template, '*')
-    _ASSERT ( j==0 .OR. allow_wild_char, "* is not allowed in template")
+    _assert ( j==0 .OR. allow_wild_char, "* is not allowed in template")
     call fill_grads_template ( filename, file_template, &
-         experiment_id='', nymd=nymd, nhms=nhms, _RC )
+         experiment_id='', nymd=nymd, nhms=nhms, _rc )
     if (j==0) then
        ! exact file name
        inquire(file= trim(filename), EXIST = exist)
@@ -590,7 +590,7 @@ contains
        if (exist) filename=trim(filename2)
     end if
 
-    _RETURN(_SUCCESS)
+    _return(_success)
 
   end function get_filename_from_template_use_index
 
@@ -634,26 +634,26 @@ contains
     ! ncid1:  grp1
     ! ncid2:  grp2
     !
-    call check_nc_status(nf90_open(filename, NF90_NOWRITE, ncid), _RC)
+    call check_nc_status(nf90_open(filename, NF90_NOWRITE, ncid), _rc)
     ncid_final = ncid
     if ( found_group ) then
-       call check_nc_status(nf90_inq_ncid(ncid, grp1, ncid1), _RC)
+       call check_nc_status(nf90_inq_ncid(ncid, grp1, ncid1), _rc)
        ncid_final = ncid1
        if (j>0) then
-          call check_nc_status(nf90_inq_ncid(ncid1, grp2, ncid2), _RC)
+          call check_nc_status(nf90_inq_ncid(ncid1, grp2, ncid2), _rc)
           ncid_final = ncid2
        endif
     else
 !!       print*, 'no grp name'
     endif
 
-    call check_nc_status(nf90_inq_varid(ncid_final, short_name, varid), _RC)
+    call check_nc_status(nf90_inq_varid(ncid_final, short_name, varid), _rc)
 !!    write(6,*) 'ncid, short_name, varid', ncid, trim(short_name), varid
-    call check_nc_status(nf90_get_var(ncid_final, varid, var2d), _RC)
+    call check_nc_status(nf90_get_var(ncid_final, varid, var2d), _rc)
 
-    call check_nc_status(nf90_close(ncid), _RC)
+    call check_nc_status(nf90_close(ncid), _rc)
 
-    _RETURN(_SUCCESS)
+    _return(_success)
 
   end subroutine get_var_from_name_w_group
 
@@ -668,8 +668,8 @@ contains
     integer(ESMF_KIND_I8), allocatable :: IX(:)
     real(ESMF_KIND_R8), allocatable :: X(:)
 
-    _ASSERT (size(U)==size(V), 'U,V different dimension')
-    _ASSERT (size(U)==size(T), 'U,T different dimension')
+    _assert (size(U)==size(V), 'U,V different dimension')
+    _assert (size(U)==size(T), 'U,T different dimension')
     len = size (T)
 
     allocate (IA(len), IX(len), X(len))
@@ -691,7 +691,7 @@ contains
     do i=1, len
        T(i) = X(IA(i))
     enddo
-    _RETURN(_SUCCESS)
+    _return(_success)
   end subroutine sort_three_arrays_by_time
 
 
@@ -707,8 +707,8 @@ contains
     real(ESMF_KIND_R8), allocatable :: X(:)
     integer, allocatable :: NX(:)
 
-    _ASSERT(size(U)==size(V), 'U,V different dimension')
-    _ASSERT(size(U)==size(T), 'U,T different dimension')
+    _assert(size(U)==size(V), 'U,V different dimension')
+    _assert(size(U)==size(T), 'U,T different dimension')
     len = size (T)
 
     allocate (IA(len), IX(len), X(len), NX(len))
@@ -734,7 +734,7 @@ contains
     do i=1, len
        ID(i) = NX(IA(i))
     enddo
-    _RETURN(_SUCCESS)
+    _return(_success)
   end subroutine sort_four_arrays_by_time
 
 
@@ -747,7 +747,7 @@ contains
     integer :: i, len
     integer(ESMF_KIND_I8), allocatable :: IX(:)
 
-    _ASSERT (size(X)==size(IA), 'X and IA (its index) differ in dimension')
+    _assert (size(X)==size(IA), 'X and IA (its index) differ in dimension')
     len = size (X)
     allocate (IX(len))
     do i=1, len
@@ -755,7 +755,7 @@ contains
        IA(i)=i
     enddo
     call MAPL_Sort(IX,IA)
-    _RETURN(_SUCCESS)
+    _return(_success)
 
   end subroutine sort_index
 
@@ -770,7 +770,7 @@ contains
     copy_platform_nckeys%var_name_lat = a%var_name_lat
     copy_platform_nckeys%var_name_time = a%var_name_time
     copy_platform_nckeys%nfield_name_mx = a%nfield_name_mx
-    _RETURN(_SUCCESS)
+    _return(_success)
 
   end function copy_platform_nckeys
 
@@ -787,7 +787,7 @@ contains
     integer :: i, j, k
     integer :: status
 
-    union_platform = copy_platform_nckeys(a, _RC)
+    union_platform = copy_platform_nckeys(a, _rc)
     nfield = a%ngeoval + b%ngeoval
     allocate (tag(b%ngeoval))
 
@@ -818,7 +818,7 @@ contains
           end if
        enddo
     end if
-    _RETURN(_SUCCESS)
+    _return(_success)
 
   end function union_platform
 
@@ -950,7 +950,7 @@ contains
     lenmax = len(filename)
     if (lenmax < slen) then
        if (MAPL_AM_I_ROOT())  write(6,*) 'pathlen vs filename_max_char_len: ', slen, lenmax
-       _FAIL ('PATHLEN is greater than filename_max_char_len')
+       _fail ('PATHLEN is greater than filename_max_char_len')
        STOP 'lenmax < slen'
     end if
     if (slen>0) filename(1:slen)=c_filename(1:slen)

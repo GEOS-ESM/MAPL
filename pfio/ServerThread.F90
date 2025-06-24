@@ -136,10 +136,10 @@ contains
       type (ServerThread) :: s
       integer :: status
 
-      call s%set_connection(sckt, _RC)
+      call s%set_connection(sckt, _rc)
       if(present(server)) s%containing_server => server
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function new_ServerThread
 
    subroutine init(this, sckt, server, rc)
@@ -150,10 +150,10 @@ contains
 
       integer :: status
 
-      call this%set_connection(sckt, _RC)
+      call this%set_connection(sckt, _rc)
       this%containing_server => server
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine init
 
    subroutine run(this, rc)
@@ -169,10 +169,10 @@ contains
       message => connection%receive()
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("wait_message")
       if (associated(message)) then
-         call message%dispatch(this, _RC)
+         call message%dispatch(this, _rc)
          deallocate(message)
       end if
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine run
 
    subroutine run_done(this, rc)
@@ -186,24 +186,24 @@ contains
       integer :: status
 
       if ( .not. this%have_done) then
-        call dMessage%dispatch(this, _RC)
-        _RETURN(_SUCCESS)
+        call dMessage%dispatch(this, _rc)
+        _return(_success)
       endif
 
       ! wait until all the backlogs are empty
       all_backlog_is_empty = this%containing_server%get_AllBacklogIsEmpty()
       if (.not. all_backlog_is_empty) then
-        _RETURN(_SUCCESS)
+        _return(_success)
       endif
 
       connection=>this%get_connection()
       message => connection%receive()
       if (associated(message)) then
          call message%dispatch(this, status)
-         _VERIFY(status)
+         _verify(status)
          deallocate(message)
       end if
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine run_done
 
    subroutine handle_Terminate(this, message, rc)
@@ -213,8 +213,8 @@ contains
 
       call this%set_terminate()
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(message)
+      _return(_success)
+      _unused_dummy(message)
    end subroutine handle_Terminate
 
    recursive subroutine handle_Done(this, message, rc)
@@ -233,16 +233,16 @@ contains
          this%have_done = .false.
           ! Simple server will continue, but no effect for other server type
          dMessage => this%containing_server%get_dmessage()
-         call dmessage%dispatch(this, _RC)
+         call dmessage%dispatch(this, _rc)
          deallocate(dmessage)
-         _RETURN(_SUCCESS)
+         _return(_success)
       endif
 
       if ( this%request_backlog%empty()) then
         ! done issued more than once
         this%have_done = .true.
         call this%containing_server%set_AllBacklogIsEmpty(.true.)
-         _RETURN(_SUCCESS)
+         _return(_success)
       endif
 
       iter = this%request_backlog%begin()
@@ -250,19 +250,19 @@ contains
 
       select type (q=>msg)
       type is (PrefetchDataMessage)
-         _FAIL( "please use done_prefetch")
-         _RETURN(_SUCCESS)
+         _fail( "please use done_prefetch")
+         _return(_success)
       type is (CollectivePrefetchDataMessage)
-         _FAIL( "please use done_collective_prefetch")
-         _RETURN(_SUCCESS)
+         _fail( "please use done_collective_prefetch")
+         _return(_success)
       type is (StageDataMessage)
-         _FAIL( "please use done_stage")
-         _RETURN(_SUCCESS)
+         _fail( "please use done_stage")
+         _return(_success)
       type is (CollectiveStageDataMessage)
-         _FAIL( "please use done_collective_stage")
-         _RETURN(_SUCCESS)
+         _fail( "please use done_collective_stage")
+         _return(_success)
       class default
-         _FAIL( "Wrong message type")
+         _fail( "Wrong message type")
       end select
 
 
@@ -281,16 +281,16 @@ contains
              call this%containing_server%update_status()
           endif
 
-          _RETURN(_SUCCESS)
+          _return(_success)
        endif ! empty no collective request
 
        !if it is SimpleServer, DoneMessge will recursively call handle_done until the back_log is empty.
        !if it is Not SimpleServer, DummyMessage will do nothing and leave the subroutine
        dMessage=>this%containing_server%get_dmessage()
-       call dmessage%dispatch(this, _RC)
+       call dmessage%dispatch(this, _rc)
        deallocate(dmessage)
-       _RETURN(_SUCCESS)
-       _UNUSED_DUMMY(message)
+       _return(_success)
+       _unused_dummy(message)
    end subroutine handle_Done
 
    ! W.J note: This subroutine is different for "read_and_share"
@@ -370,7 +370,7 @@ contains
                offset    = g_offset + offset
                address   = c_loc(i_ptr(offset+1))
                 ! (2) read data
-               call this%get_DataFromFile(q, address, _RC)
+               call this%get_DataFromFile(q, address, _rc)
                call this%containing_server%prefetch_offset%insert(i_to_string(q%request_id)//'done',0_Int64)
             endif
          end select
@@ -378,7 +378,7 @@ contains
       enddo
 
       call dataRefPtr%fence(rc=status)
-      _VERIFY(status)
+      _verify(status)
       ! (4) root nodes exchange the shared data
       if(this%containing_server%I_am_NodeRoot() .and. this%containing_server%Node_Num > 1 ) then
 
@@ -389,16 +389,16 @@ contains
         call MPI_AllGATHERV(locals, local_size,            MPI_INTEGER, &
                             i_ptr,  int(offsets),  int(g_offsets),  MPI_INTEGER, &
                             this%containing_server%NodeRoot_Comm,status)
-        _VERIFY(status)
+        _verify(status)
         deallocate(locals)
 
       endif
 
       call dataRefPtr%fence(rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       deallocate(g_offsets,offsets)
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function read_and_gather
 
    ! W.J note: This subroutine is different for "read_and_gather"
@@ -462,7 +462,7 @@ contains
                  offset    = this%containing_server%prefetch_offset%at(i_to_string(q%request_id))
                  address   = c_loc(i_ptr(offset+1))
                  ! (2) read data
-                 call this%get_DataFromFile(q, address, _RC)
+                 call this%get_DataFromFile(q, address, _rc)
                  ! (3) leave a mark, it has been read
                  call this%containing_server%prefetch_offset%insert(i_to_string(q%request_id)//'done',0_Int64)
               endif
@@ -473,8 +473,8 @@ contains
       enddo
 
       call dataRefPtr%fence(rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+      _verify(status)
+      _return(_success)
    end function read_and_share
 
    subroutine handle_AddExtCollection(this, message, rc)
@@ -511,10 +511,10 @@ contains
          call this%ext_collections%push_back(c)
       end if
       connection=>this%get_connection()
-      call connection%send(IdMessage(n),_RC)
+      call connection%send(IdMessage(n),_rc)
 
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("add_Extcollection")
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine handle_AddExtCollection
 
    subroutine handle_AddHistCollection(this, message, rc)
@@ -533,9 +533,9 @@ contains
       call this%hist_collections%push_back(hist_collection)
 
       connection=>this%get_connection()
-      call connection%send(IdMessage(n),_RC)
+      call connection%send(IdMessage(n),_rc)
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("add_Histcollection")
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine handle_AddHistCollection
 
    subroutine handle_PrefetchData(this, message, rc)
@@ -548,10 +548,10 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(handshake_msg,_RC)
+      call connection%send(handshake_msg,_rc)
       call this%request_backlog%push_back(message)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine handle_PrefetchData
 
    subroutine handle_CollectivePrefetchData(this, message, rc)
@@ -564,10 +564,10 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(handshake_msg,_RC)
+      call connection%send(handshake_msg,_rc)
       call this%request_backlog%push_back(message)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine handle_CollectivePrefetchData
 
    subroutine handle_ModifyMetadata(this, message, rc)
@@ -584,9 +584,9 @@ contains
       call hist_collection%ModifyMetadata(message%var_map)
 
       connection=>this%get_connection()
-      call connection%send(handshake_msg,_RC)
+      call connection%send(handshake_msg,_rc)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine handle_ModifyMetadata
 
    subroutine handle_ReplaceMetadata(this, message, rc)
@@ -603,9 +603,9 @@ contains
       call hist_collection%ReplaceMetadata(message%fmd)
 
       connection=>this%get_connection()
-      call connection%send(handshake_msg,_RC)
+      call connection%send(handshake_msg,_rc)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine handle_ReplaceMetadata
 
    subroutine handle_HandShake(this, message, rc)
@@ -617,11 +617,11 @@ contains
       type (DummyMessage) :: handshake_msg
       integer :: status
 
-      _UNUSED_DUMMY(message)
+      _unused_dummy(message)
 
       connection=>this%get_connection()
-      call connection%send(handshake_msg,_RC)
-      _RETURN(_SUCCESS)
+      call connection%send(handshake_msg,_rc)
+      _return(_success)
 
    end subroutine handle_HandShake
 
@@ -678,7 +678,7 @@ contains
       integer :: status
 
       collection => this%ext_collections%at(message%collection_id)
-      formatter => collection%find(message%file_name, _RC)
+      formatter => collection%find(message%file_name, _rc)
 
       select type (message)
       type is (PrefetchDataMessage)
@@ -688,7 +688,7 @@ contains
         start = message%global_start
         count = message%global_count
       class default
-        _FAIL( "wrong PrefetchDataMessage type")
+        _fail( "wrong PrefetchDataMessage type")
       end select
 
 !      if (product(count) /= product(file_data_reference%shape)) stop "memory size not match"
@@ -697,39 +697,39 @@ contains
           select case (message%type_kind)
           case (pFIO_INT32)
               call c_f_pointer(address, values_int32_0d)
-              call formatter%get_var(message%var_name, values_int32_0d, _RC)
+              call formatter%get_var(message%var_name, values_int32_0d, _rc)
           case (pFIO_REAL32)
               call c_f_pointer(address, values_real32_0d)
-              call formatter%get_var(message%var_name, values_real32_0d, _RC)
+              call formatter%get_var(message%var_name, values_real32_0d, _rc)
           case (pFIO_INT64)
               call c_f_pointer(address, values_int64_0d)
-              call formatter%get_var(message%var_name, values_int64_0d, _RC)
+              call formatter%get_var(message%var_name, values_int64_0d, _rc)
           case (pFIO_REAL64)
               call c_f_pointer(address, values_real64_0d)
-              call formatter%get_var(message%var_name, values_real64_0d, _RC)
+              call formatter%get_var(message%var_name, values_real64_0d, _rc)
           case default
-              _FAIL( "Not supported type")
+              _fail( "Not supported type")
           end select
       case (1:)
           select case (message%type_kind)
           case (pFIO_INT32)
               call c_f_pointer(address, values_int32_1d, [product(count)])
-              call formatter%get_var(message%var_name, values_int32_1d, start=start, count=count, _RC)
+              call formatter%get_var(message%var_name, values_int32_1d, start=start, count=count, _rc)
           case (pFIO_REAL32)
               call c_f_pointer(address, values_real32_1d, [product(count)])
-              call formatter%get_var(message%var_name, values_real32_1d, start=start, count=count, _RC)
+              call formatter%get_var(message%var_name, values_real32_1d, start=start, count=count, _rc)
           case (pFIO_INT64)
               call c_f_pointer(address, values_int64_1d, [product(count)])
-              call formatter%get_var(message%var_name, values_int64_1d, start=start, count=count, _RC)
+              call formatter%get_var(message%var_name, values_int64_1d, start=start, count=count, _rc)
           case (pFIO_REAL64)
               call c_f_pointer(address, values_real64_1d, [product(count)])
-              call formatter%get_var(message%var_name, values_real64_1d, start=start, count=count, _RC)
+              call formatter%get_var(message%var_name, values_real64_1d, start=start, count=count, _rc)
           case default
-              _FAIL( "Not supported type")
+              _fail( "Not supported type")
           end select
       end select
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine get_DataFromFile
 
    subroutine handle_StageData(this, message, rc)
@@ -743,7 +743,7 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(handshake_msg,_RC)
+      call connection%send(handshake_msg,_rc)
       call this%request_backlog%push_back(message)
 
       mem_data_reference=LocalMemReference(message%type_kind,message%count)
@@ -751,7 +751,7 @@ contains
       call this%insert_RequestHandle(message%request_id, &
               & connection%get(message%request_id, mem_data_reference))
 
-       _RETURN(_SUCCESS)
+       _return(_success)
    end subroutine handle_StageData
 
    subroutine handle_CollectiveStageData(this, message, rc)
@@ -766,15 +766,15 @@ contains
       class(AbstractRequestHandle), allocatable :: handle
       
       connection => this%get_connection()
-      call connection%send(handshake_msg,_RC)
+      call connection%send(handshake_msg,_rc)
       call this%request_backlog%push_back(message)
 
       mem_data_reference = LocalMemReference(message%type_kind,message%count)
       !iRecv
       handle = connection%get(message%request_id, mem_data_reference)
-      call this%insert_RequestHandle(message%request_id, handle, _RC)
+      call this%insert_RequestHandle(message%request_id, handle, _rc)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine handle_CollectiveStageData
 
    subroutine put_DataToFile(this, message, address, rc)
@@ -804,7 +804,7 @@ contains
       else
          hist_collection=>this%hist_collections%at(message%collection_id)
       endif
-      formatter =>hist_collection%find(message%file_name, _RC)
+      formatter =>hist_collection%find(message%file_name, _rc)
 
       select type (message)
       type is (StageDataMessage)
@@ -817,7 +817,7 @@ contains
         count = message%global_count
 
       class default
-        _FAIL( "wrong StageDataMessage type")
+        _fail( "wrong StageDataMessage type")
       end select
 !      if (product(count) /= product(file_data_reference%shape)) stop "memory size not match"
       select case (size(count)) ! rank
@@ -825,39 +825,39 @@ contains
           select case (message%type_kind)
           case (pFIO_INT32)
               call c_f_pointer(address, values_int32_0d)
-              call formatter%put_var(message%var_name, values_int32_0d, _RC)
+              call formatter%put_var(message%var_name, values_int32_0d, _rc)
           case (pFIO_INT64)
               call c_f_pointer(address, values_int64_0d)
-              call formatter%put_var(message%var_name, values_int64_0d, _RC)
+              call formatter%put_var(message%var_name, values_int64_0d, _rc)
           case (pFIO_REAL32)
               call c_f_pointer(address, values_real32_0d)
-              call formatter%put_var(message%var_name, values_real32_0d, _RC)
+              call formatter%put_var(message%var_name, values_real32_0d, _rc)
           case (pFIO_REAL64)
               call c_f_pointer(address, values_real64_0d)
-              call formatter%put_var(message%var_name, values_real64_0d, _RC)
+              call formatter%put_var(message%var_name, values_real64_0d, _rc)
           case default
-              _FAIL( "not supported type")
+              _fail( "not supported type")
           end select
       case (1:)
           select case (message%type_kind)
           case (pFIO_INT32)
               call c_f_pointer(address, values_int32_1d, [product(int(count, INT64))])
-              call formatter%put_var(message%var_name, values_int32_1d, start=start, count=count, _RC)
+              call formatter%put_var(message%var_name, values_int32_1d, start=start, count=count, _rc)
           case (pFIO_INT64)
               call c_f_pointer(address, values_int64_1d, [product(int(count, INT64))])
-              call formatter%put_var(message%var_name, values_int64_1d, start=start, count=count, _RC)
+              call formatter%put_var(message%var_name, values_int64_1d, start=start, count=count, _rc)
           case (pFIO_REAL32)
               call c_f_pointer(address, values_real32_1d,[product(int(count, INT64))])
-              call formatter%put_var(message%var_name, values_real32_1d, start=start, count=count, _RC)
+              call formatter%put_var(message%var_name, values_real32_1d, start=start, count=count, _rc)
           case (pFIO_REAL64)
               call c_f_pointer(address, values_real64_1d,[product(int(count, INT64))])
-              call formatter%put_var(message%var_name, values_real64_1d, start=start, count=count, _RC)
+              call formatter%put_var(message%var_name, values_real64_1d, start=start, count=count, _rc)
           case default
-              _FAIL( "not supported type")
+              _fail( "not supported type")
           end select
        end select
 
-       _RETURN(_SUCCESS)
+       _return(_success)
    end subroutine put_DataToFile
 
    subroutine receive_output_data(this, rc)
@@ -903,33 +903,33 @@ contains
                lstart(1) = lstart(1)* words
                call MPI_type_create_subarray(ndims,gcount,lcount, lstart , &
                     MPI_ORDER_FORTRAN, MPI_INTEGER,sub_arr_type,ierror)
-               _VERIFY(ierror)
+               _verify(ierror)
                call MPI_type_commit(sub_arr_type,ierror)
-               _VERIFY(ierror)
+               _verify(ierror)
 
                dataRefPtr => this%containing_server%get_dataReference(collection_counter)
                select type(dataRefPtr)
                type is (RDMAReference)
                   remotePtr=>dataRefPtr
                class default
-                  _FAIL( " need a remote pointer")
+                  _fail( " need a remote pointer")
                end select
 
                rank = remotePtr%mem_rank
                call MPI_put(k_ptr, local_size, MPI_INTEGER, rank, offset, 1, sub_arr_type, remotePtr%win, ierror)
-               _VERIFY(ierror)
+               _verify(ierror)
 
                call this%sub_array_types%push_back(sub_arr_type)
                nullify(k_ptr)
 
             endif ! local_size > 0
         class default
-            _FAIL( "receive_output_data")
+            _fail( "receive_output_data")
         end select
         call iter%next()
      enddo
 
-     _RETURN(_SUCCESS)
+     _return(_success)
   endsubroutine receive_output_data
 
   subroutine clear_hist_collections(this)
@@ -964,11 +964,11 @@ contains
     do i = 1, this%sub_array_types%size()
       sub_arr_type = this%sub_array_types%at(i)
       call MPI_type_free(sub_arr_type,ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
     enddo
     call this%sub_array_types%erase(this%sub_array_types%begin(), this%sub_array_types%end())
 
-    _RETURN(_SUCCESS)
+    _return(_success)
   end subroutine clear_subarray
 
   recursive subroutine handle_Done_collective_stage(this, message, rc)
@@ -980,17 +980,17 @@ contains
 
       this%containing_server%serverthread_done_msgs(this%thread_rank) = .true.
       if ( .not. all(this%containing_server%serverthread_done_msgs)) then
-         _RETURN(_SUCCESS)
+         _return(_success)
       endif
-      _ASSERT( associated(this%containing_server), "need server")
+      _assert( associated(this%containing_server), "need server")
 
-      call this%containing_server%create_remote_win(_RC)
-      call this%containing_server%receive_output_data(_RC)
-      call this%containing_server%put_dataToFile(_RC)
+      call this%containing_server%create_remote_win(_rc)
+      call this%containing_server%receive_output_data(_rc)
+      call this%containing_server%put_dataToFile(_rc)
       call this%containing_server%clean_up()
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(message)
+      _return(_success)
+      _unused_dummy(message)
    end subroutine handle_Done_collective_stage
 
    recursive subroutine handle_Done_stage(this, message, rc)
@@ -1003,10 +1003,10 @@ contains
       class (AbstractRequestHandle), pointer :: handle
       integer :: status
 
-      _UNUSED_DUMMY(message)
+      _unused_dummy(message)
 
       if ( this%request_backlog%empty()) then
-         _RETURN(_SUCCESS)
+         _return(_success)
       endif
 
       iter = this%request_backlog%begin()
@@ -1020,20 +1020,20 @@ contains
             call handle%wait()
 
             call this%put_DataToFile(q,handle%data_reference%base_address,rc=status)
-            _VERIFY(status)
+            _verify(status)
 
             call this%request_backlog%erase(iter)
 
          class default
-            _FAIL( "Wrong message type")
+            _fail( "Wrong message type")
          end select
          iter = this%request_backlog%begin()
      enddo
 
-     call this%clear_RequestHandle(_RC)
+     call this%clear_RequestHandle(_rc)
      call this%clear_hist_collections()
 
-     _RETURN(_SUCCESS)
+     _return(_success)
    end subroutine handle_Done_stage
 
    recursive subroutine handle_Done_prefetch(this, message, rc)
@@ -1051,28 +1051,28 @@ contains
       do while ( iter /= this%request_backlog%end())
          msg => iter%get()
          connection=>this%get_connection(status)
-         _VERIFY(status)
+         _verify(status)
 
          select type (q=>msg)
          type is (PrefetchDataMessage)
              mem_data_reference=LocalMemReference(q%type_kind,q%count)
 
-             call this%get_DataFromFile(q,mem_data_reference%base_address, _RC)
+             call this%get_DataFromFile(q,mem_data_reference%base_address, _rc)
 
              call this%insert_RequestHandle(q%request_id, &
               & connection%put(q%request_id, mem_data_reference))
              call this%request_backlog%erase(iter)
 
          class default
-            _FAIL( "Wrong message type")
+            _fail( "Wrong message type")
          end select
          iter = this%request_backlog%begin()
        enddo
 
-       call this%clear_RequestHandle(_RC)
+       call this%clear_RequestHandle(_rc)
 
-       _RETURN(_SUCCESS)
-       _UNUSED_DUMMY(message)
+       _return(_success)
+       _unused_dummy(message)
    end subroutine handle_Done_prefetch
 
 
@@ -1087,31 +1087,31 @@ contains
       ! first time handling the "Done" message, simple return
       this%containing_server%serverthread_done_msgs(this%thread_rank) = .true.
       if ( .not. all(this%containing_server%serverthread_done_msgs)) then
-         _RETURN(_SUCCESS)
+         _return(_success)
       endif
 
       if( .not. multi_data_read) then
         ! each node read part of a file, then exchange
          if (associated(ioserver_profiler)) call ioserver_profiler%start("read_gather")
          dataRefPtr=> this%read_and_gather(rc=status)
-         _VERIFY(status)
+         _verify(status)
          if (associated(ioserver_profiler)) call ioserver_profiler%stop("read_gather")
       else
          if (associated(ioserver_profiler)) call ioserver_profiler%start("read_share")
          dataRefPtr=> this%read_and_share(rc=status)
-         _VERIFY(status)
+         _verify(status)
          if (associated(ioserver_profiler)) call ioserver_profiler%stop("read_share")
       endif
       if (associated(ioserver_profiler)) call ioserver_profiler%start("send_data")
       ! now dataRefPtr on each node has all the data
       call this%containing_server%add_DataReference(dataRefPtr)
-      call this%containing_server%get_DataFromMem(multi_data_read, _RC)
+      call this%containing_server%get_DataFromMem(multi_data_read, _rc)
 
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("send_data")
       call this%containing_server%clean_up()
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(message)
+      _return(_success)
+      _unused_dummy(message)
    end subroutine handle_Done_collective_prefetch
 
    subroutine get_DataFromMem( this, multi_data_read, rc)
@@ -1130,7 +1130,7 @@ contains
       integer :: status
 
       connection=>this%get_connection(status)
-      _VERIFY(status)
+      _verify(status)
 
       iter = this%request_backlog%begin()
       do while (iter /= this%request_backlog%end())
@@ -1154,19 +1154,19 @@ contains
 
            offset_address = c_loc(i_ptr(offset+1))
 
-           call mem_data_reference%fetch_data(offset_address,q%global_count,q%start-q%global_start+1, _RC)
+           call mem_data_reference%fetch_data(offset_address,q%global_count,q%start-q%global_start+1, _rc)
 
            call this%insert_RequestHandle(q%request_id, &
               & connection%put(q%request_id, mem_data_reference))
 
            call this%request_backlog%erase(iter)
          class default
-           _FAIL( "Message type should be CollectivePrefetchDataMessage ")
+           _fail( "Message type should be CollectivePrefetchDataMessage ")
          end select
          iter = this%request_backlog%begin()
       enddo
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine get_DataFromMem
 
    function get_hist_collection(this, collection_id) result(c)

@@ -12,13 +12,13 @@ program main
    integer :: status
       
    call mpi_init(status)
-   _VERIFY(status)
+   _verify(status)
    spec = make_BW_BenchmarkSpec() ! CLI
 
-   call run(spec, _RC)
+   call run(spec, _rc)
 
    call MPI_Barrier(MPI_COMM_WORLD, status)
-   _VERIFY(status)
+   _verify(status)
    call mpi_finalize(status)
    stop
 
@@ -46,30 +46,30 @@ contains
 
       integer :: color, rank, npes
       call MPI_Comm_rank(MPI_COMM_WORLD, rank, status)
-      _VERIFY(status)
+      _verify(status)
       call MPI_Comm_size(MPI_COMM_WORLD, npes, status)
-      _VERIFY(status)
+      _verify(status)
 
       color = (rank*spec%n_writers) / npes
       call MPI_Comm_split(MPI_COMM_WORLD, color, 0, gather_comm, status)
-      _VERIFY(status)
+      _verify(status)
       
       call MPI_Comm_rank(gather_comm, rank, status)
-      _VERIFY(status)
+      _verify(status)
       call MPI_Comm_split(MPI_COMM_WORLD, rank, 0, writer_comm, status)
-      _VERIFY(status)
+      _verify(status)
       if (rank /= 0) writer_comm = MPI_COMM_NULL
-      _RETURN_IF(writer_comm == MPI_COMM_NULL)
+      _return_if(writer_comm == MPI_COMM_NULL)
 
-      benchmark = make_BW_Benchmark(spec, writer_comm, _RC)
+      benchmark = make_BW_Benchmark(spec, writer_comm, _rc)
 
-      call write_header(writer_comm, spec%file_type, _RC)
+      call write_header(writer_comm, spec%file_type, _rc)
 
       tot_time = 0
       tot_time_sq = 0
       associate (n => spec%n_tries)
         do i = 1, n
-           t = time(benchmark, writer_comm, _RC)
+           t = time(benchmark, writer_comm, _rc)
            tot_time = tot_time + t
            tot_time_sq = tot_time_sq + t**2
         end do
@@ -81,9 +81,9 @@ contains
         end if
       end associate
 
-      call report(spec, avg_time, std_time, writer_comm, _RC)
+      call report(spec, avg_time, std_time, writer_comm, _rc)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine run
 
 
@@ -97,17 +97,17 @@ contains
       integer(kind=INT64) :: c0, c1, count_rate
 
       call MPI_Barrier(comm, status)
-      _VERIFY(status)
+      _verify(status)
 
       call system_clock(c0)
-      call benchmark%run(_RC)
+      call benchmark%run(_rc)
       call MPI_Barrier(comm, status)
-      _VERIFY(status)
+      _verify(status)
       call system_clock(c1, count_rate=count_rate)
 
       time = real(c1-c0)/count_rate
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function time
 
 
@@ -120,15 +120,15 @@ contains
       integer :: rank
 
       call MPI_Comm_rank(comm, rank, status)
-      _VERIFY(status)
-      _RETURN_UNLESS(rank == 0)
+      _verify(status)
+      _return_unless(rank == 0)
 
       write(*,*)'Tested with file type: '//trim(file_type)
       write(*,'(3(a10,","),6(a15,:,","))',iostat=status) &
            'NX', '# levs', '# writers', 'write (GB)', 'packet (GB)', &
            'Time (s)', 'Eff. BW (GB/s)', 'Avg. BW (GB/s)', 'Rel. Std. Dev.'
 
-      _RETURN(status)
+      _return(status)
    end subroutine write_header
 
 
@@ -149,10 +149,10 @@ contains
       integer(kind=INT64) :: packet_size
 
       call MPI_Comm_size(comm, npes, status)
-      _VERIFY(status)
+      _verify(status)
       call MPI_Comm_rank(comm, rank, status)
-      _VERIFY(status)
-      _RETURN_UNLESS(rank == 0)
+      _verify(status)
+      _return_unless(rank == 0)
 
       packet_size = int(spec%nx,kind=INT64)**2 * 6 * spec%n_levs / spec%n_writers
       packet_gb = 1.e-9*(WORD_SIZE * packet_size)
@@ -160,13 +160,13 @@ contains
       bw = total_gb / avg_time
 
       call MPI_Comm_size(comm, npes, status)
-      _VERIFY(status)
+      _verify(status)
 
       write(*,'(3(1x,i9.0,","),6(f15.4,:,","))') &
            spec%nx, spec%n_levs, spec%n_writers, &
            total_gb, packet_gb, avg_time, bw, bw/npes, std_time/avg_time
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine report
 
 

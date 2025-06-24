@@ -1,8 +1,8 @@
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
-#define _ASSERT(A)   if(.not.A) then; if(present(rc)) rc=_FAILURE; PRINT *, Iam, __LINE__; return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
+#define _success      0
+#define _failure     1
+#define _verify(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
+#define _assert(A)   if(.not.A) then; if(present(rc)) rc=_failure; PRINT *, Iam, __LINE__; return; endif
+#define _return(A)   if(present(rc)) rc=A; return
 #include "unused_dummy.H"
 
 module MockRegridderMod
@@ -47,11 +47,11 @@ contains
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_scalar_2d_real64'
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(q_in)
+      _unused_dummy(this)
+      _unused_dummy(q_in)
 
       q_out = 0
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine regrid_scalar_2d_real64
 
@@ -70,9 +70,9 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(rc)
+      _unused_dummy(this)
+      _unused_dummy(unusable)
+      _unused_dummy(rc)
 
    end subroutine initialize_subclass
 

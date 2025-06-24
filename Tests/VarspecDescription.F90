@@ -1,8 +1,8 @@
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
-#define _ASSERT(A)   if(.not.A) then; if(present(rc)) rc=_FAILURE; PRINT *, Iam, __LINE__; return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
+#define _success      0
+#define _failure     1
+#define _verify(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
+#define _assert(A)   if(.not.A) then; if(present(rc)) rc=_failure; PRINT *, Iam, __LINE__; return; endif
+#define _return(A)   if(present(rc)) rc=A; return
 
 module VarspecDescriptionMod
    use MAPL
@@ -43,13 +43,13 @@ contains
 
       do i=1,nwords
          call ESMF_ConfigGetAttribute(cf,tmpstring,rc=status)
-         _VERIFY(status)
+         _verify(status)
          if (trim(tmpstring)==',') cycle
          call svec%push_back(trim(tmpstring))
       enddo
 
       lcomp = (svec%size()==5 .or. svec%size()==6)
-      _ASSERT(lcomp)
+      _assert(lcomp)
       VarspecDescr%short_name = svec%at(1)
       VarspecDescr%long_name = svec%at(2)
       VarspecDescr%units = svec%at(3)
@@ -111,9 +111,9 @@ contains
               UNGRIDDED_DIMS = this%ungridded_dims, &
               RC = status)
       else
-         _RETURN(_FAILURE)
+         _return(_failure)
       end if
-      _VERIFY(status)
+      _verify(status)
 
    end subroutine AddNewSpec
 

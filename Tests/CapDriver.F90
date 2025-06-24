@@ -18,7 +18,7 @@ program CapDriver_Main
    cap_options = MAPL_CapOptions(cli)
    cap = MAPL_Cap('Root', ROOT_SetServices, cap_options = cap_options)
 
-   call cap%run(_RC)
+   call cap%run(_rc)
 
 end program CapDriver_Main
 

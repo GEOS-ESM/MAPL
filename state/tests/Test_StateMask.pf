@@ -19,13 +19,13 @@ contains
  
       integer :: status, rc
 
-      grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[3], countsPerDeDim2=[3], _RC)
-      field_2d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="field_2d", _RC)
-      out_field_2d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="out_field_2d", _RC)
-      field_3d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="field_3d",ungriddedLBound=[1],ungriddedUBound=[2], _RC)
-      out_field_3d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="out_field_3d",ungriddedLBound=[1],ungriddedUBound=[2], _RC)
-      mask_field = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="region_mask", _RC)
-		state = ESMF_StateCreate(fieldList=[field_2d,field_3d,mask_field], _RC)
+      grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[3], countsPerDeDim2=[3], _rc)
+      field_2d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="field_2d", _rc)
+      out_field_2d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="out_field_2d", _rc)
+      field_3d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="field_3d",ungriddedLBound=[1],ungriddedUBound=[2], _rc)
+      out_field_3d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="out_field_3d",ungriddedLBound=[1],ungriddedUBound=[2], _rc)
+      mask_field = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="region_mask", _rc)
+		state = ESMF_StateCreate(fieldList=[field_2d,field_3d,mask_field], _rc)
 
    end subroutine set_up_data
 
@@ -49,20 +49,20 @@ contains
       real(ESMF_KIND_R4) :: rval
       character(len=:), allocatable :: expr
 
-      call ESMF_FieldGet(mask_field, 0, farrayPtr=mask_ptr, _RC)
-      call ESMF_FieldGet(field_2d, 0, farrayPtr=ptr2d, _RC)
+      call ESMF_FieldGet(mask_field, 0, farrayPtr=mask_ptr, _rc)
+      call ESMF_FieldGet(field_2d, 0, farrayPtr=ptr2d, _rc)
       expr = "regionmask(field_2d,region_mask;2,5)"
       rval = 17.0 
       ptr2d = rval
-      allocate(expected_array(3,3),_STAT)
+      allocate(expected_array(3,3),_stat)
       expected_array= reshape([0.0, rval, 0.0, rval, rval, 0.0, rval, rval, 0.0],shape=[3,3])
       mask_ptr =    reshape([1.0, 5.0,  1.0, 5.0,  2.0,  1.0, 2.0,  5.0,  1.0],shape=[3,3])
-      mask = StateMask(expr, _RC)
-      call mask%evaluate_mask(state,out_field_2d,_RC)
+      mask = StateMask(expr, _rc)
+      call mask%evaluate_mask(state,out_field_2d,_rc)
 
-      call ESMF_FieldGet(out_field_2d, 0, farrayPtr=ptr2d, _RC)
+      call ESMF_FieldGet(out_field_2d, 0, farrayPtr=ptr2d, _rc)
       @assertEqual(expected_array, ptr2d)
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine test_region_mask_2d
 
@@ -77,22 +77,22 @@ contains
       real(ESMF_KIND_R4) :: rval
       character(len=:), allocatable :: expr
 
-      call ESMF_FieldGet(mask_field, 0, farrayPtr=mask_ptr, _RC)
-      call ESMF_FieldGet(field_3d, 0, farrayPtr=ptr3d, _RC)
+      call ESMF_FieldGet(mask_field, 0, farrayPtr=mask_ptr, _rc)
+      call ESMF_FieldGet(field_3d, 0, farrayPtr=ptr3d, _rc)
       expr = "regionmask(field_3d,region_mask;2,5)"
       rval = 17.0 
       ptr3d = rval
-      allocate(expected_array(3,3),_STAT)
+      allocate(expected_array(3,3),_stat)
       expected_array= reshape([0.0, rval, 0.0, rval, rval, 0.0, rval, rval, 0.0],shape=[3,3])
       mask_ptr =    reshape([1.0, 5.0,  1.0, 5.0,  2.0,  1.0, 2.0,  5.0,  1.0],shape=[3,3])
-      mask = StateMask(expr, _RC)
-      call mask%evaluate_mask(state,out_field_3d,_RC)
+      mask = StateMask(expr, _rc)
+      call mask%evaluate_mask(state,out_field_3d,_rc)
 
-      call ESMF_FieldGet(out_field_3d, 0, farrayPtr=ptr3d, _RC)
+      call ESMF_FieldGet(out_field_3d, 0, farrayPtr=ptr3d, _rc)
       do i=1,size(ptr3d,3) 
          @assertEqual(expected_array, ptr3d(:,:,i))
       enddo
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine test_region_mask_3d
 

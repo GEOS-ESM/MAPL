@@ -48,11 +48,11 @@ contains
       reference%msize_word = msize_word
       reference%type_kind  = type_kind
       call Mpi_comm_dup(Comm,reference%comm,status)
-      _VERIFY(status)
+      _verify(status)
       reference%mem_rank = rank
       call reference%allocate(rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+      _verify(status)
+      _return(_success)
    end function new_RDMAReference
 
    integer function get_length(this) result(length)
@@ -77,7 +77,7 @@ contains
       allocate(buffer(this%get_length()))
 
       call this%serialize_base(tmp_buff, status)
-      _VERIFY(status)
+      _verify(status)
       n = this%get_length_base()
       buffer(1:n)  = tmp_buff(:)
       buffer(n+1)  = this%win
@@ -85,7 +85,7 @@ contains
       buffer(n+3)  = this%mem_rank
       buffer(n+4:n+4) = serialize_intrinsic(this%RDMA_allocated)
       buffer(n+5:) = transfer(this%msize_word, [1])
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine serialize
 
    subroutine deserialize(this, buffer, rc)
@@ -104,8 +104,8 @@ contains
       call  deserialize_intrinsic(buffer(n1-3:n1-3), this%comm)
       call  deserialize_intrinsic(buffer(n1-4:n1-4), this%win)
       call  this%deserialize_base(buffer(1:n1-5), rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+      _verify(status)
+      _return(_success)
    end subroutine deserialize
 
    subroutine allocate(this, rc)
@@ -124,7 +124,7 @@ contains
       n_bytes    = this%msize_word * int_size
 
       call MPI_Comm_rank(this%comm,Rank,status)
-      _VERIFY(status)
+      _verify(status)
 
       windowsize = 0_MPI_ADDRESS_KIND
       if (Rank == this%mem_rank) windowsize = n_bytes
@@ -132,18 +132,18 @@ contains
 #if defined (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
       call MPI_Win_allocate(windowsize, disp_unit, MPI_INFO_NULL, this%comm, &
                this%base_address, this%win, status)
-      _VERIFY(status)
+      _verify(status)
 #else
       call MPI_Win_allocate(windowsize, disp_unit, MPI_INFO_NULL, this%comm, &
                baseaddr, this%win, status)
-      _VERIFY(status)
+      _verify(status)
       this%base_address = transfer(baseaddr, this%base_address)
 #endif
       call MPI_Win_fence(0, this%win, status)
-      _VERIFY(status)
+      _verify(status)
 
       this%RDMA_allocated = .true.
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine allocate
 
    subroutine deallocate(this, rc)
@@ -152,18 +152,18 @@ contains
       integer :: status
 
       if ( .not. this%RDMA_allocated ) then
-         _RETURN(_SUCCESS)
+         _return(_success)
       endif
 
       call MPI_Win_fence(0, this%win, status)
-      _VERIFY(status)
+      _verify(status)
       call MPI_Win_free(this%win,status)
-      _VERIFY(status)
+      _verify(status)
       call MPi_comm_free(this%comm, status)
-      _VERIFY(status)
+      _verify(status)
 
       this%RDMA_allocated = .false.
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine deallocate
 
    subroutine fence(this, rc)
@@ -173,9 +173,9 @@ contains
 
      if( this%RDMA_allocated ) then
         call Mpi_Win_fence(0, this%win, status)
-        _VERIFY(status)
+        _verify(status)
      endif
-     _RETURN(_SUCCESS)
+     _return(_success)
    end subroutine fence
 
 end module pFIO_RDMAReferenceMod

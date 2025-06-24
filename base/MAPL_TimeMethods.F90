@@ -70,7 +70,7 @@ contains
       tdata%integer_time = .false.
     end if
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
 
   end function new_time_data
 
@@ -81,7 +81,7 @@ contains
      if (present(clock)) then
         clock = this%clock
      end if
-     _RETURN(_SUCCESS)
+     _return(_success)
   end subroutine get
        
   subroutine setFrequency(this,frequency,rc)
@@ -91,7 +91,7 @@ contains
 
      this%frequency = frequency
 
-     _RETURN(_SUCCESS)
+     _return(_success)
    end subroutine setFrequency
        
 
@@ -106,13 +106,13 @@ contains
     integer :: i1,i2,i3,ipos1,ipos2,isc,imn,ihr
     integer :: begin_date, begin_time, time_increment, packed_hms
 
-    _ASSERT(this%frequency/=TimeData_uninit_int,"Frequency component was not set before use.")
+    _assert(this%frequency/=TimeData_uninit_int,"Frequency component was not set before use.")
 
     call ESMF_ClockGet(this%clock,currTime=currTime,rc=status)
-    _VERIFY(status)
+    _verify(status)
     currTime = currTime - this%offset
     call ESMF_TimeGet(currTime,timeString=StartTime,rc=status)
-    _VERIFY(status)
+    _verify(status)
     timeUnits = trim(this%funits)//" since "//startTime( 1: 10)//" "//startTime(12:19)
   
     ipos1=index(startTime,"-")
@@ -141,21 +141,21 @@ contains
        time_increment = packed_hms
     case('minutes')
        if (this%integer_time) then
-          _ASSERT(mod(this%frequency,60)==0,"Requested output frequency not representable as an integer minute")
+          _assert(mod(this%frequency,60)==0,"Requested output frequency not representable as an integer minute")
        end if
        time_increment = packed_hms
     case('hours')
        if (this%integer_time) then
-          _ASSERT(mod(this%frequency,3600)==0,"Requested output frequency not representable as an integer hour")
+          _assert(mod(this%frequency,3600)==0,"Requested output frequency not representable as an integer hour")
        end if
        time_increment = packed_hms
     case('days')
        if (this%integer_time) then
-          _ASSERT(mod(this%frequency,86400)==0,"Requested output frequency not representable as an integer day")
+          _assert(mod(this%frequency,86400)==0,"Requested output frequency not representable as an integer day")
        end if
        time_increment = this%frequency/86400
     case default
-       _FAIL( 'Not supported yet')
+       _fail( 'Not supported yet')
     end select
 
     call this%tvec%clear()
@@ -172,7 +172,7 @@ contains
     call v%add_attribute('begin_time',begin_time)
     call v%add_attribute('time_increment',time_increment)
     
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
 
   end function define_time_variable
 
@@ -194,9 +194,9 @@ contains
   
     this%tcount=this%tcount+1 
     call ESMF_ClockGet(this%clock,currTime=currTime,rc=status)
-    _VERIFY(status)
+    _verify(status)
     startTime = this%get_start_time(metadata,rc=status)
-    _VERIFY(status)
+    _verify(status)
     currTime=currTime-this%offSet
     call this%tvec%push_back(currTime)
     iter = this%tvec%begin()
@@ -209,25 +209,25 @@ contains
        select case(trim(this%funits))
        case('seconds')
           call ESMF_TimeIntervalGet(tint,s_r8=tint_s,rc=status)
-          _VERIFY(status)
+          _verify(status)
           times(i)=tint_s
        case('minutes')
           call ESMF_TimeIntervalGet(tint,m_r8=tint_s,rc=status)
-          _VERIFY(status)
+          _verify(status)
           times(i)=tint_s
        case('hours')
           call ESMF_TimeIntervalGet(tint,h_r8=tint_s,rc=status)
-          _VERIFY(status)
+          _verify(status)
           times(i)=tint_s
        case('days')
           call ESMF_TimeIntervalGet(tint,d_r8=tint_s,rc=status)
-          _VERIFY(status)
+          _verify(status)
           times(i)=tint_s
        case default
        end select
        call iter%next()
     enddo
-    _RETURN(ESMF_SUCCESS) 
+    _return(ESMF_SUCCESS) 
 
   end function compute_time_vector 
 
@@ -247,10 +247,10 @@ contains
           tdim = this%ntime
        end if
        call metadata%add_dimension('time',tdim)
-       v = this%define_time_variable(_RC)
-       call metadata%add_variable('time',v,_RC)
+       v = this%define_time_variable(_rc)
+       call metadata%add_variable('time',v,_rc)
     end if
-    _RETURN(_SUCCESS)
+    _return(_success)
 
   end subroutine add_time_to_metadata
 
@@ -265,18 +265,18 @@ contains
     type(Attribute), pointer :: attr
     class(*), pointer :: units
 
-    _UNUSED_DUMMY(this)
+    _unused_dummy(this)
 
     v => metadata%get_variable('time',rc=status)
-    _VERIFY(status)
+    _verify(status)
     attr => v%get_attribute('units')
     units => attr%get_value()
     select type(units)
     type is (character(*))
        startTime = parse_time_string(units,rc=status)
-       _VERIFY(status)
+       _verify(status)
     class default
-       _FAIL('unsupported subclass for units')
+       _fail('unsupported subclass for units')
     end select
 
     
@@ -307,7 +307,7 @@ contains
     lastdash  = index(TimeUnits, '-', BACK=.TRUE.)
 
     if (firstdash .LE. 0 .OR. lastdash .LE. 0) then
-       _FAIL('time string is not a valid format')
+       _fail('time string is not a valid format')
     endif
     ypos(2) = firstdash - 1
     mpos(1) = firstdash + 1
@@ -366,7 +366,7 @@ contains
     endif
 
     call ESMF_TimeSet(time,yy=year,mm=month,dd=day,h=hour,m=min,s=sec,rc=status)
-    _VERIFY(status)
+    _verify(status)
 
   end function parse_time_string
 

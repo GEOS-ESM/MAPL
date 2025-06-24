@@ -94,7 +94,7 @@ module MAPL_VerticalDataMod
         logical :: local_force_no_regrid
 
         if (present(positive)) then
-           _ASSERT(trim(positive)=='up'.or.trim(positive)=='down',trim(positive)//" not allowed for positive argument")
+           _assert(trim(positive)=='up'.or.trim(positive)=='down',trim(positive)//" not allowed for positive argument")
            vdata%positive=trim(positive)
         else
            vdata%positive='down'
@@ -144,7 +144,7 @@ module MAPL_VerticalDataMod
               else
                  vdata%regrid_type = VERTICAL_METHOD_FLIP
               end if
-              _RETURN(_SUCCESS)
+              _return(_success)
            end if
            allocate(vData%scaled_levels,source=levels)
            if (present(vscale)) then
@@ -181,7 +181,7 @@ module MAPL_VerticalDataMod
         integer :: status
         character(len=ESMF_MAXSTR) :: name
 
-        call ESMF_FieldGet(field,name=name,_RC)
+        call ESMF_FieldGet(field,name=name,_rc)
         skip = trim(name)==trim(this%vvar)
      end function skip_var
 
@@ -199,17 +199,17 @@ module MAPL_VerticalDataMod
 
         if (allocated(this%ple3d)) deallocate(this%ple3d)
         if (allocated(this%pl3d)) deallocate(this%pl3d)
-        call ESMF_FieldGet(this%interp_var,localde=0,farrayptr=ptr3,_RC)
+        call ESMF_FieldGet(this%interp_var,localde=0,farrayptr=ptr3,_rc)
 
         allocate(orig_surface_level(size(ptr3,1),size(ptr3,2)),stat=status)
-        _VERIFY(status)
+        _verify(status)
 ! the ptr3 interpolating variable is a zero-based (0-lm) edge variable
 !---------------------------------------------------------------------
        if(lbound(ptr3,3)==0) then
           allocate( this%ple3d(size(ptr3,1),size(ptr3,2),size(ptr3,3)  ), stat=status)
-          _VERIFY(status)
+          _verify(status)
           allocate(  this%pl3d(size(ptr3,1),size(ptr3,2),size(ptr3,3)-1), stat=status)
-          _VERIFY(status)
+          _verify(status)
 
           if    (this%func=='log') then
              this%ple3d = log(ptr3)
@@ -228,11 +228,11 @@ module MAPL_VerticalDataMod
 ! the ptr3 interpolating variable is a (1-lm) mid-layer variable
 !---------------------------------------------------------------
           allocate(  ptrx(size(ptr3,1),size(ptr3,2),0:size(ptr3,3)  ), stat=status)
-          _VERIFY(status)
+          _verify(status)
           allocate( this%ple3d(size(ptr3,1),size(ptr3,2),0:size(ptr3,3)  ), stat=status)
-          _VERIFY(status)
+          _verify(status)
           allocate(  this%pl3d(size(ptr3,1),size(ptr3,2),  size(ptr3,3)  ), stat=status)
-          _VERIFY(status)
+          _verify(status)
 
           ptrx(:,:,0               ) = 0.5*( 3* ptr3(:,:,1)             -ptr3(:,:,2)                )
           ptrx(:,:,1:size(ptr3,3)-1) = 0.5*(    ptr3(:,:,2:size(ptr3,3))+ptr3(:,:,1:size(ptr3,3)-1) )
@@ -254,21 +254,21 @@ module MAPL_VerticalDataMod
           deallocate(ptrx)
        end if
        if (present(output_grid)) then
-          _ASSERT(present(regrid_handle),"Must provide regridding handle")
-          call MAPL_GridGet(output_grid,localCellCountPerDim=counts,_RC)
+          _assert(present(regrid_handle),"Must provide regridding handle")
+          call MAPL_GridGet(output_grid,localCellCountPerDim=counts,_rc)
           if (.not.allocated(this%surface_level)) then
               allocate(this%surface_level(counts(1),counts(2)),stat=status)
-             _VERIFY(status)
+             _verify(status)
           end if
        end if
        if (present(regrid_handle)) then
-          call regrid_handle%regrid(orig_surface_level,this%surface_level,_RC)
+          call regrid_handle%regrid(orig_surface_level,this%surface_level,_rc)
        end if
        deallocate(orig_surface_level)
 
-       call init_indices(_RC)
+       call init_indices(_rc)
 
-       _RETURN(_SUCCESS)
+       _return(_success)
 
        contains
           ! initialize for pl3d ( not ple3d)
@@ -332,7 +332,7 @@ module MAPL_VerticalDataMod
             enddo
             deallocate(this%ple3d) ! not needed any more. release the memory
 
-            _RETURN(_SUCCESS)
+            _return(_success)
           end subroutine
 
      end subroutine setup_eta_to_pressure
@@ -382,9 +382,9 @@ module MAPL_VerticalDataMod
           enddo
         enddo
         if (this%extrap_below_surf) then
-           call this%do_below_surf_extrap(ptrin, ptrout, var_name=var_name, _RC) 
+           call this%do_below_surf_extrap(ptrin, ptrout, var_name=var_name, _rc) 
         end if
-        _RETURN(_SUCCESS)
+        _return(_success)
 
      end subroutine regrid_eta_to_pressure
 
@@ -405,18 +405,18 @@ module MAPL_VerticalDataMod
            if (index(var_name,"temperature")/=0) var_flag = VFLAG_GEOT
            if (index(var_name,"height")/=0) var_flag = VFLAG_GEOZ
         end if 
-        allocate(lev_out_bars,source=this%scaled_levels,_STAT)
+        allocate(lev_out_bars,source=this%scaled_levels,_stat)
         lev_out_bars=lev_out_bars*0.01
-        call ESMF_FieldGet(this%interp_var, 0, farrayPtr=ple, _RC) 
-        call ESMF_FieldGet(this%phis_var, 0, farrayPtr=phis, _RC)
-        call ESMF_FieldGet(this%ts_var, 0, farrayPtr=ts, _RC)
+        call ESMF_FieldGet(this%interp_var, 0, farrayPtr=ple, _rc) 
+        call ESMF_FieldGet(this%phis_var, 0, farrayPtr=phis, _rc)
+        call ESMF_FieldGet(this%ts_var, 0, farrayPtr=ts, _rc)
         mid_level = size(data_in,3) == size(ple,3)-1
         im = size(ple,1)
         jm = size(ple,2)
         lm = size(ple,3)-1
         lm_out = size(this%scaled_levels)
         if (mid_level) then
-           allocate(pmid(im,jm,lm),_STAT)
+           allocate(pmid(im,jm,lm),_stat)
            do k=1,lm
               pmid(:,:,k) = (ple(:,:,k)+ple(:,:,k-1))/2.0
            enddo
@@ -425,14 +425,14 @@ module MAPL_VerticalDataMod
         do i=1,im
            do j=1,jm
               if (mid_level) then
-                 call extrap_column(data_in(i,j,:),data_out(i,j,:),pmid(i,j,:),ple(i,j,lm),lev_out_bars, this%ks(i,j,:), var_flag, phis(i,j), ts(i,j),  _RC)
+                 call extrap_column(data_in(i,j,:),data_out(i,j,:),pmid(i,j,:),ple(i,j,lm),lev_out_bars, this%ks(i,j,:), var_flag, phis(i,j), ts(i,j),  _rc)
               else
-                 call extrap_column(data_in(i,j,:),data_out(i,j,:),ple(i,j,:),ple(i,j,lm),lev_out_bars, this%ks_e(i,j,:), var_flag, phis(i,j), ts(i,j), _RC)
+                 call extrap_column(data_in(i,j,:),data_out(i,j,:),ple(i,j,:),ple(i,j,lm),lev_out_bars, this%ks_e(i,j,:), var_flag, phis(i,j), ts(i,j), _rc)
               end if
            enddo
         enddo
 
-        _RETURN(_SUCCESS)
+        _return(_success)
 
         contains
 
@@ -538,14 +538,14 @@ module MAPL_VerticalDataMod
 
         integer :: km
 
-        _ASSERT(all(shape(ptrin)==shape(ptrout)),"array must match shape to flip")
+        _assert(all(shape(ptrin)==shape(ptrout)),"array must match shape to flip")
 
         km = size(ptrin,3)
 
         ptrout(:,:,1:km)=ptrin(:,:,km:1:-1)
-        _RETURN(_SUCCESS)
+        _return(_success)
 
-        _UNUSED_DUMMY(this)
+        _unused_dummy(this)
 
      end subroutine flip_levels
 
@@ -559,14 +559,14 @@ module MAPL_VerticalDataMod
         type(ESMF_Grid) :: grid
         logical :: has_de
 
-        _ASSERT(allocated(this%surface_level),"class not setup to do topography correction")
+        _assert(allocated(this%surface_level),"class not setup to do topography correction")
         if (this%regrid_type == VERTICAL_METHOD_ETA2LEV) then
-           call ESMF_FieldGet(field,grid=grid,_RC)
-           has_de = MAPL_GridHasDE(grid,_RC)
+           call ESMF_FieldGet(field,grid=grid,_rc)
+           has_de = MAPL_GridHasDE(grid,_rc)
            if (has_de) then
-              call ESMF_FieldGet(field,rank=rank,_RC)
+              call ESMF_FieldGet(field,rank=rank,_rc)
               if (rank==3) then
-                 call ESMF_FieldGet(field,0,farrayptr=ptr,_RC)
+                 call ESMF_FieldGet(field,0,farrayptr=ptr,_rc)
                  do k=1,size(ptr,3)
                     if (this%ascending) then
                        where(this%surface_level<this%scaled_levels(k)) ptr(:,:,k)=MAPL_UNDEF
@@ -577,7 +577,7 @@ module MAPL_VerticalDataMod
               end if
            end if
         end if
-        _RETURN(_SUCCESS)
+        _return(_success)
 
      end subroutine correct_topo
 
@@ -592,7 +592,7 @@ module MAPL_VerticalDataMod
         do i=1,size(this%levs)
            ptrOut(:,:,i)=ptrIn(:,:,nint(this%levs(i)))
         enddo
-        _RETURN(ESMF_SUCCESS)
+        _return(ESMF_SUCCESS)
 
      end subroutine regrid_select_level
 
@@ -603,10 +603,10 @@ module MAPL_VerticalDataMod
 
         integer :: status
 
-        call ESMF_FieldBundleGet(bundle,fieldName=trim(this%vvar),field=this%interp_var,_RC)
+        call ESMF_FieldBundleGet(bundle,fieldName=trim(this%vvar),field=this%interp_var,_rc)
         if (this%extrap_below_surf) then
-           call ESMF_FieldBundleGet(bundle,fieldName='PHIS',field=this%phis_var,_RC)
-           call ESMF_FieldBundleGet(bundle,fieldName='TS',field=this%ts_var,_RC)
+           call ESMF_FieldBundleGet(bundle,fieldName='PHIS',field=this%phis_var,_rc)
+           call ESMF_FieldBundleGet(bundle,fieldName='TS',field=this%ts_var,_rc)
         end if
  
 
@@ -640,50 +640,50 @@ module MAPL_VerticalDataMod
         character(len=4) :: positive
 
         ! loop over variables in file
-        call ESMF_FieldBundleGet(bundle,fieldCount=NumVars,_RC)
+        call ESMF_FieldBundleGet(bundle,fieldCount=NumVars,_rc)
         allocate(VarDims(numVars),location(numVars))
 
         allocate(hasUngrid(NumVars))
         hasUngrid=.false.
-        allocate(ungridded_names(NumVars), _STAT)
+        allocate(ungridded_names(NumVars), _stat)
         ungridded_names=""
-        allocate(ungridded_units(NumVars), _STAT)
+        allocate(ungridded_units(NumVars), _stat)
         ungridded_units=""
 
         do i=1,numVars
-           call ESMF_FieldBundleGet(bundle,i,field,_RC)
+           call ESMF_FieldBundleGet(bundle,i,field,_rc)
            positive = 'down'
-           call ESMF_AttributeGet(field,NAME="POSITIVE",isPresent=isPresent,_RC)
+           call ESMF_AttributeGet(field,NAME="POSITIVE",isPresent=isPresent,_rc)
            if (isPresent) then
-              call ESMF_AttributeGet(field,name="POSITIVE", value=positive, _RC)
+              call ESMF_AttributeGet(field,name="POSITIVE", value=positive, _rc)
            end if
            if (i .eq. 1) this%positive=positive
            if (i .gt. 1) then
-              _ASSERT(this%positive==positive,"Fields have mistmatched positive attributes")
+              _assert(this%positive==positive,"Fields have mistmatched positive attributes")
               this%positive=positive
            end if
-           call ESMF_FieldGet(field,dimCount=FieldRank,_RC)
+           call ESMF_FieldGet(field,dimCount=FieldRank,_rc)
            if (fieldRank==2) then
               varDims(i)=0
            else if (fieldRank==3) then
-              call ESMF_AttributeGet(field,name="VLOCATION", value=location(i),_RC)
-              call ESMF_FieldGet(field,farrayPtr=ptr3d,_RC)
+              call ESMF_AttributeGet(field,name="VLOCATION", value=location(i),_rc)
+              call ESMF_FieldGet(field,farrayPtr=ptr3d,_rc)
               varDims(i)=size(ptr3d,3)
               if (location(i) == MAPL_VLocationNone) then
                  hasUngrid(I) = .true.
-                 call ESMF_AttributeGet(field,NAME="UNGRIDDED_UNIT",value=ungridded_unit,_RC)
-                 call ESMF_AttributeGet(field,NAME="UNGRIDDED_NAME",value=ungridded_name,_RC)
+                 call ESMF_AttributeGet(field,NAME="UNGRIDDED_UNIT",value=ungridded_unit,_rc)
+                 call ESMF_AttributeGet(field,NAME="UNGRIDDED_NAME",value=ungridded_name,_rc)
                  ungridded_names(i) = ungridded_name
                  ungridded_units(i) = ungridded_unit
-                 call ESMF_AttributeGet(field,NAME="UNGRIDDED_COORDS",isPresent=isPresent,_RC)
+                 call ESMF_AttributeGet(field,NAME="UNGRIDDED_COORDS",isPresent=isPresent,_rc)
                  if (isPresent) then
-                    call ESMF_AttributeGet(field,NAME="UNGRIDDED_COORDS",itemcount=ungrdsize,_RC)
+                    call ESMF_AttributeGet(field,NAME="UNGRIDDED_COORDS",itemcount=ungrdsize,_rc)
                     if (ungrdsize/=0) then
-                       _ASSERT(varDims(i)==ungrdsize,"ungridded size does not match variable")
+                       _assert(varDims(i)==ungrdsize,"ungridded size does not match variable")
                        if (.not.allocated(ungridded_coord)) allocate(ungridded_coord(ungrdsize),stat=status)
                        if (.not.allocated(ungridded_coords)) allocate(ungridded_coords(NumVars,ungrdsize),stat=status)
-                       _VERIFY(STATUS)
-                       call ESMF_AttributeGet(field,NAME="UNGRIDDED_COORDS",valuelist=ungridded_coord,_RC)
+                       _verify(STATUS)
+                       call ESMF_AttributeGet(field,NAME="UNGRIDDED_COORDS",valuelist=ungridded_coord,_rc)
                        ungridded_coords(i,:) = ungridded_coord
                     end if
                  end if
@@ -703,7 +703,7 @@ module MAPL_VerticalDataMod
                    unGrdCoordCheck = .false.
                 end if
                 if ( unGrdUnitCheck .or. unGrdNameCheck .or. unGrdCoordCheck) then
-                   _FAIL('Ungridded attributes for variables in collection do not match')
+                   _fail('Ungridded attributes for variables in collection do not match')
                 end if
              end if
           end do
@@ -749,7 +749,7 @@ module MAPL_VerticalDataMod
            end if
         end if
         if (this%regrid_type == VERTICAL_METHOD_NONE) then
-           _ASSERT(.not.(found_mixed_ce),'have mixed level/edge')
+           _assert(.not.(found_mixed_ce),'have mixed level/edge')
         end if
 
 
@@ -773,7 +773,7 @@ module MAPL_VerticalDataMod
                  call v%add_attribute('standard_name',ungridded_name)
                  call v%add_attribute('coordinate','N/A')
                  call v%add_const_value(UnlimitedEntity(this%levs))
-                 call metadata%add_variable('lev',v,_RC)
+                 call metadata%add_variable('lev',v,_rc)
               else
                  call metadata%add_dimension('lev', lm)
                  v = Variable(type=PFIO_REAL64, dimensions='lev')
@@ -783,7 +783,7 @@ module MAPL_VerticalDataMod
                  call v%add_attribute('coordinate',this%vcoord)
                  call v%add_attribute('standard_name',this%standard_name)
                  call v%add_const_value(UnlimitedEntity(this%levs))
-                 call metadata%add_variable('lev',v,_RC)
+                 call metadata%add_variable('lev',v,_rc)
               end if
 
            else if (this%regrid_type == VERTICAL_METHOD_ETA2LEV) then
@@ -799,7 +799,7 @@ module MAPL_VerticalDataMod
               call v%add_attribute('coordinate',trim(this%vvar))
               call v%add_attribute('standard_name',trim(this%vvar)//"_level")
               call v%add_const_value(UnlimitedEntity(this%levs))
-              call metadata%add_variable('lev',v,_RC)
+              call metadata%add_variable('lev',v,_rc)
 
            else if (this%regrid_type == VERTICAL_METHOD_SELECT) then
               call metadata%add_dimension('lev', lm)
@@ -810,10 +810,10 @@ module MAPL_VerticalDataMod
               call v%add_attribute('coordinate','eta')
               call v%add_attribute('standard_name','model_layers')
               call v%add_const_value(UnlimitedEntity(this%levs))
-              call metadata%add_variable('lev',v,_RC)
+              call metadata%add_variable('lev',v,_rc)
            end if
         end if
-        _RETURN(_SUCCESS)
+        _return(_success)
 
      end subroutine append_vertical_metadata
 

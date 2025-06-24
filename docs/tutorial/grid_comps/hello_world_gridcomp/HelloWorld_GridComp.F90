@@ -19,10 +19,10 @@ module HelloWorld_GridComp
 
      integer :: status
 
-     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_INITIALIZE,  my_initialize, _RC)
-     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_RUN,  my_run, _RC)
-     call MAPL_GenericSetServices(gc, _RC)
-     _RETURN(_SUCCESS)
+     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_INITIALIZE,  my_initialize, _rc)
+     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_RUN,  my_run, _rc)
+     call MAPL_GenericSetServices(gc, _rc)
+     _return(_success)
 
   end subroutine setservices
 
@@ -36,10 +36,10 @@ module HelloWorld_GridComp
 
      integer :: status
 
-     call MAPL_GridCreate(gc, _RC)
-     call MAPL_GenericInitialize(gc, import, export, clock, _RC)
+     call MAPL_GridCreate(gc, _rc)
+     call MAPL_GenericInitialize(gc, import, export, clock, _rc)
 
-     _RETURN(_SUCCESS)
+     _return(_success)
 
   end subroutine my_initialize
 
@@ -54,17 +54,17 @@ module HelloWorld_GridComp
      type(ESMF_Time) :: current_time
      integer :: status
 
-     call ESMF_ClockGet(clock,currTime=current_time,_RC)
+     call ESMF_ClockGet(clock,currTime=current_time,_rc)
      write(*,*)
      write(*,*)
      write(*,*)"Hello World, I say the time is:"
-     call ESMF_TimePrint(current_time,options='string',_RC)
+     call ESMF_TimePrint(current_time,options='string',_rc)
 
-     _RETURN(_SUCCESS)
+     _return(_success)
 
-     _UNUSED_DUMMY(gc)
-     _UNUSED_DUMMY(import)
-     _UNUSED_DUMMY(export)
+     _unused_dummy(gc)
+     _unused_dummy(import)
+     _unused_dummy(export)
 
   end subroutine my_run
 

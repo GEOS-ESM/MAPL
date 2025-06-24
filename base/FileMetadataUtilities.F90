@@ -64,15 +64,15 @@ module MAPL_FileMetadataUtilsMod
       character(:), allocatable :: fname
       type(Variable), pointer :: var
 
-      fname = this%get_file_name(_RC)
-      var => this%get_variable(var_name,_RC)
-      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+      fname = this%get_file_name(_rc)
+      var => this%get_variable(var_name,_rc)
+      _assert(associated(var),"no variable named "//var_name//" in "//fname)
       ! check _FillValue, we could do more, not sure what to do here like also check for missing_value ...
       if (this%var_has_attr(var_name,"_FillValue")) then
-         missing_value = this%get_var_attr_real32(var_name,"_FillValue",_RC)
+         missing_value = this%get_var_attr_real32(var_name,"_FillValue",_rc)
       end if
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function var_get_missing_value
 
    logical function var_has_missing_value(this,var_name,rc)
@@ -84,12 +84,12 @@ module MAPL_FileMetadataUtilsMod
       character(:), allocatable :: fname
       type(Variable), pointer :: var
 
-      fname = this%get_file_name(_RC)
-      var => this%get_variable(var_name,_RC)
-      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+      fname = this%get_file_name(_rc)
+      var => this%get_variable(var_name,_rc)
+      _assert(associated(var),"no variable named "//var_name//" in "//fname)
       var_has_missing_value = var%is_attribute_present("_FillValue")
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function var_has_missing_value
 
    logical function var_has_attr(this,var_name,attr_name,rc)
@@ -102,11 +102,11 @@ module MAPL_FileMetadataUtilsMod
       character(:), allocatable :: fname
       type(Variable), pointer :: var
 
-      fname = this%get_file_name(_RC)
-      var => this%get_variable(var_name,_RC)
-      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+      fname = this%get_file_name(_rc)
+      var => this%get_variable(var_name,_rc)
+      _assert(associated(var),"no variable named "//var_name//" in "//fname)
       var_has_attr = var%is_attribute_present(attr_name)
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function var_has_attr
 
    function get_var_attr_real32(this,var_name,attr_name,rc) result(attr_real32)
@@ -120,13 +120,13 @@ module MAPL_FileMetadataUtilsMod
       character(:), allocatable :: fname
       type(Variable), pointer :: var
 
-      fname = this%get_file_name(_RC)
-      var => this%get_variable(var_name,_RC)
-      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+      fname = this%get_file_name(_rc)
+      var => this%get_variable(var_name,_rc)
+      _assert(associated(var),"no variable named "//var_name//" in "//fname)
       attr_real32 = var%get_attribute_real32(attr_name, rc=status)
-      _ASSERT(status == _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
+      _assert(status == _success, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function get_var_attr_real32
 
    function get_var_attr_real64(this,var_name,attr_name,rc) result(attr_real64)
@@ -140,12 +140,12 @@ module MAPL_FileMetadataUtilsMod
       character(:), allocatable :: fname
       type(Variable), pointer :: var
 
-      fname = this%get_file_name(_RC)
-      var => this%get_variable(var_name,_RC)
-      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+      fname = this%get_file_name(_rc)
+      var => this%get_variable(var_name,_rc)
+      _assert(associated(var),"no variable named "//var_name//" in "//fname)
       attr_real64 = var%get_attribute_real64(attr_name, rc=status)
-      _ASSERT(status == _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
-      _RETURN(_SUCCESS)
+      _assert(status == _success, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
+      _return(_success)
 
    end function get_var_attr_real64
 
@@ -160,13 +160,13 @@ module MAPL_FileMetadataUtilsMod
       character(:), allocatable :: fname
       type(Variable), pointer :: var
 
-      fname = this%get_file_name(_RC)
-      var => this%get_variable(var_name,_RC)
-      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+      fname = this%get_file_name(_rc)
+      var => this%get_variable(var_name,_rc)
+      _assert(associated(var),"no variable named "//var_name//" in "//fname)
       attr_int32 = var%get_attribute_int32(attr_name, rc=status)
-      _ASSERT(status == _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
+      _assert(status == _success, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function get_var_attr_int32
 
    function get_var_attr_int64(this,var_name,attr_name,rc) result(attr_int64)
@@ -180,13 +180,13 @@ module MAPL_FileMetadataUtilsMod
       character(:), allocatable :: fname
       type(Variable), pointer :: var
 
-      fname = this%get_file_name(_RC)
-      var => this%get_variable(var_name,_RC)
-      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+      fname = this%get_file_name(_rc)
+      var => this%get_variable(var_name,_rc)
+      _assert(associated(var),"no variable named "//var_name//" in "//fname)
       attr_int64 = var%get_attribute_int64(attr_name, rc=status)
-      _ASSERT(status == _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
+      _assert(status == _success, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function get_var_attr_int64
 
    function get_var_attr_string(this,var_name,attr_name,rc) result(attr_string)
@@ -200,13 +200,13 @@ module MAPL_FileMetadataUtilsMod
       character(:), allocatable :: fname
       type(Variable), pointer :: var
 
-      fname = this%get_file_name(_RC)
-      var => this%get_variable(var_name,_RC)
-      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+      fname = this%get_file_name(_rc)
+      var => this%get_variable(var_name,_rc)
+      _assert(associated(var),"no variable named "//var_name//" in "//fname)
       attr_string = var%get_attribute_string(attr_name, rc=status)
-      _ASSERT(status == _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
+      _assert(status == _success, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function get_var_attr_string
 
    subroutine get_time_info(this,startTime,startyear,startmonth,startday,starthour,startmin,startsec,units,timeVector,rc)
@@ -242,9 +242,9 @@ module MAPL_FileMetadataUtilsMod
       real(REAL64), allocatable :: tr_r64(:)
       type(ESMF_TimeInterval) :: tint
 
-      fname = this%get_file_name(_RC)
+      fname = this%get_file_name(_rc)
       var => this%get_coordinate_variable('time',rc=status)
-      _VERIFY(status)
+      _verify(status)
       attr => var%get_attribute('units')
       ptimeUnits => attr%get_value()
       select type(pTimeUnits)
@@ -321,17 +321,17 @@ module MAPL_FileMetadataUtilsMod
            endif
          endif
       class default
-         _FAIL("Time unit must be character in "//fname)
+         _fail("Time unit must be character in "//fname)
       end select
       call ESMF_TimeSet(unmodStartTime,yy=year,mm=month,dd=day,h=hour,m=min,s=sec,rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call this%get_coordinate_info('time',coordSize=tsize,rc=status)
-      _VERIFY(status)
+      _verify(status)
       allocate(tr_r64(tsize))
       allocate(tvec(tsize))
       ptr => var%get_coordinate_data()
-      _ASSERT(associated(ptr),"time variable coordinate data not found in "//fname)
+      _assert(associated(ptr),"time variable coordinate data not found in "//fname)
       select type (ptr)
       type is (real(kind=REAL64))
          tr_r64=ptr
@@ -342,33 +342,33 @@ module MAPL_FileMetadataUtilsMod
       type is (integer(kind=INT32))
          tr_r64=ptr
       class default
-         _FAIL("unsupported time variable type in "//fname)
+         _fail("unsupported time variable type in "//fname)
       end select
       do i=1,tsize
         select case (trim(tUnits))
         case ("days")
            call ESMF_TimeIntervalSet(tint,d_r8=tr_r64(i),rc=status)
-           _VERIFY(status)
+           _verify(status)
            tvec(i)=unmodStartTime+tint
         case ("hours")
            call ESMF_TimeIntervalSet(tint,h_r8=tr_r64(i),rc=status)
-           _VERIFY(status)
+           _verify(status)
            tvec(i)=unmodStartTime+tint
         case ("minutes")
            call ESMF_TimeIntervalSet(tint,m_r8=tr_r64(i),rc=status)
-           _VERIFY(status)
+           _verify(status)
            tvec(i)=unmodStartTime+tint
         case ("seconds")
            call ESMF_TimeIntervalSet(tint,s_r8=tr_r64(i),rc=status)
-           _VERIFY(status)
+           _verify(status)
            tvec(i)=unmodStartTime+tint
         case default
-           _FAIL("unsupported time unit in "//fname)
+           _fail("unsupported time unit in "//fname)
         end select
       enddo
 
       call ESMF_TimeGet(tVec(1),yy=year,mm=month,dd=day,h=hour,m=min,s=sec,rc=status)
-      _VERIFY(status)
+      _verify(status)
       if (present(startYear)) startYear=year
       if (present(startMonth)) startMonth=month
       if (present(startDay)) startDay=day
@@ -380,9 +380,9 @@ module MAPL_FileMetadataUtilsMod
       end if
       if (present(timeVector)) then
          allocate(timeVector,source=tVec,stat=status)
-         _VERIFY(status)
+         _verify(status)
       end if
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine get_time_info
  
@@ -393,7 +393,7 @@ module MAPL_FileMetadataUtilsMod
 
       logical :: isPresent
       class(Variable), pointer :: var
-      _UNUSED_DUMMY(rc)
+      _unused_dummy(rc)
 
       var => this%get_variable(var_name)
       isPresent = associated(var)
@@ -413,9 +413,9 @@ module MAPL_FileMetadataUtilsMod
       logical :: isPresent
       integer :: status
     
-      fname = this%get_file_name(_RC)
+      fname = this%get_file_name(_rc)
       var => this%get_variable(var_name,rc=status)
-      _VERIFY(status)
+      _verify(status)
       isPresent = var%is_attribute_present(trim(attr_name))
       if (isPresent) then
          attr => var%get_attribute(trim(attr_name))
@@ -424,12 +424,12 @@ module MAPL_FileMetadataUtilsMod
          type is (character(*))
             units => vunits
          class default
-            _FAIL('units must be string for '//var_name//' in '//fname)
+            _fail('units must be string for '//var_name//' in '//fname)
          end select
       else
          units => null()
       end if
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function get_variable_attribute
 
@@ -452,9 +452,9 @@ module MAPL_FileMetadataUtilsMod
       class(*), pointer :: coordUnitPtr
       class(*), pointer :: ptr(:)
  
-      fname = this%get_file_name(_RC)
+      fname = this%get_file_name(_rc)
       var => this%get_coordinate_variable(trim(coordinate_name),rc=status)
-      _VERIFY(status)
+      _verify(status)
    
       if (present(coordSize)) then
          vdim => var%get_ith_dimension(1)
@@ -468,7 +468,7 @@ module MAPL_FileMetadataUtilsMod
          type is (character(*))
             coordUnits = trim(coordUnitPtr)
          class default
-            _FAIL(trim(coordinate_name)//' units must be string in '//fname)
+            _fail(trim(coordinate_name)//' units must be string in '//fname)
          end select
       end if 
 
@@ -480,7 +480,7 @@ module MAPL_FileMetadataUtilsMod
             type is (character(*))
                long_name = trim(coordUnitPtr)
             class default
-               _FAIL(trim(coordinate_name)//' long_name must be string in '//fname)
+               _fail(trim(coordinate_name)//' long_name must be string in '//fname)
             end select
          else
              long_name = 'not found'
@@ -495,7 +495,7 @@ module MAPL_FileMetadataUtilsMod
             type is (character(*))
                standard_name = trim(coordUnitPtr)
             class default
-               _FAIL(trim(coordinate_name)//' standard_name must be string in '//fname)
+               _fail(trim(coordinate_name)//' standard_name must be string in '//fname)
             end select
          else
              standard_name = 'not found'
@@ -510,7 +510,7 @@ module MAPL_FileMetadataUtilsMod
             type is (character(*))
                coordinate_attr = trim(coordUnitPtr)
             class default
-               _FAIL(trim(coordinate_name)//' name must be string in '//fname)
+               _fail(trim(coordinate_name)//' name must be string in '//fname)
             end select
          else
              coordinate_attr = 'not found'
@@ -519,7 +519,7 @@ module MAPL_FileMetadataUtilsMod
 
       if (present(coords)) then
          ptr => var%get_coordinate_data()
-         _ASSERT(associated(ptr),"coord variable coordinate data not found in "//fname)
+         _assert(associated(ptr),"coord variable coordinate data not found in "//fname)
          select type (ptr)
          type is (real(kind=REAL64))
             coords=ptr
@@ -530,10 +530,10 @@ module MAPL_FileMetadataUtilsMod
          type is (integer(kind=INT32))
             coords=ptr
          class default
-            _FAIL("unsupported coordinate variable type in "//fname)
+            _fail("unsupported coordinate variable type in "//fname)
          end select
       end if
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine get_coordinate_info
 
@@ -556,14 +556,14 @@ module MAPL_FileMetadataUtilsMod
          if (associated(var)) then
             if (index(var_name,'lev') .ne. 0 .or. index(var_name,'height') .ne. 0) then
                lev_name=var_name
-               _RETURN(_SUCCESS)
+               _return(_success)
             else
                if (var%is_attribute_present('units')) then
                units => this%get_variable_attribute(var_name,'units')
                   if (trim(units) .eq. 'hPa' .or. trim(units) .eq. 'sigma_level' .or. &
                       trim(units) .eq. 'mb'  .or. trim(units) .eq. 'millibar') then
                      lev_name=var_name
-                     _RETURN(_SUCCESS)
+                     _return(_success)
                   end if
                end if
             end if
@@ -571,7 +571,7 @@ module MAPL_FileMetadataUtilsMod
          call var_iter%next()
       enddo
       lev_name=''
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function get_level_name
 
@@ -583,7 +583,7 @@ module MAPL_FileMetadataUtilsMod
 
       fname = this%fileName
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function get_file_name
 
 end module MAPL_FileMetadataUtilsMod

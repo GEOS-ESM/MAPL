@@ -32,7 +32,7 @@ subroutine SUB_ ( data, UNIT, ARRDES, format, RC)
   if (MAPL_AM_I_ROOT()) then
    if(arrdes%offset>=0) then
       call MPI_FILE_SEEK(UNIT, arrdes%offset, MPI_SEEK_SET, STATUS)
-      _VERIFY(STATUS)
+      _verify(STATUS)
    endif
 
 #if (RANK_ == 0)
@@ -62,7 +62,7 @@ subroutine SUB_ ( data, UNIT, ARRDES, format, RC)
    print*, arrdes%offset, recl, arrdes%offset + size(data)*EKIND_ + 8
 #endif
 #endif
-   _VERIFY(STATUS)
+   _verify(STATUS)
 
   endif
 
@@ -76,32 +76,32 @@ subroutine SUB_ ( data, UNIT, ARRDES, format, RC)
    arrdes%offset = arrdes%offset + size(data)*EKIND_ + 8
 #endif
 
-   _RETURN(ESMF_SUCCESS)
+   _return(ESMF_SUCCESS)
  endif
 
   if (present(unit)) then
      if (unit == UNDEF) then
-        _RETURN(ESMF_SUCCESS)
+        _return(ESMF_SUCCESS)
      endif
      if(unit < 0) then
 
 #if (RANK_ > 2 || VARTYPE_ <= 0)
 
-        _FAIL('needs informative message')
+        _fail('needs informative message')
 
 #else
 
-        _ASSERT(-UNIT<=LAST_UNIT,'needs informative message')
+        _assert(-UNIT<=LAST_UNIT,'needs informative message')
         munit => MEM_units(-unit)
         munit%prevrec = munit%prevrec + 1
 
         if(.not.associated(munit%Records)) then
            allocate(Rec(16),stat=status)
            munit%Records => REC
-           _VERIFY(STATUS)
+           _verify(STATUS)
         elseif(size(munit%Records)< munit%prevrec) then
            allocate(REC(munit%prevrec*2),stat=status)
-           _VERIFY(STATUS)
+           _verify(STATUS)
            REC(:munit%prevrec-1) = munit%Records
            deallocate(munit%Records)
            munit%Records => REC
@@ -109,17 +109,17 @@ subroutine SUB_ ( data, UNIT, ARRDES, format, RC)
 
 #if (RANK_ == 0)
         call dealloc_(munit%Records(munit%prevrec),rc=status)
-        _VERIFY(STATUS)
+        _verify(STATUS)
 #endif
 
 #if (RANK_ == 1)
         call alloc_(munit%Records(munit%prevrec),TKR_,size(data,1),rc=status)
-        _VERIFY(STATUS)
+        _verify(STATUS)
 #endif
 
 #if (RANK_ == 2)
         call alloc_(munit%Records(munit%prevrec),TKR_,size(data,1),size(data,2),rc=status)
-        _VERIFY(STATUS)
+        _verify(STATUS)
 #endif
 
         munit%Records(munit%prevrec)%TKR_  = data
@@ -145,7 +145,7 @@ subroutine SUB_ ( data, UNIT, ARRDES, format, RC)
      end if
   end if
 
-  _RETURN(ESMF_SUCCESS)
+  _return(ESMF_SUCCESS)
 
 end subroutine SUB_
 

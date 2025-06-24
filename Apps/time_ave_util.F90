@@ -134,19 +134,19 @@ program  time_ave
 !call timebeg ('main')
 
    call mpi_init                ( ierror ) 
-   _VERIFY(ierror)
+   _verify(ierror)
    comm = mpi_comm_world
    call mpi_comm_rank ( comm,myid,ierror )
-   _VERIFY(ierror)
+   _verify(ierror)
    call mpi_comm_size ( comm,npes,ierror )
-   _VERIFY(ierror)
-   call ESMF_Initialize(logKindFlag=ESMF_LOGKIND_NONE,mpiCommunicator=MPI_COMM_WORLD, _RC)
-   call MAPL_Initialize(_RC)
+   _verify(ierror)
+   call ESMF_Initialize(logKindFlag=ESMF_LOGKIND_NONE,mpiCommunicator=MPI_COMM_WORLD, _rc)
+   call MAPL_Initialize(_rc)
    t_prof = DistributedProfiler('time_ave_util',MpiTImerGauge(),MPI_COMM_WORLD)
-   call t_prof%start(_RC)
-   call io_server%initialize(MPI_COMM_WORLD,_RC)
+   call t_prof%start(_rc)
+   call io_server%initialize(MPI_COMM_WORLD,_rc)
    root = myid.eq.0
-   call ESMF_CalendarSetDefault(ESMF_CALKIND_GREGORIAN,_RC)
+   call ESMF_CalendarSetDefault(ESMF_CALKIND_GREGORIAN,_rc)
 
 ! Read Command Line Arguments
 ! ---------------------------
@@ -364,31 +364,31 @@ program  time_ave
    n = index(trim(name),'.',back=.true.)
    ext = trim(name(n+1:))
 
-   call file_handle%open(trim(name),PFIO_READ,_RC)
-   basic_metadata = file_handle%read(_RC)
-   call file_handle%close(_RC)
+   call file_handle%open(trim(name),PFIO_READ,_rc)
+   basic_metadata = file_handle%read(_rc)
+   call file_handle%close(_rc)
 
    allocate(factory, source=grid_manager%make_factory(trim(name)))
    input_grid = grid_manager%make_grid(factory)
-   file_has_lev = has_level(input_grid,_RC)
-   call MAPL_GridGet(input_grid,globalCellCountPerDim=global_dims,_RC)
+   file_has_lev = has_level(input_grid,_rc)
+   call MAPL_GridGet(input_grid,globalCellCountPerDim=global_dims,_rc)
    lm = global_dims(3)
 
    if (file_has_lev) then
-      call get_file_levels(trim(name),vertical_data,_RC)
+      call get_file_levels(trim(name),vertical_data,_rc)
    end if
 
    if (allocated(output_grid_name)) then
-      output_grid = create_output_grid(output_grid_name,lm,_RC)
+      output_grid = create_output_grid(output_grid_name,lm,_rc)
    else
       output_grid = input_grid
    end if
-   call ESMF_AttributeGet(output_grid,'GridType',grid_type,_RC)
+   call ESMF_AttributeGet(output_grid,'GridType',grid_type,_rc)
    allow_zonal_means = trim(grid_type) == 'LatLon'
    if (trim(grid_type) == "Cubed-Sphere") then
-      _ASSERT(mod(npes,6)==0,"If input files are Cubed-Sphere, must be run on multiple of 6 proccessors")
+      _assert(mod(npes,6)==0,"If input files are Cubed-Sphere, must be run on multiple of 6 proccessors")
    end if
-   call MAPL_GridGet(output_grid,localCellCountPerDim=local_dims,globalCellCountPerDim=global_dims,_RC)
+   call MAPL_GridGet(output_grid,localCellCountPerDim=local_dims,globalCellCountPerDim=global_dims,_rc)
    im = local_dims(1)
    jm = local_dims(2)
    lm = local_dims(3)
@@ -396,41 +396,41 @@ program  time_ave
    jmglobal = global_dims(2)
 
    call file_metadata%create(basic_metadata,trim(name))
-   call get_file_times(file_metadata,ntime,time_series,timinc,yymmdd,hhmmss,_RC)
-   primary_bundle = ESMF_FieldBundleCreate(name="first_file",_RC)
-   call ESMF_FieldBundleSet(primary_bundle,grid=output_grid,_RC)
-   call MAPL_Read_Bundle(primary_bundle,trim(name),time=time_series(1),_RC)
-   call ESMF_FieldBundleGet(primary_bundle,fieldCount=nvars,_RC)
+   call get_file_times(file_metadata,ntime,time_series,timinc,yymmdd,hhmmss,_rc)
+   primary_bundle = ESMF_FieldBundleCreate(name="first_file",_rc)
+   call ESMF_FieldBundleSet(primary_bundle,grid=output_grid,_rc)
+   call MAPL_Read_Bundle(primary_bundle,trim(name),time=time_series(1),_rc)
+   call ESMF_FieldBundleGet(primary_bundle,fieldCount=nvars,_rc)
    allocate(vname(nvars))
-   call ESMF_FieldBundleGet(primary_bundle,fieldNameList=vname,_RC)
-   kmvar = get_level_info(primary_bundle,_RC)
-   vtitle = get_long_names(primary_bundle,_RC)
-   vunits = get_units(primary_bundle,_RC)
+   call ESMF_FieldBundleGet(primary_bundle,fieldNameList=vname,_rc)
+   kmvar = get_level_info(primary_bundle,_rc)
+   vtitle = get_long_names(primary_bundle,_rc)
+   vunits = get_units(primary_bundle,_rc)
 
-   final_bundle = ESMF_FieldBundleCreate(name="first_file",_RC)
-   call ESMF_FieldBundleSet(final_bundle,grid=output_grid,_RC)
-   diurnal_bundle = ESMF_FieldBundleCreate(name="first_file",_RC)
-   call ESMF_FieldBundleSet(diurnal_bundle,grid=output_grid,_RC)
-   call copy_bundle_to_bundle(primary_bundle,final_bundle,_RC)
+   final_bundle = ESMF_FieldBundleCreate(name="first_file",_rc)
+   call ESMF_FieldBundleSet(final_bundle,grid=output_grid,_rc)
+   diurnal_bundle = ESMF_FieldBundleCreate(name="first_file",_rc)
+   call ESMF_FieldBundleSet(diurnal_bundle,grid=output_grid,_rc)
+   call copy_bundle_to_bundle(primary_bundle,final_bundle,_rc)
 
    if (size(time_series)>1) then
       time_interval = time_series(2) - time_series(1)
    else if (size(time_series)==1) then
-      call ESMF_TimeIntervalSet(time_interval,h=6,_RC)
+      call ESMF_TimeIntervalSet(time_interval,h=6,_rc)
    end if
-   clock = ESMF_ClockCreate(startTime=time_series(1),timeStep=time_interval,_RC)
+   clock = ESMF_ClockCreate(startTime=time_series(1),timeStep=time_interval,_rc)
 
    nvars2 = nvars
 
    if (file_has_lev) then
-      lev_name = file_metadata%get_level_name(_RC)
-      call file_metadata%get_coordinate_info(lev_name,coords=lev,coordUnits=lev_units,_RC)
+      lev_name = file_metadata%get_level_name(_rc)
+      call file_metadata%get_coordinate_info(lev_name,coords=lev,coordUnits=lev_units,_rc)
    end if
 
-   previous_undef = file_metadata%var_get_missing_value(trim(vname(1)),_RC)
+   previous_undef = file_metadata%var_get_missing_value(trim(vname(1)),_rc)
    do i=2,size(vname)
-      undef = file_metadata%var_get_missing_value(trim(vname(i)),_RC)
-      _ASSERT(undef == previous_undef,"conflicting undefined values in your variables")
+      undef = file_metadata%var_get_missing_value(trim(vname(i)),_rc)
+      _assert(undef == previous_undef,"conflicting undefined values in your variables")
       previous_undef = undef
    enddo
    undef = previous_undef
@@ -573,7 +573,7 @@ program  time_ave
 
          nstar = index( trim(quadratics(1,nv)),'star',back=.true. )
          if( nstar.ne.0 ) then
-            _ASSERT(allow_zonal_means,"grid is not lat-lon so cannot compute zonal means")
+            _assert(allow_zonal_means,"grid is not lat-lon so cannot compute zonal means")
             lzstar(nv) = .TRUE.
             vtitle2(mv) = "Product_of_Zonal_Mean_Deviations_of_" // trim(vname(qloc(1,nv))) // "_and_" // trim(vname(qloc(2,nv)))
          endif
@@ -581,7 +581,7 @@ program  time_ave
          vunits2(mv) = trim(vunits(qloc(1,nv))) // " " // trim(vunits(qloc(2,nv)))
          kmvar2(mv) =  kmvar(qloc(1,nv))
 
-         call add_new_field_to_bundle(final_bundle,output_grid,kmvar(qloc(1,nv)),vname2(mv),vtitle2(mv),vunits2(mv),_RC)
+         call add_new_field_to_bundle(final_bundle,output_grid,kmvar(qloc(1,nv)),vname2(mv),vtitle2(mv),vunits2(mv),_rc)
 
          if( root ) write(6,7001) mv,trim(vname2(mv)),nloc(mv),trim(vtitle2(mv)),max(1,kmvar(qloc(1,nv))),qloc(1,nv),qloc(2,nv)
 7001     format(1x,'   Quad Field:  ',i4,'  Name: ',a12,'  at location: ',i4,3x,a50,2x,i2,3x,i3,3x,i3)
@@ -647,11 +647,11 @@ program  time_ave
       if (allocated(time_series)) deallocate(time_series)
       if (allocated(yymmdd)) deallocate(yymmdd)
       if (allocated(hhmmss)) deallocate(hhmmss)
-      call file_handle%open(trim(fname(n)),PFIO_READ,_RC)
-      basic_metadata = file_handle%read(_RC)
-      call file_handle%close(_RC)
+      call file_handle%open(trim(fname(n)),PFIO_READ,_rc)
+      basic_metadata = file_handle%read(_rc)
+      call file_handle%close(_rc)
       call file_metadata%create(basic_metadata,trim(fname(n)))
-      call get_file_times(file_metadata,ntime,time_series,timinc,yymmdd,hhmmss,_RC)
+      call get_file_times(file_metadata,ntime,time_series,timinc,yymmdd,hhmmss,_rc)
 
 
       do m=1,ntime
@@ -688,7 +688,7 @@ program  time_ave
                monthm = mod(nymdm,10000)/100
                if( year.eq.yearm .and. month.eq.monthm ) then
                   if( root ) print *, 'Date: ',nymd,' Time: ',nhms,' is NOT correct First Time Period!'
-                  _FAIL("error processing dataset")
+                  _fail("error processing dataset")
                endif
             endif
 
@@ -697,7 +697,7 @@ program  time_ave
             if( strict .and. .not.first ) then
                if( nymd.ne.nymdp .or. nhms.ne.nhmsp ) then
                   if( root ) print *, 'Date: ',nymdp,' Time: ',nhmsp,' not found!'
-                  _FAIL("error processing dataset")
+                  _fail("error processing dataset")
                endif
             endif
             nymdp = nymd
@@ -706,21 +706,21 @@ program  time_ave
 ! Primary Fields
 ! --------------
 
-            etime = local_esmf_timeset(nymd,nhms,_RC)
-            call MAPL_Read_Bundle(primary_bundle,trim(fname(1)),time=etime,file_override=trim(fname(n)),_RC)
+            etime = local_esmf_timeset(nymd,nhms,_rc)
+            call MAPL_Read_Bundle(primary_bundle,trim(fname(1)),time=etime,file_override=trim(fname(n)),_rc)
             do nv=1,nvars2
-               call ESMF_FieldBundleGet(primary_bundle,trim(vname2(nv)),field=field,_RC)
+               call ESMF_FieldBundleGet(primary_bundle,trim(vname2(nv)),field=field,_rc)
                call t_prof%start('PRIME')
                if( kmvar2(nv).eq.0 ) then
                   kbeg = 0
                   kend = 1
-                  call ESMF_FieldGet(field,0,farrayPtr=ptr2d,_RC)
+                  call ESMF_FieldGet(field,0,farrayPtr=ptr2d,_rc)
                   dum(:,:,nloc(nv))=ptr2d
                else
                   kbeg = 1
                   kend = kmvar2(nv)
 
-                  call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_RC)
+                  call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_rc)
                   dum(:,:,nloc(nv):nloc(nv)+kmvar2(nv)-1) = ptr3d
                endif
 
@@ -764,8 +764,8 @@ program  time_ave
                   mv=mv+1
                   do L=1,max(1,kmvar2(qloc(1,nv)))
                      if( lzstar(nv) ) then
-                        call latlon_zstar (dum(:,:,nloc(qloc(1,nv))+L-1),dumz1,undef,output_grid,_RC)
-                        call latlon_zstar (dum(:,:,nloc(qloc(2,nv))+L-1),dumz2,undef,output_grid,_RC)
+                        call latlon_zstar (dum(:,:,nloc(qloc(1,nv))+L-1),dumz1,undef,output_grid,_rc)
+                        call latlon_zstar (dum(:,:,nloc(qloc(2,nv))+L-1),dumz2,undef,output_grid,_rc)
                         do j=1,jm
                            do i=1,im
                               if( defined(dumz1(i,j),undef)  .and. &
@@ -817,7 +817,7 @@ program  time_ave
       enddo    ! End ntime Loop within file
 
       call MPI_BARRIER(comm,status)
-      _VERIFY(status)
+      _verify(status)
    enddo
 
    do k=0,ntods
@@ -849,7 +849,7 @@ call t_prof%start('Write_AVE')
 ! ------------------------------
    if( strict .and. ( year.eq.yearp .and. month.eq.monthp ) ) then
       if( root ) print *, 'Date: ',nymd,' Time: ',nhms,' is NOT correct Last Time Period!'
-      _FAIL("Error processing dataset")
+      _fail("Error processing dataset")
    endif
 
    write(date0,4000) nymd0/100
@@ -867,16 +867,16 @@ call t_prof%start('Write_AVE')
 ! --------------
    if( root ) print *
    do n=1,nvars2
-      call ESMF_FieldBundleGet(final_bundle,trim(vname2(n)),field=field,_RC)
+      call ESMF_FieldBundleGet(final_bundle,trim(vname2(n)),field=field,_rc)
       if( kmvar2(n).eq.0 ) then
          kbeg = 0
          kend = 1
-         call ESMF_FieldGet(field,0,farrayPtr=ptr2d,_RC)
+         call ESMF_FieldGet(field,0,farrayPtr=ptr2d,_rc)
          ptr2d = q(:,:,nloc(n),0)
       else
          kbeg = 1
          kend = kmvar2(n)
-         call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_RC)
+         call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_rc)
          ptr3d = q(:,:,nloc(n):nloc(n)+kend-1,0)
       endif
       if( root ) write(6,3001) trim(vname2(n)),nloc(n),trim(hdfile)
@@ -891,7 +891,7 @@ call t_prof%start('Write_AVE')
       if( qloc(1,nv)*qloc(2,nv).ne.0 ) then
          mv=mv+1
          if( root ) write(6,3001) trim(vname2(mv)),nloc(mv),trim(hdfile)
-         call ESMF_FieldBundleGet(final_bundle,trim(vname2(mv)),field=field,_RC)
+         call ESMF_FieldBundleGet(final_bundle,trim(vname2(mv)),field=field,_rc)
 
          if( kmvar2(qloc(1,nv)).eq.0 ) then
             kbeg = 0
@@ -913,11 +913,11 @@ call t_prof%start('Write_AVE')
             dum(:,:,1:kend) = q(:,:,nloc(mv):nloc(mv)+kend-1,0)
          endif
          if( kmvar2(qloc(1,nv)).eq.0 ) then
-            call ESMF_FieldGet(field,0,farrayPtr=ptr2d,_RC)
+            call ESMF_FieldGet(field,0,farrayPtr=ptr2d,_rc)
             ptr2d = dum(:,:,1)
          else
             kend = kmvar2(qloc(1,nv))
-            call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_RC)
+            call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_rc)
             ptr3d = dum(:,:,1:kend)
          endif
       endif
@@ -929,11 +929,11 @@ call t_prof%start('Write_AVE')
       print *
    endif
    call t_prof%stop('Write_AVE')
-   etime = local_esmf_timeset(nymd0,nhms0,_RC)
-   call ESMF_ClockSet(clock,currTime=etime, _RC)
-   call standard_writer%create_from_bundle(final_bundle,clock,n_steps=1,time_interval=timeinc,vertical_data=vertical_data,_RC)
-   call standard_writer%start_new_file(trim(hdfile),_RC)
-   call standard_writer%write_to_file(_RC)
+   etime = local_esmf_timeset(nymd0,nhms0,_rc)
+   call ESMF_ClockSet(clock,currTime=etime, _rc)
+   call standard_writer%create_from_bundle(final_bundle,clock,n_steps=1,time_interval=timeinc,vertical_data=vertical_data,_rc)
+   call standard_writer%start_new_file(trim(hdfile),_rc)
+   call standard_writer%write_to_file(_rc)
 
 ! **********************************************************************
 ! ****               Write HDF Monthly Diurnal Output File          ****
@@ -956,14 +956,14 @@ call t_prof%start('Write_AVE')
             if( ldquad ) then
                ndvars = mvars  ! Include Quadratics in Diurnal Files
                if (k==1) then
-                  call copy_bundle_to_bundle(final_bundle,diurnal_bundle,_RC)
+                  call copy_bundle_to_bundle(final_bundle,diurnal_bundle,_rc)
                end if
             else
                ndvars = nvars2 ! Only Include Primary Fields in Diurnal Files (Default)
                if (k==1) then
                   do n=1,nvars
-                     call ESMF_FieldBundleGet(final_bundle,trim(vname2(n)),field=field,_RC)
-                     call MAPL_FieldBundleAdd(diurnal_bundle,field,_RC)
+                     call ESMF_FieldBundleGet(final_bundle,trim(vname2(n)),field=field,_rc)
+                     call MAPL_FieldBundleAdd(diurnal_bundle,field,_rc)
                   enddo
                endif
             endif
@@ -972,16 +972,16 @@ call t_prof%start('Write_AVE')
 ! Primary Fields
 ! --------------
          do n=1,nvars2
-            call ESMF_FieldBundleGet(diurnal_bundle,trim(vname2(n)),field=field,_RC)
+            call ESMF_FieldBundleGet(diurnal_bundle,trim(vname2(n)),field=field,_rc)
             if( kmvar2(n).eq.0 ) then
                kbeg = 0
                kend = 1
-               call ESMF_FieldGet(field,0,farrayPtr=ptr2d,_RC)
+               call ESMF_FieldGet(field,0,farrayPtr=ptr2d,_rc)
                ptr2d = q(:,:,nloc(n),k)
             else
                kbeg = 1
                kend = kmvar2(n)
-               call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_RC)
+               call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_rc)
                ptr3d = q(:,:,nloc(n):nloc(n)+kend-1,k)
             endif
             dum(:,:,1:kend) = q(:,:,nloc(n):nloc(n)+kend-1,k)
@@ -994,7 +994,7 @@ call t_prof%start('Write_AVE')
             do nv=1,nquad
                if( qloc(1,nv)*qloc(2,nv).ne.0 ) then
                   mv=mv+1
-                  call ESMF_FieldBundleGet(diurnal_bundle,trim(vname2(mv)),field=field,_RC)
+                  call ESMF_FieldBundleGet(diurnal_bundle,trim(vname2(mv)),field=field,_rc)
                   if( kmvar2(qloc(1,nv)).eq.0 ) then
                      kbeg = 0
                      kend = 1
@@ -1015,11 +1015,11 @@ call t_prof%start('Write_AVE')
                      dum(:,:,1:kend) = q(:,:,nloc(mv):nloc(mv)+kend-1,k)
                   endif
                   if( kmvar2(qloc(1,nv)).eq.0 ) then
-                     call ESMF_FieldGet(field,0,farrayPtr=ptr2d,_RC)
+                     call ESMF_FieldGet(field,0,farrayPtr=ptr2d,_rc)
                      ptr2d = dum(:,:,1)
                   else
                      kend = kmvar2(qloc(1,nv))
-                     call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_RC)
+                     call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_rc)
                      ptr3d = dum(:,:,1:kend)
                   endif
                endif
@@ -1027,8 +1027,8 @@ call t_prof%start('Write_AVE')
          endif
 
 
-         etime = local_esmf_timeset(nymd0,nhms0,_RC)
-         call ESMF_ClockSet(clock,currTime=etime, _RC)
+         etime = local_esmf_timeset(nymd0,nhms0,_rc)
+         call ESMF_ClockSet(clock,currTime=etime, _rc)
          if (k==1 .or. mdiurnal) then
             if (mdiurnal) then
                n_times = 1
@@ -1038,9 +1038,9 @@ call t_prof%start('Write_AVE')
             if (k==1) then
                call diurnal_writer%create_from_bundle(diurnal_bundle,clock,n_steps=n_times,time_interval=timeinc,vertical_data=vertical_data)
             end if
-            call diurnal_writer%start_new_file(trim(hdfile),_RC)
+            call diurnal_writer%start_new_file(trim(hdfile),_rc)
          end if
-         call diurnal_writer%write_to_file(_RC)
+         call diurnal_writer%write_to_file(_rc)
          if( root .and. mdiurnal ) then
             print *, 'Created: ',trim(hdfile)
          endif
@@ -1069,9 +1069,9 @@ call t_prof%start('Write_AVE')
          endif
 
          call mpi_reduce( qmin(nloc(n)+L-1),qming,1,mpi_real,mpi_min,0,comm,ierror )
-         _VERIFY(ierror)
+         _verify(ierror)
          call mpi_reduce( qmax(nloc(n)+L-1),qmaxg,1,mpi_real,mpi_max,0,comm,ierror )
-         _VERIFY(ierror)
+         _verify(ierror)
          if( root ) then
             if(L.eq.1) then
                write(6,3101) trim(vname2(n)),plev,qming,qmaxg
@@ -1083,7 +1083,7 @@ call t_prof%start('Write_AVE')
 3102     format(1x,'               ',a20,' Level: ',f9.3,'  Min: ',g15.8,'  Max: ',g15.8)
       enddo
       call MPI_BARRIER(comm,status)
-      _VERIFY(status)
+      _verify(status)
       if( root ) print *
    enddo
    if( root ) print *
@@ -1122,34 +1122,34 @@ contains
       read(IMSZ,*) im_world
       read(JMSZ,*) jm_world
 
-      cf = MAPL_ConfigCreate(_RC)
-      call MAPL_ConfigSetAttribute(cf,value=lm, label=trim(grid_name)//".LM:",_RC)
+      cf = MAPL_ConfigCreate(_rc)
+      call MAPL_ConfigSetAttribute(cf,value=lm, label=trim(grid_name)//".LM:",_rc)
       if (dateline=='CF') then
-         call MAPL_MakeDecomposition(nx,ny,reduceFactor=6,_RC)
-         call MAPL_ConfigSetAttribute(cf,value=NX, label=trim(grid_name)//".NX:",_RC)
-         call MAPL_ConfigSetAttribute(cf,value="Cubed-Sphere", label=trim(grid_name)//".GRID_TYPE:",_RC)
-         call MAPL_ConfigSetAttribute(cf,value=6, label=trim(grid_name)//".NF:",_RC)
-         call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",_RC)
-         call MAPL_ConfigSetAttribute(cf,value=ny, label=trim(grid_name)//".NY:",_RC)
+         call MAPL_MakeDecomposition(nx,ny,reduceFactor=6,_rc)
+         call MAPL_ConfigSetAttribute(cf,value=NX, label=trim(grid_name)//".NX:",_rc)
+         call MAPL_ConfigSetAttribute(cf,value="Cubed-Sphere", label=trim(grid_name)//".GRID_TYPE:",_rc)
+         call MAPL_ConfigSetAttribute(cf,value=6, label=trim(grid_name)//".NF:",_rc)
+         call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",_rc)
+         call MAPL_ConfigSetAttribute(cf,value=ny, label=trim(grid_name)//".NY:",_rc)
       else if (dateline=='TM') then
-         _FAIL("Tripolar not yet implemented for outpout")
+         _fail("Tripolar not yet implemented for outpout")
       else
-         call MAPL_MakeDecomposition(nx,ny,_RC)
-         call MAPL_ConfigSetAttribute(cf,value=NX, label=trim(grid_name)//".NX:",_RC)
-         call MAPL_ConfigSetAttribute(cf,value="LatLon", label=trim(grid_name)//".GRID_TYPE:",_RC)
-         call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",_RC)
-         call MAPL_ConfigSetAttribute(cf,value=jm_world,label=trim(grid_name)//".JM_WORLD:",_RC)
-         call MAPL_ConfigSetAttribute(cf,value=ny, label=trim(grid_name)//".NY:",_RC)
-         call MAPL_ConfigSetAttribute(cf,value=pole, label=trim(grid_name)//".POLE:",_RC)
-         call MAPL_ConfigSetAttribute(cf,value=dateline, label=trim(grid_name)//".DATELINE:",_RC)
+         call MAPL_MakeDecomposition(nx,ny,_rc)
+         call MAPL_ConfigSetAttribute(cf,value=NX, label=trim(grid_name)//".NX:",_rc)
+         call MAPL_ConfigSetAttribute(cf,value="LatLon", label=trim(grid_name)//".GRID_TYPE:",_rc)
+         call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",_rc)
+         call MAPL_ConfigSetAttribute(cf,value=jm_world,label=trim(grid_name)//".JM_WORLD:",_rc)
+         call MAPL_ConfigSetAttribute(cf,value=ny, label=trim(grid_name)//".NY:",_rc)
+         call MAPL_ConfigSetAttribute(cf,value=pole, label=trim(grid_name)//".POLE:",_rc)
+         call MAPL_ConfigSetAttribute(cf,value=dateline, label=trim(grid_name)//".DATELINE:",_rc)
          if (pole=='XY' .and. dateline=='XY') then
-            _FAIL("regional lat-lon output not supported")
+            _fail("regional lat-lon output not supported")
          end if
       end if
 
-      new_grid = grid_manager%make_grid(cf,prefix=trim(grid_name)//".",_RC)
+      new_grid = grid_manager%make_grid(cf,prefix=trim(grid_name)//".",_rc)
       if (present(rc)) then
-         rc=_SUCCESS
+         rc=_success
       end if
    end function create_output_grid
 
@@ -1170,21 +1170,21 @@ contains
       real, allocatable, target :: levs(:)
       real, pointer :: plevs(:)
 
-      call formatter%open(trim(filename),pFIO_Read,_RC)
-      basic_metadata=formatter%read(_RC)
+      call formatter%open(trim(filename),pFIO_Read,_rc)
+      basic_metadata=formatter%read(_rc)
       call metadata%create(basic_metadata,trim(filename))
-      lev_name = metadata%get_level_name(_RC)
+      lev_name = metadata%get_level_name(_rc)
       if (lev_name /= '') then
          call metadata%get_coordinate_info(lev_name,coords=levs,coordUnits=lev_units,long_name=long_name,&
-               standard_name=standard_name,coordinate_attr=vcoord,_RC)
+               standard_name=standard_name,coordinate_attr=vcoord,_rc)
          plevs => levs
          vertical_data = VerticalData(levels=plevs,vunit=lev_units,vcoord=vcoord,standard_name=standard_name,long_name=long_name, &
-               force_no_regrid=.true.,_RC)
+               force_no_regrid=.true.,_rc)
          nullify(plevs)
       end if
 
       if (present(rc)) then
-         rc=_SUCCESS
+         rc=_success
       end if
 
    end subroutine get_file_levels
@@ -1194,10 +1194,10 @@ contains
       type(ESMF_Grid), intent(in) :: grid
       integer, intent(out), optional :: rc
       integer :: status, global_dims(3)
-      call MAPL_GridGet(grid,globalCellCountPerDim=global_dims,_RC)
+      call MAPL_GridGet(grid,globalCellCountPerDim=global_dims,_rc)
       grid_has_level = (global_dims(3)>0)
       if (present(rc)) then
-         RC=_SUCCESS
+         RC=_success
       end if
    end function has_level
 
@@ -1209,15 +1209,15 @@ contains
       character(len=ESMF_MAXSTR), allocatable :: field_list(:)
       type(ESMF_Field) :: field
       integer :: i,num_fields
-      call ESMF_FieldBundleGet(input_bundle,fieldCount=num_fields,_RC)
+      call ESMF_FieldBundleGet(input_bundle,fieldCount=num_fields,_rc)
       allocate(field_list(num_fields))
-      call ESMF_FieldBundleGet(input_bundle,fieldNameList=field_list,_RC)
+      call ESMF_FieldBundleGet(input_bundle,fieldNameList=field_list,_rc)
       do i=1,num_fields
-         call ESMF_FieldBundleGet(input_bundle,field_list(i),field=field,_RC)
-         call MAPL_FieldBundleAdd(output_bundle,field,_RC)
+         call ESMF_FieldBundleGet(input_bundle,field_list(i),field=field,_rc)
+         call MAPL_FieldBundleAdd(output_bundle,field,_rc)
       enddo
       if (present(rc)) then
-         RC=_SUCCESS
+         RC=_success
       end if
    end subroutine copy_bundle_to_bundle
 
@@ -1234,23 +1234,23 @@ contains
       type(ESMF_Field) :: field
 
       if (lm == 0) then
-         field = ESMF_FieldCreate(grid,name=trim(field_name),typekind=ESMF_TYPEKIND_R4,_RC)
+         field = ESMF_FieldCreate(grid,name=trim(field_name),typekind=ESMF_TYPEKIND_R4,_rc)
       else if (lm > 0) then
          field = ESMF_FieldCreate(grid,name=trim(field_name),typekind=ESMF_TYPEKIND_R4, &
-               ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
+               ungriddedLBound=[1],ungriddedUBound=[lm],_rc)
       end if
-      call ESMF_AttributeSet(field,name='LONG_NAME',value=trim(long_name),_RC)
-      call ESMF_AttributeSet(field,name='UNITS',value=trim(units),_RC)
+      call ESMF_AttributeSet(field,name='LONG_NAME',value=trim(long_name),_rc)
+      call ESMF_AttributeSet(field,name='UNITS',value=trim(units),_rc)
       if (lm == 0) then
-         call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsHorzOnly,_RC)
-         call ESMF_AttributeSet(field,name='VLOCATION',value=MAPL_VLocationNone,_RC)
+         call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsHorzOnly,_rc)
+         call ESMF_AttributeSet(field,name='VLOCATION',value=MAPL_VLocationNone,_rc)
       else if (lm > 0) then
-         call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsHorzVert,_RC)
-         call ESMF_AttributeSet(field,name='VLOCATION',value=MAPL_VLocationCenter,_RC)
+         call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsHorzVert,_rc)
+         call ESMF_AttributeSet(field,name='VLOCATION',value=MAPL_VLocationCenter,_rc)
       end if
-      call MAPL_FieldBundleAdd(bundle,field,_RC)
+      call MAPL_FieldBundleAdd(bundle,field,_rc)
       if (present(rc)) then
-         RC=_SUCCESS
+         RC=_success
       end if
    end subroutine add_new_field_to_bundle
 
@@ -1267,24 +1267,24 @@ contains
       type(ESMF_TimeInterval) :: esmf_time_interval
       integer :: hour, minute, second, year, month, day, i
 
-      num_times = file_metadata%get_dimension('time',_RC)
-      call file_metadata%get_time_info(timeVector=time_series,_RC)
+      num_times = file_metadata%get_dimension('time',_rc)
+      call file_metadata%get_time_info(timeVector=time_series,_rc)
       if (num_times == 1) then
-         time_interval = file_metadata%get_var_attr_int32('time','time_increment',_RC)
+         time_interval = file_metadata%get_var_attr_int32('time','time_increment',_rc)
       else if (num_times > 1) then
          esmf_time_interval = time_series(2)-time_series(1)
-         call ESMF_TimeIntervalGet(esmf_time_interval,h=hour,m=minute,s=second,_RC)
+         call ESMF_TimeIntervalGet(esmf_time_interval,h=hour,m=minute,s=second,_rc)
          time_interval = hour*10000+minute*100+second
       end if
 
       allocate(yymmdd(num_times),hhmmss(num_times))
       do i = 1,num_times
-         call ESMF_TimeGet(time_series(i),yy=year,mm=month,dd=day,h=hour,m=minute,s=second,_RC)
+         call ESMF_TimeGet(time_series(i),yy=year,mm=month,dd=day,h=hour,m=minute,s=second,_rc)
          yymmdd(i)=year*10000+month*100+day
          hhmmss(i)=hour*10000+minute*100+second
       enddo
       if (present(rc)) then
-         rc=_SUCCESS
+         rc=_success
       end if
    end subroutine get_file_times
 
@@ -1297,24 +1297,24 @@ contains
       character(len=ESMF_MAXSTR), allocatable :: field_list(:)
       type(ESMF_Field) :: field
       integer :: rank,i,num_fields,lb(1),ub(1)
-      call ESMF_FieldBundleGet(bundle,fieldCount=num_fields,_RC)
+      call ESMF_FieldBundleGet(bundle,fieldCount=num_fields,_rc)
       allocate(field_list(num_fields))
       allocate(kmvar(num_fields))
-      call ESMF_FieldBundleGet(bundle,fieldNameList=field_list,_RC)
+      call ESMF_FieldBundleGet(bundle,fieldNameList=field_list,_rc)
       do i=1,num_fields
-         call ESMF_FieldBundleGet(bundle,field_list(i),field=field,_RC)
-         call ESMF_FieldGet(field,rank=rank,_RC)
+         call ESMF_FieldBundleGet(bundle,field_list(i),field=field,_rc)
+         call ESMF_FieldGet(field,rank=rank,_rc)
          if (rank==2) then
             kmvar(i)=0
          else if (rank==3) then
-            call ESMF_FieldGet(field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+            call ESMF_FieldGet(field,ungriddedLBound=lb,ungriddedUBound=ub,_rc)
             kmvar(i)=ub(1)-lb(1)+1
          else
-            _FAIL("Unsupported rank")
+            _fail("Unsupported rank")
          end if
       end do
       if (present(rc)) then
-         RC=_SUCCESS
+         RC=_success
       end if
    end function get_level_info
 
@@ -1328,16 +1328,16 @@ contains
       type(ESMF_Field) :: field
       integer :: i,num_fields
 
-      call ESMF_FieldBundleGet(bundle,fieldCount=num_fields,_RC)
+      call ESMF_FieldBundleGet(bundle,fieldCount=num_fields,_rc)
       allocate(field_list(num_fields))
       allocate(long_names(num_fields))
-      call ESMF_FieldBundleGet(bundle,fieldNameList=field_list,_RC)
+      call ESMF_FieldBundleGet(bundle,fieldNameList=field_list,_rc)
       do i=1,num_fields
-         call ESMF_FieldBundleGet(bundle,field_list(i),field=field,_RC)
-         call ESMF_AttributeGet(field,name='LONG_NAME',value=long_names(i),_RC)
+         call ESMF_FieldBundleGet(bundle,field_list(i),field=field,_rc)
+         call ESMF_AttributeGet(field,name='LONG_NAME',value=long_names(i),_rc)
       enddo
       if (present(rc)) then
-         RC=_SUCCESS
+         RC=_success
       end if
    end function get_long_names
 
@@ -1351,16 +1351,16 @@ contains
       type(ESMF_Field) :: field
       integer :: i,num_fields
 
-      call ESMF_FieldBundleGet(bundle,fieldCount=num_fields,_RC)
+      call ESMF_FieldBundleGet(bundle,fieldCount=num_fields,_rc)
       allocate(field_list(num_fields))
       allocate(units(num_fields))
-      call ESMF_FieldBundleGet(bundle,fieldNameList=field_list,_RC)
+      call ESMF_FieldBundleGet(bundle,fieldNameList=field_list,_rc)
       do i=1,num_fields
-         call ESMF_FieldBundleGet(bundle,field_list(i),field=field,_RC)
-         call ESMF_AttributeGet(field,name='UNITS',value=units(i),_RC)
+         call ESMF_FieldBundleGet(bundle,field_list(i),field=field,_rc)
+         call ESMF_AttributeGet(field,name='UNITS',value=units(i),_rc)
       enddo
       if (present(rc)) then
-         RC=_SUCCESS
+         RC=_success
       end if
    end function get_units
 
@@ -1379,9 +1379,9 @@ contains
       minute = mod(hhmmss/100,100)
       second = mod(hhmmss,100)
 
-      call ESMF_TimeSet(etime,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,_RC)
+      call ESMF_TimeSet(etime,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,_rc)
       if (present(rc)) then
-         rc=_SUCCESS
+         rc=_success
       endif
    end function local_esmf_timeset
 
@@ -1403,7 +1403,7 @@ contains
       integer im,jm,i,j,status
       real, allocatable :: qz(:)
 
-      call MAPL_GridGet(grid,localCellCountPerDim=local_dims,_RC)
+      call MAPL_GridGet(grid,localCellCountPerDim=local_dims,_rc)
       im = local_dims(1)
       jm = local_dims(2)
       allocate(qz(jm))
@@ -1423,7 +1423,7 @@ contains
          endif
       enddo
       if (present(rc)) then
-         rc=_SUCCESS
+         rc=_success
       endif
    end subroutine latlon_zstar
 
@@ -1443,14 +1443,14 @@ contains
       integer j,n,peid,peid0,i1,j1,in,jn,mypet,i_start,i_end,isum
       type(ESMF_VM) :: vm
 
-      call ESMF_VMGetCurrent(vm,_RC)
-      call ESMF_VMGet(vm,localPet=mypet,_RC)
-      call MAPL_GridGet(grid,localCellCountPerDim=local_dims,globalCellCountPerDim=global_dims,_RC)
+      call ESMF_VMGetCurrent(vm,_rc)
+      call ESMF_VMGet(vm,localPet=mypet,_rc)
+      call MAPL_GridGet(grid,localCellCountPerDim=local_dims,globalCellCountPerDim=global_dims,_rc)
       im = local_dims(1)
       jm = local_dims(2)
       im_global = global_dims(1)
       jm_global = global_dims(2)
-      call get_esmf_grid_layout(grid,nx,ny,ims,jms,_RC)
+      call get_esmf_grid_layout(grid,nx,ny,ims,jms,_rc)
       call mapl_grid_interior(grid,i1,in,j1,jn)
 
       qz = 0.0
@@ -1464,7 +1464,7 @@ contains
             allocate(buf(ims(n+1),jm))
             peid = mypet + n
             call mpi_recv(buf,ims(n+1)*jm,MPI_FLOAT,peid,peid,MPI_COMM_WORLD,mpistatus,status)
-            _VERIFY(status)
+            _verify(status)
             i_start=i_end+1
             i_end = i_start+ims(n)-1
             qg(i_start:i_end,:)=buf
@@ -1472,7 +1472,7 @@ contains
          enddo
       else
          call mpi_send(q,im*jm,MPI_FLOAT,peid0,mypet,MPI_COMM_WORLD,status)
-         _VERIFY(status)
+         _verify(status)
       end if
 
 ! compute zonal mean
@@ -1491,15 +1491,15 @@ contains
          do n=1,nx-1
             peid = peid0+n
             call mpi_send(qz,jm,MPI_FLOAT,peid,peid0,MPI_COMM_WORLD,status)
-            _VERIFY(status)
+            _verify(status)
          enddo
       else
          call mpi_recv(qz,jm,MPI_FLOAT,peid0,peid0,MPI_COMM_WORLD,mpistatus,status)
-         _VERIFY(status)
+         _verify(status)
       end if
 
       if (present(rc)) then
-         rc=_SUCCESS
+         rc=_success
       endif
 
    end subroutine latlon_zmean
@@ -1519,12 +1519,12 @@ contains
       integer :: dim_count, ndes
       integer, pointer :: ims(:),jms(:)
 
-      call ESMF_VMGetCurrent(vm,_RC)
-      call ESMF_VMGet(vm,petCount=ndes,_RC)
-      call ESMF_GridGet(grid,distgrid=dist_grid,dimCOunt=dim_count,_RC)
+      call ESMF_VMGetCurrent(vm,_rc)
+      call ESMF_VMGet(vm,petCount=ndes,_rc)
+      call ESMF_GridGet(grid,distgrid=dist_grid,dimCOunt=dim_count,_rc)
       allocate(minindex(dim_count,ndes),maxindex(dim_count,ndes))
-      call MAPL_DistGridGet(dist_grid,minIndex=minindex,maxIndex=maxindex,_RC)
-      call MAPL_GetImsJms(minindex(1,:),maxindex(1,:),minindex(2,:),maxindex(2,:),ims,jms,_RC)
+      call MAPL_DistGridGet(dist_grid,minIndex=minindex,maxIndex=maxindex,_rc)
+      call MAPL_GetImsJms(minindex(1,:),maxindex(1,:),minindex(2,:),maxindex(2,:),ims,jms,_rc)
       nx = size(ims)
       ny = size(jms)
       allocate(ims_out(nx),jms_out(ny))
@@ -1532,7 +1532,7 @@ contains
       jms_out = jms
 
       if (present(rc)) then
-         rc=_SUCCESS
+         rc=_success
       endif
 
    end subroutine get_esmf_grid_layout
@@ -1718,7 +1718,7 @@ contains
                )
       endif
       call MPI_Abort(MPI_COMM_WORLD,errorcode,status)
-      _VERIFY(status)
+      _verify(status)
    end subroutine usage
 
     subroutine generate_report()

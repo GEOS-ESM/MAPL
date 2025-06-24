@@ -666,10 +666,10 @@ contains
          date%month_ = fields%month_
          date%day_ = fields%day_
       else
-         _FAIL('Invalid ISO 8601 date string')
+         _fail('Invalid ISO 8601 date string')
       end if
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function construct_ISO8601Date
 
@@ -685,12 +685,12 @@ contains
          time%second_ = fields%second_
          time%millisecond_ = fields%millisecond_
          time%timezone_offset_ = fields%timezone_offset_
-         _RETURN(_SUCCESS)
+         _return(_success)
       else
-         _FAIL('Invalid ISO 8601 time string')
+         _fail('Invalid ISO 8601 time string')
       end if
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function construct_ISO8601Time
 
@@ -703,11 +703,11 @@ contains
       integer :: time_index = 0
       time_index = index(isostring,TIME_PREFIX)
       if(time_index > 0) then
-         datetime%date_ = ISO8601Date(isostring(1:time_index-1), _RC)
-         datetime%time_ = ISO8601Time(isostring(time_index:len(isostring)), _RC)
-         _RETURN(_SUCCESS)
+         datetime%date_ = ISO8601Date(isostring(1:time_index-1), _rc)
+         datetime%time_ = ISO8601Time(isostring(time_index:len(isostring)), _rc)
+         _return(_success)
       else
-         _FAIL('Invalid ISO 8601 datetime string')
+         _fail('Invalid ISO 8601 datetime string')
       end if
    end function construct_ISO8601DateTime
 
@@ -834,9 +834,9 @@ contains
          duration%hours_= hours
          duration%minutes_= minutes
          duration%seconds_= seconds
-         _RETURN(_SUCCESS)
+         _return(_success)
       else
-         _FAIL('Invalid ISO 8601 datetime duration string')
+         _fail('Invalid ISO 8601 datetime duration string')
       end if
    end function construct_ISO8601Duration
 
@@ -1035,12 +1035,12 @@ contains
       type(ISO8601Date) :: date
       integer :: status
 
-      date = ISO8601Date(isostring, _RC)
+      date = ISO8601Date(isostring, _rc)
 
       integer_date = date%get_year()*ID_YEAR + date%get_month()*ID_MONTH + &
          date%get_day()*ID_DAY
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function convert_ISO8601_to_integer_date
 
    ! Convert ISO 8601 string to packed integer HHMMSS
@@ -1051,12 +1051,12 @@ contains
       type(ISO8601Time) :: time
       integer :: status
 
-      time = ISO8601Time(isostring, _RC)
+      time = ISO8601Time(isostring, _rc)
 
       integer_time = time%get_hour()*IT_HOUR + time%get_minute()*IT_MINUTE + &
          time%get_second()*IT_SECOND
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function convert_ISO8601_to_integer_time
 
 ! END HIGH-LEVEL CONVERSION PROCEDURES

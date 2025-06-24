@@ -79,204 +79,204 @@ contains
       select type (cmd => message)
       type is (TerminateMessage)
         call this%handle_terminate(cmd, rc=status)
-        _VERIFY(status)
+        _verify(status)
       type is (DoneMessage)
         call this%handle_cmd(cmd,rc=status)
-        _VERIFY(status)
+        _verify(status)
       type is (PrefetchDoneMessage)
         call this%handle_cmd(cmd,rc=status)
-        _VERIFY(status)
+        _verify(status)
       type is (CollectivePrefetchDoneMessage)
         call this%handle_cmd(cmd,rc=status)
-        _VERIFY(status)
+        _verify(status)
       type is (StageDoneMessage)
-         call this%handle_cmd(cmd,_RC)
+         call this%handle_cmd(cmd,_rc)
       type is (CollectiveStageDoneMessage)
-          call this%handle_cmd(cmd,_RC)
+          call this%handle_cmd(cmd,_rc)
       type is (AddExtCollectionMessage)
         call this%handle_AddExtCollection(cmd,rc=status)
-        _VERIFY(status)
+        _verify(status)
       type is (AddHistCollectionMessage)
         call this%handle_AddHistCollection(cmd,rc=status)
-        _VERIFY(status)
+        _verify(status)
       type is (IdMessage)
         call this%handle_cmd(cmd,rc=status)
-        _VERIFY(status)
+        _verify(status)
       type is (PrefetchDataMessage)
         call this%handle_cmd(cmd,rc=status)
-        _VERIFY(status)
+        _verify(status)
       type is (CollectivePrefetchDataMessage)
         call this%handle_cmd(cmd,rc=status)
-        _VERIFY(status)
+        _verify(status)
       type is (StageDataMessage)
         call this%handle_cmd(cmd,rc=status)
-        _VERIFY(status)
+        _verify(status)
       type is (CollectiveStageDataMessage)
         call this%handle_cmd(cmd,rc=status)
-        _VERIFY(status)
+        _verify(status)
       type is (ModifyMetadataMessage)
         call this%handle_cmd(cmd,rc=status)
-        _VERIFY(status)
+        _verify(status)
       type is (ReplaceMetadataMessage)
         call this%handle_cmd(cmd,rc=status)
-        _VERIFY(status)
+        _verify(status)
       type is (HandShakeMessage)
         ! the handShake is from client to server
         call this%handle_cmd(cmd, rc=status)
-        _VERIFY(status)
+        _verify(status)
       type is (DummyMessage)
         ! WY notes: self hand_shake: if iserver or oserver is with app"
         ! the dummy is from server to client
         ! if the serverthread sends the dummy directly to clientthread, it will not go through here. 
-        _VERIFY(0)
+        _verify(0)
       class default
-         _FAIL( 'unsupported subclass')
+         _fail( 'unsupported subclass')
       end select
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine handle
 
    subroutine handle_CollectivePrefetchData(this, message, rc)
       class (MessageVisitor), target, intent(inout) :: this
       type (CollectivePrefetchDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _FAIL( "Warning : dummy handle_CollectivePrefetchData should not be called")
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(message)
+      _fail( "Warning : dummy handle_CollectivePrefetchData should not be called")
+      _unused_dummy(this)
+      _unused_dummy(message)
    end subroutine handle_CollectivePrefetchData
 
    subroutine handle_CollectiveStageData(this, message, rc)
       class (MessageVisitor), target, intent(inout) :: this
       type (CollectiveStageDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _FAIL( "Warning : dummy handle_CollectiveStageData should not be called")
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(message)
+      _fail( "Warning : dummy handle_CollectiveStageData should not be called")
+      _unused_dummy(this)
+      _unused_dummy(message)
    end subroutine handle_CollectiveStageData
 
    subroutine handle_Terminate(this, message, rc)
       class (MessageVisitor), intent(inout) :: this
       type (TerminateMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _FAIL( "Warning : dummy handle_Terminate should not be called")
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(message)
+      _fail( "Warning : dummy handle_Terminate should not be called")
+      _unused_dummy(this)
+      _unused_dummy(message)
    end subroutine handle_Terminate
 
    subroutine handle_Done(this, message, rc)
       class (MessageVisitor), target, intent(inout) :: this
       type (DoneMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _FAIL( "Warning : dummy handle_Done should not be called")
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(message)
+      _fail( "Warning : dummy handle_Done should not be called")
+      _unused_dummy(this)
+      _unused_dummy(message)
    end subroutine handle_Done
 
    subroutine handle_Done_prefetch(this, message, rc)
       class (MessageVisitor), target, intent(inout) :: this
       type (PrefetchDoneMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _FAIL( "Warning : dummy handle_Done_prefetch should not be called")
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(message)
+      _fail( "Warning : dummy handle_Done_prefetch should not be called")
+      _unused_dummy(this)
+      _unused_dummy(message)
    end subroutine handle_Done_prefetch
 
    subroutine handle_Done_collective_prefetch(this, message, rc)
       class (MessageVisitor), target, intent(inout) :: this
       type (CollectivePrefetchDoneMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _FAIL( "Warning : dummy handle_Done_collective_prefetch should not be called")
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(message)
+      _fail( "Warning : dummy handle_Done_collective_prefetch should not be called")
+      _unused_dummy(this)
+      _unused_dummy(message)
    end subroutine handle_Done_collective_prefetch
 
    subroutine handle_Done_stage(this, message, rc)
       class (MessageVisitor), target, intent(inout) :: this
       type (StageDoneMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _FAIL( "Warning : dummy handle_Done_stage should not be called")
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(message)
+      _fail( "Warning : dummy handle_Done_stage should not be called")
+      _unused_dummy(this)
+      _unused_dummy(message)
    end subroutine handle_Done_stage
 
    subroutine handle_Done_collective_stage(this, message, rc)
       class (MessageVisitor), target, intent(inout) :: this
       type (CollectiveStageDoneMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _FAIL( "Warning : dummy handle_Done_collective_stage should not be called")
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(message)
+      _fail( "Warning : dummy handle_Done_collective_stage should not be called")
+      _unused_dummy(this)
+      _unused_dummy(message)
    end subroutine handle_Done_collective_stage
 
    subroutine handle_AddExtCollection(this, message, rc)
       class (MessageVisitor), target, intent(inout) :: this
       type (AddExtCollectionMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _FAIL( "Warning : dummy handle_AddExtCollection should not be called")
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(message)
+      _fail( "Warning : dummy handle_AddExtCollection should not be called")
+      _unused_dummy(this)
+      _unused_dummy(message)
    end subroutine handle_AddExtCollection
 
    subroutine handle_AddHistCollection(this, message, rc)
       class (MessageVisitor), target, intent(inout) :: this
       type (AddHistCollectionMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _FAIL( "Warning : dummy handle_AddHistCollection should not be called")
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(message)
+      _fail( "Warning : dummy handle_AddHistCollection should not be called")
+      _unused_dummy(this)
+      _unused_dummy(message)
    end subroutine handle_AddHistCollection
 
    subroutine handle_Id(this, message, rc)
       class (MessageVisitor), intent(inout) :: this
       type (IdMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _FAIL( "Warning : dummy handle_ID should not be called. hint: maybe server and app are the same?")
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(message)
+      _fail( "Warning : dummy handle_ID should not be called. hint: maybe server and app are the same?")
+      _unused_dummy(this)
+      _unused_dummy(message)
    end subroutine handle_Id
 
    subroutine handle_PrefetchData(this, message, rc)
       class (MessageVisitor), target, intent(inout) :: this
       type (PrefetchDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _FAIL( "Warning : dummy handle_PrefetchData should not be called")
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(message)
+      _fail( "Warning : dummy handle_PrefetchData should not be called")
+      _unused_dummy(this)
+      _unused_dummy(message)
    end subroutine handle_PrefetchData
 
    subroutine handle_StageData(this, message, rc)
       class (MessageVisitor), target, intent(inout) :: this
       type (StageDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _FAIL( "Warning : dummy handle_StageData should not be called")
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(message)
+      _fail( "Warning : dummy handle_StageData should not be called")
+      _unused_dummy(this)
+      _unused_dummy(message)
    end subroutine handle_StageData
 
    subroutine handle_ModifyMetadata(this, message, rc)
       class (MessageVisitor), target, intent(inout) :: this
       type (ModifyMetadataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _FAIL( "Warning : dummy handle_ModifyMetadata should not be called")
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(message)
+      _fail( "Warning : dummy handle_ModifyMetadata should not be called")
+      _unused_dummy(this)
+      _unused_dummy(message)
    end subroutine handle_ModifyMetadata
 
    subroutine handle_ReplaceMetadata(this, message, rc)
       class (MessageVisitor), target, intent(inout) :: this
       type (ReplaceMetadataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _FAIL( "Warning : dummy handle_ReplaceMetadata should not be called")
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(message)
+      _fail( "Warning : dummy handle_ReplaceMetadata should not be called")
+      _unused_dummy(this)
+      _unused_dummy(message)
    end subroutine handle_ReplaceMetadata
 
    subroutine handle_HandShake(this, message, rc)
       class (MessageVisitor), target, intent(inout) :: this
       type (HandShakeMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _FAIL( "Warning : dummy handle_HandShake should not be called")
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(message)
+      _fail( "Warning : dummy handle_HandShake should not be called")
+      _unused_dummy(this)
+      _unused_dummy(message)
    end subroutine handle_HandShake
 
 end module pFIO_MessageVisitorMod

@@ -6,7 +6,7 @@
 !
 #include "MAPL_ErrLog.h"
 
-#define DEALOC_(A) if(associated(A))then;if(MAPL_ShmInitialized)then;call MAPL_SyncSharedMemory(rc=STATUS);call MAPL_DeAllocNodeArray(A,rc=STATUS);else;deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
+#define DEALOC_(A) if(associated(A))then;if(MAPL_ShmInitialized)then;call MAPL_SyncSharedMemory(rc=STATUS);call MAPL_DeAllocNodeArray(A,rc=STATUS);else;deallocate(A,stat=STATUS);endif;_verify(STATUS);NULLIFY(A);endif
 !
 !>
 !### MODULE: `FileIO_Shared`
@@ -200,34 +200,34 @@ module FileIOSharedMod
     integer :: status
 
     call dealloc_(A,RC=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     select case (type)
     case (R4_2)
-       _ASSERT(present(jm), 'jm not present for 2d')
+       _assert(present(jm), 'jm not present for 2d')
        allocate(A%r4_2(IM,JM))
     case (R4_1)
-       _ASSERT(.not.present(jm), 'jm is present for 1d')
+       _assert(.not.present(jm), 'jm is present for 1d')
        allocate(A%r4_1(IM))
     case (R8_2)
-       _ASSERT(present(jm), 'jm not present for 2d')
+       _assert(present(jm), 'jm not present for 2d')
        allocate(A%r8_2(IM,JM))
     case (R8_1)
-       _ASSERT(.not.present(jm),'jm is present for 1d')
+       _assert(.not.present(jm),'jm is present for 1d')
        allocate(A%r8_1(IM))
     case (i4_1)
-       _ASSERT(.not.present(jm), 'jm present for 1d')
+       _assert(.not.present(jm), 'jm present for 1d')
        allocate(A%I4_1(IM))
     case (i4_2)
-       _ASSERT(present(jm), 'jm not present for 2d')
+       _assert(present(jm), 'jm not present for 2d')
        allocate(A%I4_2(IM,JM))
     case default
-       _FAIL( 'unsupported tkr')
+       _fail( 'unsupported tkr')
     end select
 
     a%allocated=type
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine alloc_
 
   subroutine dealloc_(A,RC)
@@ -268,12 +268,12 @@ module FileIOSharedMod
              nullify(A%i4_2)
           end if
        case default
-          _FAIL( 'unsupported tkr')
+          _fail( 'unsupported tkr')
        end select
        a%allocated=not_allocated
     end if
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine dealloc_
 
   subroutine MAPL_TileMaskGet(grid, mask, rc)
@@ -306,48 +306,48 @@ module FileIOSharedMod
     type(ESMF_VM) :: vm
     logical :: amIRoot
 
-    call ESMF_GridGet(grid, dimCount=gridRank, distGrid=distGrid, _RC)
-    _ASSERT(gridRank == 1, 'gridRank must be 1')
+    call ESMF_GridGet(grid, dimCount=gridRank, distGrid=distGrid, _rc)
+    _assert(gridRank == 1, 'gridRank must be 1')
 
     call MAPL_GridGet(grid, globalCellCountPerDim=gcount, &
-         localCellCountPerDim=lcount, _RC)
+         localCellCountPerDim=lcount, _rc)
 
     gsize = gcount(1)
     lsize = lcount(1)
 
     call ESMF_DistGridGet(distgrid, localDe=0, elementCount=n, rc=status)
-    _ASSERT(lsize == n, ' inconsistent lsize')
+    _assert(lsize == n, ' inconsistent lsize')
 
-    allocate(tileIndex(lsize), _STAT)
+    allocate(tileIndex(lsize), _stat)
 
-    call ESMF_DistGridGet(distgrid, localDe=0, seqIndexList=tileIndex, _RC)
+    call ESMF_DistGridGet(distgrid, localDe=0, seqIndexList=tileIndex, _rc)
 
-    call ESMF_DistGridGet(distGRID, delayout=layout, _RC)
-    call ESMF_DELayoutGet(layout, vm=vm, _RC)
-    call ESMF_VmGet(vm, localPet=deId, petCount=nDEs, _RC)
+    call ESMF_DistGridGet(distGRID, delayout=layout, _rc)
+    call ESMF_DELayoutGet(layout, vm=vm, _rc)
+    call ESMF_VmGet(vm, localPet=deId, petCount=nDEs, _rc)
 
     amIRoot = MAPL_AM_I_Root(vm)
 
-    call ESMF_VmBarrier(vm, _RC)
+    call ESMF_VmBarrier(vm, _rc)
 
     if (.not. MAPL_ShmInitialized) then
-       allocate(mask(gsize), _STAT)
+       allocate(mask(gsize), _stat)
     else
-       call MAPL_AllocNodeArray(mask,(/gsize/),_RC)
+       call MAPL_AllocNodeArray(mask,(/gsize/),_rc)
     end if
 
-    allocate (AL(gridRank,0:nDEs-1),  _STAT)
-    allocate (AU(gridRank,0:nDEs-1),  _STAT)
+    allocate (AL(gridRank,0:nDEs-1),  _stat)
+    allocate (AU(gridRank,0:nDEs-1),  _stat)
 
     call MAPL_DistGridGet(distgrid, &
-         minIndex=AL, maxIndex=AU, _RC)
+         minIndex=AL, maxIndex=AU, _rc)
 
-    allocate (recvcounts(0:nDEs-1), displs(0:nDEs), _STAT)
+    allocate (recvcounts(0:nDEs-1), displs(0:nDEs), _stat)
 
     if (.not. MAPL_ShmInitialized .or. amIRoot) then
-       allocate(VAR(0:gsize-1), _STAT)
+       allocate(VAR(0:gsize-1), _stat)
     else
-       allocate(VAR(0), _STAT)
+       allocate(VAR(0), _stat)
     end if
 
     displs(0) = 0
@@ -365,7 +365,7 @@ module FileIOSharedMod
     enddo
 
 #ifdef NEW
-    _FAIL( 'unsupported code block') !ALT this section is questionable
+    _fail( 'unsupported code block') !ALT this section is questionable
     do I = 0,nDEs-1
        de = I
        I1 = AL(1,I)
@@ -376,16 +376,16 @@ module FileIOSharedMod
        endif
        do II=I1,IN
           mmax=var(II)
-          call MAPL_CommsAllReduceMax(vm, mmax, var(II), 1, _RC)
+          call MAPL_CommsAllReduceMax(vm, mmax, var(II), 1, _rc)
        enddo
     end do
 #else
     if (MAPL_ShmInitialized) then
        call MAPL_CommsGatherV(layout, tileindex, sendcount, &
-                              var, recvcounts, displs, MAPL_Root, _RC)
+                              var, recvcounts, displs, MAPL_Root, _rc)
     else
        call MAPL_CommsAllGatherV(layout, tileindex, sendcount, &
-                                 var, recvcounts, displs, _RC)
+                                 var, recvcounts, displs, _rc)
     endif
 #endif
 
@@ -405,11 +405,11 @@ module FileIOSharedMod
     deallocate(tileIndex)
 
 ! mask is deallocated in the caller routine
-       call MAPL_BroadcastToNodes(MASK, N=gsize, ROOT=MAPL_Root, _RC)
+       call MAPL_BroadcastToNodes(MASK, N=gsize, ROOT=MAPL_Root, _rc)
 
-    call MAPL_SyncSharedMemory(_RC)
+    call MAPL_SyncSharedMemory(_rc)
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_TileMaskGet
 
       subroutine ArrDescrInit(ArrDes,comm,im_world,jm_world,lm_world,nx,ny,num_readers,num_writers,is,ie,js,je,rc)
@@ -437,9 +437,9 @@ module FileIOSharedMod
          integer :: status
 
          call MPI_Comm_Rank(comm,myid,status)
-         _VERIFY(status)
+         _verify(status)
          call MPI_COMM_Size(comm,npes,status)
-         _VERIFY(status)
+         _verify(status)
 
          allocate(iminw(npes),imaxw(npes),jminw(npes),jmaxw(npes),stat=status)
          iminw=-1
@@ -451,13 +451,13 @@ module FileIOSharedMod
          jminw(myid+1)=js
          jmaxw(myid+1)=je
          call MPI_AllReduce(MPI_IN_PLACE,iminw,npes,MPI_INTEGER,MPI_MAX,comm,status)
-         _VERIFY(STATUS)
+         _verify(STATUS)
          call MPI_AllReduce(MPI_IN_PLACE,imaxw,npes,MPI_INTEGER,MPI_MAX,comm,status)
-         _VERIFY(STATUS)
+         _verify(STATUS)
          call MPI_AllReduce(MPI_IN_PLACE,jminw,npes,MPI_INTEGER,MPI_MAX,comm,status)
-         _VERIFY(STATUS)
+         _verify(STATUS)
          call MPI_AllReduce(MPI_IN_PLACE,jmaxw,npes,MPI_INTEGER,MPI_MAX,comm,status)
-         _VERIFY(STATUS)
+         _verify(STATUS)
 
          call MAPL_Sort(iminw)
          call MAPL_Sort(imaxw)
@@ -497,13 +497,13 @@ module FileIOSharedMod
          NY0 = myid/nx + 1
          color = nx0
          call MPI_Comm_Split(comm,color,myid,ycomm,status)
-         _VERIFY(status)
+         _verify(status)
          color = ny0
          call MPI_Comm_Split(comm,color,myid,xcomm,status)
-         _VERIFY(status)
+         _verify(status)
          ! reader communicators
          if (num_readers > ny .or. mod(ny,num_readers) /= 0) then
-            _RETURN(ESMF_FAILURE)
+            _return(ESMF_FAILURE)
          end if
          ny_by_readers = ny/num_readers
          if (mod(myid,nx*ny/num_readers) ==0) then
@@ -512,17 +512,17 @@ module FileIOSharedMod
             color = MPI_UNDEFINED
          end if
          call MPI_COMM_SPLIT(comm,color,myid,readers_comm,status)
-         _VERIFY(status)
+         _verify(status)
          if (num_readers==ny) then
             IOscattercomm = xcomm
          else
             j = ny0 - mod(ny0-1,ny_by_readers)
             call MPI_Comm_Split(comm,j,myid,IOScattercomm,status)
-            _VERIFY(status)
+            _verify(status)
          endif
          ! writer communicators
          if (num_writers > ny .or. mod(ny,num_writers) /= 0) then
-            _RETURN(ESMF_FAILURE)
+            _return(ESMF_FAILURE)
          end if
          ny_by_writers = ny/num_writers
          if (mod(myid,nx*ny/num_writers) ==0) then
@@ -531,13 +531,13 @@ module FileIOSharedMod
             color = MPI_UNDEFINED
          end if
          call MPI_COMM_SPLIT(comm,color,myid,writers_comm,status)
-         _VERIFY(status)
+         _verify(status)
          if (num_writers==ny) then
             IOgathercomm = xcomm
          else
             j = ny0 - mod(ny0-1,ny_by_writers)
             call MPI_Comm_Split(comm,j,myid,IOgathercomm,status)
-            _VERIFY(status)
+            _verify(status)
          endif
 
          ArrDes%im_world=im_world
@@ -551,15 +551,15 @@ module FileIOSharedMod
          call MAPL_Comm_dup(xcomm, ArrDes%Xcomm, status)
          call MAPL_Comm_dup(ycomm, ArrDes%Ycomm, status)
          call mpi_comm_rank(arrdes%ycomm,arrdes%myrow,status)
-         _VERIFY(status)
+         _verify(status)
 
-         allocate(arrdes%i1(size(i1)),_STAT)
+         allocate(arrdes%i1(size(i1)),_stat)
          arrdes%i1=i1
-         allocate(arrdes%in(size(in)),_STAT)
+         allocate(arrdes%in(size(in)),_stat)
          arrdes%in=in
-         allocate(arrdes%j1(size(j1)),_STAT)
+         allocate(arrdes%j1(size(j1)),_stat)
          arrdes%j1=j1
-         allocate(arrdes%jn(size(jn)),_STAT)
+         allocate(arrdes%jn(size(jn)),_stat)
          arrdes%jn=jn
 
          ArrDes%NX0 = NY0
@@ -575,7 +575,7 @@ module FileIOSharedMod
 
          ArrDes%filename = ''
 
-         _RETURN(ESMF_SUCCESS)
+         _return(ESMF_SUCCESS)
 
       end subroutine ArrDescrInit
 
@@ -626,16 +626,16 @@ module FileIOSharedMod
 
        nx = size(arrdes%i1)
        ny = size(arrdes%j1)
-       _ASSERT(num_writers <= ny,'num writers must be less or equal to than NY')
-       _ASSERT(mod(ny,num_writers)==0,'num writerss must evenly divide NY')
+       _assert(num_writers <= ny,'num writers must be less or equal to than NY')
+       _assert(mod(ny,num_writers)==0,'num writerss must evenly divide NY')
        call mpi_comm_rank(full_comm,myid, status)
-       _VERIFY(status)
+       _verify(status)
        color =  arrdes%NX0
        call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Ycomm, status)
-       _VERIFY(status)
+       _verify(status)
        color = arrdes%NY0
        call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Xcomm, status)
-       _VERIFY(status)
+       _verify(status)
        ny_by_writers = ny/num_writers
        if (mod(myid,nx*ny/num_writers) == 0) then
           color = 0
@@ -643,23 +643,23 @@ module FileIOSharedMod
           color = MPI_UNDEFINED
        endif
        call MPI_COMM_SPLIT(full_comm, color, myid, arrdes%writers_comm, status)
-       _VERIFY(status)
+       _verify(status)
        if (num_writers==ny) then
           call MAPL_Comm_dup(arrdes%Xcomm, ArrDes%IOgathercomm, status)
        else
             j = arrdes%NY0 - mod(arrdes%NY0-1,ny_by_writers)
           call MPI_COMM_SPLIT(full_comm, j, myid, arrdes%IOgathercomm, status)
-          _VERIFY(status)
+          _verify(status)
        endif
        if (arrdes%writers_comm /= MPI_COMM_NULL) then
           call mpi_comm_rank(arrdes%writers_comm,writer_rank,status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        end if
        call MPI_BCast(writer_rank,1,MPI_INTEGER,0,arrdes%iogathercomm,status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        arrdes%writer_id = writer_rank
 
-       _RETURN(_SUCCESS)
+       _return(_success)
 
     end subroutine ArrDescrCreateWriterComm
 
@@ -673,17 +673,17 @@ module FileIOSharedMod
 
        nx = size(arrdes%i1)
        ny = size(arrdes%j1)
-       _ASSERT(num_readers <= ny,'num readers must be less than or equal to NY')
-       _ASSERT(mod(ny,num_readers)==0,'num readers must evenly divide NY')
+       _assert(num_readers <= ny,'num readers must be less than or equal to NY')
+       _assert(mod(ny,num_readers)==0,'num readers must evenly divide NY')
 
        call mpi_comm_rank(full_comm,myid, status)
-       _VERIFY(status)
+       _verify(status)
        color =  arrdes%NX0
        call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Ycomm, status)
-       _VERIFY(status)
+       _verify(status)
        color = arrdes%NY0
        call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Xcomm, status)
-       _VERIFY(status)
+       _verify(status)
        ny_by_readers = ny/num_readers
        if (mod(myid,nx*ny/num_readers) == 0) then
           color = 0
@@ -691,16 +691,16 @@ module FileIOSharedMod
           color = MPI_UNDEFINED
        endif
        call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%readers_comm, status)
-       _VERIFY(status)
+       _verify(status)
        if (num_readers==ny) then
           call MAPL_Comm_dup(arrdes%Xcomm, ArrDes%IOscattercomm, status)
        else
           j = arrdes%NY0 - mod(arrdes%NY0-1,ny_by_readers)
           call MPI_COMM_SPLIT(full_comm, j, MYID, arrdes%IOscattercomm, status)
-          _VERIFY(status)
+          _verify(status)
        endif
 
-       _RETURN(_SUCCESS)
+       _return(_success)
 
     end subroutine ArrDescrCreateReaderComm
 
@@ -757,35 +757,35 @@ module FileIOSharedMod
 
 ! Get grid and layout information
 
-    call ESMF_GridGet    (GRID,   dimCount=gridRank, rc=STATUS);_VERIFY(STATUS)
-    call ESMF_GridGet    (GRID,   distGrid=distGrid, rc=STATUS);_VERIFY(STATUS)
-    call ESMF_DistGridGet(distGRID, delayout=layout, rc=STATUS);_VERIFY(STATUS)
-    call ESMF_DELayoutGet(layout, vm=vm, rc=status);_VERIFY(STATUS)
-    call ESMF_VmGet(vm, localPet=deId, petCount=nDEs, rc=status);_VERIFY(STATUS)
+    call ESMF_GridGet    (GRID,   dimCount=gridRank, rc=STATUS);_verify(STATUS)
+    call ESMF_GridGet    (GRID,   distGrid=distGrid, rc=STATUS);_verify(STATUS)
+    call ESMF_DistGridGet(distGRID, delayout=layout, rc=STATUS);_verify(STATUS)
+    call ESMF_DELayoutGet(layout, vm=vm, rc=status);_verify(STATUS)
+    call ESMF_VmGet(vm, localPet=deId, petCount=nDEs, rc=status);_verify(STATUS)
 
     if (use_shmem) then
        srcPE = deId
     end if
 
     allocate (AL(gridRank,0:nDEs-1),  stat=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     allocate (AU(gridRank,0:nDEs-1),  stat=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     allocate (sendcounts(0:nDEs-1), stat=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     call MAPL_DistGridGet(distgrid, &
          minIndex=AL, maxIndex=AU, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     ISZ = size(GLOBAL_ARRAY,1)
 
     if (use_shmem) then
        call MAPL_SyncSharedMemory(rc=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call MAPL_BroadcastToNodes(global_array, N=ISZ, ROOT=MAPL_Root, rc=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call MAPL_SyncSharedMemory(rc=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end if
 
 ! Compute count to be sent to each PE
@@ -811,7 +811,7 @@ module FileIOSharedMod
     if (deId == srcPE) then
 
        allocate(DISPLS(0:nDEs          ), stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
 
 ! Compute displacements into the VAR vector
 
@@ -826,7 +826,7 @@ module FileIOSharedMod
 
        if (present(mask)) then
           allocate(VAR(displs(deId):displs(deId+1)-1), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
           KK = DISPLS(deId)
 
           do I=1,ISZ
@@ -847,9 +847,9 @@ module FileIOSharedMod
 
      else
         allocate(var(0:1), stat=status)
-        _VERIFY(STATUS)
+        _verify(STATUS)
         allocate(DISPLS(0:nDEs), stat=status)
-        _VERIFY(STATUS)
+        _verify(STATUS)
      end if !  I am srcPEa
 
 
@@ -857,35 +857,35 @@ module FileIOSharedMod
     if (use_shmem) then
        ! copy my piece from var (var is local but was filled from shared array)
        call MAPL_SyncSharedMemory(rc=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        local_array = var(displs(deId):displs(deId+1)-1)
        call MAPL_SyncSharedMemory(rc=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     else
        call MAPL_CommsScatterV(layout, var, sendcounts, displs, &
                                local_array, recvcount, srcPE, status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end if
 
 ! Clean-up
 
     deallocate(displs, stat=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     if(alloc_var) then
        deallocate(VAR, stat=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end if
 
     deallocate(sendcounts, stat=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     deallocate(AU,         stat=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     deallocate(AL,         stat=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
 ! All done
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine ArrayScatterShmR4D1
 
   subroutine ArrDescrCommFree(arrdes, rc)
@@ -894,14 +894,14 @@ module FileIOSharedMod
 
     integer :: status
 
-    call MAPL_CommFree(arrdes%Xcomm, _RC)
-    call MAPL_CommFree(arrdes%Ycomm, _RC)
-    call MAPL_CommFree(arrdes%readers_comm, _RC)
-    call MAPL_CommFree(arrdes%writers_comm, _RC)
-    call MAPL_CommFree(arrdes%IOgathercomm, _RC)
-    call MAPL_CommFree(arrdes%IOscattercomm, _RC)
+    call MAPL_CommFree(arrdes%Xcomm, _rc)
+    call MAPL_CommFree(arrdes%Ycomm, _rc)
+    call MAPL_CommFree(arrdes%readers_comm, _rc)
+    call MAPL_CommFree(arrdes%writers_comm, _rc)
+    call MAPL_CommFree(arrdes%IOgathercomm, _rc)
+    call MAPL_CommFree(arrdes%IOscattercomm, _rc)
     
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine ArrDescrCommFree
 
   subroutine MAPL_CommFree(comm, rc)
@@ -912,10 +912,10 @@ module FileIOSharedMod
 
     if(comm /= MPI_COMM_NULL) then
        call MPI_Comm_Free(comm, status)
-       _VERIFY(status)
+       _verify(status)
        comm = MPI_COMM_NULL
     end if
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_CommFree
 
   subroutine MAPL_Comm_Dup(comm, newcomm, rc)
@@ -928,8 +928,8 @@ module FileIOSharedMod
     newcomm = MPI_COMM_NULL 
     if(comm /= MPI_COMM_NULL) then
        call MPI_Comm_Dup(comm, newcomm,status)
-       _VERIFY(status)
+       _verify(status)
     end if
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_Comm_Dup
 end module FileIOSharedMod

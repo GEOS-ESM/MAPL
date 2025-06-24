@@ -65,11 +65,11 @@ contains
 
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_scalar_2d_real32'
 
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
 
       q_out = q_in
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine regrid_scalar_2d_real32
 
@@ -85,13 +85,13 @@ contains
 
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_scalar_2d_real32'
 
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
 
-      _ASSERT(size(q_in,3) == size(q_out,3), 'inconsistent array shape')
+      _assert(size(q_in,3) == size(q_out,3), 'inconsistent array shape')
 
       q_out = q_in
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine regrid_scalar_3d_real32
 
@@ -109,13 +109,13 @@ contains
 
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_vector_3d_real32'
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(rotate)
+      _unused_dummy(this)
+      _unused_dummy(rotate)
 
       u_out = u_in
       v_out = v_in
 
-     _RETURN(_SUCCESS)
+     _return(_success)
 
    end subroutine regrid_vector_2d_real32
 
@@ -134,17 +134,17 @@ contains
 
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_vector_3d_real32'
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(rotate)
+      _unused_dummy(this)
+      _unused_dummy(rotate)
 
-      _ASSERT(size(u_in,3) == size(u_out,3), 'inconsistent array shape')
-      _ASSERT(size(v_in,3) == size(v_out,3), 'inconsistent array shape')
-      _ASSERT(size(u_in,3) == size(v_in,3), 'inconsistent array shape')
+      _assert(size(u_in,3) == size(u_out,3), 'inconsistent array shape')
+      _assert(size(v_in,3) == size(v_out,3), 'inconsistent array shape')
+      _assert(size(u_in,3) == size(v_in,3), 'inconsistent array shape')
 
       u_out = u_in
       v_out = v_in
 
-     _RETURN(_SUCCESS)
+     _return(_success)
 
    end subroutine regrid_vector_3d_real32
 
@@ -170,9 +170,9 @@ contains
 
       character(len=*), parameter :: Iam = 'initialize_subclass'
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(rc)
+      _unused_dummy(this)
+      _unused_dummy(unusable)
+      _unused_dummy(rc)
 
    end subroutine initialize_subclass
 

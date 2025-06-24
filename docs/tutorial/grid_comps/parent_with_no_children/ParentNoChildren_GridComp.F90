@@ -19,20 +19,20 @@ module ParentNoChild_GridComp
 
      integer :: status
 
-     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_INITIALIZE,  my_initialize, _RC)
-     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_RUN,  my_run, _RC)
+     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_INITIALIZE,  my_initialize, _rc)
+     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_RUN,  my_run, _rc)
 
      call MAPL_AddExportSpec(gc,short_name='output1', long_name='NA',units='NA', &
                                  dims = MAPL_DimsHorzOnly, &
-                                 vlocation = MAPL_VLocationNone, _RC)
+                                 vlocation = MAPL_VLocationNone, _rc)
      call MAPL_AddExportSpec(gc,short_name='output2', long_name='NA',units='NA', &
                                  dims = MAPL_DimsHorzVert, &
-                                 vlocation = MAPL_VLocationCenter, _RC)
+                                 vlocation = MAPL_VLocationCenter, _rc)
 
 
 
-     call MAPL_GenericSetServices(gc, _RC)
-     _RETURN(_SUCCESS)
+     call MAPL_GenericSetServices(gc, _rc)
+     _return(_success)
 
   end subroutine setservices
 
@@ -46,10 +46,10 @@ module ParentNoChild_GridComp
 
      integer :: status
 
-     call MAPL_GridCreate(gc, _RC)
-     call MAPL_GenericInitialize(gc, import, export, clock, _RC)
+     call MAPL_GridCreate(gc, _rc)
+     call MAPL_GenericInitialize(gc, import, export, clock, _rc)
 
-     _RETURN(_SUCCESS)
+     _return(_success)
 
   end subroutine my_initialize
 
@@ -66,17 +66,17 @@ module ParentNoChild_GridComp
      real :: my_constant
      integer :: status
 
-     call MAPL_GetObjectFromGC ( GC, MAPL, _RC)
-     call MAPL_GetResource(MAPL, my_constant, Label="my_value:", default=17.0,_RC)
-     call MAPL_GetPointer(export,ptr_2d,'output1',_RC)
+     call MAPL_GetObjectFromGC ( GC, MAPL, _rc)
+     call MAPL_GetResource(MAPL, my_constant, Label="my_value:", default=17.0,_rc)
+     call MAPL_GetPointer(export,ptr_2d,'output1',_rc)
      if (associated(ptr_2d)) ptr_2d = my_constant
-     call MAPL_GetPointer(export,ptr_3d,'output2',_RC)
+     call MAPL_GetPointer(export,ptr_3d,'output2',_rc)
      if (associated(ptr_3d)) ptr_3d = my_constant
 
-     _RETURN(_SUCCESS)
+     _return(_success)
 
-     _UNUSED_DUMMY(import)
-     _UNUSED_DUMMY(clock)
+     _unused_dummy(import)
+     _unused_dummy(clock)
 
   end subroutine my_run
 

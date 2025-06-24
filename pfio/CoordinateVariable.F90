@@ -76,7 +76,7 @@ contains
 
       coordinate_variable%Variable = var
       call coordinate_variable%set_coordinate_data(coordinate_data)
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function new_CoordinateVariable
 
    subroutine set_coordinate_data(this, coordinate_data, rc)
@@ -84,9 +84,9 @@ contains
       class (*), intent(in) :: coordinate_data(:)
       integer, optional, intent(out) :: rc
      
-      _ASSERT(.not. allocated(this%coordinate_data), "use replace_coordinate_data") 
+      _assert(.not. allocated(this%coordinate_data), "use replace_coordinate_data") 
       allocate(this%coordinate_data, source=coordinate_data)
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine set_coordinate_data
 
    subroutine replace_coordinate_data(this, coordinate_data,rc)
@@ -96,7 +96,7 @@ contains
 
       if( allocated(this%coordinate_data)) deallocate(this%coordinate_data)
       allocate(this%coordinate_data, source=coordinate_data)
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine replace_coordinate_data
 
    function get_coordinate_data(this, rc) result(coordinate_data)
@@ -105,7 +105,7 @@ contains
       integer, optional, intent(out) :: rc
 
       coordinate_data => this%coordinate_data
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function get_coordinate_data
 
    subroutine get_real32(this, coordinate_data, unusable, rc)
@@ -114,16 +114,16 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      _ASSERT(allocated(this%coordinate_data), "not allocated coordinate data")
+      _assert(allocated(this%coordinate_data), "not allocated coordinate data")
       select type (q => this%coordinate_data)
       type is (real(kind=REAL32))
          coordinate_data => q
       class default ! wrong type
-         _FAIL( "wrong type")
+         _fail( "wrong type")
       end select
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
 
    end subroutine get_real32
 
@@ -133,16 +133,16 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      _ASSERT(allocated(this%coordinate_data), "not allocated coordinate data")
+      _assert(allocated(this%coordinate_data), "not allocated coordinate data")
       select type (q => this%coordinate_data)
       type is (real(kind=REAL64))
          coordinate_data => q
       class default ! wrong type
-         _FAIL( 'wrong type')
+         _fail( 'wrong type')
       end select
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end subroutine get_real64
 
    subroutine get_int32(this, coordinate_data, unusable, rc)
@@ -151,16 +151,16 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      _ASSERT(allocated(this%coordinate_data), "not allocated coordinate data")
+      _assert(allocated(this%coordinate_data), "not allocated coordinate data")
       select type (q => this%coordinate_data)
       type is (integer(kind=INT32))
          coordinate_data => q
       class default ! wrong type
-         _FAIL( 'wrong type')
+         _fail( 'wrong type')
       end select
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end subroutine get_int32
 
    subroutine get_int64(this, coordinate_data, unusable, rc)
@@ -169,16 +169,16 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      _ASSERT(allocated(this%coordinate_data),"not allocated coordinate data")
+      _assert(allocated(this%coordinate_data),"not allocated coordinate data")
       select type (q => this%coordinate_data)
       type is (integer(kind=INT64))
          coordinate_data => q
       class default ! wrong type
-         _FAIL( 'wrong type')
+         _fail( 'wrong type')
       end select
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end subroutine get_int64
 
        
@@ -194,7 +194,7 @@ contains
       if(allocated(buffer)) deallocate(buffer)
 
       call this%Variable%serialize(tmp_buffer, status)
-      _VERIFY(status)
+      _verify(status)
       select type (coord=>this%coordinate_data(:))
       type is (integer(INT32))
          type_kind = pFIO_INT32
@@ -209,11 +209,11 @@ contains
          type_kind = pFIO_REAL64
          buffer =[tmp_buffer, serialize_intrinsic(type_kind),serialize_intrinsic(coord)]
       class default
-         _FAIL("not support coord type")
+         _fail("not support coord type")
       end select 
       length = serialize_buffer_length(length)+ serialize_buffer_length(Coord_SERIALIZE_TYPE) + size(buffer)
       buffer = [serialize_intrinsic(length), serialize_intrinsic(Coord_SERIALIZE_TYPE), buffer]
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine
 
    subroutine CoordinateVariable_deserialize(buffer, cv, rc)
@@ -223,8 +223,8 @@ contains
       integer :: status
 
       call deserialize(cv, buffer, rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+      _verify(status)
+      _return(_success)
 
    contains  
       
@@ -244,7 +244,7 @@ contains
 
          n = 1
          call deserialize_intrinsic(buffer(n:),length)
-         _ASSERT(length == size(buffer), "size not match")
+         _assert(length == size(buffer), "size not match")
 
          length = serialize_buffer_length(length)
          n = n + length
@@ -253,7 +253,7 @@ contains
          n = n+length
          call deserialize_intrinsic(buffer(n:),length)
          call Variable_deserialize(buffer(n:n+length-1),this%variable, status)
-         _VERIFY(status)
+         _verify(status)
          n = n + length
          call deserialize_intrinsic(buffer(n:),type_kind)
          length = serialize_buffer_length(type_kind)
@@ -273,9 +273,9 @@ contains
             call deserialize_intrinsic(buffer(n:),values_REAL64)
             allocate(this%coordinate_data, source = values_real64)
          case default
-            _FAIL( "not supportted type")
+            _fail( "not supportted type")
          end select
-         _RETURN(_SUCCESS)
+         _return(_success)
       end subroutine deserialize
    end subroutine CoordinateVariable_deserialize
 

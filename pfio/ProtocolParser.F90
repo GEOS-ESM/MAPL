@@ -138,7 +138,7 @@ contains
       buffer(1) = message%get_type_id()
       call message%serialize(buffer(2:))
       return 
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
    end function encode
 
    

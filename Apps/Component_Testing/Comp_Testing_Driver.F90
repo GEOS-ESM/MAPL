@@ -26,23 +26,23 @@ program comp_testing_driver
       class(BaseProfiler), pointer :: t_p
 
       ! initialize
-      call ESMF_Initialize(logKindFlag=ESMF_LOGKIND_NONE, vm=vm, _RC)
-      call ESMF_VMGet(vm, localPET=local_PET, petCount=n_PET, _RC)
-      call MAPL_Initialize(_RC)
-      call ESMF_CalendarSetDefault(ESMF_CALKIND_GREGORIAN, _RC)
+      call ESMF_Initialize(logKindFlag=ESMF_LOGKIND_NONE, vm=vm, _rc)
+      call ESMF_VMGet(vm, localPET=local_PET, petCount=n_PET, _rc)
+      call MAPL_Initialize(_rc)
+      call ESMF_CalendarSetDefault(ESMF_CALKIND_GREGORIAN, _rc)
       t_p => get_global_time_profiler()
       call t_p%start('Comp_Testing_Driver.x')
 
       ! get rc filename and component to run
       call get_command_argument(1, filename)
-      config = ESMF_ConfigCreate(_RC)
-      call ESMF_ConfigLoadFile(config, filename, _RC)
-      call run_component_driver(filename, _RC)
+      config = ESMF_ConfigCreate(_rc)
+      call ESMF_ConfigLoadFile(config, filename, _rc)
+      call run_component_driver(filename, _rc)
 
       ! finalize
       call t_p%stop('Comp_Testing_Driver.x')
-      call MAPL_Finalize(_RC)
-      call ESMF_Finalize (_RC)
+      call MAPL_Finalize(_rc)
+      call ESMF_Finalize (_rc)
   end subroutine main
 
   subroutine run_component_driver(filename, rc)
@@ -66,29 +66,29 @@ program comp_testing_driver
     logical :: subset
 
     ! get attributes from config file
-    config = ESMF_ConfigCreate(_RC)
-    call ESMF_ConfigLoadFile(config, filename, _RC)
-    call get_config_attributes(config, comp_name, RUN_DT, restart_file, shared_obj, phase, subset, NX, NY, _RC)
+    config = ESMF_ConfigCreate(_rc)
+    call ESMF_ConfigLoadFile(config, filename, _rc)
+    call get_config_attributes(config, comp_name, RUN_DT, restart_file, shared_obj, phase, subset, NX, NY, _rc)
 
     ! create a clock, set current time to required time consistent with checkpoints used
-    call formatter%open(restart_file, pFIO_Read, _RC)
-    call ESMF_TimeIntervalSet(time_interval, s=RUN_DT, _RC)
-    basic_metadata=formatter%read(_RC)
+    call formatter%open(restart_file, pFIO_Read, _rc)
+    call ESMF_TimeIntervalSet(time_interval, s=RUN_DT, _rc)
+    basic_metadata=formatter%read(_rc)
     call metadata%create(basic_metadata,trim(restart_file))
-    call metadata%get_time_info(timeVector=start_time,_RC)
-    clock = ESMF_ClockCreate(time_interval, start_time(1), _RC)
-    call formatter%close(_RC)
+    call metadata%get_time_info(timeVector=start_time,_rc)
+    clock = ESMF_ClockCreate(time_interval, start_time(1), _rc)
+    call formatter%close(_rc)
 
     ! create MAPL_MetaComp object, add child
-    grid=grid_manager%make_grid(config, _RC)
+    grid=grid_manager%make_grid(config, _rc)
 
-    temp_GC = ESMF_GridCompCreate(name=comp_name, _RC)
+    temp_GC = ESMF_GridCompCreate(name=comp_name, _rc)
     mapl_obj => null()
-    call MAPL_InternalStateCreate(temp_GC, mapl_obj, _RC)
-    call MAPL_InternalStateRetrieve(temp_GC, mapl_obj, _RC)
-    call MAPL_Set(mapl_obj, CF=config, _RC)
+    call MAPL_InternalStateCreate(temp_GC, mapl_obj, _rc)
+    call MAPL_InternalStateRetrieve(temp_GC, mapl_obj, _rc)
+    call MAPL_Set(mapl_obj, CF=config, _rc)
 
-    root_id = MAPL_AddChild(mapl_obj, grid=grid, name=comp_name, userRoutine="setservices_", sharedObj=shared_obj, _RC)
+    root_id = MAPL_AddChild(mapl_obj, grid=grid, name=comp_name, userRoutine="setservices_", sharedObj=shared_obj, _rc)
 
     GC = mapl_obj%get_child_gridcomp(root_id)
     import = mapl_obj%get_child_import_state(root_id)
@@ -96,25 +96,25 @@ program comp_testing_driver
 
     ! if subsetting, get appropriate lons and lats
     if (subset .and. NX*NY == 1) then
-       call formatter%open(restart_file, pFIO_Read, _RC)
-       call ESMF_GridGetCoord(grid, coordDim=1, farrayPtr=lons_field_ptr, _RC)
-       call ESMF_GridGetCoord(grid, coordDim=2, farrayPtr=lats_field_ptr, _RC)
+       call formatter%open(restart_file, pFIO_Read, _rc)
+       call ESMF_GridGetCoord(grid, coordDim=1, farrayPtr=lons_field_ptr, _rc)
+       call ESMF_GridGetCoord(grid, coordDim=2, farrayPtr=lats_field_ptr, _rc)
        call formatter%get_var("lons", lons_field_ptr)
        call formatter%get_var("lats", lats_field_ptr)
-       call ESMF_GridCompSet(GC, grid=grid, _RC)
-       call formatter%close(_RC)
+       call ESMF_GridCompSet(GC, grid=grid, _rc)
+       call formatter%close(_rc)
     else
-       call ESMF_GridCompSet(GC, grid=grid, _RC)
+       call ESMF_GridCompSet(GC, grid=grid, _rc)
     end if
 
 
-    call ESMF_GridCompInitialize(GC, importState=import, exportState=export, clock=clock, userRC=user_RC, _RC)
+    call ESMF_GridCompInitialize(GC, importState=import, exportState=export, clock=clock, userRC=user_RC, _rc)
 
-    call ESMF_GridCompRun(GC, importState=import, exportState=export, clock=clock, phase=phase, userRC=user_RC, _RC)
+    call ESMF_GridCompRun(GC, importState=import, exportState=export, clock=clock, phase=phase, userRC=user_RC, _rc)
 
-    call ESMF_GridCompFinalize(GC, importState=import, exportState=export, clock=clock, userRC=user_RC, _RC)
+    call ESMF_GridCompFinalize(GC, importState=import, exportState=export, clock=clock, userRC=user_RC, _rc)
 
-    _RETURN(_SUCCESS)
+    _return(_success)
   end subroutine run_component_driver
 
   subroutine get_config_attributes(config, comp_name, RUN_DT, restart_file, shared_obj, phase, subset, NX, NY, rc)
@@ -125,16 +125,16 @@ program comp_testing_driver
     integer, intent(out) :: rc
     integer :: status
 
-    call ESMF_ConfigGetAttribute(config, value=comp_name, label="COMPONENT_TO_RECORD:", _RC)
-    call ESMF_ConfigGetAttribute(config, value=RUN_DT, label="RUN_DT:", _RC)
-    call ESMF_ConfigGetAttribute(config, value=restart_file, label="RESTART_FILE:", _RC)
-    call ESMF_ConfigGetAttribute(config, value=shared_obj, label = "LIBRARY_FILE:", _RC)
-    call ESMF_ConfigGetAttribute(config, value=phase, label="PHASE:", default=1, _RC)
-    call ESMF_ConfigGetAttribute(config, value=subset, label="SUBSET:", default=.false., _RC)
-    call ESMF_ConfigGetAttribute(config, value=NX, label = "NX:", _RC)
-    call ESMF_ConfigGetAttribute(config, value=NY, label = "NX:", _RC)
+    call ESMF_ConfigGetAttribute(config, value=comp_name, label="COMPONENT_TO_RECORD:", _rc)
+    call ESMF_ConfigGetAttribute(config, value=RUN_DT, label="RUN_DT:", _rc)
+    call ESMF_ConfigGetAttribute(config, value=restart_file, label="RESTART_FILE:", _rc)
+    call ESMF_ConfigGetAttribute(config, value=shared_obj, label = "LIBRARY_FILE:", _rc)
+    call ESMF_ConfigGetAttribute(config, value=phase, label="PHASE:", default=1, _rc)
+    call ESMF_ConfigGetAttribute(config, value=subset, label="SUBSET:", default=.false., _rc)
+    call ESMF_ConfigGetAttribute(config, value=NX, label = "NX:", _rc)
+    call ESMF_ConfigGetAttribute(config, value=NY, label = "NX:", _rc)
 
-    _RETURN(_SUCCESS)
+    _return(_success)
   end subroutine get_config_attributes
 
 end program comp_testing_driver

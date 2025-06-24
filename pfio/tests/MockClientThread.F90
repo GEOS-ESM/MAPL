@@ -64,7 +64,7 @@ contains
       handle => this%get_RequestHandle(request_id)
       call handle%wait()
       call this%erase_RequestHandle(request_id)
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine wait
 
 end module pFIO_MockClientThreadMod

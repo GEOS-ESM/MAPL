@@ -33,25 +33,25 @@ contains
       logical :: is_present
       integer :: status
       character(len=:), allocatable :: tempc
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
 
       if (allocated(tempc)) deallocate(tempc)
-      is_present = ESMF_HConfigIsDefined(config,keyString="function",_RC)
-      _ASSERT(is_present,"no expression found in derived entry")
+      is_present = ESMF_HConfigIsDefined(config,keyString="function",_rc)
+      _assert(is_present,"no expression found in derived entry")
       if (is_present) then
-         tempc = ESMF_HConfigAsString(config,keyString="function",_RC)
+         tempc = ESMF_HConfigAsString(config,keyString="function",_rc)
          rule%expression=tempc
       end if
 
       if (allocated(tempc)) deallocate(tempc)
-      is_present = ESMF_HConfigIsDefined(config,keyString="sample",_RC)
+      is_present = ESMF_HConfigIsDefined(config,keyString="sample",_rc)
       if (is_present) then
-         tempc = ESMF_HConfigAsString(config,keyString="sample",_RC)
+         tempc = ESMF_HConfigAsString(config,keyString="sample",_rc)
          rule%sample_key=tempc
       end if
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function new_ExtDataDerived
 
    function get_variables_in_expression(this,rc) result(variables_in_expression)
@@ -65,11 +65,11 @@ contains
       if (index(this%expression,"mask")/=0) then
          allocate(temp_mask)
          temp_mask = StateMask(this%expression)
-         variables_in_expression = temp_mask%get_mask_variables(_RC)
+         variables_in_expression = temp_mask%get_mask_variables(_rc)
       else
-         variables_in_expression = parser_variables_in_expression(this%expression,_RC)
+         variables_in_expression = parser_variables_in_expression(this%expression,_rc)
       end if
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function
 
@@ -80,8 +80,8 @@ contains
       integer, optional, intent(out) :: rc
 
       this%expression=''
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end subroutine set_defaults
 
    subroutine display(this)

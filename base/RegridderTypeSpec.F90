@@ -36,8 +36,8 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(rc)
+      _unused_dummy(unusable)
+      _unused_dummy(rc)
 
       spec%grid_type_in = grid_type_in
       spec%grid_type_out = grid_type_out
@@ -77,5 +77,5 @@ contains
 
 
 end module mapl_RegridderTypeSpec
-#undef _UNUSED_DUMMY
+#undef _unused_dummy
 

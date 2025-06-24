@@ -1,6 +1,6 @@
-#define _RETURN(status) if(present(rc)) then; rc=status; return; endif
-#define _RETURN_UNLESS(cond) if (.not. cond) then; _RETURN(UT_SUCCESS); endif
-#define _ASSERT(cond, msg) if (.not. (cond)) then;  _RETURN(msg); endif
-#define _RC rc=status); _ASSERT(rc==UT_SUCCESS, status
+#define _return(status) if(present(rc)) then; rc=status; return; endif
+#define _return_unless(cond) if (.not. cond) then; _return(UT_SUCCESS); endif
+#define _assert(cond, msg) if (.not. (cond)) then;  _return(msg); endif
+#define _rc rc=status); _assert(rc==UT_SUCCESS, status
 
 !rc=status); if (.not. (rc==UT_SUCCESS)) then; if(present(rc)) then; rc=status; return; endif; endif

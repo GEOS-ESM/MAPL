@@ -29,14 +29,14 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(import_state)
-      _UNUSED_DUMMY(export_state)
-      _UNUSED_DUMMY(clock)
-      _UNUSED_DUMMY(phase)
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(import_state)
+      _unused_dummy(export_state)
+      _unused_dummy(clock)
+      _unused_dummy(phase)
+      _unused_dummy(unusable)
       
       print*,this%get_name(), ' says "Hi there."'
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine stub
    
 

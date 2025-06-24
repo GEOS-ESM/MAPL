@@ -179,7 +179,7 @@ contains
       dst_values = temp_values_dst(:,:,1:lm_dst)
       dst_values = dst_values/(((1.0-dst_q)*(mol_weight/MAPL_AIRMW))+(dst_q*mol_weight/MAPL_H2OMW))
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine vremap_conserve_vol_mixing
 
 end module VerticalRegridConserveInterfaceMod

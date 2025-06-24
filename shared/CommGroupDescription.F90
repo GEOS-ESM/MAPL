@@ -34,11 +34,11 @@ contains
       integer, optional, intent(in)  :: npes_per_node
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(unusable)
-      _ASSERT(npes*nnodes == 0, "npes and nnodes are exclusive")
+      _unused_dummy(unusable)
+      _assert(npes*nnodes == 0, "npes and nnodes are exclusive")
 
       if (nnodes > 0) then
-         _ASSERT( isolate_nodes, " nnodes should be isolated")
+         _assert( isolate_nodes, " nnodes should be isolated")
       endif
 
       CommGroup%npes   = npes
@@ -53,7 +53,7 @@ contains
          CommGroup%nnodes = 0
       endif
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function new_CommGroupDescription
  
    subroutine comm_group_range(this,my_node, my_rank, nodes_sizes, start_node, start_rank, &
@@ -69,7 +69,7 @@ contains
 
       integer :: np, start_node_, start_rank_, i_node, i_rank
 
-       _UNUSED_DUMMY(unusable)
+       _unused_dummy(unusable)
       
        start_node_ = start_node
        start_rank_ = start_rank
@@ -86,7 +86,7 @@ contains
            do i_rank = start_rank_, nodes_sizes(i_node)-1
 
               if( my_node == i_node .and. my_rank == i_rank) then
-                  _ASSERT( .not. IamInGroup, "I have been included in the other group")
+                  _assert( .not. IamInGroup, "I have been included in the other group")
                   IamInGroup = .true.
               endif
 
@@ -110,18 +110,18 @@ contains
          next_node = start_node_ + this%nnodes 
          next_rank = 0
          if (start_node_ <= my_node .and. my_node < next_node) then
-            _ASSERT( .not. IamInGroup, "I have been included in the other group")
+            _assert( .not. IamInGroup, "I have been included in the other group")
             IamInGroup = .true.
          endif
       endif
 
       ! case 3, npes per node
       if (this%npes_per_node > 0) then
-         _ASSERT( all(nodes_sizes == nodes_sizes(1)) , " all nodes should have the same amount of cores")
+         _assert( all(nodes_sizes == nodes_sizes(1)) , " all nodes should have the same amount of cores")
          next_rank  = start_rank + this%npes_per_node
          next_node  = 0 ! no used
          if (start_rank <=my_rank .and. my_rank < next_rank) then
-            _ASSERT( .not. IamInGroup, "I have been included in the other group")
+            _assert( .not. IamInGroup, "I have been included in the other group")
             IamInGroup = .true.
          endif
       endif
@@ -132,7 +132,7 @@ contains
         next_rank = start_rank
       endif
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine comm_group_range
  
 end module MAPL_CommGroupDescriptionMod

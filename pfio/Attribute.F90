@@ -43,8 +43,8 @@ contains
       integer :: status
       class (*), intent(in) :: value
       attr%UnlimitedEntity = UnlimitedEntity(value, status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+      _verify(status)
+      _return(_success)
    end function new_Attribute_0d
    
    function new_Attribute_1d(values, rc) result(attr)
@@ -54,8 +54,8 @@ contains
       class (*), intent(in) :: values(:)
 
       attr%UnlimitedEntity = UnlimitedEntity(values,status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+      _verify(status)
+      _return(_success)
 
    end function new_Attribute_1d
 
@@ -83,8 +83,8 @@ contains
       integer :: status
 
       call UnlimitedEntity_deserialize(buffer, this%UnlimitedEntity, rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+      _verify(status)
+      _return(_success)
    end subroutine Attribute_deserialize
 
 end module pFIO_AttributeMod
@@ -145,7 +145,7 @@ contains
        enddo
        length = serialize_buffer_length(length)+size(buffer)
        buffer = [serialize_intrinsic(length),buffer]
-       _RETURN(_SUCCESS)
+       _return(_success)
     end subroutine StringAttributeMap_serialize
 
     subroutine StringAttributeMap_deserialize(buffer, map, rc)
@@ -160,7 +160,7 @@ contains
 
        n = 1
        call deserialize_intrinsic(buffer(n:),length)
-       _ASSERT(length == size(buffer), "length does not match")
+       _assert(length == size(buffer), "length does not match")
 
        n0 = serialize_buffer_length(length)
        n = n + n0
@@ -174,14 +174,14 @@ contains
           !allocate(attr)
           call deserialize_intrinsic(buffer(n:),n2)
           call Attribute_deserialize(buffer(n:n+n2-1), attr, status)
-          _VERIFY(status)
+          _verify(status)
           n = n + n2
           length = length - n1 - n2
           call map%insert(key,attr)
           deallocate(key)
           !deallocate(attr)
        enddo
-       _RETURN(_SUCCESS)
+       _return(_success)
     end subroutine StringAttributeMap_deserialize
 
 end module pFIO_StringAttributeMapUtilMod

@@ -90,14 +90,14 @@ contains
 
       s%server_comm = server_comm
       call MPI_Comm_size(s%server_comm, s_size , ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
 
       s%splitter = SimpleCommsplitter(s%server_comm)
       node_sizes = s%splitter%get_node_sizes()
       call s%splitter%add_group(npes_per_node = node_sizes(1)-nwriter_per_node, name="o_server_front", isolate_nodes=.false.)
       call s%splitter%add_group(npes_per_node = nwriter_per_node,               name="o_server_back",  isolate_nodes=.false.)
 
-      s_comm = s%splitter%split(rc=status); _VERIFY(status)
+      s_comm = s%splitter%split(rc=status); _verify(status)
 
       nwriter = nwriter_per_node*size(node_sizes)
       s%front_comm = MPI_COMM_NULL
@@ -109,7 +109,7 @@ contains
       allocate(s%back_ranks(nwriter))
       allocate(s%front_ranks(s%nfront))
       call MPI_Comm_rank(s%server_comm, s_rank, ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
       s_name = s_comm%get_name()
       s%I_am_front_root = .false.
       s%I_am_back_root = .false.
@@ -118,21 +118,21 @@ contains
          call s%init(s%front_comm, s_name)
          s%port_name = trim(port_name)
          call MPI_Comm_rank(s%front_comm, local_rank, ierror)
-         _VERIFY(ierror)
+         _verify(ierror)
          if (s_rank == 0) then
-           _ASSERT( local_rank == 0, "re-arrange the rank of the server_comm")
+           _assert( local_rank == 0, "re-arrange the rank of the server_comm")
            s%I_am_front_root = .true.
            call MPI_recv(s%back_ranks, nwriter, MPI_INTEGER, MPI_ANY_SOURCE, 666, s%server_comm, MPI_STAT,ierror)
-           _VERIFY(ierror)
+           _verify(ierror)
          endif
          call MPI_Bcast(s%back_ranks, nwriter, MPI_INTEGER, 0, s%front_comm, ierror)
-         _VERIFY(ierror)
+         _verify(ierror)
 
          call MPI_AllGather(s_rank, 1, MPI_INTEGER, s%front_ranks, 1, MPI_INTEGER, s%front_comm, ierror)
-         _VERIFY(ierror)
+         _verify(ierror)
          if (local_rank ==0 ) then
             call MPI_Send(s%front_ranks, s_size-nwriter, MPI_INTEGER, s%back_ranks(1), 777, s%server_comm, ierror)
-            _VERIFY(ierror)
+            _verify(ierror)
          endif
 
       endif
@@ -140,27 +140,27 @@ contains
       if (index(s_name, 'o_server_back') /=0) then
          s%back_comm = s_comm%get_subcommunicator()
          call MPI_AllGather(s_rank, 1, MPI_INTEGER, s%back_ranks, 1, MPI_INTEGER, s%back_comm, ierror)
-         _VERIFY(ierror)
+         _verify(ierror)
          call MPI_Comm_rank(s%back_comm, local_rank, ierror)
-         _VERIFY(ierror)
+         _verify(ierror)
          if (local_rank ==0 ) then
             s%I_am_back_root = .true.
             call MPI_Send(s%back_ranks, nwriter, MPI_INTEGER, 0, 666, s%server_comm, ierror)
-            _VERIFY(ierror)
+            _verify(ierror)
          endif
 
          if (s_rank == s%back_ranks(1)) then
-            _ASSERT( local_rank == 0, "re-arrange the rank of the server_comm")
+            _assert( local_rank == 0, "re-arrange the rank of the server_comm")
             call MPI_recv(s%front_ranks, s%nfront, MPI_INTEGER, MPI_ANY_SOURCE, 777, s%server_comm, MPI_STAT,ierror)
-            _VERIFY(ierror)
+            _verify(ierror)
          endif
 
          call MPI_Bcast(s%front_ranks, s%nfront, MPI_INTEGER, 0, s%back_comm, ierror)
-         _VERIFY(ierror)
+         _verify(ierror)
          call s%set_status(1)
          call s%add_connection(dummy_socket)
       endif
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function new_MultiCommServer
 
    subroutine start(this, rc)
@@ -169,15 +169,15 @@ contains
       integer :: status
 
       if ( this%front_comm /= MPI_COMM_NULL) then
-         call start_front(_RC)
+         call start_front(_rc)
       endif
 
       if ( this%back_comm /= MPI_COMM_NULL) then
-         call start_back(_RC)
+         call start_back(_rc)
       endif
 
       call this%splitter%free_sub_comm()
-      _RETURN(_SUCCESS)
+      _return(_success)
    contains
 
       subroutine start_back(rc)
@@ -186,23 +186,23 @@ contains
          integer :: my_rank, cmd, status
 
          call MPI_Comm_rank(this%server_comm, my_rank, ierr)
-         _VERIFY(ierr)
+         _verify(ierr)
          allocate(this%serverthread_done_msgs(1))
          this%serverthread_done_msgs(:) = .false.
 
          do while (.true.)
 
             call MPI_Bcast(cmd, 1, MPI_INTEGER, 0, this%server_comm, ierr)
-            _VERIFY(ierr)
+            _verify(ierr)
             if (cmd == -1) exit
-            call this%create_remote_win(_RC)
-            call this%receive_output_data(_RC)
-            call this%put_dataToFile(_RC)
+            call this%create_remote_win(_rc)
+            call this%receive_output_data(_rc)
+            call this%put_dataToFile(_rc)
 
-            call this%clean_up(_RC)
+            call this%clean_up(_rc)
 
          enddo
-         _RETURN(_SUCCESS)
+         _return(_success)
       end subroutine start_back
 
       subroutine start_front(rc)
@@ -229,7 +229,7 @@ contains
 
                thread_ptr=>this%threads%at(i)
                !handle the message
-               call thread_ptr%run(_RC)
+               call thread_ptr%run(_rc)
                !delete the thread object if it terminates
                if(thread_ptr%do_terminate()) then
                   mask(i) = .true.
@@ -242,9 +242,9 @@ contains
 
          call this%threads%clear()
          call MPI_Bcast(terminate, 1, MPI_INTEGER, 0, this%server_comm, ierr)
-         _VERIFY(ierr)
+         _verify(ierr)
          deallocate(mask)
-         _RETURN(_SUCCESS)
+         _return(_success)
       end subroutine start_front
 
    end subroutine start
@@ -279,7 +279,7 @@ contains
 
       if (this%front_comm /= MPI_COMM_NULL) then
          call MPI_Bcast(cmd, 1, MPI_INTEGER, 0, this%server_comm, ierr)
-         _VERIFY(ierr)
+         _verify(ierr)
       endif
 
       this%stage_offset = StringInteger64map()
@@ -290,15 +290,15 @@ contains
          call serialize_message_vector(thread_ptr%request_backlog,buffer)
          bsize = size(buffer)
          call MPI_send(bsize,  1,     MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_Comm, ierr)
-         _VERIFY(ierr)
+         _verify(ierr)
          call MPI_send(buffer, bsize, MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_Comm, ierr)
 
          call HistoryCollectionVector_serialize(thread_ptr%hist_collections, buffer)
          bsize = size(buffer)
          call MPI_send(bsize,  1,     MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_Comm, ierr)
-         _VERIFY(ierr)
+         _verify(ierr)
          call MPI_send(buffer, bsize, MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_Comm, ierr)
-         _VERIFY(ierr)
+         _verify(ierr)
 
       endif
 
@@ -307,18 +307,18 @@ contains
            call MPI_recv( bsize, 1, MPI_INTEGER,    &
              this%front_ranks(1), this%back_ranks(1), this%server_comm, &
              MPI_STAT, ierr)
-           _VERIFY(ierr)
+           _verify(ierr)
            allocate(buffer(bsize))
            call MPI_recv( buffer,bsize, MPI_INTEGER,    &
              this%front_ranks(1), this%back_ranks(1), this%server_comm, &
              MPI_STAT, ierr)
-           _VERIFY(ierr)
+           _verify(ierr)
          endif
          call MPI_Bcast(bsize, 1, MPI_INTEGER, 0, this%back_comm, ierr)
-         _VERIFY(ierr)
+         _verify(ierr)
          if (.not. allocated(buffer)) allocate(buffer(bsize))
          call MPI_Bcast(buffer, bsize, MPI_INTEGER, 0, this%back_comm, ierr)
-         _VERIFY(ierr)
+         _verify(ierr)
          call deserialize_message_vector(buffer, thread_ptr%request_backlog)
          deallocate (buffer)
 
@@ -326,18 +326,18 @@ contains
            call MPI_recv( bsize, 1, MPI_INTEGER,    &
              this%front_ranks(1), this%back_ranks(1), this%server_comm, &
              MPI_STAT, ierr)
-           _VERIFY(ierr)
+           _verify(ierr)
            allocate(buffer(bsize))
            call MPI_recv( buffer,bsize, MPI_INTEGER,    &
              this%front_ranks(1), this%back_ranks(1), this%server_comm, &
              MPI_STAT, ierr)
-           _VERIFY(ierr)
+           _verify(ierr)
          endif
          call MPI_Bcast(bsize, 1, MPI_INTEGER, 0, this%back_comm, ierr)
-         _VERIFY(ierr)
+         _verify(ierr)
          if (.not. allocated(buffer)) allocate(buffer(bsize))
          call MPI_Bcast(buffer, bsize, MPI_INTEGER, 0, this%back_comm, ierr)
-         _VERIFY(ierr)
+         _verify(ierr)
          call HistoryCollectionVector_deserialize(buffer, thread_ptr%hist_collections)
          deallocate (buffer)
       endif
@@ -393,7 +393,7 @@ contains
          remotePtr=>null()
       enddo
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine create_remote_win
 
    subroutine put_DataToFile(this, rc)
@@ -414,14 +414,14 @@ contains
      !t1 = -1.0d0
      num_clients = this%threads%size()
      if (num_clients == 0) then
-        _RETURN(_SUCCESS)
+        _return(_success)
      endif
 
 
      if (this%back_comm /= MPI_COMM_NULL) then
 
         call MPI_comm_rank(this%back_comm, l_rank, ierr)
-        _VERIFY(ierr)
+        _verify(ierr)
         ! copy and save the data
         do collection_counter = 1, this%dataRefPtrs%size()
               dataRefPtr => this%get_dataReference(collection_counter)
@@ -452,7 +452,7 @@ contains
      !if( t1-t0 > 0) then
      !   print*, "this rank",this%rank,"spending ", t1-t0, " seconds writing"
      !endif
-     _RETURN(_SUCCESS)
+     _return(_success)
    end subroutine put_DataToFile
 
   subroutine clean_up(this, rc)
@@ -471,7 +471,7 @@ contains
 
 
       call this%clear_DataReference()
-      call this%clear_RequestHandle(_RC)
+      call this%clear_RequestHandle(_rc)
       call this%set_AllBacklogIsEmpty(.true.)
       this%serverthread_done_msgs(:) = .false.
 
@@ -492,7 +492,7 @@ contains
       if (this%back_Comm /= MPI_COMM_NULL) then
         ! time to write file
          call MPI_comm_rank(this%back_comm, l_rank, ierr)
-         _VERIFY(ierr)
+         _verify(ierr)
 
          threadPtr=>this%threads%at(1)
          msg_iter = threadPtr%request_backlog%begin()
@@ -507,7 +507,7 @@ contains
                type is (LocalMemReference)
                  i_ptr =>dataRefPtr%i_ptr
                class default
-                  _FAIL( "I expect localmemReference")
+                  _fail( "I expect localmemReference")
                end select
 
                iter = this%stage_offset%find(i_to_string(q%request_id)//'done')
@@ -517,12 +517,12 @@ contains
                   offset     = this%stage_offset%at(i_to_string(q%request_id))
                   offset_address   = c_loc(i_ptr(offset+1))
                   ! (2) write data
-                  call threadPtr%put_DataToFile(q,offset_address, _RC)
+                  call threadPtr%put_DataToFile(q,offset_address, _rc)
                   !  (3) leave a mark, it has been written
                   call this%stage_offset%insert(i_to_string(q%request_id)//'done',0_MPI_ADDRESS_KIND)
                endif
             class default
-               _FAIL( "I expect CollectiveStageDataMessage")
+               _fail( "I expect CollectiveStageDataMessage")
             end select
             call msg_iter%next()
          enddo
@@ -543,7 +543,7 @@ contains
          call this%MemdataRefPtrs%erase(this%MemdataRefPtrs%begin(), this%MemdataRefPtrs%end())
       end if
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine clean_up
 
    integer function get_communicator(this) result(communicator)
@@ -567,16 +567,16 @@ contains
        do i = 1, client_num
          threadPtr=>this%threads%at(i)
          call threadPtr%receive_output_data(rc=status)
-         _VERIFY(status)
+         _verify(status)
        enddo
      endif
 
      do i = 1, this%dataRefPtrs%size()
         dataRefPtr => this%get_dataReference(i)
         call dataRefPtr%fence(rc=status)
-         _VERIFY(status)
+         _verify(status)
      enddo
-     _RETURN(_SUCCESS)
+     _return(_success)
    end subroutine receive_output_data
 
 

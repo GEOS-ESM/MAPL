@@ -45,10 +45,10 @@ module MAPL_ESMFFieldBundleWrite
          type(FieldBundleWriter) :: newWriter
 
          call newWriter%create_from_bundle(bundle,clock,output_file=output_File,n_steps=1,time_interval=0,nbits_to_keep=nbits_to_keep,deflate=deflate,quantize_algorithm=quantize_algorithm,quantize_level=quantize_level,zstandard_level=zstandard_level,rc=status)
-         _VERIFY(status)
+         _verify(status)
          call newWriter%write_to_file(rc=status)
-         _VERIFY(status)
-         _RETURN(_SUCCESS)
+         _verify(status)
+         _return(_success)
       end subroutine write_bundle_single_time
 
       subroutine create_from_bundle(this,bundle,clock,output_file,vertical_data,n_steps,time_interval,nbits_to_keep,deflate,quantize_algorithm,quantize_level,zstandard_level,rc)
@@ -75,7 +75,7 @@ module MAPL_ESMFFieldBundleWrite
          integer :: time_interval_
 
          call ESMF_TimeIntervalSet(offset,s=0,rc=status)
-         _VERIFY(status)
+         _verify(status)
          if (present(n_steps)) then
             file_steps = n_steps
          else
@@ -90,11 +90,11 @@ module MAPL_ESMFFieldBundleWrite
          call this%cfio%set_param(nbits_to_keep=nbits_to_keep,deflation=deflate,quantize_algorithm=quantize_algorithm,quantize_level=quantize_level,zstandard_level=zstandard_level)
          time_info = TimeData(clock,file_steps,time_interval_,offset)
          call ESMF_FieldBundleGet(bundle, fieldCount=num_fields,rc=status)
-         _VERIFY(status)
+         _verify(status)
          allocate(field_names(num_fields),stat=status)
-         _VERIFY(status)
+         _verify(status)
          call ESMF_FieldBundleGet(bundle, fieldNameList=field_names,rc=status)
-         _VERIFY(status)
+         _verify(status)
          do i=1,num_fields
             item%itemType=ItemTypeScalar
             item%xname = trim(field_names(i))
@@ -102,15 +102,15 @@ module MAPL_ESMFFieldBundleWrite
          enddo
          if (present(vertical_data)) then
             call this%cfio%createFileMetadata(items,bundle,time_info,vdata=vertical_data,rc=status)
-            _VERIFY(status)
+            _verify(status)
          else
             call this%cfio%createFileMetadata(items,bundle,time_info,rc=status)
-            _VERIFY(status)
+            _verify(status)
          end if
          if (present(output_file)) this%file_name = output_file
          collection_id = o_clients%add_hist_collection(this%cfio%metadata)
          call this%cfio%set_param(write_collection_id=collection_id)
-         _RETURN(_SUCCESS)
+         _return(_success)
 
       end subroutine create_from_bundle
 
@@ -121,10 +121,10 @@ module MAPL_ESMFFieldBundleWrite
          integer :: status
 
          call this%cfio%bundlepost(this%file_name,oClients=o_clients,rc=status)
-         _VERIFY(status)
-         call o_Clients%done_collective_stage(_RC)
+         _verify(status)
+         call o_Clients%done_collective_stage(_rc)
          call o_Clients%wait()
-         _RETURN(_SUCCESS)
+         _return(_success)
 
       end subroutine write_to_file
 
@@ -136,8 +136,8 @@ module MAPL_ESMFFieldBundleWrite
          integer :: status
 
          this%file_name=filename
-         call this%cfio%modifyTime(oClients=o_clients,_RC)
-         _RETURN(_SUCCESS)
+         call this%cfio%modifyTime(oClients=o_clients,_rc)
+         _return(_success)
       end subroutine start_new_file
 
 end module MAPL_ESMFFieldBundleWrite

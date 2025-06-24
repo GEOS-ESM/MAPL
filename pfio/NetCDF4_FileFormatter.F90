@@ -186,10 +186,10 @@ contains
       !$omp critical
       status = nf90_create(file, IOR(mode_, NF90_NETCDF4), this%ncid)
       !$omp end critical
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end subroutine create
 
 
@@ -244,10 +244,10 @@ contains
       !$omp critical
       status = nf90_create(file, mode_, comm=comm_, info=info_, ncid=this%ncid)
       !$omp end critical
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end subroutine create_par
 
 
@@ -269,7 +269,7 @@ contains
       case (pFIO_WRITE)
          omode = NF90_WRITE
       case default
-         _FAIL("read or write mode")
+         _fail("read or write mode")
       end select
 
       if (present(comm)) then
@@ -294,12 +294,12 @@ contains
                status,trim(file),trim(nf90_strerror(status))
       end if
       !$omp end critical
-      _VERIFY(status)
+      _verify(status)
 
       this%origin_file = file
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end subroutine open
 
    subroutine close(this, unusable, rc)
@@ -312,10 +312,10 @@ contains
       !$omp critical
       status = nf90_close(this%ncid)
       !$omp end critical
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end subroutine close
 
 
@@ -328,26 +328,26 @@ contains
       integer :: status
 
       call this%def_dimensions(cf, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call this%def_variables(cf, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call this%put_attributes(cf, NF90_GLOBAL, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       !$omp critical
       status= nf90_enddef(this%ncid)
       !$omp end critical
-      _VERIFY(status)
+      _verify(status)
 
       call this%write_coordinate_variables(cf, rc=status)
-      _VERIFY(status)
+      _verify(status)
       call this%write_const_variables(cf, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end subroutine write
 
    subroutine def_dimensions(this, cf, unusable, rc)
@@ -379,12 +379,12 @@ contains
          !$omp critical
          status = nf90_def_dim(this%ncid, dim_name, nf90_len, dimid)
          !$omp end critical
-         _VERIFY(status)
+         _verify(status)
          call iter%next()
       end do
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
 
    end subroutine def_dimensions
 
@@ -415,7 +415,7 @@ contains
 
          if (size(shp) > 0) then
            attr_values => p_attribute%get_values()
-           _ASSERT(associated(attr_values), "should have values")
+           _assert(associated(attr_values), "should have values")
 
            select type (q => attr_values)
            type is (integer(INT32))
@@ -435,16 +435,16 @@ contains
               status = nf90_put_att(this%ncid, varid, attr_name, q)
               !$omp end critical
            class default
-             status = _FAILURE
+             status = _failure
            end select
 
-           _VERIFY(status)
+           _verify(status)
            call iter%next()
 
          else
 
            attr_value => p_attribute%get_value()
-           _ASSERT(associated(attr_value), "should have value")
+           _assert(associated(attr_value), "should have value")
            select type (q => attr_value)
            type is (integer(INT32))
               !$omp critical
@@ -467,16 +467,16 @@ contains
               status = nf90_put_att(this%ncid, varid, attr_name, q)
               !$omp end critical
            class default
-              status = _FAILURE
+              status = _failure
            end select
 
-           _VERIFY(status)
+           _verify(status)
            call iter%next()
          end if
       end do
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
 
    end subroutine put_attributes
 
@@ -509,28 +509,28 @@ contains
             select type(q => var_values)
             type is (integer(INT32))
                call this%put_var(trim(var_name), q, count=shp, rc=status)
-               _VERIFY(status)
+               _verify(status)
             type is (integer(INT64))
                call this%put_var(trim(var_name), q, count=shp, rc=status)
-               _VERIFY(status)
+               _verify(status)
             type is (real(REAL32))
                call this%put_var(trim(var_name), q, count=shp, rc=status)
-               _VERIFY(status)
+               _verify(status)
             type is (real(REAL64))
                call this%put_var(trim(var_name), q, count=shp, rc=status)
-               _VERIFY(status)
+               _verify(status)
             class default
-               status = _FAILURE
-               _VERIFY(status)
+               status = _failure
+               _verify(status)
             end select
          end if
          call var_iter%next()
       enddo
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
 
    end subroutine write_const_variables
 
@@ -555,32 +555,32 @@ contains
       do while (var_iter /= vars%end())
          var_name => var_iter%key()
          var => cf%get_coordinate_variable(trim(var_name),rc=status)
-         _VERIFY(status)
+         _verify(status)
          if (associated(var))  then ! is a coordinate variable
             dim_var_values => var%get_coordinate_data()
             select type(q => dim_var_values)
             type is (integer(INT32))
                call this%put_var(trim(var_name),q,rc=status)
-               _VERIFY(status)
+               _verify(status)
             type is (integer(INT64))
                call this%put_var(trim(var_name),q,rc=status)
-               _VERIFY(status)
+               _verify(status)
             type is (real(REAL32))
                call this%put_var(trim(var_name),q,rc=status)
-               _VERIFY(status)
+               _verify(status)
             type is (real(REAL64))
                call this%put_var(trim(var_name),q,rc=status)
-               _VERIFY(status)
+               _verify(status)
             class default
-               status = _FAILURE
+               status = _failure
             end select
          end if
          call var_iter%next()
 
       enddo
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
 
    end subroutine write_coordinate_variables
 
@@ -635,7 +635,7 @@ contains
                status = nf90_put_att(this%ncid, varid, attr_name, q%value)
                !$omp end critical
             class default
-               status = _FAILURE
+               status = _failure
             end select
          else
             attr_values => p_attribute%get_values()
@@ -657,15 +657,15 @@ contains
                status = nf90_put_att(this%ncid, varid, attr_name, q)
                !$omp end critical
             class default
-               status = _FAILURE
+               status = _failure
             end select
          end if
-         _VERIFY(status)
+         _verify(status)
          call iter%next()
       end do
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
 
    end subroutine put_var_attributes
 
@@ -681,14 +681,14 @@ contains
       !$omp critical
       status=nf90_redef(this%ncid)
       !$omp end critical
-      _VERIFY(status)
-      call this%def_variables(cf, varname=varname, _RC)
+      _verify(status)
+      call this%def_variables(cf, varname=varname, _rc)
       !$omp critical
       status=nf90_enddef(this%ncid)
       !$omp end critical
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _verify(status)
+      _return(_success)
+      _unused_dummy(unusable)
 
    end subroutine add_variable
 
@@ -734,7 +734,7 @@ contains
          endif
          var => vars%at(var_name)
          xtype = get_xtype(var%get_type(),rc=status)
-         _VERIFY(status)
+         _verify(status)
          var_dims => var%get_dimensions()
          allocate(dimids(var_dims%size()))
 
@@ -748,24 +748,24 @@ contains
             call dim_iter%next()
             idim = idim + 1
          end do
-         _VERIFY(status)
+         _verify(status)
          !$omp critical
          status = nf90_def_var(this%ncid, var_name, xtype, dimids, varid)
          !$omp end critical
-         _VERIFY(status)
+         _verify(status)
          ! There is no nf90 interface for string. skip the fill
          if (xtype /=12) then
            !$omp critical
            status = nf90_def_var_fill(this%ncid, varid, NF90_NOFILL, 0)
            !$omp end critical
          endif
-         _VERIFY(status)
+         _verify(status)
          chunksizes => var%get_chunksizes()
          if (size(chunksizes) > 0) then
             !$omp critical
            status = nf90_def_var_chunking(this%ncid, varid, NF90_CHUNKED, chunksizes=chunksizes)
            !$omp end critical
-           _VERIFY(status)
+           _verify(status)
          end if
 
          deflation = var%get_deflation()
@@ -773,7 +773,7 @@ contains
             !$omp critical
            status = nf90_def_var_deflate(this%ncid, varid, 1, 1, deflation)
            !$omp end critical
-           _VERIFY(status)
+           _verify(status)
          end if
 
          quantize_algorithm = var%get_quantize_algorithm()
@@ -783,9 +783,9 @@ contains
            !$omp critical
            status = nf90_def_var_quantize(this%ncid, varid, quantize_algorithm, quantize_level)
            !$omp end critical
-           _VERIFY(status)
+           _verify(status)
 #else
-           _FAIL("netcdf was not built with quantize support")
+           _fail("netcdf was not built with quantize support")
 #endif
          end if
 
@@ -795,22 +795,22 @@ contains
            !$omp critical
            status = nf90_def_var_zstandard(this%ncid, varid, zstandard_level)
            !$omp end critical
-           _VERIFY(status)
+           _verify(status)
 #else
-           _FAIL("netcdf was not built with zstandard support")
+           _fail("netcdf was not built with zstandard support")
 #endif
          end if
 
          call this%put_var_attributes(var, varid, rc=status)
-         _VERIFY(status)
+         _verify(status)
 
          deallocate(dimids)
 
          call var_iter%next()
       end do
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
 
    end subroutine def_variables
 
@@ -819,7 +819,7 @@ contains
       integer, intent(in) :: fio_type
       integer, intent(out) :: rc
 
-      rc = _SUCCESS
+      rc = _success
 
       select case (fio_type)
       case (pFIO_INT32)
@@ -835,7 +835,7 @@ contains
       case (pFIO_STRING)
          xtype = NF90_STRING
       case default
-         rc = _FAILURE
+         rc = _failure
       end select
 
       return
@@ -846,7 +846,7 @@ contains
       integer, intent(in) :: xtype
       integer, intent(out) :: rc
 
-      rc = _SUCCESS
+      rc = _success
 
       select case (xtype)
       case (NF90_INT)
@@ -862,7 +862,7 @@ contains
       case (NF90_STRING)
          fio_type = pFIO_STRING
       case default
-         rc = _FAILURE
+         rc = _failure
       end select
 
       return
@@ -877,18 +877,18 @@ contains
       integer :: status
 
       call this%inq_dimensions(cf, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call this%inq_variables(cf, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call this%inq_attributes(cf, NF90_GLOBAL, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       if (allocated(this%origin_file)) call cf%set_source_file(this%origin_file)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end function read
 
 
@@ -908,7 +908,7 @@ contains
       !$omp critical
       status = nf90_inquire(this%ncid, nDimensions=nDimensions)
       !$omp end critical
-      _VERIFY(status)
+      _verify(status)
 
       cf_dims => cf%get_dimensions()
 
@@ -916,12 +916,12 @@ contains
          !$omp critical
          status = nf90_inquire_dimension(this%ncid, dimid, dim_name, dim_len)
          !$omp end critical
-         _VERIFY(status)
+         _verify(status)
          call cf_dims%insert(trim(dim_name), dim_len)
       end do
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end subroutine inq_dimensions
 
    subroutine inq_attributes(this, cf, varid, unusable, rc)
@@ -948,23 +948,23 @@ contains
       !$omp critical
       status = nf90_inquire(this%ncid, nAttributes=nAttributes)
       !$omp end critical
-      _VERIFY(status)
+      _verify(status)
       do attnum = 1, nAttributes
          !$omp critical
          status = nf90_inq_attname(this%ncid, varid, attnum, attr_name)
          !$omp end critical
-         _VERIFY(status)
+         _verify(status)
          !$omp critical
          status = nf90_inquire_attribute(this%ncid, varid, trim(attr_name), xtype, len)
          !$omp end critical
-         _VERIFY(status)
+         _verify(status)
          select case (xtype)
          case (NF90_INT)
             allocate(i32(len))
             !$omp critical
             status = nf90_get_att(this%ncid, varid, trim(attr_name), i32)
             !$omp end critical
-            _VERIFY(status)
+            _verify(status)
             call cf%add_attribute(trim(attr_name), i32)
             deallocate(i32)
          case (NF90_INT64)
@@ -972,7 +972,7 @@ contains
             !$omp critical
             status = nf90_get_att(this%ncid, varid, trim(attr_name), i64)
             !$omp end critical
-            _VERIFY(status)
+            _verify(status)
             call cf%add_attribute(trim(attr_name), i64)
             deallocate(i64)
          case (NF90_FLOAT)
@@ -980,7 +980,7 @@ contains
             !$omp critical
             status = nf90_get_att(this%ncid, varid, trim(attr_name), r32)
             !$omp end critical
-            _VERIFY(status)
+            _verify(status)
             call cf%add_attribute(trim(attr_name), r32)
             deallocate(r32)
          case (NF90_DOUBLE)
@@ -988,7 +988,7 @@ contains
             !$omp critical
             status = nf90_get_att(this%ncid, varid, trim(attr_name), r64)
             !$omp end critical
-            _VERIFY(status)
+            _verify(status)
             call cf%add_attribute(trim(attr_name), r64)
             deallocate(r64)
          case (NF90_CHAR)
@@ -996,7 +996,7 @@ contains
             !$omp critical
             status = nf90_get_att(this%ncid, varid, trim(attr_name), str)
             !$omp end critical
-            _VERIFY(status)
+            _verify(status)
             if (len > 0) then
                if (str(len:len) == C_NULL_CHAR) str = str(1:len-1)
             end if
@@ -1006,17 +1006,17 @@ contains
             !$omp critical
             status = pfio_get_att_string(this%ncid, varid, trim(attr_name), str)
             !$omp end critical
-            _VERIFY(status)
+            _verify(status)
             call cf%add_attribute(trim(attr_name), str)
             deallocate(str)
          case default
-            _RETURN(_FAILURE)
+            _return(_failure)
          end select
 
       end do
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end subroutine inq_attributes
 
 
@@ -1044,18 +1044,18 @@ contains
       !$omp critical
       status = nf90_inquire_variable(this%ncid, varid, nAtts=nAttributes)
       !$omp end critical
-      _VERIFY(status)
+      _verify(status)
 
 
       do attnum = 1, nAttributes
          !$omp critical
          status = nf90_inq_attname(this%ncid, varid, attnum, attr_name)
          !$omp end critical
-         _VERIFY(status)
+         _verify(status)
          !$omp critical
          status = nf90_inquire_attribute(this%ncid, varid, attr_name, xtype, len)
          !$omp end critical
-         _VERIFY(status)
+         _verify(status)
 
          select case (xtype)
          case (NF90_INT)
@@ -1063,7 +1063,7 @@ contains
             !$omp critical
             status = nf90_get_att(this%ncid, varid, attr_name, i32)
             !$omp end critical
-            _VERIFY(status)
+            _verify(status)
             call var%add_attribute(attr_name, i32)
             deallocate(i32)
          case (NF90_INT64)
@@ -1071,7 +1071,7 @@ contains
             !$omp critical
             status = nf90_get_att(this%ncid, varid, trim(attr_name), i64)
             !$omp end critical
-            _VERIFY(status)
+            _verify(status)
             call var%add_attribute(trim(attr_name), i64)
             deallocate(i64)
          case (NF90_FLOAT)
@@ -1079,7 +1079,7 @@ contains
             !$omp critical
             status = nf90_get_att(this%ncid, varid, trim(attr_name), r32)
             !$omp end critical
-            _VERIFY(status)
+            _verify(status)
             call var%add_attribute(trim(attr_name), r32)
             deallocate(r32)
          case (NF90_DOUBLE)
@@ -1087,7 +1087,7 @@ contains
             !$omp critical
             status = nf90_get_att(this%ncid, varid, trim(attr_name), r64)
             !$omp end critical
-            _VERIFY(status)
+            _verify(status)
             call var%add_attribute(trim(attr_name), r64)
             deallocate(r64)
          case (NF90_CHAR)
@@ -1095,7 +1095,7 @@ contains
             !$omp critical
             status = nf90_get_att(this%ncid, varid, trim(attr_name), str)
             !$omp end critical
-            _VERIFY(status)
+            _verify(status)
             if (len > 0) then
                if (str(len:len) == C_NULL_CHAR) str = str(1:len-1)
             end if
@@ -1105,17 +1105,17 @@ contains
             !$omp critical
             status = pfio_get_att_string(this%ncid, varid, trim(attr_name), str)
             !$omp end critical
-            _VERIFY(status)
+            _verify(status)
             call var%add_attribute(trim(attr_name), str)
             deallocate(str)
          case default
-            _RETURN(_FAILURE)
+            _return(_failure)
          end select
 
       end do
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end subroutine inq_var_attributes
 
    subroutine inq_var_string_length(this, var_name, length, unusable, rc)
@@ -1128,10 +1128,10 @@ contains
       integer :: varid, status
 
       status = nf90_inq_varid(this%ncid, name=var_name, varid=varid)
-      _VERIFY(status)
+      _verify(status)
       status = pfio_nf90_get_var_string_len(this%ncid, varid, length)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+      _verify(status)
+      _return(_success)
    end subroutine inq_var_string_length
 
    subroutine inq_variables(this, cf, unusable, rc)
@@ -1168,26 +1168,26 @@ contains
       !$omp critical
       status = nf90_inquire(this%ncid, nVariables=nVariables)
       !$omp end critical
-      _VERIFY(status)
+      _verify(status)
 
       do varid = 1, nVariables
          !$omp critical
          status = nf90_inquire_variable(this%ncid, varid, name=var_name, xtype=xtype, ndims=ndims)
          !$omp end critical
-         _VERIFY(status)
+         _verify(status)
 
          allocate(dimids(ndims))
          !$omp critical
          status = nf90_inquire_variable(this%ncid, varid, dimids=dimids)
          !$omp end critical
-         _VERIFY(status)
+         _verify(status)
 
          dim_string = ''
          do idim = 1, ndims
             !$omp critical
             status = nf90_inquire_dimension(this%ncid, dimids(idim), name=dim_name)
             !$omp end critical
-            _VERIFY(status)
+            _verify(status)
             dim_string = dim_string // trim(dim_name)
             if(idim < ndims) dim_string = dim_string // pFIO_DIMENSION_SEPARATOR
          end do
@@ -1197,64 +1197,64 @@ contains
             !$omp critical
             status = nf90_inq_dimid(this%ncid, dim_string, dimid=dimid)
             !$omp end critical
-            _VERIFY(status)
+            _verify(status)
             !$omp critical
             status = nf90_inquire_dimension(this%ncid, dimid, len=len)
             !$omp end critical
-            _VERIFY(status)
+            _verify(status)
 
             select case (xtype)
             case (NF90_INT)
                allocate(data_int32(len))
                call this%get_var(trim(var_name), data_int32, count=[len], rc=status)
-               _VERIFY(status)
+               _verify(status)
                allocate(coordinate_data, source=data_int32)
                deallocate(data_int32)
             case (NF90_INT64)
                allocate(data_int64(len))
                call this%get_var(trim(var_name), data_int64, count=[len], rc=status)
-               _VERIFY(status)
+               _verify(status)
                allocate(coordinate_data, source=data_int64)
                deallocate(data_int64)
             case (NF90_FLOAT)
                allocate(data_real32(len))
                call this%get_var(trim(var_name), data_real32, count=[len],rc=status)
-               _VERIFY(status)
+               _verify(status)
                allocate(coordinate_data, source=data_real32)
                deallocate(data_real32)
             case (NF90_DOUBLE)
                allocate(data_real64(len))
                call this%get_var(trim(var_name), data_real64, count=[len], rc=status)
-               _VERIFY(status)
+               _verify(status)
                allocate(coordinate_data, source=data_real64)
                deallocate(data_real64)
             case default
                ! Cannot be string
-               _RETURN(_FAILURE)
+               _return(_failure)
             end select
 
             iotype = get_fio_type(xtype,rc=status)
-            _VERIFY(status)
+            _verify(status)
             v = Variable(type=iotype , dimensions=dim_string)
             allocate(var, source=CoordinateVariable(v, coordinate_data))
             deallocate(coordinate_data)
          else
-            Fio_type = get_fio_type(xtype, rc=status); _VERIFY(status)
+            Fio_type = get_fio_type(xtype, rc=status); _verify(status)
             Concrete_var = Variable(type=fio_type, dimensions=dim_string)
             allocate(var, source=concrete_var)
          end if
 
          call this%inq_var_attributes(var, varid, rc=status)
-         _VERIFY(status)
+         _verify(status)
 
          call cf%add_variable(trim(var_name), var,rc=status)
-         _VERIFY(status)
+         _verify(status)
 
          deallocate(var)
 
       end do
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end subroutine inq_variables
 
    ! INT32
@@ -1380,16 +1380,16 @@ contains
       !$omp critical
       status = nf90_inq_dimid(this%ncid, name=dim_name, dimid=dimid)
       !$omp end critical
-      _VERIFY(status)
+      _verify(status)
 
       length = 0
       !$omp critical
       status = nf90_inquire_dimension(this%ncid, dimid, len=length)
       !$omp end critical
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
 
    end function inq_dim
 

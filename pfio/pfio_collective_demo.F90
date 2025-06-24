@@ -48,25 +48,25 @@ contains
          select case (argument)
          case ('-nc', '--npes_client')
             buffer = get_next_argument()
-            _ASSERT(buffer /= '-', "no -")
+            _assert(buffer /= '-', "no -")
             read(buffer,*) options%npes_client
          case ('-ns', '--npes_server')
             buffer = get_next_argument()
-            _ASSERT(buffer /= '-', "no -")
+            _assert(buffer /= '-', "no -")
             read(buffer,*) options%npes_server
          case ('-f1', '--file_1')
             options%file_1 = get_next_argument()
-            _ASSERT(options%file_1(1:1) /= '-', "too many ")
+            _assert(options%file_1(1:1) /= '-', "too many ")
          case ('-f2', '--file_2')
             options%file_2 = get_next_argument()
-            _ASSERT(options%file_2(1:1) /= '-', "too many -")
+            _assert(options%file_2(1:1) /= '-', "too many -")
          case ('-v', '--var')
             buffer = get_next_argument()
-            _ASSERT(buffer(1:1) /= '-', "too many -")
+            _assert(buffer(1:1) /= '-', "too many -")
             options%requested_variables = parse_vars(buffer)
          case ('-s', '--server_type')
             options%server_type = get_next_argument()
-            _ASSERT(options%server_type /= '-', "too many -")
+            _assert(options%server_type /= '-', "too many -")
          case ('-d', '--debug')
             options%debug = .true.
          case default
@@ -185,9 +185,9 @@ contains
 
       this%comm = comm
       call MPI_Comm_rank(comm,this%rank, ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
       call MPI_Comm_size(comm,this%npes, ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
 
       allocate(this%bundle(this%vars%size()))
 
@@ -324,11 +324,11 @@ program main
 
    required = MPI_THREAD_MULTIPLE
    call MPI_init_thread(required, provided,  ierror)
-   _VERIFY(ierror)
+   _verify(ierror)
    call MPI_Comm_rank(MPI_COMM_WORLD, rank,  ierror)
-   _VERIFY(ierror)
+   _verify(ierror)
    call MPI_Comm_size(MPI_COMM_WORLD, npes,  ierror)
-   _VERIFY(ierror)
+   _verify(ierror)
 
    call process_command_line(options, rc=status)
 
@@ -346,7 +346,7 @@ program main
    key = 0
 
    call MPI_Comm_split(MPI_COMM_WORLD, color, key, comm,  ierror)
-   _VERIFY(ierror)
+   _verify(ierror)
 
    if (color == SERVER_COLOR .or. color == BOTH_COLOR) then ! server
       
@@ -374,7 +374,7 @@ contains
 
       allocate(d_s, source=DirectoryService(MPI_COMM_WORLD))
 
-      _UNUSED_DUMMY(stype)
+      _unused_dummy(stype)
 
    end function
 

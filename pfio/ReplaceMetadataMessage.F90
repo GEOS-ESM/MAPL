@@ -39,7 +39,7 @@ contains
       message%collection_id = collection_id
       message%fmd = fmd
  
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function new_ReplaceMetadataMessage
 
    integer function get_type_id() result(type_id)
@@ -69,11 +69,11 @@ contains
       integer :: status
 
       call this%fmd%serialize(fmd_buf, rc=status)
-      _VERIFY(status)
+      _verify(status)
       buffer = [ &
            & serialize_intrinsic(this%collection_id), &
            & fmd_buf]
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine serialize
 
    subroutine deserialize(this, buffer, rc)
@@ -88,8 +88,8 @@ contains
       n = n + serialize_buffer_length(this%collection_id)
 
       call FileMetadata_deserialize(buffer(n:), this%fmd, rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+      _verify(status)
+      _return(_success)
    end subroutine deserialize
 
 end module pFIO_ReplaceMetadataMessageMod
