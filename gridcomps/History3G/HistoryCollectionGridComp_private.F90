@@ -274,7 +274,6 @@ contains
       type(HistoryOptions), intent(in) :: opts
       integer, optional, intent(out) :: rc
       integer :: status
-      character(len=:), allocatable :: item_name
       type(StringVectorIterator) :: ftn_iter, ftn_end
       type(VariableSpec) :: varspec
       character(len=:), allocatable :: short_name
@@ -427,24 +426,21 @@ contains
 
    end function get_typekind
 
-   function detect_geom(bundle, rc) result(geom)
+   function detect_geom(bundle, collection_name, rc) result(geom)
       type(ESMF_Geom) :: geom
       type(ESMF_FieldBundle), intent(inout) :: bundle
+      character(len=*), intent(in) :: collection_name
       integer, optional, intent(out) :: rc
       integer :: status
-      integer :: item_count, i, geom_id, last_id
-      character(len=ESMF_MAXSTR), allocatable :: item_names(:)
-      type(ESMF_Field) :: field
+      integer :: i, geom_id, last_id
+      type(ESMF_Field), allocatable :: fields(:)
 
-      call ESMF_FieldBundleGet(bundle, fieldCount=item_count, _RC)
-      allocate(item_names(item_count), _STAT)
-      call ESMF_FieldBundleGet(bundle, fieldNameList=item_names, _RC)
-      do i=1,item_count
-         call ESMF_FieldBundleGet(bundle, item_names(i), field=field, _RC)
-         call ESMF_FieldGet(field, geom=geom ,_RC)
+      call MAPL_FieldBundleGet(bundle, fieldList=fields, _RC)
+      do i=1,size(fields)
+         call ESMF_FieldGet(fields(i), geom=geom ,_RC)
          geom_id = MAPL_GeomGetID(geom, _RC)
          if (i > 1) then
-            _ASSERT(geom_id == last_id,"ids do not match")
+            _ASSERT(geom_id == last_id,"Items in collections "//trim(collection_name)//" have inconsistent geoms")
          end if 
          last_id=geom_id
       enddo 
