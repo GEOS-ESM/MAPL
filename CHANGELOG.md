@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added RC for Timer call in `MAPL_Generic.F90`
 - Added single-underscore lowercase variants of our macros
+  - The new macros and old are now in two separate files controlled by a CMake option (`USE_MAPL_LEGACY_MACROS`) which
+    currently defaults to `ON`
 
 ### Removed
 

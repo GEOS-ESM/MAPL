@@ -188,6 +188,13 @@ if (COMMAND esma)
   endforeach ()
 endif ()
 
+# This controls the use of the legacy MAPL macros in the include/ directory
+option(USE_MAPL_LEGACY_MACROS "Use MAPL Legacy Macros" ON)
+if(USE_MAPL_LEGACY_MACROS)
+  add_compile_definitions(_mapl_legacy_macros)
+endif()
+add_subdirectory (include)
+
 if (BUILD_WITH_PFLOGGER)
   add_definitions(-DBUILD_WITH_PFLOGGER)
 else ()
@@ -226,7 +233,6 @@ add_subdirectory (field_utils)
 add_subdirectory (state)
 add_subdirectory (oomph) # temporary - will rename to generic when done
 add_subdirectory (shared)
-add_subdirectory (include)
 add_subdirectory (base)
 add_subdirectory (MAPL)
 add_subdirectory (gridcomps)
