@@ -5,7 +5,7 @@ set( MAPL_PUBLIC_HEADERS
    MAPL_Generic.h
    NUOPC_ErrLog.h
    unused_dummy.H
-   new_Errlog.h
+   new_ErrLog.h
    )
 
 # This option is defined in the top-level CMakeLists.txt
