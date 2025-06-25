@@ -97,11 +97,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix some incorrect links in the documentation
+
 ### Added
+
+- Add new markup link checker based on [mlc](https://github.com/becheran/mlc)
 
 ### Changed
 
-- Added RC for Timer call in MAPL_Generic.F90
+- Added RC for Timer call in `MAPL_Generic.F90`
 
 ### Removed
 
