@@ -567,7 +567,7 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
         second = mod(ORB2B_REF_HHMMSS, 100)
         call ESMF_TimeSet(ORBIT%ORB2B_TIME_REF, &
           yy=year, mm=month, dd=day, h=hour, m=minute, s=second, rc=STATUS)
-        _VERIFY(STATUS)
+        _verify(STATUS)
         ! record MAPL Time object for EQUINOX
         year   = ORB2B_EQUINOX_YYYYMMDD / 10000
         month  = mod(ORB2B_EQUINOX_YYYYMMDD, 10000) / 100
@@ -577,7 +577,7 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
         second = mod(ORB2B_EQUINOX_HHMMSS, 100)
         call ESMF_TimeSet(ORBIT%ORB2B_TIME_EQUINOX, &
           yy=year, mm=month, dd=day, h=hour, m=minute, s=second, rc=STATUS)
-        _VERIFY(STATUS)
+        _verify(STATUS)
 
         ! time-invariant precalculations
         ORBIT%ORB2B_OMG0 = 2. * MAPL_PI / ORB2B_YEARLEN
@@ -586,7 +586,7 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
         call ESMF_TimeIntervalGet( &
           ORBIT%ORB2B_TIME_EQUINOX - ORBIT%ORB2B_TIME_REF, &
           d_r8=days, rc=STATUS)
-        _VERIFY(STATUS)
+        _verify(STATUS)
         ECC_EQNX = ORBIT%ORB2B_ECC_REF + days * ORBIT%ORB2B_ECC_RATE
         LAMBDAP_EQNX = ORBIT%ORB2B_LAMBDAP_REF + days * ORBIT%ORB2B_LAMBDAP_RATE
         EAFAC_EQNX = sqrt((1.-ECC_EQNX)/(1.+ECC_EQNX))
@@ -667,24 +667,24 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
 
         if(associated(ORBIT%TH)) deallocate(ORBIT%TH)
         allocate(ORBIT%TH(DAYS_PER_CYCLE), stat=status)
-        _VERIFY(STATUS)
+        _verify(STATUS)
 
         if(associated(ORBIT%ZC)) deallocate(ORBIT%ZC)
         allocate(ORBIT%ZC(DAYS_PER_CYCLE), stat=status)
-        _VERIFY(STATUS)
+        _verify(STATUS)
 
         if(associated(ORBIT%ZS)) deallocate(ORBIT%ZS)
         allocate(ORBIT%ZS(DAYS_PER_CYCLE), stat=status)
-        _VERIFY(STATUS)
+        _verify(STATUS)
 
         if(associated(ORBIT%PP)) deallocate(ORBIT%PP)
         allocate(ORBIT%PP(DAYS_PER_CYCLE), stat=status)
-        _VERIFY(STATUS)
+        _verify(STATUS)
 
         if (ORBIT%EOT) then
           if(associated(ORBIT%ET)) deallocate(ORBIT%ET)
           allocate(ORBIT%ET(DAYS_PER_CYCLE), stat=status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
         end if
 
         ! Begin integration at the vernal equinox (K=1, KP=EQUINOX), at
@@ -754,7 +754,7 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
       ORBIT%CREATED = .TRUE.
       MAPL_SunOrbitCreate = ORBIT
 
-      _RETURN(ESMF_SUCCESS)
+      _return(ESMF_SUCCESS)
 
       contains
 
@@ -818,25 +818,25 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
       ! -----------------------------------------------------------------------
       call ESMF_ConfigGetAttribute (CF, &
          ECC, label="ECCENTRICITY:", &
-         default=DEFAULT_ORBIT_ECCENTRICITY, _RC)
+         default=DEFAULT_ORBIT_ECCENTRICITY, _rc)
 
       call ESMF_ConfigGetAttribute (CF, &
          OB, label="OBLIQUITY:", &
-         default=DEFAULT_ORBIT_OBLIQUITY, _RC)
+         default=DEFAULT_ORBIT_OBLIQUITY, _rc)
 
       call ESMF_ConfigGetAttribute (CF, &
          PER, label="PERIHELION:", &
-         default=DEFAULT_ORBIT_PERIHELION, _RC)
+         default=DEFAULT_ORBIT_PERIHELION, _rc)
 
       call ESMF_ConfigGetAttribute (CF, &
          EQNX, label="EQUINOX:", &
-         default=DEFAULT_ORBIT_EQUINOX, _RC)
+         default=DEFAULT_ORBIT_EQUINOX, _rc)
 
       ! Apply Equation of Time correction?
       ! ----------------------------------
       call ESMF_ConfigGetAttribute (CF, &
          EOT, label="EOT:", &
-         default=.FALSE., _RC)
+         default=.FALSE., _rc)
 
       ! New orbital system (analytic two-body) allows some time-varying
       ! behavior, namely, linear variation in LAMBDAP, ECC, and OBQ.
@@ -844,60 +844,60 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
 
       call ESMF_ConfigGetAttribute (CF, &
          ORBIT_ANAL2B, label="ORBIT_ANAL2B:", &
-         default=.FALSE., _RC)
+         default=.FALSE., _rc)
 
       ! Fixed anomalistic year length in mean solar days
       call ESMF_ConfigGetAttribute (CF, &
          ORB2B_YEARLEN, label="ORB2B_YEARLEN:", &
-         default=DEFAULT_ORB2B_YEARLEN, _RC)
+         default=DEFAULT_ORB2B_YEARLEN, _rc)
 
       ! Reference date and time for orbital parameters
       call ESMF_ConfigGetAttribute (CF, &
          ORB2B_REF_YYYYMMDD, label="ORB2B_REF_YYYYMMDD:", &
-         default=DEFAULT_ORB2B_REF_YYYYMMDD, _RC)
+         default=DEFAULT_ORB2B_REF_YYYYMMDD, _rc)
       call ESMF_ConfigGetAttribute (CF, &
          ORB2B_REF_HHMMSS, label="ORB2B_REF_HHMMSS:", &
-         default=DEFAULT_ORB2B_REF_HHMMSS, _RC)
+         default=DEFAULT_ORB2B_REF_HHMMSS, _rc)
 
       ! Orbital eccentricity at reference date
       call ESMF_ConfigGetAttribute (CF, &
          ORB2B_ECC_REF, label="ORB2B_ECC_REF:", &
-         default=DEFAULT_ORB2B_ECC_REF, _RC)
+         default=DEFAULT_ORB2B_ECC_REF, _rc)
 
       ! Rate of change of orbital eccentricity per Julian century
       call ESMF_ConfigGetAttribute (CF, &
          ORB2B_ECC_RATE, label="ORB2B_ECC_RATE:", &
-         default=DEFAULT_ORB2B_ECC_RATE, _RC)
+         default=DEFAULT_ORB2B_ECC_RATE, _rc)
 
       ! Earth's obliquity (axial tilt) at reference date [degrees]
       call ESMF_ConfigGetAttribute (CF, &
          ORB2B_OBQ_REF, label="ORB2B_OBQ_REF:", &
-         default=DEFAULT_ORB2B_OBQ_REF, _RC)
+         default=DEFAULT_ORB2B_OBQ_REF, _rc)
 
       ! Rate of change of obliquity [degrees per Julian century]
       call ESMF_ConfigGetAttribute (CF, &
          ORB2B_OBQ_RATE, label="ORB2B_OBQ_RATE:", &
-         default=DEFAULT_ORB2B_OBQ_RATE, _RC)
+         default=DEFAULT_ORB2B_OBQ_RATE, _rc)
 
       ! Longitude of perihelion at reference date [degrees]
       !   (from March equinox to perihelion in direction of earth's motion)
       call ESMF_ConfigGetAttribute (CF, &
          ORB2B_LAMBDAP_REF, label="ORB2B_LAMBDAP_REF:", &
-         default=DEFAULT_ORB2B_LAMBDAP_REF, _RC)
+         default=DEFAULT_ORB2B_LAMBDAP_REF, _rc)
 
       ! Rate of change of LAMBDAP [degrees per Julian century]
       !   (Combines both equatorial and ecliptic precession)
       call ESMF_ConfigGetAttribute (CF, &
          ORB2B_LAMBDAP_RATE, label="ORB2B_LAMBDAP_RATE:", &
-         default=DEFAULT_ORB2B_LAMBDAP_RATE, _RC)
+         default=DEFAULT_ORB2B_LAMBDAP_RATE, _rc)
 
       ! March Equinox date and time
       call ESMF_ConfigGetAttribute (CF, &
          ORB2B_EQUINOX_YYYYMMDD, label="ORB2B_EQUINOX_YYYYMMDD:", &
-         default=DEFAULT_ORB2B_EQUINOX_YYYYMMDD, _RC)
+         default=DEFAULT_ORB2B_EQUINOX_YYYYMMDD, _rc)
       call ESMF_ConfigGetAttribute (CF, &
          ORB2B_EQUINOX_HHMMSS, label="ORB2B_EQUINOX_HHMMSS:", &
-         default=DEFAULT_ORB2B_EQUINOX_HHMMSS, _RC)
+         default=DEFAULT_ORB2B_EQUINOX_HHMMSS, _rc)
 
       ! create the orbit object
       ORBIT = MAPL_SunOrbitCreate ( &
@@ -908,9 +908,9 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
          ORB2B_OBQ_REF, ORB2B_OBQ_RATE, &
          ORB2B_LAMBDAP_REF, ORB2B_LAMBDAP_RATE, &
          ORB2B_EQUINOX_YYYYMMDD, ORB2B_EQUINOX_HHMMSS, &
-         FIX_SUN=FIX_SUN,_RC)
+         FIX_SUN=FIX_SUN,_rc)
 
-      _RETURN(ESMF_SUCCESS)
+      _return(ESMF_SUCCESS)
 
    end function MAPL_SunOrbitCreateFromConfig
 
@@ -935,7 +935,7 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
        if(associated(ORBIT%ET)) deallocate(ORBIT%ET)
        ORBIT%CREATED = .FALSE.
 
-       _RETURN(ESMF_SUCCESS)
+       _return(ESMF_SUCCESS)
 
      end subroutine MAPL_SunOrbitDestroy
 
@@ -956,7 +956,7 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
        character(len=ESMF_MAXSTR), parameter :: IAm = "SunOrbitCreated"
 
        MAPL_SunOrbitCreated = ORBIT%CREATED
-       _RETURN(ESMF_SUCCESS)
+       _return(ESMF_SUCCESS)
        return
 
      end function MAPL_SunOrbitCreated
@@ -1010,7 +1010,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
        character(len=ESMF_MAXSTR), parameter :: IAm = "SunOrbitQuery"
        integer :: STATUS
 
-       _ASSERT(MAPL_SunOrbitCreated(ORBIT,RC=STATUS),'MAPL_SunOrbit not yet created!')
+       _assert(MAPL_SunOrbitCreated(ORBIT,RC=STATUS),'MAPL_SunOrbit not yet created!')
 
        if(present(CLOCK          )) CLOCK           = ORBIT%CLOCK
        if(present(OBLIQUITY      )) OBLIQUITY       = ORBIT%OB
@@ -1026,7 +1026,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
        if(present(PP             )) PP => ORBIT%PP
        if(present(ET             )) ET => ORBIT%ET
 
-       _RETURN(ESMF_SUCCESS)
+       _return(ESMF_SUCCESS)
 
      end subroutine MAPL_SunOrbitQuery
 
@@ -1144,85 +1144,85 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
 !   Begin
 
-      _FAIL(" pmn: this routine is not up to date, is it even used anywhere?")
+      _fail(" pmn: this routine is not up to date, is it even used anywhere?")
 
       call ESMF_ArrayGet(LONS, RANK=RANK, RC=STATUS)
-      _VERIFY(STATUS)
+      _verify(STATUS)
 
       select case(RANK)
 
       case(1)
          call ESMF_ArrayGet(LATS, localDE=0, farrayptr=LATS1, RC=STATUS)
-         _VERIFY(STATUS)
+         _verify(STATUS)
          call ESMF_ArrayGet(LONS,localDE=0, farrayptr=LONS1, RC=STATUS)
-         _VERIFY(STATUS)
+         _verify(STATUS)
          call ESMF_ArrayGet(ZTH ,localDE=0, farrayptr=ZTH1, RC=STATUS)
-         _VERIFY(STATUS)
+         _verify(STATUS)
          call ESMF_ArrayGet(SLR ,localDE=0, farrayptr=SLR1, RC=STATUS)
-         _VERIFY(STATUS)
+         _verify(STATUS)
 
          if(present(ZTHB) .and. present(ZTHD)) then
             call ESMF_ArrayGet(ZTHB ,localDE=0, farrayptr=ZTHB1 ,RC=STATUS)
-            _VERIFY(STATUS)
+            _verify(STATUS)
             call ESMF_ArrayGet(ZTHD ,localDE=0, farrayptr=ZTHD1 ,RC=STATUS)
-            _VERIFY(STATUS)
+            _verify(STATUS)
             call MAPL_SunGetInsolation(LONS1,LATS1,ORBIT,ZTH1,SLR1,INTV,CLOCK,&
                  TIME,currTime,DIST=DIST,ZTHB=ZTHB1,ZTHD=ZTHD1,RC=STATUS)
          elseif(present(ZTHB)) then
             call ESMF_ArrayGet(ZTHB ,localDE=0, farrayptr=ZTHB1 ,RC=STATUS)
-            _VERIFY(STATUS)
+            _verify(STATUS)
             call MAPL_SunGetInsolation(LONS1,LATS1,ORBIT,ZTH1,SLR1,INTV,CLOCK,&
                  TIME,currTime,DIST=DIST,ZTHB=ZTHB1,RC=STATUS)
          elseif(present(ZTHD)) then
             call ESMF_ArrayGet(ZTHD ,localDE=0, farrayptr=ZTHD1 ,RC=STATUS)
-            _VERIFY(STATUS)
+            _verify(STATUS)
             call MAPL_SunGetInsolation(LONS1,LATS1,ORBIT,ZTH1,SLR1,INTV,CLOCK,&
                  TIME,currTime,DIST=DIST,ZTHD=ZTHD1,RC=STATUS)
          else
             call MAPL_SunGetInsolation(LONS1,LATS1,ORBIT,ZTH1,SLR1,INTV,CLOCK,&
                  TIME,currTime,DIST=DIST,RC=STATUS)
          endif
-         _VERIFY(STATUS)
+         _verify(STATUS)
 
       case(2)
          call ESMF_ArrayGet(LATS,localDE=0, farrayptr=LATS2,RC=STATUS)
-         _VERIFY(STATUS)
+         _verify(STATUS)
          call ESMF_ArrayGet(LONS,localDE=0, farrayptr=LONS2,RC=STATUS)
-         _VERIFY(STATUS)
+         _verify(STATUS)
          call ESMF_ArrayGet(ZTH ,localDE=0, farrayptr=ZTH2 ,RC=STATUS)
-         _VERIFY(STATUS)
+         _verify(STATUS)
          call ESMF_ArrayGet(SLR ,localDE=0, farrayptr=SLR2 ,RC=STATUS)
-         _VERIFY(STATUS)
+         _verify(STATUS)
 
          if(present(ZTHB) .and. present(ZTHD)) then
             call ESMF_ArrayGet(ZTHB ,localDE=0, farrayptr=ZTHB2 ,RC=STATUS)
-            _VERIFY(STATUS)
+            _verify(STATUS)
             call ESMF_ArrayGet(ZTHD ,localDE=0, farrayptr=ZTHD2 ,RC=STATUS)
-            _VERIFY(STATUS)
+            _verify(STATUS)
             call MAPL_SunGetInsolation(LONS2,LATS2,ORBIT,ZTH2,SLR2,INTV,CLOCK,&
                  TIME,currTime,DIST=DIST,ZTHB=ZTHB2,ZTHD=ZTHD2,RC=STATUS)
          elseif(present(ZTHB)) then
             call ESMF_ArrayGet(ZTHB ,localDE=0, farrayptr=ZTHB2 ,RC=STATUS)
-            _VERIFY(STATUS)
+            _verify(STATUS)
             call MAPL_SunGetInsolation(LONS2,LATS2,ORBIT,ZTH2,SLR2,INTV,CLOCK,&
                  TIME,currTime,DIST=DIST,ZTHB=ZTHB2,RC=STATUS)
          elseif(present(ZTHD)) then
             call ESMF_ArrayGet(ZTHD ,localDE=0, farrayptr=ZTHD2 ,RC=STATUS)
-            _VERIFY(STATUS)
+            _verify(STATUS)
             call MAPL_SunGetInsolation(LONS2,LATS2,ORBIT,ZTH2,SLR2,INTV,CLOCK,&
                  TIME,currTime,DIST=DIST,ZTHD=ZTHD2,RC=STATUS)
          else
             call MAPL_SunGetInsolation(LONS2,LATS2,ORBIT,ZTH2,SLR2,INTV,CLOCK,&
                  TIME,currTime,DIST=DIST,RC=STATUS)
          endif
-         _VERIFY(STATUS)
+         _verify(STATUS)
 
       case default
-         _RETURN(ESMF_FAILURE)
+         _return(ESMF_FAILURE)
 
       end select
 
-      _RETURN(ESMF_SUCCESS)
+      _return(ESMF_SUCCESS)
 
     end subroutine SOLAR_ARR_INT
 
@@ -1244,16 +1244,16 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       case (MAPL_SunSummerSolstice )
          ANOMALY = MAPL_PI/2.0
       case  default
-         _RETURN(ESMF_FAILURE)
+         _return(ESMF_FAILURE)
       end select
 
       do IDAY=1,ORBIT%DAYS_PER_CYCLE-1
          if(ORBIT%TH(IDAY)<=ANOMALY .and. ORBIT%TH(IDAY+1)>ANOMALY) then
-            _RETURN(ESMF_SUCCESS)
+            _return(ESMF_SUCCESS)
          end if
       end do
 
-      _RETURN(ESMF_FAILURE)
+      _return(ESMF_FAILURE)
     end subroutine GETIDAY
 !==========================================================================
 
@@ -1268,12 +1268,12 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       integer    :: STATUS
 
       call ESMF_TimeGet (TIME, YY=YY, DayOfYear=DOY, RC=STATUS)
-      _VERIFY(STATUS)
+      _verify(STATUS)
 
       call MAPL_SunGetSolarConstantByYearDoY(YY,DOY,SC,HK, RC=STATUS)
-      _VERIFY(STATUS)
+      _verify(STATUS)
 
-      _RETURN(ESMF_SUCCESS)
+      _return(ESMF_SUCCESS)
     end subroutine MAPL_SunGetSolarConstantByTime
 
 !-------------------------------------------------------------------------
@@ -2085,13 +2085,13 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          HK(6) = ChouBand6(i1)*(1.-F) + ChouBand6(i2)*F
          HK(7) = ChouBand7(i1)*(1.-F) + ChouBand7(i2)*F
          HK(8) = ChouBand8(i1)*(1.-F) + ChouBand8(i2)*F
-         _ASSERT(abs(1.0-sum(HK))<1.e-4,'Chou Solar band weightings do not sum to unity!')
+         _assert(abs(1.0-sum(HK))<1.e-4,'Chou Solar band weightings do not sum to unity!')
       else
-         _FAIL('HK: Solar band weightings only available for Chou')
+         _fail('HK: Solar band weightings only available for Chou')
       endif
    end if
 
-   _RETURN(ESMF_SUCCESS)
+   _return(ESMF_SUCCESS)
    end subroutine MAPL_SunGetSolarConstantByYearDoY
 
 !-------------------------------------------------------------------------
@@ -2161,7 +2161,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       if (STATUS /= NF90_NOERR) then
          write (*,*) trim(Iam)//': Error opening file ', trim(fileName), status
          write (*,*) nf90_strerror(status)
-         _FAIL('needs informative message')
+         _fail('needs informative message')
       end if
 
       ! Read in dimensions
@@ -2171,14 +2171,14 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       if (STATUS /= NF90_NOERR) then
          write (*,*) trim(Iam)//': Error getting ndate dimid', status
          write (*,*) nf90_strerror(status)
-         _FAIL('needs informative message')
+         _fail('needs informative message')
       end if
 
       status = nf90_inquire_dimension(ncid, dimid_ndate, len = ndate)
       if (STATUS /= NF90_NOERR) then
          write (*,*) trim(Iam)//': Error getting ndate length', status
          write (*,*) nf90_strerror(status)
-         _FAIL('needs informative message')
+         _fail('needs informative message')
       end if
 
       if (present(HK)) then
@@ -2186,14 +2186,14 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting nbin_sorad dimid', status
             write (*,*) nf90_strerror(status)
-            _FAIL('needs informative message')
+            _fail('needs informative message')
          end if
 
          status = nf90_inquire_dimension(ncid, dimid_nbin_sorad, len = nbin_sorad)
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting nbin_sorad length', status
             write (*,*) nf90_strerror(status)
-            _FAIL('needs informative message')
+            _fail('needs informative message')
          end if
       end if
 
@@ -2202,14 +2202,14 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting nbin_meso_phot dimid', status
             write (*,*) nf90_strerror(status)
-            _FAIL('needs informative message')
+            _fail('needs informative message')
          end if
 
          status = nf90_inquire_dimension(ncid, dimid_nbin_meso_phot, len = nbin_meso_phot)
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting nbin_meso_phot length', status
             write (*,*) nf90_strerror(status)
-            _FAIL('needs informative message')
+            _fail('needs informative message')
          end if
       end if
 
@@ -2218,14 +2218,14 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting nbin_jcalc4 dimid', status
             write (*,*) nf90_strerror(status)
-            _FAIL('needs informative message')
+            _fail('needs informative message')
          end if
 
          status = nf90_inquire_dimension(ncid, dimid_nbin_jcalc4, len = nbin_jcalc4)
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting nbin_jcalc4 length', status
             write (*,*) nf90_strerror(status)
-            _FAIL('needs informative message')
+            _fail('needs informative message')
          end if
       end if
 
@@ -2233,27 +2233,27 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       ! -------------------
 
       allocate(date_year(ndate), source=0, stat=status)
-      _VERIFY(STATUS)
+      _verify(STATUS)
 
       allocate(date_month(ndate), source=0, stat=status)
-      _VERIFY(STATUS)
+      _verify(STATUS)
 
       allocate(tsi(ndate), source=0.0, stat=status)
-      _VERIFY(STATUS)
+      _verify(STATUS)
 
       if (present(HK) ) then
          allocate(coef_sorad(nbin_sorad,ndate), source=0.0, stat=status)
-         _VERIFY(STATUS)
+         _verify(STATUS)
       end if
 
       if (present(MESOPHOT) ) then
          allocate(coef_meso_phot(nbin_meso_phot,ndate), source=0.0, stat=status)
-         _VERIFY(STATUS)
+         _verify(STATUS)
       end if
 
       if (present(JCALC4) ) then
          allocate(coef_jcalc4(nbin_jcalc4,ndate), source=0.0, stat=status)
-         _VERIFY(STATUS)
+         _verify(STATUS)
       end if
 
       ! Read in date_year
@@ -2263,14 +2263,14 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       if (STATUS /= NF90_NOERR) then
          write (*,*) trim(Iam)//': Error getting date_year varid', status
          write (*,*) nf90_strerror(status)
-         _FAIL('needs informative message')
+         _fail('needs informative message')
       end if
 
       status = nf90_get_var(ncid, varid_date_year, date_year)
       if (STATUS /= NF90_NOERR) then
          write (*,*) trim(Iam)//': Error getting date_year variable', status
          write (*,*) nf90_strerror(status)
-         _FAIL('needs informative message')
+         _fail('needs informative message')
       end if
 
       ! Read in date_month
@@ -2280,14 +2280,14 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       if (STATUS /= NF90_NOERR) then
          write (*,*) trim(Iam)//': Error getting date_month varid', status
          write (*,*) nf90_strerror(status)
-         _FAIL('needs informative message')
+         _fail('needs informative message')
       end if
 
       status = nf90_get_var(ncid, varid_date_month, date_month)
       if (STATUS /= NF90_NOERR) then
          write (*,*) trim(Iam)//': Error getting date_month variable', status
          write (*,*) nf90_strerror(status)
-         _FAIL('needs informative message')
+         _fail('needs informative message')
       end if
 
       ! Read in tsi
@@ -2297,14 +2297,14 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       if (STATUS /= NF90_NOERR) then
          write (*,*) trim(Iam)//': Error getting tsi varid', status
          write (*,*) nf90_strerror(status)
-         _FAIL('needs informative message')
+         _fail('needs informative message')
       end if
 
       status = nf90_get_var(ncid, varid_tsi, tsi)
       if (STATUS /= NF90_NOERR) then
          write (*,*) trim(Iam)//': Error getting tsi variable', status
          write (*,*) nf90_strerror(status)
-         _FAIL('needs informative message')
+         _fail('needs informative message')
       end if
 
       ! Read in coef_sorad
@@ -2316,14 +2316,14 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting coef_sorad varid', status
             write (*,*) nf90_strerror(status)
-            _FAIL('needs informative message')
+            _fail('needs informative message')
          end if
 
          status = nf90_get_var(ncid, varid_coef_sorad, coef_sorad)
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting coef_sorad variable', status
             write (*,*) nf90_strerror(status)
-            _FAIL('needs informative message')
+            _fail('needs informative message')
          end if
 
       end if
@@ -2337,14 +2337,14 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting coef_meso_phot varid', status
             write (*,*) nf90_strerror(status)
-            _FAIL('needs informative message')
+            _fail('needs informative message')
          end if
 
          status = nf90_get_var(ncid, varid_coef_meso_phot, coef_meso_phot)
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting coef_meso_phot variable', status
             write (*,*) nf90_strerror(status)
-            _FAIL('needs informative message')
+            _fail('needs informative message')
          end if
 
       end if
@@ -2358,14 +2358,14 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting coef_jcalc4 varid', status
             write (*,*) nf90_strerror(status)
-            _FAIL('needs informative message')
+            _fail('needs informative message')
          end if
 
          status = nf90_get_var(ncid, varid_coef_jcalc4, coef_jcalc4)
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting coef_jcalc4 variable', status
             write (*,*) nf90_strerror(status)
-            _FAIL('needs informative message')
+            _fail('needs informative message')
          end if
 
       end if
@@ -2373,14 +2373,14 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       ! Time interpolation parameters
       ! -----------------------------
       call MAPL_ClimInterpFac(CLOCK, INDX1, INDX2, FAC, RC=STATUS)
-      _VERIFY(STATUS)
+      _verify(STATUS)
 
       ! Time: Year and month
       ! --------------------
       call ESMF_ClockGet(CLOCK, CURRTIME=time, RC=STATUS)
-      _VERIFY(STATUS)
+      _verify(STATUS)
       call ESMF_TimeGet(time, YY=YY, MM=MM, DD=DD, RC=STATUS)
-      _VERIFY(STATUS)
+      _verify(STATUS)
 
       ! This index search routine below is adaptedfrom PChemGridComp
       !
@@ -2429,42 +2429,42 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       ! Close the file
       ! --------------
       STATUS = nf90_close(ncid)
-      _VERIFY(STATUS)
+      _verify(STATUS)
 
       ! Bounds check
       ! ------------
       if (PRESENT(HK)) then
-         _ASSERT(ABS(1.0-SUM(HK)) < 1.E-4,'needs informative message')
+         _assert(ABS(1.0-SUM(HK)) < 1.E-4,'needs informative message')
       end if
 
       ! Deallocate our arrays
       ! ---------------------
 
       deallocate(date_year, stat=status)
-      _VERIFY(STATUS)
+      _verify(STATUS)
 
       deallocate(date_month, stat=status)
-      _VERIFY(STATUS)
+      _verify(STATUS)
 
       deallocate(tsi, stat=status)
-      _VERIFY(STATUS)
+      _verify(STATUS)
 
       if (present(HK)) then
          deallocate(coef_sorad, stat=status)
-         _VERIFY(STATUS)
+         _verify(STATUS)
       end if
 
       if (present(MESOPHOT)) then
          deallocate(coef_meso_phot, stat=status)
-         _VERIFY(STATUS)
+         _verify(STATUS)
       end if
 
       if (present(JCALC4)) then
          deallocate(coef_jcalc4, stat=status)
-         _VERIFY(STATUS)
+         _verify(STATUS)
       end if
 
-      _RETURN(ESMF_SUCCESS)
+      _return(ESMF_SUCCESS)
 
    end subroutine MAPL_SunGetSolarConstantFromNetcdfFile
 
@@ -2542,7 +2542,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       call ESMF_VMGetCurrent(vm, rc=status)
 
       call ESMF_VmGet(VM, localPet=deId, petCount=npes, rc=status)
-      _VERIFY(STATUS)
+      _verify(STATUS)
       amIRoot = (deId == 0)
 
       CREATE_TABLE: if (.not. TableCreated) then
@@ -2557,7 +2557,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
             ! -------------
             filename = trim(filename_in)
             open(newunit=unit, file=filename, form="formatted", status="old", iostat=status)
-            _ASSERT(status==0,'Could not find NRL data file '// trim(filename ))
+            _assert(status==0,'Could not find NRL data file '// trim(filename ))
 
             ! Determine length of file
             ! ------------------------
@@ -2569,16 +2569,16 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
          ! Broadcast the number of lines
          ! -----------------------------
-         call MAPL_CommsBcast(vm, DATA=numlines, N=1, ROOT=0, _RC)
+         call MAPL_CommsBcast(vm, DATA=numlines, N=1, ROOT=0, _rc)
 
          ! Allocate our arrays on all processes
          ! ------------------------------------
 
-         allocate(yearTable(numlines), source=0,   _STAT)
-         allocate(doyTable(numlines),  source=0,   _STAT)
-         allocate(tsi(numlines),       source=0.0, _STAT)
-         allocate(mgindex(numlines),   source=0.0, _STAT)
-         allocate(sbindex(numlines),   source=0.0, _STAT)
+         allocate(yearTable(numlines), source=0,   _stat)
+         allocate(doyTable(numlines),  source=0,   _stat)
+         allocate(tsi(numlines),       source=0.0, _stat)
+         allocate(mgindex(numlines),   source=0.0, _stat)
+         allocate(sbindex(numlines),   source=0.0, _stat)
 
          ! Back to root to read in the values
          ! ----------------------------------
@@ -2597,20 +2597,20 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
             end do
 
             ! Belt and suspenders check that all data was read
-            _ASSERT(size(yearTable) == numlines,"Inconsistency in NRL number of lines")
+            _assert(size(yearTable) == numlines,"Inconsistency in NRL number of lines")
 
-            close(unit, _IOSTAT)
+            close(unit, _iostat)
 
          end if
 
          ! Broadcast the tables
          ! --------------------
 
-         call MAPL_CommsBcast(vm, DATA=yearTable, N=numlines, ROOT=0, _RC)
-         call MAPL_CommsBcast(vm, DATA=doyTable,  N=numlines, ROOT=0, _RC)
-         call MAPL_CommsBcast(vm, DATA=tsi,       N=numlines, ROOT=0, _RC)
-         call MAPL_CommsBcast(vm, DATA=mgindex,   N=numlines, ROOT=0, _RC)
-         call MAPL_CommsBcast(vm, DATA=sbindex,   N=numlines, ROOT=0, _RC)
+         call MAPL_CommsBcast(vm, DATA=yearTable, N=numlines, ROOT=0, _rc)
+         call MAPL_CommsBcast(vm, DATA=doyTable,  N=numlines, ROOT=0, _rc)
+         call MAPL_CommsBcast(vm, DATA=tsi,       N=numlines, ROOT=0, _rc)
+         call MAPL_CommsBcast(vm, DATA=mgindex,   N=numlines, ROOT=0, _rc)
+         call MAPL_CommsBcast(vm, DATA=sbindex,   N=numlines, ROOT=0, _rc)
 
          TableCreated = .TRUE.
 
@@ -2621,12 +2621,12 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
       ! Get current time
       ! ----------------
-      call ESMF_ClockGet(CLOCK, CURRTIME=currentTime, _RC)
+      call ESMF_ClockGet(CLOCK, CURRTIME=currentTime, _rc)
 
       call ESMF_TimeGet( currentTime, YY = currentYear,   &
                                       MM = currentMon,    &
                                       DD = currentDay,    &
-                               dayOfYear = currentDOY, _RC)
+                               dayOfYear = currentDOY, _rc)
 
       ! Test if current time is outside our file
       ! ----------------------------------------
@@ -2661,7 +2661,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
             call lgr%debug('  mgindex at end of table: %F8.6', mgindex(numlines))
             call lgr%debug('  sbindex at end of table: %F9.4', sbindex(numlines))
 
-            _RETURN(ESMF_SUCCESS)
+            _return(ESMF_SUCCESS)
 
          else
 
@@ -2676,7 +2676,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
                                              DD = 1,     &
                                               H = 12,    &
                                               M = 00,    &
-                                              S = 00, _RC)
+                                              S = 00, _rc)
 
             ! Create an ESMF_Time at start of Cycle 25
             ! ----------------------------------------
@@ -2685,7 +2685,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
                                              DD = 1,     &
                                               H = 12,    &
                                               M = 00,    &
-                                              S = 00, _RC)
+                                              S = 00, _rc)
 
             ! Create TimeInterval based on interval
             ! from start of latest Cycle 25
@@ -2717,7 +2717,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
             call ESMF_TimeGet( currentTime, YY = currentYear,   &
                                             MM = currentMon,    &
                                             DD = currentDay,    &
-                                     dayOfYear = currentDOY, _RC)
+                                     dayOfYear = currentDOY, _rc)
 
             call lgr%debug('Off the end of table, moving into last complete cycle')
             call lgr%debug('  Original Year-Mon-Day to Find: %i0.4~-%i0.2~-%i0.2', originalYear,originalMon,originalDay)
@@ -2736,12 +2736,12 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
                                          DD = currentDay,  &
                                           H = 12,          &
                                           M = 00,          &
-                                          S = 00,       _RC)
+                                          S = 00,       _rc)
 
       ! Figure out bracketing days for interpolation
       ! NOTE: nextNoon is mainly for debugging purposes
       ! -----------------------------------------------
-      call ESMF_TimeIntervalSet(oneDayInterval, D=1, _RC)
+      call ESMF_TimeIntervalSet(oneDayInterval, D=1, _rc)
       if (currentTime <= noonCurrentDay) then
          prevNoon = noonCurrentDay - oneDayInterval
          nextNoon = noonCurrentDay
@@ -2752,8 +2752,8 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
       ! Get the DOYs
       ! ------------
-      call ESMF_TimeGet( prevNoon, YY = prevNoonYear, dayOfYear = prevDOY, _RC)
-      call ESMF_TimeGet( nextNoon, YY = nextNoonYear, dayOfYear = nextDOY, _RC)
+      call ESMF_TimeGet( prevNoon, YY = prevNoonYear, dayOfYear = prevDOY, _rc)
+      call ESMF_TimeGet( nextNoon, YY = nextNoonYear, dayOfYear = nextDOY, _rc)
 
       ! Our interpolation factor is based of when we are compared to the next noon
       ! --------------------------------------------------------------------------
@@ -2762,7 +2762,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       ! The FAC for interpolating is just the real version
       ! of the size of the timeinterval to the next noon
       ! --------------------------------------------------
-      call ESMF_TimeIntervalGet(intToNextNoon, d_r8=days_r8, _RC)
+      call ESMF_TimeIntervalGet(intToNextNoon, d_r8=days_r8, _rc)
       FAC = real(days_r8)
 
       ! Use our find_file_index function to get the index for previous noon
@@ -2795,7 +2795,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
       call lgr%debug('  Interpolation Factor:  %f8.6', FAC)
 
-      _RETURN(ESMF_SUCCESS)
+      _return(ESMF_SUCCESS)
 
       contains
 
@@ -2894,7 +2894,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
 !     Begin
 
-      _ASSERT(MAPL_SunOrbitCreated(ORBIT),'MAPL_SunOrbit not yet created!')
+      _assert(MAPL_SunOrbitCreated(ORBIT),'MAPL_SunOrbit not yet created!')
 
       ! which current time?
       if (present(currTime)) then
@@ -2905,7 +2905,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          else
             call ESMF_ClockGet(ORBIT%CLOCK, currTime=CURRENTTIME, RC=STATUS)
          end if
-         _VERIFY(STATUS)
+         _verify(STATUS)
       end if
 
       if (ORBIT%ANAL2B) then
@@ -2914,7 +2914,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          call ESMF_TimeIntervalGet( &
            CURRENTTIME - ORBIT%ORB2B_TIME_REF, &
            d_r8=days, rc=STATUS)
-         _VERIFY(STATUS)
+         _verify(STATUS)
          ECC     = ORBIT%ORB2B_ECC_REF     + days * ORBIT%ORB2B_ECC_RATE
          OBQ     = ORBIT%ORB2B_OBQ_REF     + days * ORBIT%ORB2B_OBQ_RATE
          LAMBDAP = ORBIT%ORB2B_LAMBDAP_REF + days * ORBIT%ORB2B_LAMBDAP_RATE
@@ -2927,7 +2927,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          call ESMF_TimeIntervalGet( &
            CURRENTTIME - ORBIT%ORB2B_TIME_PERI, &
            d_r8=days, rc=STATUS)
-         _VERIFY(STATUS)
+         _verify(STATUS)
          ! mean anomaly
          MA = ORBIT%ORB2B_OMG0 * days
          ! eccentric anomaly
@@ -2944,7 +2944,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
          call ESMF_TimeGet(CURRENTTIME, YY=YEAR, S=SEC_OF_DAY, &
             dayOfYear=DAY_OF_YEAR, RC=STATUS)
-         _VERIFY(STATUS)
+         _verify(STATUS)
 
          YEAR = mod(YEAR-1,ORBIT%YEARS_PER_CYCLE)
          IDAY = YEAR*int(ORBIT%YEARLEN)+DAY_OF_YEAR
@@ -2959,7 +2959,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       ! dayligt duration [secs]
       DAYL = (86400./MAPL_PI)*acos(min(1.,max(-1.,-tan(LATS)*ZS/ZC)))
 
-      _RETURN(ESMF_SUCCESS)
+      _return(ESMF_SUCCESS)
 
    end subroutine MAPL_SunGetDaylightDuration
 
@@ -2994,7 +2994,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       real(ESMF_KIND_R8) :: days
       real :: OBQ
 
-      _ASSERT(MAPL_SunOrbitCreated(ORBIT),'MAPL_SunOrbit not yet created!')
+      _assert(MAPL_SunOrbitCreated(ORBIT),'MAPL_SunOrbit not yet created!')
 
       ! Which time?
       if (present(currTime)) then
@@ -3005,7 +3005,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          else
             call ESMF_ClockGet(ORBIT%CLOCK, currTime=CURRENTTIME, RC=STATUS)
          end if
-         _VERIFY(STATUS)
+         _verify(STATUS)
       end if
 
       if (ORBIT%ANAL2B) then
@@ -3013,21 +3013,21 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          call ESMF_TimeIntervalGet( &
            CURRENTTIME - ORBIT%ORB2B_TIME_REF, &
            d_r8=days, rc=STATUS)
-         _VERIFY(STATUS)
+         _verify(STATUS)
          OBQ = ORBIT%ORB2B_OBQ_REF + days * ORBIT%ORB2B_OBQ_RATE
       else
          ! obliquity fixed in this case
          OBQ = ORBIT%OB * (MAPL_PI/180.)
       endif
-      _ASSERT(OBQ >= 0, 'Obliquity less than 0 detected!')
-      _ASSERT(OBQ < MAPL_PI, 'Obliquity greater than pi detected!')
+      _assert(OBQ >= 0, 'Obliquity less than 0 detected!')
+      _assert(OBQ < MAPL_PI, 'Obliquity greater than pi detected!')
 
       ! Maximum daylight duration at summer solstice [secs]
       !   (an even function of latitude)
       DAYL = (86400./MAPL_PI)*acos(min(1.,max(-1., &
                 -tan(ABS(LATS))*tan(OBQ))))
 
-      _RETURN(ESMF_SUCCESS)
+      _return(ESMF_SUCCESS)
 
    end subroutine MAPL_SunGetDaylightDurationMax
 
@@ -3094,23 +3094,23 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       integer :: i, nits
       logical :: do_EOT
 
-      _ASSERT (MAPL_SunOrbitCreated(ORBIT),'MAPL_SunOrbit not yet created!')
+      _assert (MAPL_SunOrbitCreated(ORBIT),'MAPL_SunOrbit not yet created!')
 
       ! Which time?
       if (present(TIME)) then
          T = TIME
       else
          if (present(CLOCK)) then
-            call ESMF_ClockGet (      CLOCK, CURRTIME=T, _RC)
+            call ESMF_ClockGet (      CLOCK, CURRTIME=T, _rc)
          else
-            call ESMF_ClockGet (ORBIT%CLOCK, CURRTIME=T, _RC)
+            call ESMF_ClockGet (ORBIT%CLOCK, CURRTIME=T, _rc)
          end if
       end if
 
       ! NB: include YY and dayOfYear here so that S is seconds WITHIN a day.
       ! YEAR and DAY_OF_YEAR are used within the non-ANAL2B branch anyway.
       call ESMF_TimeGet (T, YY=YEAR, dayOfYear=DAY_OF_YEAR, S=SEC_OF_DAY, RC=STATUS)
-      _VERIFY(STATUS)
+      _verify(STATUS)
 
       ! fraction of day (0 at midnight)
       DFRAC = real(SEC_OF_DAY) / 86400.
@@ -3128,7 +3128,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          if (ORBIT%ANAL2B) then
 
             ! include time variation in orbit from reference time
-            call ESMF_TimeIntervalGet (T - ORBIT%ORB2B_TIME_REF, d_r8=days, _RC)
+            call ESMF_TimeIntervalGet (T - ORBIT%ORB2B_TIME_REF, d_r8=days, _rc)
             ECC     = ORBIT%ORB2B_ECC_REF     + days * ORBIT%ORB2B_ECC_RATE
             OBQ     = ORBIT%ORB2B_OBQ_REF     + days * ORBIT%ORB2B_OBQ_RATE
             LAMBDAP = ORBIT%ORB2B_LAMBDAP_REF + days * ORBIT%ORB2B_LAMBDAP_RATE
@@ -3138,7 +3138,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
             OMSQECC = OMECC * OPECC
             EAFAC = sqrt(OMECC/OPECC)
             ! time interval since perhelion in days
-            call ESMF_TimeIntervalGet (T - ORBIT%ORB2B_TIME_PERI, d_r8=days, _RC)
+            call ESMF_TimeIntervalGet (T - ORBIT%ORB2B_TIME_PERI, d_r8=days, _rc)
             ! mean anomaly
             MA = ORBIT%ORB2B_OMG0 * days
             ! eccentric anomaly
@@ -3173,7 +3173,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          LSHA(i) = RECT_PMPI (GSHA + LONS(i))
       end do
 
-      _RETURN(ESMF_SUCCESS)
+      _return(ESMF_SUCCESS)
 
    end subroutine MAPL_SunGetLocalSolarHourAngle
 

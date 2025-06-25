@@ -26,7 +26,7 @@ contains
 
    function new_TerminateMessage() result(message)
       type (TerminateMessage) :: message
-      _UNUSED_DUMMY(message)
+      _unused_dummy(message)
    end function new_TerminateMessage
 
    integer function get_type_id() result(type_id)
@@ -37,7 +37,7 @@ contains
       class (TerminateMessage), intent(in) :: this
       length = 0
       return
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
    end function get_length
 
    subroutine serialize(this, buffer, rc)
@@ -46,17 +46,17 @@ contains
       integer, optional, intent(out) :: rc
       integer :: empty(0)
       buffer = empty
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
+      _return(_success)
+      _unused_dummy(this)
    end subroutine serialize
 
    subroutine deserialize(this, buffer, rc)
       class (TerminateMessage), intent(inout) :: this
       integer(kind=INT32), intent(in) :: buffer(:)
       integer, optional, intent(out) :: rc
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(buffer)
+      _return(_success)
+      _unused_dummy(this)
+      _unused_dummy(buffer)
    end subroutine deserialize
    
 end module pFIO_TerminateMessageMod

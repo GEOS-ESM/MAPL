@@ -1,6 +1,6 @@
 !#include "unused_dummy.H"
 
-#define _UNUSED_DUMMY(x) if (.false.) then; associate (q____ => x); end associate; endif
+#define _unused_dummy(x) if (.false.) then; associate (q____ => x); end associate; endif
 
 module MAPL_Eta2EtaMod
 !implicit none
@@ -165,7 +165,7 @@ contains
       parameter (   big = 1.e10 )
 
 
-      _UNUSED_DUMMY(akap)
+      _unused_dummy(akap)
 #if   (openmp)
 !$omp  parallel do
 !$omp& default (shared)
@@ -282,7 +282,7 @@ contains
       real a4(4,im,km)
       real qs(im)
 
-      _UNUSED_DUMMY(dp2)
+      _unused_dummy(dp2)
       
       do k=1,km
          do i=1,im

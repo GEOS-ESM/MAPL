@@ -262,7 +262,7 @@ contains
       class(AdvancedMeter), allocatable :: t_outer
       class(AdvancedMeter), allocatable :: t_inner
 
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
       
       call t_outer%start()
       call t_inner%start()

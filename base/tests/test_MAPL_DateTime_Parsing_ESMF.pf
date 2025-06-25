@@ -11,7 +11,7 @@ module test_MAPL_DateTime_Parsing_ESMF
 
    implicit none
    
-   integer, parameter :: SUCCESS = _SUCCESS !wdb deleteme
+   integer, parameter :: SUCCESS = _success !wdb deleteme
 
 contains
 
@@ -24,7 +24,7 @@ contains
       integer :: status
       
       call convert_CF_Time_to_datetime_duration(duration, units, dt_dur, rc = status)
-      @assertEqual(_SUCCESS, status, 'Conversion unsuccessful')
+      @assertEqual(_success, status, 'Conversion unsuccessful')
 
    end subroutine test_set_ESMF_TimeInterval_integer
 
@@ -37,7 +37,7 @@ contains
       integer :: status
       
       call convert_CF_Time_to_datetime_duration(duration, units, dt_dur, rc = status)
-      @assertEqual(_SUCCESS, status, 'Conversion unsuccessful')
+      @assertEqual(_success, status, 'Conversion unsuccessful')
 
    end subroutine test_set_ESMF_TimeInterval_real
 
@@ -49,9 +49,9 @@ contains
       integer :: status
 
       call set_ESMF_Time_from_ISO8601(time, isostring, rc = status)
-      @assertTrue(status == _SUCCESS, 'Failed to set ESMF_Time')
+      @assertTrue(status == _success, 'Failed to set ESMF_Time')
       call ESMF_TimeGet(time, timeStringISOFrac = actual, rc = status)
-      @assertTrue(status == _SUCCESS, 'Failed to get isostring')
+      @assertTrue(status == _success, 'Failed to get isostring')
       @assertEqual(isostring, actual, 'ISO8601 strings do not match.')
       
    end subroutine test_ESMF_Time_from_ISO8601

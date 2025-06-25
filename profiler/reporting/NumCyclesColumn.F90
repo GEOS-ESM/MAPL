@@ -27,7 +27,7 @@ contains
       class (AbstractMeterNode), target, intent(in) :: node
       class (AbstractMeter), pointer :: tmr
 
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
 
       tmr => node%get_meter()
 

@@ -73,10 +73,10 @@
 !           latest   = k
 !           isnew    = .true.
 !           FoundOrder(k) = ii(i)
-!           _ASSERT(k==MAPL_HashSize(Hash),'needs informative message')
+!           _assert(k==MAPL_HashSize(Hash),'needs informative message')
 !         else
 !           isnew = .false.
-!           _ASSERT(FoundOrder(k)==ii(i),'needs informative message')
+!           _assert(FoundOrder(k)==ii(i),'needs informative message')
 !         endif
 !       enddo
 !```
@@ -119,7 +119,7 @@ integer function MAPL_HashIncrement(Hash,i,j,k)
   integer :: INCREMENTHASH, rc
 
   if    (present(k)) then
-     _ASSERT(present(j),'needs informative message')
+     _assert(present(j),'needs informative message')
      MAPL_HashIncrement = INCREMENTHASH(HASH,I,J,K)
   elseif(present(j)) then
      MAPL_HashIncrement = INCREMENTHASH(HASH,I,J,INT_MAX)
@@ -157,7 +157,7 @@ integer function MAPL_HashDump(Hash,i,j)
   end if
 
   if(present(j)) then
-     _ASSERT(size(i) == size(j),'needs informative message')
+     _assert(size(i) == size(j),'needs informative message')
      call DUMPHASH(HASH,I,J)
   else
      allocate(jj(size(i)))

@@ -35,7 +35,7 @@ contains
       real (kind=REAL32), intent(inout) :: x_out
       real (kind=REAL32), intent(inout) :: fraction
 
-      _UNUSED_DUMMY(x_in)
+      _unused_dummy(x_in)
       if (weight > fraction) then
          fraction = weight
          x_out = x_in
@@ -50,8 +50,8 @@ contains
       real (kind=REAL32), intent(in) :: fraction(:,:)
 
       ! Do nothing
-      _UNUSED_DUMMY(x_out)
-      _UNUSED_DUMMY(fraction)
+      _unused_dummy(x_out)
+      _unused_dummy(fraction)
 
    end subroutine final_regrid
       

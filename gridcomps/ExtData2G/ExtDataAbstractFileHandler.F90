@@ -73,8 +73,8 @@ contains
          this%persist_closest = .false.
       end if
 
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(rc)
+      _unused_dummy(unusable)
+      _unused_dummy(rc)
 
    end subroutine initialize
 
@@ -95,7 +95,7 @@ contains
       logical :: in_bounds, found_time, wrap_
       integer :: i,num_times
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
       if (present(wrap)) then
          wrap_= .true.
       else
@@ -103,11 +103,11 @@ contains
       end if
       time_index=time_not_found
       if (trim(filename) == file_not_found) then
-         _RETURN(_SUCCESS)
+         _return(_success)
       end if
 
-      call this%make_metadata(filename,file_metadata,_RC)
-      call file_metadata%get_time_info(timeVector=time_series,_RC)
+      call this%make_metadata(filename,file_metadata,_rc)
+      call file_metadata%get_time_info(timeVector=time_series,_rc)
       num_times = size(time_series)
       found_time = .false.
       if (bracketside == 'L') then
@@ -149,10 +149,10 @@ contains
             end if
          end if
       else
-         _FAIL("unknown bracket side")
+         _fail("unknown bracket side")
       end if
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine get_time_on_file
 
@@ -165,7 +165,7 @@ contains
 
       Collection => DataCollections%at(this%collection_id)
       metadata => collection%find(file)
-     _RETURN(_SUCCESS)
+     _return(_success)
 
   end subroutine make_metadata
 
@@ -185,27 +185,27 @@ contains
      if (allocated(this%valid_range)) then
         useable_time = this%valid_range(1)
      end if
-     call fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
+     call fill_grads_template(trial_file, this%file_template, time=useable_time, _rc)
      inquire(file=trim(trial_file),exist=file_found)
 
      if (file_found) then
         filename = trial_file
-        _RETURN(_SUCCESS)
+        _return(_success)
      end if
      do i=1, MAX_TRIALS
         useable_time = useable_time + this%frequency
-        call fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
+        call fill_grads_template(trial_file, this%file_template, time=useable_time, _rc)
         inquire(file=trim(trial_file),exist=file_found)
         if (file_found) exit
      enddo
 
      if (fail_on_missing) then
-        _ASSERT(file_found,"Could not find any file to open to determine metadata after multiple trials")
+        _assert(file_found,"Could not find any file to open to determine metadata after multiple trials")
         filename = trial_file
      else
         filename = 'NONE'
      end if
-     _RETURN(_SUCCESS) 
+     _return(_success) 
 
    end function find_any_file
 

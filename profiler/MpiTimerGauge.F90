@@ -23,7 +23,7 @@ contains
       real(kind=REAL64) :: measurement
       class(MpiTimerGauge), intent(inout) :: this
 
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
       measurement = MPI_Wtime()
 
    end function get_measurement

@@ -359,59 +359,59 @@ module MAPL_CommsMod
        hw_ = 0
     end if
 
-    _ASSERT(.not.request%active, 'request is already active')
+    _assert(.not.request%active, 'request is already active')
 
 ! Communicator info all comes from the ESMF VM
 !---------------------------------------------
 
     call ESMF_VMGetCurrent(vm,                                RC=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     call ESMF_VMGet       (VM,       mpiCommunicator =comm,   RC=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     call ESMF_VMGet       (VM, localpet=MYPE, petcount=nDEs,  RC=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     call ESMF_GridGet(GRID, dimCount=gridRank, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
 ! Does not support 1D grids
 !--------------------------
 
-    _ASSERT(gridRank > 1, 'rank 1 is not supported')
+    _assert(gridRank > 1, 'rank 1 is not supported')
 
 
 ! Get the local grid bounds for all pes. We will use only
 !   the first 2 dimensions.
 !--------------------------------------------------------
 
-    call ESMF_GridGet(GRID, distGrid=distGrid, RC=STATUS); _VERIFY(STATUS)
+    call ESMF_GridGet(GRID, distGrid=distGrid, RC=STATUS); _verify(STATUS)
 
     allocate (AL(gridRank,0:nDEs-1), stat=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     allocate (AU(gridRank,0:nDEs-1), stat=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
-    call MAPL_DistGridGet (distgrid, minIndex=AL, maxIndex=AU, RC=STATUS); _VERIFY(STATUS)
+    call MAPL_DistGridGet (distgrid, minIndex=AL, maxIndex=AU, RC=STATUS); _verify(STATUS)
 
 ! Allocate space for request variables
 !-------------------------------------
 
     allocate (request%i1(0:nDEs-1),  stat=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     allocate (request%in(0:nDEs-1),  stat=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     allocate (request%j1(0:nDEs-1),  stat=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     allocate (request%jn(0:nDEs-1),  stat=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     allocate (request%im(0:nDEs-1),  stat=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     allocate (request%jm(0:nDEs-1),  stat=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     allocate (request%RECV (0:nDEs-1         ),        stat=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     allocate (request%SEND (0:nDEs-1         ),        stat=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
 ! Fill the request variables
 !---------------------------
@@ -452,22 +452,22 @@ module MAPL_CommsMod
        if(request%amRoot) then
           if(present(DstArray)) then
              request%DstArray => DstArray
-             _ASSERT(all(shape(DstArray)==(/ request%IM_WORLD, request%JM_WORLD/)), 'inconsistent shape')
+             _assert(all(shape(DstArray)==(/ request%IM_WORLD, request%JM_WORLD/)), 'inconsistent shape')
           else
              allocate(request%DstArray(request%IM_WORLD, request%JM_WORLD),stat=STATUS)
-             _VERIFY(STATUS)
+             _verify(STATUS)
           end if
        endif
     elseif(requestType==MAPL_IsScatter) then
        if(present(DstArray)) then
           request%DstArray => DstArray
-          _ASSERT(all(shape(DstArray)==(/ request%IM0     , request%JM0     /)), 'inconsistent shape')
+          _assert(all(shape(DstArray)==(/ request%IM0     , request%JM0     /)), 'inconsistent shape')
        else
           allocate(request%DstArray(request%IM0 , request%JM0 ),stat=STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        end if
     else
-       _FAIL( 'unsupported action')
+       _fail( 'unsupported action')
     end if
 
 ! Allocate a contiguous buffer for communication
@@ -475,13 +475,13 @@ module MAPL_CommsMod
 
     if(requestType==MAPL_IsGather .and. request%amRoot) then
        allocate (request%Var(0:request%IM_WORLD*request%JM_WORLD-1),      stat=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     elseif(requestType==MAPL_IsScatter) then
        allocate (request%Var(0:request%IM0*request%JM0-1),      stat=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     else
        allocate (request%Var(1),      stat=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     endif
 
 ! We also PrePost the request here
@@ -496,7 +496,7 @@ module MAPL_CommsMod
                 if(n /= mype) then
                    call MPI_IRecv(request%VAR(displs), count, MPI_REAL, &
                         n, tag, comm, request%recv(n), status)
-                   _VERIFY(STATUS)
+                   _verify(STATUS)
                 end if
                 displs = displs + count
              end do
@@ -506,12 +506,12 @@ module MAPL_CommsMod
           if(.not.request%amRoot) then
              call MPI_IRecv(request%Var, size(request%Var), MPI_REAL, &
                   request%Root, tag, comm, request%recv(0), status)
-             _VERIFY(STATUS)
+             _verify(STATUS)
           end if
        end if
     end if POST_REQUEST
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_CreateRequest
 
 !===================================================================
@@ -529,7 +529,7 @@ module MAPL_CommsMod
     integer  :: i1, in, j1, jn
 
     allocate(request%local_array(size(LOCAL_ARRAY,1),size(LOCAL_ARRAY,2)), stat=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
 ! In senders, copy input to contiguous buffer for safety
 !-------------------------------------------------------
@@ -545,10 +545,10 @@ module MAPL_CommsMod
     else
        call MPI_ISend(request%Local_Array, size(Local_Array), MPI_REAL, &
             request%root, request%tag, request%comm, request%send(0), status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end if
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_ArrayIGather_R4_2
 
 !===================================================================
@@ -614,13 +614,13 @@ module MAPL_CommsMod
              end if
              call MPI_ISend(request%Buff(n)%A, count, MPI_REAL, &
                   n, request%tag, request%comm, request%send(n),  status)
-             _VERIFY(STATUS)
+             _verify(STATUS)
           end if
        end do PEs
        if (hw_ > 0) deallocate(Global_Array_)
     end if
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_ArrayIScatter_R4_2
 
 !=========================================================
@@ -645,11 +645,11 @@ module MAPL_CommsMod
              if(request%mype/=n) then
                 if(request%IsPrePosted) then
                    call MPI_Wait(request%recv(n),MPI_STATUS_IGNORE,status)
-                   _VERIFY(STATUS)
+                   _verify(STATUS)
                 else
                    call MPI_Recv(request%var(k), count, MPI_REAL, &
                         n, request%tag, request%comm, MPI_STATUS_IGNORE, status)
-                   _VERIFY(STATUS)
+                   _verify(STATUS)
                 endif
                 do J=request%J1(n),request%JN(n)
                    do I=request%I1(n),request%IN(n)
@@ -664,7 +664,7 @@ module MAPL_CommsMod
           if(present(DstArray)) DstArray => request%DstArray
        else
           call MPI_WAIT(request%send(0),MPI_STATUS_IGNORE,status)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        endif ROOT_GATH
 
     elseif(request%RequestType==MAPL_IsScatter) then
@@ -672,12 +672,12 @@ module MAPL_CommsMod
        ROOT_SCAT: if(.not.request%amRoot) then
           if(request%IsPrePosted) then
              call MPI_Wait(request%recv(0),MPI_STATUS_IGNORE,status)
-             _VERIFY(STATUS)
+             _verify(STATUS)
           else
              call MPI_Recv(request%Var, size(request%Var), MPI_REAL, &
                            request%Root, request%tag, request%comm,  &
                            MPI_STATUS_IGNORE, status)
-             _VERIFY(status)
+             _verify(status)
           endif
           k=0
           do J=1,request%JM0
@@ -691,7 +691,7 @@ module MAPL_CommsMod
              PE_SCAT: do n=0,request%nDEs-1
                 if(n /= request%mype) then
                    call MPI_Wait(request%send(n),MPI_STATUS_IGNORE,status)
-                   _VERIFY(STATUS)
+                   _verify(STATUS)
                    deallocate(request%buff(n)%A)
                 end if
              end do PE_SCAT
@@ -724,7 +724,7 @@ module MAPL_CommsMod
 
     request%active = .false.
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_CollectiveWait
 
 !---------------------------
@@ -758,29 +758,29 @@ module MAPL_CommsMod
 ! Begin
 !------
 
-    _ASSERT(.not.associated(GlobArray), 'GlobalArray already associated')
+    _assert(.not.associated(GlobArray), 'GlobalArray already associated')
 
     call ESMF_VMGetCurrent(VM,         RC=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     call ESMF_VMGet(VM, petcount=npes, localpet=MYPE, mpiCommunicator=comm, RC=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
 
     LM     = size(LocArray,3)
 
     nNodes = size(MAPL_NodeRankList)
     call MAPL_RoundRobinPEList(Root, nNodes, RC=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     if(any(root==mype)) then
        call MAPL_GridGet ( grid, globalCellCountPerDim=DIMS, RC=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        nc = count(Root==mype)
        allocate(GlobArray(dims(1),dims(2),nc),stat=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     else
        allocate(GlobArray(1,1,1)             ,stat=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     endif
 
     nn = 0
@@ -792,28 +792,28 @@ module MAPL_CommsMod
                                RequestType=MAPL_IsGather,           &
                                DstArray=GlobArray(:,:,nn),          &
                                PrePost=.true.,             RC=STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        else
           call MAPL_CreateRequest(GRID, Root(L), reqs(L), tag=L,    &
                                RequestType=MAPL_IsGather,           &
                                DstArray=GlobArray(:,:,1),           &
                                PrePost=.true.,             RC=STATUS)
-          _VERIFY(STATUS)
+          _verify(STATUS)
        end if
     enddo  ! Do not fuse with next
 
     do L=1,LM
        call MAPL_ArrayIGather (LocArray(:,:,L), reqs(L),  RC=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     enddo  ! Do not fuse with next
 
     do L=1,LM
        call MAPL_CollectiveWait(reqs(L), rc=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end do
 
-    _RETURN(ESMF_SUCCESS)
-     _UNUSED_DUMMY(corespernode)
+    _return(ESMF_SUCCESS)
+     _unused_dummy(corespernode)
  end subroutine MAPL_CollectiveGather3D
 
 
@@ -845,9 +845,9 @@ module MAPL_CommsMod
 !------
 
     call ESMF_VMGetCurrent(VM,         RC=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     call ESMF_VMGet(VM, petcount=npes, localpet=MYPE, mpiCommunicator=comm, RC=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     if(present(hw)) then
        hw_ = hw
@@ -857,7 +857,7 @@ module MAPL_CommsMod
 
     nNodes = size(MAPL_NodeRankList)
     call MAPL_RoundRobinPEList(Root, nNodes, RC=STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     LM = size(LocArray,3)
     NC = count(Root==mype)
@@ -869,11 +869,11 @@ module MAPL_CommsMod
                                RequestType=MAPL_IsScatter,          &
                                DstArray=LocArray(:,:,L),            &
                                PrePost=.true., hw=hw_, RC=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     enddo
 
     if(HaveGlobal) then
-       _ASSERT(size(GlobArray,3)==NC, 'inconsisntent rank')
+       _assert(size(GlobArray,3)==NC, 'inconsisntent rank')
 
        nn = 0
        do L=1,LM
@@ -881,7 +881,7 @@ module MAPL_CommsMod
 
              nn = nn + 1
              call MAPL_ArrayIScatter (GlobArray(:,:,nn), reqs(L), hw=hw_, RC=STATUS)
-             _VERIFY(STATUS)
+             _verify(STATUS)
              if(nn==NC) exit
           endif
        enddo
@@ -889,10 +889,10 @@ module MAPL_CommsMod
 
     do L=1,LM
        call MAPL_CollectiveWait(reqs(L), rc=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     end do
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_CollectiveScatter3D
 
   subroutine MAPL_RoundRobinPEList(List,nNodes,Root,UseFirstRank,FirstRank,RC)
@@ -927,14 +927,14 @@ module MAPL_CommsMod
     end if
 
     allocate(filled(nNodes),nPerNode(nNodes),stat=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
     do i=1,nNodes
        nPerNode(i) = size(MAPL_NodeRankList(locRoot+i-1)%rank)
        if (lUseFirstRank) then
           filled(i)=0
        else
           filled(i)=MAPL_GetNewRank(locRoot+i-1,rc=status)-1
-          _VERIFY(status)
+          _verify(status)
        end if
     enddo
     nlist = size(list)
@@ -960,7 +960,7 @@ module MAPL_CommsMod
 
     deallocate(filled,nPerNode)
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end subroutine MAPL_RoundRobinPEList
 
 !---------------------------
@@ -1010,12 +1010,12 @@ module MAPL_CommsMod
     type(ESMF_VM)                         :: vm
 
     call ESMF_DELayoutGet(layout, vm=vm, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     call MAPL_CommsBcast(vm, data=data, N=N, Root=Root, RC=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
 
   END SUBROUTINE MAPL_CommsBcast_STRING_0
 
@@ -1035,7 +1035,7 @@ module MAPL_CommsMod
     integer                               :: deId
 
     call ESMF_VMGet(vm, mpiCommunicator=COMM, localPet=deId, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     tmpString = data
     if (deId == Root) then
@@ -1043,17 +1043,17 @@ module MAPL_CommsMod
     end if
 
     call MPI_Bcast(slen, 1, MPI_INTEGER, ROOT, COMM, status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
-    _ASSERT(slen <= N, 'exceeded string length')
+    _assert(slen <= N, 'exceeded string length')
 
     call MPI_Bcast(tmpString, slen, MPI_BYTE, ROOT, COMM, STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     data = ""
     data = tmpString(1:slen)
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
 
   END SUBROUTINE MAPL_CommsBcastVM_STRING_0
 
@@ -1072,20 +1072,20 @@ module MAPL_CommsMod
 
     if(.not.MAPL_ShmInitialized) then
        if (RootOnly) then
-          _RETURN(ESMF_SUCCESS)
+          _return(ESMF_SUCCESS)
        end if
        call MAPL_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, RC=status)
-       _RETURN(STATUS)
+       _return(STATUS)
     else
        call MAPL_SyncSharedMemory(RC=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call MAPL_BroadcastToNodes(Data, N=N, ROOT=Root, rc=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call MAPL_SyncSharedMemory(RC=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     endif
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
 
   end subroutine MAPL_BcastShared_1DR4
 
@@ -1100,16 +1100,16 @@ module MAPL_CommsMod
 
     if(.not.MAPL_ShmInitialized) then
        if (RootOnly) then
-          _RETURN(ESMF_SUCCESS)
+          _return(ESMF_SUCCESS)
        end if
-       call MAPL_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, _RC)
+       call MAPL_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, _rc)
     else
-       call MAPL_SyncSharedMemory(_RC)
-       call MAPL_BroadcastToNodes(Data, N=N, ROOT=Root, _RC)
-       call MAPL_SyncSharedMemory(_RC)
+       call MAPL_SyncSharedMemory(_rc)
+       call MAPL_BroadcastToNodes(Data, N=N, ROOT=Root, _rc)
+       call MAPL_SyncSharedMemory(_rc)
     endif
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
 
   end subroutine MAPL_BcastShared_1DR8
 
@@ -1128,20 +1128,20 @@ module MAPL_CommsMod
 
     if(.not.MAPL_ShmInitialized) then
        if (RootOnly) then
-          _RETURN(ESMF_SUCCESS)
+          _return(ESMF_SUCCESS)
        end if
        call MAPL_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, RC=status)
-       _RETURN(STATUS)
+       _return(STATUS)
     else
        call MAPL_SyncSharedMemory(RC=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call MAPL_BroadcastToNodes(Data, N=N, ROOT=Root, rc=status)
-       _VERIFY(STATUS)
+       _verify(STATUS)
        call MAPL_SyncSharedMemory(RC=STATUS)
-       _VERIFY(STATUS)
+       _verify(STATUS)
     endif
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
 
   end subroutine MAPL_BcastShared_2DR4
 
@@ -1157,16 +1157,16 @@ module MAPL_CommsMod
 
     if(.not.MAPL_ShmInitialized) then
        if (RootOnly) then
-          _RETURN(ESMF_SUCCESS)
+          _return(ESMF_SUCCESS)
        end if
-       call MAPL_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, _RC)
+       call MAPL_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, _rc)
     else
-       call MAPL_SyncSharedMemory(_RC)
-       call MAPL_BroadcastToNodes(Data, N=N, ROOT=Root, _RC)
-       call MAPL_SyncSharedMemory(_RC)
+       call MAPL_SyncSharedMemory(_rc)
+       call MAPL_BroadcastToNodes(Data, N=N, ROOT=Root, _rc)
+       call MAPL_SyncSharedMemory(_rc)
     endif
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
 
   end subroutine MAPL_BcastShared_2DR8
 
@@ -1181,16 +1181,16 @@ module MAPL_CommsMod
 
     if(.not.MAPL_ShmInitialized) then
        if (RootOnly) then
-          _RETURN(ESMF_SUCCESS)
+          _return(ESMF_SUCCESS)
        end if
-       call MAPL_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, _RC)
+       call MAPL_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, _rc)
     else
-       call MAPL_SyncSharedMemory(_RC)
-       call MAPL_BroadcastToNodes(Data, N=N, ROOT=Root, _RC)
-       call MAPL_SyncSharedMemory(_RC)
+       call MAPL_SyncSharedMemory(_rc)
+       call MAPL_BroadcastToNodes(Data, N=N, ROOT=Root, _rc)
+       call MAPL_SyncSharedMemory(_rc)
     endif
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
 
   end subroutine MAPL_BcastShared_2DI4
   

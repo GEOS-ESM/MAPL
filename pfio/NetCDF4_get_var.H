@@ -27,14 +27,14 @@
       ncid = this%ncid
       if (present(group_name)) then
          status = nf90_inq_ncid(this%ncid, group_name, ncid)
-         _ASSERT(status == 0,'Subgroup not found.')
+         _assert(status == 0,'Subgroup not found.')
       end if
 
      !$omp critical
       status = nf90_inq_varid(ncid, name=var_name, varid=varid)
      !$omp end critical
 
-     _ASSERT(status==0,"Variable not found: "//trim(var_name)//" in file: "//trim(this%origin_file))
+     _assert(status==0,"Variable not found: "//trim(var_name)//" in file: "//trim(this%origin_file))
      !$omp critical
 #if (_VARTYPE == 0)
      status = nf90_inquire_variable(ncid, varid, xtype=vartype)
@@ -63,10 +63,10 @@
 #endif
 #endif
      !$omp end critical
-      _ASSERT(status==0,"Unable to get variable: "//trim(var_name)//" from file: "//trim(this%origin_file))
+      _assert(status==0,"Unable to get variable: "//trim(var_name)//" from file: "//trim(this%origin_file))
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
 
    end subroutine _SUB
 

@@ -60,9 +60,9 @@ contains
          buffer = buff_tmp
       endif
       if ( size(buffer, kind=INT64) > huge(0)) then
-        _FAIL("need to increase oserver's number of front cores (nfront)")
+        _fail("need to increase oserver's number of front cores (nfront)")
       endif
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine serialize
 
@@ -82,8 +82,8 @@ contains
          this%idata(:) = buffer(n+1:)
          !k = buffer(n)
       endif
-      !_ASSERT(size(buffer) == buffer(1)+ k,"buffer size does not match")
-      _RETURN(_SUCCESS)
+      !_assert(size(buffer) == buffer(1)+ k,"buffer size does not match")
+      _return(_success)
    end subroutine deserialize
 
    subroutine add_data_message(this, msg, i_ptr, rc)
@@ -94,7 +94,7 @@ contains
      
       call this%msg_vec%push_back(msg)
       if (size(i_ptr) ==0 ) then
-         _RETURN(_SUCCESS)
+         _return(_success)
       endif
       if (.not. allocated(this%idata)) then
          this%idata = [i_ptr]
@@ -102,7 +102,7 @@ contains
          this%idata = [this%idata, i_ptr]
       endif
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine
 
    subroutine destroy(this, rc)
@@ -116,7 +116,7 @@ contains
         call this%msg_vec%erase(iter)
         iter = this%msg_vec%begin()
      enddo
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine
 
 end module pFIO_ForwardDataAndMessageMod

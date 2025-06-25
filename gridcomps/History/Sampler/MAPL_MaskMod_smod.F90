@@ -38,23 +38,23 @@ module function MaskSampler_from_config(config,string,clock,GENSTATE,rc) result(
   mask%grid_file_name=''
   if (present(GENSTATE)) mask%GENSTATE => GENSTATE
 
-  call ESMF_ClockGet ( clock, CurrTime=currTime, _RC )
+  call ESMF_ClockGet ( clock, CurrTime=currTime, _rc )
   if (mapl_am_I_root()) write(6,*) 'sampler type: ', string
 
-  call ESMF_ConfigGetAttribute(config, value=mask%grid_file_name,label=trim(string)//'obs_files:',    default="",  _RC)
-  call ESMF_ConfigGetAttribute(config, value=mask%index_name_x,  label=trim(string)//'index_name_x:', default="x", _RC)
-  call ESMF_ConfigGetAttribute(config, value=mask%index_name_y,  label=trim(string)//'index_name_y:', default="y", _RC)
-  call ESMF_ConfigGetAttribute(config, value=mask%var_name_x,    label=trim(string)//'var_name_x:',   default="x", _RC)
-  call ESMF_ConfigGetAttribute(config, value=mask%var_name_y,    label=trim(string)//'var_name_y:',   default="y", _RC)
-  call ESMF_ConfigGetAttribute(config, value=mask%var_name_proj, label=trim(string)//'var_name_proj:',default="",  _RC)
-  call ESMF_ConfigGetAttribute(config, value=mask%att_name_proj, label=trim(string)//'att_name_proj:',default="",  _RC)
-  call ESMF_ConfigGetAttribute(config, value=mask%thin_factor,   label=trim(string)//'thin_factor:',  default=-1,  _RC)
-  call ESMF_ConfigGetAttribute(config, value=output_leading_dim, label=trim(string)//'output_leading_dim:',default='lev',  _RC)
+  call ESMF_ConfigGetAttribute(config, value=mask%grid_file_name,label=trim(string)//'obs_files:',    default="",  _rc)
+  call ESMF_ConfigGetAttribute(config, value=mask%index_name_x,  label=trim(string)//'index_name_x:', default="x", _rc)
+  call ESMF_ConfigGetAttribute(config, value=mask%index_name_y,  label=trim(string)//'index_name_y:', default="y", _rc)
+  call ESMF_ConfigGetAttribute(config, value=mask%var_name_x,    label=trim(string)//'var_name_x:',   default="x", _rc)
+  call ESMF_ConfigGetAttribute(config, value=mask%var_name_y,    label=trim(string)//'var_name_y:',   default="y", _rc)
+  call ESMF_ConfigGetAttribute(config, value=mask%var_name_proj, label=trim(string)//'var_name_proj:',default="",  _rc)
+  call ESMF_ConfigGetAttribute(config, value=mask%att_name_proj, label=trim(string)//'att_name_proj:',default="",  _rc)
+  call ESMF_ConfigGetAttribute(config, value=mask%thin_factor,   label=trim(string)//'thin_factor:',  default=-1,  _rc)
+  call ESMF_ConfigGetAttribute(config, value=output_leading_dim, label=trim(string)//'output_leading_dim:',default='lev',  _rc)
   if (mapl_am_I_root()) write(6,*) 'thin_factor:', mask%thin_factor
   mask%is_valid = .true.
   mask%use_pfio = .false.   ! activate in set_param
   mask%write_lev_first = ( output_leading_dim == 'lev' )
-  _RETURN(_SUCCESS)
+  _return(_success)
 
 105 format (1x,a,2x,a)
 106 format (1x,a,2x,i8)
@@ -94,21 +94,21 @@ module subroutine initialize(this,duration,frequency,items,bundle,timeInfo,vdata
       if(present(vdata)) then
          this%vdata=vdata
       else
-         this%vdata=VerticalData(_RC)
+         this%vdata=VerticalData(_rc)
       end if
    end if
-   _ASSERT(present(global_attributes), 'PFIO needs global_attributes')
+   _assert(present(global_attributes), 'PFIO needs global_attributes')
 
 
 !   this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
-!   if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
+!   if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_rc)
 
    this%obs_written = 0
-   call this%create_Geosat_grid_find_mask(_RC)
-   call this%create_metadata(global_attributes,_RC)
+   call this%create_Geosat_grid_find_mask(_rc)
+   call this%create_metadata(global_attributes,_rc)
    n1 = MAPL_nsecf( duration )
    n2 = MAPL_nsecf( frequency )
-   _ASSERT (n2>0, "list%frequency ==0, fail!")
+   _assert (n2>0, "list%frequency ==0, fail!")
    this%tmax =  n1/n2
 
    if (this%use_pfio) then
@@ -119,8 +119,8 @@ module subroutine initialize(this,duration,frequency,items,bundle,timeInfo,vdata
          item => iter%get()
          if (item%itemType == ItemTypeScalar) then
             !! if (mapl_am_i_root()) write(6,*) 'mask smod init: item%xname:', trim(item%xname)
-            call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
-            call ESMF_FieldGet(src_field,rank=rank,_RC)
+            call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_rc)
+            call ESMF_FieldGet(src_field,rank=rank,_rc)
             if (rank==2) then
                ic_2d = ic_2d + 1
             else if (rank==3) then
@@ -129,34 +129,34 @@ module subroutine initialize(this,duration,frequency,items,bundle,timeInfo,vdata
          end if
          call iter%next()
       end do
-      allocate ( this%var2d(ic_2d), _STAT )
-      allocate ( this%var3d(ic_3d), _STAT )
+      allocate ( this%var2d(ic_2d), _stat )
+      allocate ( this%var3d(ic_3d), _stat )
 
       do j=1, ic_2d
          if (mapl_am_i_root()) then
-            allocate ( this%var2d(j)%array_x(this%npt_mask_tot), _STAT )
+            allocate ( this%var2d(j)%array_x(this%npt_mask_tot), _stat )
          else
-            allocate ( this%var2d(j)%array_x(0), _STAT )
+            allocate ( this%var2d(j)%array_x(0), _stat )
          end if
       end do
       do j=1, ic_3d
          if (mapl_am_i_root()) then
             if (this%write_lev_first) then
-               allocate ( this%var3d(j)%array_zx(this%vdata%lm, this%npt_mask_tot), _STAT )
+               allocate ( this%var3d(j)%array_zx(this%vdata%lm, this%npt_mask_tot), _stat )
             else
-               allocate ( this%var3d(j)%array_xz(this%npt_mask_tot, this%vdata%lm), _STAT )
+               allocate ( this%var3d(j)%array_xz(this%npt_mask_tot, this%vdata%lm), _stat )
             end if
          else
             if (this%write_lev_first) then
-               allocate ( this%var3d(j)%array_zx(0,0), _STAT )
+               allocate ( this%var3d(j)%array_zx(0,0), _stat )
             else
-               allocate ( this%var3d(j)%array_xz(0,0), _STAT )
+               allocate ( this%var3d(j)%array_xz(0,0), _stat )
             end if
          end if
       end do
    end if
 
-   _RETURN(_SUCCESS)
+   _return(_success)
 
 end subroutine initialize
 
@@ -194,11 +194,11 @@ module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chu
 !!        if (present(quantize_level)) this%quantizeLevel = quantize_level
 !!        if (present(chunking)) then
 !!           allocate(this%chunking,source=chunking,stat=status)
-!!           _VERIFY(status)
+!!           _verify(status)
 !!        end if
 !!        if (present(regrid_hints)) this%regrid_hints = regrid_hints
 
-  _RETURN(ESMF_SUCCESS)
+  _return(ESMF_SUCCESS)
 
 end subroutine set_param
 
@@ -238,7 +238,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
 
     call this%metadata%add_dimension('mask_index', this%npt_mask_tot)
     !- add time dimension to metadata
-    call this%timeinfo%add_time_to_metadata(this%metadata,_RC)
+    call this%timeinfo%add_time_to_metadata(this%metadata,_rc)
 
     v = Variable(type=pFIO_REAL32, dimensions='mask_index')
     call v%add_attribute('long_name','longitude')
@@ -250,31 +250,31 @@ module subroutine  create_metadata(this,global_attributes,rc)
     call v%add_attribute('unit','degree_north')
     call this%metadata%add_variable('latitude',v)
 
-    call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC) ! specify lev in fmd
+    call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_rc) ! specify lev in fmd
 
     order = this%metadata%get_order(rc=status)
-    _VERIFY(status)
+    _verify(status)
     metadataVarsSize = order%size()
 
 
     !__ 2. filemetadata: extract field from bundle, add_variable to metadata
     !
-    call ESMF_FieldBundleGet(this%bundle, fieldCount=fieldCount, _RC)
-    allocate (fieldNameList(fieldCount), _STAT)
-    call ESMF_FieldBundleGet(this%bundle, fieldNameList=fieldNameList, _RC)
+    call ESMF_FieldBundleGet(this%bundle, fieldCount=fieldCount, _rc)
+    allocate (fieldNameList(fieldCount), _stat)
+    call ESMF_FieldBundleGet(this%bundle, fieldNameList=fieldNameList, _rc)
     do i=1, fieldCount
        var_name=trim(fieldNameList(i))
-       call ESMF_FieldBundleGet(this%bundle,var_name,field=field,_RC)
-       call ESMF_FieldGet(field,rank=field_rank,_RC)
-       call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=is_present,_RC)
+       call ESMF_FieldBundleGet(this%bundle,var_name,field=field,_rc)
+       call ESMF_FieldGet(field,rank=field_rank,_rc)
+       call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=is_present,_rc)
        if ( is_present ) then
-          call ESMF_AttributeGet(field, NAME="LONG_NAME",VALUE=long_name, _RC)
+          call ESMF_AttributeGet(field, NAME="LONG_NAME",VALUE=long_name, _rc)
        else
           long_name = var_name
        endif
-       call ESMF_AttributeGet(field,name="UNITS",isPresent=is_present,_RC)
+       call ESMF_AttributeGet(field,name="UNITS",isPresent=is_present,_rc)
        if ( is_present ) then
-          call ESMF_AttributeGet(field, NAME="UNITS",VALUE=units, _RC)
+          call ESMF_AttributeGet(field, NAME="UNITS",VALUE=units, _rc)
        else
           units = 'unknown'
        endif
@@ -296,21 +296,21 @@ module subroutine  create_metadata(this,global_attributes,rc)
        call v%add_attribute('missing_value', MAPL_UNDEF)
        call v%add_attribute('_FillValue',    MAPL_UNDEF)
        call v%add_attribute('valid_range',   (/-MAPL_UNDEF,MAPL_UNDEF/))
-       call this%metadata%add_variable(trim(var_name),v,_RC)
+       call this%metadata%add_variable(trim(var_name),v,_rc)
     end do
-    deallocate (fieldNameList, _STAT)
+    deallocate (fieldNameList, _stat)
 
 
     if (this%itemOrderAlphabetical) then
        call this%alphabatize_variables(metadataVarsSize,rc=status)
-       _VERIFY(status)
+       _verify(status)
     end if
 
     s_iter = global_attributes%begin()
     do while(s_iter /= global_attributes%end())
        attr_name => s_iter%key()
        attr_val => s_iter%value()
-       call this%metadata%add_attribute(attr_name,attr_val,_RC)
+       call this%metadata%add_attribute(attr_name,attr_val,_rc)
        call s_iter%next()
     enddo
 
@@ -328,7 +328,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
     !call this%metadata%add_variable('mask_CS_global_index_J',v)
 
 
-    _RETURN(_SUCCESS)
+    _return(_success)
   end subroutine create_metadata
 
 
@@ -427,8 +427,8 @@ module subroutine  create_metadata(this,global_attributes,rc)
        !   prepare recvcounts + displs for gatherv
        !
 
-       call ESMF_VMGetCurrent(vm,_RC)
-       call ESMF_VMGet(vm, mpiCommunicator=mpic, petcount=petcount, localpet=mypet, _RC)
+       call ESMF_VMGetCurrent(vm,_rc)
+       call ESMF_VMGet(vm, mpiCommunicator=mpic, petcount=petcount, localpet=mypet, _rc)
        iroot = 0
        ip = mypet    ! 0 to M-1
        M = petCount
@@ -442,26 +442,26 @@ module subroutine  create_metadata(this,global_attributes,rc)
           key_y = this%var_name_y
           key_p = this%var_name_proj
           key_p_att = this%att_name_proj
-          call get_ncfile_dimension(fn,nlon=n1,nlat=n2,key_lon=key_x,key_lat=key_y,_RC)
-          allocate (x(n1), y(n2), _STAT)
-          call get_v1d_netcdf_R8_complete (fn, key_x, x, _RC)
-          call get_v1d_netcdf_R8_complete (fn, key_y, y, _RC)
-          call get_att_real_netcdf (fn, key_p, key_p_att, lambda0_deg, _RC)
+          call get_ncfile_dimension(fn,nlon=n1,nlat=n2,key_lon=key_x,key_lat=key_y,_rc)
+          allocate (x(n1), y(n2), _stat)
+          call get_v1d_netcdf_R8_complete (fn, key_x, x, _rc)
+          call get_v1d_netcdf_R8_complete (fn, key_y, y, _rc)
+          call get_att_real_netcdf (fn, key_p, key_p_att, lambda0_deg, _rc)
           lam_sat = lambda0_deg * MAPL_DEGREES_TO_RADIANS_R8
        end if
-       call MAPL_CommsBcast(vm, DATA=n1, N=1, ROOT=MAPL_Root, _RC)
-       call MAPL_CommsBcast(vm, DATA=n2, N=1, ROOT=MAPL_Root, _RC)
-       if ( .NOT. mapl_am_i_root() )  allocate (x(n1), y(n2), _STAT)
-       call MAPL_CommsBcast(vm, DATA=lam_sat, N=1, ROOT=MAPL_Root, _RC)
-       call MAPL_CommsBcast(vm, DATA=x, N=n1, ROOT=MAPL_Root, _RC)
-       call MAPL_CommsBcast(vm, DATA=y, N=n2, ROOT=MAPL_Root, _RC)
+       call MAPL_CommsBcast(vm, DATA=n1, N=1, ROOT=MAPL_Root, _rc)
+       call MAPL_CommsBcast(vm, DATA=n2, N=1, ROOT=MAPL_Root, _rc)
+       if ( .NOT. mapl_am_i_root() )  allocate (x(n1), y(n2), _stat)
+       call MAPL_CommsBcast(vm, DATA=lam_sat, N=1, ROOT=MAPL_Root, _rc)
+       call MAPL_CommsBcast(vm, DATA=x, N=n1, ROOT=MAPL_Root, _rc)
+       call MAPL_CommsBcast(vm, DATA=y, N=n2, ROOT=MAPL_Root, _rc)
 
        !
        ! use thin_factor to reduce regridding matrix size
        !
        xdim_red  = n1 / this%thin_factor
        ydim_red  = n2 / this%thin_factor
-       _ASSERT ( xdim_red * ydim_red > M, 'mask reduced points after thin_factor is less than Nproc!')
+       _assert ( xdim_red * ydim_red > M, 'mask reduced points after thin_factor is less than Nproc!')
 
        ! get nx2: local on each ip
        nx2=0
@@ -479,7 +479,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
              end if
           end do
        end do
-       allocate (lons_chunk(nx2), lats_chunk(nx2), _STAT)
+       allocate (lons_chunk(nx2), lats_chunk(nx2), _stat)
 
        ! get lons_chunk/...
        nx2 = 0
@@ -502,18 +502,18 @@ module subroutine  create_metadata(this,global_attributes,rc)
 
        arr(1)=nx2
        call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx, &
-            count=1, reduceflag=ESMF_REDUCE_SUM, _RC)
+            count=1, reduceflag=ESMF_REDUCE_SUM, _rc)
 
 
        ! gatherV for lons/lats
        if (mapl_am_i_root()) then
-          allocate(lons(nx),lats(nx),_STAT)
+          allocate(lons(nx),lats(nx),_stat)
        else
-          allocate(lons(0),lats(0),_STAT)
+          allocate(lons(0),lats(0),_stat)
        endif
 
-       allocate( this%recvcounts(petcount), this%displs(petcount), _STAT )
-       allocate( recvcounts_loc(petcount), displs_loc(petcount), _STAT )
+       allocate( this%recvcounts(petcount), this%displs(petcount), _stat )
+       allocate( recvcounts_loc(petcount), displs_loc(petcount), _stat )
        recvcounts_loc(:)=1
        displs_loc(1)=0
        do i=2, petcount
@@ -522,7 +522,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
        call MPI_gatherv ( nx2, 1, MPI_INTEGER, &
             this%recvcounts, recvcounts_loc, displs_loc, MPI_INTEGER,&
             iroot, mpic, ierr )
-       _VERIFY(ierr)
+       _verify(ierr)
        !!debug
        !!write(6,*) 'ip, nx2, this%recvcounts, recvcounts_loc, displs_loc'
        !!write(6,'(200i5)')  ip, nx2
@@ -530,7 +530,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
        !!write(6,'(200i5)')  recvcounts_loc
        !!write(6,'(200i5)')  displs_loc
        call MPI_Barrier(mpic,ierr)
-       _VERIFY(ierr)
+       _verify(ierr)
 
 
        if (.not. mapl_am_i_root()) then
@@ -545,15 +545,15 @@ module subroutine  create_metadata(this,global_attributes,rc)
        call MPI_gatherv ( lons_chunk, nsend, MPI_REAL8, &
             lons, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
-       _VERIFY(ierr)
+       _verify(ierr)
        call MPI_gatherv ( lats_chunk, nsend, MPI_REAL8, &
             lats, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
-       _VERIFY(ierr)
+       _verify(ierr)
 
-       deallocate (this%recvcounts, this%displs, _STAT)
-       deallocate (recvcounts_loc, displs_loc, _STAT)
-       deallocate (x, y, _STAT)
+       deallocate (this%recvcounts, this%displs, _stat)
+       deallocate (recvcounts_loc, displs_loc, _stat)
+       deallocate (x, y, _stat)
        call MAPL_TimerOff(this%GENSTATE,"1_genABIgrid")
 
 
@@ -562,33 +562,33 @@ module subroutine  create_metadata(this,global_attributes,rc)
        call MAPL_TimerOn(this%GENSTATE,"2_ABIgrid_LS")
 
        ! -- root
-       locstream_factory = LocStreamFactory(lons,lats,_RC)
-       LS_rt = locstream_factory%create_locstream(_RC)
+       locstream_factory = LocStreamFactory(lons,lats,_rc)
+       LS_rt = locstream_factory%create_locstream(_rc)
 
        ! -- proc
-       locstream_factory = LocStreamFactory(lons_chunk,lats_chunk,_RC)
-       LS_chunk = locstream_factory%create_locstream_on_proc(_RC)
+       locstream_factory = LocStreamFactory(lons_chunk,lats_chunk,_rc)
+       LS_chunk = locstream_factory%create_locstream_on_proc(_rc)
 
        ! -- distributed with background grid
-       call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
-       LS_ds = locstream_factory%create_locstream_on_proc(grid=grid,_RC)
+       call ESMF_FieldBundleGet(this%bundle,grid=grid,_rc)
+       LS_ds = locstream_factory%create_locstream_on_proc(grid=grid,_rc)
 
-       fieldA = ESMF_FieldCreate (LS_chunk, name='A', typekind=ESMF_TYPEKIND_R8, _RC)
-       fieldB = ESMF_FieldCreate (LS_ds, name='B', typekind=ESMF_TYPEKIND_R8, _RC)
+       fieldA = ESMF_FieldCreate (LS_chunk, name='A', typekind=ESMF_TYPEKIND_R8, _rc)
+       fieldB = ESMF_FieldCreate (LS_ds, name='B', typekind=ESMF_TYPEKIND_R8, _rc)
        call ESMF_FieldGet( fieldA, localDE=0, farrayPtr=ptA)
        call ESMF_FieldGet( fieldB, localDE=0, farrayPtr=ptB)
 
        ptA(:) = lons_chunk(:)
-       call ESMF_FieldRedistStore (fieldA, fieldB, RH, _RC)
+       call ESMF_FieldRedistStore (fieldA, fieldB, RH, _rc)
        call MPI_Barrier(mpic,ierr)
-       _VERIFY(ierr)
-       call ESMF_FieldRedist      (fieldA, fieldB, RH, _RC)
+       _verify(ierr)
+       call ESMF_FieldRedist      (fieldA, fieldB, RH, _rc)
        lons_ds = ptB
 
        ptA(:) = lats_chunk(:)
        call MPI_Barrier(mpic,ierr)
-       _VERIFY(ierr)
-       call ESMF_FieldRedist      (fieldA, fieldB, RH, _RC)
+       _verify(ierr)
+       call ESMF_FieldRedist      (fieldA, fieldB, RH, _rc)
        lats_ds = ptB
 
        call MAPL_TimerOff(this%GENSTATE,"2_ABIgrid_LS")
@@ -600,30 +600,30 @@ module subroutine  create_metadata(this,global_attributes,rc)
        obs_lats = lats_ds * MAPL_DEGREES_TO_RADIANS_R8
        nx = size ( lons_ds )
 
-       call ESMF_FieldDestroy(fieldA,nogarbage=.true.,_RC)
-       call ESMF_FieldDestroy(fieldB,nogarbage=.true.,_RC)
-       call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
-       allocate ( II(nx), JJ(nx), _STAT )
-       call MAPL_GetHorzIJIndex(nx,II,JJ,lonR8=obs_lons,latR8=obs_lats,grid=grid,_RC)
-       call ESMF_VMBarrier (vm, _RC)
+       call ESMF_FieldDestroy(fieldA,nogarbage=.true.,_rc)
+       call ESMF_FieldDestroy(fieldB,nogarbage=.true.,_rc)
+       call ESMF_FieldRedistRelease(RH, noGarbage=.true., _rc)
+       allocate ( II(nx), JJ(nx), _stat )
+       call MAPL_GetHorzIJIndex(nx,II,JJ,lonR8=obs_lons,latR8=obs_lats,grid=grid,_rc)
+       call ESMF_VMBarrier (vm, _rc)
 
        !
        ! __  halo for mask
        !
-       call MAPL_GridGet(grid, localCellCountPerDim=COUNTS, _RC)
+       call MAPL_GridGet(grid, localCellCountPerDim=COUNTS, _rc)
        IM= COUNTS(1)
        JM= COUNTS(2)
        LM= COUNTS(3)
        useableHalo_width = 1
        fieldI4 = ESMF_FieldCreate (grid, ESMF_TYPEKIND_I4, &
             totalLwidth=[useableHalo_width,useableHalo_width],&
-            totalUwidth=[useableHalo_width,useableHalo_width], _RC)
+            totalUwidth=[useableHalo_width,useableHalo_width], _rc)
        call ESMF_FieldGetBounds (fieldI4, &
             exclusiveLBound=eLB, exclusiveUBound=eUB, exclusiveCount=ecount, &
             totalLBound=tLB, totalUBound=tUB, totalCount=tcount, &
             computationalLBound=cLB, computationalUBound=cUB, computationalCount=ccount, &
-            _RC)
-       call ESMF_FieldGet (fieldI4, farrayPtr=farrayPtr,  _RC)
+            _rc)
+       call ESMF_FieldGet (fieldI4, farrayPtr=farrayPtr,  _rc)
        farrayPtr(:,:) = 0
        do i=1, nx
           if ( II(i)>0 .AND. JJ(i)>0 ) then
@@ -631,8 +631,8 @@ module subroutine  create_metadata(this,global_attributes,rc)
           endif
        enddo
 
-       call ESMF_FieldHaloStore (fieldI4, routehandle=RH_halo, _RC)
-       call ESMF_FieldHalo (fieldI4, routehandle=RH_halo, _RC)
+       call ESMF_FieldHaloStore (fieldI4, routehandle=RH_halo, _rc)
+       call ESMF_FieldHalo (fieldI4, routehandle=RH_halo, _rc)
 
 !       !
 !       !-- print out eLB, eUB do they match 1:IM, JM?
@@ -654,14 +654,14 @@ module subroutine  create_metadata(this,global_attributes,rc)
              if (farrayPtr(i,j)/=0) k=k+1
           end do
        end do
-       allocate( mask(IM, JM), _STAT)
+       allocate( mask(IM, JM), _stat)
        mask(1:IM, 1:JM) = abs(farrayPtr(1:IM, 1:JM))
 
        this%npt_mask = k    ! # of masked pts on CS grid
-       allocate( this%index_mask(2,k), _STAT )
+       allocate( this%index_mask(2,k), _stat )
        arr(1)=k
        call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=this%npt_mask_tot, &
-            count=1, reduceflag=ESMF_REDUCE_SUM, _RC)
+            count=1, reduceflag=ESMF_REDUCE_SUM, _rc)
 
        k=0
        do i=1, IM
@@ -686,11 +686,11 @@ module subroutine  create_metadata(this,global_attributes,rc)
        ! __ s4.1 find this%lons/lats on root for NC output
        !
        call ESMF_GridGetCoord (grid, coordDim=1, localDE=0, &
-            staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lons_ptr, _RC)
+            staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lons_ptr, _rc)
        call ESMF_GridGetCoord (grid, coordDim=2, localDE=0, &
-            staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lats_ptr, _RC)
-       deallocate (lons, lats, _STAT)
-       allocate (lons(this%npt_mask), lats(this%npt_mask), _STAT)
+            staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lats_ptr, _rc)
+       deallocate (lons, lats, _stat)
+       allocate (lons(this%npt_mask), lats(this%npt_mask), _stat)
        do i=1, this%npt_mask
           ix=this%index_mask(1,i)
           jx=this%index_mask(2,i)
@@ -700,16 +700,16 @@ module subroutine  create_metadata(this,global_attributes,rc)
 
        iroot=0
        if (mapl_am_i_root()) then
-          allocate (this%lons(this%npt_mask_tot), this%lats(this%npt_mask_tot), _STAT)
+          allocate (this%lons(this%npt_mask_tot), this%lats(this%npt_mask_tot), _stat)
        else
-          allocate (this%lons(0), this%lats(0), _STAT)
+          allocate (this%lons(0), this%lats(0), _stat)
        end if
 
 
        ! __ s4.2  find this%recvcounts / this%displs
        !
-       allocate( this%recvcounts(petcount), this%displs(petcount), _STAT )
-       allocate( recvcounts_loc(petcount), displs_loc(petcount), _STAT )
+       allocate( this%recvcounts(petcount), this%displs(petcount), _stat )
+       allocate( recvcounts_loc(petcount), displs_loc(petcount), _stat )
        recvcounts_loc(:)=1
        displs_loc(1)=0
        do i=2, petcount
@@ -718,7 +718,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
        call MPI_gatherv ( this%npt_mask, 1, MPI_INTEGER, &
             this%recvcounts, recvcounts_loc, displs_loc, MPI_INTEGER,&
             iroot, mpic, ierr )
-       _VERIFY(ierr)
+       _verify(ierr)
        !
        ! set nonroot to zero for s4.3
        if (.not. mapl_am_i_root()) then
@@ -735,11 +735,11 @@ module subroutine  create_metadata(this,global_attributes,rc)
        call MPI_gatherv ( lons, nsend, MPI_REAL8, &
             this%lons, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
-       _VERIFY(ierr)
+       _verify(ierr)
        call MPI_gatherv ( lats, nsend, MPI_REAL8, &
             this%lats, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
-       _VERIFY(ierr)
+       _verify(ierr)
 
        call MAPL_TimerOff(this%GENSTATE,"4_gatherV")
 
@@ -752,22 +752,22 @@ module subroutine  create_metadata(this,global_attributes,rc)
 !       write(6,'(200i10)')  this%recvcounts
 !       write(6,'(200i10)')  this%displs
 !       call MPI_Barrier(mpic,ierr)
-!       _VERIFY(ierr)
+!       _verify(ierr)
 
        if (mapl_am_i_root()) then
           print*, 'this%npt_mask_tot=', this%npt_mask_tot
-          allocate (this%lons_deg(this%npt_mask_tot), this%lats_deg(this%npt_mask_tot), _STAT)
+          allocate (this%lons_deg(this%npt_mask_tot), this%lats_deg(this%npt_mask_tot), _stat)
           this%lons_deg = this%lons * MAPL_RADIANS_TO_DEGREES
           this%lats_deg = this%lats * MAPL_RADIANS_TO_DEGREES
        else
-          allocate (this%lons_deg(0), this%lats_deg(0), _STAT)
+          allocate (this%lons_deg(0), this%lats_deg(0), _stat)
        end if
 !!       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lons_deg', ip, this%lons_deg
 !!       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lats_deg', ip, this%lats_deg
 
 !
 !
-!       call MAPL_CommsBcast(vm, DATA=, N=1, ROOT=MAPL_Root, _RC)
+!       call MAPL_CommsBcast(vm, DATA=, N=1, ROOT=MAPL_Root, _rc)
 !       allocate (sendcounts_loc(petcount))
 !       do i=1, petcount
 !          displs_loc(i)=i-1
@@ -789,7 +789,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
 !       call MPI_Barrier(mpic,ierr)
 
 
-       _RETURN(_SUCCESS)
+       _return(_success)
      end subroutine create_Geosat_grid_find_mask
 
 
@@ -830,47 +830,47 @@ module subroutine  create_metadata(this,global_attributes,rc)
     this%obs_written=this%obs_written+1
 
     ! -- fixed for all fields
-    call ESMF_VMGetCurrent(vm,_RC)
-    call ESMF_VMGet(vm, mpiCommunicator=mpic, petcount=petcount, localpet=mypet, _RC)
+    call ESMF_VMGetCurrent(vm,_rc)
+    call ESMF_VMGet(vm, mpiCommunicator=mpic, petcount=petcount, localpet=mypet, _rc)
     iroot=0
     nx = this%npt_mask
     nz = this%vdata%lm
-    allocate(p_dst_2d (nx), _STAT)
-    allocate(p_dst_3d (nx * nz), _STAT)
+    allocate(p_dst_2d (nx), _stat)
+    allocate(p_dst_3d (nx * nz), _stat)
     if (mapl_am_i_root()) then
-       allocate ( p_dst_2d_full (this%npt_mask_tot), _STAT )
-       allocate ( p_dst_3d_full (this%npt_mask_tot * nz), _STAT )
+       allocate ( p_dst_2d_full (this%npt_mask_tot), _stat )
+       allocate ( p_dst_3d_full (this%npt_mask_tot * nz), _stat )
     else
-       allocate ( p_dst_2d_full (0), _STAT )
-       allocate ( p_dst_3d_full (0), _STAT )
+       allocate ( p_dst_2d_full (0), _stat )
+       allocate ( p_dst_3d_full (0), _stat )
     end if
-    allocate( recvcounts_3d(petcount), displs_3d(petcount), _STAT )
+    allocate( recvcounts_3d(petcount), displs_3d(petcount), _stat )
     recvcounts_3d(:) = nz * this%recvcounts(:)
     displs_3d(:)     = nz * this%displs(:)
 
 
     !__ 1. put_var: time variable
     !
-    allocate( rtimes(1), _STAT )
-    rtimes(1) = this%compute_time_for_current(current_time,_RC) ! rtimes: seconds since opening file
+    allocate( rtimes(1), _stat )
+    rtimes(1) = this%compute_time_for_current(current_time,_rc) ! rtimes: seconds since opening file
     if (mapl_am_i_root()) then
-      allocate( rtime(1), _STAT )
+      allocate( rtime(1), _stat )
       rtime(1) = rtimes(1)
    else
-      allocate( rtime(0), _STAT )
+      allocate( rtime(0), _stat )
    endif
    if (this%use_pfio) then
        this%rtime = rtimes(1)*1.0
        ref = ArrayReference(rtime)
        call oClients%collective_stage_data(this%write_collection_id,trim(filename),'time', &
             ref,start=[1], global_start=[1], global_count=[1])
-       call this%stage2DLatLon(trim(filename),oClients=oClients,_RC)
+       call this%stage2DLatLon(trim(filename),oClients=oClients,_rc)
     else
        if (mapl_am_i_root()) then
           call this%formatter%put_var('time',rtimes(1:1),&
-               start=[this%obs_written],count=[1],_RC)
-          call this%formatter%put_var('longitude',this%lons_deg,_RC)
-          call this%formatter%put_var('latitude',this%lats_deg,_RC)
+               start=[this%obs_written],count=[1],_rc)
+          call this%formatter%put_var('longitude',this%lons_deg,_rc)
+          call this%formatter%put_var('latitude',this%lats_deg,_rc)
        end if
     end if
 
@@ -881,7 +881,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
     !   It does not support vertical regridding
     !
     !if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-    !   call this%vdata%setup_eta_to_pressure(_RC)
+    !   call this%vdata%setup_eta_to_pressure(_rc)
     !endif
 
     iter = this%items%begin()
@@ -890,10 +890,10 @@ module subroutine  create_metadata(this,global_attributes,rc)
     do while (iter /= this%items%end())
        item => iter%get()
        if (item%itemType == ItemTypeScalar) then
-          call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
-          call ESMF_FieldGet(src_field,rank=rank,_RC)
+          call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_rc)
+          call ESMF_FieldGet(src_field,rank=rank,_rc)
           if (rank==2) then
-             call ESMF_FieldGet(src_field,farrayptr=p_src_2d,_RC)
+             call ESMF_FieldGet(src_field,farrayptr=p_src_2d,_rc)
              do j=1, nx
                 ix = this%index_mask(1,j)
                 iy = this%index_mask(2,j)
@@ -903,7 +903,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
              call MPI_gatherv ( p_dst_2d, nsend, MPI_REAL, &
                   p_dst_2d_full, this%recvcounts, this%displs, MPI_REAL,&
                   iroot, mpic, status )
-             _VERIFY(status)
+             _verify(status)
              call MAPL_TimerOn(this%GENSTATE,"put2D")
              if (this%use_pfio) then
                 ic_2d = ic_2d + 1
@@ -916,15 +916,15 @@ module subroutine  create_metadata(this,global_attributes,rc)
              else
                 if (mapl_am_i_root()) then
                    call this%formatter%put_var(item%xname,p_dst_2d_full,&
-                        start=[1,this%obs_written],count=[this%npt_mask_tot,1],_RC)
+                        start=[1,this%obs_written],count=[this%npt_mask_tot,1],_rc)
                 end if
              end if
              call MAPL_TimerOff(this%GENSTATE,"put2D")
 
           else if (rank==3) then
-             call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
-             call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-             _ASSERT (this%vdata%lm == (ub(1)-lb(1)+1), 'vertical level is different from CS grid')
+             call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_rc)
+             call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_rc)
+             _assert (this%vdata%lm == (ub(1)-lb(1)+1), 'vertical level is different from CS grid')
              m=0
              do j=1, nx
                 ix = this%index_mask(1,j)
@@ -939,7 +939,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
              call MPI_gatherv ( p_dst_3d, nsend, MPI_REAL, &
                   p_dst_3d_full, recvcounts_3d, displs_3d, MPI_REAL,&
                   iroot, mpic, status )
-             _VERIFY(status)
+             _verify(status)
              call MAPL_TimerOn(this%GENSTATE,"put3D")
 
              if (this%use_pfio) then
@@ -964,25 +964,25 @@ module subroutine  create_metadata(this,global_attributes,rc)
                 end if
              else
                 if (mapl_am_i_root()) then
-                   allocate(arr(nz, this%npt_mask_tot), _STAT)
+                   allocate(arr(nz, this%npt_mask_tot), _stat)
                    arr=reshape(p_dst_3d_full,[nz,this%npt_mask_tot],order=[1,2])
                    call this%formatter%put_var(item%xname,arr,&
-                        start=[1,1,this%obs_written],count=[nz,this%npt_mask_tot,1],_RC)
+                        start=[1,1,this%obs_written],count=[nz,this%npt_mask_tot,1],_rc)
                    !note:     lev,location,time
-                   deallocate(arr, _STAT)
+                   deallocate(arr, _stat)
                 end if
              end if
              call MAPL_TimerOff(this%GENSTATE,"put3D")
 
           else
-             _FAIL('grid2LS regridder: rank > 3 not implemented')
+             _fail('grid2LS regridder: rank > 3 not implemented')
           end if
        end if
 
        call iter%next()
     end do
 
-    _RETURN(_SUCCESS)
+    _return(_success)
   end subroutine regrid_append_file
 
 
@@ -1003,21 +1003,21 @@ module subroutine  create_metadata(this,global_attributes,rc)
     type(ESMF_time), allocatable :: esmf_time_1d(:)
     real(kind=ESMF_KIND_R8), allocatable :: rtime_1d(:)
 
-    var => this%metadata%get_variable('time',_RC)
+    var => this%metadata%get_variable('time',_rc)
     attr => var%get_attribute('units')
     ptimeUnits => attr%get_value()
     select type(pTimeUnits)
     type is (character(*))
        datetime_units = ptimeUnits
     class default
-       _FAIL("Time unit must be character")
+       _fail("Time unit must be character")
     end select
-    allocate (  esmf_time_1d(1), rtime_1d(1), _STAT )
+    allocate (  esmf_time_1d(1), rtime_1d(1), _stat )
     esmf_time_1d(1)= current_time
-    call time_ESMF_to_real ( rtime_1d, esmf_time_1d, datetime_units, _RC )
+    call time_ESMF_to_real ( rtime_1d, esmf_time_1d, datetime_units, _rc )
     rtime =  rtime_1d(1)
 
-    _RETURN(_SUCCESS)
+    _return(_success)
   end function compute_time_for_current
 
   module subroutine stage2dlatlon(this,filename,oClients,rc)
@@ -1050,7 +1050,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
     call oClients%collective_stage_data(this%write_collection_id,trim(filename),'latitude', &
          ref,start=local_start, global_start=global_start, global_count=global_count)
 
-    _RETURN(_SUCCESS)
+    _return(_success)
  end subroutine stage2dlatlon
 
 
@@ -1064,18 +1064,18 @@ module subroutine  create_metadata(this,global_attributes,rc)
         integer :: status
 
         if (this%timeInfo%is_initialized) then
-           v = this%timeInfo%define_time_variable(_RC)
+           v = this%timeInfo%define_time_variable(_rc)
            call this%metadata%modify_variable('time',v,rc=status)
-           _VERIFY(status)
+           _verify(status)
            if (present(oClients)) then
               call var_map%insert('time',v)
               call oClients%modify_metadata(this%write_collection_id, var_map=var_map, rc=status)
-              _VERIFY(status)
+              _verify(status)
            end if
         else
-           _FAIL("Time was not initialized for the GriddedIO class instance")
+           _fail("Time was not initialized for the GriddedIO class instance")
         end if
-        _RETURN(ESMF_SUCCESS)
+        _return(ESMF_SUCCESS)
 
      end subroutine modifyTime
 
@@ -1096,7 +1096,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
      integer :: status
 
      order = this%metadata%get_order(rc=status)
-     _VERIFY(status)
+     _verify(status)
      n = Order%size()
      allocate(temp(nFixedVars+1:n))
      do i=1,n
@@ -1126,10 +1126,10 @@ module subroutine  create_metadata(this,global_attributes,rc)
         call newOrder%push_back(trim(temp(i)))
      enddo
      call this%metadata%set_order(newOrder,rc=status)
-     _VERIFY(status)
+     _verify(status)
      deallocate(temp)
 
-     _RETURN(_SUCCESS)
+     _return(_success)
 
   end subroutine alphabatize_variables
 
@@ -1151,8 +1151,8 @@ module subroutine finalize(this,rc)
        do while (iter /= this%items%end())
           item => iter%get()
           if (item%itemType == ItemTypeScalar) then
-             call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
-             call ESMF_FieldGet(src_field,rank=rank,_RC)
+             call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_rc)
+             call ESMF_FieldGet(src_field,rank=rank,_rc)
              if (rank==2) then
                 ic_2d = ic_2d + 1
              else if (rank==3) then
@@ -1163,20 +1163,20 @@ module subroutine finalize(this,rc)
        end do
 
        do j=1, ic_2d
-          deallocate ( this%var2d(j)%array_x, _STAT )
+          deallocate ( this%var2d(j)%array_x, _stat )
        end do
-       deallocate ( this%var2d, _STAT )
+       deallocate ( this%var2d, _stat )
        do j=1, ic_3d
           if (this%write_lev_first) then
-             deallocate ( this%var3d(j)%array_zx, _STAT )
+             deallocate ( this%var3d(j)%array_zx, _stat )
           else
-             deallocate ( this%var3d(j)%array_xz, _STAT  )
+             deallocate ( this%var3d(j)%array_xz, _stat  )
           end if
        end do
-       deallocate ( this%var3d, _STAT )
+       deallocate ( this%var3d, _stat )
     end if
 
-    _RETURN(_SUCCESS)
+    _return(_success)
   end subroutine finalize
 
    end submodule MaskSampler_implement

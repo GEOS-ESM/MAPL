@@ -23,21 +23,21 @@ module ParentOneChild_GridComp
      type(MAPL_MetaComp), pointer :: MAPL
      character(len=80) :: my_child_name, my_child_so
 
-     call MAPL_GetObjectFromGC ( GC, MAPL, _RC)
-     call MAPL_GetResource(MAPL, my_child_name, Label="my_child_name:",_RC)
-     call MAPL_GetResource(MAPL, my_child_so, Label="my_child_so:",_RC)
+     call MAPL_GetObjectFromGC ( GC, MAPL, _rc)
+     call MAPL_GetResource(MAPL, my_child_name, Label="my_child_name:",_rc)
+     call MAPL_GetResource(MAPL, my_child_so, Label="my_child_so:",_rc)
      
-     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_INITIALIZE,  my_initialize, _RC)
-     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_RUN,  my_run, _RC)
+     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_INITIALIZE,  my_initialize, _rc)
+     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_RUN,  my_run, _rc)
 
      call MAPL_AddExportSpec(gc,short_name='output1', long_name='NA',units='NA', &
                                  dims = MAPL_DimsHorzOnly, &
-                                 vlocation = MAPL_VLocationNone, _RC)
+                                 vlocation = MAPL_VLocationNone, _rc)
  
-     child1 = MAPL_AddChild(gc, my_child_name, "setservices_", sharedObj=my_child_so, _RC)
+     child1 = MAPL_AddChild(gc, my_child_name, "setservices_", sharedObj=my_child_so, _rc)
      
-     call MAPL_GenericSetServices(gc, _RC)
-     _RETURN(_SUCCESS)
+     call MAPL_GenericSetServices(gc, _rc)
+     _return(_success)
 
   end subroutine setservices
 
@@ -51,10 +51,10 @@ module ParentOneChild_GridComp
 
      integer :: status
 
-     call MAPL_GridCreate(gc, _RC)
-     call MAPL_GenericInitialize(gc, import, export, clock, _RC)
+     call MAPL_GridCreate(gc, _rc)
+     call MAPL_GenericInitialize(gc, import, export, clock, _rc)
 
-     _RETURN(_SUCCESS)
+     _return(_success)
 
   end subroutine my_initialize
 
@@ -71,14 +71,14 @@ module ParentOneChild_GridComp
      real :: my_constant
      integer :: status
 
-     call MAPL_GetObjectFromGC ( GC, MAPL, _RC)
-     call MAPL_GetResource(MAPL, my_constant, Label="my_value:", default=17.0,_RC)
-     call MAPL_GetPointer(export,ptr_2d,'output1',_RC)
+     call MAPL_GetObjectFromGC ( GC, MAPL, _rc)
+     call MAPL_GetResource(MAPL, my_constant, Label="my_value:", default=17.0,_rc)
+     call MAPL_GetPointer(export,ptr_2d,'output1',_rc)
      if (associated(ptr_2d)) ptr_2d = my_constant
 
-     call MAPL_GenericRunChildren(gc, import, export, clock, _RC)
+     call MAPL_GenericRunChildren(gc, import, export, clock, _rc)
 
-     _RETURN(_SUCCESS)
+     _return(_success)
 
   end subroutine my_run
 

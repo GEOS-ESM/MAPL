@@ -24,14 +24,14 @@
     integer                               :: comm
 
     call ESMF_VMGet(vm, mpiCommunicator=COMM, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     call mpi_allreduce ( sendbuf, recvbuf, cnt, MPITYPE_, &
                          MPI_SUM, comm, status )
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   END SUBROUTINE SUB_
 
 #undef NAME_

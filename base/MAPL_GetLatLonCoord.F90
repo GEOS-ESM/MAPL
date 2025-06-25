@@ -37,32 +37,32 @@ contains
       call ESMF_GridGetCoord (grid, coordDim=dim, localDE=0, &
                staggerloc=ESMF_STAGGERLOC_CENTER, &
                farrayPtr=x_2d, rc=status)
-      _VERIFY(status)
+      _verify(status)
       call MAPL_GridGet(grid,globalCellCountPerDim=counts,rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       allocate(xg(counts(1),counts(2)),stat=status)
-      _VERIFY(status)
+      _verify(status)
 
       call ArrayGather(x_2d,xg,grid,rc=status)
-      _VERIFY(status)
+      _verify(status)
       call ESMF_GridGet(GRID, DistGrid=distgrid, rc=status)
-      _VERIFY(STATUS)
+      _verify(STATUS)
       call ESMF_DistGridGet(distgrid, DELayout=layout, rc=status)
-      _VERIFY(STATUS)
+      _verify(STATUS)
       call ESMF_DELayoutGet(layout,vm=vm,rc=status)
-      _VERIFY(status)
+      _verify(status)
       call ESMF_VMGet(vm,localPet=myPet,rc=status)
-      _VERIFY(status)
+      _verify(status)
       if (dim==1) then
          if(myPet==0) x = xg(:,1)
       else if (dim==2) then
          if (myPet==0) x = xg(1,:)
       else
-         _FAIL('unsupported rank > 2')
+         _fail('unsupported rank > 2')
       end if
       call MAPL_CommsBcast(layout,x,size(x), 0, rc=status)
-      _VERIFY(status)
+      _verify(status)
       deallocate(xg)
 
    end subroutine MAPL_GetLatLonCoord_Real64
@@ -84,36 +84,36 @@ contains
       call ESMF_GridGetCoord (grid, coordDim=dim, localDE=0, &
                staggerloc=ESMF_STAGGERLOC_CENTER, &
                farrayPtr=x_2d, rc=status)
-      _VERIFY(status)
+      _verify(status)
       call MAPL_GridGet(grid,globalCellCountPerDim=counts,rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       allocate(xg(counts(1),counts(2)),stat=status)
-      _VERIFY(status)
+      _verify(status)
       allocate(xl(size(x_2d,1),size(x_2d,2)),stat=status)
-      _VERIFY(status)
+      _verify(status)
       xl=x_2d
 
       call ArrayGather(xl,xg,grid,rc=status)
-      _VERIFY(status)
+      _verify(status)
       deallocate(xl)
       call ESMF_GridGet(GRID, DistGrid=distgrid, rc=status)
-      _VERIFY(STATUS)
+      _verify(STATUS)
       call ESMF_DistGridGet(distgrid, DELayout=layout, rc=status)
-      _VERIFY(STATUS)
+      _verify(STATUS)
       call ESMF_DELayoutGet(layout,vm=vm,rc=status)
-      _VERIFY(status)
+      _verify(status)
       call ESMF_VMGet(vm,localPet=myPet,rc=status)
-      _VERIFY(status)
+      _verify(status)
       if (dim==1) then
          if(myPet==0) x = xg(:,1)
       else if (dim==2) then
          if (myPet==0) x = xg(1,:)
       else
-         _FAIL('unsupported rank > 2')
+         _fail('unsupported rank > 2')
       end if
       call MAPL_CommsBcast(layout,x,size(x), 0, rc=status)
-      _VERIFY(status)
+      _verify(status)
       deallocate(xg)
 
    end subroutine MAPL_GetLatLonCoord_Real32

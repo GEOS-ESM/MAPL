@@ -131,13 +131,13 @@ module MAPL_ExtDataTypeDef
          integer :: status
          type(ESMF_Field) :: field
 
-         call ESMF_StateGet(state,trim(this%name),field,_RC)
+         call ESMF_StateGet(state,trim(this%name),field,_rc)
          if (this%masking) then
-            call this%mask_definition%evaluate_mask(state,field,_RC)
+            call this%mask_definition%evaluate_mask(state,field,_rc)
          else
-            call MAPL_StateEval(state,trim(this%expression),field,_RC)
+            call MAPL_StateEval(state,trim(this%expression),field,_rc)
          end if
-         _RETURN(_SUCCESS)
+         _return(_success)
       end subroutine
 
 end module  MAPL_ExtDataTypeDef

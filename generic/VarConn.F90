@@ -73,7 +73,7 @@ contains
       new_conn%To   = VarConnPoint(usableTONAME, gc_id=usableTO_IMPORT)
       if(short_name == "MAPL_AnyChildImport") new_conn%used = .true.
 
-      _RETURN(ESMF_SUCCESS)
+      _return(ESMF_SUCCESS)
 
    end subroutine append
 
@@ -138,7 +138,7 @@ contains
 
         end do
       end associate
-      _RETURN(ESMF_SUCCESS)
+      _return(ESMF_SUCCESS)
 
    end subroutine CheckReq
 
@@ -213,12 +213,12 @@ contains
            if (present(EXPORT_NAME)) then
               EXPORT_NAME = conn%FROM%get_short_name()
            end if
-           _RETURN(ESMF_SUCCESS)
+           _return(ESMF_SUCCESS)
         end do
       end associate
       varIsConnected_IE = .false.
 
-      _RETURN(ESMF_SUCCESS)
+      _return(ESMF_SUCCESS)
    end function VarIsConnected_IE
 
    logical function varIsConnected_name(this, IMPORT_NAME, import, RC)
@@ -250,13 +250,13 @@ contains
            end if
            
            varIsConnected_name = .true.
-           _RETURN(ESMF_SUCCESS)
+           _return(ESMF_SUCCESS)
         end do
       end associate
 
       varIsConnected_name = .false.
 
-      _RETURN(ESMF_SUCCESS)
+      _return(ESMF_SUCCESS)
    end function VarIsConnected_Name
 
    logical function varIsListed(this, SHORT_NAME, import, RC)
@@ -282,13 +282,13 @@ contains
            if(TI == import)  then
               varIsListed = .true.
               conn%used = .true.
-              _RETURN(ESMF_SUCCESS)
+              _return(ESMF_SUCCESS)
            end if
         end do
       end associate
 
       varIsListed = .false.
-      _RETURN(ESMF_SUCCESS)
+      _return(ESMF_SUCCESS)
    end function VarIsListed
 
 

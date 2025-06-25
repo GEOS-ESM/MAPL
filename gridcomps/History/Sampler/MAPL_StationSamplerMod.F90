@@ -108,7 +108,7 @@ contains
     lgr => logging%get_logger('HISTORY.sampler')
     if ( MAPL_AM_I_ROOT() ) then
        open(newunit=unit, file=trim(filename), form='formatted', &
-            access='sequential', status='old', _IOSTAT)
+            access='sequential', status='old', _iostat)
        ios=0
        nstation=0
        nskip=0
@@ -121,9 +121,9 @@ contains
           end do
        end if
        read(unit, '(a100)', IOSTAT=ios) line
-       call count_substring(line, ',', ncount, _RC)
+       call count_substring(line, ',', ncount, _rc)
        con1= (ncount>=2 .AND. ncount<=4).OR.(ncount==0)
-       _ASSERT(con1, 'string sequence in Aeronet file not supported')
+       _assert(con1, 'string sequence in Aeronet file not supported')
        if (ncount==0) then
           seq='AFFFA'
        elseif (ncount==2) then
@@ -140,7 +140,7 @@ contains
              if (con2) then
                 seq='IAFFF'
              else
-                _ASSERT(.false., 'string sequence in Aeronet file not supported')
+                _assert(.false., 'string sequence in Aeronet file not supported')
              end if
           end if
        end if
@@ -157,12 +157,12 @@ contains
           if (ios==0) nstation=nstation+1
        end do
        sampler%nstation=nstation
-       allocate(sampler%station_id(nstation), _STAT)
-       allocate(sampler%station_name(nstation), _STAT)
-       allocate(sampler%station_fullname(nstation), _STAT)
-       allocate(sampler%lons(nstation), _STAT)
-       allocate(sampler%lats(nstation), _STAT)
-       allocate(sampler%elevs(nstation), _STAT)
+       allocate(sampler%station_id(nstation), _stat)
+       allocate(sampler%station_name(nstation), _stat)
+       allocate(sampler%station_fullname(nstation), _stat)
+       allocate(sampler%lons(nstation), _stat)
+       allocate(sampler%lats(nstation), _stat)
+       allocate(sampler%elevs(nstation), _stat)
 
        rewind(unit)
        if (nskip>0) then
@@ -191,7 +191,7 @@ contains
              call CSV_read_line_with_CH_I_R(line, &
                   sampler%station_name(i), &
                   sampler%lons(i), &
-                  sampler%lats(i), _RC)
+                  sampler%lats(i), _rc)
              sampler%station_id(i)=i
           elseif(trim(seq)=='AFFFA') then
           ! NOAA GHCNd
@@ -237,12 +237,12 @@ contains
     else
        nstation=0
        sampler%nstation = 0
-       allocate(sampler%station_id(nstation), _STAT)
-       allocate(sampler%station_name(nstation), _STAT)
-       allocate(sampler%station_fullname(nstation), _STAT)
-       allocate(sampler%lons(nstation), _STAT)
-       allocate(sampler%lats(nstation), _STAT)
-       allocate(sampler%elevs(nstation), _STAT)
+       allocate(sampler%station_id(nstation), _stat)
+       allocate(sampler%station_name(nstation), _stat)
+       allocate(sampler%station_fullname(nstation), _stat)
+       allocate(sampler%lons(nstation), _stat)
+       allocate(sampler%lats(nstation), _stat)
+       allocate(sampler%elevs(nstation), _stat)
     end if
     sampler%index_name_x = 'station_index'
     if (present(GENSTATE)) sampler%GENSTATE => GENSTATE
@@ -254,9 +254,9 @@ contains
     !      grid_B:  LS_chunk : uniform on cores
     !      grid_C:  LS_ds    : bg=CS
     !
-    call ESMF_VMGetCurrent(vm,_RC)
-    call ESMF_VMGet(vm, mpiCommunicator=mpic, petCount=petCount, localPet=mypet, _RC)
-    call MAPL_CommsBcast(vm, DATA=sampler%nstation, N=1, ROOT=MAPL_Root, _RC)
+    call ESMF_VMGetCurrent(vm,_rc)
+    call ESMF_VMGet(vm, mpiCommunicator=mpic, petCount=petCount, localPet=mypet, _rc)
+    call MAPL_CommsBcast(vm, DATA=sampler%nstation, N=1, ROOT=MAPL_Root, _rc)
 
     nx_sum = sampler%nstation
     ip = mypet    ! 0 to M-1
@@ -283,36 +283,36 @@ contains
     arr(1) = recvcount
     call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx2, &
          count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
-    _ASSERT( nx2 == nx_sum, 'Erorr in recvcount' )
+    _assert( nx2 == nx_sum, 'Erorr in recvcount' )
 
     call MPI_Scatterv( sampler%lons, sendcount, &
          displs, MPI_REAL8,  lons_chunk, &
          recvcount, MPI_REAL8, 0, mpic, ierr)
-    _VERIFY(ierr)
+    _verify(ierr)
 
     call MPI_Scatterv( sampler%lats, sendcount, &
          displs, MPI_REAL8,  lats_chunk, &
          recvcount, MPI_REAL8, 0, mpic, ierr)
-    _VERIFY(ierr)
+    _verify(ierr)
 
     ! -- root
-    sampler%LSF   = LocStreamFactory(sampler%lons, sampler%lats, _RC)
-    sampler%LS_rt = sampler%LSF%create_locstream(_RC)
+    sampler%LSF   = LocStreamFactory(sampler%lons, sampler%lats, _rc)
+    sampler%LS_rt = sampler%LSF%create_locstream(_rc)
 
     ! -- chunk
-    sampler%LSF = LocStreamFactory(lons_chunk,lats_chunk,_RC)
-    sampler%LS_chunk = sampler%LSF%create_locstream_on_proc(_RC)
+    sampler%LSF = LocStreamFactory(lons_chunk,lats_chunk,_rc)
+    sampler%LS_chunk = sampler%LSF%create_locstream_on_proc(_rc)
 
     ! -- distributed
-    call ESMF_FieldBundleGet(bundle,grid=grid,_RC)
-    sampler%LS_ds = sampler%LSF%create_locstream_on_proc(grid=grid,_RC)
+    call ESMF_FieldBundleGet(bundle,grid=grid,_rc)
+    sampler%LS_ds = sampler%LSF%create_locstream_on_proc(grid=grid,_rc)
 
     ! init ofile
     sampler%ofile=''
     sampler%obs_written=0
     sampler%level_by_level = .false.
 
-    _RETURN(_SUCCESS)
+    _return(_success)
   end function new_StationSampler_readfile
 
 
@@ -355,17 +355,17 @@ contains
     if (present(vdata)) then
        this%vdata = vdata
     else
-       this%vdata = VerticalData(_RC)
+       this%vdata = VerticalData(_rc)
     end if
     nstation = this%nstation
 
-    call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC) ! specify lev in fmd
+    call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_rc) ! specify lev in fmd
     do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
     if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) then
-       call this%vdata%get_interpolating_variable(this%bundle,_RC)
+       call this%vdata%get_interpolating_variable(this%bundle,_rc)
     endif
 
-    call timeInfo%add_time_to_metadata(this%metadata,_RC) ! specify time in fmd
+    call timeInfo%add_time_to_metadata(this%metadata,_rc) ! specify time in fmd
     this%time_info = timeInfo
 
     call this%metadata%add_dimension('station_index',nstation)
@@ -394,10 +394,10 @@ contains
     do while (iter /= this%items%end())
        item => iter%get()
        if (item%itemType == ItemTypeScalar) then
-          call this%create_variable(item%xname,_RC)
+          call this%create_variable(item%xname,_rc)
        else if (item%itemType == ItemTypeVector) then
-          call this%create_variable(item%xname,_RC)
-          call this%create_variable(item%yname,_RC)
+          call this%create_variable(item%xname,_rc)
+          call this%create_variable(item%yname,_rc)
        end if
        call iter%next()
     enddo
@@ -405,22 +405,22 @@ contains
 
     !__ 3. route handle  CS --> LS_ds
     !
-    call ESMF_FieldBundleGet(bundle,grid=grid,_RC)
-    this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)
+    call ESMF_FieldBundleGet(bundle,grid=grid,_rc)
+    this%regridder = LocStreamRegridder(grid,this%LS_ds,_rc)
 
     !__ 4. route handle  LS_ds --> LS_chunk
     !
-    src_field = ESMF_FieldCreate(this%LS_ds,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1],_RC)
-    chunk_field = ESMF_FieldCreate(this%LS_chunk,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1],_RC)
-    call ESMF_FieldGet( src_field, localDE=0, farrayPtr=pt1, _RC )
-    call ESMF_FieldGet( chunk_field, localDE=0, farrayPtr=pt2, _RC )
+    src_field = ESMF_FieldCreate(this%LS_ds,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1],_rc)
+    chunk_field = ESMF_FieldCreate(this%LS_chunk,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1],_rc)
+    call ESMF_FieldGet( src_field, localDE=0, farrayPtr=pt1, _rc )
+    call ESMF_FieldGet( chunk_field, localDE=0, farrayPtr=pt2, _rc )
     pt1=0.0
     pt2=0.0
-    call ESMF_FieldRedistStore(src_field,chunk_field,this%RH,_RC)
-    call ESMF_FieldDestroy(src_field,noGarbage=.true.,_RC)
-    call ESMF_FieldDestroy(chunk_field,noGarbage=.true.,_RC)
+    call ESMF_FieldRedistStore(src_field,chunk_field,this%RH,_rc)
+    call ESMF_FieldDestroy(src_field,noGarbage=.true.,_rc)
+    call ESMF_FieldDestroy(chunk_field,noGarbage=.true.,_rc)
 
-    _RETURN(_SUCCESS)
+    _return(_success)
   end subroutine add_metadata_route_handle
 
 
@@ -438,17 +438,17 @@ contains
     integer :: k, ig
     integer, allocatable :: chunksizes(:)
 
-    call ESMF_FieldBundleGet(this%bundle,vname,field=field,_RC)
-    call ESMF_FieldGet(field,name=var_name,rank=field_rank,_RC)
-    call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=is_present,_RC)
+    call ESMF_FieldBundleGet(this%bundle,vname,field=field,_rc)
+    call ESMF_FieldGet(field,name=var_name,rank=field_rank,_rc)
+    call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=is_present,_rc)
     long_name = var_name
     if ( is_present ) then
-       call ESMF_AttributeGet  (FIELD, NAME="LONG_NAME",VALUE=long_name, _RC)
+       call ESMF_AttributeGet  (FIELD, NAME="LONG_NAME",VALUE=long_name, _rc)
     endif
-    call ESMF_AttributeGet(field,name="UNITS",isPresent=is_present,_RC)
+    call ESMF_AttributeGet(field,name="UNITS",isPresent=is_present,_rc)
     units = 'unknown'
     if ( is_present ) then
-       call ESMF_AttributeGet  (FIELD, NAME="UNITS",VALUE=units, _RC)
+       call ESMF_AttributeGet  (FIELD, NAME="UNITS",VALUE=units, _rc)
     endif
 
     vdims = "station_index,time"
@@ -457,10 +457,10 @@ contains
        chunksizes = [this%nstation,1]
     case(3)
        vdims = "lev,"//trim(vdims)
-       call ESMF_FieldGet(field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+       call ESMF_FieldGet(field,ungriddedLBound=lb,ungriddedUBound=ub,_rc)
        chunksizes = [ub(1)-lb(1)+1,1,1]
     case default
-       _FAIL('unsupported rank')
+       _fail('unsupported rank')
     end select
     v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
 
@@ -469,9 +469,9 @@ contains
     call v%add_attribute('missing_value',MAPL_UNDEF)
     call v%add_attribute('_FillValue',MAPL_UNDEF)
     call v%add_attribute('valid_range',(/-MAPL_UNDEF,MAPL_UNDEF/))
-    call this%metadata%add_variable(trim(var_name),v,_RC)
+    call this%metadata%add_variable(trim(var_name),v,_rc)
 
-    _RETURN(_SUCCESS)
+    _return(_success)
   end subroutine create_metadata_variable
 
 
@@ -529,10 +529,10 @@ contains
 
     !__ 1. put_var: time variable
     !
-    rtimes = this%compute_time_for_current(current_time,_RC) ! rtimes: seconds since opening file
+    rtimes = this%compute_time_for_current(current_time,_rc) ! rtimes: seconds since opening file
     if (mapl_am_i_root()) then
        call this%formatter%put_var('time',rtimes(1:1),&
-            start=[this%obs_written],count=[1],_RC)
+            start=[this%obs_written],count=[1],_rc)
     end if
 
 
@@ -544,8 +544,8 @@ contains
     !
     nx_sum = this%nstation
     lm = this%vdata%lm
-    call ESMF_VMGetCurrent(vm,_RC)
-    call ESMF_VMGet(vm, mpiCommunicator=mpic, petCount=petCount, localPet=mypet, _RC)
+    call ESMF_VMGetCurrent(vm,_rc)
+    call ESMF_VMGet(vm, mpiCommunicator=mpic, petCount=petCount, localPet=mypet, _rc)
 
     iroot = 0
     ip = mypet
@@ -588,21 +588,21 @@ contains
     !
     call MAPL_TimerOn(this%GENSTATE,"FieldCreate")
 
-    call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
-    field_ds_2d    = ESMF_FieldCreate (this%LS_ds, name='field_2d_ds', typekind=ESMF_TYPEKIND_R4, _RC)
-    field_chunk_2d = ESMF_FieldCreate (this%LS_chunk, name='field_2d_chunk', typekind=ESMF_TYPEKIND_R4, _RC)
+    call ESMF_FieldBundleGet(this%bundle,grid=grid,_rc)
+    field_ds_2d    = ESMF_FieldCreate (this%LS_ds, name='field_2d_ds', typekind=ESMF_TYPEKIND_R4, _rc)
+    field_chunk_2d = ESMF_FieldCreate (this%LS_chunk, name='field_2d_chunk', typekind=ESMF_TYPEKIND_R4, _rc)
     new_src_field  = ESMF_FieldCreate (grid, name='new_src_field', typekind=ESMF_TYPEKIND_R4, &
-         gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
+         gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[lm],_rc)
     new_dst_field  = ESMF_FieldCreate (this%LS_ds, name='new_dst_field', typekind=ESMF_TYPEKIND_R4, &
-         gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
+         gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_rc)
     field_chunk_3d = ESMF_FieldCreate (this%LS_chunk, name='field_3d_chunk', typekind=ESMF_TYPEKIND_R4, &
-         gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
+         gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_rc)
 
-    call ESMF_FieldGet(field_ds_2d,   localDE=0, farrayptr=p_ds_2d,    _RC)
-    call ESMF_FieldGet(field_chunk_2d,localDE=0, farrayPtr=p_chunk_2d, _RC)
-    call ESMF_FieldGet(new_src_field, localDE=0, farrayPtr=p_src_3d,   _RC)
-    call ESMF_FieldGet(new_dst_field, localDE=0, farrayPtr=p_dst_3d,   _RC)
-    call ESMF_FieldGet(field_chunk_3d,localDE=0, farrayPtr=p_chunk_3d, _RC)
+    call ESMF_FieldGet(field_ds_2d,   localDE=0, farrayptr=p_ds_2d,    _rc)
+    call ESMF_FieldGet(field_chunk_2d,localDE=0, farrayPtr=p_chunk_2d, _rc)
+    call ESMF_FieldGet(new_src_field, localDE=0, farrayPtr=p_src_3d,   _rc)
+    call ESMF_FieldGet(new_dst_field, localDE=0, farrayPtr=p_dst_3d,   _rc)
+    call ESMF_FieldGet(field_chunk_3d,localDE=0, farrayPtr=p_chunk_3d, _rc)
 
     call MAPL_TimerOff(this%GENSTATE,"FieldCreate")
 
@@ -611,44 +611,44 @@ contains
        item => iter%get()
        if (item%itemType == ItemTypeScalar) then
           !! if (mapl_am_i_root()) write(6,*) 'item%xname=', trim(item%xname)
-          call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
-          call ESMF_FieldGet(src_field,rank=rank,_RC)
+          call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_rc)
+          call ESMF_FieldGet(src_field,rank=rank,_rc)
           select case (rank)
           case(2)
-             call ESMF_FieldGet(src_field,localDE=0,farrayptr=p_src_2d,_RC)
-             call ESMF_FieldRegrid (src_field, field_ds_2d, this%regridder%route_handle, _RC)
-             call ESMF_FieldRedist (field_ds_2d, field_chunk_2d, this%RH, _RC )
+             call ESMF_FieldGet(src_field,localDE=0,farrayptr=p_src_2d,_rc)
+             call ESMF_FieldRegrid (src_field, field_ds_2d, this%regridder%route_handle, _rc)
+             call ESMF_FieldRedist (field_ds_2d, field_chunk_2d, this%RH, _rc )
              call MPI_gatherv ( p_chunk_2d, nsend, MPI_REAL, &
                   p_rt_2d, recvcount, displs, MPI_REAL,&
                   iroot, mpic, ierr )
-             _VERIFY(ierr)
+             _verify(ierr)
 
              call MAPL_TimerOn(this%GENSTATE,"put2D")
              if (mapl_am_i_root()) then
                 call this%formatter%put_var(trim(item%xname),p_rt_2d,&
-                     start=[1,this%obs_written],count=[this%nstation,1],_RC)
+                     start=[1,this%obs_written],count=[this%nstation,1],_rc)
              end if
              call MAPL_TimerOff(this%GENSTATE,"put2D")
 
           case(3)
              ! -- CS-> LS_ds; ds->chunk; gather
              !
-             call ESMF_FieldGet(src_field,localDE=0,farrayptr=qin_3d,_RC)
+             call ESMF_FieldGet(src_field,localDE=0,farrayptr=qin_3d,_rc)
 
              call MAPL_TimerOn(this%GENSTATE,"reshape")
              p_src_3d = reshape(qin_3d,shape(p_src_3d),order=[2,3,1])
              call MAPL_TimerOff(this%GENSTATE,"reshape")
 
              call MAPL_TimerOn(this%GENSTATE,"3d_regrid")
-             call ESMF_FieldRegrid (new_src_field, new_dst_field, this%regridder%route_handle, _RC)
+             call ESMF_FieldRegrid (new_src_field, new_dst_field, this%regridder%route_handle, _rc)
              call MAPL_TimerOff(this%GENSTATE,"3d_regrid")
 
              call MPI_Barrier(mpic,ierr)
-             _VERIFY(ierr)
+             _verify(ierr)
              call MAPL_TimerOn(this%GENSTATE,"FieldRedist")
-             call ESMF_FieldRedist (new_dst_field, field_chunk_3d, this%RH, _RC)
+             call ESMF_FieldRedist (new_dst_field, field_chunk_3d, this%RH, _rc)
              call MPI_Barrier(mpic,ierr)
-             _VERIFY(ierr)
+             _verify(ierr)
              call MAPL_TimerOff(this%GENSTATE,"FieldRedist")
 
 
@@ -660,7 +660,7 @@ contains
                    call MPI_gatherv ( p_dst_t(1,k), nsend, MPI_REAL, &
                         p_rt_3d_aux(1,k), recvcount, displs, MPI_REAL,&
                         iroot, mpic, ierr )
-                   _VERIFY(ierr)
+                   _verify(ierr)
                 end do
                 deallocate(p_dst_t)
                 p_rt_3d = reshape(p_rt_3d_aux, shape(p_rt_3d), order=[2,1])
@@ -668,7 +668,7 @@ contains
                 call MPI_gatherv ( p_chunk_3d, nsend_v, MPI_REAL, &
                      p_rt_3d, recvcount_v, displs_v, MPI_REAL,&
                      iroot, mpic, ierr )
-                _VERIFY(ierr)
+                _verify(ierr)
              end if
              call MAPL_TimerOff(this%GENSTATE,"gatherv")
 
@@ -677,15 +677,15 @@ contains
              if (mapl_am_i_root()) then
                 nz=size(p_rt_3d,1); nx=size(p_rt_3d,2)
                 call this%formatter%put_var(trim(item%xname),p_rt_3d,&
-                     start=[1,1,this%obs_written],count=[nz,nx,1],_RC)
+                     start=[1,1,this%obs_written],count=[nz,nx,1],_rc)
                 !note:     lev,station,time
              end if
              call MAPL_TimerOff(this%GENSTATE,"put3D")
           case default
-             _FAIL('grid2LS regridder: rank > 3 not implemented')
+             _fail('grid2LS regridder: rank > 3 not implemented')
           end select
        else
-          _FAIL ('ItemType vector not supported')
+          _fail ('ItemType vector not supported')
        endif
 
        call iter%next()
@@ -693,14 +693,14 @@ contains
 
 
     call MAPL_TimerOn(this%GENSTATE,"FieldDestroy")
-    call ESMF_FieldDestroy(field_ds_2d,    noGarbage=.true., _RC)
-    call ESMF_FieldDestroy(field_chunk_2d, noGarbage=.true., _RC)
-    call ESMF_FieldDestroy(field_chunk_3d, noGarbage=.true., _RC)
-    call ESMF_FieldDestroy(new_dst_field,  noGarbage=.true., _RC)
-    call ESMF_FieldDestroy(new_src_field,  noGarbage=.true., _RC)
+    call ESMF_FieldDestroy(field_ds_2d,    noGarbage=.true., _rc)
+    call ESMF_FieldDestroy(field_chunk_2d, noGarbage=.true., _rc)
+    call ESMF_FieldDestroy(field_chunk_3d, noGarbage=.true., _rc)
+    call ESMF_FieldDestroy(new_dst_field,  noGarbage=.true., _rc)
+    call ESMF_FieldDestroy(new_src_field,  noGarbage=.true., _rc)
     call MAPL_TimerOff(this%GENSTATE,"FieldDestroy")
 
-    _RETURN(_SUCCESS)
+    _return(_success)
   end subroutine append_file
 
 
@@ -712,21 +712,21 @@ contains
     integer :: status, j
 
     this%ofile = trim(filename)
-    v = this%time_info%define_time_variable(_RC)
-    call this%metadata%modify_variable('time',v,_RC)
+    v = this%time_info%define_time_variable(_rc)
+    call this%metadata%modify_variable('time',v,_rc)
     this%obs_written = 0
 
     if (.not. mapl_am_I_root()) then
-       _RETURN(_SUCCESS)
+       _return(_success)
     end if
-    call this%formatter%create(trim(filename),_RC)
-    call this%formatter%write(this%metadata,_RC)
-    call this%formatter%put_var('longitude',this%lons,_RC)
-    call this%formatter%put_var('latitude',this%lats,_RC)
-    call this%formatter%put_var('station_id',this%station_id,_RC)
-    call this%formatter%put_var('station_name',this%station_name,_RC)
+    call this%formatter%create(trim(filename),_rc)
+    call this%formatter%write(this%metadata,_rc)
+    call this%formatter%put_var('longitude',this%lons,_rc)
+    call this%formatter%put_var('latitude',this%lats,_rc)
+    call this%formatter%put_var('station_id',this%station_id,_rc)
+    call this%formatter%put_var('station_name',this%station_name,_rc)
 
-    _RETURN(_SUCCESS)
+    _return(_success)
   end subroutine create_file_handle
 
 
@@ -736,10 +736,10 @@ contains
     integer :: status
     if (trim(this%ofile) /= '') then
        if (mapl_am_i_root()) then
-          call this%formatter%close(_RC)
+          call this%formatter%close(_rc)
        end if
     end if
-    _RETURN(_SUCCESS)
+    _return(_success)
   end subroutine close_file_handle
 
 
@@ -753,20 +753,20 @@ contains
     type(ESMF_Time) :: file_start_time
     character(len=ESMF_MAXSTR) :: tunit
 
-    allocate(rtimes(1),_STAT)
-    call this%get_file_start_time(file_start_time,tunit,_RC)
+    allocate(rtimes(1),_stat)
+    call this%get_file_start_time(file_start_time,tunit,_rc)
     tint = current_time-file_start_time
     select case(trim(tunit))
     case ('days')
-       call ESMF_TimeIntervalGet(tint,d_r8=rtimes(1),_RC)
+       call ESMF_TimeIntervalGet(tint,d_r8=rtimes(1),_rc)
     case ('hours')
-       call ESMF_TimeIntervalGet(tint,h_r8=rtimes(1),_RC)
+       call ESMF_TimeIntervalGet(tint,h_r8=rtimes(1),_rc)
     case ('minutes')
-       call ESMF_TimeIntervalGet(tint,m_r8=rtimes(1),_RC)
+       call ESMF_TimeIntervalGet(tint,m_r8=rtimes(1),_rc)
     case default
-       _FAIL('illegal value for tunit: '//trim(tunit))
+       _fail('illegal value for tunit: '//trim(tunit))
     end select
-    _RETURN(_SUCCESS)
+    _return(_success)
   end function compute_time_for_current
 
 
@@ -791,7 +791,7 @@ contains
     integer lastspace,since_pos
     integer year,month,day,hour,min,sec
 
-    var => this%metadata%get_variable('time',_RC)
+    var => this%metadata%get_variable('time',_rc)
     attr => var%get_attribute('units')
     ptimeUnits => attr%get_value()
     select type(pTimeUnits)
@@ -864,10 +864,10 @@ contains
           endif
        endif
     class default
-       _FAIL("Time unit must be character")
+       _fail("Time unit must be character")
     end select
-    call ESMF_TimeSet(start_time,yy=year,mm=month,dd=day,h=hour,m=min,s=sec,_RC)
-    _RETURN(_SUCCESS)
+    call ESMF_TimeSet(start_time,yy=year,mm=month,dd=day,h=hour,m=min,s=sec,_rc)
+    _return(_success)
   end subroutine get_file_start_time
 
 
@@ -887,7 +887,7 @@ contains
        ncount = ncount + 1
        k=k+i+lt
     end do
-    _RETURN(_SUCCESS)
+    _return(_success)
   end subroutine count_substring
 
 
@@ -902,12 +902,12 @@ contains
 
     i=index(line, ',')
     j=index(line(i+1:), ',')
-    _ASSERT (i>0, 'not CSV format')
-    _ASSERT (j>0, 'CSV format: find only 1 comma, should be > 1')
+    _assert (i>0, 'not CSV format')
+    _assert (j>0, 'CSV format: find only 1 comma, should be > 1')
     j=i+j
 
     read(line(1:i-1), '(a100)', iostat=ios)  name
-    _ASSERT (ios==0, 'read error')
+    _assert (ios==0, 'read error')
     k=index(line(i+1:j-1), '.')
     if (k > 0) then
        read(line(i+1:j-1), *, iostat=ios) lon
@@ -915,7 +915,7 @@ contains
        read(line(i+1:j-1), *, iostat=ios) i
        lon = i
     endif
-    _ASSERT (ios==0, 'read error')
+    _assert (ios==0, 'read error')
 
     k=index(line(j+1:), '.')
     if (k > 0) then
@@ -924,10 +924,10 @@ contains
        read(line(j+1:), *, iostat=ios) i
        lat = i
     endif
-    _ASSERT (ios==0, 'read error')
+    _assert (ios==0, 'read error')
 
     !!write(6,*) trim(name), lon, lat
-    _RETURN(_SUCCESS)
+    _return(_success)
 
   end subroutine CSV_read_line_with_CH_I_R
 

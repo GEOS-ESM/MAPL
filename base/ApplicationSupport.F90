@@ -25,7 +25,7 @@ module MAPL_ApplicationSupport
       character(:), allocatable :: logging_configuration_file
       integer :: comm_world,status
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       if (present(logging_config)) then
          logging_configuration_file=logging_config
@@ -39,13 +39,13 @@ module MAPL_ApplicationSupport
       end if
 #ifdef BUILD_WITH_PFLOGGER
       call initialize_pflogger(comm=comm_world,logging_config=logging_configuration_file,rc=status)
-      _VERIFY(status)
+      _verify(status)
 #endif
       call initialize_profiler(comm=comm_world)
       call start_global_time_profiler(rc=status)
-      _VERIFY(status)
-      call initialize_udunits(_RC)
-      _RETURN(_SUCCESS)
+      _verify(status)
+      call initialize_udunits(_rc)
+      _return(_success)
 
    end subroutine MAPL_Initialize
 
@@ -56,7 +56,7 @@ module MAPL_ApplicationSupport
 
       integer :: comm_world,status
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       call finalize_udunits()
       if (present(comm)) then
@@ -65,11 +65,11 @@ module MAPL_ApplicationSupport
          comm_world=MPI_COMM_WORLD
       end if
       call stop_global_time_profiler(rc=status)
-      _VERIFY(status)
+      _verify(status)
       call report_global_profiler(comm=comm_world)
       call finalize_profiler()
       call finalize_pflogger()
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine MAPL_Finalize
 
@@ -101,7 +101,7 @@ module MAPL_ApplicationSupport
       integer :: comm_world
       type(Logger), pointer :: lgr
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
       if (present(logging_config)) then
          logging_configuration_file=logging_config
       else
@@ -121,7 +121,7 @@ module MAPL_ApplicationSupport
       else
 
          call MPI_COMM_Rank(comm_world,rank,status)
-         _VERIFY(status)
+         _verify(status)
          console = StreamHandler(OUTPUT_UNIT)
          call console%set_level(INFO)
          call console%set_formatter(MpiFormatter(comm_world, fmt='%(short_name)a10~: %(message)a'))
@@ -140,7 +140,7 @@ module MAPL_ApplicationSupport
          end if
 
          call logging%basic_config(level=level, handlers=handlers, rc=status)
-         _VERIFY(status)
+         _verify(status)
 
          if (rank == 0) then
             lgr => logging%get_logger('MAPL')
@@ -148,7 +148,7 @@ module MAPL_ApplicationSupport
          end if
 
       end if
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine initialize_pflogger
 #endif
@@ -167,7 +167,7 @@ module MAPL_ApplicationSupport
       class (BaseProfiler), pointer :: t_p
       type(Logger), pointer :: lgr
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
       if (present(comm)) then
          world_comm = comm
       else
@@ -190,9 +190,9 @@ module MAPL_ApplicationSupport
       call reporter%add_column(exclusive)
 
       call MPI_Comm_size(world_comm, npes, ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
       call MPI_Comm_Rank(world_comm, my_rank, ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
 
       if (my_rank == 0) then
          report_lines = reporter%generate_report(t_p)
@@ -203,9 +203,9 @@ module MAPL_ApplicationSupport
          end do
       end if
       call MPI_Barrier(world_comm, ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine report_global_profiler
 
 end module MAPL_ApplicationSupport

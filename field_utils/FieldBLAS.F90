@@ -82,10 +82,10 @@ contains
       real(kind=ESMF_KIND_R4), pointer :: x_ptr(:)
       integer :: status
 
-      call assign_fptr(x, x_ptr, _RC)
+      call assign_fptr(x, x_ptr, _rc)
       x_ptr = a * x_ptr
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine scale_r4
    
    subroutine scale_r8(a, x, rc)
@@ -96,10 +96,10 @@ contains
       real(kind=ESMF_KIND_R8), pointer :: x_ptr(:)
       integer :: status
 
-      call assign_fptr(x, x_ptr, _RC)
+      call assign_fptr(x, x_ptr, _rc)
       x_ptr = a * x_ptr
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine scale_r8
 
    subroutine axpy_r4(a, x, y, rc)
@@ -116,14 +116,14 @@ contains
       call verify_typekind(y, ESMF_TYPEKIND_R4)
 
       conformable = FieldsAreConformable(x, y)
-      _ASSERT(conformable, 'FieldAXPY() - fields not conformable.')
+      _assert(conformable, 'FieldAXPY() - fields not conformable.')
       
-      call assign_fptr(x, x_ptr, _RC)
-      call assign_fptr(y, y_ptr, _RC)
+      call assign_fptr(x, x_ptr, _rc)
+      call assign_fptr(y, y_ptr, _rc)
 
       y_ptr = y_ptr + a * x_ptr
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine axpy_r4
 
    subroutine axpy_r8(a, x, y, rc)
@@ -140,14 +140,14 @@ contains
       call verify_typekind(y, ESMF_TYPEKIND_R8)
 
       conformable = FieldsAreConformable(x, y)
-      _ASSERT(conformable, 'FieldAXPY() - fields not conformable.')
+      _assert(conformable, 'FieldAXPY() - fields not conformable.')
       
-      call assign_fptr(x, x_ptr, _RC)
-      call assign_fptr(y, y_ptr, _RC)
+      call assign_fptr(x, x_ptr, _rc)
+      call assign_fptr(y, y_ptr, _rc)
 
       y_ptr = y_ptr + a * x_ptr
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine axpy_r8
 
    ! Assumes gridded dimensions are first, and that the "vector" dim
@@ -173,41 +173,41 @@ contains
       integer :: ix, jy, kv
       integer :: status
 
-      _ASSERT(size(A,3) == size(x), 'FieldGEMV() - array A not nonformable with x.')
-      _ASSERT(size(A,2) == size(y), 'FieldGEMV() - array A not nonformable with y.')
+      _assert(size(A,3) == size(x), 'FieldGEMV() - array A not nonformable with x.')
+      _assert(size(A,2) == size(y), 'FieldGEMV() - array A not nonformable with y.')
 
       call verify_typekind(x, ESMF_TYPEKIND_R4)
       call verify_typekind(y, ESMF_TYPEKIND_R4)
 
       conformable = FieldsAreConformable(x(1), x(2:))
-      _ASSERT(conformable, 'FieldGEMV() - fields not conformable.')
+      _assert(conformable, 'FieldGEMV() - fields not conformable.')
       conformable = FieldsAreConformable(x(1), y)
-      _ASSERT(conformable, 'FieldGEMV() - fields not conformable.')
+      _assert(conformable, 'FieldGEMV() - fields not conformable.')
 
       ! Reference dimensions
-      local_element_count = FieldGetLocalElementCount(x(1), _RC)
-      call ESMF_FieldGet(x(1), dimcount=dimcount, _RC)
+      local_element_count = FieldGetLocalElementCount(x(1), _rc)
+      call ESMF_FieldGet(x(1), dimcount=dimcount, _rc)
 
       n_gridded = product(local_element_count(1:dimcount))
       n_ungridded = product(local_element_count(dimcount+1:))
-      _ASSERT(size(A,1) == n_gridded, 'FieldGEMV() - array A not nonformable with gridded dims.')
+      _assert(size(A,1) == n_gridded, 'FieldGEMV() - array A not nonformable with gridded dims.')
       fp_shape = [n_gridded, n_ungridded]
 
 !      y = matmul(A, x)
       do jy = 1, size(y)
-         call assign_fptr(y(jy), fp_shape, y_ptr, _RC)
+         call assign_fptr(y(jy), fp_shape, y_ptr, _rc)
          y_ptr(:,jy) = beta * y_ptr(:,jy)
-!         call FieldSCAL(beta, y_ptr(:,jy), _RC)
+!         call FieldSCAL(beta, y_ptr(:,jy), _rc)
 
          do ix = 1, size(x)
-            call assign_fptr(x(ix), fp_shape, x_ptr, _RC)
+            call assign_fptr(x(ix), fp_shape, x_ptr, _rc)
             do kv = 1, n_ungridded
                y_ptr(:,jy) = y_ptr(:,jy) + alpha * A(:,ix,jy) * x_ptr(:,kv)
             end do
          end do
       end do
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine gemv_r4
 
    ! Double precision version (R8) of gemv. See gemv_r4 (single precision)
@@ -229,41 +229,41 @@ contains
       integer :: ix, jy, kv
       integer :: status
 
-      _ASSERT(size(A,3) == size(x), 'FieldGEMV() - array A not nonformable with x.')
-      _ASSERT(size(A,2) == size(y), 'FieldGEMV() - array A not nonformable with y.')
+      _assert(size(A,3) == size(x), 'FieldGEMV() - array A not nonformable with x.')
+      _assert(size(A,2) == size(y), 'FieldGEMV() - array A not nonformable with y.')
 
       call verify_typekind(x, ESMF_TYPEKIND_R8)
       call verify_typekind(y, ESMF_TYPEKIND_R8)
 
       conformable = FieldsAreConformable(x(1), x(2:))
-      _ASSERT(conformable, 'FieldGEMV() - fields not conformable.')
+      _assert(conformable, 'FieldGEMV() - fields not conformable.')
       conformable = FieldsAreConformable(x(1), y)
-      _ASSERT(conformable, 'FieldGEMV() - fields not conformable.')
+      _assert(conformable, 'FieldGEMV() - fields not conformable.')
 
       ! Reference dimensions
-      local_element_count = FieldGetLocalElementCount(x(1), _RC)
-      call ESMF_FieldGet(x(1), dimcount=dimcount, _RC)
+      local_element_count = FieldGetLocalElementCount(x(1), _rc)
+      call ESMF_FieldGet(x(1), dimcount=dimcount, _rc)
 
       n_gridded = product(local_element_count(1:dimcount))
       n_ungridded = product(local_element_count(dimcount+1:))
-      _ASSERT(size(A,1) == n_gridded, 'FieldGEMV() - array A not nonformable with gridded dims.')
+      _assert(size(A,1) == n_gridded, 'FieldGEMV() - array A not nonformable with gridded dims.')
       fp_shape = [n_gridded, n_ungridded]
 
 !      y = matmul(A, x)
       do jy = 1, size(y)
-         call assign_fptr(y(jy), fp_shape, y_ptr, _RC)
+         call assign_fptr(y(jy), fp_shape, y_ptr, _rc)
          y_ptr(:,jy) = beta * y_ptr(:,jy)
-!         call FieldSCAL(beta, y_ptr(:,jy), _RC)
+!         call FieldSCAL(beta, y_ptr(:,jy), _rc)
 
          do ix = 1, size(x)
-            call assign_fptr(x(ix), fp_shape, x_ptr, _RC)
+            call assign_fptr(x(ix), fp_shape, x_ptr, _rc)
             do kv = 1, n_ungridded
                y_ptr(:,jy) = y_ptr(:,jy) + alpha * A(:,ix,jy) * x_ptr(:,kv)
             end do
          end do
       end do
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine gemv_r8
 
    function spread_scalar(source, ncopies, rc) result(vector)
@@ -274,15 +274,15 @@ contains
       integer :: i
       integer :: status
 
-      _ASSERT(ncopies > 0, 'ncopies must be positive')
+      _assert(ncopies > 0, 'ncopies must be positive')
       
       allocate(vector(ncopies))
 
       do i=1, ncopies
-         call FieldCOPY(source, vector(i), _RC)
+         call FieldCOPY(source, vector(i), _rc)
       end do
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function spread_scalar
 
    subroutine get_typekind(x, expected_tks, actual_tk, rc)
@@ -296,11 +296,11 @@ contains
       
       do i = 1, size(expected_tks)
          actual_tk = expected_tks(i)
-         call ESMF_FieldGet(x, typekind=found_tk, _RC)
+         call ESMF_FieldGet(x, typekind=found_tk, _rc)
          if(actual_tk == found_tk) return
       end do
 
-      _FAIL('Does not match any expected typekind')
+      _fail('Does not match any expected typekind')
 
    end subroutine get_typekind
 
@@ -313,10 +313,10 @@ contains
 
       type(ESMF_TypeKind_Flag) :: found_tk
       
-      call ESMF_FieldGet(x, typekind=found_tk, _RC)
+      call ESMF_FieldGet(x, typekind=found_tk, _rc)
 
-      _ASSERT((found_tk == expected_tk), 'Found incorrect typekind.')
-      _RETURN(_SUCCESS)   
+      _assert((found_tk == expected_tk), 'Found incorrect typekind.')
+      _return(_success)   
    end subroutine verify_typekind_scalar
 
    subroutine verify_typekind_array(x, expected_tk, rc)
@@ -328,9 +328,9 @@ contains
       integer :: i
 
       do i = 1, size(x)
-         call verify_typekind(x(i), expected_tk, _RC)
+         call verify_typekind(x(i), expected_tk, _rc)
       end do
-      _RETURN(_SUCCESS)   
+      _return(_success)   
    end subroutine verify_typekind_array
 
 !   subroutine verify_typekind_rank1(x, expected_tk, rc)
@@ -342,10 +342,10 @@ contains
 !      integer :: i
 !      
 !      do i = 1, size(x)
-!         call verify_typekind(x(i), expected_tk, _RC)
+!         call verify_typekind(x(i), expected_tk, _rc)
 !      end do
 !      
-!      _RETURN(_SUCCESS)
+!      _return(_success)
 !   end subroutine verify_typekind_rank1
 
    subroutine convert_prec(x, y, rc)
@@ -357,20 +357,20 @@ contains
       type(ESMF_TypeKind_Flag) :: tk_x, tk_y
       integer :: status
 
-      call ESMF_FieldGet(x, typekind=tk_x, _RC)
-      _ASSERT(is_valid_typekind(tk_x, expected_tks), 'Unexpected typekind')
-      call ESMF_FieldGet(y, typekind=tk_y, _RC)
-      _ASSERT(is_valid_typekind(tk_y, expected_tks), 'Unexpected typekind')
+      call ESMF_FieldGet(x, typekind=tk_x, _rc)
+      _assert(is_valid_typekind(tk_x, expected_tks), 'Unexpected typekind')
+      call ESMF_FieldGet(y, typekind=tk_y, _rc)
+      _assert(is_valid_typekind(tk_y, expected_tks), 'Unexpected typekind')
 
       if(tk_x == tk_y) then
-         call FieldCOPY(x, y, _RC)
+         call FieldCOPY(x, y, _rc)
       else if(tk_x == ESMF_TYPEKIND_R4) then
-         call convert_prec_R4_to_R8(x, y, _RC)
+         call convert_prec_R4_to_R8(x, y, _rc)
       else
-         call convert_prec_R8_to_R4(x, y, _RC)
+         call convert_prec_R8_to_R4(x, y, _rc)
       end if
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine convert_prec
    
    function is_valid_typekind(actual_tk, valid_tks) result(is_valid)
@@ -396,12 +396,12 @@ contains
       real(kind=ESMF_KIND_R4), pointer :: original_ptr(:)
       real(kind=ESMF_KIND_R8), pointer :: converted_ptr(:)
 
-      call assign_fptr(original, original_ptr, _RC)
-      call assign_fptr(converted, converted_ptr, _RC)
+      call assign_fptr(original, original_ptr, _rc)
+      call assign_fptr(converted, converted_ptr, _rc)
 
       converted_ptr = original_ptr
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine convert_prec_R4_to_R8
 
    subroutine convert_prec_R8_to_R4(original, converted, rc)
@@ -413,12 +413,12 @@ contains
       real(kind=ESMF_KIND_R8), pointer :: original_ptr(:)
       real(kind=ESMF_KIND_R4), pointer :: converted_ptr(:)
       
-      call assign_fptr(original, original_ptr, _RC)
-      call assign_fptr(converted, converted_ptr, _RC)
+      call assign_fptr(original, original_ptr, _rc)
+      call assign_fptr(converted, converted_ptr, _rc)
 
       converted_ptr = original_ptr
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine convert_prec_R8_to_R4
 
 end module mapl_FieldBLAS

@@ -132,12 +132,12 @@ CONTAINS
      integer :: status
 
      do i=1,comp%StackSize
-        call MAPL_FieldDestroy(comp%stack(i),_RC)
+        call MAPL_FieldDestroy(comp%stack(i),_rc)
      end do
      deallocate(comp%stack)
      deallocate(comp%ByteCode)
      deallocate(comp%Immed)
-     _RETURN(ESMF_SUCCESS)
+     _return(ESMF_SUCCESS)
 
   end subroutine bytecode_dealloc
 
@@ -158,26 +158,26 @@ CONTAINS
     logical                              :: isConformal
     integer :: status
 
-    call ESMF_StateGet(state,ITEMCOUNT=varCount,_RC)
+    call ESMF_StateGet(state,ITEMCOUNT=varCount,_rc)
     allocate(fieldnames(varCount),needed(varCount))
-    call ESMF_StateGet(state,itemnamelist=fieldNames,_RC)
+    call ESMF_StateGet(state,itemnamelist=fieldNames,_rc)
 
     ! confirm that each needed field is conformal
-    call CheckSyntax(expression,fieldNames,needed,_RC)
+    call CheckSyntax(expression,fieldNames,needed,_rc)
     do i=1,varCount
        if (needed(i)) then
-          call ESMF_StateGet(state,fieldNames(i),field=state_field,_RC)
+          call ESMF_StateGet(state,fieldNames(i),field=state_field,_rc)
 
-          isConformal = FieldsAreBroadcastConformable(state_field,field,_RC)
+          isConformal = FieldsAreBroadcastConformable(state_field,field,_rc)
           if (.not.isConformal) then
-             _FAIL('needs informative message')
+             _fail('needs informative message')
           end if
        end if
     end do
 
-    call parsef (pcode, expression, fieldNames, field, _RC)
-    call evalf(pcode,state,fieldNames,field,_RC)
-    call bytecode_dealloc(pcode,_RC)
+    call parsef (pcode, expression, fieldNames, field, _rc)
+    call evalf(pcode,state,fieldNames,field,_rc)
+    call bytecode_dealloc(pcode,_rc)
 
     deallocate(fieldNames,needed)
 
@@ -198,12 +198,12 @@ CONTAINS
     CHARACTER(len=LEN(FuncStr))           :: Func
     integer :: status
     !----- -------- --------- --------- --------- --------- --------- --------- -------
-    CALL CheckSyntax (FuncStr,Var,_RC)
+    CALL CheckSyntax (FuncStr,Var,_rc)
     Func = FuncStr                                           ! Local copy of function string
     CALL Replace ('**','^ ',Func)                            ! Exponent into 1-Char. format
     CALL RemoveSpaces (Func)                                 ! Condense function string
-    CALL Compile (comp,Func,Var,field,_RC)             ! Compile into bytecode
-    _RETURN(ESMF_SUCCESS)
+    CALL Compile (comp,Func,Var,field,_rc)             ! Compile into bytecode
+    _return(ESMF_SUCCESS)
   END SUBROUTINE parsef
   !
   SUBROUTINE evalf (Comp, State, FieldNames, ResField, rc)
@@ -229,29 +229,29 @@ CONTAINS
        CurrByte = Comp%ByteCode(IP)
        if (CurrByte == cImmed) then
           SP=SP+1
-          call FieldSet(comp%stack(sp),comp%immed(dp),_RC)
+          call FieldSet(comp%stack(sp),comp%immed(dp),_rc)
           DP=DP+1
        end if
        if (CurrByte == cNeg) then
-          call FieldNegate(comp%stack(sp),_RC)
+          call FieldNegate(comp%stack(sp),_rc)
        end if
        if (CurrByte >= cAdd .and. CurrByte <= cPow) then
-          call field_binary(Comp%stack(SP),Comp%stack(SP-1),CurrByte,_RC)
+          call field_binary(Comp%stack(SP),Comp%stack(SP-1),CurrByte,_rc)
           SP=SP-1
        end if
        if (CurrByte >= cAbs .and. CurrByte <= cHeav) then
-          call field_unary(comp%stack(sp),currByte,_RC)
+          call field_unary(comp%stack(sp),currByte,_rc)
        end if
        if (CurrByte > cHeav) then
           SP=SP+1
           ValNumber = CurrByte-VarBegin+1
-          call ESMF_StateGet(state,FieldNames(ValNumber),state_field,_RC)
-          call FieldCopyBroadcast(state_field,comp%stack(sp),_RC)
+          call ESMF_StateGet(state,FieldNames(ValNumber),state_field,_rc)
+          call FieldCopyBroadcast(state_field,comp%stack(sp),_rc)
        end if
     END DO
-    call FieldCopyBroadcast(comp%stack(1),ResField,_RC)
+    call FieldCopyBroadcast(comp%stack(1),ResField,_rc)
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   END SUBROUTINE evalf
 
   subroutine field_binary(field1,field2,arthcode,rc)
@@ -263,17 +263,17 @@ CONTAINS
      integer :: status
      select  case(arthcode)
         case(cAdd)
-           call FieldAdd(field2,field2,field1,_RC)
+           call FieldAdd(field2,field2,field1,_rc)
         case(cSub)
-           call FieldSubtract(field2,field2,field1,_RC)
+           call FieldSubtract(field2,field2,field1,_rc)
         case(cMul)
-           call FieldMultiply(field2,field2,field1,_RC)
+           call FieldMultiply(field2,field2,field1,_rc)
         case(cDiv)
-           call FieldDivide(field2,field2,field1,_RC)
+           call FieldDivide(field2,field2,field1,_rc)
         case(cPow)
-           call FieldPower(field2,field2,field1,_RC)
+           call FieldPower(field2,field2,field1,_rc)
      end select
-     _RETURN(_SUCCESS)
+     _return(_success)
   end subroutine field_binary
 
   subroutine field_unary(field,funcCode,rc)
@@ -285,40 +285,40 @@ CONTAINS
 
      select case(funcCode)
         case(cNeg)
-           call FieldNegate(field,_RC)
+           call FieldNegate(field,_rc)
         case(cAbs)
-           call FieldAbs(field,field,_RC)
+           call FieldAbs(field,field,_rc)
         case(cExp)
-           call FieldExp(field,field,_RC)
+           call FieldExp(field,field,_rc)
         case(cLog10)
-           call FieldLog10(field,field,_RC)
+           call FieldLog10(field,field,_rc)
         case(cLog)
-           call FieldLog(field,field,_RC)
+           call FieldLog(field,field,_rc)
         case(cSqrt)
-           call FieldSqrt(field,field,_RC)
+           call FieldSqrt(field,field,_rc)
         case(cSinh)
-           call FieldSinh(field,field,_RC)
+           call FieldSinh(field,field,_rc)
         case(cCosh)
-           call FieldCosh(field,field,_RC)
+           call FieldCosh(field,field,_rc)
         case(cTanh)
-           call FieldTanh(field,field,_RC)
+           call FieldTanh(field,field,_rc)
         case(cSin)
-           call FieldSin(field,field,_RC)
+           call FieldSin(field,field,_rc)
         case(cCos)
-           call FieldCos(field,field,_RC)
+           call FieldCos(field,field,_rc)
         case(cTan)
-           call FieldTan(field,field,_RC)
+           call FieldTan(field,field,_rc)
         case(cAsin)
-           call FieldAsin(field,field,_RC)
+           call FieldAsin(field,field,_rc)
         case(cAcos)
-           call FieldAcos(field,field,_RC)
+           call FieldAcos(field,field,_rc)
         case(cAtan)
-           call FieldAtan(field,field,_RC)
+           call FieldAtan(field,field,_rc)
         case(cHeav)
-           _FAIL("heaviside needs implementation")
+           _fail("heaviside needs implementation")
      end select
 
-     _RETURN(_SUCCESS)
+     _return(_success)
   end subroutine field_unary
 
   function parser_variables_in_expression (FuncStr,rc) result(variables_in_expression)
@@ -355,22 +355,22 @@ CONTAINS
        IF (c == '-' .OR. c == '+') THEN                      ! Check for leading - or +
           j = j+1
           IF (j > lFunc) THEN
-             _FAIL('Missing operand in '//trim(funcstr))
+             _fail('Missing operand in '//trim(funcstr))
           END IF
           c = Func(j:j)
           IF (ANY(c == Ops)) THEN
-             _FAIL('Multiple operators in '//trim(funcstr))
+             _fail('Multiple operators in '//trim(funcstr))
           END IF
        END IF
        n = MathFunctionIndex (Func(j:))
        IF (n > 0) THEN                                       ! Check for math function
           j = j+LEN_TRIM(Funcs(n))
           IF (j > lFunc) THEN
-             _FAIL('Missing function argument in '//trim(funcstr))
+             _fail('Missing function argument in '//trim(funcstr))
           END IF
           c = Func(j:j)
           IF (c /= '(') THEN
-             _FAIL('Missing opening parenthesis in '//trim(funcstr))
+             _fail('Missing opening parenthesis in '//trim(funcstr))
           END IF
        END IF
        IF (c == '(') THEN                                    ! Check for opening parenthesis
@@ -381,7 +381,7 @@ CONTAINS
        IF (SCAN(c,'0123456789.') > 0) THEN                   ! Check for number
           r = RealNum (Func(j:),ib,in,err)
           IF (err) THEN
-             _FAIL('Invalid number format: '//Func(j+ib-1:j+in-2))
+             _fail('Invalid number format: '//Func(j+ib-1:j+in-2))
           END IF
           j = j+in-1
           IF (j > lFunc) EXIT
@@ -403,10 +403,10 @@ CONTAINS
        DO WHILE (c == ')')                                   ! Check for closing parenthesis
           ParCnt = ParCnt-1
           IF (ParCnt < 0) THEN
-             _FAIL('Mismatched parenthesis in '//trim(funcstr))
+             _fail('Mismatched parenthesis in '//trim(funcstr))
           END IF
           IF (Func(j-1:j-1) == '(') THEN
-             _FAIL('Empty parentheses in '//trim(funcstr))
+             _fail('Empty parentheses in '//trim(funcstr))
           END IF
           j = j+1
           IF (j > lFunc) EXIT
@@ -418,13 +418,13 @@ CONTAINS
        IF (j > lFunc) EXIT
        IF (ANY(c == Ops)) THEN                               ! Check for multiple operators
           IF (j+1 > lFunc) THEN
-             _FAIL('needs informative message')
+             _fail('needs informative message')
           END IF
           IF (ANY(Func(j+1:j+1) == Ops)) THEN
-             _FAIL('Multiple operators in '//trim(funcstr))
+             _fail('Multiple operators in '//trim(funcstr))
           END IF
        ELSE                                                  ! Check for next operand
-          _FAIL('Missing operator in '//trim(funcstr))
+          _fail('Missing operator in '//trim(funcstr))
        END IF
        !-- -------- --------- --------- --------- --------- --------- --------- -------
        ! Now, we have an operand and an operator: the next loop will check for another
@@ -433,10 +433,10 @@ CONTAINS
        j = j+1
     END DO step
     IF (ParCnt > 0) THEN
-       _FAIL('Missing ) '//trim(funcstr))
+       _fail('Missing ) '//trim(funcstr))
     END IF
     DEALLOCATE(ipos)
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end function
 
   SUBROUTINE CheckSyntax (FuncStr,Var,needed,ExtVar,rc)
@@ -476,22 +476,22 @@ CONTAINS
        IF (c == '-' .OR. c == '+') THEN                      ! Check for leading - or +
           j = j+1
           IF (j > lFunc) THEN
-             _FAIL('Missing operand in '//trim(funcstr))
+             _fail('Missing operand in '//trim(funcstr))
           END IF
           c = Func(j:j)
           IF (ANY(c == Ops)) THEN
-             _FAIL('Multiple operators in '//trim(funcstr))
+             _fail('Multiple operators in '//trim(funcstr))
           END IF
        END IF
        n = MathFunctionIndex (Func(j:))
        IF (n > 0) THEN                                       ! Check for math function
           j = j+LEN_TRIM(Funcs(n))
           IF (j > lFunc) THEN
-             _FAIL('Missing function argument in '//trim(funcStr))
+             _fail('Missing function argument in '//trim(funcStr))
           END IF
           c = Func(j:j)
           IF (c /= '(') THEN
-             _FAIL('Missing opening parenthesis in '//trim(funcstr))
+             _fail('Missing opening parenthesis in '//trim(funcstr))
           END IF
        END IF
        IF (c == '(') THEN                                    ! Check for opening parenthesis
@@ -502,7 +502,7 @@ CONTAINS
        IF (SCAN(c,'0123456789.') > 0) THEN                   ! Check for number
           r = RealNum (Func(j:),ib,in,err)
           IF (err) THEN
-             _FAIL('Invalid number format:  '//Func(j+ib-1:j+in-2))
+             _fail('Invalid number format:  '//Func(j+ib-1:j+in-2))
           END IF
           j = j+in-1
           IF (j > lFunc) EXIT
@@ -520,7 +520,7 @@ CONTAINS
                 IF (present(ExtVar)) then
                    ExtVar = trim(ExtVar)//Func(j+ib-1:j+in-2)//","
                 ELSE
-                   _FAIL('Invalid element: '//Func(j+ib-1:j+in-2))
+                   _fail('Invalid element: '//Func(j+ib-1:j+in-2))
                 ENDIF
              END IF
              j = j+in-1
@@ -531,10 +531,10 @@ CONTAINS
        DO WHILE (c == ')')                                   ! Check for closing parenthesis
           ParCnt = ParCnt-1
           IF (ParCnt < 0) THEN
-             _FAIL('Mismatched parenthesis in '//trim(funcStr))
+             _fail('Mismatched parenthesis in '//trim(funcStr))
           END IF
           IF (Func(j-1:j-1) == '(') THEN
-             _FAIL('Empty paraentheses '//trim(funcstr))
+             _fail('Empty paraentheses '//trim(funcstr))
           END IF
           j = j+1
           IF (j > lFunc) EXIT
@@ -546,13 +546,13 @@ CONTAINS
        IF (j > lFunc) EXIT
        IF (ANY(c == Ops)) THEN                               ! Check for multiple operators
           IF (j+1 > lFunc) THEN
-             _FAIL('needs informative message')
+             _fail('needs informative message')
           END IF
           IF (ANY(Func(j+1:j+1) == Ops)) THEN
-             _FAIL('Multiple operatos in '//trim(Funcstr))
+             _fail('Multiple operatos in '//trim(Funcstr))
           END IF
        ELSE                                                  ! Check for next operand
-          _FAIL('Missing operator in '//trim(funcstr))
+          _fail('Missing operator in '//trim(funcstr))
        END IF
        !-- -------- --------- --------- --------- --------- --------- --------- -------
        ! Now, we have an operand and an operator: the next loop will check for another
@@ -561,10 +561,10 @@ CONTAINS
        j = j+1
     END DO step
     IF (ParCnt > 0) THEN
-       _FAIL('Missing ) in '//trim(funcstr))
+       _fail('Missing ) in '//trim(funcstr))
     END IF
     DEALLOCATE(ipos)
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   END SUBROUTINE CheckSyntax
 
   SUBROUTINE ParseErrMsg (j, FuncStr, ipos, Msg)
@@ -779,8 +779,8 @@ CONTAINS
                STAT = istat                      )
 
     DO i=1,Comp%StackSize
-       call FieldClone(field,comp%stack(i),_RC)
-       call ESMF_AttributeSet(field,name="missing_value",value=MAPL_UNDEF,_RC)
+       call FieldClone(field,comp%stack(i),_rc)
+       call ESMF_AttributeSet(field,name="missing_value",value=MAPL_UNDEF,_rc)
     END DO
 
     Comp%ByteCodeSize = 0
@@ -789,7 +789,7 @@ CONTAINS
     Comp%StackPtr     = 0
     CALL CompileSubstr (Comp,F,1,LEN_TRIM(F),Var)            ! Compile string into bytecode
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
 
   END SUBROUTINE Compile
   !

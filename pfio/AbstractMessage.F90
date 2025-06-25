@@ -112,8 +112,8 @@ module pFIO_AbstractMessageMod
        integer :: status
 
        call visitor%handle(this, rc=status)
-       _VERIFY(status)
-       _RETURN(_SUCCESS)
+       _verify(status)
+       _return(_success)
     end subroutine dispatch
 
 end module pFIO_AbstractMessageMod

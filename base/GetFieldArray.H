@@ -22,15 +22,15 @@
    type(ESMF_Grid) :: grid
 
    call ESMF_FieldGet(field,grid=grid,rc=status)
-   _VERIFY(status)
+   _verify(status)
    HasDE = MAPL_GridHasDE(grid,rc=status)
-   _VERIFY(STATUS)
+   _verify(STATUS)
    if (HasDE) then
       call ESMF_FieldGet(field, 0, Ptr, rc=status)
-      _VERIFY(STATUS)
+      _verify(STATUS)
    end if
 
-   _RETURN(ESMF_SUCCESS)
+   _return(ESMF_SUCCESS)
    
  end subroutine SUB_
 

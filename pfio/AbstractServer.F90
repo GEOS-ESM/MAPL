@@ -129,46 +129,46 @@ contains
 
       this%comm = comm
       call MPI_Comm_rank(this%comm, this%rank, ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
       call MPI_Comm_size(this%comm, this%npes, ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
 
       this%num_clients = 0
       this%all_backlog_is_empty = .true.
       this%status = UNALLOCATED
 
       call MPI_Comm_split_type(this%comm, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, this%InNode_Comm,ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
       call MPI_Comm_size(this%InNode_Comm, this%InNode_npes,ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
       call MPI_Comm_rank(this%InNode_Comm, this%InNode_Rank,ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
 
       MyColor = 0
       if (this%InNode_Rank == 0) MyColor = 1
 
       call MPI_COMM_SPLIT( comm, MyColor, this%rank, this%NodeRoot_Comm, ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
 
       if (MyColor==0) then
          this%NodeRoot_Comm=MPI_COMM_NULL
       else
          call MPI_COMM_SIZE(this%NodeRoot_Comm, this%Node_Num, ierror)
-         _VERIFY(ierror)
+         _verify(ierror)
          call MPI_COMM_RANK(this%NodeRoot_Comm, this%Node_Rank, ierror)
-         _VERIFY(ierror)
+         _verify(ierror)
       endif
 
       call Mpi_Bcast(this%Node_Rank, 1, MPI_INTEGER, 0, this%InNode_Comm, ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
       call Mpi_Bcast(this%Node_Num,  1, MPI_INTEGER, 0, this%InNode_Comm, ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
 
       allocate(This%Node_Ranks(0:this%npes-1))
 
       call Mpi_AllGather(this%Node_Rank,  1, MPI_INTEGER, &
                          this%Node_Ranks, 1, MPI_INTEGER, comm,ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
 
       if (present(profiler_name)) then
          p_name = profiler_name
@@ -186,8 +186,8 @@ contains
       endif
 
       call MPI_Barrier(comm, ierror)
-      _VERIFY(ierror)
-      _RETURN(_SUCCESS)
+      _verify(ierror)
+      _return(_success)
    end subroutine init
 
    function get_status(this) result(status)
@@ -226,12 +226,12 @@ contains
 #endif
       !$omp end critical (counter_status)
       if (status /= 0) then
-        _RETURN(_SUCCESS)
+        _return(_success)
       endif
       ! status ==0, means the last server thread in the backlog
 
       call this%clear_DataReference()
-      call this%clear_RequestHandle(_RC)
+      call this%clear_RequestHandle(_rc)
       call this%set_status(UNALLOCATED)
       call this%set_AllBacklogIsEmpty(.true.)
 
@@ -248,7 +248,7 @@ contains
       enddo
       this%serverthread_done_msgs(:) = .false.
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine update_status
 
    subroutine clean_up(this, rc)
@@ -260,7 +260,7 @@ contains
       if (associated(ioserver_profiler)) call ioserver_profiler%start("clean_up")
 
       call this%clear_DataReference()
-      Call this%clear_RequestHandle(_RC)
+      Call this%clear_RequestHandle(_rc)
       call this%set_AllBacklogIsEmpty(.true.)
       this%serverthread_done_msgs(:) = .false.
 
@@ -278,7 +278,7 @@ contains
 
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("clean_up")
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine clean_up
 
    function get_AllBacklogIsEmpty(this) result(status)
@@ -319,24 +319,24 @@ contains
      class (AbstractServer),target, intent(inout) :: this
      integer, optional, intent(out) :: rc
 
-     _FAIL(" no action of receive_output_data")
-     _UNUSED_DUMMY(this)
+     _fail(" no action of receive_output_data")
+     _unused_dummy(this)
    end subroutine receive_output_data
 
    subroutine put_DataToFile(this, rc)
      class (AbstractServer),target, intent(inout) :: this
      integer, optional, intent(out) :: rc
-     _FAIL(" no action of server_put_DataToFile")
-     _UNUSED_DUMMY(this)
+     _fail(" no action of server_put_DataToFile")
+     _unused_dummy(this)
    end subroutine put_DataToFile
 
    subroutine get_DataFromMem(this,multi, rc)
      class (AbstractServer),target, intent(inout) :: this
      logical, intent(in) :: multi
      integer, optional, intent(out) :: rc
-     _FAIL(" no action of server_get_DataFromMem")
-     _UNUSED_DUMMY(this)
-     _UNUSED_DUMMY(multi)
+     _fail(" no action of server_get_DataFromMem")
+     _unused_dummy(this)
+     _unused_dummy(multi)
    end subroutine get_DataFromMem
 
    function am_I_reading_PE(this,id) result (yes)
@@ -361,7 +361,7 @@ contains
       rank        = mod(id, this%npes)
       node_rank   = this%Node_Ranks(rank)
 
-     _UNUSED_DUMMY(this)
+     _unused_dummy(this)
    end subroutine distribute_task
 
    function get_writing_PE(this,id) result (rank)
@@ -382,7 +382,7 @@ contains
       rank = 0
       if (yes) rank_tmp = this%rank
       call Mpi_Allreduce(rank_tmp,rank,1, MPI_INTEGER, MPI_SUM, this%comm, ierror)
-      _VERIFY(ierror)
+      _verify(ierror)
 
    end function get_writing_PE
 
@@ -436,10 +436,10 @@ contains
       integer :: i, status
 
       if ( .not. associated(ioserver_profiler)) then
-         _RETURN(_SUCCESS)
+         _return(_success)
       endif
 
-      call ioserver_profiler%stop(_RC)
+      call ioserver_profiler%stop(_rc)
       call ioserver_profiler%reduce()
 
       reporter = ProfileReporter(empty)
@@ -464,7 +464,7 @@ contains
       end if
 
       deallocate(ioserver_profiler)
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine report_profile
 
 end module pFIO_AbstractServerMod

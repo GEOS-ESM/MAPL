@@ -45,7 +45,7 @@
 
 !     Begin
 
-      _ASSERT(MAPL_SunOrbitCreated(ORBIT),'MAPL_SunOrbit not yet created!')
+      _assert(MAPL_SunOrbitCreated(ORBIT),'MAPL_SunOrbit not yet created!')
 
       ! which time mode?
       if (present(TIME)) then
@@ -63,7 +63,7 @@
          else
             call ESMF_ClockGet(ORBIT%CLOCK, currTime=CURRENTTIME, RC=STATUS)
          end if
-         _VERIFY(STATUS)
+         _verify(STATUS)
       end if
 
       ! fixed sun option
@@ -76,14 +76,14 @@
       ZTP = 0.
 
       ! analytic two-body currently only works with TIME_=0 currently
-      _ASSERT(.NOT.(ORBIT%ANAL2B.AND.TIME_/=0),'analytic two-body orbit currently requires TIME_=0')
+      _assert(.NOT.(ORBIT%ANAL2B.AND.TIME_/=0),'analytic two-body orbit currently requires TIME_=0')
 
       MEAN_OR_INST: if(.not.present(INTV) .or. TIME_==MAPL_SunDailyMean &
                        .or.  TIME_==MAPL_SunAnnualMean) then
 
          call ESMF_TimeGet(CURRENTTIME, YY=YEAR, S=SEC_OF_DAY, &
              dayOfYear=DAY_OF_YEAR, RC=STATUS)
-         _VERIFY(STATUS)
+         _verify(STATUS)
 
          if (.NOT. ORBIT%ANAL2B) then
 
@@ -108,8 +108,8 @@
             ! pmn: EOT will just displace sunlit period wrt mean noon,
             !      but the daily mean values will not change
 
-            _FAIL('pmn: MAPL_SunDailyMean probably in error!')
-            _ASSERT(.NOT.ORBIT%ANAL2B,'not implemented for analytic two-body orbit')
+            _fail('pmn: MAPL_SunDailyMean probably in error!')
+            _assert(.NOT.ORBIT%ANAL2B,'not implemented for analytic two-body orbit')
 
             SLR  = sin(LATS)*ORBIT%ZS(IDAY)
             ZTH  = cos(LATS)*ORBIT%ZC(IDAY)
@@ -139,7 +139,7 @@
                ZTH = 0.0
             endwhere
 
-            _ASSERT(.not.present(ZTHP),'ZTHP not implemented for SunDailyMean')
+            _assert(.not.present(ZTHP),'ZTHP not implemented for SunDailyMean')
 
          case(MAPL_SunAnnualMean)
 
@@ -149,8 +149,8 @@
             !     its a mean over the whole currently fixed 4-year cycle.
 
             ! see above
-            _FAIL('pmn: MAPL_SunAnnualMean probably in error!')
-            _ASSERT(.NOT.ORBIT%ANAL2B,'not implemented for analytic two-body orbit')
+            _fail('pmn: MAPL_SunAnnualMean probably in error!')
+            _assert(.NOT.ORBIT%ANAL2B,'not implemented for analytic two-body orbit')
 
             SLR  = 0.0
             ZTH  = 0.0
@@ -176,7 +176,7 @@
 
             if(present(DIST)) DIST = 1.0
 
-            _ASSERT(.not.present(ZTHP),'ZTHP not implemented for SunAnnualMean')
+            _assert(.not.present(ZTHP),'ZTHP not implemented for SunAnnualMean')
 
          case (0,                       &
                MAPL_SunAutumnalEquinox, &
@@ -195,7 +195,7 @@
                call ESMF_TimeIntervalGet( &
                  CURRENTTIME - ORBIT%ORB2B_TIME_REF, &
                  d_r8=days, rc=STATUS)
-               _VERIFY(STATUS)
+               _verify(STATUS)
                ECC     = ORBIT%ORB2B_ECC_REF     + days * ORBIT%ORB2B_ECC_RATE
                OBQ     = ORBIT%ORB2B_OBQ_REF     + days * ORBIT%ORB2B_OBQ_RATE
                LAMBDAP = ORBIT%ORB2B_LAMBDAP_REF + days * ORBIT%ORB2B_LAMBDAP_RATE
@@ -208,7 +208,7 @@
                call ESMF_TimeIntervalGet( &
                  CURRENTTIME - ORBIT%ORB2B_TIME_PERI, &
                  d_r8=days, rc=STATUS)
-               _VERIFY(STATUS)
+               _verify(STATUS)
                ! mean anomaly
                MA = ORBIT%ORB2B_OMG0 * days
                ! eccentric anomaly
@@ -242,7 +242,7 @@
                     ET = ORBIT%ET(IDAYP1)*FAC + ORBIT%ET(IDAY)*(1.-FAC)
                else
                   call GETIDAY(IDAY,TIME_,ORBIT,RC=STATUS)
-                  _VERIFY(STATUS)
+                  _verify(STATUS)
 
                   ZS = ORBIT%ZS(IDAY)
                   ZC = ORBIT%ZC(IDAY)
@@ -332,7 +332,7 @@
        else ! Return Time-Interval-Mean present(INTV)
 
          call ESMF_TimeIntervalGet (INTV, S_R8=SECS, rc=STATUS)
-         _VERIFY(STATUS)
+         _verify(STATUS)
 
          if(present(STEPSIZE)) then ! interval for integration
             NT = nint(SECS/STEPSIZE)
@@ -349,7 +349,7 @@
               StartTime = CURRENTTIME          , &
               StopTime  = CURRENTTIME + INTV   , &
               rc        = STATUS                 )
-         _VERIFY(STATUS)
+         _verify(STATUS)
 
          SLR = 0.0
          ZTH = 0.0
@@ -366,7 +366,7 @@
          call MAPL_SunGetInsolation( LONS, LATS, ORBIT, ZTT, SLT, &
               CLOCK=MYCLOCK, TIME=TIME, DIST=DD, ZTHP=ZTP, &
               RC=STATUS)
-         _VERIFY(STATUS)
+         _verify(STATUS)
 
          if(present(ZTH1)) ZTH1 = max(ZTT,0.0)
 
@@ -386,12 +386,12 @@
             if(present(DIST)) DIST = DIST + 0.5*DD
 
             call ESMF_ClockAdvance    ( MYCLOCK, RC=STATUS )
-            _VERIFY(STATUS)
+            _verify(STATUS)
 
             call MAPL_SunGetInsolation( LONS, LATS, ORBIT, ZTT, SLT, &
                  CLOCK=MYCLOCK, TIME=TIME, DIST=DD, ZTHP=ZTP, &
                  RC=STATUS)
-            _VERIFY(STATUS)
+            _verify(STATUS)
 
             SLR = SLR +     SLT*0.5
             ZTH = ZTH + ZTT*SLT*0.5
@@ -431,10 +431,10 @@
          if(present(DIST)) DIST = DIST/dble(NT)
 
          call ESMF_ClockDestroy(myclock, rc=STATUS)
-         _VERIFY(STATUS)
+         _verify(STATUS)
 
       endif MEAN_OR_INST
 
 
-      _RETURN(ESMF_SUCCESS)
+      _return(ESMF_SUCCESS)
 

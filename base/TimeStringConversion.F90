@@ -26,7 +26,7 @@ contains
       integer lastspace
       integer hour,min,sec
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       strlen = LEN_TRIM (time_string)
 
@@ -76,7 +76,7 @@ contains
       endif
 
       time = hour*10000+min*100+sec 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function string_to_integer_time
 
@@ -91,7 +91,7 @@ contains
       integer firstdash, lastdash
       integer year,month,day
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       strlen = LEN_TRIM (time_string)
 
@@ -99,7 +99,7 @@ contains
       lastdash  = index(time_string, '-', BACK=.TRUE.)
 
       if (firstdash .LE. 0 .OR. lastdash .LE. 0) then
-        _RETURN(_FAILURE)
+        _return(_failure)
       endif
 
       ypos(2) = firstdash - 1
@@ -115,7 +115,7 @@ contains
       read ( time_string(dpos(1):dpos(2)), * ) day
 
       date = year*10000+month*100+day
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function string_to_integer_date
 
@@ -132,7 +132,7 @@ contains
       character(len=:), allocatable :: date_string,time_string
       logical :: have_time
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       tpos = index(input_string,'T')
       if (tpos<=0) then
@@ -144,12 +144,12 @@ contains
       if (have_time) then
          time_string = input_string(tpos+1:)
          date_string = input_string(:tpos-1)
-         int_time = string_to_integer_time(time_string,_RC)
+         int_time = string_to_integer_time(time_string,_rc)
       else
          date_string = trim(input_string) 
          int_time = 0
       end if
-      int_date = string_to_integer_date(date_string,_RC)
+      int_date = string_to_integer_date(date_string,_rc)
 
       year=int_date/10000
       month=mod(int_date/100,100)
@@ -157,8 +157,8 @@ contains
       hour=int_time/10000
       min=mod(int_time/100,100)
       sec=mod(int_time,100)
-      call ESMF_TimeSet(time,yy=year,mm=month,dd=day,h=hour,m=min,s=sec,_RC)
-      _RETURN(_SUCCESS)
+      call ESMF_TimeSet(time,yy=year,mm=month,dd=day,h=hour,m=min,s=sec,_rc)
+      _return(_success)
 
    end function string_to_esmf_time
 
@@ -173,7 +173,7 @@ contains
       integer :: strlen,ppos,cpos,lpos,tpos
       integer year,month,day,hour,min,sec
       character(len=:), allocatable :: date_string,time_string
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       year=0
       month=0
@@ -184,7 +184,7 @@ contains
       strlen = len_trim(time_interval_string)
       tpos = index(time_interval_string,'T')
       ppos = index(time_interval_string,'P')
-      _ASSERT(time_interval_string(1:1) == 'P','Not valid time duration')
+      _assert(time_interval_string(1:1) == 'P','Not valid time duration')
 
       if (tpos /= 0) then
          if (tpos /= ppos+1) then
@@ -234,8 +234,8 @@ contains
          end if
       end if
 
-      call ESMF_TimeIntervalSet(time_interval,yy=year,mm=month,d=day,h=hour,m=min,s=sec,_RC)
-      _RETURN(_SUCCESS)
+      call ESMF_TimeIntervalSet(time_interval,yy=year,mm=month,d=day,h=hour,m=min,s=sec,_rc)
+      _return(_success)
 
    end function string_to_esmf_timeinterval
 

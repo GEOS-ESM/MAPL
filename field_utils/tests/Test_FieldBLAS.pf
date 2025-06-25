@@ -29,12 +29,12 @@ contains
       allocate(y8array, source=R8_ARRAY_DEFAULT)
       y4array = y4array + ADD_R4
       y8array = y8array + ADD_R8
-      XR4 = mk_field(R4_ARRAY_DEFAULT, name = 'XR4', _RC)
-      YR4 = mk_field(y4array, name = 'YR4', _RC)
-      XR8 = mk_field(R8_ARRAY_DEFAULT, name = 'XR8', _RC)
-      YR8 = mk_field(y8array, name = 'YR8', _RC)
-      XR4_3D = mk_field_r4_ungrid(name = 'XR4_3D', ungriddedLBound=[1],ungriddedUBound=[3],_RC)
-      YR4_3D = mk_field_r4_ungrid(name = 'YR4_3D',ungriddedLBound=[1],ungriddedUBound=[3], _RC)
+      XR4 = mk_field(R4_ARRAY_DEFAULT, name = 'XR4', _rc)
+      YR4 = mk_field(y4array, name = 'YR4', _rc)
+      XR8 = mk_field(R8_ARRAY_DEFAULT, name = 'XR8', _rc)
+      YR8 = mk_field(y8array, name = 'YR8', _rc)
+      XR4_3D = mk_field_r4_ungrid(name = 'XR4_3D', ungriddedLBound=[1],ungriddedUBound=[3],_rc)
+      YR4_3D = mk_field_r4_ungrid(name = 'YR4_3D',ungriddedLBound=[1],ungriddedUBound=[3], _rc)
 
    end subroutine set_up_data
 
@@ -55,9 +55,9 @@ contains
 
       x = XR4
       y = YR4
-      call FieldCOPY(x, y, _RC)
-      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
-      call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
+      call FieldCOPY(x, y, _rc)
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _rc)
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, _rc)
       @assertEqual(x_ptr, y_ptr)
 
    end subroutine test_FieldCOPY_R4
@@ -74,9 +74,9 @@ contains
 
       x = XR8
       y = YR8
-      call FieldCOPY(x, y, _RC)
-      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
-      call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
+      call FieldCOPY(x, y, _rc)
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _rc)
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, _rc)
       @assertEqual(x_ptr, y_ptr)
 
    end subroutine test_FieldCOPY_R8
@@ -93,9 +93,9 @@ contains
 
       x = XR4
       y = YR8
-      call FieldCOPY(x, y, _RC)
-      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
-      call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
+      call FieldCOPY(x, y, _rc)
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _rc)
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, _rc)
       @assertEqual(x_ptr, y_ptr)
 
    end subroutine test_FieldCOPY_R4R8
@@ -112,11 +112,11 @@ contains
 
       x = XR8
       y = YR4
-      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _rc)
       x_ptr = 4.d0
-      call FieldCOPY(x, y, _RC)
-      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
-      call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
+      call FieldCOPY(x, y, _rc)
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _rc)
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, _rc)
       @assertTrue(all(are_almost_equal(x_ptr, y_ptr)), 'Values differ above threshold.')
 
    end subroutine test_FieldCOPY_R8R4
@@ -132,10 +132,10 @@ contains
       integer :: status, rc
 
       x = XR4
-      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _rc)
       x_array = x_ptr
-      call FieldSCAL(a, x, _RC)
-      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+      call FieldSCAL(a, x, _rc)
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _rc)
       @assertEqual(x_ptr, a*x_array)
 
    end subroutine test_FieldSCAL_R4
@@ -151,10 +151,10 @@ contains
       integer :: status, rc
 
       x = XR8
-      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _rc)
       x_array = x_ptr
-      call FieldSCAL(a, x, _RC)
-      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+      call FieldSCAL(a, x, _rc)
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _rc)
       @assertEqual(x_ptr, a*x_array)
 
    end subroutine test_FieldSCAL_R8
@@ -174,13 +174,13 @@ contains
 
       x = XR4
       y = YR4
-      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _rc)
       x_array = x_ptr
-      call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, _rc)
       y_array = y_ptr
-      call FieldAXPY(a, x, y, _RC)
-      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
-      call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
+      call FieldAXPY(a, x, y, _rc)
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _rc)
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, _rc)
       @assertEqual(y_ptr, a*x_array+y_array)
 
    end subroutine test_FieldAXPY_R4
@@ -200,13 +200,13 @@ contains
 
       x = XR8
       y = YR8
-      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _rc)
       x_array = x_ptr
-      call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, _rc)
       y_array = y_ptr
-      call FieldAXPY(a, x, y, _RC)
-      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
-      call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
+      call FieldAXPY(a, x, y, _rc)
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _rc)
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, _rc)
 
    end subroutine test_FieldAXPY_R8
 
@@ -220,10 +220,10 @@ contains
       integer :: status, rc
 
       x = XR4
-      call ESMF_FieldGet(x, rank=rank, _RC)
+      call ESMF_FieldGet(x, rank=rank, _rc)
       allocate(expected_count(rank))
-      call ESMF_FieldGet(x, localElementCount=expected_count, _RC)
-      actual_count = FieldGetLocalElementCount(x, _RC)
+      call ESMF_FieldGet(x, localElementCount=expected_count, _rc)
+      actual_count = FieldGetLocalElementCount(x, _rc)
       @assertEqual(actual_count, expected_count)
 
    end subroutine test_FieldGetLocalElementCount
@@ -240,11 +240,11 @@ contains
       integer, allocatable :: element_count(:)
 
       x = XR4
-      call ESMF_FieldGet(x, rank=rank, _RC)
+      call ESMF_FieldGet(x, rank=rank, _rc)
       allocate(element_count(rank))
-      call ESMF_FieldGet(x, localElementCount=element_count, _RC)
+      call ESMF_FieldGet(x, localElementCount=element_count, _rc)
       expected_size = sum(element_count)
-      actual_size=FieldGetLocalSize(x, _RC)
+      actual_size=FieldGetLocalSize(x, _rc)
       @assertEqual(actual_size, expected_size)
       if(allocated(element_count)) deallocate(element_count)
 
@@ -262,9 +262,9 @@ contains
       integer :: status, rc
 
       x = XR4
-      call FieldGetCptr(x, cptr, _RC)
+      call FieldGetCptr(x, cptr, _rc)
       x = XR8
-      call FieldGetCptr(x, cptr, _RC)
+      call FieldGetCptr(x, cptr, _rc)
 
    end subroutine test_FieldGetCptr
 
@@ -279,7 +279,7 @@ contains
       x = XR4
       y = YR4
       are_conformable = .FALSE.
-      are_conformable = FieldsAreConformable(x, y, _RC)
+      are_conformable = FieldsAreConformable(x, y, _rc)
       @assertTrue(are_conformable)
 
    end subroutine test_FieldsAreConformableR4
@@ -295,7 +295,7 @@ contains
       x = XR8
       y = YR8
       are_conformable = .FALSE.
-      are_conformable = FieldsAreConformable(x, y, _RC)
+      are_conformable = FieldsAreConformable(x, y, _rc)
       @assertTrue(are_conformable)
 
    end subroutine test_FieldsAreConformableR8
@@ -311,19 +311,19 @@ contains
       x = XR4
       y = YR4
       are_same_typekind = .FALSE.
-      are_same_typekind = FieldsAreSameTypeKind(x, y, _RC)
+      are_same_typekind = FieldsAreSameTypeKind(x, y, _rc)
       @assertTrue(are_same_typekind)
       x = XR8
       y = YR8
       are_same_typekind = .FALSE.
-      are_same_typekind = FieldsAreSameTypeKind(x, y, _RC)
+      are_same_typekind = FieldsAreSameTypeKind(x, y, _rc)
       @assertTrue(are_same_typekind)
       y = YR4
       are_same_typekind = .TRUE.
-      are_same_typekind = FieldsAreSameTypeKind(x, y, _RC)
+      are_same_typekind = FieldsAreSameTypeKind(x, y, _rc)
       @assertFalse(are_same_typekind)
       are_same_typekind = .TRUE.
-      are_same_typekind = FieldsAreSameTypeKind(y, x, _RC)
+      are_same_typekind = FieldsAreSameTypeKind(y, x, _rc)
       @assertFalse(are_same_typekind)
 
    end subroutine test_FieldsAreSameTypeKind
@@ -343,10 +343,10 @@ contains
       call initialize_array(r4_data, 0.0, 1.0)
       r8_data = 0.0
       r8_converted = r4_data
-      r4_field = mk_field(r4_data, name = 'XR4', _RC)
-      r8_field = mk_field(r8_data, name = 'YR8', _RC)
-      call FieldConvertPrec(r4_field, r8_field, _RC)
-      call ESMF_FieldGet(r8_field, farrayPtr = r8_pointer, _RC)
+      r4_field = mk_field(r4_data, name = 'XR4', _rc)
+      r8_field = mk_field(r8_data, name = 'YR8', _rc)
+      call FieldConvertPrec(r4_field, r8_field, _rc)
+      call ESMF_FieldGet(r8_field, farrayPtr = r8_pointer, _rc)
       @assertEqual(r8_converted, r8_pointer)
 
    end subroutine test_FieldConvertPrec_R4R8
@@ -367,19 +367,19 @@ contains
 
       x = XR4_3D
 
-      call ESMF_FieldGet(x,rank=field_rank_x,grid=grid,typekind=tk_x,_RC)
+      call ESMF_FieldGet(x,rank=field_rank_x,grid=grid,typekind=tk_x,_rc)
       call ESMF_GridGet(grid,dimCount=grid_rank_x)
       ungrid_x = field_rank_x - grid_rank_x
       allocate(ungriddedLBound_x(ungrid_x),ungriddedUBound_x(ungrid_x))
-      call ESMF_FieldGet(x,ungriddedLBound=UngriddedLBound_x,ungriddedUBound=UngriddedUBound_x,_RC)
+      call ESMF_FieldGet(x,ungriddedLBound=UngriddedLBound_x,ungriddedUBound=UngriddedUBound_x,_rc)
 
-      call FieldClone(x, y, _RC)
+      call FieldClone(x, y, _rc)
 
-      call ESMF_FieldGet(y,rank=field_rank_y,grid=grid,typekind=tk_y,_RC)
+      call ESMF_FieldGet(y,rank=field_rank_y,grid=grid,typekind=tk_y,_rc)
       call ESMF_GridGet(grid,dimCount=grid_rank_y)
       ungrid_y = field_rank_y - grid_rank_y
       allocate(ungriddedLBound_y(ungrid_y),ungriddedUBound_y(ungrid_y))
-      call ESMF_FieldGet(y,ungriddedLBound=UngriddedLBound_y,ungriddedUBound=UngriddedUBound_y,_RC)
+      call ESMF_FieldGet(y,ungriddedLBound=UngriddedLBound_y,ungriddedUBound=UngriddedUBound_y,_rc)
       @assertEqual(field_rank_x,field_rank_y)
       @assertEqual(ungrid_x,ungrid_y)
       @assertTrue(tk_x==tk_y,"kinds not equal")

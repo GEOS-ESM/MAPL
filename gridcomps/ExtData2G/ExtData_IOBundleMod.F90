@@ -78,7 +78,7 @@ contains
     io_bundle%items=items
     io_bundle%on_tiles = on_tiles
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   end function new_ExtDataNG_IOBundle
 
 
@@ -88,9 +88,9 @@ contains
 
     integer :: status
     call ESMF_FieldBundleDestroy(this%pbundle, noGarbage=.true.,rc=status)
-    _VERIFY(status)
+    _verify(status)
     
-     _RETURN(ESMF_SUCCESS)
+     _return(ESMF_SUCCESS)
 
   end subroutine clean
 
@@ -108,7 +108,7 @@ contains
                            items=this%items)
      end if
 
-     _RETURN(ESMF_SUCCESS)
+     _return(ESMF_SUCCESS)
 
    end subroutine make_io
 

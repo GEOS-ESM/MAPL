@@ -41,7 +41,7 @@ call MAPL_AddImportSpec(GC,                              &
     VLOCATION  = MAPL_VLocationEdge,                     &
     AVERAGING_INTERVAL = AVRGNINT,                       &
     REFRESH_INTERVAL   = RFRSHINT,                       &
-    _RC)
+    _rc)
 
 call MAPL_AddImportSpec(GC,                              &
     SHORT_NAME = 'ZLE',                                  &
@@ -51,7 +51,7 @@ call MAPL_AddImportSpec(GC,                              &
     VLOCATION  =  MAPL_VLocationEdge,                    &
     AVERAGING_INTERVAL = AVRGNINT,                       &
     REFRESH_INTERVAL   = RFRSHINT                        &
-    _RC)
+    _rc)
 
 call MAPL_AddImportSpec(GC,                              &
     SHORT_NAME = 'T',                                    &
@@ -61,7 +61,7 @@ call MAPL_AddImportSpec(GC,                              &
     VLOCATION  = MAPL_VLocationCenter,                   &
     AVERAGING_INTERVAL = AVRGNINT,                       &
     REFRESH_INTERVAL   = RFRSHINT,                       &
-    _RC)
+    _rc)
 
 call MAPL_AddExportSpec(GC,                              &
     SHORT_NAME='ZPBLCN',                                 &
@@ -69,7 +69,7 @@ call MAPL_AddExportSpec(GC,                              &
     UNITS     ='m'   ,                                   &
     DIMS      = MAPL_DimsHorzOnly,                       &
     VLOCATION = MAPL_VLocationNone,                      &
-    _RC)
+    _rc)
 
 call MAPL_AddExportSpec(GC,                              &
     SHORT_NAME='CNV_FRC',                                &
@@ -77,7 +77,7 @@ call MAPL_AddExportSpec(GC,                              &
     UNITS     =''  ,                                     &
     DIMS      = MAPL_DimsHorzOnly,                       &
     VLOCATION = MAPL_VLocationNone,                      &
-    _RC)
+    _rc)
 ```
 
 </details>
@@ -96,12 +96,12 @@ real, pointer, dimension(:,:)   :: ZPBLCN
 real, pointer, dimension(:,:)   :: CNV_FRC
 ...
 ...
-call MAPL_GetPointer(IMPORT, PLE,  'PLE', _RC)
-call MAPL_GetPointer(IMPORT, ZLE,  'ZLE', _RC)
-call MAPL_GetPointer(IMPORT, T,     'T' , _RC)
+call MAPL_GetPointer(IMPORT, PLE,  'PLE', _rc)
+call MAPL_GetPointer(IMPORT, ZLE,  'ZLE', _rc)
+call MAPL_GetPointer(IMPORT, T,     'T' , _rc)
 
-call MAPL_GetPointer(EXPORT, ZPBLCN,  'ZPBLCN' , ALLOC=.TRUE., _RC)
-call MAPL_GetPointer(EXPORT, CNV_FRC, 'CNV_FRC', ALLOC=.TRUE., _RC)
+call MAPL_GetPointer(EXPORT, ZPBLCN,  'ZPBLCN' , ALLOC=.TRUE., _rc)
+call MAPL_GetPointer(EXPORT, CNV_FRC, 'CNV_FRC', ALLOC=.TRUE., _rc)
 ```
 
 </details>
@@ -228,7 +228,7 @@ call MAPL_AddExportSpec(GC,                              &
     UNITS     ='m'   ,                                   &
     DIMS      = MAPL_DimsHorzOnly,                       &
     VLOCATION = MAPL_VLocationNone,                      &
-    _RC)
+    _rc)
 
 call MAPL_AddExportSpec(GC,                              &
     SHORT_NAME='CNV_FRC',                                &
@@ -236,7 +236,7 @@ call MAPL_AddExportSpec(GC,                              &
     UNITS     =''  ,                                     &
     DIMS      = MAPL_DimsHorzOnly,                       &
     VLOCATION = MAPL_VLocationNone,                      &
-    _RC)
+    _rc)
 ```
 
 2. `MyComponent_Import___.h` for the `MAPL_AddImportSpec` calls in the `SetServices` routine:
@@ -250,7 +250,7 @@ call MAPL_AddImportSpec(GC,                              &
     VLOCATION  = MAPL_VLocationEdge,                     &
     AVERAGING_INTERVAL = AVRGNINT,                       &
     REFRESH_INTERVAL   = RFRSHINT,                       &
-    _RC)
+    _rc)
 
 call MAPL_AddImportSpec(GC,                              &
     SHORT_NAME = 'ZLE',                                  &
@@ -260,7 +260,7 @@ call MAPL_AddImportSpec(GC,                              &
     VLOCATION  =  MAPL_VLocationEdge,                    &
     AVERAGING_INTERVAL = AVRGNINT,                       &
     REFRESH_INTERVAL   = RFRSHINT,                       &
-    _RC)
+    _rc)
 
 call MAPL_AddImportSpec(GC,                              &
     SHORT_NAME = 'T',                                    &
@@ -270,7 +270,7 @@ call MAPL_AddImportSpec(GC,                              &
     VLOCATION  = MAPL_VLocationCenter,                   &
     AVERAGING_INTERVAL = AVRGNINT,                       &
     REFRESH_INTERVAL   = RFRSHINT,                       &
-    _RC)
+    _rc)
 ```
 
 3. `MyComponent_DeclarePointer___.h` for all the multi-dimensional array declartions associated with the fields for all the states) in the `Run` method (The `#include MyComponent_DeclarePointer___.h` statement should be in the local declaration variable section.):
@@ -286,12 +286,12 @@ real, pointer, dimension(:,:)   :: CNV_FRC
 4. `MyComponent_GetPointer___.h` for all the `MAPL_GetPointer` calls in the `Run` method (The `#include MyComponent_GetPointer___.h` statement needs to be placed well before any field is accessed.):
 
 ```fortran
-call MAPL_GetPointer(IMPORT, PLE,     'PLE'     , _RC)
-call MAPL_GetPointer(IMPORT, ZLE,     'ZLE'     , _RC)
-call MAPL_GetPointer(IMPORT, T,       'T'       , _RC)
+call MAPL_GetPointer(IMPORT, PLE,     'PLE'     , _rc)
+call MAPL_GetPointer(IMPORT, ZLE,     'ZLE'     , _rc)
+call MAPL_GetPointer(IMPORT, T,       'T'       , _rc)
 
-call MAPL_GetPointer(EXPORT, ZPBLCN,  'ZPBLCN' , ALLOC=.TRUE., _RC)
-call MAPL_GetPointer(EXPORT, CNV_FRC, 'CNV_FRC', ALLOC=.TRUE., _RC)
+call MAPL_GetPointer(EXPORT, ZPBLCN,  'ZPBLCN' , ALLOC=.TRUE., _rc)
+call MAPL_GetPointer(EXPORT, CNV_FRC, 'CNV_FRC', ALLOC=.TRUE., _rc)
 ```
 
 Edit the Source Code
@@ -401,7 +401,7 @@ if (NOX==.TRUE.) then
         UNITS      = 'ppm',                                  &
         DIMS       = MAPL_DimsHorzVert,                      &
         VLOCATION  = MAPL_VLocationEdge,                     &
-        _RC)
+        _rc)
 end if
 
 call MAPL_AddImportSpec(GC,                              &
@@ -410,18 +410,18 @@ call MAPL_AddImportSpec(GC,                              &
     UNITS      = 'K',                                    &
     DIMS       = MAPL_DimsHorzVert,                      &
     VLOCATION  = MAPL_VLocationCenter,                   &
-    _RC)
+    _rc)
 ```
 
 and
 
 ```fortran
 if (NOX=.TRUE.) then
-    call MAPL_GetPointer(IMPORT, PU,     'PU'     , _RC) 
+    call MAPL_GetPointer(IMPORT, PU,     'PU'     , _rc) 
 else
     nullify(PU)
 end if
-call MAPL_GetPointer(IMPORT, T,       'T'       , _RC)
+call MAPL_GetPointer(IMPORT, T,       'T'       , _rc)
 ```
 
 in the include files for *IMPORTS* and the `MAPL_GetPointer` calls, respectively.
@@ -473,12 +473,12 @@ will lead to the source code:
        UNITS      = 'kg kg-1',               &
        DIMS       =  MAPL_DimsHorzVert,      &
        VLOCATION  =  MAPL_VLocationCenter,   &
-       _RC)
+       _rc)
 
 ...
    real, pointer :: mycomponentmass(:,:,:)
 ...
-   call MAPL_GetPointer(IMPORT, mycomponentmass, "MyComponentMASS", _RC)
+   call MAPL_GetPointer(IMPORT, mycomponentmass, "MyComponentMASS", _rc)
 ...
 ```
 Note the addition of `MyComponent` to the short and long names. 
@@ -528,7 +528,7 @@ category: IMPORT
 would produce this code in the `MAPL_GetPointer` include file:
 
 ```fortran
-call MAPL_GetPointer(IMPORT, T, 'T', ALLOC=.TRUE., _RC)
+call MAPL_GetPointer(IMPORT, T, 'T', ALLOC=.TRUE., _rc)
 ```
 
 ### Sample code

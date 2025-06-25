@@ -174,9 +174,9 @@ contains
       integer(ut_status) :: status
 
       conv = get_converter_function(from, to)
-      _ASSERT(.not. conv%is_free(), UTF_CONVERTER_NOT_INITIALIZED)
+      _assert(.not. conv%is_free(), UTF_CONVERTER_NOT_INITIALIZED)
 
-      _RETURN(UT_SUCCESS)
+      _return(UT_SUCCESS)
    end subroutine get_converter
 
    ! Get converter object
@@ -315,9 +315,9 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      _RETURN_UNLESS(instance_is_uninitialized())
+      _return_unless(instance_is_uninitialized())
       ! System must be once and only once.
-      _ASSERT(instance_is_uninitialized(), UTF_DUPLICATE_INITIALIZATION)
+      _assert(instance_is_uninitialized(), UTF_DUPLICATE_INITIALIZATION)
 
       ! Disable error messages from udunits2
       call disable_ut_error_message_handler()
@@ -326,10 +326,10 @@ contains
       if(status /= UT_SUCCESS) then
          ! On failure, free memory
          call finalize()
-         _RETURN(UTF_INITIALIZATION_FAILURE)
+         _return(UTF_INITIALIZATION_FAILURE)
       end if
-      _ASSERT(.not. SYSTEM_INSTANCE%is_free(), UTF_NOT_INITIALIZED)
-      _RETURN(UT_SUCCESS)
+      _assert(.not. SYSTEM_INSTANCE%is_free(), UTF_NOT_INITIALIZED)
+      _return(UT_SUCCESS)
 
    end subroutine initialize
 
@@ -342,10 +342,10 @@ contains
       type(c_ptr) :: utsystem
 
       ! A system can be initialized only once.
-      _ASSERT(system%is_free(), UTF_DUPLICATE_INITIALIZATION)
+      _assert(system%is_free(), UTF_DUPLICATE_INITIALIZATION)
 
       system = UDSystem(path, encoding)
-      _RETURN(UT_SUCCESS)
+      _return(UT_SUCCESS)
    end subroutine initialize_system
 
    ! Is the instance of the unit system initialized?
@@ -401,9 +401,9 @@ contains
       
       convertible = (ut_are_convertible(unit1%get_cptr(), unit2%get_cptr())  /= ZERO)
       status = ut_get_status()
-      _ASSERT(success(status), status)
+      _assert(success(status), status)
 
-      _RETURN(UT_SUCCESS)
+      _return(UT_SUCCESS)
    end function are_convertible_udunit
 
    ! Check if units are convertible
@@ -417,9 +417,9 @@ contains
 
       unit1 = UDUnit(from)
       unit2 = UDUnit(to)
-      convertible = are_convertible_udunit(unit1, unit2, _RC)
+      convertible = are_convertible_udunit(unit1, unit2, _rc)
 
-      _RETURN(UT_SUCCESS)
+      _return(UT_SUCCESS)
    end function are_convertible_str
 
    ! Create C string from Fortran string
