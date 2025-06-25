@@ -1,0 +1,28 @@
+#include "MAPL_TestErr.h"
+module Test_StringCommon
+   use mapl3g_StringCommon
+   use pfunit
+   implicit none(type, external)
+
+   character(len=*), parameter :: EMPTY = ''
+contains
+   
+   @Test
+   subroutine test_to_lower()
+      @assert_that(to_lower('AbC_ +09'), is('abc_ +09'))
+      @assert_that(to_lower(EMPTY), is(EMPTY))
+   end subroutine test_to_lower
+
+   @Test
+   subroutine test_to_upper()
+      @assert_that(to_upper('AbC_ +09'), is('ABC_ +09'))
+      @assert_that(to_upper(EMPTY), is(EMPTY))
+   end subroutine test_to_upper
+
+   @Test
+   subroutine test_capitalize()
+      @assert_that(capitalize('it was the best of times....'), is('It was the best of times....'))
+      @assert_that(capitalize('1. it was the best of times....'), is('1. it was the best of times....'))
+   end subroutine test_capitalize
+
+end module Test_StringCommon
