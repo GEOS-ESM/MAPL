@@ -82,7 +82,7 @@ contains
       call collection_gridcomp%writer%initialize(metadata, mapl_geom, _RC)
 
       collection_gridcomp%start_stop_times = set_start_stop_time(clock, hconfig, _RC)
-
+      collection_gridcomp%timeStep = get_frequency(hconfig, _RC)
       collection_gridcomp%current_file = null_file
       collection_gridcomp%template = ESMF_HConfigAsString(hconfig, keyString='template', _RC)
       
@@ -127,6 +127,7 @@ contains
       type(ESMF_Time) :: current_time
       character(len=ESMF_MAXSTR) :: name
       character(len=128) :: current_file
+      real, allocatable :: current_time_vector(:)
 
       call ESMF_GridCompGet(gridcomp, name=name, _RC)
       call ESMF_ClockGet(clock, currTime=current_time, _RC)
@@ -146,7 +147,8 @@ contains
          collection_gridcomp%initial_file_time = current_time
       end if
 
-      time_index = get_current_time_index(collection_gridcomp%initial_file_time, current_time, collection_gridcomp%timeStep)
+      call get_current_time_info(collection_gridcomp%initial_file_time, current_time, collection_gridcomp%timeStep, time_index, current_time_vector, _RC)
+      call collection_gridcomp%writer%stage_time_to_file(collection_gridcomp%current_file, current_time_vector,  _RC)
       call collection_gridcomp%writer%stage_data_to_file(collection_gridcomp%output_bundle, collection_gridcomp%current_file, time_index, _RC)
       _RETURN(_SUCCESS)
 
