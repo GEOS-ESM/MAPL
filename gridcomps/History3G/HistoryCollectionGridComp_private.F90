@@ -477,10 +477,10 @@ contains
 
       time_hconfig = ESMF_HConfigCreateAt(hconfig, keyString='time_spec', _RC)
       hasKey = ESMF_HConfigIsDefined(time_hconfig, keyString=KEY_TIMESTEP, _RC)
-      if(hasKey) then
-         mapVal = ESMF_HConfigAsString(time_hconfig, keyString=KEY_TIMESTEP, _RC)
-         call ESMF_TimeIntervalSet(frequency, timeIntervalString=mapVal, _RC)
-      end if
+      _RETURN_UNLESS(hasKey)
+
+      mapVal = ESMF_HConfigAsString(time_hconfig, keyString=KEY_TIMESTEP, _RC)
+      call ESMF_TimeIntervalSet(frequency, timeIntervalString=mapVal, _RC)
 
       _RETURN(_SUCCESS)
    end function get_frequency
