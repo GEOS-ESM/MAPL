@@ -5,24 +5,175 @@ module Test_StringCommon
    implicit none(type, external)
 
    character(len=*), parameter :: EMPTY = ''
+   integer, parameter :: ASCII_MIN=0
+   integer, parameter :: ASCII_MAX=127
+   character(len=*), parameter :: MIXED = 'AbC_ +09'
+   character(len=*), parameter :: ALL_LOWER = 'abc_ +09'
+   character(len=*), parameter :: ALL_UPPER = 'ABC_ +09'
+   character(len=*), parameter :: DIGITS = '01234567890'
+   character(len=*), parameter :: DECLARATION = 'When in the course of human events...'
+
 contains
    
    @Test
    subroutine test_to_lower()
-      @assert_that(to_lower('AbC_ +09'), is('abc_ +09'))
+
+      @assert_that(to_lower(MIXED), is(ALL_LOWER))
       @assert_that(to_lower(EMPTY), is(EMPTY))
+
    end subroutine test_to_lower
 
    @Test
    subroutine test_to_upper()
-      @assert_that(to_upper('AbC_ +09'), is('ABC_ +09'))
+
+      @assert_that(to_upper(MIXED), is(ALL_UPPER))
       @assert_that(to_upper(EMPTY), is(EMPTY))
+
    end subroutine test_to_upper
 
    @Test
    subroutine test_capitalize()
-      @assert_that(capitalize('it was the best of times....'), is('It was the best of times....'))
-      @assert_that(capitalize('1. it was the best of times....'), is('1. it was the best of times....'))
-   end subroutine test_capitalize
+      character(len=*), parameter :: TWOCITIES='it was the best of times....'
+      character(len=*), parameter :: CAPITAL='It was the best of times....'
+      character(len=*), parameter :: NUMBERED = '1. ' // TWOCITIES
 
+      @assert_that(capitalize(TWOCITIES), is(CAPITAL))
+      @assert_that(capitalize(NUMBERED), is(NUMBERED))
+
+   end subroutine test_capitalize
+   
+   @Test
+   subroutine test_is_alpha()
+
+      @assert_that(is_alpha('a'), is(true()))
+      @assert_that(is_alpha('m'), is(true()))
+      @assert_that(is_alpha('z'), is(true()))
+      @assert_that(is_alpha('A'), is(true()))
+      @assert_that(is_alpha('M'), is(true()))
+      @assert_that(is_alpha('Z'), is(true()))
+      @assert_that(is_alpha(' '), is(false()))
+      @assert_that(is_alpha('_'), is(false()))
+      @assert_that(is_alpha('0'), is(false()))
+      @assert_that(is_alpha('5'), is(false()))
+      @assert_that(is_alpha('9'), is(false()))
+      @assert_that(is_alpha(' '), is(false()))
+      @assert_that(is_alpha('='), is(false()))
+      @assert_that(is_alpha('~'), is(false()))
+
+   end subroutine test_is_alpha
+   
+   @Test
+   subroutine test_is_alpha_only()
+      character(len=*), parameter :: STRING = 'String'
+
+      @assert_that(is_alpha_only(STRING), is(true()))
+      @assert_that(is_alpha_only(STRING //  ' '), is(false()))
+      @assert_that(is_alpha_only(' ' // STRING), is(false()))
+      @assert_that(is_alpha_only('1' // STRING), is(false()))
+      @assert_that(is_alpha_only(STRING // '1'), is(false()))
+      @assert_that(is_alpha_only('_' // STRING), is(false()))
+      @assert_that(is_alpha_only(STRING // '_'), is(false()))
+
+   end subroutine test_is_alpha_only
+
+   @Test
+   subroutine test_is_numeric()
+      character(len=*), parameter :: NUMBERS = '0123456789'
+
+      @assert_that(is_numeric(NUMBERS), is(true()))
+      @assert_that(is_numeric(EMPTY), is(false()))
+      @assert_that(is_numeric(' '), is(false()))
+      @assert_that(is_numeric(NUMBERS // ' '), is(false()))
+      @assert_that(is_numeric(' ' // NUMBERS), is(false()))
+      @assert_that(is_numeric('A' // NUMBERS), is(false()))
+      @assert_that(is_numeric(NUMBERS // 'A'), is(false()))
+      @assert_that(is_numeric('_' // NUMBERS), is(false()))
+      @assert_that(is_numeric(NUMBERS // '_'), is(false()))
+
+   end subroutine test_is_numeric
+
+   @Test
+   subroutine test_is_alphanumeric()
+
+      @assert_that(is_alphanumeric('A0_'), is(true()))
+      @assert_that(is_alphanumeric(''), is(false()))
+      @assert_that(is_alphanumeric(' '), is(false()))
+      @assert_that(is_alphanumeric('+'), is(false()))
+
+   end subroutine test_is_alphanumeric
+   
+   @Test
+   subroutine test_to_string()
+      character, allocatable :: chars(:)
+
+      chars=to_char_array(DECLARATION)
+      @assert_that(to_string(chars), is(DECLARATION))
+
+   end subroutine test_to_string
+
+   @Test
+   subroutine test_to_char_array()
+      character, allocatable :: chars(:)
+      integer :: i
+
+      chars=to_char_array(DECLARATION)
+      @assert_that(size(chars), is(len(DECLARATION)))
+      do i=1, len(DECLARATION)
+         @assert_that(chars(i), is(DECLARATION(i:i)))
+      end do
+
+   end subroutine test_to_char_array
+   
+   @Test
+   subroutine test_lowercase()
+      character(len=*), parameter :: EXPECTED = repeat(ALL_LOWER, 2)
+      character(len=*), parameter :: TEST = ALL_UPPER // MIXED
+      character :: expected_ch, test_ch
+      integer :: i
+
+      do i=1, len(TEST)
+         test_ch = TEST(i:i)
+         expected_ch = EXPECTED(i:i)
+         @assert_that(lowercase(test_ch), is(expected_ch))
+      end do
+
+   end subroutine test_lowercase
+
+   @Test
+   subroutine test_uppercase()
+      character(len=*), parameter :: EXPECTED = repeat(ALL_UPPER, 2)
+      character(len=*), parameter :: TEST = ALL_LOWER // MIXED
+      character :: expected_ch, test_ch
+      integer :: i
+
+      do i=1, len(TEST)
+         test_ch = TEST(i:i)
+         expected_ch = EXPECTED(i:i)
+         @assert_that(uppercase(test_ch), is(expected_ch))
+      end do
+
+   end subroutine test_uppercase
+
+   @Test
+   subroutine test_is_digit()
+      integer :: i
+
+      do i=1, len(DIGITS)
+         @assert_that(is_digit(DIGITS(i:i)), is(true()))
+      end do
+
+      do i=ASCII_MIN, iachar('0')-1
+         @assert_that(is_digit(char(i)), is(false()))
+      end do
+
+      do i=iachar('9')+1, ASCII_MAX
+         @assert_that(is_digit(char(i)), is(false()))
+      end do
+
+   end subroutine test_is_digit
+
+   @Test
+   subroutine test_get_ascii_range()
+   end subroutine test_get_ascii_range
+   
 end module Test_StringCommon

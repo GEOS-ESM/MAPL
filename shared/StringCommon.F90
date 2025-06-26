@@ -34,7 +34,7 @@ module mapl3g_StringCommon
       module procedure :: get_ascii_range_string
    end interface get_ascii_range
 
-   integer, parameter :: ASCII_UPPER_SHIFT = iachar('A') - iachar('a')
+   integer, parameter :: ASCII_UPPER_SHIFT = 32
    character(len=*), parameter :: DIGITS = '0123456789'
 
 contains
@@ -75,7 +75,7 @@ contains
       character, intent(in) :: ch
 
       th = ch
-      if(is_upper(th)) th = achar(iachar(th)-ASCII_UPPER_SHIFT)
+      if(is_upper(th)) th = achar(iachar(th)+ASCII_UPPER_SHIFT)
 
    end function lowercase
 
@@ -92,7 +92,7 @@ contains
       character, intent(in) :: ch
 
       th = ch
-      if(is_lower(th)) th = achar(iachar(th)+ASCII_UPPER_SHIFT)
+      if(is_lower(th)) th = achar(iachar(th)-ASCII_UPPER_SHIFT)
 
    end function uppercase
 
@@ -113,14 +113,14 @@ contains
    elemental logical function is_digit(ch)
       character, intent(in) :: ch
 
-      is_digit = (index(ch, DIGITS) > 0)
+      is_digit = (index(DIGITS, ch) > 0)
 
    end function is_digit
 
    logical function is_numeric(s)
       character(len=*), intent(in) :: s
 
-      is_numeric = all(is_digit(to_char_array(s)))
+      is_numeric = all(is_digit(to_char_array(s))) .and. len(s) > 0
 
    end function is_numeric
 
@@ -159,7 +159,7 @@ contains
       incl_und_ = .TRUE.
       if(present(exclude_underscore)) incl_und_ = .not. exclude_underscore
 
-      is_alphanumeric = all(predicate(to_char_array(s), incl_und_))
+      is_alphanumeric = all(predicate(to_char_array(s), incl_und_)) .and. len(s) > 0
 
    contains
 
@@ -183,7 +183,7 @@ contains
    logical function is_alpha_only(s)
       character(len=*), intent(in) :: s
 
-      is_alpha_only = all(is_alpha(to_char_array(s)))
+      is_alpha_only = all(is_alpha(to_char_array(s))) .and. len(s) > 0
 
    end function is_alpha_only
 
