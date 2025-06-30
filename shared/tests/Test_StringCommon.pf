@@ -4,30 +4,36 @@ module Test_StringCommon
    use pfunit
    implicit none(type, external)
 
+   ! Common parameters
    character(len=*), parameter :: EMPTY = ''
-   integer, parameter :: ASCII_MIN=0
-   integer, parameter :: ASCII_MAX=127
    character(len=*), parameter :: MIXED = 'AbC_ +09'
    character(len=*), parameter :: ALL_LOWER = 'abc_ +09'
    character(len=*), parameter :: ALL_UPPER = 'ABC_ +09'
-   character(len=*), parameter :: DIGITS = '01234567890'
    character(len=*), parameter :: DECLARATION = 'When in the course of human events...'
 
 contains
    
    @Test
    subroutine test_to_lower()
+      character(len=:), allocatable :: s
 
-      @assert_that(to_lower(MIXED), is(ALL_LOWER))
-      @assert_that(to_lower(EMPTY), is(EMPTY))
+      s = to_lower(MIXED)
+      ! Verify that mixed case string is converted to all lowercase.
+      @assertEqual(ALL_LOWER, s, '"' // s // '" should be all lowercase.')
+      ! Verify that it works with an empty string.
+      @assertEqual(EMPTY, to_lower(EMPTY), 'String should be empty')
 
    end subroutine test_to_lower
 
    @Test
    subroutine test_to_upper()
+      character(len=:), allocatable :: s
 
-      @assert_that(to_upper(MIXED), is(ALL_UPPER))
-      @assert_that(to_upper(EMPTY), is(EMPTY))
+      s = to_upper(MIXED)
+      ! Verify that mixed case string is converted to all uppercase.
+      @assertEqual(ALL_UPPER, to_upper(MIXED), '"' // s // '" should be all lowercase.')
+      ! Verify that it works with an empty string.
+      @assertEqual(EMPTY, to_upper(EMPTY), 'String should be empty.')
 
    end subroutine test_to_upper
 
@@ -36,120 +42,193 @@ contains
       character(len=*), parameter :: TWOCITIES='it was the best of times....'
       character(len=*), parameter :: CAPITAL='It was the best of times....'
       character(len=*), parameter :: NUMBERED = '1. ' // TWOCITIES
+      character(len=:), allocatable :: s
 
-      @assert_that(capitalize(TWOCITIES), is(CAPITAL))
-      @assert_that(capitalize(NUMBERED), is(NUMBERED))
+      s = capitalize(TWOCITIES)
+      ! Verify that it returns a capitalized string when the first character is a letter.
+      @assertEqual(CAPITAL, s, 'The first letter of "' // s // '" should be uppercase.')
+
+      s = capitalize(NUMBERED)
+      ! Verify that it returns the same string when the first character is not a letter.
+      @assertEqual(NUMBERED, s, 'The fourth letter of "' // s // '" should not be uppercase.')
 
    end subroutine test_capitalize
    
    @Test
    subroutine test_is_alpha()
+      character(len=*), parameter :: LETTERS = 'amzAMZ'
+      character(len=*), parameter :: NOTLETTERS = ' _059=~'
+      integer :: i
+      character :: c
 
-      @assert_that(is_alpha('a'), is(true()))
-      @assert_that(is_alpha('m'), is(true()))
-      @assert_that(is_alpha('z'), is(true()))
-      @assert_that(is_alpha('A'), is(true()))
-      @assert_that(is_alpha('M'), is(true()))
-      @assert_that(is_alpha('Z'), is(true()))
-      @assert_that(is_alpha(' '), is(false()))
-      @assert_that(is_alpha('_'), is(false()))
-      @assert_that(is_alpha('0'), is(false()))
-      @assert_that(is_alpha('5'), is(false()))
-      @assert_that(is_alpha('9'), is(false()))
-      @assert_that(is_alpha(' '), is(false()))
-      @assert_that(is_alpha('='), is(false()))
-      @assert_that(is_alpha('~'), is(false()))
+      ! Verify these are letters.
+      do i=1, len(LETTERS)
+         c = LETTERS(i:i)
+         @assertTrue(is_alpha(c), c // ' is a letter.')
+      end do
+!      @assertTrue(is_alpha('a'), 'a is a letter.')
+!      @assertTrue(is_alpha('m'), 'm is a letter.')
+!      @assertTrue(is_alpha('z'), 'z is a letter.')
+!      @assertTrue(is_alpha('A'), 'A is a letter.')
+!      @assertTrue(is_alpha('M'), 'M is a letter.')
+!      @assertTrue(is_alpha('Z'), 'Z is a letter.')
+      ! Verify these are not letters.
+      do i=1, len(NOTLETTERS)
+         c = NOTLETTERS(i:i)
+         @assertTrue(.not. is_alpha(c), c // ' is not a letter.')
+      end do
+!      @assertTrue(.not. is_alpha(' '), '<SPACE> is not a letter.')
+!      @assertTrue(.not. is_alpha('_'), '_ is not a letter.')
+!      @assertTrue(.not. is_alpha('0'), '0 is not a letter.')
+!      @assertTrue(.not. is_alpha('5'), '5 is not a letter.')
+!      @assertTrue(.not. is_alpha('9'), '9 is not a letter.')
+!      @assertTrue(.not. is_alpha(' '), '<SPACE> is not a letter.')
+!      @assertTrue(.not. is_alpha('='), '= is not a letter.')
+!      @assertTrue(.not. is_alpha('~'), '~ is not a letter.')
 
    end subroutine test_is_alpha
    
    @Test
    subroutine test_is_alpha_only()
-      character(len=*), parameter :: STRING = 'String'
+      character(len=*), parameter :: GOOD_STRING = 'String'
+      character, parameter :: SIGIL = '`'
+      character(len=*), parameter :: NOTLETTERS = ' _1'
+      character(len=32), parameter = BAD_STRINGS(*) = [character(len=32) :: &
+         & SIGIL // NOT_LETTERS // SIGIL, SIGIL // NOT_LETTERS // G
+      ]
+      character(len=*), parameter :: BAD = '1 _'
+      character(len=*), parameter :: BAD_STRING = BAD // GOOD_STRING // BAD
+      character(len=:), allocatable :: s
+      integer :: i, a, b
+      integer, parameter :: NEXTRA = 6
+      integer :: extras_indices(2*NEXTRA)
 
-      @assert_that(is_alpha_only(STRING), is(true()))
-      @assert_that(is_alpha_only(STRING //  ' '), is(false()))
-      @assert_that(is_alpha_only(' ' // STRING), is(false()))
-      @assert_that(is_alpha_only('1' // STRING), is(false()))
-      @assert_that(is_alpha_only(STRING // '1'), is(false()))
-      @assert_that(is_alpha_only('_' // STRING), is(false()))
-      @assert_that(is_alpha_only(STRING // '_'), is(false()))
+      extras_indices = 0
+      extras_indices(2:3) = iachar(' ')
+      extras_indices(6:7) = iachar('1')
+      extras_indices(10:11) = iachar('_')
+
+      s = STRING
+      ! Verify this string contains only letters.
+      @assertTrue(is_alpha_only(s), '"' // s // '" contains only letters.')
+      ! Verify these strings contain more than letters.
+      do i=1, size(extra_indices, 1)
+         a = extra_indices(i, 1)
+         b = extra_indices(i, 2)
+         s = STRING
+         if(a > 0) then
+            s = achar(a) // s
+         end if
+         if(b > 0) then
+            s = s // achar(b)
+         end if
+         @assertTrue(.not. is_alpha_only(s), '"' // s // '" contains characters that are not letters.')
+      end do
 
    end subroutine test_is_alpha_only
 
    @Test
    subroutine test_is_numeric()
       character(len=*), parameter :: NUMBERS = '0123456789'
+      character(len=:), allocatable :: s
 
-      @assert_that(is_numeric(NUMBERS), is(true()))
-      @assert_that(is_numeric(EMPTY), is(false()))
-      @assert_that(is_numeric(' '), is(false()))
-      @assert_that(is_numeric(NUMBERS // ' '), is(false()))
-      @assert_that(is_numeric(' ' // NUMBERS), is(false()))
-      @assert_that(is_numeric('A' // NUMBERS), is(false()))
-      @assert_that(is_numeric(NUMBERS // 'A'), is(false()))
-      @assert_that(is_numeric('_' // NUMBERS), is(false()))
-      @assert_that(is_numeric(NUMBERS // '_'), is(false()))
+      ! Verify this string only contains digits.
+      s = NUMBERS
+      @assertTrue(is_numeric(s), '"'// s //'" contains only numbers.')
+      ! Verify these strings contain characters other than digits.
+      @assertFalse(is_numeric(EMPTY), 'The empty string contains no numbers.')
+      @assertFalse(is_numeric(' '), '<SPACE> is not a number.')
+      s = NUMBERS // ' '
+      @assertFalse(is_numeric(s), '"'// s //'" contains characters that are not numbers.')
+      s = ' ' // NUMBERS
+      @assertFalse(is_numeric(s), '"'// s //'" contains characters that are not numbers.')
+      s = 'A' // NUMBERS
+      @assertFalse(is_numeric(s), '"'// s //'" contains characters that are not numbers.')
+      s = NUMBERS // 'A'
+      @assertFalse(is_numeric(s), '"'// s //'" contains characters that are not numbers.')
+      s = '_' // NUMBERS
+      @assertFalse(is_numeric(s), '"'// s //'" contains characters that are not numbers.')
+      s = NUMBERS // '_'
+      @assertFalse(is_numeric(s), '"'// s //'" contains characters that are not numbers.')
 
    end subroutine test_is_numeric
 
    @Test
    subroutine test_is_alphanumeric()
+      character(len=:), allocatable :: s
 
-      @assert_that(is_alphanumeric('A0_'), is(true()))
-      @assert_that(is_alphanumeric(''), is(false()))
-      @assert_that(is_alphanumeric(' '), is(false()))
-      @assert_that(is_alphanumeric('+'), is(false()))
+      s = 'A0_'
+      ! Verify this string is contains letters, digits or underscore only.
+      @assertTrue(is_alphanumeric(s), '"' // s // '" is alphanumeric (including underscore.)')
+      ! Verify this string contains characters that are not letters or numbers.
+      @assertFalse(is_alphanumeric(s, exclude_underscore=.TRUE.), '"' // s // '" is not alphanumeric (excluding underscore.)')
+      ! Verify these strings contains characters other than letters, digits, or underscore.
+      @assertFalse(is_alphanumeric(''), 'The empty string is not alphanumeric.')
+      @assertFalse(is_alphanumeric(' '), '<SPACE> is not alphanumeric.')
+      @assertFalse(is_alphanumeric('+'), '+ is not alphanumeric.')
 
    end subroutine test_is_alphanumeric
-   
-   @Test
-   subroutine test_to_string()
-      character, allocatable :: chars(:)
-
-      chars=to_char_array(DECLARATION)
-      @assert_that(to_string(chars), is(DECLARATION))
-
-   end subroutine test_to_string
 
    @Test
    subroutine test_to_char_array()
       character, allocatable :: chars(:)
       integer :: i
+      character :: c, s
 
       chars=to_char_array(DECLARATION)
-      @assert_that(size(chars), is(len(DECLARATION)))
+      ! Verify the size of the returned character array is the same as the length of the string.
+      @assertEqual(size(chars), len(DECLARATION), 'The array size should equal the string length.')
       do i=1, len(DECLARATION)
-         @assert_that(chars(i), is(DECLARATION(i:i)))
+         c = chars(i)
+         s = DECLARATION(i:i)
+         ! Verify character i in the array matches character i in the string.
+         @assertEqual(s, c, '"' // c // '" does not match "' // s // '".')
       end do
 
    end subroutine test_to_char_array
    
    @Test
+   subroutine test_to_string()
+      character, allocatable :: chars(:)
+      character(len=:), allocatable :: string
+
+      ! This test depends on the to_char_array function.
+      ! Check the result of the test of the to_char_array function to verify this tests result is valid.
+      chars=to_char_array(DECLARATION)
+      string = to_string(chars)
+      ! Verify that the returned string is the same as the string used to generate the character array.
+      @assertEqual(DECLARATION, string, '"' // string // '" does not match "' // DECLARATION // '".')
+
+   end subroutine test_to_string
+   
+   @Test
    subroutine test_lowercase()
-      character(len=*), parameter :: EXPECTED = repeat(ALL_LOWER, 2)
-      character(len=*), parameter :: TEST = ALL_UPPER // MIXED
-      character :: expected_ch, test_ch
+      character(len=*), parameter :: EXPECTED = ALL_LOWER
+      character(len=*), parameter :: TEST = MIXED
       integer :: i
+      character :: e, a
 
       do i=1, len(TEST)
-         test_ch = TEST(i:i)
-         expected_ch = EXPECTED(i:i)
-         @assert_that(lowercase(test_ch), is(expected_ch))
+         e = EXPECTED(i:i)
+         a = lowercase(TEST(i:i))
+         ! Verify that each character is converted to lowercase correctly.
+         @assertEqual(e, a, '"' // a // '" does not match "' // e // '".')
       end do
 
    end subroutine test_lowercase
 
    @Test
    subroutine test_uppercase()
-      character(len=*), parameter :: EXPECTED = repeat(ALL_UPPER, 2)
-      character(len=*), parameter :: TEST = ALL_LOWER // MIXED
-      character :: expected_ch, test_ch
+      character(len=*), parameter :: EXPECTED = ALL_UPPER
+      character(len=*), parameter :: TEST = MIXED
       integer :: i
+      character :: e, a
 
       do i=1, len(TEST)
-         test_ch = TEST(i:i)
-         expected_ch = EXPECTED(i:i)
-         @assert_that(uppercase(test_ch), is(expected_ch))
+         e = EXPECTED(i:i)
+         a = uppercase(TEST(i:i))
+         ! Verify that each character is converted to uppercase correctly.
+         @assertEqual(e, a, '"' // a // '" does not match "' // e // '".')
       end do
 
    end subroutine test_uppercase
@@ -157,23 +236,55 @@ contains
    @Test
    subroutine test_is_digit()
       integer :: i
+      character(len=*), parameter :: DIGITS = '01234567890'
+      character :: c
+      ! No magic numbers!
+      integer, parameter :: ASCII_MIN=0
+      integer, parameter :: ASCII_MAX=127
 
+      ! Verify these are digits.
       do i=1, len(DIGITS)
-         @assert_that(is_digit(DIGITS(i:i)), is(true()))
+         @assertTrue(is_digit(DIGITS(i:i)),  DIGITS(i:i) // ' is a digit.')
       end do
 
+      ! Verify these are not digits.
       do i=ASCII_MIN, iachar('0')-1
-         @assert_that(is_digit(char(i)), is(false()))
+         c = char(i)
+         @assertTrue(.not. is_digit(c),  c // ' is not a digit.')
       end do
 
       do i=iachar('9')+1, ASCII_MAX
-         @assert_that(is_digit(char(i)), is(false()))
+         c = char(i)
+         @assertTrue(.not. is_digit(c),  c // ' is not a digit.')
       end do
 
    end subroutine test_is_digit
 
    @Test
    subroutine test_get_ascii_range()
+      integer, parameter :: RANGE_SIZE = 16
+      character(len=RANGE_SIZE) :: string
+      character :: char_array(RANGE_SIZE)
+      integer :: i, j, k
+      character, parameter :: chars(*) = [' ', '0', '@', 'P', '`', 'o']
+      character :: ca, cb, cc
+
+      do i=1, len(chars)
+         ca = chars(i)
+         cb = achar(iachar(ca)+RANGE_SIZE-1)
+         char_array = get_ascii_range([ca, cb])
+         string = get_ascii_range(ca//cb)
+         ! Verify that the ranges, character array and string, match the ranges requested.
+         do j=0, RANGE_SIZE-1
+            k=j+1
+            cb=achar(iachar(ca)+j)
+            cc = char_array(k)
+            @assertEqual(cb, cc, cc // ' should match ' // cb // '.')
+            cc = string(k:k)
+            @assertEqual(cb, cc, cc // ' should match ' // cb // '.')
+         end do
+      end do
+      
    end subroutine test_get_ascii_range
    
 end module Test_StringCommon
