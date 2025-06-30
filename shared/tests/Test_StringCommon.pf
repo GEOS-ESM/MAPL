@@ -57,7 +57,7 @@ contains
    @Test
    subroutine test_is_alpha()
       character(len=*), parameter :: LETTERS = 'amzAMZ'
-      character(len=*), parameter :: NOTLETTERS = ' _059=~'
+      character(len=*), parameter :: NOT_LETTERS = ' _059=~'
       integer :: i
       character :: c
 
@@ -66,62 +66,41 @@ contains
          c = LETTERS(i:i)
          @assertTrue(is_alpha(c), c // ' is a letter.')
       end do
-!      @assertTrue(is_alpha('a'), 'a is a letter.')
-!      @assertTrue(is_alpha('m'), 'm is a letter.')
-!      @assertTrue(is_alpha('z'), 'z is a letter.')
-!      @assertTrue(is_alpha('A'), 'A is a letter.')
-!      @assertTrue(is_alpha('M'), 'M is a letter.')
-!      @assertTrue(is_alpha('Z'), 'Z is a letter.')
       ! Verify these are not letters.
-      do i=1, len(NOTLETTERS)
-         c = NOTLETTERS(i:i)
+      do i=1, len(NOT_LETTERS)
+         c = NOT_LETTERS(i:i)
          @assertTrue(.not. is_alpha(c), c // ' is not a letter.')
       end do
-!      @assertTrue(.not. is_alpha(' '), '<SPACE> is not a letter.')
-!      @assertTrue(.not. is_alpha('_'), '_ is not a letter.')
-!      @assertTrue(.not. is_alpha('0'), '0 is not a letter.')
-!      @assertTrue(.not. is_alpha('5'), '5 is not a letter.')
-!      @assertTrue(.not. is_alpha('9'), '9 is not a letter.')
-!      @assertTrue(.not. is_alpha(' '), '<SPACE> is not a letter.')
-!      @assertTrue(.not. is_alpha('='), '= is not a letter.')
-!      @assertTrue(.not. is_alpha('~'), '~ is not a letter.')
 
    end subroutine test_is_alpha
    
    @Test
    subroutine test_is_alpha_only()
       character(len=*), parameter :: GOOD_STRING = 'String'
-      character, parameter :: SIGIL = '`'
-      character(len=*), parameter :: NOTLETTERS = ' _1'
-      character(len=32), parameter = BAD_STRINGS(*) = [character(len=32) :: &
-         & SIGIL // NOT_LETTERS // SIGIL, SIGIL // NOT_LETTERS // G
-      ]
-      character(len=*), parameter :: BAD = '1 _'
-      character(len=*), parameter :: BAD_STRING = BAD // GOOD_STRING // BAD
+      character(len=*), parameter :: NOT_LETTERS = ' _1'
       character(len=:), allocatable :: s
-      integer :: i, a, b
-      integer, parameter :: NEXTRA = 6
-      integer :: extras_indices(2*NEXTRA)
+      integer :: i, j
 
-      extras_indices = 0
-      extras_indices(2:3) = iachar(' ')
-      extras_indices(6:7) = iachar('1')
-      extras_indices(10:11) = iachar('_')
-
-      s = STRING
+      s = GOOD_STRING
       ! Verify this string contains only letters.
       @assertTrue(is_alpha_only(s), '"' // s // '" contains only letters.')
+      ! Verify these strings do not contain letters.
+      @assertFalse(is_alpha_only(''), 'The empty string contains no letters.')
+      do i=1, len(NOT_LETTERS)
+         s = NOT_LETTERS(i:i)
+         @assertTrue(.not. is_alpha_only(s), '"' // s // '" contains no letters.')
+      end do
       ! Verify these strings contain more than letters.
-      do i=1, size(extra_indices, 1)
-         a = extra_indices(i, 1)
-         b = extra_indices(i, 2)
-         s = STRING
-         if(a > 0) then
-            s = achar(a) // s
-         end if
-         if(b > 0) then
-            s = s // achar(b)
-         end if
+      do i=1, len(NOT_LETTERS)
+         do j=1, len(NOT_LETTERS)
+            s = NOT_LETTERS(i:i) // GOOD_STRING // NOT_LETTERS(j:j)
+            @assertTrue(.not. is_alpha_only(s), '"' // s // '" contains characters that are not letters.')
+         end do
+         s = NOT_LETTERS(i:i) // GOOD_STRING
+         @assertTrue(.not. is_alpha_only(s), '"' // s // '" contains characters that are not letters.')
+      end do
+      do j=1, len(NOT_LETTERS)
+         s = GOOD_STRING // NOT_LETTERS(j:j)
          @assertTrue(.not. is_alpha_only(s), '"' // s // '" contains characters that are not letters.')
       end do
 
@@ -131,25 +110,30 @@ contains
    subroutine test_is_numeric()
       character(len=*), parameter :: NUMBERS = '0123456789'
       character(len=:), allocatable :: s
+      character(len=*), parameter :: NOT_NUMBERS = ' _A'
+      integer :: i, j
 
       ! Verify this string only contains digits.
       s = NUMBERS
-      @assertTrue(is_numeric(s), '"'// s //'" contains only numbers.')
-      ! Verify these strings contain characters other than digits.
-      @assertFalse(is_numeric(EMPTY), 'The empty string contains no numbers.')
-      @assertFalse(is_numeric(' '), '<SPACE> is not a number.')
-      s = NUMBERS // ' '
-      @assertFalse(is_numeric(s), '"'// s //'" contains characters that are not numbers.')
-      s = ' ' // NUMBERS
-      @assertFalse(is_numeric(s), '"'// s //'" contains characters that are not numbers.')
-      s = 'A' // NUMBERS
-      @assertFalse(is_numeric(s), '"'// s //'" contains characters that are not numbers.')
-      s = NUMBERS // 'A'
-      @assertFalse(is_numeric(s), '"'// s //'" contains characters that are not numbers.')
-      s = '_' // NUMBERS
-      @assertFalse(is_numeric(s), '"'// s //'" contains characters that are not numbers.')
-      s = NUMBERS // '_'
-      @assertFalse(is_numeric(s), '"'// s //'" contains characters that are not numbers.')
+      @assertTrue(is_numeric(s), '"'// s //'" contains only digits.')
+      ! Verify these strings contain no digits.
+      @assertTrue(.not. is_numeric(EMPTY), 'The empty string contains no digits.')
+      do i=1, len(NOT_NUMBERS)
+         s = NOT_NUMBERS(i:i)
+         @assertTrue(.not. is_numeric(s), '"'// s //'" contains no digits.')
+      end do
+      do i=1, len(NOT_NUMBERS)
+         do j=1, len(NOT_NUMBERS)
+            s = NOT_NUMBERS(i:i) // NUMBERS // NOT_NUMBERS(j:j)
+            @assertTrue(.not. is_numeric(s), '"'// s //'" contains characters that are not digits.')
+         end do
+         s = NOT_NUMBERS(i:i) // NUMBERS
+         @assertTrue(.not. is_numeric(s), '"'// s //'" contains characters that are not digits.')
+      end do
+      do j=1, len(NOT_NUMBERS)
+         s = NUMBERS // NOT_NUMBERS(j:j)
+         @assertTrue(.not. is_numeric(s), '"'// s //'" contains characters that are not digits.')
+      end do
 
    end subroutine test_is_numeric
 
@@ -161,11 +145,11 @@ contains
       ! Verify this string is contains letters, digits or underscore only.
       @assertTrue(is_alphanumeric(s), '"' // s // '" is alphanumeric (including underscore.)')
       ! Verify this string contains characters that are not letters or numbers.
-      @assertFalse(is_alphanumeric(s, exclude_underscore=.TRUE.), '"' // s // '" is not alphanumeric (excluding underscore.)')
+      @assertTrue(.not.is_alphanumeric(s, exclude_underscore=.TRUE.), '"' // s // '" is not alphanumeric (excluding underscore.)')
       ! Verify these strings contains characters other than letters, digits, or underscore.
-      @assertFalse(is_alphanumeric(''), 'The empty string is not alphanumeric.')
-      @assertFalse(is_alphanumeric(' '), '<SPACE> is not alphanumeric.')
-      @assertFalse(is_alphanumeric('+'), '+ is not alphanumeric.')
+      @assertTrue(.not.is_alphanumeric(''), 'The empty string is not alphanumeric.')
+      @assertTrue(.not.is_alphanumeric(' '), '<SPACE> is not alphanumeric.')
+      @assertTrue(.not.is_alphanumeric('+'), '+ is not alphanumeric.')
 
    end subroutine test_is_alphanumeric
 
@@ -193,7 +177,7 @@ contains
       character(len=:), allocatable :: string
 
       ! This test depends on the to_char_array function.
-      ! Check the result of the test of the to_char_array function to verify this tests result is valid.
+      ! Check the result of the to_char_array function test to verify this test result is valid.
       chars=to_char_array(DECLARATION)
       string = to_string(chars)
       ! Verify that the returned string is the same as the string used to generate the character array.
