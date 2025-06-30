@@ -71,7 +71,7 @@ contains
    subroutine stage_time_to_file(this,filename, times, rc)
       class(GeomPFIO), intent(inout) :: this
       character(len=*), intent(in) :: filename
-      real, intent(in) :: times
+      real, intent(in) :: times(:)
       integer, optional, intent(out) :: rc
 
       integer :: status

@@ -1,9 +1,9 @@
 ## MAPL Cap
 
-The main program (or, in ESMF lingo, the Cap) of any ESMF application is 
+The main program (or, in ESMF lingo, the Cap) of any ESMF application is
 provided by the user. In MAPL, it initiates the execution of each of the
 sub-hierarchies of the application (`SetServices`, `Initialize`, `Run`,
-`Finalize`, and the new `Record`). 
+`Finalize`, and the new `Record`).
 Usually, each of these, except `Run` and `Record`, is executed only once.
 
  In MAPL applications, the Cap contains the time loop.
@@ -83,5 +83,5 @@ probably easier to look at its full code than to try to describe its
 functioning in detail. Studying this code should also be useful if one
 decides to write a more specialized custom version to replace it.
 
-For additional information, please consult the document 
-[CapGridComp.md](../../gridcomps/Cap/CapGridComp.md).
+For additional information, please consult the document
+[CapGridComp.md](../../../gridcomps/Cap/CapGridComp.md).

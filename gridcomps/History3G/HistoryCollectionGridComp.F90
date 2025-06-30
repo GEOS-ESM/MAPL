@@ -74,7 +74,7 @@ contains
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
       collection_gridcomp%output_bundle = create_output_bundle(hconfig, importState, _RC)
 
-      call MAPL_GridCompGet(gridcomp, geom=geom, _RC)
+      geom = detect_geom(collection_gridcomp%output_bundle, name, _RC)
       metadata = bundle_to_metadata(collection_gridcomp%output_bundle, geom, _RC)
       mapl_geom => get_mapl_geom(geom, _RC)
       allocate(collection_gridcomp%writer, source=make_geom_pfio(metadata, rc=status))
@@ -82,7 +82,7 @@ contains
       call collection_gridcomp%writer%initialize(metadata, mapl_geom, _RC)
 
       collection_gridcomp%start_stop_times = set_start_stop_time(clock, hconfig, _RC)
-
+      collection_gridcomp%timeStep = get_frequency(hconfig, _RC)
       collection_gridcomp%current_file = null_file
       collection_gridcomp%template = ESMF_HConfigAsString(hconfig, keyString='template', _RC)
       
@@ -101,10 +101,14 @@ contains
       integer :: status
       type(ESMF_HConfig) :: hconfig
       type(ESMF_Geom) :: geom
+      logical :: has_geom
 
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
-      geom = make_geom(hconfig)
-      call MAPL_GridCompSetGeom(gridcomp, geom, _RC)
+      has_geom = ESMF_HConfigIsDefined(hconfig, keystring='geom', _RC)
+      if (has_geom) then
+         geom = make_geom(hconfig)
+         call MAPL_GridCompSetGeom(gridcomp, geom, _RC)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine init_geom
@@ -123,6 +127,7 @@ contains
       type(ESMF_Time) :: current_time
       character(len=ESMF_MAXSTR) :: name
       character(len=128) :: current_file
+      real, allocatable :: current_time_vector(:)
 
       call ESMF_GridCompGet(gridcomp, name=name, _RC)
       call ESMF_ClockGet(clock, currTime=current_time, _RC)
@@ -142,7 +147,8 @@ contains
          collection_gridcomp%initial_file_time = current_time
       end if
 
-      time_index = get_current_time_index(collection_gridcomp%initial_file_time, current_time, collection_gridcomp%timeStep)
+      call get_current_time_info(collection_gridcomp%initial_file_time, current_time, collection_gridcomp%timeStep, time_index, current_time_vector, _RC)
+      call collection_gridcomp%writer%stage_time_to_file(collection_gridcomp%current_file, current_time_vector,  _RC)
       call collection_gridcomp%writer%stage_data_to_file(collection_gridcomp%output_bundle, collection_gridcomp%current_file, time_index, _RC)
       _RETURN(_SUCCESS)
 
