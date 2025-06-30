@@ -11,7 +11,7 @@ module mapl3g_StringCommon
    public :: is_numeric
    public :: is_alphanumeric
    public :: to_string
-   public :: to_char_array
+   public :: to_character_array
    public :: lowercase
    public :: uppercase
    public :: is_digit
@@ -34,25 +34,26 @@ module mapl3g_StringCommon
       module procedure :: get_ascii_range_string
    end interface get_ascii_range
 
-   integer, parameter :: ASCII_UPPER_SHIFT = 32
+   integer, parameter :: ASCII_UPPER_SHIFT = -32
    character(len=*), parameter :: DIGITS = '0123456789'
 
 contains
 
    function to_string(array) result(string)
+      character(len=:), allocatable :: string
       character, intent(in) :: array(:)
-      character(len=size(array)) :: string
       integer :: i
 
+      allocate(character(len=size(array)) :: string)
       do i = 1, size(array)
          string(i:i) = array(i)
       end do
 
    end function to_string
 
-   function to_char_array(s) result(ch)
-      character(len=*), intent(in) :: s
+   function to_character_array(s) result(ch)
       character, allocatable :: ch(:)
+      character(len=*), intent(in) :: s
       integer :: i
 
       allocate(ch(len(s)))
@@ -60,13 +61,13 @@ contains
          ch(i) = s(i:i)
       end do
 
-   end function to_char_array
+   end function to_character_array
 
    function to_lower_string(s) result(t)
       character(len=:), allocatable :: t
       character(len=*), intent(in) :: s
       
-      t = to_string(lowercase(to_char_array(s)))
+      t = to_string(lowercase(to_character_array(s)))
 
    end function to_lower_string
 
@@ -75,7 +76,7 @@ contains
       character, intent(in) :: ch
 
       th = ch
-      if(is_upper(th)) th = achar(iachar(th)+ASCII_UPPER_SHIFT)
+      if(is_upper(th)) th = achar(iachar(th)-ASCII_UPPER_SHIFT)
 
    end function lowercase
 
@@ -83,7 +84,7 @@ contains
       character(len=:), allocatable :: t
       character(len=*), intent(in) :: s
 
-      t = to_string(uppercase(to_char_array(s)))
+      t = to_string(uppercase(to_character_array(s)))
 
    end function to_upper_string
 
@@ -92,7 +93,7 @@ contains
       character, intent(in) :: ch
 
       th = ch
-      if(is_lower(th)) th = achar(iachar(th)-ASCII_UPPER_SHIFT)
+      if(is_lower(th)) th = achar(iachar(th)+ASCII_UPPER_SHIFT)
 
    end function uppercase
 
@@ -120,7 +121,7 @@ contains
    logical function is_numeric(s)
       character(len=*), intent(in) :: s
 
-      is_numeric = all(is_digit(to_char_array(s))) .and. len(s) > 0
+      is_numeric = all(is_digit(to_character_array(s))) .and. len(s) > 0
 
    end function is_numeric
 
@@ -147,7 +148,7 @@ contains
       character(len=:), allocatable :: range
       character(len=2), intent(in) :: bounds
       
-      range = to_string(get_ascii_range(to_char_array(bounds)))
+      range = to_string(get_ascii_range(to_character_array(bounds)))
 
    end function get_ascii_range_string
 
@@ -159,7 +160,7 @@ contains
       incl_und_ = .TRUE.
       if(present(exclude_underscore)) incl_und_ = .not. exclude_underscore
 
-      is_alphanumeric = all(predicate(to_char_array(s), incl_und_)) .and. len(s) > 0
+      is_alphanumeric = all(predicate(to_character_array(s), incl_und_)) .and. len(s) > 0
 
    contains
 
@@ -183,7 +184,7 @@ contains
    logical function is_alpha_only(s)
       character(len=*), intent(in) :: s
 
-      is_alpha_only = all(is_alpha(to_char_array(s))) .and. len(s) > 0
+      is_alpha_only = all(is_alpha(to_character_array(s))) .and. len(s) > 0
 
    end function is_alpha_only
 

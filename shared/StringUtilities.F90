@@ -4,60 +4,32 @@
 
 module mapl_StringUtilities
    use gftl2_StringVector
+   use mapl3g_StringCommon
    use mapl_KeywordEnforcer
    implicit none(type,external)
    private
 
+   public :: split
+   ! These are imported from mapl3g_StringCommon.
    public :: to_lower
    public :: to_upper
-   public :: split
+   public :: capitalize
+   public :: is_alpha
+   public :: is_alpha_only
+   public :: is_numeric
+   public :: is_alphanumeric
+   public :: to_string
+   public :: to_character_array
+   public :: lowercase
+   public :: uppercase
+   public :: is_digit
+   public :: get_ascii_range
 
    interface split
       procedure :: split_string
    end interface split
 
-   integer, parameter :: ASCII_UPPER_SHIFT = iachar('A') - iachar('a')
-
 contains
-
-   function to_lower(s) result(lower)
-      character(*), intent(in) :: s
-      character(:), allocatable :: lower
-
-      integer :: i
-      integer :: n
-
-      n = len(s)
-
-      allocate(character(len=n) :: lower)
-      do i = 1, n
-         lower(i:i) = s(i:i)
-         if (s(i:i) >= 'A' .and. s(i:i) <= 'Z') then
-            lower(i:i) = achar(iachar(s(i:i)) - ASCII_UPPER_SHIFT)
-         end if
-      end do
-
-   end function to_lower
-
-   function to_upper(s) result(upper)
-      character(*), intent(in) :: s
-      character(:), allocatable :: upper
-
-      integer :: i
-      integer :: n
-
-      n = len(s)
-
-      allocate(character(len=n) :: upper)
-      do i = 1, n
-         upper(i:i) = s(i:i)
-         if (s(i:i) >= 'a' .and. s(i:i) <= 'z') then
-            upper(i:i) = achar(iachar(s(i:i)) + ASCII_UPPER_SHIFT)
-         end if
-      end do
-
-   end function to_upper
-
 
    ! The following function takes a delimited string (default
    ! comma-delimited) and returns a StringVector whose elements are
