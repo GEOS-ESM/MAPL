@@ -282,4 +282,27 @@ contains
       
    end subroutine test_get_ascii_range
    
+   @Test
+   subroutine test_is_alphanum_character()
+      character(len=*), parameter :: ALPHANUMERIC = '059AMZamz'
+      character, parameter :: UNDERSCORE = '_'
+      character(len=*), parameter :: NOT_ALPHANUMERIC = ' !*:?@[`(~'
+      integer :: i
+      character :: c
+
+      do i=1, len(ALPHANUMERIC)
+         c = ALPHANUMERIC(i:i)
+         @assertTrue(is_alphanum_character(c, '"' // c // '" is alphanumeric.')
+      end do
+
+      @assertTrue(is_alphanum_character('_'), '"_" is alphanumeric.')
+      @assertFalse(is_alphanum_character('_', exclude_underscore=.TRUE.), '"_" is not strictly alphanumeric.')
+
+      do i=1, len(NOT_ALPHANUMERIC)
+         c = NOT_ALPHANUMERIC(i:i)
+         @assertFalse(is_alphanum_character(c), '"' // c // '" is not alphanumeric.')
+      end do
+
+   end subroutine test_is_alphanum_character
+
 end module Test_StringCommon
