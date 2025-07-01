@@ -3,6 +3,8 @@
 
 #include "unused_dummy.H"
 module MAPL_String
+   use mapl3g_StringCommon, only: to_upper, to_lower, capitalize_string => capitalize
+
    implicit none
    private
 
@@ -376,16 +378,7 @@ contains
       type(String) :: lower
       class(String), intent(in) :: this
 
-      integer :: i
-      character(1) :: c
-
-      lower = this
-      do i = 1, lower%len()
-         c = lower%string(i:i)
-         if (c >= 'A' .and. c <= 'Z') then
-            lower%string(i:i) = achar(iachar(c)+32)
-         end if
-      end do
+      lower%string = to_lower(this%string)
 
    end function lower
    
@@ -393,30 +386,15 @@ contains
       type(String) :: upper
       class(String), intent(in) :: this
 
-      integer :: i
-      character(1) :: c
-
-      upper = this
-      do i = 1, upper%len()
-         c = upper%string(i:i)
-         if (c >= 'a' .and. c <= 'z') then
-            upper%string(i:i) = achar(iachar(c)-32)
-         end if
-      end do
+      upper%string = to_upper(this%string)
 
    end function upper
    
    function capitalize(this)
       type(String) :: capitalize
       class(String), intent(in) :: this
-
-      character(1) :: c
-
-      capitalize = this%lower()
-      c = capitalize%string(1:1)
-      if (c >= 'a' .and. c <= 'z') then
-         capitalize%string(1:1) = achar(iachar(c)-32)
-      end if
+         
+      capitalize%string = capitalize_string(this%string)
 
    end function capitalize
 
