@@ -103,11 +103,14 @@ contains
 
    end function is_digit
 
-   elemental logical function is_alphanum_character(ch, incl_und)
+   elemental logical function is_alphanum_character(ch, exclude_underscore)
       character, intent(in) :: ch
-      logical, intent(in) :: incl_und
+      logical, optional, intent(in) :: exclude_underscore
+      logical :: incl_und_
 
-      is_alphanum_character = is_alpha(ch) .or. is_digit(ch) .or. (incl_und .and. ch == '_')
+      incl_und_ = .TRUE.
+      if(present(exclude_underscore)) incl_und_ = .not. exclude_underscore
+      is_alphanum_character = is_alpha(ch) .or. is_digit(ch) .or. (incl_und_ .and. ch == '_')
 
    end function is_alphanum_character
 
@@ -118,26 +121,25 @@ contains
    logical function is_alpha_only(s)
       character(len=*), intent(in) :: s
 
-      is_alpha_only = all(is_alpha(to_character_array(s))) .and. len(s) > 0
+      is_alpha_only = len(s) > 0 .and. all(is_alpha(to_character_array(s)))
 
    end function is_alpha_only
 
    logical function is_numeric(s)
       character(len=*), intent(in) :: s
 
-      is_numeric = all(is_digit(to_character_array(s))) .and. len(s) > 0
+      is_numeric = len(s) > 0 .and. all(is_digit(to_character_array(s)))
 
    end function is_numeric
 
    logical function is_alphanumeric(s, exclude_underscore)
       character(len=*), intent(in) :: s
       logical, optional, intent(in) :: exclude_underscore
-      logical :: incl_und_
+      logical :: exclude_underscore_
 
-      incl_und_ = .TRUE.
-      if(present(exclude_underscore)) incl_und_ = .not. exclude_underscore
-
-      is_alphanumeric = all(is_alphanum_character(to_character_array(s), incl_und_)) .and. len(s) > 0
+      exclude_underscore_ = .FALSE.
+      if(present(exclude_underscore)) exclude_underscore_ = exclude_underscore
+      is_alphanumeric = len(s) > 0 .and. all(is_alphanum_character(to_character_array(s), exclude_underscore_))
 
    end function is_alphanumeric
 

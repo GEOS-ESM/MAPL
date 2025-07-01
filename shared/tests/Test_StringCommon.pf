@@ -292,10 +292,10 @@ contains
 
       do i=1, len(ALPHANUMERIC)
          c = ALPHANUMERIC(i:i)
-         @assertTrue(is_alphanum_character(c, '"' // c // '" is alphanumeric.')
+         @assertTrue(is_alphanum_character(c), '"' // c // '" is alphanumeric.')
       end do
 
-      @assertTrue(is_alphanum_character('_'), '"_" is alphanumeric.')
+      @assertTrue(is_alphanum_character('_'), '"' // '_' // '" is alphanumeric.')
       @assertFalse(is_alphanum_character('_', exclude_underscore=.TRUE.), '"_" is not strictly alphanumeric.')
 
       do i=1, len(NOT_ALPHANUMERIC)
