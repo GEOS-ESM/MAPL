@@ -4,6 +4,8 @@
 # in the other libaries, but this make it explicit which aspects are externally
 # used.
 
+add_subdirectory(MAPL_Component_Driver)
+
 file (COPY MAPL_GridCompSpecs_ACG.py DESTINATION ${esma_etc}/MAPL)
 file (COPY MAPL_GridCompSpecs_ACGv3.py DESTINATION ${esma_etc}/MAPL)
 file (COPY mapl_acg.pl DESTINATION ${esma_etc}/MAPL)
