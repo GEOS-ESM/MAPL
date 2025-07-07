@@ -870,13 +870,6 @@ CONTAINS
         integer, optional        , intent(out  ) :: rc
         integer :: status
 
-        ! Added for GCHP
-        real, allocatable          :: levFile(:)
-        character(len=ESMF_MAXSTR) :: levunits,tlevunits
-        character(len=ESMF_MAXSTR) :: levstandardname,tlevstandardname
-        character(len=:), allocatable :: levname
-        character(len=:), pointer :: positive
-
         type(Variable), pointer :: var
 
         type(FileMetadataUtils), pointer :: metadata
@@ -902,32 +895,6 @@ CONTAINS
         else
            var=>item%file_metadata%get_variable(trim(item%var))
            _ASSERT(associated(var),"Variable "//TRIM(item%var)//" not found in file "//TRIM(item%file_template))
-        end if
-
-        ! Added for GCHP
-        levName = item%file_metadata%get_level_name(rc=status)
-        _VERIFY(status)
-        if (trim(levName) /='') then
-           call item%file_metadata%get_coordinate_info(levName,coordSize=item%lm,coordUnits=tLevUnits, &
-                standard_name=tLevStandardName,coords=levFile,_RC)
-           levUnits=MAPL_TrimString(tlevUnits)
-           ! check if vertical coordinate is pressure or dimensionless pressure proxy
-           item%levUnit = ESMF_UtilStringLowerCase(levUnits)
-           if ( ( trim(item%levUnit) == 'hpa' ) .or. &
-                ( trim(item%levUnit) == 'pa' ) .or. &
-                ( trim(item%levUnit) == 'sigma_level' ) ) then
-              item%havePressure = .true.
-           elseif ( trim(levStandardName) /= 'missing' ) then
-              ! check standard_name attribute to catch cases where lev values are
-              ! dimensionless vertical coordinates as proxy for pressure
-              levStandardName= trim(tlevStandardName)
-              item%levStandardName = ESMF_UtilStringLowerCase(levStandardName)
-              if ( ( index(trim(item%levStandardName),"atmosphere_hybrid_sigma_pressure_coordinate") > 0 ) .or. &
-                   ( index(trim(item%levStandardName),"atmosphere_sigma_coordinate") > 0 ) .or. &
-                   ( index(trim(item%levStandardName),"atmosphere_ln_pressure_coordinate") > 0 ) ) then
-                 item%havePressure = .true.
-              endif
-           end if
         end if
 
         item%vcoord = verticalCoordinate(metadata, item%var, _RC)
