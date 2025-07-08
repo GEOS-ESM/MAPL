@@ -10,6 +10,9 @@ module Test_StringCommon
    character(len=*), parameter :: ALL_LOWER = 'abc_ +09'
    character(len=*), parameter :: ALL_UPPER = 'ABC_ +09'
    character(len=*), parameter :: DECLARATION = 'When in the course of human events...'
+   ! No magic numbers!
+   integer, parameter :: ASCII_MIN=0
+   integer, parameter :: ASCII_MAX=127
 
 contains
    
@@ -233,9 +236,6 @@ contains
       integer :: i
       character(len=*), parameter :: DIGITS = '01234567890'
       character :: c
-      ! No magic numbers!
-      integer, parameter :: ASCII_MIN=0
-      integer, parameter :: ASCII_MAX=127
 
       ! Verify these are digits.
       do i=1, len(DIGITS)
@@ -256,21 +256,21 @@ contains
    end subroutine test_is_digit
 
    @Test
-   subroutine test_get_ascii_range()
-      integer, parameter :: RANGE_SIZE = 16
-      character(len=RANGE_SIZE) :: string
-      character :: char_array(RANGE_SIZE)
+   subroutine test_get_ascii_interval()
+      integer, parameter :: INTERVAL_SIZE = 16
+      character(len=INTERVAL_SIZE) :: string
+      character :: char_array(INTERVAL_SIZE)
       integer :: i, j, k
       character, parameter :: chars(*) = [' ', '0', '@', 'P', '`', 'o']
       character :: ca, cb, cc
 
       do i=1, len(chars)
          ca = chars(i)
-         cb = achar(iachar(ca)+RANGE_SIZE-1)
-         char_array = get_ascii_range([ca, cb])
-         string = get_ascii_range(ca//cb)
-         ! Verify that the ranges, character array and string, match the ranges requested.
-         do j=0, RANGE_SIZE-1
+         cb = achar(iachar(ca)+INTERVAL_SIZE-1)
+         char_array = get_ascii_interval([ca, cb])
+         string = get_ascii_interval(ca//cb)
+         ! Verify that the intervals, character array and string, match the intervals requested.
+         do j=0, INTERVAL_SIZE-1
             k=j+1
             cb=achar(iachar(ca)+j)
             cc = char_array(k)
@@ -280,7 +280,7 @@ contains
          end do
       end do
       
-   end subroutine test_get_ascii_range
+   end subroutine test_get_ascii_interval
    
    @Test
    subroutine test_is_alphanum_character()
@@ -304,5 +304,51 @@ contains
       end do
 
    end subroutine test_is_alphanum_character
+
+   @Test
+   subroutine test_is_lower_character()
+      integer, parameter :: IA = iachar('a')
+      integer, parameter :: IZ = iachar('z')
+      integer :: i
+      character :: actual
+
+      do i=IA, IZ
+         actual = achar(i)
+         @assertTrue(is_lower_character(actual), '"' // actual // '" is a lowercase character.')
+      end do
+
+      do i=ASCII_MIN, IA-1
+         actual = achar(i)
+         @assertFalse(is_lower_character(actual), '"' // actual // '" is not a lowercase character.')
+      end do
+
+      do i=IZ+1, ASCII_MAX
+         actual = achar(i)
+         @assertFalse(is_lower_character(actual), '"' // actual // '" is not a lowercase character.')
+      end do
+   end subroutine test_is_lower_character
+
+   @Test
+   subroutine test_is_upper_character()
+      integer, parameter :: IA = iachar('A')
+      integer, parameter :: IZ = iachar('Z')
+      integer :: i
+      character :: actual
+
+      do i=IA, IZ
+         actual = achar(i)
+         @assertTrue(is_upper_character(actual), '"' // actual // '" is an uppercase character.')
+      end do
+
+      do i=ASCII_MIN, IA-1
+         actual = achar(i)
+         @assertFalse(is_upper_character(actual), '"' // actual // '" is not an uppercase character.')
+      end do
+
+      do i=IZ+1, ASCII_MAX
+         actual = achar(i)
+         @assertFalse(is_upper_character(actual), '"' // actual // '" is not an uppercase character.')
+      end do
+   end subroutine test_is_upper_character
 
 end module Test_StringCommon

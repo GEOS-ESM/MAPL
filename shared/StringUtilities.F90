@@ -23,7 +23,7 @@ module mapl_StringUtilities
    public :: lowercase
    public :: uppercase
    public :: is_digit
-   public :: get_ascii_range
+   public :: get_ascii_interval
 
    interface split
       procedure :: split_string

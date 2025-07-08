@@ -5,8 +5,8 @@ module mapl3g_StringCommon
    public :: ASCII_UPPER_SHIFT
    public :: to_string
    public :: to_character_array
-   public :: is_lower
-   public :: is_upper
+   public :: is_lower_character
+   public :: is_upper_character
    public :: is_alpha
    public :: is_digit
    public :: is_alphanum_character
@@ -18,7 +18,7 @@ module mapl3g_StringCommon
    public :: to_lower
    public :: to_upper
    public :: capitalize
-   public :: get_ascii_range
+   public :: get_ascii_interval
 
    interface to_lower
       module procedure :: to_lower_string
@@ -32,13 +32,14 @@ module mapl3g_StringCommon
       module procedure :: capitalize_string
    end interface capitalize
 
-   interface get_ascii_range
-      module procedure :: get_ascii_range_array
-      module procedure :: get_ascii_range_string
-   end interface get_ascii_range
+   interface get_ascii_interval
+      module procedure :: get_ascii_interval_array
+      module procedure :: get_ascii_interval_string
+   end interface get_ascii_interval
 
-   ! ASCII_UPPER_SHIFT = iachar('A')-iachar('a')
-   integer, parameter :: ASCII_UPPER_SHIFT = -32
+   ! This is a constant completely determined by the ASCII standard. So it
+   ! is a compile constant that will never change despite the function calls.
+   integer, parameter :: ASCII_UPPER_SHIFT = iachar('A')-iachar('a')
    character(len=*), parameter :: DIGITS = '0123456789'
 
 contains
@@ -75,24 +76,24 @@ contains
    ! Inquiry functions - character
    !===============================================================================
 
-   elemental logical function is_lower(ch)
+   elemental logical function is_lower_character(ch)
       character, intent(in) :: ch
 
-      is_lower = ch >= 'a' .and. ch <= 'z'
+      is_lower_character = ch >= 'a' .and. ch <= 'z'
 
-   end function is_lower
+   end function is_lower_character
 
-   elemental logical function is_upper(ch)
+   elemental logical function is_upper_character(ch)
       character, intent(in) :: ch
 
-      is_upper = ch >= 'A' .and. ch <= 'Z'
+      is_upper_character = ch >= 'A' .and. ch <= 'Z'
 
-   end function is_upper
+   end function is_upper_character
 
    elemental logical function is_alpha(ch)
       character, intent(in) :: ch
 
-      is_alpha = is_lower(ch) .or. is_upper(ch)
+      is_alpha = is_lower_character(ch) .or. is_upper_character(ch)
 
    end function is_alpha
 
@@ -152,7 +153,7 @@ contains
       character, intent(in) :: ch
 
       th = ch
-      if(is_upper(th)) th = achar(iachar(th)-ASCII_UPPER_SHIFT)
+      if(is_upper_character(th)) th = achar(iachar(th)-ASCII_UPPER_SHIFT)
 
    end function lowercase
 
@@ -161,7 +162,7 @@ contains
       character, intent(in) :: ch
 
       th = ch
-      if(is_lower(th)) th = achar(iachar(th)+ASCII_UPPER_SHIFT)
+      if(is_lower_character(th)) th = achar(iachar(th)+ASCII_UPPER_SHIFT)
 
    end function uppercase
 
@@ -194,26 +195,26 @@ contains
    end function capitalize_string
 
    !===============================================================================
-   ! Utilities to get ranges of ASCII characters
+   ! Utilities to get intervals of ASCII characters
    !===============================================================================
 
-   function get_ascii_range_array(bounds) result(range)
-      character, allocatable :: range(:)
+   function get_ascii_interval_array(bounds) result(interval)
+      character, allocatable :: interval(:)
       character, intent(in) :: bounds(2)
       integer :: ibounds(2)
       integer :: i
 
       ibounds = iachar([bounds(1), bounds(2)])
-      range = [(achar(i), i=minval(ibounds), maxval(ibounds))]
+      interval = [(achar(i), i=minval(ibounds), maxval(ibounds))]
 
-   end function get_ascii_range_array
+   end function get_ascii_interval_array
 
-   function get_ascii_range_string(bounds) result(range)
-      character(len=:), allocatable :: range
+   function get_ascii_interval_string(bounds) result(interval)
+      character(len=:), allocatable :: interval
       character(len=2), intent(in) :: bounds
       
-      range = to_string(get_ascii_range(to_character_array(bounds)))
+      interval = to_string(get_ascii_interval(to_character_array(bounds)))
 
-   end function get_ascii_range_string
+   end function get_ascii_interval_string
 
 end module mapl3g_StringCommon
