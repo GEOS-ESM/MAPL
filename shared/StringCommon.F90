@@ -122,14 +122,14 @@ contains
    logical function is_alpha_only(s)
       character(len=*), intent(in) :: s
 
-      is_alpha_only = len(s) > 0 .and. all(is_alpha(to_character_array(s)))
+      is_alpha_only = all(is_alpha(to_character_array(s)))
 
    end function is_alpha_only
 
    logical function is_numeric(s)
       character(len=*), intent(in) :: s
 
-      is_numeric = len(s) > 0 .and. all(is_digit(to_character_array(s)))
+      is_numeric = all(is_digit(to_character_array(s)))
 
    end function is_numeric
 
@@ -140,7 +140,7 @@ contains
 
       exclude_underscore_ = .FALSE.
       if(present(exclude_underscore)) exclude_underscore_ = exclude_underscore
-      is_alphanumeric = len(s) > 0 .and. all(is_alphanum_character(to_character_array(s), exclude_underscore_))
+      is_alphanumeric = all(is_alphanum_character(to_character_array(s), exclude_underscore_))
 
    end function is_alphanumeric
 
@@ -189,8 +189,9 @@ contains
    function capitalize_string(s) result(t)
       character(len=:), allocatable :: t
       character(len=*), intent(in) :: s
-
-      t = to_upper(s(1:1)) // to_lower(s(2:))
+      
+      t = ''
+      if(len(s) > 0) t = to_upper(s(1:1)) // to_lower(s(2:))
 
    end function capitalize_string
 

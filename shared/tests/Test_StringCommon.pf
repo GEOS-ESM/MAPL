@@ -55,6 +55,10 @@ contains
       ! Verify that it returns the same string when the first character is not a letter.
       @assertEqual(NUMBERED, s, 'The fourth letter of "' // s // '" should not be uppercase.')
 
+      ! Verify that it works with an empty string.
+      s = capitalize(EMPTY)
+      @assertEqual(EMPTY, s, 'String should be empty.')
+
    end subroutine test_capitalize
    
    @Test
@@ -87,8 +91,9 @@ contains
       s = GOOD_STRING
       ! Verify this string contains only letters.
       @assertTrue(is_alpha_only(s), '"' // s // '" contains only letters.')
+      ! Verify .TRUE. for empty string.
+      @assertTrue(is_alpha_only(EMPTY), 'The empty string contains no characters that are not letters.')
       ! Verify these strings do not contain letters.
-      @assertFalse(is_alpha_only(''), 'The empty string contains no letters.')
       do i=1, len(NOT_LETTERS)
          s = NOT_LETTERS(i:i)
          @assertFalse(is_alpha_only(s), '"' // s // '" contains no letters.')
@@ -119,8 +124,9 @@ contains
       ! Verify this string only contains digits.
       s = NUMBERS
       @assertTrue(is_numeric(s), '"'// s //'" contains only digits.')
+      ! Verify .TRUE. for empty string.
+      @assertTrue(is_numeric(EMPTY), 'The empty string contains no characters that are not digits.')
       ! Verify these strings contain no digits.
-      @assertFalse(is_numeric(EMPTY), 'The empty string contains no digits.')
       do i=1, len(NOT_NUMBERS)
          s = NOT_NUMBERS(i:i)
          @assertFalse(is_numeric(s), '"'// s //'" contains no digits.')
@@ -147,10 +153,11 @@ contains
       s = 'A0_'
       ! Verify this string is contains letters, digits or underscore only.
       @assertTrue(is_alphanumeric(s), '"' // s // '" is alphanumeric (including underscore.)')
+      ! Verify .TRUE. for empty string.
+      @assertTrue(is_alphanumeric(EMPTY), 'The empty string contains no characters that are not alphanumeric.')
       ! Verify this string contains characters that are not letters or numbers.
       @assertFalse(is_alphanumeric(s, exclude_underscore=.TRUE.), '"' // s // '" is not alphanumeric (excluding underscore.)')
       ! Verify these strings contains characters other than letters, digits, or underscore.
-      @assertFalse(is_alphanumeric(''), 'The empty string is not alphanumeric.')
       @assertFalse(is_alphanumeric(' '), '<SPACE> is not alphanumeric.')
       @assertFalse(is_alphanumeric('+'), '+ is not alphanumeric.')
 
