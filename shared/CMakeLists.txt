@@ -31,7 +31,6 @@ set (srcs
     MAPL_Sleep.F90
     MAPL_CF_Time.F90
     MAPL_ESMF_InfoKeys.F90
-    StringCommon.F90
 # Fortran submodules
     Interp/Interp.F90 Interp/Interp_implementation.F90
     Shmem/Shmem.F90   Shmem/Shmem_implementation.F90

@@ -3,7 +3,7 @@
 
 #include "unused_dummy.H"
 module MAPL_String
-   use mapl3g_StringCommon, only: to_upper, to_lower, capitalize_string => capitalize
+   use mapl_StringUtilities, only: to_upper, to_lower, capitalize_string => capitalize
 
    implicit none
    private

@@ -9,7 +9,6 @@ set (test_srcs
 #    test_MAPL_ISO8601_DateTime.pf
     test_MAPL_DateTime_Parsing.pf
     test_MAPL_CF_Time.pf
-    Test_StringCommon.pf
   )
 
 
