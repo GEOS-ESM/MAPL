@@ -256,10 +256,10 @@ contains
       this%time_reading = 0.d0
       this%mpi_time = 0.0
       call MPI_COMM_SIZE(MPI_COMM_WORLD,comm_size,status)
-      _VERIFY(status)
+      _verify(status)
       if (comm_size /= (this%nx*this%ny*6)) then
          call MPI_Abort(mpi_comm_world,error_code,status)
-         _VERIFY(status)
+         _verify(status)
       endif
 
       contains
@@ -327,10 +327,10 @@ contains
       this%time_reading = 0.d0
       this%mpi_time = 0.0
       call MPI_COMM_SIZE(MPI_COMM_WORLD,comm_size,status)
-      _VERIFY(status)
+      _verify(status)
       if (comm_size /= (this%nx*this%ny*6)) then
          call MPI_Abort(mpi_comm_world,error_code,status)
-         _VERIFY(status)
+         _verify(status)
       endif
 
    end subroutine set_parameters_by_cli
@@ -380,7 +380,7 @@ contains
       integer, allocatable :: seeds(:)
 
       call MPI_COMM_RANK(MPI_COMM_WORLD,rank,status)
-      _VERIFY(status)
+      _verify(status)
       call random_seed(size=seed_size)
       allocate(seeds(seed_size))
       seeds = rank
@@ -404,9 +404,9 @@ contains
       integer :: rank, status,comm_size,n,i,j,rank_counter,offset,index_offset,rc
 
       call MPI_Comm_Rank(MPI_COMM_WORLD,rank,status)
-      _VERIFY(status)
+      _verify(status)
       call MPI_Comm_Size(MPI_COMM_WORLD,comm_size,status)
-      _VERIFY(status)
+      _verify(status)
       allocate(this%bundle(this%num_arrays))
       ims = this%compute_decomposition(axis=1)
       jms = this%compute_decomposition(axis=2)
@@ -459,15 +459,15 @@ contains
 
      local_ny = this%ny*6
      call MPI_Comm_Rank(mpi_comm_world,myid,status)
-     _VERIFY(status)
+     _verify(status)
      nx0 = mod(myid,this%nx) + 1
      ny0 = myid/this%nx + 1
      color = nx0
      call MPI_Comm_Split(MPI_COMM_WORLD,color,myid,this%ycomm,status)
-     _VERIFY(status)
+     _verify(status)
      color = ny0
      call MPI_Comm_Split(MPI_COMM_WORLD,color,myid,this%xcomm,status)
-     _VERIFY(status)
+     _verify(status)
 
 
      ny_by_readers = local_ny/this%num_readers
@@ -477,7 +477,7 @@ contains
         color = MPI_UNDEFINED
      end if
      call MPI_COMM_SPLIT(MPI_COMM_WORLD,color,myid,this%readers_comm,status)
-     _VERIFY(status)
+     _verify(status)
 
 
      if (this%num_readers == local_ny) then
@@ -485,11 +485,11 @@ contains
      else
         j = ny0 - mod(ny0-1,ny_by_readers)
         call MPI_COMM_SPLIT(MPI_COMM_WORLD,j,myid,this%scatter_comm,status)
-        _VERIFY(status)
+        _verify(status)
      end if
 
      call MPI_BARRIER(mpi_comm_world, status)
-     _VERIFY(status)
+     _verify(status)
 
 
   end subroutine
@@ -506,13 +506,13 @@ contains
      if (this%readers_comm /= MPI_COMM_NULL) then
         if (this%netcdf_reads) then
            status = nf90_close(this%ncid)
-           _VERIFY(status)
+           _verify(status)
         else
            close(this%ncid)
         end if
      end if
      call MPI_BARRIER(MPI_COMM_WORLD,status)
-     _VERIFY(status)
+     _verify(status)
      call system_clock(count=sub_end)
      this%close_file_time =  sub_end-sub_start
   end subroutine
@@ -535,28 +535,28 @@ contains
         create_mode = IOR(create_mode,NF90_SHARE)
         create_mode = IOR(create_mode,NF90_MPIIO)
         call MPI_INFO_CREATE(info,status)
-        _VERIFY(status)
+        _verify(status)
         call MPI_INFO_SET(info,"cb_buffer_size","16777216",status)
-        _VERIFY(status)
+        _verify(status)
         call MPI_INFO_SET(info,"romio_cb_write","enable",status)
-        _VERIFY(status)
+        _verify(status)
         if (this%extra_info) then
            call MPI_INFO_SET(info,"IBM_largeblock_io","true",status)
-           _VERIFY(status)
+           _verify(status)
            call MPI_INFO_SET(info,"striping_unit","4194304",status)
-           _VERIFY(status)
+           _verify(status)
         end if
         if (this%readers_comm /= MPI_COMM_NULL) then
            if (this%split_file) then
               call MPI_COMM_RANK(this%readers_comm,writer_rank,status)
-              _VERIFY(status)
+              _verify(status)
               write(fc,'(I0.3)')writer_rank
               fname = "checkpoint_"//fc//".nc4"
               status = nf90_open(fname,ior(NF90_NETCDF4,NF90_CLOBBER), this%ncid)
               if (status /= NF90_NOERR) then
                  write(*,*) "Error opening file ",fname
                  call MPI_Abort(MPI_COMM_WORLD,rc,status)
-                 _VERIFY(status)
+                 _verify(status)
               end if
            else
               fname = "checkpoint.nc4"
@@ -564,7 +564,7 @@ contains
               if (status /= NF90_NOERR) then
                  write(*,*) "Error opening file ",fname
                  call MPI_Abort(MPI_COMM_WORLD,rc,status)
-                 _VERIFY(status)
+                 _verify(status)
               end if
            end if
         end if
@@ -582,7 +582,7 @@ contains
         end if
      end if
      call MPI_BARRIER(MPI_COMM_WORLD,status)
-     _VERIFY(status)
+     _verify(status)
      call system_clock(count=sub_end)
      this%open_file_time = sub_end-sub_start
   end subroutine
@@ -595,10 +595,10 @@ contains
      integer(kind=INT64) :: sub_start,sub_end
 
      call MPI_BARRIER(MPI_COMM_WORLD,status)
-     _VERIFY(status)
+     _verify(status)
      call system_clock(count=sub_start)
      call MPI_BARRIER(MPI_COMM_WORLD,status)
-     _VERIFY(status)
+     _verify(status)
      do i=1,this%num_arrays
         if (this%scatter_3d) then
            call this%read_variable(this%bundle(i)%field_name,this%bundle(i)%field)
@@ -609,13 +609,13 @@ contains
         end if
      enddo
      call MPI_BARRIER(MPI_COMM_WORLD,status)
-     _VERIFY(status)
+     _verify(status)
      call system_clock(count=sub_end)
      call MPI_BARRIER(MPI_COMM_WORLD,status)
-     _VERIFY(status)
+     _verify(status)
      this%read_3d_time = sub_end-sub_start
      call MPI_BARRIER(MPI_COMM_WORLD,status)
-     _VERIFY(status)
+     _verify(status)
   end subroutine
 
   subroutine read_variable(this,var_name,local_var)
@@ -639,15 +639,15 @@ contains
      ndes_x = size(this%in)
 
        call mpi_comm_rank(this%ycomm,myrow,status)
-       _VERIFY(status)
+       _verify(status)
        call mpi_comm_rank(this%scatter_comm,myiorank,status)
-       _VERIFY(status)
+       _verify(status)
        call mpi_comm_size(this%scatter_comm,num_io_rows,status)
-       _VERIFY(status)
+       _verify(status)
        num_io_rows=num_io_rows/ndes_x
 
        allocate (sendcounts(ndes_x*num_io_rows), displs(ndes_x*num_io_rows), stat=status)
-       _VERIFY(status)
+       _verify(status)
 
        if(myiorank==0) then
           do j=1,num_io_rows
@@ -682,9 +682,9 @@ contains
           if (this%do_reads) then
              if (this%netcdf_reads) then
                 status = nf90_inq_varid(this%ncid,name=var_name ,varid=varid)
-                _VERIFY(status)
+                _verify(status)
                 status = nf90_get_var(this%ncid,varid,var,start,cnt)
-                _VERIFY(status)
+                _verify(status)
              else
                 write(this%ncid)var
              end if
@@ -725,12 +725,12 @@ contains
        call system_clock(count=start_mpi)
        call mpi_scatterv( buf, sendcounts, displs, MPI_REAL, local_var, size(local_var), MPI_REAL, &
                       0, this%scatter_comm, status )
-       _VERIFY(status)
+       _verify(status)
        call system_clock(count=end_mpi)
        this%time_mpi = this%mpi_time  + (end_mpi - start_mpi)
        if (this%read_barrier) then
           call MPI_Barrier(MPI_COMM_WORLD,status)
-          _VERIFY(status)
+          _verify(status)
        end if
 
        deallocate(buf, stat=status)
@@ -760,15 +760,15 @@ contains
      ndes_x = size(this%in)
 
        call mpi_comm_rank(this%ycomm,myrow,status)
-       _VERIFY(status)
+       _verify(status)
        call mpi_comm_rank(this%scatter_comm,myiorank,status)
-       _VERIFY(status)
+       _verify(status)
        call mpi_comm_size(this%scatter_comm,num_io_rows,status)
-       _VERIFY(status)
+       _verify(status)
        num_io_rows=num_io_rows/ndes_x
 
        allocate (sendcounts(ndes_x*num_io_rows), displs(ndes_x*num_io_rows), stat=status)
-       _VERIFY(status)
+       _verify(status)
 
        if(myiorank==0) then
           do j=1,num_io_rows
@@ -786,9 +786,9 @@ contains
              jsize=jsize + (this%jn(myrow+j) - this%j1(myrow+j) + 1)
           enddo
           allocate(VAR(IM_WORLD,jsize), stat=status)
-          _VERIFY(status)
+          _verify(status)
           allocate(buf(IM_WORLD*jsize), stat=status)
-          _VERIFY(status)
+          _verify(status)
 
           start(1) = 1
           if (this%split_file) then
@@ -805,9 +805,9 @@ contains
           if (this%do_reads) then
              if (this%netcdf_reads) then
                 status = nf90_inq_varid(this%ncid,name=var_name ,varid=varid)
-                _VERIFY(status)
+                _verify(status)
                 status = nf90_get_var(this%ncid,varid,var,start,cnt)
-                _VERIFY(status)
+                _verify(status)
              else
                 read(this%ncid)var
              end if
@@ -847,7 +847,7 @@ contains
        call system_clock(count=start_mpi)
        call mpi_scatterv( buf, sendcounts, displs, MPI_REAL, local_var, size(local_var),  MPI_REAL, &
                       0, this%scatter_comm, status )
-       _VERIFY(status)
+       _verify(status)
        call system_clock(count=end_mpi)
        this%mpi_time = this%mpi_time + (end_mpi - start_mpi)
        if (this%read_barrier) call MPI_Barrier(MPI_COMM_WORLD,status)
@@ -885,18 +885,18 @@ program checkpoint_tester
 
    call system_clock(count=start_app,count_rate=count_rate)
    call MPI_Init(status)
-   _VERIFY(status)
+   _verify(status)
    call MPI_Barrier(MPI_COMM_WORLD,status)
-   _VERIFY(status)
+   _verify(status)
 
    call MPI_Comm_Rank(MPI_COMM_WORLD,rank,status)
-   _VERIFY(status)
+   _verify(status)
    support%my_rank = rank
    call MPI_Comm_Size(MPI_COMM_WORLD,comm_size,status)
-   _VERIFY(status)
+   _verify(status)
    call ESMF_Initialize(logKindFlag=ESMF_LOGKIND_NONE,mpiCommunicator=MPI_COMM_WORLD)
    call MPI_Barrier(MPI_COMM_WORLD,status)
-   _VERIFY(status)
+   _verify(status)
 
    options = parse_arguments()
 
@@ -912,15 +912,15 @@ program checkpoint_tester
    end if
 
    call MPI_Barrier(MPI_COMM_WORLD,status)
-   _VERIFY(status)
+   _verify(status)
 
    call support%create_arrays()
    call MPI_Barrier(MPI_COMM_WORLD,status)
-   _VERIFY(status)
+   _verify(status)
 
    call support%create_communicators()
    call MPI_Barrier(MPI_COMM_WORLD,status)
-   _VERIFY(status)
+   _verify(status)
 
    allocate(total_throughput(support%n_trials))
    allocate(all_proc_throughput(support%n_trials))
@@ -930,18 +930,18 @@ program checkpoint_tester
 
       call system_clock(count=start_read)
       call MPI_Barrier(MPI_COMM_WORLD,status)
-      _VERIFY(status)
+      _verify(status)
       call support%open_file()
       call MPI_Barrier(MPI_COMM_WORLD,status)
-      _VERIFY(status)
+      _verify(status)
 
       call support%read_file()
       call MPI_Barrier(MPI_COMM_WORLD,status)
-      _VERIFY(status)
+      _verify(status)
 
       call support%close_file()
       call MPI_Barrier(MPI_COMM_WORLD,status)
-      _VERIFY(status)
+      _verify(status)
 
       call system_clock(count=end_time)
       read_time = real(end_time-start_read,kind=REAL64)/real(count_rate,kind=REAL64)
@@ -953,14 +953,14 @@ program checkpoint_tester
 
       if (support%readers_comm /= MPI_COMM_NULL) then
          call MPI_COMM_SIZE(support%readers_comm,reader_size,status)
-         _VERIFY(status)
+         _verify(status)
          call MPI_COMM_RANK(support%readers_comm,reader_rank,status)
-         _VERIFY(status)
+         _verify(status)
          call MPI_AllReduce(support%data_volume,average_volume,1,MPI_DOUBLE_PRECISION,MPI_SUM,support%readers_comm,status)
-         _VERIFY(status)
+         _verify(status)
          average_volume = average_volume/real(reader_size,kind=REAL64)
          call MPI_AllReduce(support%time_reading,average_time,1,MPI_DOUBLE_PRECISION,MPI_SUM,support%readers_comm,status)
-         _VERIFY(status)
+         _verify(status)
          average_time = average_time/real(reader_size,kind=REAL64)
       end if
       if (rank == 0) then

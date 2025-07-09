@@ -29,22 +29,22 @@
     type(ESMF_VM)                         :: vm
 
     call ESMF_DELayoutGet(layout, vm=vm, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     call ESMF_VMGet(vm, mpiCommunicator=COMM, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     call mpi_gatherv( sendbuf, sendcnt,  MPITYPE_,     &
                   recvbuf, recvcnts, displs, MPITYPE_, &
                   root, comm, status )
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
 #ifdef sysLinux
     call mpi_barrier(comm, status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 #endif
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   END SUBROUTINE SUB_
 
 #undef NAME_

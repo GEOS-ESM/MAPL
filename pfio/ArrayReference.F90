@@ -51,11 +51,11 @@ contains
       type is (integer(kind=INT64))
          reference%base_address = c_loc(scalar)
       class default
-         _FAIL( "ArrayRef does not support this type")
+         _fail( "ArrayRef does not support this type")
       end select
       reference%shape = shape(scalar)
       reference%type_kind = type_kind(scalar)
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function new_ArrayReference_0d
 
    function new_ArrayReference_1d(array, rc) result(reference)
@@ -82,11 +82,11 @@ contains
          if (has_address)   reference%base_address = c_loc(array)
          reference%type_kind = pFIO_INT64
       class default
-         _FAIL( "ArrayRef does not support this type")
+         _fail( "ArrayRef does not support this type")
       end select
       reference%shape = shape(array)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function new_ArrayReference_1d
 
@@ -114,11 +114,11 @@ contains
          if (has_address)   reference%base_address = c_loc(array)
          reference%type_kind = pFIO_INT64
       class default
-         _FAIL( "ArrayRef does not support this type")
+         _fail( "ArrayRef does not support this type")
       end select
       reference%shape = shape(array)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function new_ArrayReference_2d
 
@@ -146,11 +146,11 @@ contains
          if (has_address)   reference%base_address = c_loc(array)
          reference%type_kind = pFIO_INT64
       class default
-         _FAIL( "ArrayRef does not support this type")
+         _fail( "ArrayRef does not support this type")
       end select
       reference%shape = shape(array)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function new_ArrayReference_3d
 
@@ -195,11 +195,11 @@ contains
 #endif
          reference%type_kind = pFIO_INT64
       class default
-         _FAIL( "ArrayRef does not support this type")
+         _fail( "ArrayRef does not support this type")
       end select
       reference%shape = shape(array)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function new_ArrayReference_4d
 
@@ -243,12 +243,12 @@ contains
 #endif
          reference%type_kind = pFIO_INT64
       class default
-         _FAIL( "ArrayRef does not support this type")
+         _fail( "ArrayRef does not support this type")
       end select
 
       reference%shape = shape(array)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function new_ArrayReference_5d
 
@@ -266,9 +266,9 @@ contains
       type is (real(kind=REAL64))
          type_kind = pFIO_REAL64
       class default
-         _FAIL('kind error')
+         _fail('kind error')
       end select
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function type_kind
 
    integer function get_length(this) result(length)
@@ -285,8 +285,8 @@ contains
       integer :: status
 
       call this%serialize_base(buffer, rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+      _verify(status)
+      _return(_success)
    end subroutine serialize
 
    subroutine deserialize(this, buffer, rc)
@@ -296,8 +296,8 @@ contains
       integer :: status
 
       call this%deserialize_base(buffer, rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+      _verify(status)
+      _return(_success)
    end subroutine deserialize
 
 end module pFIO_ArrayReferenceMod

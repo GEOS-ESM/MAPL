@@ -90,7 +90,7 @@ contains
       integer :: status
       logical, save :: initialized = .false.
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       ! This is a local variable to prevent the function from running
       ! initialiazation twice. It avoids a shared state variable for
@@ -99,13 +99,13 @@ contains
 
       ! Do not initialize prototypes more than once.
       if (.not. initialized) then
-         call initialize_prototypes(this, _RC)
+         call initialize_prototypes(this, _rc)
          initialized = .true.
       end if
 
       is_valid_prototype = .not. this%prototypes%find(prototype_name) == this%prototypes%end()
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function is_valid_prototype
 
@@ -159,9 +159,9 @@ contains
          initialized = .true. 
       end if
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
    end subroutine initialize_prototypes
 
    function make_clone(this, grid_type, unusable, rc) result(factory)
@@ -179,11 +179,11 @@ contains
       ! initialiazation twice.
       logical, save :: initialized = .false.
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       ! Do not initialize prototypes more than once.
       if (.not. initialized) then
-           call initialize_prototypes(this, _RC)
+           call initialize_prototypes(this, _rc)
            initialized = .true.
       end if
 
@@ -191,12 +191,12 @@ contains
 
       if (associated(prototype)) then
          allocate(factory, source=prototype%clone(), stat=status)
-         _VERIFY(status)
+         _verify(status)
       else
-         _FAIL('prototype not found')
+         _fail('prototype not found')
       end if
 
-      _RETURN(_SUCCESS)
+      _return(_success)
       
    end function make_clone
       
@@ -256,21 +256,21 @@ contains
       integer(kind=INT64) :: factory_id
       class (AbstractGridFactory), pointer :: f
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       call this%add_factory(factory, factory_id)
       
       f => this%factories%at(factory_id)
 
       grid = f%make_grid(rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       ! TODO: this should only be done if the grid is new, rather than cached, in which case
       ! the attribute is already set.
       call ESMF_AttributeSet(grid, factory_id_attribute, factory_id, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function make_grid_from_factory
 
@@ -292,7 +292,7 @@ contains
 
       character(len=:), allocatable :: label
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       label = 'GRID_TYPE:'
       if (present(prefix)) then
@@ -300,22 +300,22 @@ contains
       end if
 
       call ESMF_ConfigGetAttribute(config, label=label, value=grid_type, rc=status)
-      _ASSERT(status==0,'label ['//label//'] not found')
+      _assert(status==0,'label ['//label//'] not found')
 
       allocate(factory, source=this%make_factory(trim(grid_type), config, prefix=prefix, rc=status))
-      _VERIFY(status)
+      _verify(status)
 
       ! Making ESMF grids is expensive.  Add the factory to the cache (if new)
       ! and use the cached factory to create the grid.   Each factory
       ! only creates the grid once.
       grid = this%make_grid(factory, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       ! TLC: Using 'GridType' instead of 'GRID_TYPE' for legacy reasons.
       call ESMF_AttributeSet(grid, 'GridType', grid_type, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function make_grid_from_config
 
@@ -334,19 +334,19 @@ contains
       integer :: status
       character(len=*), parameter :: Iam= MOD_NAME // 'make_grid_from_distGrid'
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       allocate(factory, source=this%make_factory(grid_type, dist_grid, lon_array, lat_array, rc=status))
-      _VERIFY(status)
+      _verify(status)
 
       grid = this%make_grid(factory, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       ! TLC: Using 'GridType' instead of 'GRID_TYPE' for legacy reasons.
       call ESMF_AttributeSet(grid, 'GridType', grid_type, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function make_grid_from_distGrid
 
@@ -365,15 +365,15 @@ contains
       integer :: status
       character(len=*), parameter :: Iam= MOD_NAME // 'make_factory_from_config'
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       allocate(factory, source=this%make_clone(trim(grid_type), rc=status))
-      _VERIFY(status)
+      _verify(status)
 
       call factory%initialize(config, prefix=prefix, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function make_factory_from_config
 
@@ -393,15 +393,15 @@ contains
       integer :: status
       character(len=*), parameter :: Iam= MOD_NAME // 'make_factory_from_distGrid'
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       allocate(factory, source=this%make_clone(trim(grid_type), rc=status))
-      _VERIFY(status)
+      _verify(status)
 
       call factory%initialize(dist_grid, lon_array, lat_array, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function make_factory_from_distGrid
 
@@ -418,14 +418,14 @@ contains
       class(AbstractGridFactory), pointer :: factory
       type(Integer64GridFactoryMapIterator) :: iter
 
-      call ESMF_AttributeGet(grid, factory_id_attribute, id, _RC)
+      call ESMF_AttributeGet(grid, factory_id_attribute, id, _rc)
       factory => this%factories%at(id)
-      call factory%destroy(_RC)
+      call factory%destroy(_rc)
       iter = this%factories%find(id)
       call this%factories%erase(iter)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end subroutine destroy_grid
 
    ! Clients should use this procedure to release ESMF resources when a grid
@@ -445,11 +445,11 @@ contains
 
       if (.not. this%keep_grids) then
          call ESMF_GridDestroy(grid, noGarbage=.true., rc=status)
-         _ASSERT(status==0,'failed to destroy grid')
+         _assert(status==0,'failed to destroy grid')
       end if
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end subroutine delete
 
 
@@ -464,14 +464,14 @@ contains
       integer :: status
       character(len=*), parameter :: Iam= MOD_NAME // 'get_factory'
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       call ESMF_AttributeGet(grid, factory_id_attribute, id, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       factory => this%factories%at(id)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function get_factory
 
@@ -506,19 +506,19 @@ contains
       logical :: hasLatitude  = .FALSE.
       logical :: SplitCubedSphere  = .FALSE.
  
-      _UNUSED_DUMMY(unused)
+      _unused_dummy(unused)
 
       call ESMF_VMGetCurrent(vm, rc=status)
-      _VERIFY(status)
+      _verify(status)
       call ESMF_VMGet(vm, localPet=pet, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call file_formatter%open(file_name, PFIO_READ, rc=status)
-      _VERIFY(status)
+      _verify(status)
       file_metadata = file_formatter%read(rc=status)
-      _VERIFY(status)
+      _verify(status)
       call file_formatter%close(rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       SplitCubedSphere = file_metadata%has_attribute("Split_Cubed_Sphere")
 
@@ -526,18 +526,18 @@ contains
       hasXdim = file_metadata%has_dimension('Xdim')
       if (hasXdim) then
          im = file_metadata%get_dimension('Xdim',rc=status)
-         _VERIFY(status) 
+         _verify(status) 
       end if
 
       hasLon = file_metadata%has_dimension('lon')
       if (hasLon) then
          im = file_metadata%get_dimension('lon', rc=status)
-         _VERIFY(status)
+         _verify(status)
       else
          hasLongitude = file_metadata%has_dimension('longitude')
          if (hasLongitude) then
              im = file_metadata%get_dimension('longitude', rc=status)
-             _VERIFY(status)
+             _verify(status)
          end if
       end if
 
@@ -548,14 +548,14 @@ contains
          type is (character(*))
             grid_type => attr_value
          class default
-            _FAIL("grid_type attribute must be stringwrap") 
+            _fail("grid_type attribute must be stringwrap") 
          end select
          allocate(factory,source=this%make_clone(grid_type))
       else if (hasXdim) then
          im = file_metadata%get_dimension('Xdim',rc=status) 
-         if (status == _SUCCESS) then
+         if (status == _success) then
             jm = file_metadata%get_dimension('Ydim',rc=status)
-            _VERIFY(status)
+            _verify(status)
             if (jm == 6*im .or. SplitCubedSphere) then 
                allocate(factory, source=this%make_clone('Cubed-Sphere'))
             else
@@ -569,12 +569,12 @@ contains
          hasLat = file_metadata%has_dimension('lat')
          if (hasLat) then 
             jm = file_metadata%get_dimension('lat', rc=status)
-            _VERIFY(status)
+            _verify(status)
          else
             hasLatitude = file_metadata%has_dimension('latitude')
             if (hasLatitude) then
                jm = file_metadata%get_dimension('latitude', rc=status)
-               _VERIFY(status)
+               _verify(status)
             end if
          end if
 
@@ -589,9 +589,9 @@ contains
      end if
 
      call factory%initialize(file_metadata, force_file_coordinates=force_file_coordinates, rc=status)
-     _VERIFY(status)
+     _verify(status)
 
-     _RETURN(_SUCCESS)
+     _return(_success)
      
    end function make_factory_from_file
 
@@ -636,12 +636,12 @@ contains
       integer :: status
       character(len=*), parameter :: Iam= MOD_NAME // 'get_factory_id'
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       call ESMF_AttributeGet(grid, factory_id_attribute, id, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function get_factory_id
 
@@ -655,12 +655,12 @@ contains
       integer :: status
       character(len=*), parameter :: Iam= MOD_NAME // 'get_factory'
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       factory => grid_manager%get_factory(grid, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function get_factory
 

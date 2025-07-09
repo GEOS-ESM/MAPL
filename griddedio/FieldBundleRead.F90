@@ -58,19 +58,19 @@ module MAPL_ESMFFieldBundleRead
          character(len=:), allocatable :: units,long_name
 
          collection => DataCollections%at(metadata_id)
-         metadata => collection%find(trim(file_name), _RC)
+         metadata => collection%find(trim(file_name), _rc)
          file_grid=collection%src_grid
          lev_name = metadata%get_level_name(rc=status)
-         _VERIFY(status)
+         _verify(status)
          has_vertical_level = (metadata%get_level_name(rc=status)/='')
          call ESMF_FieldBundleGet(bundle,grid=grid,FieldCount=num_fields,rc=status)
-         _VERIFY(status)
+         _verify(status)
          call MAPL_GridGet(grid,localCellCountPerDim=grid_size,rc=status)
-         _VERIFY(status)
+         _verify(status)
 
-         _ASSERT(num_fields == 0,"Trying to fill non-empty bundle")
+         _assert(num_fields == 0,"Trying to fill non-empty bundle")
          factory => get_factory(file_grid,rc=status)
-         _VERIFY(status)
+         _verify(status)
          grid_vars = factory%get_file_format_vars()
          exclude_vars = ","//grid_vars//",lev,time,time_bnds,"
          if (has_vertical_level) lev_size = metadata%get_dimension(trim(lev_name))
@@ -136,22 +136,22 @@ module MAPL_ESMFFieldBundleRead
                         end block
                end if
                call ESMF_AttributeSet(field,name='DIMS',value=dims,rc=status)
-               _VERIFY(status)
+               _verify(status)
                call ESMF_AttributeSet(field,name='VLOCATION',value=location,rc=status)
-               _VERIFY(status)
-               units = metadata%get_var_attr_string(var_name_ptr,'units',_RC)
-               long_name = metadata%get_var_attr_string(var_name_ptr,'long_name',_RC)
+               _verify(status)
+               units = metadata%get_var_attr_string(var_name_ptr,'units',_rc)
+               long_name = metadata%get_var_attr_string(var_name_ptr,'long_name',_rc)
                call ESMF_AttributeSet(field,name='UNITS',value=units,rc=status)
-               _VERIFY(status)
+               _verify(status)
                call ESMF_AttributeSet(field,name='LONG_NAME',value=long_name,rc=status)
-               _VERIFY(status)
+               _verify(status)
                call MAPL_FieldBundleAdd(bundle,field,rc=status)
-               _VERIFY(status)
+               _verify(status)
             end if
             call var_iter%next()
          end do
 
-         _RETURN(_SUCCESS)
+         _return(_success)
 
       end subroutine MAPL_create_bundle_from_metdata_id
 
@@ -182,11 +182,11 @@ module MAPL_ESMFFieldBundleRead
 
          lgr => logging%get_logger('MAPL.GRIDDEDIO')
 
-         call ESMF_TimeGet(time, timeString=timestring, _RC)
+         call ESMF_TimeGet(time, timeString=timestring, _rc)
          call lgr%info('MAPL_read_bundle: Reading file '//trim(file_tmpl)//' for time '//trim(timestring))
 
          call fill_grads_template(file_name,file_tmpl,time=time,rc=status)
-         _VERIFY(status)
+         _verify(status)
 
          collection_id=i_clients%add_ext_collection(trim(file_tmpl))
 
@@ -194,9 +194,9 @@ module MAPL_ESMFFieldBundleRead
          collection => DataCollections%at(metadata_id)
          if (present(file_override)) file_name = file_override
 
-         metadata => collection%find(trim(file_name), _RC)
+         metadata => collection%find(trim(file_name), _rc)
          call metadata%get_time_info(timeVector=time_series,rc=status)
-         _VERIFY(status)
+         _verify(status)
          time_index=-1
          do i=1,size(time_series)
             if (time==time_series(i)) then
@@ -204,26 +204,26 @@ module MAPL_ESMFFieldBundleRead
                exit
             end if
          end do
-         _ASSERT(time_index/=-1,"Time not found on file "//trim(file_name))
+         _assert(time_index/=-1,"Time not found on file "//trim(file_name))
          deallocate(time_series)
 
          call ESMF_FieldBundleGet(bundle,fieldCount=num_fields,rc=status)
-         _VERIFY(status)
+         _verify(status)
          if (num_fields ==0) then
             call MAPL_create_bundle_from_metdata_id(bundle,metadata_id,file_name,only_vars=only_vars,rc=status)
-            _VERIFY(status)
+            _verify(status)
          end if
          if (present(noread)) then
             if (noread) then
-               _RETURN(_SUCCESS)
+               _return(_success)
             end if
          end if
 
          call ESMF_FieldBundleGet(bundle,fieldCount=num_fields,rc=status)
-         _VERIFY(status)
+         _verify(status)
          allocate(field_names(num_fields))
          call ESMF_FieldBundleGet(bundle,fieldnamelist=field_names,rc=status)
-         _VERIFY(status)
+         _verify(status)
          do i=1,num_fields
             item%itemTYpe=ItemTYpeScalar
             item%xname=trim(field_names(i))
@@ -241,13 +241,13 @@ module MAPL_ESMFFieldBundleRead
             end if
          end if
          call cfio%request_data_from_file(trim(file_name),timeindex=time_index,rc=status)
-         _VERIFY(status)
-         call i_clients%done_collective_prefetch(_RC)
-         call i_clients%wait(_RC)
+         _verify(status)
+         call i_clients%done_collective_prefetch(_rc)
+         call i_clients%wait(_rc)
          call cfio%process_data_from_file(rc=status)
-         _VERIFY(status)
+         _verify(status)
 
-         _RETURN(_SUCCESS)
+         _return(_success)
 
       end subroutine MAPL_read_bundle
 

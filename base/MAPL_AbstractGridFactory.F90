@@ -264,20 +264,20 @@ contains
       character(len=*), parameter :: Iam= MOD_NAME // 'initialize_from_file'
       integer :: status
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       config = ESMF_ConfigCreate(rc=status)
-      _VERIFY(status)
+      _verify(status)
       call ESMF_ConfigLoadFile   (config, config_file, rc=STATUS )
-      _VERIFY(status)
+      _verify(status)
 
       call this%initialize(config, prefix=prefix, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call ESMF_ConfigDestroy(config, rc=status)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
       
    end subroutine initialize_from_config_file
 
@@ -292,11 +292,11 @@ contains
       integer :: status
       character(len=*), parameter :: Iam= MOD_NAME // 'initialize_from_config'
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
       call this%initialize(config, prefix='', rc=status)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
       
    end subroutine initialize_from_config
 
@@ -306,7 +306,7 @@ contains
       character(len=:), allocatable :: string
       class (AbstractGridFactory), intent(in) :: this
 
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
       string = ''
 
    end function to_string
@@ -336,22 +336,22 @@ contains
       character(len=*), parameter :: Iam= MOD_NAME // 'make_grid'
       logical :: new_grid
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
      
       new_grid = .false.
       if (present(force_new_grid)) new_grid = force_new_grid
       if (new_grid) then
-         grid = this%make_new_grid(_RC)
+         grid = this%make_new_grid(_rc)
       else
          if (allocated(this%grid)) then
             grid = this%grid
          else
-            this%grid = this%make_new_grid(_RC)
+            this%grid = this%make_new_grid(_rc)
             grid = this%grid
          end if
       end if
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function make_grid
 
@@ -379,12 +379,12 @@ contains
       character(len=*), parameter :: Iam= MOD_NAME // 'make_arbitrary_decomposition()'
       integer :: status
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       call ESMF_VMGetCurrent(vm, rc=status)
-      _VERIFY(status)
+      _verify(status)
       call ESMF_VMGet(vm, petCount=pet_count, rc=status)
-      _VERIFY(status)
+      _verify(status)
       if (present(reduceFactor)) pet_count=pet_count/reduceFactor
 
       ! count down from sqrt(n)
@@ -396,7 +396,7 @@ contains
          end if
       end do
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine make_arbitrary_decomposition
 
@@ -417,18 +417,18 @@ contains
       character(len=*), parameter :: Iam= MOD_NAME // 'spherical_to_cartesian_2d'
       integer :: status
      
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       im = size(u,1)
       jm = size(u,2)
-      _ASSERT(im == size(v,1), 'u-v shape mismatch for IM')
-      _ASSERT(jm == size(v,2), 'u-v shape mismatch for JM')
-      _ASSERT(3 == size(xyz,1), 'u-v shape mismatch (LM=1)')
-      _ASSERT(1 == size(xyz,2), 'u-xyz shape mismatch (LM=1)')
-      _ASSERT(im == size(xyz,3), 'u-xyz shape mismatch for IM')
-      _ASSERT(jm == size(xyz,4), 'u-xyz shape mismatch for JM')
+      _assert(im == size(v,1), 'u-v shape mismatch for IM')
+      _assert(jm == size(v,2), 'u-v shape mismatch for JM')
+      _assert(3 == size(xyz,1), 'u-v shape mismatch (LM=1)')
+      _assert(1 == size(xyz,2), 'u-xyz shape mismatch (LM=1)')
+      _assert(im == size(xyz,3), 'u-xyz shape mismatch for IM')
+      _assert(jm == size(xyz,4), 'u-xyz shape mismatch for JM')
       basis_vectors => this%get_basis(basis,rc=status)
-      _VERIFY(status)
+      _verify(status)
       do j=1,jm
          do i=1,im
             if (u(i,j) == MAPL_UNDEF .or. v(i,j) == MAPL_UNDEF) then
@@ -440,7 +440,7 @@ contains
          enddo
       enddo
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine spherical_to_cartesian_2d_real32
 
@@ -461,18 +461,18 @@ contains
       character(len=*), parameter :: Iam= MOD_NAME // 'spherical_to_cartesian_2d'
       integer :: status
      
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       im = size(u,1)
       jm = size(u,2)
-      _ASSERT(im == size(v,1), 'u-v shape mismatch for IM')
-      _ASSERT(jm == size(v,2), 'u-v shape mismatch for JM')
-      _ASSERT(3 == size(xyz,1), 'u-v shape mismatch (LM=1)')
-      _ASSERT(1 == size(xyz,2), 'u-xyz shape mismatch (LM=1)')
-      _ASSERT(im == size(xyz,3), 'u-xyz shape mismatch for IM')
-      _ASSERT(jm == size(xyz,4), 'u-xyz shape mismatch for JM')
+      _assert(im == size(v,1), 'u-v shape mismatch for IM')
+      _assert(jm == size(v,2), 'u-v shape mismatch for JM')
+      _assert(3 == size(xyz,1), 'u-v shape mismatch (LM=1)')
+      _assert(1 == size(xyz,2), 'u-xyz shape mismatch (LM=1)')
+      _assert(im == size(xyz,3), 'u-xyz shape mismatch for IM')
+      _assert(jm == size(xyz,4), 'u-xyz shape mismatch for JM')
       basis_vectors => this%get_basis(basis,rc=status)
-      _VERIFY(status)
+      _verify(status)
       do j=1,jm
          do i=1,im
             if (u(i,j) == MAPL_UNDEF .or. v(i,j) == MAPL_UNDEF) then
@@ -484,7 +484,7 @@ contains
          enddo
       enddo
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
     end subroutine spherical_to_cartesian_2d_real64
    
@@ -505,20 +505,20 @@ contains
       character(len=*), parameter :: Iam= MOD_NAME // 'spherical_to_cartesian_3d'
       integer :: status
     
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       im = size(u,1)
       jm = size(u,2)
       km = size(u,3)
-      _ASSERT(im == size(v,1), 'u-v shape mismatch for IM')
-      _ASSERT(jm == size(v,2), 'u-v shape mismatch for JM')
-      _ASSERT(km == size(v,3), 'u-v shape mismatch for LM')
-      _ASSERT(3 == size(xyz,1), 'u-xyz shape mismatch for')
-      _ASSERT(km == size(xyz,2), 'u-xyz shape mismatch for LM')
-      _ASSERT(im == size(xyz,3), 'u-xyz shape mismatch for IM')
-      _ASSERT(jm == size(xyz,4), 'u-xyz shape mismatch for JM')
+      _assert(im == size(v,1), 'u-v shape mismatch for IM')
+      _assert(jm == size(v,2), 'u-v shape mismatch for JM')
+      _assert(km == size(v,3), 'u-v shape mismatch for LM')
+      _assert(3 == size(xyz,1), 'u-xyz shape mismatch for')
+      _assert(km == size(xyz,2), 'u-xyz shape mismatch for LM')
+      _assert(im == size(xyz,3), 'u-xyz shape mismatch for IM')
+      _assert(jm == size(xyz,4), 'u-xyz shape mismatch for JM')
       basis_vectors => this%get_basis(basis,rc=status)
-      _VERIFY(status)
+      _verify(status)
       do j=1,jm
          do i=1,im
             do k=1,km
@@ -532,7 +532,7 @@ contains
          enddo
       enddo
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine spherical_to_cartesian_3d_real32
 
 
@@ -553,20 +553,20 @@ contains
      character(len=*), parameter :: Iam= MOD_NAME // 'spherical_to_cartesian_3d'
      integer :: status
 
-     _UNUSED_DUMMY(unusable)
+     _unused_dummy(unusable)
 
      im = size(u,1)
      jm = size(u,2)
      km = size(u,3)
-     _ASSERT(im == size(v,1), 'u-v shape mismatch for IM')
-     _ASSERT(jm == size(v,2), 'u-v shape mismatch for JM')
-     _ASSERT(km == size(v,3), 'u-v shape mismatch for LM')
-     _ASSERT(3 == size(xyz,1), 'u-xyz shape mismatch for')
-     _ASSERT(km == size(xyz,2), 'u-xyz shape mismatch for LM')
-     _ASSERT(im == size(xyz,3), 'u-xyz shape mismatch for IM')
-     _ASSERT(jm == size(xyz,4), 'u-xyz shape mismatch for JM')
+     _assert(im == size(v,1), 'u-v shape mismatch for IM')
+     _assert(jm == size(v,2), 'u-v shape mismatch for JM')
+     _assert(km == size(v,3), 'u-v shape mismatch for LM')
+     _assert(3 == size(xyz,1), 'u-xyz shape mismatch for')
+     _assert(km == size(xyz,2), 'u-xyz shape mismatch for LM')
+     _assert(im == size(xyz,3), 'u-xyz shape mismatch for IM')
+     _assert(jm == size(xyz,4), 'u-xyz shape mismatch for JM')
      basis_vectors => this%get_basis(basis,rc=status)
-     _VERIFY(status)
+     _verify(status)
      do j=1,jm
         do i=1,im
            do k=1,km
@@ -580,7 +580,7 @@ contains
         enddo
      enddo
 
-     _RETURN(_SUCCESS)
+     _return(_success)
    end subroutine spherical_to_cartesian_3d_real64
    
    
@@ -601,19 +601,19 @@ contains
       character(len=*), parameter :: Iam= MOD_NAME // 'cartesian_to_spherical_2d'
       integer :: status
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       im = size(u,1)
       jm = size(u,2)
-      _ASSERT(im == size(v,1), 'u-v shape mismatch for IM')
-      _ASSERT(jm == size(v,2), 'u-v shape mismatch for JM')
-      _ASSERT(3 == size(xyz,1), 'u-v shape mismatch')
-      _ASSERT(1 == size(xyz,2), 'u-v shape mismatch')
-      _ASSERT(im == size(xyz,3), 'u-v shape mismatch for IM')
-      _ASSERT(jm == size(xyz,4), 'u-v shape mismatch for JM')
+      _assert(im == size(v,1), 'u-v shape mismatch for IM')
+      _assert(jm == size(v,2), 'u-v shape mismatch for JM')
+      _assert(3 == size(xyz,1), 'u-v shape mismatch')
+      _assert(1 == size(xyz,2), 'u-v shape mismatch')
+      _assert(im == size(xyz,3), 'u-v shape mismatch for IM')
+      _assert(jm == size(xyz,4), 'u-v shape mismatch for JM')
 
       basis_vectors => this%get_basis(basis,rc=status)
-      _VERIFY(status)
+      _verify(status)
       do j=1,jm
          do i=1,im
             if (xyz(1,1,i,j) == MAPL_UNDEF .or. xyz(2,1,i,j) == MAPL_UNDEF .or. &
@@ -627,7 +627,7 @@ contains
             end if
          enddo
       enddo
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine cartesian_to_spherical_2d_real32
 
@@ -649,19 +649,19 @@ contains
      character(len=*), parameter :: Iam= MOD_NAME // 'cartesian_to_spherical_2d'
      integer :: status
 
-     _UNUSED_DUMMY(unusable)
+     _unused_dummy(unusable)
 
      im = size(u,1)
      jm = size(u,2)
-     _ASSERT(im == size(v,1), 'u-v shape mismatch for IM')
-     _ASSERT(jm == size(v,2), 'u-v shape mismatch for JM')
-     _ASSERT(3 == size(xyz,1), 'u-v shape mismatch')
-     _ASSERT(1 == size(xyz,2), 'u-v shape mismatch')
-     _ASSERT(im == size(xyz,3), 'u-v shape mismatch for IM')
-     _ASSERT(jm == size(xyz,4), 'u-v shape mismatch for JM')
+     _assert(im == size(v,1), 'u-v shape mismatch for IM')
+     _assert(jm == size(v,2), 'u-v shape mismatch for JM')
+     _assert(3 == size(xyz,1), 'u-v shape mismatch')
+     _assert(1 == size(xyz,2), 'u-v shape mismatch')
+     _assert(im == size(xyz,3), 'u-v shape mismatch for IM')
+     _assert(jm == size(xyz,4), 'u-v shape mismatch for JM')
 
      basis_vectors => this%get_basis(basis,rc=status)
-     _VERIFY(status)
+     _verify(status)
      do j=1,jm
         do i=1,im
            if (xyz(1,1,i,j) == MAPL_UNDEF .or. xyz(2,1,i,j) == MAPL_UNDEF .or. &
@@ -675,7 +675,7 @@ contains
            end if
         enddo
      enddo
-     _RETURN(_SUCCESS)
+     _return(_success)
 
    end subroutine cartesian_to_spherical_2d_real64
    
@@ -697,19 +697,19 @@ contains
       character(len=*), parameter :: Iam= MOD_NAME // 'cartesian_to_spherical_3d'
       integer :: status
      
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       im = size(u,1)
       jm = size(u,2)
       km = size(u,3)
-      _ASSERT(im == size(v,1), 'u-v shape mismatch for IM')
-      _ASSERT(jm == size(v,2), 'u-v shape mismatch for JM')
-      _ASSERT(3 == size(xyz,1), 'u-v shape mismatch (LM=1)')
-      _ASSERT(km == size(xyz,2), 'u-xyz shape mismatch (LM=1)')
-      _ASSERT(im == size(xyz,3), 'u-xyz shape mismatch for IM')
-      _ASSERT(jm == size(xyz,4), 'u-xyz shape mismatch for JM')
+      _assert(im == size(v,1), 'u-v shape mismatch for IM')
+      _assert(jm == size(v,2), 'u-v shape mismatch for JM')
+      _assert(3 == size(xyz,1), 'u-v shape mismatch (LM=1)')
+      _assert(km == size(xyz,2), 'u-xyz shape mismatch (LM=1)')
+      _assert(im == size(xyz,3), 'u-xyz shape mismatch for IM')
+      _assert(jm == size(xyz,4), 'u-xyz shape mismatch for JM')
       basis_vectors => this%get_basis(basis,rc=status)
-      _VERIFY(status)
+      _verify(status)
       do j=1,jm
          do i=1,im
             do k = 1, km
@@ -725,7 +725,7 @@ contains
             enddo 
          enddo
       enddo
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine cartesian_to_spherical_3d_real32
 
@@ -747,19 +747,19 @@ contains
      character(len=*), parameter :: Iam= MOD_NAME // 'cartesian_to_spherical_3d'
      integer :: status
 
-     _UNUSED_DUMMY(unusable)
+     _unused_dummy(unusable)
 
      im = size(u,1)
      jm = size(u,2)
      km = size(u,3)
-     _ASSERT(im == size(v,1), 'u-v shape mismatch for IM')
-     _ASSERT(jm == size(v,2), 'u-v shape mismatch for JM')
-     _ASSERT(3 == size(xyz,1), 'u-v shape mismatch (LM=1)')
-     _ASSERT(km == size(xyz,2), 'u-xyz shape mismatch (LM=1)')
-     _ASSERT(im == size(xyz,3), 'u-xyz shape mismatch for IM')
-     _ASSERT(jm == size(xyz,4), 'u-xyz shape mismatch for JM')
+     _assert(im == size(v,1), 'u-v shape mismatch for IM')
+     _assert(jm == size(v,2), 'u-v shape mismatch for JM')
+     _assert(3 == size(xyz,1), 'u-v shape mismatch (LM=1)')
+     _assert(km == size(xyz,2), 'u-xyz shape mismatch (LM=1)')
+     _assert(im == size(xyz,3), 'u-xyz shape mismatch for IM')
+     _assert(jm == size(xyz,4), 'u-xyz shape mismatch for JM')
      basis_vectors => this%get_basis(basis,rc=status)
-     _VERIFY(status)
+     _verify(status)
      do j=1,jm
         do i=1,im
            do k = 1, km
@@ -775,7 +775,7 @@ contains
            enddo
         enddo
      enddo
-     _RETURN(_SUCCESS)
+     _return(_success)
 
    end subroutine cartesian_to_spherical_3d_real64
    
@@ -794,22 +794,22 @@ contains
       real(REAL64), pointer :: Xcoord(:,:) => null()
       real(REAL64), pointer :: Ycoord(:,:) => null()
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
-      _ASSERT(allocated(this%grid), 'grid not allocated')
+      _assert(allocated(this%grid), 'grid not allocated')
       select case (basis)
       case ('north-south')
          if (.not.allocated(this%NS_basis)) then
             call ESMF_GridGetCoord(this%grid,1, &
                  staggerLoc=ESMF_STAGGERLOC_CENTER, &
                  farrayPtr=Xcoord, rc=status) 
-            _VERIFY(status)
+            _verify(status)
             call ESMF_GridGetCoord(this%grid,2, &
                  staggerLoc=ESMF_STAGGERLOC_CENTER, &
                  farrayPtr=Ycoord, rc=status)
-            _VERIFY(status)
+            _verify(status)
             allocate(this%NS_Basis(3,2,size(Xcoord,1),size(Xcoord,2)),stat=status)
-            _VERIFY(status)
+            _verify(status)
             basis_vectors => this%NS_Basis
             basis_vectors(1,1,:,:)= -sin(Xcoord)
             basis_vectors(2,1,:,:)=  cos(Xcoord)
@@ -823,7 +823,7 @@ contains
       case ('grid')
          if (.not.allocated(this%grid_basis)) then
             this%grid_basis = ComputeGridBasis(this%grid,rc=status)
-            _VERIFY(status)
+            _verify(status)
             basis_vectors => this%grid_Basis
 
          else
@@ -835,13 +835,13 @@ contains
          if (.not.allocated(this%XYZ_basis)) then
             if (.not.allocated(this%grid_basis)) then
                this%grid_basis = ComputeGridBasis(this%grid,rc=status)
-               _VERIFY(status)
+               _verify(status)
                temp_vect => this%grid_basis
             else
                temp_vect => this%grid_basis
             end if
             this%XYZ_basis = ComputeXYZbasis(temp_vect,rc=status)
-            _VERIFY(status)
+            _verify(status)
             basis_vectors => this%XYZ_basis
          else
             basis_vectors => this%XYZ_basis
@@ -849,7 +849,7 @@ contains
 
       end select
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function get_basis
 
@@ -871,28 +871,28 @@ contains
       real(REAL64) :: p1(2),p2(2),p3(2),p4(2),c1(2)
       integer :: i, j, im, jm, counts(3)
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       call MAPL_GridGet(grid,localCellCountPerDim=counts,rc=status)
-      _VERIFY(status)
+      _verify(status)
       im=counts(1)
       jm=counts(2)
  
       allocate(basis(3,2,im,jm),stat=status)
-      _VERIFY(status)
+      _verify(status)
 
       allocate(corners(im+1,jm+1,2),stat=status)
-      _VERIFY(status)
+      _verify(status)
 
       call MAPL_GridGetCorners(grid,corners(:,:,1),corners(:,:,2),rc=status)
-      _VERIFY(status)
+      _verify(status)
 
       call ESMF_GridGetCoord(grid,localDE=0,coordDim=1,staggerloc=ESMF_STAGGERLOC_CENTER, &
            farrayPtr=Xcenters, rc=status)
-      _VERIFY(status)
+      _verify(status)
       call ESMF_GridGetCoord(grid,localDE=0,coordDim=2,staggerloc=ESMF_STAGGERLOC_CENTER, &
            farrayPtr=Ycenters, rc=status)
-      _VERIFY(status)
+      _verify(status)
       do j=1,jm
          do i=1,im 
             p1 = mid_pt_sphere(corners(i,j,:),corners(i,j+1,:))
@@ -907,7 +907,7 @@ contains
          enddo
       enddo
       deallocate(corners)
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function ComputeGridBasis
 
@@ -924,12 +924,12 @@ contains
       integer :: im, jm, i, j
       real(real64) :: dp,fac
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       im = size(grid_basis,3)
       jm = size(grid_basis,4)
       allocate(basis(3,2,im,jm),stat=status)
-      _VERIFY(status)
+      _verify(status)
       do j=1,jm
          do i=1,im
             dp = dot_product(grid_basis(:,1,i,j),grid_basis(:,2,i,j))
@@ -938,7 +938,7 @@ contains
             basis(:,2,i,j)=fac*(grid_basis(:,1,i,j)*dp-grid_basis(:,2,i,j))
          enddo
       enddo
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function ComputeXYZBasis
 
@@ -1032,14 +1032,14 @@ contains
 
       character(len=*), parameter :: Iam= MOD_NAME // 'get_grid'
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
       if (allocated(this%grid)) then
          grid => this%grid
-         _RETURN(_SUCCESS)
+         _return(_success)
       else
          grid => null()
-         _RETURN(_FAILURE)
+         _return(_failure)
       end if
 
    end function get_grid
@@ -1055,7 +1055,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      _RETURN(_FAILURE)
+      _return(_failure)
     end subroutine get_xy_subset
 
    subroutine get_xy_mask(this, interval, xy_mask, rc)
@@ -1065,7 +1065,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      _RETURN(_FAILURE)
+      _return(_failure)
     end subroutine get_xy_mask
 
    ! Probably don't need to do anything more for subclasses unless they have
@@ -1075,8 +1075,8 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      call ESMF_GridDestroy(this%grid, noGarbage=.true., _RC)      
-      _RETURN(_SUCCESS)
+      call ESMF_GridDestroy(this%grid, noGarbage=.true., _rc)      
+      _return(_success)
    end subroutine destroy
 
    subroutine get_obs_time(this, grid, obs_time,  rc)
@@ -1085,7 +1085,7 @@ contains
      real(ESMF_KIND_R4), intent(out) :: obs_time(:,:)
      integer, optional, intent(out) :: rc
      
-     _RETURN(_SUCCESS)
+     _return(_success)
    end subroutine get_obs_time
    
 end module MAPL_AbstractGridFactoryMod

@@ -49,7 +49,7 @@ These advantages also apply to Fortran codes, specifically,
 
 \item[Grouping and Differentiating Error Types.] Although exceptions
   can be raised in very diverse circunstances, they are assigned
-  generic codes such as {\tt ESMF\_RC\_ARG\_SIZE} which can help you
+  generic codes such as {\tt ESMF\_rc\_ARG\_SIZE} which can help you
   decide how to handle such an exception in the calling
   subprograms. Notice that an {\em exception code} is meant to
   describe generic error categories, not necessarily something
@@ -104,11 +104,11 @@ practice to specify {\tt RC} as the the last argument of the subprogram. MAPL
 applications using the lower level {\tt MAPL\_ErrLog} rely on the
 macro-function {\tt VERIFY\_()} for exception handling. {\tt
   VERIFY\_(STATUS)} checks the value {\tt STATUS}, and in case of an
-abnormal STATUS (really, {\tt STATUS/=ESMF\_SUCCESS)}, prints out the line
+abnormal STATUS (really, {\tt STATUS/=ESMF\_success)}, prints out the line
 number and the contents of the string {\tt Iam}, returning to the caller, e.g.,
 \begin{verbatim}
    call ESMF_ConfigGetAttribute(CF, provider, Label=Label, RC=STATUS)
-   _VERIFY(STATUS)
+   _verify(STATUS)
 \end{verbatim}
 This error code {\em bubbles up} to the the main program, producing a
 traceback in the process.
@@ -128,7 +128,7 @@ Another convenience macro is \m{STAT} which can be used with {\tt
 as a short-hand for
 \begin{verbatim}
    call allocate(uwnd(im,jm,lm), stat=STATUS)
-   _VERIFY(STATUS)
+   _verify(STATUS)
 \end{verbatim}
 
 

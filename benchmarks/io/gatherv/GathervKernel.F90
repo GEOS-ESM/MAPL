@@ -48,9 +48,9 @@ contains
 
 
       call MPI_Comm_rank(this%comm, this%rank, status)
-      _VERIFY(status)
+      _verify(status)
       call MPI_Comm_size(this%comm, this%np, status)
-      _VERIFY(status)
+      _verify(status)
 
       associate (np => this%np, n => this%n)
         allocate(this%buffer(this%n))
@@ -58,12 +58,12 @@ contains
         allocate(this%recvcnts(0:np-1))
         allocate(this%displs(0:np-1))
 
-        _ASSERT(this%n < huge(1)/np, "integer overflow in displs calculation")
+        _assert(this%n < huge(1)/np, "integer overflow in displs calculation")
         this%recvcnts(:) = this%n
         this%displs(:) = [(this%n*i, i=0,np-1)]
       end associate
       
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine init
       
 
@@ -84,11 +84,11 @@ contains
       call MPI_Gatherv( &
            this%buffer, this%n, MPI_REAL,  &
            global_arr, this%recvcnts, this%displs, MPI_REAL, 0, this%comm, status)
-      _VERIFY(status)
+      _verify(status)
 
       deallocate(global_arr)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine run
 
    

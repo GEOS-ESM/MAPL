@@ -47,28 +47,28 @@ contains
       integer, allocatable :: source_years(:)
 
 
-      _ASSERT(fail_on_missing_file,"Failure on missing file not allowed when rule is climatology")
+      _assert(fail_on_missing_file,"Failure on missing file not allowed when rule is climatology")
       if (bracket%time_in_bracket(input_time)) then
-         _RETURN(_SUCCESS)
+         _return(_success)
       end if
 
       target_time=input_time
-      _ASSERT(size(this%valid_range) == 2, 'Valid time is not defined so can not do any extrapolation or climatology')
-      call ESMF_TimeGet(this%valid_range(1),yy=valid_years(1),_RC)
-      call ESMF_TimeGet(this%valid_range(2),yy=valid_years(2),_RC)
+      _assert(size(this%valid_range) == 2, 'Valid time is not defined so can not do any extrapolation or climatology')
+      call ESMF_TimeGet(this%valid_range(1),yy=valid_years(1),_rc)
+      call ESMF_TimeGet(this%valid_range(2),yy=valid_years(2),_rc)
       if (size(source_time)==2) then
          allocate(source_years(2))
-         call ESMF_TimeGet(source_time(1),yy=source_years(1),_RC)
-         call ESMF_TimeGet(source_time(2),yy=source_years(2),_RC)
-         _ASSERT(source_time(1) >= this%valid_range(1),'source time outside valid range')
-         _ASSERT(source_time(1) <=  this%valid_range(2),'source time outside valid range')
-         _ASSERT(source_time(2) >=  this%valid_range(1),'source time outside valid range')
-         _ASSERT(source_time(2) <= this%valid_range(2),'source time outside valid range')
+         call ESMF_TimeGet(source_time(1),yy=source_years(1),_rc)
+         call ESMF_TimeGet(source_time(2),yy=source_years(2),_rc)
+         _assert(source_time(1) >= this%valid_range(1),'source time outside valid range')
+         _assert(source_time(1) <=  this%valid_range(2),'source time outside valid range')
+         _assert(source_time(2) >=  this%valid_range(1),'source time outside valid range')
+         _assert(source_time(2) <= this%valid_range(2),'source time outside valid range')
       end if
 
       ! shift target year to request source time if specified
       ! is TS1 < TM < TS2, if not then extrapolate beyond that
-      call ESMF_TimeGet(target_time,yy=target_year,_RC)
+      call ESMF_TimeGet(target_time,yy=target_year,_rc)
       original_year=target_year
 
       !if (size(source_years)>0) then
@@ -80,16 +80,16 @@ contains
             target_year = source_years(2)
             this%clim_year = target_year
          end if
-         call swap_year(target_time,target_year,_RC)
+         call swap_year(target_time,target_year,_rc)
       else
          if (input_time <= this%valid_range(1)) then
             target_year = valid_years(1)
             this%clim_year = target_year
-            call swap_year(target_time,target_year,_RC)
+            call swap_year(target_time,target_year,_rc)
          else if (input_time >= this%valid_range(2)) then
             target_year = valid_years(2)
             this%clim_year = target_year
-            call swap_year(target_time,target_year,_RC)
+            call swap_year(target_time,target_year,_rc)
          end if
       end if
       clim_target_time = target_time
@@ -97,47 +97,47 @@ contains
       ! the target time is contained in the dataset and we are not extrapolating outside of source time selection based on available data
       if (this%clim_year == CLIM_NULL) then
 
-         call ESMF_TimeIntervalSet(zero,_RC)
+         call ESMF_TimeIntervalSet(zero,_rc)
          if (this%frequency == zero) then
             current_file = this%file_template
-            call this%get_time_on_file(current_file,input_time,'L',time_index,time,_RC)
-            _ASSERT(time_index/=time_not_found,"Time not found on file")
-            call bracket%set_node('L',file=current_file,time_index=time_index,time=time,_RC)
+            call this%get_time_on_file(current_file,input_time,'L',time_index,time,_rc)
+            _assert(time_index/=time_not_found,"Time not found on file")
+            call bracket%set_node('L',file=current_file,time_index=time_index,time=time,_rc)
             if (bracket%left_node == bracket%right_node) then
                call bracket%swap_node_fields(rc=status)
-               _VERIFY(status)
+               _verify(status)
             else
                bracket%new_file_left=.true.
             end if
-            call this%get_time_on_file(current_file,input_time,'R',time_index,time,_RC)
-            _ASSERT(time_index/=time_not_found,"Time not found on file")
-            call bracket%set_node('R',file=current_file,time_index=time_index,time=time,_RC)
+            call this%get_time_on_file(current_file,input_time,'R',time_index,time,_rc)
+            _assert(time_index/=time_not_found,"Time not found on file")
+            call bracket%set_node('R',file=current_file,time_index=time_index,time=time,_rc)
             bracket%new_file_right=.true.
          else
-            call this%get_file(current_file,target_time,0,_RC)
+            call this%get_file(current_file,target_time,0,_rc)
             call this%get_time_on_file(current_file,target_time,'L',time_index,time,rc=status)
             if (time_index == time_not_found) then
-               call this%get_file(current_file,target_time,-1,_RC)
-               call this%get_time_on_file(current_file,target_time,'L',time_index,time,_RC)
-               _ASSERT(time_index/=time_not_found,"Time not found on file")
+               call this%get_file(current_file,target_time,-1,_rc)
+               call this%get_time_on_file(current_file,target_time,'L',time_index,time,_rc)
+               _assert(time_index/=time_not_found,"Time not found on file")
             end if
-            call bracket%set_node('L',file=current_file,time_index=time_index,time=time,_RC)
+            call bracket%set_node('L',file=current_file,time_index=time_index,time=time,_rc)
             if (bracket%left_node == bracket%right_node) then
                call bracket%swap_node_fields(rc=status)
-               _VERIFY(status)
+               _verify(status)
             else
                bracket%new_file_left=.true.
             end if
 
             target_time = clim_target_time
-            call this%get_file(current_file,target_time,0,_RC)
+            call this%get_file(current_file,target_time,0,_rc)
             call this%get_time_on_file(current_file,target_time,'R',time_index,time,rc=status)
             if (time_index == time_not_found) then
-               call this%get_file(current_file,target_time,1,_RC)
-               call this%get_time_on_file(current_file,target_time,'R',time_index,time,_RC)
-               _ASSERT(time_index/=time_not_found,"Time not found on file")
+               call this%get_file(current_file,target_time,1,_rc)
+               call this%get_time_on_file(current_file,target_time,'R',time_index,time,_rc)
+               _assert(time_index/=time_not_found,"Time not found on file")
             end if
-            call bracket%set_node('R',file=current_file,time_index=time_index,time=time,_RC)
+            call bracket%set_node('R',file=current_file,time_index=time_index,time=time,_rc)
             bracket%new_file_right=.true.
          end if
 
@@ -146,77 +146,77 @@ contains
       ! or outside either end
       else
 
-         call ESMF_TimeIntervalSet(zero,_RC)
+         call ESMF_TimeIntervalSet(zero,_rc)
          if (this%frequency == zero) then
             current_file = this%file_template
             clim_shift=0
-            call this%get_time_on_file(current_file,target_time,'L',time_index,time,wrap=clim_shift,_RC)
-            _ASSERT(time_index/=time_not_found,"Time not found on file")
-            call swap_year(time,original_year+clim_shift,_RC)
-            call bracket%set_node('L',file=current_file,time_index=time_index,time=time,_RC)
+            call this%get_time_on_file(current_file,target_time,'L',time_index,time,wrap=clim_shift,_rc)
+            _assert(time_index/=time_not_found,"Time not found on file")
+            call swap_year(time,original_year+clim_shift,_rc)
+            call bracket%set_node('L',file=current_file,time_index=time_index,time=time,_rc)
             if (bracket%left_node == bracket%right_node) then
                call bracket%swap_node_fields(rc=status)
-               _VERIFY(status)
+               _verify(status)
             else
                bracket%new_file_left=.true.
             end if
 
             clim_shift=0
-            call this%get_time_on_file(current_file,target_time,'R',time_index,time,wrap=clim_shift,_RC)
-            _ASSERT(time_index/=time_not_found,"Time not found on file")
-            call swap_year(time,original_year+clim_shift,_RC)
-            call bracket%set_node('R',file=current_file,time_index=time_index,time=time,_RC)
+            call this%get_time_on_file(current_file,target_time,'R',time_index,time,wrap=clim_shift,_rc)
+            _assert(time_index/=time_not_found,"Time not found on file")
+            call swap_year(time,original_year+clim_shift,_rc)
+            call bracket%set_node('R',file=current_file,time_index=time_index,time=time,_rc)
             bracket%new_file_right=.true.
 
          else
 
-            call this%get_file(current_file,target_time,0,_RC)
+            call this%get_file(current_file,target_time,0,_rc)
             call this%get_time_on_file(current_file,target_time,'L',time_index,time,rc=status)
             if (time_index == time_not_found) then
-               call this%get_file(current_file,target_time,-1,_RC)
-               call this%get_time_on_file(current_file,target_time,'L',time_index,time,_RC)
-               _ASSERT(time_index/=time_not_found,"Time not found on file")
-               call ESMF_TimeGet(target_time,yy=target_year,_RC)
+               call this%get_file(current_file,target_time,-1,_rc)
+               call this%get_time_on_file(current_file,target_time,'L',time_index,time,_rc)
+               _assert(time_index/=time_not_found,"Time not found on file")
+               call ESMF_TimeGet(target_time,yy=target_year,_rc)
                if (target_year > this%clim_year) then
-                  call swap_year(time,original_year-1,_RC)
+                  call swap_year(time,original_year-1,_rc)
                else
-                  call swap_year(time,original_year,_RC)
+                  call swap_year(time,original_year,_rc)
                end if
             else
-               call swap_year(time,original_year,_RC)
+               call swap_year(time,original_year,_rc)
             end if
             if (bracket%left_node == bracket%right_node) then
                call bracket%swap_node_fields(rc=status)
-               _VERIFY(status)
+               _verify(status)
             else
                bracket%new_file_left=.true.
             end if
-            call bracket%set_node('L',file=current_file,time_index=time_index,time=time,_RC)
+            call bracket%set_node('L',file=current_file,time_index=time_index,time=time,_rc)
 
             target_time = clim_target_time
-            call this%get_file(current_file,target_time,0,_RC)
+            call this%get_file(current_file,target_time,0,_rc)
             call this%get_time_on_file(current_file,target_time,'R',time_index,time,rc=status)
             if (time_index == time_not_found) then
-               call this%get_file(current_file,target_time,1,_RC)
-               call this%get_time_on_file(current_file,target_time,'R',time_index,time,_RC)
-               _ASSERT(time_index/=time_not_found,"Time not found on file")
-               call ESMF_TimeGet(target_time,yy=target_year,_RC)
+               call this%get_file(current_file,target_time,1,_rc)
+               call this%get_time_on_file(current_file,target_time,'R',time_index,time,_rc)
+               _assert(time_index/=time_not_found,"Time not found on file")
+               call ESMF_TimeGet(target_time,yy=target_year,_rc)
                if (target_year < this%clim_year) then
-                  call swap_year(time,original_year+1,_RC)
+                  call swap_year(time,original_year+1,_rc)
                else
-                  call swap_year(time,original_year,_RC)
+                  call swap_year(time,original_year,_rc)
                end if
             else
-               call swap_year(time,original_year,_RC)
+               call swap_year(time,original_year,_rc)
             end if
-            call bracket%set_node('R',file=current_file,time_index=time_index,time=time,_RC)
+            call bracket%set_node('R',file=current_file,time_index=time_index,time=time,_rc)
             bracket%new_file_right=.true.
 
          end if
 
       end if
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine get_file_bracket
 
@@ -248,19 +248,19 @@ contains
          ftime = this%reff_time+(n+shift)*this%frequency
       end if
       if (this%clim_year /= CLIM_NULL) then
-         call ESMF_TimeGet(ftime,yy=new_year,_RC)
+         call ESMF_TimeGet(ftime,yy=new_year,_rc)
          if (new_year/=this%clim_year) then
-            call swap_year(ftime,this%clim_year,_RC)
+            call swap_year(ftime,this%clim_year,_rc)
 
             local_shift = this%clim_year - new_year
             call swap_year(target_time,this%clim_year+local_shift)
 
          end if
       end if
-      call fill_grads_template(filename,this%file_template,time=ftime,_RC)
+      call fill_grads_template(filename,this%file_template,time=ftime,_rc)
       inquire(file=trim(filename),exist=file_found)
-      _ASSERT(file_found,"get_file did not file a file using: "//trim(this%file_template))
-      _RETURN(_SUCCESS)
+      _assert(file_found,"get_file did not file a file using: "//trim(this%file_template))
+      _return(_success)
 
    end subroutine get_file
 
@@ -273,13 +273,13 @@ contains
       integer :: status, month, day, hour, minute, second
 
       is_leap_year=.false.
-      call ESMF_TimeGet(time,mm=month,dd=day,h=hour,m=minute,s=second,calendar=calendar,_RC)
+      call ESMF_TimeGet(time,mm=month,dd=day,h=hour,m=minute,s=second,calendar=calendar,_rc)
       if (day==29 .and. month==2) then
-         is_leap_year = ESMF_CalendarIsLeapYear(calendar,year,_RC)
+         is_leap_year = ESMF_CalendarIsLeapYear(calendar,year,_rc)
          if (.not.is_leap_year) day=28
       end if
-      call ESMF_TimeSet(time,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,_RC)
-      _RETURN(_SUCCESS)
+      call ESMF_TimeSet(time,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,_rc)
+      _return(_success)
    end subroutine
 
 end module MAPL_ExtdataClimFileHandler

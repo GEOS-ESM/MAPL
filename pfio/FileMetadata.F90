@@ -101,7 +101,7 @@ contains
      fmd%order = StringVector()
      if (present(order)) fmd%order = order
 
-     _UNUSED_DUMMY(unusable)
+     _unused_dummy(unusable)
   end function
 
    function get_dimensions(this) result(dimensions)
@@ -130,8 +130,8 @@ contains
       integer, optional, intent(out) :: rc
 
       call this%dimensions%insert(dim_name, extent)
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end subroutine add_dimension
 
    subroutine modify_dimension(this, dim_name, extent, unusable, rc)
@@ -143,8 +143,8 @@ contains
       integer, optional, intent(out) :: rc
 
       call this%dimensions%set(dim_name, extent)
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
 
    end subroutine modify_dimension
 
@@ -159,8 +159,8 @@ contains
 
       iter = this%dimensions%find(dim_name)
       isPresent = (iter /=this%dimensions%end())
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
 
    end function has_dimension
 
@@ -177,13 +177,13 @@ contains
 
       if (iter /= this%dimensions%end()) then
          extent = this%dimensions%at(dim_name)
-         _RETURN(_SUCCESS)
+         _return(_success)
       else
          extent = 0
          if (present(rc)) rc=pFIO_DIMENSION_NOT_FOUND
       end if
 
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
    end function get_dimension
 
 
@@ -195,8 +195,8 @@ contains
       integer, optional, intent(out) :: rc
 
       call this%global_var%add_attribute(attr_name, attr_value)
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end subroutine add_attribute_0d
 
    subroutine add_attribute_1d(this, attr_name, values, unusable, rc)
@@ -208,8 +208,8 @@ contains
       integer, optional, intent(out) :: rc
 
       call this%global_var%add_attribute(attr_name, values)
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end subroutine add_attribute_1d
 
 
@@ -221,9 +221,9 @@ contains
       integer, optional, intent(out) :: rc
 
       ref => this%global_var%get_attribute(attr_name)
-      _ASSERT(associated(ref),'FileMetadata::get_attribute() - no such attribute <'//attr_name//'>.')
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _assert(associated(ref),'FileMetadata::get_attribute() - no such attribute <'//attr_name//'>.')
+      _return(_success)
+      _unused_dummy(unusable)
    end function get_attribute
 
 
@@ -251,7 +251,7 @@ contains
       integer, optional, intent(out) :: rc
 
       attributes => this%global_var%get_attributes()
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function get_attributes
 
 
@@ -263,8 +263,8 @@ contains
       integer, optional, intent(out) :: rc
 
       var => this%variables%at(var_name)
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end function get_variable
 
    logical function has_variable(this, var_name, unusable, rc) result(has)
@@ -277,13 +277,13 @@ contains
       has = .false.
       var => this%variables%at(var_name)
       if (associated(var)) has = .true.
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end function has_variable
 
    ! Returns null pointer unless var_name is a key corresponding to
    ! a CoordinateVariable value.
-   ! rc returns _SUCCESS unless the var_name is not found at all.
+   ! rc returns _success unless the var_name is not found at all.
 
    function get_coordinate_variable(this, var_name, unusable, rc) result(var)
       class (CoordinateVariable), pointer :: var
@@ -297,7 +297,7 @@ contains
 
       tmp => this%variables%at(var_name)
 
-      _ASSERT(associated(tmp),'can not find '//trim(var_name))
+      _assert(associated(tmp),'can not find '//trim(var_name))
 
       select type (tmp)
       class is (CoordinateVariable)
@@ -306,8 +306,8 @@ contains
          var => null()
       end select
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
 
    end function get_coordinate_variable
 
@@ -322,7 +322,7 @@ contains
 
       tmp => this%variables%at(var_name)
 
-      _ASSERT(associated(tmp), 'can not find the varaible '//trim(var_name))
+      _assert(associated(tmp), 'can not find the varaible '//trim(var_name))
       select type (tmp)
       class is (CoordinateVariable)
          is_coordinate_variable = .true.
@@ -330,8 +330,8 @@ contains
          is_coordinate_variable = .false.
       end select
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end function is_coordinate_variable
 
 
@@ -341,7 +341,7 @@ contains
       integer, optional, intent(out) :: rc
 
       variables => this%variables
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function get_variables
 
    function get_order(this, unusable, rc ) result(order)
@@ -351,8 +351,8 @@ contains
       type (StringVector) :: order
 
       order = this%order
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end function get_order
 
    subroutine set_order(this, newOrder, unusable, rc)
@@ -365,18 +365,18 @@ contains
       class (Variable), pointer :: var
       character(len=:), pointer :: var_name
 
-      _ASSERT(newOrder%size() == this%variables%size(),'New order must be same size as the variables')
+      _assert(newOrder%size() == this%variables%size(),'New order must be same size as the variables')
       call this%order%erase(this%order%begin(),this%order%end())
       this%order = newOrder
       iter = this%order%begin()
       do while (iter/=this%order%end())
          var_name => iter%get()
          var => this%variables%at(var_name)
-         _ASSERT(associated(var),trim(var_name)//' not in metadata')
+         _assert(associated(var),trim(var_name)//' not in metadata')
          call iter%next()
       enddo
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end subroutine set_order
 
 
@@ -403,7 +403,7 @@ contains
 
          dim_name => iter%get()
          dim_this => this%dimensions%at(dim_name)
-         _ASSERT( associated(dim_this),"FileMetadata::add_variable() - undefined dimension: " // dim_name)
+         _assert( associated(dim_this),"FileMetadata::add_variable() - undefined dimension: " // dim_name)
          shp =[shp,dim_this]
          call iter%next()
       end do
@@ -411,13 +411,13 @@ contains
       const_value_ptr => var%get_const_value()
       if ( .not. const_value_ptr%is_empty() ) then
          shp_const = const_value_ptr%get_shape()
-         _ASSERT( all(shp == shp_const), "const_value shape does not match dims")
+         _assert( all(shp == shp_const), "const_value shape does not match dims")
       endif
 
       call this%variables%insert(var_name, var)
       call this%order%push_back(var_name)
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
 
    end subroutine add_variable
 
@@ -440,14 +440,14 @@ contains
       do while (iter /= dims%end())
          dim_name => iter%get()
          dim_this => this%dimensions%at(dim_name)
-         _ASSERT( associated(dim_this), "FileMetadata:: modify_variable() - undefined dimension " // dim_name )
+         _assert( associated(dim_this), "FileMetadata:: modify_variable() - undefined dimension " // dim_name )
          call iter%next()
       end do
 
       call this%variables%set(var_name, var)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
 
    end subroutine modify_variable
 
@@ -471,8 +471,8 @@ contains
       miter = this%variables%find(var_name)
       call  this%variables%erase(miter)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
 
    end subroutine remove_variable
 
@@ -490,8 +490,8 @@ contains
       var => this%get_variable(var_name)
       call var%add_attribute(attr_name, value)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
 
    end subroutine add_var_attribute_0d
 
@@ -509,8 +509,8 @@ contains
 
       var => this%get_variable(var_name)
       call var%add_attribute(attr_name, values)
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    end subroutine add_var_attribute_1d
 
    subroutine merge(this, meta,rc)
@@ -558,7 +558,7 @@ contains
         call var_iter%next()
       end do
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine merge
 
    logical function equal(a, b)
@@ -668,7 +668,7 @@ contains
 
       length = serialize_buffer_length(length) + size(buffer)
       buffer = [serialize_intrinsic(length),buffer]
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine
 
    subroutine FileMetadata_deserialize(buffer, fmd, rc)
@@ -679,8 +679,8 @@ contains
 
       fmd = FileMetaData()
       call deserialize(fmd, buffer, rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+      _verify(status)
+      _return(_success)
 
    contains
 
@@ -692,25 +692,25 @@ contains
          integer :: status
          n = 1
          call deserialize_intrinsic(buffer(n:),length)
-         _ASSERT(length <= size(buffer), "length does not match")
+         _assert(length <= size(buffer), "length does not match")
 
          length = serialize_buffer_length(length)
          n = n+length
          call StringIntegerMap_deserialize(buffer(n:),this%dimensions, status)
-         _VERIFY(status)
+         _verify(status)
          call deserialize_intrinsic(buffer(n:),length)
          n = n + length
          call deserialize_intrinsic(buffer(n:),length)
          call Variable_deserialize(buffer(n:n+length-1),this%global_var, status)
-         _VERIFY(status)
+         _verify(status)
          n = n + length
          call StringVariableMap_deserialize(buffer(n:), this%variables, status)
 
          call deserialize_intrinsic(buffer(n:),length)
          n = n + length
          call StringVector_deserialize(buffer(n:), this%order, status)
-         _VERIFY(status)
-         _RETURN(_SUCCESS)
+         _verify(status)
+         _return(_success)
       end subroutine deserialize
    end subroutine FileMetadata_deserialize
 
@@ -720,7 +720,7 @@ contains
       integer, optional, intent(out) :: rc
 
       this%source_file=source_file
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine
 
    function get_source_file(this,rc) result(source_file)
@@ -729,10 +729,10 @@ contains
       integer, optional, intent(out) :: rc
 
       if (.not.allocated(this%source_file)) then
-         _FAIL("FileMetadata not created via a file, no source_file present")
+         _fail("FileMetadata not created via a file, no source_file present")
       end if
       source_file=this%source_file
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function
 
    subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
@@ -748,7 +748,7 @@ contains
       call write_variables(this%variables, unit, iotype, v_list, iostat, iomsg)
       if (iostat /= 0) return
 
-      _UNUSED_DUMMY(v_list)
+      _unused_dummy(v_list)
    end subroutine write_formatted
 
    subroutine write_dims(dimensions, unit, iotype, v_list, iostat, iomsg)
@@ -772,8 +772,8 @@ contains
         end do
       end associate
 
-      _UNUSED_DUMMY(iotype)
-      _UNUSED_DUMMY(v_list)
+      _unused_dummy(iotype)
+      _unused_dummy(v_list)
    end subroutine write_dims
 
    subroutine write_variables(variables, unit, iotype, v_list, iostat, iomsg)
@@ -822,8 +822,8 @@ contains
         end do
       end associate
 
-      _UNUSED_DUMMY(iotype)
-      _UNUSED_DUMMY(v_list)
+      _unused_dummy(iotype)
+      _unused_dummy(v_list)
    end subroutine write_variables
 
 end module pFIO_FileMetadataMod

@@ -39,12 +39,12 @@ contains
       integer(kind=INT64) :: MEM_UNITS = 4096 ! page size is 4096 bytes
       character(:), allocatable :: tmp_file
 
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
       block
         use MPI
         integer :: rank, ierror, status, rc
         call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
-        _VERIFY(ierror)
+        _verify(ierror)
         allocate(character(4) :: tmp_file)
         write(tmp_file,'(i4.4)')rank
         tmp_file = 'tmp_' // tmp_file // '.dat'

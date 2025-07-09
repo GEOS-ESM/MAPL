@@ -14,7 +14,7 @@ program driver_GetHorzIJIndex
 
    cli = MAPL_FargparseCLI()
    cap_options = MAPL_CapOptions(cli)
-   cap = MAPL_Cap('GetHorzIJIndex', SetServices, cap_options = cap_options, _RC)
-   call cap%run(_RC)
+   cap = MAPL_Cap('GetHorzIJIndex', SetServices, cap_options = cap_options, _rc)
+   call cap%run(_rc)
 
 end program driver_GetHorzIJIndex

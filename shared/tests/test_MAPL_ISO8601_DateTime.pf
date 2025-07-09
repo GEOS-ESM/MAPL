@@ -13,8 +13,8 @@ module test_MAPL_ISO8601_DateTime
       integer, dimension(12), parameter :: ENDS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
       integer, dimension(size(ENDS)), parameter :: ENDS_LEAP = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
-      integer, parameter :: SUCCESS = _SUCCESS
-      integer, parameter :: FAILURE = _FAILURE
+      integer, parameter :: SUCCESS = _success
+      integer, parameter :: FAILURE = _failure
 
 contains
 
@@ -517,9 +517,9 @@ contains
       integer :: status
       integer :: rc
 
-      date = ISO8601Date(isodate, _RC)
+      date = ISO8601Date(isodate, _rc)
       datetime%date_ = date
-      time = ISO8601Time(isotime, _RC)
+      time = ISO8601Time(isotime, _rc)
       datetime%time_ = time
 
       @assertEqual(YEAR, datetime%get_year())

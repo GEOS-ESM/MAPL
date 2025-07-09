@@ -22,7 +22,7 @@ contains
       integer :: status
 
       call ESMF_CalendarSetDefault(CALKIND_FLAG_DEF, rc=status)
-      if(status /= _SUCCESS) write(*, *) 'Failed to set ESMF_Calendar'
+      if(status /= _success) write(*, *) 'Failed to set ESMF_Calendar'
 
    end subroutine set_up
 
@@ -43,9 +43,9 @@ contains
 
       tval = .FALSE.
       call ESMF_TimeGet(timeu, yy=uyy, mm=umm, dd=udd, h=uh, m=um, d=us, sN=usN, sD=usD, rc = status)
-      if(status /= _SUCCESS) return
+      if(status /= _success) return
       call ESMF_TimeGet(timev, yy=vyy, mm=vmm, dd=vdd, h=vh, m=vm, d=vs, sN=vsN, sD=vsD, rc = status)
-      if(status /= _SUCCESS) return
+      if(status /= _success) return
 
       tval = ( (uyy == vyy) .and. (umm == vmm) .and. (udd == vdd) &
          .and. (uh == vh) .and. (um == vm) .and. (us == vs) &
@@ -80,16 +80,16 @@ contains
       units_string = UNITS // ' since 1999-12-31 23:29:59'
 
       call ESMF_TimeSet(etime, yy=yy, mm=mm, dd=dd, h=h, m=m_time, s=s, rc=status)
-      @assertTrue(status == _SUCCESS, 'Unable to create expected ESMF_Time')
+      @assertTrue(status == _success, 'Unable to create expected ESMF_Time')
       call ESMF_TimeGet(etime, timeString = expected_datetime_string, rc=status)
 
       call ESMF_TimeSet(ebtime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, rc=status)
-      @assertTrue(status == _SUCCESS, 'Unable to create expected base ESMF_Time')
+      @assertTrue(status == _success, 'Unable to create expected base ESMF_Time')
       call ESMF_TimeGet(ebtime, timeString = expected_base_datetime_string, rc=status)
 
       call get_ESMF_Time_from_NetCDF_DateTime(duration, units_string, time_interval, btime, &
          time = time, time_unit = tunit, rc = status)
-      @assertTrue(status == _SUCCESS, 'Conversion failed')
+      @assertTrue(status == _success, 'Conversion failed')
       call ESMF_TimeGet(btime, timeString = actual_base_datetime_string, rc=status)
       call ESMF_TimeGet(time, timeString = actual_datetime_string, rc=status)
       msg_time = trim(actual_datetime_string) // NOT_EQUAL // trim(expected_datetime_string)
@@ -129,16 +129,16 @@ contains
       units_string = UNITS // ' since 1999-12-31 23:29:59'
 
       call ESMF_TimeSet(etime, yy=yy, mm=mm, dd=dd, h=h, m=m_time, s=s, rc=status)
-      @assertTrue(status == _SUCCESS, 'Unable to create expected ESMF_Time')
+      @assertTrue(status == _success, 'Unable to create expected ESMF_Time')
       call ESMF_TimeGet(etime, timeString = expected_datetime_string, rc=status)
 
       call ESMF_TimeSet(ebtime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, rc=status)
-      @assertTrue(status == _SUCCESS, 'Unable to create expected base ESMF_Time')
+      @assertTrue(status == _success, 'Unable to create expected base ESMF_Time')
       call ESMF_TimeGet(ebtime, timeString = expected_base_datetime_string, rc=status)
 
       call get_ESMF_Time_from_NetCDF_DateTime(duration, units_string, time_interval, btime, &
          time = time, time_unit = tunit, rc = status)
-      @assertTrue(status == _SUCCESS, 'Conversion failed')
+      @assertTrue(status == _success, 'Conversion failed')
       call ESMF_TimeGet(btime, timeString = actual_base_datetime_string, rc=status)
       call ESMF_TimeGet(time, timeString = actual_datetime_string, rc=status)
       msg_time = trim(actual_datetime_string) // NOT_EQUAL // trim(expected_datetime_string)

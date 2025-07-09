@@ -1,8 +1,8 @@
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
-#define _ASSERT(A)   if(.not.A) then; if(present(rc)) rc=_FAILURE; PRINT *, Iam, __LINE__; return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
+#define _success      0
+#define _failure     1
+#define _verify(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
+#define _assert(A)   if(.not.A) then; if(present(rc)) rc=_failure; PRINT *, Iam, __LINE__; return; endif
+#define _return(A)   if(present(rc)) rc=A; return
 #include "unused_dummy.H"
 
 module MockGridFactoryMod
@@ -63,11 +63,11 @@ contains
       character(len=*), intent(in) :: prefix
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(config)
-      _UNUSED_DUMMY(prefix)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(rc)
+      _unused_dummy(this)
+      _unused_dummy(config)
+      _unused_dummy(prefix)
+      _unused_dummy(unusable)
+      _unused_dummy(rc)
    end subroutine initialize_from_config_with_prefix
 
 
@@ -78,15 +78,15 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(rc)
+      _unused_dummy(this)
+      _unused_dummy(unusable)
+      _unused_dummy(rc)
 
       grid = ESMF_GridEmptyCreate()
       call ESMF_AttributeSet(grid, 'GRID_NAME', this%name)
       call ESMF_AttributeSet(grid, 'GridType', this%name)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function make_new_grid
 
@@ -150,12 +150,12 @@ contains
       type (ESMF_LocalArray), intent(in) :: lat_array
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(dist_grid)
-      _UNUSED_DUMMY(lon_array)
-      _UNUSED_DUMMY(lat_array)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(rc)
+      _unused_dummy(this)
+      _unused_dummy(dist_grid)
+      _unused_dummy(lon_array)
+      _unused_dummy(lat_array)
+      _unused_dummy(unusable)
+      _unused_dummy(rc)
    end subroutine initialize_from_esmf_distGrid
 
 
@@ -167,11 +167,11 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: halo_width
       integer, optional, intent(out) :: rc
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(array)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(halo_width)
-      _UNUSED_DUMMY(rc)
+      _unused_dummy(this)
+      _unused_dummy(array)
+      _unused_dummy(unusable)
+      _unused_dummy(halo_width)
+      _unused_dummy(rc)
    end subroutine halo
 
    
@@ -179,7 +179,7 @@ contains
       character(len=:), allocatable :: name
       class (MockGridFactory), intent(in) :: this
       name = 'MockGridFactory'
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
    end function generate_grid_name
 
    subroutine initialize_from_file_metadata(this, file_metadata, unusable, force_file_coordinates, rc)
@@ -189,10 +189,10 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(in) :: force_file_coordinates
       integer, optional, intent(out) :: rc
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(file_metadata)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(rc)
+      _unused_dummy(this)
+      _unused_dummy(file_metadata)
+      _unused_dummy(unusable)
+      _unused_dummy(rc)
    end subroutine initialize_from_file_metadata
 
 
@@ -200,8 +200,8 @@ contains
       class (MockGridFactory), intent(inout) :: this
       type (FileMetadata), intent(inout) :: metadata
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(metadata)
+      _unused_dummy(this)
+      _unused_dummy(metadata)
       
 !!$      ! Horizontal grid dimensions
 !!$      call metadata%add_dimension('lon', this%im_world)
@@ -212,7 +212,7 @@ contains
       class (MockGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
 
       vars = 'lon,lat, mock'
 
@@ -221,8 +221,8 @@ contains
    subroutine append_variable_metadata(this,var)
       class (MockGridFactory), intent(inout) :: this
       type(Variable), intent(inout) :: var
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(var)
+      _unused_dummy(this)
+      _unused_dummy(var)
    end subroutine append_variable_metadata
 
    subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,metadata,rc)
@@ -236,12 +236,12 @@ contains
       type(FileMetaData), intent(in), optional :: metaData
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(grid)
-      _UNUSED_DUMMY(local_start)
-      _UNUSED_DUMMY(global_start)
-      _UNUSED_DUMMY(global_count)
-      _UNUSED_DUMMY(rc)
+      _unused_dummy(this)
+      _unused_dummy(grid)
+      _unused_dummy(local_start)
+      _unused_dummy(global_start)
+      _unused_dummy(global_count)
+      _unused_dummy(rc)
 
    end subroutine generate_file_bounds
 
@@ -255,12 +255,12 @@ contains
       integer, allocatable, intent(out) :: global_count(:)
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(grid)
-      _UNUSED_DUMMY(local_start)
-      _UNUSED_DUMMY(global_start)
-      _UNUSED_DUMMY(global_count)
-      _UNUSED_DUMMY(rc)
+      _unused_dummy(this)
+      _unused_dummy(grid)
+      _unused_dummy(local_start)
+      _unused_dummy(global_start)
+      _unused_dummy(global_count)
+      _unused_dummy(rc)
 
    end subroutine generate_file_corner_bounds
 
@@ -269,7 +269,7 @@ contains
       type(ArrayReference) :: ref
       class(MockGridFactory), intent(inout) :: this
       real, pointer, intent(in) :: fpointer(:,:)
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
       ref = ArrayReference(fpointer)
    end function generate_file_reference2D
 
@@ -279,7 +279,7 @@ contains
       class(MockGridFactory), intent(inout) :: this
       type(FileMetaData), intent(in), optional :: metaData
       real, pointer, intent(in) :: fpointer(:,:,:)
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
       ref = ArrayReference(fpointer)
    end function generate_file_reference3D
 

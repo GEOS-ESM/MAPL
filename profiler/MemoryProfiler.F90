@@ -47,7 +47,7 @@ contains
       class(AbstractMeter), allocatable :: meter
       class(MemoryProfiler), intent(in) :: this
 
-      _UNUSED_DUMMY(this)
+      _unused_dummy(this)
       meter = AdvancedMeter(RssMemoryGauge())
 !!$      meter = AdvancedMeter(VmstatMemoryGauge())
    end function make_meter

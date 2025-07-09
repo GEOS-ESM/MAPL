@@ -43,13 +43,13 @@ program main
    class (AbstractMessage), pointer :: msg
  
    call MPI_Init(ierr)
-   _VERIFY(ierr)
+   _verify(ierr)
    call MPI_Comm_get_parent(Inter_Comm, ierr);
-   _VERIFY(ierr)
+   _verify(ierr)
    call MPI_Comm_rank(MPI_COMM_WORLD,rank, ierr)
-   _VERIFY(ierr)
+   _verify(ierr)
    call MPI_Comm_size(MPI_COMM_WORLD,n_workers, ierr)
-   _VERIFY(ierr)
+   _verify(ierr)
 
    allocate(busy(n_workers-1), source =0)
 
@@ -60,7 +60,7 @@ program main
          call MPI_recv( command, 1, MPI_INTEGER, &
                 MPI_ANY_SOURCE, pFIO_s_tag, Inter_Comm, &
                 MPI_STAT, ierr)
-        _VERIFY(ierr)
+        _verify(ierr)
          server_rank = MPI_STAT(MPI_SOURCE)
 
          if (command == 1) then ! server is asking for a writing node 
@@ -80,32 +80,32 @@ program main
                call MPI_recv( idle, 1, MPI_INTEGER, &
                    MPI_ANY_SOURCE, pFIO_w_m_tag , MPI_COMM_WORLD, &
                    MPI_STAT, ierr)
-               _VERIFY(ierr)
+               _verify(ierr)
                idle_worker = idle
             endif
 
             ! tell server the idel_worker
             call MPI_send(idle_worker, 1, MPI_INTEGER, server_rank, pFIO_s_tag, Inter_Comm, ierr)
-            _VERIFY(ierr)
+            _verify(ierr)
             busy(idle_worker) = 1
             ! tell the idle_worker which server has work
             call MPI_send(server_rank, 1, MPI_INTEGER, idle_worker, pFIO_m_w_tag, MPI_COMM_WORLD, ierr)
-            _VERIFY(ierr)
+            _verify(ierr)
 
          else ! command /=1, notify the worker to quit and finalize
             no_job = -1
             do i = 1, n_workers -1
                if ( busy(i) == 0) then
                   call MPI_send(no_job, 1, MPI_INTEGER, i, pFIO_m_w_tag, MPI_COMM_WORLD, ierr)
-                  _VERIFY(ierr)
+                  _verify(ierr)
                else
                   call MPI_recv( idle, 1, MPI_INTEGER, &
                        i, pFIO_w_m_tag, MPI_COMM_WORLD, &
                        MPI_STAT, ierr)
-                  _VERIFY(ierr)
+                  _verify(ierr)
                    if (idle /= i ) stop ("idle should be i")
                    call MPI_send(no_job, 1, MPI_INTEGER, i, pFIO_m_w_tag, MPI_COMM_WORLD, ierr)
-                   _VERIFY(ierr)
+                   _verify(ierr)
                endif  
             enddo  
             exit
@@ -120,7 +120,7 @@ program main
         call MPI_recv( server_rank, 1, MPI_INTEGER, &
                0, pFIO_m_w_tag, MPI_COMM_WORLD, &
                MPI_STAT, ierr)
-        _VERIFY(ierr)
+        _verify(ierr)
 
         if (server_rank == -1 ) exit
         !---------------------------------------------------
@@ -129,23 +129,23 @@ program main
         call MPI_recv( msg_size, 1, MPI_INTEGER,    &
             server_rank, pFIO_s_tag, Inter_comm, &
                MPI_STAT, ierr)
-        _VERIFY(ierr)
+        _verify(ierr)
         allocate(bufferm(msg_size))
         call MPI_recv( bufferm, msg_size, MPI_INTEGER, &
              server_rank, pFIO_s_tag, Inter_comm,   &
                MPI_STAT, ierr)
-        _VERIFY(ierr)
+        _verify(ierr)
 
         call MPI_recv( data_size, 1, MPI_INTEGER,&
              server_rank, pFIO_s_tag, Inter_comm,     &
              MPI_STAT, ierr)
-        _VERIFY(ierr)
+        _verify(ierr)
 
         allocate(bufferd(data_size))
         call MPI_recv( bufferd, data_size, MPI_INTEGER, &
              server_rank, pFIO_s_tag, Inter_comm,   &
                MPI_STAT, ierr)
-        _VERIFY(ierr)
+        _verify(ierr)
 
         ! deserilize message and data
         call deserialize_message_vector(bufferm, forwardVec)
@@ -185,20 +185,20 @@ program main
  
         ! telling captain, I am the soldier that is ready to have more work
         call MPI_send(rank, 1, MPI_INTEGER, 0, pFIO_w_m_tag, MPI_COMM_WORLD , ierr)
-        _VERIFY(ierr)
+        _verify(ierr)
 
       enddo
    endif
 
    call MPI_Barrier(MPI_COMM_WORLD, ierr)
-   _VERIFY(ierr)
+   _verify(ierr)
 
    if ( rank == 0) then
       ! send done message to server
       ! this serves the syncronization with oserver
       command = -1
       call MPI_send(command, 1, MPI_INTEGER, 0, pFIO_s_tag, Inter_Comm, ierr)
-      _VERIFY(ierr)
+      _verify(ierr)
    endif
      
    call MPI_Finalize(ierr)
@@ -252,7 +252,7 @@ contains
               call c_f_pointer(address, values_real64_0d)
               call formatter%put_var(message%var_name, values_real64_0d)
           case default
-              _FAIL( "not supported type")
+              _fail( "not supported type")
           end select
       case (1:)
           select case (message%type_kind)
@@ -269,7 +269,7 @@ contains
               call c_f_pointer(address, values_real64_1d, [product(count)])
               call formatter%put_var(message%var_name, values_real64_1d, start=start, count=count)
           case default
-              _FAIL( "not supported type")
+              _fail( "not supported type")
           end select
       end select 
    end subroutine

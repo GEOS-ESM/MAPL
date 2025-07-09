@@ -30,7 +30,7 @@ contains
       integer,          optional, intent(out) :: stat
       logical,          optional, intent(in ) :: preserve
 
-      _UNUSED_DUMMY(class)
+      _unused_dummy(class)
 
       call fill_grads_template(str, tmpl, &
             experiment_id=xid, nymd=nymd, nhms=nhms,preserve=preserve, rc=stat)
@@ -54,7 +54,7 @@ contains
       logical :: valid_token,preserve_
       integer :: status
      
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
       if (present(preserve)) then
          preserve_=preserve
       else
@@ -67,19 +67,19 @@ contains
       minute=uninit_time
       second=uninit_time
       if (present(time)) then
-         _ASSERT(.not.present(nymd),'can not specify an ESMF_Time and an integer time')
-         _ASSERT(.not.present(nhms),'can not specify an ESMF_Time and an integer time')
+         _assert(.not.present(nymd),'can not specify an ESMF_Time and an integer time')
+         _assert(.not.present(nhms),'can not specify an ESMF_Time and an integer time')
          call ESMF_TimeGet(time,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,rc=status)
-         _VERIFY(status)
+         _verify(status)
       end if
       if (present(nymd)) then
-         _ASSERT(.not.present(time),'can not specify an ESMF_Time and an integer time')
+         _assert(.not.present(time),'can not specify an ESMF_Time and an integer time')
          year = nymd/10000
          month = mod(nymd/100,100)
          day = mod(nymd,100)
       end if
       if (present(nhms)) then
-         _ASSERT(.not.present(time),'can not specify an ESMF_Time and an integer time')
+         _assert(.not.present(time),'can not specify an ESMF_Time and an integer time')
          hour = nhms/10000
          minute = mod(nhms/100,100)
          second = mod(nhms,100)  
@@ -111,7 +111,7 @@ contains
                   output_string(k:k+1)="%s"
                   k=k+1
                else
-                  _FAIL("Using %s token with no experiment id")
+                  _fail("Using %s token with no experiment id")
                end if
             case("%")
                istp=2
@@ -126,7 +126,7 @@ contains
                if (valid_token) then
                   istp=3
                   if (.not.preserve_) then
-                     _ASSERT(present(nymd) .or. present(nhms) .or. present(time),'Using token with no time')
+                     _assert(present(nymd) .or. present(nhms) .or. present(time),'Using token with no time')
                   end if
                   sbuf = evaluate_token(c1//c2,year,month,day,hour,minute,second,preserve_)
                   kstp = len_trim(sbuf)
@@ -134,7 +134,7 @@ contains
                   output_string(k:m)=sbuf
                   k=m+1
                else
-                  _FAIL("Invalid token in file template: "//c1//c2)
+                  _fail("Invalid token in file template: "//c1//c2)
                end if
             end select
          else
@@ -143,7 +143,7 @@ contains
             k=k+1
          end if
       enddo
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end subroutine fill_grads_template
 
@@ -219,12 +219,12 @@ contains
                gregorianCalendar = ESMF_CalendarCreate(ESMF_CALKIND_GREGORIAN, &
                     name='Gregorian_obs' , rc=rc)
                call ESMF_TimeSet(time, yy=year, mm=month, dd=day, &
-                    calendar=gregorianCalendar, _RC)
-               call ESMF_TimeGet(time, dayOfYear=doy, _RC)
+                    calendar=gregorianCalendar, _rc)
+               call ESMF_TimeGet(time, dayOfYear=doy, _rc)
                call ESMF_CalendarDestroy(gregorianCalendar)
                write(buffer,'(i3.3)')doy
             else
-               _FAIL('Day of Year must be %D3')
+               _fail('Day of Year must be %D3')
             end if
          else
             buffer="%"//token

@@ -134,8 +134,8 @@ contains
          var%zstandard_level = zstandard_level
       endif
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      _return(_success)
+      _unused_dummy(unusable)
    contains
 
       subroutine parse_dimensions()
@@ -172,12 +172,12 @@ contains
 
       if (i <= 0 .or. i > this%dimensions%size()) then
          dimension_name => null()
-         _RETURN(pFIO_ILLEGAL_DIMENSION_INDEX)
+         _return(pFIO_ILLEGAL_DIMENSION_INDEX)
       else
          dimension_name => this%dimensions%at(i)
-         _RETURN(_SUCCESS)
+         _return(_success)
       end if
-      _UNUSED_DUMMY(unusable)
+      _unused_dummy(unusable)
 
    end function get_ith_dimension
 
@@ -207,7 +207,7 @@ contains
 
       iter = this%attributes%find(attr_name)
       call this%attributes%erase(iter)
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine
 
    subroutine add_attribute_0d(this, attr_name, attr_value, rc)
@@ -226,7 +226,7 @@ contains
          call this%attributes%insert(attr_name, attr)
       end select
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine add_attribute_0d
 
    subroutine add_attribute_1d(this, attr_name, attr_values, rc)
@@ -236,7 +236,7 @@ contains
       integer, optional, intent(out) :: rc
 
       call this%attributes%insert(attr_name, Attribute(attr_values))
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine add_attribute_1d
 
 
@@ -249,7 +249,7 @@ contains
 
       attr => this%attributes%at(attr_name)
       isPresent = associated(attr)
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function is_attribute_present
 
@@ -260,8 +260,8 @@ contains
       integer, optional, intent(out) :: rc
 
       attr => this%attributes%at(attr_name)
-      _ASSERT(associated(attr), "no such attribute : " // trim(attr_name))
-      _RETURN(_SUCCESS)
+      _assert(associated(attr), "no such attribute : " // trim(attr_name))
+      _return(_success)
    end function get_attribute
 
    function get_attribute_string(this, attr_name, rc) result(attr_string)
@@ -274,17 +274,17 @@ contains
       type(Attribute), pointer :: attr
       class(*), pointer :: attr_val
 
-      attr => this%get_attribute(attr_name,_RC)
-      _ASSERT(associated(attr),"no such attribute "//attr_name)
+      attr => this%get_attribute(attr_name,_rc)
+      _assert(associated(attr),"no such attribute "//attr_name)
       attr_val => attr%get_value()
       select type(attr_val)
       type is(character(*))
          attr_string = attr_val
       class default
-         _FAIL('unsupported subclass (not string) of attribute named '//attr_name)
+         _fail('unsupported subclass (not string) of attribute named '//attr_name)
       end select
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function get_attribute_string
 
    function get_attribute_real32(this,attr_name,rc) result(attr_real32)
@@ -299,8 +299,8 @@ contains
       type(Attribute), pointer :: attr
       class(*), pointer :: attr_val(:)
 
-      attr => this%get_attribute(attr_name,_RC)
-      _ASSERT(associated(attr),"no attribute named "//attr_name)
+      attr => this%get_attribute(attr_name,_rc)
+      _assert(associated(attr),"no attribute named "//attr_name)
       attr_val => attr%get_values()
       select type(attr_val)
       type is(real(kind=REAL32))
@@ -310,10 +310,10 @@ contains
          tmpd = attr_val
          attr_real32 = REAL(tmpd(1))
       class default
-         _FAIL('unsupported subclass (not real32) for units of attribute named '//attr_name)
+         _fail('unsupported subclass (not real32) for units of attribute named '//attr_name)
       end select
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function get_attribute_real32
 
    function get_attribute_real64(this,attr_name,rc) result(attr_real64)
@@ -327,18 +327,18 @@ contains
       type(Attribute), pointer :: attr
       class(*), pointer :: attr_val(:)
 
-      attr => this%get_attribute(attr_name,_RC)
-      _ASSERT(associated(attr),"no such attribute "//attr_name)
+      attr => this%get_attribute(attr_name,_rc)
+      _assert(associated(attr),"no such attribute "//attr_name)
       attr_val => attr%get_values()
       select type(attr_val)
       type is(real(kind=REAL64))
          tmp = attr_val
          attr_real64 = tmp(1)
       class default
-         _FAIL('unsupported subclass (not real64) for units of attribute named '//attr_name)
+         _fail('unsupported subclass (not real64) for units of attribute named '//attr_name)
       end select
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function get_attribute_real64
 
    function get_attribute_int32(this,attr_name,rc) result(attr_int32)
@@ -352,18 +352,18 @@ contains
       type(Attribute), pointer :: attr
       class(*), pointer :: attr_val(:)
 
-      attr => this%get_attribute(attr_name,_RC)
-      _ASSERT(associated(attr),"no attribute named "//attr_name)
+      attr => this%get_attribute(attr_name,_rc)
+      _assert(associated(attr),"no attribute named "//attr_name)
       attr_val => attr%get_values()
       select type(attr_val)
       type is(integer(kind=INT32))
          tmp = attr_val
          attr_int32 = tmp(1)
       class default
-         _FAIL('unsupported subclass (not int32) for units of attribute named '//attr_name)
+         _fail('unsupported subclass (not int32) for units of attribute named '//attr_name)
       end select
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function get_attribute_int32
 
    function get_attribute_int64(this,attr_name,rc) result(attr_int64)
@@ -377,18 +377,18 @@ contains
       type(Attribute), pointer :: attr
       class(*), pointer :: attr_val(:)
 
-      attr => this%get_attribute(attr_name,_RC)
-      _ASSERT(associated(attr),"no attribute named "//attr_name)
+      attr => this%get_attribute(attr_name,_rc)
+      _assert(associated(attr),"no attribute named "//attr_name)
       attr_val => attr%get_values()
       select type(attr_val)
       type is(integer(kind=INT64))
          tmp = attr_val
          attr_int64 = tmp(1)
       class default
-         _FAIL('unsupported subclass (not int64) for units of attribute named '//attr_name)
+         _fail('unsupported subclass (not int64) for units of attribute named '//attr_name)
       end select
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function get_attribute_int64
 
    subroutine add_const_value(this, const_value, rc)
@@ -401,10 +401,10 @@ contains
       rank = const_value%get_rank()
       dims = this%dimensions%size()
 
-      _ASSERT( dims == rank, "dimensions and rank don't match.  Add dimension first")
+      _assert( dims == rank, "dimensions and rank don't match.  Add dimension first")
 
       this%const_value = const_value
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine add_const_value
 
    function get_const_value(this) result(const_value)
@@ -528,10 +528,10 @@ contains
       call StringVector_serialize(this%dimensions, tmp_buffer)
       buffer =[serialize_intrinsic(this%type), tmp_buffer]
       call StringAttributeMap_serialize(this%attributes, tmp_buffer, status)
-      _VERIFY(status)
+      _verify(status)
       buffer = [buffer, tmp_buffer]
       call this%const_value%serialize(tmp_buffer, status)
-      _VERIFY(status)
+      _verify(status)
       buffer = [buffer, tmp_buffer]
       buffer = [buffer, serialize_intrinsic(this%deflation)]
       buffer = [buffer, serialize_intrinsic(this%quantize_algorithm)]
@@ -546,7 +546,7 @@ contains
 
       length = serialize_buffer_length(length) + serialize_buffer_length(Variable_SERIALIZE_TYPE) + size(buffer)
       buffer = [serialize_intrinsic(length), serialize_intrinsic(Variable_SERIALIZE_TYPE), buffer]
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine
 
    subroutine Variable_deserialize(buffer, var, rc)
@@ -556,8 +556,8 @@ contains
       integer :: status
       var = Variable()
       call deserialize(var, buffer, rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+      _verify(status)
+      _return(_success)
    contains
       subroutine deserialize(this, buffer, rc)
          class (Variable), intent(inout) :: this
@@ -568,7 +568,7 @@ contains
 
          n = 1
          call deserialize_intrinsic(buffer(n:),length)
-         _ASSERT(length == size(buffer), "length does not match")
+         _assert(length == size(buffer), "length does not match")
 
          length = serialize_buffer_length(length)
          n = n+length
@@ -579,18 +579,18 @@ contains
          length = serialize_buffer_length(this%type)
          n = n+length
          call StringVector_deserialize(buffer(n:), this%dimensions, status)
-         _VERIFY(status)
+         _verify(status)
          call deserialize_intrinsic(buffer(n:),length)
          n = n + length
          call deserialize_intrinsic(buffer(n:),length)
          call StringAttributeMap_deserialize(buffer(n:n+length-1),this%attributes, status)
-         _VERIFY(status)
+         _verify(status)
 
          n = n + length
 
          call deserialize_intrinsic(buffer(n:),length)
          call UnlimitedEntity_deserialize(buffer(n:(n+length-1)), this%const_value, status)
-         _VERIFY(status)
+         _verify(status)
 
          n = n + length
          call deserialize_intrinsic(buffer(n:),this%deflation)
@@ -606,7 +606,7 @@ contains
          length = serialize_buffer_length(this%zstandard_level)
          n = n + length
          call deserialize_intrinsic(buffer(n:),this%chunksizes)
-         _RETURN(_SUCCESS)
+         _return(_success)
       end subroutine deserialize
   end subroutine Variable_deserialize
 

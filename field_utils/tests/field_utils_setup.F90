@@ -52,9 +52,9 @@ contains
 
       integer :: status
 
-      grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[2,2], countsPerDeDim2=[2,2], indexflag=INDEX_FLAG_DEFAULT, name = grid_name, _RC)
+      grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[2,2], countsPerDeDim2=[2,2], indexflag=INDEX_FLAG_DEFAULT, name = grid_name, _rc)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function mk_grid
 
    function mk_field_r4_ungrid(name, ungriddedLBound, ungriddedUBound, rc) result(field)
@@ -67,9 +67,9 @@ contains
 
       integer :: status
 
-      field = mk_field_common(tk = ESMF_TYPEKIND_R4, name = name, ungriddedLBound=ungriddedLBound, ungriddedUBound=ungriddedUBound, _RC)
+      field = mk_field_common(tk = ESMF_TYPEKIND_R4, name = name, ungriddedLBound=ungriddedLBound, ungriddedUBound=ungriddedUBound, _rc)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function mk_field_r4_ungrid
 
    function mk_field_r4_2d(farray, name, rc) result(field)
@@ -82,12 +82,12 @@ contains
 
       integer :: status
 
-      field = mk_field_common(tk = ESMF_TYPEKIND_R4, name = name, _RC)
-      call ESMF_FieldGet(field, farrayPtr = ptr, _RC)
+      field = mk_field_common(tk = ESMF_TYPEKIND_R4, name = name, _rc)
+      call ESMF_FieldGet(field, farrayPtr = ptr, _rc)
       
       ptr = farray
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function mk_field_r4_2d
 
    function mk_field_r8_2d(farray, name, rc) result(field)
@@ -100,11 +100,11 @@ contains
 
       integer :: status
 
-      field = mk_field_common(tk = ESMF_TYPEKIND_R8, name = name, _RC)
-      call ESMF_FieldGet(field, farrayPtr = ptr, _RC)
+      field = mk_field_common(tk = ESMF_TYPEKIND_R8, name = name, _rc)
+      call ESMF_FieldGet(field, farrayPtr = ptr, _rc)
       ptr = farray
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function mk_field_r8_2d
 
    function mk_field_common(tk, name, ungriddedLBound, ungriddedUBound, rc) result(field)
@@ -120,10 +120,10 @@ contains
       type(ESMF_Grid) :: grid
       integer :: status
       
-      grid = mk_grid(grid_name = name // GRID_SUFFIX, _RC)
-      field = ESMF_FieldCreate(grid, typekind = tk, name = name // FIELD_SUFFIX, ungriddedLBound = ungriddedLBound, ungriddedUBound = ungriddedUBound, _RC)
+      grid = mk_grid(grid_name = name // GRID_SUFFIX, _rc)
+      field = ESMF_FieldCreate(grid, typekind = tk, name = name // FIELD_SUFFIX, ungriddedLBound = ungriddedLBound, ungriddedUBound = ungriddedUBound, _rc)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function mk_field_common
 
    elemental function are_almost_equal(x, y) result(almost_equal)
@@ -146,7 +146,7 @@ contains
       real(ESMF_KIND_R4), intent(in) :: xrange
       integer :: rc
 
-      _ASSERT(xrange > 0, 'Range for random numbers must be positive.')
+      _assert(xrange > 0, 'Range for random numbers must be positive.')
       call random_number(x)
       x = xrange * x + xmin
 
@@ -158,7 +158,7 @@ contains
       real(ESMF_KIND_R8), intent(in) :: xrange
       integer :: rc
 
-      _ASSERT(xrange > 0, 'Range for random numbers must be positive.')
+      _assert(xrange > 0, 'Range for random numbers must be positive.')
       call random_number(x)
       x = xrange * x + xmin
 
@@ -172,9 +172,9 @@ contains
 
       integer :: status
 
-      r4field = mk_field(r4array, name = field_name, _RC)
+      r4field = mk_field(r4array, name = field_name, _rc)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function mk_r4field
 
@@ -186,9 +186,9 @@ contains
 
       integer :: status
 
-      r8field = mk_field(r8array, name = field_name, _RC)
+      r8field = mk_field(r8array, name = field_name, _rc)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function mk_r8field
 
@@ -201,9 +201,9 @@ contains
 
       integer :: status
 
-      r4field = mk_field_r4_ungrid(name = field_name, ungriddedLBound=[lbound],ungriddedUBound=[ubound],_RC)
+      r4field = mk_field_r4_ungrid(name = field_name, ungriddedLBound=[lbound],ungriddedUBound=[ubound],_rc)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
 
    end function mk_r4ungrid_field
 

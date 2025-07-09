@@ -103,7 +103,7 @@ contains
       class default
         allocate(attr%value, source=value)
       end select
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function new_UnlimitedEntity_0d
    
    function new_UnlimitedEntity_1d(values, rc) result(attr)
@@ -113,13 +113,13 @@ contains
 
       select type (values)
       type is (character(len=*)) 
-        _FAIL( 'unsupported unless shape is [1]')
+        _fail( 'unsupported unless shape is [1]')
       class default
          allocate(attr%values, source=values)
          attr%shape = shape(values)
       end select
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function new_UnlimitedEntity_1d
 
    function new_UnlimitedEntity_2d(values, rc) result(attr)
@@ -140,14 +140,14 @@ contains
       type is (logical)
          allocate(values1d, source = reshape(values, [product(shape(values))]))
       class default
-        _FAIL( 'not support type')
+        _fail( 'not support type')
       end select
 
       attr = UnlimitedEntity(values1d)
       attr%shape = shape(values)
 
       deallocate(values1d)
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function new_UnlimitedEntity_2d
 
    function new_UnlimitedEntity_3d(values, rc) result(attr)
@@ -168,14 +168,14 @@ contains
       type is (logical)
          allocate(values1d, source = reshape(values, [product(shape(values))]))
       class default
-        _FAIL( 'not support type')
+        _fail( 'not support type')
       end select
 
       attr = UnlimitedEntity(values1d)
       attr%shape = shape(values)
 
       deallocate(values1d)      
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function new_UnlimitedEntity_3d
 
    function new_UnlimitedEntity_4d(values, rc) result(attr)
@@ -196,14 +196,14 @@ contains
       type is (logical)
          allocate(values1d, source = reshape(values, [product(shape(values))]))
       class default
-        _FAIL( 'not support type')
+        _fail( 'not support type')
       end select
 
       attr = UnlimitedEntity(values1d)
       attr%shape = shape(values)
 
       deallocate(values1d)      
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function new_UnlimitedEntity_4d
 
    function new_UnlimitedEntity_5d(values, rc) result(attr)
@@ -224,14 +224,14 @@ contains
       type is (logical)
          allocate(values1d, source = reshape(values, [product(shape(values))]))
       class default
-        _FAIL( 'not support type')
+        _fail( 'not support type')
       end select
 
       attr = UnlimitedEntity(values1d)
       attr%shape = shape(values)
 
       deallocate(values1d)      
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function new_UnlimitedEntity_5d
 
    !>
@@ -254,7 +254,7 @@ contains
          allocate(this%value, source=value)
       end select
       this%shape = EMPTY
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine set
 
    subroutine destroy(this, rc)
@@ -263,7 +263,7 @@ contains
       if(allocated(this%value)) deallocate(this%value)
       if(allocated(this%values)) deallocate(this%values)
       if(allocated(this%shape)) deallocate(this%shape)
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine destroy
 
    !> 
@@ -283,7 +283,7 @@ contains
       else
          value => null()
       end if
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function get_value
 
    !>
@@ -298,7 +298,7 @@ contains
       else
         values => null()
       end if
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function get_values
 
    function get_string(this,rc) result(string)
@@ -314,9 +314,9 @@ contains
       type is (character(len=*))
          string = value
       class default
-         _RETURN(_FAILURE)
+         _return(_failure)
       end select    
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function get_string
 
    !>
@@ -331,7 +331,7 @@ contains
       else
          shp = this%shape
       endif
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function get_shape
 
    function get_rank(this, rc) result(rank)
@@ -341,7 +341,7 @@ contains
 
       rank = size(this%get_shape())
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function get_rank
 
    function is_empty(this, rc) result(yes)
@@ -354,7 +354,7 @@ contains
       ! not initialized
       yes = .not. allocated(this%shape)
       if (yes) then
-        _RETURN(_SUCCESS)
+        _return(_success)
       endif
       
       ! initialized with UnlimitedEnity('')
@@ -366,7 +366,7 @@ contains
          end select
       end if
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function is_empty
 
 !------------------------------------------------------------------------------
@@ -559,7 +559,7 @@ contains
                       serialize_intrinsic(type_kind),  &
                       serialize_intrinsic(value%value)]
          class default
-            _FAIL(" type is not supported")
+            _fail(" type is not supported")
          end select
          endif
       case (1:)
@@ -596,12 +596,12 @@ contains
         !              serialize_intrinsic(type_kind),  &
         !              serialize_intrinsic(values)]
          class default
-            _FAIL(" type is not supported")
+            _fail(" type is not supported")
          end select
       end select
       length =  serialize_buffer_length(length) + size(buffer)
       buffer = [serialize_intrinsic(length),buffer]
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine serialize 
 
    subroutine UnlimitedEntity_deserialize( buffer,this, rc)
@@ -611,8 +611,8 @@ contains
       integer :: status
       this = UnlimitedEntity() 
       call deserialize(this, buffer, rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+      _verify(status)
+      _return(_success)
    contains
 
       subroutine deserialize( this, buffer, rc)
@@ -639,7 +639,7 @@ contains
    
          n = 1
          call deserialize_intrinsic(buffer(n:),length)
-         _ASSERT(length == size(buffer),'length does not match')
+         _assert(length == size(buffer),'length does not match')
    
          n = n + serialize_buffer_length(length)
          call deserialize_intrinsic(buffer(n:),this%shape)
@@ -673,7 +673,7 @@ contains
                 ! this is uninitialized case, make sure shape is not allocated even it is empty
                  if (allocated(this%shape))deallocate(this%shape)
             case default
-              _FAIL( "UnlimitedEntity deserialize not support")
+              _fail( "UnlimitedEntity deserialize not support")
             end select
          case (1:)
             select case (type_kind)
@@ -693,11 +693,11 @@ contains
                 call deserialize_intrinsic(buffer(n:),values_logical)
                 allocate(this%values, source =values_logical)
             case default
-              _FAIL( "UnlimitedEntity deserialize not support")
+              _fail( "UnlimitedEntity deserialize not support")
             end select
    
          end select
-         _RETURN(_SUCCESS)
+         _return(_success)
       end subroutine deserialize
    end subroutine UnlimitedEntity_deserialize
 
@@ -787,7 +787,7 @@ contains
           call map%insert(key,attr)
           deallocate(key)
        enddo
-       _RETURN(_SUCCESS)
+       _return(_success)
     end subroutine StringUnlimitedEntityMap_deserialize
 
 end module pFIO_StringUnlimitedEntityMapUtilMod

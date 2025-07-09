@@ -40,16 +40,16 @@ contains
       integer :: var_id
 
       if (this%file_type == BINARY_FILE) then
-         unit = open_bin_file(this%filename, _RC)
-         call write_bin_file(this%buffer, unit, _RC)
-         call delete_bin_file(this%filename, _RC)
+         unit = open_bin_file(this%filename, _rc)
+         call write_bin_file(this%buffer, unit, _rc)
+         call delete_bin_file(this%filename, _rc)
       else if (this%file_type == NETCDF_FILE) then
-         unit = open_netcdf_file(this%filename, this%buffer, var_id, _RC)
-         call write_netcdf_file(this%buffer, unit, var_id, _RC)
-         call delete_netcdf_file(this%filename, _RC)
+         unit = open_netcdf_file(this%filename, this%buffer, var_id, _rc)
+         call write_netcdf_file(this%buffer, unit, var_id, _rc)
+         call delete_netcdf_file(this%filename, _rc)
       end if
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine run
 
    function open_bin_file(filename, rc) result(unit)
@@ -61,9 +61,9 @@ contains
 
       unit = -1 ! unless
       open(file=filename, newunit=unit, &
-           status='new', form='unformatted', access='sequential', _IOSTAT)
+           status='new', form='unformatted', access='sequential', _iostat)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function open_bin_file
 
    subroutine write_bin_file(buffer, unit, rc)
@@ -74,12 +74,12 @@ contains
       integer :: status
 
       write(unit, iostat=status) buffer(:)
-      _VERIFY(status)
+      _verify(status)
 
       ! Without the close, maybe the writing is not done?
-      close(unit, _IOSTAT)
+      close(unit, _iostat)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine write_bin_file
 
 
@@ -91,10 +91,10 @@ contains
       integer :: unit
 
       open(file=filename, newunit=unit, &
-           status='old', form='unformatted', access='sequential', _IOSTAT)
-      close(unit, status='delete', _IOSTAT)
+           status='old', form='unformatted', access='sequential', _iostat)
+      close(unit, status='delete', _iostat)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine delete_bin_file
 
    function open_netcdf_file(filename, buffer, varid, rc) result(unit)
@@ -107,15 +107,15 @@ contains
       integer :: status, dimid
 
       status = NF90_Create(filename, IOR(NF90_CLOBBER, NF90_NETCDF4), unit)
-      _VERIFY(status)
+      _verify(status)
       status = NF90_def_dim(unit, "dim1", size(buffer), dimid)
-      _VERIFY(status)
+      _verify(status)
       status = NF90_def_var(unit, 'var1', NF90_FLOAT, [dimid], varid)
-      _VERIFY(status)
+      _verify(status)
       status = NF90_EndDef(unit)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end function open_netcdf_file
 
    subroutine write_netcdf_file(buffer, unit, varid, rc)
@@ -127,13 +127,13 @@ contains
       integer :: status
 
       status = nf90_put_var(unit, varid, buffer)
-      _VERIFY(status)
+      _verify(status)
 
       ! Without the close, maybe the writing is not done?
       status = nf90_close(unit)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine write_netcdf_file
 
 
@@ -143,9 +143,9 @@ contains
       integer :: status
 
       call execute_command_line('rm '//filename, exitstat=status)
-      _VERIFY(status)
+      _verify(status)
 
-      _RETURN(_SUCCESS)
+      _return(_success)
    end subroutine delete_netcdf_file
 
 end module mapl_BW_Benchmark

@@ -30,15 +30,15 @@
     type(ESMF_VM)                         :: vm
 
     call ESMF_DELayoutGet(layout, vm=vm, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     call ESMF_VMGet(vm, mpiCommunicator=COMM, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     call MPI_Bcast(DATA, N, MPITYPE_, ROOT, COMM, STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   END SUBROUTINE SUB_
 
 #undef NAME_
@@ -65,12 +65,12 @@
     integer                               :: comm
 
     call ESMF_VMGet(vm, mpiCommunicator=COMM, rc=status)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
     call MPI_Bcast(DATA, N, MPITYPE_, ROOT, COMM, STATUS)
-    _VERIFY(STATUS)
+    _verify(STATUS)
 
-    _RETURN(ESMF_SUCCESS)
+    _return(ESMF_SUCCESS)
   END SUBROUTINE SUB_
 
 #undef NAME_

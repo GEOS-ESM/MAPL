@@ -1,9 +1,9 @@
 if (label_is_present) then 
 
 #if defined(IS_ARRAY)
-   call ESMF_ConfigGetAttribute(config, valuelist = VALUE_, count = count, label = actual_label, _RC)
+   call ESMF_ConfigGetAttribute(config, valuelist = VALUE_, count = count, label = actual_label, _rc)
 #else
-   call ESMF_ConfigGetAttribute(config, VALUE_, label = actual_label, _RC) 
+   call ESMF_ConfigGetAttribute(config, VALUE_, label = actual_label, _rc) 
 #endif
    value_is_set = .TRUE.
 else 
@@ -13,7 +13,7 @@ else
       value_is_set = .TRUE.
    class default 
    ! FIXME wdb Maybe different or no macro?
-      _FAIL(MISMATCH_MESSAGE) 
+      _fail(MISMATCH_MESSAGE) 
    end select 
    value_is_default = .TRUE. 
 end if 
