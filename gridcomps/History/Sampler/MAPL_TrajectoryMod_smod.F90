@@ -288,9 +288,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          end if
 
          call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
-              label=trim(STR_KW) // 'obs_refquency:', _RC)
-         _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
-         if (mapl_am_I_root()) write(6,105) 'obs_file_interval:', trim(STR1)
+              label=trim(STR_KW) // 'obs_frequency:', _RC)
+         _ASSERT(STR1/='', 'fatal error: obs_frequency not provided in RC file')
+         if (mapl_am_I_root()) write(6,105) 'obs_file_interval [obs_frequency]:', trim(STR1)
          if (mapl_am_I_root()) write(6,106) 'Epoch (second)   :', second
 
          i= index( trim(STR1), ' ' )
