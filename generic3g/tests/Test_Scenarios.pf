@@ -92,6 +92,7 @@ contains
    function get_parameters() result(params)
 
       type(ScenarioDescription), allocatable :: params(:)
+      type(ScenarioDescription) :: p
 
       params = [ScenarioDescription:: ]
 
@@ -104,7 +105,8 @@ contains
       params = [params, add_params('field exists', check_field_rank)]
 
       ! Service oriented tests
-      params = [params, add_params('field count', check_fieldCount)]
+      p = ScenarioDescription('service_service', 'parent.yaml', 'field count', check_fieldcount)
+      params = [params, p]
 
    contains
 
