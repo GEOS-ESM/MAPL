@@ -21,7 +21,7 @@ bcs_version: &bcs_version v12.0.0
 tag_build_arg_name: &tag_build_arg_name maplversion
 
 orbs:
-  ci: geos-esm/circleci-tools@dev:a611974be4bd4838235227b7234fae9a5b63a001
+  ci: geos-esm/circleci-tools@dev:a80b853a9540a47f341d531c8e591a40ceab522f
 
 workflows:
   build-and-test-MAPL:
@@ -36,7 +36,7 @@ workflows:
               compiler: [ifort]
               cmake_generator: ['Unix Makefiles']
               build_type: ['Debug']
-          #baselibs_version: *baselibs_version
+          baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
           run_unit_tests: true
@@ -61,7 +61,7 @@ workflows:
           # We will only run the tutorials with GNU make. No need to double up as Ninja is a build test only
           requires:
             - build-and-test-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>-using-Unix Makefiles
-          #baselibs_version: *baselibs_version
+          baselibs_version: *baselibs_version
 
       # Builds MAPL without pFlogger and fargparse and pFUnit
       - ci/build:
@@ -72,7 +72,7 @@ workflows:
             parameters:
               compiler: [ifort]
               build_type: ['Debug']
-          #baselibs_version: *baselibs_version
+          baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
           remove_flap: true
@@ -96,7 +96,7 @@ workflows:
               # ifx cannot build FMS
               #compiler: [gfortran, ifort, ifx]
               compiler: [gfortran, ifort]
-          #baselibs_version: *baselibs_version
+          baselibs_version: *baselibs_version
           repo: GEOSgcm
           checkout_fixture: true
           fixture_branch: release/MAPL-v3
