@@ -146,4 +146,14 @@ contains
 
    end function make_fmt
 
+   subroutine get_value_with_args_i4(hconfig, label, value, default, logger, value_set, rc)
+      type(ESMF_HConfig), intent(in) :: hconfig
+      character(len=*), intent(in) :: label
+      integer(kind=ESMF_KIND_I4), intent(out) :: value
+      integer(kind=ESMF_KIND_I4), optional, intent(in) :: default
+      class(Logger), pointer, optional, intent(in) :: logger
+      logical, optional, intent(out) :: value_set
+      integer, optional, intent(out) :: rc
+   end subroutine get_value_with_args_i4
+
 end module mapl3g_hconfig_get_private
