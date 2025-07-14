@@ -59,6 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `add2export` to ACG3
 - Changed `MAPL_GridCompAddFieldSpec` and ACG3 to use new RESTART enum
 - Add validation for VariableSpec
+- Add a common set of string functions (StringCommon) in shared to consolidate
 
 ### Changed
 
