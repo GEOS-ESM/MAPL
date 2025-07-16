@@ -17,11 +17,14 @@ module NCIOMod
   use MAPL_BaseMod
   use MAPL_CommsMod
   use MAPL_SortMod
+  use MAPL_EASEConversion, only:  MAPL_get_ease_gridname_by_cols
   !use MAPL_RangeMod
   use MAPL_ShmemMod
   use MAPL_ExceptionHandling
   use netcdf
   use pFIO
+  use BinIOMod, only: GETFILE, READ_PARALLEL, FREE_FILE
+  use MAPL_Constants
   !use pFIO_ClientManagerMod
   use gFTL_StringIntegerMap
   use gFTL_StringVector
@@ -43,6 +46,9 @@ module NCIOMod
   public MAPL_NCIOGetFileType
   public MAPL_VarReadNCPar
   public MAPL_VarWriteNCPar
+  public MAPL_ReadTilingNC4
+  public MAPL_WriteTilingNC4
+  public MAPL_ReadTilingASCII
 
   interface MAPL_VarReadNCPar
      module procedure MAPL_StateVarReadNCPar
@@ -78,7 +84,10 @@ module NCIOMod
      module procedure MAPL_VarWriteNCpar_R8_4d
   end interface
 
-  contains
+  integer, parameter, public :: NumGlobalVars=4
+  integer, parameter, public :: NumLocalVars =4
+  real(REAL64), parameter :: UNDEF_REAL64 = 1.0D15
+contains
 
 
   subroutine MAPL_FieldReadNCPar(formatter,name,FIELD, ARRDES, HomePE, RC)
@@ -3512,11 +3521,12 @@ module NCIOMod
   _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_ArrayReadNCpar_3d
 
-  subroutine MAPL_BundleWriteNCPar(Bundle, arrdes, CLOCK, filename, oClients, rc)
+  subroutine MAPL_BundleWriteNCPar(Bundle, arrdes, CLOCK, filename, clobber, oClients, rc)
     type(ESMF_FieldBundle), intent(inout)   :: Bundle
     type(ArrDescr), intent(inout)           :: arrdes
     type(ESMF_Clock), intent(in)            :: CLOCK
     character(len=*), intent(in  )         :: filename
+    logical, intent(in)                    :: clobber
     type (ClientManager), optional, intent(inout) :: oClients
     integer, optional, intent(out)          :: rc
 
@@ -3582,6 +3592,8 @@ module NCIOMod
     type(ESMF_Field) :: lons_field, lats_field
     logical :: isGridCapture, have_oclients
     real(kind=ESMF_KIND_R8), pointer :: grid_lons(:,:), grid_lats(:,:), lons_field_ptr(:,:), lats_field_ptr(:,:)
+    integer :: pfio_mode
+
     have_oclients = present(oClients)
 
     call ESMF_FieldBundleGet(Bundle,FieldCount=nVars, name=BundleName, rc=STATUS)
@@ -4174,9 +4186,11 @@ module NCIOMod
 
     else
 
+       pfio_mode = PFIO_NOCLOBBER
+       if (clobber) pfio_mode = PFIO_CLOBBER
        if (arrdes%writers_comm /= mpi_comm_null) then
           if (arrdes%num_writers == 1) then
-             call formatter%create(trim(filename), rc=status)
+             call formatter%create(trim(filename), mode=pfio_mode, rc=status)
              _VERIFY(status)
              call formatter%write(cf,rc=status)
              _VERIFY(STATUS)
@@ -4189,7 +4203,7 @@ module NCIOMod
                 _VERIFY(status)
                 call cf%add_attribute("Split_Cubed_Sphere", writer_rank, _RC)
              else
-                call formatter%create_par(trim(filename),comm=arrdes%writers_comm,info=info,rc=status)
+                call formatter%create_par(trim(filename),mode=pfio_mode,comm=arrdes%writers_comm,info=info,rc=status)
                 _VERIFY(status)
              endif
              call formatter%write(cf,rc=status)
@@ -4307,13 +4321,14 @@ module NCIOMod
 
   end subroutine MAPL_BundleWriteNCPar
 
-  subroutine MAPL_StateVarWriteNCPar(filename, STATE, ARRDES, CLOCK, NAME, forceWriteNoRestart, oClients, RC)
+  subroutine MAPL_StateVarWriteNCPar(filename, STATE, ARRDES, CLOCK, NAME, forceWriteNoRestart, clobber, oClients, RC)
     character(len=*)            , intent(IN   ) :: filename
     type (ESMF_State)           , intent(IN   ) :: STATE
     type(ArrDescr)              , intent(INOUT) :: ARRDES
     type(ESMF_Clock)            , intent(IN   ) :: CLOCK
     character(len=*),   optional, intent(IN   ) :: NAME
     logical,            optional, intent(IN   ) :: forceWriteNoRestart
+    logical,            optional, intent(in  ) :: clobber
     type (ClientManager), optional, intent(inout) :: oClients
     integer,            optional, intent(  OUT) :: RC
 
@@ -4339,6 +4354,7 @@ module NCIOMod
     logical                            :: is_test_framework, isGridCapture
     integer :: fieldIsValid
     type(ESMF_Array) :: array
+    logical :: local_clobber
 
     call ESMF_StateGet(STATE,ITEMCOUNT=ITEMCOUNT,RC=STATUS)
     _VERIFY(STATUS)
@@ -4358,9 +4374,9 @@ module NCIOMod
     _VERIFY(STATUS)
 
     forceWriteNoRestart_ = .false.
-    if(present(forceWriteNoRestart)) then
-       forceWriteNoRestart_ = forceWriteNoRestart
-    endif
+    if(present(forceWriteNoRestart)) forceWriteNoRestart_ = forceWriteNoRestart
+    local_clobber = .false.
+    if (present(clobber)) local_clobber = clobber
 
     if(present(NAME)) then
        DOIT = ITEMNAMES==NAME
@@ -4494,7 +4510,7 @@ module NCIOMod
        call ESMF_AttributeSet(bundle_write, name="MAPL_GridCapture", value=isGridCapture, _RC)
     end if
 
-    call MAPL_BundleWriteNCPar(Bundle_Write, arrdes, CLOCK, filename, oClients=oClients, rc=status)
+    call MAPL_BundleWriteNCPar(Bundle_Write, arrdes, CLOCK, filename, clobber=local_clobber, oClients=oClients, rc=status)
     _VERIFY(STATUS)
 
     _RETURN(ESMF_SUCCESS)
@@ -4502,8 +4518,12 @@ module NCIOMod
   end subroutine MAPL_StateVarWriteNCPar
 
   subroutine MAPL_NCIOGetFileType(filename,filetype,rc)
-   implicit none
+   ! filetype = 0, hdf5
+   ! filetype = 1, ascii
+   ! filetype = 2, binary or unknown
+   ! filetype = -1, unknown
 
+   implicit none
    ! Arguments
    !----------
    character(len=*),  intent(IN   ) :: filename
@@ -4521,7 +4541,7 @@ module NCIOMod
    integer                      :: irec
    integer                      :: unit
    integer                      :: i, cwrd
-   logical                      :: typehdf5
+   logical                      :: typehdf5, isascii
    character(len=12)            :: fmt
 
    INQUIRE(IOLENGTH=IREC) WORD
@@ -4533,9 +4553,9 @@ module NCIOMod
    read (UNIT, REC=2, ERR=100) TwoWords(5:8)
    close(UNIT)
 
-   typehdf5 = .true.
-   filetype = -1 ! Unknown
+   filetype = MAPL_FILETYPE_UNK ! Unknown
 
+   typehdf5 = .true.
    do i = 1, 8
       if (iachar(TwoWords(i)) /= hdf5(i)) then
          typehdf5 = .false.
@@ -4543,20 +4563,23 @@ module NCIOMod
       end if
    end do
    if (typehdf5) then
-      filetype = 0 ! HDF5
+      filetype = MAPL_FILETYPE_NC4
       _RETURN(ESMF_SUCCESS)
-
-   end if
-   ! Attempt to identify as fortran binary
-   cwrd = transfer(TwoWords(1:4), irec)
-   ! check if divisible by 4
-   irec = cwrd/4
-   filetype = irec
-   if (cwrd /= 4*irec) then
-      _RETURN(ESMF_FAILURE)
    end if
 
-   filetype = -1
+   isascii = .true.
+   do i = 1, 4
+       if (iachar(TwoWords(i)) < 7) then
+          isascii = .false.
+          exit
+       end if
+   end do
+   if (isascii) then
+      filetype = MAPL_FILETYPE_TXT
+      _RETURN(ESMF_SUCCESS)
+   endif
+
+   filetype = MAPL_FILETYPE_BIN
    _RETURN(ESMF_SUCCESS)
 
 100   continue
@@ -5057,5 +5080,515 @@ module NCIOMod
       _RETURN(_SUCCESS)
    end function create_flipped_field
 
+   subroutine MAPL_ReadTilingNC4(File, GridName, im, jm, nx, ny, n_Grids, n_tiles, iTable, rTable, N_PfafCat, AVR,rc)
+      character(*),                             intent(IN)  :: File
+      character(*), optional,                   intent(out) :: GridName(:)
+      integer,      optional,                   intent(out) :: IM(:), JM(:)
+      integer,      optional,                   intent(out) :: nx, ny, n_Grids, n_tiles
+      integer,      optional, allocatable,      intent(out) :: iTable(:,:)
+      real(kind=REAL64), optional, allocatable, intent(out) :: rTable(:,:)
+      integer,      optional,              intent(out) :: N_PfafCat
+      real,         optional, pointer,     intent(out) :: AVR(:,:)      ! used by GEOSgcm
+      integer,      optional,              intent(out) :: rc
+
+      type (Attribute), pointer     :: ref
+      character(len=:), allocatable :: attr
+      type (NetCDF4_FileFormatter)  :: formatter
+      type (FileMetadata)           :: meta
+      character(len=4)              :: ocn_str
+      integer                       :: ng, ntile, status, ll
+      class(*), pointer             :: attr_val(:)
+      class(*), pointer             :: char_val
+      integer, allocatable          :: tmp_int(:)
+      real(kind=REAL64),allocatable :: fr(:)
+
+      integer            :: NumCol
+      integer,      allocatable :: iTable_(:,:)
+      real(kind=REAL64), allocatable :: rTable_(:,:)
+
+      call formatter%open(File, pFIO_READ, rc=status)
+      meta = formatter%read(rc=status)
+
+      ref => meta%get_attribute('N_Grids')
+      attr_val => ref%get_values()
+      select type(attr_val)
+      type is (integer(INT32))
+        ng = attr_val(1)
+      endselect
+
+      if (present(n_Grids)) then
+        n_Grids = ng
+      endif
+
+      ntile = meta%get_dimension('tile')
+      if (present(n_tiles)) then
+         n_tiles = ntile
+      endif
+
+      if (present(nx)) then
+         ref => meta%get_attribute('raster_nx')
+         attr_val => ref%get_values()
+         select type(attr_val)
+         type is (integer(INT32))
+            nx = attr_val(1)
+         endselect
+      endif
+      if (present(ny)) then
+         ref => meta%get_attribute('raster_ny')
+         attr_val => ref%get_values()
+         select type (attr_val)
+         type is (integer(INT32))
+            ny = attr_val(1)
+         endselect
+      endif
+
+      if (present(N_PfafCat)) then
+         ref => meta%get_attribute('N_PfafCat')
+         attr_val => ref%get_values()
+         select type (attr_val)
+         type is (integer(INT32))
+            N_PfafCat = attr_val(1)
+         endselect
+      endif
+
+      do ll = 1, ng
+        if (ll == 1) then
+          ocn_str = ''
+        else
+          ocn_str = '_ocn'
+        endif
+
+        if (present(GridName)) then
+           attr = 'Grid'//trim(ocn_str)//'_Name'
+           ref =>meta%get_attribute(attr)
+           char_val => ref%get_value()
+           select type(char_val)
+           type is(character(*))
+              GridName(ll) = char_val
+           class default
+              print('unsupported subclass (not string) of attribute named '//attr)
+           end select
+        endif
+        if (present(IM)) then
+           attr = 'IM'//trim(ocn_str)
+           ref =>meta%get_attribute(attr)
+           attr_val => ref%get_values()
+           select type(attr_val)
+           type is( integer(INT32))
+              IM(ll) = attr_val(1)
+           end select
+        endif
+        if (present(JM)) then
+           attr = 'JM'//trim(ocn_str)
+           ref =>meta%get_attribute(attr)
+           attr_val => ref%get_values()
+           select type(attr_val)
+           type is(integer(INT32))
+              JM(ll) = attr_val(1)
+           end select
+        endif
+      enddo
+
+      if (present(iTable) .or. present(AVR) ) then
+        allocate(iTable_(ntile,0:7))
+        allocate(tmp_int(ntile))
+        call formatter%get_var('typ', iTable_(:,0))
+        do ll = 1, ng
+          if (ll == 1) then
+            ocn_str = ''
+          else
+            ocn_str = '_ocn'
+          endif
+
+          call formatter%get_var('i_indg'    //trim(ocn_str), tmp_int, rc=status)
+          iTable_(:,ll*2) = tmp_int
+          call formatter%get_var('j_indg'    //trim(ocn_str), tmp_int, rc=status)
+          iTable_(:,ll*2+1) = tmp_int
+          call formatter%get_var('dummy_index'//trim(ocn_str), tmp_int, rc=status)
+          if ( ng == 1) then
+            iTable_(:,4) = tmp_int ! for ease, it is pfaf
+            ! set this 7th column to 1. This is to reproduce a potential bug
+            ! when it is ease grid and mask file is not GEOS5_10arcsec_mask
+            iTable_(:,7) = 1
+          else
+            iTable_(:,5+ll) = tmp_int
+          endif
+        enddo
+        call formatter%get_var('pfaf_index', tmp_int, rc=status)
+        if (ng == 2) then
+           where (iTable_(:,0) == 100)
+             iTable_(:,4) = tmp_int
+           endwhere
+        endif
+      endif
+
+      if (present(rTable) .or. present(AVR) ) then
+        allocate(rTable_(ntile,10))
+        call formatter%get_var('com_lon', rTable_(:,1),   rc=status)
+        call formatter%get_var('com_lat', rTable_(:,2),   rc=status)
+        call formatter%get_var('area',    rTable_(:,3),   rc=status)
+        do ll = 1, ng
+          if (ll == 1) then
+            ocn_str = ''
+          else
+            ocn_str = '_ocn'
+          endif
+          call formatter%get_var('frac_cell' //trim(ocn_str), rTable_(:,3+ll), rc=status)
+        enddo
+        call formatter%get_var('min_lon', rTable_(:, 6), rc=status)
+        call formatter%get_var('max_lon', rTable_(:, 7), rc=status)
+        call formatter%get_var('min_lat', rTable_(:, 8), rc=status)
+        call formatter%get_var('max_lat', rTable_(:, 9), rc=status)
+        call formatter%get_var('elev',    rTable_(:,10), rc=status)
+      endif
+      if (present(AVR)) then
+        ! In GEOSgcm, it already assumes ng = 2, so NumCol = 10
+         NumCol = NumGlobalVars+NumLocalVars*ng
+         allocate(AVR(ntile, NumCol))
+         AVR(:, 1) = iTable_(:,0)
+         ! for EASE grid, the second collum is replaced by the area
+         AVR(:, 2) = rTable_(:,3)
+         AVR(:, 3) = rTable_(:,1)
+         AVR(:, 4) = rTable_(:,2)
+
+         AVR(:, 5) = iTable_(:,2)
+         AVR(:, 6) = iTable_(:,3)
+         AVR(:, 7) = rTable_(:,4)
+        if (ng == 1) then
+          AVR(:,8) = iTable_(:,4)
+        else
+          AVR(:, 8)  = iTable_(:,6)
+
+          AVR(:, 9)  = iTable_(:,4)
+          AVR(:, 10) = iTable_(:,5)
+          AVR(:, 11) = rTable_(:,5)
+          AVR(:, 12) = iTable_(:,7)
+        endif
+      endif
+
+      if (present(iTable)) then
+        call move_alloc(iTable_, iTable)
+      endif
+
+      if (present(rTable)) then
+        call move_alloc(rTable_, rTable)
+        do ll = 1, ng
+           where ( rTable(:,3+ll) /=0.0 ) rTable(:,3+ll) = rTable(:,3)/rTable(:,3+ll)
+        enddo
+      endif
+      _RETURN(_SUCCESS)
+   end subroutine MAPL_ReadTilingNC4
+
+   subroutine MAPL_WriteTilingNC4(File, GridName, im, jm, nx, ny, iTable, rTable, N_PfafCat, rc)
+
+     character(*),      intent(IN) :: File
+     character(*),      intent(IN) :: GridName(:)
+     integer,           intent(IN) :: IM(:), JM(:)
+     integer,           intent(IN) :: nx, ny
+     integer,           intent(IN) :: iTable(:,0:)
+     real(REAL64),      intent(IN) :: rTable(:,:)
+     integer, optional, intent(in) :: N_PfafCat
+     integer, optional, intent(out):: rc
+
+     integer                       :: k, ll, ng, ip, status, n_pfafcat_
+
+     character(len=:), allocatable :: attr
+     type (Variable)               :: v
+     type (NetCDF4_FileFormatter)  :: formatter
+     character(len=4)              :: ocn_str
+     type (FileMetadata)           :: metadata
+     integer,          allocatable :: II(:), JJ(:), KK(:), pfaf(:)
+     real(REAL64),     allocatable :: fr(:)
+     logical                       :: EASE
+     integer, parameter            :: deflate_level = 1
+     integer, parameter            :: SRTM_maxcat = 291284
+
+     ng  = size(GridName)
+     ip  = size(iTable,1)
+
+     EASE = .false.
+     if (index(GridName(1), 'EASE') /=0) EASE = .true.
+     ! number of Pfafstetter catchments defined in underlying raster file
+
+     n_pfafcat_ = SRTM_maxcat
+
+     if (present(N_PfafCat)) n_pfafcat_ = N_PfafCat
+
+     call metadata%add_dimension('tile', ip)
+
+     ! -------------------------------------------------------------------
+     !
+     ! create nc4 variables and write metadata
+
+     do ll = 1, ng
+       if (ll == 1) then
+         ocn_str = ''
+       else
+         ocn_str = '_ocn'
+       endif
+
+       attr = 'Grid'//trim(ocn_str)//'_Name'
+       call metadata%add_attribute( attr, trim(GridName(ll)))
+       attr = 'IM'//trim(ocn_str)
+       call metadata%add_attribute( attr, IM(ll))
+       attr = 'JM'//trim(ocn_str)
+       call metadata%add_attribute( attr, JM(ll))
+     enddo
+
+     attr = 'raster_nx'
+     call metadata%add_attribute( attr, nx)
+     attr = 'raster_ny'
+     call metadata%add_attribute( attr, ny)
+     attr = 'N_PfafCat'
+     call metadata%add_attribute( attr, n_pfafcat_)
+     attr = 'N_Grids'
+     call metadata%add_attribute( attr, ng)
+
+     v = Variable(type=PFIO_INT32, dimensions='tile')
+     call v%add_attribute('units', '1')
+     call v%add_attribute('long_name', 'tile_type')
+     call v%set_deflation(DEFLATE_LEVEL)
+     call metadata%add_variable('typ', v)
+
+     v = Variable(type=PFIO_REAL64, dimensions='tile')
+     call v%add_attribute('units', 'radian2')
+     call v%add_attribute('long_name', 'tile_area')
+     call v%add_attribute("missing_value", UNDEF_REAL64)
+     call v%add_attribute("_FillValue", UNDEF_REAL64)
+     call v%set_deflation(DEFLATE_LEVEL)
+     call metadata%add_variable('area', v)
+
+     v = Variable(type=PFIO_REAL64, dimensions='tile')
+     call v%add_attribute('units', 'degree')
+     call v%add_attribute('long_name', 'tile_center_of_mass_longitude')
+     call v%add_attribute("missing_value", UNDEF_REAL64)
+     call v%add_attribute("_FillValue", UNDEF_REAL64)
+     call v%set_deflation(DEFLATE_LEVEL)
+     call metadata%add_variable('com_lon', v)
+
+     v = Variable(type=PFIO_REAL64, dimensions='tile')
+     call v%add_attribute('units', 'degree')
+     call v%add_attribute('long_name', 'tile_center_of_mass_latitude')
+     call v%add_attribute("missing_value", UNDEF_REAL64)
+     call v%add_attribute("_FillValue", UNDEF_REAL64)
+     call v%set_deflation(DEFLATE_LEVEL)
+     call metadata%add_variable('com_lat', v)
+
+     do ll = 1, ng
+        if (ll == 1) then
+           ocn_str = ''
+        else
+           ocn_str = '_ocn'
+        endif
+
+        v = Variable(type=PFIO_INT32, dimensions='tile')
+        call v%add_attribute('units', '1')
+        call v%add_attribute('long_name', 'GRID'//trim(ocn_str)//'_i_index_of_tile_in_global_grid')
+        call v%add_attribute("missing_value",   MAPL_UNDEFINED_INTEGER)
+        call v%set_deflation(DEFLATE_LEVEL)
+        call metadata%add_variable('i_indg'//trim(ocn_str), v)
+
+        v = Variable(type=PFIO_INT32, dimensions='tile')
+        call v%add_attribute('units', '1')
+        call v%add_attribute('long_name', 'GRID'//trim(ocn_str)//'_j_index_of_tile_in_global_grid')
+        call v%set_deflation(DEFLATE_LEVEL)
+        call v%add_attribute("missing_value",   MAPL_UNDEFINED_INTEGER)
+        call metadata%add_variable('j_indg'//trim(ocn_str), v)
+
+        v = Variable(type=PFIO_REAL64, dimensions='tile')
+        call v%add_attribute('units', '1')
+        call v%add_attribute('long_name', 'GRID'//trim(ocn_str)//'_area_fraction_of_tile_in_grid_cell')
+        call v%add_attribute("missing_value", UNDEF_REAL64)
+        call v%add_attribute("_FillValue",    UNDEF_REAL64)
+        call v%set_deflation(DEFLATE_LEVEL)
+        call metadata%add_variable('frac_cell'//trim(ocn_str), v)
+
+        v = Variable(type=PFIO_INT32, dimensions='tile')
+        call v%add_attribute('units', '1')
+        call v%add_attribute('long_name', 'internal_dummy_index_of_tile')
+        call v%add_attribute("missing_value",  MAPL_UNDEFINED_INTEGER)
+        call v%set_deflation(DEFLATE_LEVEL)
+        call metadata%add_variable('dummy_index'//trim(ocn_str), v)
+     enddo
+
+     v = Variable(type=PFIO_INT32, dimensions='tile')
+     call v%add_attribute('units', '1')
+     call v%add_attribute('long_name', 'Pfafstetter_index_of_tile')
+     call v%add_attribute("missing_value",   MAPL_UNDEFINED_INTEGER)
+     call v%set_deflation(DEFLATE_LEVEL)
+     call metadata%add_variable('pfaf_index', v)
+
+     v = Variable(type=PFIO_REAL64, dimensions='tile')
+     call v%add_attribute('units', 'degree')
+     call v%add_attribute('long_name', 'tile_minimum_longitude')
+     call v%add_attribute("missing_value", UNDEF_REAL64)
+     call v%set_deflation(DEFLATE_LEVEL)
+     call metadata%add_variable('min_lon', v)
+
+     v = Variable(type=PFIO_REAL64, dimensions='tile')
+     call v%add_attribute('units', 'degree')
+     call v%add_attribute('long_name', 'tile_maximum_longitude')
+     call v%add_attribute("missing_value", UNDEF_REAL64)
+     call v%set_deflation(DEFLATE_LEVEL)
+     call metadata%add_variable('max_lon', v)
+
+     v = Variable(type=PFIO_REAL64, dimensions='tile')
+     call v%add_attribute('units', 'degree')
+     call v%add_attribute('long_name', 'tile_minimum_latitude')
+     call v%add_attribute("missing_value", UNDEF_REAL64)
+     call v%set_deflation(DEFLATE_LEVEL)
+     call metadata%add_variable('min_lat', v)
+
+     v = Variable(type=PFIO_REAL64, dimensions='tile')
+     call v%add_attribute('units', 'degree')
+     call v%add_attribute('long_name', 'tile_maximum_latitude')
+     call v%add_attribute("missing_value", UNDEF_REAL64)
+     call v%set_deflation(DEFLATE_LEVEL)
+     call metadata%add_variable('max_lat', v)
+
+     v = Variable(type=PFIO_REAL64, dimensions='tile')
+     call v%add_attribute('units', 'm')
+     call v%add_attribute('long_name', 'tile_mean_elevation')
+     call v%add_attribute("missing_value", UNDEF_REAL64)
+     call v%set_deflation(DEFLATE_LEVEL)
+     call metadata%add_variable('elev', v)
+
+     ! -------------------------------------------------------------------
+     !
+     ! write data into nc4 file
+
+     call formatter%create(File, mode=PFIO_NOCLOBBER, rc=status)
+     call formatter%write(metadata,                   rc=status)
+     call formatter%put_var('typ',     iTable(:,0),   rc=status)
+     call formatter%put_var('area',    rTable(:,3),   rc=status)
+     call formatter%put_var('com_lon', rTable(:,1),   rc=status)
+     call formatter%put_var('com_lat', rTable(:,2),   rc=status)
+
+     allocate(fr(ip), pfaf(ip))
+     fr = UNDEF_REAL64
+
+     do ll = 1, ng
+        if (ng == 1) then
+           if (EASE) then
+              KK   = iTable(:,4)
+              pfaf = KK
+           else
+              KK =[(k, k=1,ip)]
+           endif
+        else
+           KK = iTable(:,5+ll)
+        endif
+
+        II = iTable(:,ll*2    )
+        JJ = iTable(:,ll*2 + 1)
+
+        where( rTable(:,3+ll) /=0.0)
+           fr = rTable(:,3)/rTable(:,3+ll)
+        endwhere
+
+        if (ll == 1) then
+          ocn_str=''
+        else
+          ocn_str='_ocn'
+        endif
+
+        if (ll == 2) then
+          pfaf = MAPL_UNDEFINED_INTEGER
+          where (iTable(:,0) == 100)
+            pfaf = II
+          endwhere
+          where (iTable(:,0) == 19)
+            pfaf = 190000000
+          endwhere
+          where (iTable(:,0) == 20)
+            pfaf = 200000000
+          endwhere
+
+          where (iTable(:,0) /=0 )
+            II = MAPL_UNDEFINED_INTEGER
+            JJ = MAPL_UNDEFINED_INTEGER
+            fr = UNDEF_REAL64
+          endwhere
+        endif
+
+        call formatter%put_var('i_indg'    //trim(ocn_str), II, rc=status)
+        call formatter%put_var('j_indg'    //trim(ocn_str), JJ, rc=status)
+        call formatter%put_var('frac_cell' //trim(ocn_str), fr, rc=status)
+        call formatter%put_var('dummy_index'//trim(ocn_str), KK, rc=status)
+
+        if (EASE .or. ll == 2) call formatter%put_var('pfaf_index', pfaf, rc=status)
+     enddo
+
+     call formatter%put_var('min_lon', rTable(:, 6), rc=status)
+     call formatter%put_var('max_lon', rTable(:, 7), rc=status)
+     call formatter%put_var('min_lat', rTable(:, 8), rc=status)
+     call formatter%put_var('max_lat', rTable(:, 9), rc=status)
+     call formatter%put_var('elev',    rTable(:,10), rc=status)
+
+     call formatter%close(rc=status)
+     _RETURN(_SUCCESS)
+   end subroutine MAPL_WriteTilingNC4
+
+   subroutine MAPL_ReadTilingASCII(layout, FileName, GridName, NT, im, jm, n_Grids, N_PfafCat, AVR,rc)
+      type(ESMF_DELayout), intent(IN)  :: LAYOUT
+      character(*),        intent(IN)  :: FileName
+      character(*),        intent(out) :: GridName(:)
+      integer,             intent(out) :: NT
+      integer,             intent(out) :: IM(:), JM(:)
+      integer,             intent(out) :: n_Grids
+      integer,             intent(out) :: N_PfafCat
+      real,  pointer,      intent(out) :: AVR(:,:)      ! used by GEOSgcm
+      integer, optional,   intent(out) :: rc
+
+      integer :: unit, status, hdr(2), N
+      real, pointer :: AVR_Transpose(:,:)
+      character(len=:), allocatable :: Correct_ease_name
+
+      UNIT = GETFILE(FILENAME, form='FORMATTED', RC=status)
+      _VERIFY(STATUS)
+
+! Total number of tiles in exchange grid
+!---------------------------------------
+
+      call READ_PARALLEL(layout, hdr, UNIT=UNIT, rc=status)
+       _VERIFY(STATUS)
+       NT        = hdr(1)
+       N_PfafCat = hdr(2)
+
+      call READ_PARALLEL(layout, N_GRIDS, unit=UNIT, rc=status)
+      _VERIFY(STATUS)
+
+      do N = 1, N_GRIDS
+         call READ_PARALLEL(layout, GridName(N), unit=UNIT, rc=status)
+         _VERIFY(STATUS)
+         call READ_PARALLEL(layout, IM(N), unit=UNIT, rc=status)
+         _VERIFY(STATUS)
+         call READ_PARALLEL(layout, JM(N), unit=UNIT, rc=status)
+         _VERIFY(STATUS)
+      enddo
+
+      if(index(GridNAME(1),'EASE') /=0 ) then
+          allocate(AVR(NT,9), STAT=STATUS) ! 9 columns for EASE grid
+          _VERIFY(STATUS)
+          allocate(AVR_transpose(9,NT))
+          ! In older tile files, EASE grid name convention is "SMAP-EASEvx-Mxx".
+          ! Change her to revised convention "EASEvx_Mxx":
+          Correct_ease_name = MAPL_get_ease_gridname_by_cols(IM(1))
+          GridNAME(1) = Correct_ease_name
+      else
+         allocate(AVR(NT,NumGlobalVars+NumLocalVars*N_GRIDS), STAT=STATUS)
+         _VERIFY(STATUS)
+         allocate(AVR_transpose(NumGlobalVars+NumLocalVars*N_GRIDS,NT), STAT=STATUS)
+         _VERIFY(STATUS)
+      endif
+
+      call READ_PARALLEL(layout, AVR_transpose(:,:), unit=UNIT, rc=status)
+      AVR = transpose(AVR_transpose)
+      deallocate(AVR_transpose)
+      call FREE_FILE(UNIT)
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_ReadTilingASCII
 
 end module NCIOMod

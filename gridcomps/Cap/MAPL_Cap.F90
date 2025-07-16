@@ -15,6 +15,7 @@ module MAPL_CapMod
    use MAPL_CapOptionsMod
    use MAPL_ServerManager
    use MAPL_ApplicationSupport
+   use ieee_arithmetic
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64, OUTPUT_UNIT
    implicit none
    private
@@ -265,7 +266,7 @@ contains
 
    subroutine run_model(this, comm, unusable, rc)
       use pFlogger, only: logging, Logger
-      class (MAPL_Cap), intent(inout) :: this
+      class (MAPL_Cap), target, intent(inout) :: this
       integer, intent(in) :: comm
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) ::rc
@@ -274,9 +275,10 @@ contains
       integer :: rank, ierror
       integer :: status
       class(Logger), pointer :: lgr
-      logical :: file_exists
+      logical :: esmfConfigFileExists
       type (ESMF_VM) :: vm
-      character(len=:), allocatable :: esmfComm
+      character(len=:), allocatable :: esmfComm, esmfConfigFile
+      integer :: esmfConfigFileLen
 
       _UNUSED_DUMMY(unusable)
 
@@ -288,16 +290,41 @@ contains
       call MPI_COMM_RANK(comm, rank, status)
       _VERIFY(status)
 
-      if (rank == 0) then
-         inquire(file='ESMF.rc', exist=file_exists)
+      ! We look to see if the user has set an environment variable for the
+      ! name of the ESMF configuration file. If they have, we use that. If not,
+      ! we use the default of "ESMF.rc" for backward compatibility
+
+      ! Step one: default to ESMF.rc
+
+      esmfConfigFile = 'ESMF.rc'
+      esmfConfigFileLen = len(esmfConfigFile)
+
+      ! Step two: get the length of the environment variable
+      call get_environment_variable('ESMF_CONFIG_FILE', length=esmfConfigFileLen, status=status)
+      ! Step three: if the environment variable exists, get the value of the environment variable
+      if (status == 0) then ! variable exists
+         ! We need to deallocate so we can reallocate
+         deallocate(esmfConfigFile)
+         allocate(character(len = esmfConfigFileLen) :: esmfConfigFile)
+         call get_environment_variable('ESMF_CONFIG_FILE', value=esmfConfigFile, status=status)
+         _VERIFY(status)
       end if
-      call MPI_BCAST(file_exists, 1, MPI_LOGICAL, 0, comm, status)
+
+      if (rank == 0) then
+         inquire(file=esmfConfigFile, exist=esmfConfigFileExists)
+      end if
+      call MPI_BCAST(esmfConfigFileExists, 1, MPI_LOGICAL, 0, comm, status)
       _VERIFY(status)
+      call MPI_BCAST(esmfConfigFile, esmfConfigFileLen, MPI_CHARACTER, 0, comm, status)
+      _VERIFY(status)
+
+      lgr => logging%get_logger('MAPL')
 
       ! If the file exists, we pass it into ESMF_Initialize, else, we
       ! use the one from the command line arguments
-      if (file_exists) then
-         call ESMF_Initialize (configFileName='ESMF.rc', mpiCommunicator=comm, vm=vm, _RC)
+      if (esmfConfigFileExists) then
+         call lgr%info("Using ESMF configuration file: %a", esmfConfigFile)
+         call ESMF_Initialize (configFileName=esmfConfigFile, mpiCommunicator=comm, vm=vm, _RC)
       else
          call ESMF_Initialize (logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, vm=vm, _RC)
       end if
@@ -312,7 +339,6 @@ contains
       call ESMF_MeshSetMOAB(this%cap_options%with_esmf_moab, rc=status)
       _VERIFY(status)
 
-      lgr => logging%get_logger('MAPL')
       call lgr%info("Running with MOAB library for ESMF Mesh: %l1", this%cap_options%with_esmf_moab)
 
       call this%initialize_cap_gc(rc=status)
@@ -369,14 +395,18 @@ contains
    end subroutine run_model
 
    subroutine initialize_cap_gc(this, unusable, n_run_phases, rc)
-     class(MAPL_Cap), intent(inout) :: this
+     class(MAPL_Cap), target, intent(inout) :: this
      class (KeywordEnforcer), optional, intent(in) :: unusable
      integer, optional, intent(in) :: n_run_phases
      integer, optional, intent(out) :: rc
 
      integer :: status
+     type(ESMF_PIN_Flag) :: pinflag
 
      _UNUSED_DUMMY(unusable)
+
+     pinflag = GetPinFlagFromConfig(this%cap_options%cap_rc_file, _RC)
+     call MAPL_PinFlagSet(pinflag)
 
      if (this%non_dso) then
         call MAPL_CapGridCompCreate(this%cap_gc, this%get_cap_rc_file(), &
@@ -446,6 +476,7 @@ contains
       integer :: ierror, status
       integer :: provided
       integer :: npes_world
+      logical :: halting_mode(5)
 
       _UNUSED_DUMMY(unusable)
 
@@ -453,11 +484,17 @@ contains
       _VERIFY(ierror)
 
       if (.not. this%mpi_already_initialized) then
-
          call ESMF_InitializePreMPI(_RC)
+
+         ! Testing with GCC 14 + MVAPICH 4 found that it was failing with
+         ! a SIGFPE in MPI_Init_thread(). Turning off ieee halting
+         ! around the call seems to "fix" it
+         call ieee_get_halting_mode(ieee_all, halting_mode)
+         call ieee_set_halting_mode(ieee_all, .false.)
          call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierror)
          _VERIFY(ierror)
-         _ASSERT(provided == MPI_THREAD_MULTIPLE, 'MPI_THREAD_MULTIPLE not supported by this MPI.')
+         call ieee_set_halting_mode(ieee_all, halting_mode)
+
       else
          ! If we are here, then MPI has already been initialized by the user
          ! and we are just using it. But we need to make sure that the user
@@ -465,7 +502,7 @@ contains
          call MPI_Query_thread(provided, ierror)
          _VERIFY(ierror)
       end if
-      _ASSERT(provided == MPI_THREAD_MULTIPLE, 'MPI_THREAD_MULTIPLE not supported by this MPI.')
+      _ASSERT(provided >= MPI_THREAD_SERIALIZED, 'ESMF requires minimum thread level is MPI_THREAD_SERIALIZED. Please replace MPI lib or use MPI (initialize MPI or launch MPI) in an appropriate way.')
 
       call MPI_Comm_rank(this%comm_world, this%rank, status)
       _VERIFY(status)
@@ -551,6 +588,37 @@ contains
      character(len=:), allocatable :: egress_file
      allocate(egress_file, source=this%cap_options%egress_file)
    end function get_egress_file
+
+   function GetPinFlagFromConfig(rcfile, rc) result(pinflag)
+     character(len=*), intent(in) :: rcfile
+     integer, optional, intent(out) :: rc
+     type(ESMF_PIN_Flag) :: pinflag
+
+     character(len=ESMF_MAXSTR) :: pinflag_str
+     integer :: status
+     type(ESMF_Config) :: config
+
+     config = ESMF_ConfigCreate(_RC)
+     call ESMF_ConfigLoadFile(config,rcfile, _RC)
+     call ESMF_ConfigGetAttribute(config, value=pinflag_str, &
+          label='ESMF_PINFLAG:', default='SSI_CONTIG', _RC)
+
+     select case (pinflag_str)
+     case ('PET')
+        pinflag = ESMF_PIN_DE_TO_PET
+     case ('VAS')
+        pinflag = ESMF_PIN_DE_TO_VAS
+     case ('SSI')
+        pinflag = ESMF_PIN_DE_TO_SSI
+     case ('SSI_CONTIG')
+        pinflag = ESMF_PIN_DE_TO_SSI_CONTIG
+     case default
+        _ASSERT(.false.,'Unsupported PIN flag')
+     end select
+
+     call ESMF_ConfigDestroy(config, _RC)
+     _RETURN(_SUCCESS)
+   end function GetPinFlagFromConfig
 
 end module MAPL_CapMod
 

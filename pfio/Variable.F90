@@ -12,6 +12,7 @@ module pFIO_VariableMod
    use pFIO_AttributeMod
    use pFIO_StringAttributeMapMod
    use pFIO_StringAttributeMapUtilMod
+   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
    implicit none
    private
 
@@ -40,6 +41,11 @@ module pFIO_VariableMod
       procedure :: get_const_value
 
       procedure :: get_attribute
+      procedure :: get_attribute_string
+      procedure :: get_attribute_int32
+      procedure :: get_attribute_int64
+      procedure :: get_attribute_real32
+      procedure :: get_attribute_real64
       generic :: add_attribute => add_attribute_0d
       generic :: add_attribute => add_attribute_1d
       procedure :: add_attribute_0d
@@ -257,6 +263,133 @@ contains
       _ASSERT(associated(attr), "no such attribute : " // trim(attr_name))
       _RETURN(_SUCCESS)
    end function get_attribute
+
+   function get_attribute_string(this, attr_name, rc) result(attr_string)
+      character(len=:), allocatable :: attr_string
+      class (Variable), target, intent(in) :: this
+      character(len=*), intent(in) :: attr_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(Attribute), pointer :: attr
+      class(*), pointer :: attr_val
+
+      attr => this%get_attribute(attr_name,_RC)
+      _ASSERT(associated(attr),"no such attribute "//attr_name)
+      attr_val => attr%get_value()
+      select type(attr_val)
+      type is(character(*))
+         attr_string = attr_val
+      class default
+         _FAIL('unsupported subclass (not string) of attribute named '//attr_name)
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_attribute_string
+
+   function get_attribute_real32(this,attr_name,rc) result(attr_real32)
+      real(REAL32) :: attr_real32
+      class(Variable), intent(inout) :: this
+      character(len=*), intent(in) :: attr_name
+      integer, optional, intent(out) :: rc
+
+      real(REAL32) :: tmp(1)
+      real(REAL64) :: tmpd(1)
+      integer :: status
+      type(Attribute), pointer :: attr
+      class(*), pointer :: attr_val(:)
+
+      attr => this%get_attribute(attr_name,_RC)
+      _ASSERT(associated(attr),"no attribute named "//attr_name)
+      attr_val => attr%get_values()
+      select type(attr_val)
+      type is(real(kind=REAL32))
+         tmp = attr_val
+         attr_real32 = tmp(1)
+      type is(real(kind=REAL64))
+         tmpd = attr_val
+         attr_real32 = REAL(tmpd(1))
+      class default
+         _FAIL('unsupported subclass (not real32) for units of attribute named '//attr_name)
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_attribute_real32
+
+   function get_attribute_real64(this,attr_name,rc) result(attr_real64)
+      real(REAL64) :: attr_real64
+      class(Variable), intent(inout) :: this
+      character(len=*), intent(in) :: attr_name
+      integer, optional, intent(out) :: rc
+
+      real(REAL64) :: tmp(1)
+      integer :: status
+      type(Attribute), pointer :: attr
+      class(*), pointer :: attr_val(:)
+
+      attr => this%get_attribute(attr_name,_RC)
+      _ASSERT(associated(attr),"no such attribute "//attr_name)
+      attr_val => attr%get_values()
+      select type(attr_val)
+      type is(real(kind=REAL64))
+         tmp = attr_val
+         attr_real64 = tmp(1)
+      class default
+         _FAIL('unsupported subclass (not real64) for units of attribute named '//attr_name)
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_attribute_real64
+
+   function get_attribute_int32(this,attr_name,rc) result(attr_int32)
+      integer(INT32) :: attr_int32
+      class(Variable), intent(inout) :: this
+      character(len=*), intent(in) :: attr_name
+      integer, optional, intent(out) :: rc
+
+      integer(INT32) :: tmp(1)
+      integer :: status
+      type(Attribute), pointer :: attr
+      class(*), pointer :: attr_val(:)
+
+      attr => this%get_attribute(attr_name,_RC)
+      _ASSERT(associated(attr),"no attribute named "//attr_name)
+      attr_val => attr%get_values()
+      select type(attr_val)
+      type is(integer(kind=INT32))
+         tmp = attr_val
+         attr_int32 = tmp(1)
+      class default
+         _FAIL('unsupported subclass (not int32) for units of attribute named '//attr_name)
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_attribute_int32
+
+   function get_attribute_int64(this,attr_name,rc) result(attr_int64)
+      integer(INT64) :: attr_int64
+      class(Variable), intent(inout) :: this
+      character(len=*), intent(in) :: attr_name
+      integer, optional, intent(out) :: rc
+
+      integer(INT64) :: tmp(1)
+      integer :: status
+      type(Attribute), pointer :: attr
+      class(*), pointer :: attr_val(:)
+
+      attr => this%get_attribute(attr_name,_RC)
+      _ASSERT(associated(attr),"no attribute named "//attr_name)
+      attr_val => attr%get_values()
+      select type(attr_val)
+      type is(integer(kind=INT64))
+         tmp = attr_val
+         attr_int64 = tmp(1)
+      class default
+         _FAIL('unsupported subclass (not int64) for units of attribute named '//attr_name)
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_attribute_int64
 
    subroutine add_const_value(this, const_value, rc)
       class (Variable), target, intent(inout) :: this

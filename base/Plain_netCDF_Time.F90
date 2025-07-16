@@ -218,20 +218,21 @@ contains
     real(REAL64), dimension(Xdim), intent(out) :: array
     integer, optional, intent(out) :: rc
     integer :: status
-    integer :: ncid, varid, ncid2
+    integer :: ncid, varid, ncid2, ncid_sv
 
     call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
+    ncid_sv = ncid
+
     if(present(group_name)) then
-       ncid2= ncid
-       call check_nc_status(nf90_inq_ncid(ncid2, group_name, ncid), _RC)
+       if(group_name/='') then
+          ncid2= ncid
+          call check_nc_status(nf90_inq_ncid(ncid2, group_name, ncid), _RC)
+       end if
     end if
     call check_nc_status(nf90_inq_varid(ncid, name, varid), _RC)
     call check_nc_status(nf90_get_var(ncid, varid, array), _RC)
-    if(present(group_name)) then
-       call check_nc_status(nf90_close(ncid2), _RC)
-    else
-       call check_nc_status(nf90_close(ncid), _RC)
-    end if
+
+    call check_nc_status(nf90_close(ncid_sv), _RC)
     _RETURN(_SUCCESS)
 
   end subroutine get_v1d_netcdf_R8
@@ -256,9 +257,11 @@ contains
     call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
     ncid_sv = ncid
     if(present(group_name)) then
-       call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), _RC)
-       ! mod
-       ncid = ncid_grp
+       if(group_name/='') then
+          call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), _RC)
+          ! mod
+          ncid = ncid_grp
+       end if
     end if
     call check_nc_status(nf90_inq_varid(ncid, varname, varid), _RC)
     call check_nc_status(nf90_get_var(ncid, varid, array), _RC)
@@ -296,9 +299,11 @@ contains
     call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
     ncid_sv = ncid
     if(present(group_name)) then
-       call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), _RC)
-       ! overwrite
-       ncid = ncid_grp
+       if(group_name/='') then
+          call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), _RC)
+          ! overwrite
+          ncid = ncid_grp
+       end if
     end if
     call check_nc_status(nf90_inq_varid(ncid, varname, varid), _RC)
     call check_nc_status(nf90_get_att(ncid, varid, att_name, att_value), _RC)
@@ -324,9 +329,11 @@ contains
     call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
     ncid_sv = ncid
     if(present(group_name)) then
-       call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), _RC)
-       ! overwrite
-       ncid = ncid_grp
+       if(group_name/='') then
+          call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), _RC)
+          ! overwrite
+          ncid = ncid_grp
+       end if
     end if
     call check_nc_status(nf90_inq_varid(ncid, varname, varid), _RC)
     call check_nc_status(nf90_get_att(ncid, varid, att_name, att_value), _RC)
@@ -683,7 +690,7 @@ contains
     if (rew) rewind (iunps)
     do while (ios==0)
        read (iunps, '(a100)', iostat = ios) line
-       if (matchbgn (trim(line), trim(substring)) ) return
+       if (matchbgn (trim(adjustl(line)), trim(substring)) ) return
     enddo
     return
   end subroutine scan_begin
@@ -728,7 +735,7 @@ contains
     if (rew) rewind (iunps)
     do while (ios==0)
        read (iunps, '(a100)', iostat = ios) line
-       if (matchbgn (line, string) ) then
+       if (matchbgn (adjustl(line), string) ) then
           count = count + 1
        endif
     enddo
@@ -833,6 +840,13 @@ contains
     wc=0
     ios=0
     string = trim( adjustl(string_in) )
+    str_piece(:)=''
+    i = index (string, mark)
+    if (i==0) then
+       nseg=1
+       str_piece(1)=string
+       return
+    end if
     do while (ios==0)
        i = index (string, mark)
        !!print*, 'index=', i
@@ -850,6 +864,104 @@ contains
     return
   end subroutine split_string_by_space
 
+
+  subroutine split_string_by_seperator (string_in, length_mx, seperator_in, &
+       mxseg, nseg, str_piece, jstatus)
+    character (len=length_mx), intent (in) :: string_in
+    integer,           intent (in) :: length_mx
+    character (len=length_mx), intent (in) :: seperator_in
+    integer,           intent (in) :: mxseg
+    integer,           intent (out):: nseg
+    character (len=length_mx), intent (out):: str_piece(mxseg)
+    integer,           intent (out):: jstatus
+    character (len=length_mx) :: string_sc, string_oper, string_aux
+    character (len=1) :: mark, CH
+    integer :: ios
+    integer :: wc
+    integer :: len1, len2
+    !
+    !  "xxxx;  yy; zz;   uu,   vv,"
+    !  seperator = ";,"
+    !
+
+    !__ s1. replace seperator by space
+    !
+    string_sc = trim( adjustl(string_in) )
+    string_oper = trim( adjustl(seperator_in) )
+    len1 = len_trim(string_sc)
+    len2 = len_trim(string_oper)
+    string_aux=string_sc
+    do i = 1, len1
+       CH = string_sc(i:i)
+       do j = 1, len2
+          mark = string_oper(j:j)
+          if (CH==mark) then
+             string_aux(i:i)=' '
+          end if
+       end do
+    end do
+
+    !__ s2. split by space
+    call split_string_by_space (string_aux, length_mx, &
+       mxseg, nseg, str_piece, jstatus)
+
+    return
+  end subroutine split_string_by_seperator
+
+
+  
+  
+  subroutine scan_write_between_line1_line2_flush_Left (ur, uw, L1, L2)
+    character (len=*), intent(in) :: L1, L2
+    integer, intent(in) :: ur, uw
+
+    integer :: i, j, k
+    character (len=150) :: line
+
+    rewind(ur)
+    ios=0
+    j=0
+    k=0
+    do while (ios==0)
+       read (ur, '(a150)', iostat = ios, err = 300) line
+       i=index( adjustl(line), trim(L1) )
+       if ( i==1 ) then
+          j=1
+       end if
+       if (j==1) then
+          write(uw, '(a)')  trim(line)
+          k=index( adjustl(line), trim(L2) )
+          if (k==1) then
+             j=0
+          end if
+       end if
+    end do
+300 continue
+    write(uw,*)
+
+  end subroutine scan_write_between_line1_line2_flush_Left
+
+
+  subroutine scan_write_begin_with_line1_flush_Left (ur, uw, L1)
+    character (len=*), intent(in) :: L1
+    integer, intent(in) :: ur, uw
+
+    integer :: i  
+    character (len=300) :: line
+
+    rewind(ur)
+    ios=0
+    do while (ios==0)
+       read (ur, '(a300)', iostat = ios, err = 300) line
+       i=index( adjustl(line), trim(L1) )
+       if ( i==1 ) then
+          write(uw, '(a)')  trim(line)
+       end if
+    end do
+300 continue
+    write(uw,*)
+
+  end subroutine scan_write_begin_with_line1_flush_Left
 
 
 end module MAPL_scan_pattern_in_file

@@ -205,7 +205,10 @@ contains
 
       !$omp critical (counter_status)
       this%status = status
+      ! llvm-flang has an issue with omp flush of complex data structures
+#if !defined(__flang__)
       !$omp flush (this)
+#endif
       !$omp end critical (counter_status)
    end subroutine  set_status
 
@@ -217,7 +220,10 @@ contains
       !$omp critical (counter_status)
       this%status = this%status -1
       status = this%status
+      ! llvm-flang has an issue with omp flush of complex data structures
+#if !defined(__flang__)
       !$omp flush (this)
+#endif
       !$omp end critical (counter_status)
       if (status /= 0) then
         _RETURN(_SUCCESS)
@@ -290,7 +296,10 @@ contains
 
       !$omp critical (backlog_status)
       this%all_backlog_is_empty = status
+      ! llvm-flang has an issue with omp flush of complex data structures
+#if !defined(__flang__)
       !$omp flush (this)
+#endif
       !$omp end critical (backlog_status)
    end subroutine set_AllBacklogIsEmpty
 

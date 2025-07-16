@@ -9,13 +9,13 @@ inputs:
   doc-folder:
     description: "The folder containing the documentation to deploy"
     required: true
-  token:
-    description: "The GitHub token to use for authentication"
-    required: true
   target-folder:
     description: "The folder to deploy to"
     required: false
     default: ""
+  deploy-token:
+    description: "GitHub token for deployment"
+    required: true
 
 runs:
   using: "composite"
@@ -49,14 +49,14 @@ runs:
         repository: Goddard-Fortran-Ecosystem/gFTL
         path: gFTL
         fetch-depth: 1
-        ref: v1.13.0
+        ref: v1.15.2
 
     - name: Build gFTL
       run: |
         cd gFTL
         mkdir -p build
         cd build
-        cmake .. -DCMAKE_Fortran_COMPILER=gfortran-10 -DCMAKE_INSTALL_PREFIX=../install
+        cmake .. -DCMAKE_Fortran_COMPILER=gfortran -DCMAKE_INSTALL_PREFIX=../install
         make -j$(nproc) install
       shell: bash
 
@@ -71,6 +71,7 @@ runs:
       if: github.event_name == 'push' && github.repository == 'GEOS-ESM/MAPL' && ( startsWith( github.ref, 'refs/tags/v' ) || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/release/MAPL-v3' )
       with:
         folder: ${{ inputs.doc-folder }}
-        token: ${{ inputs.token }}
         target-folder: ${{ inputs.target-folder }}
-
+        branch: gh-pages
+        repository-name: GEOS-ESM/MAPL-docs
+        token: ${{ inputs.deploy-token }}

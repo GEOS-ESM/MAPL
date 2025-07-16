@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.23)
+cmake_minimum_required (VERSION 3.24)
 
 get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(NOT is_multi_config AND NOT (CMAKE_BUILD_TYPE OR DEFINED ENV{CMAKE_BUILD_TYPE}))
@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.50.2
+  VERSION 2.57.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
@@ -223,6 +223,7 @@ add_subdirectory (pfio)
 add_subdirectory (profiler)
 add_subdirectory (generic)
 add_subdirectory (field_utils)
+add_subdirectory (state)
 add_subdirectory (oomph) # temporary - will rename to generic when done
 add_subdirectory (shared)
 add_subdirectory (include)
@@ -230,6 +231,7 @@ add_subdirectory (base)
 add_subdirectory (MAPL)
 add_subdirectory (gridcomps)
 add_subdirectory (griddedio)
+add_subdirectory (vertical)
 if (BUILD_WITH_FARGPARSE)
    add_subdirectory (docs)
    add_subdirectory (benchmarks)
@@ -257,6 +259,9 @@ install (
    DESTINATION ${INSTALL_DATA_DIR}
    FILES_MATCHING PATTERN "mapl_*.cmake"
    )
+
+configure_file(BUILD_INFO.rc.in BUILD_INFO.rc @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/BUILD_INFO.rc DESTINATION etc)
 
 # https://www.scivision.dev/cmake-auto-gitignore-build-dir/
 # --- auto-ignore build directory

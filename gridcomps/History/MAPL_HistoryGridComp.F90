@@ -30,7 +30,7 @@
   use MAPL_LocStreamMod
   use MAPL_CFIOMod
   use MAPL_GenericCplCompMod
-  use MAPL_NewArthParserMod
+  use MAPL_StateUtils
   use MAPL_SortMod
   use MAPL_ShmemMod
   use MAPL_StringGridMapMod
@@ -53,10 +53,10 @@
   use pFIO_ConstantsMod
   use HistoryTrajectoryMod
   use StationSamplerMod
-  use MaskSamplerGeosatMod
+  use MaskSamplerMod
   use MAPL_StringTemplate
   use regex_module
-  use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
+  use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date, MAPL_UndefInt
   use gFTL_StringStringMap
   !use ESMF_CFIOMOD
   use MAPL_EpochSwathMod
@@ -422,10 +422,12 @@ contains
     character(len=ESMF_MAXSTR), allocatable :: regexList(:)
     type(StringStringMap) :: global_attributes
     character(len=ESMF_MAXSTR) :: name,regrid_method
-    logical :: has_conservative_keyword, has_regrid_keyword
+    logical :: has_conservative_keyword, has_regrid_keyword, has_extrap_keyword, phis_in_collection, ts_in_collection
+    logical :: has_levels, has_xlevels
     integer :: create_mode
-    character(len=:), allocatable :: uppercase_algorithm
+    character(len=:), allocatable :: uppercase_algorithm, level_key
     character(len=2) :: tmpchar
+    integer :: schema_version
 
 ! Begin
 !------
@@ -577,7 +579,7 @@ contains
 
              nlist = nlist + 1
              allocate( list(nlist), _STAT )
-             list(1:nlist-1)=IntState%list
+             if (nlist > 1) list(1:nlist-1)=IntState%list
              list(nlist)%collection = tmpstring
              list(nlist)%filename = list(nlist)%collection
              deallocate(IntState%list)
@@ -595,24 +597,64 @@ contains
          type (StringGridMapIterator) :: iter
          integer :: nl
          character(len=60) :: grid_type
+         integer :: n, count
+         integer, allocatable :: mark(:)
+         character(len=ESMF_MAXSTR), allocatable :: grid_name(:)
 
+         count = 0
          call ESMF_ConfigFindLabel ( config,'GRID_LABELS:',_RC )
          tend  = .false.
          do while (.not.tend)
              call ESMF_ConfigGetAttribute ( config,value=tmpstring,default='',rc=STATUS) !ALT: we don't check return status!!!
              if (tmpstring /= '')  then
-                call IntState%output_grids%insert(trim(tmpString), output_grid)
+                count = count + 1
              end if
              call ESMF_ConfigNextLine     ( config,tableEnd=tend,_RC )
-          enddo
+         enddo
+         allocate (grid_name(count))
+         allocate (mark(count))
+
+         mark(:) = 1
+         count = 0
+         call ESMF_ConfigFindLabel ( config,'GRID_LABELS:',_RC )
+         tend  = .false.
+         do while (.not.tend)
+             call ESMF_ConfigGetAttribute ( config,value=tmpstring,default='',rc=STATUS) !ALT: we don't check return status!!!
+             if (tmpstring /= '')  then
+                count = count + 1
+                grid_name(count) = tmpstring
+             end if
+             call ESMF_ConfigNextLine     ( config,tableEnd=tend,_RC )
+         enddo
+
+         do n=1, count
+            call ESMF_ConfigGetAttribute(config, value=grid_type, label=trim(grid_name(n))//".GRID_TYPE:",_RC)
+            if (trim(grid_type)=='Trajectory') then
+               mark(n)=0
+            end if
+         end do
+
+         count = 0
+         call ESMF_ConfigFindLabel ( config,'GRID_LABELS:',_RC )
+         tend  = .false.
+         do while (.not.tend)
+             call ESMF_ConfigGetAttribute ( config,value=tmpstring,default='',rc=STATUS) !ALT: we don't check return status!!!
+             if (tmpstring /= '')  then
+                count = count + 1
+                if ( mark(count)==1 ) then
+                   call IntState%output_grids%insert(trim(tmpString), output_grid)
+                end if
+             end if
+             call ESMF_ConfigNextLine     ( config,tableEnd=tend,_RC )
+         enddo
 
           swath_count = 0
           iter = IntState%output_grids%begin()
           do while (iter /= IntState%output_grids%end())
              key => iter%key()
              call ESMF_ConfigGetAttribute(config, value=grid_type, label=trim(key)//".GRID_TYPE:",_RC)
-             call  ESMF_ConfigFindLabel(config,trim(key)//".NX:",isPresent=hasNX,_RC)
-             call  ESMF_ConfigFindLabel(config,trim(key)//".NY:",isPresent=hasNY,_RC)
+             call ESMF_ConfigFindLabel(config,trim(key)//".NX:",isPresent=hasNX,_RC)
+             call ESMF_ConfigFindLabel(config,trim(key)//".NY:",isPresent=hasNY,_RC)
              if ((.not.hasNX) .and. (.not.hasNY)) then
                 if (trim(grid_type)=='Cubed-Sphere') then
                    call MAPL_MakeDecomposition(nx,ny,reduceFactor=6,_RC)
@@ -637,10 +679,12 @@ contains
                 output_grid = Hsampler%create_grid(key, currTime, grid_type=grid_type, _RC)
              end if
              call IntState%output_grids%set(key, output_grid)
+
              call iter%next()
           end do
-       end block OUTPUT_GRIDS
-    end if
+        end block OUTPUT_GRIDS
+     end if
+
 
     if (intstate%version >= 2) then
        call ESMF_ConfigFindLabel(config, 'FIELD_SETS:', _RC)
@@ -718,9 +762,9 @@ contains
 ! Overwrite the above process if HISTORY.rc encounters DEFINE_OBS_PLATFORM for OSSE
 ! ----------------------------------------------------------------------------
     if( MAPL_AM_I_ROOT(vm) ) then
-       call regen_rcx_for_obs_platform (config, nlist, list, _RC)
+       call regen_rcx_for_obs_platform (config, nlist, list, schema_version, _RC)
     end if
-
+    call MAPL_CommsBcast(vm, DATA=schema_version, N=1, ROOT=MAPL_Root, _RC)
     call ESMF_VMbarrier(vm, _RC)
 
 ! Initialize History Lists
@@ -811,16 +855,19 @@ contains
                                       label=trim(string) // 'ref_time:',_RC )
        _ASSERT(is_valid_time(list(n)%ref_time),'Invalid ref_time')
 
-       call ESMF_ConfigGetAttribute ( cfg, list(n)%end_date, default=-999, &
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%start_date, default=MAPL_UndefInt, &
+                                      label=trim(string) // 'start_date:',_RC )
+       _ASSERT(is_valid_date(list(n)%start_date),'Invalid start_date')
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%start_time, default=MAPL_UndefInt, &
+                                      label=trim(string) // 'start_time:',_RC )
+       _ASSERT(is_valid_time(list(n)%start_time),'Invalid start_time')
+
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%end_date, default=MAPL_UndefInt, &
                                       label=trim(string) // 'end_date:',_RC )
-       if (list(n)%end_date /= -999) then
-          _ASSERT(is_valid_date(list(n)%end_date),'Invalid end_date')
-       end if
-       call ESMF_ConfigGetAttribute ( cfg, list(n)%end_time, default=-999, &
+       _ASSERT(is_valid_date(list(n)%end_date),'Invalid end_date')
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%end_time, default=MAPL_UndefInt, &
                                       label=trim(string) // 'end_time:',_RC )
-       if (list(n)%end_time /= -999) then
-          _ASSERT(is_valid_time(list(n)%end_time),'Invalid end_time')
-       end if
+       _ASSERT(is_valid_time(list(n)%end_time),'Invalid end_time')
 
        call ESMF_ConfigGetAttribute ( cfg, list(n)%duration, default=list(n)%frequency, &
                                       label=trim(string) // 'duration:'  ,_RC )
@@ -900,6 +947,9 @@ contains
        call ESMF_ConfigGetAttribute ( cfg, list(n)%tm, default=tm_default, &
                                       label=trim(string) // 'tm:', _RC )
 
+       call ESMF_ConfigFindLabel ( cfg, label=trim(string) // 'xlevels:',isPresent=has_extrap_keyword,_RC)
+       list(n)%extrap_below_surf = has_extrap_keyword
+
        call ESMF_ConfigFindLabel ( cfg, label=trim(string) // 'conservative:',isPresent=has_conservative_keyword,_RC)
        call ESMF_ConfigFindLabel ( cfg, label=trim(string) // 'regrid_method:',isPresent=has_regrid_keyword,_RC)
        _ASSERT(.not.(has_conservative_keyword .and. has_regrid_keyword),trim(string)//" specified both conservative and regrid_method")
@@ -919,8 +969,8 @@ contains
            list(n)%regrid_method = regrid_method_string_to_int(trim(regrid_method))
        end if
 
-       call ESMF_ConfigGetAttribute(cfg, value=list(n)%sampler_spec, default="", &
-            label=trim(string) // 'sampler_spec:', _RC)
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%sampler_type, default="", &
+            label=trim(string) // 'sampler_type:', _RC)
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationIdFile, default="", &
             label=trim(string) // 'station_id_file:', _RC)
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationSkipLine, default=0, &
@@ -928,10 +978,9 @@ contains
 
 ! Get an optional file containing a 1-D track for the output
        call ESMF_ConfigGetDim(cfg, nline, ncol,  label=trim(string)//'obs_files:', rc=rc)  ! here donot check rc on purpose
-       if (list(n)%sampler_spec == 'trajectory') then
+       if (list(n)%sampler_type == 'trajectory') then
           list(n)%timeseries_output = .true.
        end if
-
 
 ! Handle "backwards" mode: this is hidden (i.e. not documented) feature
 ! Defaults to .false.
@@ -982,10 +1031,17 @@ contains
 
        list(n)%vvars = ""
 
-       len = ESMF_ConfigGetLen( cfg, label=trim(trim(string) // 'levels:'), rc = status )
+       call ESMF_ConfigFindLabel ( cfg, label=trim(string) // 'levels:',isPresent=has_levels,_RC)
+       call ESMF_ConfigFindLabel ( cfg, label=trim(string) // 'xlevels:',isPresent=has_xlevels,_RC)
+       if (has_levels .and. has_xlevels) then
+          _FAIL("specified both levels and xlevels")
+       end if
+       if (has_levels) level_key = "levels:"
+       if (has_xlevels) level_key = "xlevels:"
 
-       LEVS: if( status == ESMF_SUCCESS ) then
-          call ESMF_ConfigFindLabel( cfg, label=trim(trim(string) // 'levels:'),_RC)
+       LEVS: if( has_levels .or. has_xlevels ) then
+          len = ESMF_ConfigGetLen( cfg, label=trim(trim(string) // level_key), _RC)
+          call ESMF_ConfigFindLabel( cfg, label=trim(trim(string) // level_key),_RC)
              j = 0
           do i = 1, len
              call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,_RC)
@@ -1108,16 +1164,21 @@ contains
                 enddo
 
                 if( .not.found ) then
-                   list(n)%field_set%nfields = list(n)%field_set%nfields + 1
-                   allocate( fields(4,  list(n)%field_set%nfields), _STAT )
-                   fields(1,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(1,:)
-                   fields(2,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(2,:)
-                   fields(3,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(3,:)
-                   fields(4,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(4,:)
-                   fields(1,  list(n)%field_set%nfields  ) = Vvar
-                   fields(2,  list(n)%field_set%nfields  ) = list(n)%vvars (2)
-                   fields(3,  list(n)%field_set%nfields  ) = Vvar
-                   fields(4,  list(n)%field_set%nfields  ) = BLANK
+                   associate (f_set => list(n)%field_set)
+                   associate (nf =>f_set%nfields, fs_set => f_set%fields)
+                      nf = nf + 1
+                      allocate( fields(4,  nf), _STAT )
+                      fields(1,1:nf-1) = fs_set(1,:)
+                      fields(2,1:nf-1) = fs_set(2,:)
+                      fields(3,1:nf-1) = fs_set(3,:)
+                      fields(4,1:nf-1) = fs_set(4,:)
+                      fields(1,  nf  ) = Vvar
+                      fields(2,  nf  ) = list(n)%vvars(2)
+                      fields(3,  nf  ) = Vvar
+                      fields(4,  nf  ) = BLANK
+
+                   end associate
+                   end associate
                    deallocate( list(n)%field_set%fields, _STAT )
                    list(n)%field_set%fields => fields
                 endif
@@ -1125,6 +1186,56 @@ contains
           endif VINTRP ! Vertical interp var
 
        endif LEVS ! selected levels
+
+       if (list(n)%extrap_below_surf) then
+          phis_in_collection = .false.
+          do i=1,list(n)%field_set%nfields 
+             if (trim(fields(1,i)) == 'PHIS') phis_in_collection = .true.
+          enddo
+
+          if (.not.phis_in_collection) then
+             associate (f_set => list(n)%field_set)
+             associate (nf =>f_set%nfields, fs_set => f_set%fields)
+                nf = nf + 1
+                allocate( fields(4,  nf), _STAT )
+                fields(1,1:nf-1) = fs_set(1,:)
+                fields(2,1:nf-1) = fs_set(2,:)
+                fields(3,1:nf-1) = fs_set(3,:)
+                fields(4,1:nf-1) = fs_set(4,:)
+                fields(1,  nf  ) = "PHIS"
+                fields(2,  nf  ) = "DYN"
+                fields(3,  nf  ) = "PHIS"
+                fields(4,  nf  ) = BLANK
+             end associate
+             end associate
+             deallocate( list(n)%field_set%fields, _STAT )
+             list(n)%field_set%fields => fields
+          end if
+
+          ts_in_collection = .false.
+          do i=1,list(n)%field_set%nfields 
+             if (trim(fields(1,i)) == 'TS') ts_in_collection = .true.
+          enddo
+
+          if (.not.ts_in_collection) then
+             associate (f_set => list(n)%field_set)
+             associate (nf =>f_set%nfields, fs_set => f_set%fields)
+                nf = nf + 1
+                allocate( fields(4,  nf), _STAT )
+                fields(1,1:nf-1) = fs_set(1,:)
+                fields(2,1:nf-1) = fs_set(2,:)
+                fields(3,1:nf-1) = fs_set(3,:)
+                fields(4,1:nf-1) = fs_set(4,:)
+                fields(1,  nf  ) = "TS"
+                fields(2,  nf  ) = "SURFACE"
+                fields(3,  nf  ) = "TS"
+                fields(4,  nf  ) = BLANK
+             end associate
+             end associate
+             deallocate( list(n)%field_set%fields, _STAT )
+             list(n)%field_set%fields => fields
+          end if
+       end if
 
        vvarn(n) = vvar
 
@@ -1146,7 +1257,9 @@ contains
              pgrid => IntState%output_grids%at(trim(tmpString))
              ! If user specifies a grid label, then it is required.
              ! Do not default to native in this case
-             _ASSERT(associated(pgrid),'needs informative message')
+             if (list(n)%sampler_type /= 'trajectory') then
+                _ASSERT(associated(pgrid),'needs informative message')
+             end if
              list(n)%output_grid_label = trim(tmpString)
           end if
        case(0)
@@ -1349,9 +1462,41 @@ contains
           intState%stampOffset(n) = Frequency ! we go to the beginning of the month
        end if
 
+! End Alarm based on start_date and start_time
+! ----------------------------------------
+       if( list(n)%start_date.ne.MAPL_UndefInt .and. list(n)%start_time.ne.MAPL_UndefInt ) then
+          REF_TIME(1) =     list(n)%start_date/10000
+          REF_TIME(2) = mod(list(n)%start_date,10000)/100
+          REF_TIME(3) = mod(list(n)%start_date,100)
+          REF_TIME(4) =     list(n)%start_time/10000
+          REF_TIME(5) = mod(list(n)%start_time,10000)/100
+          REF_TIME(6) = mod(list(n)%start_time,100)
+
+          call ESMF_TimeSet( RingTime, YY = REF_TIME(1), &
+                                       MM = REF_TIME(2), &
+                                       DD = REF_TIME(3), &
+                                       H  = REF_TIME(4), &
+                                       M  = REF_TIME(5), &
+                                       S  = REF_TIME(6), calendar=cal, rc=rc )
+       else
+          RingTime = CurrTime
+       end if
+       list(n)%start_alarm = ESMF_AlarmCreate( clock=clock, RingTime=RingTime, sticky=.false., _RC )
+
+       list(n)%skipWriting = .true.
+       if (RingTime == CurrTime) then
+          call  ESMF_AlarmRingerOn(list(n)%start_alarm, _RC )
+          list(n)%skipWriting = .false.
+       else
+          if (RingTime < CurrTime .NEQV. list(n)%backwards) then
+             list(n)%skipWriting = .false.
+          endif
+       end if
+
+
 ! End Alarm based on end_date and end_time
 ! ----------------------------------------
-       if( list(n)%end_date.ne.-999 .and. list(n)%end_time.ne.-999 ) then
+       if( list(n)%end_date.ne.MAPL_UndefInt .and. list(n)%end_time.ne.MAPL_UndefInt ) then
            REF_TIME(1) =     list(n)%end_date/10000
            REF_TIME(2) = mod(list(n)%end_date,10000)/100
            REF_TIME(3) = mod(list(n)%end_date,100)
@@ -1671,10 +1816,9 @@ ENDDO PARSER
        else
           sec = MAPL_nsecf(list(n)%frequency) / 2
        endif
-       if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
+       if (trim(list(n)%sampler_type) == 'swath' ) then
           call ESMF_TimeIntervalGet(Hsampler%Frequency_epoch, s=sec, _RC)
-       end if
-       if (list(n)%sampler_spec == 'station' .OR. list(n)%sampler_spec == 'mask') then
+       elseif (list(n)%sampler_type == 'station' .OR. list(n)%sampler_type == 'mask') then
           sec = MAPL_nsecf(list(n)%frequency)
        end if
        call ESMF_TimeIntervalSet( INTSTATE%STAMPOFFSET(n), S=sec, _RC )
@@ -2407,13 +2551,13 @@ ENDDO PARSER
        if (list(n)%format == 'CFIO') then
           call Get_Tdim (list(n), clock, tm)
           if (associated(list(n)%levels) .and. list(n)%vvars(1) /= "") then
-             list(n)%vdata = VerticalData(levels=list(n)%levels,vcoord=list(n)%vvars(1),vscale=list(n)%vscale,vunit=list(n)%vunit,_RC)
+             list(n)%vdata = VerticalData(levels=list(n)%levels,vcoord=list(n)%vvars(1),vscale=list(n)%vscale,vunit=list(n)%vunit,extrap_below_surf=list(n)%extrap_below_surf, _RC)
           else if (associated(list(n)%levels) .and. list(n)%vvars(1) == "") then
              list(n)%vdata = VerticalData(levels=list(n)%levels,_RC)
           else
              list(n)%vdata = VerticalData(positive=list(n)%positive,_RC)
           end if
-          if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
+          if (trim(list(n)%sampler_type) == 'swath' ) then
              call list(n)%xsampler%set_param(deflation=list(n)%deflate,_RC)
              call list(n)%xsampler%set_param(quantize_algorithm=list(n)%quantize_algorithm,_RC)
              call list(n)%xsampler%set_param(quantize_level=list(n)%quantize_level,_RC)
@@ -2448,20 +2592,28 @@ ENDDO PARSER
              list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n),integer_time=intstate%integer_time)
           end if
           if (list(n)%timeseries_output) then
-             list(n)%trajectory = HistoryTrajectory(cfg,string,clock,genstate=GENSTATE,_RC)
+             list(n)%trajectory = HistoryTrajectory(cfg,string,clock,schema_version,genstate=GENSTATE,_RC)
              call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
              IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
-          elseif (list(n)%sampler_spec == 'mask') then
+          elseif (list(n)%sampler_type == 'mask') then
              call MAPL_TimerOn(GENSTATE,"mask_init")
-             list(n)%mask_sampler = MaskSamplerGeosat(cfg,string,clock,genstate=GENSTATE,_RC)
-             call list(n)%mask_sampler%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
+             global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
+             list(n)%mask_sampler = MaskSampler(cfg,string,clock,genstate=GENSTATE,_RC)
+             ! initialize : create grid / metadata
+             call list(n)%mask_sampler%set_param(oClients=o_Clients)
+             call list(n)%mask_sampler%set_param(itemOrder=intState%fileOrderAlphabetical,_RC)
+             call list(n)%mask_sampler%initialize(list(n)%duration,list(n)%frequency,items=list(n)%items,&
+                  bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+
+             collection_id = o_Clients%add_hist_collection(list(n)%mask_sampler%metadata, mode = create_mode)
+             call list(n)%mask_sampler%set_param(write_collection_id=collection_id)
              call MAPL_TimerOff(GENSTATE,"mask_init")
-          elseif (list(n)%sampler_spec == 'station') then
+          elseif (list(n)%sampler_type == 'station') then
              list(n)%station_sampler = StationSampler (list(n)%bundle, trim(list(n)%stationIdFile), nskip_line=list(n)%stationSkipLine, genstate=GENSTATE, _RC)
              call list(n)%station_sampler%add_metadata_route_handle(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
           else
              global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
-             if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
+             if (trim(list(n)%sampler_type) == 'swath' ) then
                 pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
                 call list(n)%xsampler%Create_bundle_RH(list(n)%items,list(n)%bundle,Hsampler%tunit,ogrid=pgrid,vdata=list(n)%vdata,_RC)
              else
@@ -2527,9 +2679,13 @@ ENDDO PARSER
          else
             print *, '    Duration: ',       list(n)%duration
          end if
-         if( list(n)%end_date.ne.-999 ) then
-         print *, '    End_Date: ',       list(n)%end_date
-         print *, '    End_Time: ',       list(n)%end_time
+         if( list(n)%start_date.ne.MAPL_UndefInt ) then
+            print *, '    Start_Date: ',       list(n)%start_date
+            print *, '    Start_Time: ',       list(n)%start_time
+         endif
+         if( list(n)%end_date.ne.MAPL_UndefInt ) then
+            print *, '    End_Date: ',       list(n)%end_date
+            print *, '    End_Time: ',       list(n)%end_time
          endif
          if (trim(list(n)%output_grid_label)/='') then
             print *, ' Regrid Mthd: ',       regrid_method_int_to_string(list(n)%regrid_method)
@@ -3127,6 +3283,13 @@ ENDDO PARSER
           usable_collection_name = "unknown"
        end if
        call ESMF_ConfigFindLabel ( cfg, label=label//':', _RC)
+       m = ESMF_ConfigGetLen(cfg, _RC)
+       call ESMF_ConfigFindLabel ( cfg, label=label//':', _RC)
+       if (m == 0) then
+          ! allow for no entries on the fields: line
+          call ESMF_ConfigNextLine  ( cfg,tableEnd=table_end,_RC )
+          _ASSERT(.not.table_end, 'Premature end of fields list')
+       end if
 
        table_end = .false.
        m = 0
@@ -3428,12 +3591,20 @@ ENDDO PARSER
   ! decide if we are writing based on alarms
 
    do n=1,nlist
+      if (list(n)%skipWriting) then
+         if (ESMF_AlarmIsRinging(list(n)%start_alarm)) then
+            list(n)%skipWriting = .false.
+         endif
+      endif
+   end do
+
+   do n=1,nlist
       if (list(n)%disabled .or. ESMF_AlarmIsRinging(list(n)%end_alarm) ) then
          list(n)%disabled = .true.
          Writing(n) = .false.
       else if (list(n)%timeseries_output) then
          Writing(n) = ESMF_AlarmIsRinging ( list(n)%trajectory%alarm )
-      else if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
+      else if (trim(list(n)%sampler_type) == 'swath' ) then
          Writing(n) = ESMF_AlarmIsRinging ( Hsampler%alarm )
       else
          Writing(n) = ESMF_AlarmIsRinging ( list(n)%his_alarm )
@@ -3453,6 +3624,8 @@ ENDDO PARSER
             call ESMF_AlarmRingerOff( list(n)%seg_alarm,_RC )
          end if
       end if
+
+      if (list(n)%skipWriting) writing(n) = .false.
 
        if (writing(n) .and. .not.IntState%average(n)) then
           ! R8 to R4 copy (if needed!)
@@ -3482,7 +3655,7 @@ ENDDO PARSER
   ! swath only
    epoch_swath_grid_case: do n=1,nlist
       call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
-      if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
+      if (trim(list(n)%sampler_type) == 'swath' ) then
          call MAPL_TimerOn(GENSTATE,"Swath")
          call MAPL_TimerOn(GENSTATE,"RegridAccum")
          call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)
@@ -3494,7 +3667,7 @@ ENDDO PARSER
             if (intState%allow_overwrite) create_mode = PFIO_CLOBBER
             ! add time to items
             ! true metadata comes here from mGriddedIO%metadata
-            ! the mGriddedIO below only touches metadata, collection_id etc., it is safe.
+            ! the list(n)%mGriddedIO below only touches metadata, collection_id etc.
             !
             if (.NOT. list(n)%xsampler%have_initalized) then
                list(n)%xsampler%have_initalized = .true.
@@ -3577,7 +3750,7 @@ ENDDO PARSER
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
-         elseif (list(n)%sampler_spec == 'station') then
+         elseif (list(n)%sampler_type == 'station') then
             if (list(n)%unit.eq.0) then
                call lgr%debug('%a %a',&
                     "Station_data output to new file:",trim(filename(n)))
@@ -3586,14 +3759,19 @@ ENDDO PARSER
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
-         elseif (list(n)%sampler_spec == 'mask') then
-            if (list(n)%unit.eq.0) then
-               call lgr%debug('%a %a',&
-                    "Mask_data output to new file:",trim(filename(n)))
-               call list(n)%mask_sampler%close_file_handle(_RC)
-               call list(n)%mask_sampler%create_file_handle(filename(n),_RC)
-               list(n)%currentFile = filename(n)
-               list(n)%unit = -1
+         elseif (list(n)%sampler_type == 'mask') then
+            if( list(n)%unit.eq.0 ) then
+               if (list(n)%format == 'CFIO') then
+                  if (.not.intState%allow_overwrite) then
+                     inquire (file=trim(filename(n)),exist=file_exists)
+                     _ASSERT(.not.file_exists,trim(filename(n))//" being created for History output already exists")
+                  end if
+!!                  call list(n)%mask_sampler%modifyTime(oClients=o_Clients,_RC)
+                  list(n)%currentFile = filename(n)
+                  list(n)%unit = -1
+               else
+                  list(n)%unit = GETFILE( trim(filename(n)),all_pes=.true.)
+               end if
             end if
          else
             if( list(n)%unit.eq.0 ) then
@@ -3602,7 +3780,7 @@ ENDDO PARSER
                      inquire (file=trim(filename(n)),exist=file_exists)
                      _ASSERT(.not.file_exists,trim(filename(n))//" being created for History output already exists")
                   end if
-                  if (index(trim(list(n)%output_grid_label), 'SwathGrid') == 0) then
+                  if (trim(list(n)%sampler_type) /= 'swath' ) then
                      call list(n)%mGriddedIO%modifyTime(oClients=o_Clients,_RC)
                   endif
                   list(n)%currentFile = filename(n)
@@ -3678,8 +3856,8 @@ ENDDO PARSER
          end if
 
          if (.not.list(n)%timeseries_output .AND. &
-              list(n)%sampler_spec /= 'station' .AND. &
-              list(n)%sampler_spec /= 'mask') then
+              list(n)%sampler_type /= 'station' .AND. &
+              list(n)%sampler_type /= 'mask') then
 
             IOTYPE: if (list(n)%unit < 0) then    ! CFIO
                call list(n)%mGriddedIO%bundlepost(list(n)%currentFile,oClients=o_Clients,_RC)
@@ -3728,20 +3906,23 @@ ENDDO PARSER
          end if
 
 
-         if (list(n)%sampler_spec == 'station') then
+         if (list(n)%sampler_type == 'station') then
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
             call MAPL_TimerOn(GENSTATE,"Station")
             call MAPL_TimerOn(GENSTATE,"AppendFile")
             call list(n)%station_sampler%append_file(current_time,_RC)
             call MAPL_TimerOff(GENSTATE,"AppendFile")
             call MAPL_TimerOff(GENSTATE,"Station")
-         elseif (list(n)%sampler_spec == 'mask') then
+         elseif (list(n)%sampler_type == 'mask') then
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
             call MAPL_TimerOn(GENSTATE,"Mask_append")
-            call list(n)%mask_sampler%append_file(current_time,_RC)
+            if (list(n)%unit < 0) then    ! CFIO
+               call list(n)%mask_sampler%regrid_append_file(current_time,&
+                    list(n)%currentFile,oClients=o_Clients,_RC)
+               call lgr%debug('%a %a', 'mask sampler list(n)%currentFile: ', trim(list(n)%currentFile))
+            end if
             call MAPL_TimerOff(GENSTATE,"Mask_append")
          endif
-
 
       endif OUTTIME
 
@@ -3764,11 +3945,12 @@ ENDDO PARSER
    endif
    call MAPL_TimerOff(GENSTATE,"Done Wait")
 
+
   ! destroy ogrid/RH/acc_bundle, regenerate them
   ! swath only
    epoch_swath_regen_grid: do n=1,nlist
       call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
-      if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
+      if (trim(list(n)%sampler_type) == 'swath' ) then
          call MAPL_TimerOn(GENSTATE,"Swath")
          if( ESMF_AlarmIsRinging ( Hsampler%alarm ) .and. .not. ESMF_AlarmIsRinging(list(n)%end_alarm) ) then
             call MAPL_TimerOn(GENSTATE,"RegenGrid")
@@ -3870,6 +4052,12 @@ ENDDO PARSER
     IntState => wrap%ptr
     list => IntState%list
     nlist = size(list)
+
+    do n=1,nlist
+       if (list(n)%sampler_type == 'mask') then
+          call list(n)%mask_sampler%finalize(_RC)
+       end if
+    end do
 
 ! Close UNITs of GEOSgcm History Data
 ! -----------------------------------
@@ -5384,9 +5572,7 @@ ENDDO PARSER
   ! __ for each collection: find union fields, write to collection.rcx
   ! __ note: this subroutine is called by MPI root only
   !
-  ! __ note: this subroutine is called by MPI root only
-  !
-  subroutine regen_rcx_for_obs_platform (config, nlist, list, rc)
+  subroutine regen_rcx_for_obs_platform (config, nlist, list, schema_version, rc)
     use  MAPL_scan_pattern_in_file
     use MAPL_ObsUtilMod, only : obs_platform, union_platform
     !
@@ -5397,6 +5583,7 @@ ENDDO PARSER
     type(ESMF_Config), intent(inout)       :: config
     integer, intent(in)                    :: nlist
     type(HistoryCollection), pointer       :: list(:)
+    integer, intent(out)             :: schema_version
     integer, intent(inout), optional :: rc
 
     character(len=ESMF_MAXSTR) :: HIST_CF
@@ -5407,6 +5594,7 @@ ENDDO PARSER
     character (len=ESMF_MAXSTR) :: marker
     character (len=ESMF_MAXSTR) :: string
     character (len=ESMF_MAXSTR2) :: line, line2
+    character (len=100) :: line3
     character (len=ESMF_MAXSTR2), allocatable :: str_piece(:)
     type(obs_platform), allocatable :: PLFS(:)
     type(obs_platform) :: p1
@@ -5417,7 +5605,7 @@ ENDDO PARSER
     integer :: nseg
     integer :: nseg_ub
     integer :: nfield, nplatform
-    integer :: nentry_name
+    integer :: nfield_name_max
     logical :: obs_flag
     integer, allocatable :: map(:)
     type(Logger), pointer          :: lgr
@@ -5425,12 +5613,50 @@ ENDDO PARSER
     lgr => logging%get_logger('HISTORY.sampler')
 
     !
-    !
     call ESMF_ConfigGetAttribute(config, value=HIST_CF, &
          label="HIST_CF:", default="HIST.rc", _RC )
     unitr = GETFILE(HIST_CF, FORM='formatted', _RC)
 
-    call scan_count_match_bgn (unitr, 'PLATFORM.', nplf, .false.)
+    call scan_count_match_bgn (unitr, 'schema.version:', count, .true.)
+    schema_version = 2  ! default
+    if (count==0) then
+       ! keyword non-exist
+       ! continue to search for 'DEFINE_OBS_PLATFORM::'
+       ! if found: run the default approach for a supercollection
+       !    else: return as normal history
+       call lgr%debug('%a', 'schema.version: keyword does not exist, treat as supercollection')
+       continue
+    elseif (count>1) then
+       _FAIL('schema.version: keyword appears more than once in HISTORY.rc')
+    elseif (count==1) then
+       call scan_begin(unitr, 'schema.version:', .true.)
+       backspace(unitr)
+       read(unitr, '(a100)') line
+       j = index( line, ':') + 1
+       k = index( line, '#')
+       if (k>1) then
+          read( line(j:k-1), * )  schema_version
+       elseif (k==1) then
+          _FAIL('version not found')
+       elseif (k==0) then
+          read( line(j:), * )  schema_version
+       end if
+       call lgr%debug('%a %i2', 'schema.version=', schema_version)
+       if (schema_version == 1) then
+          ! use individual Traj. Sampler collection
+          !
+          call regen_rcx_for_schema_version_1(config, nlist, list, _RC)
+          rc=0
+          return
+       elseif (schema_version > 2) then
+          _FAIL('schema_version > 2 not supported')
+       end if
+       call lgr%debug('%a %i2', 'end schema.version=', schema_version)
+    end if
+
+
+!   continue with the platform grammar
+    call scan_count_match_bgn (unitr, 'PLATFORM.', nplf, .true.)
     rewind(unitr)
 
     if (nplf==0) then
@@ -5444,7 +5670,6 @@ ENDDO PARSER
     length_mx = ESMF_MAXSTR2
     mxseg = 100
 
-
     ! __ s1. scan get  platform name + index_name_x  var_name_lat/lon/time
     do k=1, nplf
        call scan_begin(unitr, 'PLATFORM.', .false.)
@@ -5457,63 +5682,29 @@ ENDDO PARSER
        PLFS(k)%name = line(i+1:j-1)
        marker=line(1:j)
 
-       call scan_contain(unitr, marker, .true.)
-       call scan_contain(unitr, 'index_name_x:', .false.)
-       backspace(unitr)
-       read(unitr, '(a)', iostat=ios) line
-       _ASSERT (ios==0, 'read line failed')
-       i=index(line, ':')
-       PLFS(k)%index_name_x = trim(line(i+1:))
 
        call scan_contain(unitr, marker, .true.)
-       call scan_contain(unitr, 'var_name_lon:', .false.)
-       backspace(unitr)
-       read(unitr, '(a)', iostat=ios) line
-       _ASSERT (ios==0, 'read line failed')
-       i=index(line, ':')
-       PLFS(k)%var_name_lon = trim(line(i+1:))
-
-       call scan_contain(unitr, marker, .true.)
-       call scan_contain(unitr, 'var_name_lat:', .false.)
-       backspace(unitr)
-       read(unitr, '(a)', iostat=ios) line
-       _ASSERT (ios==0, 'read line failed')
-       i=index(line, ':')
-       PLFS(k)%var_name_lat = trim(line(i+1:))
-
-       call scan_contain(unitr, marker, .true.)
-       call scan_contain(unitr, 'var_name_time:', .false.)
-       backspace(unitr)
-       read(unitr, '(a)', iostat=ios) line
-       _ASSERT (ios==0, 'read line failed')
-       i=index(line, ':')
-       PLFS(k)%var_name_time = trim(line(i+1:))
-
-       call scan_contain(unitr, marker, .true.)
-       call scan_contain(unitr, 'file_name_template:', .false.)
+       call scan_begin(unitr, 'file_name_template:', .false.)
        backspace(unitr)
        read(unitr, '(a)', iostat=ios) line
        _ASSERT (ios==0, 'read line failed')
        i=index(line, ':')
        PLFS(k)%file_name_template = trim(line(i+1:))
 
-       call lgr%debug('%a %a %a %a %a', &
+       call lgr%debug('%a  %a', &
             trim( PLFS(k)%name ), &
-            trim( PLFS(k)%var_name_lon ), &
-            trim( PLFS(k)%var_name_lat ), &
-            trim( PLFS(k)%var_name_time ), &
             trim( PLFS(k)%file_name_template ) )
 
     end do
 
 
 
-    ! __ s2.1 scan fields: only determine ngeoval / nentry_name = nword
+    ! __ s2.1 scan fields: only determine ngeoval / nfield_name_max = nword
     allocate (str_piece(mxseg))
     rewind(unitr)
     do k=1, nplf
        call scan_begin(unitr, 'PLATFORM.', .false.)
-       call scan_contain(unitr, 'geovals_fields:', .false.)
+       call scan_contain(unitr, 'fields:', .false.)
        ios=0
        ngeoval=0
        nseg_ub=0
@@ -5532,10 +5723,10 @@ ENDDO PARSER
           end if
        enddo
        PLFS(k)%ngeoval = ngeoval
-       PLFS(k)%nentry_name = nseg_ub
+       nseg_ub = PLFS(k)%nfield_name_mx
        allocate ( PLFS(k)%field_name (nseg_ub, ngeoval) )
        PLFS(k)%field_name = ''
-       !! print*, 'k, ngeoval, nentry_name', k, ngeoval, nseg_ub
+       !! print*, 'k, ngeoval, nfield_name_max', k, ngeoval, nseg_ub
     end do
 
 
@@ -5551,7 +5742,7 @@ ENDDO PARSER
        marker=line(1:j)
        !
        call scan_begin(unitr, marker, .true.)
-       call scan_contain(unitr, 'geovals_fields:', .false.)
+       call scan_contain(unitr, 'fields:', .false.)
        ios=0
        ngeoval=0
        do while (ios == 0)
@@ -5633,12 +5824,12 @@ ENDDO PARSER
           call split_string_by_space (line, length_mx, mxseg, &
                nplatform, str_piece, status)
 
-          !! to do: add debug
-          !write(6,*) 'line for obsplatforms=', trim(line)
-          !write(6,*) 'split string,  nplatform=', nplatform
-          !write(6,*) 'nplf=', nplf
-          !write(6,*) 'str_piece=', str_piece(1:nplatform)
-
+          call lgr%debug('%a %a', 'line for obsplatforms=', trim(line))
+          call lgr%debug('%a %i6', 'split string,  nplatform=', nplatform)
+          call lgr%debug('%a %i6', 'nplf=', nplf)
+          !if (mapl_am_i_root()) then
+          !   write(6,*)  '     str_piece=', str_piece(1:nplatform)
+          !end if
 
           !
           !   a) union the platform
@@ -5654,14 +5845,13 @@ ENDDO PARSER
              end do
           end do
           deallocate(str_piece)
-          !! write(6,*) 'collection n=',n, 'map(:)=', map(:)
+          !if (mapl_am_i_root()) then
+          !   write(6,*) 'collection n=',n, 'map(:)=', map(:)
+          !end if
+
 
           ! __ write common nc_index,time,lon,lat
           k=map(1)   ! plat form # 1
-          write(unitw, '(2(2x,a))') trim(string)//'index_name_x:    ', trim(adjustl(PLFS(k)%index_name_x))
-          write(unitw, '(2(2x,a))') trim(string)//'var_name_time:   ', trim(adjustl(PLFS(k)%var_name_time))
-          write(unitw, '(2(2x,a))') trim(string)//'var_name_lon:    ', trim(adjustl(PLFS(k)%var_name_lon))
-          write(unitw, '(2(2x,a))') trim(string)//'var_name_lat:    ', trim(adjustl(PLFS(k)%var_name_lat))
 
           do i=1, nplatform
              k=map(i)
@@ -5673,10 +5863,10 @@ ENDDO PARSER
           end do
 
           nfield = p1%ngeoval
-          nentry_name = p1%nentry_name
+          nfield_name_max = p1%nfield_name_mx
           do j=1, nfield
              line=''
-             do i=1, nentry_name
+             do i=1, nfield_name_max
                 line = trim(line)//' '//trim(p1%field_name(i,j))
              enddo
               if (j==1) then
@@ -5695,14 +5885,15 @@ ENDDO PARSER
              write(unitw, '(a)') trim(adjustl(PLFS(k)%file_name_template))
              do j=1, PLFS(k)%ngeoval
                 line=''
-                do i=1, nentry_name
+                do i=1, nfield_name_max
                    line = trim(line)//' '//trim(adjustl(PLFS(k)%field_name(i,j)))
                 enddo
                 write(unitw, '(a)') trim(adjustl(line))
              enddo
              write(unitw, '(20a)') (('-'), j=1,20)
           enddo
-          write(unitw,'(a)') '::'
+          write(unitw,'(a,/)') '::'
+          call scan_write_between_line1_line2_flush_Left (unitr, unitw, 'Trajectory_Schema::', '::')
        end if
        call free_file(unitw, _RC)
     end do
@@ -5712,4 +5903,87 @@ ENDDO PARSER
   end subroutine regen_rcx_for_obs_platform
 
 
-end module MAPL_HistoryGridCompMod
+  subroutine regen_rcx_for_schema_version_1 (config, nlist, list, rc)
+    use  MAPL_scan_pattern_in_file
+    type(ESMF_Config), intent(inout)       :: config
+    integer, intent(in)                    :: nlist
+    type(HistoryCollection), pointer       :: list(:)
+    integer, intent(inout), optional :: rc
+
+    integer :: status
+    integer :: ios
+    integer :: n, unitr, unitw
+    integer :: i, j
+    character (len=300) :: line
+    character (len=50), allocatable :: grid_names(:)
+    character (len=50), allocatable :: sampler_type(:)
+    character(len=ESMF_MAXSTR) :: HIST_CF, string
+    type(ESMF_Config) :: cfg
+
+    call ESMF_ConfigGetAttribute(config, value=HIST_CF, &
+         label="HIST_CF:", default="HIST.rc", _RC )
+    unitr = GETFILE(HIST_CF, FORM='formatted', _RC)
+
+    allocate(sampler_type(nlist))
+    do n = 1, nlist
+       cfg = ESMF_ConfigCreate(_RC)
+       string = trim( list(n)%collection ) // '.'
+       call ESMF_ConfigLoadFile(cfg, filename = trim(string)//'rcx', _RC)
+       call ESMF_ConfigGetAttribute ( cfg, value=sampler_type(n), default="", &
+            label=trim(string) // 'sampler_type:' ,_RC )
+       call ESMF_ConfigDestroy(cfg, _RC)
+    end do
+
+    ! add GRID_LABELS, INDEX_VAR_NAMES to trajectory collection rcx only
+    do n = 1, nlist
+       if (sampler_type(n) == 'trajectory') then
+          rewind(unitr)
+          string = trim( list(n)%collection ) // '.'
+          unitw = GETFILE(trim(string)//'rcx', FORM='formatted', _RC)
+          call scan_write_between_line1_line2_flush_Left (unitr, unitw,  string, '::')
+          call scan_write_between_line1_line2_flush_Left (unitr, unitw,  'GRID_LABELS:', '::')
+          call scan_begin (unitr, 'GRID_LABELS:', .true.)
+          ios=0; i=0; j=0   ! i: count
+          do while (ios==0)
+             read (unitr, '(a300)', iostat = ios, err = 300) line
+             j=index( adjustl(line), '::' )
+             if (j==0) then
+                i=i+1
+             else
+                ios=1
+             end if
+          end do
+300       continue
+
+          allocate (grid_names(i))
+          call scan_begin (unitr, 'GRID_LABELS:', .true.)
+          ios=0; i=0; j=0   ! i: count
+          do while (ios==0)
+             read (unitr, '(a300)', iostat = ios, err = 301) line
+             j=index( adjustl(line), '::' )
+             if ( j==0 ) then
+                i=i+1
+                grid_names(i)=trim(adjustl(line))
+             else
+                ios=1
+             end if
+          end do
+301       continue
+
+          do j=1, i
+             line=trim(grid_names(j))//'.'
+             call scan_write_begin_with_line1_flush_Left (unitr, unitw, line)
+          end do
+
+          call scan_write_between_line1_line2_flush_Left (unitr, unitw, 'Trajectory_Schema::', '::')
+          call scan_write_begin_with_line1_flush_Left (unitr, unitw, 'schema_version')
+          call free_file(unitw, _RC)
+          deallocate(grid_names)
+       end if
+    end do
+    call free_file(unitr, _RC)
+
+    _RETURN(ESMF_SUCCESS)
+  end subroutine regen_rcx_for_schema_version_1
+
+  end module MAPL_HistoryGridCompMod

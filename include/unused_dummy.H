@@ -10,4 +10,8 @@
 #ifdef _UNUSED_DUMMY
 #  undef _UNUSED_DUMMY
 #endif
-#define _UNUSED_DUMMY(x) if (.false.) then; associate (q____ => x); end associate; endif
+#if defined(__flang__)
+#  define _UNUSED_DUMMY(x) if (.false.) then; print*, shape(x); endif
+#else
+#  define _UNUSED_DUMMY(x) if (.false.) then; associate (q____ => x); end associate; endif
+#endif

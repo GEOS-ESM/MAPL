@@ -7,8 +7,8 @@ coloured_edges: true
 graph_maxdepth: 4
 graph_maxnodes: 32
 include: ../../include/
-         ../../gFTL/install/GFTL-1.13/include/v1
-         ../../gFTL/install/GFTL-1.13/include/v2
+         ../../gFTL/install/GFTL-1.15/include/v1
+         ../../gFTL/install/GFTL-1.15/include/v2
 exclude: **/EsmfRegridder.F90
          **/FieldBLAS_IntrinsicFunctions.F90
          **/GeomManager.F90

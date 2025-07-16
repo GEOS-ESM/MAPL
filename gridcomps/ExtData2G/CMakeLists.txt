@@ -19,13 +19,12 @@ set (srcs
      ExtDataSample.F90
      ExtData_IOBundleMod.F90
      ExtData_IOBundleVectorMod.F90
-     ExtDataMasking.F90
      ExtDataPrimaryExportVector.F90
      ExtDataDerivedExportVector.F90
     )
 
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.base MAPL.generic MAPL.griddedio TYPE ${MAPL_LIBRARY_TYPE})
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.base MAPL.generic MAPL.griddedio udunits2f MAPL.vertical MAPL.state_utils TYPE ${MAPL_LIBRARY_TYPE})
 target_link_libraries (${this} PUBLIC GFTL::gftl GFTL_SHARED::gftl-shared ESMF::ESMF NetCDF::NetCDF_Fortran
                                PRIVATE MPI::MPI_Fortran)
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
@@ -37,4 +36,6 @@ if (CMAKE_Fortran_COMPILER_ID MATCHES Intel AND CMAKE_BUILD_TYPE MATCHES Release
   set_source_files_properties(ExtDataGridCompNG.F90 PROPERTIES COMPILE_OPTIONS ${FOPT1})
 endif ()
 
-add_subdirectory(tests EXCLUDE_FROM_ALL)
+if(PFUNIT_FOUND)
+  add_subdirectory(tests EXCLUDE_FROM_ALL)
+endif()

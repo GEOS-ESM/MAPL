@@ -56,6 +56,8 @@ module MAPL_LatLonGridFactoryMod
       integer :: px, py
       logical :: is_halo_initialized = .false.
       logical :: periodic = .true.
+      character(len=:), allocatable :: lon_bounds_name
+      character(len=:), allocatable :: lat_bounds_name
    contains
       procedure :: make_new_grid
       procedure :: create_basic_grid
@@ -166,24 +168,17 @@ contains
       call set_with_default(factory%lat_range, lat_range, RealMinMax(MAPL_UNDEFINED_REAL,MAPL_UNDEFINED_REAL))
       call set_with_default(factory%force_decomposition, force_decomposition, .false.)
 
-      call factory%check_and_fill_consistency(rc=status)
-      _VERIFY(status)
+      call factory%check_and_fill_consistency(_RC)
 
       ! Compute the centers and corners
-      factory%lon_centers = factory%compute_lon_centers(factory%dateline, rc=status)
-      _VERIFY(status)
-      factory%lat_centers = factory%compute_lat_centers(factory%pole, rc=status)
-      _VERIFY(status)
+      factory%lon_centers = factory%compute_lon_centers(factory%dateline, _RC)
+      factory%lat_centers = factory%compute_lat_centers(factory%pole, _RC)
       factory%lon_centers_degrees = factory%compute_lon_centers(factory%dateline, &
-            convert_to_radians = .false.,  rc=status)
-      _VERIFY(status)
+            convert_to_radians = .false.,  _RC)
       factory%lat_centers_degrees = factory%compute_lat_centers(factory%pole, &
-            convert_to_radians = .false.,  rc=status)
-      _VERIFY(status)
-      factory%lon_corners = factory%compute_lon_corners(factory%dateline, rc=status)
-      _VERIFY(status)
-      factory%lat_corners = factory%compute_lat_corners(factory%pole, rc=status)
-      _VERIFY(status)
+            convert_to_radians = .false.,  _RC)
+      factory%lon_corners = factory%compute_lon_corners(factory%dateline, _RC)
+      factory%lat_corners = factory%compute_lat_corners(factory%pole, _RC)
 
       _RETURN(_SUCCESS)
 
@@ -199,11 +194,9 @@ contains
       integer :: status
 
       _UNUSED_DUMMY(unusable)
-      grid = this%create_basic_grid(rc=status)
-      _VERIFY(status)
+      grid = this%create_basic_grid(_RC)
 
-      call this%add_horz_coordinates(grid, rc=status)
-      _VERIFY(status)
+      call this%add_horz_coordinates(grid, _RC)
 
       _RETURN(_SUCCESS)
 
@@ -218,10 +211,16 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(ESMF_PoleKind_Flag) :: polekindflag(2)
 
       _UNUSED_DUMMY(unusable)
 
       if (this%periodic) then
+         if (this%pole == "XY") then 
+            polekindflag = ESMF_POLEKIND_NONE
+         else
+            polekindflag = ESMF_POLEKIND_MONOPOLE
+         end if
          grid = ESMF_GridCreate1PeriDim( &
               & name = this%grid_name, &
               & countsPerDEDim1=this%ims, &
@@ -232,8 +231,8 @@ contains
               & coordDep1=[1,2], &
               & coordDep2=[1,2], &
               & coordSys=ESMF_COORDSYS_SPH_RAD, &
-              & rc=status)
-         _VERIFY(status)
+              & polekindflag=polekindflag, &
+              & _RC)
       else
          grid = ESMF_GridCreateNoPeriDim( &
               & name = this%grid_name, &
@@ -245,27 +244,20 @@ contains
               & coordDep1=[1,2], &
               & coordDep2=[1,2], &
               & coordSys=ESMF_COORDSYS_SPH_RAD, &
-              & rc=status)
-         _VERIFY(status)
+              & _RC)
       end if
 
       ! Allocate coords at default stagger location
-      call ESMF_GridAddCoord(grid, rc=status)
-      _VERIFY(status)
-      call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CORNER, rc=status)
-      _VERIFY(status)
-
+      call ESMF_GridAddCoord(grid, _RC)
+      call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CORNER, _RC)
 
       if (this%lm /= MAPL_UNDEFINED_INTEGER) then
-         call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, rc=status)
-         _VERIFY(status)
+         call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, _RC)
       end if
 
-      call ESMF_AttributeSet(grid, 'GridType', 'LatLon', rc=status)
-      _VERIFY(status)
+      call ESMF_AttributeSet(grid, 'GridType', 'LatLon', _RC)
       if (.not.this%periodic) then
-         call ESMF_AttributeSet(grid, 'Global', .false., rc=status)
-         _VERIFY(status)
+         call ESMF_AttributeSet(grid, 'Global', .false., _RC)
       end if
 
       _RETURN(_SUCCESS)
@@ -375,11 +367,9 @@ contains
 
       if (local_convert_to_radians) then
          lon_centers = MAPL_Range(min_coord, max_coord, this%im_world, &
-              & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8, rc=status)
-         _VERIFY(status)
+              & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8, _RC)
       else
-         lon_centers = MAPL_Range(min_coord, max_coord, this%im_world, rc=status)
-         _VERIFY(status)
+         lon_centers = MAPL_Range(min_coord, max_coord, this%im_world, _RC)
       end if
 
       _RETURN(_SUCCESS)
@@ -426,8 +416,7 @@ contains
       end if
 
       lon_corners = MAPL_Range(min_coord, max_coord, this%im_world+1, &
-           & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8, rc=status)
-      _VERIFY(status)
+           & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8, _RC)
 
       _RETURN(_SUCCESS)
    end function compute_lon_corners
@@ -613,12 +602,10 @@ contains
          ! First we handle longitudes:
          call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
               staggerloc=ESMF_STAGGERLOC_CENTER, &
-              farrayPtr=centers, rc=status)
-         _VERIFY(status)
+              farrayPtr=centers, _RC)
          call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
               staggerloc=ESMF_STAGGERLOC_CORNER, &
-              farrayPtr=corners, rc=status)
-         _VERIFY(status)
+              farrayPtr=corners, _RC)
          do j = 1, size(centers,2)
             centers(:,j) = this%lon_centers(i_1:i_n)
          end do
@@ -629,12 +616,10 @@ contains
          ! Now latitudes
          call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
               staggerloc=ESMF_STAGGERLOC_CENTER, &
-              farrayPtr=centers, rc=status)
-         _VERIFY(status)
+              farrayPtr=centers, _RC)
          call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
               staggerloc=ESMF_STAGGERLOC_CORNER, &
-              farrayPtr=corners, rc=status)
-         _VERIFY(status)
+              farrayPtr=corners, _RC)
 
          do i = 1, size(centers,1)
             centers(i,:) = this%lat_centers(j_1:j_n)
@@ -673,7 +658,7 @@ contains
 
       integer :: i_min, i_max
       real(kind=REAL64) :: d_lat, d_lat_temp, extrap_lat
-      logical :: is_valid, use_file_coords, compute_lons, compute_lats
+      logical :: is_valid, use_file_coords, compute_lons, compute_lats, has_bnds
 
       _UNUSED_DUMMY(unusable)
 
@@ -690,14 +675,12 @@ contains
          lon_name = 'lon'
          hasLon = file_metadata%has_dimension(lon_name)
          if (hasLon) then
-            im = file_metadata%get_dimension(lon_name, rc=status)
-            _VERIFY(status)
+            im = file_metadata%get_dimension(lon_name, _RC)
          else
             lon_name = 'longitude'
             hasLongitude = file_metadata%has_dimension(lon_name)
             if (hasLongitude) then
-               im = file_metadata%get_dimension(lon_name, rc=status)
-               _VERIFY(status)
+               im = file_metadata%get_dimension(lon_name, _RC)
             else
                _FAIL('no longitude coordinate')
             end if
@@ -705,14 +688,12 @@ contains
          lat_name = 'lat'
          hasLat = file_metadata%has_dimension(lat_name)
          if (hasLat) then
-            jm = file_metadata%get_dimension(lat_name, rc=status)
-            _VERIFY(status)
+            jm = file_metadata%get_dimension(lat_name, _RC)
          else
             lat_name = 'latitude'
             hasLatitude = file_metadata%has_dimension(lat_name)
             if (hasLatitude) then
-               jm = file_metadata%get_dimension(lat_name, rc=status)
-               _VERIFY(status)
+               jm = file_metadata%get_dimension(lat_name, _RC)
             else
                _FAIL('no latitude coordinate')
             end if
@@ -722,14 +703,12 @@ contains
          lev_name = 'lev'
          hasLev = file_metadata%has_dimension(lev_name)
          if (hasLev) then
-            lm = file_metadata%get_dimension(lev_name,rc=status)
-            _VERIFY(status)
+            lm = file_metadata%get_dimension(lev_name,_RC)
          else
             lev_name = 'levels'
             hasLevel = file_metadata%has_dimension(lev_name)
             if (hasLevel) then
-               lm = file_metadata%get_dimension(lev_name,rc=status)
-               _VERIFY(status)
+               lm = file_metadata%get_dimension(lev_name,_RC)
             end if
          end if
 
@@ -742,8 +721,7 @@ contains
         ! TODO: modify CoordinateVariable so that get_coordinate_data() is overloaded
         ! for different types (as subroutine) to avoid casting here.
         ! TODO: add get_coordinate_variable() interface to avoid the need to cast
-        v => file_metadata%get_coordinate_variable(lon_name, rc=status)
-        _VERIFY(status)
+        v => file_metadata%get_coordinate_variable(lon_name, _RC)
         ptr => v%get_coordinate_data()
         _ASSERT(associated(ptr),'coordinate data not allocated')
         select type (ptr)
@@ -759,9 +737,13 @@ contains
            where(this%lon_centers > 180) this%lon_centers=this%lon_centers-360
         end if
 
+        has_bnds = coordinate_has_bounds(file_metadata, lon_name, _RC)
+        if (has_bnds) then
+           this%lon_bounds_name = get_coordinate_bounds_name(file_metadata, lon_name, _RC)
+           this%lon_corners = get_coordinate_bounds(file_metadata, lon_name, _RC)
+        end if
 
-        v => file_metadata%get_coordinate_variable(lat_name, rc=status)
-        _VERIFY(status)
+        v => file_metadata%get_coordinate_variable(lat_name, _RC)
         ptr => v%get_coordinate_data()
         _ASSERT(associated(ptr),'coordinate data not allocated')
         select type (ptr)
@@ -772,6 +754,12 @@ contains
         class default
            _FAIL('unsupported type of data; must be REAL32 or REAL64')
         end select
+
+        has_bnds = coordinate_has_bounds(file_metadata, lat_name, _RC)
+        if (has_bnds) then
+           this%lat_bounds_name = get_coordinate_bounds_name(file_metadata, lat_name, _RC)
+           this%lat_corners = get_coordinate_bounds(file_metadata, lat_name, _RC)
+        end if
 
 
         ! Check: is this a "mis-specified" pole-centered grid?
@@ -804,14 +792,14 @@ contains
            end if
         end if
 
-
          ! Corners are the midpoints of centers (and extrapolated at the
          ! poles for lats.)
-         allocate(this%lon_corners(im+1), this%lat_corners(jm+1))
-
-         this%lon_corners(1) = (this%lon_centers(im) + this%lon_centers(1))/2 - 180
-         this%lon_corners(2:im) = (this%lon_centers(1:im-1) + this%lon_centers(2:im))/2
-         this%lon_corners(im+1) = (this%lon_centers(im) + this%lon_centers(1))/2 + 180
+         if (.not. allocated(this%lon_corners)) then
+            allocate(this%lon_corners(im+1))
+            this%lon_corners(1) = (this%lon_centers(im) + this%lon_centers(1))/2 - 180
+            this%lon_corners(2:im) = (this%lon_centers(1:im-1) + this%lon_centers(2:im))/2
+            this%lon_corners(im+1) = (this%lon_centers(im) + this%lon_centers(1))/2 + 180
+         end if
 
          ! This section about pole/dateline is probably not needed in file data case.
          if (abs(this%lon_centers(1) + 180) < 1000*epsilon(1.0)) then
@@ -826,10 +814,13 @@ contains
             this%dateline = 'XY'
             this%lon_range = RealMinMax(this%lon_centers(1), this%lon_centers(jm))
          end if
-
-         this%lat_corners(1) = this%lat_centers(1) - (this%lat_centers(2)-this%lat_centers(1))/2
-         this%lat_corners(2:jm) = (this%lat_centers(1:jm-1) + this%lat_centers(2:jm))/2
-         this%lat_corners(jm+1) = this%lat_centers(jm) - (this%lat_centers(jm-1)-this%lat_centers(jm))/2
+         
+         if (.not. allocated(this%lat_corners)) then
+            allocate(this%lat_corners(jm+1))
+            this%lat_corners(1) = this%lat_centers(1) - (this%lat_centers(2)-this%lat_centers(1))/2
+            this%lat_corners(2:jm) = (this%lat_centers(1:jm-1) + this%lat_centers(2:jm))/2
+            this%lat_corners(jm+1) = this%lat_centers(jm) - (this%lat_centers(jm-1)-this%lat_centers(jm))/2
+         end if
 
          if (abs(this%lat_centers(1) + 90) < 1000*epsilon(1.0)) then
             this%pole = 'PC'
@@ -873,19 +864,14 @@ contains
                compute_lats=.true.
             end if
             if (compute_lons .and. compute_lats) then
-               this%lon_centers = this%compute_lon_centers(this%dateline, rc=status)
-               _VERIFY(status)
+               this%lon_centers = this%compute_lon_centers(this%dateline, _RC)
                this%lon_centers_degrees = this%compute_lon_centers(this%dateline, &
-                      convert_to_radians=.false., rc=status)
-               _VERIFY(status)
-               this%lon_corners = this%compute_lon_corners(this%dateline, rc=status)
-               _VERIFY(status)
+                      convert_to_radians=.false., _RC)
+               this%lon_corners = this%compute_lon_corners(this%dateline, _RC)
                this%lat_centers_degrees = this%compute_lat_centers(this%pole, &
-                      convert_to_radians=.false., rc=status)
-               this%lat_centers = this%compute_lat_centers(this%pole, rc=status)
-               _VERIFY(status)
-               this%lat_corners = this%compute_lat_corners(this%pole, rc=status)
-               _VERIFY(status)
+                      convert_to_radians=.false., _RC)
+               this%lat_centers = this%compute_lat_centers(this%pole, _RC)
+               this%lat_corners = this%compute_lat_corners(this%pole, _RC)
             else
                this%lon_centers_degrees = this%lon_centers
                this%lat_centers_degrees = this%lat_centers
@@ -898,8 +884,7 @@ contains
 
     end associate
 
-    call this%make_arbitrary_decomposition(this%nx, this%ny, rc=status)
-    _VERIFY(status)
+    call this%make_arbitrary_decomposition(this%nx, this%ny, _RC)
 
     ! Determine IMS and JMS with constraint for ESMF that each DE has at least an extent
     ! of 2.  Required for ESMF_FieldRegrid().
@@ -908,8 +893,7 @@ contains
     call MAPL_DecomposeDim(this%im_world, this%ims, this%nx, min_DE_extent=2)
     call MAPL_DecomposeDim(this%jm_world, this%jms, this%ny, min_DE_extent=2)
 
-    call this%check_and_fill_consistency(rc=status)
-    _VERIFY(status)
+    call this%check_and_fill_consistency(_RC)
 
     _RETURN(_SUCCESS)
 
@@ -931,8 +915,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      call ESMF_VmGetCurrent(VM, rc=status)
-      _VERIFY(status)
+      call ESMF_VmGetCurrent(VM, _RC)
 
       this%is_regular = .true.
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDNAME:', default=MAPL_GRID_NAME_DEFAULT)
@@ -946,19 +929,15 @@ contains
 
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'IMS_FILE:', rc=status)
       if ( status == _SUCCESS ) then
-         call get_ims_from_file(this%ims, trim(tmp),this%nx, rc=status)
-         _VERIFY(status)
+         call get_ims_from_file(this%ims, trim(tmp),this%nx, _RC)
       else
-         call get_multi_integer(this%ims, 'IMS:', rc=status)
-         _VERIFY(status)
+         call get_multi_integer(this%ims, 'IMS:', _RC)
       endif
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'JMS_FILE:', rc=status)
       if ( status == _SUCCESS ) then
-         call get_ims_from_file(this%jms, trim(tmp),this%ny, rc=status)
-         _VERIFY(status)
+         call get_ims_from_file(this%jms, trim(tmp),this%ny, _RC)
       else
-         call get_multi_integer(this%jms, 'JMS:', rc=status)
-         _VERIFY(status)
+         call get_multi_integer(this%jms, 'JMS:', _RC)
       endif
 
       call ESMF_ConfigGetAttribute(config, this%lm, label=prefix//'LM:', default=MAPL_UNDEFINED_INTEGER)
@@ -972,24 +951,19 @@ contains
          this%dateline = trim(tmp)
       end if
 
-      call get_range(this%lon_range, 'LON_RANGE:', rc=status); _VERIFY(status)
-      call get_range(this%lat_range, 'LAT_RANGE:', rc=status); _VERIFY(status)
-      call this%check_and_fill_consistency(rc=status); _VERIFY(status)
+      call get_range(this%lon_range, 'LON_RANGE:', _RC)
+      call get_range(this%lat_range, 'LAT_RANGE:', _RC)
+      call this%check_and_fill_consistency(_RC)
 
       ! Compute the centers and corners
-      this%lon_centers = this%compute_lon_centers(this%dateline, rc=status)
-      _VERIFY(status)
+      this%lon_centers = this%compute_lon_centers(this%dateline, _RC)
       this%lon_centers_degrees = this%compute_lon_centers(this%dateline, &
-               convert_to_radians = .false., rc=status)
-      _VERIFY(status)
-      this%lat_centers = this%compute_lat_centers(this%pole, rc=status)
-      _VERIFY(status)
+               convert_to_radians = .false., _RC)
+      this%lat_centers = this%compute_lat_centers(this%pole, _RC)
       this%lat_centers_degrees = this%compute_lat_centers(this%pole, &
-               convert_to_radians = .false., rc=status)
-      this%lon_corners = this%compute_lon_corners(this%dateline, rc=status)
-      _VERIFY(status)
-      this%lat_corners = this%compute_lat_corners(this%pole, rc=status)
-      _VERIFY(status)
+               convert_to_radians = .false., _RC)
+      this%lon_corners = this%compute_lon_corners(this%dateline, _RC)
+      this%lat_corners = this%compute_lat_corners(this%pole, _RC)
 
       _RETURN(_SUCCESS)
 
@@ -1006,8 +980,7 @@ contains
          integer :: status
          logical :: isPresent
 
-         call ESMF_ConfigFindLabel(config, label=prefix//label, isPresent=isPresent, rc=status)
-         _VERIFY(status)
+         call ESMF_ConfigFindLabel(config, label=prefix//label, isPresent=isPresent, _RC)
          if (.not. isPresent) then
             _RETURN(_SUCCESS)
          end if
@@ -1026,11 +999,9 @@ contains
          ! Second pass: allocate and fill
          allocate(values(n), stat=status) ! no point in checking status
          _VERIFY(status)
-         call ESMF_ConfigFindLabel(config, label=prefix//label,rc=status)
-         _VERIFY(status)
+         call ESMF_ConfigFindLabel(config, label=prefix//label, _RC)
          do i = 1, n
-            call ESMF_ConfigGetAttribute(config, values(i), rc=status)
-            _VERIFY(status)
+            call ESMF_ConfigGetAttribute(config, values(i), _RC)
          end do
 
          _RETURN(_SUCCESS)
@@ -1070,8 +1041,7 @@ contains
             close(UNIT)
          endif
 
-         call MAPL_CommsBcast(VM, values, n=N, ROOT=MAPL_Root, rc=status)
-         _VERIFY(STATUS)
+         call MAPL_CommsBcast(VM, values, n=N, ROOT=MAPL_Root, _RC)
          _RETURN(_SUCCESS)
 
       end subroutine get_ims_from_file
@@ -1084,17 +1054,14 @@ contains
          integer :: status
          logical :: isPresent
 
-         call ESMF_ConfigFindLabel(config, label=prefix//label,isPresent=isPresent,rc=status)
-         _VERIFY(status)
+         call ESMF_ConfigFindLabel(config, label=prefix//label,isPresent=isPresent, _RC)
          if (.not. isPresent) then
             _RETURN(_SUCCESS)
          end if
 
          ! Must be 2 values: min and max
-         call ESMF_ConfigGetAttribute(config, range%min, rc=status)
-         _VERIFY(status)
-         call ESMF_ConfigGetAttribute(config, range%max, rc=status)
-         _VERIFY(status)
+         call ESMF_ConfigGetAttribute(config, range%min, _RC)
+         call ESMF_ConfigGetAttribute(config, range%max, _RC)
 
          _RETURN(_SUCCESS)
 
@@ -1134,12 +1101,11 @@ contains
       ! Check decomposition/bounds
       ! WY notes: should not have this assert
       !_ASSERT(allocated(this%ims) .eqv. allocated(this%jms), 'inconsistent options')
-      call verify(this%nx, this%im_world, this%ims, rc=status)
-      call verify(this%ny, this%jm_world, this%jms, rc=status)
+      call verify(this%nx, this%im_world, this%ims, _RC)
+      call verify(this%ny, this%jm_world, this%jms, _RC)
 
       ! Check regional vs global
       if (this%pole == 'XY') then ! regional
-         this%periodic = .false.
          _ASSERT(this%lat_range%min /= MAPL_UNDEFINED_REAL, 'uninitialized min for lat_range')
          _ASSERT(this%lat_range%max /= MAPL_UNDEFINED_REAL, 'uninitialized min for lat_range')
       else ! global
@@ -1157,11 +1123,9 @@ contains
          _ASSERT(this%lon_range%max == MAPL_UNDEFINED_REAL, 'inconsistent max for lon_range')
       end if
       if (.not.this%force_decomposition) then
-         verify_decomp = this%check_decomposition(rc=status)
-         _VERIFY(status)
+         verify_decomp = this%check_decomposition(_RC)
          if ( (.not.verify_decomp) ) then
-            call this%generate_newnxy(rc=status)
-            _VERIFY(status)
+            call this%generate_newnxy(_RC)
          end if
       end if
 
@@ -1313,21 +1277,15 @@ contains
       allocate(max_index(dim_count, tile_count))
       call ESMF_DistGridGet(dist_grid, maxindexPTile=max_index)
 
-      config = MAPL_ConfigCreate(rc=status)
-      _VERIFY(status)
-      call MAPL_ConfigSetAttribute(config, max_index(1,1), 'IM_WORLD:', rc=status)
-      _VERIFY(status)
-      call MAPL_ConfigSetAttribute(config, max_index(2,1), 'JM_WORLD:', rc=status)
-      _VERIFY(status)
-      call MAPL_ConfigSetAttribute(config, max_index(3,1), 'LM:', rc=status)
-      _VERIFY(status)
+      config = MAPL_ConfigCreate(_RC)
+      call MAPL_ConfigSetAttribute(config, max_index(1,1), 'IM_WORLD:', _RC)
+      call MAPL_ConfigSetAttribute(config, max_index(2,1), 'JM_WORLD:', _RC)
+      call MAPL_ConfigSetAttribute(config, max_index(3,1), 'LM:', _RC)
 
       lon => null()
       lat => null()
-      call ESMF_LocalArrayGet(lon_array, farrayPtr=lon, rc=status)
-      _VERIFY(status)
-      call ESMF_LocalArrayGet(lat_array, farrayPtr=lat, rc=status)
-      _VERIFY(status)
+      call ESMF_LocalArrayGet(lon_array, farrayPtr=lon, _RC)
+      call ESMF_LocalArrayGet(lat_array, farrayPtr=lat, _RC)
 
 
       if (abs(lat(1) + PI/2) < tiny) then
@@ -1368,10 +1326,8 @@ contains
       call MAPL_ConfigSetAttribute(config, pole, 'POLE:')
       call MAPL_ConfigSetAttribute(config, dateline, 'DATELINE:')
 
-      call ESMF_VMGetCurrent(vm, rc=status)
-      _VERIFY(status)
-      call ESMF_VMGet(vm, PETcount=nPet, rc=status)
-      _VERIFY(status)
+      call ESMF_VMGetCurrent(vm, _RC)
+      call ESMF_VMGet(vm, PETcount=nPet, _RC)
 
       nx_guess = nint(sqrt(real(nPet)))
       do nx = nx_guess,1,-1
@@ -1383,9 +1339,7 @@ contains
          end if
       enddo
 
-      call this%initialize(config, rc=status)
-      _VERIFY(status)
-
+      call this%initialize(config, _RC)
 
    end subroutine initialize_from_esmf_distGrid
 
@@ -1578,18 +1532,13 @@ contains
 
       if (this%is_halo_initialized) return
 
-      grid => this%get_grid(rc=status)
-      _VERIFY(status)
+      grid => this%get_grid(_RC)
 
-      call ESMF_GridGet(grid,   distGrid=dist_grid, dimCount=dim_count, rc=status)
-      _VERIFY(status)
-      call ESMF_DistGridGet(dist_grid, delayout=this%layout, rc=status)
-      _VERIFY(status)
-      call ESMF_DELayoutGet (this%layout, vm=vm, rc=status)
-      _VERIFY(status)
+      call ESMF_GridGet(grid,   distGrid=dist_grid, dimCount=dim_count, _RC)
+      call ESMF_DistGridGet(dist_grid, delayout=this%layout, _RC)
+      call ESMF_DELayoutGet (this%layout, vm=vm, _RC)
 
-      call ESMF_VMGet(vm, localPet=pet, petCount=ndes, rc=status)
-      _VERIFY(status)
+      call ESMF_VMGet(vm, localPet=pet, petCount=ndes, _RC)
 
       this%px = mod(pet, this%nx)
       this%py = pet / this%nx
@@ -1623,8 +1572,7 @@ contains
       _UNUSED_DUMMY(halo_width)
 
       if (.not. this%is_halo_initialized) then
-         call this%init_halo(rc=status)
-         _VERIFY(status)
+         call this%init_halo(_RC)
       end if
 
       last_lon = size(array,1)
@@ -1637,15 +1585,11 @@ contains
         pet_east  = get_pet(px+1, py, nx, ny)
         pet_west  = get_pet(px-1, py, nx, ny)
 
-        call fill_north(array, rc=status)
-        _VERIFY(status)
-        call fill_south(array, rc=status)
-        _VERIFY(status)
+        call fill_north(array, _RC)
+        call fill_south(array, _RC)
 
-        call fill_east(array, rc=status)
-        _VERIFY(status)
-        call fill_west(array, rc=status)
-        _VERIFY(status)
+        call fill_east(array, _RC)
+        call fill_west(array, _RC)
 
         pet_N_E   = get_pet(px+1, py+1, nx, ny)
         pet_N_W   = get_pet(px-1, py+1, nx, ny)
@@ -1656,15 +1600,13 @@ contains
         call MAPL_CommsSendRecv(this%layout,              &
               array(2,      2         ), 1,  pet_S_W,  &
               array(last_lon,last_lat ), 1,  pet_N_E,  &
-              rc=status)
-        _VERIFY(status)
+              _RC)
 
         !fill north west
         call MAPL_CommsSendRecv(this%layout,              &
               array(last_lon-1, 2), 1,  pet_S_E,  &
               array(1,   last_lat), 1,  pet_N_W,  &
-              rc=status)
-        _VERIFY(status)
+              _RC)
 
         ! north pol corner
         if(this%py== this%ny-1) then
@@ -1676,15 +1618,13 @@ contains
         call MAPL_CommsSendRecv(this%layout,              &
               array(2, last_lat-1), 1,  pet_N_W,  &
               array(last_lon,1),    1,  pet_S_E,  &
-              rc=status)
-        _VERIFY(status)
+              _RC)
 
         !fill south west
         call MAPL_CommsSendRecv(this%layout,              &
               array(last_lon-1,last_lat-1), 1,  pet_N_E,  &
               array(1,1                  ), 1,  pet_S_W,  &
-              rc=status)
-        _VERIFY(status)
+              _RC)
 
         ! south pole corner
         if(this%py==0) then
@@ -1721,8 +1661,7 @@ contains
          call MAPL_CommsSendRecv(this%layout,        &
               array(:,2        ),  len,  pet_south,  &
               array(:,last+1   ),  len,  pet_north,  &
-              rc=status)
-         _VERIFY(status)
+              _RC)
          if(this%py==this%ny-1) then
             array(:,last+1   ) = array(:,last )
          end if
@@ -1746,8 +1685,7 @@ contains
          call MAPL_CommsSendRecv(this%layout,     &
               array(:,last     ),  len,  pet_north,  &
               array(:,1        ),  len,  pet_south,  &
-              rc=status)
-         _VERIFY(status)
+              _RC)
 
          if(this%py==0) then
             array(:,1   ) = array(:,2 )
@@ -1772,8 +1710,7 @@ contains
          call MAPL_CommsSendRecv(this%layout,      &
               array(2     , : ),  len,  pet_west,  &
               array(last+1, : ),  len,  pet_east,  &
-              rc=status)
-         _VERIFY(status)
+              _RC)
 
          _RETURN(_SUCCESS)
 
@@ -1794,8 +1731,7 @@ contains
          call MAPL_CommsSendRecv(this%layout,   &
               array(last  , : ),  len,  pet_east,  &
               array(1     , : ),  len,  pet_west,  &
-              rc=status)
-         _VERIFY(status)
+              _RC)
 
          _RETURN(_SUCCESS)
 
@@ -1849,9 +1785,16 @@ contains
       class (LatLonGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
+      integer :: i
       _UNUSED_DUMMY(this)
 
       vars = 'lon,lat'
+      if (allocated(this%lon_bounds_name)) then
+         vars = vars // ',' // this%lon_bounds_name
+      end if
+      if (allocated(this%lat_bounds_name)) then
+         vars = vars // ',' // this%lat_bounds_name
+      end if
 
    end function get_file_format_vars
 
@@ -1875,8 +1818,7 @@ contains
       integer :: status
       integer :: global_dim(3), i1,j1,in,jn
 
-      call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
-      _VERIFY(status)
+      call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,_RC)
       call MAPL_GridGetInterior(grid,i1,in,j1,jn)
       allocate(local_start,source=[i1,j1])
       allocate(global_start,source=[1,1])
@@ -1928,5 +1870,85 @@ contains
       _UNUSED_DUMMY(metaData)
    end function generate_file_reference3D
 
+   function coordinate_has_bounds(metadata, coord_name, rc) result(has_bounds)
+      logical :: has_bounds
+      type(FileMetadata), intent(in) :: metadata
+      character(len=*), intent(in) :: coord_name
+      integer, optional, intent(out) :: rc
+      
+      type(Variable), pointer :: var
+      integer :: status
+
+      var => metadata%get_variable(coord_name, _RC)
+      has_bounds = var%is_attribute_present("bounds")
+
+      _RETURN(_SUCCESS)
+   end function
+
+   function get_coordinate_bounds_name(metadata, coord_name, rc) result(coord_bounds_name)
+      character(len=:), allocatable :: coord_bounds_name
+      type(FileMetadata), intent(in) :: metadata
+      character(len=*), intent(in) :: coord_name
+      integer, optional, intent(out) :: rc
+      
+      type(Variable), pointer :: var
+      type(Attribute), pointer :: attr
+      integer :: status
+      class(*), pointer :: attr_val
+
+      var => metadata%get_variable(coord_name, _RC)
+      attr => var%get_attribute("bounds", _RC)
+      attr_val => attr%get_value()
+      select type(attr_val)
+      type is(character(*))
+         coord_bounds_name = attr_val
+      class default
+         _FAIL('coordinate bounds must be a string')
+      end select
+      _RETURN(_SUCCESS)
+   end function
+
+   function get_coordinate_bounds(metadata, coord_name, rc) result(coord_bounds)
+      real(kind=REAL64), allocatable :: coord_bounds(:)
+      type(FileMetadata), intent(in) :: metadata
+      character(len=*), intent(in) :: coord_name
+      integer, optional, intent(out) :: rc
+      
+      type(Variable), pointer :: var
+      type(Attribute), pointer :: attr
+      integer :: status, im, i
+      class(*), pointer :: attr_val
+      character(len=:), allocatable :: bnds_name, source_file
+      real(kind=REAL64), allocatable :: file_bounds(:,:)
+      type(NetCDF4_FileFormatter) :: file_formatter
+      
+
+      var => metadata%get_variable(coord_name, _RC)
+      attr => var%get_attribute("bounds", _RC)
+      attr_val => attr%get_value()
+      select type(attr_val)
+      type is(character(*))
+         bnds_name = attr_val
+      class default
+         _FAIL('coordinate bounds must be a string')
+      end select
+      im = metadata%get_dimension(coord_name, _RC)
+      allocate(coord_bounds(im+1), _STAT)
+      allocate(file_bounds(2,im), _STAT)
+      source_file = metadata%get_source_file() 
+
+      call file_formatter%open(source_file, PFIO_READ, _RC)
+      call file_formatter%get_var(bnds_name, file_bounds, _RC)
+      call file_formatter%close(_RC)
+      do i=1,im-1
+         _ASSERT(file_bounds(2,i)==file_bounds(1,i+1), "Bounds are not contiguous in file")
+      enddo
+      do i=1,im
+         coord_bounds(i) = file_bounds(1,i)
+         coord_bounds(i+1) = file_bounds(2,i)
+      enddo
+
+      _RETURN(_SUCCESS)
+   end function
 
 end module MAPL_LatLonGridFactoryMod

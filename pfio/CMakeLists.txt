@@ -1,12 +1,12 @@
 esma_set_this (OVERRIDE MAPL.pfio)
 
-if(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
-  if(CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 20)
-    if(CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER 17)
-      add_definitions(-D__ifort_18)
-    endif()
-  endif()
-endif()
+# This is a workaround for a current ifx bug
+# Technically, this bug is only due to a bug between
+# ifx, OpenMP, and ArrayReference.F90, but in CMake land, it
+# is hard to remove OpenMP flags for a *single* file.
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "IntelLLVM")
+  set_source_files_properties(ArrayReference.F90 PROPERTIES COMPILE_DEFINITIONS ODD_IFX_BUG)
+endif ()
 
 set (srcs
   # pFIO Files

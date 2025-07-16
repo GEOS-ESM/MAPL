@@ -20,6 +20,7 @@ module MAPL_ExtDataOldTypesCreator
    use MAPL_ExtDataClimFileHandler
    use MAPL_ExtDataTimeSample
    use MAPL_ExtDataTimeSampleMap
+   use MAPL_StateUtils
    implicit none
 
    public :: ExtDataOldTypesCreator
@@ -164,6 +165,7 @@ module MAPL_ExtDataOldTypesCreator
       end if
 
       primary_item%fail_on_missing_file = rule%fail_on_missing_file
+      primary_item%enable_vertical_regrid= rule%enable_vertical_regrid
 
       _RETURN(_SUCCESS)
 
@@ -200,7 +202,7 @@ module MAPL_ExtDataOldTypesCreator
       if (index(derived_item%expression,"mask") /= 0 ) then
          derived_item%masking=.true.
          allocate(derived_item%mask_definition)
-         derived_item%mask_definition = ExtDataMask(derived_item%expression,_RC)
+         derived_item%mask_definition = StateMask(derived_item%expression,_RC)
       end if
 
       _RETURN(_SUCCESS)
