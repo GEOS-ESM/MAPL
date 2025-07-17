@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix some incorrect links in the documentation
+- Corrected bug in HorizontalFluxRegridder.  Fluxes need to be multiplied by edge length for correct treatment.
 
 ### Added
 

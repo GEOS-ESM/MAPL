@@ -171,7 +171,7 @@ contains
 
     ! call pinflag getter
     pinflag = MAPL_PinFlagGet()
-    
+
     if (any(pinflag == [ESMF_PIN_DE_TO_SSI,ESMF_PIN_DE_TO_SSI_CONTIG])) then
        _ASSERT(ssiSharedMemoryEnabled, 'SSI shared memory is NOT supported')
     end if
@@ -807,7 +807,7 @@ contains
 
     type (ESMF_VM) :: vm
     integer :: pet_count
-
+    integer :: bias
     character(len=*), parameter :: Iam= __FILE__ // '::MAPL_MakeDecomposition()'
     integer :: status
 
@@ -815,11 +815,18 @@ contains
 
     call ESMF_VMGetCurrent(vm, _RC)
     call ESMF_VMGet(vm, petCount=pet_count, _RC)
-    if (present(reduceFactor)) pet_count=pet_count/reduceFactor
+    if (present(reduceFactor)) then
+       pet_count=pet_count/reduceFactor
+       ! Assume CS
+       bias = 1
+    else
+       ! Assume Lat-Lon
+       bias = 2
+    end if
 
     ! count down from sqrt(n)
     ! Note: inal iteration (nx=1) is guaranteed to succeed.
-    do nx = floor(sqrt(real(2*pet_count))), 1, -1
+    do nx = nint(sqrt(real(bias*pet_count))), 1, -1
        if (mod(pet_count, nx) == 0) then ! found a decomposition
           ny = pet_count / nx
           exit
@@ -1362,7 +1369,7 @@ contains
     call ESMF_AttributeSet(F, NAME='DIMS', VALUE=DIMS, _RC)
 
     call assign_fptr(f, ptr1d, _RC)
-    ptr1d = 0.0    
+    ptr1d = 0.0
 
     _RETURN(ESMF_SUCCESS)
   end function MAPL_FieldCreateNewgrid
