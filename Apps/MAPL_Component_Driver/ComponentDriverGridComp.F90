@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 
-module mapl3g_RootgGridComp
+module mapl3g_ComponentDriverGridComp
 
    use mapl_ErrorHandling
    use mapl3
@@ -107,32 +107,6 @@ contains
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, Comp_Driver_Support, PRIVATE_STATE, support)
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
-      ! ASSUME: mapl and states sections always exist
-      mapl_cfg = ESMF_HConfigCreateAt(hconfig, keyString=MAPL_SECTION, _RC)
-      states_cfg = ESMF_HConfigCreateAt(mapl_cfg, keyString=COMPONENT_STATES_SECTION, _RC)
-      has_export_section = ESMF_HConfigIsDefined(states_cfg, keyString=COMPONENT_EXPORT_STATE_SECTION, _RC)
-      _RETURN_UNLESS(has_export_section)
-
-      ! For each field getting 'export'ed, check hconfig and use default_vert_profile if specified
-      export_cfg = ESMF_HConfigCreateAt(states_cfg, keyString=COMPONENT_EXPORT_STATE_SECTION, _RC)
-      b = ESMF_HConfigIterBegin(export_cfg, _RC)
-      e = ESMF_HConfigIterEnd(export_cfg, _RC)
-      iter = b
-      do while (ESMF_HConfigIterLoop(iter, b, e))
-         field_name = ESMF_HConfigAsStringMapKey(iter, _RC)
-         ! print *, "FIELD: ", field_name
-         field_cfg = ESMF_HConfigCreateAtMapVal(iter, _RC)
-         has_default_vert_profile = ESMF_HConfigIsDefined(field_cfg, keyString=KEY_DEFAULT_VERT_PROFILE, _RC)
-         if (has_default_vert_profile) then
-            default_vert_profile = ESMF_HConfigAsR4Seq(field_cfg, keyString=KEY_DEFAULT_VERT_PROFILE, _RC)
-            call MAPL_GetPointer(exportState, ptr3d, trim(field_name), _RC)
-            shape_ = shape(ptr3d)
-            _ASSERT(shape_(3) == size(default_vert_profile), "incorrect size of vertical profile")
-            do concurrent(ii = 1:shape_(1), jj=1:shape_(2))
-               ptr3d(ii, jj, :) = default_vert_profile
-            end do
-         end if
-      end do
 
       support%runMode = ESMF_HConfigAsString(hconfig, keyString='RUN_MODE', _RC)
       support%delay = -1.0
@@ -269,12 +243,12 @@ contains
 
    end subroutine fill_state_from_internal 
 
-end module Mapl3g_RootgGridComp
+end module mapl3g_ComponentDriverGridComp
 
 subroutine setServices(gridcomp, rc)
    use ESMF
    use MAPL_ErrorHandlingMod
-   use mapl3g_RootgGridComp, only: Root_setServices => SetServices
+   use mapl3g_ComponentDriverGridComp, only: Root_setServices => SetServices
    type(ESMF_GridComp)  :: gridcomp
    integer, intent(out) :: rc
 
