@@ -17,6 +17,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.58.0] - 2025-07-17
+
+### Fixed
+
+- Fix some incorrect links in the documentation
+
+### Added
+
+- Add new markup link checker based on [mlc](https://github.com/becheran/mlc)
+
+### Changed
+
+- Added RC for Timer call in `MAPL_Generic.F90`
+- Adds the wall clock date and time to the GCM stdout log so we can more readily diagnose slow periods of performance during the run
+
 ## [2.57.0] - 2025-06-18
 
 ### Fixed
