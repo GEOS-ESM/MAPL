@@ -1206,6 +1206,11 @@ contains
         integer                 :: AGCM_YY, AGCM_MM, AGCM_DD, AGCM_H, AGCM_M, AGCM_S
         integer                 :: HRS_R, MIN_R, SEC_R
 
+        character(len=8)  :: wallclock_date
+        character(len=10) :: wallclock_time
+        character(len=5)  :: wallclock_zone
+        integer           :: wallclock_values(8)
+
 
         call ESMF_ClockGet(this%clock, CurrTime = currTime, _RC)
         call ESMF_TimeGet(CurrTime, YY = AGCM_YY, &
@@ -1237,12 +1242,18 @@ contains
         ! Get percent of committed memory
         call MAPL_MemCommited ( mem_total, mem_commit, mem_committed_percent, _RC )
 
-        if( mapl_am_I_Root(this%vm) ) write(6,1000) this%root_name, AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S,&
-                                      LOOP_THROUGHPUT,INST_THROUGHPUT,RUN_THROUGHPUT,HRS_R,MIN_R,SEC_R,&
-                                      mem_committed_percent,mem_used_percent
+        if( mapl_am_I_Root(this%vm) ) then
+            call DATE_AND_TIME(wallclock_date, &
+                               wallclock_time, &
+                               wallclock_zone, &
+                               wallclock_values)
+             write(6,1000) this%root_name, AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S,&
+                           LOOP_THROUGHPUT,INST_THROUGHPUT,RUN_THROUGHPUT,HRS_R,MIN_R,SEC_R,&
+                           mem_committed_percent,mem_used_percent,wallclock_date,wallclock_values(5),wallclock_values(6)
+        endif
     1000 format(1x,a,1x,'Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2, &
                 2x,'Throughput(days/day)[Avg Tot Run]: ',f12.1,1x,f12.1,1x,f12.1,2x,'TimeRemaining(Est) ',i3.3,':',i2.2,':',i2.2,2x, &
-                f5.1,'% : ',f5.1,'% Mem Comm:Used')
+                f5.1,'% : ',f5.1,'% Mem Comm:Used ; ',A8,' ',i2.2,':'i2.2)
 
         _RETURN(_SUCCESS)
 

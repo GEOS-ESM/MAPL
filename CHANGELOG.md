@@ -107,6 +107,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Added RC for Timer call in `MAPL_Generic.F90`
+- Adds the wall clock date and time to the GCM stdout log so we can more readily diagnose slow periods of performance during the run
 
 ### Removed
 
