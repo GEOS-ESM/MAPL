@@ -118,8 +118,9 @@ module MAPL_HistoryCollectionMod
      type(HistoryTrajectory)            :: trajectory
      type(MaskSampler)                  :: mask_sampler
      type(StationSampler)               :: station_sampler
-     character(len=ESMF_MAXSTR)         :: sampler_spec = ""
+     character(len=ESMF_MAXSTR)         :: sampler_type = ""
      character(len=ESMF_MAXSTR)         :: positive
+     logical                            :: extrap_below_surf = .false.
      type(HistoryCollectionGlobalAttributes) :: global_atts
      contains
         procedure :: AddGrid

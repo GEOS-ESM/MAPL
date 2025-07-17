@@ -36,7 +36,6 @@
    use MAPL_GenericMod
    use MAPL_VarSpecMod
    use MAPL_CFIOMod
-   use MAPL_NewArthParserMod
    use MAPL_ConstantsMod, only: MAPL_RADIANS_TO_DEGREES, MAPL_GRAV
    use, intrinsic :: iso_fortran_env, only: REAL32
    use linearVerticalInterpolation_mod
@@ -67,6 +66,7 @@
    use MAPL_ExtDataDerivedExportVectorMod
    use VerticalCoordinateMod
    use VerticalRegridConserveInterfaceMod
+   use MAPL_StateUtils
 
    IMPLICIT NONE
    PRIVATE
@@ -880,7 +880,12 @@ CONTAINS
         if (trim(item%file_template) == "/dev/null") then
            _RETURN(_SUCCESS)
         end if
-        filename = item%filestream%find_any_file(current_time, _RC)
+        filename = item%filestream%find_any_file(current_time, item%fail_on_missing_file, _RC)
+        if (.not.(item%fail_on_missing_file) .and. filename == 'NONE') then
+           item%file_template = "/dev/null"
+           item%isConst = .true.
+           _RETURN(_SUCCESS)
+        end if
         collection => DataCollections%at(item%pfioCollection_id)
         metadata => collection%find(filename,_RC)
         item%file_metadata = metadata
@@ -1446,12 +1451,24 @@ CONTAINS
 
      if (item%vartype == MAPL_FieldItem) then
         call ESMF_StateGet(ExtDataState,trim(item%name),field,_RC)
-        call FieldSet(field, item%const, _RC)
+        if (item%modelGridFields%comp1%exact) then
+           call FieldSet(field, MAPL_UNDEF, _RC)
+        else
+           call FieldSet(field, item%const, _RC)
+        end if
      else if (item%vartype == MAPL_VectorField) then
         call ESMF_StateGet(ExtDataState,trim(item%vcomp1),field,_RC)
-        call FieldSet(field, item%const, _RC)
+        if (item%modelGridFields%comp1%exact) then
+           call FieldSet(field, MAPL_UNDEF, _RC)
+        else
+           call FieldSet(field, item%const, _RC)
+        end if
         call ESMF_StateGet(ExtDataState,trim(item%vcomp2),field,_RC)
-        call FieldSet(field, item%const, _RC)
+        if (item%modelGridFields%comp2%exact) then
+           call FieldSet(field, MAPL_UNDEF, _RC)
+        else
+           call FieldSet(field, item%const, _RC)
+        end if
       end if
 
      _RETURN(_SUCCESS)
@@ -1553,17 +1570,14 @@ CONTAINS
            bracket_grid = MAPL_ExtDataGridChangeLev(grid,item%vcoord%num_levels,_RC)
            left_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
            call set_field_units(left_field, item%units, _RC)
-           _HERE
            call set_mw(left_field, item, _RC)
            right_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
            call set_field_units(right_field, item%units, _RC)
-           _HERE
            call set_mw(right_field, item, _RC)
            call item%modelGridFields%comp1%set_parameters(left_field=left_field,right_field=right_field, _RC)
            if (item%vcoord%num_levels /= lm) then
               temp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp1),_RC)
               call set_field_units(temp_field, item%units, _RC)
-           _HERE
               call set_mw(temp_field, item, _RC)
               call MAPL_FieldBundleAdd(item%t_interp_bundle, temp_field, _RC)
            else

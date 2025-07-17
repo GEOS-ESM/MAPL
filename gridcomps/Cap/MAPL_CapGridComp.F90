@@ -57,6 +57,7 @@ module MAPL_CapGridCompMod
      procedure(), pointer, nopass  :: root_set_services => null()
      character(len=:), allocatable :: root_dso
      character(len=:), allocatable :: final_file, name, cap_rc_file
+     character(len=:), allocatable :: root_name
      integer :: nsteps, heartbeat_dt, perpetual_year, perpetual_month, perpetual_day
      logical :: amiroot, started_loop_timer
      logical :: lperp = .false.
@@ -369,6 +370,7 @@ contains
 
     ! !RESOURCE_ITEM: string :: Name to assign to the ROOT component
     call MAPL_GetResource(MAPLOBJ, ROOT_NAME, "ROOT_NAME:", default = "ROOT", _RC)
+    cap%root_name = trim(ROOT_NAME)
 
     ! !RESOURCE_ITEM: string :: Name of HISTORY's config file
     call MAPL_GetResource(MAPLOBJ, HIST_CF, "HIST_CF:", default = "HIST.rc", _RC)
@@ -1245,7 +1247,7 @@ contains
                                wallclock_time, &
                                wallclock_zone, &
                                wallclock_values)
-             write(6,1000) AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S,&
+             write(6,1000) this%root_name, AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S,&
                            LOOP_THROUGHPUT,INST_THROUGHPUT,RUN_THROUGHPUT,HRS_R,MIN_R,SEC_R,&
                            mem_committed_percent,mem_used_percent,wallclock_date,wallclock_values(5),wallclock_values(6)
         endif

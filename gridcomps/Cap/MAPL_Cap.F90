@@ -15,6 +15,7 @@ module MAPL_CapMod
    use MAPL_CapOptionsMod
    use MAPL_ServerManager
    use MAPL_ApplicationSupport
+   use ieee_arithmetic
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64, OUTPUT_UNIT
    implicit none
    private
@@ -400,8 +401,12 @@ contains
      integer, optional, intent(out) :: rc
 
      integer :: status
+     type(ESMF_PIN_Flag) :: pinflag
 
      _UNUSED_DUMMY(unusable)
+
+     pinflag = GetPinFlagFromConfig(this%cap_options%cap_rc_file, _RC)
+     call MAPL_PinFlagSet(pinflag)
 
      if (this%non_dso) then
         call MAPL_CapGridCompCreate(this%cap_gc, this%get_cap_rc_file(), &
@@ -471,6 +476,7 @@ contains
       integer :: ierror, status
       integer :: provided
       integer :: npes_world
+      logical :: halting_mode(5)
 
       _UNUSED_DUMMY(unusable)
 
@@ -478,10 +484,17 @@ contains
       _VERIFY(ierror)
 
       if (.not. this%mpi_already_initialized) then
-
          call ESMF_InitializePreMPI(_RC)
+
+         ! Testing with GCC 14 + MVAPICH 4 found that it was failing with
+         ! a SIGFPE in MPI_Init_thread(). Turning off ieee halting
+         ! around the call seems to "fix" it
+         call ieee_get_halting_mode(ieee_all, halting_mode)
+         call ieee_set_halting_mode(ieee_all, .false.)
          call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierror)
          _VERIFY(ierror)
+         call ieee_set_halting_mode(ieee_all, halting_mode)
+
       else
          ! If we are here, then MPI has already been initialized by the user
          ! and we are just using it. But we need to make sure that the user
@@ -575,6 +588,37 @@ contains
      character(len=:), allocatable :: egress_file
      allocate(egress_file, source=this%cap_options%egress_file)
    end function get_egress_file
+
+   function GetPinFlagFromConfig(rcfile, rc) result(pinflag)
+     character(len=*), intent(in) :: rcfile
+     integer, optional, intent(out) :: rc
+     type(ESMF_PIN_Flag) :: pinflag
+
+     character(len=ESMF_MAXSTR) :: pinflag_str
+     integer :: status
+     type(ESMF_Config) :: config
+
+     config = ESMF_ConfigCreate(_RC)
+     call ESMF_ConfigLoadFile(config,rcfile, _RC)
+     call ESMF_ConfigGetAttribute(config, value=pinflag_str, &
+          label='ESMF_PINFLAG:', default='SSI_CONTIG', _RC)
+
+     select case (pinflag_str)
+     case ('PET')
+        pinflag = ESMF_PIN_DE_TO_PET
+     case ('VAS')
+        pinflag = ESMF_PIN_DE_TO_VAS
+     case ('SSI')
+        pinflag = ESMF_PIN_DE_TO_SSI
+     case ('SSI_CONTIG')
+        pinflag = ESMF_PIN_DE_TO_SSI_CONTIG
+     case default
+        _ASSERT(.false.,'Unsupported PIN flag')
+     end select
+
+     call ESMF_ConfigDestroy(config, _RC)
+     _RETURN(_SUCCESS)
+   end function GetPinFlagFromConfig
 
 end module MAPL_CapMod
 

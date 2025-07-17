@@ -9,29 +9,107 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed bug in profiler demo
+- Fix some incorrect links in the documentation
 
 ### Added
 
+- Add new markup link checker based on [mlc](https://github.com/becheran/mlc)
+
 ### Changed
 
-- Update `components.yaml`
-  - `ESMA_cmake` v3.58.2
-    - Fix for XCode 16.3
+- Added RC for Timer call in `MAPL_Generic.F90`
 
 ### Removed
 
 ### Deprecated
 
+## [2.57.0] - 2025-06-18
+
+### Fixed
+
+- `StateFilterItem` => `MAPL_StateFilterItem` in **ACG**
+- Fix binary writes and reads in benchmark simulators
+- Removed `_HERE` macros left in ExtDataGridCompNG.F90 from debugging
+
+### Added
+
+- Added functions to read and write 0d string to nc4 file.
+- Added EASE grid Factory so the regridder can use it easily
+  - NOTE: The public EASE routines moved to MAPL have been prefixed with `MAPL_`. This allows older versions of `GEOSgcm_GridComp` to use MAPL 2.57+ but have the old routines
+- Added new option to History, if you specify xlevels instead of levels, it will perform extrapolation below the surface, using ECMWF formulas for height and temperature, otherwise use lowest model level
+- Added `_USERRC` macro for use with ESMF commands that return both `rc` and `userrc`
+- Added new option for `raw_bw.x` to use netcdf rather than binary
+- Swapped order of output dimensions for trajectory and mask samplers.   Now the leading dimension (Fortran convention) is level.
+
+### Changed
+
+- Changed per-step diagnostic print from being hardcoded as `AGCM Date` to now trigger off of the `ROOT_NAME` in `CAP.rc`. So, if `ROOT_NAME` is `GEOSldas`, the print will be `GEOSldas Date` instead of `AGCM Date`.
+- Update the `MAPL_EQsat` code to the ramping version from CVS
+- Add `schema.version: 1` to enable trajectory sampler using a single GRID_LABEL item
+- `index_var_names` keyword is introduced to simpify the specifications for IODA files
+- delete `obsfile_end_time` in trajectory sampler
+- change `geoval_fields` to `fields` in obs_platform
+- change `sampler_spec` to `sampler_type`
+
+## [2.56.1] - 2025-05-30
+
+### Fixed
+
+- Fixed issue so that if ExtData cannot find a file and fail on missing is false, just set collection to /dev/null
+
+## [2.56.0] - 2025-05-23
+
+### Fixed
+
+- Fixed sampler history output
+- Fixed bug with dervied exports in ExtData in filter function
+- define `comp_name` in `MAPL_GridCreate` when GC is not present
+- Fixed bug in profiler demo
+- Fixed uninitialized `num_levels` bug causing gcc14 to crash a node due to allocating enormous amount of memory
+- Fix for GNU + MVAPICH 4 disabling ieee halting around `MPI_Init_thread()`
+- Test if `GridCornerLons:` and `GridCornerLats:` attributes are present before removing
+- Fixed ExtData bug causing time interpolation to be skipped if no current reads
+
+### Added
+
+- Added logging prints for `MAPL_read_bundle`
+- Added a new `StateFilterItem` funtion to apply a mask or extra using a combination of variables from a state and return an array with the result, can specify default
+- Implemented a new feature in to allow users to select the appropriate [`ESMF_PIN`](https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node6.html#const:pin_flag) values. Users control this via `CAP.rc` and the choices are:
+  - `ESMF_PINFLAG: PET` --> `ESMF_PIN_DE_TO_PET`
+  - `ESMF_PINFLAG: VAS` --> `ESMF_PIN_DE_TO_VAS`
+  - `ESMF_PINFLAG: SSI` --> `ESMF_PIN_DE_TO_SSI`
+  - `ESMF_PINFLAG: SSI_CONTIG` --> `ESMF_PIN_DE_TO_SSI_CONTIG` (default with no setting)
+- Added a new column to the ACG (MAPL2), FILTER, which generates declarations and allocations of arrays (StateFilterItem)
+- Add `BUILD_INFO.rc` file that contains build info filled in by CMake
+
+### Changed
+
+- Update `components.yaml`
+  - `ESMA_env` v4.38.0
+    - Update to Baselibs 7.33.0
+      - ESMF 8.8.1 (needed for MAPL3)
+      - Fixes for CMake 4
+    - Cache `ENVIRONMENT_MODULES`
+  - `ESMA_cmake` v3.62.1
+    - Fix for XCode 16.3
+    - Fixes for f2py with MPT
+    - Fixes for f2py on various machines
+    - Cache `proc_description`
+    - Support for ecbuild updates
+    - Enforce our allowed `CMAKE_BUILD_TYPE`
+- Update documentation on ACG in repo
+- Update CI to use ifx 2025.1
+- Update Tests to ExtData1G tests are ESSENTIAL and run by default again
+
 ## [2.55.1] - 2025-04-23
 
 ### Fixed
 
-- Renamed module for convervative vertical regridding code so as to not conflict so an external module
+- Renamed module for conservative vertical regridding code so as to not conflict so an external module
 
 ### Added
 
-- Added a few error traps in ExtData when processing veritcal coordinate for use in regridding
+- Added a few error traps in ExtData when processing vertical coordinate for use in regridding
 
 ## [2.55.0] - 2025-04-15
 
