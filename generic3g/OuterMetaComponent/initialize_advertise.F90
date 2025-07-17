@@ -12,6 +12,7 @@ submodule (mapl3g_OuterMetaComponent) initialize_advertise_smod
    use mapl3g_ConnectionVector, only: operator(/=)
    use mapl3g_VariableSpecVector, only: operator(/=)
    use mapl3g_StateItemSpec
+   use mapl3g_Multistate
    use mapl_ErrorHandling
    implicit none (type, external)
 
@@ -24,6 +25,7 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
+      type(MultiState) :: user_states, tmp_states
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
 
@@ -35,6 +37,12 @@ contains
       call process_connections(this, _RC)
       call this%registry%propagate_unsatisfied_imports(_RC)
       call this%registry%propagate_exports(_RC)
+
+      user_states = this%user_gc_driver%get_states()
+      tmp_states = MultiState(exportState=user_states%exportState, internalState=user_states%internalState)
+      call this%registry%add_to_states(tmp_states, mode='user', _RC)
+      ! Destroy the temporary states
+      call ESMF_StateDestroy(tmp_states%importState, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
