@@ -3,10 +3,16 @@ module mapl3g_ExtDataGridComp_private
    use mapl_ErrorHandlingMod
    use mapl_keywordenforcermod
    use esmf
+   use mapl3
+   use mapl3g_stateitem
+   use mapl3g_esmf_info_keys
    implicit none
    private
 
    public :: merge_config
+   public :: add_var_specs
+   public :: set_weights
+
    character(len=*), parameter :: SUBCONFIG_KEY = 'subconfigs'
    character(len=*), parameter :: COLLECTIONS_KEY = 'Collections'
    character(len=*), parameter :: SAMPLINGS_KEY = 'Samplings'
@@ -94,6 +100,77 @@ contains
          _RETURN(_SUCCESS)
 
       end subroutine
-   end subroutine merge_config 
+   end subroutine merge_config
+
+   ! once we pass in the merged hconfig after bug is fixed
+   ! in ESMF this will no longer need to be recursive
+   recursive subroutine add_var_specs(gridcomp, hconfig, fake_geom, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(ESMF_HConfig), intent(in) :: hconfig
+      type(ESMF_Geom), intent(in) :: fake_geom
+      integer, optional, intent(out) :: rc
+
+      logical :: is_seq, file_found
+      integer :: status, i
+      character(len=:), allocatable :: sub_configs(:)
+      type(ESMF_HConfig) :: sub_config, export_config
+      type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
+      character(len=:), allocatable :: short_name
+      type(VariableSpec) :: varspec
+
+      if (ESMF_HConfigIsDefined(hconfig, keyString='subconfigs')) then
+         is_seq = ESMF_HConfigIsSequence(hconfig, keyString='subconfigs') 
+         sub_configs = ESMF_HConfigAsStringSeq(hconfig, ESMF_MAXPATHLEN, keystring='subconfigs', _RC)
+         do i=1,size(sub_configs)
+            _ASSERT(file_found,"could not find: "//trim(sub_configs(i)))
+            sub_config = ESMF_HConfigCreate(filename=sub_configs(i), _RC)
+            call add_var_specs(gridcomp, sub_config, fake_geom, _RC)
+         enddo
+      end if
+
+      if (ESMF_HConfigIsDefined(hconfig, keyString='Exports')) then
+         export_config = ESMF_HConfigCreateAt(hconfig, keyString='Exports', _RC)
+         hconfigIterBegin = ESMF_HConfigIterBegin(export_config)
+         hconfigIter = hconfigIterBegin
+         hconfigIterEnd = ESMF_HConfigIterEnd(export_config)
+         do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
+            short_name = ESMF_HConfigAsStringMapKey(hconfigIter, _RC)
+            varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name, &
+            units="NA", geom=fake_geom, standard_name=short_name, &
+            itemType=MAPL_STATEITEM_BRACKET, bracket_size = 2, &
+            _RC)
+            call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+         enddo
+      end if
+      _RETURN(_SUCCESS)
+   end subroutine
+
+   subroutine set_weights(state, rc)
+      type(ESMF_State), intent(inout) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(len=ESMF_MAXSTR), allocatable :: itemNameList(:)
+      type(ESMF_StateItem_Flag), allocatable :: itemTypeList(:)
+      integer itemCount,i
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Info) :: infoh
+      real :: weights(3)
+      weights = [0.0,1.0,0.0]
+
+      call ESMF_StateGet(state, itemCount=itemCount, _RC)
+      allocate(itemNameList(itemCount), _STAT)
+      allocate(itemTypeList(itemCount), _STAT)
+      call ESMF_StateGet(state, itemTypeList=itemTypeList, itemNameList=itemNameList, _RC)
+      do i=1,itemCount
+         _ASSERT(itemTypeList(i) == ESMF_STATEITEM_FIELDBUNDLE, 'all items in extdata exprot should be fieldbundles')
+         call ESMF_StateGet(state, itemNameList(i), bundle, _RC)
+         call ESMF_InfoGetFromHost(bundle, infoh, _RC)
+         call ESMF_InfoSet(infoh, key=INFO_INTERNAL_NAMESPACE//KEY_INTERPOLATION_WEIGHTS, values=weights, _RC)
+      enddo 
+
+      _RETURN(_SUCCESS)
+
+   end subroutine set_weights
 
 end module mapl3g_ExtDataGridComp_private
