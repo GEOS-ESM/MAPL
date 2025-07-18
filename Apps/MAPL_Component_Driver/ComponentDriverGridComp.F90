@@ -271,7 +271,6 @@ contains
          call ESMF_StateGet(source_state, trim(itemNameList(i)), source_field, _RC)
          call assign_fptr(source_field, source_ptr, _RC) 
          call assign_fptr(dest_field, dest_ptr, _RC)
-         write(*,*)'bmaa ',size(source_ptr), size(dest_ptr)
          _ASSERT(size(source_ptr) == size(dest_ptr), 'fields are not on same grid')
          dest_ptr = source_ptr
       enddo
