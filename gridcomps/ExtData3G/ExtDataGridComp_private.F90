@@ -137,6 +137,7 @@ contains
             short_name = ESMF_HConfigAsStringMapKey(hconfigIter, _RC)
             varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name, &
             units="NA", geom=fake_geom, standard_name=short_name, &
+            vertical_stagger=VERTICAL_STAGGER_NONE, &
             itemType=MAPL_STATEITEM_BRACKET, bracket_size = 2, &
             _RC)
             call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
@@ -145,6 +146,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine
 
+   ! for now we hardcode some weights until we flesh this out 
    subroutine set_weights(state, rc)
       type(ESMF_State), intent(inout) :: state
       integer, optional, intent(out) :: rc
@@ -156,7 +158,7 @@ contains
       type(ESMF_FieldBundle) :: bundle
       type(ESMF_Info) :: infoh
       real :: weights(3)
-      weights = [0.0,1.0,0.0]
+      weights = [0.0,0.5,0.5]
 
       call ESMF_StateGet(state, itemCount=itemCount, _RC)
       allocate(itemNameList(itemCount), _STAT)

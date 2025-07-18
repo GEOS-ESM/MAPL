@@ -8,6 +8,8 @@ module mapl3g_ExtDataGridComp
    use pfio
    use mapl3g_ExtDataGridComp_private
    use mapl3g_Geom_API
+   use MAPL_FieldUtils
+   use mapl3g_FieldBundle_API
    
    implicit none(type,external)
    private
@@ -64,7 +66,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine init
 
-
+   ! this is just to do something now. Obviously this is not how it will look...
    subroutine run(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp)   :: gridcomp
       type(ESMF_State)      :: importState
@@ -74,9 +76,27 @@ contains
 
       integer :: status
 
+      integer :: itemCount, i
+      character(len=ESMF_MAXSTR), allocatable :: itemNameList(:)
+      type(ESMF_FieldBundle) :: fieldBundle
+      type(ESMF_Field), allocatable :: fieldList(:)
+      real(ESMF_KIND_R4), pointer :: ptr(:)
+
       call MAPL_GridcompRunChildren(gridcomp, phase_name='run', _RC)
       ! for now I will hard code weights...
-      call set_weights(exportState, _RC) 
+      call set_weights(exportState, _RC)
+      ! and lets just give the brackets some value for now...
+      call ESMF_StateGet(exportState, itemCount=itemCount, _RC)
+      allocate(itemNameList(itemCount), _STAT)
+      call ESMF_StateGet(exportState, itemNameList=itemNameList, _RC)
+      do i=1,itemCount       
+         call ESMF_StateGet(exportState,trim(itemNameList(i)),fieldBundle, _RC)
+         call MAPL_FieldBundleGet(fieldBundle, fieldList=fieldList, _RC)
+         call assign_fptr(fieldList(1), ptr, _RC)
+         ptr = 1.0
+         call assign_fptr(fieldList(2), ptr, _RC)
+        ptr = 2.0
+      end do
 
       _RETURN(_SUCCESS)
    end subroutine run
