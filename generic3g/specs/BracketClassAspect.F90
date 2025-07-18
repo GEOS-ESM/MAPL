@@ -77,12 +77,14 @@ contains
    function new_BracketClassAspect(bracket_size, standard_name, long_name) result(aspect)
       type(BracketClassAspect) :: aspect
       integer, intent(in) :: bracket_size
-      character(*), intent(in) :: standard_name
+      character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
 
       aspect%field_aspect = FieldClassAspect(standard_name, long_name)
       aspect%bracket_size = bracket_size
-      aspect%standard_name = standard_name
+      if (present(standard_name)) then
+         aspect%standard_name = standard_name
+      end if
       if (present(long_name)) then
          aspect%long_name = long_name
       end if
