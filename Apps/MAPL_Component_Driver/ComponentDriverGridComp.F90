@@ -8,6 +8,7 @@ module mapl3g_ComponentDriverGridComp
    use esmf
    use gFTL2_StringStringMap
    use MAPL_StateUtils
+   use MAPL_FieldUtils
    use timeSupport
 
    implicit none
@@ -28,6 +29,7 @@ module mapl3g_ComponentDriverGridComp
    character(*), parameter :: COMPONENT_EXPORT_STATE_SECTION = "export"
    character(*), parameter :: KEY_DEFAULT_VERT_PROFILE = "default_vertical_profile"
    character(len=*), parameter :: runModeGenerateExports = "GenerateExports"
+   character(len=*), parameter :: runModeFillExportsFromImports = "FillExportsFromImports"
 
 contains
 
@@ -152,6 +154,8 @@ contains
 
       if (support%runMode == "GenerateExports") then
          call fill_state_from_internal(exportState, internal_state, support, _RC)
+      else if (support%runMode == "FillExportsFromImports") then
+         call copy_state(exportState, importState, _RC)
       else
          _FAIL("no run mode selected")
       end if
@@ -242,6 +246,34 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine fill_state_from_internal 
+
+   ! loop over destination state, find a matching name in source
+   subroutine copy_state(dest_state, source_state, rc)
+      type(ESMF_State), intent(inout) :: dest_state
+      type(ESMF_State), intent(inout) :: source_state
+      integer, optional, intent(out) :: rc
+
+      integer :: itemCount, i, status
+      type(ESMF_StateItem_Flag), allocatable :: itemTypeList(:)
+      type(ESMF_StateItem_Flag) :: source_type
+      character(len=ESMF_MAXSTR), allocatable :: itemNameList(:)
+      type(ESMF_Field) :: dest_field, source_field
+
+      call ESMF_StateGet(dest_state, itemCount=itemCount, _RC)
+      allocate(itemNameList(itemCount), _STAT)
+      allocate(itemTypeList(itemCount), _STAT)
+      call ESMF_StateGet(dest_state, itemTypeList=itemTypeList, itemNameList=itemNameList, _RC)
+      do i=1,itemCount
+         call ESMF_StateGet(dest_state, trim(itemNameList(i)), dest_field, _RC)
+         call ESMF_StateGet(source_state, trim(itemNameList(i)), source_type, _RC)
+         _ASSERT(source_type == ESMF_StateItem_Field, 'source and destination are not both fields')
+         call ESMF_StateGet(source_state, trim(itemNameList(i)), source_field, _RC)
+         call FieldCopy(source_field, dest_field, _RC)
+      enddo
+
+      _RETURN(_SUCCESS)
+   end subroutine
+
 
 end module mapl3g_ComponentDriverGridComp
 

@@ -19,4 +19,5 @@ module Generic3g
    use mapl3g_RestartHandler, only: MAPL_RESTART_REQUIRED, MAPL_RESTART_BOOT, MAPL_RESTART_SKIP_INITIAL
    use mapl3g_VerticalStaggerLoc
    use mapl3g_geomio
+   use mapl3g_ESMF_Utilities
 end module Generic3g

@@ -14,7 +14,7 @@ find_package (MPI REQUIRED)
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.generic3g MAPL.pfio MAPL.base PFLOGGER::pflogger TYPE SHARED)
+  DEPENDENCIES mapl3g MAPL.pfio MAPL.base PFLOGGER::pflogger TYPE SHARED)
 
 if(ESMF_HCONFIGSET_HAS_INTENT_INOUT)
   target_compile_definitions(${this} PRIVATE ESMF_HCONFIGSET_HAS_INTENT_INOUT)
