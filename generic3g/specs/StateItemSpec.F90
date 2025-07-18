@@ -125,7 +125,7 @@ contains
       integer :: status
       class(ClassAspect), pointer :: class_aspect
 
-      this%active =  .true.
+      this%active = .true.
       class_aspect => to_ClassAspect(this%aspects, _RC)
       call class_aspect%activate(_RC)
 
@@ -239,11 +239,24 @@ contains
 
       integer :: status
       class(ClassAspect), pointer :: class_aspect
+      integer, allocatable :: handle(:)
 
       class_aspect => to_ClassAspect(this%aspects, _RC)
-      call class_aspect%create(_RC)
+      call class_aspect%create(make_handle(this), _RC)
 
       _RETURN(_SUCCESS)
+   contains
+
+      function make_handle(this) result(handle)
+         use, intrinsic :: iso_c_binding, only: c_ptr, c_loc
+         integer, allocatable :: handle(:)
+         type(StateItemSpec), target, intent(in) :: this
+         type(c_ptr) :: ptr
+
+         ptr = c_loc(this)
+         handle = transfer(ptr, [1])
+      end function make_handle
+
    end subroutine create
 
    subroutine destroy(this, rc)

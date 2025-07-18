@@ -12,6 +12,7 @@ module mapl3g_FieldBundleClassAspect
    use mapl3g_MultiState
    use mapl3g_ESMF_Utilities, only: get_substate
    use mapl3g_FieldBundle_API, only: MAPL_FieldBundleCreate, MAPL_FieldBundleInfoSetInternal
+   use mapl3g_FieldBundleInfo, only: FieldBundleInfoSetInternal
    use mapl_ErrorHandling
    use esmf
 
@@ -86,13 +87,19 @@ contains
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
 
-   subroutine create(this, rc)
+   subroutine create(this, handle, rc)
       class(FieldBundleClassAspect), intent(inout) :: this
+      integer, optional, intent(in) :: handle(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(ESMF_Info) :: info
 
       this%payload = MAPL_FieldBundleCreate(_RC)
+      _RETURN_UNLESS(present(handle))
+
+      call ESMF_InfoGetFromHost(this%payload, info, _RC)
+      call FieldBundleInfoSetInternal(info, spec_handle=handle, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
