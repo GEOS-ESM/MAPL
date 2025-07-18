@@ -13,6 +13,7 @@ module mapl3g_BracketClassAspect
    use mapl3g_UnitsAspect
    use mapl3g_TypekindAspect
    use mapl3g_UngriddedDimsAspect
+   use mapl3g_FieldBundleInfo, only: FieldBundleInfoSetInternal
 
    use mapl3g_VerticalGrid
    use mapl3g_VerticalStaggerLoc
@@ -118,13 +119,19 @@ contains
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
 
-   subroutine create(this, rc)
+   subroutine create(this, handle, rc)
       class(BracketClassAspect), intent(inout) :: this
-      integer, optional, intent(out) :: rc
+      integer, optional, intent(in) :: handle(:) 
+     integer, optional, intent(out) :: rc
 
-      integer :: status
+     integer :: status
+     type(ESMF_Info) :: info
 
       this%payload = MAPL_FieldBundleCreate(fieldBundleType=FIELDBUNDLETYPE_BRACKET, _RC)
+      _RETURN_UNLESS(present(handle))
+
+      call ESMF_InfoGetFromHost(this%payload, info, _RC)
+      call FieldBundleInfoSetInternal(info, spec_handle=handle, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine create

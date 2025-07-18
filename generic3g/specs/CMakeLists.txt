@@ -34,7 +34,7 @@ target_sources(MAPL.generic3g PRIVATE
   
   StateItemSpec.F90
   StateItemSpecMap.F90
-
+  StateItemModify.F90
 
   ChildSpec.F90
   ChildSpecMap.F90
