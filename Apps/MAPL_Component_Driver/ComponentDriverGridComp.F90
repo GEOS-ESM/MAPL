@@ -258,7 +258,6 @@ contains
       type(ESMF_StateItem_Flag) :: source_type
       character(len=ESMF_MAXSTR), allocatable :: itemNameList(:)
       type(ESMF_Field) :: dest_field, source_field
-      real, pointer :: source_ptr(:), dest_ptr(:)
 
       call ESMF_StateGet(dest_state, itemCount=itemCount, _RC)
       allocate(itemNameList(itemCount), _STAT)
@@ -269,10 +268,7 @@ contains
          call ESMF_StateGet(source_state, trim(itemNameList(i)), source_type, _RC)
          _ASSERT(source_type == ESMF_StateItem_Field, 'source and destination are not both fields')
          call ESMF_StateGet(source_state, trim(itemNameList(i)), source_field, _RC)
-         call assign_fptr(source_field, source_ptr, _RC) 
-         call assign_fptr(dest_field, dest_ptr, _RC)
-         _ASSERT(size(source_ptr) == size(dest_ptr), 'fields are not on same grid')
-         dest_ptr = source_ptr
+         call FieldCopy(source_field, dest_field, _RC)
       enddo
 
       _RETURN(_SUCCESS)
