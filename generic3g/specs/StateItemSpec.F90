@@ -175,10 +175,17 @@ contains
 
       integer :: status
       type(AspectId) :: id
+      type(AspectMapIterator) :: iter
+      type(AspectPair), pointer :: pair
+
 
       id = aspect%get_aspect_id()
-
-      call this%aspects%insert(aspect%get_aspect_id(), aspect)
+      iter = this%aspects%find(id)
+      pair => iter%of()
+      deallocate(pair%second)
+      allocate(pair%second, source=aspect)
+! Following line breaks under ifort 2021.13
+!      call this%aspects%insert(aspect%get_aspect_id(), aspect)
 
       _RETURN(_SUCCESS)
    end subroutine set_aspect
