@@ -5,7 +5,6 @@ module mapl3g_ExtDataGridComp_private
    use esmf
    use mapl3
    use mapl3g_stateitem
-   use mapl3g_esmf_info_keys
    implicit none
    private
 
@@ -167,8 +166,7 @@ contains
       do i=1,itemCount
          _ASSERT(itemTypeList(i) == ESMF_STATEITEM_FIELDBUNDLE, 'all items in extdata exprot should be fieldbundles')
          call ESMF_StateGet(state, itemNameList(i), bundle, _RC)
-         call ESMF_InfoGetFromHost(bundle, infoh, _RC)
-         call ESMF_InfoSet(infoh, key=INFO_INTERNAL_NAMESPACE//KEY_INTERPOLATION_WEIGHTS, values=weights, _RC)
+         call MAPL_FieldBundleSet(bundle, interpolation_weights=weights, _RC)
       enddo 
 
       _RETURN(_SUCCESS)
