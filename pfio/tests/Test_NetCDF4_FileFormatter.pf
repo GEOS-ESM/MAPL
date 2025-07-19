@@ -177,4 +177,67 @@ contains
 
    end subroutine test_add_variable
 
+   @test
+   subroutine test_read_write_0d_string()
+      type (NetCDF4_FileFormatter) :: formatter
+      character(len=:), allocatable :: char_write
+      character(len=:), allocatable :: char_read
+      type (FileMetadata) :: metadata
+      integer :: status, length
+      type (Variable) :: v
+
+      v = Variable(type=pFIO_STRING)
+      call metadata%add_variable('new_char',v)
+      char_write = "I am 0d String"
+
+      call formatter%create('test.nc', rc=status)
+      call formatter%write(metadata, rc=status)
+      call formatter%put_var('new_char', char_write)
+      call formatter%close(rc=status)
+
+      call formatter%open('test.nc', PFIO_READ, rc=status)
+      call formatter%inq_var_string_length('new_char',length)
+      allocate(character(len=length):: char_read)
+      call formatter%get_var('new_char', char_read)
+      call formatter%close()
+
+      @assertTrue(char_write == char_read)
+
+   end subroutine test_read_write_0d_string
+
+   @test
+   subroutine test_read_write_1d_string()
+      type (NetCDF4_FileFormatter) :: formatter
+      character(len=:), allocatable :: char_write(:)
+      character(len=:), allocatable :: char_read(:)
+      type (FileMetadata) :: metadata
+      integer :: status, length, Ydim, my_dim
+      type (Variable) :: v
+
+      Ydim = 5
+      v = Variable(type=pFIO_STRING, dimensions='Ydim')
+      call metadata%add_dimension('Ydim', Ydim)
+      call metadata%add_variable('new_char',v)
+      char_write = ["I     ",  \
+                    "am    ",  \
+                    "a     ",  \
+                    "1d    ",  \
+                    "String"]
+      call formatter%create('test.nc', rc=status)
+      call formatter%write(metadata, rc=status)
+      call formatter%put_var('new_char', char_write, start=[1], count=[Ydim])
+      call formatter%close(rc=status)
+
+      call formatter%open('test.nc', PFIO_READ, rc=status)
+      call formatter%inq_var_string_length('new_char',length)
+      metadata = formatter%read()
+      my_dim = metadata%get_dimension('Ydim')
+      allocate(character(len=length):: char_read(my_dim))
+      call formatter%get_var('new_char', char_read, start=[1], count=[my_dim])
+      call formatter%close()
+
+      @assertTrue(char_write == char_read)
+
+   end subroutine test_read_write_1d_string
+
 end module Test_NetCDF4_FileFormatter
