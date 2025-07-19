@@ -106,11 +106,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.58.1] - 2025-07-19
+
+### Fixed
+
+- Fixed typo in wallclock print
+
+### Changed
+
+- Updated wallclock print to be more readable: `Wallclock: 2025/07/17 20:02`
+
 ## [2.58.0] - 2025-07-17
 
 ### Fixed
 
 - Fix some incorrect links in the documentation
+- Fix a typo in trajectory sampler
 
 ### Added
 
