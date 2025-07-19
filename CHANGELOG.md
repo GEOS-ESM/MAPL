@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Updated wallclock print to be more readable
+- Updated wallclock print to be more readable: `Wallclock: 2025/07/17 20:02`
 
 ## [2.58.0] - 2025-07-17
 
