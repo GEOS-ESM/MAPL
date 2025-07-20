@@ -7,23 +7,35 @@ module mapl3g_hconfig_get_private
    use :: esmf, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_KIND_I4, ESMF_KIND_I8
    use :: esmf, only: ESMF_HConfig, ESMF_HConfigIsDefined
    use mapl_ErrorHandling
+   use :: pflogger, only: Logger_t => Logger
 
    implicit none
    private
-   public :: get_value, HConfigParams, DEFAULT_TAG, ELLIPSIS
-
+   public :: HConfigParams, DEFAULT_TAG, ELLIPSIS
+   public :: mapl_get_value_i4
+   public :: mapl_get_value_i8
+   public :: mapl_get_value_r4
+   public :: mapl_get_value_r8
+   public :: mapl_get_value_string
+   public :: mapl_get_value_logical
+   public :: mapl_get_value_i4seq
+   public :: mapl_get_value_i8seq
+   public :: mapl_get_value_r4seq
+   public :: mapl_get_value_r8seq
+   public :: mapl_get_value_logicalseq
+ 
    interface get_value
       procedure :: get_value_i4
-      module procedure :: get_value_i8
-      module procedure :: get_value_r4
-      module procedure :: get_value_r8
-      module procedure :: get_value_string
-      module procedure :: get_value_logical
-      module procedure :: get_value_i4seq
-      module procedure :: get_value_i8seq
-      module procedure :: get_value_r4seq
-      module procedure :: get_value_r8seq
-      module procedure :: get_value_logical_seq
+      procedure :: get_value_i8
+      procedure :: get_value_r4
+      procedure :: get_value_r8
+      procedure :: get_value_string
+      procedure :: get_value_logical
+      procedure :: get_value_i4seq
+      procedure :: get_value_i8seq
+      procedure :: get_value_r4seq
+      procedure :: get_value_r8seq
+      procedure :: get_value_logical_seq
    end interface get_value
 
    character(len=*), parameter :: DEFAULT_TAG = ' (default)'
@@ -44,7 +56,7 @@ contains
 #  undef ISARRAY
 #endif
 
-   subroutine get_value_i4(params, value, default, valuestring, rc )
+   subroutine get_value_i4(params, value, default, valuestring, rc)
       integer(kind=ESMF_KIND_I4), intent(inout) :: value
       integer(kind=ESMF_KIND_I4), optional, intent(in) :: default
       character(len=*), parameter :: typestring = 'I4'
@@ -146,14 +158,75 @@ contains
 
    end function make_fmt
 
-   subroutine get_value_with_args_i4(hconfig, label, value, default, logger, value_set, rc)
-      type(ESMF_HConfig), intent(in) :: hconfig
-      character(len=*), intent(in) :: label
-      integer(kind=ESMF_KIND_I4), intent(out) :: value
-      integer(kind=ESMF_KIND_I4), optional, intent(in) :: default
-      class(Logger), pointer, optional, intent(in) :: logger
-      logical, optional, intent(out) :: value_set
-      integer, optional, intent(out) :: rc
-   end subroutine get_value_with_args_i4
+#include "mapl_hconfig_macros.h"
 
+#define _SUB_ mapl_get_value_i4
+#define _TYPE_ _INT_
+#define _KIND_ 4
+#include "mapl_hconfig_get_value_template.h"
+#include "mapl_hconfig_get_value_template_undef.h"
+
+#define _SUB mapl_get_value_i8
+#define _TYPE_ _INT_
+#define _KIND_ 8
+#include "mapl_hconfig_get_value_template.h"
+#include "mapl_hconfig_get_value_template_undef.h"
+
+#define _SUB mapl_get_value_r4
+#define _TYPE_ _REAL_
+#define _KIND_ 4
+#include "mapl_hconfig_get_value_template.h"
+#include "mapl_hconfig_get_value_template_undef.h"
+
+#define _SUB mapl_get_value_r8
+#define _TYPE_ _REAL_
+#define _KIND_ 8
+#include "mapl_hconfig_get_value_template.h"
+#include "mapl_hconfig_get_value_template_undef.h"
+
+#define _SUB mapl_get_value_logical
+#define _TYPE_ _LOGICAL_
+#include "mapl_hconfig_get_value_template.h"
+#include "mapl_hconfig_get_value_template_undef.h"
+
+#define _SUB mapl_get_value_string
+#define _TYPE_ _STRING_
+#include "mapl_hconfig_get_value_template.h"
+#include "mapl_hconfig_get_value_template_undef.h"
+
+#define _SUB mapl_get_value_i4seq
+#define _TYPE_ _INT_
+#define _KIND_ 4
+#define _ARRAY_ 1
+#include "mapl_hconfig_get_value_template.h"
+#include "mapl_hconfig_get_value_template_undef.h"
+
+#define _SUB_ mapl_get_value_i8seq
+#define _TYPE_ _INT_
+#define _KIND_ 8
+#define _ARRAY_ 1
+#include "mapl_hconfig_get_value_template.h"
+#include "mapl_hconfig_get_value_template_undef.h"
+
+#define _SUB_ mapl_get_value_r4seq
+#define _TYPE_ _REAL_
+#define _KIND_ 4
+#define _ARRAY_ 1
+#include "mapl_hconfig_get_value_template.h"
+#include "mapl_hconfig_get_value_template_undef.h"
+
+#define _SUB_ mapl_get_value_r8seq
+#define _TYPE_ _REAL_
+#define _KIND_ 8
+#define _ARRAY_ 1
+#include "mapl_hconfig_get_value_template.h"
+#include "mapl_hconfig_get_value_template_undef.h"
+
+#define _SUB_ mapl_get_value_logicalseq
+#define _TYPE_ _LOGICAL_
+#define _ARRAY_ 1
+#include "mapl_hconfig_get_value_template.h"
+#include "mapl_hconfig_get_value_template_undef.h"
+
+#include "mapl_hconfig_macros_undef.h"
 end module mapl3g_hconfig_get_private

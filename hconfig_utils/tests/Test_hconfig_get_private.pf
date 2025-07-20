@@ -30,7 +30,7 @@ contains
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call get_value(params, actual, rc=status)
+      call get_value_i4(params, actual, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -50,7 +50,7 @@ contains
       integer :: status
 
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call get_value(params, actual, default=DEFAULT, valuestring=valuestring, rc=status)
+      call get_value_i4(params, actual, default=DEFAULT, valuestring=valuestring, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -72,7 +72,7 @@ contains
 
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call get_value(params, actual, default=EXPECTED, valuestring=valuestring, rc=status)
+      call get_value_i4(params, actual, default=EXPECTED, valuestring=valuestring, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -95,7 +95,7 @@ contains
 
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call get_value(params, actual, default=DEFAULT, valuestring=valuestring, rc=status)
+      call get_value_i4(params, actual, default=DEFAULT, valuestring=valuestring, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -113,7 +113,7 @@ contains
       integer :: status_
 
       params = HConfigParams(hconfig, LABEL)
-      call get_value(params, actual, rc=status_)
+      call get_value_i4(params, actual, rc=status_)
       found = params%value_set
       @assertFalse(found, 'get_value should have failed.')
 
@@ -131,7 +131,7 @@ contains
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call get_value(params, actual, rc=status)
+      call get_value_i8(params, actual, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -151,7 +151,7 @@ contains
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call get_value(params, actual, rc=status)
+      call get_value_r4(params, actual, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -171,7 +171,7 @@ contains
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call get_value(params, actual, rc=status)
+      call get_value_r8(params, actual, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -191,7 +191,7 @@ contains
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call get_value(params, actual, rc=status)
+      call get_value_string(params, actual, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -211,7 +211,7 @@ contains
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call get_value(params, actual, rc=status)
+      call get_value_logical(params, actual, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -231,7 +231,7 @@ contains
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call get_value(params, actual, rc=status)
+      call get_value_i4seq(params, actual, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -251,7 +251,7 @@ contains
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call get_value(params, actual, rc=status)
+      call get_value_i8seq(params, actual, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -272,7 +272,7 @@ contains
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call get_value(params, actual, rc=status)
+      call get_value_r4seq(params, actual, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -293,7 +293,7 @@ contains
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call get_value(params, actual, rc=status)
+      call get_value_r8seq(params, actual, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -313,7 +313,7 @@ contains
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call get_value(params, actual, rc=status)
+      call get_value_logical_seq(params, actual, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -332,7 +332,7 @@ contains
       character(len=:), allocatable :: error_message
 
       params = HConfigParams(hconfig, 'label')
-      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      call get_value_i4(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
       @assertEqual(EXPECTED, valuestring, error_message)
@@ -350,7 +350,7 @@ contains
       character(len=:), allocatable :: error_message
 
       params = HConfigParams(hconfig, 'label')
-      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      call get_value_r4(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
       @assertEqual(EXPECTED, valuestring, error_message)
@@ -368,7 +368,7 @@ contains
       character(len=:), allocatable :: error_message
 
       params = HConfigParams(hconfig, 'label')
-      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      call get_value_i8(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
       @assertEqual(EXPECTED, valuestring, error_message)
@@ -386,7 +386,7 @@ contains
       character(len=:), allocatable :: error_message
 
       params = HConfigParams(hconfig, 'label')
-      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      call get_value_r8(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
       @assertEqual(EXPECTED, valuestring, error_message)
@@ -404,7 +404,7 @@ contains
       character(len=:), allocatable :: error_message
 
       params = HConfigParams(hconfig, 'label')
-      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      call get_value_logical(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
       @assertEqual(EXPECTED, valuestring, error_message)
@@ -422,7 +422,7 @@ contains
       character(len=:), allocatable :: error_message
 
       params = HConfigParams(hconfig, 'label')
-      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      call get_value_string(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
       @assertEqual(EXPECTED, valuestring, error_message)
@@ -440,7 +440,7 @@ contains
       character(len=:), allocatable :: error_message
 
       params = HConfigParams(hconfig, 'label')
-      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      call get_value_i4seq(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
       @assertEqual(EXPECTED, valuestring, error_message)
@@ -458,7 +458,7 @@ contains
       character(len=:), allocatable :: error_message
 
       params = HConfigParams(hconfig, 'label')
-      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      call get_value_r4seq(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
       @assertEqual(EXPECTED, valuestring, error_message)
@@ -476,7 +476,7 @@ contains
       character(len=:), allocatable :: error_message
 
       params = HConfigParams(hconfig, 'label')
-      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      call get_value_i8seq(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
       @assertEqual(EXPECTED, valuestring, error_message)
@@ -496,7 +496,7 @@ contains
       character(len=:), allocatable :: error_message
 
       params = HConfigParams(hconfig, 'label')
-      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      call get_value_r8seq(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
       @assertEqual(EXPECTED, valuestring, error_message)
@@ -514,7 +514,7 @@ contains
       character(len=:), allocatable :: error_message
 
       params = HConfigParams(hconfig, 'label')
-      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      call get_value_logical_seq(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
       @assertEqual(EXPECTED, valuestring, error_message)
