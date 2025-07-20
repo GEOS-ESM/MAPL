@@ -1,3 +1,7 @@
+#ifndef _MAPL_HCONFIG_MACROS_
+#include "mapl_hconfig_macros.h"
+#endif
+
 #if defined _TYPE_
 #   if _TYPE_ == _LOGICAL_
 #       define _TYPECODE_ Logical

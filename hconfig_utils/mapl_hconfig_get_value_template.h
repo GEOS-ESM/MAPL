@@ -1,4 +1,6 @@
+#include "mapl_hconfig_macros.h"
 #include "mapl_hconfig_get_value_macros.h"
+
    subroutine _SUB_(hconfig, label, _VAL_, _DEFAULT_, logger, rc)  
       type(ESMF_HConfig), intent(in) :: hconfig
       character(len=*), intent(in) :: label
@@ -60,5 +62,6 @@
       _RETURN(_SUCCESS)
 
    end subroutine _SUB_
+
 #include "mapl_hconfig_get_value_macros_undef.h"
 ! vim:ft=fortran

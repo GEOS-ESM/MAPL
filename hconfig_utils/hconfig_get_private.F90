@@ -164,69 +164,58 @@ contains
 #define _TYPE_ _INT_
 #define _KIND_ 4
 #include "mapl_hconfig_get_value_template.h"
-#include "mapl_hconfig_get_value_template_undef.h"
 
 #define _SUB mapl_get_value_i8
 #define _TYPE_ _INT_
 #define _KIND_ 8
 #include "mapl_hconfig_get_value_template.h"
-#include "mapl_hconfig_get_value_template_undef.h"
 
 #define _SUB mapl_get_value_r4
 #define _TYPE_ _REAL_
 #define _KIND_ 4
 #include "mapl_hconfig_get_value_template.h"
-#include "mapl_hconfig_get_value_template_undef.h"
 
 #define _SUB mapl_get_value_r8
 #define _TYPE_ _REAL_
 #define _KIND_ 8
 #include "mapl_hconfig_get_value_template.h"
-#include "mapl_hconfig_get_value_template_undef.h"
 
 #define _SUB mapl_get_value_logical
 #define _TYPE_ _LOGICAL_
 #include "mapl_hconfig_get_value_template.h"
-#include "mapl_hconfig_get_value_template_undef.h"
 
 #define _SUB mapl_get_value_string
 #define _TYPE_ _STRING_
 #include "mapl_hconfig_get_value_template.h"
-#include "mapl_hconfig_get_value_template_undef.h"
 
 #define _SUB mapl_get_value_i4seq
 #define _TYPE_ _INT_
 #define _KIND_ 4
 #define _ARRAY_ 1
 #include "mapl_hconfig_get_value_template.h"
-#include "mapl_hconfig_get_value_template_undef.h"
 
 #define _SUB_ mapl_get_value_i8seq
 #define _TYPE_ _INT_
 #define _KIND_ 8
 #define _ARRAY_ 1
 #include "mapl_hconfig_get_value_template.h"
-#include "mapl_hconfig_get_value_template_undef.h"
 
 #define _SUB_ mapl_get_value_r4seq
 #define _TYPE_ _REAL_
 #define _KIND_ 4
 #define _ARRAY_ 1
 #include "mapl_hconfig_get_value_template.h"
-#include "mapl_hconfig_get_value_template_undef.h"
 
 #define _SUB_ mapl_get_value_r8seq
 #define _TYPE_ _REAL_
 #define _KIND_ 8
 #define _ARRAY_ 1
 #include "mapl_hconfig_get_value_template.h"
-#include "mapl_hconfig_get_value_template_undef.h"
 
 #define _SUB_ mapl_get_value_logicalseq
 #define _TYPE_ _LOGICAL_
 #define _ARRAY_ 1
 #include "mapl_hconfig_get_value_template.h"
-#include "mapl_hconfig_get_value_template_undef.h"
 
 #include "mapl_hconfig_macros_undef.h"
 end module mapl3g_hconfig_get_private
