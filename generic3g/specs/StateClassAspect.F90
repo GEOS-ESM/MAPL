@@ -88,8 +88,9 @@ contains
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
 
-   subroutine create(this, rc)
+   subroutine create(this, handle, rc)
       class(StateClassAspect), intent(inout) :: this
+      integer, optional, intent(in) :: handle(:) ! unused
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -97,6 +98,7 @@ contains
       this%payload = ESMF_StateCreate(stateIntent=this%state_intent, _RC)
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(handle)
    end subroutine create
 
    subroutine activate(this, rc)

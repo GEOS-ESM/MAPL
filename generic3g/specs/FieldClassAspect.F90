@@ -11,6 +11,7 @@ module mapl3g_FieldClassAspect
    use mapl3g_UnitsAspect
    use mapl3g_TypekindAspect
    use mapl3g_UngriddedDimsAspect
+   use mapl3g_FieldInfo, only: FieldInfoSetInternal
 
    use mapl3g_VerticalGrid
    use mapl3g_VerticalStaggerLoc
@@ -125,13 +126,19 @@ contains
    end function get_aspect_order
 
 
-   subroutine create(this, rc)
+   subroutine create(this, handle, rc)
       class(FieldClassAspect), intent(inout) :: this
+      integer, optional, intent(in) :: handle(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(ESMF_Info) :: info
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
+      _RETURN_UNLESS(present(handle))
+      
+      call ESMF_InfoGetFromHost(this%payload, info, _RC)
+      call FieldInfoSetInternal(info, spec_handle=handle, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create

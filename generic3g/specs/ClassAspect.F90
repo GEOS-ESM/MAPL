@@ -21,7 +21,7 @@ module mapl3g_ClassAspect
    contains
       procedure(I_get_aspect_order), deferred :: get_aspect_order
       procedure(I_create), deferred :: create
-      procedure(I_create), deferred :: activate
+      procedure(I_activate), deferred :: activate
       procedure(I_destroy), deferred :: destroy
       procedure(I_allocate), deferred :: allocate
 
@@ -41,11 +41,18 @@ module mapl3g_ClassAspect
       end function I_get_aspect_order
 
       ! Will use ESMF so cannot be PURE
-      subroutine I_create(this, rc)
+      subroutine I_create(this, handle, rc)
+         import ClassAspect
+         class(ClassAspect), intent(inout) :: this
+         integer, optional, intent(in) :: handle(:)
+         integer, optional, intent(out) :: rc
+      end subroutine I_create
+
+      subroutine I_activate(this, rc)
          import ClassAspect
          class(ClassAspect), intent(inout) :: this
          integer, optional, intent(out) :: rc
-      end subroutine I_create
+      end subroutine I_activate
 
       subroutine I_destroy(this, rc)
          import ClassAspect

@@ -125,7 +125,7 @@ contains
       integer :: status
       class(ClassAspect), pointer :: class_aspect
 
-      this%active =  .true.
+      this%active = .true.
       class_aspect => to_ClassAspect(this%aspects, _RC)
       call class_aspect%activate(_RC)
 
@@ -175,10 +175,17 @@ contains
 
       integer :: status
       type(AspectId) :: id
+      type(AspectMapIterator) :: iter
+      type(AspectPair), pointer :: pair
+
 
       id = aspect%get_aspect_id()
-
-      call this%aspects%insert(aspect%get_aspect_id(), aspect)
+      iter = this%aspects%find(id)
+      pair => iter%of()
+      deallocate(pair%second)
+      allocate(pair%second, source=aspect)
+! Following line breaks under ifort 2021.13
+!      call this%aspects%insert(aspect%get_aspect_id(), aspect)
 
       _RETURN(_SUCCESS)
    end subroutine set_aspect
@@ -232,11 +239,24 @@ contains
 
       integer :: status
       class(ClassAspect), pointer :: class_aspect
+      integer, allocatable :: handle(:)
 
       class_aspect => to_ClassAspect(this%aspects, _RC)
-      call class_aspect%create(_RC)
+      call class_aspect%create(make_handle(this), _RC)
 
       _RETURN(_SUCCESS)
+   contains
+
+      function make_handle(this) result(handle)
+         use, intrinsic :: iso_c_binding, only: c_ptr, c_loc
+         integer, allocatable :: handle(:)
+         type(StateItemSpec), target, intent(in) :: this
+         type(c_ptr) :: ptr
+
+         ptr = c_loc(this)
+         handle = transfer(ptr, [1])
+      end function make_handle
+
    end subroutine create
 
    subroutine destroy(this, rc)

@@ -37,6 +37,7 @@ contains
         ungridded_dims, num_levels, vert_staggerloc, num_vgrid_levels, &
         units, long_name, standard_name, &
         is_active, &
+        spec_handle, &
         rc)
 
       type(ESMF_Info), intent(in) :: info
@@ -53,6 +54,7 @@ contains
       character(:), optional, allocatable, intent(out) :: long_name
       character(:), optional, allocatable, intent(out) :: standard_name
       logical, optional, intent(out) :: is_active
+      integer, optional, allocatable, intent(out) :: spec_handle(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -84,7 +86,7 @@ contains
       call FieldInfoGetInternal(info, namespace = namespace_//KEY_FIELD_PROTOTYPE, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, num_vgrid_levels=num_vgrid_levels, &
-           units=units, long_name=long_name, standard_name=standard_name, is_active=is_active, _RC)
+           units=units, long_name=long_name, standard_name=standard_name, is_active=is_active, spec_handle=spec_handle, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -117,6 +119,7 @@ contains
         num_levels, vert_staggerloc, &
         units, standard_name, long_name, &
         is_active, &
+        spec_handle, &
         rc)
 
       type(ESMF_Info), intent(inout) :: info
@@ -133,6 +136,7 @@ contains
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
       logical, optional, intent(in) :: is_active
+      integer, optional, intent(in) :: spec_handle(:)
       integer, optional, intent(out) :: rc
       
       integer :: status
@@ -163,7 +167,7 @@ contains
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
            units=units, long_name=long_name, standard_name=standard_name, &
-           is_active=is_active, _RC)
+           is_active=is_active, spec_handle=spec_handle, _RC)
 
        _RETURN(_SUCCESS)
        _UNUSED_DUMMY(unusable)
