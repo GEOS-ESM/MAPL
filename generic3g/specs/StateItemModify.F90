@@ -110,7 +110,7 @@ contains
          type is (VerticalGridAspect)
             call aspect%set_vertical_grid(vertical_grid)
          class default
-            _FAIL('incorrect aspect')
+            _FAIL('Expected VerticalGridAspect but got different type')
          end select
       end if
 
