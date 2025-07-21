@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 ! A NullTransform object is just used so that a function that returns an
 ! ExtensionTransform can allocate its return value in the presence of

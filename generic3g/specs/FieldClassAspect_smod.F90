@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 submodule (mapl3g_FieldClassAspect) FieldClassAspect_smod
    use mapl3g_WildcardClassAspect

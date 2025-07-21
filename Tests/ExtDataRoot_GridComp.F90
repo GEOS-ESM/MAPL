@@ -3,7 +3,7 @@
 !     NASA/GSFC, Global Modeling and Assimilation Office, Code 610.1     !
 !-------------------------------------------------------------------------
 !
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 MODULE ExtDataUtRoot_GridCompMod
       use ESMF

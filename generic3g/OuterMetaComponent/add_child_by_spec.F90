@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 submodule (mapl3g_OuterMetaComponent) add_child_by_spec_smod
    use mapl3g_ComponentSpecParser

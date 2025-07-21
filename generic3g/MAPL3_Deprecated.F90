@@ -1,7 +1,7 @@
 ! This module provides (some) backward compatibility for MAPL2
 ! GridComps.  Not all MAPL2 interfaces are supported.
 
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module mapl3g_Deprecated
    use mapl3g_Generic, only: MAPL_Get => MAPL_GridCompGet

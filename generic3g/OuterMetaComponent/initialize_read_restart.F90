@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 submodule (mapl3g_OuterMetaComponent) initialize_read_restart_smod
 

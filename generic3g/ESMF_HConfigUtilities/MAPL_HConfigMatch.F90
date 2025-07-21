@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 submodule (mapl3g_ESMF_HConfigUtilities) MAPL_HConfigMatch_smod
    implicit none

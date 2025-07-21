@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module mapl3g_ReexportConnection
    use mapl3g_StateItemSpec

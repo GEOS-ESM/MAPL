@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 submodule (mapl3g_OuterMetaComponent) run_clock_advance_smod
    use mapl3g_GenericPhases

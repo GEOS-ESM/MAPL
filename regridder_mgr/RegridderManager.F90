@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 module mapl3g_RegridderManager
    use mapl3g_Geom_API, only: GeomManager, get_geom_manager
    use mapl3g_RegridderSpec
