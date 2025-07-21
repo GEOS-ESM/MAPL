@@ -120,7 +120,7 @@ contains
             _FAIL('incorrect aspect')
          end select
       end if
-         
+
       if (present(typekind)) then
          aspect => spec%get_aspect(TYPEKIND_ASPECT_ID)
          select type (aspect)
