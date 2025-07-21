@@ -9,7 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.58.1] - 2025-07-19
+
+### Fixed
+
+- Fixed typo in wallclock print
+
+### Changed
+
+- Updated wallclock print to be more readable: `Wallclock: 2025/07/17 20:02`
+
+## [2.58.0] - 2025-07-17
+
+### Fixed
+
 - Fix some incorrect links in the documentation
+- Fix a typo in trajectory sampler
 
 ### Added
 
@@ -20,10 +43,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added RC for Timer call in `MAPL_Generic.F90`
 - Adds the wall clock date and time to the GCM stdout log so we can more readily diagnose slow periods of performance during the run
-
-### Removed
-
-### Deprecated
 
 ## [2.57.0] - 2025-06-18
 
