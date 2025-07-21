@@ -30,19 +30,31 @@ module mapl3g_hconfig_get_private
    public :: mapl_get_value_r8seq
    public :: mapl_get_value_logicalseq
  
-   interface get_value
-      procedure :: get_value_i4
-      procedure :: get_value_i8
-      procedure :: get_value_r4
-      procedure :: get_value_r8
-      procedure :: get_value_string
-      procedure :: get_value_logical
-      procedure :: get_value_i4seq
-      procedure :: get_value_i8seq
-      procedure :: get_value_r4seq
-      procedure :: get_value_r8seq
-      procedure :: get_value_logical_seq
-   end interface get_value
+   public :: get_value_i4
+   public :: get_value_i8
+   public :: get_value_r4
+   public :: get_value_r8
+   public :: get_value_string
+   public :: get_value_logical
+   public :: get_value_i4seq
+   public :: get_value_i8seq
+   public :: get_value_r4seq
+   public :: get_value_r8seq
+   public :: get_value_logical_seq
+
+!   interface get_value
+!      procedure :: get_value_i4
+!      procedure :: get_value_i8
+!      procedure :: get_value_r4
+!      procedure :: get_value_r8
+!      procedure :: get_value_string
+!      procedure :: get_value_logical
+!      procedure :: get_value_i4seq
+!      procedure :: get_value_i8seq
+!      procedure :: get_value_r4seq
+!      procedure :: get_value_r8seq
+!      procedure :: get_value_logical_seq
+!   end interface get_value
 
    character(len=*), parameter :: DEFAULT_TAG = ' (default)'
    character(len=*), parameter :: ELLIPSIS = ', ...'
