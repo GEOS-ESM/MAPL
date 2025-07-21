@@ -5,8 +5,10 @@ module mapl3g_StateItemModify
    use mapl3g_StateItemAspect
    use mapl3g_AspectId
    use mapl3g_GeomAspect
+   use mapl3g_VerticalGridAspect
    use mapl3g_UnitsAspect
    use mapl3g_TypeKindAspect
+   use mapl3g_VerticalGrid
    use mapl3g_FieldInfo, only: FieldInfoGetInternal
    use mapl3g_FieldBundleInfo, only: FieldBundleInfoGetInternal
    use mapl_KeywordEnforcer
@@ -31,10 +33,11 @@ module mapl3g_StateItemModify
 contains
 
 
-   subroutine field_modify(field, unusable, geom, units, typekind, rc)
+   subroutine field_modify(field, unusable, geom, vertical_grid, units, typekind, rc)
       type(ESMF_FieldBundle), intent(inout) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
       character(*), optional, intent(in) :: units
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       integer, optional, intent(out) :: rc
@@ -46,15 +49,16 @@ contains
       call ESMF_InfoGetFromHost(field, info, _RC)
       call FieldInfoGetInternal(info, spec_handle=spec_handle, _RC)
 
-      call stateitem_modify(spec_handle, geom=geom, units=units, typekind=typekind, _RC)
+      call stateitem_modify(spec_handle, geom=geom, vertical_grid=vertical_grid, units=units, typekind=typekind, _RC)
 
    end subroutine field_modify
 
 
-   subroutine bundle_modify(fieldbundle, unusable, geom, units, typekind, rc)
+   subroutine bundle_modify(fieldbundle, unusable, geom, vertical_grid, units, typekind, rc)
       type(ESMF_FieldBundle), intent(inout) :: fieldbundle
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
       character(*), optional, intent(in) :: units
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       integer, optional, intent(out) :: rc
@@ -66,14 +70,15 @@ contains
       call ESMF_InfoGetFromHost(fieldbundle, info, _RC)
       call FieldBundleInfoGetInternal(info, spec_handle=spec_handle, _RC)
 
-      call stateitem_modify(spec_handle, geom=geom, units=units, typekind=typekind, _RC)
+      call stateitem_modify(spec_handle, geom=geom, vertical_grid=vertical_grid, units=units, typekind=typekind, _RC)
 
    end subroutine bundle_modify
 
-   subroutine stateitem_modify(spec_handle, unusable, geom, units, typekind, rc)
+   subroutine stateitem_modify(spec_handle, unusable, geom, vertical_grid, units, typekind, rc)
       integer, intent(in) :: spec_handle(:)
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
       character(*), optional, intent(in) :: units
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       integer, optional, intent(out) :: rc
@@ -96,6 +101,19 @@ contains
          end select
       end if
 
+      if (present(vertical_grid)) then
+         aspect => spec%get_aspect(VERTICAL_GRID_ASPECT_ID)
+         if (.not. associated(aspect)) then
+            _FAIL('null aspect pointer for VERTICAL_GRID_ASPECT_ID')
+         end if
+         select type(aspect)
+         type is (VerticalGridAspect)
+            call aspect%set_vertical_grid(vertical_grid)
+         class default
+            _FAIL('Expected VerticalGridAspect but got different type')
+         end select
+      end if
+
       if (present(units)) then
          aspect => spec%get_aspect(UNITS_ASPECT_ID)
          select type(aspect)
@@ -105,7 +123,7 @@ contains
             _FAIL('incorrect aspect')
          end select
       end if
-         
+
       if (present(typekind)) then
          aspect => spec%get_aspect(TYPEKIND_ASPECT_ID)
          select type (aspect)
