@@ -103,6 +103,9 @@ contains
 
       if (present(vertical_grid)) then
          aspect => spec%get_aspect(VERTICAL_GRID_ASPECT_ID)
+         if (.not. associated(aspect)) then
+            _FAIL('null aspect pointer for VERTICAL_GRID_ASPECT_ID')
+         end if
          select type(aspect)
          type is (VerticalGridAspect)
             call aspect%set_vertical_grid(vertical_grid)
