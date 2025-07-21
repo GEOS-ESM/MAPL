@@ -62,5 +62,6 @@
 #undef _EDIT_
 #endif
 
-#undef _MAPL_HCONFIG_MACROS
+#ifdef _MAPL_HCONFIG_MACROS_
+#undef _MAPL_HCONFIG_MACROS_
 #endif
