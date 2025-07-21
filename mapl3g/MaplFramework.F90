@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 ! The derived type "MaplFramework" is intended to encapsulate all of the singletons used within MAPL-based
 ! codes.   This limits the scope of the singleton "sin", which will allow proper object passing

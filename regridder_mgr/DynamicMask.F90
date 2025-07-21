@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 ! This module provides a wrapper for ESMF_DynamicMask
 ! to enable equality checking between instances.

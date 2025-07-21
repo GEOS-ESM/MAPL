@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 module mapl3g_CapGridComp
    use :: generic3g
    use :: mapl_ErrorHandling 

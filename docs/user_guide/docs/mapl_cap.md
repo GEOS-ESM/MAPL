@@ -39,7 +39,7 @@ Usually, each of these, except `Run` and `Record`, is executed only once.
 
 ```fortran
  #define I_AM_MAIN
- #include "MAPL_Generic.h"
+ #include "MAPL.h"
 
  Program Main
 

@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 module mapl3g_FieldCondensedArray
    use mapl3g_FieldCondensedArray_private, only: ARRAY_RANK, get_fptr_shape_private
    use mapl_FieldPointerUtilities, only: FieldGetLocalElementCount, assign_fptr

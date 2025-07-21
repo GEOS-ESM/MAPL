@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module MAPL_GetLatLonCoordMod
   use, intrinsic :: iso_fortran_env, only: REAL32

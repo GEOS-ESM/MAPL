@@ -3,7 +3,7 @@
 ! overload set interfaces in legacy
 ! Document PE, PC, DC, DE, GC
 
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 ! This module generates ESMF_Grids corresponding to _regular_ lat-lon coordinate grids.
 ! I.e., spacing between lats (lons) is constant.

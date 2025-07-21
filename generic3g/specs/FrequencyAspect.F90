@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 #include "unused_dummy.H"
 module mapl3g_FrequencyAspect
    use mapl3g_ActualConnectionPt

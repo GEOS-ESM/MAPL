@@ -6,7 +6,7 @@
 ! equivalent for the "other" axis.
 !-----------------------------------------------------
 
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 
 module MAPL_CubedSphereGridFactoryMod

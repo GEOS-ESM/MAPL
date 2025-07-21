@@ -1,7 +1,7 @@
 !
 ! __ Analogy to GriddedIO.F90 with a twist for Epoch Swath grid
 !
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module MAPL_EpochSwathMod
   use ESMF

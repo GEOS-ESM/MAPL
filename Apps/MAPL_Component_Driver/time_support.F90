@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 module timeSupport
    use mapl_ErrorHandling
    use ESMF

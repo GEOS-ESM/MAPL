@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 #include "NUOPC_ErrLog.h"
 
 module MAPL_NUOPCWrapperMod

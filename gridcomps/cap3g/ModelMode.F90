@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 module mapl3g_ModelMode
    use mapl3g_ApplicationMode
    use mapl_ErrorHandlingMod

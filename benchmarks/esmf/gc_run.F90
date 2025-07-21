@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module my_gc
    use esmf
@@ -87,7 +87,7 @@ end module my_gc
 
 
 #define I_AM_MAIN
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 program main
    use my_gc

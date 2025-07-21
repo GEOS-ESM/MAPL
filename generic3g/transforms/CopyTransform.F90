@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 ! A copy might be between different kinds and precisions, so is really
 ! a converter.  But ... what is a better name.

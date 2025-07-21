@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module MAPL_ServiceConnectionItemVector
   use mapl_ServiceServicesTypes, only: ServiceConnectionType

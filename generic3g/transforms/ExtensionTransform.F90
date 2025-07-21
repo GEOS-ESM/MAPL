@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 module mapl3g_ExtensionTransform
    use mapl3g_TransformId
    use mapl3g_AspectId

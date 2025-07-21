@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 module mapl3g_HistoryCollectionGridComp_private
    use mapl3
    use esmf
