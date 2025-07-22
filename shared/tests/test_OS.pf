@@ -1,0 +1,74 @@
+#include "MAPL_TestErr.h"
+
+module test_OS
+   use mapl_os
+   use funit
+contains
+
+   @test
+   subroutine test_make_directory()
+      character(*), parameter :: DIR = 'dir_a'
+      logical :: exist
+      integer :: status
+
+      call mapl_MakeDirectory(DIR, _RC)
+      inquire(file=DIR, exist=exist)
+      @assert_that(exist, is(true()))
+
+      ! cleanup
+      call mapl_RemoveDirectory(DIR, _RC)
+   end subroutine test_make_directory
+
+   @test
+   subroutine test_push_directory()
+      character(*), parameter :: SUBDIR = 'dir_a'
+      integer :: status
+      character(:), allocatable :: dir, current_dir
+
+      current_dir = mapl_GetCurrentWorkingDirectory(_RC)
+      call mapl_MakeDirectory(SUBDIR, _RC)
+      call mapl_PushDirectory(SUBDIR, _RC)
+
+      dir = mapl_GetCurrentWorkingDirectory(_RC)
+      @assertEqual(mapl_PathJoin(current_dir, SUBDIR), dir)
+
+      dir = mapl_PopDirectory(_RC)
+      @assertEqual(current_dir, dir)
+
+      dir = mapl_GetCurrentWorkingDirectory(_RC)
+      @assertEqual(current_dir, dir)
+
+      ! cleanup
+      call mapl_RemoveDirectory(SUBDIR, _RC)
+   end subroutine test_push_directory
+
+   @test
+   subroutine test_push_directory_sequence()
+      character(*), parameter :: SUBDIR = 'dir_a'
+      integer :: status
+      character(:), allocatable :: dir, current_dir
+
+      current_dir = mapl_GetCurrentWorkingDirectory(_RC)
+      call mapl_MakeDirectory(SUBDIR, _RC)
+      call mapl_PushDirectory(SUBDIR, _RC)
+
+      call mapl_PushDirectory(_RC) ! back to where we started?
+      dir = mapl_GetCurrentWorkingDirectory(_RC)
+      @assertEqual(current_dir, dir)
+
+      call mapl_PushDirectory(_RC) ! back to SUBDIR
+      dir = mapl_GetCurrentWorkingDirectory(_RC)
+      @assertEqual(MAPL_PathJoin(current_dir,SUBDIR), dir)
+
+      dir = mapl_PopDirectory(_RC)
+      @assertEqual(current_dir, dir)
+
+      dir = mapl_GetCurrentWorkingDirectory(_RC)
+      @assertEqual(current_dir, dir)
+
+      ! cleanup
+      call mapl_RemoveDirectory(SUBDIR, _RC)
+   end subroutine test_push_directory_sequence
+
+   
+end module test_OS
