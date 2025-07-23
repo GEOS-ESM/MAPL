@@ -10,6 +10,11 @@ ecbuild_add_executable (
   SOURCES ${SRCS} )
 target_link_libraries(GetHorzIJIndexDriver.x  PRIVATE MAPL FARGPARSE::fargparse ESMF::ESMF  OpenMP::OpenMP_Fortran)
 
+if (USE_ESMF_FPE0_WORKAROUND)
+  string (REPLACE "${FPE0}" "" CMAKE_Fortran_FLAGS_DEBUG ${CMAKE_Fortran_FLAGS_DEBUG})
+  string (REPLACE "-init=snan,arrays" "" CMAKE_Fortran_FLAGS_DEBUG ${CMAKE_Fortran_FLAGS_DEBUG})
+endif()
+
 # GetHorzIJIndexDriver.x is needed for 'make tests'
 add_dependencies(build-tests GetHorzIJIndexDriver.x)
 
