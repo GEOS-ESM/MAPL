@@ -34,10 +34,7 @@ if (BUILD_WITH_FARGPARSE)
 
   add_subdirectory(GetHorzIJIndex)
 
-  if (USE_ESMF_FPE0_WORKAROUND)
-    string (REPLACE "${FPE0}" "" CMAKE_Fortran_FLAGS_DEBUG ${CMAKE_Fortran_FLAGS_DEBUG})
-    string (REPLACE "-init=snan,arrays" "" CMAKE_Fortran_FLAGS_DEBUG ${CMAKE_Fortran_FLAGS_DEBUG})
-  endif()
+  apply_esmf_fpe0_workaround()
 
 endif ()
 

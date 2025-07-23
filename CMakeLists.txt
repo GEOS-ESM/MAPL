@@ -165,14 +165,9 @@ endif ()
 # see https://github.com/esmf-org/esmf/issues/464
 # If all of these are true, we need to *remove* the `-fpe0` and `-init=snan,arrays` flags from our
 # Fortran compiler flags.
-set(FORTRAN_COMPILER_IS_INTEL
-  "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "Intel" OR
-  "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "IntelLLVM")
 
-if (ESMF_VERSION EQUAL 8.9.0 AND FORTRAN_COMPILER_IS_INTEL AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-  message(STATUS "Using workaround for ESMF 8.9.0 plus Intel Fortran plus Debug CMAKE_BUILD_TYPE")
-  set(USE_ESMF_FPE0_WORKAROUND TRUE)
-endif()
+# Include ESMF workarounds (detection happens automatically)
+include(cmake/mapl_esmf_workarounds.cmake)
 
 # We wish to add extra flags when compiling as Debug. We should only
 # do this if we are using esma_cmake since the flags are defined
