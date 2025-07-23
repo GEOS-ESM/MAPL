@@ -1,4 +1,4 @@
-#include "mapl.h"
+#include "MAPL.h"
 
 ! This module is a (poor) analog to the Python "os" package.
 
