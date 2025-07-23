@@ -10,6 +10,8 @@ ecbuild_add_executable (
   SOURCES ${SRCS} )
 target_link_libraries(GetHorzIJIndexDriver.x  PRIVATE MAPL FARGPARSE::fargparse ESMF::ESMF  OpenMP::OpenMP_Fortran)
 
+apply_esmf_fpe0_workaround()
+
 # GetHorzIJIndexDriver.x is needed for 'make tests'
 add_dependencies(build-tests GetHorzIJIndexDriver.x)
 

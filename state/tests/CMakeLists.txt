@@ -27,3 +27,4 @@ set_property(TEST MAPL.state.tests PROPERTY ENVIRONMENT "${LD_PATH}=${CMAKE_CURR
 
 add_dependencies(build-tests MAPL.state.tests)
 
+apply_esmf_fpe0_workaround()

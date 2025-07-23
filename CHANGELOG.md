@@ -98,6 +98,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Workaround for ESMF 8.9.0 `tests` bug (see https://github.com/esmf-org/esmf/issues/464)
+
 ### Added
 
 ### Changed
@@ -125,7 +127,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added tests to read and write 0d and 1d string to and from netcdf files 
+- Added tests to read and write 0d and 1d string to and from netcdf files
 - Added new markup link checker based on [mlc](https://github.com/becheran/mlc)
 
 ### Changed

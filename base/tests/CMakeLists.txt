@@ -66,3 +66,4 @@ add_test(NAME bundleio_tests_cube
 
 add_dependencies(build-tests ${TESTIO})
 
+apply_esmf_fpe0_workaround()
