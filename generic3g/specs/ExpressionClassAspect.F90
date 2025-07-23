@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module mapl3g_ExpressionClassAspect
    use mapl3g_AspectId
@@ -113,8 +113,9 @@ contains
 
 
    ! No op
-   subroutine create(this, rc)
+   subroutine create(this, handle, rc)
       class(ExpressionClassAspect), intent(inout) :: this
+      integer, optional, intent(in) :: handle(:)
       integer, optional, intent(out) :: rc
 
       integer :: status

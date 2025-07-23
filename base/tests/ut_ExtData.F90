@@ -4,7 +4,7 @@
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
 !
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 !
 !>
 !### MODULE: `module_name`

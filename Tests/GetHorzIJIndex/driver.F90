@@ -1,6 +1,6 @@
 #define I_AM_MAIN
 
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 program driver_GetHorzIJIndex
    use MAPL

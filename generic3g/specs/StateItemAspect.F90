@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 !-------------------------------------------------
 ! Table of allowed connections between (like) StateItemAspects
 !-------------------------------------------------

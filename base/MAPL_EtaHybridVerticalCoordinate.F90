@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module MAPL_EtaHybridVerticalCoordinateMod
    use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64, REAL32

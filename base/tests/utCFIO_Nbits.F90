@@ -2,7 +2,7 @@
 ! Simple unit test for CFIO Read/Write Bundle with variable NBIT precision
 !
 
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
    Program utCFIO
 

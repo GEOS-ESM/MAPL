@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 !!!  NOTE: This class implements the Singleton pattern - there should
 !!!        be only one GridManager for the application.  However,

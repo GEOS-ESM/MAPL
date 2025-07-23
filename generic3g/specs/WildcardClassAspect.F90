@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module mapl3g_WildcardClassAspect
    use mapl3g_ActualPtFieldAspectMap
@@ -104,8 +104,9 @@ contains
    end subroutine typesafe_connect_to_export
    
    ! No-op
-   subroutine create(this, rc)
+   subroutine create(this, handle, rc)
       class(WildcardClassAspect), intent(inout) :: this
+      integer, optional, intent(in) :: handle(:)
       integer, optional, intent(out) :: rc
 
       _RETURN(_SUCCESS)

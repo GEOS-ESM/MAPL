@@ -4,7 +4,7 @@
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
 !
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 #include "unused_dummy.H"
 !
 !>
@@ -5629,14 +5629,13 @@ ENDDO PARSER
     unitr = GETFILE(HIST_CF, FORM='formatted', _RC)
 
     call scan_count_match_bgn (unitr, 'schema.version:', count, .true.)
-    schema_version = 2  ! default
+    schema_version = 1  ! default
     if (count==0) then
        ! keyword non-exist
        ! continue to search for 'DEFINE_OBS_PLATFORM::'
        ! if found: run the default approach for a supercollection
        !    else: return as normal history
-       call lgr%debug('%a', 'schema.version: keyword does not exist, treat as supercollection')
-       continue
+       call lgr%debug('%a', 'schema.version: keyword does not exist, use schema.version = 1')
     elseif (count>1) then
        _FAIL('schema.version: keyword appears more than once in HISTORY.rc')
     elseif (count==1) then
@@ -5652,18 +5651,18 @@ ENDDO PARSER
        elseif (k==0) then
           read( line(j:), * )  schema_version
        end if
-       call lgr%debug('%a %i2', 'schema.version=', schema_version)
-       if (schema_version == 1) then
-          ! use individual Traj. Sampler collection
-          !
-          call regen_rcx_for_schema_version_1(config, nlist, list, _RC)
-          rc=0
-          return
-       elseif (schema_version > 2) then
-          _FAIL('schema_version > 2 not supported')
-       end if
-       call lgr%debug('%a %i2', 'end schema.version=', schema_version)
     end if
+    call lgr%debug('%a %i2', 'schema.version=', schema_version)
+    if (schema_version == 1) then
+       ! use individual Traj. Sampler collection
+       !
+       call regen_rcx_for_schema_version_1(config, nlist, list, _RC)
+       rc=0
+       return
+    elseif (schema_version > 2) then
+       _FAIL('schema_version > 2 not supported')
+    end if
+    call lgr%debug('%a %i2', 'end schema.version=', schema_version)
 
 
 !   continue with the platform grammar

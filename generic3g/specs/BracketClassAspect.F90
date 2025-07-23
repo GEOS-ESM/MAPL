@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module mapl3g_BracketClassAspect
    use mapl3g_FieldBundle_API
@@ -13,6 +13,7 @@ module mapl3g_BracketClassAspect
    use mapl3g_UnitsAspect
    use mapl3g_TypekindAspect
    use mapl3g_UngriddedDimsAspect
+   use mapl3g_FieldBundleInfo, only: FieldBundleInfoSetInternal
 
    use mapl3g_VerticalGrid
    use mapl3g_VerticalStaggerLoc
@@ -76,12 +77,14 @@ contains
    function new_BracketClassAspect(bracket_size, standard_name, long_name) result(aspect)
       type(BracketClassAspect) :: aspect
       integer, intent(in) :: bracket_size
-      character(*), intent(in) :: standard_name
+      character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
 
       aspect%field_aspect = FieldClassAspect(standard_name, long_name)
       aspect%bracket_size = bracket_size
-      aspect%standard_name = standard_name
+      if (present(standard_name)) then
+         aspect%standard_name = standard_name
+      end if
       if (present(long_name)) then
          aspect%long_name = long_name
       end if
@@ -116,13 +119,19 @@ contains
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
 
-   subroutine create(this, rc)
+   subroutine create(this, handle, rc)
       class(BracketClassAspect), intent(inout) :: this
-      integer, optional, intent(out) :: rc
+      integer, optional, intent(in) :: handle(:) 
+     integer, optional, intent(out) :: rc
 
-      integer :: status
+     integer :: status
+     type(ESMF_Info) :: info
 
       this%payload = MAPL_FieldBundleCreate(fieldBundleType=FIELDBUNDLETYPE_BRACKET, _RC)
+      _RETURN_UNLESS(present(handle))
+
+      call ESMF_InfoGetFromHost(this%payload, info, _RC)
+      call FieldBundleInfoSetInternal(info, spec_handle=handle, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine create

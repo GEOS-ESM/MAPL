@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 ! We require that an export provides all attributes that an import
 ! specifies as a shared attribute.  Some attributes of the export may

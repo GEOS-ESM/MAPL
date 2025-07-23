@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 submodule (mapl3g_OuterMetaComponent) init_meta_smod
    use mapl_ErrorHandling
@@ -21,7 +21,7 @@ contains
       user_gc_name = this%user_gc_driver%get_name(_RC)
       this%registry = StateRegistry(user_gc_name)
 
-      this%lgr => logging%get_logger('mapl.generic')
+      this%lgr => logging%get_logger(user_gc_name)
 
       _RETURN(_SUCCESS)
 

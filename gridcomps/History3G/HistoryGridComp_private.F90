@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 module mapl3g_HistoryGridComp_private
    use mapl_ErrorHandlingMod
    use mapl_keywordenforcermod

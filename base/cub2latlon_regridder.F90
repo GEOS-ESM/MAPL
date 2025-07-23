@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 !---------------------------
 ! Note - this module abuses global variables as a simple mechanism for
@@ -1189,7 +1189,7 @@ end module SupportMod
 
 ! The main program.   Misleadingly simple.
 #define I_AM_MAIN
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 program main
    use ESMF
    use SupportMod
@@ -1255,7 +1255,7 @@ contains
 
 
 #undef I_AM_MAIN
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
    subroutine check_resources(rc)
       use SupportMod

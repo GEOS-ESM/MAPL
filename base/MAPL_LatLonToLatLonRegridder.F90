@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 module MAPL_LatLonToLatLonRegridderMod
    use MAPL_AbstractRegridderMod
    use MAPL_GridSpecMod

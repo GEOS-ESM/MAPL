@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 ! When generic procedures are available, this package should be
 ! redesigned.

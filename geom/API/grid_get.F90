@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 submodule (mapl3g_Geom_API) grid_get_smod
    use mapl_ErrorHandling

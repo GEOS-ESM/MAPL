@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 submodule (mapl3g_GriddedComponentDriver) add_import_coupler_smod
    implicit none

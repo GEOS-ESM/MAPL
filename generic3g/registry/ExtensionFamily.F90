@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 ! A StateItem can be extended by means of a coupler.  The
 ! set of all such related extensions are encapsulated
