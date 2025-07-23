@@ -120,9 +120,7 @@ contains
 
       if (present(vertical_stagger)) then
          aspect => spec%get_aspect(VERTICAL_GRID_ASPECT_ID)
-         if (.not. associated(aspect)) then
-            _FAIL('null aspect pointer for VERTICAL_GRID_ASPECT_ID')
-         end if
+         _ASSERT(associated(aspect), 'null aspect pointer for VERTICAL_GRID_ASPECT_ID')
          select type(aspect)
          type is (VerticalGridAspect)
             call aspect%set_vertical_stagger(vertical_stagger)
