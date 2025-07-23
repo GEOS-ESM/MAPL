@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module MockAspect_mod
    use mapl3g_AspectId
@@ -172,13 +172,15 @@ contains
       _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
-   subroutine create(this, rc)
+   subroutine create(this, handle, rc)
       class(MockAspect), intent(inout) :: this
+      integer, optional, intent(in) :: handle(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(handle)
    end subroutine create
 
    subroutine activate(this, rc)

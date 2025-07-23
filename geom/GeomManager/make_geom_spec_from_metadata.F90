@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 submodule (mapl3g_GeomManager) make_geom_spec_from_metadata_smod
    use mapl3g_NullGeomSpec, only: NULL_GEOM_SPEC

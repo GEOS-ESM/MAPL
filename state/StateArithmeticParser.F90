@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 ! Part of this code is based on a fortran parser by Roland Schmehl:
 !
 !------- -------- --------- --------- --------- --------- --------- --------- -------

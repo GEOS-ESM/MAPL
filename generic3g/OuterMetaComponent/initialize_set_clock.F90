@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 submodule (mapl3g_OuterMetaComponent) initialize_set_clock_smod
    use mapl3g_GenericPhases, only: GENERIC_INIT_SET_CLOCK

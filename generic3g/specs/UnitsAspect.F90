@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module mapl3g_UnitsAspect
    use mapl3g_ActualConnectionPt
@@ -32,6 +32,7 @@ module mapl3g_UnitsAspect
       procedure, nopass :: get_aspect_id
 
       procedure :: get_units
+      procedure :: set_units
    end type UnitsAspect
 
    interface UnitsAspect
@@ -174,5 +175,17 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_units
+
+   subroutine set_units(this, units, rc)
+      class(UnitsAspect), intent(inout) :: this
+      character(*), intent(in) :: units
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      this%units = units
+
+      _RETURN(_SUCCESS)
+   end subroutine set_units
+
 
 end module mapl3g_UnitsAspect

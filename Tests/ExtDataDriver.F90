@@ -1,6 +1,6 @@
 #define I_AM_MAIN
 
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 program ExtData_Driver
   use MPI

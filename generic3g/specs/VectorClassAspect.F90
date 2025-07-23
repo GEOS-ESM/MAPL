@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module mapl3g_VectorClassAspect
    use mapl3g_FieldBundle_API
@@ -12,6 +12,7 @@ module mapl3g_VectorClassAspect
    use mapl3g_UnitsAspect
    use mapl3g_TypekindAspect
    use mapl3g_UngriddedDimsAspect
+   use mapl3g_FieldBundleInfo, only: FieldBundleInfoSetInternal
 
    use mapl3g_VerticalGrid
    use mapl3g_VerticalStaggerLoc
@@ -111,13 +112,19 @@ contains
       end select
    end function matches
 
-   subroutine create(this, rc)
+   subroutine create(this, handle, rc)
       class(VectorClassAspect), intent(inout) :: this
+      integer, optional, intent(in) :: handle(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(ESMF_Info) :: info
 
       this%payload = MAPL_FieldBundleCreate(fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
+      _RETURN_UNLESS(present(handle))
+      
+      call ESMF_InfoGetFromHost(this%payload, info, _RC)
+      call FieldBundleInfoSetInternal(info, spec_handle=handle, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create

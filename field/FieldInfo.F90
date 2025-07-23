@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module mapl3g_FieldInfo
    use mapl3g_esmf_info_keys, only: INFO_SHARED_NAMESPACE
@@ -52,6 +52,8 @@ module mapl3g_FieldInfo
    character(*), parameter :: KEY_MISSING_VALUE = "/missing_value"
    character(*), parameter :: KEY_FILL_VALUE = "/_FillValue"
 
+   character(*), parameter :: KEY_SPEC_HANDLE = "/spec_handle"
+
 contains
 
    subroutine field_info_set_internal(info, unusable, &
@@ -60,6 +62,7 @@ contains
         ungridded_dims, &
         units, long_name, standard_name, &
         is_active, &
+        spec_handle, &
         rc)
 
       type(ESMF_Info), intent(inout) :: info
@@ -72,6 +75,7 @@ contains
       character(*), optional, intent(in) :: long_name
       character(*), optional, intent(in) :: standard_name
       logical, optional, intent(in) :: is_active
+      integer, optional, intent(in) :: spec_handle(:)
       integer, optional, intent(out) :: rc
       
       integer :: status
@@ -130,6 +134,10 @@ contains
          call MAPL_InfoSet(info, namespace_ // KEY_IS_ACTIVE, is_active, _RC)
       end if
 
+      if (present(spec_handle)) then
+         call MAPL_InfoSet(info, namespace_ // KEY_SPEC_HANDLE, spec_handle, _RC)
+      end if
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine field_info_set_internal
@@ -140,6 +148,7 @@ contains
         units, long_name, standard_name, &
         ungridded_dims, &
         is_active, &
+        spec_handle, &
         rc)
 
       type(ESMF_Info), intent(in) :: info
@@ -153,6 +162,7 @@ contains
       character(:), optional, allocatable, intent(out) :: standard_name
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       logical, optional, intent(out) :: is_active
+      integer, optional, allocatable, intent(out) :: spec_handle(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -213,6 +223,10 @@ contains
 
       if (present(is_active)) then
          call MAPL_InfoGet(info, namespace_ // KEY_IS_ACTIVE, is_active, _RC)
+      end if
+
+      if (present(spec_handle)) then
+         call MAPL_InfoGet(info, namespace_ // KEY_SPEC_HANDLE, spec_handle, _RC)
       end if
 
       _RETURN(_SUCCESS)

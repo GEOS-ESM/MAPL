@@ -98,19 +98,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fix some incorrect links in the documentation
-
 ### Added
 
-- Add new markup link checker based on [mlc](https://github.com/becheran/mlc)
-
 ### Changed
-
-- Added RC for Timer call in `MAPL_Generic.F90`
 
 ### Removed
 
 ### Deprecated
+
+## [2.58.1] - 2025-07-19
+
+### Fixed
+
+- Fixed typo in wallclock print
+
+### Changed
+
+- Updated wallclock print to be more readable: `Wallclock: 2025/07/17 20:02`
+
+## [2.58.0] - 2025-07-17
+
+### Fixed
+
+- Fix some incorrect links in the documentation
+- Fix a typo in trajectory sampler
+
+### Added
+
+- Added tests to read and write 0d and 1d string to and from netcdf files 
+- Added new markup link checker based on [mlc](https://github.com/becheran/mlc)
+
+### Changed
+
+- Added RC for Timer call in `MAPL_Generic.F90`
+- Adds the wall clock date and time to the GCM stdout log so we can more readily diagnose slow periods of performance during the run
 
 ## [2.57.0] - 2025-06-18
 

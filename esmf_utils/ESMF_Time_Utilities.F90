@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 module mapl3g_ESMF_Time_Utilities
    use esmf, I4 => ESMF_KIND_I4
    use mapl_ErrorHandling

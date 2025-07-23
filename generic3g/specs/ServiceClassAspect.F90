@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module mapl3g_ServiceClassAspect
    use mapl3g_AspectId
@@ -89,8 +89,9 @@ contains
    end function supports_conversion_specific
 
 
-   subroutine create(this, rc)
+   subroutine create(this, handle, rc)
       class(ServiceClassAspect), intent(inout) :: this
+      integer, optional, intent(in) :: handle(:) ! not used here
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -98,6 +99,7 @@ contains
       this%payload = ESMF_FieldBundleCreate(_RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(handle)
    end subroutine create
 
    subroutine activate(this, rc)

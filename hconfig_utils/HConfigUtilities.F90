@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 module mapl3g_HConfigUtilities
    use esmf, only: ESMF_HConfig, ESMF_HConfigIter, ESMF_HConfigIterBegin
    use esmf, only: ESMF_HConfigIterEnd, ESMF_HConfigIterLoop

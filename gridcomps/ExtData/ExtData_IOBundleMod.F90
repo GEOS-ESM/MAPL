@@ -1,5 +1,5 @@
 !#include "MAPL_Exceptions.h"
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 #include "unused_dummy.H"
 
 !-------------------------------------------------------------------------
