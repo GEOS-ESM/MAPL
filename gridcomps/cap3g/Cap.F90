@@ -4,6 +4,7 @@ module mapl3g_Cap
    use mapl3
    use mapl3g_CapGridComp, only: cap_setservices => setServices
    use mapl_TimeStringConversion, only: hconfig_to_esmf_timeinterval
+   use mapl_os
    use esmf
    implicit none
    private
@@ -219,7 +220,6 @@ contains
       end function advance_clock
 
       subroutine record(currTime, rc)
-         use mapl_os
          type(esmf_Time), intent(inout) :: currTime
          integer, optional, intent(out) :: rc
 
