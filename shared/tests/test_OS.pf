@@ -8,15 +8,14 @@ contains
    @test
    subroutine test_make_directory()
       character(*), parameter :: DIR = 'dir_a'
-      logical :: exist
       integer :: status
 
       call mapl_MakeDirectory(DIR, _RC)
-      inquire(file=DIR, exist=exist)
-      @assert_that(exist, is(true()))
+      @assert_that(mapl_DirectoryExists(DIR), is(true()))
 
       ! cleanup
       call mapl_RemoveDirectory(DIR, _RC)
+
    end subroutine test_make_directory
 
    @test

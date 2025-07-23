@@ -12,6 +12,7 @@ module mapl_os
    public :: mapl_GetCurrentWorkingDirectory
    public :: mapl_ChangeDirectory
    public :: mapl_MakeDirectory
+   public :: mapl_DirectoryExists
    public :: mapl_RemoveDirectory
    public :: mapl_PushDirectory
    public :: mapl_PopDirectory
@@ -34,10 +35,14 @@ module mapl_os
       procedure :: remove_directory
    end interface mapl_RemoveDirectory
 
-   interface Mapl_Pushdirectory
+   interface mapl_DirectoryExists
+      procedure directory_exists
+   end interface mapl_DirectoryExists
+
+   interface mapl_Pushdirectory
       procedure :: push_directory_default
       procedure :: push_directory
-   end interface Mapl_Pushdirectory
+   end interface mapl_Pushdirectory
 
    interface mapl_PopDirectory
       procedure :: pop_directory
@@ -176,6 +181,19 @@ contains
       _ASSERT(status==0, 'Error deleting directory: ' // trim(path))
       _RETURN(_SUCCESS)
    end subroutine remove_directory
+
+   logical function directory_exists(path, rc)
+      character(len=*), intent(in) :: path
+      integer, optional, intent(out) :: rc
+
+#ifndef __INTEL_COMPILER
+      inquire(file=path, exist=directory_exists)
+#else
+      inquire(directory=path, exist=directory_exists)
+#endif
+
+      _RETURN(_SUCCESS)
+   end function directory_exists
 
    subroutine push_directory_default(rc)
       integer, optional, intent(out) :: rc
