@@ -211,10 +211,14 @@ contains
       integer  :: size
       integer, target  :: length
 
-      allocate(dimids(1))
+      allocate(dimids(1), source = -9999) ! 
       status = nf90_inquire_variable(ncid,  varid, dimids=dimids)
-      status = nf90_inquire_dimension(ncid, dimids(1), len=size)
-      status = c_f_pfio_get_var_string_len(ncid, varid, c_loc(length), size)
+      if ( dimids(1) == -9999 ) then
+        size = 0 ! scalar string
+      else
+        status = nf90_inquire_dimension(ncid, dimids(1), len=size)
+      endif
+      status  = c_f_pfio_get_var_string_len(ncid, varid, c_loc(length), size)
       str_len = length
    end function pfio_nf90_get_var_string_len
 
