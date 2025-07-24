@@ -22,7 +22,7 @@ contains
       integer :: status
       character(:), allocatable :: dim_name
 
-      dim_name = get_dim_name(file_metadata, units='degrees north', _RC)
+      dim_name = get_dim_name(file_metadata, units='degrees_north', _RC)
       centers = get_coordinates(file_metadata, dim_name, _RC)
       jm_world = size(centers)
       call fix_bad_pole(centers)

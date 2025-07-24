@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 submodule (mapl3g_ComponentSpecParser) parse_var_specs_smod
    use mapl3g_VerticalGrid
@@ -122,7 +122,6 @@ contains
 
             dependencies = to_dependencies(attributes, _RC)
 
-            call ESMF_HconfigFileSave(attributes, name//'.yaml', _RC)
             geometry_spec = parse_geometry_spec(attributes, registry, _RC)
             if (allocated(geometry_spec%geom_spec)) then
                geom_mgr => get_geom_manager()
