@@ -20,7 +20,6 @@ contains
 
       open(newunit=unit, file='test.nc', status='old')
       close(unit, status='delete')
-      
    end subroutine tearDown
 
    @test
@@ -32,7 +31,7 @@ contains
 
       call cf_expected%add_dimension('x',1)
 
-      call formatter%create('test.nc', rc=status)
+      call formatter%create('test.nc', mode=PFIO_CLOBBER, rc=status)
       @assertEqual(NF90_NOERR, status)
       call formatter%write(cf_expected, rc=status)
       @assertEqual(0, NF90_NOERR)
@@ -60,7 +59,7 @@ contains
       call cf_expected%add_dimension('y',2)
       call cf_expected%add_variable('var', Variable(type=pFIO_INT32, dimensions='x,y'))
 
-      call formatter%create('test.nc', rc=status)
+      call formatter%create('test.nc', mode=PFIO_CLOBBER, rc=status)
       @assertEqual(NF90_NOERR, status)
       call formatter%write(cf_expected, rc=status)
       @assertEqual(0, NF90_NOERR)
@@ -88,7 +87,7 @@ contains
       call cf_expected%add_dimension('y',2)
       call cf_expected%add_attribute('attr', [1,2])
 
-      call formatter%create('test.nc', rc=status)
+      call formatter%create('test.nc', mode=PFIO_CLOBBER, rc=status)
       @assertEqual(NF90_NOERR, status)
       call formatter%write(cf_expected, rc=status)
       @assertEqual(0, NF90_NOERR)
@@ -120,7 +119,7 @@ contains
       call v%add_attribute('attr', [1.,2.,3.])
       call cf_expected%add_variable('var', v)
 
-      call formatter%create('test.nc', rc=status)
+      call formatter%create('test.nc', mode=PFIO_CLOBBER, rc=status)
       @assertEqual(NF90_NOERR, status)
       call formatter%write(cf_expected, rc=status)
       @assertEqual(0, NF90_NOERR)
@@ -152,7 +151,7 @@ contains
       call v%add_attribute('attr', [1.,2.,3.])
       call cf_expected%add_variable('var', v)
 
-      call formatter%create('test.nc', rc=status)
+      call formatter%create('test.nc', mode=PFIO_CLOBBER, rc=status)
       @assertEqual(NF90_NOERR, status)
       call formatter%write(cf_expected, rc=status)
       @assertEqual(0, NF90_NOERR)
@@ -190,12 +189,16 @@ contains
       call metadata%add_variable('new_char',v)
       char_write = "I am 0d String"
 
-      call formatter%create('test.nc', rc=status)
+      call formatter%create('test.nc', mode=PFIO_CLOBBER, rc=status)
+      @assertEqual(NF90_NOERR, status)
       call formatter%write(metadata, rc=status)
+      @assertEqual(NF90_NOERR, status)
       call formatter%put_var('new_char', char_write)
       call formatter%close(rc=status)
+      @assertEqual(NF90_NOERR, status)
 
       call formatter%open('test.nc', PFIO_READ, rc=status)
+      @assertEqual(NF90_NOERR, status)
       call formatter%inq_var_string_length('new_char',length)
       allocate(character(len=length):: char_read)
       call formatter%get_var('new_char', char_read)
@@ -223,12 +226,16 @@ contains
                     "a     ",  \
                     "1d    ",  \
                     "String"]
-      call formatter%create('test.nc', rc=status)
+      call formatter%create('test.nc', mode=PFIO_CLOBBER, rc=status)
+      @assertEqual(NF90_NOERR, status)
       call formatter%write(metadata, rc=status)
+      @assertEqual(NF90_NOERR, status)
       call formatter%put_var('new_char', char_write, start=[1], count=[Ydim])
       call formatter%close(rc=status)
+      @assertEqual(NF90_NOERR, status)
 
       call formatter%open('test.nc', PFIO_READ, rc=status)
+      @assertEqual(NF90_NOERR, status)
       call formatter%inq_var_string_length('new_char',length)
       metadata = formatter%read()
       my_dim = metadata%get_dimension('Ydim')
