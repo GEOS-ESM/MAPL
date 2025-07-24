@@ -249,10 +249,11 @@ contains
 
       integer :: status
 
+      _RETURN_UNLESS(mapl_AmIRoot())
       call mapl_MakeDirectory(CHECKPOINTS_DIR, force=.true., _RC)
 !#      call mapl_MakeDirectory(COLLECTIONS_DIR, force=.true., _RC)
 !#      call mapl_MakeDirectory(LOGS_DIR, force=.true., _RC)
-
+      call mapl_barrier()
       _RETURN(_SUCCESS)
    end subroutine make_directories
 
