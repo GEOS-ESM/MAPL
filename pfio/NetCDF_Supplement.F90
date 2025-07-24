@@ -213,9 +213,8 @@ contains
 
       allocate(dimids(1), source = -9999) ! 
       status = nf90_inquire_variable(ncid,  varid, dimids=dimids)
-      if ( dimids(1) == -9999 ) then
-        size = 0 ! scalar string
-      else
+      size = 0 ! default (assume scalar string)
+      if ( dimids(1) > 0) then
         status = nf90_inquire_dimension(ncid, dimids(1), len=size)
       endif
       status  = c_f_pfio_get_var_string_len(ncid, varid, c_loc(length), size)
