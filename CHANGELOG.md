@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Workaround for ESMF 8.9.0 `tests` bug (see https://github.com/esmf-org/esmf/issues/464)
 - Fixed 0d string reading and writing
+- Fix uninitialzed variable in `pfio/tests/Test_Client.pf`
 
 ### Added
 
