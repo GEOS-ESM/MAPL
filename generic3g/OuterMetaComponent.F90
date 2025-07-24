@@ -453,13 +453,13 @@ module mapl3g_OuterMetaComponent
 
 contains
 
-   subroutine set_misc(this, unusable, activate_all_exports, activate_all_imports, write_exports, cold_start)
+   subroutine set_misc(this, unusable, activate_all_exports, activate_all_imports, checkpoint_controls, restart_controls)
       class(OuterMetaComponent), intent(inout) :: this
       class(KE), optional, intent(in) :: unusable
       logical, optional, intent(in) :: activate_all_exports
       logical, optional, intent(in) :: activate_all_imports
-      logical, optional, intent(in) :: write_exports
-      logical, optional, intent(in) :: cold_start
+      type(CheckpointControls), optional, intent(in) :: checkpoint_controls
+      type(CheckpointControls), optional, intent(in) :: restart_controls
 
       if (present(activate_all_exports)) then
          this%component_spec%misc%activate_all_exports = activate_all_exports
@@ -467,11 +467,11 @@ contains
       if (present(activate_all_imports)) then
          this%component_spec%misc%activate_all_imports = activate_all_imports
       end if
-      if (present(write_exports)) then
-         this%component_spec%misc%write_exports = write_exports
+      if (present(checkpoint_controls)) then
+         this%component_spec%misc%checkpoint_controls = checkpoint_controls
       end if
-      if (present(cold_start)) then
-         this%component_spec%misc%cold_start = cold_start
+      if (present(restart_controls)) then
+         this%component_spec%misc%restart_controls = restart_controls
       end if
 
    end subroutine set_misc

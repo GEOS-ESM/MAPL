@@ -62,7 +62,7 @@ contains
       integer :: status
 
       restart_handler%gc_name = ESMF_UtilStringLowerCase(trim(gc_name), _RC)
-      call ESMF_Clockget(gc_clock, currTime = restart_handler%current_time, _RC)
+      call ESMF_Clockget(gc_clock, currTime=restart_handler%current_time, _RC)
       restart_handler%gc_geom = gc_geom
       restart_handler%lgr => logging%get_logger('mapl.restart')
 
