@@ -41,5 +41,7 @@ if (BUILD_WITH_FARGPARSE)
 
   add_subdirectory(GetHorzIJIndex)
 
+  apply_esmf_fpe0_workaround()
+
 endif ()
 
