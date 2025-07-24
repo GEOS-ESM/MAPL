@@ -20,7 +20,7 @@ contains
 
       open(newunit=unit, file='test.nc', status='old')
       close(unit, status='delete')
-      
+
    end subroutine tearDown
 
    @test
@@ -191,15 +191,23 @@ contains
       char_write = "I am 0d String"
 
       call formatter%create('test.nc', rc=status)
+      @assertEqual(NF90_NOERR, status)
       call formatter%write(metadata, rc=status)
-      call formatter%put_var('new_char', char_write)
+      @assertEqual(NF90_NOERR, status)
+      call formatter%put_var('new_char', char_write, rc=status)
+      @assertEqual(NF90_NOERR, status)
       call formatter%close(rc=status)
+      @assertEqual(NF90_NOERR, status)
 
       call formatter%open('test.nc', PFIO_READ, rc=status)
-      call formatter%inq_var_string_length('new_char',length)
+      @assertEqual(NF90_NOERR, status)
+      call formatter%inq_var_string_length('new_char',length, rc=status)
+      @assertEqual(NF90_NOERR, status)
       allocate(character(len=length):: char_read)
-      call formatter%get_var('new_char', char_read)
-      call formatter%close()
+      call formatter%get_var('new_char', char_read, rc=status)
+      @assertEqual(NF90_NOERR, status)
+      call formatter%close(rc=status)
+      @assertEqual(NF90_NOERR, status)
 
       @assertTrue(char_write == char_read)
 
@@ -224,17 +232,25 @@ contains
                     "1d    ",  \
                     "String"]
       call formatter%create('test.nc', rc=status)
+      @assertEqual(NF90_NOERR, status)
       call formatter%write(metadata, rc=status)
-      call formatter%put_var('new_char', char_write, start=[1], count=[Ydim])
+      @assertEqual(NF90_NOERR, status)
+      call formatter%put_var('new_char', char_write, start=[1], count=[Ydim], rc=status)
+      @assertEqual(NF90_NOERR, status)
       call formatter%close(rc=status)
+      @assertEqual(NF90_NOERR, status)
 
       call formatter%open('test.nc', PFIO_READ, rc=status)
-      call formatter%inq_var_string_length('new_char',length)
+      @assertEqual(NF90_NOERR, status)
+      call formatter%inq_var_string_length('new_char',length, rc=status)
+      @assertEqual(NF90_NOERR, status)
       metadata = formatter%read()
       my_dim = metadata%get_dimension('Ydim')
       allocate(character(len=length):: char_read(my_dim))
-      call formatter%get_var('new_char', char_read, start=[1], count=[my_dim])
-      call formatter%close()
+      call formatter%get_var('new_char', char_read, start=[1], count=[my_dim], rc=status)
+      @assertEqual(NF90_NOERR, status)
+      call formatter%close(rc=status)
+      @assertEqual(NF90_NOERR, status)
 
       @assertTrue(char_write == char_read)
 
