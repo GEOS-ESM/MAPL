@@ -99,6 +99,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Workaround for ESMF 8.9.0 `tests` bug (see https://github.com/esmf-org/esmf/issues/464)
+- Fixed 0d string reading and writing
 
 ### Added
 
