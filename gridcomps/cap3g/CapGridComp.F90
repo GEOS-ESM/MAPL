@@ -52,6 +52,7 @@ contains
       if (cap%run_history) then
          call MAPL_GridCompConnectAll(gridcomp, src_comp=cap%root_name, dst_comp=cap%history_name, _RC)
       end if
+
       _RETURN(_SUCCESS)
    end subroutine setServices
 
