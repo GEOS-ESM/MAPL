@@ -39,7 +39,7 @@ contains
    
    function parse_misc(hconfig, rc) result(misc)
       type(MiscellaneousComponentSpec) :: misc
-      type(ESMF_HConfig), intent(in) :: hconfig
+     type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -52,11 +52,38 @@ contains
 
       call parse_item(misc_cfg, key=COMPONENT_ACTIVATE_ALL_EXPORTS, value=misc%activate_all_exports, _RC)
       call parse_item(misc_cfg, key=COMPONENT_ACTIVATE_ALL_IMPORTS, value=misc%activate_all_imports, _RC)
-      call parse_item(misc_cfg, key=COMPONENT_WRITE_EXPORTS, value=misc%write_exports, _RC)
-      call parse_item(misc_cfg, key=COMPONENT_COLD_START, value=misc%cold_start, _RC)
+
+      misc%checkpoint_controls = parse_checkpoint_controls(misc_cfg, key=COMPONENT_CHECKPOINT, _RC)
+      misc%restart_controls = parse_checkpoint_controls(misc_cfg, key=COMPONENT_RESTART, _RC)
 
       _RETURN(_SUCCESS)
    end function parse_misc
+
+
+   function parse_checkpoint_controls(hconfig, key, rc) result(controls)
+      type(CheckpointControls) :: controls
+      type(ESMF_HConfig), intent(in) :: hconfig
+      character(*), intent(in) :: key
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
+      logical :: has_controls_section
+      type(ESMF_HConfig) :: controls_cfg
+
+      has_controls_section = ESMF_HConfigIsDefined(hconfig, keyString=key, _RC)
+      _RETURN_UNLESS(has_controls_section)
+      controls_cfg = ESMF_HConfigCreateAt(hconfig, keyString=key, _RC)
+
+      call parse_item(controls_cfg, key=KEY_IMPORT, value=controls%import, _RC)
+      call parse_item(controls_cfg, key=KEY_INTERNAL, value=controls%internal, _RC)
+
+      ! We allow checkpointing of exports for testing, but restarting
+      ! from exports is nonsensical.
+      _RETURN_IF (key == COMPONENT_RESTART)
+      call parse_item(controls_cfg, key=KEY_EXpORT, value=controls%export, _RC)
+
+      _RETURN(_SUCCESS)
+   end function parse_checkpoint_controls
 
    subroutine parse_item(hconfig, key, value, rc)
       type(ESMF_HConfig), intent(in) :: hconfig

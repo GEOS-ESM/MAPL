@@ -7,6 +7,7 @@ set (srcs
     ErrorHandling.F90
     MAPL_Hash.F90
     KeywordEnforcer.F90
+    OS.F90
     MAPL_LoadBalance.F90
     MAPL_MinMax.F90
     MAPL_Range.F90
