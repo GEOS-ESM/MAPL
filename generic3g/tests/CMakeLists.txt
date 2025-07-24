@@ -27,7 +27,7 @@ set (test_srcs
   Test_GenericGridComp.pf
 
   Test_TimeInterpolateTransform.pf
-  
+
   Test_ModelVerticalGrid.pf
   Test_FixedLevelsVerticalGrid.pf
   Test_VerticalLinearMap.pf
@@ -68,12 +68,16 @@ endif ()
 # This test also requires UDUNITS2_XML_PATH to be set to the location of the udunits2.xml file
 # This is found by Findudunits.cmake and stored in the variable udunits_XML_PATH
 
-set_tests_properties(
-  MAPL.generic3g.tests
-  PROPERTIES ENVIRONMENT "${LD_PATH}=${CMAKE_CURRENT_BINARY_DIR}/gridcomps:${CMAKE_BINARY_DIR}/lib:$ENV{${LD_PATH}};UDUNITS2_XML_PATH=${udunits_XML_PATH}"
-)
+set(TEST_ENV "${LD_PATH}=${CMAKE_CURRENT_BINARY_DIR}/gridcomps:${CMAKE_BINARY_DIR}/lib:$ENV{${LD_PATH}};UDUNITS2_XML_PATH=${udunits_XML_PATH}")
+
+if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
+  list(APPEND TEST_ENV "I_MPI_OFI_PROVIDER=psm3")
+endif()
+
+set_tests_properties(MAPL.generic3g.tests PROPERTIES ENVIRONMENT "${TEST_ENV}")
 
 add_dependencies(build-tests MAPL.generic3g.tests)
 
 file(COPY scenarios DESTINATION .)
 
+apply_esmf_fpe0_workaround()

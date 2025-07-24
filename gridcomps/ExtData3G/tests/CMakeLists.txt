@@ -4,7 +4,7 @@ set (test_srcs
   Test_ExtDataNodeBracket.pf
   )
 
-if (${GEOS_SITE} MATCHES "NCCS" OR ${GEOS_SITE} MATCHES "GMAO.desktop") 
+if (${GEOS_SITE} MATCHES "NCCS" OR ${GEOS_SITE} MATCHES "GMAO.desktop")
   list(APPEND test_srcs Test_NonClimDataSetFileSelector.pf)
   list(APPEND test_srcs Test_DataSetNode.pf)
 endif ()
@@ -25,6 +25,15 @@ if (APPLE)
 else()
   set(LD_PATH "LD_LIBRARY_PATH")
 endif ()
-set_property(TEST MAPL.extdata3g.tests PROPERTY ENVIRONMENT "${LD_PATH}=${CMAKE_CURRENT_BINARY_DIR}/gridcomps:$ENV{${LD_PATH}}")
+
+set(TEST_ENV "${LD_PATH}=${CMAKE_CURRENT_BINARY_DIR}/gridcomps:$ENV{${LD_PATH}}")
+
+if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
+  list(APPEND TEST_ENV "I_MPI_OFI_PROVIDER=psm3")
+endif()
+
+set_property(TEST MAPL.extdata3g.tests PROPERTY ENVIRONMENT "${TEST_ENV}")
 
 add_dependencies(build-tests MAPL.extdata3g.tests)
+
+apply_esmf_fpe0_workaround()

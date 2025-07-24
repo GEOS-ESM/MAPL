@@ -18,3 +18,5 @@ target_link_libraries(GEOS.x PRIVATE ${this})
 
 # GEOS.x is needed for 'make tests'
 add_dependencies(build-tests GEOS.x)
+
+apply_esmf_fpe0_workaround()
