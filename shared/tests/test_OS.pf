@@ -69,5 +69,21 @@ contains
       call mapl_RemoveDirectory(SUBDIR, _RC)
    end subroutine test_push_directory_sequence
 
+   @test
+   subroutine test_symlink()
+      character(*), parameter :: SUBDIR = 'dir_a'
+      character(*), parameter :: SYMDIR = 'dir_b'
+
+      integer :: status
+
+      call mapl_MakeDirectory(SUBDIR, _RC)
+      call mapl_MakeSymbolicLink(src_path=SUBDIR, link_path=SYMDIR, is_directory=.true., _RC)
+
+      @assert_that(mapl_DirectoryExists(SYMDIR), is(true()))
+
+      call mapl_RemoveFile(SYMDIR, _RC)
+      call mapl_RemoveDirectory(SUBDIR, _RC)
+      
+   end subroutine test_symlink
    
 end module test_OS
