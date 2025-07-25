@@ -49,7 +49,10 @@
       _ADJUST_VALUESTRING(valuestring, val)
       if(value_equals_default) valuestring = valuestring // DEFAULT_TAG
       message = typestring //' '// trim(label) //' = '// valuestring
-      !call lgr_%info(message)
+      _ASSERT(allocated(message), 'message has not been allocated.')
+      _ASSERT(len(message) > 0, 'message is empty.')
+      _ASSERT(len(message) <= 256, 'message is too long.')
+!      call lgr_%info(message)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
