@@ -5,6 +5,7 @@ module mapl3g_Cap
    use mapl3g_CapGridComp, only: cap_setservices => setServices
    use mapl_TimeStringConversion, only: hconfig_to_esmf_timeinterval
    use mapl_os
+   use pflogger
 !#   use esmf
    implicit none(type,external)
    private
@@ -28,6 +29,7 @@ module mapl3g_Cap
       type(esmf_Time) :: record_ringtime
       type(esmf_TimeInterval), allocatable :: record_frequency
       logical :: record_enabled = .false.
+      class(Logger), pointer :: lgr
    end type CapOptions
 
 contains
@@ -185,24 +187,30 @@ contains
       type(esmf_TimeInterval) :: timeStep, segment_duration, record_offset
       type(esmf_HConfig) :: clock_config
       logical :: has_record_frequency, has_record_offset, has_checkpointing
+      character(ESMF_MAXSTR) :: iso_time
 
       options%name = esmf_HConfigAsString(hconfig, keystring='name', _RC)
+      options%lgr => logging%get_logger(options%name, _RC)
       options%cap_gc_hconfig = esmf_HConfigCreateAt(hconfig, keystring='cap_gc', _RC)
 
       clock_config = esmf_HConfigCreateAt(hconfig, keystring='clock', _RC)
 
       call set_time(options%startTime, 'start', clock_config, _RC)
-      call esmf_TimePrint(options%startTime, options='string', prestring='start time set: ' ,_RC)
+      call esmf_TimeGet(options%startTime, timeString=iso_time, _RC)
+      call options%lgr%info('start time: %a', trim(iso_time)) 
 
       call set_time(options%stopTime, 'stop', clock_config, _RC)
-      call esmf_TimePrint(options%stopTime, options='string', prestring='stop time set: ', _RC)
+      call esmf_TimeGet(options%stopTime, timeString=iso_time, _RC)
+      call options%lgr%info('stop time: %a', trim(iso_time)) 
 
       options%timeStep = hconfig_to_esmf_timeinterval(clock_config, 'dt', _RC)
       segment_duration = hconfig_to_esmf_timeinterval(clock_config, 'segment_duration', _RC)
 
       end_of_segment = options%startTime + segment_duration
+      call esmf_TimeGet(end_of_segment, timeString=iso_time, _RC)
+      call options%lgr%info('segment stop time: %a', trim(iso_time))
       if (end_of_segment < options%stopTime) options%stopTime = end_of_segment
-      call esmf_TimePrint(options%stopTime, options='string', prestring='segment stop time: ', _RC)
+
 
       options%record_ringTime = options%stopTime ! default
       has_checkpointing = ESMF_HConfigIsDefined(clock_config, keystring='checkpointing', _RC)
@@ -234,9 +242,7 @@ contains
          integer :: status
          character(:), allocatable :: iso_time
 
-         _HERE, key
          iso_time = esmf_HConfigAsString(hconfig, keystring=key, _RC)
-         _HERE, 'iso_time: ', iso_time
          call esmf_TimeSet(time, timeString=iso_time, _RC)
          
          _RETURN(_SUCCESS)
