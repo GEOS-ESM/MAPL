@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed 0d string reading and writing
+- Fixed stretched grid target lat/lon unit conversion in ExtData
 
 ### Added
 

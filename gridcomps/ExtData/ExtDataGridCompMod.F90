@@ -42,7 +42,7 @@
    use ESMF_CFIOUtilMod
    use MAPL_CFIOMod
    use MAPL_StateUtils
-   use MAPL_Constants, only: MAPL_PI,MAPL_PI_R8,MAPL_RADIANS_TO_DEGREES,MAPL_CF_COMPONENT_SEPARATOR
+   use MAPL_Constants, only: MAPL_PI,MAPL_PI_R8,MAPL_CF_COMPONENT_SEPARATOR
    use MAPL_IOMod, only: MAPL_NCIOParseTimeUnits
    use mapl_RegridMethods
    use, intrinsic :: iso_fortran_env, only: REAL64
@@ -4191,7 +4191,7 @@ CONTAINS
         if (isPresent) then
            call ESMF_AttributeGet(grid, name='TARGET_LON', value=temp_real, rc=status)
            _VERIFY(status)
-           call MAPL_ConfigSetAttribute(cflocal,value=temp_real*MAPL_RADIANS_TO_DEGREES, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"TARGET_LON:",rc=status)
+           call MAPL_ConfigSetAttribute(cflocal,value=temp_real, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"TARGET_LON:",rc=status)
            _VERIFY(status)
         endif
 
@@ -4200,7 +4200,7 @@ CONTAINS
         if (isPresent) then
            call ESMF_AttributeGet(grid, name='TARGET_LAT', value=temp_real, rc=status)
            _VERIFY(status)
-           call MAPL_ConfigSetAttribute(cflocal,value=temp_real*MAPL_RADIANS_TO_DEGREES, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"TARGET_LAT:",rc=status)
+           call MAPL_ConfigSetAttribute(cflocal,value=temp_real, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"TARGET_LAT:",rc=status)
            _VERIFY(status)
         endif
      else
