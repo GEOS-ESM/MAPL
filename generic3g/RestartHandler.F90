@@ -80,14 +80,14 @@ contains
 
       ! Locals
       type(ESMF_FieldBundle) :: out_bundle
-      character(len=ESMF_MAXSTR) :: file_name
+      character(len=:), allocatable :: file_name
       integer :: item_count, status
 
       call ESMF_StateGet(state, itemCount=item_count, _RC)
       if (item_count > 0) then
          ! TODO: the file_name should come from OuterMetaComponents's hconfig
          file_name = trim(this%gc_name) // "_" // trim(state_intent) // "_checkpoint.nc4"
-         call this%lgr%info("Writing checkpoint: %a", trim(file_name))
+         call this%lgr%debug("Writing checkpoint: %a", file_name)
          out_bundle = MAPL_FieldBundleCreate(state, _RC)
          call this%write_bundle_(out_bundle, file_name, rc)
       end if
