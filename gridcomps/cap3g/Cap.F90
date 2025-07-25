@@ -3,6 +3,7 @@
 module mapl3g_Cap
    use mapl3
    use mapl3g_CapGridComp, only: cap_setservices => setServices
+   use mapl_TimeStringConversion, only: hconfig_to_esmf_time
    use mapl_TimeStringConversion, only: hconfig_to_esmf_timeinterval
    use mapl_os
    use pflogger
@@ -22,7 +23,9 @@ module mapl3g_Cap
       character(:), allocatable :: name
       type(esmf_Time) :: startTime
       type(esmf_Time) :: stopTime
+      type(esmf_Time) :: end_of_segment
       type(esmf_TimeInterval) :: timeStep
+      type(esmf_TimeInterval), allocatable :: repeatDuration
       type(esmf_HConfig) :: cap_gc_hconfig
 
       logical :: checkpointing = .true.
@@ -53,7 +56,12 @@ contains
 
       call make_directories(_RC)
       call initialize_phases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
-      call integrate(driver, options%record_enabled, _RC)
+      call integrate(driver, options%checkpointing, _RC)
+
+      if (options%checkpointing) then
+         call checkpoint(driver, final=.true., _RC)
+      end if
+
       call driver%finalize(_RC)
 
       _RETURN(_SUCCESS)
@@ -67,43 +75,37 @@ contains
 
       type(esmf_Clock) :: clock
       type(esmf_Time) :: currTime, stopTime
-      type(esmf_Alarm) :: alarm
       integer :: status
+      character(ESMF_MAXSTR) :: iso_time
 
       clock = driver%get_clock()
       call esmf_ClockGet(clock, currTime=currTime, stopTime=stopTime, _RC)
-      call esmf_ClockGetAlarm(clock, alarmName=RECORD_ALARM_NAME, alarm=alarm, _RC)
 
       time: do while (currTime < stopTime)
          ! TODO:  include Bill's monitoring log messages here
          call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
-         currTime = advance_clock(driver, clock, _RC)
+         currTime = advance_clock(driver, _RC)
 
          if (checkpointing) then
             call checkpoint(driver, final=.false., _RC)
          end if
-
       end do time
-
-      call esmf_TimePrint(currTime, options='string', preString='Cap time after loop: ', _RC)
-
-      if (checkpointing) then
-         call checkpoint(driver, final=.true., _RC)
-      end if
 
       _RETURN(_SUCCESS)
    end subroutine integrate
 
-   function advance_clock(driver, clock, rc) result(new_time)
+   function advance_clock(driver, rc) result(new_time)
       type(esmf_Time) :: new_time
       type(GriddedComponentDriver), intent(inout) :: driver
-      type(esmf_Clock), intent(inout) :: clock
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(esmf_Clock) :: clock
 
       call driver%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
       call driver%clock_advance(_RC)
+
+      clock = driver%get_clock()
       call esmf_ClockGet(clock, currTime=new_time, _RC)
       
       _RETURN(_SUCCESS)
@@ -130,16 +132,12 @@ contains
       _RETURN_UNLESS(is_record_time .neqv. final)
       
       call mapl_PushDirectory(CHECKPOINTS_DIR, _RC)
-      
-      call esmf_ClockGet(clock, currTime=currTime, _RC)
-      call esmf_TimeGet(currTime, timeStringISOFrac=iso_time, _RC)
-      path = trim(iso_time)
-      call make_directory(path, _RC)
+
+      path = make_checkpoint_dir(clock, _RC)
+
       call mapl_PushDirectory(path, _RC)
-
       call driver%write_restart(_RC)
-
-      path = mapl_PopDirectory(_RC) ! checkpoints
+      path = mapl_PopDirectory(_RC) ! up to CHECKPOINTS_DIR
 
       if (mapl_AmIRoot()) then
          inquire(file=LAST_CHECKPOINT, exist=last_exists) ! assumes LAST_CHECKPOINT is symlink
@@ -152,6 +150,23 @@ contains
       path = mapl_PopDirectory(_RC) ! top
       _RETURN(_SUCCESS)
    end subroutine checkpoint
+
+   function make_checkpoint_dir(clock, rc) result(path)
+      character(100), allocatable :: path
+      type(esmf_Clock), intent(in) :: clock
+      integer, optional, intent(out) :: rc
+
+      character(ESMF_MAXSTR) :: iso_time
+      type(ESMF_Time) :: currTime
+      integer :: status
+      
+      call esmf_ClockGet(clock, currTime=currTime, _RC)
+      call esmf_TimeGet(currTime, timeStringISOFrac=iso_time, _RC)
+      path = trim(iso_time)
+      call make_directory(path, force=.true.,_RC)
+      
+      _RETURN(_SUCCESS)
+   end function make_checkpoint_dir
 
    function make_driver(options, is_model_pet, rc) result(driver)
       use mapl3g_GenericGridComp, only: generic_SetServices => setServices
@@ -183,9 +198,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(esmf_Time) :: end_of_segment
       type(esmf_TimeInterval) :: timeStep, segment_duration, record_offset
-      type(esmf_HConfig) :: clock_config
+      type(esmf_HConfig) :: clock_cfg
       logical :: has_record_frequency, has_record_offset, has_checkpointing
       character(ESMF_MAXSTR) :: iso_time
 
@@ -193,27 +207,28 @@ contains
       options%lgr => logging%get_logger(options%name, _RC)
       options%cap_gc_hconfig = esmf_HConfigCreateAt(hconfig, keystring='cap_gc', _RC)
 
-      clock_config = esmf_HConfigCreateAt(hconfig, keystring='clock', _RC)
+      clock_cfg = esmf_HConfigCreateAt(hconfig, keystring='clock', _RC)
 
-      call set_time(options%startTime, 'start', clock_config, _RC)
-      call esmf_TimeGet(options%startTime, timeString=iso_time, _RC)
+      options%startTime = hconfig_to_esmf_time(clock_cfg, 'start', _RC)
+      call esmf_TimeGet(options%startTime, timeStringISOFrac=iso_time, _RC)
       call options%lgr%info('start time: %a', trim(iso_time)) 
 
-      call set_time(options%stopTime, 'stop', clock_config, _RC)
-      call esmf_TimeGet(options%stopTime, timeString=iso_time, _RC)
+      options%stopTime = hconfig_to_esmf_time(clock_cfg, 'stop', _RC)
+      call esmf_TimeGet(options%stopTime, timeStringISOFrac=iso_time, _RC)
       call options%lgr%info('stop time: %a', trim(iso_time)) 
 
-      options%timeStep = hconfig_to_esmf_timeinterval(clock_config, 'dt', _RC)
-      segment_duration = hconfig_to_esmf_timeinterval(clock_config, 'segment_duration', _RC)
+      options%timeStep = hconfig_to_esmf_timeinterval(clock_cfg, 'dt', _RC)
+      call esmf_TimeGet(options%stopTime, timeStringISOFrac=iso_time, _RC)
+      call options%lgr%info('time step: %a', trim(iso_time)) 
 
-      end_of_segment = options%startTime + segment_duration
-      call esmf_TimeGet(end_of_segment, timeString=iso_time, _RC)
+      segment_duration = hconfig_to_esmf_timeinterval(clock_cfg, 'segment_duration', _RC)
+
+      options%end_of_segment = options%startTime + segment_duration
+      call esmf_TimeGet(options%end_of_segment, timeStringISOFrac=iso_time, _RC)
       call options%lgr%info('segment stop time: %a', trim(iso_time))
-      if (end_of_segment < options%stopTime) options%stopTime = end_of_segment
-
 
       options%record_ringTime = options%stopTime ! default
-      has_checkpointing = ESMF_HConfigIsDefined(clock_config, keystring='checkpointing', _RC)
+      has_checkpointing = ESMF_HConfigIsDefined(clock_cfg, keystring='checkpointing', _RC)
       if (has_checkpointing) then
          options%checkpointing = ESMF_HConfigAsLogical(hconfig, keystring='checkpointing', _RC)
 
@@ -230,24 +245,6 @@ contains
       end if
 
       _RETURN(_SUCCESS)
-
-   contains
-
-      subroutine set_time(time, key, hconfig, rc)
-         type(esmf_Time), intent(out) :: time
-         character(*), intent(in) :: key
-         type(esmf_HConfig), intent(in) :: hconfig
-         integer, optional, intent(out) :: rc
-         
-         integer :: status
-         character(:), allocatable :: iso_time
-
-         iso_time = esmf_HConfigAsString(hconfig, keystring=key, _RC)
-         call esmf_TimeSet(time, timeString=iso_time, _RC)
-         
-         _RETURN(_SUCCESS)
-      end subroutine set_time
-      
    end function get_driver_options
 
    ! Create function that accepts a logical flag returns list of mpi processes that have .true..
@@ -283,8 +280,10 @@ contains
       integer :: status
       type(esmf_Alarm) :: record_alarm
 
-      clock = esmf_ClockCreate(timeStep=options%timeStep, startTime=options%startTime, stopTime=options%stopTime, &
-           refTime=options%startTime, _RC)
+      clock = esmf_ClockCreate(timeStep=options%timeStep, &
+           startTime=options%startTime, stopTime=options%end_of_segment, &
+           refTime=options%startTime, &
+           repeatDuration=options%repeatDuration, _RC)
 
       record_alarm = esmf_AlarmCreate(clock, name=RECORD_ALARM_NAME, &
            ringTime=options%record_ringTime, &
