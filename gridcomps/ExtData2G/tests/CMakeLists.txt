@@ -21,4 +21,8 @@ if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND NOT APPLE)
   target_link_libraries(MAPL.ExtData2G.tests ${CMAKE_DL_LIBS})
 endif ()
 
+if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
+  set_tests_properties(MAPL.ExtData2G.tests PROPERTIES ENVIRONMENT "I_MPI_OFI_PROVIDER=psm3")
+endif()
+
 add_dependencies(build-tests MAPL.ExtData2G.tests)

@@ -12,3 +12,6 @@ add_dependencies(build-tests MAPL.field_bundle.tests)
 set_target_properties(MAPL.field_bundle.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 set_tests_properties(MAPL.field_bundle.tests PROPERTIES LABELS "ESSENTIAL")
 
+if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
+  set_tests_properties(MAPL.field_bundle.tests PROPERTIES ENVIRONMENT "I_MPI_OFI_PROVIDER=psm3")
+endif()
