@@ -9,12 +9,7 @@ module mapl_HorizontalFluxRegridder
    use mapl_RegridMethods
    use mapl_KeywordEnforcerMod
    use mapl_ErrorHandlingMod
-
-   ! Added for GCHP. GEOS-ESM/MAPL/pull/2056
-   use mapl_MaplGrid
-   use mapl_Base
-   use mapl_SphericalGeometry
-
+   use mapl_BaseMod
    implicit none
    private
 
@@ -25,11 +20,6 @@ module mapl_HorizontalFluxRegridder
       integer :: resolution_ratio = -1
       integer :: im_in, jm_in
       integer :: im_out, jm_out
-
-      ! Added for GCHP. GEOS-ESM/MAPL/pull/2056
-      real, allocatable :: dx_in(:,:), dy_in(:,:)
-      real, allocatable :: dx_out(:,:), dy_out(:,:)
-
    contains
       procedure, nopass :: supports
       procedure :: initialize_subclass
@@ -65,9 +55,6 @@ contains
 
       supports = all(mod(counts_in(1:2), counts_out(1:2)) == 0) .or. all(mod(counts_out, counts_in) == 0)
 
-      ! Added for GCHP. GEOS-ESM/MAPL/pull/2056
-      _ASSERT(supports, "HFlux regridder requires local domains to be properly nested.")
-
       _RETURN(_SUCCESS)
    end function supports
 
@@ -82,9 +69,6 @@ contains
 
      integer :: counts(5)
      integer :: status
-
-     ! Added for GCHP. GEOS-ESM/MAPL/pull/2056
-     real(kind=ESMF_KIND_R8), allocatable :: corner_lons(:,:), corner_lats(:,:)
 
      _UNUSED_DUMMY(unusable)
      spec = this%get_spec()
@@ -106,36 +90,6 @@ contains
          _ASSERT((IM_in / IM_out) == (JM_in / JM_out), 'inconsistent aspect ratio')
          
          this%resolution_ratio = (IM_in / IM_out)
-
-         ! Added for GCHP. GEOS-ESM/MAPL/pull/2056
-         allocate(corner_lons(IM_in+1,JM_in+1), corner_lats(IM_in+1,JM_in+1))
-         associate(lons => corner_lons, lats => corner_lats)
-           call MAPL_GridGetCorners(grid_in, gridCornerLons=lons, gridCornerLats=lats, _RC)
-
-           this%dx_in = distance( &
-                lons(1:IM_in,1:JM_in), lats(1:IM_in,1:JM_in), &
-                lons(2:IM_in+1,1:JM_in), lats(2:IM_in+1,1:JM_in))
-
-           this%dy_in = distance( &
-                lons(1:IM_in,1:JM_in), lats(1:IM_in,1:JM_in), &
-                lons(1:IM_in,2:JM_in+1), lats(1:IM_in,2:JM_in+1))
-         end associate
-
-         deallocate(corner_lons, corner_lats)
-         allocate(corner_lons(IM_out+1,JM_out+1), corner_lats(IM_out+1,JM_out+1))
-         associate(lons => corner_lons, lats => corner_lats)
-           call MAPL_GridGetCorners(grid_out, gridCornerLons=lons, gridCornerLats=lats, _RC)
-
-           this%dx_out = distance( &
-                lons(1:IM_in,1:JM_in), lats(1:IM_in,1:JM_in), &
-                lons(2:IM_in+1,1:JM_in), lats(2:IM_in+1,1:JM_in))
-
-           this%dy_out = distance( &
-                lons(1:IM_in,1:JM_in), lats(1:IM_in,1:JM_in), &
-                lons(1:IM_in,2:JM_in+1), lats(1:IM_in,2:JM_in+1))
-         end associate
-         ! End section added for GCHP
-
        end associate
      end associate
      
@@ -174,16 +128,9 @@ contains
              do i  = 1, IM
                 m_y = 0
                 do ii = 1 + (i-1)*N, i*N
-                   associate (d_in => this%dx_in(ii,jj))
-                     m_y = m_y + v_in(ii,jj) * d_in
-                   end associate
-                   !m_y = m_y + v_in(ii,jj)
+                   m_y = m_y + v_in(ii,jj)
                 end do
-
-                associate (d_out => this%dx_out(i,j))
-                  v_out(i,j) = m_y / d_out
-                end associate
-                !v_out(i,j) = m_y
+                v_out(i,j) = m_y
              end do
           end do
           
@@ -193,15 +140,9 @@ contains
              do j  = 1, JM
                 m_x = 0
                 do jj = 1 + (j-1)*N, j*N
-                   associate (d_in => this%dy_in(ii,jj))
-                     m_x = m_x + u_in(ii,jj) * d_in
-                   end associate
-                   !m_x = m_x + u_in(ii,jj)
+                   m_x = m_x + u_in(ii,jj)
                 end do
-                associate (d_out => this%dy_out(i,j))
-                  u_out(i,j) = m_x / d_out
-                end associate
-                !u_out(i,j) = m_x
+                u_out(i,j) = m_x
              end do
           end do
 
@@ -244,15 +185,9 @@ contains
              do i  = 1, IM
                 m_y = 0
                 do ii = 1 + (i-1)*N, i*N
-                   associate (d_in => this%dx_in(ii,jj))
-                     m_y = m_y + v_in(ii,jj) * d_in
-                   end associate
-                   !m_y = m_y + v_in(ii,jj)
+                   m_y = m_y + v_in(ii,jj)
                 end do
-                                associate (d_out => this%dx_out(i,j))
-                  v_out(i,j) = m_y / d_out
-                end associate
-                !v_out(i,j) = m_y
+                v_out(i,j) = m_y
              end do
           end do
           
@@ -262,15 +197,9 @@ contains
              do j  = 1, JM
                 m_x = 0
                 do jj = 1 + (j-1)*N, j*N
-                   associate (d_in => this%dy_in(ii,jj))
-                     m_x = m_x + u_in(ii,jj) * d_in
-                   end associate
-                   !m_x = m_x + u_in(ii,jj)
+                   m_x = m_x + u_in(ii,jj)
                 end do
-                associate (d_out => this%dy_out(i,j))
-                  u_out(i,j) = m_x / d_out
-                end associate
-                !u_out(i,j) = m_x
+                u_out(i,j) = m_x
              end do
           end do
 
