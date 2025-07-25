@@ -1,5 +1,6 @@
 esmf:
   logKindFlag: ESMF_LOGKIND_MULTI_ON_ERROR
+  defaultCalKind: ESMF_CALKIND_GREGORIAN
 
 mapl:
   model_petcount: 1
@@ -20,13 +21,11 @@ cap:
     stop: 2999-03-02T21:00:00
     segment_duration: PT10H
 
-    num_segments: 1 # segments per batch submission
+  num_segments: 1 # segments per batch submission
 
-    servers:
-      pfio:
-        num_nodes: 9
-      model:
-        num_nodes: any
+  checkpointing: on
+  # record_frequency: P3H
+  # record_offset: P1H
 
   cap_gc:
     extdata_name: EXTDATA

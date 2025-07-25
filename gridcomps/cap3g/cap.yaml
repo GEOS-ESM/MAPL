@@ -1,30 +1,50 @@
-clock:
-  dt: PT900S
-  start: 1891-03-01T00:00:00
-  stop: 2999-03-02T21:00:00
-  segment_duration: P1H
-
-num_segments: 1 # segments per batch submission
-
-extdata_name: EXTDATA
-history_name: HIST
-root_name: GCM
-
 mapl:
-  children:
-    GCM:
-      dso: libgcm_gc
-      config_file: GCM.yaml
-    EXTDATA:
-      dso: libextdata_gc
-      config_file: extdata.yaml
-    HIST:
-      dso: libhistory_gc
-      config_file: history.yaml
+  model_petcount: 1
+#  pflogger_cfg_file: pflogger.yaml
+#
+#  servers:
+#    pfio:
+#       nodes: 1
+#    mit:
+#       nodes: 0
+
+cap:
+
+  name: cap
+  clock:
+    dt: PT900S
+    start: 1891-03-01T00:00:00
+    stop: 2999-03-02T21:00:00
+    segment_duration: P1H
+
+    num_segments: 1 # segments per batch submission
+
+    checkpointing: on
+    # record_frequency: P3H
+    # record_offset: P1H
+
+
+    cap_gc:
+      extdata_name: EXTDATA
+      history_name: HIST
+      root_name: GCM
+
+      mapl:
+        children:
+          GCM:
+            dso: libgcm_gc
+            config_file: GCM.yaml
+          EXTDATA:
+            dso: libextdata_gc
+            config_file: extdata.yaml
+          HIST:
+            dso: libhistory_gc
+            config_file: history.yaml
 
 # Global services
 esmf:
   logKindFlag: ESMF_LOGKIND_MULTI_ON_ERROR
+  defaultCalKind: ESMF_CALKIND_GREGORIAN
 
 pflogger:
   config_file: pflogger.yaml
