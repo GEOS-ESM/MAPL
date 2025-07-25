@@ -1,7 +1,11 @@
+#include "MAPL_TestErr.h"
 module Test_hconfig_get_private
    use mapl3g_hconfig_get_private, DEFTAG => DEFAULT_TAG
    use ESMF, R4 => ESMF_KIND_R4, R8 => ESMF_KIND_R8
    use ESMF, I4 => ESMF_KIND_I4, I8 => ESMF_KIND_I8
+   use :: pflogger, only: logging
+   use :: pflogger, only: Logger
+   
    use pfunit
 
    implicit none
@@ -15,8 +19,22 @@ module Test_hconfig_get_private
    ! instance variables
    logical :: hconfig_is_created = .FALSE.
    type(ESMF_HConfig) :: hconfig
+   class(Logger), pointer :: lgr
+!   type(ESMF_HConfig) :: esmf_hconfig
 
 contains
+
+   function get_logger(identifier)
+      class(Logger), pointer :: get_logger
+      character(len=*), optional, intent(in) :: identifier
+      character(len=:), allocatable :: ident
+
+         ident = 'MAPL'
+         if(present(identifier)) ident = identifier
+         get_logger => logging%get_logger(ident)
+
+   end function get_logger
+
 
    @Test
    subroutine test_get_i4()
@@ -536,6 +554,7 @@ contains
       
       integer :: status
 
+      !call ESMF_Initialize(defaultLogKindFlag=ESMF_LOGKIND_NONE, hconfig=esmf_hconfig, _RC)
       if(.not. hconfig_is_created) then
          hconfig = ESMF_HConfigCreate(rc=status)
          hconfig_is_created = (status == 0)
@@ -543,18 +562,318 @@ contains
          @assertEqual(0, status, 'Failed to add null value')
       end if
       @assertTrue(hconfig_is_created, 'HConfig was not created.')
-
-   end subroutine set_up
+      
+     end subroutine set_up
 
    @After
    subroutine tear_down()
 
       integer :: status
+      !logical :: freed
 
       if(hconfig_is_created) call ESMF_HConfigDestroy(hconfig, rc=status)
       hconfig_is_created = .FALSE.
       @assertFalse(hconfig_is_created, 'HConfig was not destroyed.')
+      !call MAPL_Finalize(_RC)
+      !call ESMF_Finalize(_RC)
 
    end subroutine tear_down
+
+   @Test
+   subroutine test_mapl_get_i4()
+      character(len=*), parameter :: LABEL = 'inv_alpha'
+      integer(kind=I4), parameter :: EXPECTED = 137
+      integer(kind=I4) :: actual
+!      type(HConfigParams) :: params
+!      logical :: found
+      integer :: status
+      class(Logger), pointer :: lgr
+
+      lgr => get_logger()
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+!      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call mapl_get_value_i4(hconfig, LABEL, actual, lgr=lgr, rc=status)
+!      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+!      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
+
+   end subroutine test_mapl_get_i4
+
+   @Test
+   subroutine test_mapl_get_i4_not_found_default()
+      character(len=*), parameter :: LABEL = 'inv_alpha'
+      integer(kind=I4), parameter :: DEFAULT = 137
+      character(len=*), parameter :: EXPECTED_VALUESTRING = '137' // DEFTAG
+      integer(kind=I4) :: actual
+!      type(HConfigParams) :: params
+!      logical :: found
+      integer :: status
+
+!      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call mapl_get_value_i4(hconfig, LABEL, actual, default=DEFAULT, rc=status)
+!      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+!      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertEqual(DEFAULT, actual, ERROR_MISMATCH)
+
+   end subroutine test_mapl_get_i4_not_found_default
+
+   @Test
+   subroutine test_mapl_get_i4_value_equals_default()
+      character(len=*), parameter :: LABEL = 'inv_alpha'
+      integer(kind=I4), parameter :: EXPECTED = 137
+      integer(kind=I4) :: actual
+!      type(HConfigParams) :: params
+!      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+!      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call mapl_get_value_i4(hconfig, LABEL, actual, default=EXPECTED, rc=status)
+!      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+!      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertEqual(EXPECTED, actual, ERROR_MISMATCH)
+
+   end subroutine test_mapl_get_i4_value_equals_default
+
+   @Test
+   subroutine test_mapl_get_i4_value_not_equal_default()
+      character(len=*), parameter :: LABEL = 'inv_alpha'
+      integer(kind=I4), parameter :: EXPECTED = 137
+      integer(kind=I4), parameter :: DEFAULT = 1
+      integer(kind=I4) :: actual
+!      type(HConfigParams) :: params
+!      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+!      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call mapl_get_value_i4(hconfig, LABEL, actual, default=DEFAULT, rc=status)
+!      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+!      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertEqual(EXPECTED, actual, ERROR_MISMATCH)
+
+   end subroutine test_mapl_get_i4_value_not_equal_default
+
+   @Test
+   subroutine test_mapl_get_i4_not_found_no_default()
+      character(len=*), parameter :: LABEL = 'inv_alpha'
+      integer(kind=I4) :: actual
+!      type(HConfigParams) :: params
+!      logical :: found
+      integer :: status_
+
+!      params = HConfigParams(hconfig, LABEL)
+      call mapl_get_value_i4(hconfig, LABEL, actual, rc=status_)
+!      found = params%value_set
+      @assertFalse(status_ == _SUCCESS, 'get_value should have failed.')
+
+   end subroutine test_mapl_get_i4_not_found_no_default
+
+   @Test
+   subroutine test_mapl_get_i8()
+      character(len=*), parameter :: LABEL = 'num_h_on_pinhead'
+      integer(kind=I8), parameter :: EXPECTED = 50000000000_I8
+      integer(kind=I8) :: actual
+!      type(HConfigParams) :: params
+!      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+!      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call mapl_get_value_i8(hconfig, LABEL, actual, rc=status)
+!      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+!      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
+
+   end subroutine test_mapl_get_i8
+   
+   @Test
+   subroutine test_mapl_get_r4()
+      character(len=*), parameter :: LABEL = 'plank_mass'
+      real(kind=R4), parameter :: EXPECTED =   1.85900000E-9_R4
+      real(kind=R4) :: actual
+!      type(HConfigParams) :: params
+!      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+!      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call mapl_get_value_r4(hconfig, LABEL, actual, rc=status)
+!      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+!      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
+
+   end subroutine test_mapl_get_r4
+   
+   @Test
+   subroutine test_mapl_get_r8()
+      character(len=*), parameter :: LABEL = 'mu_mass'
+      real(kind=R8), parameter :: EXPECTED = -9.28476470432000000E-23_R8
+      real(kind=R8) :: actual
+!      type(HConfigParams) :: params
+!      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+!      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call mapl_get_value_r8(hconfig, LABEL, actual, rc=status)
+!      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+!      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
+
+   end subroutine test_mapl_get_r8
+
+   @Test
+   subroutine test_mapl_get_string()
+      character(len=*), parameter :: LABEL = 'newton'
+      character(len=*), parameter :: EXPECTED = 'Fg = Gm1m2/r^2'
+      character(len=:), allocatable :: actual
+!      type(HConfigParams) :: params
+!      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+!      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call mapl_get_value_string(hconfig, LABEL, actual, rc=status)
+!      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+!      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue((actual == EXPECTED), ERROR_MISMATCH)
+
+   end subroutine test_mapl_get_string
+
+   @Test
+   subroutine test_mapl_get_logical()
+      character(len=*), parameter :: LABEL = 'p_or_np'
+      logical, parameter :: EXPECTED = .TRUE.
+      logical :: actual
+!      type(HConfigParams) :: params
+!      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+!      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call mapl_get_value_logical(hconfig, LABEL, actual, rc=status)
+!      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+!      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue((actual .eqv. EXPECTED), ERROR_MISMATCH)
+
+   end subroutine test_mapl_get_logical
+
+   @Test
+   subroutine test_mapl_get_i4seq()
+      character(len=*), parameter :: LABEL = 'five'
+      integer(kind=I4), parameter :: EXPECTED(5) = [-1, 0, 1, 2, 3]
+      integer(kind=I4), allocatable :: actual(:)
+!      type(HConfigParams) :: params
+!      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+!      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call mapl_get_value_i4seq(hconfig, LABEL, actual, rc=status)
+!      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+!      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue(all(actual == EXPECTED), ERROR_MISMATCH)
+
+   end subroutine test_mapl_get_i4seq
+
+   @Test
+   subroutine test_mapl_get_i8seq()
+      character(len=*), parameter :: LABEL = 'three'
+      integer(kind=I8), parameter :: EXPECTED(3) = [-1, 0, 1]
+      integer(kind=I8), allocatable :: actual(:)
+!      type(HConfigParams) :: params
+!      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+!      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call mapl_get_value_i8seq(hconfig, LABEL, actual, rc=status)
+!      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+!      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue(all(actual == EXPECTED), ERROR_MISMATCH)
+
+   end subroutine test_mapl_get_i8seq
+
+   @Test
+   subroutine test_mapl_get_r4seq()
+      character(len=*), parameter :: LABEL = 'four'
+      real(kind=R4), parameter :: EXPECTED(4) = &
+         [-1.23456780_R4, 1.23456780_R4, 9.87654300_R4, -9.87654300_R4]
+      real(kind=R4), allocatable :: actual(:)
+!      type(HConfigParams) :: params
+!      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+!      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call mapl_get_value_r4seq(hconfig, LABEL, actual, rc=status)
+!      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+!      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue(all(actual == EXPECTED), ERROR_MISMATCH)
+
+   end subroutine test_mapl_get_r4seq
+
+   @Test
+   subroutine test_mapl_get_r8seq()
+      character(len=*), parameter :: LABEL = 'four'
+      real(kind=R8), parameter :: EXPECTED(4) = &
+         [613.00004000000000_R8, 413.00006000000000_R8, 361.00007000000000_R8, 463.00001000000000_R8]
+      real(kind=R8), allocatable :: actual(:)
+!      type(HConfigParams) :: params
+!      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+!      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call mapl_get_value_r8seq(hconfig, LABEL, actual, rc=status)
+!      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+!      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue(all(actual == EXPECTED), ERROR_MISMATCH)
+
+   end subroutine test_mapl_get_r8seq
+
+   @Test
+   subroutine test_mapl_get_logical_seq()
+      character(len=*), parameter :: LABEL = 'tuffet'
+      logical, parameter :: EXPECTED(4) = [.TRUE., .FALSE., .FALSE., .TRUE.]
+      logical, allocatable :: actual(:)
+!      type(HConfigParams) :: params
+!      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+!      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call mapl_get_value_logicalseq(hconfig, LABEL, actual, rc=status)
+!      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+!      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue(all(actual .eqv. EXPECTED), ERROR_MISMATCH)
+
+   end subroutine test_mapl_get_logical_seq
 
 end module Test_hconfig_get_private

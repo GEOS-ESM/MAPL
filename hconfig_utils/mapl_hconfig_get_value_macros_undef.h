@@ -1,39 +1,23 @@
-#ifdef _VALARG_
-#undef _VALARG_
+#ifdef _COMPARE
+#undef _COMPARE
 #endif
 
-#ifdef _DEFARG_
-#undef _DEFARG_
+#ifdef _DIMS_
+#undef _DIMS_
 #endif
 
-#ifdef _SUB_
-#undef _SUB_
+#ifdef _DECL_NUM_ITEMS_
+#undef _DECL_NUM_ITEMS_
 #endif
 
-#ifdef _TYPESTRING_
-#undef _TYPESTRING_
+#ifdef _SET_NUM_ITEMS
+#undef _SET_NUM_ITEMS
 #endif
 
-#ifdef _FTYPE_
-#undef _FTYPE_
+#ifdef _WRITE_DIMS_
+#undef _WRITE_DIMS_
 #endif
 
-#ifdef _ESMF_FUNC_
-#undef _ESMF_FUNC_
-#endif
-
-#ifdef _ED_
-#undef _ED_
-#endif
-
-#ifdef _TYPE_
-#undef _TYPE_
-#endif
-
-#ifdef _ARRAY_
-#undef _ARRAY_
-#endif
-
-#ifdef _KIND_
-#undef _KIND_
+#ifdef _ADJUST_VALUESTRING
+#undef _ADJUST_VALUESTRING
 #endif

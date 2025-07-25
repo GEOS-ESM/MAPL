@@ -1,8 +1,9 @@
 #include "MAPL_ErrLog.h"
+#include "unused_dummy.H"
 module mapl3g_hconfig_get_private
    use mapl3g_hconfig_params
    use mapl3g_get_hconfig
-   use mapl3g_generalized_equality
+   use mapl3g_generalized_equality, only: are_equal
    use :: esmf, only: ESMF_MAXSTR
    use :: esmf, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_KIND_I4, ESMF_KIND_I8
    use :: esmf, only: ESMF_HConfig, ESMF_HConfigIsDefined
@@ -13,7 +14,8 @@ module mapl3g_hconfig_get_private
    use :: esmf, only: ESMF_HConfigAsR4Seq, ESMF_HConfigAsR8Seq
    use :: esmf, only: ESMF_HConfigAsLogicalSeq
    use mapl_ErrorHandling
-   use :: pflogger, only: Logger_t => Logger
+   use mapl_KeywordEnforcerMod
+   use pFlogger, only: logging, Logger
 
    implicit none
    private
@@ -41,20 +43,6 @@ module mapl3g_hconfig_get_private
    public :: get_value_r4seq
    public :: get_value_r8seq
    public :: get_value_logical_seq
-
-!   interface get_value
-!      procedure :: get_value_i4
-!      procedure :: get_value_i8
-!      procedure :: get_value_r4
-!      procedure :: get_value_r8
-!      procedure :: get_value_string
-!      procedure :: get_value_logical
-!      procedure :: get_value_i4seq
-!      procedure :: get_value_i8seq
-!      procedure :: get_value_r4seq
-!      procedure :: get_value_r8seq
-!      procedure :: get_value_logical_seq
-!   end interface get_value
 
    character(len=*), parameter :: DEFAULT_TAG = ' (default)'
    character(len=*), parameter :: ELLIPSIS = ', ...'
@@ -176,12 +164,15 @@ contains
 
    end function make_fmt
 
+#include "mapl_hconfig_macros.h"
+
 #define _SUB_ mapl_get_value_I4
 #define _FTYPE_ integer(kind=ESMF_KIND_I4)
 #define _ESMF_FUNC_ ESMF_HConfigAsI4
 #define _TYPESTRING_ "I4"
 #define _EDIT_DESCRIPTOR_ "G0"
 #include "mapl_hconfig_get_value_template.h"
+#include "mapl_hconfig_get_value_template_undef.h"
 
 #define _SUB_ mapl_get_value_I8
 #define _FTYPE_ integer(kind=ESMF_KIND_I8)
@@ -189,6 +180,7 @@ contains
 #define _TYPESTRING_ "I8"
 #define _EDIT_DESCRIPTOR_ "G0"
 #include "mapl_hconfig_get_value_template.h"
+#include "mapl_hconfig_get_value_template_undef.h"
 
 #define _SUB_ mapl_get_value_R4
 #define _FTYPE_ real(kind=ESMF_KIND_R4)
@@ -196,6 +188,7 @@ contains
 #define _TYPESTRING_ "R4"
 #define _EDIT_DESCRIPTOR_ "G0.7"
 #include "mapl_hconfig_get_value_template.h"
+#include "mapl_hconfig_get_value_template_undef.h"
 
 #define _SUB_ mapl_get_value_R8
 #define _FTYPE_ real(kind=ESMF_KIND_R8)
@@ -203,61 +196,72 @@ contains
 #define _TYPESTRING_ "R8"
 #define _EDIT_DESCRIPTOR_ "G0.16"
 #include "mapl_hconfig_get_value_template.h"
-
-#define _SUB_ mapl_get_value_Logical
-#define _FTYPE_ logical
-#define _ESMF_FUNC_ ESMF_HConfigAsLogical
-#define _TYPESTRING_ "L"
-#define _EDIT_DESCRIPTOR_ "L1"
-#define _RELATION_ .eqv.
-#include "mapl_hconfig_get_value_template.h"
+#include "mapl_hconfig_get_value_template_undef.h"
 
 #define _SUB_ mapl_get_value_String
-#define _FTYPE_ character(len=*)
+#define _FTYPE_ character
 #define _ESMF_FUNC_ ESMF_HConfigAsString
 #define _TYPESTRING_ "CH"
 #define _EDIT_DESCRIPTOR_ "A"
+#define _IS_CHARACTER_
 #include "mapl_hconfig_get_value_template.h"
+#include "mapl_hconfig_get_value_template_undef.h"
 
 #define _SUB_ mapl_get_value_I4Seq
 #define _FTYPE_ integer(kind=ESMF_KIND_I4)
 #define _ESMF_FUNC_ ESMF_HConfigAsI4Seq
 #define _TYPESTRING_ "I4"
 #define _EDIT_DESCRIPTOR_ "G0"
-#define _ARRAY_ 1
+#define _ARRAY_
 #include "mapl_hconfig_get_value_template.h"
+#include "mapl_hconfig_get_value_template_undef.h"
 
 #define _SUB_ mapl_get_value_I8Seq
 #define _FTYPE_ integer(kind=ESMF_KIND_I8)
 #define _ESMF_FUNC_ ESMF_HConfigAsI8Seq
 #define _TYPESTRING_ "I8"
 #define _EDIT_DESCRIPTOR_ "G0"
-#define _ARRAY_ 1
+#define _ARRAY_
 #include "mapl_hconfig_get_value_template.h"
+#include "mapl_hconfig_get_value_template_undef.h"
 
 #define _SUB_ mapl_get_value_R4Seq
 #define _FTYPE_ real(kind=ESMF_KIND_R4)
 #define _ESMF_FUNC_ ESMF_HConfigAsR4Seq
 #define _TYPESTRING_ "R4"
 #define _EDIT_DESCRIPTOR_ "G0.7"
-#define _ARRAY_ 1
+#define _ARRAY_
 #include "mapl_hconfig_get_value_template.h"
+#include "mapl_hconfig_get_value_template_undef.h"
 
 #define _SUB_ mapl_get_value_R8Seq
 #define _FTYPE_ real(kind=ESMF_KIND_R8)
 #define _ESMF_FUNC_ ESMF_HConfigAsR8Seq
 #define _TYPESTRING_ "R8"
 #define _EDIT_DESCRIPTOR_ "G0.16"
-#define _ARRAY_ 1
+#define _ARRAY_
 #include "mapl_hconfig_get_value_template.h"
+#include "mapl_hconfig_get_value_template_undef.h"
+
+#define _SUB_ mapl_get_value_Logical
+#define _FTYPE_ logical
+#define _ESMF_FUNC_ ESMF_HConfigAsLogical
+#define _TYPESTRING_ "L"
+#define _EDIT_DESCRIPTOR_ "L1"
+#define _IS_LOGICAL_
+#include "mapl_hconfig_get_value_template.h"
+#include "mapl_hconfig_get_value_template_undef.h"
 
 #define _SUB_ mapl_get_value_LogicalSeq
 #define _FTYPE_ logical
 #define _ESMF_FUNC_ ESMF_HConfigAsLogicalSeq
 #define _TYPESTRING_ "L"
 #define _EDIT_DESCRIPTOR_ "L1"
-#define _ARRAY_ 1
-#define _RELATION_ .eqv.
+#define _IS_LOGICAL_
+#define _ARRAY_
 #include "mapl_hconfig_get_value_template.h"
+#include "mapl_hconfig_get_value_template_undef.h"
+
+#include "mapl_hconfig_macros_undef.h"
 
 end module mapl3g_hconfig_get_private

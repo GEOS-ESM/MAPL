@@ -1,116 +1,61 @@
-#define _PO_ (
-#define _PC_ )
-#define _COLON_ :
-#define _GROUP(A) _PO_ A _PC_
-#define _DIMS_ _GROUP(_COLON_)
+#include "mapl_hconfig_get_value_macros.h"
 
-#ifndef _RELATION_
-   #define _RELATION_ ==
-#endif
-
-! if ARRAY
-!define _DECLARE(V) V _DIMS_
-!define _COMPARE(V, R, D) all _GROUP(V R D) 
-!define _NUM_ITEMS(V) min(size(val), MAX_NUM_ITEMS_OUTPUT)
-
-!define _SET_VALUESTRING(S, B) S=trim(B)\
-! if(size(val)>num_items) S=S//ELLIPSIS\
-! S='['//S//']'
-
-!define _WRITE_BUFFER(B, V) write(B, fmt=fmtstr, iostat=status) V(1:num_items)
-! ELSE
-!define _DECLARE(V) V
-!define _COMPARE(V, R, D) _GROUP(V R D)
-!define _NUM_ITEMS(V) 0
-!define _SET_VALUESTRING(S, B) S=trim(B)
-!define _WRITE_BUFFER(B, V) write(B, fmt=fmtstr, iostat=status) V
-!end 
-
-   subroutine _SUB_(hconfig, label, val, default, logger, rc)  
+   subroutine _SUB_(hconfig, label, val, unusable, default, lgr, rc)  
       type(ESMF_HConfig), intent(in) :: hconfig
       character(len=*), intent(in) :: label
-#ifdef _ARRAY_
-      _FTYPE_ , intent(inout) :: val(:)
-      _FTYPE_ , optional, intent(in) :: default(:)
-#else
-      _FTYPE_ , intent(inout) :: val
-      _FTYPE_ , optional, intent(in) :: default
-#endif
-      class(Logger_t), pointer, optional, intent(in) :: logger
+      _VTYPE_ , intent(inout) :: val _DIMS_
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      _DTYPE_ , optional, intent(in) :: default _DIMS_
+      class(Logger), pointer, optional :: lgr
       integer, optional, intent(out) :: rc
 
       integer :: status
-      class(Logger_t), pointer :: logger_
+      class(Logger), pointer :: lgr_
       character(len=*), parameter :: EDIT_DESCRIPTOR = _EDIT_DESCRIPTOR_
       character(len=*), parameter :: TYPESTRING = _TYPESTRING_
-      logical :: found, value_equals_default
+      logical :: found, value_equals_default, value_is_unset
       character(len=:), allocatable :: valuestring
       character(len=ESMF_MAXSTR) :: buffer
       character(len=:), allocatable :: fmtstr
-      integer :: num_items
       character(len=:), allocatable :: message
+      _DECL_NUM_ITEMS_
 
-      found = .FALSE.
-      value_equals_default = .TRUE.
-      logger_ => null()
-      if(present(logger)) then
-         logger_ => logger
+      if(present(lgr)) then
+         lgr_ => lgr
       else
-         logger_ => null() !wdb fixme deleteme This needs to be replaced with the MAPL Logger
+         lgr_ => logging%get_logger('MAPL') 
       end if
       message = 'The Logger is unknown.'
-      _ASSERT(associated(logger_),message)
+      _ASSERT(associated(lgr_),message)
 
       found = ESMF_HConfigIsDefined(hconfig, keyString=label, _RC)
+      value_is_unset = .not. found
+      value_equals_default = found
       message = 'Label "' // trim(label) // '" was not found.'
       _ASSERT(found .or. present(default), message)
 
-      if(present(default)) val = default
       if(found) then
          val = _ESMF_FUNC_(hconfig, keyString=label, _RC)
-
-#ifdef _ARRAY_
-         value_equals_default = all(val _RELATION_ default)
-#else
-         value_equals_default = val _RELATION_ default
-#endif
       end if
 
+      if(present(default)) value_equals_default = _COMPARE(val, default)
+      if(value_is_unset) val = default
+
       fmtstr = make_fmt(EDIT_DESCRIPTOR)
-! num_items: min(size(val), MAX_NUM_ITEMS_OUTPUT) or 0 => _NUM_ITEMS_
-! write variable val(1:num_items) or val => _WRITE_VAL_
-! trim: yes or no 
-! group symbols: '[', ']' or '', ''
-#if defined _ARRAY_
-      num_items = min(size(val), MAX_NUM_ITEMS_OUTPUT)
-      write(buffer, fmt=fmtstr, iostat=status) val(1:num_items)
+      _SET_NUM_ITEMS(num_items, val)
+      write(buffer, fmt=fmtstr, iostat=status) val _WRITE_DIMS_
       _VERIFY(status)
       valuestring = trim(buffer)
-      if(size(val) > num_items) valuestring = valuestring // ELLIPSIS
-      valuestring = '[' // valuestring // ']'
-#else
-      num_items = 0
-      write(buffer, fmt=fmtstr, iostat=status) val
-      _VERIFY(status)
-      valuestring = trim(buffer)
-#endif
+      _ADJUST_VALUESTRING(valuestring, val)
       if(value_equals_default) valuestring = valuestring // DEFAULT_TAG
       message = typestring //' '// trim(label) //' = '// valuestring
-      call logger_%info(message)
+      !call lgr_%info(message)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
 
    end subroutine _SUB_
 
-#undef _SUB_
-#undef _FTYPE_
-#undef _ESMF_FUNC_
-#undef _TYPESTRING_
-#undef _EDIT_DESCRIPTOR_
-#undef _RELATION_
-
-#ifdef _ARRAY_
-#undef _ARRAY_
-#endif
+#include "mapl_hconfig_get_value_macros_undef.h"
 
 ! vim:ft=fortran
