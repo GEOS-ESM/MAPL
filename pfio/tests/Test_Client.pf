@@ -58,9 +58,9 @@ contains
       handle_foo = c%add_ext_collection(template='foo')
       handle_bar = c%add_ext_collection(template='bar')
       @assertFalse(handle_foo == handle_bar)
-      
+
    end subroutine test_addExtCollection_unique_handle
-   
+
    @test
    subroutine test_prefetch_data()
       type (MockClientThread) :: c
@@ -72,6 +72,7 @@ contains
       character(len=:), allocatable :: expected_log
       type (MockSocketLog), target :: log
 
+      q = 17
       call c%set_connection(MockSocket(log))
       connection => c%get_connection()
       select type (connection)
@@ -91,9 +92,9 @@ contains
       type is (MockSocket)
          @assertEqual(expected_log, log%log)
       end select
-         
+
    end subroutine test_prefetch_data
-   
+
    @test
    subroutine test_wait()
       type (MockClientThread), target :: c
@@ -152,7 +153,7 @@ contains
 
       @assertEqual(q1_expected, q1)
       @assertEqual(q2_expected, q2)
-         
+
    end subroutine test_wait
-   
+
 end module test_Client
