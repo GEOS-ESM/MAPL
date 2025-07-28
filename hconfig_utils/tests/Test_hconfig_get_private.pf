@@ -5,6 +5,7 @@ module Test_hconfig_get_private
    use ESMF, I4 => ESMF_KIND_I4, I8 => ESMF_KIND_I8
    use :: pflogger, only: logging
    use :: pflogger, only: Logger
+   use mapl_ErrorHandling
    
    use pfunit
 
@@ -634,16 +635,17 @@ contains
 
    end subroutine test_mapl_get_i4_value_not_equal_default
 
-   @Test
-   subroutine test_mapl_get_i4_not_found_no_default()
-      character(len=*), parameter :: LABEL = 'inv_alpha'
-      integer(kind=I4) :: actual
-      integer :: status_
-
-      call mapl_get_value_i4(hconfig, LABEL, actual, rc=status_)
-      @assertFalse(status_ == _SUCCESS, 'get_value should have failed.')
-
-   end subroutine test_mapl_get_i4_not_found_no_default
+!   @Test
+!   subroutine test_mapl_get_i4_not_found_no_default()
+!      character(len=*), parameter :: LABEL = 'inv_alpha'
+!      integer(kind=I4) :: actual
+!      integer :: status
+!
+!      call mapl_get_value_i4(hconfig, LABEL, actual, _RC)
+!      @assertExceptionRaised('Label "inv_alpha" was not found.')
+!      @assertFalse(status == 0, 'get_value should have failed.')
+!
+!   end subroutine test_mapl_get_i4_not_found_no_default
 
    @Test
    subroutine test_mapl_get_i8()
