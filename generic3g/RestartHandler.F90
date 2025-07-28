@@ -52,10 +52,11 @@ module mapl3g_RestartHandler
 
 contains
 
-   function new_RestartHandler(gc_name, gc_geom, gc_clock, rc) result(restart_handler)
+   function new_RestartHandler(gc_name, gc_geom, gc_clock, gc_logger, rc) result(restart_handler)
       character(len=*), intent(in) :: gc_name
       type(ESMF_Geom), intent(in) :: gc_geom
       type(ESMF_Clock), intent(in) :: gc_clock
+      class(logger), pointer, optional, intent(in) :: gc_logger
       integer, optional, intent(out) :: rc
       type(RestartHandler) :: restart_handler ! result
 
@@ -65,6 +66,7 @@ contains
       call ESMF_Clockget(gc_clock, currTime=restart_handler%current_time, _RC)
       restart_handler%gc_geom = gc_geom
       restart_handler%lgr => logging%get_logger('mapl.restart')
+      if (present(gc_logger)) restart_handler%lgr => gc_logger
 
       _RETURN(_SUCCESS)
    end function new_RestartHandler
@@ -78,14 +80,14 @@ contains
 
       ! Locals
       type(ESMF_FieldBundle) :: out_bundle
-      character(len=ESMF_MAXSTR) :: file_name
+      character(len=:), allocatable :: file_name
       integer :: item_count, status
 
       call ESMF_StateGet(state, itemCount=item_count, _RC)
       if (item_count > 0) then
          ! TODO: the file_name should come from OuterMetaComponents's hconfig
          file_name = trim(this%gc_name) // "_" // trim(state_intent) // "_checkpoint.nc4"
-         call this%lgr%debug("Writing checkpoint: %a", trim(file_name))
+         call this%lgr%debug("Writing checkpoint: %a", file_name)
          out_bundle = MAPL_FieldBundleCreate(state, _RC)
          call this%write_bundle_(out_bundle, file_name, rc)
       end if
@@ -101,7 +103,7 @@ contains
       integer, optional, intent(out) :: rc
 
       ! Locals
-      character(len=ESMF_MAXSTR) :: file_name
+      character(len=:), allocatable :: file_name
       logical :: file_exists
       integer :: item_count, status
 
@@ -109,13 +111,13 @@ contains
       if (item_count > 0) then
          ! TODO: the file_name should come from OuterMetaComponents's hconfig
          file_name = trim(this%gc_name) // "_" // trim(state_intent) // "_rst.nc4"
-         inquire(file=trim(file_name), exist=file_exists)
+         inquire(file=file_name, exist=file_exists)
          if (.not. file_exists) then
             ! TODO: Need to decide what happens in that case. Bootstrapping variables?
-            call this%lgr%warning("Restart file << %a >> does not exist. Skip reading!", trim(file_name))
+            call this%lgr%warning("Restart file << %a >> does not exist. Skip reading!", file_name)
             _RETURN(_SUCCESS)
          end if
-         call this%lgr%debug("Reading restart: %a", trim(file_name))
+         call this%lgr%info("Reading restart: %a", trim(file_name))
          call this%read_fields_(file_name, state, _RC)
       end if
 
