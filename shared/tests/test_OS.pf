@@ -3,6 +3,8 @@
 module test_OS
    use mapl_os
    use funit
+   implicit none(type, external)
+
 contains
 
    @test
@@ -42,7 +44,31 @@ contains
    end subroutine test_push_directory
 
    @test
-   subroutine test_push_directory_sequence()
+   subroutine test_push_directory_sequence_a()
+      character(*), parameter :: SUBDIR_A = 'dir_a'
+      character(*), parameter :: SUBDIR_B = 'dir_b'
+      integer :: status
+      character(:), allocatable :: dir, current_dir
+
+      current_dir = mapl_GetCurrentWorkingDirectory(_RC)
+      call mapl_MakeDirectory(SUBDIR_A, _RC)
+      call mapl_PushDirectory(SUBDIR_A, _RC)
+
+      call mapl_MakeDirectory(SUBDIR_B, _RC)
+      call mapl_PushDirectory(SUBDIR_B, _RC)
+      dir = mapl_PopDirectory(_RC)
+      @assertEqual(mapl_PathJoin(current_dir, SUBDIR_A), dir)
+
+      dir = mapl_PopDirectory(_RC)
+      @assertEqual(current_dir, dir)
+
+      ! cleanup
+      call mapl_RemoveDirectory(mapl_PathJoin(SUBDIR_A, SUBDIR_B), _RC)
+      call mapl_RemoveDirectory(SUBDIR_A, _RC)
+   end subroutine test_push_directory_sequence_a
+
+   @test
+   subroutine test_push_directory_sequence_b()
       character(*), parameter :: SUBDIR = 'dir_a'
       integer :: status
       character(:), allocatable :: dir, current_dir
@@ -67,7 +93,7 @@ contains
 
       ! cleanup
       call mapl_RemoveDirectory(SUBDIR, _RC)
-   end subroutine test_push_directory_sequence
+   end subroutine test_push_directory_sequence_b
 
    @test
    subroutine test_symlink()

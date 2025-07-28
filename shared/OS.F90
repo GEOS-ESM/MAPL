@@ -206,9 +206,7 @@ contains
       end if
       command = command // trim(path)
 
-      _HERE, command
       call execute_command_line(command, exitstat=status)
-      _HERE, status
 
       _ASSERT(status==0, 'Error deleting file: ' // trim(path))
       _RETURN(_SUCCESS)
@@ -262,6 +260,7 @@ contains
       if (path(1:1) /= '/') then
          full_path = path_join(current_dir, trim(path))
       end if
+
       call change_directory(full_path, _RC)
         
       _RETURN(_SUCCESS)
@@ -275,8 +274,8 @@ contains
 
       new_path = '' ! need to always allocate something
       _ASSERT(directory_stack%size() > 0, 'No directory to pop')
-      call directory_stack%pop()
       new_path = directory_stack%top()
+      call directory_stack%pop()
       call change_directory(new_path, _RC)
       _RETURN(_SUCCESS)
    end function pop_directory
