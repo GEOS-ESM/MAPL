@@ -112,7 +112,7 @@ contains
 
       type(esmf_Clock) :: clock
       integer :: alarmCount
-      character(:), allocatable :: path
+      character(:), allocatable :: path, checkpoint_path
       logical :: is_record_time
       logical :: last_exists
       integer :: status
@@ -127,18 +127,22 @@ contains
 
       call mapl_PushDirectory(options%path, _RC)
 
-      path = make_checkpoint_dir(clock, _RC)
 
-      call mapl_PushDirectory(path, _RC)
+      checkpoint_path = make_checkpoint_dir(clock, _RC)
+      path = checkpoint_path
+
+      call mapl_PushDirectory(checkpoint_path, _RC)
       call driver%write_restart(_RC)
       path = mapl_PopDirectory(_RC) ! up to CHECKPOINTS_DIR
 
       if (mapl_AmIRoot()) then
-         inquire(file=LAST_CHECKPOINT, exist=last_exists) ! assumes LAST_CHECKPOINT is symlink
+         last_exists = mapl_DirectoryExists(LAST_CHECKPOINT, _RC)
+
          if (last_exists) then
             call mapl_RemoveFile(LAST_CHECKPOINT, _RC)
          end if
-         call mapl_MakeSymbolicLink(src_path=path, link_path=LAST_CHECKPOINT, is_directory=.true., _RC)
+         call mapl_MakeSymbolicLink(src_path=checkpoint_path, link_path=LAST_CHECKPOINT, is_directory=.true., _RC)
+         
       end if
 
       path = mapl_PopDirectory(_RC) ! top
@@ -146,7 +150,7 @@ contains
    end subroutine checkpoint
 
    function make_checkpoint_dir(clock, rc) result(path)
-      character(100), allocatable :: path
+      character(:), allocatable :: path
       type(esmf_Clock), intent(in) :: clock
       integer, optional, intent(out) :: rc
 
