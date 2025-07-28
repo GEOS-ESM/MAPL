@@ -24,14 +24,11 @@ contains
       character(*), parameter :: PHASE_NAME = 'GENERIC::FINALIZE_USER'
       type(StringVector), pointer :: finalize_phases
       logical :: found
-      type(ESMF_GridComp) :: gridcomp
-      logical :: skip_final_restart
-
+  
       finalize_phases => this%user_phases_map%at(ESMF_METHOD_FINALIZE, _RC)
       ! User gridcomp may not have any given phase; not an error condition if not found.
       associate (phase => get_phase_index(finalize_phases, phase_name=phase_name, found=found))
         _RETURN_UNLESS(found)
-
 
         associate(b => this%children%begin(), e => this%children%end())
           iter = b
@@ -43,11 +40,6 @@ contains
         end associate
 
         call this%run_custom(ESMF_METHOD_FINALIZE, PHASE_NAME, _RC)
-
-        gridcomp = this%get_gridcomp()
-        call MAPL_GridcompGetResource(gridcomp, keystring='skip_final_restart', value=skip_final_restart, default=.false., _RC)
-        _RETURN_IF (skip_final_restart)
-        call this%write_restart(importState, exportState, clock, _RC)
 
         ! TODO - component profile
         ! TODO - release resources

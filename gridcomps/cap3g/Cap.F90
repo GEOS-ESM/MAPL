@@ -3,18 +3,33 @@
 module mapl3g_Cap
    use mapl3
    use mapl3g_CapGridComp, only: cap_setservices => setServices
+   use mapl_TimeStringConversion, only: hconfig_to_esmf_time
    use mapl_TimeStringConversion, only: hconfig_to_esmf_timeinterval
    use mapl_os
-   use esmf
-   implicit none
+   use pflogger
+!#   use esmf
+   implicit none(type,external)
    private
 
    public :: mapl_run_driver
 
-   character(*), parameter :: RECORD_ALARM = 'record'
-   character(*), parameter :: CHECKPOINTS_DIR = 'checkpoints'
-   character(*), parameter :: COLLECTIONS_DIR = 'collections'
-   character(*), parameter :: LOGS_DIR = 'logs'
+   character(*), parameter :: LAST_CHECKPOINT = 'last'
+   character(*), parameter :: RECURRING_ALARM_TYPE = 'recurring'
+   character(*), parameter :: RING_ONCE_ALARM_TYPE = 'once'
+
+   type CheckpointOptions
+      logical :: is_enabled = .false.
+      logical :: do_final = .false.
+      character(:), allocatable :: path
+   end type CheckpointOptions
+
+   type CapOptions
+      character(:), allocatable :: name
+      character(:), allocatable :: cap_gridcomp_name
+      logical :: is_model_pet = .false.
+      class(Logger), pointer :: lgr
+      type(CheckpointOptions), allocatable :: checkpointing
+   end type CapOptions
 
 contains
 
@@ -28,233 +43,469 @@ contains
       integer, optional, intent(out) :: rc
 
       type(GriddedComponentDriver) :: driver
+      type(esmf_Clock) :: clock
+      type(CapOptions) :: options
       integer :: status
 
-      driver = make_driver(hconfig, is_model_pet, _RC)
-      call make_directories(_RC)
+      options = make_cap_options(hconfig, is_model_pet, _RC)
+      clock = make_clock(hconfig, options%lgr, _RC)
+      driver = make_driver(clock, hconfig, options, _RC)
 
-      if (is_model_pet) then
-         call initialize_phases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
-         call integrate(driver, _RC)
-         call driver%finalize(_RC)
-      end if
+      call make_directory(options%checkpointing%path, force=.true., _RC)
+      _RETURN_UNLESS(is_model_pet)
+
+      ! TODO `initialize_phases` should be a MAPL procedure (name)
+      call initialize_phases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
+      call integrate(driver, options%checkpointing, _RC)
+      call driver%finalize(_RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine mapl_run_driver
 
-   function make_driver(hconfig, is_model_pet, rc) result(driver)
+   subroutine integrate(driver, checkpointing, rc)
+      type(GriddedComponentDriver), intent(inout) :: driver
+      type(CheckpointOptions), intent(in) :: checkpointing
+      integer, optional, intent(out) :: rc
+
+      type(esmf_Clock) :: clock
+      type(esmf_Time) :: currTime, stopTime
+      integer :: status
+      character(ESMF_MAXSTR) :: iso_time
+
+      clock = driver%get_clock()
+      call esmf_ClockGet(clock, currTime=currTime, stopTime=stopTime, _RC)
+
+      time: do while (currTime < stopTime)
+         ! TODO:  include Bill's monitoring log messages here
+         call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
+         currTime = advance_clock(driver, _RC)
+         call checkpoint(driver, checkpointing, final=.false., _RC)
+      end do time
+      call checkpoint(driver, checkpointing, final=.true., _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine integrate
+
+   function advance_clock(driver, rc) result(new_time)
+      type(esmf_Time) :: new_time
+      type(GriddedComponentDriver), intent(inout) :: driver
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(esmf_Clock) :: clock
+
+      call driver%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
+      call driver%clock_advance(_RC)
+
+      clock = driver%get_clock()
+      call esmf_ClockGet(clock, currTime=new_time, _RC)
+      
+      _RETURN(_SUCCESS)
+   end function advance_clock
+   
+   subroutine checkpoint(driver, options, final, rc)
+      type(GriddedComponentDriver), intent(inout) :: driver
+      type(CheckpointOptions), intent(in) :: options
+      logical, intent(in) :: final
+      integer, optional, intent(out) :: rc
+
+      type(esmf_Clock) :: clock
+      integer :: alarmCount
+      character(:), allocatable :: path, checkpoint_path
+      logical :: is_record_time
+      logical :: last_exists
+      integer :: status
+
+      _RETURN_UNLESS(options%is_enabled)
+
+      clock = driver%get_clock()
+      call esmf_ClockGetAlarmList(clock, alarmListFlag=ESMF_ALARMLIST_RINGING, alarmCount=alarmCount, _RC)
+      is_record_time = (alarmCount > 0)
+
+      _RETURN_UNLESS(is_record_time .neqv. final)
+
+      call mapl_PushDirectory(options%path, _RC)
+
+
+      checkpoint_path = make_checkpoint_dir(clock, _RC)
+      path = checkpoint_path
+
+      call mapl_PushDirectory(checkpoint_path, _RC)
+      call driver%write_restart(_RC)
+      path = mapl_PopDirectory(_RC) ! up to CHECKPOINTS_DIR
+
+      if (mapl_AmIRoot()) then
+         last_exists = mapl_DirectoryExists(LAST_CHECKPOINT, _RC)
+
+         if (last_exists) then
+            call mapl_RemoveFile(LAST_CHECKPOINT, _RC)
+         end if
+         call mapl_MakeSymbolicLink(src_path=checkpoint_path, link_path=LAST_CHECKPOINT, is_directory=.true., _RC)
+         
+      end if
+
+      path = mapl_PopDirectory(_RC) ! top
+      _RETURN(_SUCCESS)
+   end subroutine checkpoint
+
+   function make_checkpoint_dir(clock, rc) result(path)
+      character(:), allocatable :: path
+      type(esmf_Clock), intent(in) :: clock
+      integer, optional, intent(out) :: rc
+
+      character(ESMF_MAXSTR) :: iso_time
+      type(ESMF_Time) :: currTime
+      integer :: status
+      
+      call esmf_ClockGet(clock, currTime=currTime, _RC)
+      call esmf_TimeGet(currTime, timeStringISOFrac=iso_time, _RC)
+      path = trim(iso_time)
+      call make_directory(path, force=.true.,_RC)
+      
+      _RETURN(_SUCCESS)
+   end function make_checkpoint_dir
+
+   function make_driver(clock, hconfig, options, rc) result(driver)
       use mapl3g_GenericGridComp, only: generic_SetServices => setServices
       type(GriddedComponentDriver) :: driver
-      type(esmf_HConfig), intent(inout) :: hconfig
-      logical, intent(in) :: is_model_pet
+      type(esmf_HConfig), intent(in) :: hconfig
+      type(esmf_Clock), intent(in) :: clock
+      type(CapOptions), intent(in) :: options
       integer, optional, intent(out) :: rc
 
       type(esmf_GridComp) :: cap_gridcomp
-      type(esmf_Clock) :: clock
-      character(:), allocatable :: cap_name
       integer :: status, user_status
-      type(esmf_HConfig) :: cap_gc_hconfig
       integer, allocatable :: petList(:)
+      
+      petList = get_model_pets(options%is_model_pet, _RC)
 
-      cap_name = esmf_HConfigAsString(hconfig, keystring='name', _RC)
-      clock = create_clock(hconfig, _RC)
-
-      cap_gc_hconfig = esmf_HConfigCreateAt(hconfig, keystring='cap_gc', _RC)
-      petList = get_model_pets(is_model_pet, _RC)
-      cap_gridcomp = mapl_GridCompCreate(cap_name, user_setservices(cap_setservices), cap_gc_hconfig, petList=petList, _RC)
-
-      call esmf_GridCompSetServices(cap_gridcomp, generic_setServices, userRC=user_status, _RC)
-      _VERIFY(user_status)
+      cap_gridcomp = mapl_GridCompCreate(options%name, user_setservices(cap_setservices), hconfig, petList=petList, _RC)
+      call esmf_GridCompSetServices(cap_gridcomp, generic_setServices, _USERRC)
 
       driver = GriddedComponentDriver(cap_gridcomp, clock=clock)
 
       _RETURN(_SUCCESS)
    end function make_driver
 
+   function make_cap_options(hconfig, is_model_pet, rc) result(options)
+      type(CapOptions) :: options
+      type(esmf_HConfig), intent(in) :: hconfig
+      logical, intent(in) :: is_model_pet
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      options%name = esmf_HConfigAsString(hconfig, keystring='name', _RC)
+      options%is_model_pet = is_model_pet
+      options%lgr => logging%get_logger(options%name, _RC)
+
+      options%checkpointing = make_checkpointing_options(hconfig, _RC)
+      
+      _RETURN(_SUCCESS)
+   contains
+
+      function make_checkpointing_options(hconfig, rc) result(options)
+         type(CheckpointOptions) :: options
+         type(esmf_HConfig), intent(in) :: hconfig
+         integer, optional, intent(out) :: rc
+         
+         integer :: status
+         type(esmf_HConfig) :: checkpointing_cfg
+         logical :: has_checkpointing, has_enabled, has_final
+         
+         has_checkpointing = esmf_HConfigIsDefined(hconfig, keystring='checkpointing', _RC)
+         _RETURN_UNLESS(has_checkpointing)
+
+         checkpointing_cfg = esmf_HConfigCreateAt(hconfig, keystring='checkpointing', _RC)
+         call get_optional(checkpointing_cfg, keystring='path', value=options%path, _RC)
+         has_enabled = esmf_HConfigIsDefined(checkpointing_cfg, keystring='enabled', _RC)
+         if (has_enabled) then
+            options%is_enabled = esmf_HConfigAsLogical(checkpointing_cfg, keystring='enabled', _RC)
+
+            has_final = esmf_HConfigIsDefined(checkpointing_cfg, keystring='final', _RC)
+            if (has_final) then
+               options%do_final = esmf_HConfigAsLogical(checkpointing_cfg, keystring='final', _RC)
+            end if
+         end if
+         call esmf_HConfigDestroy(checkpointing_cfg, _RC)
+
+         _RETURN(_SUCCESS)
+      end function make_checkpointing_options
+
+
+      subroutine get_optional(hconfig, keyString, value, rc)
+         type(esmf_HConfig), intent(in) :: hconfig
+         character(*), intent(in) :: keystring
+         character(:), allocatable, intent(inout) :: value
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         logical :: has_keyString
+
+         has_keyString = esmf_HConfigIsDefined(hconfig, keystring=keystring, _RC)
+         _RETURN_UNLESS(has_keyString)
+
+          value = esmf_HConfigAsString(hconfig, keystring=keystring, _RC)
+         _RETURN(_SUCCESS)
+      end subroutine get_optional
+
+   end function make_cap_options
+
    ! Create function that accepts a logical flag returns list of mpi processes that have .true..
    function get_model_pets(flag, rc) result(petList)
-      use mpi
       integer, allocatable :: petList(:)
       logical, intent(in) :: flag
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(esmf_VM) :: vm
-      logical, allocatable, target :: flags(:)
-      integer :: world_comm
+      type(ESMF_Logical), allocatable, target :: flags(:)
+      type(ESMF_Logical), target :: flag_as_array(1)
       integer :: i, petCount
 
+      integer, target :: i1(1)
+      integer, target, allocatable :: i2(:)
+
       call esmf_VMGetCurrent(vm, _RC)
-      call esmf_VMGet(vm, petCount=petCount, mpiCommunicator=world_comm, _RC)
+      call esmf_VMGet(vm, petCount=petCount, _RC)
       allocate(flags(petCount))
-      call MPI_Allgather(flag, 1, MPI_LOGICAL, flags, 1, MPI_LOGICAL, world_comm, status)
-      _VERIFY(status)
-      petList = pack([(i, i=0,petCount-1)], flags)
+      flag_as_array = [flag]
+      call esmf_VMAllGather(vm, sendData=flag_as_array, recvData=flags, count=1, _RC)
+      petList = pack([(i, i=0,petCount-1)], flags==ESMF_TRUE)
 
       _RETURN(_SUCCESS)
    end function get_model_pets
 
-   function create_clock(hconfig, rc) result(clock)
+   function make_clock(hconfig, lgr, rc) result(clock)
       type(esmf_Clock) :: clock
       type(esmf_HConfig), intent(in) :: hconfig
+      class(Logger), intent(inout) :: lgr
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(esmf_Time) :: startTime, stopTime, end_of_segment
-      type(esmf_TimeInterval) :: timeStep, segment_duration
-      type(esmf_HConfig) :: clock_config
+      type(esmf_Alarm) :: record_alarm
+      type(esmf_HConfig) :: clock_cfg, restart_cfg
+      type(ESMF_Time) :: startTime, stopTime, currTime
+      type(ESMF_Time) :: end_of_segment
+      type(ESMF_TimeInterval) :: timeStep, segment_duration
+      type(ESMF_TimeInterval), allocatable :: repeatDuration
+      logical :: has_repeatDuration
+      character(:), allocatable :: cap_restart_file
+      character(ESMF_MAXSTR) :: iso_time
 
-      clock_config = esmf_HConfigCreateAt(hconfig, keystring='clock', _RC)
+      cap_restart_file = esmf_HConfigAsString(hconfig, keyString='restart', _RC)
+      restart_cfg = esmf_HConfigCreate(filename=cap_restart_file, _RC)
+      currTime = hconfig_to_esmf_time(restart_cfg, 'currTime', _RC)
+      iso_time = esmf_HConfigAsString(restart_cfg, keystring='currTime', _RC)
+      call lgr%info('current time: %a', trim(iso_time)) 
+      call esmf_HConfigDestroy(restart_cfg, _RC)
 
-      call esmf_CalendarSetDefault(esmf_CALKIND_GREGORIAN,_RC)
-      call set_time(startTime, 'start', clock_config, _RC)
-      call esmf_TimePrint(startTime, options='string', prestring='start time set: ' ,_RC)
-      call set_time(stopTime, 'stop', clock_config, _RC)
-      call esmf_TimePrint(stopTime, options='string', prestring='stop time set: ', _RC)
-      timeStep = hconfig_to_esmf_timeinterval(clock_config, 'dt', _RC)
-      segment_duration = hconfig_to_esmf_timeinterval(clock_config, 'segment_duration', _RC)
+      clock_cfg = esmf_HConfigCreateAt(hconfig, keystring='clock', _RC)
+      
+      startTime = hconfig_to_esmf_time(clock_cfg, 'start', _RC)
+      call esmf_TimeGet(startTime, timeStringISOFrac=iso_time, _RC)
+      call lgr%info('start time: %a', trim(iso_time)) 
 
+      stopTime = hconfig_to_esmf_time(clock_cfg, 'stop', _RC)
+      call esmf_TimeGet(stopTime, timeStringISOFrac=iso_time, _RC)
+      call lgr%info('stop time: %a', trim(iso_time)) 
+
+      timeStep = hconfig_to_esmf_timeinterval(clock_cfg, 'dt', _RC)
+      call esmf_TimeGet(stopTime, timeStringISOFrac=iso_time, _RC)
+      call lgr%info('time step: %a', trim(iso_time)) 
+
+      segment_duration = hconfig_to_esmf_timeinterval(clock_cfg, 'segment_duration', _RC)
       end_of_segment = startTime + segment_duration
-      if (end_of_segment < stopTime) stopTime = end_of_segment
-      call esmf_TimePrint(stopTime, options='string', prestring='actual stop time set: ', _RC)
-      clock = esmf_ClockCreate(timeStep=timeStep, startTime=startTime, stopTime=stopTime, refTime=startTime, _RC)
+      call esmf_TimeGet(end_of_segment, timeStringISOFrac=iso_time, _RC)
+      call lgr%info('segment stop time: %a', trim(iso_time))
 
-      call add_record_alarm(clock, hconfig, _RC)
+      has_repeatDuration = esmf_HConfigIsDefined(clock_cfg, keystring='repeat_duration', _RC)
+      if (has_repeatDuration) then
+         allocate(repeatDuration) ! anticipating NAG compiler issue here
+         repeatDuration = hconfig_to_esmf_timeinterval(clock_cfg, 'repeat_duration', _RC)
+         call esmf_TimeIntervalGet(repeatDuration, timeStringISOFrac=iso_time, _RC)
+         call lgr%info('repeat duration: %a', trim(iso_time))
+      end if
+      
+      clock = esmf_ClockCreate(timeStep=timeStep, &
+           startTime=currTime, stopTime=end_of_segment, &
+           refTime=startTime, &
+           repeatDuration=repeatDuration, _RC)
+
+      call esmf_HConfigDestroy(clock_cfg, _RC)
 
       _RETURN(_SUCCESS)
+   end function make_clock
 
+   subroutine add_record_alarms(clock, hconfig, rc)
+      type(esmf_Clock), intent(inout) :: clock
+      type(esmf_HConfig), intent(in) :: hconfig
+      integer, optional, intent(out) :: rc
+
+      type(esmf_HConfig) :: alarms_cfg, alarm_cfg, checkpointing_cfg
+      logical :: has_alarms, has_checkpointing
+      integer :: i, num_alarms
+      integer :: status
+
+      has_checkpointing = esmf_HConfigIsDefined(hconfig, keystring='checkpointing', _RC)
+      _RETURN_UNLESS(has_checkpointing)
+      checkpointing_cfg = esmf_HConfigCreateAt(hconfig, keystring='checkpointing', _RC)
+
+      has_alarms = esmf_HConfigIsDefined(checkpointing_cfg, keystring='alarms', _RC)
+      if (has_alarms) then
+         alarms_cfg = esmf_HConfigCreateAt(checkpointing_cfg, keystring='alarms', _RC)
+         num_alarms = esmf_HConfigGetSize(alarms_cfg, _RC)
+         do i = 1, num_alarms
+            alarm_cfg = esmf_HConfigCreateAt(alarms_cfg, index=i, _RC)
+            call add_alarm(clock, alarm_cfg, _RC)
+            call esmf_HConfigDestroy(alarm_cfg, _RC)
+         end do
+      end if
+
+      call esmf_HConfigDestroy(alarms_cfg, _RC)
+      call esmf_HConfigDestroy(checkpointing_cfg, _RC)
+
+      _RETURN(_SUCCESS)
    contains
 
-      subroutine add_record_alarm(clock, cfg, rc)
+      subroutine add_alarm(clock, cfg, rc)
          type(esmf_Clock), intent(inout) :: clock
          type(esmf_HConfig), intent(in) :: cfg
          integer, optional, intent(out) :: rc
 
          integer :: status
-         logical :: has_record_section, has_offset
-         type(esmf_HConfig) :: record_cfg
-         type(esmf_TimeInterval) :: record_frequency, record_offset
-         type(esmf_Time) :: ringTime
          type(esmf_Alarm) :: alarm
+         character(:), allocatable :: alarm_type
 
-         has_record_section = esmf_HConfigIsDefined(cfg, keystring='record', _RC)
-         if (.not. has_record_section) then
-            ! We want a default alarm that never rings.  ESMF forces a bit more info to be specified.
-            alarm = esmf_AlarmCreate(clock, enabled=.false., name=RECORD_ALARM, ringTime=startTime,_RC)
+         alarm_type = get_alarm_type(cfg, _RC)
+         select case (alarm_type)
+         case (RECURRING_ALARM_TYPE)
+            call add_recurring_alarm(clock, cfg, _RC)
+         case (RING_ONCE_ALARM_TYPE)
+            call add_ring_once_alarms(clock, cfg, _RC)
+         case default
+            _FAIL('unknown alarm type: ' // alarm_type)
+         end select
+
+         _RETURN(_SUCCESS)
+      end subroutine add_alarm
+
+      subroutine add_recurring_alarm(clock, cfg, rc)
+         type(esmf_Clock), intent(inout) :: clock
+         type(esmf_HConfig), intent(in) :: cfg
+         integer, optional, intent(out) :: rc
+
+         type(esmf_Alarm) :: alarm
+         type(esmf_TimeInterval) :: ringInterval
+         type(esmf_Time) :: refTime, currTime
+         logical :: has_reftime
+         integer :: status
+
+         ringInterval = hconfig_to_esmf_timeinterval(cfg, 'frequency', _RC)
+         has_refTime = esmf_HConfigIsDefined(cfg, keystring='refTime', _RC)
+         if (has_refTime) then
+            refTime = hconfig_to_esmf_time(cfg, 'refTime', _RC)
+         else
+            call esmf_ClockGet(clock, currTime=currTime, _RC)
+            refTime = currTime
+         end if
+         refTime = hconfig_to_esmf_time(cfg, 'refTime', _RC)
+
+         alarm = esmf_AlarmCreate(clock, ringTime=refTime, ringInterval=ringInterval, sticky=.false., _RC)
+         call esmf_AlarmRingerOff(alarm, _RC)
+
+         _RETURN(_SUCCESS)
+      end subroutine add_recurring_alarm
+
+      subroutine add_ring_once_alarms(clock, cfg, rc)
+         type(esmf_Clock), intent(inout) :: clock
+         type(esmf_HConfig), intent(in) :: cfg
+         integer, optional, intent(out) :: rc
+
+         type(ESMF_HConfig) :: subcfg
+         type(esmf_Alarm) :: alarm
+         type(esmf_Time) :: ringTime, currTime
+         type(esmf_TimeInterval) :: offset
+         integer :: i, num_items
+         logical :: has_offsets, has_times
+         integer :: status
+         character(:), allocatable :: iso_string
+
+         has_times = esmf_HConfigIsDefined(cfg, keystring='times', _RC)
+         has_offsets = esmf_HConfigIsDefined(cfg, keystring='offsets', _RC)
+         _ASSERT(has_times .neqv. has_offsets, 'alarm list have either times or offsets but not both')
+
+         if (has_times) then
+            subcfg = esmf_HConfigCreateAt(cfg, keystring='times', _RC)
+         elseif (has_offsets) then
+            call esmf_ClockGet(clock, currTime=currTime, _RC)
+            subcfg = esmf_HConfigCreateAt(cfg, keystring='offsets', _RC)
+         else
+            _FAIL('alarm type is not supported')
+         end if
+
+         num_items = esmf_HConfigGetSize(subcfg, _RC)
+         
+         do i = 1, num_items
+            iso_string = esmf_HConfigAsString(subcfg,  index=i, _RC)
+            if (has_times) then
+               call esmf_TimeSet(ringTime, timeString=iso_string, _RC)
+            else if (has_offsets) then
+               call esmf_TimeIntervalSet(offset, timeIntervalString=iso_string, _RC)
+               ringTime = currTime + offset
+            end if
+            alarm = esmf_AlarmCreate(clock, ringTime=ringTime, sticky=.false., _RC)
+            call esmf_AlarmRingerOff(alarm, _RC)
+         end do
+
+         call esmf_HConfigDestroy(subcfg, _RC)
+
+         _RETURN(_SUCCESS)
+      end subroutine add_ring_once_alarms
+
+      function get_alarm_type(cfg, rc) result(alarm_type)
+         character(:), allocatable :: alarm_type
+         type(esmf_HConfig), intent(in) :: cfg
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         logical :: has_frequency, has_times, has_offsets
+
+         alarm_type = 'unknown'
+
+         has_frequency = esmf_HConfigIsDefined(cfg, keystring='frequency', _RC)
+         if (has_frequency) then
+            alarm_type = RECURRING_ALARM_TYPE
             _RETURN(_SUCCESS)
          end if
 
-         record_cfg = esmf_HConfigCreateAt(hconfig, keyString='record', _RC)
-         record_frequency = hconfig_to_esmf_timeinterval(record_cfg, 'frequency', _RC)
-
-         has_offset = esmf_HConfigIsDefined(record_cfg, keystring='offset', _RC)
-         if (has_offset) then
-            record_offset = hconfig_to_esmf_timeinterval(record_cfg, 'offset', _RC)
+         has_times = esmf_HConfigIsDefined(cfg, keystring='times', _RC)
+         has_offsets = esmf_HConfigIsDefined(cfg, keystring='offsets', _RC)
+         if (has_times .or. has_offsets) then
+            alarm_type = RING_ONCE_ALARM_TYPE
+            _RETURN(_SUCCESS)
          end if
-         call esmf_HConfigDestroy(record_cfg, _RC)
-
-         ringTime = startTime + record_offset
-         alarm = esmf_AlarmCreate(clock, name=RECORD_ALARM, ringTime=ringTime, ringInterval=record_frequency, sticky=.false., _RC)
 
          _RETURN(_SUCCESS)
-      end subroutine add_record_alarm
+      end function get_alarm_type
 
-   end function create_clock
+   end subroutine add_record_alarms
 
-   subroutine set_time(time, key, hconfig, rc)
-      type(esmf_Time), intent(out) :: time
-      character(*), intent(in) :: key
-      type(esmf_HConfig), intent(in) :: hconfig
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      character(:), allocatable :: iso_time
-
-      iso_time = esmf_HConfigAsString(hconfig, keystring=key, _RC)
-      call esmf_TimeSet(time, timeString=iso_time, _RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine set_time
-
-   subroutine integrate(driver, rc)
-      type(GriddedComponentDriver), intent(inout) :: driver
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(esmf_Clock) :: clock
-      type(esmf_Time) :: currTime, stopTime
-      type(esmf_Alarm) :: alarm
-      logical :: is_record_time
-
-      clock = driver%get_clock()
-
-      call esmf_ClockGet(clock, currTime=currTime, stopTime=stopTime, _RC)
-      call esmf_ClockGetAlarm(clock, alarmName=RECORD_ALARM, alarm=alarm, _RC)
-
-      do while (currTime < stopTime)
-         ! TODO:  include Bill's monitoring log messages here
-         call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
-         currTime = advance_clock(clock, _RC)
-
-         is_record_time = esmf_AlarmIsRinging(alarm, _RC)
-         if (is_record_time) then
-            call record(currTime, _RC)
-         end if
-      end do
-      call esmf_TimePrint(currTime, options='string', preString='Cap time after loop: ', _RC)
-
-      _RETURN(_SUCCESS)
-   contains
-
-      function advance_clock(clock, rc) result(new_time)
-         type(esmf_Time) :: new_time
-         type(esmf_Clock), intent(inout) :: clock
-         integer, optional, intent(out) :: rc
-
-         call driver%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
-         call driver%clock_advance(_RC)
-         call esmf_ClockGet(clock, currTime=new_time, _RC)
-
-         _RETURN(_SUCCESS)
-      end function advance_clock
-
-      subroutine record(currTime, rc)
-         type(esmf_Time), intent(inout) :: currTime
-         integer, optional, intent(out) :: rc
-
-         character(100), allocatable :: iso_time
-         character(:), allocatable :: path
-         integer :: status
-         
-         call mapl_PushDirectory(CHECKPOINTS_DIR, _RC)
-
-         call esmf_TimeGet(currTime, timeStringISOFrac=iso_time, _RC)
-         path = trim(iso_time)
-         call mapl_MakeDirectory(path, _RC)
-
-         call mapl_PushDirectory(path, _RC)
-         call driver%write_restart(_RC)
-         path = mapl_PopDirectory(_RC) ! checkpoints
-
-         path = mapl_PopDirectory(_RC) ! top
-         _RETURN(_SUCCESS)
-      end subroutine record
-
-   end subroutine integrate
-
-
-   subroutine make_directories(rc)
+   ! Only make the directory on root process.
+   subroutine make_directory(path, force, rc)
+      character(*), intent(in) :: path
+      logical, optional, intent(in) :: force
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      _RETURN_UNLESS(mapl_AmIRoot())
-      call mapl_MakeDirectory(CHECKPOINTS_DIR, force=.true., _RC)
-!#      call mapl_MakeDirectory(COLLECTIONS_DIR, force=.true., _RC)
-!#      call mapl_MakeDirectory(LOGS_DIR, force=.true., _RC)
-      call mapl_barrier()
-      _RETURN(_SUCCESS)
-   end subroutine make_directories
+      if (mapl_AmIRoot()) then
+         call mapl_MakeDirectory(path, force=force, _RC)
+      end if
+      call mapl_Barrier(_RC)
 
+      _RETURN(_SUCCESS)
+   end subroutine make_directory
+      
 end module mapl3g_Cap
