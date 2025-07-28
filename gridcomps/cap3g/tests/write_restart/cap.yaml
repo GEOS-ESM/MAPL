@@ -1,12 +1,6 @@
-esmf:
-  logKindFlag: ESMF_LOGKIND_MULTI_ON_ERROR
-
-mapl:
-  model_petcount: 1
-#  pflogger_cfg_file: pflogger.yaml
-
 cap:
   name: cap
+  restart: cap_restart.yaml
 
   clock:
     dt: PT1H
@@ -14,23 +8,34 @@ cap:
     stop: 2999-03-02T21:00:00
     segment_duration: PT10H
 
-    num_segments: 1 # segments per batch submission
+  checkpointing:
+    enabled: true
+    final: true
+    path: checkpoints
+    alarms: {}
 
-  cap_gc:
-    extdata_name: EXTDATA
-    history_name: HIST
-    root_name: GCM
+  extdata_name: &extdata EXTDATA
+  history_name: &history HIST
+  root_name: &root GCM
 
-    mapl:
-      children:
-        GCM:
-          #dso: libconfigurable_gridcomp.dylib
-          dso: libconfigurable_gridcomp.dylib
-          setServices: setservices_
-          config_file: GCM.yaml
-        EXTDATA:
-          dso: libMAPL.extdata3g.dylib
-          config_file: extdata.yaml
-        HIST:
-          dso: libMAPL.history3g.dylib
-          config_file: history.yaml
+  mapl:
+    children:
+      *root :
+        dso: libconfigurable_gridcomp.dylib
+        setServices: setservices_
+        config_file: GCM.yaml
+      *extdata :
+        dso: libMAPL.extdata3g.dylib
+        config_file: extdata.yaml
+      *history :
+        dso: libMAPL.history3g.dylib
+        config_file: history.yaml
+
+esmf:
+  logKindFlag: ESMF_LOGKIND_MULTI_ON_ERROR
+  defaultCalKind: ESMF_CALKIND_GREGORIAN
+  logAppendFlag: false
+
+mapl:
+  model_petcount: 1
+#  pflogger_cfg_file: pflogger.yaml
