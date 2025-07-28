@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 submodule (mapl3g_OuterMetaComponent) initialize_read_restart_smod
 
@@ -19,27 +19,32 @@ contains
 
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_READ_RESTART'
       type(GriddedComponentDriver), pointer :: driver
-      character(len=:), allocatable :: name
       type(MultiState) :: states
-      type(ESMF_State) :: import_state, internal_state
+      type(ESMF_Clock) :: clock
       type(RestartHandler) :: restart_handler
       integer :: status
 
       call recurse(this, phase_idx=GENERIC_INIT_READ_RESTART, _RC)
 
-      _RETURN_IF(this%component_spec%misc%cold_start)
+      _RETURN_UNLESS(this%has_geom())
 
       driver => this%get_user_gc_driver()
-      name = driver%get_name()
-      if (this%has_geom()) then
-         states = driver%get_states()
-         restart_handler = RestartHandler(name, this%get_geom(), driver%get_clock(), _RC)
-         call states%get_state(import_state, "import", _RC)
-         call restart_handler%read("import", import_state, _RC)
-         call states%get_state(internal_state, "internal", _RC)
-         call restart_handler%read("internal", internal_state, _RC)
-      end if
+      states = driver%get_states()
+      restart_handler = RestartHandler( &
+           driver%get_name(), & ! this%get_geom() returns the name in brackets
+           this%get_geom(), &
+           driver%get_clock(), &
+           this%get_logger(), &
+           _RC)
 
+      if (this%component_spec%misc%restart_controls%import) then
+         call restart_handler%read("import", states%importState, _RC)
+      end if
+      
+      if (this%component_spec%misc%restart_controls%internal) then
+         call restart_handler%read("internal", states%internalState, _RC)
+      end if
+      
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
 
       _RETURN(ESMF_SUCCESS)

@@ -3,7 +3,7 @@
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 #define MPI_NULL_TAG 99
 
 #define DEALOC_(A) if(associated(A))then;A=0;if(MAPL_ShmInitialized)then; call MAPL_DeAllocNodeArray(A,rc=STATUS);else; deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif

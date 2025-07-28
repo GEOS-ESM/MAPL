@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 #include "MAPL_ErrLog.h"
 module StationSamplerMod
   use ESMF

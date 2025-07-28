@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 ! This module is intended to manage user-level access to ESMF info
 ! objects and thereby ensure consistent support for namespace

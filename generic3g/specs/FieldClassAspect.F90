@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module mapl3g_FieldClassAspect
    use mapl3g_ActualConnectionPt
@@ -206,13 +206,15 @@ contains
       end if
 
       vertical_aspect = to_VerticalGridAspect(other_aspects, _RC)
-      vertical_grid = vertical_aspect%get_vertical_grid(_RC)
-      num_vgrid_levels = vertical_grid%get_num_levels()
       vertical_stagger = vertical_aspect%get_vertical_stagger()
-      if (vertical_stagger == VERTICAL_STAGGER_EDGE) then
-         num_field_levels = num_vgrid_levels + 1
-      else if (vertical_stagger == VERTICAL_STAGGER_CENTER) then
-         num_field_levels = num_vgrid_levels
+      if (vertical_stagger /= VERTICAL_STAGGER_NONE) then
+         vertical_grid = vertical_aspect%get_vertical_grid(_RC)
+         num_vgrid_levels = vertical_grid%get_num_levels()
+         if (vertical_stagger == VERTICAL_STAGGER_EDGE) then
+            num_field_levels = num_vgrid_levels + 1
+         else if (vertical_stagger == VERTICAL_STAGGER_CENTER) then
+            num_field_levels = num_vgrid_levels
+         end if
       end if
 
       ungridded_dims_aspect = to_UngriddedDimsAspect(other_aspects, _RC)

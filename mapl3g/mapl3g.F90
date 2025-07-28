@@ -1,5 +1,6 @@
 ! Public interface (package) to MAPL3
 module mapl3
+   use mapl3g_VM_API
    use mapl3g_MaplFramework
    use generic3g
    use mapl3g_State_API

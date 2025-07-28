@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 ! MirrorVerticalGrid objects should always have been replaced with an
 ! object of a different subclass by the timet they are used.  As such,

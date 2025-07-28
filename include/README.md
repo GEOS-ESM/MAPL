@@ -42,10 +42,10 @@ Error handling is most useful if it is used everywhere in the calling chain. If 
 
 # Provided Error Macros
 
-To use the MAPL error handling macros your module/subroutine/function should obviously needs to use the MAPL library and include a specific header file `MAPL_Generic.h` As an example:
+To use the MAPL error handling macros your module/subroutine/function should obviously needs to use the MAPL library and include a specific header file `MAPL.h` As an example:
 
 ```fortran
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 module foo
 use MAPL
 

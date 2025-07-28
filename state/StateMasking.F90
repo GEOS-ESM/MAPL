@@ -1,6 +1,6 @@
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 module MAPL_StateMaskMod
    use ESMF
    use MAPL_KeywordEnforcerMod

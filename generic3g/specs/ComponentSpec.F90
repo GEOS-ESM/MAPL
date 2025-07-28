@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module mapl3g_ComponentSpec
    use mapl3g_Connection
@@ -21,13 +21,21 @@ module mapl3g_ComponentSpec
 
    public :: ComponentSpec
    public :: MiscellaneousComponentSpec
+   public :: CheckpointControls
+
+   type :: CheckpointControls
+      logical :: import = .false.
+      logical :: export = .false.
+      logical :: internal = .false.
+   end type CheckpointControls
 
    type :: MiscellaneousComponentSpec
       ! misc bits
       logical :: activate_all_exports = .false. ! used for testing in isolation
       logical :: activate_all_imports = .false. ! used for testing in isolation
-      logical :: write_exports = .false. ! used for testing in isolation
-      logical :: cold_start = .false. ! primarily to avoid warnings in unit tests
+
+      type(CheckpointControls) :: checkpoint_controls
+      type(CheckpointControls) :: restart_controls
    end type MiscellaneousComponentSpec
 
    type :: ComponentSpec

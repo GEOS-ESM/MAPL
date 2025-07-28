@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module mapl3g_HistoryCollectionGridComp
    use mapl3
@@ -34,8 +34,6 @@ contains
       character(*), parameter :: PRIVATE_STATE = "HistoryCollectionGridComp"
       integer :: status
 
-      type(BasicVerticalGrid) :: vertical_grid
-
       ! Set entry points
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init_geom, phase_name='GENERIC::INIT_ADVERTISE', _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, _RC)
@@ -44,8 +42,6 @@ contains
       ! Attach private state
       _SET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE)
 
-      vertical_grid = BasicVerticalGrid(4)
-      call MAPL_GRidCompSetVerticalGrid(gridcomp, vertical_grid, _RC)
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       call register_imports(gridcomp,hconfig,_RC)
 

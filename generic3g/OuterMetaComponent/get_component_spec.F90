@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 submodule (mapl3g_OuterMetaComponent) get_component_spec_smod
    implicit none

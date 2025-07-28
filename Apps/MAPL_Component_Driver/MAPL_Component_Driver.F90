@@ -1,5 +1,5 @@
 #define I_AM_MAIN
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 program mapl_component_driver
    use mapl3
@@ -19,7 +19,7 @@ program mapl_component_driver
 contains
 
 #undef I_AM_MAIN
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
    subroutine run_driver(hconfig, is_model_pet, servers, rc)
       type(ESMF_HConfig), intent(inout) :: hconfig

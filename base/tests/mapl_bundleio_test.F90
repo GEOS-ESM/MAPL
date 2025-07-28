@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
    module BundleTestSupport
 
@@ -170,11 +170,11 @@ CONTAINS
 
     end module BundleTestSupport
 
-! This is how you can "reset" the MAPL_Generic.h verify bits for a program.
+! This is how you can "reset" the MAPL.h verify bits for a program.
 ! Program must be at the end of the file to do this and everything else in a module
 
 #define I_AM_MAIN
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
     program ut_ReGridding
 

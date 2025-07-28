@@ -1,5 +1,5 @@
 
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 !---------------------------------------------------------------------
 !
@@ -23,7 +23,7 @@ module mapl3g_Generic
    use mapl3g_OuterMetaComponent, only: OuterMetaComponent
    use mapl3g_OuterMetaComponent, only: get_outer_meta
    use mapl3g_ChildSpec, only: ChildSpec
-   use mapl3g_ComponentSpec, only: ComponentSpec
+   use mapl3g_ComponentSpec, only: ComponentSpec, CheckpointControls
    use mapl3g_VariableSpec, only: VariableSpec, make_VariableSpec
    use mapl3g_Validation, only: is_valid_name
    use mapl3g_ESMF_Interfaces, only: I_Run
@@ -300,13 +300,13 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_get
 
-   subroutine gridcomp_set(gridcomp, unusable, activate_all_exports, activate_all_imports, write_exports, cold_start, rc)
+   subroutine gridcomp_set(gridcomp, unusable, activate_all_exports, activate_all_imports, checkpoint_controls, restart_controls, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       class(KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(in) :: activate_all_exports
       logical, optional, intent(in) :: activate_all_imports
-      logical, optional, intent(in) :: write_exports
-      logical, optional, intent(in) :: cold_start
+      type(CheckpointControls), optional, intent(in) :: checkpoint_controls
+      type(CheckpointControls), optional, intent(in) :: restart_controls
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -316,8 +316,8 @@ contains
       call outer_meta%set_misc( &
            activate_all_exports=activate_all_exports, &
            activate_all_imports=activate_all_imports, &
-           write_exports=write_exports, &
-           cold_start=cold_start)
+           checkpoint_controls=checkpoint_controls, &
+           restart_controls=restart_controls)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

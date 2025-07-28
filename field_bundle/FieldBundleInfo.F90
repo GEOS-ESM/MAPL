@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module mapl3g_FieldBundleInfo
    use mapl3g_esmf_info_keys

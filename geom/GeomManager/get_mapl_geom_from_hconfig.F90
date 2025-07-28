@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 submodule (mapl3g_GeomManager) get_mapl_geom_from_hconfig_smod
 

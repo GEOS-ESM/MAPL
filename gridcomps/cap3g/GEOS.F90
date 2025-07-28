@@ -1,5 +1,5 @@
 #define I_AM_MAIN
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 program geos
    use mapl3
@@ -19,7 +19,7 @@ program geos
 contains
 
 #undef I_AM_MAIN
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
    subroutine run_geos(hconfig, is_model_pet, servers, rc)
       type(ESMF_HConfig), intent(inout) :: hconfig

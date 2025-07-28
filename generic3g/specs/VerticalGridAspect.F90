@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module mapl3g_VerticalGridAspect
    use mapl3g_ActualConnectionPt
@@ -44,6 +44,7 @@ module mapl3g_VerticalGridAspect
       procedure :: set_vertical_grid
       procedure :: get_vertical_grid
       procedure :: get_vertical_stagger
+      procedure :: set_vertical_stagger
    end type VerticalGridAspect
 
    interface VerticalGridAspect
@@ -167,6 +168,14 @@ contains
       self%vertical_grid = vertical_grid
       call self%set_mirror(.false.)
    end subroutine set_vertical_grid
+
+   subroutine set_vertical_stagger(self, vertical_stagger)
+      class(VerticalGridAspect), intent(inout) :: self
+      class(VerticalStaggerLoc), intent(in) :: vertical_stagger
+
+      self%vertical_stagger = vertical_stagger
+      call self%set_mirror(.false.)
+   end subroutine set_vertical_stagger
 
    subroutine connect_to_export(this, export, actual_pt, rc)
       class(VerticalGridAspect), intent(inout) :: this

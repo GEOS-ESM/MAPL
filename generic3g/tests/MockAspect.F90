@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module MockAspect_mod
    use mapl3g_AspectId

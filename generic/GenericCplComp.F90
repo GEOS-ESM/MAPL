@@ -15,7 +15,7 @@
        _VERIFY(STATUS); \
        NULLIFY(A); \
     endif
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 #include "unused_dummy.H"
 !
 !------------------------------------------------------------------------------

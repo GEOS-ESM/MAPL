@@ -24,7 +24,7 @@
 ! For a given FieldUnitsConverter, GetFieldUnitsConverter and conv % convert
 ! cannot be called before InitializeFieldUnits or after FinalizeFieldUnits
 ! and conv % convert cannot be called before calling GetFieldUnitsConverter for conv.
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 #include "unused_dummy.H"
 module mapl_FieldUnits
    use udunits2f, FieldUnitsConverter => Converter, &
