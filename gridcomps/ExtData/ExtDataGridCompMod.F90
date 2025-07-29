@@ -4147,7 +4147,7 @@ CONTAINS
      integer :: NX,NY
      type(ESMF_Grid)           :: newGrid
      type(ESMF_Config)         :: cflocal
-     real :: temp_real
+     real :: stretch_factor, target_lat_degrees, target_lon_degrees
      logical :: isPresent
 
      IAM = "MAPL_ExtDataGridChangeLev"
@@ -4180,27 +4180,27 @@ CONTAINS
         call ESMF_AttributeGet(grid, name='STRETCH_FACTOR', isPresent=isPresent, rc=status)
         _VERIFY(status)
         if (isPresent) then
-           call ESMF_AttributeGet(grid, name='STRETCH_FACTOR', value=temp_real, rc=status)
+           call ESMF_AttributeGet(grid, name='STRETCH_FACTOR', value=stretch_factor, rc=status)
            _VERIFY(status)
-           call MAPL_ConfigSetAttribute(cflocal,value=temp_real, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"STRETCH_FACTOR:",rc=status)
+           call MAPL_ConfigSetAttribute(cflocal,value=stretch_factor, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"STRETCH_FACTOR:",rc=status)
            _VERIFY(status)
         endif
 
         call ESMF_AttributeGet(grid, name='TARGET_LON', isPresent=isPresent, rc=status)
         _VERIFY(status)
         if (isPresent) then
-           call ESMF_AttributeGet(grid, name='TARGET_LON', value=temp_real, rc=status)
+           call ESMF_AttributeGet(grid, name='TARGET_LON', value=target_lon_degrees, rc=status)
            _VERIFY(status)
-           call MAPL_ConfigSetAttribute(cflocal,value=temp_real, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"TARGET_LON:",rc=status)
+           call MAPL_ConfigSetAttribute(cflocal,value=target_lon_degrees, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"TARGET_LON:",rc=status)
            _VERIFY(status)
         endif
 
         call ESMF_AttributeGet(grid, name='TARGET_LAT', isPresent=isPresent, rc=status)
         _VERIFY(status)
         if (isPresent) then
-           call ESMF_AttributeGet(grid, name='TARGET_LAT', value=temp_real, rc=status)
+           call ESMF_AttributeGet(grid, name='TARGET_LAT', value=target_lat_degrees, rc=status)
            _VERIFY(status)
-           call MAPL_ConfigSetAttribute(cflocal,value=temp_real, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"TARGET_LAT:",rc=status)
+           call MAPL_ConfigSetAttribute(cflocal,value=target_lat_degrees, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"TARGET_LAT:",rc=status)
            _VERIFY(status)
         endif
      else
