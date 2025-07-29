@@ -1,11 +1,3 @@
-#ifdef _OPEN_
-#undef _OPEN_
-#endif
-
-#ifdef _CLOSE_
-#undef _CLOSE_
-#endif
-
 #ifdef _CAT
 #undef _CAT
 #endif
@@ -26,6 +18,18 @@
 #undef _CAT5
 #endif
 
+#ifdef _OPEN_
+#undef _OPEN_
+#endif
+
+#ifdef _CLOSE_
+#undef _CLOSE_
+#endif
+
+#ifdef _ALLOCATABLE_
+#undef _ALLOCATABLE_
+#endif
+
 #ifdef _ASSUMED_LEN_STRING_
 #undef _ASSUMED_LEN_STRING_
 #endif
@@ -34,8 +38,8 @@
 #undef _ALLOCATABLE_STRING_
 #endif
 
-#ifdef _ALLOCATABLE_
-#undef _ALLOCATABLE_
+#ifdef _ARRAY_DIMS_
+#undef _ARRAY_DIMS_
 #endif
 
 #ifdef _MAPL_HCONFIG_MACROS_
