@@ -6,6 +6,7 @@ submodule (mapl3g_OuterMetaComponent) initialize_read_restart_smod
    use mapl_ErrorHandling
    use mapl3g_MultiState
    use mapl3g_RestartHandler, only: RestartHandler
+   use mapl_OS
 
    implicit none
 
@@ -20,29 +21,34 @@ contains
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_READ_RESTART'
       type(GriddedComponentDriver), pointer :: driver
       type(MultiState) :: states
-      type(ESMF_Clock) :: clock
       type(RestartHandler) :: restart_handler
+      character(:), allocatable :: subdir
+      character(:), allocatable :: filename
+      type(esmf_Time) :: currTime
       integer :: status
 
       call recurse(this, phase_idx=GENERIC_INIT_READ_RESTART, _RC)
-
       _RETURN_UNLESS(this%has_geom())
 
       driver => this%get_user_gc_driver()
-      states = driver%get_states()
+      call esmf_ClockGet(driver%get_clock(), currTime=currTime, _RC)
+
       restart_handler = RestartHandler( &
-           driver%get_name(), & ! this%get_geom() returns the name in brackets
            this%get_geom(), &
-           driver%get_clock(), &
-           this%get_logger(), &
-           _RC)
+           currTime, &
+           this%get_logger())
+
+      states = driver%get_states()
+      subdir = get_checkpoint_subdir(this%hconfig, currTime, _RC)
 
       if (this%component_spec%misc%restart_controls%import) then
-         call restart_handler%read("import", states%importState, _RC)
+!#         filename = mapl_PathJoin(subdir, this%get_name // '_import.nc')
+         call restart_handler%read(states%importState, filename, _RC)
       end if
       
       if (this%component_spec%misc%restart_controls%internal) then
-         call restart_handler%read("internal", states%internalState, _RC)
+!#         filename = mapl_PathJoin(subdir, this%get_name // '_internal.nc')
+         call restart_handler%read(states%internalState, filename, _RC)
       end if
       
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
