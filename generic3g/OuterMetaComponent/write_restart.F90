@@ -73,9 +73,11 @@ contains
       character(:), allocatable :: timestamp_dir
       type(esmf_HConfig) :: checkpointing_cfg
 
+      subdir = ''
+
       call esmf_TimeGet(currTime, timeStringISOFrac=iso_time, _RC)
       timestamp_dir = trim(iso_time)
-      
+
       checkpoint_dir = 'checkpoint'
       has_checkpointing = esmf_HConfigIsDefined(hconfig, keystring='checkpointing', _RC)
       if (has_checkpointing) then
