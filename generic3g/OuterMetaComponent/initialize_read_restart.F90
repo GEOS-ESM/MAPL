@@ -30,13 +30,18 @@ contains
 
       driver => this%get_user_gc_driver()
       states = driver%get_states()
-      restart_handler = RestartHandler(this%get_name(), this%get_geom(), driver%get_clock(), _RC)
+      restart_handler = RestartHandler( &
+           driver%get_name(), & ! this%get_geom() returns the name in brackets
+           this%get_geom(), &
+           driver%get_clock(), &
+           this%get_logger(), &
+           _RC)
 
-      if (this%component_spec%misc%checkpoint_controls%import) then
+      if (this%component_spec%misc%restart_controls%import) then
          call restart_handler%read("import", states%importState, _RC)
       end if
       
-      if (this%component_spec%misc%checkpoint_controls%internal) then
+      if (this%component_spec%misc%restart_controls%internal) then
          call restart_handler%read("internal", states%internalState, _RC)
       end if
       

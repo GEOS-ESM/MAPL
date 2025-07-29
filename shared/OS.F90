@@ -14,10 +14,12 @@ module mapl_os
    public :: mapl_MakeDirectory
    public :: mapl_DirectoryExists
    public :: mapl_RemoveDirectory
+   public :: mapl_RemoveFile
    public :: mapl_PushDirectory
    public :: mapl_PopDirectory
    public :: mapl_ClearDirectoryStack
    public :: mapl_PathJoin
+   public :: mapl_MakeSymbolicLink
 
    interface mapl_GetCurrentWorkingDirectory
       procedure :: get_current_working_directory
@@ -34,6 +36,10 @@ module mapl_os
    interface mapl_RemoveDirectory
       procedure :: remove_directory
    end interface mapl_RemoveDirectory
+
+   interface mapl_RemoveFile
+      procedure :: remove_file
+   end interface mapl_RemoveFile
 
    interface mapl_DirectoryExists
       procedure directory_exists
@@ -55,6 +61,10 @@ module mapl_os
    interface mapl_PathJoin
       module procedure :: path_join
    end interface mapl_PathJoin
+
+   interface mapl_MakeSymbolicLink
+      procedure :: make_symbolic_link
+   end interface mapl_MakeSymbolicLink
 
    type(StringStack), protected :: directory_stack
 
@@ -182,6 +192,26 @@ contains
       _RETURN(_SUCCESS)
    end subroutine remove_directory
 
+   subroutine remove_file(path, force, rc)
+      character(len=*), intent(in) :: path
+      logical, optional, intent(in) :: force
+      integer, optional, intent(out) :: rc
+
+      character(:), allocatable :: command
+      integer :: status
+
+      command = 'rm '
+      if (present(force)) then
+         if (force) command = command // '-f '
+      end if
+      command = command // trim(path)
+
+      call execute_command_line(command, exitstat=status)
+
+      _ASSERT(status==0, 'Error deleting file: ' // trim(path))
+      _RETURN(_SUCCESS)
+   end subroutine remove_file
+
    logical function directory_exists(path, rc)
       character(len=*), intent(in) :: path
       integer, optional, intent(out) :: rc
@@ -230,6 +260,7 @@ contains
       if (path(1:1) /= '/') then
          full_path = path_join(current_dir, trim(path))
       end if
+
       call change_directory(full_path, _RC)
         
       _RETURN(_SUCCESS)
@@ -243,8 +274,8 @@ contains
 
       new_path = '' ! need to always allocate something
       _ASSERT(directory_stack%size() > 0, 'No directory to pop')
-      call directory_stack%pop()
       new_path = directory_stack%top()
+      call directory_stack%pop()
       call change_directory(new_path, _RC)
       _RETURN(_SUCCESS)
    end function pop_directory
@@ -272,5 +303,31 @@ contains
       end if
 
    end function path_join
+
+
+   subroutine make_symbolic_link(src_path, link_path, is_directory, rc)
+      character(*), intent(in) :: src_path
+      character(*), intent(in) :: link_path
+      logical, optional, intent(in) :: is_directory
+      integer, optional, intent(out) :: rc
+
+      interface
+         ! C interface for symlink system call
+         function c_symlink(target, linkpath) bind(c, name="symlink") result(status)
+            use iso_c_binding
+            character(kind=c_char), intent(in) :: target(*)
+            character(kind=c_char), intent(in) :: linkpath(*)
+            integer(c_int) :: status
+         end function c_symlink
+      end interface
+
+      integer :: status
+      
+      status = c_symlink(src_path // c_null_char, link_path // c_null_char)
+
+      _ASSERT(status == 0, 'Error creating symbolic link from: ' // trim(src_path) // ' to: ' // trim(link_path))
+
+      _RETURN(_SUCCESS)
+   end subroutine make_symbolic_link
 
 end module mapl_os
