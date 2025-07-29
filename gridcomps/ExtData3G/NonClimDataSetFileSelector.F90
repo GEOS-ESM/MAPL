@@ -9,6 +9,7 @@ module mapl3g_NonClimDataSetFileSelector
    use mapl3g_AbstractDataSetFileSelector
    use mapl3g_ExtdataUtilities
    use mapl_StringTemplate
+   use mapl3g_geomio
    implicit none
    private
 
@@ -42,6 +43,8 @@ module mapl3g_NonClimDataSetFileSelector
 
        integer :: status
        file_handler%file_template = file_template
+       if ( index(file_handler%file_template,'%') == 0 ) file_handler%single_file = .true.
+       file_handler%collection_id = mapl3g_AddDataCollection(file_handler%file_template)
        if (present(file_frequency)) file_handler%file_frequency = file_frequency
        if (present(ref_time)) file_handler%ref_time = ref_time
        if (present(valid_range)) then
@@ -72,7 +75,7 @@ module mapl3g_NonClimDataSetFileSelector
        integer :: status, node_side
        logical :: establish_both, establish_single
        type(DataSetNode) :: left_node, right_node, test_node
-       logical :: node_is_valid, both_valid, time_jumped
+       logical :: node_is_valid, both_valid, time_jumped, both_invalid
 
        establish_both = .true. 
        establish_single = .false.
@@ -104,8 +107,10 @@ module mapl3g_NonClimDataSetFileSelector
        right_node = bracket%get_right_node(_RC)
        both_valid = left_node%validate(target_time) .and. right_node%validate(target_time) 
        time_jumped = this%detect_time_flow(current_time)
+       both_invalid = (left_node%validate(target_time) .eqv. .false.) .and. &
+                      (right_node%validate(target_time) .eqv. .false.)
 
-       if (time_jumped) then ! if time moved more than 1 clock dt, force update
+       if (time_jumped .or. both_invalid) then ! if time moved more than 1 clock dt, force update
           call this%update_both_brackets(bracket, target_time, _RC)
        else if (both_valid) then ! else if it did not, both still valid, don't update
           call left_node%set_update(.false.)
