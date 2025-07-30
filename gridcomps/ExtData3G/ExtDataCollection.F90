@@ -71,6 +71,8 @@ contains
                call ESMF_TimeIntervalSet(data_set%frequency,h=1,_RC)
             case("n2")
                call ESMF_TimeIntervalSet(data_set%frequency,m=1,_RC)
+            case default
+               _FAIL("Unsupported token")
             end select
          else
             ! couldn't find any tokens so all the data must be on one file
@@ -96,6 +98,8 @@ contains
                call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=0,s=0,_RC)
             case("n2")
                call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,s=0,_RC)
+            case default
+               _FAIL("Unsupported token")
             end select
          else
             data_set%reff_time = current_time
@@ -125,6 +129,8 @@ contains
                call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=0,s=0,_RC)
             case("n2")
                call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,s=0,_RC)
+            case default
+               _FAIL("Unsupported token")
             end select
          end if
 
