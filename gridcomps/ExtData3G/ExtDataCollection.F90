@@ -174,14 +174,14 @@ contains
    end function get_frequency
 
    ! reff_time accessors
-   function get_reff_time(this) result(time)
+   subroutine get_reff_time(this, time)
       class(ExtDataCollection), intent(in) :: this
-      type(ESMF_Time), allocatable :: time
+      type(ESMF_Time), intent(out), allocatable :: time
       
       if (allocated(this%reff_time)) then
          time = this%reff_time
       end if
-   end function get_reff_time
+   end subroutine get_reff_time
 
    ! collection_id accessors
    function get_collection_id(this) result(id)
@@ -192,14 +192,14 @@ contains
    end function get_collection_id
 
    ! valid_range accessors
-   function get_valid_range(this) result(range)
+   subroutine get_valid_range(this, valid_range)
       class(ExtDataCollection), intent(in) :: this
-      type(ESMF_Time), allocatable :: range(:)
+      type(ESMF_Time), intent(out), allocatable :: valid_range(:)
       
       if (allocated(this%valid_range)) then
-         range = this%valid_range
+         valid_range = this%valid_range
       end if
-   end function get_valid_range
+   end subroutine get_valid_range
 
    ! Check if reff_time is allocated
    function is_reff_time_allocated(this) result(is_allocated)
