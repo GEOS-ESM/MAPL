@@ -157,10 +157,9 @@ contains
       class(ExtDataCollection), intent(in) :: this
       character(len=:), allocatable :: template
       
+      template = ''
       if (allocated(this%file_template)) then
          template = this%file_template
-      else
-         template = ''
       end if
    end function get_file_template
 
