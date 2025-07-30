@@ -144,11 +144,10 @@ contains
             character(len=*), intent(In) :: selector
             character(len=:), allocatable :: string
 
-            if (ESMF_HConfigIsDefined(config,keyString=selector)) then
+           string=''
+           if (ESMF_HConfigIsDefined(config,keyString=selector)) then
                string = ESMF_HConfigAsString(config,keyString=selector,_RC)
-            else
-               string=''
-            end if
+           end if
          end function
 
    end function new_ExtDataCollection
