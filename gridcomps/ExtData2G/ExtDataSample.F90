@@ -38,14 +38,14 @@ contains
 
       call TimeSample%set_defaults()
 
+      TimeSample%extrap_outside = "none"
       if (ESMF_HConfigIsDefined(config,keyString="extrapolation")) then
          TimeSample%extrap_outside=ESMF_HConfigAsString(config,keyString="extrapolation",_RC)
       end if
 
+      TimeSample%time_interpolation = .true.
       if (ESMF_HConfigIsDefined(config,keyString="time_interpolation")) then
          TimeSample%time_interpolation = ESMF_HConfigAsLogical(config,keyString="time_interpolation",_RC)
-      else
-         TimeSample%time_interpolation = .true.
       end if
 
       if (ESMF_HConfigIsDefined(config,keyString="exact")) then

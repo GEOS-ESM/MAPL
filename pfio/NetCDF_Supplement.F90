@@ -48,8 +48,8 @@ module pfio_NetCDF_Supplement
          type(c_ptr), intent(in), value         :: count_ptr
       end function c_f_pfio_get_var_string
 
-      function c_f_pfio_put_var_string(ncid, varid, string_ptr, str_len, str_size, start_ptr, count_ptr) &
-           & result(stat) bind(C, name='pfio_put_var_string')
+      function c_f_pfio_put_vara_string(ncid, varid, string_ptr, str_len, str_size, start_ptr, count_ptr) &
+           & result(stat) bind(C, name='pfio_put_vara_string')
          use, intrinsic :: iso_c_binding
          implicit none
          integer :: stat
@@ -60,8 +60,28 @@ module pfio_NetCDF_Supplement
          integer(kind=C_INT), value, intent(in) :: str_size
          type(c_ptr), intent(in), value         :: start_ptr
          type(c_ptr), intent(in), value         :: count_ptr
+      end function c_f_pfio_put_vara_string
+
+      function c_f_pfio_put_var_string(ncid, varid, string_ptr, str_len) &
+           & result(stat) bind(C, name='pfio_put_var_string')
+         use, intrinsic :: iso_c_binding
+         implicit none
+         integer :: stat
+         integer(kind=C_INT), value, intent(in) :: ncid
+         integer(kind=C_INT), value, intent(in) :: varid
+         type(c_ptr), intent(in), value         :: string_ptr
+         integer(kind=C_INT), value, intent(in) :: str_len
       end function c_f_pfio_put_var_string
 
+   end interface
+
+   interface pfio_nf90_get_var_string
+     module procedure pfio_nf90_get_var_string_0d
+     module procedure pfio_nf90_get_var_string_1d
+   end interface
+   interface pfio_nf90_put_var_string
+     module procedure pfio_nf90_put_var_string_0d
+     module procedure pfio_nf90_put_var_string_1d
    end interface
 
 contains
@@ -91,7 +111,7 @@ contains
       deallocate(c_name)
    end function pfio_get_att_string
 
-   function pfio_nf90_get_var_string(ncid, varid, string, start, count) result(status)
+   function pfio_nf90_get_var_string_1d(ncid, varid, string, start, count) result(status)
       integer :: status
       integer(kind=C_INT), intent(in)   :: ncid
       integer(kind=C_INT), intent(in)   :: varid
@@ -114,9 +134,26 @@ contains
       status = c_f_pfio_get_var_string(ncid, varid, c_loc(string), str_len,  c_loc(start_), c_loc(count_))
       deallocate(start_, count_)
 
-   end function pfio_nf90_get_var_string
+   end function pfio_nf90_get_var_string_1d
 
-   function pfio_nf90_put_var_string(ncid, varid, string, start, count) result(status)
+   function pfio_nf90_get_var_string_0d(ncid, varid, string) result(status)
+      integer :: status
+      integer(kind=C_INT), intent(in)   :: ncid
+      integer(kind=C_INT), intent(in)   :: varid
+      character(*), target,intent(inout):: string
+
+      integer, target, allocatable :: start_(:), count_(:)
+      integer :: str_len
+
+      str_len  = len(string)
+      allocate(start_(1), count_(1))
+      start_(1) = 1
+      count_(1) = 1
+      status = c_f_pfio_get_var_string(ncid, varid, c_loc(string), str_len,  c_loc(start_), c_loc(count_))
+
+   end function pfio_nf90_get_var_string_0d
+
+   function pfio_nf90_put_var_string_1d(ncid, varid, string, start, count) result(status)
       integer :: status
       integer(kind=C_INT), intent(in) :: ncid
       integer(kind=C_INT), intent(in) :: varid
@@ -143,10 +180,26 @@ contains
         string_C(k) = trim(adjustl(string(k)))//c_null_char
       enddo
 
-      status = c_f_pfio_put_var_string(ncid, varid, c_loc(string_C), max_len, str_size, c_loc(start_), c_loc(count_))
+      status = c_f_pfio_put_vara_string(ncid, varid, c_loc(string_C), max_len, str_size, c_loc(start_), c_loc(count_))
       deallocate(start_, count_)
       deallocate(string_C)
-   end function pfio_nf90_put_var_string
+   end function pfio_nf90_put_var_string_1d
+
+   function pfio_nf90_put_var_string_0d(ncid, varid, string) result(status)
+      integer :: status
+      integer(kind=C_INT), intent(in) :: ncid
+      integer(kind=C_INT), intent(in) :: varid
+      character(*), target,intent(in):: string
+      integer :: max_len
+      character(len=:),allocatable, target :: string_C(:)
+
+      max_len  = len(string) + 1
+
+      allocate(character(len=max_len) :: string_C(1))
+      string_C(1) = string//c_null_char
+      status = c_f_pfio_put_var_string(ncid, varid, c_loc(string_C), max_len)
+      deallocate(string_C)
+   end function pfio_nf90_put_var_string_0d
 
    function pfio_nf90_get_var_string_len(ncid, varid, str_len) result(status)
       use netcdf
@@ -158,12 +211,16 @@ contains
       integer  :: size
       integer, target  :: length
 
-      allocate(dimids(1))
+      allocate(dimids(1), source = -9999) ! 
       status = nf90_inquire_variable(ncid,  varid, dimids=dimids)
-      status = nf90_inquire_dimension(ncid, dimids(1), len=size)
-      status = c_f_pfio_get_var_string_len(ncid, varid, c_loc(length), size)
+      if (status /= 0) return
+      size = 0 ! default (assume scalar string)
+      if ( dimids(1) > 0) then
+        status = nf90_inquire_dimension(ncid, dimids(1), len=size)
+        if (status /= 0) return
+      endif
+      status  = c_f_pfio_get_var_string_len(ncid, varid, c_loc(length), size)
       str_len = length
-
    end function pfio_nf90_get_var_string_len
 
 end module pfio_NetCDF_Supplement

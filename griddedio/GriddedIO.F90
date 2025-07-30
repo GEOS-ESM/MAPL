@@ -54,6 +54,7 @@ module MAPL_GriddedIOMod
      integer :: deflateLevel = 0
      integer :: quantizeAlgorithm = MAPL_NOQUANTIZE
      integer :: quantizeLevel = 0
+     integer :: zstandardLevel = 0
      integer, allocatable :: chunking(:)
      logical :: itemOrderAlphabetical = .true.
      integer :: fraction
@@ -250,11 +251,12 @@ module MAPL_GriddedIOMod
       end subroutine destroy
 
 
-     subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,nbits_to_keep,regrid_method,itemOrder,write_collection_id,regrid_hints,rc)
+     subroutine set_param(this,deflation,quantize_algorithm,quantize_level,zstandard_level,chunking,nbits_to_keep,regrid_method,itemOrder,write_collection_id,regrid_hints,rc)
         class (MAPL_GriddedIO), intent(inout) :: this
         integer, optional, intent(in) :: deflation
         integer, optional, intent(in) :: quantize_algorithm
         integer, optional, intent(in) :: quantize_level
+        integer, optional, intent(in) :: zstandard_level
         integer, optional, intent(in) :: chunking(:)
         integer, optional, intent(in) :: nbits_to_keep
         integer, optional, intent(in) :: regrid_method
@@ -270,6 +272,7 @@ module MAPL_GriddedIOMod
         if (present(deflation)) this%deflateLevel = deflation
         if (present(quantize_algorithm)) this%quantizeAlgorithm = quantize_algorithm
         if (present(quantize_level)) this%quantizeLevel = quantize_level
+        if (present(zstandard_level)) this%zstandardLevel = zstandard_level
         if (present(chunking)) then
            allocate(this%chunking,source=chunking,stat=status)
            _VERIFY(status)
@@ -409,7 +412,7 @@ module MAPL_GriddedIOMod
               _FAIL( 'Unsupported field rank')
            end if
         end if
-        v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking,deflation=this%deflateLevel,quantize_algorithm=this%quantizeAlgorithm,quantize_level=this%quantizeLevel)
+        v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking,deflation=this%deflateLevel,quantize_algorithm=this%quantizeAlgorithm,quantize_level=this%quantizeLevel,zstandard_level=this%zstandardLevel)
         call v%add_attribute('units',trim(units))
         call v%add_attribute('long_name',trim(longName))
         call v%add_attribute('standard_name',trim(longName))
@@ -636,7 +639,7 @@ module MAPL_GriddedIOMod
               _VERIFY(status)
               call ESMF_FieldBundleGet(this%output_bundle,item%xname,field=outField,rc=status)
               _VERIFY(status)
-              if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+              if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV .and. (this%vdata%extrap_below_surf .eqv. .false.)) then
                  call this%vdata%correct_topo(outField,rc=status)
                  _VERIFY(status)
               end if
@@ -647,7 +650,7 @@ module MAPL_GriddedIOMod
               _VERIFY(status)
               call ESMF_FieldBundleGet(this%output_bundle,item%xname,field=outField,rc=status)
               _VERIFY(status)
-              if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+              if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV .and. (this%vdata%extrap_below_surf .eqv. .false.)) then
                  call this%vdata%correct_topo(outField,rc=status)
                  _VERIFY(status)
               end if
@@ -655,7 +658,7 @@ module MAPL_GriddedIOMod
               _VERIFY(status)
               call ESMF_FieldBundleGet(this%output_bundle,item%yname,field=outField,rc=status)
               _VERIFY(status)
-              if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+              if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV .and. (this%vdata%extrap_below_surf .eqv. .false.)) then
                  call this%vdata%correct_topo(outField,rc=status)
                  _VERIFY(status)
               end if
@@ -682,12 +685,18 @@ module MAPL_GriddedIOMod
         real, pointer :: ptr2d(:,:), outptr2d(:,:)
         real, allocatable, target :: ptr3d_inter(:,:,:)
         type(ESMF_Grid) :: gridIn,gridOut
-        logical :: hasDE_in, hasDE_out
+        logical :: hasDE_in, hasDE_out, isPresent
+        character(len=ESMF_MAXSTR) :: long_name
 
         ptr3d => null()
 
         call ESMF_FieldBundleGet(this%output_bundle,itemName,field=outField,rc=status)
         _VERIFY(status)
+        long_name = 'unknown'
+        call ESMF_AttributeGet(outField, name="LONG_NAME", isPresent=isPresent, _RC)
+        if ( isPresent ) then
+           call ESMF_AttributeGet(outField, name="LONG_NAME",value=long_name, _RC)
+        endif
         call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
         _VERIFY(status)
         call ESMF_FieldBundleGet(this%output_bundle,grid=gridOut,rc=status)
@@ -715,7 +724,7 @@ module MAPL_GriddedIOMod
                  call this%vdata%regrid_select_level(ptr3d,ptr3d_inter,rc=status)
                  _VERIFY(status)
               else if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-                 call this%vdata%regrid_eta_to_pressure(ptr3d,ptr3d_inter,rc=status)
+                 call this%vdata%regrid_eta_to_pressure(ptr3d,ptr3d_inter,var_name=long_name,rc=status)
                  _VERIFY(status)
               else if (this%vdata%regrid_type==VERTICAL_METHOD_FLIP) then
                  call this%vdata%flip_levels(ptr3d,ptr3d_inter,rc=status)
@@ -800,12 +809,25 @@ module MAPL_GriddedIOMod
         real, pointer :: yptr2d(:,:), youtptr2d(:,:)
         real, allocatable, target :: yptr3d_inter(:,:,:)
         type(ESMF_Grid) :: gridIn, gridOut
-        logical :: hasDE_in, hasDE_out
+        logical :: hasDE_in, hasDE_out, isPresent
+        character(len=ESMF_MAXSTR) :: long_name_x, long_name_y
 
         call ESMF_FieldBundleGet(this%output_bundle,xName,field=xoutField,rc=status)
         _VERIFY(status)
+        long_name_x = 'unknown'
+        call ESMF_AttributeGet(xoutField, name="LONG_NAME", isPresent=isPresent, _RC)
+        if ( isPresent ) then
+           call ESMF_AttributeGet(xoutField, name="LONG_NAME",value=long_name_x, _RC)
+        endif
+
         call ESMF_FieldBundleGet(this%output_bundle,yName,field=youtField,rc=status)
         _VERIFY(status)
+        long_name_y = 'unknown'
+        call ESMF_AttributeGet(youtField, name="LONG_NAME", isPresent=isPresent, _RC)
+        if ( isPresent ) then
+           call ESMF_AttributeGet(youtField, name="LONG_NAME",value=long_name_y, _RC)
+        endif
+
         call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
         _VERIFY(status)
         call ESMF_FieldBundleGet(this%output_bundle,grid=gridOut,rc=status)
@@ -833,7 +855,7 @@ module MAPL_GriddedIOMod
                  call this%vdata%regrid_select_level(xptr3d,xptr3d_inter,rc=status)
                  _VERIFY(status)
               else if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-                 call this%vdata%regrid_eta_to_pressure(xptr3d,xptr3d_inter,rc=status)
+                 call this%vdata%regrid_eta_to_pressure(xptr3d,xptr3d_inter,var_name=long_name_x,rc=status)
                  _VERIFY(status)
               else if (this%vdata%regrid_type==VERTICAL_METHOD_FLIP) then
                  call this%vdata%flip_levels(xptr3d,xptr3d_inter,rc=status)
@@ -858,7 +880,7 @@ module MAPL_GriddedIOMod
                  call this%vdata%regrid_select_level(yptr3d,yptr3d_inter,rc=status)
                  _VERIFY(status)
               else if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-                 call this%vdata%regrid_eta_to_pressure(yptr3d,yptr3d_inter,rc=status)
+                 call this%vdata%regrid_eta_to_pressure(yptr3d,yptr3d_inter,var_name=long_name_y,rc=status)
                  _VERIFY(status)
               else if (this%vdata%regrid_type==VERTICAL_METHOD_FLIP) then
                  call this%vdata%flip_levels(yptr3d,yptr3d_inter,rc=status)
@@ -1259,7 +1281,7 @@ module MAPL_GriddedIOMod
         end if
         call i_Clients%collective_prefetch_data( &
              this%read_collection_id, fileName, trim(names(i)), &
-             & ref, start=localStart, global_start=globalStart, global_count=globalCount)
+             & ref, start=localStart, global_start=globalStart, global_count=globalCount, _RC)
         deallocate(localStart,globalStart,globalCount)
      enddo
      deallocate(gridLocalStart,gridGlobalStart,gridGlobalCount)

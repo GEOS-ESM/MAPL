@@ -20,6 +20,7 @@ module MAPL_ExtDataOldTypesCreator
    use MAPL_ExtDataClimFileHandler
    use MAPL_ExtDataTimeSample
    use MAPL_ExtDataTimeSampleMap
+   use MAPL_StateUtils
    implicit none
 
    public :: ExtDataOldTypesCreator
@@ -82,13 +83,10 @@ module MAPL_ExtDataOldTypesCreator
         call default_time_sample%set_defaults()
         time_sample=>default_time_sample
       end if
-      primary_item%isVector = allocated(rule%vector_partner)
-      ! name and file var
-      !primary_item%name = trim(item_name)
+      primary_item%vartype = MAPL_FieldItem
+      if (allocated(rule%vector_partner)) primary_item%vartype = MAPL_VectorField
       primary_item%name = trim(base_name)
-      if (primary_item%isVector) then
-         primary_item%vartype = MAPL_VectorField
-         !primary_item%vcomp1 = trim(item_name)
+      if (primary_item%vartype == MAPL_VectorField) then
          primary_item%vcomp1 = trim(base_name)
          primary_item%vcomp2 = trim(rule%vector_partner)
          primary_item%var = rule%file_var
@@ -98,8 +96,6 @@ module MAPL_ExtDataOldTypesCreator
          primary_item%fileVars%xname  = trim(rule%file_var)
          primary_item%fileVars%yname  = trim(rule%vector_file_partner)
       else
-         primary_item%vartype = MAPL_FieldItem
-         !primary_item%vcomp1 = trim(item_name)
          primary_item%vcomp1 = trim(base_name)
          primary_item%var = rule%file_var
          primary_item%fcomp1 = rule%file_var
@@ -121,6 +117,7 @@ module MAPL_ExtDataOldTypesCreator
          primary_item%cycling=.true.
       else if (trim(time_sample%extrap_outside) == "persist_closest") then
          primary_item%persist_closest=.true.
+         primary_item%cycling=.false.
       else if (trim(time_sample%extrap_outside) == "none") then
          primary_item%cycling=.false.
          primary_item%persist_closest=.false.
@@ -136,8 +133,6 @@ module MAPL_ExtDataOldTypesCreator
 
       call primary_item%modelGridFields%comp1%set_parameters(linear_trans=rule%linear_trans,disable_interpolation=disable_interpolation,exact=exact)
       call primary_item%modelGridFields%comp2%set_parameters(linear_trans=rule%linear_trans,disable_interpolation=disable_interpolation,exact=exact)
-      call primary_item%modelGridFields%auxiliary1%set_parameters(linear_trans=rule%linear_trans, disable_interpolation=disable_interpolation,exact=exact)
-      call primary_item%modelGridFields%auxiliary2%set_parameters(linear_trans=rule%linear_trans, disable_interpolation=disable_interpolation,exact=exact)
 
       ! file_template
       primary_item%isConst = .false.
@@ -170,6 +165,7 @@ module MAPL_ExtDataOldTypesCreator
       end if
 
       primary_item%fail_on_missing_file = rule%fail_on_missing_file
+      primary_item%enable_vertical_regrid= rule%enable_vertical_regrid
 
       _RETURN(_SUCCESS)
 
@@ -206,7 +202,7 @@ module MAPL_ExtDataOldTypesCreator
       if (index(derived_item%expression,"mask") /= 0 ) then
          derived_item%masking=.true.
          allocate(derived_item%mask_definition)
-         derived_item%mask_definition = ExtDataMask(derived_item%expression,_RC)
+         derived_item%mask_definition = StateMask(derived_item%expression,_RC)
       end if
 
       _RETURN(_SUCCESS)

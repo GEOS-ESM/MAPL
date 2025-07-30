@@ -20,6 +20,7 @@ module pFIO_NetCDF4_FileFormatterMod
    use pfio_NetCDF_Supplement
    use netcdf
    use mpi
+   use, intrinsic :: iso_c_binding, only: C_NULL_CHAR
    implicit none
    private
 
@@ -43,6 +44,7 @@ module pFIO_NetCDF4_FileFormatterMod
 
 #include "new_overload.macro"
 
+      procedure :: ___SUB(get_var,string,0)
       procedure :: ___SUB(get_var,string,1)
 
       procedure :: ___SUB(get_var,int32,0)
@@ -66,6 +68,7 @@ module pFIO_NetCDF4_FileFormatterMod
       procedure :: ___SUB(get_var,real64,3)
       procedure :: ___SUB(get_var,real64,4)
 
+      procedure :: ___SUB(put_var,string,0)
       procedure :: ___SUB(put_var,string,1)
       procedure :: ___SUB(put_var,int32,0)
       procedure :: ___SUB(put_var,int32,1)
@@ -89,6 +92,7 @@ module pFIO_NetCDF4_FileFormatterMod
       procedure :: ___SUB(put_var,real64,4)
 
 
+      generic :: get_var => ___SUB(get_var,string,0)
       generic :: get_var => ___SUB(get_var,string,1)
       generic :: get_var => ___SUB(get_var,int32,0)
       generic :: get_var => ___SUB(get_var,int32,1)
@@ -111,6 +115,7 @@ module pFIO_NetCDF4_FileFormatterMod
       generic :: get_var => ___SUB(get_var,real64,3)
       generic :: get_var => ___SUB(get_var,real64,4)
 
+      generic :: put_var => ___SUB(put_var,string,0)
       generic :: put_var => ___SUB(put_var,string,1)
       generic :: put_var => ___SUB(put_var,int32,0)
       generic :: put_var => ___SUB(put_var,int32,1)
@@ -600,7 +605,6 @@ contains
       iter = attributes%begin()
       do while (iter /= attributes%end())
          attr_name => iter%key()
-
          p_attribute => iter%value()
          shp = p_attribute%get_shape()
          if (size(shp) == 0) then ! scalar
@@ -710,6 +714,7 @@ contains
       integer :: deflation
       integer :: quantize_algorithm
       integer :: quantize_level
+      integer :: zstandard_level
       character(len=:), pointer :: var_name
       character(len=:), pointer :: dim_name
       class (Variable), pointer :: var
@@ -781,6 +786,18 @@ contains
            _VERIFY(status)
 #else
            _FAIL("netcdf was not built with quantize support")
+#endif
+         end if
+
+         zstandard_level = var%get_zstandard_level()
+         if (zstandard_level /= 0) then
+#ifdef NF_HAS_ZSTD
+           !$omp critical
+           status = nf90_def_var_zstandard(this%ncid, varid, zstandard_level)
+           !$omp end critical
+           _VERIFY(status)
+#else
+           _FAIL("netcdf was not built with zstandard support")
 #endif
          end if
 
@@ -980,6 +997,9 @@ contains
             status = nf90_get_att(this%ncid, varid, trim(attr_name), str)
             !$omp end critical
             _VERIFY(status)
+            if (len > 0) then
+               if (str(len:len) == C_NULL_CHAR) str = str(1:len-1)
+            end if
             call cf%add_attribute(trim(attr_name), str)
             deallocate(str)
          case (NF90_STRING)
@@ -1076,12 +1096,18 @@ contains
             status = nf90_get_att(this%ncid, varid, trim(attr_name), str)
             !$omp end critical
             _VERIFY(status)
+            if (len > 0) then
+               if (str(len:len) == C_NULL_CHAR) str = str(1:len-1)
+            end if
             call var%add_attribute(trim(attr_name), str)
             deallocate(str)
          case (NF90_STRING)
-            !W.Y. Note: pfio does not support variable's string attribute
-            !  It only supports global 1-d string attribute
-            cycle
+            !$omp critical
+            status = pfio_get_att_string(this%ncid, varid, trim(attr_name), str)
+            !$omp end critical
+            _VERIFY(status)
+            call var%add_attribute(trim(attr_name), str)
+            deallocate(str)
          case default
             _RETURN(_FAILURE)
          end select
@@ -1330,6 +1356,10 @@ contains
 
    ! string
 #define _VARTYPE 0
+#  define _RANK 0
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
 #  define _RANK 1
 #    include "NetCDF4_get_var.H"
 #    include "NetCDF4_put_var.H"

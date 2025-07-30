@@ -2840,8 +2840,8 @@ contains
     call fill_grads_template ( filename, filetmpl, &
                            experiment_id=EXPID, nymd=nymd, nhms=nhms, rc=status )
     _VERIFY(STATUS)
-    !call WRITE_PARALLEL("CFIO: Reading " // trim(filename))
-    if (mapl_am_i_root()) write(*,*)"CFIO: Reading ",trim(filename)," at ",nymd," ",nhms
+
+    if (mapl_am_i_root()) write(*,'(a, ": Reading ", a, " at ", i8, " ", i6)') Iam, trim(filename), nymd, nhms
 
 
     cfioIsCreated = .false.

@@ -15,10 +15,12 @@ module MAPL_ExtdataAbstractFileHandler
    use MAPL_FileMetadataUtilsMod
    use MAPL_TimeStringConversion
    use MAPL_StringTemplate
+   use MAPL_CommsMod
    implicit none
    private
    public :: ExtDataAbstractFileHandler
 
+   integer, parameter :: MAX_TRIALS = 10
    type, abstract :: ExtDataAbstractFileHandler
       character(:), allocatable :: file_template
       type(ESMF_TimeInterval) :: frequency
@@ -30,6 +32,7 @@ module MAPL_ExtdataAbstractFileHandler
          procedure :: initialize
          procedure :: make_metadata
          procedure :: get_time_on_file
+         procedure :: find_any_file
          procedure(get_file_bracket), deferred :: get_file_bracket
    end type
 
@@ -165,5 +168,45 @@ contains
      _RETURN(_SUCCESS)
 
   end subroutine make_metadata
+
+  function find_any_file(this, current_time, fail_on_missing, rc) result(filename)
+     character(len=:), allocatable :: filename
+     class(ExtDataAbstractFileHandler), intent(inout) :: this
+     type(ESMF_Time), intent(in) :: current_time
+     logical, intent(in) :: fail_on_missing 
+     integer, optional, intent(out) :: rc
+
+     integer :: status, i
+     type(ESMF_Time) :: useable_time
+     character(len=ESMF_MAXPATHLEN) :: trial_file
+     logical :: file_found
+
+     useable_time = current_time
+     if (allocated(this%valid_range)) then
+        useable_time = this%valid_range(1)
+     end if
+     call fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
+     inquire(file=trim(trial_file),exist=file_found)
+
+     if (file_found) then
+        filename = trial_file
+        _RETURN(_SUCCESS)
+     end if
+     do i=1, MAX_TRIALS
+        useable_time = useable_time + this%frequency
+        call fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
+        inquire(file=trim(trial_file),exist=file_found)
+        if (file_found) exit
+     enddo
+
+     if (fail_on_missing) then
+        _ASSERT(file_found,"Could not find any file to open to determine metadata after multiple trials")
+        filename = trial_file
+     else
+        filename = 'NONE'
+     end if
+     _RETURN(_SUCCESS) 
+
+   end function find_any_file
 
 end module MAPL_ExtdataAbstractFileHandler

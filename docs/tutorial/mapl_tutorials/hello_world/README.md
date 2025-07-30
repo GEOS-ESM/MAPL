@@ -34,7 +34,7 @@ After this call MAPL_GenericInitialize is called. This is again a MAPL call that
 Finally we get to the run method my_run. Notice it has the same interface the initialize method. This was registered and will be executed each time step. As you can see if does very little in this example. It gets the current time from the ESMF clock (this literally a clock that is advanced by the MAPL "CAP"). The time is stored in a variable of `type(ESMF_Time)` declared in the subroutine.  It then prints the obligatory "Hello World" and finally uses an ESMF cal which takes an ESMF time and prints it as a string.
 
 # A Note on Error Handling
-You will notice that the setServices, initialize, and run subroutines all have an optional rc return variable. This is represents a return code that the calling routine can check to see if the subroutine executed successfully or produced an error.  All ESMF and MAPL subroutines and functions have an optional rc value that can be checked when making a call. To check the return status you would do something like this. 
+You will notice that the setServices, initialize, and run subroutines all have an optional rc return variable. This is represents a return code that the calling routine can check to see if the subroutine executed successfully or produced an error.  All ESMF and MAPL subroutines and functions have an optional rc value that can be checked when making a call. To check the return status you would do something like this.
 ```
 integer :: status
 
@@ -51,7 +51,7 @@ end
 
 This would get very tedious, not to mention make the code hard to read if the user had to do this after every subroutine or function call. To assist the developer MAPL defines a collection of preprocessor macros for error checking .
 
-You will notice that all subroutine calls in this example end with `_RC`. This is a preprocessor macro that expands to `rc=status); _VERIFY(status`. 
+You will notice that all subroutine calls in this example end with `_RC`. This is a preprocessor macro that expands to `rc=status); _VERIFY(status`.
 
 `_VERIFY` itself is another macro that essentially implements the lines after the call to `ESMF_Foo` in the previous example. It will check the status and if there is an error report the file and line and return.
 
@@ -74,7 +74,7 @@ srun: cluster configuration lacks support for cpu binding
  Integer*4 Resource Parameter: HEARTBEAT_DT:3600
  NOT using buffer I/O for file: cap_restart
        CAP: Read CAP restart properly, Current Date =   2007/08/01
-       CAP:                            Current Time =   00/00/00
+       CAP:                            Current Time =   00:00:00
  Character Resource Parameter: ROOT_CF:hello_world.rc
  Character Resource Parameter: ROOT_NAME:hello_world
  Character Resource Parameter: HIST_CF:HISTORY.rc
@@ -107,14 +107,14 @@ end Time -------------------------------
 
  AGCM Date: 2007/08/01  Time: 02:00:00  Throughput(days/day)[Avg Tot Run]:   21061906.1   10684057.3   25508595.8  TimeRemaining(Est) 000:00:00    2.7% :  13.3% Mem Comm:Used
  ```
- Lets see how this corresponds to what is in the input files. 
+ Lets see how this corresponds to what is in the input files.
 
  First lets discuss the CAP.rc, the relevant lines are
  ```
  JOB_SGMT:     00000001 000000
 HEARTBEAT_DT: 3600
 ```
-which tell the MAPL "CAP" to run 1 day via the JOB_SGMT line and with a timestep of 3600s. In addition the 
+which tell the MAPL "CAP" to run 1 day via the JOB_SGMT line and with a timestep of 3600s. In addition the
 ```
 ROOT_CF: hello_world.rc
 ```
@@ -134,7 +134,7 @@ SHMEM: Total PEs = 1
 ```
 which says we are using 1 MPI task.
 Then later you the tell works and quick glance should confirm it is stepping the clock by 1 hour each time. Finally you see lines like this:
-``` 
-AGCM Date: 2007/08/01  Time: 02:00:00  Throughput(days/day)[Avg Tot Run]:   21061906.1   10684057.3   25508595.8  TimeRemaining(Est) 000:00:00    2.7% :  13.3% Mem Comm:Used 
+```
+AGCM Date: 2007/08/01  Time: 02:00:00  Throughput(days/day)[Avg Tot Run]:   21061906.1   10684057.3   25508595.8  TimeRemaining(Est) 000:00:00    2.7% :  13.3% Mem Comm:Used
 ```
 This is actually reported by the "CAP" itself. and prints the current time as well as some statistics about memroy use and throughput. The astute user will notice that the time reported here is 1 hour after the time printed in the gridded component. This is because the clock is advanced at the end of each iteration in the "CAP", after the component is run and this reporting is at the very end of each iteration.

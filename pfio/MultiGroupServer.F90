@@ -273,6 +273,7 @@ contains
       class(MultiGroupServer), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
       integer :: num_clients, n
+      integer :: status
       class (ServerThread),pointer :: thread_ptr
 
       if (this%front_Comm == MPI_COMM_NULL) then
@@ -289,7 +290,7 @@ contains
          call thread_ptr%clear_hist_collections()
       enddo ! threads
 
-      call this%clear_RequestHandle()
+      call this%clear_RequestHandle(_RC)
       call this%set_AllBacklogIsEmpty(.true.)
       this%serverthread_done_msgs(:) = .false.
 

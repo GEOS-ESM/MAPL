@@ -57,6 +57,7 @@ module MAPL_CapGridCompMod
      procedure(), pointer, nopass  :: root_set_services => null()
      character(len=:), allocatable :: root_dso
      character(len=:), allocatable :: final_file, name, cap_rc_file
+     character(len=:), allocatable :: root_name
      integer :: nsteps, heartbeat_dt, perpetual_year, perpetual_month, perpetual_day
      logical :: amiroot, started_loop_timer
      logical :: lperp = .false.
@@ -151,6 +152,7 @@ contains
     call MAPL_InternalStateCreate(cap%gc, meta, _RC)
     call MAPL_Set(meta, CF=cap%config, _RC)
 
+
     call MAPL_Set(meta, name=cap_name, component=stub_component, _RC)
 
     cap_wrapper%ptr => cap
@@ -228,7 +230,7 @@ contains
     _UNUSED_DUMMY(export_state)
     _UNUSED_DUMMY(clock)
 
-    cap => get_CapGridComp_from_gc(gc)
+    cap => get_CapGridComp_from_gc(gc, _RC)
     call MAPL_InternalStateRetrieve(gc, maplobj, _RC)
 
     t_p => get_global_time_profiler()
@@ -368,6 +370,7 @@ contains
 
     ! !RESOURCE_ITEM: string :: Name to assign to the ROOT component
     call MAPL_GetResource(MAPLOBJ, ROOT_NAME, "ROOT_NAME:", default = "ROOT", _RC)
+    cap%root_name = trim(ROOT_NAME)
 
     ! !RESOURCE_ITEM: string :: Name of HISTORY's config file
     call MAPL_GetResource(MAPLOBJ, HIST_CF, "HIST_CF:", default = "HIST.rc", _RC)
@@ -767,7 +770,7 @@ contains
     _UNUSED_DUMMY(export_state)
     _UNUSED_DUMMY(clock)
 
-    cap => get_CapGridComp_from_gc(gc)
+    cap => get_CapGridComp_from_gc(gc, _RC)
     call MAPL_GetObjectFromGC(gc, maplobj, _RC)
 
     t_p => get_global_time_profiler()
@@ -823,7 +826,7 @@ contains
     integer :: status, phase
     type(MAPL_CapGridComp), pointer :: cap
 
-    cap => get_CapGridComp_from_gc(gc)
+    cap => get_CapGridComp_from_gc(gc, _RC)
     call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, userRoutine = initialize_gc, _RC)
 
     do phase = 1, cap%n_run_phases
@@ -955,36 +958,40 @@ contains
     step_counter = this%step_counter
   end function get_step_counter
 
-  function get_CapGridComp_from_gc(gc) result(cap)
+  function get_CapGridComp_from_gc(gc, rc) result(cap)
     type(ESMF_GridComp), intent(inout) :: gc
+    integer, optional, intent(out) :: rc
     type(MAPL_CapGridComp), pointer :: cap
+
     type(MAPL_CapGridComp_Wrapper) :: cap_wrapper
-    integer :: rc
-    call ESMF_UserCompGetInternalState(gc, internal_cap_name, cap_wrapper, rc)
+    integer :: status
+
+    call ESMF_UserCompGetInternalState(gc, internal_cap_name, cap_wrapper, status)
+    _VERIFY(status)
+
     cap => cap_wrapper%ptr
+    _RETURN(_SUCCESS)
   end function get_CapGridComp_from_gc
 
 
 
   function get_vec_from_config(config, key, rc) result(vec)
+    type(StringVector) :: vec
     type(ESMF_Config), intent(inout) :: config
     character(len=*), intent(in) :: key
     integer, intent(out), optional :: rc
     logical :: present, tableEnd
     integer :: status
-    character(len=ESMF_MAXSTR) :: cap_import
-    type(StringVector) :: vec
+    character(len=ESMF_MAXSTR) :: value
 
     call ESMF_ConfigFindLabel(config, key//":", isPresent = present, _RC)
 
-    cap_import = ""
     if (present) then
-
-       do while(trim(cap_import) /= "::")
+       do
           call ESMF_ConfigNextLine(config, tableEnd=tableEnd, _RC)
           if (tableEnd) exit
-          call ESMF_ConfigGetAttribute(config, cap_import, _RC)
-          if (trim(cap_import) /= "::") call vec%push_back(trim(cap_import))
+          call ESMF_ConfigGetAttribute(config, value, _RC)
+          call vec%push_back(trim(value))
        end do
     end if
     _RETURN(_SUCCESS)
@@ -1026,7 +1033,7 @@ contains
     type (MAPL_MetaComp), pointer :: MAPLOBJ
     procedure(), pointer :: root_set_services
 
-    cap => get_CapGridComp_from_gc(gc)
+    cap => get_CapGridComp_from_gc(gc, _RC)
     call MAPL_GetObjectFromGC(gc, maplobj, _RC)
 
     phase_ = 1
@@ -1199,6 +1206,11 @@ contains
         integer                 :: AGCM_YY, AGCM_MM, AGCM_DD, AGCM_H, AGCM_M, AGCM_S
         integer                 :: HRS_R, MIN_R, SEC_R
 
+        character(len=8)  :: wallclock_date
+        character(len=10) :: wallclock_time
+        character(len=5)  :: wallclock_zone
+        integer           :: wallclock_values(8)
+
 
         call ESMF_ClockGet(this%clock, CurrTime = currTime, _RC)
         call ESMF_TimeGet(CurrTime, YY = AGCM_YY, &
@@ -1230,12 +1242,20 @@ contains
         ! Get percent of committed memory
         call MAPL_MemCommited ( mem_total, mem_commit, mem_committed_percent, _RC )
 
-        if( mapl_am_I_Root(this%vm) ) write(6,1000) AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S,&
-                                      LOOP_THROUGHPUT,INST_THROUGHPUT,RUN_THROUGHPUT,HRS_R,MIN_R,SEC_R,&
-                                      mem_committed_percent,mem_used_percent
-    1000 format(1x,'AGCM Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2, &
+        if( mapl_am_I_Root(this%vm) ) then
+            call DATE_AND_TIME(wallclock_date, &
+                               wallclock_time, &
+                               wallclock_zone, &
+                               wallclock_values)
+             write(6,1000) this%root_name, AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S,&
+                           LOOP_THROUGHPUT,INST_THROUGHPUT,RUN_THROUGHPUT,HRS_R,MIN_R,SEC_R,&
+                           mem_committed_percent,mem_used_percent,&
+                           wallclock_values(1),wallclock_values(2),wallclock_values(3), &
+                           wallclock_values(5),wallclock_values(6)
+        endif
+    1000 format(1x,a,1x,'Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2, &
                 2x,'Throughput(days/day)[Avg Tot Run]: ',f12.1,1x,f12.1,1x,f12.1,2x,'TimeRemaining(Est) ',i3.3,':',i2.2,':',i2.2,2x, &
-                f5.1,'% : ',f5.1,'% Mem Comm:Used')
+                f5.1,'% : ',f5.1,'% Mem Comm:Used',2x,'Wallclock: ',i4.4,'/',i2.2,'/',i2.2,1x,i2.2,':',i2.2)
 
         _RETURN(_SUCCESS)
 
@@ -1678,7 +1698,7 @@ contains
     call MAPL_GetLogger(MAPLOBJ, lgr, _RC)
 
     call lgr%info('Read CAP restart properly, Current Date =   %i4.4~/%i2.2~/%i2.2', CUR_YY, CUR_MM, CUR_DD)
-    call lgr%info('                           Current Time =   %i2.2~/%i2.2~/%i2.2', CUR_H, CUR_M, CUR_S)
+    call lgr%info('                           Current Time =   %i2.2~:%i2.2~:%i2.2', CUR_H, CUR_M, CUR_S)
 
 
 999 continue  ! Initialize Current time

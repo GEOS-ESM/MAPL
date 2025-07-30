@@ -19,7 +19,7 @@ module MAPL_Base
 
   ! !USES:
   !
-  use ESMF, only: ESMF_MAXSTR
+  use ESMF, only: ESMF_MAXSTR, ESMF_PIN_FLAG, ESMF_PIN_DE_TO_SSI_CONTIG
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit NONE
   private
@@ -61,6 +61,7 @@ module MAPL_Base
   public MAPL_FieldBundleDestroy
   public MAPL_GetHorzIJIndex
   public MAPL_GetGlobalHorzIJIndex
+  public MAPL_Reverse_Schmidt
   public MAPL_GenGridName
   public MAPL_GenXYOffset
   public MAPL_GeosNameNew
@@ -73,6 +74,8 @@ module MAPL_Base
   public MAPL_TrimString
   public MAPL_FieldSplit
   public MAPL_GetCorrectedPhase
+  public MAPL_PinFlagSet
+  public MAPL_PinFlagGet
 
 
   real,    public, parameter :: MAPL_UNDEF              = 1.0e15
@@ -712,6 +715,21 @@ module MAPL_Base
        integer,            optional, intent(out  ) :: rc  ! return code
      end subroutine MAPL_GetGlobalHorzIJIndex
 
+     module subroutine MAPL_Reverse_Schmidt(Grid, stretched, npts,lon,lat,lonR8,latR8, lonRe, latRe, rc)
+       use ESMF, only: ESMF_KIND_R8, ESMF_GRid
+       implicit none
+       !ARGUMENTS:
+       type(ESMF_Grid),              intent(inout) :: Grid        ! ESMF grid
+       logical,                      intent(out  ) :: stretched
+       integer,                      intent(in   ) :: npts        ! number of points in lat and lon arrays
+       real, optional,               intent(in   ) :: lon(npts)   ! array of longitudes in radians
+       real, optional,               intent(in   ) :: lat(npts)   ! array of latitudes in radians
+       real(ESMF_KIND_R8), optional, intent(in   ) :: lonR8(npts) ! array of longitudes in radians
+       real(ESMF_KIND_R8), optional, intent(in   ) :: latR8(npts) ! array of latitudes in radians
+       real(ESMF_KIND_R8), optional, intent(out  ) :: lonRe(npts) ! array of longitudes in radians
+       real(ESMF_KIND_R8), optional, intent(out  ) :: latRe(npts) ! array of latitudes in radians
+       integer,            optional, intent(out  ) :: rc  ! return code
+     end subroutine MAPL_Reverse_Schmidt
 
      module subroutine MAPL_GenGridName(im, jm, lon, lat, xyoffset, gridname, geos_style)
        integer :: im, jm
@@ -771,6 +789,8 @@ module MAPL_Base
      end function
   end interface
 
+  type(ESMF_Pin_Flag), protected :: pinflag_global = ESMF_PIN_DE_TO_SSI_CONTIG
+
 contains
 
   ! NAG and Intel need inconsistent workarounds for this function if moved
@@ -784,6 +804,17 @@ contains
     MAPL_RemapBoundsFull_3dr4 => A
   end function MAPL_RemapBoundsFull_3dr4
 
+  subroutine MAPL_PinFlagSet(pinflag)
+    type(ESMF_PIN_FLAG), intent(in) :: pinflag
+    pinflag_global = pinflag
+  end subroutine MAPL_PinFlagSet
+
+  function MAPL_PinFlagGet() result(pinflag)
+    type(ESMF_PIN_FLAG) :: pinflag
+
+    pinflag = pinflag_global
+  end function MAPL_PinFlagGet
+  
 end module MAPL_Base
 
 module MAPL_BaseMod

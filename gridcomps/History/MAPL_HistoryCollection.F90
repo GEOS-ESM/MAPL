@@ -9,7 +9,7 @@ module MAPL_HistoryCollectionMod
   use MAPL_VerticalDataMod
   use MAPL_TimeDataMod
   use HistoryTrajectoryMod
-  use MaskSamplerGeosatMod
+  use MaskSamplerMod
   use StationSamplerMod
   use gFTL_StringStringMap
   use MAPL_EpochSwathMod
@@ -47,12 +47,15 @@ module MAPL_HistoryCollectionMod
      integer                            :: acc_offset
      integer                            :: ref_date
      integer                            :: ref_time
+     integer                            :: start_date
+     integer                            :: start_time
      integer                            :: end_date
      integer                            :: end_time
      integer                            :: duration
      type(ESMF_Alarm)                   :: his_alarm ! when to write file
      type(ESMF_Alarm)                   :: seg_alarm ! segment alarm controls when to write to new file
      type(ESMF_Alarm)                   :: mon_alarm
+     type(ESMF_Alarm)                   :: start_alarm
      type(ESMF_Alarm)                   :: end_alarm
      integer,pointer                    :: expSTATE (:)
      integer                            :: unit
@@ -70,6 +73,7 @@ module MAPL_HistoryCollectionMod
      integer                            :: verbose
      integer                            :: xyoffset
      logical                            :: disabled
+     logical                            :: skipWriting
      logical                            :: subVm
      logical                            :: backwards ! Adds support for clock running in reverse direction
      logical                            :: useNewFormat
@@ -83,6 +87,7 @@ module MAPL_HistoryCollectionMod
      character(len=ESMF_MAXSTR)         :: quantize_algorithm_string
      integer                            :: quantize_algorithm
      integer                            :: quantize_level
+     integer                            :: zstandard_level
      integer                            :: slices
      integer                            :: Root
      integer                            :: Psize
@@ -111,10 +116,11 @@ module MAPL_HistoryCollectionMod
      logical                            :: timeseries_output = .false.
      logical                            :: recycle_track = .false.
      type(HistoryTrajectory)            :: trajectory
-     type(MaskSamplerGeosat)            :: mask_sampler
+     type(MaskSampler)                  :: mask_sampler
      type(StationSampler)               :: station_sampler
-     character(len=ESMF_MAXSTR)         :: sampler_spec = ""
+     character(len=ESMF_MAXSTR)         :: sampler_type = ""
      character(len=ESMF_MAXSTR)         :: positive
+     logical                            :: extrap_below_surf = .false.
      type(HistoryCollectionGlobalAttributes) :: global_atts
      contains
         procedure :: AddGrid

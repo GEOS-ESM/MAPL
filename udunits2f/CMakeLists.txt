@@ -13,8 +13,12 @@ list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 
 esma_add_library(${this}
   SRCS ${srcs}
+  DEPENDENCIES MAPL.shared
   TYPE SHARED
 )
+
+target_include_directories (${this} PUBLIC
+  $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
 find_package(udunits REQUIRED)
 find_package(EXPAT REQUIRED)

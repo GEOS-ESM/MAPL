@@ -1,14 +1,5 @@
 esma_set_this (OVERRIDE MAPL.base)
 
-if(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
-  if(CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 20)
-    if(CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER 17)
-      add_definitions(-D__ifort_18)
-    endif()
-  endif()
-endif()
-
-
 set (srcs
   MAPL_Profiler.F90
   CFIOCollection.F90                    MAPL_RegridderManager.F90
@@ -37,7 +28,7 @@ set (srcs
   MAPL_ConservativeRegridder.F90        MAPL_MaxMinMod.F90                  MAPL_VerticalInterpMod.F90
   MAPL_CubedSphereGridFactory.F90       MAPL_MemUtils.F90                   MAPL_VerticalMethods.F90
   MAPL_DefGridName.F90                  Base.F90                        MAPL_VotingRegridder.F90
-  MAPL_EsmfRegridder.F90                MAPL_NewArthParser.F90
+  MAPL_EsmfRegridder.F90
   MAPL_ESMFTimeVectorMod.F90            Regrid_Functions_Mod.F90
   MAPL_EtaHybridVerticalCoordinate.F90
   MAPL_NominalOrbitsMod.F90
@@ -56,6 +47,8 @@ set (srcs
   MAPL_XYGridFactory.F90
   MAPL_NetCDF.F90                       Plain_netCDF_Time.F90
   MAPL_DateTime_Parsing_ESMF.F90	MAPL_ObsUtil.F90
+  MAPL_EASEConversion.F90
+  MAPL_EASEGridFactory.F90
   # Orphaned program: should not be in this library.
   # tstqsat.F90
   )
@@ -67,7 +60,7 @@ endif()
 
 esma_add_library(
   ${this} SRCS ${srcs}
-  DEPENDENCIES MAPL.shared MAPL.constants MAPL.profiler MAPL.pfio MAPL_cfio_r4 MAPL.field_utils PFLOGGER::pflogger
+  DEPENDENCIES MAPL.shared MAPL.constants MAPL.profiler MAPL.pfio MAPL_cfio_r4 MAPL.field_utils udunits2f PFLOGGER::pflogger
                GFTL_SHARED::gftl-shared-v2 GFTL_SHARED::gftl-shared-v1  GFTL::gftl-v2 GFTL::gftl-v1
                ESMF::ESMF NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   TYPE ${MAPL_LIBRARY_TYPE})

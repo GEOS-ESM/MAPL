@@ -39,6 +39,7 @@ module HistoryTrajectoryMod
      type(GriddedIOitemVector) :: items
      type(VerticalData) :: vdata
      logical :: do_vertical_regrid
+     logical :: write_lev_first
 
      type(LocstreamRegridder) :: regridder
      type(TimeData)           :: time_info
@@ -48,11 +49,6 @@ module HistoryTrajectoryMod
      type(ESMF_TimeInterval), public  :: epoch_frequency
 
      integer                        :: nobs_type
-!     character(len=ESMF_MAXSTR)     :: nc_index
-!     character(len=ESMF_MAXSTR)     :: nc_time
-!     character(len=ESMF_MAXSTR)     :: nc_latitude
-!     character(len=ESMF_MAXSTR)     :: nc_longitude
-
      character(len=ESMF_MAXSTR)     :: index_name_x
      character(len=ESMF_MAXSTR)     :: var_name_time
      character(len=ESMF_MAXSTR)     :: var_name_lat
@@ -62,18 +58,21 @@ module HistoryTrajectoryMod
      character(len=ESMF_MAXSTR)     :: var_name_lon_full
      character(len=ESMF_MAXSTR)     :: datetime_units
      character(len=ESMF_MAXSTR)     :: Location_index_name
+     logical                        :: use_NWP_1_file = .false.
+     logical                        :: restore_2_obs_vector = .false.
      integer                        :: epoch        ! unit: second
      integer(kind=ESMF_KIND_I8)     :: epoch_index(2)
      real(kind=ESMF_KIND_R8), pointer:: obsTime(:)
      integer                        :: nobs_epoch
      integer                        :: nobs_epoch_sum
      type(ESMF_Time)                :: obsfile_start_time   ! user specify
-     type(ESMF_Time)                :: obsfile_end_time
      type(ESMF_TimeInterval)        :: obsfile_interval
      integer                        :: obsfile_Ts_index     ! for epoch
      integer                        :: obsfile_Te_index
      logical                        :: active               ! case: when no obs. exist
      logical                        :: level_by_level = .false.
+     integer                        :: schema_version     
+     !
      ! note
      ! for MPI_GATHERV of 3D data in procedure :: append_file
      ! we have choice LEVEL_BY_LEVEL or ALL_AT_ONCE  (timing in sec below for extdata)
@@ -98,17 +97,39 @@ module HistoryTrajectoryMod
      module procedure HistoryTrajectory_from_config
   end interface HistoryTrajectory
 
-
   interface
-     module function HistoryTrajectory_from_config(config,string,clock,GENSTATE,rc) result(traj)
+     module function HistoryTrajectory_from_config(config,string,clock,schema_version,GENSTATE,rc) result(traj)
        type(HistoryTrajectory) :: traj
        type(ESMF_Config), intent(inout)        :: config
        character(len=*),  intent(in)           :: string
        type(ESMF_Clock),  intent(in)           :: clock
+       integer, intent(in)                     :: schema_version
        type(MAPL_MetaComp), pointer, intent(in), optional  :: GENSTATE
        integer, optional, intent(out)          :: rc
      end function HistoryTrajectory_from_config
 
+     module function HistoryTrajectory_from_config_schema_version_1 &
+          (config,string,clock,schema_version,GENSTATE,rc) result(traj)
+       type(HistoryTrajectory) :: traj
+       type(ESMF_Config), intent(inout)        :: config
+       character(len=*),  intent(in)           :: string
+       type(ESMF_Clock),  intent(in)           :: clock
+       integer, intent(in)                     :: schema_version       
+       type(MAPL_MetaComp), pointer, intent(in), optional  :: GENSTATE
+       integer, optional, intent(out)          :: rc
+     end function HistoryTrajectory_from_config_schema_version_1
+
+     module function HistoryTrajectory_from_config_schema_version_2 &
+          (config,string,clock,schema_version,GENSTATE,rc) result(traj)
+       type(HistoryTrajectory) :: traj
+       type(ESMF_Config), intent(inout)        :: config
+       character(len=*),  intent(in)           :: string
+       type(ESMF_Clock),  intent(in)           :: clock
+       integer, intent(in)                     :: schema_version
+       type(MAPL_MetaComp), pointer, intent(in), optional  :: GENSTATE
+       integer, optional, intent(out)          :: rc
+     end function HistoryTrajectory_from_config_schema_version_2
+     
      module subroutine initialize_(this,items,bundle,timeInfo,vdata,reinitialize,rc)
        class(HistoryTrajectory), intent(inout) :: this
        type(GriddedIOitemVector), optional, intent(inout) :: items

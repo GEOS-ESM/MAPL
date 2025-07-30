@@ -13,6 +13,7 @@ MODULE ExtDataUtRoot_GridCompMod
       use VarspecDescriptionVectorMod
       use netcdf
       use gFTL_StringStringMap
+      use MAPL_StateUtils
       !use m_set_eta, only: set_eta
       use, intrinsic :: iso_fortran_env, only: REAL64
 
@@ -132,6 +133,18 @@ MODULE ExtDataUtRoot_GridCompMod
                units = 'na', &
                dims = vloc, &
                vlocation = MAPL_VLocationNone, _RC)
+         call MAPL_AddInternalSpec(GC,&
+               short_name='numlev', &
+               long_name='level number' , &
+               units = 'na', &
+               dims = MAPL_DimsHorzVert, &
+               vlocation = MAPL_VLocationCenter, _RC)
+         call MAPL_AddInternalSpec(GC,&
+               short_name='PLE', &
+               long_name='PLE' , &
+               units = 'Pa', &
+               dims = MAPL_DimsHorzVert, &
+               vlocation = MAPL_VLocationEdge, _RC)
          call MAPL_AddExportSpec(GC, &
                short_name='test_bundle', &
                long_name='test', &
@@ -167,6 +180,7 @@ MODULE ExtDataUtRoot_GridCompMod
          character(len=ESMF_MaxStr) :: key, keyVal
          type(MAPL_MetaComp), pointer :: MAPL
          logical :: isPresent, fill_bundle
+         type(ESMF_State) :: internal
 
          call ESMF_GridCompGet( GC, name=comp_name, config=CF, _RC )
          call MAPL_GetObjectFromGC ( GC, MAPL, _RC )
@@ -211,9 +225,13 @@ MODULE ExtDataUtRoot_GridCompMod
             call FillBundle(Export,_RC)
          end if
 
+         call MAPL_Get ( MAPL, internal_esmf_state=internal, cf=cf, _RC )
+         call FillState(internal,export,currTime,grid,synth,cf,_RC)
+
          _RETURN(ESMF_SUCCESS)
       contains
-
+ 
+           
             subroutine set_locstream(rc)
 
             integer, optional, intent(out) :: rc
@@ -299,14 +317,14 @@ MODULE ExtDataUtRoot_GridCompMod
 
          case(RunModeGenerateExports)
 
-            call FillState(internal,export,currTime,grid,synth,_RC)
+            call FillState(internal,export,currTime,grid,synth,cf,_RC)
 
          case(RunModeGenerateImports)
 
-            call FillState(internal,import,currTime,grid,synth,_RC)
+            call FillState(internal,import,currTime,grid,synth,cf,_RC)
 
          case(runModecompareImports)
-            call FillState(internal,export,currTime,grid,synth,_RC)
+            call FillState(internal,export,currTime,grid,synth,cf,_RC)
             call CompareState(import,export,0.001,_RC)
 
          case(runModeFillImport)
@@ -539,21 +557,22 @@ MODULE ExtDataUtRoot_GridCompMod
 
    end subroutine CopyState
 
-   subroutine FillState(inState,outState,time,grid,Synth,rc)
+   subroutine FillState(inState,outState,time,grid,Synth,cf,rc)
 
       type(ESMF_State), intent(inout) :: inState
       type(ESMF_State), intent(inout) :: outState
       type(ESMF_Time),  intent(Inout) :: time
       type(ESMF_Grid),  intent(inout) :: grid
       type(SyntheticFieldSupport) :: synth
+      type(ESMF_Config), intent(inout) :: cf
       integer, optional, intent(out) :: rc
 
       integer :: status
-      real, pointer                       :: Exptr2(:,:), Exptr1(:)
+      real, pointer                       :: Exptr3(:,:,:), Exptr2(:,:), Exptr1(:)
       integer :: itemcount
       character(len=ESMF_MAXSTR), allocatable :: outNameList(:)
       type(ESMF_StateItem_Flag), allocatable :: item_type(:)
-      type(ESMF_Field) :: expf,farray(7)
+      type(ESMF_Field) :: expf,farray(9)
       type(ESMF_State) :: pstate
       character(len=:), pointer :: fexpr
       integer :: i1,in,j1,jn,ldims(3),i,j,seed_size,mypet
@@ -592,6 +611,12 @@ MODULE ExtDataUtRoot_GridCompMod
                exPtr2(i,j)=j1+j-1
             enddo
          enddo
+         call MAPL_GetPointer(inState,exPtr3,'numlev',_RC)
+         do i=1,size(exPtr3,3)
+            exPtr3(:,:,i)=i
+         enddo
+         call MAPL_GetPointer(inState,exPtr3,'PLE',_RC)
+         call Fill_PLE(exPtr3, cf, _RC)
       end if
 
       if (synth%on_tiles) then
@@ -623,6 +648,8 @@ MODULE ExtDataUtRoot_GridCompMod
       call ESMF_StateGet(inState,'j_index',farray(5),_RC)
       call ESMF_StateGet(inState,'doy',farray(6),_RC)
       call ESMF_StateGet(inState,'rand',farray(7),_RC)
+      call ESMF_StateGet(inState,'numlev',farray(8),_RC)
+      call ESMF_StateGet(inState,'PLE',farray(9),_RC)
       pstate = ESMF_StateCreate(_RC)
       call ESMF_StateAdd(pstate,farray,_RC)
 
@@ -630,11 +657,61 @@ MODULE ExtDataUtRoot_GridCompMod
          if (item_type(i) == ESMF_STATEITEM_FIELD) then
             call ESMF_StateGet(outState,trim(outNameList(i)),expf,_RC)
             fexpr => synth%fillDefs%at(trim(outNameList(i)))
-            call MAPL_StateEval(pstate,fexpr,expf,_RC)
+            if (associated(fexpr)) then
+               call MAPL_StateEval(pstate,fexpr,expf,_RC)
+            end if
          end if
       enddo
 
       _RETURN(ESMF_SUCCESS)
+
+      contains 
+     
+      subroutine fill_ple(ple_ptr, cf, rc)
+         real, pointer, intent(in) :: ple_ptr(:,:,:)
+         type(ESMF_Config), intent(inout) :: cf
+         integer, intent(out), optional :: rc
+
+         integer :: status
+
+         type(ESMF_HConfig) :: hconfig, akbk
+         character(len=3) :: km_str
+         integer :: km, i
+         character(len=ESMF_MAXPATHLEN) :: akbk_file, ps_file
+         real, allocatable :: ak(:), bk(:), ps(:,:)
+         real :: ps_val
+         logical :: has_akbk, has_psval
+         type(NetCDF4_FileFormatter) :: fs
+
+         call ESMF_ConfigFindLabel(cf,"akbk_file:",isPresent=has_akbk,_RC)
+         !call ESMF_ConfigFindLabel(cf,"ps_val:",isPresent=has_psval,_RC)
+         call ESMF_ConfigFindLabel(cf,"ps_file:",isPresent=has_psval,_RC)
+         if (has_akbk .and. has_psval) then
+            call ESMF_ConfigGetAttribute(cf,label="akbk_file:",value=akbk_file,_RC)
+            !call ESMF_ConfigGetAttribute(cf,label="ps_val:",value=ps_val,_RC)
+            call ESMF_ConfigGetAttribute(cf,label="ps_file:",value=ps_file,_RC)
+         else
+            _RETURN(_SUCCESS)
+         end if
+        
+         allocate(ps(size(ple_ptr,1),size(ple_ptr,2))) 
+         call fs%open(trim(ps_file),pFIO_READ,_RC)
+         call fs%get_var("PS",ps, _RC)
+
+         hconfig = ESMF_HConfigCreate(filename=trim(akbk_file), _RC)
+         km = size(ple_ptr,3) - 1
+         write(km_str,'(i3.3)') km
+         akbk = ESMF_HConfigCreateAt(hconfig, keyString='L'//trim(km_str), _RC) 
+         ak = ESMF_HConfigAsR4Seq(akbk, keyString='ak', _RC)
+         bk = ESMF_HConfigAsR4Seq(akbk, keyString='bk', _RC)
+  
+         do i=1,km+1
+            !ple_ptr(:,:,i-1) = ak(i)+ps_val*bk(i)
+            ple_ptr(:,:,i-1) = ak(i)+ps(:,:)*bk(i)
+         enddo
+          
+         _RETURN(_SUCCESS)
+      end subroutine fill_ple
 
    end subroutine FillState
 
@@ -677,12 +754,8 @@ MODULE ExtDataUtRoot_GridCompMod
 
       integer :: status
       integer                             :: i
-      real, pointer                       :: ptr3_1(:,:,:)
-      real, pointer                       :: ptr3_2(:,:,:)
-      real, pointer                       :: ptr2_1(:,:)
-      real, pointer                       :: ptr2_2(:,:)
-      real, pointer                       :: ptr1_1(:)
-      real, pointer                       :: ptr1_2(:)
+      real, pointer                       :: ptr1(:)
+      real, pointer                       :: ptr2(:)
       integer :: itemcount,rank1,rank2
       character(len=ESMF_MAXSTR), allocatable :: NameList(:)
       logical, allocatable :: foundDiff(:)
@@ -696,6 +769,7 @@ MODULE ExtDataUtRoot_GridCompMod
          _VERIFY(status)
          call ESMF_StateGet(State1,itemNameList=NameList,_RC)
          do i=1,itemCount
+            if (trim(nameList(i)) == 'PLE') cycle
             call ESMF_StateGet(State1,trim(nameList(i)),field1,_RC)
             call ESMF_StateGet(State2,trim(nameList(i)),field2,_RC)
             call ESMF_FieldGet(field1,rank=rank1,_RC)
@@ -706,25 +780,12 @@ MODULE ExtDataUtRoot_GridCompMod
                exit
             end if
             _ASSERT(rank1==rank2,'needs informative message')
+            call assign_fptr(field1, ptr1, _RC)
+            call assign_fptr(field2, ptr2, _RC)
+            _ASSERT(size(ptr1)==size(ptr2),'needs informative message')
             foundDiff(i)=.false.
-            if (rank1==1) then
-               call MAPL_GetPointer(state1,ptr1_1,trim(nameList(i)),_RC)
-               call MAPL_GetPointer(state2,ptr1_2,trim(nameList(i)),_RC)
-               if (any((ptr1_1-ptr1_2) > tol)) then
-                   foundDiff(i) = .true.
-               end if
-            else if (rank1==2) then
-               call MAPL_GetPointer(state1,ptr2_1,trim(nameList(i)),_RC)
-               call MAPL_GetPointer(state2,ptr2_2,trim(nameList(i)),_RC)
-               if (any((ptr2_1-ptr2_2) > tol)) then
-                   foundDiff(i) = .true.
-               end if
-            else if (rank1==3) then
-               call MAPL_GetPointer(state1,ptr3_1,trim(nameList(i)),_RC)
-               call MAPL_GetPointer(state2,ptr3_2,trim(nameList(i)),_RC)
-               if (any((ptr3_1-ptr3_2) > tol)) then
-                   foundDiff(i) = .true.
-               end if
+            if (any(abs(ptr1-ptr2) > tol)) then
+                foundDiff(i) = .true.
             end if
             if (foundDiff(i)) then
                _FAIL('found difference when compare state')
@@ -741,10 +802,8 @@ MODULE ExtDataUtRoot_GridCompMod
 
          integer :: status
 
-         real, pointer :: ptr3d(:,:,:)
-         real, pointer :: ptr2d(:,:)
          integer       :: ii
-         integer :: itemcount,dims
+         integer :: itemcount
          character(len=ESMF_MAXSTR), allocatable :: NameList(:)
          type (ESMF_StateItem_Flag), allocatable :: itemTypeList(:)
          type(ESMF_Field) :: Field

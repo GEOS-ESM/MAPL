@@ -15,7 +15,6 @@ module MAPL_EpochSwathMod
   use MAPL_TimeDataMod
   use MAPL_VerticalDataMod
   use MAPL_Constants
-  use pFIO
   use MAPL_GriddedIOItemVectorMod
   use MAPL_GriddedIOItemMod
   use MAPL_ExceptionHandling
@@ -90,6 +89,7 @@ module MAPL_EpochSwathMod
      integer :: deflateLevel = 0
      integer :: quantizeAlgorithm = 1
      integer :: quantizeLevel = 0
+     integer :: zstandardLevel = 0
      integer, allocatable :: chunking(:)
      logical :: itemOrderAlphabetical = .true.
      integer :: fraction
@@ -536,11 +536,12 @@ contains
       end subroutine Create_Bundle_RH
 
 
-     subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,nbits_to_keep,regrid_method,itemOrder,write_collection_id,rc)
+     subroutine set_param(this,deflation,quantize_algorithm,quantize_level,zstandard_level,chunking,nbits_to_keep,regrid_method,itemOrder,write_collection_id,rc)
         class (sampler), intent(inout) :: this
         integer, optional, intent(in) :: deflation
         integer, optional, intent(in) :: quantize_algorithm
         integer, optional, intent(in) :: quantize_level
+        integer, optional, intent(in) :: zstandard_level
         integer, optional, intent(in) :: chunking(:)
         integer, optional, intent(in) :: nbits_to_keep
         integer, optional, intent(in) :: regrid_method
@@ -555,6 +556,7 @@ contains
         if (present(deflation)) this%deflateLevel = deflation
         if (present(quantize_algorithm)) this%quantizeAlgorithm = quantize_algorithm
         if (present(quantize_level)) this%quantizeLevel = quantize_level
+        if (present(zstandard_level)) this%zstandardLevel = zstandard_level
         if (present(chunking)) then
            allocate(this%chunking,source=chunking,_STAT)
         end if

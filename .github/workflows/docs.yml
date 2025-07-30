@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          filter: blob:none
 
       - name: Build and Deploy Docs
         uses: ./.github/actions/deploy-ford-docs
@@ -27,13 +29,15 @@ jobs:
           # relative path to the ford input file.
           ford-input: docs-with-remote-esmf.md
           doc-folder: docs/Ford/doc
-          token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-token: ${{ secrets.DOCS_DEPLOY_PAT }}
 
   build-and-deploy-dev-docs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          filter: blob:none
 
       - name: Build and Deploy Dev Docs
         uses: ./.github/actions/deploy-ford-docs
@@ -44,5 +48,5 @@ jobs:
           # relative path to the ford input file.
           ford-input: docs-with-remote-esmf.public_private_protected.md
           doc-folder: docs/Ford/dev-doc
-          token: ${{ secrets.GITHUB_TOKEN }}
           target-folder: dev-doc
+          deploy-token: ${{ secrets.DOCS_DEPLOY_PAT }}
