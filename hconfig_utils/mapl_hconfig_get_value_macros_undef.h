@@ -2,6 +2,10 @@
 #undef _COMPARE
 #endif
 
+#ifdef _RELATION
+#undef _RELATION
+#endif
+
 #ifdef _DIMS_
 #undef _DIMS_
 #endif

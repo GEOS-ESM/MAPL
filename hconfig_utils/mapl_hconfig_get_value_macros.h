@@ -45,5 +45,3 @@
 #  define _WRITE_DIMS_
 #  define _ADJUST_VALUESTRING(S, V) 
 #endif
-
-#undef _RELATION
