@@ -36,14 +36,10 @@ contains
       type(ESMF_GridComp) :: gridcomp
       integer, intent(out) :: rc
 
-      type(ESMF_HConfig) :: hconfig, merged_hconfig
-      ! we will make a random grid right to use when adding varspec
-      ! now because of MAPL3 limitations
-      ! this will be removed when we can
+      type(ESMF_HConfig) :: hconfig
       integer :: status
 
-      !call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name="GENERIC::INIT_USER", _RC)
-      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name="GENERIC::INIT_MODIFY_ADVERTISED", _RC)
+      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, modif_advertise, phase_name="GENERIC::INIT_MODIFY_ADVERTISED", _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
 
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
@@ -58,7 +54,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine setServices
 
-   subroutine init(gridcomp, importState, exportState, clock, rc)
+   subroutine modify_advertise(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp)   :: gridcomp
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
@@ -67,7 +63,7 @@ contains
 
       integer :: status
 
-      integer :: rules_for_item, collection_id
+      integer :: rules_for_item
       type(StringVector) :: active_items
       type(ExtDataConfig) :: config
       type(ESMF_Hconfig) :: hconfig
@@ -102,7 +98,7 @@ contains
       call report_active_items(extdata_gridcomp%export_vector, lgr)
       
       _RETURN(_SUCCESS)
-   end subroutine init
+   end subroutine modify_advertise
 
    ! this is just to do something now. Obviously this is not how it will look...
    subroutine run(gridcomp, importState, exportState, clock, rc)
@@ -114,9 +110,6 @@ contains
 
       integer :: status
 
-      integer :: itemCount, i
-      
-      type(ESMF_FieldBundle) :: fieldBundle
       type(ExtDataGridComp), pointer :: extdata_gridcomp
       type(PrimaryExportVectorIterator) :: iter
       type(PrimaryExport), pointer :: export_item
@@ -133,23 +126,11 @@ contains
       do while (iter /= extdata_gridcomp%export_vector%end())
          export_item => iter%of() 
          call export_item%update_my_bracket(current_time, weights, _RC)
-         print*,'bmaa weights: ',weights
          export_name = export_item%get_export_var_name()
          call set_weights(exportState, export_name, weights, _RC)
          call export_item%append_read_state(exportState, read_state, alias_map, _RC)
          call iter%next()
       end do
-      !do i=1,itemCount       
-         !call ESMF_StateGet(exportState,trim(itemNameList(i)),fieldBundle, _RC)
-         !call MAPL_FieldBundleGet(fieldBundle, is_active=is_active, _RC)
-         !if (is_active) then
-            !call MAPL_FieldBundleGet(fieldBundle, fieldList=fieldList, _RC)
-            !call assign_fptr(fieldList(1), ptr, _RC)
-            !ptr = 1.0
-            !call assign_fptr(fieldList(2), ptr, _RC)
-            !ptr = 2.0
-         !end if
-      !end do
 
       _RETURN(_SUCCESS)
    end subroutine run
