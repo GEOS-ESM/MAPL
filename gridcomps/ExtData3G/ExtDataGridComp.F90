@@ -39,7 +39,7 @@ contains
       type(ESMF_HConfig) :: hconfig
       integer :: status
 
-      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, modif_advertise, phase_name="GENERIC::INIT_MODIFY_ADVERTISED", _RC)
+      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, modify_advertise, phase_name="GENERIC::INIT_MODIFY_ADVERTISED", _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
 
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
