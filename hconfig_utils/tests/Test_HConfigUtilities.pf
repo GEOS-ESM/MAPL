@@ -88,10 +88,10 @@ contains
    subroutine test_merge_hconfig_bad_parent()
       integer :: status
 
-      call ESMF_HConfigAdd(parent, content = "['A', 'B', 'C', 'D', 'E', 'F']", _RC)
-      call ESMF_HConfigAdd(child, content=CHVALUE1, addKeyString=KEY1, _RC)
+      call ESMF_HConfigAdd(parent, content = "['A', 'B', 'C', 'D', 'E', 'F']", rc=status)
+      call ESMF_HConfigAdd(child, content=CHVALUE1, addKeyString=KEY1, rc=status)
       merged = merge_hconfig(parent, child, rc=status)
-      @assertTrue(status /= 0, 'The return code should be nonzero.')
+      @assertExceptionRaised()
 
    end subroutine test_merge_hconfig_bad_parent
 
@@ -99,10 +99,10 @@ contains
    subroutine test_merge_hconfig_problem_child()
       integer :: status
 
-      call ESMF_HConfigAdd(parent, content=PVALUE1, addKeyString=KEY1, _RC)
-      call ESMF_HConfigAdd(child, content = "['A', 'B', 'C', 'D', 'E', 'F']", _RC)
+      call ESMF_HConfigAdd(parent, content=PVALUE1, addKeyString=KEY1, rc=status)
+      call ESMF_HConfigAdd(child, content = "['A', 'B', 'C', 'D', 'E', 'F']", rc=status)
       merged = merge_hconfig(parent, child, rc=status)
-      @assertTrue(status /= 0, 'The return code should be nonzero.')
+      @assertExceptionRaised()
 
    end subroutine test_merge_hconfig_problem_child
 
