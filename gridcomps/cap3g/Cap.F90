@@ -104,20 +104,20 @@ contains
       _RETURN(_SUCCESS)
    end function advance_clock
    
-   subroutine checkpoint(driver, options, final, rc)
+   subroutine checkpoint(driver, checkpointing, final, rc)
       type(GriddedComponentDriver), intent(inout) :: driver
-      type(CheckpointOptions), intent(in) :: options
+      type(CheckpointOptions), intent(in) :: checkpointing
       logical, intent(in) :: final
       integer, optional, intent(out) :: rc
 
       type(esmf_Clock) :: clock
       integer :: alarmCount
-      character(:), allocatable :: path, checkpoint_path
+      character(:), allocatable :: path, timestamp_dir
       logical :: is_record_time
       logical :: last_exists
       integer :: status
 
-      _RETURN_UNLESS(options%is_enabled)
+      _RETURN_UNLESS(checkpointing%is_enabled)
 
       clock = driver%get_clock()
       call esmf_ClockGetAlarmList(clock, alarmListFlag=ESMF_ALARMLIST_RINGING, alarmCount=alarmCount, _RC)
@@ -125,31 +125,30 @@ contains
 
       _RETURN_UNLESS(is_record_time .neqv. final)
 
-      call mapl_PushDirectory(options%path, _RC)
+      call mapl_PushDirectory(checkpointing%path, _RC)
+      timestamp_dir = make_timestamp_dir(clock, _RC)
 
-
-      checkpoint_path = make_checkpoint_dir(clock, _RC)
-      path = checkpoint_path
-
-      call mapl_PushDirectory(checkpoint_path, _RC)
-      call driver%write_restart(_RC)
-      path = mapl_PopDirectory(_RC) ! up to CHECKPOINTS_DIR
-
+      ! To avoid inconsistent state under failures, we delete symlink
+      ! "last" before creating new checkpoints.  Then create new
+      ! symlink.
       if (mapl_AmIRoot()) then
          last_exists = mapl_DirectoryExists(LAST_CHECKPOINT, _RC)
-
          if (last_exists) then
             call mapl_RemoveFile(LAST_CHECKPOINT, _RC)
          end if
-         call mapl_MakeSymbolicLink(src_path=checkpoint_path, link_path=LAST_CHECKPOINT, is_directory=.true., _RC)
-         
+      end if
+
+      call driver%write_restart(_RC)
+
+      if (mapl_AmIRoot()) then
+         call mapl_MakeSymbolicLink(src_path=timestamp_dir, link_path=LAST_CHECKPOINT, is_directory=.true., _RC)
       end if
 
       path = mapl_PopDirectory(_RC) ! top
       _RETURN(_SUCCESS)
    end subroutine checkpoint
 
-   function make_checkpoint_dir(clock, rc) result(path)
+   function make_timestamp_dir(clock, rc) result(path)
       character(:), allocatable :: path
       type(esmf_Clock), intent(in) :: clock
       integer, optional, intent(out) :: rc
@@ -164,7 +163,7 @@ contains
       call make_directory(path, force=.true.,_RC)
       
       _RETURN(_SUCCESS)
-   end function make_checkpoint_dir
+   end function make_timestamp_dir
 
    function make_driver(clock, hconfig, options, rc) result(driver)
       use mapl3g_GenericGridComp, only: generic_SetServices => setServices
