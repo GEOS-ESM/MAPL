@@ -10,7 +10,7 @@
 #define _CLOSE_ )
 #define _ALLOCATABLE_ , allocatable
 #define _ASSUMED_LEN_STRING_ character(len=*)
-#define _ALLOCATABLE_STRING_ character(len=:) ## _ALLOCATABLE_
+#define _ALLOCATABLE_STRING_ character(len=:), allocatable
 #define _ARRAY_DIMS_ (:)
 
 #define _MAPL_HCONFIG_MACROS_
