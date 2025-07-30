@@ -8,6 +8,14 @@ set(srcs
  AbstractDataSetFileSelector.F90
  NonClimDataSetFileSelector.F90
  ExtDataUtilities.F90
+ ExtDataCollection.F90
+ ExtDataConfig.F90
+ ExtDataConstants.F90
+ ExtDataDerived.F90
+ ExtDataRule.F90
+ ExtDataSample.F90
+ PrimaryExport.F90
+ PrimaryExportVector.F90
  )
 
 find_package (MPI REQUIRED)

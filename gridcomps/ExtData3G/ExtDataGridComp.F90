@@ -1,4 +1,4 @@
-#include "MAPL.h"
+#include "MAPL_Generic.h"
 
 module mapl3g_ExtDataGridComp
    use generic3g
@@ -10,11 +10,25 @@ module mapl3g_ExtDataGridComp
    use mapl3g_Geom_API
    use MAPL_FieldUtils
    use mapl3g_FieldBundle_API
+   use mapl3g_ExtDataConfig
+   use mapl3g_PrimaryExportVector
+   use mapl3g_PrimaryExport
+   use mapl3g_geomio
+   use mapl3g_Geom_API
+   use mapl3g_AbstractDataSetFileSelector
+   use MAPL_FileMetadataUtilsMod
+   use gftl2_StringStringMap
    
    implicit none(type,external)
    private
 
    public :: setServices
+
+   ! Private state
+   character(*), parameter :: PRIVATE_STATE = "ExtDataGridComp"
+   type :: ExtDataGridComp
+      type(PrimaryExportVector) :: export_vector
+   end type ExtDataGridComp
 
 contains
 
@@ -22,39 +36,25 @@ contains
       type(ESMF_GridComp) :: gridcomp
       integer, intent(out) :: rc
 
-      type(ESMF_HConfig) :: hconfig, merged_hconfig
-      ! we will make a random grid right to use when adding varspec
-      ! now because of MAPL3 limitations
-      ! this will be removed when we can
-      type(ESMF_HConfig) :: grid_hconfig
-      type(GeomManager), pointer :: geom_mgr
-      type(MaplGeom) :: mapl_geom
-      type(ESMF_Geom) :: fake_geom
+      type(ESMF_HConfig) :: hconfig
       integer :: status
 
-      type(BasicVerticalGrid) :: vertical_grid
-
-      vertical_grid = BasicVerticalGrid(4)
-      call MAPL_GRidCompSetVerticalGrid(gridcomp, vertical_grid, _RC)
-
-      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name="GENERIC::INIT_USER", _RC)
+      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, modify_advertise, phase_name="GENERIC::INIT_MODIFY_ADVERTISED", _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
 
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       
-      grid_hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", _RC)
-      geom_mgr => get_geom_manager()
-      mapl_geom = geom_mgr%get_mapl_geom(grid_hconfig, _RC)
-      fake_geom = mapl_geom%get_geom()
       ! ESMF has a bug, for now we will not merge hconfig until fixed
       !merged_configs = ESMF_HConfigCreate(_RC)
       ! instead pass hconfig and this will have to traverse the subconfigs for now
-      call add_var_specs(gridcomp, hconfig, fake_geom, _RC)
+      call add_var_specs(gridcomp, hconfig, _RC)
+
+      _SET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE)
 
       _RETURN(_SUCCESS)
    end subroutine setServices
 
-   subroutine init(gridcomp, importState, exportState, clock, rc)
+   subroutine modify_advertise(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp)   :: gridcomp
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
@@ -62,9 +62,43 @@ contains
       integer, intent(out)  :: rc
 
       integer :: status
+
+      integer :: rules_for_item
+      type(StringVector) :: active_items
+      type(ExtDataConfig) :: config
+      type(ESMF_Hconfig) :: hconfig
+      type(ESMF_Time) :: current_time
+      type(StringVectorIterator) :: iter
+      character(len=:), pointer :: item_name
+      logical :: has_rule
+      type(ExtDataGridComp), pointer :: extdata_gridcomp
+      type(PrimaryExport) :: primary_export
+      class(logger), pointer :: lgr
+
+      _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
+
+      call MAPL_GridCompGet(gridcomp, logger=lgr, _RC)
+      call ESMF_ClockGet(clock, currTime=current_time, _RC)
+      call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
+      active_items = get_active_items(exportState, _RC)
+      call new_ExtDataConfig_from_yaml(config, hconfig, current_time,  _RC)
+      iter = active_items%begin()
+      do while (iter /= active_items%end())
+         item_name => iter%of()
+         has_rule = config%has_rule_for(item_name, _RC)
+         _ASSERT(has_rule, 'no rule for extdata item: '//item_name)
+         rules_for_item = config%count_rules_for_item(item_name, _RC)
+         _ASSERT(rules_for_item == 1, 'only 1 rule per item supported now')
+         primary_export = config%make_PrimaryExport(item_name, _RC)
+         call primary_export%complete_export_spec(item_name, exportState, _RC)
+         call extdata_gridcomp%export_vector%push_back(primary_export)
+         call iter%next()
+      end do
+
+      call report_active_items(extdata_gridcomp%export_vector, lgr)
       
       _RETURN(_SUCCESS)
-   end subroutine init
+   end subroutine modify_advertise
 
    ! this is just to do something now. Obviously this is not how it will look...
    subroutine run(gridcomp, importState, exportState, clock, rc)
@@ -76,26 +110,26 @@ contains
 
       integer :: status
 
-      integer :: itemCount, i
-      character(len=ESMF_MAXSTR), allocatable :: itemNameList(:)
-      type(ESMF_FieldBundle) :: fieldBundle
-      type(ESMF_Field), allocatable :: fieldList(:)
-      real(ESMF_KIND_R4), pointer :: ptr(:)
+      type(ExtDataGridComp), pointer :: extdata_gridcomp
+      type(PrimaryExportVectorIterator) :: iter
+      type(PrimaryExport), pointer :: export_item
+      type(ESMF_Time) :: current_time
+      real :: weights(3)
+      character(len=:), allocatable :: export_name
+      type(ESMF_State) :: read_state
+      type(StringStringMap) :: alias_map
 
-      call MAPL_GridcompRunChildren(gridcomp, phase_name='run', _RC)
-      ! for now I will hard code weights...
-      call set_weights(exportState, _RC)
-      ! and lets just give the brackets some value for now...
-      call ESMF_StateGet(exportState, itemCount=itemCount, _RC)
-      allocate(itemNameList(itemCount), _STAT)
-      call ESMF_StateGet(exportState, itemNameList=itemNameList, _RC)
-      do i=1,itemCount       
-         call ESMF_StateGet(exportState,trim(itemNameList(i)),fieldBundle, _RC)
-         call MAPL_FieldBundleGet(fieldBundle, fieldList=fieldList, _RC)
-         call assign_fptr(fieldList(1), ptr, _RC)
-         ptr = 1.0
-         call assign_fptr(fieldList(2), ptr, _RC)
-        ptr = 2.0
+      _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
+      call ESMF_ClockGet(clock, currTime=current_time, _RC) 
+      call ESMF_TimePrint(current_time, options='string', preString='extdata timestep: ', _RC)
+      iter = extdata_gridcomp%export_vector%begin()
+      do while (iter /= extdata_gridcomp%export_vector%end())
+         export_item => iter%of() 
+         call export_item%update_my_bracket(current_time, weights, _RC)
+         export_name = export_item%get_export_var_name()
+         call set_weights(exportState, export_name, weights, _RC)
+         call export_item%append_read_state(exportState, read_state, alias_map, _RC)
+         call iter%next()
       end do
 
       _RETURN(_SUCCESS)

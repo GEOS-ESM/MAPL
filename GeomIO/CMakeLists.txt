@@ -7,6 +7,9 @@ set(srcs
   Grid_PFIO.F90
   GeomCatagorizer.F90
   pFIOServerBounds.F90
+  DataCollection.F90
+  DataCollectionVector.F90
+  DataCollectionManager.F90
   )
 
 esma_add_library(${this}
