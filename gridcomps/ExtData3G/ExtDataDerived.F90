@@ -33,10 +33,7 @@ contains
       logical :: is_present
       integer :: status
       character(len=:), allocatable :: tempc
-      _UNUSED_DUMMY(unusable)
 
-
-      if (allocated(tempc)) deallocate(tempc)
       is_present = ESMF_HConfigIsDefined(config,keyString="function",_RC)
       _ASSERT(is_present,"no expression found in derived entry")
       if (is_present) then
@@ -44,13 +41,13 @@ contains
          rule%expression=tempc
       end if
 
-      if (allocated(tempc)) deallocate(tempc)
       is_present = ESMF_HConfigIsDefined(config,keyString="sample",_RC)
       if (is_present) then
          tempc = ESMF_HConfigAsString(config,keyString="sample",_RC)
          rule%sample_key=tempc
       end if
 
+      _UNUSED_DUMMY(unusable)
       _RETURN(_SUCCESS)
    end function new_ExtDataDerived
 
