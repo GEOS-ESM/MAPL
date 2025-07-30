@@ -428,6 +428,14 @@ module mapl3g_OuterMetaComponent
          integer, optional, intent(out) ::rc
       end subroutine set_entry_point
 
+      ! Currently resides in write_restart_smod
+      module function get_checkpoint_subdir(hconfig, currTime, rc) result(subdir)
+         character(:), allocatable :: subdir
+         type(esmf_HConfig), intent(in) :: hconfig
+         type(esmf_Time), intent(in) :: currTime
+         integer, optional, intent(out) :: rc
+      end function get_checkpoint_subdir
+
    end interface
 
    interface OuterMetaComponent
