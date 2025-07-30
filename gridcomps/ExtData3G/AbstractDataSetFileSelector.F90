@@ -6,6 +6,8 @@ module mapl3g_AbstractDataSetFileSelector
    use MAPL_ExceptionHandling
    use mapl3g_DataSetBracket
    use mapl_StringTemplate
+   use mapl_FileMetadataUtilsMod
+   use mapl3g_geomio
    implicit none
    private
 
@@ -24,11 +26,14 @@ module mapl3g_AbstractDataSetFileSelector
       type(ESMF_Time), allocatable :: valid_range(:)
       type(ESMF_Time), allocatable :: last_updated
       type(ESMF_TimeInterval), allocatable :: timeStep 
+      integer :: collection_id
+      logical :: single_file = .false.
       contains
          procedure :: find_any_file
          procedure :: compute_trial_time
          procedure :: set_last_update
          procedure :: detect_time_flow
+         procedure :: get_dataset_metadata
          procedure(I_update_file_bracket), deferred :: update_file_bracket
     end type
 
@@ -78,6 +83,21 @@ module mapl3g_AbstractDataSetFileSelector
 
     end function find_any_file
 
+    function get_dataset_metadata(this, rc) result(metadata)
+       type(FileMetadataUtils), pointer :: metadata
+       class(AbstractDataSetFileSelector), intent(inout) :: this
+       integer, optional, intent(out) :: rc
+
+       character(len=:), allocatable :: filename
+       integer :: status 
+       type(DataCollection), pointer :: collection
+      
+       filename = this%find_any_file(_RC) 
+       collection => DataCollections%at(this%collection_id)
+       metadata => collection%find(filename, _RC)
+       _RETURN(_SUCCESS)
+    end function
+
     function compute_trial_time(this, target_time, shift, rc) result(trial_time)
        type(ESMF_Time) :: trial_time
        class(AbstractDataSetFileSelector), intent(inout) :: this
@@ -87,7 +107,12 @@ module mapl3g_AbstractDataSetFileSelector
 
        integer :: status, n
        integer(ESMF_KIND_I8) :: int_sec
-       
+      
+       if (this%single_file) then
+          trial_time = target_time
+          _RETURN(_SUCCESS)
+       end if
+ 
        call ESMF_TimeIntervalGet(this%file_frequency, s_i8=int_sec, _RC)
        if (int_sec == 0) then
           trial_time = this%ref_time

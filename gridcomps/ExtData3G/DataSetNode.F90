@@ -6,6 +6,7 @@ module mapl3g_DataSetNode
    use MAPL_ExceptionHandling
    use pFIO
    use MAPL_FileMetadataUtilsMod
+   use mapl3g_geomio
    implicit none
    private
 
