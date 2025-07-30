@@ -46,18 +46,13 @@ contains
       character(len=:), allocatable :: file_frequency, file_reff_time,range_str
       logical :: is_present
 
-      _UNUSED_DUMMY(unusable)
-
-
       is_present = ESMF_HConfigIsDefined(config,keyString="template",_RC)
       _ASSERT(is_present,"no file template in the collection")
 
-      if (is_present) then
-         data_set%file_template = ESMF_HConfigAsString(config,keyString="template",_RC)
-         file_frequency = get_string_with_default(config,"freq")
-         file_reff_time = get_string_with_default(config,"ref_time")
-         range_str = get_string_with_default(config,"valid_range")
-      end if
+      data_set%file_template = ESMF_HConfigAsString(config,keyString="template",_RC)
+      file_frequency = get_string_with_default(config,"freq")
+      file_reff_time = get_string_with_default(config,"ref_time")
+      range_str = get_string_with_default(config,"valid_range")
 
       if (file_frequency /= '') then
          data_set%frequency = string_to_esmf_timeinterval(file_frequency)
@@ -135,6 +130,7 @@ contains
 
       end if
 
+      _UNUSED_DUMMY(unusable)
       _RETURN(_SUCCESS)
 
       contains
