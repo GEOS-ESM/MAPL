@@ -9,11 +9,15 @@ set(srcs
  NonClimDataSetFileSelector.F90
  ExtDataUtilities.F90
  ExtDataCollection.F90
+ ExtDataCollectionMap.F90
  ExtDataConfig.F90
  ExtDataConstants.F90
  ExtDataDerived.F90
+ ExtDataDerivedMap.F90
  ExtDataRule.F90
+ ExtDataRuleMap.F90
  ExtDataSample.F90
+ ExtDataSampleMap.F90
  PrimaryExport.F90
  PrimaryExportVector.F90
  )

@@ -166,23 +166,3 @@ contains
    end subroutine split_vector
 
 end module mapl3g_ExtDataRule
-
-module mapl3g_ExtDataRuleMap
-   use mapl3g_ExtDataRule
-
-#include "types/key_deferredLengthString.inc"
-#define _value type(ExtDataRule)
-#define _alt
-
-#define _map ExtDataRuleMap
-#define _iterator ExtDataRuleMapIterator
-
-#include "templates/map.inc"
-
-#undef _iterator
-#undef _map
-
-#undef _alt
-#undef _value
-
-end module mapl3g_ExtDataRuleMap

@@ -218,23 +218,3 @@ contains
    end function is_valid_range_allocated
 
 end module mapl3g_ExtDataCollection
-
-module mapl3g_ExtDataCollectionMap
-   use mapl3g_ExtDataCollection
-
-#include "types/key_deferredLengthString.inc"
-#define _value type(ExtDataCollection)
-#define _alt
-
-#define _map ExtDataCollectionMap
-#define _iterator ExtDataCollectionMapIterator
-
-#include "templates/map.inc"
-
-#undef _iterator
-#undef _map
-
-#undef _alt
-#undef _value
-
-end module mapl3g_ExtDataCollectionMap
