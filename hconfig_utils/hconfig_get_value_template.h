@@ -42,6 +42,7 @@
       if(size(value) > num_items) valuestring_ = valuestring_ // ELLIPSIS
       valuestring_ = '[' // valuestring_  // ']'
 #else
+      num_items = 0
       write(buffer, fmt=fmtstr, iostat=status) value
       _VERIFY(status)
       valuestring_ = trim(buffer)
