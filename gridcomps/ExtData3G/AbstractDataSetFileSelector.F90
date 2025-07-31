@@ -8,16 +8,15 @@ module mapl3g_AbstractDataSetFileSelector
    use mapl_StringTemplate
    use mapl_FileMetadataUtilsMod
    use mapl3g_geomio
+   use mapl3g_ExtDataConstants
    implicit none
    private
 
    public AbstractDataSetFileSelector
-   public file_not_found
    public NUM_SEARCH_TRIES
 
    integer, parameter :: MAX_TRIALS = 10
    integer, parameter :: NUM_SEARCH_TRIES = 1
-   character(len=*), parameter :: file_not_found = "NONE"
  
    type, abstract :: AbstractDataSetFileSelector
       character(:), allocatable :: file_template

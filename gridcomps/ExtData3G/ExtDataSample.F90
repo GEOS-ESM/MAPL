@@ -105,23 +105,3 @@ contains
    end subroutine set_defaults
 
 end module mapl3g_ExtDataSample
-
-module mapl3g_ExtDataSampleMap
-   use mapl3g_ExtDataSample
-
-#include "types/key_deferredLengthString.inc"
-#define _value type(ExtDataSample)
-#define _alt
-
-#define _map ExtDataSampleMap
-#define _iterator ExtDataSampleMapIterator
-
-#include "templates/map.inc"
-
-#undef _iterator
-#undef _map
-
-#undef _alt
-#undef _value
-
-end module mapl3g_ExtDataSampleMap

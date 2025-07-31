@@ -25,7 +25,7 @@ module mapl3g_ExtDataGridComp
    public :: setServices
 
    ! Private state
-   character(*), parameter :: PRIVATE_STATE = "ExtDataGridComp"
+   character(*), parameter :: PRIVATE_STATE = "ExtData"
    type :: ExtDataGridComp
       type(PrimaryExportVector) :: export_vector
    end type ExtDataGridComp
@@ -82,8 +82,9 @@ contains
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       active_items = get_active_items(exportState, _RC)
       call new_ExtDataConfig_from_yaml(config, hconfig, current_time,  _RC)
-      iter = active_items%begin()
-      do while (iter /= active_items%end())
+      iter = active_items%ftn_begin()
+      do while (iter /= active_items%ftn_end())
+         call iter%next()
          item_name => iter%of()
          has_rule = config%has_rule_for(item_name, _RC)
          _ASSERT(has_rule, 'no rule for extdata item: '//item_name)
@@ -92,7 +93,6 @@ contains
          primary_export = config%make_PrimaryExport(item_name, _RC)
          call primary_export%complete_export_spec(item_name, exportState, _RC)
          call extdata_gridcomp%export_vector%push_back(primary_export)
-         call iter%next()
       end do
 
       call report_active_items(extdata_gridcomp%export_vector, lgr)
@@ -122,14 +122,14 @@ contains
       _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
       call ESMF_ClockGet(clock, currTime=current_time, _RC) 
       call ESMF_TimePrint(current_time, options='string', preString='extdata timestep: ', _RC)
-      iter = extdata_gridcomp%export_vector%begin()
-      do while (iter /= extdata_gridcomp%export_vector%end())
+      iter = extdata_gridcomp%export_vector%ftn_begin()
+      do while (iter /= extdata_gridcomp%export_vector%ftn_end())
+         call iter%next()
          export_item => iter%of() 
          call export_item%update_my_bracket(current_time, weights, _RC)
          export_name = export_item%get_export_var_name()
          call set_weights(exportState, export_name, weights, _RC)
-         call export_item%append_read_state(exportState, read_state, alias_map, _RC)
-         call iter%next()
+         !call export_item%append_read_state(exportState, read_state, alias_map, _RC)
       end do
 
       _RETURN(_SUCCESS)
