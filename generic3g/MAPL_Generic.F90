@@ -361,6 +361,7 @@ contains
            timeStep=timeStep, &
            refTime_offset=refTime_offset, &
            _RC)
+      call ESMF_HConfigDestroy(hconfig, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
