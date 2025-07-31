@@ -2,12 +2,11 @@ module mapl3g_ExtDataConstants
 implicit none
 private
 
-  integer, parameter, public    :: ExtData_Not_Found         = 0
-  integer, parameter, public    :: Primary_Type_Scalar = 1
-  integer, parameter, public    :: Primary_Type_Vector_comp1 = 2
-  integer, parameter, public    :: Primary_Type_Vector_comp2 = 3
-  integer, parameter, public    :: Derived_TYpe      = 4
-  integer, parameter, public    :: time_not_found = -1
-  character(len=14), parameter, public :: file_not_found = "file_not_found"
+  integer, parameter, public    :: EXTDATA_NOT_FOUND         = 0
+  integer, parameter, public    :: PRIMARY_TYPE_SCALAR = 1
+  integer, parameter, public    :: PRIMARY_TYPE_VECTOR_COMP1 = 2
+  integer, parameter, public    :: PRIMARY_TYPE_VECTOR_COMP2 = 3
+  integer, parameter, public    :: DERIVED_TYPE      = 4
+  character(len=14), parameter, public :: FILE_NOT_FOUND = "file_not_found"
 
 end module mapl3g_ExtDataConstants

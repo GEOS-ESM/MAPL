@@ -115,9 +115,7 @@ contains
          weights(2) = 0.0
          _RETURN_IF(this%disable_interpolation) 
          time1 = this%left_node%get_interp_time()
-         call ESMF_TimePrint(time1, options='String', preString='bmma left: ')
          time2 = this%right_node%get_interp_time()
-         call ESMF_TimePrint(time2, options='String', preString='bmma right: ')
          tinv1 = time - time1
          tinv2 = time2 - time1
          alpha = tinv1/tinv2

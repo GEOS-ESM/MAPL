@@ -23,6 +23,7 @@ module mapl3g_HistoryCollectionGridComp
    end type HistoryCollectionGridComp
 
    character(len=*), parameter :: null_file = 'null_file'
+   character(*), parameter :: PRIVATE_STATE = "HistoryCollection"
 
 contains
 
@@ -31,7 +32,6 @@ contains
       integer, intent(out) :: rc
 
       type(ESMF_HConfig) :: hconfig
-      character(*), parameter :: PRIVATE_STATE = "HistoryCollectionGridComp"
       integer :: status
 
       ! Set entry points
@@ -56,7 +56,6 @@ contains
       integer, intent(out)  :: rc
 
       integer :: status
-      character(*), parameter :: PRIVATE_STATE = "HistoryCollectionGridComp"
       type(HistoryCollectionGridComp), pointer :: collection_gridcomp
       type(ESMF_HConfig) :: hconfig
       type(ESMF_Geom) :: geom
@@ -118,7 +117,6 @@ contains
 
       integer :: status, time_index
       type(HistoryCollectionGridComp), pointer :: collection_gridcomp
-      character(*), parameter :: PRIVATE_STATE = "HistoryCollectionGridComp"
       logical :: run_collection
       type(ESMF_Time) :: current_time
       character(len=ESMF_MAXSTR) :: name
