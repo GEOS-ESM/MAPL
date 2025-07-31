@@ -179,7 +179,7 @@ contains
       rule_iterator = this%rule_map%begin()
       number_of_rules = 0
       do while(rule_iterator /= this%rule_map%end())
-         key => rule_iterator%key()
+         key => rule_iterator%first()
          idx = index(key,rule_sep)
          if (idx > 0) then
             if (trim(item_name)==key(1:idx-1)) number_of_rules = number_of_rules + 1
@@ -208,11 +208,11 @@ contains
 
       rule_iterator = this%rule_map%begin()
       do while(rule_iterator /= this%rule_map%end())
-         key => rule_iterator%key()
+         key => rule_iterator%first()
          idx = index(key,rule_sep)
          if (idx > 0) then
             if (key(1:idx-1) == trim(item_name)) then
-               rule => rule_iterator%value()
+               rule => rule_iterator%second()
                call start_times%push_back(rule%start_time)
             end if
          end if
@@ -286,12 +286,12 @@ contains
       logical :: found_rule
 
       _UNUSED_DUMMY(unusable)
-      item_type=ExtData_not_found
+      item_type=EXTDATA_NOT_FOUND
 
       found_rule = .false.
       rule_iterator = this%rule_map%begin()
       do while(rule_iterator /= this%rule_map%end())
-         key => rule_iterator%key()
+         key => rule_iterator%first()
          if (index(key,trim(item_name))/=0) then
             found_rule = .true.
             found_key = key
@@ -305,12 +305,12 @@ contains
          if (associated(rule)) then
             if (allocated(rule%vector_component)) then
                if (rule%vector_component=='EW') then
-                  item_type=Primary_Type_Vector_comp1
+                  item_type=PRIMARY_TYPE_VECTOR_COMP1
                else if (rule%vector_component=='NS') then
-                  item_type=Primary_Type_Vector_comp2
+                  item_type=PRIMARY_TYPE_VECTOR_COMP2
                end if
             else
-               item_type=Primary_Type_scalar
+               item_type=PRIMARY_TYPE_SCALAR
             end if
          end if
       end if
@@ -428,9 +428,10 @@ contains
       integer :: rule_sep_loc
 
       found_rule = .false.
-      iter = this%rule_map%begin()
-      do while(iter /= this%rule_map%end())
-         key => iter%key()
+      iter = this%rule_map%ftn_begin()
+      do while(iter /= this%rule_map%ftn_end())
+         call iter%next()
+         key => iter%first()
          rule_sep_loc = index(key,rule_sep)
          if (rule_sep_loc/=0) then
             found_rule = (key(:rule_sep_loc-1) == base_name)
@@ -438,7 +439,6 @@ contains
             found_rule = (key == base_name)
          end if
          if (found_rule) exit
-         call iter%next()
       enddo
       _RETURN(_SUCCESS)
    end function
