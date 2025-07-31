@@ -60,6 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed `MAPL_GridCompAddFieldSpec` and ACG3 to use new RESTART enum
 - Add validation for VariableSpec
 - Add a common set of string functions (StringCommon) in shared to consolidate
+- Add a new implementation of MAPL_HConfigGet that does not require a HConfigParams object
 
 ### Changed
 
