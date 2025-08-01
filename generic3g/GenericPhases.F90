@@ -10,7 +10,6 @@ module mapl3g_GenericPhases
    public :: GENERIC_INIT_GEOM_B
    public :: GENERIC_INIT_ADVERTISE
    public :: GENERIC_INIT_MODIFY_ADVERTISED
-   public :: GENERIC_INIT_MODIFY_ADVERTISED2
    public :: GENERIC_INIT_REALIZE
    public :: GENERIC_INIT_READ_RESTART
    public :: GENERIC_INIT_USER
@@ -33,7 +32,6 @@ module mapl3g_GenericPhases
       enumerator :: GENERIC_INIT_ADVERTISE
       ! Phases that should be within NUOPC modify_advertised
       enumerator :: GENERIC_INIT_MODIFY_ADVERTISED
-      enumerator :: GENERIC_INIT_MODIFY_ADVERTISED2
       ! Phases that should be within NUOPC realize
       enumerator :: GENERIC_INIT_REALIZE
       enumerator :: GENERIC_INIT_READ_RESTART
@@ -60,7 +58,6 @@ module mapl3g_GenericPhases
         GENERIC_INIT_GEOM_B, &
         GENERIC_INIT_ADVERTISE, &
         GENERIC_INIT_MODIFY_ADVERTISED, &
-        GENERIC_INIT_MODIFY_ADVERTISED2, &
         GENERIC_INIT_REALIZE, &
         GENERIC_INIT_READ_RESTART, & ! IMPORTANT: Goes before INIT_USER
         GENERIC_INIT_USER &

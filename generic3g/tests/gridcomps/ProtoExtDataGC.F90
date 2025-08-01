@@ -35,7 +35,6 @@ contains
 
       call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, run, phase_name="run", _RC)
       call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, init_modify_advertised, phase_name='GENERIC::INIT_MODIFY_ADVERTISED', _RC)
-      call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, init_modify_advertised2, phase_name='GENERIC::INIT_MODIFY_ADVERTISED2', _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine setservices
@@ -98,6 +97,8 @@ contains
       end if
 
       call ESMF_HConfigDestroy(mapl_config, _RC)
+
+      call init_modify_advertised2(gc, importState, exportState, clock, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine init_modify_advertised
