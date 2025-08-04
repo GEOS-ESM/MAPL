@@ -53,6 +53,12 @@ contains
    end subroutine init_modify_advertised
 
    subroutine step_A(gc, importState, exportState, cloc, rc)
+      type(ESMF_GridComp) :: gc
+      type(ESMF_State) :: importState
+      type(ESMF_State) :: exportState
+      type(ESMF_Clock) :: clock
+      integer, intent(out) :: rc
+
       type(OuterMetaComponent), pointer :: outer_meta
       integer :: status
       type(VirtualConnectionPt) :: export_v_pt, import_v_pt
