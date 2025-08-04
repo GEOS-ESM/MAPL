@@ -54,7 +54,7 @@ contains
       _RETURN_UNLESS(is_model_pet)
 
       ! TODO `initialize_phases` should be a MAPL procedure (name)
-      call initialize_phases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
+      call mapl_DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
       call integrate(driver, options%checkpointing, _RC)
       call driver%finalize(_RC)
 
