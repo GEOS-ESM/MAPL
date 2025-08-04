@@ -30,10 +30,9 @@ contains
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
 
-      call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
-      call self_advertise(this, _RC)
-
       call recurse(this, phase_idx=GENERIC_INIT_ADVERTISE, _RC)
+      call self_advertise(this, _RC)
+      call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
 
       call process_connections(this, _RC)
       call this%registry%propagate_unsatisfied_imports(_RC)
