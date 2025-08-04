@@ -112,7 +112,7 @@ contains
 
 
    function CubedSphereGridFactory_from_parameters(unusable, grid_name, grid_type, &
-        & im_world, lm, nx, ny, ims, jms, stretch_factor, target_lon_degrees, target_lat_degrees, &
+        & im_world, lm, nx, ny, ims, jms, stretch_factor, target_lon, target_lat, &
         & rc) result(factory)
       type (CubedSphereGridFactory) :: factory
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -130,7 +130,9 @@ contains
       integer, optional, intent(in) :: jms(:)
 
       ! stretched grid
-      real(REAL32), optional, intent(in) :: stretch_factor, target_lon_degrees, target_lat_degrees
+      real(REAL32), optional, intent(in) :: stretch_factor
+      real(REAL32), optional, intent(in) :: target_lon ! in degrees
+      real(REAL32), optional, intent(in) :: target_lat ! in degrees
 
       integer, optional, intent(out) :: rc
 
@@ -149,8 +151,8 @@ contains
       call set_with_default(factory%lm, lm, MAPL_UNDEFINED_INTEGER)
 
       call set_with_default(factory%stretch_factor,stretch_factor,MAPL_UNDEFINED_REAL)
-      call set_with_default(factory%target_lon_degrees,target_lon_degrees,MAPL_UNDEFINED_REAL)
-      call set_with_default(factory%target_lat_degrees,target_lat_degrees,MAPL_UNDEFINED_REAL)
+      call set_with_default(factory%target_lon_degrees,target_lon,MAPL_UNDEFINED_REAL)
+      call set_with_default(factory%target_lat_degrees,target_lat,MAPL_UNDEFINED_REAL)
 
       ! default is unallocated
       if (present(ims)) factory%ims = ims
