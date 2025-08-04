@@ -78,7 +78,6 @@ module mapl3g_OuterMetaComponent
       procedure :: initialize_geom_b
       procedure :: initialize_advertise
       procedure :: initialize_modify_advertised
-      procedure :: initialize_modify_advertised2
       procedure :: initialize_realize
       procedure :: initialize_read_restart
 
@@ -269,19 +268,12 @@ module mapl3g_OuterMetaComponent
          integer, optional, intent(out) :: rc
       end subroutine initialize_modify_advertised
 
-     module recursive subroutine initialize_modify_advertised2(this, importState, exportState, clock, unusable, rc)
-         class(OuterMetaComponent), target, intent(inout) :: this
-         ! optional arguments
+      module recursive subroutine initialize_realize(this, importState, exportState, clock, unusable, rc)
+         class(OuterMetaComponent), intent(inout) :: this
          type(ESMF_State) :: importState
          type(ESMF_State) :: exportState
          type(ESMF_Clock) :: clock
-         class(KE), optional, intent(in) :: unusable
-         integer, optional, intent(out) :: rc
-      end subroutine initialize_modify_advertised2
-
-      module recursive subroutine initialize_realize(this, unusable, rc)
-         class(OuterMetaComponent), intent(inout) :: this
-         ! optional arguments
+        ! optional arguments
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_realize
@@ -427,6 +419,14 @@ module mapl3g_OuterMetaComponent
          character(len=*), optional, intent(in) :: phase_name
          integer, optional, intent(out) ::rc
       end subroutine set_entry_point
+
+      ! Currently resides in write_restart_smod
+      module function get_checkpoint_subdir(hconfig, currTime, rc) result(subdir)
+         character(:), allocatable :: subdir
+         type(esmf_HConfig), intent(in) :: hconfig
+         type(esmf_Time), intent(in) :: currTime
+         integer, optional, intent(out) :: rc
+      end function get_checkpoint_subdir
 
    end interface
 

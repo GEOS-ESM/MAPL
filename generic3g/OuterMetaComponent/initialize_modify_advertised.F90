@@ -27,6 +27,8 @@ contains
 
       call process_connections(this, _RC)
 
+      call this%registry%propagate_exports(_RC)
+
       _RETURN(_SUCCESS)
 
       _UNUSED_DUMMY(unusable)

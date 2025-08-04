@@ -51,11 +51,10 @@ contains
       clock = make_clock(hconfig, options%lgr, _RC)
       driver = make_driver(clock, hconfig, options, _RC)
 
-      call make_directory(options%checkpointing%path, force=.true., _RC)
       _RETURN_UNLESS(is_model_pet)
 
       ! TODO `initialize_phases` should be a MAPL procedure (name)
-      call initialize_phases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
+      call mapl_DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
       call integrate(driver, options%checkpointing, _RC)
       call driver%finalize(_RC)
 
@@ -104,20 +103,19 @@ contains
       _RETURN(_SUCCESS)
    end function advance_clock
    
-   subroutine checkpoint(driver, options, final, rc)
+   subroutine checkpoint(driver, checkpointing, final, rc)
       type(GriddedComponentDriver), intent(inout) :: driver
-      type(CheckpointOptions), intent(in) :: options
+      type(CheckpointOptions), intent(in) :: checkpointing
       logical, intent(in) :: final
       integer, optional, intent(out) :: rc
 
       type(esmf_Clock) :: clock
       integer :: alarmCount
-      character(:), allocatable :: path, checkpoint_path
+      character(:), allocatable :: timestamp
       logical :: is_record_time
-      logical :: last_exists
       integer :: status
 
-      _RETURN_UNLESS(options%is_enabled)
+      _RETURN_UNLESS(checkpointing%is_enabled)
 
       clock = driver%get_clock()
       call esmf_ClockGetAlarmList(clock, alarmListFlag=ESMF_ALARMLIST_RINGING, alarmCount=alarmCount, _RC)
@@ -125,31 +123,19 @@ contains
 
       _RETURN_UNLESS(is_record_time .neqv. final)
 
-      call mapl_PushDirectory(options%path, _RC)
+      timestamp = get_timestamp(clock, _RC)
+      call make_directory(MAPL_PathJoin(checkpointing%path, timestamp), force=.true., _RC)
 
-
-      checkpoint_path = make_checkpoint_dir(clock, _RC)
-      path = checkpoint_path
-
-      call mapl_PushDirectory(checkpoint_path, _RC)
+      ! To avoid inconsistent state under failures, we delete symlink
+      ! "last" before writing new checkpoints. Then create new symlink
+      call remove_symlink(checkpointing%path, _RC)
       call driver%write_restart(_RC)
-      path = mapl_PopDirectory(_RC) ! up to CHECKPOINTS_DIR
+      call make_symlink(checkpointing%path, timestamp, _RC)
 
-      if (mapl_AmIRoot()) then
-         last_exists = mapl_DirectoryExists(LAST_CHECKPOINT, _RC)
-
-         if (last_exists) then
-            call mapl_RemoveFile(LAST_CHECKPOINT, _RC)
-         end if
-         call mapl_MakeSymbolicLink(src_path=checkpoint_path, link_path=LAST_CHECKPOINT, is_directory=.true., _RC)
-         
-      end if
-
-      path = mapl_PopDirectory(_RC) ! top
       _RETURN(_SUCCESS)
    end subroutine checkpoint
 
-   function make_checkpoint_dir(clock, rc) result(path)
+   function get_timestamp(clock, rc) result(path)
       character(:), allocatable :: path
       type(esmf_Clock), intent(in) :: clock
       integer, optional, intent(out) :: rc
@@ -161,10 +147,9 @@ contains
       call esmf_ClockGet(clock, currTime=currTime, _RC)
       call esmf_TimeGet(currTime, timeStringISOFrac=iso_time, _RC)
       path = trim(iso_time)
-      call make_directory(path, force=.true.,_RC)
       
       _RETURN(_SUCCESS)
-   end function make_checkpoint_dir
+   end function get_timestamp
 
    function make_driver(clock, hconfig, options, rc) result(driver)
       use mapl3g_GenericGridComp, only: generic_SetServices => setServices
@@ -507,5 +492,41 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine make_directory
-      
+
+   subroutine remove_symlink(checkpointing_path, rc)
+      character(*), intent(in) :: checkpointing_path
+      integer, optional, intent(out) :: rc
+
+      character(len=:), allocatable :: path
+      logical :: last_exists
+      integer :: status
+
+      path = MAPL_PathJoin(checkpointing_path, LAST_CHECKPOINT)
+      last_exists = MAPL_DirectoryExists(path, _RC)
+      if (last_exists) then
+         if (MAPL_AmIRoot()) then
+            call MAPL_RemoveFile(path, _RC)
+         end if
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine remove_symlink
+
+   subroutine make_symlink(checkpointing_path, target_name, rc)
+      character(*), intent(in) :: checkpointing_path
+      character(*), intent(in) :: target_name
+      integer, optional, intent(out) :: rc
+
+      character(len=:), allocatable :: path
+      integer :: status
+
+      if (MAPL_AmIRoot()) then
+         call MAPL_PushDirectory(checkpointing_path, _RC)
+         call MAPL_MakeSymbolicLink(src_path=target_name, link_path=LAST_CHECKPOINT, is_directory=.true., _RC)
+         path = MAPL_PopDirectory(_RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine make_symlink
+
 end module mapl3g_Cap

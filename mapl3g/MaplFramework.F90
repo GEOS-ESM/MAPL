@@ -135,7 +135,9 @@ contains
       if (present(configFilenameFromArgNum)) argNum = configFilenameFromArgNum
 
       if (argNum > 0) then
-         call ESMF_Initialize(configFilenameFromArgNum=argNum, configKey=['esmf'], config=config, mpiCommunicator=mpiCommunicator, _RC)
+         call ESMF_Initialize(configFilenameFromArgNum=argNum, configKey=['esmf'], config=config, &
+              defaultDefaultCalKind=ESMF_CALKIND_GREGORIAN, &
+              mpiCommunicator=mpiCommunicator, _RC)
          call ESMF_ConfigGet(config, hconfig=hconfig, _RC)
          this%mapl_hconfig = get_subconfig(hconfig, keystring='mapl', _RC)
       else

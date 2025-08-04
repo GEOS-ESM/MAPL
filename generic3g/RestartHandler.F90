@@ -26,10 +26,9 @@ module mapl3g_RestartHandler
 
    type :: RestartHandler
       private
-      character(len=ESMF_MAXSTR) :: gc_name
       type(ESMF_Geom) :: gc_geom
-      type(ESMF_Time) :: current_time
-      class(logger), pointer :: lgr
+      type(ESMF_Time) :: currTime
+      class(logger), pointer :: lgr => null()
    contains
       procedure, public :: write
       procedure, public :: read
@@ -52,83 +51,74 @@ module mapl3g_RestartHandler
 
 contains
 
-   function new_RestartHandler(gc_name, gc_geom, gc_clock, gc_logger, rc) result(restart_handler)
-      character(len=*), intent(in) :: gc_name
-      type(ESMF_Geom), intent(in) :: gc_geom
-      type(ESMF_Clock), intent(in) :: gc_clock
-      class(logger), pointer, optional, intent(in) :: gc_logger
-      integer, optional, intent(out) :: rc
+   function new_RestartHandler(gc_geom, currTime, gc_logger) result(restart_handler)
       type(RestartHandler) :: restart_handler ! result
+      type(ESMF_Geom), intent(in) :: gc_geom
+      type(ESMF_Time), intent(in) :: currTime
+      class(logger), pointer, optional, intent(in) :: gc_logger
 
       integer :: status
 
-      restart_handler%gc_name = ESMF_UtilStringLowerCase(trim(gc_name), _RC)
-      call ESMF_Clockget(gc_clock, currTime=restart_handler%current_time, _RC)
       restart_handler%gc_geom = gc_geom
+      restart_handler%currTime = currTime
       restart_handler%lgr => logging%get_logger('mapl.restart')
       if (present(gc_logger)) restart_handler%lgr => gc_logger
 
-      _RETURN(_SUCCESS)
    end function new_RestartHandler
 
-   subroutine write(this, state_intent, state, rc)
+   subroutine write(this, state, filename, rc)
       ! Arguments
       class(RestartHandler), intent(inout) :: this
-      character(len=*), intent(in) :: state_intent
       type(ESMF_State), intent(in) :: state
+      character(*), intent(in) :: filename 
       integer, optional, intent(out) :: rc
 
       ! Locals
       type(ESMF_FieldBundle) :: out_bundle
-      character(len=:), allocatable :: file_name
       integer :: item_count, status
 
       call ESMF_StateGet(state, itemCount=item_count, _RC)
       if (item_count > 0) then
-         ! TODO: the file_name should come from OuterMetaComponents's hconfig
-         file_name = trim(this%gc_name) // "_" // trim(state_intent) // "_checkpoint.nc4"
-         call this%lgr%debug("Writing checkpoint: %a", file_name)
+         call this%lgr%debug("Writing checkpoint: %a", filename)
          out_bundle = MAPL_FieldBundleCreate(state, _RC)
-         call this%write_bundle_(out_bundle, file_name, rc)
+         call this%write_bundle_(out_bundle, filename, rc)
+         call esmf_FieldBundleDestroy(out_bundle, _RC)
       end if
 
       _RETURN(_SUCCESS)
    end subroutine write
 
-   subroutine read(this, state_intent, state, rc)
+   subroutine read(this, state, filename, rc)
       ! Arguments
       class(RestartHandler), intent(inout) :: this
-      character(len=*), intent(in) :: state_intent
       type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: filename
       integer, optional, intent(out) :: rc
 
       ! Locals
-      character(len=:), allocatable :: file_name
       logical :: file_exists
       integer :: item_count, status
 
       call ESMF_StateGet(state, itemCount=item_count, _RC)
       if (item_count > 0) then
-         ! TODO: the file_name should come from OuterMetaComponents's hconfig
-         file_name = trim(this%gc_name) // "_" // trim(state_intent) // "_rst.nc4"
-         inquire(file=file_name, exist=file_exists)
+         inquire(file=filename, exist=file_exists)
          if (.not. file_exists) then
             ! TODO: Need to decide what happens in that case. Bootstrapping variables?
-            call this%lgr%warning("Restart file << %a >> does not exist. Skip reading!", file_name)
+            call this%lgr%warning("Restart file << %a >> does not exist. Skip reading!", filename)
             _RETURN(_SUCCESS)
          end if
-         call this%lgr%info("Reading restart: %a", trim(file_name))
-         call this%read_fields_(file_name, state, _RC)
+         call this%lgr%info("Reading restart: %a", trim(filename))
+         call this%read_fields_(filename, state, _RC)
       end if
 
       _RETURN(_SUCCESS)
    end subroutine read
 
-   subroutine write_bundle_(this, bundle, file_name, rc)
+   subroutine write_bundle_(this, bundle, filename, rc)
       ! Arguments
       class(RestartHandler), intent(in) :: this
       type(ESMF_FieldBundle), intent(in) :: bundle
-      character(len=*), intent(in) :: file_name
+      character(len=*), intent(in) :: filename
       integer, optional, intent(out) :: rc
 
       ! Locals
@@ -141,9 +131,9 @@ contains
       allocate(writer, source=make_geom_pfio(metadata), _STAT)
       mapl_geom => get_mapl_geom(this%gc_geom, _RC)
       call writer%initialize(metadata, mapl_geom, _RC)
-      call writer%update_time_on_server(this%current_time, _RC)
+      call writer%update_time_on_server(this%currTime, _RC)
       ! TODO: no-op if bundle is empty, or should we skip empty bundles?
-      call writer%stage_data_to_file(bundle, file_name, 1, _RC)
+      call writer%stage_data_to_file(bundle, filename, 1, _RC)
       call o_Clients%done_collective_stage()
       call o_Clients%post_wait()
       deallocate(writer)
@@ -151,10 +141,10 @@ contains
       _RETURN(_SUCCESS)
    end subroutine write_bundle_
 
-   subroutine read_fields_(this, file_name, state, rc)
+   subroutine read_fields_(this, filename, state, rc)
       ! Arguments
       class(RestartHandler), intent(in) :: this
-      character(len=*), intent(in) :: file_name
+      character(len=*), intent(in) :: filename
       type(ESMF_State), intent(inout) :: state
       integer, optional, intent(out) :: rc
 
@@ -165,13 +155,13 @@ contains
       type(MaplGeom), pointer :: mapl_geom
       integer :: status
 
-      call file_formatter%open(file_name, PFIO_READ, _RC)
+      call file_formatter%open(filename, PFIO_READ, _RC)
       metadata = file_formatter%read(_RC)
       call file_formatter%close(_RC)
       allocate(reader, source=make_geom_pfio(metadata), _STAT)
       mapl_geom => get_mapl_geom(this%gc_geom, _RC)
-      call reader%initialize(file_name, mapl_geom, _RC)
-      call reader%request_data_from_file(file_name, state, _RC)
+      call reader%initialize(filename, mapl_geom, _RC)
+      call reader%request_data_from_file(filename, state, _RC)
       call i_Clients%done_collective_prefetch()
       call i_Clients%wait()
 
