@@ -166,7 +166,12 @@ module mapl3g_MethodPhasesMap
    use mapl3g_MethodPhasesMap_private
    use mapl3g_MethodPhasesMapUtils
    implicit none
-
+   private
+   public :: initialize_phases_map
+   public :: MethodPhasesMap
+   public :: get_phase_index
+   public :: get_default_phase_name
+   public :: add_phase
 contains
 
    subroutine initialize_phases_map(phases_map)

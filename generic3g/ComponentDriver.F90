@@ -11,7 +11,7 @@ module mapl3g_ComponentDriver
 
    public :: ComponentDriver
    public :: ComponentDriverPtr
-   public :: initialize_phases
+   public :: mapl_DriverInitializePhases
 
    type, abstract :: ComponentDriver
       private
@@ -47,6 +47,10 @@ module mapl3g_ComponentDriver
       end function I_get_states
 
    end interface
+
+   interface mapl_DriverInitializePhases
+      procedure :: initialize_phases
+   end interface mapl_DriverInitializePhases
 
 contains
 
