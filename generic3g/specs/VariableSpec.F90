@@ -135,6 +135,7 @@ module mapl3g_VariableSpec
       ! miscellaneous
       !=====================
       type(StringVector) :: dependencies ! default empty
+      logical :: has_deferred_aspects = .false.
 
    contains
       procedure :: make_virtualPt
@@ -176,6 +177,7 @@ contains
         timeStep, &
         offset, &
         vector_component_names, &
+        has_deferred_aspects, &
         rc) result(var_spec)
 
       type(VariableSpec) :: var_spec
@@ -203,6 +205,7 @@ contains
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
       type(ESMF_TimeInterval), optional, intent(in) :: offset
       type(StringVector), optional, intent(in) :: vector_component_names
+      logical, optional, intent(in) :: has_deferred_aspects
       integer, optional, intent(out) :: rc
 
 !#      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
@@ -236,6 +239,7 @@ contains
       _SET_OPTIONAL(timeStep)
       _SET_OPTIONAL(offset)
       _SET_OPTIONAL(vector_component_names)
+      _SET_OPTIONAL(has_deferred_aspects)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -393,8 +397,7 @@ contains
 
       aspects = this%make_aspects(registry, component_geom, vertical_grid, timestep=timestep, offset=offset, _RC)
       dependencies = this%make_dependencies(_RC)
-      spec = new_StateItemSpec(aspects, dependencies=dependencies)
-
+      spec = new_StateItemSpec(aspects, dependencies=dependencies, has_deferred_aspects=this%has_deferred_aspects)
 
       _RETURN(_SUCCESS)
    end function make_StateitemSpec
