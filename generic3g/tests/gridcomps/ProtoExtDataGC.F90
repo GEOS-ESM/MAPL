@@ -47,6 +47,7 @@ contains
       type(ESMF_Clock) :: clock
       integer, intent(out) :: rc
 
+      integer :: status
       call step_A(gc, importState, exportState, clock, _RC)
       call step_B(gc, importState, exportState, clock, _RC)
       _RETURN(_SUCCESS)
