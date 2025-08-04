@@ -27,7 +27,7 @@ contains
       driver = make_driver(hconfig, is_model_pet, _RC)
 
       if (is_model_pet) then
-         call initialize_phases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
+         call mapl_DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
          call integrate(driver, _RC)
          call driver%write_restart(_RC)
          call driver%finalize(_RC)
