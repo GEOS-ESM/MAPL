@@ -44,7 +44,7 @@ module mapl3g_Generic
    use esmf, only: ESMF_Geom, ESMF_GeomCreate, ESMF_GeomGet
    use esmf, only: ESMF_Grid, ESMF_Mesh, ESMF_Xgrid, ESMF_LocStream
    use esmf, only: ESMF_STAGGERLOC_INVALID
-   use esmf, only: ESMF_HConfig
+   use esmf, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
    use esmf, only: ESMF_Method_Flag
    use esmf, only: ESMF_StateIntent_Flag, ESMF_STATEINTENT_INTERNAL
    use esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
@@ -139,7 +139,8 @@ module mapl3g_Generic
    end interface MAPL_GridCompGetInternalState
 
    interface MAPL_GridCompAddChild
-      procedure :: gridcomp_add_child_config
+      procedure :: gridcomp_add_child_by_config_file
+      procedure :: gridcomp_add_child_by_config
       procedure :: gridcomp_add_child_by_spec
    end interface MAPL_GridCompAddChild
 
@@ -337,7 +338,36 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_internal_state
 
-   subroutine gridcomp_add_child_config(gridcomp, child_name, setservices, hconfig, unusable, timeStep, refTime_offset, rc)
+   subroutine gridcomp_add_child_by_config_file(gridcomp, child_name, setservices, hconfig_file, unusable, timeStep, refTime_offset, rc)
+      use mapl3g_UserSetServices
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      character(len=*), intent(in) :: child_name
+      class(AbstractUserSetServices), intent(in) :: setservices
+      character(len=*), intent(in) :: hconfig_file
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      type(ESMF_TimeInterval), optional, intent(in) :: timeStep
+      type(ESMF_TimeInterval), optional, intent(in) :: refTime_offset
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_HConfig) :: hconfig
+
+      hconfig = ESMF_HConfigCreate(filename=hconfig_file, _RC)
+      call MAPL_GridCompAddChild( &
+           gridcomp, &
+           child_name, &
+           setservices, &
+           hconfig, &
+           timeStep=timeStep, &
+           refTime_offset=refTime_offset, &
+           _RC)
+      call ESMF_HConfigDestroy(hconfig, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine gridcomp_add_child_by_config_file
+
+   subroutine gridcomp_add_child_by_config(gridcomp, child_name, setservices, hconfig, unusable, timeStep, refTime_offset, rc)
       use mapl3g_UserSetServices
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name
@@ -358,7 +388,7 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end subroutine gridcomp_add_child_config
+   end subroutine gridcomp_add_child_by_config
 
    subroutine gridcomp_add_child_by_spec(gridcomp, child_name, child_spec, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp

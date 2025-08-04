@@ -26,6 +26,7 @@ module mapl3g_FieldBundleInfo
    end interface
 
    character(*), parameter :: KEY_FIELDBUNDLETYPE_FLAG = '/FieldBundleType_Flag'
+   character(*), parameter :: KEY_IS_ACTIVE = "/is_active"
 
 
 contains
@@ -82,11 +83,15 @@ contains
          typekind = to_TypeKind(typekind_str)
       end if
 
+      if (present(is_active)) then
+         call MAPL_InfoGet(info, key=namespace_//KEY_IS_ACTIVE, value=is_active, _RC)
+      end if
+
       ! Field-prototype items that come from field-info
       call FieldInfoGetInternal(info, namespace = namespace_//KEY_FIELD_PROTOTYPE, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, num_vgrid_levels=num_vgrid_levels, &
-           units=units, long_name=long_name, standard_name=standard_name, is_active=is_active, spec_handle=spec_handle, _RC)
+           units=units, long_name=long_name, standard_name=standard_name, spec_handle=spec_handle, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -154,6 +159,10 @@ contains
          call ESMF_InfoSet(info, key=namespace_ // KEY_TYPEKIND, value=typekind_str, _RC)
       end if
 
+      if (present(is_active)) then
+         call ESMF_InfoSet(info, key=namespace_ // KEY_IS_ACTIVE, value=is_active, _RC)
+      end if
+
       if (present(fieldBundleType)) then
          fieldBundleType_str = fieldBundleType%to_string()
          call ESMF_InfoSet(info, key=namespace_ // KEY_FIELDBUNDLETYPE_FLAG, value=fieldBundleType_str, _RC)
@@ -167,7 +176,7 @@ contains
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
            units=units, long_name=long_name, standard_name=standard_name, &
-           is_active=is_active, spec_handle=spec_handle, _RC)
+           spec_handle=spec_handle, _RC)
 
        _RETURN(_SUCCESS)
        _UNUSED_DUMMY(unusable)

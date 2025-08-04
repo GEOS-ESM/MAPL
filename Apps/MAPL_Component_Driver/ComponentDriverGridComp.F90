@@ -30,6 +30,7 @@ module mapl3g_ComponentDriverGridComp
    character(*), parameter :: KEY_DEFAULT_VERT_PROFILE = "default_vertical_profile"
    character(len=*), parameter :: runModeGenerateExports = "GenerateExports"
    character(len=*), parameter :: runModeFillExportsFromImports = "FillExportsFromImports"
+   character(len=*), parameter :: runModeFillImports = "FillImports"
 
 contains
 
@@ -156,6 +157,8 @@ contains
          call fill_state_from_internal(exportState, internal_state, support, _RC)
       else if (support%runMode == "FillExportsFromImports") then
          call copy_state(exportState, importState, _RC)
+      else if (support%runMode == "FillImports") then
+         ! there's nothing to do here
       else
          _FAIL("no run mode selected")
       end if

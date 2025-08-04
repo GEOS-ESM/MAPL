@@ -131,7 +131,7 @@ contains
       _RETURN_UNLESS(present(handle))
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldBundleInfoSetInternal(info, spec_handle=handle, _RC)
+      call FieldBundleInfoSetInternal(info, spec_handle=handle, is_active=.false., _RC)
 
       _RETURN(_SUCCESS)
    end subroutine create

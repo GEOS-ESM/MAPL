@@ -119,8 +119,8 @@ contains
          tinv1 = time - time1
          tinv2 = time2 - time1
          alpha = tinv1/tinv2
-         weights(1) = alpha
-         weights(2) = 1.0 - alpha
+         weights(1) = 1.0-alpha
+         weights(2) = alpha
       end if
       _RETURN(_SUCCESS)
 
