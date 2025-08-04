@@ -52,7 +52,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine init_modify_advertised
 
-   subroutine step_A(gc, importState, exportState, cloc, rc)
+   subroutine step_A(gc, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gc
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
