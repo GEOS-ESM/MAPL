@@ -47,6 +47,12 @@ contains
       type(ESMF_Clock) :: clock
       integer, intent(out) :: rc
 
+      call step_A(gc, importState, exportState, clock, _RC)
+      call step_B(gc, importState, exportState, clock, _RC)
+      _RETURN(_SUCCESS)
+   end subroutine init_modify_advertised
+
+   subroutine step_A(gc, importState, exportState, cloc, rc)
       type(OuterMetaComponent), pointer :: outer_meta
       integer :: status
       type(VirtualConnectionPt) :: export_v_pt, import_v_pt
@@ -98,12 +104,11 @@ contains
 
       call ESMF_HConfigDestroy(mapl_config, _RC)
 
-      call init_modify_advertised2(gc, importState, exportState, clock, _RC)
 
       _RETURN(ESMF_SUCCESS)
-   end subroutine init_modify_advertised
+   end subroutine step_A
 
-   subroutine init_modify_advertised2(gc, importState, exportState, clock, rc)
+   subroutine step_B(gc, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gc
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
@@ -166,7 +171,7 @@ contains
 
       call ESMF_HConfigDestroy(mapl_config, _RC)
       _RETURN(ESMF_SUCCESS)
-   end subroutine init_modify_advertised2
+   end subroutine step_B
 
 
    subroutine run(gc, importState, exportState, clock, rc)
