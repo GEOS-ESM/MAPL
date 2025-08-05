@@ -32,6 +32,7 @@ module mapl3g_StateItemSpec
       type(VirtualConnectionPtVector) :: dependencies
 
       type(AspectMap) :: aspects
+      logical :: has_deferred_aspects_ = .false.
    contains
 
       procedure :: get_aspect_order ! as string vector
@@ -47,6 +48,8 @@ module mapl3g_StateItemSpec
       procedure, non_overridable :: is_allocated
       procedure, non_overridable :: is_active
       procedure, non_overridable :: activate
+      procedure, non_overridable :: has_deferred_aspects
+      procedure, non_overridable :: set_has_deferred_aspects
       procedure :: get_aspect_by_id
       generic :: get_aspect => get_aspect_by_id
       procedure :: get_aspects
@@ -84,13 +87,15 @@ module mapl3g_StateItemSpec
 
 contains
 
-   function new_StateItemSpec(aspects, dependencies) result(spec)
+   function new_StateItemSpec(aspects, dependencies, has_deferred_aspects) result(spec)
       type(StateItemSpec) :: spec
       type(AspectMap), intent(in) :: aspects
       type(VirtualConnectionPtVector), intent(in) :: dependencies
+      logical, optional, intent(in) :: has_deferred_aspects
 
       spec%aspects = aspects
       spec%dependencies = dependencies
+      if (present(has_deferred_aspects)) spec%has_deferred_aspects_ = has_deferred_aspects
    end function new_StateItemSpec
 
 
@@ -476,5 +481,17 @@ contains
       end associate
       
    end subroutine check
+
+   subroutine set_has_deferred_aspects(this, has_deferred_aspects)
+      class(StateItemSpec), intent(inout) :: this
+      logical, intent(in) :: has_deferred_aspects
+
+      this%has_deferred_aspects_ = has_deferred_aspects
+   end subroutine set_has_deferred_aspects
+
+   logical function has_deferred_aspects(this) result(flag)
+      class(StateItemSpec), intent(in) :: this
+      flag = this%has_deferred_aspects_
+   end function has_deferred_aspects
 
 end module mapl3g_StateItemSpec
