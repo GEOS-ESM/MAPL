@@ -167,12 +167,13 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(esmf_FieldStatus_Flag) :: fstatus
+      logical :: is_created
 
-      call esmf_FieldGet(field1, status=fstatus, _RC)
-      _ASSERT(fstatus /= ESMF_FIELDSTATUS_UNINIT, 'invalid field detected')
-      call esmf_FieldGet(field2, status=fstatus, _RC)
-      _ASSERT(fstatus /= ESMF_FIELDSTATUS_UNINIT, 'invalid field detected')
+
+      is_created = esmf_FieldIsCreated(field1, _RC)
+      _ASSERT(is_created, 'invalid field detected')
+      is_created = esmf_FieldIsCreated(field2, _RC)
+      _ASSERT(is_created, 'invalid field detected')
 
       are_aliased = associated(field1%ftypep, field2%ftypep)
       

@@ -1,8 +1,6 @@
 #include "MAPL_TestErr.h"
-#include "unused_dummy.H"
 
 module Test_FieldCreate
-
    use mapl3g_Field_API, only: MAPL_FieldCreate, MAPL_FieldEmptyComplete, MAPL_FieldGet
    use mapl3g_Field_API, only: MAPL_FieldsAreAliased
    use mapl3g_FieldInfo
@@ -114,7 +112,7 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_field_create_3d
 
-   @test
+   @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_self_is_alias()
       type(esmf_Field) :: f
 
@@ -128,7 +126,7 @@ contains
       
    end subroutine test_self_is_alias
 
-   @test
+   @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_alias_is_alias()
       type(esmf_Field) :: f1, f2
 
@@ -144,7 +142,7 @@ contains
 
    end subroutine test_alias_is_alias
 
-   @test
+   @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_nonalias_is_not_alias()
       type(esmf_Field) :: f1, f2
 
@@ -161,7 +159,7 @@ contains
 
    end subroutine test_nonalias_is_not_alias
 
-   @test
+   @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_2_alias_of_original()
       type(esmf_Field) :: f1, f2, f3
 
@@ -178,7 +176,8 @@ contains
       call esmf_FieldDestroy(f1, _RC)
 
    end subroutine test_2_alias_of_original
-   @test
+
+   @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_alias_of_alias()
       type(esmf_Field) :: f1, f2, f3
 
