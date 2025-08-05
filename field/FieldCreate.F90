@@ -16,6 +16,7 @@ module mapl3g_FieldCreate
 
    public :: MAPL_FieldCreate
    public :: MAPL_FieldEmptyComplete
+   public :: MAPL_FieldsAreAliased
 
    interface MAPL_FieldCreate
       procedure :: field_create
@@ -24,6 +25,10 @@ module mapl3g_FieldCreate
    interface MAPL_FieldEmptyComplete
       procedure :: field_empty_complete
    end interface MAPL_FieldEmptyComplete
+
+   interface MAPL_FieldsAreAliased
+      procedure :: fields_are_aliased
+   end interface MAPL_FieldsAreAliased
 
 contains
 
@@ -155,5 +160,24 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine vertical_level_sanity_check
+
+   logical function fields_are_aliased(field1, field2, rc) result(are_aliased)
+      type(esmf_Field), intent(in) :: field1
+      type(esmf_Field), intent(in) :: field2
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: is_created
+
+
+      is_created = esmf_FieldIsCreated(field1, _RC)
+      _ASSERT(is_created, 'invalid field detected')
+      is_created = esmf_FieldIsCreated(field2, _RC)
+      _ASSERT(is_created, 'invalid field detected')
+
+      are_aliased = associated(field1%ftypep, field2%ftypep)
+      
+      _RETURN(_SUCCESS)
+   end function fields_are_aliased
 
 end module mapl3g_FieldCreate

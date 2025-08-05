@@ -2,8 +2,8 @@
 #include "unused_dummy.H"
 
 module Test_FieldCreate
-
    use mapl3g_Field_API, only: MAPL_FieldCreate, MAPL_FieldEmptyComplete, MAPL_FieldGet
+   use mapl3g_Field_API, only: MAPL_FieldsAreAliased
    use mapl3g_FieldInfo
    use mapl3g_VerticalStaggerLoc, only: VERTICAL_STAGGER_EDGE, VERTICAL_STAGGER_CENTER
    use mapl3g_FieldCondensedArray, only: assign_fptr_condensed_array
@@ -112,5 +112,99 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_field_create_3d
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_self_is_alias(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(esmf_Field) :: f
+
+      logical :: are_aliased
+      integer :: status
+
+      f = esmf_FieldEmptyCreate(_RC)
+      are_aliased = mapl_FieldsAreAliased(f, f, _RC) 
+      @assert_that(are_aliased, is(true()))
+      call esmf_FieldDestroy(f, _RC)
+      
+   end subroutine test_self_is_alias
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_alias_is_alias(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(esmf_Field) :: f1, f2
+
+      logical :: are_aliased
+      integer :: status
+
+      f1 = esmf_FieldEmptyCreate(_RC)
+      f2 = esmf_NamedAlias(f1, name='other', _RC) ! is an alias
+      are_aliased = mapl_FieldsAreAliased(f1, f2, _RC) 
+      @assert_that(are_aliased, is(true()))
+
+      call esmf_FieldDestroy(f1, _RC)
+
+   end subroutine test_alias_is_alias
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_nonalias_is_not_alias(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(esmf_Field) :: f1, f2
+
+      logical :: are_aliased
+      integer :: status
+
+      f1 = esmf_FieldEmptyCreate(_RC)
+      f2 = esmf_FieldEmptyCreate(_RC) ! not an alias
+      are_aliased = mapl_FieldsAreAliased(f1, f2, _RC) 
+      @assert_that(are_aliased, is(false()))
+
+      call esmf_FieldDestroy(f1, _RC)
+      call esmf_FieldDestroy(f2, _RC)
+
+   end subroutine test_nonalias_is_not_alias
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_2_alias_of_original(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(esmf_Field) :: f1, f2, f3
+
+      logical :: are_aliased
+      integer :: status
+
+      f1 = esmf_FieldEmptyCreate(_RC)
+      f2 = esmf_NamedAlias(f1, name='other', _RC) ! is an alias
+      f3 = esmf_NamedAlias(f1, name='other', _RC) ! is an alias
+
+      are_aliased = mapl_FieldsAreAliased(f2, f3, _RC) 
+      @assert_that(are_aliased, is(true()))
+
+      call esmf_FieldDestroy(f1, _RC)
+
+   end subroutine test_2_alias_of_original
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_alias_of_alias(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(esmf_Field) :: f1, f2, f3
+
+      logical :: are_aliased
+      integer :: status
+
+      f1 = esmf_FieldEmptyCreate(_RC)
+      f2 = esmf_NamedAlias(f1, name='other', _RC) ! is an alias
+      f3 = esmf_NamedAlias(f2, name='other', _RC) ! is an alias
+
+      are_aliased = mapl_FieldsAreAliased(f3, f1, _RC) 
+      @assert_that(are_aliased, is(true()))
+
+      call esmf_FieldDestroy(f1, _RC)
+
+   end subroutine test_alias_of_alias
+
 
 end module Test_FieldCreate
