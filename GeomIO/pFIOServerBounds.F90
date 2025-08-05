@@ -139,6 +139,7 @@ contains
       if (present(time_index)) server_bounds%global_count(file_dims+1) = 1
 
       server_bounds%local_start = 1
+      if(present(time_index)) server_bounds%local_start(file_dims+1) = time_index
 
       select case (tile_count)
       case (6) ! Assume cubed-sphere
