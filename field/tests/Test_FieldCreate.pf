@@ -1,4 +1,5 @@
 #include "MAPL_TestErr.h"
+#include "unused_dummy.H"
 
 module Test_FieldCreate
    use mapl3g_Field_API, only: MAPL_FieldCreate, MAPL_FieldEmptyComplete, MAPL_FieldGet
@@ -113,7 +114,9 @@ contains
    end subroutine test_field_create_3d
 
    @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_self_is_alias()
+   subroutine test_self_is_alias(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
       type(esmf_Field) :: f
 
       logical :: are_aliased
@@ -127,7 +130,9 @@ contains
    end subroutine test_self_is_alias
 
    @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_alias_is_alias()
+   subroutine test_alias_is_alias(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
       type(esmf_Field) :: f1, f2
 
       logical :: are_aliased
@@ -143,7 +148,9 @@ contains
    end subroutine test_alias_is_alias
 
    @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_nonalias_is_not_alias()
+   subroutine test_nonalias_is_not_alias(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
       type(esmf_Field) :: f1, f2
 
       logical :: are_aliased
@@ -160,7 +167,9 @@ contains
    end subroutine test_nonalias_is_not_alias
 
    @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_2_alias_of_original()
+   subroutine test_2_alias_of_original(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
       type(esmf_Field) :: f1, f2, f3
 
       logical :: are_aliased
@@ -178,7 +187,9 @@ contains
    end subroutine test_2_alias_of_original
 
    @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_alias_of_alias()
+   subroutine test_alias_of_alias(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
       type(esmf_Field) :: f1, f2, f3
 
       logical :: are_aliased
