@@ -2,6 +2,7 @@ module mapl3g_FieldBundle_API
 
    use mapl3g_FieldBundleType_Flag
    use mapl3g_FieldBundleCreate, only: MAPL_FieldBundleCreate => FieldBundleCreate
+   use mapl3g_FieldBundleCreate, only: MAPL_FieldBundlesAreAliased => FieldBundlesAreAliased
    use mapl3g_FieldBundleGet, only: MAPL_FieldBundleGet => FieldBundleGet
    use mapl3g_FieldBundleSet, only: MAPL_FieldBundleSet => FieldBundleSet
    use mapl3g_FieldBundleInfo, only: MAPL_FieldBundleInfoGetInternal => FieldBundleInfoGetInternal
@@ -13,6 +14,7 @@ module mapl3g_FieldBundle_API
 
    ! Available to users
    public :: MAPL_FieldBundleCreate
+   public :: MAPL_FieldBundlesAreAliased
    public :: MAPL_FieldBundleGet
    public :: MAPL_FieldBundleSet
    ! Maybe these should be private?

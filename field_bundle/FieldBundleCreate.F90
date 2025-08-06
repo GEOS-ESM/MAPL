@@ -12,6 +12,7 @@ module mapl3g_FieldBundleCreate
    private
 
    public :: FieldBundleCreate
+   public :: FieldBundlesAreAliased
 
    interface FieldBundleCreate
       procedure create_bundle_empty
@@ -19,6 +20,9 @@ module mapl3g_FieldBundleCreate
       procedure create_bundle_from_field_list
    end interface FieldBundleCreate
 
+   interface FieldBundlesAreAliased
+      procedure :: bundles_are_aliased
+   end interface FieldBundlesAreAliased
 contains
 
    function create_bundle_empty(unusable, name, fieldBundleType, rc) result(bundle)
@@ -91,5 +95,23 @@ contains
 
       _RETURN(_SUCCESS)
    end function create_bundle_from_field_list
+
+   logical function bundles_are_aliased(bundle1, bundle2, rc) result(are_aliased)
+      type(esmf_FieldBundle), intent(in) :: bundle1
+      type(esmf_FieldBundle), intent(in) :: bundle2
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: is_created
+
+      is_created = esmf_FieldBundleIsCreated(bundle1, _RC)
+      _ASSERT(is_created, 'invalid field bundle detected')
+      is_created = esmf_FieldBundleIsCreated(bundle2, _RC)
+      _ASSERT(is_created, 'invalid field bundle detected')
+
+      are_aliased = associated(bundle1%this, bundle2%this)
+      
+      _RETURN(_SUCCESS)
+   end function bundles_are_aliased
 
 end module mapl3g_FieldBundleCreate
