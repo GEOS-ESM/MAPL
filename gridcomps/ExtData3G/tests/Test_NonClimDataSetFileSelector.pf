@@ -6,6 +6,8 @@ module Test_NonClimDataSetFileSelector
    use mapl3g_NonClimDataSetFileSelector
    use mapl3g_DataSetNode
    use mapl3g_DataSetBracket
+   use MAPL_FieldUtils
+   use mapl3g_FieldBundle_API
    use esmf
 
    implicit none
@@ -74,7 +76,10 @@ contains
       type(DataSetBracket) :: bracket
       character(len=:), allocatable :: template, expected_file, found_file
       logical :: update
+      type(ESMF_FieldBundle) :: bundle
+      real :: field_maxval
 
+      call fill_bundle(bundle, _RC)
       template = "/home/bmauer/extdata3g_test_data/hourly_files/hourly_files.%y4%m2%d2_%h200z.nc4"
       call ESMF_TimeSet(ref_time, yy=2004, mm=1, dd=31, h=21, m=0, s=0, _RC)
       call ESMF_TimeIntervalSet(timeStep, h=1, _RC)
@@ -87,7 +92,7 @@ contains
       call bracket%set_node(NODE_RIGHT, right_node, _RC)
      
       call ESMF_TimeSet(current_time, yy=2004, mm=1, dd=31, h=23, m=10, s=0, _RC)
-      call file_handler%update_file_bracket(current_time, bracket, _RC)
+      call file_handler%update_file_bracket(bundle, current_time, bracket, _RC)
       left_node = bracket%get_left_node()
       right_node = bracket%get_right_node()
 
@@ -104,7 +109,7 @@ contains
       @assertTrue(update .eqv. .true.) 
 
       call ESMF_TimeSet(current_time, yy=2004, mm=1, dd=31, h=23, m=20, s=0, _RC)
-      call file_handler%update_file_bracket(current_time, bracket, _RC)
+      call file_handler%update_file_bracket(bundle, current_time, bracket, _RC)
       left_node = bracket%get_left_node()
       right_node = bracket%get_right_node()
 
@@ -121,7 +126,7 @@ contains
       @assertTrue(update .eqv. .false.) 
 
       call ESMF_TimeSet(current_time, yy=2004, mm=2, dd=1, h=0, m=20, s=0, _RC)
-      call file_handler%update_file_bracket(current_time, bracket, _RC)
+      call file_handler%update_file_bracket(bundle, current_time, bracket, _RC)
       left_node = bracket%get_left_node()
       right_node = bracket%get_right_node()
 
@@ -136,6 +141,10 @@ contains
       update = right_node%get_update()
       @assertTrue(expected_file == found_file)
       @assertTrue(update .eqv. .true.) 
+      field_maxval = fieldbundle_item_maxval(bundle, 1, _RC)
+      @assertTrue(field_maxval == 2.0)
+
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
 
    end subroutine test_hourly_update_file_bracket
 
@@ -150,6 +159,7 @@ contains
       type(DataSetBracket) :: bracket
       character(len=:), allocatable :: template, expected_file, found_file
       logical :: update, enabled
+      type(ESMF_FieldBundle) :: bundle
 
       template = "/home/bmauer/extdata3g_test_data/hourly_files/hourly_files.%y4%m2%d2_%h200z.nc4"
       call ESMF_TimeSet(ref_time, yy=2004, mm=1, dd=31, h=21, m=0, s=0, _RC)
@@ -166,7 +176,7 @@ contains
      
       ! set time after valid range, so left should be updated
       call ESMF_TimeSet(current_time, yy=2004, mm=2, dd=2, h=23, m=10, s=0, _RC)
-      call file_handler%update_file_bracket(current_time, bracket, _RC)
+      call file_handler%update_file_bracket(bundle, current_time, bracket, _RC)
       left_node = bracket%get_left_node()
       right_node = bracket%get_right_node()
 
@@ -183,7 +193,7 @@ contains
      
       ! set time before valid range, so right should be updated
       call ESMF_TimeSet(current_time, yy=2004, mm=1, dd=2, h=23, m=10, s=0, _RC)
-      call file_handler%update_file_bracket(current_time, bracket, _RC)
+      call file_handler%update_file_bracket(bundle, current_time, bracket, _RC)
       left_node = bracket%get_left_node()
       right_node = bracket%get_right_node()
 
@@ -200,7 +210,7 @@ contains
 
       ! now put smack in middle of valid range
       call ESMF_TimeSet(current_time, yy=2004, mm=1, dd=31, h=21, m=10, s=0, _RC)
-      call file_handler%update_file_bracket(current_time, bracket, _RC)
+      call file_handler%update_file_bracket(bundle, current_time, bracket, _RC)
       left_node = bracket%get_left_node()
       right_node = bracket%get_right_node()
 
@@ -217,7 +227,7 @@ contains
       @assertTrue(update .eqv. .true.) 
 
       call ESMF_TimeSet(current_time, yy=2004, mm=2, dd=1, h=18, m=10, s=0, _RC)
-      call file_handler%update_file_bracket(current_time, bracket, _RC)
+      call file_handler%update_file_bracket(bundle, current_time, bracket, _RC)
       left_node = bracket%get_left_node()
       right_node = bracket%get_right_node()
 
@@ -246,7 +256,10 @@ contains
       type(DataSetBracket) :: bracket
       character(len=:), allocatable :: template, expected_file, found_file
       logical :: update
+      type(ESMF_FieldBundle) :: bundle
+      real :: field_maxval
 
+      call fill_bundle(bundle, _RC)
       template = "/home/bmauer/extdata3g_test_data/monthly_files/monthly_files.%y4%m2.nc4"
       call ESMF_TimeSet(ref_time, yy=2004, mm=1, dd=1, h=0, m=0, s=0, _RC)
       call ESMF_TimeIntervalSet(timeStep, h=1, _RC)
@@ -259,7 +272,7 @@ contains
       call bracket%set_node(NODE_RIGHT, right_node, _RC)
      
       call ESMF_TimeSet(current_time, yy=2004, mm=6, dd=14, h=23, m=0, s=0, _RC)
-      call file_handler%update_file_bracket(current_time, bracket, _RC)
+      call file_handler%update_file_bracket(bundle, current_time, bracket, _RC)
       left_node = bracket%get_left_node()
       right_node = bracket%get_right_node()
 
@@ -276,7 +289,7 @@ contains
       @assertTrue(update .eqv. .true.) 
 
       call ESMF_TimeSet(current_time, yy=2004, mm=6, dd=14, h=23, m=20, s=0, _RC)
-      call file_handler%update_file_bracket(current_time, bracket, _RC)
+      call file_handler%update_file_bracket(bundle, current_time, bracket, _RC)
       left_node = bracket%get_left_node()
       right_node = bracket%get_right_node()
 
@@ -293,7 +306,7 @@ contains
       @assertTrue(update .eqv. .false.) 
 
       call ESMF_TimeSet(current_time, yy=2004, mm=6, dd=15, h=0, m=10, s=0, _RC)
-      call file_handler%update_file_bracket(current_time, bracket, _RC)
+      call file_handler%update_file_bracket(bundle, current_time, bracket, _RC)
       left_node = bracket%get_left_node()
       right_node = bracket%get_right_node()
 
@@ -308,7 +321,46 @@ contains
       update = right_node%get_update()
       @assertTrue(expected_file == found_file)
       @assertTrue(update .eqv. .true.) 
+      field_maxval = fieldbundle_item_maxval(bundle, 1, _RC)
+      @assertTrue(field_maxval == 2.0)
+
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
 
    end subroutine test_monthly_update_file_bracket
+
+   subroutine fill_bundle(bundle, rc)
+      type(ESMF_FieldBundle), intent(out) :: bundle
+      integer, intent(out), optional :: rc
+
+      integer :: status
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: fields(2) 
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[5,5], _RC)
+      fields(1) = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, _RC)
+      fields(2) = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, _RC)
+      call ESMF_FieldFill(fields(1), dataFillScheme="const", const1=1.d0, _RC)
+      call ESMF_FieldFill(fields(2), dataFillScheme="const", const1=2.d0, _RC)
+      bundle = ESMF_FieldBundleCreate(fieldList=fields, _RC)
+      if (present(rc)) rc=0
+
+  end subroutine fill_bundle
+
+  function fieldbundle_item_maxval(bundle, item_number, rc) result(max_val)
+     real :: max_val
+     type(ESMF_FieldBundle), intent(inout) :: bundle
+     integer, intent(in) :: item_number
+     integer, optional, intent(out) :: rc
+
+     integer :: status
+     type(ESMF_Field), allocatable :: field_list(:)
+     real(kind=ESMF_KIND_R4), pointer :: ptr(:)
+
+     call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
+
+     call assign_fptr(field_list(item_number), ptr, _RC)
+     max_val = maxval(ptr)
+     if (present(rc)) rc=0
+  end function fieldbundle_item_maxval
 
 end module Test_NonClimDataSetFileSelector

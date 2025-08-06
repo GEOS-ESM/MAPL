@@ -28,7 +28,7 @@ module mapl3g_PrimaryExport
          procedure :: get_export_var_name
          procedure :: get_bracket
          procedure :: update_my_bracket
-         procedure :: append_reader
+         procedure :: append_state_to_reader
    end type
 
    interface PrimaryExport
@@ -129,7 +129,7 @@ module mapl3g_PrimaryExport
       _RETURN(_SUCCESS)
    end subroutine update_my_bracket
 
-   subroutine append_reader(this, export_state, reader,  rc)
+   subroutine append_state_to_reader(this, export_state, reader,  rc)
       class(PrimaryExport), intent(inout) :: this
       type(ESMF_State), intent(inout) :: export_state
       type(ExtDataReader), intent(inout) :: reader
@@ -163,6 +163,6 @@ module mapl3g_PrimaryExport
       end if
 
       _RETURN(_SUCCESS)
-   end subroutine append_reader
+   end subroutine append_state_to_reader
 
 end module mapl3g_PrimaryExport

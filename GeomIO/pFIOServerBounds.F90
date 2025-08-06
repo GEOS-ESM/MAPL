@@ -12,8 +12,12 @@ module mapl3g_pFIOServerBounds
    private
 
    public :: pFIOServerBounds
+   public :: PFIO_BOUNDS_READ
+   public :: PFIO_BOUNDS_WRITE
 
    integer, parameter :: grid_dims = 2
+   integer, parameter :: PFIO_BOUNDS_READ = 1
+   integer, parameter :: PFIO_BOUNDS_WRITE = 2
 
    type :: pFIOServerBounds
       private
@@ -58,9 +62,10 @@ contains
       file_shape = this%file_shape
    end function get_file_shape
 
-   function new_pFIOServerBounds_grid(grid, field_shape, time_index, rc) result(server_bounds)
+   function new_pFIOServerBounds_grid(grid, field_shape, read_or_write, time_index, rc) result(server_bounds)
       type(ESMF_Grid), intent(in) :: grid
       integer, intent(in) :: field_shape(:)
+      integer, intent(in) :: read_or_write
       integer, intent(in), optional :: time_index
       integer, intent(out), optional :: rc
       type(pFIOServerBounds) :: server_bounds
@@ -74,7 +79,7 @@ contains
       if (vert_only) then
          server_bounds = pFIOServerBounds_vert_only_field(field_shape(1), time_index, _RC)
       else
-         server_bounds = pFIOServerBounds_gridded_field(grid, field_shape, time_index, _RC)
+         server_bounds = pFIOServerBounds_gridded_field(grid, field_shape, read_or_write, time_index, _RC)
       end if
 
       _RETURN(_SUCCESS)
@@ -101,9 +106,10 @@ contains
       _RETURN(_SUCCESS)
    end function pFIOServerBounds_vert_only_field
 
-   function pFIOServerBounds_gridded_field(grid, field_shape, time_index, rc) result(server_bounds)
+   function pFIOServerBounds_gridded_field(grid, field_shape, read_or_write, time_index, rc) result(server_bounds)
       type(ESMF_Grid), intent(in) :: grid
       integer, intent(in) :: field_shape(:)
+      integer, intent(in) :: read_or_write
       integer, intent(in), optional :: time_index
       integer, intent(out), optional :: rc
       type(pFIOServerBounds) :: server_bounds ! field
@@ -139,7 +145,9 @@ contains
       if (present(time_index)) server_bounds%global_count(file_dims+1) = 1
 
       server_bounds%local_start = 1
-      if(present(time_index)) server_bounds%local_start(file_dims+1) = time_index
+      if (read_or_write == PFIO_BOUNDS_READ) then
+         if(present(time_index)) server_bounds%local_start(file_dims+1) = time_index
+      end if
 
       select case (tile_count)
       case (6) ! Assume cubed-sphere

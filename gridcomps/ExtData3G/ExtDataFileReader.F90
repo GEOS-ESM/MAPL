@@ -103,7 +103,7 @@ module mapl3g_ExtDataReader
          time_index => this%time_index_map%at(trim(field_name))
          call ESMF_FieldGet(field_list(i), grid=grid, typekind=esmf_typekind, _RC)
          element_count = FieldGetLocalElementCount(field_list(i), _RC)
-         server_bounds = pFIOServerBounds(grid, element_count, time_index=time_index, _RC)
+         server_bounds = pFIOServerBounds(grid, element_count, PFIO_BOUNDS_READ, time_index=time_index, _RC)
          global_start = server_bounds%get_global_start()
          global_count = server_bounds%get_global_count()
          local_start = server_bounds%get_local_start()

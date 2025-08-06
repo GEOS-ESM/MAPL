@@ -132,7 +132,7 @@ contains
          call ESMF_StateGet(exportState, export_name, bundle, _RC) 
          call export_item%update_my_bracket(bundle, current_time, weights, _RC)
          call set_weights(exportState, export_name, weights, _RC)
-         call export_item%append_reader(exportState, reader, _RC)
+         call export_item%append_state_to_reader(exportState, reader, _RC)
       end do
       call reader%read_items(lgr, _RC)
       call reader%destroy_reader(_RC)
