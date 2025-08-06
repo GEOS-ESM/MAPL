@@ -118,15 +118,18 @@ contains
 
       type(StateRegistry), pointer :: src_registry, dst_registry
       type(ConnectionPt) :: src_pt, dst_pt
+      logical :: is_deferred
       integer :: status
 
       _RETURN_IF(this%consumed)
 
       src_pt = this%get_source()
-      dst_pt = this%get_destination()
-
-      dst_registry => registry%get_subregistry(dst_pt)
       src_registry => registry%get_subregistry(src_pt)
+      is_deferred = src_registry%item_is_deferred(src_pt%v_pt, _RC)
+      _RETURN_IF(is_deferred)
+
+      dst_pt = this%get_destination()
+      dst_registry => registry%get_subregistry(dst_pt)
         
       _ASSERT(associated(src_registry), 'Unknown source registry')
       _ASSERT(associated(dst_registry), 'Unknown destination registry')
@@ -161,8 +164,8 @@ contains
       type(MultiState) :: coupler_states
 
       src_pt = this%get_source()
-      dst_pt = this%get_destination()
 
+      dst_pt = this%get_destination()
       dst_extensions = dst_registry%get_extensions(dst_pt%v_pt, _RC)
 
       do i = 1, size(dst_extensions)
