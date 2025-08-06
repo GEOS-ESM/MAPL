@@ -17,6 +17,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.59.0] - 2025-08-06
+
+### Fixed
+
+- Fixed 0d string reading and writing
+- Minor bug fix in pfio `test_prefetch_data` test
+- Fixed stretched grid target lat/lon unit conversion in ExtData
+- Fix a typo in trajectory sampler
+
+### Added
+
+- Added tests to read and write 0d and 1d string to and from netcdf files
+
 ## [2.58.1] - 2025-07-19
 
 ### Fixed

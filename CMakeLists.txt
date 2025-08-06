@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.58.1
+  VERSION 2.59.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
