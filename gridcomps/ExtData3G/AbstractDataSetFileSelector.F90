@@ -33,15 +33,17 @@ module mapl3g_AbstractDataSetFileSelector
          procedure :: set_last_update
          procedure :: detect_time_flow
          procedure :: get_dataset_metadata
+         procedure :: get_file_template
          procedure(I_update_file_bracket), deferred :: update_file_bracket
     end type
 
     abstract interface
-       subroutine I_update_file_bracket(this, current_time, bracket, rc)
-          use ESMF, only: ESMF_Time
+       subroutine I_update_file_bracket(this, bundle, current_time, bracket, rc)
+          use ESMF, only: ESMF_Time, ESMF_FieldBundle
           use mapl3g_DataSetBracket
           import AbstractDataSetFileSelector
           class(AbstractDataSetFileSelector), intent(inout) :: this
+          type(ESMF_FieldBundle), intent(inout) :: bundle
           type(ESMF_Time), intent(in) :: current_time
           type(DataSetBracket), intent(inout) :: bracket
           integer, optional, intent(out) :: rc
@@ -155,6 +157,13 @@ module mapl3g_AbstractDataSetFileSelector
        time_jumped = abs(f1) > f2
        _RETURN(_SUCCESS)
     end function 
+
+    subroutine get_file_template(this, file_template)
+       class(AbstractDataSetFileSelector), intent(in) :: this
+       character(len=:), allocatable :: file_template
+ 
+       if (allocated(this%file_template)) file_template = this%file_template
+    end subroutine get_file_template
 
 end module mapl3g_AbstractDataSetFileSelector
    
