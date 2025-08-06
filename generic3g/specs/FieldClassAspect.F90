@@ -383,7 +383,9 @@ contains
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
-      type(ESMF_Field) :: alias
+      type(ESMF_Field) :: alias, existing_field
+      type(esmf_StateItem_Flag) :: itemType
+      logical :: is_alias
       integer :: status
       type(ESMF_State) :: state, substate
       character(:), allocatable :: full_name, inner_name
@@ -398,7 +400,14 @@ contains
 
       alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
 
-      call ESMF_StateAdd(substate, [alias], _RC)
+      call ESMF_StateGet(substate, itemName=inner_name, itemType=itemType, _RC)
+      if (itemType /= ESMF_STATEITEM_NOTFOUND) then
+         call ESMF_StateGet(substate, itemName=inner_name, field=existing_field, _RC)
+         is_alias = mapl_FieldsAreAliased(alias, existing_field, _RC)
+         _ASSERT(is_alias, 'Different fields added under the same name in state.')
+      else
+         call ESMF_StateAdd(substate, [alias], _RC)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine add_to_state
@@ -411,6 +420,7 @@ contains
       integer :: status
 
       call ESMF_FieldBundleAdd(field_bundle, [this%payload], multiflag=.true., _RC)
+
 
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle
