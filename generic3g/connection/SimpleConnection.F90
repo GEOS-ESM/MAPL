@@ -28,6 +28,7 @@ module mapl3g_SimpleConnection
       private
       type(ConnectionPt) :: source
       type(ConnectionPt) :: destination
+      logical :: consumed=.false.
    contains
       procedure :: get_source
       procedure :: get_destination
@@ -94,6 +95,7 @@ contains
       do i = 1, size(dst_extensions)
          dst_extension => dst_extensions(i)%ptr
          spec => dst_extension%get_spec()
+!#         _ASSERT(.not. spec%is_active(), 'Imports can only be activated by one connection.')
          call spec%activate(_RC)
          call spec%set_allocated()
       end do
@@ -110,13 +112,15 @@ contains
 
 
    recursive subroutine connect(this, registry, rc)
-      class(SimpleConnection), intent(in) :: this
+      class(SimpleConnection), intent(inout) :: this
       type(StateRegistry), target, intent(inout) :: registry
       integer, optional, intent(out) :: rc
 
       type(StateRegistry), pointer :: src_registry, dst_registry
       type(ConnectionPt) :: src_pt, dst_pt
       integer :: status
+
+      _RETURN_IF(this%consumed)
 
       src_pt = this%get_source()
       dst_pt = this%get_destination()
@@ -128,6 +132,8 @@ contains
       _ASSERT(associated(dst_registry), 'Unknown destination registry')
 
       call this%connect_sibling(dst_registry, src_registry, _RC)
+
+      this%consumed = .true.
         
       _RETURN(_SUCCESS)
    end subroutine connect
@@ -209,7 +215,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine activate_dependencies
-
 
 end module mapl3g_SimpleConnection
 
