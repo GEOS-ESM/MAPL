@@ -38,6 +38,7 @@ module mapl3g_StateItemExtension
       procedure :: get_consumers
 
       procedure :: make_extension
+      procedure :: is_deferred
    end type StateItemExtension
 
    type :: StateItemExtensionPtr
@@ -170,5 +171,11 @@ contains
 
       _RETURN(_SUCCESS)
    end function make_extension
+
+   logical function is_deferred(this)
+      class(StateItemExtension), target, intent(in) :: this
+
+      is_deferred = this%spec%has_deferred_aspects()
+   end function is_deferred
 
 end module mapl3g_StateItemExtension
