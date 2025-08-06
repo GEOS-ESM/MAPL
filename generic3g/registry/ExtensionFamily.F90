@@ -32,6 +32,7 @@ module mapl3g_ExtensionFamily
       procedure :: add_extension
       procedure :: num_variants
       procedure :: merge
+      procedure :: is_deferred
 
       procedure :: find_closest_extension
    end type ExtensionFamily
@@ -184,6 +185,19 @@ contains
       this%has_primary_ = other%has_primary_
 
    end subroutine merge
-   
+
+   logical function is_deferred(this, rc)
+      class(ExtensionFamily), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(StateItemExtension), pointer :: primary
+
+      is_deferred = .false.
+      primary => this%get_primary(_RC)
+      is_deferred = primary%is_deferred()
+      
+      _RETURN(_SUCCESS)
+   end function is_deferred
 end module mapl3g_ExtensionFamily
 

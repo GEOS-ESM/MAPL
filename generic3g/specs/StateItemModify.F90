@@ -34,7 +34,7 @@ module mapl3g_StateItemModify
 contains
 
 
-   subroutine field_modify(field, unusable, geom, vertical_grid, vertical_stagger, units, typekind, rc)
+   subroutine field_modify(field, unusable, geom, vertical_grid, vertical_stagger, units, typekind, has_deferred_attributes, rc)
       type(ESMF_FieldBundle), intent(inout) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
@@ -42,6 +42,7 @@ contains
       type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
       character(*), optional, intent(in) :: units
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
+      logical, optional, intent(in) :: has_deferred_attributes 
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -51,12 +52,19 @@ contains
       call ESMF_InfoGetFromHost(field, info, _RC)
       call FieldInfoGetInternal(info, spec_handle=spec_handle, _RC)
 
-      call stateitem_modify(spec_handle, geom=geom, vertical_grid=vertical_grid, vertical_stagger=vertical_stagger, units=units, typekind=typekind, _RC)
+      call stateitem_modify(spec_handle, &
+           geom=geom, &
+           vertical_grid=vertical_grid, &
+           vertical_stagger=vertical_stagger, &
+           units=units, &
+           typekind=typekind, &
+           has_deferred_attributes=has_deferred_attributes, &
+           _RC)
 
    end subroutine field_modify
 
 
-   subroutine bundle_modify(fieldbundle, unusable, geom, vertical_grid, vertical_stagger, units, typekind, rc)
+   subroutine bundle_modify(fieldbundle, unusable, geom, vertical_grid, vertical_stagger, units, typekind, has_deferred_attributes, rc)
       type(ESMF_FieldBundle), intent(inout) :: fieldbundle
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
@@ -64,6 +72,7 @@ contains
       type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
       character(*), optional, intent(in) :: units
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
+      logical, optional, intent(in) :: has_deferred_attributes
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -73,11 +82,19 @@ contains
       call ESMF_InfoGetFromHost(fieldbundle, info, _RC)
       call FieldBundleInfoGetInternal(info, spec_handle=spec_handle, _RC)
 
-      call stateitem_modify(spec_handle, geom=geom, vertical_grid=vertical_grid, vertical_stagger=vertical_stagger, units=units, typekind=typekind, _RC)
+      call stateitem_modify(spec_handle, &
+           geom=geom, &
+           vertical_grid=&
+           vertical_grid, &
+           vertical_stagger=vertical_stagger, &
+           units=units, &
+           typekind=typekind, &
+           has_deferred_attributes=has_deferred_attributes, &
+           _RC)
 
    end subroutine bundle_modify
 
-   subroutine stateitem_modify(spec_handle, unusable, geom, vertical_grid, vertical_stagger, units, typekind, rc)
+   subroutine stateitem_modify(spec_handle, unusable, geom, vertical_grid, vertical_stagger, units, typekind, has_deferred_attributes, rc)
       integer, intent(in) :: spec_handle(:)
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
@@ -85,6 +102,7 @@ contains
       type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
       character(*), optional, intent(in) :: units
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
+      logical, optional, intent(in) :: has_deferred_attributes
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -147,6 +165,13 @@ contains
          class default
             _FAIL('incorrect aspect')
          end select
+      end if
+
+      if (present(has_deferred_attributes)) then
+         if (present(has_deferred_attributes)) then
+            _ASSERT(has_deferred_attributes .eqv. .false., "Cannot change deffered status back to true.")
+         end if
+         call spec%set_has_deferred_aspects(.false.)
       end if
 
    end subroutine stateitem_modify

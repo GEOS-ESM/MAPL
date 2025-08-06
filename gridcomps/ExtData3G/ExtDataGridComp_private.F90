@@ -7,7 +7,6 @@ module mapl3g_ExtDataGridComp_private
    use mapl3g_stateitem
    use mapl3g_PrimaryExportVector
    use mapl3g_PrimaryExport
-   use pFlogger, only: logger
    implicit none
    private
 

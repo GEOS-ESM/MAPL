@@ -56,7 +56,7 @@ contains
          element_count = FieldGetLocalElementCount(field, _RC)
          call ESMF_FieldGet(field, grid=grid, typekind=tk,  _RC)
 
-         server_bounds = pFIOServerBounds(grid, element_count, time_index=time_index, _RC)
+         server_bounds = pFIOServerBounds(grid, element_count, PFIO_BOUNDS_WRITE, time_index=time_index, _RC)
          global_start = server_bounds%get_global_start()
          global_count = server_bounds%get_global_count()
          local_start = server_bounds%get_local_start()
@@ -109,7 +109,7 @@ contains
          call ESMF_FieldGet(field, grid=grid, status=field_status, typekind=esmf_typekind, _RC)
          _ASSERT(field_status == ESMF_FIELDSTATUS_COMPLETE, "ESMF field is not complete")
          element_count = FieldGetLocalElementCount(field, _RC)
-         server_bounds = pFIOServerBounds(grid, element_count, _RC)
+         server_bounds = pFIOServerBounds(grid, element_count, PFIO_BOUNDS_READ, _RC)
          global_start = server_bounds%get_global_start()
          global_count = server_bounds%get_global_count()
          local_start = server_bounds%get_local_start()

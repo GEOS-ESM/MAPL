@@ -10,6 +10,8 @@ module mapl3g_NonClimDataSetFileSelector
    use mapl3g_ExtdataUtilities
    use mapl_StringTemplate
    use mapl3g_geomio
+   use mapl3g_FieldBundle_API
+   use MAPL_FieldUtils
    implicit none
    private
 
@@ -65,8 +67,9 @@ module mapl3g_NonClimDataSetFileSelector
        _RETURN(_SUCCESS) 
     end function
 
-    subroutine update_file_bracket(this, current_time, bracket,  rc)
+    subroutine update_file_bracket(this, bundle, current_time, bracket, rc)
        class(NonClimDataSetFileSelector), intent(inout) :: this
+       type(ESMF_FieldBundle), intent(inout) :: bundle
        type(ESMF_Time), intent(in) :: current_time
        type(DataSetBracket), intent(inout) :: bracket
        integer, optional, intent(out) :: rc
@@ -127,6 +130,7 @@ module mapl3g_NonClimDataSetFileSelector
              call bracket%set_parameters(left_node=left_node)
              call this%update_node(target_time, right_node, _RC)
              call bracket%set_parameters(right_node=right_node)
+             call swap_bracket_fields(bundle, _RC)
           else 
              call this%update_both_brackets(bracket, target_time, _RC)
           end if
@@ -238,7 +242,19 @@ module mapl3g_NonClimDataSetFileSelector
  
        target_in_valid_range = (this%valid_range(1) < target_time) .and. (target_time < this%valid_range(2)) 
     end function
-       
+  
+    subroutine swap_bracket_fields(bundle, rc)
+       type(ESMF_FieldBundle), intent(inout) :: bundle
+       integer, optional, intent(out) :: rc
+
+       integer :: status
+       type(ESMF_Field), allocatable :: field_list(:)
+ 
+       call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
+       call FieldCopy(field_list(2), field_list(1), _RC)
+
+       _RETURN(_SUCCESS)
+    end subroutine swap_bracket_fields
 
 end module mapl3g_NonClimDataSetFileSelector
    

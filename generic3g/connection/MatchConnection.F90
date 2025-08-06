@@ -26,6 +26,7 @@ module mapl3g_MatchConnection
       private
       type(ConnectionPt) :: source
       type(ConnectionPt) :: destination
+      logical :: consumed = .false.
    contains
       procedure :: get_source
       procedure :: get_destination
@@ -116,7 +117,7 @@ contains
    end subroutine activate
 
    recursive subroutine connect(this, registry, rc)
-      class(MatchConnection), intent(in) :: this
+      class(MatchConnection), intent(inout) :: this
       type(StateRegistry), target, intent(inout) :: registry
       integer, optional, intent(out) :: rc
 
@@ -130,7 +131,9 @@ contains
       integer :: i, j
       type(ConnectionPt) :: s_pt, d_pt
       character(1000) :: message
+      type(SimpleConnection) :: c
 
+      _RETURN_IF(this%consumed)
       src_pt = this%get_source()
       dst_pt = this%get_destination()
 
@@ -160,12 +163,13 @@ contains
             s_pt = ConnectionPt(src_pt%component_name, src_v_pt)
             d_pt = ConnectionPt(dst_pt%component_name, dst_pattern)
 
-            associate (c => SimpleConnection(s_pt, d_pt))
-              call c%connect(registry, _RC)
-            end associate
+            c = SimpleConnection(s_pt, d_pt)
+            call c%connect(registry, _RC)
 
          end do
       end do
+
+      this%consumed = .true.
 
       _RETURN(_SUCCESS)
    end subroutine connect

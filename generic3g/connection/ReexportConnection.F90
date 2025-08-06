@@ -80,7 +80,7 @@ contains
    end subroutine activate
 
    recursive subroutine connect(this, registry, rc)
-      class(ReexportConnection), intent(in) :: this
+      class(ReexportConnection), intent(inout) :: this
       type(StateRegistry), target, intent(inout) :: registry
       integer, optional, intent(out) :: rc
 

@@ -12,9 +12,9 @@ module mapl3g_VariableSpec_private
 
    implicit none(type, external)
    private
-   public :: validate_short_name
-   public :: validate_state_intent
-   public :: validate_regrid
+   public :: verify_short_name
+   public :: verify_state_intent
+   public :: verify_regrid
 
 contains
 
@@ -95,7 +95,7 @@ contains
 
    end function valid_state_intent
 
-   subroutine validate_short_name(v, rc)
+   subroutine verify_short_name(v, rc)
       character(len=*), intent(in) :: v
       integer, optional, intent(out) :: rc
       integer :: status
@@ -104,9 +104,9 @@ contains
       _ASSERT(valid_identifier(v), M)
       _RETURN(_SUCCESS)
 
-   end subroutine validate_short_name
+   end subroutine verify_short_name
 
-   subroutine validate_state_intent(v, rc)
+   subroutine verify_state_intent(v, rc)
       type(ESMF_StateIntent_Flag), intent(in) :: v
       integer, optional, intent(out) :: rc
       integer :: status
@@ -115,9 +115,9 @@ contains
       _ASSERT(valid_state_intent(v), M)
       _RETURN(_SUCCESS)
 
-   end subroutine validate_state_intent
+   end subroutine verify_state_intent
 
-   subroutine validate_regrid(p, f, rc)
+   subroutine verify_regrid(p, f, rc)
       type(EsmfRegridderParam), optional, intent(in) :: p
       type(ESMF_RegridMethod_Flag), optional, intent(in) :: f
       integer, optional, intent(out) :: rc
@@ -127,6 +127,6 @@ contains
       _ASSERT(valid_regrid_member(p, f), M)
       _RETURN(_SUCCESS)
 
-   end subroutine validate_regrid
+   end subroutine verify_regrid
 
 end module mapl3g_VariableSpec_private

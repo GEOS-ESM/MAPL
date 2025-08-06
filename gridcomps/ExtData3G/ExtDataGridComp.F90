@@ -1,9 +1,8 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module mapl3g_ExtDataGridComp
    use generic3g
    use mapl_ErrorHandling
-   use pFlogger, only: logger
    use esmf
    use pfio
    use mapl3g_ExtDataGridComp_private
@@ -18,6 +17,7 @@ module mapl3g_ExtDataGridComp
    use mapl3g_AbstractDataSetFileSelector
    use MAPL_FileMetadataUtilsMod
    use gftl2_StringStringMap
+   use mapl3g_ExtDataReader
    
    implicit none(type,external)
    private
@@ -116,21 +116,26 @@ contains
       type(ESMF_Time) :: current_time
       real :: weights(3)
       character(len=:), allocatable :: export_name
-      type(ESMF_State) :: read_state
-      type(StringStringMap) :: alias_map
+      type(ExtDataReader) :: reader
+      class(logger), pointer :: lgr
+      type(ESMF_FieldBundle) :: bundle 
 
+      call MAPL_GridCompGet(gridcomp, logger=lgr, _RC)
       _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
       call ESMF_ClockGet(clock, currTime=current_time, _RC) 
-      call ESMF_TimePrint(current_time, options='string', preString='extdata timestep: ', _RC)
+      call reader%initialize_reader(_RC)
       iter = extdata_gridcomp%export_vector%ftn_begin()
       do while (iter /= extdata_gridcomp%export_vector%ftn_end())
          call iter%next()
          export_item => iter%of() 
-         call export_item%update_my_bracket(current_time, weights, _RC)
          export_name = export_item%get_export_var_name()
+         call ESMF_StateGet(exportState, export_name, bundle, _RC) 
+         call export_item%update_my_bracket(bundle, current_time, weights, _RC)
          call set_weights(exportState, export_name, weights, _RC)
-         !call export_item%append_read_state(exportState, read_state, alias_map, _RC)
+         call export_item%append_state_to_reader(exportState, reader, _RC)
       end do
+      call reader%read_items(lgr, _RC)
+      call reader%destroy_reader(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine run

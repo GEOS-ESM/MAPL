@@ -496,6 +496,7 @@ contains
         restart, &
         itemType, &
         add_to_export, &
+        has_deferred_aspects, &
         rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
@@ -510,6 +511,7 @@ contains
       integer(kind=kind(MAPL_RESTART)), optional, intent(in) :: restart
       type(ESMF_StateItem_Flag), optional, intent(in) :: itemType
       logical, optional, intent(in) :: add_to_export
+      logical, optional, intent(in) :: has_deferred_aspects
       integer, optional, intent(out) :: rc
 
       type(VariableSpec) :: var_spec
@@ -538,6 +540,7 @@ contains
            vertical_stagger=vstagger, &
            ungridded_dims=dim_specs_vec, &
            horizontal_dims_spec=horizontal_dims_spec, &
+           has_deferred_aspects=has_deferred_aspects, &
            _RC)
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
