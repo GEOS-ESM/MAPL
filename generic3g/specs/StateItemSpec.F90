@@ -96,6 +96,7 @@ contains
       spec%aspects = aspects
       spec%dependencies = dependencies
       if (present(has_deferred_aspects)) spec%has_deferred_aspects_ = has_deferred_aspects
+
    end function new_StateItemSpec
 
 
@@ -111,6 +112,7 @@ contains
       class(StateItemSpec), intent(inout) :: this
       logical, optional, intent(in) :: allocated
 
+      
       this%allocated =  .true.
       if (present(allocated)) then
          this%allocated = allocated
@@ -461,6 +463,7 @@ contains
       a%active = b%active
       a%allocated = b%allocated
       a%dependencies = b%dependencies
+      a%has_deferred_aspects_ = b%has_deferred_aspects_
 
    end subroutine copy_item_spec
 
@@ -491,7 +494,9 @@ contains
 
    logical function has_deferred_aspects(this) result(flag)
       class(StateItemSpec), intent(in) :: this
+
       flag = this%has_deferred_aspects_
+
    end function has_deferred_aspects
 
 end module mapl3g_StateItemSpec
