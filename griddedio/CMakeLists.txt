@@ -10,9 +10,10 @@ set (srcs
         TileIO.F90
     )
 
-if (BUILD_WITH_PFLOGGER)
-  find_package(PFLOGGER REQUIRED)
-endif ()
+# Skip this for GCHP
+#if (BUILD_WITH_PFLOGGER)
+#  find_package(PFLOGGER REQUIRED)
+#endif ()
 
 esma_add_library (${this}
   SRCS ${srcs}
