@@ -6,7 +6,8 @@ from pathlib import Path
 
 def general_strip_comment(c, s):
     re_commented = re.compile(f'^(?P<code>[^{c}]*?)(?:{c}.*?)?$')
-    if m:= re_commented.match(s):
+    m = re_commented.match(s)
+    if m:
         return m.group('code')
     return s
 
