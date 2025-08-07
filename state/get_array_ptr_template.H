@@ -24,9 +24,7 @@ subroutine SUB_ (state, farrayPtr, itemName, unusable, isPresent, rc)
    if (present(isPresent)) isPresent = .false.
 
    call ESMF_StateGet(state, itemName, itemType=item_type, _RC)
-   if (item_type /= ESMF_STATEITEM_FIELD) then
-      _RETURN(ESMF_SUCCESS)
-   end if
+   _ASSERT(item_type == ESMF_STATEITEM_FIELD, 'expected field for shortname: <'//itemName//'>')
 
    if (present(isPresent)) isPresent = .true.
    call ESMF_StateGet(state, itemName, field, _RC)
