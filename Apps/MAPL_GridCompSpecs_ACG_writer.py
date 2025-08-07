@@ -3,6 +3,30 @@ import re
 import argparse
 from functools import reduce, partial
 from pathlib import Path
+from itertools import filterfalse
+
+COMMENT = r'#'
+FORTCOMM = r'!'
+SUBROUTINE_RE = re.compile(r'call\s+MAPL_StateAdd(?P<state>\w+)Spec\((?P<arguments>.*?)\)')
+
+is_quoted = lambda s: (s[0] == "'" or s[0] == '"') and s[-1] == s[0]
+is_array = lambda s: (s[0], s[-1]) == ('[', ']')
+remove_delimiters = lambda s: s[1:-1] if is_quoted(s) or is_array(s) else s
+
+#==============================================================================#
+
+def make_line(strings, delimiter, leader = '', spacing = ' '):
+    return leader + (spacing + delimiter + spacing).join(strings)
+
+#==============================================================================#
+
+def unique(iterable):
+    seen = set()
+    for element in filterfalse(seen.__contains__, iterable):
+        seen.add(element)
+        yield element
+
+#==============================================================================#
 
 def general_strip_comment(c, s):
     re_commented = re.compile(f'^(?P<code>[^{c}]*?)(?:{c}.*?)?$')
@@ -11,7 +35,9 @@ def general_strip_comment(c, s):
         return m.group('code')
     return s
 
-strip_comment=partial(general_strip_comment,'!')
+strip_comment = partial(general_strip_comment, FORTCOMM)
+
+#==============================================================================#
 
 def joinline(line, lines=['']):
     stripped = line.strip()
@@ -26,7 +52,8 @@ def joinline(line, lines=['']):
 SUBROUTINE_RE = re.compile(r'call\s+MAPL_StateAdd(?P<state>\w+)Spec\((?P<arguments>.*?)\)')
 
 def parse_line(line):
-    if m:=SUBROUTINE_RE.match(line):
+    m=SUBROUTINE_RE.match(line)
+    if m:
         return (m.group('state'), m.group('arguments'))
     return (None, None)
 
