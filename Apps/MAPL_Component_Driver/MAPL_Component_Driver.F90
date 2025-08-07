@@ -35,7 +35,7 @@ contains
       _ASSERT(has_cap_hconfig, 'No cap section found in configuration file')
       cap_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='cap', _RC)
 
-      call MAPL_run_driver_cap(cap_hconfig, is_model_pet=is_model_pet, servers=servers, _RC)
+      call MAPL_run_driver(cap_hconfig, is_model_pet=is_model_pet, servers=servers, _RC)
       call ESMF_HConfigDestroy(cap_hconfig, _RC)
 
       _RETURN(_SUCCESS)
