@@ -6,6 +6,7 @@ module mapl3g_ConfigurableGridComp
    use mapl3g_Generic, only: MAPL_GridCompSetEntryPoint, MAPL_GridCompRunChildren
    use mapl3g_Generic, only: MAPL_GridCompGet
    use mapl, only: MAPL_GetPointer
+   use MAPL_FieldPointerUtilities
    use esmf
 
    implicit none
@@ -89,7 +90,48 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
+      type(esmf_HConfig) :: hconfig
+      logical :: has_run_section
+      type(esmf_HConfig) :: run_cfg, field_cfg
+      type(ESMF_HConfigIter) :: iter, e, b
+      integer(kind=ESMF_KIND_I8) :: advanceCount
+      integer, allocatable :: value
+      real(ESMF_KIND_R4), pointer :: r4_ptr(:)
+      real(ESMF_KIND_R8), pointer :: r8_ptr(:)
+      type(esmf_Field) :: field
+      character(:), allocatable :: field_name
+      type(esmf_TypeKind_Flag) :: typekind
+    
 
+      call mapl_GridCompGet(gridcomp, hconfig=hconfig, _RC)
+
+      has_run_section = esmf_HConfigIsDefined(hconfig, keyString='run', _RC)
+      if (has_run_section) then
+         call esmf_ClockGet(clock, advanceCount=advanceCount, _RC)
+         _HERE,'advanceCount: ',advanceCount
+         run_cfg = esmf_HConfigCreateAt(hconfig, keyString='run', _RC)
+         b = ESMF_HConfigIterBegin(run_cfg, _RC)
+         e = ESMF_HConfigIterEnd(run_cfg, _RC)
+         iter = b
+         do while (ESMF_HConfigIterLoop(iter, b, e))
+            field_name = ESMF_HConfigAsStringMapKey(iter, _RC)
+            value = esmf_HConfigAsI4MapVal(iter, index=int(advanceCount+1), _RC)
+
+            call esmf_StateGet(exportState, itemName=field_name, field=field, _RC)
+            call esmf_FieldGet(field, typekind=typekind, _RC)
+            if (typekind == ESMF_TYPEKIND_R4) then
+               call assign_fptr(field, r4_ptr, _RC)
+               r4_ptr = value
+               _HERE, 'field_name: ', field_name, value
+            else if (typekind == ESMF_TYPEKIND_R8) then
+               call assign_fptr(field, r8_ptr, _RC)
+               r8_ptr = value
+               _HERE, 'field_name: ', field_name, value
+            end if
+         end do
+         call esmf_HConfigDestroy(run_cfg, _RC)
+      endif
+          
       call MAPL_GridcompRunChildren(gridcomp, phase_name="run", _RC)
 
       _RETURN(_SUCCESS)

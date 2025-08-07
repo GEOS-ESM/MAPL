@@ -180,6 +180,7 @@ contains
 
       _RETURN_IF(this%is_up_to_date())
 
+      _HERE,'update:'
       call this%update_sources(_RC)
       if (all(this%transform%get_transformId() /= [EXTEND_TRANSFORM_ID, EVAL_TRANSFORM_ID])) then
          call this%update_time_varying(importState, exportState, clock, _RC)
@@ -361,6 +362,7 @@ contains
       integer :: i
       type(ComponentDriverPtr), pointer :: source_wrapper
 
+      _HERE,'num sources: ', this%sources%size()
       do i = 1, this%sources%size()
          source_wrapper => this%sources%of(i)
          call source_wrapper%ptr%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
@@ -399,6 +401,7 @@ contains
 
       integer :: status
 
+      _HERE, 'invalidate: '
       if(this%transform%runs_invalidate()) then
          call this%update_sources(_RC)
          call this%transform%invalidate(importState, exportState, clock, _RC)
@@ -420,6 +423,7 @@ contains
       class(ComponentDriver), pointer :: consumer
       integer :: i
 
+      _HERE,'num consumers: ', this%consumers%size()
       do i = 1, this%consumers%size()
          consumer => this%consumers%of(i)
          call consumer%run(phase_idx=GENERIC_COUPLER_INVALIDATE, _RC)

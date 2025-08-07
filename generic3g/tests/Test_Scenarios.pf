@@ -136,6 +136,7 @@ contains
               ScenarioDescription('vertical_regridding_3',   'AGCM.yaml',        check_name, check_stateitem), &
               ScenarioDescription('expression',              'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('expression_defer_geom',   'parent.yaml',      check_name, check_stateitem),  &
+              ScenarioDescription('invalidate',              'cap.yaml',         check_name, check_stateitem),  &
               ScenarioDescription('statistics',              'cap.yaml',         check_name, check_stateitem)  &
               ]
       end function add_params
@@ -153,6 +154,8 @@ contains
       type(ESMF_Time) :: t0, t1
       type(ESMF_TimeInterval) :: dt
       type(ESMF_Clock) :: clock
+      integer :: n, numsteps
+      logical :: has_numsteps
 
       file_name = './scenarios/' // this%scenario_name // '/' // this%scenario_root
       config = ESMF_HConfigCreate(filename=file_name)
@@ -184,10 +187,24 @@ contains
            end associate
         end do
 
-        call ESMF_GridCompRun(outer_gc, &
-             importState=importState, exportState=exportState, clock=clock, &
-             userRC=user_status, phase=GENERIC_RUN_USER, _RC)
-        _VERIFY(user_status)
+        numsteps = 1
+        has_numsteps = esmf_HConfigIsDefined(config, keystring='numsteps', _RC)
+        if (has_numsteps) then
+           numSteps = esmf_HConfigAsI4(config, keystring='numsteps', _RC)
+        end if
+        _HERE, 'numsteps: ', numsteps
+
+        do n = 1, numSteps
+           call ESMF_GridCompRun(outer_gc, &
+                importState=importState, exportState=exportState, clock=clock, &
+                userRC=user_status, phase=GENERIC_RUN_USER, _RC)
+           _VERIFY(user_status)
+           call esmf_ClockAdvance(clock, _RC)
+           call ESMF_GridCompRun(outer_gc, &
+                importState=importState, exportState=exportState, clock=clock, &
+                userRC=user_status, phase=GENERIC_RUN_CLOCK_ADVANCE, _RC)
+        end do
+
 
       end associate
 
