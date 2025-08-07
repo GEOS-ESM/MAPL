@@ -7,6 +7,7 @@ from itertools import filterfalse
 
 COMMENT = r'#'
 FORTCOMM = r'!'
+DASH = r'-'
 SUBROUTINE_RE = re.compile(r'call\s+MAPL_StateAdd(?P<state>\w+)Spec\((?P<arguments>.*?)\)')
 
 is_quoted = lambda s: (s[0] == "'" or s[0] == '"') and s[-1] == s[0]
@@ -98,9 +99,9 @@ def make_output(state, records):
     vals_lines = [ make_line(v, '|') for v in vals ]
     width = len(column_line)
     maxwidth = max(max(map(len, vals_lines)), width)
-    lines.append(f'{COMMENT}{'-' * (maxwidth-1)}')
+    lines.append(f'{COMMENT}{DASH * (maxwidth-1)}')
     lines.append(column_line)
-    lines.append(f'{COMMENT}{'-' * (maxwidth-1)}')
+    lines.append(f'{COMMENT}{DASH * (maxwidth-1)}')
     lines.extend(vals_lines)
     lines.append('')
 
