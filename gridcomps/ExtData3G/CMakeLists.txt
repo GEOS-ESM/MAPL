@@ -20,6 +20,7 @@ set(srcs
  ExtDataSampleMap.F90
  PrimaryExport.F90
  PrimaryExportVector.F90
+ ExtDataFileReader.F90
  )
 
 find_package (MPI REQUIRED)
