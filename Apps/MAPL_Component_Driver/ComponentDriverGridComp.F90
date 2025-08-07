@@ -21,8 +21,8 @@ module mapl3g_ComponentDriverGridComp
       character(len=:), allocatable :: runMode
       type(timeVar) :: tFunc
       real :: delay ! in seconds
-      type(StringVector) :: reserved_internal_fields
-      type(ESMF_State) :: non_reserved_internal_state
+      !type(StringVector) :: reserved_internal_fields
+      !type(ESMF_State) :: non_reserved_internal_state
    end type Comp_Driver_Support 
 
    character(*), parameter :: PRIVATE_STATE = "Comp_Driver_Support"
@@ -115,8 +115,8 @@ contains
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
 
       call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC) 
-      support%reserved_internal_fields = fill_reserved_names()
-      call create_nonreserverd_internal_state(support%non_reserved_internal_state, support%reserved_internal_fields, internal_state, _RC)
+      !support%reserved_internal_fields = fill_reserved_names()
+      !call create_nonreserverd_internal_state(support%non_reserved_internal_state, support%reserved_internal_fields, internal_state, _RC)
 
       support%runMode = ESMF_HConfigAsString(hconfig, keyString='RUN_MODE', _RC)
       support%delay = -1.0
@@ -166,6 +166,7 @@ contains
       else if (support%runMode == "FillImports") then
          ! there's nothing to do here
       else if (support%runMode == "CompareImportsToReference") then
+         call fill_state_from_internal(exportState, internal_state, support, _RC)
          ! fill internal or export state
          ! compare import state to reference state
       else
@@ -318,40 +319,47 @@ contains
       _RETURN(_SUCCESS)
    end subroutine compare_states
 
-   function fill_reserved_names() result(names)
-      type(StringVector) :: names
+   !function fill_reserved_names() result(names)
+      !type(StringVector) :: names
 
-      call names%push_back("time_interval")
-      call names%push_back("rand")
-      call names%push_back("grid_lons")
-      call names%push_back("grid_lats")
+      !call names%push_back("time_interval")
+      !call names%push_back("rand")
+      !call names%push_back("grid_lons")
+      !call names%push_back("grid_lats")
 
-   end function fill_reserved_names
+   !end function fill_reserved_names
 
-   subroutine create_nonreserverd_internal_state(state, reserved_fields, original_state, rc)
-      type(ESMF_State), intent(inout) :: state
-      type(StringVector), intent(in) :: reserved_fields
-      type(ESMF_State), intent(inout) :: original_state
-      integer, optional, intent(out) :: rc
+   !subroutine create_nonreserverd_internal_state(state, reserved_fields, original_state, rc)
+      !type(ESMF_State), intent(inout) :: state
+      !type(StringVector), intent(in) :: reserved_fields
+      !type(ESMF_State), intent(inout) :: original_state
+      !integer, optional, intent(out) :: rc
 
-      integer :: itemCount, i, status
-      type(ESMF_StateItem_Flag), allocatable :: itemTypeList(:)
-      type(ESMF_StateItem_Flag) :: source_type
-      character(len=ESMF_MAXSTR), allocatable :: itemNameList(:)
-      type(ESMF_Field) :: field
+      !integer :: itemCount, i, status
+      !type(ESMF_StateItem_Flag), allocatable :: itemTypeList(:)
+      !type(ESMF_StateItem_Flag) :: source_type
+      !character(len=ESMF_MAXSTR), allocatable :: itemNameList(:)
+      !type(ESMF_Field) :: field
 
-      call ESMF_StateGet(original_state, itemCount=itemCount, _RC)
-      allocate(itemNameList(itemCount), _STAT)
-      allocate(itemTypeList(itemCount), _STAT)
-      call ESMF_StateGet(original_state, itemTypeList=itemTypeList, itemNameList=itemNameList, _RC)
-      do i=1,itemCount
-         ! check if item is in reserved_fields
+      !call ESMF_StateGet(original_state, itemCount=itemCount, _RC)
+      !allocate(itemNameList(itemCount), _STAT)
+      !allocate(itemTypeList(itemCount), _STAT)
+      !call ESMF_StateGet(original_state, itemTypeList=itemTypeList, itemNameList=itemNameList, _RC)
+      !do i=1,itemCount
+         !! check if item is in reserved_fields
+         !if (name_in_vector(reserved_fields, itemNameList(i))) cycle
+         !! if not add to state
+      !enddo
 
-         ! if not add to state
-      enddo
+      !_RETURN(_SUCCESS)
+   !end subroutine create_nonreserverd_internal_state
 
-      _RETURN(_SUCCESS)
-   end subroutine create_nonreserverd_internal_state
+   !function name_in_vector(vector, name) result(in_vector)
+      !logical :: in_vector
+      !type(StringVector), intent(in) :: vector
+      !character(len=*), intent(in) :: name
+
+   !end function name_in_vector
 
 end module mapl3g_ComponentDriverGridComp
 
