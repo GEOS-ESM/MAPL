@@ -68,6 +68,7 @@ contains
       type(NETCDF4_FileFormatter) :: file_formatter
       real, allocatable :: temp_ak(:,:), temp_bk(:,:)
    
+      vertical_coord%num_levels = 0 ! initialze
       var => metadata%get_variable(var_name, _RC)
       dimensions => var%get_dimensions()
       lev_name = ''
@@ -156,6 +157,7 @@ contains
             else
                _FAIL("unsupported hybrid vertical coordinate")
             end if
+            _ASSERT(allocated(vertical_coord%surf_name), "PS was not found in the file")
             vertical_coord%vertical_type = model_pressure
             _RETURN(_SUCCESS)
          end if

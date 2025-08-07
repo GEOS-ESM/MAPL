@@ -71,7 +71,7 @@ foreach(TEST_CASE ${TEST_CASES_2G})
       -DMPIEXEC_NUMPROC_FLAG=${MPIEXEC_NUMPROC_FLAG}
       -DMY_BINARY_DIR=${CMAKE_BINARY_DIR}/bin
       -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS}
-      -DIS_EXTDATA2G=YES
+      -DIS_EXTDATA1G=NO
       -P ${CMAKE_CURRENT_SOURCE_DIR}/run_extdata.cmake
   )
   if (${num_procs} GREATER ${cutoff})
@@ -99,7 +99,7 @@ foreach(TEST_CASE ${TEST_CASES_1G})
       -DMPIEXEC_NUMPROC_FLAG=${MPIEXEC_NUMPROC_FLAG}
       -DMY_BINARY_DIR=${CMAKE_BINARY_DIR}/bin
       -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS}
-      -DIS_EXTDATA2G=NO
+      -DIS_EXTDATA1G=YES
       -P ${CMAKE_CURRENT_SOURCE_DIR}/run_extdata.cmake
   )
   if (${num_procs} GREATER ${cutoff})
@@ -107,6 +107,6 @@ foreach(TEST_CASE ${TEST_CASES_1G})
   elseif (${TEST_CASE} IN_LIST SLOW_TESTS)
     set_tests_properties ("ExtData1G_${TEST_CASE}" PROPERTIES LABELS "EXTDATA1G_SLOW_TESTS")
   else()
-    set_tests_properties ("ExtData1G_${TEST_CASE}" PROPERTIES LABELS "EXTDATA1G_SMALL_TESTS")
+    set_tests_properties ("ExtData1G_${TEST_CASE}" PROPERTIES LABELS "EXTDATA1G_SMALL_TESTS;ESSENTIAL")
   endif()
 endforeach()

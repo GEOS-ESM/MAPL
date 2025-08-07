@@ -1,5 +1,4 @@
 
-
 ! The error logging may eventually evolve into a module based
 ! on the ESMF logger.  For now these macros provide simple
 ! traceback capability.
@@ -47,6 +46,9 @@
 #  endif
 #  ifdef _RC
 #    undef _RC
+#  endif
+#  ifdef _USERRC
+#    undef _USERRC
 #  endif
 #  ifdef _STAT
 #    undef _STAT
@@ -108,6 +110,7 @@
 #       define _VERIFY(A)     if(MAPL_Verify(A,_FILE_,__LINE__ __rc(rc))) __return
 #    endif
 #    define _RC_(rc,status) rc=status);_VERIFY(status
+#    define _USERRC userRC=user_status, rc=status); _VERIFY(status); _VERIFY(user_status
 #    define _RC _RC_(rc,status)
 
 #    define _STAT _RC_(stat,status)

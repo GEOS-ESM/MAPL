@@ -1,5 +1,5 @@
 #define I_AM_MAIN
-638 #include "MAPL_ErrLog.h"
+#include "MAPL_ErrLog.h"
 program main
    use MPI
    use MAPL_Profiler
@@ -24,7 +24,7 @@ program main
    lap_prof = TimeProfiler('Lap')
    call lap_prof%start()
    !mem_prof = MemoryProfiler('TOTAL')
-   
+
    call main_prof%start('init reporter')
    call reporter%add_column(NameColumn(20))
    call reporter%add_column(FormattedTextColumn('#-cycles','(i5.0)', 5, NumCyclesColumn()))

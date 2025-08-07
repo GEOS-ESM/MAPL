@@ -2,7 +2,7 @@
 
 #define _UNUSED_DUMMY(x) if (.false.) then; associate (q____ => x); end associate; endif
 
-module GEOS_GmapMod
+module MAPL_Eta2EtaMod
 !implicit none
 private
 public gmap
@@ -1937,4 +1937,4 @@ contains
       enddo
 
  end subroutine steepz
-end module GEOS_GmapMod
+end module MAPL_Eta2EtaMod

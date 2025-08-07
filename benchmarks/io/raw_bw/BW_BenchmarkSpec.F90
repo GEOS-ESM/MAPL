@@ -18,6 +18,7 @@ module mapl_BW_BenchmarkSpec
       integer :: n_levs
       integer :: n_writers
       integer :: n_tries
+      character(len=:), allocatable :: file_type
    end type BW_BenchmarkSpec
 
 contains
@@ -53,6 +54,10 @@ contains
       _ASSERT(associated(option), 'n_tries not found')
       call cast(option, spec%n_tries, _RC)
 
+      option => options%at('file_type')
+      _ASSERT(associated(option), 'file_type not found')
+      call cast(option, spec%file_type)
+
       _RETURN(_SUCCESS)
    end function make_BW_BenchmarkSpec
 
@@ -80,6 +85,12 @@ contains
            default=1, &
            action='store')
 
+      call parser%add_argument('--file_type', &
+           help='type of file, options netcdf or binary', &
+           type='string', &
+           action='store', &
+           default='binary')
+
    end subroutine add_cli_options
 
 
@@ -102,6 +113,8 @@ contains
       call MPI_Comm_rank(comm, rank, status)
       _VERIFY(status)
       benchmark%filename = make_filename(base='scratch.', rank=rank, width=5, _RC)
+      if (spec%file_type == 'binary') benchmark%file_type = BINARY_FILE
+      if (spec%file_type == 'netcdf') benchmark%file_type = NETCDF_FILE
 
       _RETURN(_SUCCESS)
    end function make_BW_Benchmark

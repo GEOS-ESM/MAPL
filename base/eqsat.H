@@ -1,24 +1,20 @@
 
-
 if    (TX<=TMIN(PHASE)) then
    TI = TMIN(PHASE)
-elseif(TX>=TMAX(PHASE)) then
+elseif (TX>=TMAX(PHASE)) then
    TI = TMAX(PHASE)
 else
    TI = TX
 end if
 
-if(MXRT) then
-   EF = 1.0
-else
-   EF = 1.0-ESFAC
-endif
- 
-if(UTBL) then ! Use table
+EF = 1.0-ESFAC
+if (MXRT) EF = 1.0
+
+if (UTBL) then ! Use table
 
 ! Initialize table, if necessary
 
-   if(.not.TableReady) call MAPL_EQsatSET
+   if (.not.TableReady) call MAPL_EQsatSET
 
 ! Get saturation vapor pressure from table
 
@@ -29,17 +25,14 @@ if(UTBL) then ! Use table
 
 ! Compute saturation specific humidity
 
-   if(present(PL)) then
-      if(PX > MINPFAC*EX) then
-         DD  = 1.0/(PX - EF*EX)
+   if (present(PL)) then
+      if (PP > MINPFAC*EX) then
+         DD  = 1.0/(PP - EF*EX)
          EX  = ESFAC*EX*DD
-         DDQ = ESFAC*PX*DD*DD*DDQ
+         DDQ = ESFAC*PP*DD*DD*DDQ
       else
-         if(MXRT) then
-           EX  = MAX_RS
-         else
-           EX  = MAX_QS
-         endif
+         EX = MAX_QS
+         if (MXRT) EX = MAX_RS
          DDQ = 0.0
       end if
    end if
@@ -52,10 +45,10 @@ else  ! Use exact formulation
 
 ! Derivative of esat from finite difference
 
-   if(present(DQ)) then
+   if (present(DQ)) then
       if    (TI==TMIN(PHASE)) then
          DDQ = 0.0
-      elseif(TI==TMAX(PHASE)) then
+      elseif (TI==TMAX(PHASE)) then
          DDQ = 0.0
       else
          DD  = EX
@@ -68,22 +61,19 @@ else  ! Use exact formulation
 
 ! Compute saturation specific humidity
 
-   if(present(PL)) then
-      if(PX > MINPFAC*EX) then
-         DD  = 1.0/(PX - EF*EX)
+   if (present(PL)) then
+      if (PP > MINPFAC*EX) then
+         DD  = 1.0/(PP - EF*EX)
          EX  = ESFAC*EX*DD
-         DDQ = ESFAC*PX*DD*DD*DDQ
+         DDQ = ESFAC*PP*DD*DD*DDQ
       else
-         if(MXRT) then
-           EX  = MAX_RS
-         else
-           EX  = MAX_QS
-         endif
+         EX  = MAX_QS
+         if (MXRT) EX  = MAX_RS
          DDQ = 0.0
       end if
    end if
 
 endif ! not table
 
-if(present(DQ)) DX = DDQ*DEGSUBS
+if (present(DQ)) DX = DDQ*DEGSUBS
 

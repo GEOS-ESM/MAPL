@@ -63,7 +63,7 @@ contains
 
       benchmark = make_BW_Benchmark(spec, writer_comm, _RC)
 
-      call write_header(writer_comm, _RC)
+      call write_header(writer_comm, spec%file_type, _RC)
 
       tot_time = 0
       tot_time_sq = 0
@@ -111,8 +111,9 @@ contains
    end function time
 
 
-   subroutine write_header(comm, rc)
+   subroutine write_header(comm, file_type, rc)
       integer, intent(in) :: comm
+      character(len=*), intent(in) :: file_type
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -122,6 +123,7 @@ contains
       _VERIFY(status)
       _RETURN_UNLESS(rank == 0)
 
+      write(*,*)'Tested with file type: '//trim(file_type)
       write(*,'(3(a10,","),6(a15,:,","))',iostat=status) &
            'NX', '# levs', '# writers', 'write (GB)', 'packet (GB)', &
            'Time (s)', 'Eff. BW (GB/s)', 'Avg. BW (GB/s)', 'Rel. Std. Dev.'

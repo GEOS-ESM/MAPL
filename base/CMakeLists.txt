@@ -28,7 +28,7 @@ set (srcs
   MAPL_ConservativeRegridder.F90        MAPL_MaxMinMod.F90                  MAPL_VerticalInterpMod.F90
   MAPL_CubedSphereGridFactory.F90       MAPL_MemUtils.F90                   MAPL_VerticalMethods.F90
   MAPL_DefGridName.F90                  Base.F90                        MAPL_VotingRegridder.F90
-  MAPL_EsmfRegridder.F90                MAPL_NewArthParser.F90
+  MAPL_EsmfRegridder.F90
   MAPL_ESMFTimeVectorMod.F90            Regrid_Functions_Mod.F90
   MAPL_EtaHybridVerticalCoordinate.F90
   MAPL_NominalOrbitsMod.F90
@@ -47,6 +47,8 @@ set (srcs
   MAPL_XYGridFactory.F90
   MAPL_NetCDF.F90                       Plain_netCDF_Time.F90
   MAPL_DateTime_Parsing_ESMF.F90	MAPL_ObsUtil.F90
+  MAPL_EASEConversion.F90
+  MAPL_EASEGridFactory.F90
   # Orphaned program: should not be in this library.
   # tstqsat.F90
   )

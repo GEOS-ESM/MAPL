@@ -21,7 +21,7 @@
 
    implicit NONE
 
-   real, parameter :: cs_stretch_uninit = -1.0
+   real, parameter :: cs_stretch_uninit = huge(1.) 
 
 CONTAINS
 

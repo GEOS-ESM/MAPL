@@ -130,9 +130,9 @@
          call get_command_argument(i+1,astr)
          read(astr,*)this%cs_stretch_param(1)
          call get_command_argument(i+2,astr)
-         read(astr,*)this%cs_stretch_param(2)
+         read(astr,*)this%cs_stretch_param(2) ! target_lon in degree
          call get_command_argument(i+3,astr)
-         read(astr,*)this%cs_stretch_param(3)
+         read(astr,*)this%cs_stretch_param(3) ! target_lat in degree
       case('-lon_range')
          call get_command_argument(i+1,astr)
          read(astr,*)this%lon_range(1)

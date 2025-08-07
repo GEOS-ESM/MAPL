@@ -5,11 +5,11 @@ two:
 
 1. `docs-with-remote-esmf.md` - This is the main documentation file.  It
    includes the documentation for MAPL and ESMF.  It is used to generate the
-   [MAPL documentation](https://geos-esm.github.io/MAPL/).
+   [MAPL documentation](https://geos-esm.github.io/MAPL-docs/).
 2. `docs-with-remote-esmf.public_private_protected.md` - This generates the "developer" version of the MAPL documentation.  It includes
    the documentation for MAPL and ESMF, but also includes the private and
    protected members of the MAPL classes.  It is used to generate the
-   [developer version of the MAPL documentation](https://geos-esm.github.io/MAPL/dev-doc/).
+   [developer version of the MAPL documentation](https://geos-esm.github.io/MAPL-docs/dev-doc/).
 
 ## Issue with `pcpp`
 

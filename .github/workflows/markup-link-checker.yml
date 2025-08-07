@@ -1,0 +1,17 @@
+name: "Markup Link Checker"
+on:
+  pull_request:
+      types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
+
+jobs:
+  # Enforces that all links in the documentation are valid.
+  link-check:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Markup Link Checker (mlc)
+      uses: becheran/mlc@v1.0.0
+      with:
+        args: '.'
