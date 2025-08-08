@@ -124,7 +124,6 @@ contains
             else if (typekind == ESMF_TYPEKIND_R8) then
                call assign_fptr(field, r8_ptr, _RC)
                r8_ptr = value
-               _HERE, 'field_name: ', field_name, value
             end if
          end do
          call esmf_HConfigDestroy(run_cfg, _RC)
