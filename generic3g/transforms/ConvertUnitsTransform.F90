@@ -93,7 +93,6 @@ contains
          call assign_fptr(f_in, x8_in, _RC)
          call assign_fptr(f_out, x8_out, _RC)
          x8_out = this%converter%convert(x8_in)
-         _HERE, x8_out(1)
          _RETURN(_SUCCESS)
       end if
 
