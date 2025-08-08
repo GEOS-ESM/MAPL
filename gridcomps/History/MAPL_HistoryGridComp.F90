@@ -3656,7 +3656,7 @@ ENDDO PARSER
    epoch_swath_grid_case: do n=1,nlist
       call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
       if (trim(list(n)%sampler_type) == 'swath' ) then
-         call MAPL_TimerOn(GENSTATE,"Swath")
+         call MAPL_TimerOn(GENSTATE,"swath")
          call MAPL_TimerOn(GENSTATE,"RegridAccum")
          call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)
          call MAPL_TimerOff(GENSTATE,"RegridAccum")
@@ -3684,7 +3684,7 @@ ENDDO PARSER
             call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
             call MAPL_TimerOff(GENSTATE,"RegenGriddedio")
          endif
-         call MAPL_TimerOff(GENSTATE,"Swath")
+         call MAPL_TimerOff(GENSTATE,"swath")
       end if
 
       call MAPL_TimerOff(GENSTATE,trim(list(n)%collection))
@@ -3753,7 +3753,7 @@ ENDDO PARSER
          elseif (list(n)%sampler_type == 'station') then
             if (list(n)%unit.eq.0) then
                call lgr%debug('%a %a',&
-                    "Station_data output to new file:",trim(filename(n)))
+                    "station_data output to new file:",trim(filename(n)))
                call list(n)%station_sampler%close_file_handle(_RC)
                call list(n)%station_sampler%create_file_handle(filename(n),_RC)
                list(n)%currentFile = filename(n)
@@ -3908,20 +3908,20 @@ ENDDO PARSER
 
          if (list(n)%sampler_type == 'station') then
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
-            call MAPL_TimerOn(GENSTATE,"Station")
+            call MAPL_TimerOn(GENSTATE,"station")
             call MAPL_TimerOn(GENSTATE,"AppendFile")
             call list(n)%station_sampler%append_file(current_time,_RC)
             call MAPL_TimerOff(GENSTATE,"AppendFile")
-            call MAPL_TimerOff(GENSTATE,"Station")
+            call MAPL_TimerOff(GENSTATE,"station")
          elseif (list(n)%sampler_type == 'mask') then
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
-            call MAPL_TimerOn(GENSTATE,"Mask_append")
+            call MAPL_TimerOn(GENSTATE,"mask_append")
             if (list(n)%unit < 0) then    ! CFIO
                call list(n)%mask_sampler%regrid_append_file(current_time,&
                     list(n)%currentFile,oClients=o_Clients,_RC)
                call lgr%debug('%a %a', 'mask sampler list(n)%currentFile: ', trim(list(n)%currentFile))
             end if
-            call MAPL_TimerOff(GENSTATE,"Mask_append")
+            call MAPL_TimerOff(GENSTATE,"mask_append")
          endif
 
       endif OUTTIME
@@ -3951,7 +3951,7 @@ ENDDO PARSER
    epoch_swath_regen_grid: do n=1,nlist
       call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
       if (trim(list(n)%sampler_type) == 'swath' ) then
-         call MAPL_TimerOn(GENSTATE,"Swath")
+         call MAPL_TimerOn(GENSTATE,"swath")
          if( ESMF_AlarmIsRinging ( Hsampler%alarm ) .and. .not. ESMF_AlarmIsRinging(list(n)%end_alarm) ) then
             call MAPL_TimerOn(GENSTATE,"RegenGrid")
             key_grid_label = list(n)%output_grid_label
@@ -3962,7 +3962,7 @@ ENDDO PARSER
             if( MAPL_AM_I_ROOT() )  write(6,'(//)')
             call MAPL_TimerOff(GENSTATE,"RegenGrid")
          endif
-         call MAPL_TimerOff(GENSTATE,"Swath")
+         call MAPL_TimerOff(GENSTATE,"swath")
       end if
       call MAPL_TimerOff(GENSTATE,trim(list(n)%collection))
    end do epoch_swath_regen_grid
@@ -3982,7 +3982,7 @@ ENDDO PARSER
       call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
 
       if (list(n)%timeseries_output) then
-         call MAPL_TimerOn(GENSTATE,"Trajectory")
+         call MAPL_TimerOn(GENSTATE,"trajectory")
          call MAPL_TimerOn(GENSTATE,"RegridAccum")
          call list(n)%trajectory%regrid_accumulate(_RC)
          call MAPL_TimerOff(GENSTATE,"RegridAccum")
@@ -3997,7 +3997,7 @@ ENDDO PARSER
                call MAPL_TimerOff(GENSTATE,"RegenLS")
             end if
          end if
-         call MAPL_TimerOff(GENSTATE,"Trajectory")
+         call MAPL_TimerOff(GENSTATE,"trajectory")
       end if
 
       if( Writing(n) .and. list(n)%unit < 0) then
