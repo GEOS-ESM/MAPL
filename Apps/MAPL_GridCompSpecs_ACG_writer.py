@@ -3,21 +3,19 @@ import re
 import argparse
 from functools import reduce, partial
 from pathlib import Path
-from itertools import filterfalse
+from itertools import filterfalse, chain
 
 COMMENT = r'#'
 FORTCOMM = r'!'
 DASH = r'-'
-SUBROUTINE_RE = re.compile(r'call\s+MAPL_StateAdd(?P<state>\w+)Spec\((?P<arguments>.*?)\)')
+RS = r' | '
+SUBROUTINE_RE = re.compile(r'call\s+MAPL_Add(?P<state>\w+)Spec\((?P<arguments>.*?)\)')
 
 is_quoted = lambda s: (s[0] == "'" or s[0] == '"') and s[-1] == s[0]
 is_array = lambda s: (s[0], s[-1]) == ('[', ']')
 remove_delimiters = lambda s: s[1:-1] if is_quoted(s) or is_array(s) else s
-
-#==============================================================================#
-
-def make_line(strings, delimiter, leader = '', spacing = ' '):
-    return leader + (spacing + delimiter + spacing).join(strings)
+make_comment = lambda s: f"{COMMENT}{s}"
+make_divider = lambda c, n: make_comment(f"{c * max(0, n-1)}"[:max(0, n-1)])
 
 #==============================================================================#
 
@@ -40,7 +38,7 @@ strip_comment = partial(general_strip_comment, FORTCOMM)
 
 #==============================================================================#
 
-def joinline(line, lines=['']):
+def join_line(line, lines=['']):
     stripped = line.strip()
     complete = not stripped.endswith('&')
     if len(lines) == 0:
@@ -50,18 +48,12 @@ def joinline(line, lines=['']):
         lines.append('')
     return lines
 
-SUBROUTINE_RE = re.compile(r'call\s+MAPL_StateAdd(?P<state>\w+)Spec\((?P<arguments>.*?)\)')
 
 def parse_line(line):
     m=SUBROUTINE_RE.match(line)
     if m:
         return (m.group('state'), m.group('arguments'))
     return (None, None)
-
-#==============================================================================#
-
-def make_line(strings, delimiter, leader = '', spacing = ' '):
-    return leader + (spacing + delimiter + spacing).join(strings)
 
 #==============================================================================#
 
@@ -74,7 +66,7 @@ remove_delimiters = lambda s: s[1:-1] if is_quoted(s) or is_array(s) else s
 def parse_file(args):
     with open(args.input, 'r') as f:
         lines = f.readlines()
-    joined = reduce(lambda a, c: joinline(c, a), lines, [])
+    joined = reduce(lambda a, c: join_line(c, a), lines, [])
     calls = (parse_line(line) for line in joined)
     calls = [(state.upper(), args_str) for state, args_str in calls if state]
     return [(state, parse_call(args_str)) for state, args_str in calls]
@@ -88,24 +80,14 @@ def parse_call(args):
 
 #==============================================================================#
 
-
 def make_output(state, records):
-    COMMENT = '#'
-    lines = [f'category: {state}']
-    names = reduce(lambda a, c: a.extend(c.keys()), records)
-    column_names = list(filter(lambda i: i in set(names), names))
-    vals = ((record.get(name, '') for name in column_names) for record in records)
-    column_line = make_line(filter(lambda i: i in set(names), names), '|')
-    vals_lines = [ make_line(v, '|') for v in vals ]
-    width = len(column_line)
-    maxwidth = max(max(map(len, vals_lines)), width)
-    lines.append(f'{COMMENT}{DASH * (maxwidth-1)}')
-    lines.append(column_line)
-    lines.append(f'{COMMENT}{DASH * (maxwidth-1)}')
-    lines.extend(vals_lines)
-    lines.append('')
-
-    return lines
+    cols = list(unique(chain.from_iterable(map(lambda d: d.keys(), records))))
+#    fields_width = max((sum(len(f) for f in r) for r in (records+cols)))
+#    divider = make_divider(DASH, (len(cols)-1)*len(RS)+fields_width)
+    divider = make_divider(DASH, 79)
+    header = [f'category: {state}', divider, RS.join(list(cols)), divider]
+    rows = [RS.join(list(v)) for v in ((r.get(c, '') for c in cols) for r in records)]
+    return header + rows + ['']
 
 #==============================================================================#
 
@@ -118,12 +100,7 @@ def make_parser():
     return parser
 
 def main(args):
-    """ args is dict of arguments: """
-    """     args.input """
-    """     args.component """
-    """     args.output """
-
-    # Build records from file
+    """ args is dict of arguments: {input: ..., component: ..., output: ...} """
     component = args.component if args.component else Path(args.input).stem if args.input else None
     records = parse_file(args)
     lines = ['schema_version: 2.0.0', f'component: {component}', '']
