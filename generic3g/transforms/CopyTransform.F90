@@ -71,7 +71,6 @@ contains
       call ESMF_StateGet(importState, itemName='import[1]', field=f_in, _RC)
       call ESMF_StateGet(exportState, itemName='export[1]', field=f_out, _RC)
 
-      _HERE, 'copy'
       call FieldCopy(f_in, f_out, _RC)
 
       _RETURN(_SUCCESS)
