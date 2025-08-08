@@ -361,7 +361,6 @@ contains
       integer :: i
       type(ComponentDriverPtr), pointer :: source_wrapper
 
-      _HERE,'num sources: ', this%sources%size()
       do i = 1, this%sources%size()
          source_wrapper => this%sources%of(i)
          call source_wrapper%ptr%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
