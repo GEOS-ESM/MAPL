@@ -85,7 +85,6 @@ contains
       if (typekind == ESMF_TYPEKIND_R4) then
          call assign_fptr(f_in, x4_in, _RC)
          call assign_fptr(f_out, x4_out, _RC)
-         _HERE, x4_in(1)
          x4_out = this%converter%convert(x4_in)
          _HERE, x4_out(1)
          _RETURN(_SUCCESS)
