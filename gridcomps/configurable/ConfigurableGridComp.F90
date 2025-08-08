@@ -121,7 +121,6 @@ contains
             if (typekind == ESMF_TYPEKIND_R4) then
                call assign_fptr(field, r4_ptr, _RC)
                r4_ptr = value
-               _HERE, 'field_name: ', field_name, value
             else if (typekind == ESMF_TYPEKIND_R8) then
                call assign_fptr(field, r8_ptr, _RC)
                r8_ptr = value
