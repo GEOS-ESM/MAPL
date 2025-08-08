@@ -1,13 +1,13 @@
 #include "MAPL.h"
 
 module mapl3g_GenericCoupler
-
    use mapl3g_CouplerPhases
    use mapl3g_CouplerMetaComponent
    use mapl3g_ExtensionTransform
    use mapl3g_TransformId
    use mapl3g_VerticalRegridTransform
    use mapl3g_ComponentDriver
+   use mapl3g_GriddedComponentDriver
    use mapl_ErrorHandlingMod
    use esmf
 
@@ -16,6 +16,7 @@ module mapl3g_GenericCoupler
 
    public :: setServices
    public :: make_coupler
+   public :: mapl_CouplerAddConsumer
 
    character(*), parameter :: COUPLER_PRIVATE_STATE = 'MAPL::CouplerMetaComponent::private'
 
@@ -146,5 +147,26 @@ contains
       _RETURN(_SUCCESS)
    end subroutine clock_advance
 
+
+   subroutine mapl_CouplerAddConsumer(this, consumer, rc)
+      class(ComponentDriver), intent(in) :: this
+      class(ComponentDriver), intent(in) :: consumer
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(esmf_GridComp) :: gridcomp
+      type(CouplerMetaComponent), pointer :: meta
+
+      select type (this)
+      type is (GriddedComponentDriver)
+         gridcomp = this%get_gridcomp()
+         meta => get_coupler_meta(gridcomp, _RC)
+         call meta%add_consumer(consumer)
+      class default
+         _FAIL('Incorrect subclass of ComponentDriver.')
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine mapl_CouplerAddConsumer
 
 end module mapl3g_GenericCoupler
