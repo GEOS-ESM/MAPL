@@ -87,10 +87,7 @@ def make_output(state, records):
     key_filter = lambda k: k != 'RC'
     cols = list(filter(key_filter, unique(chain.from_iterable(map(lambda d: d.keys(), records)))))
     rows = list(map(lambda r: map(lambda c: r.get(c, ''), cols), records))
-#    cwidths = column_widths([cols] + rows)
     llen = max_row_len([cols]+rows, RS)
-#    fields_width = max((sum(len(f) for f in r) for r in (records+cols)))
-#    divider = make_divider(DASH, (len(cols)-1)*len(RS)+fields_width)
     divider = make_divider(DASH, llen-1)
     header = [f'category: {state}', divider, RS.join(list(cols)), divider]
     rows = [RS.join(list(v)) for v in ((r.get(c, '') for c in cols) for r in records)]
@@ -100,8 +97,6 @@ def make_output(state, records):
 
 def column_widths(table):
     return tuple(max(len(r) for r in col) for col in zip(table))
-
-#    return tuple(map(lambda c: max(tuple(map(lambda f: len(f), c))), zip(table)))
 
 #==============================================================================#
 
