@@ -108,7 +108,6 @@ contains
       has_run_section = esmf_HConfigIsDefined(hconfig, keyString='run', _RC)
       if (has_run_section) then
          call esmf_ClockGet(clock, advanceCount=advanceCount, _RC)
-         _HERE,'advanceCount: ',advanceCount
          run_cfg = esmf_HConfigCreateAt(hconfig, keyString='run', _RC)
          b = ESMF_HConfigIterBegin(run_cfg, _RC)
          e = ESMF_HConfigIterEnd(run_cfg, _RC)
