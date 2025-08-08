@@ -180,7 +180,6 @@ contains
 
       _RETURN_IF(this%is_up_to_date())
 
-      _HERE,'update:'
       call this%update_sources(_RC)
       if (all(this%transform%get_transformId() /= [EXTEND_TRANSFORM_ID, EVAL_TRANSFORM_ID])) then
          call this%update_time_varying(importState, exportState, clock, _RC)
