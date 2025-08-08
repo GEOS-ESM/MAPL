@@ -400,7 +400,6 @@ contains
 
       integer :: status
 
-      _HERE, 'invalidate: '
       if(this%transform%runs_invalidate()) then
          call this%update_sources(_RC)
          call this%transform%invalidate(importState, exportState, clock, _RC)
