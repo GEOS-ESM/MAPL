@@ -28,6 +28,7 @@ module mapl3g_ExtDataGridComp
    character(*), parameter :: PRIVATE_STATE = "ExtData"
    type :: ExtDataGridComp
       type(PrimaryExportVector) :: export_vector
+      logical :: has_run_mod_advert = .false.
    end type ExtDataGridComp
 
 contains
@@ -77,6 +78,10 @@ contains
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
 
+      if (extdata_gridcomp%has_run_mod_advert) then
+         _RETURN(_SUCCESS)
+      end if
+
       call MAPL_GridCompGet(gridcomp, logger=lgr, _RC)
       call ESMF_ClockGet(clock, currTime=current_time, _RC)
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
@@ -96,7 +101,8 @@ contains
       end do
 
       call report_active_items(extdata_gridcomp%export_vector, lgr)
-      
+      extdata_gridcomp%has_run_mod_advert = .true. 
+
       _RETURN(_SUCCESS)
    end subroutine modify_advertise
 

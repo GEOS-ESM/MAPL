@@ -34,15 +34,15 @@ module mapl3g_StateItemModify
 contains
 
 
-   subroutine field_modify(field, unusable, geom, vertical_grid, vertical_stagger, units, typekind, has_deferred_attributes, rc)
-      type(ESMF_FieldBundle), intent(inout) :: field
+   subroutine field_modify(field, unusable, geom, vertical_grid, vertical_stagger, units, typekind, has_deferred_aspects, rc)
+      type(ESMF_Field), intent(inout) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
       type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
       character(*), optional, intent(in) :: units
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
-      logical, optional, intent(in) :: has_deferred_attributes 
+      logical, optional, intent(in) :: has_deferred_aspects 
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -58,13 +58,13 @@ contains
            vertical_stagger=vertical_stagger, &
            units=units, &
            typekind=typekind, &
-           has_deferred_attributes=has_deferred_attributes, &
+           has_deferred_aspects=has_deferred_aspects, &
            _RC)
 
    end subroutine field_modify
 
 
-   subroutine bundle_modify(fieldbundle, unusable, geom, vertical_grid, vertical_stagger, units, typekind, has_deferred_attributes, rc)
+   subroutine bundle_modify(fieldbundle, unusable, geom, vertical_grid, vertical_stagger, units, typekind, has_deferred_aspects, rc)
       type(ESMF_FieldBundle), intent(inout) :: fieldbundle
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
@@ -72,7 +72,7 @@ contains
       type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
       character(*), optional, intent(in) :: units
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
-      logical, optional, intent(in) :: has_deferred_attributes
+      logical, optional, intent(in) :: has_deferred_aspects
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -89,12 +89,12 @@ contains
            vertical_stagger=vertical_stagger, &
            units=units, &
            typekind=typekind, &
-           has_deferred_attributes=has_deferred_attributes, &
+           has_deferred_aspects=has_deferred_aspects, &
            _RC)
 
    end subroutine bundle_modify
 
-   subroutine stateitem_modify(spec_handle, unusable, geom, vertical_grid, vertical_stagger, units, typekind, has_deferred_attributes, rc)
+   subroutine stateitem_modify(spec_handle, unusable, geom, vertical_grid, vertical_stagger, units, typekind, has_deferred_aspects, rc)
       integer, intent(in) :: spec_handle(:)
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
@@ -102,7 +102,7 @@ contains
       type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
       character(*), optional, intent(in) :: units
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
-      logical, optional, intent(in) :: has_deferred_attributes
+      logical, optional, intent(in) :: has_deferred_aspects
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -167,9 +167,9 @@ contains
          end select
       end if
 
-      if (present(has_deferred_attributes)) then
-         if (present(has_deferred_attributes)) then
-            _ASSERT(has_deferred_attributes .eqv. .false., "Cannot change deffered status back to true.")
+      if (present(has_deferred_aspects)) then
+         if (present(has_deferred_aspects)) then
+            _ASSERT(has_deferred_aspects .eqv. .false., "Cannot change deffered status back to true.")
          end if
          call spec%set_has_deferred_aspects(.false.)
       end if
