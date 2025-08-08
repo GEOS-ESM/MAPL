@@ -17,6 +17,10 @@ add_pfunit_ctest(${this}
 set_target_properties(${this} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 set_tests_properties(${this} PROPERTIES LABELS "ESSENTIAL")
 
+if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
+  set_tests_properties(MAPL.regridder_mgr.tests PROPERTIES ENVIRONMENT "I_MPI_OFI_PROVIDER=psm3")
+endif()
+
 add_dependencies(build-tests ${this})
 
 
