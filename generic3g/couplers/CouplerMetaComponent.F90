@@ -420,7 +420,6 @@ contains
       class(ComponentDriver), pointer :: consumer
       integer :: i
 
-      _HERE,'num consumers: ', this%consumers%size()
       do i = 1, this%consumers%size()
          consumer => this%consumers%of(i)
          call consumer%run(phase_idx=GENERIC_COUPLER_INVALIDATE, _RC)
