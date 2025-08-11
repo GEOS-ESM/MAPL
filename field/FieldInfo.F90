@@ -66,7 +66,6 @@ contains
         spec_handle, &
         skip_restart, &
         rc)
-
       type(ESMF_Info), intent(inout) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: namespace
@@ -158,7 +157,6 @@ contains
         spec_handle, &
         skip_restart, &
         rc)
-
       type(ESMF_Info), intent(in) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: namespace
@@ -240,13 +238,16 @@ contains
       end if
 
       if (present(skip_restart)) then
-         call MAPL_InfoGet(info, namespace_ // KEY_SKIP_RESTART, skip_restart, _RC)
+         skip_restart = .false.
+         key_is_present = ESMF_InfoIsPresent(info, key=namespace_//KEY_SKIP_RESTART, _RC)
+         if (key_is_present) then
+            call MAPL_InfoGet(info, namespace_ // KEY_SKIP_RESTART, skip_restart, _RC)
+         end if
       end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine field_info_get_internal
-
 
    subroutine info_field_get_shared_i4(field, key, value, unusable, rc)
       type(ESMF_Field), intent(in) :: field
