@@ -7,8 +7,8 @@ module mapl3g_RestartHandler
    use mapl3g_Geom_API, only: MaplGeom
    use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Return, MAPL_Assert
    use mapl3g_geomio, only: bundle_to_metadata, GeomPFIO, make_geom_pfio, get_mapl_geom
-   use mapl3g_SharedIO, only: esmf_to_pfio_type
    use mapl3g_FieldBundle_API, only: MAPL_FieldBundleCreate
+   use mapl3g_Field_API, only: MAPL_FieldGet
    use pFIO, only: PFIO_READ, FileMetaData, NetCDF4_FileFormatter
    use pFIO, only: i_Clients, o_Clients
    use pFlogger, only: logging, logger
@@ -57,13 +57,10 @@ contains
       type(ESMF_Time), intent(in) :: currTime
       class(logger), pointer, optional, intent(in) :: gc_logger
 
-      integer :: status
-
       restart_handler%gc_geom = gc_geom
       restart_handler%currTime = currTime
       restart_handler%lgr => logging%get_logger('mapl.restart')
       if (present(gc_logger)) restart_handler%lgr => gc_logger
-
    end function new_RestartHandler
 
    subroutine write(this, state, filename, rc)
@@ -153,7 +150,12 @@ contains
       type(FileMetaData) :: metadata
       class(GeomPFIO), allocatable :: reader
       type(MaplGeom), pointer :: mapl_geom
-      integer :: status
+      character(len=ESMF_MAXSTR), allocatable :: item_name(:)
+      type (ESMF_StateItem_Flag), allocatable  :: item_type(:)
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+      logical :: skip_restart
+      integer :: idx, num_fields, status
 
       call file_formatter%open(filename, PFIO_READ, _RC)
       metadata = file_formatter%read(_RC)
@@ -161,7 +163,23 @@ contains
       allocate(reader, source=make_geom_pfio(metadata), _STAT)
       mapl_geom => get_mapl_geom(this%gc_geom, _RC)
       call reader%initialize(filename, mapl_geom, _RC)
-      call reader%request_data_from_file(filename, state, _RC)
+
+      call ESMF_StateGet(state, itemCount=num_fields, _RC)
+      allocate(item_name(num_fields), stat=status); _VERIFY(status)
+      allocate(item_type(num_fields), stat=status); _VERIFY(status)
+      call ESMF_StateGet(state, itemNameList=item_name, itemTypeList=item_type, _RC)
+
+      ! Pack fields to be read into a bundle
+      bundle = MAPL_FieldBundleCreate(_RC)
+      do idx = 1, num_fields
+         _ASSERT(item_type(idx) == ESMF_STATEITEM_FIELD, "can read only ESMF fields")
+         call ESMF_StateGet(state, item_name(idx), field, _RC)
+         call MAPL_FieldGet(field, skip_restart=skip_restart, _RC)
+         if (skip_restart) cycle
+         call ESMF_FieldBundleAdd(bundle, [field], _RC)
+      end do
+
+      call reader%request_data_from_file(filename, bundle, _RC)
       call i_Clients%done_collective_prefetch()
       call i_Clients%wait()
 
