@@ -101,9 +101,9 @@ contains
            sticky=.false., &
            _RC)
 
-      if (user_runTime < currTime) then
-         call ESMF_AlarmRingerOff(alarm, _RC)
-      end if
+      !if (user_runTime < currTime) then
+         !call ESMF_AlarmRingerOff(alarm, _RC)
+      !end if
 
       _RETURN(_SUCCESS)
    end subroutine set_run_user_alarm

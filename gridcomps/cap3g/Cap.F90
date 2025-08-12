@@ -301,7 +301,7 @@ contains
       call lgr%info('time step: %a', trim(iso_time)) 
 
       segment_duration = hconfig_to_esmf_timeinterval(clock_cfg, 'segment_duration', _RC)
-      end_of_segment = startTime + segment_duration
+      end_of_segment = currTime + segment_duration
       call esmf_TimeGet(end_of_segment, timeStringISOFrac=iso_time, _RC)
       call lgr%info('segment stop time: %a', trim(iso_time))
 
