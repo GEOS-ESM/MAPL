@@ -7,6 +7,7 @@ module mapl3g_FieldGet
    use mapl_ErrorHandling
    use mapl3g_UngriddedDims
    use esmf
+
    implicit none (type,external)
    private
 
@@ -15,7 +16,6 @@ module mapl3g_FieldGet
    interface FieldGet
       procedure field_get
    end interface FieldGet
-
 
 contains
 
@@ -26,8 +26,8 @@ contains
         ungridded_dims, &
         units, standard_name, long_name, &
         is_active, &
+        skip_restart, &
         rc)
-
       type(ESMF_Field), intent(in) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(out) :: geom
@@ -41,7 +41,7 @@ contains
       character(len=:), optional, allocatable, intent(out) :: standard_name
       character(len=:), optional, allocatable, intent(out) :: long_name
       logical, optional, intent(out) :: is_active
-
+      logical, optional, intent(out) :: skip_restart
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -69,12 +69,12 @@ contains
            ungridded_dims=ungridded_dims, &
            units=units, standard_name=standard_name, long_name=long_name, &
            is_active=is_active, &
+           skip_restart=skip_restart, &
            _RC)
 
       _RETURN(_SUCCESS)
    end subroutine field_get
       
-
 end module mapl3g_FieldGet
         
         

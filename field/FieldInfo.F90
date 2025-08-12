@@ -53,6 +53,7 @@ module mapl3g_FieldInfo
    character(*), parameter :: KEY_FILL_VALUE = "/_FillValue"
 
    character(*), parameter :: KEY_SPEC_HANDLE = "/spec_handle"
+   character(*), parameter :: KEY_SKIP_RESTART = "/skip_restart"
 
 contains
 
@@ -63,8 +64,8 @@ contains
         units, long_name, standard_name, &
         is_active, &
         spec_handle, &
+        skip_restart, &
         rc)
-
       type(ESMF_Info), intent(inout) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: namespace
@@ -76,6 +77,7 @@ contains
       character(*), optional, intent(in) :: standard_name
       logical, optional, intent(in) :: is_active
       integer, optional, intent(in) :: spec_handle(:)
+      logical, optional, intent(in) :: skip_restart
       integer, optional, intent(out) :: rc
       
       integer :: status
@@ -138,6 +140,10 @@ contains
          call MAPL_InfoSet(info, namespace_ // KEY_SPEC_HANDLE, spec_handle, _RC)
       end if
 
+      if (present(skip_restart)) then
+         call MAPL_InfoSet(info, namespace_ // KEY_SKIP_RESTART, skip_restart, _RC)
+      end if
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine field_info_set_internal
@@ -149,8 +155,8 @@ contains
         ungridded_dims, &
         is_active, &
         spec_handle, &
+        skip_restart, &
         rc)
-
       type(ESMF_Info), intent(in) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: namespace
@@ -163,6 +169,7 @@ contains
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       logical, optional, intent(out) :: is_active
       integer, optional, allocatable, intent(out) :: spec_handle(:)
+      logical, optional, intent(out) :: skip_restart
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -171,6 +178,7 @@ contains
       character(:), allocatable :: vert_staggerloc_str
       type(VerticalStaggerLoc) :: vert_staggerloc_
       character(:), allocatable :: namespace_
+      logical :: key_is_present
 
       namespace_ = INFO_INTERNAL_NAMESPACE
       if (present(namespace)) then
@@ -229,10 +237,17 @@ contains
          call MAPL_InfoGet(info, namespace_ // KEY_SPEC_HANDLE, spec_handle, _RC)
       end if
 
+      if (present(skip_restart)) then
+         skip_restart = .false.
+         key_is_present = ESMF_InfoIsPresent(info, key=namespace_//KEY_SKIP_RESTART, _RC)
+         if (key_is_present) then
+            call MAPL_InfoGet(info, namespace_ // KEY_SKIP_RESTART, skip_restart, _RC)
+         end if
+      end if
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine field_info_get_internal
-
 
    subroutine info_field_get_shared_i4(field, key, value, unusable, rc)
       type(ESMF_Field), intent(in) :: field

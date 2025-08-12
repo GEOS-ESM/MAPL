@@ -38,12 +38,12 @@ module mapl3g_GeomPFIO
         integer, intent(out), optional :: rc
      end subroutine I_stage_data_to_file
 
-     subroutine I_request_data_from_file(this, file_name, state, rc)
+     subroutine I_request_data_from_file(this, filename, bundle, rc)
         use esmf
         import GeomPFIO
         class(GeomPFIO), intent(inout) :: this
-        character(len=*), intent(in) :: file_name
-        type(ESMF_State), intent(inout) :: state
+        character(len=*), intent(in) :: filename
+        type(ESMF_FieldBundle), intent(inout) :: bundle
         integer, intent(out), optional :: rc
      end subroutine I_request_data_from_file
 

@@ -54,7 +54,7 @@ module mapl3g_Generic
    use esmf, only: ESMF_State, ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD
    use esmf, only: operator(==)
    use mapl3g_hconfig_get
-   use mapl3g_RestartHandler
+   use mapl3g_RestartHandler, only: MAPL_RESTART, MAPL_RESTART_SKIP
    use pflogger, only: logger_t => logger
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
@@ -519,6 +519,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       type(ComponentSpec), pointer :: component_spec
       character(len=:), allocatable :: units_
+      logical :: skip_restart = .false.
       type(UngriddedDims), allocatable :: dim_specs_vec
       integer :: status
 
@@ -531,6 +532,7 @@ contains
       ! If input units is present, override using input values
       if (present(units)) units_ = units
       if (present(ungridded_dims)) dim_specs_vec = UngriddedDims(ungridded_dims)
+      if (present(restart)) skip_restart = (restart==MAPL_RESTART_SKIP)
       var_spec = make_VariableSpec( &
            state_intent, &
            short_name, &
@@ -541,6 +543,7 @@ contains
            ungridded_dims=dim_specs_vec, &
            horizontal_dims_spec=horizontal_dims_spec, &
            has_deferred_aspects=has_deferred_aspects, &
+           skip_restart=skip_restart, &
            _RC)
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()

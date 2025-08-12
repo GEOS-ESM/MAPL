@@ -42,12 +42,12 @@ contains
       subdir = get_checkpoint_subdir(this%hconfig, currTime, _RC)
 
       if (this%component_spec%misc%restart_controls%import) then
-!#         filename = mapl_PathJoin(subdir, this%get_name // '_import.nc')
+         filename = mapl_PathJoin(subdir, driver%get_name() // '_import.nc')
          call restart_handler%read(states%importState, filename, _RC)
       end if
       
       if (this%component_spec%misc%restart_controls%internal) then
-!#         filename = mapl_PathJoin(subdir, this%get_name // '_internal.nc')
+         filename = mapl_PathJoin(subdir, driver%get_name() // '_internal.nc')
          call restart_handler%read(states%internalState, filename, _RC)
       end if
       
