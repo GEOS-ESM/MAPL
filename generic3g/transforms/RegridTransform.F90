@@ -123,7 +123,7 @@ contains
       type(ESMF_StateItem_Flag) :: itemType_in, itemType_out
 
       call ESMF_StateGet(importState, itemName='import[1]', itemType=itemType_in, _RC)
-      call ESMF_StateGet(importState, itemName='import[1]', itemType=itemType_out, _RC)
+      call ESMF_StateGet(exportState, itemName='export[1]', itemType=itemType_out, _RC)
 
       _ASSERT(itemType_in == itemType_out, 'Regridder requires same itemType for input and output.')
 
