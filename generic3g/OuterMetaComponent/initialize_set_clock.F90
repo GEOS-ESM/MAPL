@@ -87,12 +87,14 @@ contains
 
       integer :: status
       type(ESMF_TimeInterval) :: outer_timestep, user_timestep
-      type(ESMF_Time) :: currTime, refTime, user_runTime
+      type(ESMF_Time) :: currTime, refTime, user_runTime, startTime
       type(ESMF_Alarm) :: alarm
 
-      call ESMF_ClockGet(outer_clock, timestep=outer_timestep, currTime=currTime, refTime=refTime, _RC)
+      call ESMF_ClockGet(outer_clock, timestep=outer_timestep, currTime=currTime, refTime=refTime, startTIme=startTime,  _RC)
       call ESMF_ClockGet(user_clock, timestep=user_timestep, _RC)
-      user_runTime = refTime + this%user_offset
+      ! tclune had refTime, does not work
+      !user_runTime = refTime + this%user_offset
+      user_runTime = startTime + this%user_offset
 
       alarm = ESMF_AlarmCreate(outer_clock, &
            name = RUN_USER_ALARM, &
@@ -101,6 +103,7 @@ contains
            sticky=.false., &
            _RC)
 
+      ! tclune had this, breaks stuff
       !if (user_runTime < currTime) then
          !call ESMF_AlarmRingerOff(alarm, _RC)
       !end if
