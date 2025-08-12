@@ -48,6 +48,7 @@ module mapl3g_FieldClassAspect
       character(:), allocatable :: standard_name
       character(:), allocatable :: long_name
       real(kind=ESMF_KIND_R4), allocatable :: default_value
+      logical :: skip_restart
    contains
       procedure :: get_aspect_order
       procedure :: supports_conversion_general
@@ -83,11 +84,12 @@ module mapl3g_FieldClassAspect
 
 contains
 
-   function new_FieldClassAspect(standard_name, long_name, default_value) result(aspect)
+   function new_FieldClassAspect(standard_name, long_name, default_value, skip_restart) result(aspect)
       type(FieldClassAspect) :: aspect
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
       real(kind=ESMF_KIND_R4), intent(in), optional :: default_value
+      logical, optional, intent(in) :: skip_restart
 
       aspect%standard_name = 'unknown'
       if (present(standard_name)) then
@@ -102,6 +104,8 @@ contains
          aspect%default_value = default_value
       end if
 
+      aspect%skip_restart = .false.
+      if (present(skip_restart)) aspect%skip_restart = skip_restart
    end function new_FieldClassAspect
 
    function get_aspect_order(this, goal_aspects, rc) result(aspect_ids)
@@ -121,7 +125,6 @@ contains
            ]
 
       _RETURN(_SUCCESS)
-
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
 
@@ -285,12 +288,16 @@ contains
 
       type(FieldClassAspect) :: export_
       integer :: status
+      type(ESMF_Info) :: info
 
       export_ = to_FieldClassAspect(export, _RC)
       call this%destroy(_RC) ! import is replaced by export/extension
       this%payload = export_%payload
 
       call mirror(this%default_value, export_%default_value)
+
+      call ESMF_InfoGetFromHost(this%payload, info, _RC)
+      call FieldInfoSetInternal(info, skip_restart=this%skip_restart, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)

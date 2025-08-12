@@ -67,6 +67,7 @@ module mapl3g_VariableSpec
       !---------------------
       character(:), allocatable :: standard_name
       character(:), allocatable :: long_name ! from FieldDictionary or override
+      logical :: skip_restart
       !---------------------
       ! Vector
       !---------------------
@@ -178,6 +179,7 @@ contains
         offset, &
         vector_component_names, &
         has_deferred_aspects, &
+        skip_restart, &
         rc) result(var_spec)
 
       type(VariableSpec) :: var_spec
@@ -206,6 +208,7 @@ contains
       type(ESMF_TimeInterval), optional, intent(in) :: offset
       type(StringVector), optional, intent(in) :: vector_component_names
       logical, optional, intent(in) :: has_deferred_aspects
+      logical, optional, intent(in) :: skip_restart
       integer, optional, intent(out) :: rc
 
 !#      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
@@ -240,6 +243,7 @@ contains
       _SET_OPTIONAL(offset)
       _SET_OPTIONAL(vector_component_names)
       _SET_OPTIONAL(has_deferred_aspects)
+      _SET_OPTIONAL(skip_restart)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -554,7 +558,10 @@ contains
 
       select case (this%itemType%ot)
       case (MAPL_STATEITEM_FIELD%ot)
-         aspect = FieldClassAspect(standard_name=this%standard_name, default_value=this%default_value)
+         aspect = FieldClassAspect( &
+              standard_name=this%standard_name, &
+              default_value=this%default_value, &
+              skip_restart=this%skip_restart)
       case (MAPL_STATEITEM_FIELDBUNDLE%ot)
          aspect = FieldBundleClassAspect(standard_name=this%standard_name)
       case (MAPL_STATEITEM_STATE%ot)
