@@ -24,7 +24,7 @@ module mapl3g_FieldClassAspect
    use mapl3g_ESMF_Utilities, only: get_substate
 
    use mapl3g_Field_API
-   use mapl3g_FieldInfo, only: FieldInfoSetInternal
+   use mapl3g_FieldInfo, only: FieldInfoSetInternal, FieldInfoSetPrivate
    use mapl3g_RestartModes, only: MAPL_RESTART_MODE
 
    use mapl_FieldUtilities
@@ -49,6 +49,8 @@ module mapl3g_FieldClassAspect
       type(ESMF_Field) :: payload
       character(:), allocatable :: standard_name
       character(:), allocatable :: long_name
+      character(:), allocatable :: short_name
+      character(:), allocatable :: gridcomp_name
       real(kind=ESMF_KIND_R4), allocatable :: default_value
       integer(kind=kind(MAPL_RESTART_MODE)), allocatable :: restart_mode
    contains
@@ -86,10 +88,18 @@ module mapl3g_FieldClassAspect
 
 contains
 
-   function new_FieldClassAspect(standard_name, long_name, default_value, restart_mode) result(aspect)
+   function new_FieldClassAspect( &
+        standard_name, &
+        long_name, &
+        short_name, &
+        gridcomp_name, &
+        default_value, &
+        restart_mode) result(aspect)
       type(FieldClassAspect) :: aspect
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
+      character(*), optional, intent(in) :: short_name
+      character(*), optional, intent(in) :: gridcomp_name
       real(kind=ESMF_KIND_R4), optional, intent(in) :: default_value
       integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(in) :: restart_mode
 
@@ -102,11 +112,22 @@ contains
       if (present(long_name)) then
          aspect%long_name = long_name
       end if
+
+      if (present(short_name)) then
+         aspect%short_name = short_name
+      end if
+
+      if (present(gridcomp_name)) then
+         aspect%gridcomp_name = gridcomp_name
+      end if
+
       if (present(default_value)) then
          aspect%default_value = default_value
       end if
 
-      if (present(restart_mode)) aspect%restart_mode = restart_mode
+      if (present(restart_mode)) then
+         aspect%restart_mode = restart_mode
+      end if
    end function new_FieldClassAspect
 
    function get_aspect_order(this, goal_aspects, rc) result(aspect_ids)
@@ -299,7 +320,7 @@ contains
 
       if (allocated(this%restart_mode)) then
          call ESMF_InfoGetFromHost(this%payload, info, _RC)
-         call FieldInfoSetInternal(info, restart_mode=this%restart_mode, _RC)
+         call FieldInfoSetPrivate(info, this%gridcomp_name, this%short_name, restart_mode=this%restart_mode, _RC)
       end if
 
       _RETURN(_SUCCESS)

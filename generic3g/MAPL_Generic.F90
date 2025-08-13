@@ -40,11 +40,8 @@ module mapl3g_Generic
    use mapl_InternalConstantsMod
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
-   use esmf, only: ESMF_Info
-   use esmf, only: ESMF_InfoGetFromHost
-   use esmf, only: ESMF_InfoGet
-   use esmf, only: ESMF_InfoIsSet
-   use esmf, only: ESMF_GridComp
+   use esmf, only: ESMF_Info, ESMF_InfoIsSet, ESMF_InfoGet, ESMF_InfoGetFromHost
+   use esmf, only: ESMF_GridComp, ESMF_GridCompGet
    use esmf, only: ESMF_Geom, ESMF_GeomCreate, ESMF_GeomGet
    use esmf, only: ESMF_Grid, ESMF_Mesh, ESMF_Xgrid, ESMF_LocStream
    use esmf, only: ESMF_STAGGERLOC_INVALID
@@ -52,9 +49,8 @@ module mapl3g_Generic
    use esmf, only: ESMF_Method_Flag
    use esmf, only: ESMF_StateIntent_Flag, ESMF_STATEINTENT_INTERNAL
    use esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
-   use esmf, only: ESMF_KIND_R8, ESMF_KIND_R4
-   use esmf, only: ESMF_Time, ESMF_TimeInterval, ESMF_TimeIntervalGet, ESMF_Clock
-   use esmf, only: ESMF_ClockGet
+   use esmf, only: ESMF_MAXSTR
+   use esmf, only: ESMF_Time, ESMF_TimeInterval, ESMF_TimeIntervalGet, ESMF_Clock, ESMF_ClockGet
    use esmf, only: ESMF_State, ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD
    use esmf, only: operator(==)
    use pflogger, only: logger_t => logger
@@ -517,6 +513,7 @@ contains
       type(ComponentSpec), pointer :: component_spec
       character(len=:), allocatable :: units_
       type(UngriddedDims), allocatable :: dim_specs_vec
+      character(len=ESMF_MAXSTR) :: gridcomp_name
       integer :: status
 
       _ASSERT((dims=="xyz") .or. (dims=="xy") .or. (dims=="z"), "dims can be one of xyz/xy/z")
@@ -528,9 +525,11 @@ contains
       ! If input units is present, override using input values
       if (present(units)) units_ = units
       if (present(ungridded_dims)) dim_specs_vec = UngriddedDims(ungridded_dims)
+      call ESMF_GridCompGet(gridcomp, name=gridcomp_name, _RC)
       var_spec = make_VariableSpec( &
            state_intent, &
            short_name, &
+           gridcomp_name=trim(gridcomp_name), &
            standard_name=standard_name, &
            units=units_, &
            itemType=itemType, &
