@@ -104,7 +104,6 @@ contains
 
       call ESMF_StateGet(exportState, itemName='export[1]', field=f, _RC)
 
-      call ESMF_StateGet(exportState, itemName='export[1]', field=f, _RC)
       call MAPL_StateEval(this%input_state, this%expression, f, _RC)
 
       _RETURN(_SUCCESS)
