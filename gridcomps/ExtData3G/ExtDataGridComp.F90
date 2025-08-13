@@ -131,6 +131,7 @@ contains
          call iter%next()
          export_item => iter%of() 
          if (export_item%is_constant) cycle
+
          export_name = export_item%get_export_var_name()
          call ESMF_StateGet(exportState, export_name, bundle, _RC) 
          call export_item%update_my_bracket(bundle, current_time, weights, _RC)
