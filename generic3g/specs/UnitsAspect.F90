@@ -70,6 +70,7 @@ contains
       class is (UnitsAspect)
          supports_conversion_specific = .true.
          if (src%units == dst%units) return ! allow silly units so long as they are the same
+         if (src%units == "<unknown>" .or. dst%units == "<unknown>") return 
          supports_conversion_specific = are_convertible(src%units, dst%units, rc=ignore)
       class default
          supports_conversion_specific = .false.
@@ -83,7 +84,9 @@ contains
 
       select type(dst)
       class is (UnitsAspect)
-         matches = (src%units == dst%units)
+         matches = (src%units == dst%units) .or. &
+                   (src%units == "<unknown>") .or. &
+                   (dst%units == "<unknown>")
       class default
          matches = .false.
       end select

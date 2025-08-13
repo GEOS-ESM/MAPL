@@ -45,9 +45,6 @@ contains
 
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       
-      ! ESMF has a bug, for now we will not merge hconfig until fixed
-      !merged_configs = ESMF_HConfigCreate(_RC)
-      ! instead pass hconfig and this will have to traverse the subconfigs for now
       call add_var_specs(gridcomp, hconfig, _RC)
 
       _SET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE)
@@ -106,7 +103,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine modify_advertise
 
-   ! this is just to do something now. Obviously this is not how it will look...
    subroutine run(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp)   :: gridcomp
       type(ESMF_State)      :: importState
@@ -134,6 +130,7 @@ contains
       do while (iter /= extdata_gridcomp%export_vector%ftn_end())
          call iter%next()
          export_item => iter%of() 
+         if (export_item%is_constant) cycle
          export_name = export_item%get_export_var_name()
          call ESMF_StateGet(exportState, export_name, bundle, _RC) 
          call export_item%update_my_bracket(bundle, current_time, weights, _RC)

@@ -31,9 +31,9 @@ contains
       logical :: is_seq, file_found
       integer :: status, i
       character(len=:), allocatable :: sub_configs(:)
-      type(ESMF_HConfig) :: sub_config, export_config
+      type(ESMF_HConfig) :: sub_config, export_config, temp_config
       type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
-      character(len=:), allocatable :: short_name
+      character(len=:), allocatable :: short_name, collection_name
       type(VariableSpec) :: varspec
 
       if (ESMF_HConfigIsDefined(hconfig, keyString='subconfigs')) then
@@ -53,9 +53,17 @@ contains
          hconfigIterEnd = ESMF_HConfigIterEnd(export_config)
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             short_name = ESMF_HConfigAsStringMapKey(hconfigIter, _RC)
-            varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name, &
-            itemType=MAPL_STATEITEM_BRACKET, bracket_size = 2, &
-            _RC)
+            temp_config = ESMF_HConfigCreateAtMapVal(hconfigIter, _RC)
+            collection_name = ESMF_HConfigAsString(temp_config, keyString='collection', _RC)
+            if (collection_name == "/dev/null") then
+               varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name, &
+               expression="17.0", units="<unknown>", &
+               _RC)
+            else
+               varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name, &
+               itemType=MAPL_STATEITEM_BRACKET, bracket_size = 2, &
+               _RC)
+            end if
             call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
          enddo
       end if
@@ -89,6 +97,7 @@ contains
       type(ESMF_StateItem_Flag), allocatable :: itemTypeList(:)
       integer itemCount,i
       type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field) :: field
       logical :: is_active
 
       call ESMF_StateGet(state, itemCount=itemCount, _RC)
@@ -96,9 +105,15 @@ contains
       allocate(itemTypeList(itemCount), _STAT)
       call ESMF_StateGet(state, itemTypeList=itemTypeList, itemNameList=itemNameList, _RC)
       do i=1,itemCount
-         _ASSERT(itemTypeList(i) == ESMF_STATEITEM_FIELDBUNDLE, 'all items in extdata exprot should be fieldbundles')
-         call ESMF_StateGet(state, trim(itemNameList(i)), bundle, _RC)
-         call MAPL_FieldBundleGet(bundle, is_active=is_active, _RC)
+         if (itemTypeList(i) == ESMF_STATEITEM_FIELDBUNDLE) then
+         !_ASSERT(itemTypeList(i) == ESMF_STATEITEM_FIELDBUNDLE, 'all items in extdata exprot should be fieldbundles')
+            call ESMF_StateGet(state, trim(itemNameList(i)), bundle, _RC)
+            call MAPL_FieldBundleGet(bundle, is_active=is_active, _RC)
+         else if (itemTypeList(i) == ESMF_STATEITEM_FIELD) then
+         !_ASSERT(itemTypeList(i) == ESMF_STATEITEM_FIELDBUNDLE, 'all items in extdata exprot should be fieldbundles')
+            call ESMF_StateGet(state, trim(itemNameList(i)), field, _RC)
+            call MAPL_FieldGet(field, is_active=is_active, _RC)
+         end if
          if (is_active) call active_list%push_back(trim(itemNameList(i)))
       enddo 
 
