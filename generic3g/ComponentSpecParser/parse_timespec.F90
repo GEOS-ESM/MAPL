@@ -1,6 +1,7 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_ComponentSpecParser) parse_timespec_smod
+   use mapl3g_HConfig_API
    implicit none(type,external)
    
 contains
@@ -27,15 +28,11 @@ contains
          
          integer :: status
          logical :: has_timestep
-         character(len=128) :: iso_duration
-         type(ESMF_TimeInterval) :: interval
 
          has_timestep = ESMF_HConfigIsDefined(hconfig, keyString=KEY_TIMESTEP, _RC)
          _RETURN_UNLESS(has_timestep)
 
-         iso_duration = ESMF_HConfigAsString(hconfig, keyString=KEY_TIMESTEP, _RC)
-         call ESMF_TimeIntervalSet(interval, timeIntervalString=iso_duration, _RC)
-         timeStep = interval
+         timestep = mapl_HConfigAsTimeInterval(hconfig, keystring=KEY_TIMESTEP, _RC)
 
          _RETURN(_SUCCESS)
       end subroutine parse_timestep
@@ -47,15 +44,11 @@ contains
 
          integer :: status
          logical :: has_offset
-         character(len=32) :: iso_duration
-         type(ESMF_TimeInterval) :: duration
 
          has_offset = ESMF_HConfigIsDefined(hconfig, keyString=KEY_RUN_TIME_OFFSET, _RC)
          _RETURN_UNLESS(has_offset)
 
-         iso_duration = ESMF_HConfigAsString(hconfig, keyString=KEY_RUN_TIME_OFFSET, _RC)
-         call ESMF_TimeIntervalSet(duration, timeIntervalString=iso_duration, _RC)
-         offset = duration
+         offset = mapl_HConfigAsTimeInterval(hconfig, keystring=KEY_TIMESTEP, _RC)
 
          _RETURN(_SUCCESS)
 
