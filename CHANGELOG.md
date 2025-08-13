@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Minor bug fix in pfio `test_prefetch_data` test
 - Fixed stretched grid target lat/lon unit conversion in ExtData
 - Fix a typo in trajectory sampler
+- Change a few keyword names in sampler for consistency with HISTORY
 
 ### Added
 
