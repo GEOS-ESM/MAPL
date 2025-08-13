@@ -1,11 +1,18 @@
-
-!----------------------------------------------------------------------------
-!BOP
-
-! !MODULE: MAPL_MaxMinMod --- Global Max/Min of Arrays
-
-! !INTERFACE:
-
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!>
+!### MODULE: `MAPL_MaxMinMod`
+!
+! Author: GMAO SI-Team
+!
+! `MAPL_MaxMinMod` --- Global Max/Min of Arrays
+!
+! This module implements functions for calculating/printing out the global min/max
+! of fortran arrays. Derived from GEOS-4 pmaxmin() functions.
+!
    module MAPL_MaxMinMod
 
 
@@ -13,6 +20,7 @@
 
       Use ESMF
       Use MAPL_CommsMod
+      Use mpi
 
       implicit None
 
@@ -20,11 +28,6 @@
 !
       private
       public  MAPL_MaxMin
-
-! !DESCRIPTION:  This module implements functions for calculating/printing out the global min/max
-!                 of fortran arrays. Derived from GEOS-4 pmaxmin() functions.
-
-!EOP
 
       interface MAPL_MaxMin
 
@@ -42,7 +45,7 @@ CONTAINS
 
   subroutine pmaxmin3d_r4 ( qname, a, pmin, pmax, fac )
       implicit none
-      character*(*),                intent(in)  :: qname        ! label to print
+      character(len=*),             intent(in)  :: qname        ! label to print
       real(ESMF_KIND_R4),           intent(in)  :: a(:,:,:)     ! input array
       real(ESMF_KIND_R4), optional, intent(in)  :: fac          ! multiplication factor
       real(ESMF_KIND_R4), optional, intent(out) :: pmax, pmin   ! min/max value
@@ -56,7 +59,7 @@ CONTAINS
     subroutine pmaxmin2d_r4 ( qname, a, pmin_, pmax_, fac_ )
 
       implicit none
-      character*(*),                intent(in)  :: qname        ! label to print
+      character(len=*),             intent(in)  :: qname        ! label to print
       real(ESMF_KIND_R4),           intent(in)  :: a(:,:)       ! input array
       real(ESMF_KIND_R4), optional, intent(in)  :: fac_         ! multiplication factor
       real(ESMF_KIND_R4), optional, intent(out) :: pmax_, pmin_ ! min/max value
@@ -64,21 +67,19 @@ CONTAINS
 
       real(ESMF_KIND_R4) :: pmax, pmin, fac
 
-      integer :: im, jt
-
       integer :: i, j, two=2
 
-      real, allocatable :: qmin(:), qmax(:)
       real pm1(2)
       real pm_res(2)
       type(ESMF_VM) :: vm
 
       character(len=16) :: name
+!NOTE: the current version does not trap error conditions returned in status
       integer :: status
-
-      im = size(a,1)
-      jt = size(a,2)
-      allocate(qmin(jt),qmax(jt))
+      integer :: comm
+      logical :: has_nans
+      logical :: has_nans_local
+      character(len=:), allocatable :: buf
 
       if ( present(fac_) ) then
          fac = fac_
@@ -88,41 +89,32 @@ CONTAINS
 
       call ESMF_VmGetCurrent(vm=vm, rc=status)
 
-      do j=1,jt
-         pmax = a(1,j)
-         pmin = a(1,j)
-         do i=2,im
-            pmax = max(pmax, a(i,j))
-            pmin = min(pmin, a(i,j))
-         enddo
-         qmax(j) = pmax
-         qmin(j) = pmin
-      enddo
-!
-! Now find max/min of amax/amin
-!
-      pmax = qmax(1)
-      pmin = qmin(1)
-      do j=2,jt
-         pmax = max(pmax, qmax(j))
-         pmin = min(pmin, qmin(j))
-      enddo
+      has_nans_local = any(a /= a)
+
+      pmin = minval(a, mask=(a==a))
+      pmax = maxval(a, mask=(a==a))
 
       pm1(1) = pmax
       pm1(2) = -pmin
       call MAPL_CommsAllReduceMax(vm, sendbuf=pm1, recvbuf=pm_res, cnt=two, RC=status)
       pmax=pm_res(1)
       pmin=-pm_res(2)
-     
+
       if ( present(pmax_) ) pmax_ = pmax
       if ( present(pmin_) ) pmin_ = pmin
-      deallocate(qmax,qmin)
+
+      call ESMF_VmGet(VM, mpicommunicator=comm, rc=status)
+      call MPI_Reduce(has_nans_local, has_nans, 1, MPI_LOGICAL, MPI_LOR, 0, comm, status)
 
       if ( fac /= 0.0 ) then  ! trick to prevent printing
-         if ( MAPL_am_I_root() ) then
+         if ( MAPL_am_I_root(vm) ) then
             name = '            '
             name(1:len(qname)) = qname
-            write(*,*) name, ' max = ', pmax*fac, ' min = ', pmin*fac
+            buf = ""
+            if (has_nans) then
+               buf = " has NaN"
+            end if
+            write(*,*) name, ' max = ', pmax*fac, ' min = ', pmin*fac, buf
             return
          end if
       end if
@@ -133,7 +125,7 @@ CONTAINS
 
     subroutine pmaxmin1d_r4 ( qname, a, pmin, pmax, fac )
       implicit none
-      character*(*),                intent(in)  :: qname        ! label to print
+      character(len=*),             intent(in)  :: qname        ! label to print
       real(ESMF_KIND_R4),           intent(in)  :: a(:)         ! input array
       real(ESMF_KIND_R4), optional, intent(in)  :: fac          ! multiplication factor
       real(ESMF_KIND_R4), optional, intent(out) :: pmax, pmin   ! min/max value
@@ -148,12 +140,12 @@ CONTAINS
 
   subroutine pmaxmin3d_r8 ( qname, a, pmin, pmax, fac )
       implicit none
-      character*(*),                intent(in)  :: qname        ! label to print
+      character(len=*),             intent(in)  :: qname        ! label to print
       real(ESMF_KIND_R8),           intent(in)  :: a(:,:,:)     ! input array
       real(ESMF_KIND_R8), optional, intent(in)  :: fac          ! multiplication factor
       real(ESMF_KIND_R8), optional, intent(out) :: pmax, pmin   ! min/max value
 !                         ---
-      real(ESMF_KIND_R4) :: pmin_r4, pmax_r4, fac_r4 
+      real(ESMF_KIND_R4) :: pmin_r4, pmax_r4, fac_r4
       if ( present(fac) ) then
          fac_r4 = fac
       else
@@ -166,12 +158,12 @@ CONTAINS
 
   subroutine pmaxmin2d_r8 ( qname, a, pmin, pmax, fac )
       implicit none
-      character*(*),                intent(in)  :: qname        ! label to print
+      character(len=*),             intent(in)  :: qname        ! label to print
       real(ESMF_KIND_R8),           intent(in)  :: a(:,:)     ! input array
       real(ESMF_KIND_R8), optional, intent(in)  :: fac          ! multiplication factor
       real(ESMF_KIND_R8), optional, intent(out) :: pmax, pmin   ! min/max value
 !                         ---
-      real(ESMF_KIND_R4) :: pmin_r4, pmax_r4, fac_r4 
+      real(ESMF_KIND_R4) :: pmin_r4, pmax_r4, fac_r4
       if ( present(fac) ) then
          fac_r4 = fac
       else
@@ -184,12 +176,12 @@ CONTAINS
 
   subroutine pmaxmin1d_r8 ( qname, a, pmin, pmax, fac )
       implicit none
-      character*(*),                intent(in)  :: qname        ! label to print
+      character(len=*),             intent(in)  :: qname        ! label to print
       real(ESMF_KIND_R8),           intent(in)  :: a(:)         ! input array
       real(ESMF_KIND_R8), optional, intent(in)  :: fac          ! multiplication factor
       real(ESMF_KIND_R8), optional, intent(out) :: pmax, pmin   ! min/max value
 !                         ---
-      real(ESMF_KIND_R4) :: pmin_r4, pmax_r4, fac_r4 
+      real(ESMF_KIND_R4) :: pmin_r4, pmax_r4, fac_r4
       if ( present(fac) ) then
          fac_r4 = fac
       else

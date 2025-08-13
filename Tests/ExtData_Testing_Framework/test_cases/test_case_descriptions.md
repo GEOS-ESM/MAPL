@@ -21,7 +21,7 @@ path_to_script/run_extdatadriver_cases.py --builddir path_to_geos_install/bin --
 14. Testing that we can take a climatology for a non-leap year and interpolate to a leap year. Daily files each with 1 value for 2007 (non-leap year). Interpolate to 02/29/2008 (leap year)
 15. Testing that we can take a climatology for a non-leap year and interpolate to a non-leap year. Daily files each with 1 value for 2007 (non-leap year). Interpolate to 03/29/2006 (leap year)
 16. Testing that we can take a climatology for a leap year and interpolate to a non-leap year. Daily files each with 1 value for 2008 (leap year). Interpolate to 03/29/2006 15z (leap year)
-17. Not used
+17. Test ability of ExtData (2G only) to allow for subconfigs, i.e. split input yaml files into multiple files
 18. Test vector regridding
 19. Test set file to /dev/null
 20. Make daily files for 2016. Then start on February 29th in 2020 and allow extrapolation outside of dataset a climatology
@@ -30,4 +30,17 @@ path_to_script/run_extdatadriver_cases.py --builddir path_to_geos_install/bin --
 23. Test multiple datasets and treat Climatology in the first and a real-time in the 2nd
 24. Test reading cubed-sphere input
 25. Test reading edge variable
-26. Test reading edge + cetner variables
+26. Test reading edge + center variables
+27. Case with a "gap" in the data
+28. "Replay" type run, update every time
+29. "Replay" type run, update once a day with offset
+30. Case1 with deflate compression
+31. Case1 with deflate compression and MAPL bit-shaving
+32. Case1 with deflate compression and NetCDF bitgroom quantization (only enabled if netcdf built with quantization support)
+33. Case1 with deflate compression and NetCDF bitround quantization (only enabled if netcdf built with quantization support)
+34. Case1 with deflate compression and NetCDF granular_bitround quantization (only enabled if netcdf built with quantization support)
+35. Case1 with zstandard compression (only enabled if netcdf built with zstandard support)
+36. Case1 with zstandard compression and NetCDF granular_bitround quantization (only enabled if netcdf built with quantization
+    support and zstandard support)
+37. Test that when time interpolation is off, missing files is allowed, that the last read value is persisted during the period of the missing file
+38. Test when there are no files available, but the collection is not /dev/null, set fail_on_missing_file false, and exact so that the pointer is set ot MAPL_UNDEF 

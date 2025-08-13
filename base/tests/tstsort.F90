@@ -15,27 +15,27 @@ enddo
 a4 = a
 
 
-!!$c=a
-!!$call qsort(c,d2,5,0)
-!!$print *, c
-!!$
-!!$c=a
-!!$d2=b2
-!!$call qsort(c,d2,5,3)
-!!$print *, c
-!!$
-!!$do j=1,3
-!!$print *, j, '===', d2(j,:)
-!!$end do
-!!$
-!!$
-!!$c  = a
-!!$d1 = b1
-!!$call qsort(c,d1,5,-3)
-!!$print *, c
-!!$do j=1,3
-!!$print *, j, '===', d1(:,j)
-!!$end do
+!C$c=a
+!C$call qsort(c,d2,5,0)
+!C$print *, c
+!C$
+!C$c=a
+!C$d2=b2
+!C$call qsort(c,d2,5,3)
+!C$print *, c
+!C$
+!C$do j=1,3
+!C$print *, j, '===', d2(j,:)
+!C$end do
+!C$
+!C$
+!C$c  = a
+!C$d1 = b1
+!C$call qsort(c,d1,5,-3)
+!C$print *, c
+!C$do j=1,3
+!C$print *, j, '===', d1(:,j)
+!C$end do
 
 
 C=A

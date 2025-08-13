@@ -1,6 +1,9 @@
+#define I_AM_MAIN
+#include "MAPL_ErrLog.h"
 program main
    use MPI
    use MAPL_Profiler
+   use MAPL_ErrorHandlingMod
    implicit none
 
 
@@ -12,15 +15,16 @@ program main
 
    character(:), allocatable :: report_lines(:)
    integer :: i
-   integer :: ierror
+   integer :: ierror, rc, status
 
    call MPI_Init(ierror)
+   _VERIFY(ierror)
    main_prof = TimeProfiler('TOTAL')   ! timer 1
    call main_prof%start()
    lap_prof = TimeProfiler('Lap')
    call lap_prof%start()
    !mem_prof = MemoryProfiler('TOTAL')
-   
+
    call main_prof%start('init reporter')
    call reporter%add_column(NameColumn(20))
    call reporter%add_column(FormattedTextColumn('#-cycles','(i5.0)', 5, NumCyclesColumn()))

@@ -18,6 +18,7 @@ module pFIO_ProtocolParserMod
    use pFIO_CollectivePrefetchDataMessageMod
    use pFIO_CollectiveStageDataMessageMod
    use pFIO_ModifyMetadataMessageMod
+   use pFIO_ReplaceMetadataMessageMod
    use pFIO_HandShakeMessageMod
    use pFIO_DummyMessageMod
    use pFIO_ForwardDataMessageMod
@@ -68,6 +69,7 @@ contains
       type (CollectivePrefetchDataMessage) :: CollectivePrefetchData
       type (CollectiveStageDataMessage)    :: CollectiveStageData
       type (ModifyMetadataMessage) :: ModifyMetadata
+      type (ReplaceMetadataMessage) :: ReplaceMetadata
       type (HandShakeMessage) :: handshake
       type (DummyMessage) :: dummy
       type (ForwardDataMessage) :: ForwardData
@@ -90,6 +92,8 @@ contains
       call add_prototype(CollectiveStageData)
       ModifyMetaData = ModifyMetadataMessage(collection_id=-1)
       call add_prototype(ModifyMetadata)
+      ReplaceMetaData = ReplaceMetadataMessage(-1, FileMetadata())
+      call add_prototype(ReplaceMetadata)
       call add_prototype(handshake)
       call add_prototype(dummy)
       call add_prototype(ForwardData)

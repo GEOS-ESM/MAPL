@@ -14,7 +14,7 @@ module pFIO_AbstractRequestHandleMod
    abstract interface
       subroutine wait(this, rc)
          import AbstractRequestHandle
-         class (AbstractRequestHandle), intent(inout) :: this
+         class (AbstractRequestHandle), target, intent(inout) :: this
          integer, optional, intent(out) :: rc      
       end subroutine wait
    end interface

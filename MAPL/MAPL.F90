@@ -10,6 +10,13 @@ module MAPL
    use mapl_StubComponent
    use MAPL_ESMFFieldBundleRead
    use MAPL_ESMFFieldBundleWrite
+   use MAPL_OpenMP_Support, only : MAPL_get_current_thread => get_current_thread
+   use MAPL_OpenMP_Support, only : MAPL_get_num_threads => get_num_threads
+   use MAPL_OpenMP_Support, only : MAPL_find_bounds => find_bounds
+   use MAPL_OpenMP_Support, only : MAPL_Interval => Interval
+   use MAPL_Profiler, initialize_profiler =>initialize, finalize_profiler =>finalize
+   use MAPL_FieldUtils
+   use MAPL_StateUtils
    implicit none
 end module MAPL
 

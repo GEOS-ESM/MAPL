@@ -1,4 +1,25 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
 !
+#include "MAPL_Generic.h"
+!
+!>
+!### MODULE: `module_name`
+!
+! Author: GMAO SI-Team
+!
+! `RUTMod` - Implements Interface to a minimalistic MAPL GC that
+! serves as a parent of the MAPL_ExtData GC
+!
+! `RUT` Root Utility Test is a minimalistic parent grid component that creates 
+! ExtData grid component.
+!
+!#### History
+!- 29Sep2011  Anton Darmenov  Implemented as part of the ExtData utility test.
+!```
 ! ut_ExtaData.x - Simple ESMF/MAPL example demonstrating 
 !                 MAPL_ExtDataGridComp
 !
@@ -30,27 +51,7 @@
 !    NUM_SGMT:     1
 !    HEARTBEAT_DT:       1800
 !    # ----------------------------
-!
-!
-!
-! REVISION HISTORY:
-!
-! 29 Sep 2011    Anton Darmenov   First implementation
-!
-
-
-#include "MAPL_Generic.h"
-
-
-!-------------------------------------------------------------------------
-!     NASA/GSFC, Global Modeling and Assimilation Office, Code 610.1     !
-!-------------------------------------------------------------------------
-!BOP
-!
-! !MODULE: RUTMod - Implements Interface to a minimalistic MAPL GC that
-!                   serves as a parent of the MAPL_ExtData GC
-!
-! !INTERFACE:
+!```
 !
    MODULE RUTMod
 !
@@ -70,51 +71,30 @@
    PUBLIC SetServices
 
    integer :: ExtData
-
-
-
 !
-! !DESCRIPTION: 
-!
-!  {\tt RUT} Root Utility Test is a minimalistic parent grid component that creates 
-!  ExtData grid component.
-!
-!
-! !REVISION HISTORY:
-!
-!  29 Sep 2011  Anton Darmenov  Implemented as part of the ExtData 
-!                               utility test.
-!
-!EOP
 !-------------------------------------------------------------------------
 
-
 CONTAINS
-
 
 !-------------------------------------------------------------------------
 !     NASA/GSFC, Global Modeling and Assimilation Office, Code 610.1     !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `SetServices` --- Sets IRF services for the RUT
 !
-! !IROUTINE: SetServices --- Sets IRF services for the RUT
+! Sets Initialize, Run and Finalize services.
 !
-! !INTERFACE:
-
+!#### History
+!- 29Sep2011  Anton Darmenov   Cloned from the ExtData GC code
+!
    SUBROUTINE SetServices ( GC, RC )
 
 ! !ARGUMENTS:
 
-    type(ESMF_GridComp), intent(INOUT) :: GC  ! gridded component
-    integer, optional                  :: RC  ! return code
+    type(ESMF_GridComp), intent(INOUT) :: GC  !! gridded component
+    integer, optional                  :: RC  !! return code
 
-! !DESCRIPTION: Sets Initialize, Run and Finalize services. 
 !
-! !REVISION HISTORY:
-!
-!  29 Sep 2011  Anton Darmenov   Cloned from the ExtData GC code
-!
-!EOP
 !-------------------------------------------------------------------------
 
                             __Iam__('SetServices')
@@ -127,7 +107,7 @@ CONTAINS
 
 !   Get my name and set-up traceback handle
 !   ---------------------------------------
-    call ESMF_GridCompGet( GC, name=comp_name, __RC__ )
+    call ESMF_GridCompGet( GC, name=comp_name, _RC )
     Iam = trim(comp_name) // '::' // trim(Iam)
 
 !   Greetings
@@ -139,17 +119,17 @@ CONTAINS
 
 !   Set the Initialize, Run, Finalize entry points
 !   ----------------------------------------------
-    call MAPL_GridCompSetEntryPoint ( GC, ESMF_SETINIT,  Initialize_, __RC__ )
-    call MAPL_GridCompSetEntryPoint ( GC, ESMF_SETRUN,   Run_,        __RC__ )
-    call MAPL_GridCompSetEntryPoint ( GC, ESMF_SETFINAL, Finalize_,   __RC__ )
+    call MAPL_GridCompSetEntryPoint ( GC, ESMF_SETINIT,  Initialize_, _RC )
+    call MAPL_GridCompSetEntryPoint ( GC, ESMF_SETRUN,   Run_,        _RC )
+    call MAPL_GridCompSetEntryPoint ( GC, ESMF_SETFINAL, Finalize_,   _RC )
 
 !   Add the ExtData as a child
 !   --------------------------
-    ExtData = MAPL_AddChild ( GC, NAME='ExtData', SS=ExtData_SetServices, __RC__ )
+    ExtData = MAPL_AddChild ( GC, NAME='ExtData', SS=ExtData_SetServices, _RC )
 
 !   Generic Set Services
 !   --------------------
-    call MAPL_GenericSetServices ( GC, __RC__ )
+    call MAPL_GenericSetServices ( GC, _RC )
 
 !   All done
 !   --------
@@ -162,13 +142,14 @@ CONTAINS
 !-------------------------------------------------------------------------
 !     NASA/GSFC, Global Modeling and Assimilation Office, Code 610.1     !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `Initialize_` --- Initialize RUT
 !
-! !IROUTINE:  Initialize_ --- Initialize RUT
+! This is a simple ESMF wrapper.
 !
-! !INTERFACE:
+!#### History
+!- 29Sep2011  Anton Darmenov   Cloned from the ExtData GC code
 !
-
    SUBROUTINE Initialize_ ( GC, IMPORT, EXPORT, CLOCK, rc )
 
 ! !USES:
@@ -177,24 +158,18 @@ CONTAINS
 
 ! !INPUT PARAMETERS:
 
-   type(ESMF_Clock),  intent(inout) :: CLOCK     ! The clock
+   type(ESMF_Clock),  intent(inout) :: CLOCK     !! The clock
 
 ! !OUTPUT PARAMETERS:
 
-   type(ESMF_GridComp), intent(inout) :: GC      ! Grid Component
-   type(ESMF_State), intent(inout) :: IMPORT     ! Import State
-   type(ESMF_State), intent(inout) :: EXPORT     ! Export State
-   integer, intent(out)            :: rc         ! Error return code:
-                                                 !  0 - all is well
-                                                 !  1 - 
+   type(ESMF_GridComp), intent(inout) :: GC      !! Grid Component
+   type(ESMF_State), intent(inout) :: IMPORT     !! Import State
+   type(ESMF_State), intent(inout) :: EXPORT     !! Export State
+   integer, intent(out)            :: rc         !! Error return code:    
+                                                 !!  0 - all is well    
+                                                 !!  1 -     
 
-! !DESCRIPTION: This is a simple ESMF wrapper.
 !
-! !REVISION HISTORY:
-!
-!  29 Sep 2011  Anton Darmenov   Cloned from the ExtData GC code
-!
-!EOP
 !-------------------------------------------------------------------------
 
                               __Iam__('Initialize_')
@@ -207,17 +182,17 @@ CONTAINS
   
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
-   call ESMF_GridCompGet( GC, name=comp_name, config=CF, __RC__ )
+   call ESMF_GridCompGet( GC, name=comp_name, config=CF, _RC )
    Iam = trim(comp_name) // '::' // trim(Iam)
 
 !  Create grid for this GC
 !  ------------------------
-   call MAPL_GridCreate  (GC, __RC__ )
-   call ESMF_GridCompGet (GC, grid=GRID, __RC__)
+   call MAPL_GridCreate  (GC, _RC )
+   call ESMF_GridCompGet (GC, grid=GRID, _RC)
 
 !  Initialize MAPL Generic
 !  -----------------------
-   call MAPL_GenericInitialize ( GC, IMPORT, EXPORT, clock,  __RC__ )
+   call MAPL_GenericInitialize ( GC, IMPORT, EXPORT, clock,  _RC )
 
 !  All done
 !  --------
@@ -229,11 +204,13 @@ CONTAINS
 !-------------------------------------------------------------------------
 !     NASA/GSFC, Global Modeling and Assimilation Office, Code 610.1     !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `Run_` --- Runs RUT
 !
-! !IROUTINE:  Run_ --- Runs RUT
+! This is a simple ESMF wrapper.
 !
-! !INTERFACE:
+!#### History
+!- 29Sep2011  Anton Darmenov   Cloned from the ExtData GC code
 !
 
    SUBROUTINE Run_ ( GC, IMPORT, EXPORT, CLOCK, rc )
@@ -244,24 +221,18 @@ CONTAINS
 
 ! !INPUT PARAMETERS:
 
-   type(ESMF_Clock),  intent(inout) :: CLOCK     ! The clock
+   type(ESMF_Clock),  intent(inout) :: CLOCK     !! The clock
 
 ! !OUTPUT PARAMETERS:
 
-   type(ESMF_GridComp), intent(inout)  :: GC     ! Grid Component
-   type(ESMF_State), intent(inout) :: IMPORT     ! Import State
-   type(ESMF_State), intent(inout) :: EXPORT     ! Export State
-   integer, intent(out) ::  rc                   ! Error return code:
-                                                 !  0 - all is well
-                                                 !  1 - 
+   type(ESMF_GridComp), intent(inout)  :: GC     !! Grid Component   
+   type(ESMF_State), intent(inout) :: IMPORT     !! Import State   
+   type(ESMF_State), intent(inout) :: EXPORT     !! Export State   
+   integer, intent(out) ::  rc                   !! Error return code:   
+                                                 !!  0 - all is well   
+                                                 !!  1 -    
 
-! !DESCRIPTION: This is a simple ESMF wrapper.
 !
-! !REVISION HISTORY:
-!
-!  29 Sep 2011  Anton Darmenov   Cloned from the ExtData GC code
-!
-!EOP
 !-------------------------------------------------------------------------
 
                               __Iam__('Run_')
@@ -272,12 +243,12 @@ CONTAINS
 
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
-   call ESMF_GridCompGet( GC, name=comp_name, __RC__ )
+   call ESMF_GridCompGet( GC, name=comp_name, _RC )
    Iam = trim(comp_name) // '::' // trim(Iam)
 
 !   Call Run for every Child
 !   -------------------------
-    call MAPL_GenericRunChildren ( GC, IMPORT, EXPORT, CLOCK,  __RC__)
+    call MAPL_GenericRunChildren ( GC, IMPORT, EXPORT, CLOCK,  _RC)
 
 
 !  All done
@@ -289,13 +260,14 @@ CONTAINS
 !-------------------------------------------------------------------------
 !     NASA/GSFC, Global Modeling and Assimilation Office, Code 610.1     !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `Finalize_` --- Finalize RUT
 !
-! !IROUTINE:  Finalize_ --- Finalize RUT
+! This is a simple ESMF wrapper.
 !
-! !INTERFACE:
+!#### History
+!- 29Sep2011  Anton Darmenov   Cloned from the ExtData GC code
 !
-
    SUBROUTINE Finalize_ ( GC, IMPORT, EXPORT, CLOCK, rc )
 
 ! !USES:
@@ -304,24 +276,18 @@ CONTAINS
 
 ! !INPUT PARAMETERS:
 
-   type(ESMF_Clock),  intent(inout) :: CLOCK      ! The clock
+   type(ESMF_Clock),  intent(inout) :: CLOCK      !! The clock
 
 ! !OUTPUT PARAMETERS:
 
-   type(ESMF_GridComp), intent(inout)  :: GC     ! Grid Component
-   type(ESMF_State), intent(inout) :: IMPORT     ! Import State
-   type(ESMF_State), intent(inout) :: EXPORT     ! Export State
-   integer, intent(out) ::  rc                   ! Error return code:
-                                                 !  0 - all is well
-                                                 !  1 - 
+   type(ESMF_GridComp), intent(inout)  :: GC     !! Grid Component
+   type(ESMF_State), intent(inout) :: IMPORT     !! Import State
+   type(ESMF_State), intent(inout) :: EXPORT     !! Export State
+   integer, intent(out) ::  rc                   !! Error return code:    
+                                                 !!  0 - all is well    
+                                                 !!  1 -     
 
-! !DESCRIPTION: This is a simple ESMF wrapper.
 !
-! !REVISION HISTORY:
-!
-!  29 Sep 2011  Anton Darmenov   Cloned from the ExtData GC code
-!
-!EOP
 !-------------------------------------------------------------------------
 
                               __Iam__('Finalize_')
@@ -331,12 +297,12 @@ CONTAINS
 
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
-   call ESMF_GridCompGet( GC, name=comp_name, __RC__ )
+   call ESMF_GridCompGet( GC, name=comp_name, _RC )
    Iam = trim(comp_name) // trim(Iam)
 
 !  Finalize MAPL Generic
 !  ---------------------
-   call MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK,  __RC__ )
+   call MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK,  _RC )
 
 !  All done
 !  --------

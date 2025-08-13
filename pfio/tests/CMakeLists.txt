@@ -45,6 +45,7 @@ add_pfunit_ctest(MAPL.pfio.tests
                 MAX_PES 8
                 )
 set_target_properties(MAPL.pfio.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+set_tests_properties(MAPL.pfio.tests PROPERTIES LABELS "ESSENTIAL")
 
 include_directories(
    ${CMAKE_CURRENT_SOURCE_DIR}
@@ -63,10 +64,7 @@ ecbuild_add_executable (
   SOURCES pfio_ctest_io.F90
   LIBS MAPL.shared MAPL.pfio NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   DEFINITIONS USE_MPI)
-# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
-if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-   target_link_libraries(${TESTO} OpenMP::OpenMP_Fortran)
-endif ()
+target_link_libraries(${TESTO} OpenMP::OpenMP_Fortran)
 set_target_properties(${TESTO} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
 # Detect if we are using Open MPI and add oversubscribe
@@ -125,11 +123,7 @@ ecbuild_add_executable (
   SOURCES pfio_performance.F90
   DEFINITIONS USE_MPI
   LIBS MAPL.pfio NetCDF::NetCDF_Fortran MPI::MPI_Fortran)
-# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
-if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-   target_link_libraries(${TESTPERF} OpenMP::OpenMP_Fortran)
-endif ()
-target_link_libraries(${TESTPERF} MAPL.pfio NetCDF::NetCDF_Fortran)
+target_link_libraries(${TESTPERF} MAPL.pfio NetCDF::NetCDF_Fortran OpenMP::OpenMP_Fortran)
 set_target_properties(${TESTPERF} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
 add_test(NAME pFIO_performance

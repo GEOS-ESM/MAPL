@@ -4,6 +4,8 @@ module mapl_RegridMethods
    private
 
    public :: REGRID_HINT_LOCAL
+   public :: REGRID_HINT_FILE_WEIGHTS
+   public :: REGRID_HINT_COMPUTE_TRANSPOSE
    public :: REGRID_METHOD_IDENTITY
    public :: REGRID_METHOD_BILINEAR
    public :: REGRID_METHOD_BILINEAR_MONOTONIC
@@ -18,8 +20,8 @@ module mapl_RegridMethods
    public :: REGRID_METHOD_CONSERVE_HFLUX
    public :: UNSPECIFIED_REGRID_METHOD
    public :: TILING_METHODS
-   public :: get_regrid_method
-   public :: translate_regrid_method
+   public :: regrid_method_string_to_int
+   public :: regrid_method_int_to_string
 
    enum, bind(c)
       enumerator :: REGRID_METHOD_IDENTITY
@@ -38,10 +40,12 @@ module mapl_RegridMethods
    end enum
    integer, parameter :: TILING_METHODS(3) = [REGRID_METHOD_CONSERVE,REGRID_METHOD_VOTE,REGRID_METHOD_FRACTION]
    integer, parameter :: REGRID_HINT_LOCAL = 1
+   integer, parameter :: REGRID_HINT_FILE_WEIGHTS = 2
+   integer, parameter :: REGRID_HINT_COMPUTE_TRANSPOSE = 4
 
    contains
 
-   function get_regrid_method(string_regrid_method) result(int_regrid_method)
+   function regrid_method_string_to_int(string_regrid_method) result(int_regrid_method)
       integer :: int_regrid_method
       character(len=*), intent(in) :: string_regrid_method
 
@@ -78,7 +82,7 @@ module mapl_RegridMethods
       end select
    end function
 
-   function translate_regrid_method(int_regrid_method) result(string_regrid_method)
+   function regrid_method_int_to_string(int_regrid_method) result(string_regrid_method)
       integer, intent(in) :: int_regrid_method
       character(len=:), allocatable :: string_regrid_method
 

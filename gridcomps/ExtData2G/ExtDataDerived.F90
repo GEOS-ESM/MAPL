@@ -2,12 +2,10 @@
 #include "MAPL_ErrLog.h"
 module MAPL_ExtDataDerived
    use ESMF
-   use yaFyaml
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
    use gFTL_StringVector
-   use MAPL_NewArthParserMod
-   use MAPL_ExtDataMask
+   use MAPL_StateUtils
    implicit none
    private
 
@@ -27,7 +25,7 @@ module MAPL_ExtDataDerived
 contains
 
    function new_ExtDataDerived(config,unusable,rc) result(rule)
-      class(YAML_Node), intent(in) :: config
+      type(ESMF_HConfig), intent(in) :: config
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -39,17 +37,17 @@ contains
 
 
       if (allocated(tempc)) deallocate(tempc)
-      is_present = config%has("function")
-      _ASSERT(is_present,"no expression found in derived entry") 
-      call config%get(tempc,"function",rc=status)
-      _VERIFY(status)
-      rule%expression=tempc
+      is_present = ESMF_HConfigIsDefined(config,keyString="function",_RC)
+      _ASSERT(is_present,"no expression found in derived entry")
+      if (is_present) then
+         tempc = ESMF_HConfigAsString(config,keyString="function",_RC)
+         rule%expression=tempc
+      end if
 
       if (allocated(tempc)) deallocate(tempc)
-      is_present = config%has("sample")
+      is_present = ESMF_HConfigIsDefined(config,keyString="sample",_RC)
       if (is_present) then
-         call config%get(tempc,"sample",rc=status)
-         _VERIFY(status)
+         tempc = ESMF_HConfigAsString(config,keyString="sample",_RC)
          rule%sample_key=tempc
       end if
 
@@ -62,19 +60,19 @@ contains
       integer, intent(out), optional :: rc
 
       integer :: status
-      type(ExtDataMask), allocatable :: temp_mask
+      type(StateMask), allocatable :: temp_mask
 
       if (index(this%expression,"mask")/=0) then
          allocate(temp_mask)
-         temp_mask = ExtDataMask(this%expression)
-         variables_in_expression = temp_mask%get_mask_variables(_RC) 
+         temp_mask = StateMask(this%expression)
+         variables_in_expression = temp_mask%get_mask_variables(_RC)
       else
          variables_in_expression = parser_variables_in_expression(this%expression,_RC)
       end if
       _RETURN(_SUCCESS)
 
    end function
-      
+
 
    subroutine set_defaults(this,unusable,rc)
       class(ExtDataDerived), intent(inout), target :: this
@@ -90,7 +88,7 @@ contains
       class(ExtDataDerived) :: this
       write(*,*)"function: ",trim(this%expression)
    end subroutine display
- 
+
 end module MAPL_ExtDataDerived
 
 module MAPL_ExtDataDerivedMap

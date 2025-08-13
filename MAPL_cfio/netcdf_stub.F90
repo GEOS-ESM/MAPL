@@ -8,12 +8,12 @@
 ! miscellaneous routines:
 !
 function nf_inq_libvers() result(status)
-  character*80 :: status
+  character(len=80) :: status
   status=''
 end function nf_inq_libvers
 
 function nf_strerror() result(status)
-  character*80 :: status
+  character(len=80) :: status
   status=''
 end function nf_strerror
 

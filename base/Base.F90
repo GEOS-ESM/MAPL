@@ -20,7 +20,6 @@ module MAPLBase_Mod
   use MAPL_SunMod
   use MAPL_LocStreamMod
   use MAPL_InterpMod
-  use MAPL_HeapMod
   use MAPL_SatVaporMod
   use MAPL_MemUtilsMod
   use MAPL_HashMod
@@ -36,12 +35,12 @@ module MAPLBase_Mod
   use MAPL_RegridMethods
   use MAPL_GridManagerMod
   use MAPL_LatLonGridFactoryMod
+  use MAPL_EASEGridFactoryMod
   use MAPL_CubedSphereGridFactoryMod
   use MAPL_ExternalGridFactoryMod
   use MAPL_ShmemMod
   use MAPL_MaxMinMod
   use MAPL_SimpleBundleMod
-  use MAPL_NewArthParserMod
   use MAPL_DirPathMod
   use MAPL_KeywordEnforcerMod
   use MAPL_SimpleCommSplitterMod
@@ -49,6 +48,10 @@ module MAPLBase_Mod
   use MAPL_EtaHybridVerticalCoordinateMod
   use MAPL_ApplicationSupport
   use MAPL_ServerManager
+  use MAPL_FileMetadataUtilsMod
+  use MAPL_VerticalDataMod
+  use MAPL_SphericalGeometry
+  use MAPL_EASEConversion
   logical, save, private :: mapl_is_initialized = .false.
 
 end module MAPLBase_Mod

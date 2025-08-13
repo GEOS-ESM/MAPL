@@ -468,6 +468,7 @@ program main
    use performace_CLI
    use FakeHistDataMod
    use MAPL_ExceptionHandling
+   use pFlogger, only: pflogger_init => initialize
    implicit none
 
    integer :: rank, npes, ierror
@@ -492,6 +493,7 @@ program main
 
    call process_command_line(options, rc=status)
 
+   call pflogger_init()
    directory_service = DirectoryService(MPI_COMM_WORLD)
 
    my_icomm   = MPI_COMM_NULL

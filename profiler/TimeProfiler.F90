@@ -109,6 +109,7 @@ contains
       time_profiler => get_global_time_profiler()
       time_profiler = TimeProfiler(name_, comm_world = world_comm)
 
+      _UNUSED_DUMMY(unusable)
    end subroutine initialize_global_time_profiler
 
    subroutine finalize_global_time_profiler()
@@ -130,8 +131,9 @@ contains
       call time_profiler%start(rc=status)
       _VERIFY(status)
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine start_global_time_profiler
-   
+
    subroutine stop_global_time_profiler(unusable, rc)
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -142,6 +144,7 @@ contains
       call time_profiler%stop(rc=status)
       _VERIFY(status)
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine stop_global_time_profiler
 
 end module mapl_TimeProfiler

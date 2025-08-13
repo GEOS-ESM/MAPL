@@ -37,7 +37,7 @@ contains
       @assertEqual(0, prof%get_status())
       call prof%stop('timer_1', rc=status) ! not the current timer
 
-!!$      @assertEqual(INCORRECTLY_NESTED_METERS, prof%get_status())
+!C$      @assertEqual(INCORRECTLY_NESTED_METERS, prof%get_status())
       @assertExceptionRaised('Timer <timer_1> does not match start timer <timer_2>')
       call prof%finalize()
       

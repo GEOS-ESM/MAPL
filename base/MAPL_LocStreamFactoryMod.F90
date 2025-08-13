@@ -19,7 +19,9 @@ module LocStreamFactoryMod
       real(kind=REAL64), allocatable :: lons(:)
       real(kind=REAL64), allocatable :: lats(:)
       contains
-         procedure :: create_locstream
+        procedure :: create_locstream
+        procedure :: create_locstream_on_proc
+        procedure :: destroy_locstream
    end type
 
    interface LocStreamFactory
@@ -35,9 +37,9 @@ module LocStreamFactoryMod
          class (KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
          integer :: status
-      
+
          _UNUSED_DUMMY(unusable)
- 
+
          _ASSERT(size(lons)==size(lats),"Lats and Lons for locstream must be same size")
          allocate(factory%lons,source=lons,stat=status)
          _VERIFY(status)
@@ -57,7 +59,7 @@ module LocStreamFactoryMod
          integer :: my_pet,local_count,status
          real(kind=REAL64), allocatable :: tlons(:),tlats(:)
 
-         _UNUSED_DUMMY(unusable) 
+         _UNUSED_DUMMY(unusable)
          call ESMF_VMGetCurrent(vm,rc=status)
          _VERIFY(status)
          call ESMF_VMGet(vm,localPet=my_pet,rc=status)
@@ -93,5 +95,50 @@ module LocStreamFactoryMod
          end if
          _RETURN(_SUCCESS)
       end function create_locstream
+
+      function create_locstream_on_proc (this,unusable,grid,rc) result(locstream)
+         type(ESMF_LocStream) :: locstream
+         class (LocStreamFactory) :: this
+         class (KeywordEnforcer), optional, intent(in) :: unusable
+         type(ESMF_Grid), optional :: grid
+         integer, optional, intent(out) :: rc
+
+         integer :: local_count,status
+         real(kind=REAL64), allocatable :: tlons(:),tlats(:)
+
+         local_count = size(this%lons)
+         allocate(tlons(size(this%lons)),source=this%lons,stat=status)
+         _VERIFY(status)
+         allocate(tlats(size(this%lats)),source=this%lats,stat=status)
+         _VERIFY(status)
+
+         tlons=tlons*MAPL_PI_R8/180.0d0
+         tlats=tlats*MAPL_PI_R8/180.0d0
+
+         locstream = ESMF_LocStreamCreate(localCount=local_count,coordSys=ESMF_COORDSYS_SPH_RAD,_RC)
+         call ESMF_LocStreamAddKey(locstream,keyName="ESMF:Lat",farray=tlats,datacopyflag=ESMF_DATACOPY_VALUE, &
+                 keyUnits="Radians", keyLongName="Latitude",_RC)
+         call ESMF_LocStreamAddKey(locstream,keyName="ESMF:Lon",farray=tlons,datacopyflag=ESMF_DATACOPY_VALUE, &
+                 keyUnits="Radians", keyLongName="Longitude",_RC)
+
+         if (present(grid)) then
+            locstream = ESMF_LocStreamCreate(locstream,background=grid,_RC)
+         end if
+         _RETURN(_SUCCESS)
+       end function create_locstream_on_proc
+
+      subroutine destroy_locstream(this,locstream,rc)
+        class (LocStreamFactory) :: this
+        type(ESMF_LocStream) :: locstream
+        integer, optional, intent(out) :: rc
+        integer :: status
+
+        if (allocated(this%lons)) deallocate (this%lons)
+        if (allocated(this%lats)) deallocate (this%lats)
+        call ESMF_LocStreamDestroy (locstream,noGarbage=.true.,_RC)
+
+        _RETURN(_SUCCESS)
+      end subroutine destroy_locstream
+
 
 end module LocStreamFactoryMod

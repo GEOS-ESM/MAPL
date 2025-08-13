@@ -16,11 +16,9 @@ module mapl_BaseFrameworkComponent
       class(AbstractComponent), allocatable :: component
       type(ComponentSpecification) :: component_spec
       type(MaplGrid) :: grid
-      ! type(PhaseMap) :: run_phase_map
    contains
       procedure :: set_component
       procedure :: get_component
-      procedure :: get_internal_state
    end type BaseFrameworkComponent
 
 contains
@@ -43,11 +41,5 @@ contains
    end function get_component
 
    
-   function get_internal_state(this) result(state)
-      type(ESMF_State), pointer :: state
-      class(BaseFrameworkComponent), target, intent(in) :: this
-
-      state => this%component%get_internal_state()
-   end function get_internal_state
 
 end module mapl_BaseFrameworkComponent

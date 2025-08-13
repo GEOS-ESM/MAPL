@@ -1,4 +1,16 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!
 #include "MAPL_ErrLog.h"
+!
+!>
+!### MODULE: `ESMFL_MOD`
+!
+! Author: GMAO SI-Team
+!
 
 #if 0
 stubbed routines
@@ -28,11 +40,9 @@ module ESMFL_MOD
   private
 
 !
-!ALT These need to be changed!!! values here are just to compile
+!ALT These need to be changed
+!    values here are just to compile
 !
-
-  !DEFINED PARAMETERS:
-  integer, parameter, public :: ESMFL_UnitsRadians = 99
 
   !PUBLIC MEMBER FUNCTIONS:
   public ESMFL_StateGetField
@@ -64,6 +74,7 @@ module ESMFL_MOD
   public MAPL_AreaMean
   public ESMFL_Diff
   public ESMFL_statistics
+  public ESMFL_field_is_undefined
   !EOP
 
   ! regridding
@@ -103,6 +114,7 @@ module ESMFL_MOD
   interface ESMFL_Add2Bundle
     module procedure Add2Bundle
   end interface
+
   interface ESMFL_BundleAddState
     module procedure BundleAddState_
   end interface
@@ -244,7 +256,7 @@ contains
 
       call ESMF_FieldBundleGet(BUNDLE, FIELDNAME=NameInBundle, isPresent=isPresent, rc=STATUS)
       _VERIFY(STATUS)
-      _ASSERT(.not. isPresent, trim(NameInBundle) // ' not found in bundle.')
+      _ASSERT(.not. isPresent, trim(NameInBundle) // ' found in bundle.')
 
 ! Get Field from State
 
@@ -1070,14 +1082,14 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    call ESMFL_GridCoordGet(   DSTGRID, LATS                   , &
                               Name     = "Latitude"              , &
                               Location = ESMF_CELL_CENTER        , &
-                              Units    = ESMFL_UnitsRadians      , &
+                              Units    = MAPL_UnitsRadians      , &
                               RC       = STATUS                    )
    _VERIFY(STATUS)
 
    call ESMFL_GridCoordGet(   DSTGRID, LONS                   , &
                               Name     = "Longitude"             , &
                               Location = ESMF_CELL_CENTER        , &
-                              Units    = ESMFL_UnitsRadians      , &
+                              Units    = MAPL_UnitsRadians      , &
                               RC       = STATUS                    )
    _VERIFY(STATUS)
 
@@ -1124,16 +1136,16 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !-------------------------------------------------------------------------
 !  NASA/GSFC, Global Modeling and Assimilation Office, Code 610.3, GMAO  !
 !-------------------------------------------------------------------------
-!BOP
-
-! !IROUTINE: ESMFL_RegridStore
-
-! !INTERFACE:
-
+!>
+! Given a `srcFLD` and its associated `3dGrid` and a `dstFLD` and its associated
+! `3DGrid`, the subroutine `ESMFL_RegridStore` creates their corresponding
+! `2DGrids` and a 2D routehandle.
+!
+!#### History
+!- 17Oct2005  Cruz  Initial code.
+!
    subroutine ESMFL_RegridStore (srcFLD, SRCgrid2D, dstFLD, DSTgrid2D, &
                                  vm, rh, rc)
-!
-! !USES:
 !
    implicit NONE
 
@@ -1146,17 +1158,6 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    type(ESMF_RouteHandle), intent(inout) :: rh
    type(ESMF_VM), intent(in)             :: vm  ! should be intent IN
    integer, optional, intent(OUT)        :: rc
-
-! !DESCRIPTION:
-!
-! Given a srcFLD and its associated 3dGrid and a dstFLD and its associated
-! 3DGrid create their corresponding 2DGrids and a 2D routehandle.
-
-!EOP
-!
-! !REVISION HISTORY:
-!
-!  17Oct2005  Cruz  Initial code.
 !
 !-------------------------------------------------------------------------
 
@@ -1203,7 +1204,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    _VERIFY(status)
    call ESMF_ArrayGet(srcARR, RANK=rank, rc=status)
    _VERIFY(status)
-   ! datamap - with rank=2!!!
+   ! datamap - with rank=2!
    call ESMF_FieldDataMapSetDefault(dmap, 2, rc=status)
    _VERIFY(STATUS)
 
@@ -1464,17 +1465,14 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !-------------------------------------------------------------------------
 !  NASA/GSFC, Global Modeling and Assimilation Office, Code 610.3, GMAO  !
 !-------------------------------------------------------------------------
-!BOP
-
-! !IROUTINE: FieldRegrid1
-
-! !INTERFACE:
-
+!>
+! The subroutine `FieldRegrid1` regrids 3D fields using ESMF_FieldRegrid.
+!
+!#### History
+!- 17Oct2005  Cruz  Initial code.
+!
    subroutine FieldRegrid1 (srcFLD, Sgrid2D, dstFLD, Dgrid2D, &
                                    vm, rh, fname, rc)
-
-!
-! !USES:
 !
   implicit NONE
 
@@ -1489,15 +1487,6 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    ! assumes name of src and dst are the same!!
    character(len=*), intent(in)          :: fname
    integer, optional, intent(out)        :: rc
-
-! !DESCRIPTION:
-!     Regrid 3D fields using ESMF\_FieldRegrid
-!
-!EOP
-
-! !REVISION HISTORY:
-!
-!  17Oct2005  Cruz  Initial code.
 !
 !-------------------------------------------------------------------------
 
@@ -1536,7 +1525,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    call ESMF_ArrayGet(dstARR, RANK=rank, rc=status)
    _VERIFY(status)
 
-   ! datamap - with rank=2!!!
+   ! datamap - with rank=2!
    call ESMF_FieldDataMapSetDefault(dmap, 2, rc=status)
    _VERIFY(STATUS)
 
@@ -1651,17 +1640,15 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !-------------------------------------------------------------------------
 !  NASA/GSFC, Global Modeling and Assimilation Office, Code 610.3, GMAO  !
 !-------------------------------------------------------------------------
-!BOP
-
-! !IROUTINE: BundleRegrid1
-
-! !INTERFACE:
-
+!>
+! The subroutine `BundleRegrid1`
+! regrids members of a bundle using ESMF_FieldRegrid.
+!
+!#### History
+!- 17Apr2006  Cruz  Initial code.
+!
    subroutine BundleRegrid1 (srcBUN, Sgrid2D, dstBUN, Dgrid2D, &
                              vm, rh, rc)
-
-!
-! !USES:
 !
   implicit NONE
 
@@ -1674,15 +1661,6 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    type(ESMF_RouteHandle), intent(inout) :: rh
    type(ESMF_VM), intent(inout)          :: vm
    integer, optional, intent(out)        :: rc
-
-! !DESCRIPTION:
-!     ESMF\_Regrid a bundle
-!
-!EOP
-
-! !REVISION HISTORY:
-!
-!  17Apr2006  Cruz  Initial code.
 !
 !-------------------------------------------------------------------------
 
@@ -1834,32 +1812,15 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !-------------------------------------------------------------------------
 !  NASA/GSFC, Global Modeling and Assimilation Office, Code 610.3, GMAO  !
 !-------------------------------------------------------------------------
-!BOP
-
-! !IROUTINE: BundleRegrid
-
-! !INTERFACE:
-
-   subroutine BundleRegrid (srcBUN, dstBUN, rc)
-
+!>
+! The subroutine `BundleRegrid`
+! regrids a source bundle (srcBUN) into a destination bundle (dstBUN)
+! using hinterp. A bundle is thought of as being comprised of n 2D
+! slices (nslices) distributed among the n PEs (ns_per_pe). The
+! limits among each ns_per_pe region are given by n1 and n2 which
+! are functions of mype (the local PE):
 !
-! !USES:
-!
-  implicit NONE
-
-! !ARGUMENTS:
-
-   type(ESMF_FieldBundle), intent(inout)      :: srcBUN ! source bundle
-   type(ESMF_FieldBundle), intent(inout)      :: dstBUN ! destination bundle
-   integer, optional, intent(out)        :: rc     ! return code
-
-! !DESCRIPTION:
-!     Regrid a source bundle (srcBUN) into a destination bundle (dstBUN)
-!     using hinterp. A bundle is thought of as being comprised of n 2D
-!     slices (nslices) distributed among the n PEs (ns\_per\_pe). The
-!     limits among each ns\_per\_pe region are given by n1 and n2 which
-!     are functions of mype (the local PE):
-!     \begin{verbatim}
+!```
 !                                                     slice_pe
 !           1 --- n1(pe=0)  -                     -->    0
 !           2 ---            |                    -->    0
@@ -1881,19 +1842,24 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !              .                                         .
 !              .                                         .
 !     nslices --- n2(pe=n)                        -->   npe
+!```
 !
-!     \end{verbatim}
-!     Each slice is gathered, regridded (hinterp), and scattered on
-!     a PE determined by a slice-to-PE map (slice\_pe) to "load balance"
-!     the work of the serial hinterp function.
+! Each slice is gathered, regridded (hinterp), and scattered on
+! a PE determined by a slice-to-PE map (slice\_pe) to "load balance"
+! the work of the serial hinterp function.
 !
-!EOP
+!#### History
+!- 24Apr2006  Cruz  Initial code.
+!
+   subroutine BundleRegrid (srcBUN, dstBUN, rc)
+!
+  implicit NONE
 
-! !REVISION HISTORY:
-!
-!  24Apr2006  Cruz  Initial code.
-!
-!-------------------------------------------------------------------------
+! !ARGUMENTS:
+
+   type(ESMF_FieldBundle), intent(inout)      :: srcBUN !! source bundle
+   type(ESMF_FieldBundle), intent(inout)      :: dstBUN !! destination bundle
+   integer, optional, intent(out)             :: rc     !! return code
 
 ! local vars
 
@@ -1998,39 +1964,24 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !-------------------------------------------------------------------------
 !  NASA/GSFC, Global Modeling and Assimilation Office, Code 610.3, GMAO  !
 !-------------------------------------------------------------------------
-!BOP
-
-! !IROUTINE:  Bundle_Prep_
-
-! !INTERFACE:
-
+!>
+! The subroutine `Bundle_Prep_` prepares for regridding.
+!
+!#### History
+!- 24Apr2006  Cruz  Initial code.
+!
    subroutine Bundle_Prep_ (srcBUN, dstBUN, only_vars)
-
 !
-! !USES:
-!
-  implicit NONE
-
 ! !ARGUMENTS:
 
-   type(ESMF_FieldBundle), intent(inout)      :: srcBUN !ALT: intent(in)
+   type(ESMF_FieldBundle), intent(inout)      :: srcBUN !! ALT: intent(in)
    type(ESMF_FieldBundle), intent(inout)      :: dstBUN
-   character(len=*), optional, intent(in):: only_vars ! comma separated,
-                                                      ! no spaces
-! !DESCRIPTION:
-!     Prepare for regridding
-!
-!EOP
-
-! !REVISION HISTORY:
-!
-!  24Apr2006  Cruz  Initial code.
-!
+   character(len=*), optional, intent(in):: only_vars   !! comma separated, no spaces
 !-------------------------------------------------------------------------
 
 ! locals
 
-   type(ESMF_Array) :: srcArr, dstArr
+   type(ESMF_Array) :: srcArr
    type(ESMF_Field) :: srcFld, dstFld
    integer :: rank
    integer :: sCPD(3), dCPD(3)   ! src and dst counts per dimension (local)
@@ -2131,7 +2082,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    call ESMFL_GridCoordGet(   srcGrid, llats                     , &
                               Name     = "Latitude"              , &
                               Location = ESMF_STAGGERLOC_CENTER  , &
-                              Units    = ESMFL_UnitsRadians      , &
+                              Units    = MAPL_UnitsRadians      , &
                               RC       = STATUS                    )
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
    allocate(gLats(ims_world,jms_world), stat=status)
@@ -2148,7 +2099,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    call ESMFL_GridCoordGet(   srcGrid, llons                     , &
                               Name     = "Longitude"             , &
                               Location = ESMF_STAGGERLOC_CENTER  , &
-                              Units    = ESMFL_UnitsRadians      , &
+                              Units    = MAPL_UnitsRadians      , &
                               RC       = STATUS                    )
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
    allocate(gLons(ims_world,jms_world), stat=status)
@@ -2199,37 +2150,26 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !-------------------------------------------------------------------------
 !  NASA/GSFC, Global Modeling and Assimilation Office, Code 610.3, GMAO  !
 !-------------------------------------------------------------------------
-!BOP
-
-! !IROUTINE: assign_slices_
-
-! !INTERFACE:
-
-   subroutine assign_slices_ (nslices, mype, npe, slice_pe, nfirst, nlast)
-
+!>
+! The subroutine `assign_slices_`
+! determines number of bundle slices per PE and "load balanced"
+! map of slices-to-pes (slice_pe).
 !
-! !USES:
+!#### History
+!- 24Apr2006  Cruz  Initial code.
+!
+   subroutine assign_slices_ (nslices, mype, npe, slice_pe, nfirst, nlast)
 !
   implicit NONE
 
 ! !ARGUMENTS:
 
-   integer, intent(in)    :: nslices       ! number of slices
-   integer, intent(in)    :: mype          ! local PE
-   integer, intent(in)    :: npe           ! number of PEs
-   integer, intent(inout) :: slice_pe(:)   ! slice-to-pe map
+   integer, intent(in)    :: nslices       !! number of slices
+   integer, intent(in)    :: mype          !! local PE
+   integer, intent(in)    :: npe           !! number of PEs
+   integer, intent(inout) :: slice_pe(:)   !! slice-to-pe map
    integer, intent(out)   :: nfirst
    integer, intent(out)   :: nlast
-
-! !DESCRIPTION:
-!     Determine number of bundle slices per PE and "load balanced"
-!     map of slices-to-pes (slice\_pe)
-!
-!EOP
-
-! !REVISION HISTORY:
-!
-!  24Apr2006  Cruz  Initial code.
 !
 !-------------------------------------------------------------------------
 
@@ -2282,16 +2222,15 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !-------------------------------------------------------------------------
 !  NASA/GSFC, Global Modeling and Assimilation Office, Code 610.3, GMAO  !
 !-------------------------------------------------------------------------
-!BOP
-
-! !IROUTINE: Do_Gathers_
-
-! !INTERFACE:
-
-   subroutine Do_Gathers_ (BUN, BUF)
-
+!>
+! The subroutine `Do_Gathers_` gathers FLDs in a BUNdle on all PEs into a BUFfer.
 !
-! !USES:
+! Note: local adressing is used.
+!
+!#### History
+!- 28Apr2006  Cruz  Initial code.
+!
+   subroutine Do_Gathers_ (BUN, BUF)
 !
   implicit NONE
 
@@ -2299,16 +2238,6 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
    type(ESMF_FieldBundle), intent(inout)         :: BUN
    real(kind=REAL32), intent(inout), dimension(:,:,:) :: BUF
-
-! !DESCRIPTION:
-!    gather FLDs in a BUNdle on all PEs into a BUFfer
-!    Note: local adressing is used
-!
-!EOP
-
-! !REVISION HISTORY:
-!
-!  28Apr2006  Cruz  Initial code.
 !
 !-------------------------------------------------------------------------
 
@@ -2409,16 +2338,13 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !-------------------------------------------------------------------------
 !  NASA/GSFC, Global Modeling and Assimilation Office, Code 610.3, GMAO  !
 !-------------------------------------------------------------------------
-!BOP
-
-! !IROUTINE: Do_Regrid_
-
-! !INTERFACE:
-
-   subroutine Do_Regrid_ (n, inBuf, outBuf)
-
+!>
+! The subroutine `Do_Regrid_` calls `hinterp` on local PE.
 !
-! !USES:
+!#### History
+!- 28Apr2006  Cruz  Initial code.
+!
+   subroutine Do_Regrid_ (n, inBuf, outBuf)
 !
   implicit NONE
 
@@ -2427,15 +2353,6 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    integer, intent(in)                    :: n      ! slice index
    real(kind=REAL32), intent(inout), dimension(:,:) :: inBuf  ! source buffer
    real(kind=REAL32), intent(inout), dimension(:,:) :: outBuf ! destination buffer
-
-! !DESCRIPTION:
-!     Call hinterp on local PE
-!
-!EOP
-
-! !REVISION HISTORY:
-!
-!  28Apr2006  Cruz  Initial code.
 !
 !-------------------------------------------------------------------------
 
@@ -2457,16 +2374,15 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !-------------------------------------------------------------------------
 !  NASA/GSFC, Global Modeling and Assimilation Office, Code 610.3, GMAO  !
 !-------------------------------------------------------------------------
-!BOP
-
-! !IROUTINE: Do_Scatters_
-
-! !INTERFACE:
-
-   subroutine Do_Scatters_ (BUN, BUF)
-
+!>
+! The subroutine `Do_Scatters_` scatters from BUffer onto FLDs in a BUNdle.
 !
-! !USES:
+! Note: local adressing is used.
+!
+!#### History
+!- 28Apr2006  Cruz  Initial code.
+!
+   subroutine Do_Scatters_ (BUN, BUF)
 !
   implicit NONE
 
@@ -2474,16 +2390,6 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
    type(ESMF_FieldBundle), intent(inout)         :: BUN
    real(kind=REAL32), intent(inout), dimension(:,:,:) :: BUF
-
-! !DESCRIPTION:
-!    scatter from BUffer onto FLDs in a BUNdle
-!    Note: local adressing is used
-!
-!EOP
-
-! !REVISION HISTORY:
-!
-!  28Apr2006  Cruz  Initial code.
 !
 !-------------------------------------------------------------------------
 
@@ -2670,16 +2576,13 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !-------------------------------------------------------------------------
 !  NASA/GSFC, Global Modeling and Assimilation Office, Code 610.3, GMAO  !
 !-------------------------------------------------------------------------
-!BOP
-
-! !IROUTINE: StateRegrid
-
-! !INTERFACE:
-
-   subroutine StateRegrid (srcSTA, dstSTA, rc)
-
+!>
+! The subroutine `StateRegrid` regrids a state.
 !
-! !USES:
+!#### History
+!- 19Apr2006  Cruz  Initial code.
+!
+   subroutine StateRegrid (srcSTA, dstSTA, rc)
 !
   implicit NONE
 
@@ -2687,16 +2590,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
    type(ESMF_State), intent(inout)  :: srcSTA
    type(ESMF_State), intent(inout)  :: dstSTA
-   integer, optional, intent(out)   :: rc     ! return code
-
-! !DESCRIPTION:
-!     Regrid a state
-!
-!EOP
-
-! !REVISION HISTORY:
-!
-!  19Apr2006  Cruz  Initial code.
+   integer, optional, intent(out)   :: rc      !! return code
 !
 !-------------------------------------------------------------------------
 
@@ -2847,16 +2741,14 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !-------------------------------------------------------------------------
 !  NASA/GSFC, Global Modeling and Assimilation Office, Code 610.3, GMAO  !
 !-------------------------------------------------------------------------
-!BOP
-
-! !IROUTINE: ESMFL_FieldGetDims
-
-! !INTERFACE:
-
-   subroutine ESMFL_FieldGetDims(FLD, gCPD, lCPD, lm, ar)
-
+!>
+! The subroutine `ESMFL_FieldGetDims`
+! returns some grid information associated from an ESMF field.
 !
-! !USES:
+!#### History
+!- 24Apr2006  Cruz  Initial code.
+!
+   subroutine ESMFL_FieldGetDims(FLD, gCPD, lCPD, lm, ar)
 !
   implicit NONE
 
@@ -2867,15 +2759,6 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    integer, optional, intent(out)       :: lCPD(3)
    integer, optional, intent(out)       :: lm
    integer, optional, intent(out)       :: ar
-
-! !DESCRIPTION:
-!     Return some grid information associated from an ESMF field
-!
-!EOP
-
-! !REVISION HISTORY:
-!
-!  24Apr2006  Cruz  Initial code.
 !
 !-------------------------------------------------------------------------
 
@@ -2926,33 +2809,21 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !-------------------------------------------------------------------------
 !  NASA/GSFC, Global Modeling and Assimilation Office, Code 610.3, GMAO  !
 !-------------------------------------------------------------------------
-!BOP
-
-! !IROUTINE: BundleDiff
-
-! !INTERFACE:
-
-   subroutine BundleDiff (srcBUN, dstBUN, rc)
-
+!>
+! The subroutine `BundleDiff` determines the diff of two bundles.
 !
-! !USES:
+!#### History
+!- 24Apr2006  Cruz  Initial code.
+!
+   subroutine BundleDiff (srcBUN, dstBUN, rc)
 !
   implicit NONE
 
 ! !ARGUMENTS:
 
-   type(ESMF_FieldBundle), intent(inout) :: srcBUN
+   type(ESMF_FieldBundle),           intent(inout) :: srcBUN
    type(ESMF_FieldBundle), optional, intent(inout) :: dstBUN
-   integer, optional, intent(out)   :: rc     ! return code
-
-! !DESCRIPTION:
-!     diff two bundles
-!
-!EOP
-
-! !REVISION HISTORY:
-!
-!  24Apr2006  Cruz  Initial code.
+   integer,                optional, intent(out)   :: rc     !! return code
 !
 !-------------------------------------------------------------------------
 
@@ -3114,11 +2985,21 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
 CONTAINS
 
+         logical function spv(aspv, amiss)
+            real, intent(in) :: aspv
+            real, intent(in) :: amiss
+
+            real, parameter :: rfrcval = 1.0e-6
+
+            spv = abs((aspv-amiss)/amiss).le.rfrcval
+         end function spv
+
+!>
+! Print statistics of one 3-d variable. This is from the PSAS library.
+! with some simplifications.
+!
         subroutine stats_ (lu,mx,my,k,a1,&
                            atype,htype,amiss,header,inc, a2)
-
-!       Print statistics of one 3-d variable. This is from the PSAS library.
-!       with some simplifications
 
         implicit none
 
@@ -3129,7 +3010,7 @@ CONTAINS
         character(*), intent(in) :: atype       ! Type of the variable
         character(*), intent(in) :: htype       ! Typf of the levels
         real amiss              ! missing value flag of a
-        character*(*) header    ! A header message
+        character(len=*) header    ! A header message
         integer inc             ! order of the listing
         real,optional :: a2(mx,my)        ! The array2
 !
@@ -3144,16 +3025,9 @@ CONTAINS
 !       ..A practical value for the magnitude of the fraction of a real
 !       number.
 
-        real rfrcval
-        parameter(rfrcval=1.e-5)
-
-        character*255 dash
+        character(len=255) dash
 
 !       ..function
-
-        logical spv
-        real aspv
-        spv(aspv)=abs((aspv-amiss)/amiss).le.rfrcval
 
 !       compute diff
         if (present(a2)) then
@@ -3189,7 +3063,7 @@ CONTAINS
           rms=0.
           do j=1,my
             do i=1,mx
-              if(.not.spv(a(i,j))) then
+              if(.not.spv(a(i,j),amiss)) then
                 cnt=cnt+1
                 avg=avg+a(i,j)
                 if(present(a2)) then
@@ -3210,7 +3084,7 @@ CONTAINS
           dev=0.
           do j=1,my
             do i=1,mx
-              if(.not.spv(a(i,j))) then
+              if(.not.spv(a(i,j),amiss)) then
                 d=a(i,j)-avg
                 dev=dev+d*d
               endif
@@ -3223,7 +3097,7 @@ CONTAINS
           first=.true.
           do j=1,my
             do i=1,mx
-              if(.not.spv(a(i,j))) then
+              if(.not.spv(a(i,j),amiss)) then
                 if(first) then
                   imx=i
                   imn=i
@@ -3262,6 +3136,10 @@ CONTAINS
                 amn,'(',imn,',',jmn,')'
 
            endif
+
+           _UNUSED_DUMMY(ATYPE)
+           _UNUSED_DUMMY(HTYPE)
+           _UNUSED_DUMMY(INC)
       end  subroutine stats_
 
    end subroutine BundleDiff
@@ -3269,16 +3147,13 @@ CONTAINS
 !-------------------------------------------------------------------------
 !  NASA/GSFC, Global Modeling and Assimilation Office, Code 610.3, GMAO  !
 !-------------------------------------------------------------------------
-!BOP
-
-! !IROUTINE: StateDiff
-
-! !INTERFACE:
-
-   subroutine StateDiff (srcSTA, dstSTA, rc)
-
+!>
+! Determine the diff of two state.
 !
-! !USES:
+!#### History
+!- 19Apr2006  Cruz  Initial code.
+!
+   subroutine StateDiff (srcSTA, dstSTA, rc)
 !
   implicit NONE
 
@@ -3287,15 +3162,6 @@ CONTAINS
    type(ESMF_State), intent(inout)  :: srcSTA
    type(ESMF_State),optional, intent(inout)  :: dstSTA
    integer, optional, intent(out)   :: rc     ! return code
-
-! !DESCRIPTION:
-!     Regrid a state
-!
-!EOP
-
-! !REVISION HISTORY:
-!
-!  19Apr2006  Cruz  Initial code.
 !
 !-------------------------------------------------------------------------
 
@@ -3405,27 +3271,24 @@ CONTAINS
 !-------------------------------------------------------------------------
 !  NASA/GSFC, Global Modeling and Assimilation Office, Code 610.3, GMAO  !
 !-------------------------------------------------------------------------
-!BOP
-
-! !IROUTINE: ESMFL_GridDistBlockSet
-
-! !INTERFACE:
-
+!>
+! `ESMFL_GridDistBlockSet` ...
+!
+!#### History
+!-16Jun2006  Cruz  Initial code.
+!
    subroutine ESMFL_GridDistBlockSet (Egrid, ist, jst, il, jl, &
                                       rlons, rlats, rc)
-
-!
-! !USES:
 !
   implicit NONE
 
 ! !ARGUMENTS:
 
-   type(ESMF_Grid), intent(inout)      :: Egrid
-   integer, intent(in), dimension(:):: ist, jst, il, jl
-   real(kind=REAL64), optional, dimension(:)     :: rlats
-   real(kind=REAL64), optional, dimension(:)     :: rlons
-   integer, optional, intent(out)      :: rc    ! return code
+   type(ESMF_Grid), intent(inout)            :: Egrid
+   integer,         intent(in), dimension(:) :: ist, jst, il, jl
+   real(kind=REAL64), optional, dimension(:) :: rlats
+   real(kind=REAL64), optional, dimension(:) :: rlons
+   integer,           optional, intent(out)  :: rc     !! return code
 
    _UNUSED_DUMMY(Egrid)
    _UNUSED_DUMMY(ist)
@@ -3436,13 +3299,6 @@ CONTAINS
    _UNUSED_DUMMY(rlons)
 
 #if 0
-! !DESCRIPTION:
-!
-!EOP
-!
-! !REVISION HISTORY:
-!
-!  16Jun2006  Cruz  Initial code.
 !
 !-------------------------------------------------------------------------
 
@@ -3650,7 +3506,7 @@ CONTAINS
    real(kind=ESMF_KIND_R8), pointer :: dst_pr83d(:,:,:)
    type(ESMF_TypeKind_Flag) :: src_tk, dst_tk
    integer                  :: src_fieldRank, dst_fieldRank
-   logical                  :: NotInState,itemNotFound
+   logical                  :: NotInState
    character(len=ESMF_MAXSTR) :: NameInBundle
    type(ESMF_StateItem_Flag) :: itemType
 
@@ -4014,7 +3870,7 @@ CONTAINS
         _RETURN(ESMF_SUCCESS)
      end if
 
-! This is section of the code is valid ONLY for rectilinear grids!!!
+! This is section of the code is valid ONLY for rectilinear grids!
 
      NX = thisHaloType%NX
      NY = thisHaloType%NY
@@ -4089,11 +3945,13 @@ CONTAINS
 
    end SUBROUTINE ESMFL_HALO_R4_2D
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!
-! !IROUTINE: BundleAddState_ - Addes contents of State to Bundle
-!
-! !INTERFACE:
+!---------------------------------------------------------------------
+!>
+! The recursive subrountine `BundleAddState_` adds contents of State to Bundle.
+! Extracts fields from an ESMF State and adds them to a
+! ESMF Bundle. In essesence, it serializes an ESMF state
+! in a flat Bundle. The BUNDLE must have been created prior to calling
+! this routine.
 !
     RECURSIVE subroutine BundleAddState_ ( BUNDLE, STATE, rc, &
                                            GRID, VALIDATE )
@@ -4107,13 +3965,6 @@ CONTAINS
     type(ESMF_Grid),  optional, intent(in)   :: GRID
     logical, optional, intent(in)            :: VALIDATE
 !
-! !DESCRIPTION: Extracts fields from an ESMF State and adds them to a
-!               ESMF Bundle. In essesence, it serializes an ESMF state
-!  in a flat Bundle. The BUNDLE must have been created prior to calling
-!  this routine.
-!
-!EOP
-
     character(len=*), parameter          :: Iam="ESMFL_StateSerialize"
     integer                              :: STATUS
 
@@ -4475,5 +4326,39 @@ CONTAINS
   endif
   end function check_list_
 
+  function ESMFL_field_is_undefined(field,rc) result(field_is_undefined)
+     use mpi
+     logical :: field_is_undefined
+     type(ESMF_Field), intent(in) :: field
+     integer, optional, intent(out) :: rc
+
+     integer :: status
+     type(ESMF_Grid) :: grid
+     type(ESMF_VM) :: vm
+     integer :: my_mpi_comm, local_undef, global_undef,grid_size(3),rank
+     real, pointer :: ptr2d(:,:), ptr3d(:,:,:)
+
+     call ESMF_VMGetCurrent(VM,_RC)
+     call ESMF_VMGet(VM,mpiCommunicator=my_mpi_comm,_RC)
+     call ESMF_FieldGet(field,rank=rank,grid=grid,_RC)
+     call MAPL_GridGet(grid,globalcellcountperdim=grid_size,_RC)
+     if (rank ==2) then
+        call ESMF_FieldGet(field,0,farrayPtr=ptr2d,_RC)
+        local_undef = count(ptr2d==MAPL_UNDEF)
+        call MPI_AllReduce(local_undef,global_undef,1,MPI_INTEGER,MPI_SUM,my_mpi_comm,status)
+        _VERIFY(status)
+        field_is_undefined = global_undef == (grid_size(1)*grid_size(2))
+     else if (rank ==3) then
+        call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_RC)
+        local_undef = count(ptr3d==MAPL_UNDEF)
+        call MPI_AllReduce(local_undef,global_undef,1,MPI_INTEGER,MPI_SUM,my_mpi_comm,status)
+        _VERIFY(status)
+        field_is_undefined = global_undef == (grid_size(1)*grid_size(2)*grid_size(3))
+     else
+        _FAIL("Unsupported rank when checking for undef")
+     end if
+
+     _RETURN(_SUCCESS)
+  end function
 
 end module ESMFL_MOD

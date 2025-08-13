@@ -1,19 +1,13 @@
+
 submodule (MAPL_InterpMod) Interp_implementation
 
   implicit none
 
 contains
 
-  !BOP
-
-  ! !IROUTINE: INTERP_LIN_0011
-
-  ! !DESCRIPTION: Interpolates linearly in a 1-D table
-  ! \newline
-  !
-
-  ! !INTERFACE:
-
+!>
+! `INTERP_LIN_0011` --- Interpolates linearly in a 1-D table
+!
   module procedure INTERP_LIN_0011_1
     integer    J
 

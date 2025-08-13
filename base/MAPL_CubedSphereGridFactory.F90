@@ -53,6 +53,8 @@ module MAPL_CubedSphereGridFactoryMod
       real :: stretch_factor = MAPL_UNDEFINED_REAL
       real :: target_lon = MAPL_UNDEFINED_REAL
       real :: target_lat = MAPL_UNDEFINED_REAL
+      real :: target_lon_degrees = MAPL_UNDEFINED_REAL
+      real :: target_lat_degrees = MAPL_UNDEFINED_REAL
       logical :: stretched_cube = .false.
 
       ! For halo
@@ -128,7 +130,9 @@ contains
       integer, optional, intent(in) :: jms(:)
 
       ! stretched grid
-      real(REAL32), optional, intent(in) :: stretch_factor, target_lon, target_lat
+      real(REAL32), optional, intent(in) :: stretch_factor
+      real(REAL32), optional, intent(in) :: target_lon ! in degrees
+      real(REAL32), optional, intent(in) :: target_lat ! in degrees
 
       integer, optional, intent(out) :: rc
 
@@ -147,8 +151,8 @@ contains
       call set_with_default(factory%lm, lm, MAPL_UNDEFINED_INTEGER)
 
       call set_with_default(factory%stretch_factor,stretch_factor,MAPL_UNDEFINED_REAL)
-      call set_with_default(factory%target_lon,target_lon,MAPL_UNDEFINED_REAL)
-      call set_with_default(factory%target_lat,target_lat,MAPL_UNDEFINED_REAL)
+      call set_with_default(factory%target_lon_degrees,target_lon,MAPL_UNDEFINED_REAL)
+      call set_with_default(factory%target_lat_degrees,target_lat,MAPL_UNDEFINED_REAL)
 
       ! default is unallocated
       if (present(ims)) factory%ims = ims
@@ -229,15 +233,12 @@ contains
                       staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, &
                       transformArgs=transformArgument,rc=status)
             _VERIFY(status)
-            if (this%stretch_factor/=MAPL_UNDEFINED_REAL .and. this%target_lon/=MAPL_UNDEFINED_REAL .and. &
-                this%target_lat/=MAPL_UNDEFINED_REAL) then
-               call ESMF_AttributeSet(grid, name='STRETCH_FACTOR', value=this%stretch_factor,rc=status)
-               _VERIFY(status)
-               call ESMF_AttributeSet(grid, name='TARGET_LON', value=this%target_lon,rc=status)
-               _VERIFY(status)
-               call ESMF_AttributeSet(grid, name='TARGET_LAT', value=this%target_lat,rc=status)
-               _VERIFY(status)
-            end if
+            call ESMF_AttributeSet(grid, name='STRETCH_FACTOR', value=this%stretch_factor,rc=status)
+            _VERIFY(status)
+            call ESMF_AttributeSet(grid, name='TARGET_LON', value=this%target_lon_degrees,rc=status)
+            _VERIFY(status)
+            call ESMF_AttributeSet(grid, name='TARGET_LAT', value=this%target_lat_degrees,rc=status)
+            _VERIFY(status)
          else
             grid = ESMF_GridCreateCubedSPhere(this%im_world,countsPerDEDim1PTile=ims, &
                       countsPerDEDim2PTile=jms ,name=this%grid_name, &
@@ -338,7 +339,9 @@ contains
          attr_val => attr%get_values()
          select type(q=>attr_val)
          type is (real(kind=REAL32))
-            this%target_lat = q(1)
+            this%target_lat_degrees = q(1)
+         type is (real(kind=REAL64))
+            this%target_lat_degrees = q(1)
          class default
             _FAIL('unsupport subclass for stretch params')
          end select
@@ -346,7 +349,9 @@ contains
          attr_val => attr%get_values()
          select type(q=>attr_val)
          type is (real(kind=REAL32))
-            this%target_lon = q(1)
+            this%target_lon_degrees = q(1)
+         type is (real(kind=REAL64))
+            this%target_lon_degrees = q(1)
          class default
             _FAIL('unsupport subclass for stretch params')
          end select
@@ -377,7 +382,7 @@ contains
       _VERIFY(status)
 
       _UNUSED_DUMMY(unusable)
-
+      _UNUSED_DUMMY(force_file_coordinates)
    end subroutine initialize_from_file_metadata
 
 
@@ -411,8 +416,8 @@ contains
       call ESMF_ConfigGetAttribute(config, this%im_world, label=prefix//'IM_WORLD:', default=MAPL_UNDEFINED_INTEGER)
 
       call ESMF_ConfigGetAttribute(config, this%stretch_factor, label=prefix//'STRETCH_FACTOR:', default=MAPL_UNDEFINED_REAL)
-      call ESMF_ConfigGetAttribute(config, this%target_lon, label=prefix//'TARGET_LON:', default=MAPL_UNDEFINED_REAL)
-      call ESMF_ConfigGetAttribute(config, this%target_lat, label=prefix//'TARGET_LAT:', default=MAPL_UNDEFINED_REAL)
+      call ESMF_ConfigGetAttribute(config, this%target_lon_degrees, label=prefix//'TARGET_LON:', default=MAPL_UNDEFINED_REAL)
+      call ESMF_ConfigGetAttribute(config, this%target_lat_degrees, label=prefix//'TARGET_LAT:', default=MAPL_UNDEFINED_REAL)
 
       call get_multi_integer(this%ims, 'IMS:', rc=status)
       _VERIFY(status)
@@ -547,8 +552,6 @@ contains
          character(len=*) :: label
          integer, optional, intent(out) :: rc
 
-         integer :: i
-         integer :: n
          integer :: status
          logical :: isPresent
 
@@ -634,14 +637,14 @@ contains
          this%grid_type = FV_GRID_TYPE_DEFAULT ! fv default
       end if
 
-      if ( (this%target_lon /= MAPL_UNDEFINED_REAL) .and. &
-           (this%target_lat /= MAPL_UNDEFINED_REAL) .and. &
+      if ( (this%target_lon_degrees /= MAPL_UNDEFINED_REAL) .and. &
+           (this%target_lat_degrees /= MAPL_UNDEFINED_REAL) .and. &
            (this%stretch_factor /= MAPL_UNDEFINED_REAL) ) then
-         _ASSERT(this%target_lat >= -90.0, 'Latitude should be greater than -90.0 degrees')
-         _ASSERT(this%target_lat <= 90, 'Latitude should be less than 90.0 degrees')
+         _ASSERT(this%target_lat_degrees >= -90.0, 'Latitude should be greater than -90.0 degrees')
+         _ASSERT(this%target_lat_degrees <= 90, 'Latitude should be less than 90.0 degrees')
          this%stretched_cube = .true.
-         this%target_lon=this%target_lon*MAPL_PI/180.0
-         this%target_lat=this%target_lat*MAPL_PI/180.0
+         this%target_lon=this%target_lon_degrees*pi/180.d0
+         this%target_lat=this%target_lat_degrees*pi/180.d0
       end if
 
       ! Check decomposition/bounds
@@ -685,7 +688,7 @@ contains
          else
 
             _ASSERT(n /= MAPL_UNDEFINED_INTEGER,'n not specified')
-            _ASSERT(m_world /= MAPL_UNDEFINED_INTEGER,'m_wold not specified')
+            _ASSERT(m_world /= MAPL_UNDEFINED_INTEGER,'m_world not specified')
             allocate(ms(n), stat=status)
             _VERIFY(status)
 
@@ -1070,9 +1073,9 @@ contains
       call metadata%add_variable('corner_lats',v)
 
       if (this%stretched_cube) then
-         call metadata%add_attribute('stretch_factor',this%stretch_factor)
-         call metadata%add_attribute('target_lon',this%target_lon*180.0/MAPL_PI)
-         call metadata%add_attribute('target_lat',this%target_lat*180.0/MAPL_PI)
+         call metadata%add_attribute('STRETCH_FACTOR',this%stretch_factor)
+         call metadata%add_attribute('TARGET_LON',this%target_lon_degrees)
+         call metadata%add_attribute('TARGET_LAT',this%target_lat_degrees)
       end if
 
    end subroutine append_metadata
@@ -1268,16 +1271,10 @@ contains
       integer :: global_dim(3),i1,j1,in,jn,tile
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
       logical :: face_format
-      integer :: nf
-      _UNUSED_DUMMY(this)
+
 
       if (present(metadata)) then
-         nf = metadata%get_dimension('nf',rc=status)
-         if (status == _SUCCESS) then
-            face_format = .true.
-         else
-            face_format = .false.
-         end if
+         face_format = metadata%has_dimension('nf')
       else
          face_format = .true.
       end if
@@ -1296,6 +1293,7 @@ contains
       end if
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
 
    end subroutine generate_file_bounds
 
@@ -1310,7 +1308,7 @@ contains
 
       integer :: status
       integer :: global_dim(3),i1,j1,in,jn,tile
-      integer :: face_i1, face_j1, is, js
+      integer :: face_j1, is, js
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
       _UNUSED_DUMMY(this)
 
@@ -1318,7 +1316,6 @@ contains
       _VERIFY(status)
       call MAPL_GridGetInterior(grid,i1,in,j1,jn)
       tile = 1 + (j1-1)/global_dim(1)
-      face_i1 = i1
       face_j1 = j1-(tile-1)*global_dim(1)
       is = i1
       js = face_j1
@@ -1349,16 +1346,9 @@ contains
       type(c_ptr) :: cptr
       real, pointer :: ptr_ref(:,:,:,:,:)
       logical :: face_format
-      integer :: nf,status
-      _UNUSED_DUMMY(this)
 
       if (present(metadata)) then
-         nf = metadata%get_dimension('nf',rc=status)
-         if (status == _SUCCESS) then
-            face_format = .true.
-         else
-            face_format = .false.
-         end if
+         face_format = metadata%has_dimension('nf')
       else
          face_format = .true.
       end if
@@ -1370,6 +1360,8 @@ contains
       else
          ref = ArrayReference(fpointer)
       end if
+
+      _UNUSED_DUMMY(this)
    end function generate_file_reference3D
 
 end module MAPL_CubedSphereGridFactoryMod

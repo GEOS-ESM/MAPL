@@ -22,7 +22,6 @@ set (srcs
   VarSpecPtr.F90
   VarConnPoint.F90
   VarConnType.F90
-  VariableSpecification.F90
   VarSpecMiscMod.F90
   VarSpecVector.F90
   VarConnPoint.F90
@@ -46,7 +45,16 @@ set (srcs
 
   MAPL_Generic.F90
 
+  OpenMP_Support.F90
+
+  RunEntryPoint.F90
+  EntryPointVector.F90
+
+  MAPL_ESMF_Interfaces.F90
+  CallbackMap.F90
   )
+
+# Comment out for GCHP
 #if (BUILD_WITH_PFLOGGER)
 #  find_package(PFLOGGER REQUIRED)
 #endif ()
@@ -61,7 +69,8 @@ esma_add_library(${this}
   )
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
-target_link_libraries (${this} PUBLIC esmf NetCDF::NetCDF_Fortran)
+target_link_libraries (${this} PUBLIC ESMF::ESMF NetCDF::NetCDF_Fortran
+  PRIVATE OpenMP::OpenMP_Fortran)
 
 if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)

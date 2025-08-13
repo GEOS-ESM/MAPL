@@ -1,8 +1,18 @@
-! Simple unit test for CFIO Read/Write Bundle
-!
-
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!    
 #include "MAPL_Generic.h"
-
+! 
+!>
+!### MODULE: `Test_CFIO_Bundle`
+!
+! Author: GMAO SI-Team
+!
+! `Test_CFIO_Bundle` is a simple unit test for CFIO Read/Write Bundle.
+!
 module Test_CFIO_Bundle
    use pfunit
    use ESMF
@@ -196,7 +206,6 @@ contains
    call ESMF_ConfigLoadFile(config, 'tmp_CAP.rc', rc=STATUS )
    _VERIFY(STATUS)
     
-!>>>>>>>>>>>>
 ! We will set-up a somewhat realistic resource "file"
 
     call ESMF_VmGetCurrent(VM, rc=status)
@@ -210,7 +219,7 @@ contains
     _VERIFY(STATUS)
     call ESMF_ConfigSetAttribute(config, value=ny, Label='NY:', rc=status)
     _VERIFY(STATUS)
-!!$    call ESMF_ConfigSetAttribute(config, value=gridname, Label='GRIDNAME:', rc = status )
+!C$    call ESMF_ConfigSetAttribute(config, value=gridname, Label='GRIDNAME:', rc = status )
     call ESMF_ConfigGetAttribute(config, value=gridname, Label='GRIDNAME:', rc = status )
     _VERIFY(STATUS)
     call ESMF_ConfigSetAttribute(config, value=KM_WORLD, Label='LM:', rc = status )
@@ -224,7 +233,6 @@ contains
     print *,'NX=',nx
     print *,'NX=',nY
 
-!<<<<<<<<<<<<   
 !  CAP's MAPL MetaComp
 !---------------------
 

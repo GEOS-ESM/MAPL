@@ -3,7 +3,7 @@ string (REPLACE MAPL_cfio_ "" precision ${this})
 
 
 set (srcs
-  ESMF_CFIOBaseMod.f
+  ESMF_CFIOBaseMod.F90
   ESMF_CFIOFileMod.F90
   ESMF_CFIOGridMod.F90
   ESMF_CFIOMod.F90
@@ -27,25 +27,10 @@ set (EOS )
 
 set (lib MAPL_cfio_${precision})
 
-if (APPLE AND CMAKE_Fortran_COMPILER_ID MATCHES Intel AND CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL 20.2.1)
-   set (LIBRARY_TYPE STATIC)
-   ecbuild_warn (
-      "Found Intel oneAPI on macOS.\n"
-      "MAPL developers have found an issue with Intel oneAPI on macOS\n"
-      "where GEOSgcm.x would not work. Debugging found the issue was\n"
-      "that command_argument_count() would return -1 which should *NEVER*\n"
-      "happen per Fortran Standard and then this broke FLAP.\n"
-      "A workaround was found that if the ${this} library was compiled\n"
-      "as TYPE STATIC, the model would work. So we are setting ${this} as\n"
-      "a TYPE STATIC library. Note: This might interfere with coupled model.")
-else ()
-   set (LIBRARY_TYPE ${MAPL_LIBRARY_TYPE})
-endif ()
-
 esma_add_library (${lib}
   SRCS ${srcs}
-  DEPENDENCIES esmf NetCDF::NetCDF_Fortran
-  TYPE ${LIBRARY_TYPE}
+  DEPENDENCIES ESMF::ESMF NetCDF::NetCDF_Fortran
+  TYPE ${MAPL_LIBRARY_TYPE}
   )
 
 if (precision MATCHES "r8")
@@ -53,4 +38,24 @@ if (precision MATCHES "r8")
   foreach (flag ${flags})
     target_compile_options (${lib} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${flag}>)
   endforeach ()
+endif ()
+
+if (USE_F2PY)
+  if (precision STREQUAL "r4")
+    find_package(F2PY3)
+    if (F2PY3_FOUND)
+      esma_add_f2py3_module(ShaveMantissa_
+        SOURCES ShaveMantissa_py.F90 ShaveMantissa.c
+        DESTINATION lib/Python/${this}
+        INCLUDEDIRS ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_BINARY_DIR}/lib ${include_${this}}
+        )
+      add_dependencies(ShaveMantissa_ ${this})
+
+      # Install the Python files
+      install (
+        FILES shavemantissa.py
+        DESTINATION lib/Python/${this}
+        )
+      endif ()
+  endif ()
 endif ()

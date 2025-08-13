@@ -1,3 +1,9 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!
 #define _DEALLOC(A) \
     if(associated(A))then; \
           if(MAPL_ShmInitialized)then; \
@@ -11,20 +17,16 @@
     endif
 #include "MAPL_Generic.h"
 #include "unused_dummy.H"
-
-!=============================================================================
-!BOP
-
-! !MODULE: MAPL_GenericCplCompMod
-
-! !DESCRIPTION:
 !
-!  This is a generic coupler component used by \ggn\ to instantiate 
-!  the automatic couplers it needs.
-!  \newline
-
-! !INTERFACE:
-
+!------------------------------------------------------------------------------
+!>
+!### MODULE: `MAPL_GenericCplCompMod`
+!
+! Author: GMAO SI-Team
+!
+! This is a generic coupler component used by a gridded component to instantiate
+! the automatic couplers it needs.
+!
 module MAPL_GenericCplCompMod
 
 ! !USES:
@@ -89,15 +91,9 @@ contains
 !=============================================================================
 !=============================================================================
 !=============================================================================
-
-!BOPI
-
-! !IROUTINE: GenericCplSetServices
-
-! !DESCRIPTION: \ssv\  for generic couplers.
-
-! !INTERFACE:
-
+!>
+! `GenericCplSetServices` --- SetServices for generic couplers.
+!
   subroutine GenericCplSetServices ( CC, RC )
 
 ! !ARGUMENTS:
@@ -238,15 +234,9 @@ contains
   end subroutine MAPL_CplCompSetVarSpecs
 
 !=============================================================================
-
-!BOPI
-
-! !IROUTINE: INITIALIZE
-
-! !DESCRIPTION: Initialize method for generic couplers.
-
-! !INTERFACE:
-
+!>
+! `Initialize` method for generic couplers.
+!
   subroutine Initialize(CC, SRC, DST, CLOCK, RC)
 
 ! !ARGUMENTS:
@@ -336,6 +326,12 @@ contains
     _VERIFY(STATUS)
     allocate(STATE%ARRAY_COUNT (NCPLS), STAT=STATUS)
     _VERIFY(STATUS)
+    DO J = 1, NCPLS
+       NULLIFY(STATE%ARRAY_COUNT(J)%ptr1c)
+       NULLIFY(STATE%ARRAY_COUNT(J)%ptr2c)
+       NULLIFY(STATE%ARRAY_COUNT(J)%ptr3c)
+       NULLIFY(STATE%ARRAY_COUNT(J)%ptr4c)
+    END DO
     allocate(STATE%ACCUM_RANK (NCPLS), STAT=STATUS)
     _VERIFY(STATUS)
     allocate(STATE%couplerType(NCPLS), STAT=STATUS)
@@ -442,16 +438,17 @@ contains
 
           if (TCLR < TS) TCLR = TS
 
-          rTime = TM0 + TOFF - TCLR
+          !rTime = TM0 + TOFF - TCLR
+          rTime = TM0 + TOFF
 
-          do while (rTime < currTime) 
-             rTime = rTime + TCPL
-          end do
+          !do while (rTime < currTime) 
+             !rTime = rTime + TCPL
+          !end do
 
           STATE%TIME_TO_CLEAR(J) = ESMF_AlarmCreate(NAME='TIME2CLEAR_' // trim(COMP_NAME) &
                // '_' // trim(NAME),   &
                clock        = CLOCK,   &
-               ringInterval = TCPL,    & 
+               ringInterval = TCLR,    & 
                ringTime     = rTime,   &
                sticky       = .false., &
                rc=STATUS   )
@@ -585,15 +582,10 @@ contains
 
   end subroutine Initialize
 
-
-!BOPI
-
-! !IROUTINE: RUN
-
-! !DESCRIPTION: {Run method for the generic coupler.}
-
-! !INTERFACE:
-
+!------------------------------------------------------------------------------------
+!>
+! `Run` method for the generic coupler.
+!
   subroutine Run(CC, SRC, DST, CLOCK, RC)
     
 ! !ARGUMENTS:
@@ -1208,7 +1200,7 @@ contains
 
           end select
 
-          STATE%ACCUM_COUNT(J) = -1
+          !STATE%ACCUM_COUNT(J) = -1
 
        end if
 
@@ -1220,16 +1212,10 @@ contains
 
  end subroutine Run
 
-!---------------------------
-
-!BOPI
-
-! !IROUTINE: FINALIZE
-
-! !DESCRIPTION: {Finalize method for the generic coupler.}
-
-! !INTERFACE:
-
+!-------------------------------------------------------------------------------------
+!>
+! `Finalize` method for the generic coupler.
+!
   subroutine Finalize(CC, SRC, DST, CLOCK, RC)
 
 ! !ARGUMENTS:

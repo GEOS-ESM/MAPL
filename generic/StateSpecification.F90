@@ -7,7 +7,7 @@ module mapl_StateSpecification
    use mapl_ErrorHandlingMod
    use mapl_VarSpecVector
    use mapl_VarSpecMiscMod
-   use mapl_VariableSpecification
+   use MAPL_VarSpecTypeMod
    implicit none
 
    private
@@ -98,6 +98,8 @@ contains
                              STAGGERING, &
                              ROTATION,   & 
                              GRID, &
+                             DEPENDS_ON, DEPENDS_ON_CHILDREN, &
+                             POSITIVE, &
                                                                    RC  )
 
     type (StateSpecification), intent(inout):: SPEC
@@ -131,6 +133,9 @@ contains
     integer            , optional   , intent(IN)      :: STAGGERING
     integer            , optional   , intent(IN)      :: ROTATION
     type(ESMF_Grid)    , optional   , intent(IN)      :: GRID
+    logical            , optional   , intent(IN)      :: DEPENDS_ON_CHILDREN
+    character (len=*)  , optional   , intent(IN)      :: DEPENDS_ON(:)
+    character(len=*)   , optional   , intent(IN)      :: positive
     integer            , optional   , intent(OUT)     :: RC
 
 
@@ -168,6 +173,9 @@ contains
     character(len=ESMF_MAXSTR) :: useableUngrd_Unit
     character(len=ESMF_MAXSTR) :: useableUngrd_Name
     real                      , pointer :: usableUNGRIDDED_COORDS(:) => NULL()
+    logical                    :: usableDEPENDS_ON_CHILDREN
+    character(len=positive_length) :: usablePositive
+!    character (len=:), allocatable :: usableDEPENDS_ON(:)
 
     INTEGER :: I
     integer :: szINAMES, szRNAMES, szIVALUES, szRVALUES
@@ -334,6 +342,11 @@ contains
        usablePRECISION=kind(0.0) ! default "real" kind
       endif
 
+      usableDEPENDS_ON_CHILDREN = .false.
+      if(present(DEPENDS_ON_CHILDREN)) then
+         usableDEPENDS_ON_CHILDREN = DEPENDS_ON_CHILDREN
+      end if
+
 ! Sanity checks
       if (usablePRECISION /= ESMF_KIND_R4 .AND. usablePRECISION /= ESMF_KIND_R8) then
          ! only those 2 values are allowed
@@ -403,6 +416,12 @@ contains
          usableUNGRIDDED_COORDS = UNGRIDDED_COORDS
       end if
 
+      if (present(POSITIVE)) then
+         usablePositive = positive
+      else
+         usablePositive = 'down'
+      end if
+
       I = spec%var_specs%size()
       allocate(tmp%specptr)
       
@@ -434,6 +453,7 @@ contains
       TMP%SPECPTR%ROTATION =  usableROTATION
       TMP%SPECPTR%doNotAllocate    =  .false.
       TMP%SPECPTR%alwaysAllocate   =  .false.
+      TMP%SPECPTR%positive = usablePositive
       if(associated(usableATTR_IVALUES)) then
          TMP%SPECPTR%ATTR_IVALUES  =>  usableATTR_IVALUES
       else
@@ -464,6 +484,12 @@ contains
       else
          NULLIFY(TMP%SPECPTR%ATTR_INAMES)
       endif
+
+      if(present(DEPENDS_ON)) then
+         TMP%SPECPTR%DEPENDS_ON = DEPENDS_ON
+      end if
+
+      TMP%SPECPTR%DEPENDS_ON_CHILDREN    =  usableDEPENDS_ON_CHILDREN
 
       call spec%var_specs%push_back(tmp)
       call spec%update_legacy()

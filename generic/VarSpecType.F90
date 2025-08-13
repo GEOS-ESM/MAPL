@@ -18,6 +18,9 @@ module MAPL_VarSpecTypeMod
 
    public :: MAPL_VarSpecType
    public :: MAPL_VarSpecSet
+   public :: positive_length
+
+   integer, parameter :: positive_length = 4
    
    type :: MAPL_VarSpecType
       ! new
@@ -36,6 +39,7 @@ module MAPL_VarSpecTypeMod
       integer,                    pointer      :: UNGRIDDED_DIMS(:) => null()
       character(len=ESMF_MAXSTR)               :: UNGRIDDED_UNIT
       character(len=ESMF_MAXSTR)               :: UNGRIDDED_NAME
+      character(len=positive_length)           :: positive
       real,                       pointer      :: UNGRIDDED_COORDS(:)
       integer                                  :: DIMS
       integer                                  :: LOCATION
@@ -55,6 +59,8 @@ module MAPL_VarSpecTypeMod
       logical                                  :: defaultProvided
       logical                                  :: doNotAllocate
       logical                                  :: alwaysAllocate ! meant for export specs
+      logical                                  :: depends_on_children
+      character(len=:), allocatable            :: depends_on(:)
       real                                     :: DEFAULT
       type(ESMF_Field), pointer                :: FIELD => null()
       type(ESMF_FieldBundle), pointer          :: BUNDLE => null()
@@ -82,6 +88,7 @@ contains
                              grid,                                     &
                              donotallocate,                            &
                              alwaysallocate,                            &
+                             positive,                                 &
                                                                     rc )
 
     class(mapl_varspectype),             intent(inout)   :: spec
@@ -105,6 +112,7 @@ contains
     type(ESMF_grid)    , optional   , intent(in)      :: grid
     logical            , optional   , intent(in)      :: donotallocate
     logical            , optional   , intent(in)      :: alwaysallocate
+    character(len=positive_length), optional, intent(in) :: positive
     integer            , optional   , intent(out)     :: rc
 
 
@@ -187,6 +195,10 @@ contains
 
       if(present(alwaysallocate)) then
          spec%alwaysallocate = alwaysallocate
+      endif
+
+      if(present(positive)) then
+         spec%positive = positive
       endif
 
       associate( &

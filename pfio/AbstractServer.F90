@@ -2,16 +2,9 @@
 #include "unused_dummy.H"
 
 module pFIO_AbstractServerMod
-   use, intrinsic :: iso_c_binding, only: c_ptr
-   use, intrinsic :: iso_c_binding, only: C_NULL_PTR
-   use, intrinsic :: iso_c_binding, only: c_loc
-   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
-   use, intrinsic :: iso_c_binding, only: c_f_pointer
-   use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
    use MAPL_Profiler
    use MAPL_ExceptionHandling
    use pFIO_ConstantsMod
-   use pFIO_UtilitiesMod, only: word_size, i_to_string
    use pFIO_AbstractDataReferenceMod
    use pFIO_AbstractDataReferenceVectorMod
    use pFIO_ShmemReferenceMod
@@ -93,9 +86,10 @@ module pFIO_AbstractServerMod
          integer, optional, intent(out) :: rc
       end subroutine start
 
-      subroutine clear_RequestHandle(this)
+      subroutine clear_RequestHandle(this, rc)
          import AbstractServer
          class(AbstractServer),target,intent(inout) :: this
+         integer, optional, intent(out) :: rc
       end subroutine clear_RequestHandle
 
       subroutine set_collective_request(this, request, have_done)
@@ -211,7 +205,10 @@ contains
 
       !$omp critical (counter_status)
       this%status = status
+      ! llvm-flang has an issue with omp flush of complex data structures
+#if !defined(__flang__)
       !$omp flush (this)
+#endif
       !$omp end critical (counter_status)
    end subroutine  set_status
 
@@ -223,7 +220,10 @@ contains
       !$omp critical (counter_status)
       this%status = this%status -1
       status = this%status
+      ! llvm-flang has an issue with omp flush of complex data structures
+#if !defined(__flang__)
       !$omp flush (this)
+#endif
       !$omp end critical (counter_status)
       if (status /= 0) then
         _RETURN(_SUCCESS)
@@ -231,7 +231,7 @@ contains
       ! status ==0, means the last server thread in the backlog
 
       call this%clear_DataReference()
-      call this%clear_RequestHandle()
+      call this%clear_RequestHandle(_RC)
       call this%set_status(UNALLOCATED)
       call this%set_AllBacklogIsEmpty(.true.)
 
@@ -252,14 +252,15 @@ contains
    end subroutine update_status
 
    subroutine clean_up(this, rc)
-      class(AbstractServer),intent(inout) :: this
+      class(AbstractServer), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
       type(StringInteger64MapIterator) :: iter
+      integer :: status
 
       if (associated(ioserver_profiler)) call ioserver_profiler%start("clean_up")
 
       call this%clear_DataReference()
-      call this%clear_RequestHandle()
+      Call this%clear_RequestHandle(_RC)
       call this%set_AllBacklogIsEmpty(.true.)
       this%serverthread_done_msgs(:) = .false.
 
@@ -295,7 +296,10 @@ contains
 
       !$omp critical (backlog_status)
       this%all_backlog_is_empty = status
+      ! llvm-flang has an issue with omp flush of complex data structures
+#if !defined(__flang__)
       !$omp flush (this)
+#endif
       !$omp end critical (backlog_status)
    end subroutine set_AllBacklogIsEmpty
 
@@ -316,12 +320,14 @@ contains
      integer, optional, intent(out) :: rc
 
      _FAIL(" no action of receive_output_data")
+     _UNUSED_DUMMY(this)
    end subroutine receive_output_data
 
    subroutine put_DataToFile(this, rc)
      class (AbstractServer),target, intent(inout) :: this
      integer, optional, intent(out) :: rc
      _FAIL(" no action of server_put_DataToFile")
+     _UNUSED_DUMMY(this)
    end subroutine put_DataToFile
 
    subroutine get_DataFromMem(this,multi, rc)
@@ -329,6 +335,7 @@ contains
      logical, intent(in) :: multi
      integer, optional, intent(out) :: rc
      _FAIL(" no action of server_get_DataFromMem")
+     _UNUSED_DUMMY(this)
      _UNUSED_DUMMY(multi)
    end subroutine get_DataFromMem
 
@@ -354,13 +361,14 @@ contains
       rank        = mod(id, this%npes)
       node_rank   = this%Node_Ranks(rank)
 
+     _UNUSED_DUMMY(this)
    end subroutine distribute_task
 
    function get_writing_PE(this,id) result (rank)
       class(AbstractServer),intent(in) :: this
       integer, intent(in) :: id
       integer :: rank
-      integer :: rank_tmp, ierror
+      integer :: rank_tmp, ierror, rc
 
       integer :: node_rank,innode_rank
       logical :: yes
@@ -374,6 +382,7 @@ contains
       rank = 0
       if (yes) rank_tmp = this%rank
       call Mpi_Allreduce(rank_tmp,rank,1, MPI_INTEGER, MPI_SUM, this%comm, ierror)
+      _VERIFY(ierror)
 
    end function get_writing_PE
 
@@ -398,7 +407,7 @@ contains
    end subroutine add_DataReference
 
    subroutine clear_DataReference(this)
-      class (AbstractServer), intent(inout) :: this
+      class (AbstractServer), target, intent(inout) :: this
       class (AbstractDataReference), pointer :: datarefPtr
       integer :: n, i
 
@@ -424,12 +433,13 @@ contains
       character(:), allocatable :: report_lines(:)
       type (ProfileReporter) :: reporter
       character(1) :: empty(0)
-      integer :: i
+      integer :: i, status
 
       if ( .not. associated(ioserver_profiler)) then
          _RETURN(_SUCCESS)
       endif
 
+      call ioserver_profiler%stop(_RC)
       call ioserver_profiler%reduce()
 
       reporter = ProfileReporter(empty)
@@ -445,7 +455,7 @@ contains
       report_lines = reporter%generate_report(ioserver_profiler)
 
       if (this%rank == 0) then
-         write(*,'(a)')'Final profile'
+         write(*,'(a)')'Final io_server profile'
          write(*,'(a)')'============='
          do i = 1, size(report_lines)
             write(*,'(a)') report_lines(i)

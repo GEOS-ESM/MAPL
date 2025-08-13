@@ -1,12 +1,27 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!
 #include "unused_dummy.H"
+!
+!>
+!### MODULE: `MAPL_NominalOrbitsMod`
+!
+! Author: GMAO SI-Team
+!
+! The module `MAPL_NominalOrbitsMod` provides necessary functions for generating
+! ground tracks, and corresponding masks for polar orbiter satellites.
+!
+!#### History
+!- 07Jul2009   Albayrak  Initial implementation.
+!- 30Jul2009   Albayrak  Beta version 2 implemantation
+!
   MODULE MAPL_NominalOrbitsMod
      use MAPL_Constants
      IMPLICIT NONE
 
-!BOP
-
-! !MODULE: Orbits_Mod --- Orbital tracks and masks for Polar Orbiters
-      
       PRIVATE
 
 ! !PUBLIC MEMBER FUNCTIONS:
@@ -15,28 +30,11 @@
       PUBLIC Orbits_Track0  ! Information provider for track
 !     PUBLIC Orbits_Mask0   ! Information provider for mask
  
-#ifdef __PROTEX__
-  !DESCRIPTION:  This module provides necessary functions for generating
-                 ground tracks, and corresponding masks for polar orbiter 
-                 satellites.
-
-  REVISION HISTORY:
-
-  07Jul2009   Albayrak  Initial implementation. \\
-  30Jul2009   Albayrak  Beta version 2 implemantation
-
-#endif
-
-!EOP     
-
 !     $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 !     Internal constants (not public!)
 !     $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-
        INTEGER, PARAMETER :: dp=SELECTED_REAL_KIND(15,307)
-
-
 
 !     1- Satellite names
        INTEGER, PARAMETER :: Aqua     = 1
@@ -44,7 +42,6 @@
        INTEGER, PARAMETER :: CloudSat = 3
        INTEGER, PARAMETER :: Aura     = 4
        INTEGER, PARAMETER :: Terra    = 5
-
 
 !     2- Extrapolation Coef
        INTEGER, PARAMETER :: Num_sat  = 5    ! Number of satellites 
@@ -140,16 +137,12 @@
 
 CONTAINS
 !-------------------------------------------------------------------------
-!BOP
- 
-! !IROUTINE: Orbits_Track --- Calculates satellite ground tracks
+!>
+! The subroutine `Orbits_Track` calculates the satellite ground track during
+! a given time interval. These calculations are performed using pre-calculated
+! coefficients using combination of coordinate transformations, optimization
+! techniques and mathematical modeling techniques.
 !
-! !IIROUTINE: Orbits_Track --- Ground tracks for built-in satellites
-
-!
-! !INTERFACE:
-!
-
   SUBROUTINE Orbits_Track(lons, lats, Sat_name, nymd, nhms, deltat, rc)
 
        IMPLICIT NONE
@@ -165,19 +158,7 @@ CONTAINS
       integer, intent(out):: rc       ! Error code = 0 all is well
                                       !            = 3 memory allocation error
       REAL(dp)    :: time_day
-
-
-#ifdef ___PROTEX___
 !
-   !DESCRIPTION:  This routine  calculates the satellite ground track during 
-   a given time interval. These calculations are performed using pre-calculated 
-   coefficients using combination of coordinate transformations, optimization 
-   techniques and mathematical modeling techniques.
-
-#endif
-!EOP
-
-
 !     Other parameters!
       REAL(dp), DIMENSION(:), ALLOCATABLE  :: obstime
       real(dp)    :: sim_start, sim_end
@@ -517,7 +498,13 @@ SUBROUTINE updownlon(vec_centers, upsidedown, rc)
      endif 
 END SUBROUTINE updownlon
 
-
+!------------------------------------------------------------------------------
+!>
+! The subroutine `find_waypointslat` 
+! finds waypoints for the possible max distance on the equator line.
+! If flagauto = 0 then equal deltat data is created. Otherwise optimum
+! number of minimum data is created (nonlinear).
+!
 SUBROUTINE find_waypointslat(iSat, time_sec, sim_start,sim_end, distlat,   &
                                t1_l, lat_l, lon_l, ts, las, los, rc)
       ! sat name - time flag - interval second
@@ -538,11 +525,6 @@ SUBROUTINE find_waypointslat(iSat, time_sec, sim_start,sim_end, distlat,   &
       INTEGER :: say, i
       INTEGER :: ierr1, ierr2, ierr3
 !
-!DESCRIPTION:
-!   This subroutine finds waypoints for the possible max distance on the equator
-!   line. If flagauto = 0 then equal deltat data is created. Otherwise optimum
-!   numbeer of minimum data is created (nonlinear).  
-
       _UNUSED_DUMMY(distlat)
 
           IF (time_sec.LE.0.0) THEN
@@ -590,11 +572,18 @@ SUBROUTINE find_waypointslat(iSat, time_sec, sim_start,sim_end, distlat,   &
 
 END SUBROUTINE find_waypointslat
 
-
-
+!------------------------------------------------------------------------------
+!>
+! Swap points are the points that gives the satellite instrument view 
+! points that is different than the original track. For now, calculation is basix.
+! `r`, and `l` give how far sweep points will go vertically from the orbit points. 
+!
+!#### See Also
+!- get_recon
+!- get_azimuth
+!
 SUBROUTINE find_sweeppoints(iii, latwayp, longwayp, l, r, wrapon, latlonshift)
        IMPLICIT NONE
-! !ARGUMENTS:
 !
        REAL(dp), DIMENSION(:),     INTENT(IN)   :: latwayp, longwayp
        REAL(dp), INTENT(IN)     :: l, r  ! left right swap space
@@ -606,13 +595,6 @@ SUBROUTINE find_sweeppoints(iii, latwayp, longwayp, l, r, wrapon, latlonshift)
        REAL(dp), DIMENSION(:), ALLOCATABLE :: latshift1, lonshift1 
        REAL(dp)                            :: az, latout1, lonout1
        INTEGER                         :: say, i, count1
-!DESCRIPTION:
-!      Swap points are the points that gives the satellite instrument view 
-!      points that is different than the original track. For now calculation
-!      is basic. r, and l gives how far sweep points will go vertically from the orbit points. 
-!
-! !SEE ALSO:
-!  get_recon, get_azimuth
 !
        ALLOCATE(myvec(iii), myvec_deg(iii))
        if (r>l) then 
@@ -647,7 +629,13 @@ SUBROUTINE find_sweeppoints(iii, latwayp, longwayp, l, r, wrapon, latlonshift)
 END SUBROUTINE find_sweeppoints
 
 
-
+!------------------------------------------------------------------------------
+!>
+! The subroutine `get_latlon` 
+! calls three important functions to calculate lat lon values of
+! a satellite for a given time. Those functions are described in the
+! following subsections.
+!
 SUBROUTINE get_latlon(iSat, t1, lat_estwayp, long_estwayp)
        IMPLICIT NONE
        REAL(dp),    INTENT(IN)    :: t1
@@ -655,10 +643,7 @@ SUBROUTINE get_latlon(iSat, t1, lat_estwayp, long_estwayp)
        REAL(dp),    INTENT(INOUT) :: lat_estwayp, long_estwayp
        REAL(dp), DIMENSION(3,1) :: ECI_est, ECEF_est
        REAL(dp)                 :: lat, lon, alt, fraction2day 
-!DESCRIPTION:
-!   getlatlon calls three important functions to calculate lat lon values of 
-!   a satellite for a g   iven time. Those functions are described in the 
-!   following subsections.
+!
        CALL get_estimateECI(iSat, t1, ECI_est)
        fraction2day = get_fraction(t1)
        CALL ECI2ECEF(iSat,fraction2day, ECI_est, ECEF_est)
@@ -885,9 +870,12 @@ REAL(dp) FUNCTION rad2deg(rad)
        rad2deg = MAPL_RADIANS_TO_DEGREES * rad
 END FUNCTION rad2deg
 
+!------------------------------------------------------------------------------
+!> 
+! The function `get_distance` computes great circle distance and azimuth
+! Lat - lon in degrees.
+!
 REAL(dp) FUNCTION get_distance(lt1, ln1, lt2, ln2)
-       ! Computes great circle distance and azimuth
-       ! Lat - lon in degrees
          IMPLICIT NONE
        REAL(dp) :: lat1, lat2, lon1, lon2
        REAL(dp) :: lt1, lt2, ln1, ln2
@@ -1033,9 +1021,12 @@ subroutine built_vec(sim_start, sim_end, time_day, t1)
        enddo
 end subroutine built_vec
 
+!------------------------------------------------------------------------------
+!>
+! The function `find_LTGE` finds minimum possible long value for carresponding
+! lat interval.
+!
 SUBROUTINE find_LTGE(distlon, lat_vec_centers, vec_lat, long_limits)
-       !This functions finds minimum possible long value for carrespondig
-       !lat interval
        IMPLICIT NONE
 
        INTEGER :: mys, i, k

@@ -10,6 +10,7 @@ module pFIO_StringVectorUtilMod
    private
    public :: StringVector_serialize
    public :: StringVector_deserialize
+   public :: string_in_stringVector
 
 contains
 
@@ -56,5 +57,20 @@ contains
        enddo
        _RETURN(_SUCCESS)
    end subroutine StringVector_deserialize
+
+   function string_in_stringVector(target_string,string_vector) result(in_vector)
+      logical :: in_vector
+      character(len=*), intent(in) :: target_string
+      type(StringVector), intent(in) :: string_vector
+
+      type(StringVectorIterator) :: iter
+
+      in_vector = .false.
+      iter = string_vector%begin()
+      do while(iter /= string_vector%end())
+         if (trim(target_string) == iter%get()) in_vector = .true.
+         call iter%next()
+      enddo
+   end function string_in_stringVector
 
 end module pFIO_StringVectorUtilMod

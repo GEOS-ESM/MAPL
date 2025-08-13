@@ -11,7 +11,9 @@ module mapl_CompositeComponent
 !!$      private
       class(ConcreteComposite), pointer :: composite => null()
    contains
-      procedure :: get_child
+      procedure :: get_child_by_name
+      procedure :: get_child_by_index
+      generic :: get_child => get_child_by_name, get_child_by_index
       procedure :: add_child
       procedure :: get_parent
       procedure :: get_num_children
@@ -24,7 +26,7 @@ module mapl_CompositeComponent
 
 contains
 
-   function get_child(this, name) result(child)
+   function get_child_by_name(this, name) result(child)
       class(AbstractFrameworkComponent), pointer :: child
       class(CompositeComponent), intent(in) :: this
       character(*), intent(in) :: name
@@ -37,7 +39,22 @@ contains
          child => child_node%get_component()
       end select
       
-   end function get_child
+   end function get_child_by_name
+
+   function get_child_by_index(this, i) result(child)
+      class(AbstractFrameworkComponent), pointer :: child
+      class(CompositeComponent), intent(in) :: this
+      integer, intent(in) :: i
+
+      class(AbstractComposite), pointer :: child_node
+
+      child_node => this%composite%get_child(i)
+      select type (child_node)
+      class is (ConcreteComposite)
+         child => child_node%get_component()
+      end select
+      
+   end function get_child_by_index
 
 
    function add_child(this, name, component) result(child)
