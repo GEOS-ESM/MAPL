@@ -9,6 +9,7 @@ module mapl3g_RestartHandler
    use mapl3g_geomio, only: bundle_to_metadata, GeomPFIO, make_geom_pfio, get_mapl_geom
    use mapl3g_FieldBundle_API, only: MAPL_FieldBundleCreate
    use mapl3g_Field_API, only: MAPL_FieldGet
+   use mapl3g_RestartModes, only: MAPL_RESTART_MODE, MAPL_RESTART_SKIP
    use pFIO, only: PFIO_READ, FileMetaData, NetCDF4_FileFormatter
    use pFIO, only: i_Clients, o_Clients
    use pFlogger, only: logging, logger
@@ -17,12 +18,6 @@ module mapl3g_RestartHandler
    private
 
    public :: RestartHandler
-   public :: MAPL_RESTART
-   public :: MAPL_RESTART_OPTIONAL
-   public :: MAPL_RESTART_SKIP
-   public :: MAPL_RESTART_REQUIRED
-   public :: MAPL_RESTART_BOOT
-   public :: MAPL_RESTART_SKIP_INITIAL
 
    type :: RestartHandler
       private
@@ -39,15 +34,6 @@ module mapl3g_RestartHandler
    interface RestartHandler
       procedure new_RestartHandler
    end interface RestartHandler
-
-   enum, bind(C)
-      enumerator :: MAPL_RESTART
-      enumerator :: MAPL_RESTART_OPTIONAL
-      enumerator :: MAPL_RESTART_SKIP
-      enumerator :: MAPL_RESTART_REQUIRED
-      enumerator :: MAPL_RESTART_BOOT
-      enumerator :: MAPL_RESTART_SKIP_INITIAL
-   end enum
 
 contains
 
@@ -154,7 +140,7 @@ contains
       type (ESMF_StateItem_Flag), allocatable  :: item_type(:)
       type(ESMF_Field) :: field
       type(ESMF_FieldBundle) :: bundle
-      logical :: skip_restart
+      integer(kind=kind(MAPL_RESTART_MODE)) :: restart_mode
       integer :: idx, num_fields, status
 
       call file_formatter%open(filename, PFIO_READ, _RC)
@@ -174,8 +160,8 @@ contains
       do idx = 1, num_fields
          _ASSERT(item_type(idx) == ESMF_STATEITEM_FIELD, "can read only ESMF fields")
          call ESMF_StateGet(state, item_name(idx), field, _RC)
-         call MAPL_FieldGet(field, skip_restart=skip_restart, _RC)
-         if (skip_restart) cycle
+         call MAPL_FieldGet(field, restart_mode=restart_mode, _RC)
+         if (restart_mode==MAPL_RESTART_SKIP) cycle
          call ESMF_FieldBundleAdd(bundle, [field], _RC)
       end do
 

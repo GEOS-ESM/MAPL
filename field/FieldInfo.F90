@@ -6,6 +6,7 @@ module mapl3g_FieldInfo
    use mapl3g_InfoUtilities
    use mapl3g_UngriddedDims
    use mapl3g_VerticalStaggerLoc
+   use mapl3g_RestartModes, only: MAPL_RESTART_MODE
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
@@ -53,7 +54,7 @@ module mapl3g_FieldInfo
    character(*), parameter :: KEY_FILL_VALUE = "/_FillValue"
 
    character(*), parameter :: KEY_SPEC_HANDLE = "/spec_handle"
-   character(*), parameter :: KEY_SKIP_RESTART = "/skip_restart"
+   character(*), parameter :: KEY_RESTART_MODE = "/restart_mode"
 
 contains
 
@@ -64,7 +65,7 @@ contains
         units, long_name, standard_name, &
         is_active, &
         spec_handle, &
-        skip_restart, &
+        restart_mode, &
         rc)
       type(ESMF_Info), intent(inout) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -77,7 +78,7 @@ contains
       character(*), optional, intent(in) :: standard_name
       logical, optional, intent(in) :: is_active
       integer, optional, intent(in) :: spec_handle(:)
-      logical, optional, intent(in) :: skip_restart
+      integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(in) :: restart_mode
       integer, optional, intent(out) :: rc
       
       integer :: status
@@ -140,8 +141,8 @@ contains
          call MAPL_InfoSet(info, namespace_ // KEY_SPEC_HANDLE, spec_handle, _RC)
       end if
 
-      if (present(skip_restart)) then
-         call MAPL_InfoSet(info, namespace_ // KEY_SKIP_RESTART, skip_restart, _RC)
+      if (present(restart_mode)) then
+         call MAPL_InfoSet(info, namespace_ // KEY_RESTART_MODE, restart_mode, _RC)
       end if
 
       _RETURN(_SUCCESS)
@@ -155,7 +156,7 @@ contains
         ungridded_dims, &
         is_active, &
         spec_handle, &
-        skip_restart, &
+        restart_mode, &
         rc)
       type(ESMF_Info), intent(in) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -169,7 +170,7 @@ contains
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       logical, optional, intent(out) :: is_active
       integer, optional, allocatable, intent(out) :: spec_handle(:)
-      logical, optional, intent(out) :: skip_restart
+      integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(out) :: restart_mode
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -237,11 +238,11 @@ contains
          call MAPL_InfoGet(info, namespace_ // KEY_SPEC_HANDLE, spec_handle, _RC)
       end if
 
-      if (present(skip_restart)) then
-         skip_restart = .false.
-         key_is_present = ESMF_InfoIsPresent(info, key=namespace_//KEY_SKIP_RESTART, _RC)
+      if (present(restart_mode)) then
+         restart_mode = MAPL_RESTART_MODE
+         key_is_present = ESMF_InfoIsPresent(info, key=namespace_//KEY_RESTART_MODE, _RC)
          if (key_is_present) then
-            call MAPL_InfoGet(info, namespace_ // KEY_SKIP_RESTART, skip_restart, _RC)
+            call MAPL_InfoGet(info, namespace_ // KEY_RESTART_MODE, restart_mode, _RC)
          end if
       end if
 

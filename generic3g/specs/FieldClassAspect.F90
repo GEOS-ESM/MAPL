@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_FieldClassAspect
+
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
@@ -11,7 +12,6 @@ module mapl3g_FieldClassAspect
    use mapl3g_UnitsAspect
    use mapl3g_TypekindAspect
    use mapl3g_UngriddedDimsAspect
-   use mapl3g_FieldInfo, only: FieldInfoSetInternal
 
    use mapl3g_VerticalGrid
    use mapl3g_VerticalStaggerLoc
@@ -24,12 +24,14 @@ module mapl3g_FieldClassAspect
    use mapl3g_ESMF_Utilities, only: get_substate
 
    use mapl3g_Field_API
-   use mapl3g_FieldInfo
-   use mapl_FieldUtilities
+   use mapl3g_FieldInfo, only: FieldInfoSetInternal
+   use mapl3g_RestartModes, only: MAPL_RESTART_MODE
 
+   use mapl_FieldUtilities
    use mapl_ErrorHandling
    use esmf
    use pflogger
+
    implicit none(type,external)
    private
 
@@ -48,7 +50,7 @@ module mapl3g_FieldClassAspect
       character(:), allocatable :: standard_name
       character(:), allocatable :: long_name
       real(kind=ESMF_KIND_R4), allocatable :: default_value
-      logical :: skip_restart
+      integer(kind=kind(MAPL_RESTART_MODE)), allocatable :: restart_mode
    contains
       procedure :: get_aspect_order
       procedure :: supports_conversion_general
@@ -84,12 +86,12 @@ module mapl3g_FieldClassAspect
 
 contains
 
-   function new_FieldClassAspect(standard_name, long_name, default_value, skip_restart) result(aspect)
+   function new_FieldClassAspect(standard_name, long_name, default_value, restart_mode) result(aspect)
       type(FieldClassAspect) :: aspect
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
-      real(kind=ESMF_KIND_R4), intent(in), optional :: default_value
-      logical, optional, intent(in) :: skip_restart
+      real(kind=ESMF_KIND_R4), optional, intent(in) :: default_value
+      integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(in) :: restart_mode
 
       aspect%standard_name = 'unknown'
       if (present(standard_name)) then
@@ -104,8 +106,7 @@ contains
          aspect%default_value = default_value
       end if
 
-      aspect%skip_restart = .false.
-      if (present(skip_restart)) aspect%skip_restart = skip_restart
+      if (present(restart_mode)) aspect%restart_mode = restart_mode
    end function new_FieldClassAspect
 
    function get_aspect_order(this, goal_aspects, rc) result(aspect_ids)
@@ -296,8 +297,10 @@ contains
 
       call mirror(this%default_value, export_%default_value)
 
-      call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldInfoSetInternal(info, skip_restart=this%skip_restart, _RC)
+      if (allocated(this%restart_mode)) then
+         call ESMF_InfoGetFromHost(this%payload, info, _RC)
+         call FieldInfoSetInternal(info, restart_mode=this%restart_mode, _RC)
+      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
