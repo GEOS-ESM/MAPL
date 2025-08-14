@@ -76,7 +76,6 @@ contains
         units, long_name, standard_name, &
         is_active, &
         spec_handle, &
-        restart_mode, &
         rc)
       type(ESMF_Info), intent(inout) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -89,7 +88,6 @@ contains
       character(*), optional, intent(in) :: standard_name
       logical, optional, intent(in) :: is_active
       integer, optional, intent(in) :: spec_handle(:)
-      integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(in) :: restart_mode
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -152,10 +150,6 @@ contains
          call MAPL_InfoSet(info, namespace_ // KEY_SPEC_HANDLE, spec_handle, _RC)
       end if
 
-      if (present(restart_mode)) then
-         call MAPL_InfoSet(info, namespace_ // KEY_RESTART_MODE, restart_mode, _RC)
-      end if
-
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine field_info_set_internal
@@ -167,7 +161,6 @@ contains
         ungridded_dims, &
         is_active, &
         spec_handle, &
-        restart_mode, &
         rc)
       type(ESMF_Info), intent(in) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -181,7 +174,6 @@ contains
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       logical, optional, intent(out) :: is_active
       integer, optional, allocatable, intent(out) :: spec_handle(:)
-      integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(out) :: restart_mode
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -247,14 +239,6 @@ contains
 
       if (present(spec_handle)) then
          call MAPL_InfoGet(info, namespace_ // KEY_SPEC_HANDLE, spec_handle, _RC)
-      end if
-
-      if (present(restart_mode)) then
-         restart_mode = MAPL_RESTART_MODE
-         key_is_present = ESMF_InfoIsPresent(info, key=namespace_//KEY_RESTART_MODE, _RC)
-         if (key_is_present) then
-            call MAPL_InfoGet(info, namespace_ // KEY_RESTART_MODE, restart_mode, _RC)
-         end if
       end if
 
       _RETURN(_SUCCESS)
