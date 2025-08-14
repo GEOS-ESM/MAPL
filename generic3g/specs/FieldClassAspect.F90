@@ -319,6 +319,8 @@ contains
       call mirror(this%default_value, export_%default_value)
 
       if (allocated(this%restart_mode)) then
+         _ASSERT(allocated(this%gridcomp_name), "gridcomp name is not known")
+         _ASSERT(allocated(this%short_name), "field's short name is not known")
          call ESMF_InfoGetFromHost(this%payload, info, _RC)
          call FieldInfoSetPrivate(info, this%gridcomp_name, this%short_name, restart_mode=this%restart_mode, _RC)
       end if
