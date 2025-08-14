@@ -2914,7 +2914,7 @@ contains
        real(ESMF_KIND_R8), allocatable :: corner_lons(:,:), corner_lats(:,:)
        real(ESMF_KIND_R8), allocatable :: lonRe(:), latRe(:)
        real(ESMF_KIND_R8), allocatable :: accurate_lat(:), accurate_lon(:)
-       real(ESMF_KIND_R8) :: stretch_factor, target_lon, target_lat, shift0
+       real(ESMF_KIND_R8) :: shift0
        real :: tolerance
        integer :: local_dims(3)
 
@@ -3443,7 +3443,7 @@ contains
 
      logical :: factorPresent, lonPresent, latPresent
      integer :: status
-     real(ESMF_KIND_R8) :: c2p1, c2m1, half_pi, two_pi, stretch_factor, target_lon, target_lat
+     real(ESMF_KIND_R8) :: c2p1, c2m1, half_pi, two_pi, stretch_factor, target_lon, target_lat, target_lon_degrees, target_lat_degrees
      real(ESMF_KIND_R8), dimension(npts) :: x,y,z, Xx, Yy, Zz
      logical, dimension(npts) :: n_s
 
@@ -3478,8 +3478,8 @@ contains
      endif
 
      call ESMF_AttributeGet(grid, name='STRETCH_FACTOR', value=stretch_factor, _RC)
-     call ESMF_AttributeGet(grid, name='TARGET_LON',     value=target_lon,     _RC)
-     call ESMF_AttributeGet(grid, name='TARGET_LAT',     value=target_lat,     _RC)
+     call ESMF_AttributeGet(grid, name='TARGET_LON',     value=target_lon_degrees,     _RC)
+     call ESMF_AttributeGet(grid, name='TARGET_LAT',     value=target_lat_degrees,     _RC)
 
      c2p1 = 1 + stretch_factor*stretch_factor
      c2m1 = 1 - stretch_factor*stretch_factor
@@ -3487,8 +3487,8 @@ contains
      half_pi = MAPL_PI_R8/2
      two_pi  = MAPL_PI_R8*2
 
-     target_lon = target_lon*MAPL_DEGREES_TO_RADIANS_R8
-     target_lat = target_lat*MAPL_DEGREES_TO_RADIANS_R8
+     target_lon = target_lon_degrees*MAPL_DEGREES_TO_RADIANS_R8
+     target_lat = target_lat_degrees*MAPL_DEGREES_TO_RADIANS_R8
 
      x = cos(latRe)*cos(lonRe - target_lon)
      y = cos(latRe)*sin(lonRe - target_lon)

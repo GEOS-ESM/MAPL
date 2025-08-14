@@ -3585,7 +3585,7 @@ contains
     type (StringIntegerMapIterator)    :: iter
     type (StringVariableMap) :: var_map
     logical :: have_target_lon, have_target_lat, have_stretch_factor
-    real :: target_lon, target_lat, stretch_factor
+    real :: target_lon_degrees, target_lat_degrees, stretch_factor
     logical :: is_stretched
     character(len=ESMF_MAXSTR) :: positive
     type(StringVector) :: flip_vars
@@ -3607,9 +3607,9 @@ contains
     _VERIFY(status)
     if (have_target_lon .and. have_target_lat .and. have_stretch_factor) then
        is_stretched = .true.
-       call ESMF_AttributeGet(arrdes%grid,name="TARGET_LON",value=target_lon,rc=status)
+       call ESMF_AttributeGet(arrdes%grid,name="TARGET_LON",value=target_lon_degrees,rc=status)
        _VERIFY(status)
-       call ESMF_AttributeGet(arrdes%grid,name="TARGET_LAT",value=target_lat,rc=status)
+       call ESMF_AttributeGet(arrdes%grid,name="TARGET_LAT",value=target_lat_degrees,rc=status)
        _VERIFY(status)
        call ESMF_AttributeGet(arrdes%grid,name="STRETCH_FACTOR",value=stretch_factor,rc=status)
        _VERIFY(status)
@@ -3800,8 +3800,8 @@ contains
              x0=1.0d0
              x1=dble(arrdes%IM_WORLD)
              if (is_stretched) then
-                call cf%add_attribute('TARGET_LON',target_lon)
-                call cf%add_attribute('TARGET_LAT',target_lat)
+                call cf%add_attribute('TARGET_LON',target_lon_degrees)
+                call cf%add_attribute('TARGET_LAT',target_lat_degrees)
                 call cf%add_attribute('STRETCH_FACTOR',stretch_factor)
              end if
           else
