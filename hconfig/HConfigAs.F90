@@ -8,10 +8,20 @@ module mapl3g_HConfigAs
 
    private
 
+   public :: HConfigAsItemType
+   public :: HConfigAsStateIntent
    public :: HConfigAsTime
    public :: HConfigAsTimeInterval
    public :: HConfigAsStringVector
 
+
+   interface HConfigAsItemType
+      procedure :: as_itemtype
+   end interface HConfigAsItemType
+
+   interface HConfigAsStateIntent
+      procedure :: as_stateintent
+   end interface HConfigAsStateIntent
 
    interface HConfigAsTime
       procedure :: as_time
@@ -26,6 +36,62 @@ module mapl3g_HConfigAs
    end interface HConfigAsStringVector
 
 contains
+
+   function as_stateintent(hconfig, unusable, keystring, index, rc) result(intent)
+      type(esmf_StateIntent_flag) :: intent
+      type(esmf_HConfig), intent(in) :: hconfig
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(len=*), intent(in), optional :: keystring
+      integer, optional, intent(in) :: index
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: str
+
+      str = esmf_HConfigAsString(hconfig, keystring=keystring, index=index, _RC)
+
+      select case (esmf_UtilStringUpperCase(str))
+      case ('ESMF_STATE_IMPORT')
+         intent = ESMF_STATEINTENT_IMPORT
+      case ('ESMF_STATE_EXPORT')
+         intent = ESMF_STATEINTENT_EXPORT
+      case ('ESMF_STATE_INTERNAL')
+         intent = ESMF_STATEINTENT_INTERNAL
+      case default
+         intent = ESMF_STATEINTENT_UNSPECIFIED
+         _FAIL('Unknown state intent: '//str)
+      end select
+      
+      _RETURN(_SUCCESS)
+    end function as_stateintent
+
+   function as_itemtype(hconfig, unusable, keystring, index, rc) result(itemtype)
+      type(esmf_StateItem_Flag) :: itemtype
+      type(esmf_HConfig), intent(in) :: hconfig
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(len=*), intent(in), optional :: keystring
+      integer, optional, intent(in) :: index
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: str
+
+      str = esmf_HConfigAsString(hconfig, keystring=keystring, index=index, _RC)
+
+      select case (ESMF_UtilStringUpperCase(str))
+      case ('ESMF_STATEITEM_FIELD')
+         itemtype = ESMF_STATEITEM_FIELD
+      case ('ESMF_STATEITEM_FIELDBUNDLE')
+         itemtype = ESMF_STATEITEM_FIELDBUNDLE
+      case ('ESMF_STATEITEM_STATE')
+         itemtype = ESMF_STATEITEM_STATE
+      case default
+         itemtype = ESMF_STATEITEM_UNKNOWN
+         _FAIL('Unknown item type: '//trim(str))
+      end select
+
+      _RETURN(_SUCCESS)
+   end function as_itemtype
 
    function as_time(hconfig, unusable, keystring, index, rc) result(time)
       type(esmf_Time) :: time
@@ -86,5 +152,6 @@ contains
 
       _RETURN(_SUCCESS)
    end function as_stringvector
+
 
 end module mapl3g_HConfigAs
