@@ -77,12 +77,12 @@ contains
 
       has_frequency = ESMF_HConfigIsDefined(time_hconfig, keyString='frequency', _RC)
       if (has_frequency) then
-         timeStep = hconfig_to_esmf_timeinterval(time_hconfig, 'frequency', _RC)
+         timeStep = mapl_HConfigAsTimeInterval(time_hconfig, keystring='frequency', _RC)
       end if
 
       has_offset = ESMF_HConfigIsDefined(time_hconfig, keyString='offset', _RC)
       if (has_offset) then
-         offset = hconfig_to_esmf_timeinterval(time_hconfig, 'offset', _RC)
+         offset = mapl_HConfigAsTimeInterval(time_hconfig, keystring='offset', _RC)
       end if
 
       _RETURN(_SUCCESS)
