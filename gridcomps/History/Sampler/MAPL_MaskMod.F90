@@ -118,7 +118,7 @@ module MaskSamplerMod
      real(kind=ESMF_KIND_R8), allocatable:: t_alongtrack(:)
      integer                        :: nobs_dur
      integer                        :: nobs_dur_sum
-     type(ESMF_Time)                :: obsfile_start_time   ! user specify
+     type(ESMF_Time)                :: obsfile_ref_time
      type(ESMF_TimeInterval)        :: obsfile_interval
      integer                        :: obsfile_Ts_index     ! for epoch
      integer                        :: obsfile_Te_index
