@@ -456,7 +456,7 @@ contains
       type(NonClimDataSetFileSelector) :: non_clim_file_selector
  
       export_rule => this%rule_map%at(item_name)
-      if (export_rule%collection .ne. "/dev/null") then
+      if (export_rule%collection /= "/dev/null") then
          collection => this%file_stream_map%at(export_rule%collection)
          non_clim_file_selector = NonClimDataSetFileSelector(collection%file_template, collection%frequency, ref_time=collection%reff_time )
          allocate(file_selector, source=non_clim_file_selector, _STAT)
