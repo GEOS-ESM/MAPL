@@ -1174,11 +1174,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               recvcount, MPI_REAL8, 0, mpic, ierr)
          _VERIFY(ierr)
 
-         if (mapl_am_I_root()) then
-            print*, 'size(lons, lats) =', size(this%lons), size(this%lats)
-            write(6, '(2x,8f8.1)') this%lons
-            write(6, '(2x,8f8.1)') this%lats
-         end if
+! ygyu: this is not needed         
+!         if (mapl_am_I_root()) then
+!            print*, 'size(lons, lats) =', size(this%lons), size(this%lats)
+!            write(6, '(2x,8f8.1)') this%lons
+!            write(6, '(2x,8f8.1)') this%lats
+!         end if
          
          ! -- root
          this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
