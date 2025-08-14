@@ -456,9 +456,11 @@ contains
       type(NonClimDataSetFileSelector) :: non_clim_file_selector
  
       export_rule => this%rule_map%at(item_name)
-      collection => this%file_stream_map%at(export_rule%collection)
-      non_clim_file_selector = NonClimDataSetFileSelector(collection%file_template, collection%frequency, ref_time=collection%reff_time )
-      allocate(file_selector, source=non_clim_file_selector, _STAT)
+      if (export_rule%collection /= "/dev/null") then
+         collection => this%file_stream_map%at(export_rule%collection)
+         non_clim_file_selector = NonClimDataSetFileSelector(collection%file_template, collection%frequency, ref_time=collection%reff_time )
+         allocate(file_selector, source=non_clim_file_selector, _STAT)
+      end if
       export = PrimaryExport(item_name, export_rule%file_var, file_selector)
 
       _RETURN(_SUCCESS)
