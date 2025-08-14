@@ -39,7 +39,7 @@ contains
       _ASSERT(interval2 /= zero, 'The second interval must be nonzero.')
       units = to_array(interval, _RC)
       units2 = to_array(interval2, _RC)
-      _RETURN_IF(cannot_compare(units == 0, units2 == 0))
+      _RETURN_IF(cannot_compare(units .ne. 0, units2 .ne. 0))
       associate(abs1 => ESMF_TimeIntervalAbsValue(interval), &
             & abs2 => ESMF_TimeIntervalAbsValue(interval2))
          _RETURN_IF(abs1 < abs2 .or. mod(abs1, abs2) /= zero)
@@ -61,7 +61,8 @@ contains
          logical, intent(in) :: z(:), z2(:)
          integer, parameter :: MONTH = 2
 
-         cannot_compare = any(z .neqv. z2) .or. .not. (all(z(:MONTH)) .or. all(z(MONTH+1:)))
+         cannot_compare = (any(z(:MONTH)) .and. any(z2(MONTH+1:))) .or. &
+                          (any(z2(:MONTH)) .and. any(z(MONTH+1:)))
 
       end function cannot_compare
 

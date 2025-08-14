@@ -40,6 +40,7 @@ if (BUILD_WITH_FARGPARSE)
   set_target_properties(CapDriver.x PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
   add_subdirectory(GetHorzIJIndex)
+  add_subdirectory(MAPL3G_Component_Testing_Framework)
 
 endif ()
 
