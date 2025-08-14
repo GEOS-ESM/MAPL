@@ -155,8 +155,6 @@ contains
     
       if (allocated(collection_gridcomp%real_time_vector))    deallocate(collection_gridcomp%real_time_vector)
       call get_real_time_vector(collection_gridcomp%initial_file_time, collection_gridcomp%time_vector, collection_gridcomp%real_time_vector, _RC)
-      write(*,*)"bmaa vec: ",time_index, collection_gridcomp%real_time_vector
-      write(*,*)"bmaa +++++++++++++++"
       call collection_gridcomp%writer%stage_time_to_file(collection_gridcomp%current_file, collection_gridcomp%real_time_vector,  _RC)
       call collection_gridcomp%writer%stage_data_to_file(collection_gridcomp%output_bundle, collection_gridcomp%current_file, time_index, _RC)
       _RETURN(_SUCCESS)
