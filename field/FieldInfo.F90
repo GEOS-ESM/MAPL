@@ -3,10 +3,12 @@
 module mapl3g_FieldInfo
    use mapl3g_esmf_info_keys, only: INFO_SHARED_NAMESPACE
    use mapl3g_esmf_info_keys, only: INFO_INTERNAL_NAMESPACE
+   use mapl3g_esmf_info_keys, only: INFO_PRIVATE_NAMESPACE
    use mapl3g_InfoUtilities
    use mapl3g_UngriddedDims
    use mapl3g_VerticalStaggerLoc
    use mapl3g_StateItemAllocation
+   use mapl3g_RestartModes, only: MAPL_RESTART_MODE, MAPL_RESTART_REQUIRED
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
@@ -17,6 +19,8 @@ module mapl3g_FieldInfo
    public :: FieldInfoSetShared
    public :: FieldInfoSetInternal
    public :: FieldInfoGetInternal
+   public :: FieldInfoSetPrivate
+   public :: FieldInfoGetPrivate
    public :: FieldInfoCopyShared
 
    interface FieldInfoSetShared
@@ -35,9 +39,17 @@ module mapl3g_FieldInfo
 
    interface FieldInfoGetInternal
       module procedure field_info_get_internal
-   end interface
+   end interface FieldInfoGetInternal
 
-    interface FieldInfoCopyShared
+   interface FieldInfoSetPrivate
+      module procedure field_info_set_private
+   end interface FieldInfoSetPrivate
+
+   interface FieldInfoGetPrivate
+      module procedure field_info_get_private
+   end interface FieldInfoGetPrivate
+
+   interface FieldInfoCopyShared
       procedure :: field_info_copy_shared
    end interface FieldInfoCopyShared
 
@@ -54,7 +66,7 @@ module mapl3g_FieldInfo
    character(*), parameter :: KEY_FILL_VALUE = "/_FillValue"
 
    character(*), parameter :: KEY_SPEC_HANDLE = "/spec_handle"
-   character(*), parameter :: KEY_SKIP_RESTART = "/skip_restart"
+   character(*), parameter :: KEY_RESTART_MODE = "/restart_mode"
 
 contains
 
@@ -65,7 +77,6 @@ contains
         units, long_name, standard_name, &
         allocation_status, &
         spec_handle, &
-        skip_restart, &
         rc)
       type(ESMF_Info), intent(inout) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -78,9 +89,8 @@ contains
       character(*), optional, intent(in) :: standard_name
       type(StateItemAllocation), optional, intent(in) :: allocation_status
       integer, optional, intent(in) :: spec_handle(:)
-      logical, optional, intent(in) :: skip_restart
       integer, optional, intent(out) :: rc
-      
+
       integer :: status
       type(ESMF_Info) :: ungridded_info
       character(:), allocatable :: namespace_
@@ -141,10 +151,6 @@ contains
          call MAPL_InfoSet(info, namespace_ // KEY_SPEC_HANDLE, spec_handle, _RC)
       end if
 
-      if (present(skip_restart)) then
-         call MAPL_InfoSet(info, namespace_ // KEY_SKIP_RESTART, skip_restart, _RC)
-      end if
-
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine field_info_set_internal
@@ -156,7 +162,6 @@ contains
         ungridded_dims, &
         allocation_status, &
         spec_handle, &
-        skip_restart, &
         rc)
       type(ESMF_Info), intent(in) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -170,7 +175,6 @@ contains
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       type(StateItemAllocation), optional, intent(out) :: allocation_status
       integer, optional, allocatable, intent(out) :: spec_handle(:)
-      logical, optional, intent(out) :: skip_restart
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -240,17 +244,57 @@ contains
          call MAPL_InfoGet(info, namespace_ // KEY_SPEC_HANDLE, spec_handle, _RC)
       end if
 
-      if (present(skip_restart)) then
-         skip_restart = .false.
-         key_is_present = ESMF_InfoIsPresent(info, key=namespace_//KEY_SKIP_RESTART, _RC)
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine field_info_get_internal
+
+   subroutine field_info_set_private(info, gridcomp_name, short_name, unusable, restart_mode, rc)
+      type(ESMF_Info), intent(inout) :: info
+      character(*), intent(in) :: gridcomp_name
+      character(*), intent(in) :: short_name
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(in) :: restart_mode
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: namespace
+
+      namespace = INFO_PRIVATE_NAMESPACE // "/" // trim(gridcomp_name) // "/" // trim(short_name)
+
+      if (present(restart_mode)) then
+         call MAPL_InfoSet(info, namespace // KEY_RESTART_MODE, restart_mode, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine field_info_set_private
+
+   subroutine field_info_get_private(info, gridcomp_name, short_name, unusable, restart_mode, rc)
+      type(ESMF_Info), intent(in) :: info
+      character(*), intent(in) :: gridcomp_name
+      character(*), intent(in) :: short_name
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(out) :: restart_mode
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: namespace, key
+      logical :: key_is_present
+
+      namespace = INFO_PRIVATE_NAMESPACE // "/" // trim(gridcomp_name) // "/" // trim(short_name)
+
+      if (present(restart_mode)) then
+         key = namespace // KEY_RESTART_MODE
+         key_is_present = ESMF_InfoIsPresent(info, key=key, _RC)
+         restart_mode = MAPL_RESTART_REQUIRED
          if (key_is_present) then
-            call MAPL_InfoGet(info, namespace_ // KEY_SKIP_RESTART, skip_restart, _RC)
+            call MAPL_InfoGet(info, key, restart_mode, _RC)
          end if
       end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end subroutine field_info_get_internal
+   end subroutine field_info_get_private
 
    subroutine info_field_get_shared_i4(field, key, value, unusable, rc)
       type(ESMF_Field), intent(in) :: field
@@ -331,7 +375,7 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine field_info_copy_shared
-      
+
    function concat(namespace, key) result(full_key)
       character(*), intent(in) :: namespace
       character(*), intent(in) :: key
@@ -344,6 +388,5 @@ contains
       full_key = namespace // '/' //key
 
    end function concat
-
 
 end module mapl3g_FieldInfo

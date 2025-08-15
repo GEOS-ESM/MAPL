@@ -4,6 +4,7 @@ module mapl3g_Field_API
    use mapl3g_FieldCreate
    use mapl3g_VerticalStaggerLoc
    use mapl3g_StateItemAllocation
+   use mapl3g_RestartModes
    ! Internal info should not be exposed to users
 !#   use mapl3g_FieldInfo, only: MAPL_FieldInfoGetPrivate
 !#   use mapl3g_FieldInfo, only: MAPL_FieldInfoSetPrivate

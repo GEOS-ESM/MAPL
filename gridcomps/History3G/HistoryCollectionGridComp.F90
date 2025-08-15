@@ -21,6 +21,7 @@ module mapl3g_HistoryCollectionGridComp
       character(len=:), allocatable :: template
       character(len=:), allocatable :: current_file
       type(ESMF_Time), allocatable :: time_vector(:)
+      real, allocatable :: real_time_vector(:)
    end type HistoryCollectionGridComp
 
    character(len=*), parameter :: null_file = 'null_file'
@@ -122,7 +123,6 @@ contains
       type(ESMF_Time) :: current_time
       character(len=ESMF_MAXSTR) :: name
       character(len=128) :: current_file
-      real, allocatable :: real_time_vector(:)
       type(ESMF_Time), allocatable :: esmf_time_vector(:)
 
       call ESMF_GridCompGet(gridcomp, name=name, _RC)
@@ -152,9 +152,10 @@ contains
       deallocate(collection_gridcomp%time_vector)
       allocate(collection_gridcomp%time_vector(time_index), _STAT)
       collection_gridcomp%time_vector = esmf_time_vector
-     
-      call get_real_time_vector(collection_gridcomp%initial_file_time, collection_gridcomp%time_vector, real_time_vector, _RC)
-      call collection_gridcomp%writer%stage_time_to_file(collection_gridcomp%current_file, real_time_vector,  _RC)
+    
+      if (allocated(collection_gridcomp%real_time_vector))    deallocate(collection_gridcomp%real_time_vector)
+      call get_real_time_vector(collection_gridcomp%initial_file_time, collection_gridcomp%time_vector, collection_gridcomp%real_time_vector, _RC)
+      call collection_gridcomp%writer%stage_time_to_file(collection_gridcomp%current_file, collection_gridcomp%real_time_vector,  _RC)
       call collection_gridcomp%writer%stage_data_to_file(collection_gridcomp%output_bundle, collection_gridcomp%current_file, time_index, _RC)
       _RETURN(_SUCCESS)
 

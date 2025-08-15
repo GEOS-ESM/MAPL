@@ -8,7 +8,8 @@ module mapl3g_RestartHandler
    use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Return, MAPL_Assert
    use mapl3g_geomio, only: bundle_to_metadata, GeomPFIO, make_geom_pfio, get_mapl_geom
    use mapl3g_FieldBundle_API, only: MAPL_FieldBundleCreate
-   use mapl3g_Field_API, only: MAPL_FieldGet
+   use mapl3g_FieldInfo, only: FieldInfoGetPrivate
+   use mapl3g_RestartModes, only: MAPL_RESTART_MODE, MAPL_RESTART_SKIP
    use pFIO, only: PFIO_READ, FileMetaData, NetCDF4_FileFormatter
    use pFIO, only: i_Clients, o_Clients
    use pFlogger, only: logging, logger
@@ -17,17 +18,12 @@ module mapl3g_RestartHandler
    private
 
    public :: RestartHandler
-   public :: MAPL_RESTART
-   public :: MAPL_RESTART_OPTIONAL
-   public :: MAPL_RESTART_SKIP
-   public :: MAPL_RESTART_REQUIRED
-   public :: MAPL_RESTART_BOOT
-   public :: MAPL_RESTART_SKIP_INITIAL
 
    type :: RestartHandler
       private
-      type(ESMF_Geom) :: gc_geom
-      type(ESMF_Time) :: currTime
+      character(len=:), allocatable :: gridcomp_name
+      type(ESMF_Geom) :: gridcomp_geom
+      type(ESMF_Time) :: current_time
       class(logger), pointer :: lgr => null()
    contains
       procedure, public :: write
@@ -40,27 +36,20 @@ module mapl3g_RestartHandler
       procedure new_RestartHandler
    end interface RestartHandler
 
-   enum, bind(C)
-      enumerator :: MAPL_RESTART
-      enumerator :: MAPL_RESTART_OPTIONAL
-      enumerator :: MAPL_RESTART_SKIP
-      enumerator :: MAPL_RESTART_REQUIRED
-      enumerator :: MAPL_RESTART_BOOT
-      enumerator :: MAPL_RESTART_SKIP_INITIAL
-   end enum
-
 contains
 
-   function new_RestartHandler(gc_geom, currTime, gc_logger) result(restart_handler)
+   function new_RestartHandler(gridcomp_name, gridcomp_geom, current_time, gridcomp_logger) result(restart_handler)
+      character(len=*), intent(in) :: gridcomp_name
+      type(ESMF_Geom), intent(in) :: gridcomp_geom
+      type(ESMF_Time), intent(in) :: current_time
+      class(logger), pointer, optional, intent(in) :: gridcomp_logger
       type(RestartHandler) :: restart_handler ! result
-      type(ESMF_Geom), intent(in) :: gc_geom
-      type(ESMF_Time), intent(in) :: currTime
-      class(logger), pointer, optional, intent(in) :: gc_logger
 
-      restart_handler%gc_geom = gc_geom
-      restart_handler%currTime = currTime
+      restart_handler%gridcomp_name = gridcomp_name
+      restart_handler%gridcomp_geom = gridcomp_geom
+      restart_handler%current_time = current_time
       restart_handler%lgr => logging%get_logger('mapl.restart')
-      if (present(gc_logger)) restart_handler%lgr => gc_logger
+      if (present(gridcomp_logger)) restart_handler%lgr => gridcomp_logger
    end function new_RestartHandler
 
    subroutine write(this, state, filename, rc)
@@ -124,11 +113,11 @@ contains
       type(MaplGeom), pointer :: mapl_geom
       integer :: status
 
-      metadata = bundle_to_metadata(bundle, this%gc_geom, _RC)
+      metadata = bundle_to_metadata(bundle, this%gridcomp_geom, _RC)
       allocate(writer, source=make_geom_pfio(metadata), _STAT)
-      mapl_geom => get_mapl_geom(this%gc_geom, _RC)
+      mapl_geom => get_mapl_geom(this%gridcomp_geom, _RC)
       call writer%initialize(metadata, mapl_geom, _RC)
-      call writer%update_time_on_server(this%currTime, _RC)
+      call writer%update_time_on_server(this%current_time, _RC)
       ! TODO: no-op if bundle is empty, or should we skip empty bundles?
       call writer%stage_data_to_file(bundle, filename, 1, _RC)
       call o_Clients%done_collective_stage()
@@ -154,14 +143,16 @@ contains
       type (ESMF_StateItem_Flag), allocatable  :: item_type(:)
       type(ESMF_Field) :: field
       type(ESMF_FieldBundle) :: bundle
-      logical :: skip_restart
+      type(ESMF_Info) :: info
+      integer(kind=kind(MAPL_RESTART_MODE)) :: restart_mode
+      character(len=ESMF_MAXSTR) :: short_name
       integer :: idx, num_fields, status
 
       call file_formatter%open(filename, PFIO_READ, _RC)
       metadata = file_formatter%read(_RC)
       call file_formatter%close(_RC)
       allocate(reader, source=make_geom_pfio(metadata), _STAT)
-      mapl_geom => get_mapl_geom(this%gc_geom, _RC)
+      mapl_geom => get_mapl_geom(this%gridcomp_geom, _RC)
       call reader%initialize(filename, mapl_geom, _RC)
 
       call ESMF_StateGet(state, itemCount=num_fields, _RC)
@@ -174,8 +165,10 @@ contains
       do idx = 1, num_fields
          _ASSERT(item_type(idx) == ESMF_STATEITEM_FIELD, "can read only ESMF fields")
          call ESMF_StateGet(state, item_name(idx), field, _RC)
-         call MAPL_FieldGet(field, skip_restart=skip_restart, _RC)
-         if (skip_restart) cycle
+         call ESMF_InfoGetFromHost(field, info, _RC)
+         call ESMF_FieldGet(field, name=short_name, _RC)
+         call FieldInfoGetPrivate(info, this%gridcomp_name, short_name, restart_mode=restart_mode, _RC)
+         if (restart_mode==MAPL_RESTART_SKIP) cycle
          call ESMF_FieldBundleAdd(bundle, [field], _RC)
       end do
 

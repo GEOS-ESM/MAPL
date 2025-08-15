@@ -21,6 +21,7 @@ module mapl3g_PrimaryExport
       integer :: client_collection_id
       class(AbstractDataSetFileSelector), allocatable :: file_selector
       type(DataSetBracket) :: bracket
+      logical :: is_constant = .false.
       contains
          procedure :: get_file_selector
          procedure :: complete_export_spec
@@ -41,7 +42,7 @@ module mapl3g_PrimaryExport
       type(PrimaryExport) :: primary_export
       character(len=*), intent(in) :: export_var
       character(len=*), intent(in) :: file_var
-      class(AbstractDataSetFileSelector), intent(in) :: file_selector
+      class(AbstractDataSetFileSelector), allocatable, intent(in) :: file_selector
       integer, optional, intent(out) :: rc
 
       type(DataSetNode) :: left_node, right_node
@@ -49,14 +50,19 @@ module mapl3g_PrimaryExport
       integer :: status
 
       primary_export%export_var = export_var
-      primary_export%file_var = file_var
-      allocate(primary_export%file_selector, source=file_selector)
-      call left_node%set_node_side(NODE_LEFT)
-      call right_node%set_node_side(NODE_RIGHT)
-      call primary_export%bracket%set_node(NODE_LEFT, left_node)
-      call primary_export%bracket%set_node(NODE_RIGHT, right_node)
-      call file_selector%get_file_template(file_template)
-      primary_export%client_collection_id = i_clients%add_data_collection(file_template, _RC)
+      primary_export%is_constant = .not. allocated(file_selector)
+      if (allocated(file_selector)) then
+         primary_export%file_var = file_var
+         allocate(primary_export%file_selector, source=file_selector)
+         call left_node%set_node_side(NODE_LEFT)
+         call right_node%set_node_side(NODE_RIGHT)
+         call primary_export%bracket%set_node(NODE_LEFT, left_node)
+         call primary_export%bracket%set_node(NODE_RIGHT, right_node)
+         call file_selector%get_file_template(file_template)
+         primary_export%client_collection_id = i_clients%add_data_collection(file_template, _RC)
+      else 
+         primary_export%is_constant = .true.
+      end if
       _RETURN(_SUCCESS)
 
    end function 
@@ -101,13 +107,17 @@ module mapl3g_PrimaryExport
       !type(BasicVerticalGriddd) :: vertical_grid
 
       !vertical_grid = BasicVerticalGrid(3)
+      if (this%is_constant) then
+         _RETURN(_SUCCESS)
+      end if
+
       metadata => this%file_selector%get_dataset_metadata(_RC)
       geom_mgr => get_geom_manager()
       geom = geom_mgr%get_mapl_geom_from_metadata(metadata%metadata, _RC)
       esmfgeom = geom%get_geom()
 
       call ESMF_StateGet(exportState, item_name, bundle, _RC)
-      call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='NA', typekind=ESMF_TYPEKIND_R4, &
+      call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
               vertical_stagger=VERTICAL_STAGGER_NONE,  _RC)
 
       _RETURN(_SUCCESS)

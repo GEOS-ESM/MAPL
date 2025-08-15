@@ -15,8 +15,6 @@ module Generic3g
    use mapl3g_ChildSpec
    use mapl3g_UserSetServices
    use mapl3g_ESMF_HConfigUtilities, only: MAPL_HConfigMatch
-   use mapl3g_RestartHandler, only: MAPL_RESTART, MAPL_RESTART_OPTIONAL, MAPL_RESTART_SKIP
-   use mapl3g_RestartHandler, only: MAPL_RESTART_REQUIRED, MAPL_RESTART_BOOT, MAPL_RESTART_SKIP_INITIAL
    use mapl3g_VerticalStaggerLoc
    use mapl3g_geomio
    use mapl3g_ESMF_Utilities
