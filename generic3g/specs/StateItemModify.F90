@@ -5,6 +5,8 @@ module mapl3g_StateItemModify
    use mapl3g_StateItemAspect
    use mapl3g_AspectId
    use mapl3g_GeomAspect
+   use mapl3g_UngriddedDimsAspect
+   use mapl3g_UngriddedDims
    use mapl3g_VerticalGridAspect
    use mapl3g_VerticalStaggerLoc
    use mapl3g_UnitsAspect
@@ -34,12 +36,14 @@ module mapl3g_StateItemModify
 contains
 
 
-   subroutine field_modify(field, unusable, geom, vertical_grid, vertical_stagger, units, typekind, has_deferred_aspects, rc)
+   subroutine field_modify(field, unusable, geom, vertical_grid, vertical_stagger, ungridded_dims, &
+        units, typekind, has_deferred_aspects, rc)
       type(ESMF_Field), intent(inout) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
       type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
+      type(UngriddedDims), optional, intent(in) :: ungridded_dims
       character(*), optional, intent(in) :: units
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       logical, optional, intent(in) :: has_deferred_aspects 
@@ -60,6 +64,7 @@ contains
            geom=geom, &
            vertical_grid=vertical_grid, &
            vertical_stagger=vertical_stagger, &
+           ungridded_dims=ungridded_dims, &
            units=units, &
            typekind=typekind, &
            has_deferred_aspects=has_deferred_aspects, &
@@ -68,12 +73,14 @@ contains
    end subroutine field_modify
 
 
-   subroutine bundle_modify(fieldbundle, unusable, geom, vertical_grid, vertical_stagger, units, typekind, has_deferred_aspects, rc)
+   subroutine bundle_modify(fieldbundle, unusable, geom, vertical_grid, vertical_stagger, ungridded_dims, &
+        units, typekind, has_deferred_aspects, rc)
       type(ESMF_FieldBundle), intent(inout) :: fieldbundle
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
       type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
+      type(UngriddedDims), optional, intent(in) :: ungridded_dims
       character(*), optional, intent(in) :: units
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       logical, optional, intent(in) :: has_deferred_aspects
@@ -91,6 +98,7 @@ contains
            vertical_grid=&
            vertical_grid, &
            vertical_stagger=vertical_stagger, &
+           ungridded_dims=ungridded_dims, &
            units=units, &
            typekind=typekind, &
            has_deferred_aspects=has_deferred_aspects, &
@@ -98,12 +106,14 @@ contains
 
    end subroutine bundle_modify
 
-   subroutine stateitem_modify(spec_handle, unusable, geom, vertical_grid, vertical_stagger, units, typekind, has_deferred_aspects, rc)
+   subroutine stateitem_modify(spec_handle, unusable, geom, vertical_grid, vertical_stagger, ungridded_dims, &
+        units, typekind, has_deferred_aspects, rc)
       integer, intent(in) :: spec_handle(:)
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
       type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
+      type(UngriddedDims), optional, intent(in) :: ungridded_dims
       character(*), optional, intent(in) :: units
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       logical, optional, intent(in) :: has_deferred_aspects
@@ -148,6 +158,16 @@ contains
             call aspect%set_vertical_stagger(vertical_stagger)
          class default
             _FAIL('Expected VerticalGridAspect but got different type')
+         end select
+      end if
+
+      if (present(ungridded_dims)) then
+         aspect => spec%get_aspect(UNGRIDDED_DIMS_ASPECT_ID)
+         select type(aspect)
+         type is (UngriddedDimsAspect)
+            aspect = UngriddedDimsAspect(ungridded_dims)
+         class default
+            _FAIL('incorrect aspect')
          end select
       end if
 

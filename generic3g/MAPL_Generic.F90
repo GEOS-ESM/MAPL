@@ -255,6 +255,7 @@ contains
    end subroutine gridcomp_get_registry
 
   subroutine gridcomp_get(gridcomp, unusable, &
+        name, &
         hconfig, &
         logger, &
         geom, &
@@ -264,6 +265,7 @@ contains
 
       type(ESMF_GridComp), intent(inout) :: gridcomp
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(:), optional, allocatable :: name
       type(ESMF_Hconfig), optional, intent(out) :: hconfig
       class(Logger_t), optional, pointer, intent(out) :: logger
       type(ESMF_Geom), optional, intent(out) :: geom
@@ -275,6 +277,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta_
       type(ESMF_Geom), allocatable :: geom_
       class(VerticalGrid), allocatable :: vertical_grid_
+      character(ESMF_MAXSTR) :: buffer
 
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta_, _RC)
 
@@ -288,6 +291,11 @@ contains
       if (present(num_levels)) then
          vertical_grid_ = outer_meta_%get_vertical_grid()
          num_levels = vertical_grid_%get_num_levels()
+      end if
+
+      if (present(name)) then
+         call esmf_GridCompGet(gridcomp, name=buffer, _RC)
+         name = trim(buffer)
       end if
 
       _RETURN(_SUCCESS)

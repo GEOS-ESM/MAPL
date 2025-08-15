@@ -18,6 +18,7 @@ module mapl3g_StateGet
 contains
 
    subroutine state_get(state, itemName, unusable, &
+        field, &
         typekind, &
         num_levels, vert_staggerloc, num_vgrid_levels, &
         ungridded_dims, &
@@ -28,6 +29,7 @@ contains
       type(ESMF_State), intent(inout) :: state
       character(*), intent(in) :: itemName
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      type(esmf_Field), optional, intent(out) :: field
       type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
       integer, optional, intent(out) :: num_levels
       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
@@ -39,11 +41,13 @@ contains
       type(StateItemAllocation), optional, intent(out) :: allocation_status
       integer, optional, intenT(out) :: rc
 
-      type(ESMF_Field) :: field
+      type(ESMF_Field) :: field_
       integer :: status
 
-      call ESMF_StateGet(state, itemName=itemName, field=field, _RC)
-      call MAPL_FieldGet(field, &
+      call ESMF_StateGet(state, itemName=itemName, field=field_, _RC)
+      if (present(field)) field=field_
+
+      call MAPL_FieldGet(field_, &
            typekind=typekind, &
            num_levels=num_levels, &
            vert_staggerloc=vert_staggerloc, &
