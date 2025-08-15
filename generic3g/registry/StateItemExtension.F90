@@ -154,7 +154,6 @@ function add_consumer(this, consumer, rc) result(reference)
          _ASSERT(associated(dst_aspect), 'dst aspect not found')
 
          _ASSERT(src_aspect%can_connect_to(dst_aspect), 'cannot connect aspect ' // aspect_ids(i)%to_string())
-
          if (src_aspect%needs_extension_for(dst_aspect)) then
             other_aspects => new_spec%get_aspects()
             allocate(transform, source=src_aspect%make_transform(dst_aspect, other_aspects, rc=status))

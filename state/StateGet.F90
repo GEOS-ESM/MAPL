@@ -22,7 +22,7 @@ contains
         num_levels, vert_staggerloc, num_vgrid_levels, &
         ungridded_dims, &
         units, standard_name, long_name, &
-        is_active, &
+        allocation_status, &
         rc)
 
       type(ESMF_State), intent(inout) :: state
@@ -36,7 +36,7 @@ contains
       character(len=:), optional, allocatable, intent(out) :: units
       character(len=:), optional, allocatable, intent(out) :: standard_name
       character(len=:), optional, allocatable, intent(out) :: long_name
-      logical, optional, intent(out) :: is_active
+      type(StateItemAllocation), optional, intent(out) :: allocation_status
       integer, optional, intenT(out) :: rc
 
       type(ESMF_Field) :: field
@@ -50,7 +50,7 @@ contains
            num_vgrid_levels=num_vgrid_levels, &
            ungridded_dims=ungridded_dims, &
            units=units, standard_name=standard_name, long_name=long_name, &
-           is_active=is_active, _RC)
+           allocation_status=allocation_status, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

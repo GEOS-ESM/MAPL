@@ -142,6 +142,7 @@ contains
       
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
       call FieldInfoSetInternal(info, spec_handle=handle, _RC)
+      call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
@@ -154,9 +155,7 @@ contains
       type(ESMF_Info) :: info
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldInfoSetInternal(info, &
-           is_active=.true., &
-           _RC)
+      call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_ACTIVE, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine activate
@@ -298,6 +297,7 @@ contains
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
       call FieldInfoSetInternal(info, skip_restart=this%skip_restart, _RC)
+      call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CONNECTED, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)

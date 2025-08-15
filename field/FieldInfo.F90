@@ -6,6 +6,7 @@ module mapl3g_FieldInfo
    use mapl3g_InfoUtilities
    use mapl3g_UngriddedDims
    use mapl3g_VerticalStaggerLoc
+   use mapl3g_StateItemAllocation
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
@@ -46,7 +47,7 @@ module mapl3g_FieldInfo
    character(*), parameter :: KEY_NUM_LEVELS = "/num_levels"
    character(*), parameter :: KEY_VERT_STAGGERLOC = "/vert_staggerloc"
    character(*), parameter :: KEY_UNGRIDDED_DIMS = "/ungridded_dims"
-   character(*), parameter :: KEY_IS_ACTIVE = "/is_active"
+   character(*), parameter :: KEY_ALLOCATION_STATUS = "/allocation_status"
 
    character(*), parameter :: KEY_UNDEF_VALUE = "/undef_value"
    character(*), parameter :: KEY_MISSING_VALUE = "/missing_value"
@@ -62,7 +63,7 @@ contains
         num_levels, vert_staggerloc, &
         ungridded_dims, &
         units, long_name, standard_name, &
-        is_active, &
+        allocation_status, &
         spec_handle, &
         skip_restart, &
         rc)
@@ -75,7 +76,7 @@ contains
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: long_name
       character(*), optional, intent(in) :: standard_name
-      logical, optional, intent(in) :: is_active
+      type(StateItemAllocation), optional, intent(in) :: allocation_status
       integer, optional, intent(in) :: spec_handle(:)
       logical, optional, intent(in) :: skip_restart
       integer, optional, intent(out) :: rc
@@ -132,8 +133,8 @@ contains
 
       end if
 
-      if (present(is_active)) then
-         call MAPL_InfoSet(info, namespace_ // KEY_IS_ACTIVE, is_active, _RC)
+      if (present(allocation_status)) then
+         call MAPL_InfoSet(info, namespace_ // KEY_ALLOCATION_STATUS, allocation_status%to_string(), _RC)
       end if
 
       if (present(spec_handle)) then
@@ -153,7 +154,7 @@ contains
         num_levels, vert_staggerloc, num_vgrid_levels, &
         units, long_name, standard_name, &
         ungridded_dims, &
-        is_active, &
+        allocation_status, &
         spec_handle, &
         skip_restart, &
         rc)
@@ -167,7 +168,7 @@ contains
       character(:), optional, allocatable, intent(out) :: long_name
       character(:), optional, allocatable, intent(out) :: standard_name
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
-      logical, optional, intent(out) :: is_active
+      type(StateItemAllocation), optional, intent(out) :: allocation_status
       integer, optional, allocatable, intent(out) :: spec_handle(:)
       logical, optional, intent(out) :: skip_restart
       integer, optional, intent(out) :: rc
@@ -176,8 +177,9 @@ contains
       integer :: num_levels_
       type(ESMF_Info) :: ungridded_info
       character(:), allocatable :: vert_staggerloc_str
+      character(:), allocatable :: allocation_status_str
       type(VerticalStaggerLoc) :: vert_staggerloc_
-      character(:), allocatable :: namespace_
+      character(:), allocatable :: namespace_ 
       logical :: key_is_present
 
       namespace_ = INFO_INTERNAL_NAMESPACE
@@ -229,8 +231,9 @@ contains
          call MAPL_InfoGet(info, namespace_ // KEY_STANDARD_NAME, standard_name, _RC)
       end if
 
-      if (present(is_active)) then
-         call MAPL_InfoGet(info, namespace_ // KEY_IS_ACTIVE, is_active, _RC)
+      if (present(allocation_status)) then
+         call MAPL_InfoGet(info, namespace_ // KEY_ALLOCATION_STATUS, allocation_status_str, _RC)
+         allocation_status = StateItemAllocation(allocation_status_str)
       end if
 
       if (present(spec_handle)) then

@@ -18,6 +18,7 @@ set(srcs
   FieldGet.F90
   FieldSet.F90
   FieldInfo.F90
+  StateItemAllocation.F90
 )
 
 list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
