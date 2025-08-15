@@ -34,6 +34,7 @@ contains
       call esmf_ClockGet(driver%get_clock(), currTime=currTime, _RC)
 
       restart_handler = RestartHandler( &
+           driver%get_name(), &
            this%get_geom(), &
            currTime, &
            this%get_logger())

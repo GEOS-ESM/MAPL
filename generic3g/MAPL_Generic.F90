@@ -31,16 +31,17 @@ module mapl3g_Generic
    use mapl3g_VerticalGrid
    use mapl3g_VerticalStaggerLoc, only: VerticalStaggerLoc
    use mapl3g_StateRegistry, only: StateRegistry
-   use mapl_InternalConstantsMod
    use mapl3g_HorizontalDimsSpec, only: HorizontalDimsSpec, HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_GEOM
    use mapl3g_UngriddedDims, only: UngriddedDims
    use mapl3g_StateItem, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
    use mapl3g_ESMF_Utilities, only: esmf_state_intent_to_string
-   use esmf, only: ESMF_Info
-   use esmf, only: ESMF_InfoGetFromHost
-   use esmf, only: ESMF_InfoGet
-   use esmf, only: ESMF_InfoIsSet
-   use esmf, only: ESMF_GridComp
+   use mapl3g_hconfig_get
+   use mapl3g_RestartModes, only: MAPL_RESTART_MODE
+   use mapl_InternalConstantsMod
+   use mapl_ErrorHandling
+   use mapl_KeywordEnforcer
+   use esmf, only: ESMF_Info, ESMF_InfoIsSet, ESMF_InfoGet, ESMF_InfoGetFromHost
+   use esmf, only: ESMF_GridComp, ESMF_GridCompGet
    use esmf, only: ESMF_Geom, ESMF_GeomCreate, ESMF_GeomGet
    use esmf, only: ESMF_Grid, ESMF_Mesh, ESMF_Xgrid, ESMF_LocStream
    use esmf, only: ESMF_STAGGERLOC_INVALID
@@ -48,16 +49,11 @@ module mapl3g_Generic
    use esmf, only: ESMF_Method_Flag
    use esmf, only: ESMF_StateIntent_Flag, ESMF_STATEINTENT_INTERNAL
    use esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
-   use esmf, only: ESMF_KIND_R8, ESMF_KIND_R4
-   use esmf, only: ESMF_Time, ESMF_TimeInterval, ESMF_TimeIntervalGet, ESMF_Clock
-   use esmf, only: ESMF_ClockGet
+   use esmf, only: ESMF_MAXSTR
+   use esmf, only: ESMF_Time, ESMF_TimeInterval, ESMF_TimeIntervalGet, ESMF_Clock, ESMF_ClockGet
    use esmf, only: ESMF_State, ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD
    use esmf, only: operator(==)
-   use mapl3g_hconfig_get
-   use mapl3g_RestartHandler, only: MAPL_RESTART, MAPL_RESTART_SKIP
    use pflogger, only: logger_t => logger
-   use mapl_ErrorHandling
-   use mapl_KeywordEnforcer
 
    implicit none
    private
@@ -104,9 +100,6 @@ module mapl3g_Generic
 
    ! Spec types
    public :: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
-
-   ! Restart types
-   public :: MAPL_RESTART, MAPL_RESTART_SKIP
 
    ! Interfaces
 
@@ -508,7 +501,7 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: ungridded_dims(:)
       character(*), optional, intent(in) :: units
-      integer(kind=kind(MAPL_RESTART)), optional, intent(in) :: restart
+      integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(in) :: restart
       type(ESMF_StateItem_Flag), optional, intent(in) :: itemType
       logical, optional, intent(in) :: add_to_export
       logical, optional, intent(in) :: has_deferred_aspects
@@ -519,8 +512,8 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       type(ComponentSpec), pointer :: component_spec
       character(len=:), allocatable :: units_
-      logical :: skip_restart = .false.
       type(UngriddedDims), allocatable :: dim_specs_vec
+      character(len=ESMF_MAXSTR) :: gridcomp_name
       integer :: status
 
       _ASSERT((dims=="xyz") .or. (dims=="xy") .or. (dims=="z"), "dims can be one of xyz/xy/z")
@@ -532,10 +525,11 @@ contains
       ! If input units is present, override using input values
       if (present(units)) units_ = units
       if (present(ungridded_dims)) dim_specs_vec = UngriddedDims(ungridded_dims)
-      if (present(restart)) skip_restart = (restart==MAPL_RESTART_SKIP)
+      call ESMF_GridCompGet(gridcomp, name=gridcomp_name, _RC)
       var_spec = make_VariableSpec( &
            state_intent, &
            short_name, &
+           gridcomp_name=trim(gridcomp_name), &
            standard_name=standard_name, &
            units=units_, &
            itemType=itemType, &
@@ -543,7 +537,7 @@ contains
            ungridded_dims=dim_specs_vec, &
            horizontal_dims_spec=horizontal_dims_spec, &
            has_deferred_aspects=has_deferred_aspects, &
-           skip_restart=skip_restart, &
+           restart_mode=restart, &
            _RC)
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
@@ -563,7 +557,6 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(restart)
    end subroutine gridcomp_add_spec
 
    subroutine MAPL_GridCompSetVerticalGrid(gridcomp, vertical_grid, rc)
