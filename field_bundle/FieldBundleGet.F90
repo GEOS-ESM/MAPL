@@ -34,7 +34,7 @@ contains
         ! Bracket field-prototype items
         ungridded_dims, num_levels, vert_staggerloc, num_vgrid_levels, &
         units, standard_name, long_name, &
-        is_active, &
+        allocation_status, &
         rc)
 
       type(ESMF_FieldBundle), intent(in) :: fieldBundle
@@ -52,7 +52,7 @@ contains
       character(:), optional, allocatable, intent(out) :: units
       character(:), optional, allocatable, intent(out) :: standard_name
       character(:), optional, allocatable, intent(out) :: long_name
-      logical, optional, intent(out) :: is_active
+      type(StateItemAllocation), optional, intent(out) :: allocation_status
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -83,7 +83,7 @@ contains
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, num_vgrid_levels=num_vgrid_levels, &
            units=units, standard_name=standard_name, long_name=long_name, &
-           is_active=is_active, &
+           allocation_status=allocation_status, &
            _RC)
 
       _RETURN(_SUCCESS)

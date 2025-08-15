@@ -408,7 +408,7 @@ contains
 
       aspects = this%make_aspects(registry, component_geom, vertical_grid, timestep=timestep, offset=offset, _RC)
       dependencies = this%make_dependencies(_RC)
-      spec = new_StateItemSpec(aspects, dependencies=dependencies, has_deferred_aspects=this%has_deferred_aspects)
+      spec = new_StateItemSpec(this%state_intent, aspects, dependencies=dependencies, has_deferred_aspects=this%has_deferred_aspects)
 
       _RETURN(_SUCCESS)
    end function make_StateitemSpec

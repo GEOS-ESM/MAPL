@@ -264,7 +264,7 @@ contains
          enddo
          end associate
 
-         goal_spec = StateItemSpec(other_aspects,empty)
+         goal_spec = StateItemSpec(ESMF_STATEINTENT_EXPORT, other_aspects, empty)
          goal_aspects => goal_spec%get_aspects()
          n = goal_aspects%erase(CLASS_ASPECT_ID)
          call goal_aspects%insert(CLASS_ASPECT_ID, FieldClassAspect(standard_name='', long_name=''))

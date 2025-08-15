@@ -4,6 +4,7 @@ module mapl3g_FieldBundleInfo
    use mapl3g_esmf_info_keys
    use mapl3g_InfoUtilities
    use mapl3g_ESMF_Info_Keys
+   use mapl3g_Field_API
    use mapl3g_FieldInfo
    use mapl3g_UngriddedDims
    use mapl3g_FieldBundleType_Flag
@@ -26,7 +27,7 @@ module mapl3g_FieldBundleInfo
    end interface
 
    character(*), parameter :: KEY_FIELDBUNDLETYPE_FLAG = '/FieldBundleType_Flag'
-   character(*), parameter :: KEY_IS_ACTIVE = "/is_active"
+   character(*), parameter :: KEY_ALLOCATION_STATUS = "/allocation_status"
 
 
 contains
@@ -37,7 +38,7 @@ contains
         typekind, interpolation_weights, &
         ungridded_dims, num_levels, vert_staggerloc, num_vgrid_levels, &
         units, long_name, standard_name, &
-        is_active, &
+        allocation_status, &
         spec_handle, &
         rc)
 
@@ -54,13 +55,13 @@ contains
       character(:), optional, allocatable, intent(out) :: units
       character(:), optional, allocatable, intent(out) :: long_name
       character(:), optional, allocatable, intent(out) :: standard_name
-      logical, optional, intent(out) :: is_active
+      type(StateItemAllocation), optional, intent(out) :: allocation_status
       integer, optional, allocatable, intent(out) :: spec_handle(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
       character(:), allocatable :: typekind_str
-      character(:), allocatable :: fieldBundleType_str
+      character(:), allocatable :: fieldBundleType_str, allocation_status_str
       character(:), allocatable :: namespace_
 
       namespace_ = INFO_INTERNAL_NAMESPACE
@@ -83,8 +84,9 @@ contains
          typekind = to_TypeKind(typekind_str)
       end if
 
-      if (present(is_active)) then
-         call MAPL_InfoGet(info, key=namespace_//KEY_IS_ACTIVE, value=is_active, _RC)
+      if (present(allocation_status)) then
+         call MAPL_InfoGet(info, key=namespace_//KEY_ALLOCATION_STATUS, value=allocation_status_str, _RC)
+         allocation_status = StateItemAllocation(allocation_status_str)
       end if
 
       ! Field-prototype items that come from field-info
@@ -123,7 +125,7 @@ contains
         ungridded_dims, &
         num_levels, vert_staggerloc, &
         units, standard_name, long_name, &
-        is_active, &
+        allocation_status, &
         spec_handle, &
         rc)
 
@@ -140,7 +142,7 @@ contains
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
-      logical, optional, intent(in) :: is_active
+      type(StateItemAllocation), optional, intent(in) :: allocation_status
       integer, optional, intent(in) :: spec_handle(:)
       integer, optional, intent(out) :: rc
       
@@ -159,8 +161,8 @@ contains
          call ESMF_InfoSet(info, key=namespace_ // KEY_TYPEKIND, value=typekind_str, _RC)
       end if
 
-      if (present(is_active)) then
-         call ESMF_InfoSet(info, key=namespace_ // KEY_IS_ACTIVE, value=is_active, _RC)
+      if (present(allocation_status)) then
+         call ESMF_InfoSet(info, key=namespace_ // KEY_ALLOCATION_STATUS, value=allocation_status%to_string(), _RC)
       end if
 
       if (present(fieldBundleType)) then

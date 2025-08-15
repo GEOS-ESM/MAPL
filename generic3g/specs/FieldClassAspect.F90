@@ -164,6 +164,7 @@ contains
       
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
       call FieldInfoSetInternal(info, spec_handle=handle, _RC)
+      call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
@@ -176,9 +177,7 @@ contains
       type(ESMF_Info) :: info
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldInfoSetInternal(info, &
-           is_active=.true., &
-           _RC)
+      call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_ACTIVE, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine activate
@@ -318,6 +317,9 @@ contains
 
       call mirror(this%default_value, export_%default_value)
 
+      call ESMF_InfoGetFromHost(this%payload, info, _RC)
+      call FieldInfoSetInternal(info, restart_mode=this%restart_mode, _RC)
+      call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CONNECTED, _RC)
       if (allocated(this%restart_mode)) then
          _ASSERT(allocated(this%gridcomp_name), "gridcomp name is not known")
          _ASSERT(allocated(this%short_name), "field's short name is not known")
