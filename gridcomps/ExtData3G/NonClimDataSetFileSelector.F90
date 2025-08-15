@@ -44,6 +44,7 @@ module mapl3g_NonClimDataSetFileSelector
        integer, intent(out), optional :: rc
 
        integer :: status
+
        file_handler%file_template = file_template
        if ( index(file_handler%file_template,'%') == 0 ) file_handler%single_file = .true.
        file_handler%collection_id = mapl3g_AddDataCollection(file_handler%file_template)
@@ -56,6 +57,10 @@ module mapl3g_NonClimDataSetFileSelector
        if (present(persist_closest)) file_handler%persist_closest = persist_closest
 
        if (file_handler%persist_closest) then
+          ! see if we can determine it if using didn't provide
+          if ( (.not.allocated(file_handler%valid_range)) .and. file_handler%single_file) then
+             call file_handler%get_valid_range_single_file(_RC)
+          end if
           _ASSERT(allocated(file_handler%valid_range),'Asking for persistence but out of range')
        end if
 
@@ -89,7 +94,7 @@ module mapl3g_NonClimDataSetFileSelector
              establish_both = .false.
              if (current_time < this%valid_range(1)) then
                 establish_single = .true.
-                node_side = NODE_RIGHT 
+                node_side = NODE_LEFT 
                 target_time = this%valid_range(1)-this%file_frequency !assuming forward time   
              else if (current_time > this%valid_range(2)) then
                 establish_single = .true.
@@ -151,7 +156,7 @@ module mapl3g_NonClimDataSetFileSelector
        type(DataSetNode) :: active_node, inactive_node
        integer :: status
        logical :: node_is_valid
-    
+   
        select case(node_side)
        case(NODE_LEFT)
           active_node = bracket%get_left_node(_RC)
