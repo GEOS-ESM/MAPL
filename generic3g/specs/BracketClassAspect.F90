@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_BracketClassAspect
+   use mapl3g_Field_API
    use mapl3g_FieldBundle_API
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
@@ -131,7 +132,7 @@ contains
       _RETURN_UNLESS(present(handle))
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldBundleInfoSetInternal(info, spec_handle=handle, is_active=.false., _RC)
+      call FieldBundleInfoSetInternal(info, spec_handle=handle, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine create
@@ -142,7 +143,7 @@ contains
 
       integer :: status
 
-      call MAPL_FieldBundleSet(this%payload, is_active=.true., _RC)
+      call MAPL_FieldBundleSet(this%payload, allocation_status=STATEITEM_ALLOCATION_ACTIVE, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine activate

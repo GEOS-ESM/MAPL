@@ -73,11 +73,13 @@ contains
       type(PrimaryExport) :: primary_export
       class(logger), pointer :: lgr
 
+      _HERE
       _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
 
       if (extdata_gridcomp%has_run_mod_advert) then
          _RETURN(_SUCCESS)
       end if
+      _HERE
 
       call MAPL_GridCompGet(gridcomp, logger=lgr, _RC)
       call ESMF_ClockGet(clock, currTime=current_time, _RC)

@@ -107,6 +107,7 @@ module mapl3g_PrimaryExport
       !type(BasicVerticalGriddd) :: vertical_grid
 
       !vertical_grid = BasicVerticalGrid(3)
+      _HERE
       if (this%is_constant) then
          _RETURN(_SUCCESS)
       end if
@@ -117,6 +118,7 @@ module mapl3g_PrimaryExport
       esmfgeom = geom%get_geom()
 
       call ESMF_StateGet(exportState, item_name, bundle, _RC)
+      _HERE
       call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
               vertical_stagger=VERTICAL_STAGGER_NONE,  _RC)
 

@@ -11,6 +11,7 @@ module mapl3g_FieldBundleClassAspect
    use mapl3g_ExtensionTransform
    use mapl3g_MultiState
    use mapl3g_ESMF_Utilities, only: get_substate
+   use mapl3g_Field_API
    use mapl3g_FieldBundle_API, only: MAPL_FieldBundleCreate, MAPL_FieldBundleInfoSetInternal
    use mapl3g_FieldBundle_API, only: MAPL_FieldBundlesAreAliased
    use mapl3g_FieldBundleInfo, only: FieldBundleInfoSetInternal
@@ -100,7 +101,7 @@ contains
       _RETURN_UNLESS(present(handle))
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldBundleInfoSetInternal(info, spec_handle=handle, is_active=.false., _RC)
+      call FieldBundleInfoSetInternal(info, spec_handle=handle, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
@@ -113,7 +114,7 @@ contains
       type(ESMF_Info) :: info
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call MAPL_FieldBundleInfoSetInternal(info, is_active=.true., _RC)
+      call MAPL_FieldBundleInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_ACTIVE, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine activate

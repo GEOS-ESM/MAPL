@@ -184,8 +184,7 @@ contains
       integer :: status
       integer :: num_levels_
       type(ESMF_Info) :: ungridded_info
-      character(:), allocatable :: vert_staggerloc_str
-      character(:), allocatable :: allocation_status_str
+      character(:), allocatable :: vert_staggerloc_str, allocation_status_str
       type(VerticalStaggerLoc) :: vert_staggerloc_
       character(:), allocatable :: namespace_ 
       logical :: key_is_present

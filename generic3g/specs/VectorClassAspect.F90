@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_VectorClassAspect
+   use mapl3g_Field_API
    use mapl3g_FieldBundle_API
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
@@ -125,6 +126,7 @@ contains
       
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
       call FieldBundleInfoSetInternal(info, spec_handle=handle, _RC)
+      call MAPL_FieldBundleSet(this%payload, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
@@ -135,7 +137,7 @@ contains
 
       integer :: status
 
-      call MAPL_FieldBundleSet(this%payload, is_active=.true., _RC)
+      call MAPL_FieldBundleSet(this%payload, allocation_status=STATEITEM_ALLOCATION_ACTIVE, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine activate
