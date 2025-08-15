@@ -16,14 +16,6 @@ set(srcs
   UserSetServices.F90
   MethodPhasesMap.F90
 
-  ComponentDriver.F90
-  ComponentDriverVector.F90
-  ComponentDriverPtrVector.F90
-  GriddedComponentDriver.F90
-  GriddedComponentDriverMap.F90
-  GriddedComponentDriverVector.F90
-
-  MultiState.F90
   InnerMetaComponent.F90
   OuterMetaComponent.F90
   GenericPhases.F90
@@ -34,8 +26,6 @@ set(srcs
   Validation.F90
 
   # ComponentSpecBuilder.F90
-
-  ESMF_Utilities.F90
 
   ESMF_HConfigUtilities.F90
   RestartHandler.F90
@@ -56,7 +46,7 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.regridder_mgr MAPL.geom MAPL.GeomIO MAPL.esmf_utils MAPL.field MAPL.state MAPL.shared MAPL.profiler MAPL.base MAPL.hconfig_utils
+  DEPENDENCIES MAPL.regridder_mgr MAPL.geom MAPL.GeomIO MAPL.esmf_utils MAPL.field MAPL.state MAPL.shared MAPL.profiler MAPL.base MAPL.hconfig_utils MAPL.vertical MAPL.component
   ESMF::ESMF NetCDF::NetCDF_Fortran udunits2f PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2 MAPL.esmf_utils
   TYPE SHARED
   )
@@ -101,15 +91,6 @@ esma_add_fortran_submodules(
   SUBDIRECTORY ESMF_HConfigUtilities
   SOURCES MAPL_HConfigMatch.F90
           write_hconfig.F90)
-
-esma_add_fortran_submodules(
-  TARGET MAPL.generic3g
-  SUBDIRECTORY GriddedComponentDriver
-  SOURCES initialize.F90 run.F90 finalize.F90 get_states.F90
-          get_clock.F90 set_clock.F90 run_export_couplers.F90
-          run_import_couplers.F90 clock_advance.F90
-          get_gridcomp.F90 get_name.F90 add_export_coupler.F90
-          add_import_coupler.F90 write_restart.F90)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
