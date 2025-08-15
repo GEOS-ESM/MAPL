@@ -318,7 +318,7 @@ contains
       call mirror(this%default_value, export_%default_value)
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldInfoSetInternal(info, skip_restart=this%skip_restart, _RC)
+      call FieldInfoSetInternal(info, restart_mode=this%restart_mode, _RC)
       call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CONNECTED, _RC)
       if (allocated(this%restart_mode)) then
          _ASSERT(allocated(this%gridcomp_name), "gridcomp name is not known")
