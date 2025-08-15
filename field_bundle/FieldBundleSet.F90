@@ -34,7 +34,7 @@ contains
         ungridded_dims, &
         num_levels, vert_staggerloc, &
         units, standard_name, long_name, &
-        is_active, &
+        allocation_status, &
         rc)
 
       type(ESMF_FieldBundle), intent(inout) :: fieldBundle
@@ -49,7 +49,7 @@ contains
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
-      logical, optional, intent(in) :: is_active
+      type(StateItemAllocation), optional, intent(in) :: allocation_status
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -86,7 +86,7 @@ contains
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
            units=units, standard_name=standard_name, long_name=long_name, &
-           is_active=is_active, &
+           allocation_status=allocation_status, &
            _RC)
 
       _RETURN(_SUCCESS)

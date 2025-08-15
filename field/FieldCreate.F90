@@ -5,6 +5,7 @@ module mapl3g_FieldCreate
    use mapl3g_VerticalStaggerLoc
    use mapl3g_FieldInfo
    use mapl3g_UngriddedDims
+   use mapl3g_StateItemAllocation
    use mapl3g_LU_Bound
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
@@ -126,6 +127,7 @@ contains
            units=units, &
            standard_name=standard_name, &
            long_name=long_name, &
+           allocation_status=STATEITEM_ALLOCATION_ALLOCATED, &
            _RC)
 
       _RETURN(_SUCCESS)

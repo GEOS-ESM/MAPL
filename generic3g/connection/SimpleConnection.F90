@@ -97,7 +97,6 @@ contains
          spec => dst_extension%get_spec()
 !#         _ASSERT(.not. spec%is_active(), 'Imports can only be activated by one connection.')
          call spec%activate(_RC)
-         call spec%set_allocated()
       end do
 
       do i = 1, size(src_extensions)
