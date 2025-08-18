@@ -138,7 +138,7 @@ contains
          character(:), allocatable :: units
          character(:), allocatable :: standard_name, long_name
          type(esmf_TypeKind_Flag) :: typekind
-         class(VerticalGrid), pointer :: vertical_grid
+         class(VerticalGrid), allocatable :: vertical_grid
          type(UngriddedDims), pointer :: ungridded_dims
 
          action = esmf_HConfigAsString(iter, keystring='action', _RC)
@@ -154,8 +154,8 @@ contains
               ungridded_dims=ungridded_dims, &
               units=units, &
               typekind=typekind, &
-!#              vertical_grid=vertical_grid, &
               _RC)
+         call mapl_FieldGetVerticalGrid(f_in, vertical_grid=vertical_grid, _RC)
 
          call mapl_StateGet(exportState, itemName=name, field=f_out, _RC)
          call mapl_FieldModify(f_out, &
@@ -164,7 +164,7 @@ contains
               ungridded_dims=ungridded_dims, &
               units=units, &
               typekind=typekind, &
-!#              vertical_grid=vertical_grid, &
+              vertical_grid=vertical_grid, &
               _RC)
 
          item = make_item(name, iter, clock, _RC)
