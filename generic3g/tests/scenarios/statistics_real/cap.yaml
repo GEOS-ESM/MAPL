@@ -1,0 +1,28 @@
+mapl:
+  geometry:
+    esmf_geom:
+      class: latlon
+      im_world: 12
+      jm_world: 13
+      pole: PC
+      dateline: DC
+
+    vertical_grid:
+      class: basic
+      num_levels: 5
+
+  children:
+    root:
+      dso: libconfigurable_gridcomp
+      config_file: scenarios/statistics_real/root.yaml
+    history:
+      dso: libconfigurable_gridcomp
+      config_file: scenarios/statistics_real/history.yaml
+
+  states: {}
+
+
+  connections:
+    - all_unsatisfied: true
+      src_comp: root
+      dst_comp: history

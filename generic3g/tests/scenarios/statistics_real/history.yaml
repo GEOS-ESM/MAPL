@@ -1,0 +1,20 @@
+mapl:
+  children:
+    collection_1:
+      dso: libconfigurable_gridcomp
+      config_file: scenarios/statistics_real/collection_1.yaml
+    stat:
+      dso: libstatisticsgridcomp
+      config_file: scenarios/statistics_real/stat.yaml
+
+  states: {}
+
+  import:
+    A/T:
+      vertical_dim_spec: MIRROR
+
+  connections:
+    - src_name: avg_T
+      src_comp: STAT
+      dst_name: avg_T
+      dst_comp: collection_1
