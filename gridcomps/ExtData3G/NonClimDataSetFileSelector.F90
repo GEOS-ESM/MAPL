@@ -95,8 +95,8 @@ module mapl3g_NonClimDataSetFileSelector
              if (current_time < this%valid_range(1)) then
                 establish_single = .true.
                 node_side = NODE_LEFT 
-                target_time = this%valid_range(1)-this%file_frequency !assuming forward time   
-             else if (current_time > this%valid_range(2)) then
+                target_time = this%valid_range(1)   
+             else if (current_time >= this%valid_range(2)) then
                 establish_single = .true.
                 node_side = NODE_LEFT
                 target_time = this%valid_range(2)       

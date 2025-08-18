@@ -455,12 +455,17 @@ contains
       type(ExtDataCollection), pointer :: collection
       type(ExtDataSample), pointer :: sample
       type(NonClimDataSetFileSelector) :: non_clim_file_selector
+      type(ExtDataSample), target :: default_sample
  
       export_rule => this%rule_map%at(item_name)
       collection => null()
       sample => this%sample_map%at(export_rule%sample_key)
       if (export_rule%collection /= "/dev/null") then
          collection => this%file_stream_map%at(export_rule%collection)
+      end if
+      if (.not. associated(sample)) then
+         call default_sample%set_defaults()
+         sample => default_sample
       end if
       export = PrimaryExport(item_name, export_rule, collection, sample, _RC)
 
