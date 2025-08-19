@@ -106,6 +106,7 @@ type MAPL_LocStreamType
    integer,                  pointer  :: GLOBAL_Id(:)           =>null() !! All Location Ids in file order
    integer,                  pointer  :: LOCAL_Id (:)           =>null() !! Location Ids on local PE
    integer,                  pointer  :: pfaf_index(:)          =>null() !! tile's pfaf index
+   integer,                  pointer  :: global_pfaf_index(:)   =>null() !! global tile's pfaf index temporary holders
    type(MAPL_GeoLocation),   pointer  :: Global_GeoLocation  (:)=>null() !! All GeoLocations
 !C   type(MAPL_IndexLocation), pointer  :: Global_IndexLocation(:)=>null() !C All IndexLocations for attach grid
    type(MAPL_GeoLocation),   pointer  :: Local_GeoLocation   (:)=>null() !! GeoLocations on local PE
@@ -473,10 +474,19 @@ contains
           STREAM%TILING(2)%name = "CATCHMENT_GRID"
        end if
 
+       allocate(tile_area(NT))
+       allocate(pfaf_index(NT))
        ! adjust EASE grid starting index.  Internally, the starting index is 1 instead of 0.
        if (isEASE) then
           AVR(:,NumGlobalVars+1) = AVR(:,NumGlobalVars+1)+1
           AVR(:,NumGlobalVars+2) = AVR(:,NumGlobalVars+2)+1
+         ! i, k are dummy here
+         call MAPL_ease_extent(STREAM%TILING(1)%NAME, i, k, cell_area=cell_area)
+         tile_area  = AVR(:,7)*cell_area ! the 7th column is frac_cell
+         pfaf_index = int(AVR(:,2))
+       else
+         tile_area  = AVR(:,2)
+         pfaf_index = int(AVR(:,9))
        endif
      
        !if (use_pfaf_) then
@@ -575,7 +585,7 @@ contains
        _VERIFY(STATUS)
        allocate(STREAM%GLOBAL_GEOLOCATION(STREAM%NT_GLOBAL), STAT=STATUS)
        _VERIFY(STATUS)
-       allocate(STREAM%pfaf_index(STREAM%NT_GLOBAL), STAT=STATUS)
+       allocate(STREAM%global_pfaf_index(STREAM%NT_GLOBAL), STAT=STATUS)
        _VERIFY(STATUS)
 
 !C       do N=1,STREAM%N_GRIDS
@@ -586,17 +596,6 @@ contains
 ! Fill global stream parameters subject to mask
 !----------------------------------------------
 
-       allocate(tile_area(STREAM%NT_GLOBAL))
-       allocate(pfaf_index(STREAM%NT_GLOBAL))
-       if (isEASE) then
-         ! i, k is dummy here
-         call MAPL_ease_extent(STREAM%TILING(1)%NAME, i, k, cell_area=cell_area)
-         tile_area  = AVR(:,7)*cell_area ! the 7th column is frac_cell
-         pfaf_index = int(AVR(:,2))
-       else
-         tile_area  = AVR(:,2)
-         pfaf_index = int(AVR(:,9))
-       endif
 
        K = 0
        do I=1, NT
@@ -608,7 +607,7 @@ contains
              STREAM%GLOBAL_GeoLocation(K)%A =      tile_area(I)
              STREAM%GLOBAL_GeoLocation(K)%X =      AVR(I,3) * (MAPL_PI/180.)
              STREAM%GLOBAL_GeoLocation(K)%Y =      AVR(I,4) * (MAPL_PI/180.)
-             STREAM%pfaf_index(K)           =      pfaf_index(I)
+             STREAM%global_pfaf_index(K)    =      pfaf_index(I)
              
 !C             X = AVR(I,3)
 !C             Y = AVR(I,4)
@@ -619,9 +618,7 @@ contains
 !C             end do
           end if
        end do
-
        STREAM%IsTileAreaValid = .true.
-
        deallocate(MSK)
        deallocate(AVR)
     else
@@ -868,6 +865,8 @@ contains
        _VERIFY(STATUS)
        allocate(STREAM%D      (-1:1,-1:1,STREAM%NT_LOCAL), STAT=STATUS)
        _VERIFY(STATUS)
+       allocate(STREAM%pfaf_index       (STREAM%NT_LOCAL), STAT=STATUS)
+       _VERIFY(STATUS)
     end if
 
 ! For flat files we economize on space by rereading the file to get
@@ -982,9 +981,11 @@ contains
        if(present(GRID)) then
           STREAM%LOCAL_GeoLocation   = pack(STREAM%GLOBAL_GeoLocation,  ISMINE)
           STREAM%LOCAL_ID            = pack(STREAM%GLOBAL_ID,           ISMINE)
+          STREAM%pfaf_index          = pack(STREAM%GLOBAL_pfaf_index,   ISMINE)
 
           deallocate(STREAM%GLOBAL_GeoLocation)
           deallocate(Stream%Global_id)
+          deallocate(Stream%Global_pfaf_index)
        end if
     endif
 
@@ -1355,7 +1356,6 @@ contains
 
 ! Begin
 !------
-
     _ASSERT(     associated(LocStreamIn %Ptr),'needs informative message')
 
 ! Allocate the Location Stream
@@ -1436,6 +1436,8 @@ contains
     _VERIFY(STATUS)
     allocate(STREAMOUT%D(-1:1,-1:1,STREAMOUT%NT_LOCAL), STAT=STATUS)
     _VERIFY(STATUS)
+    allocate(STREAMOUT%pfaf_index(STREAMOUT%NT_LOCAL), STAT=STATUS)
+    _VERIFY(STATUS)
 
 ! Fill local stream parameters subject to mask
 !----------------------------------------------
@@ -1455,9 +1457,11 @@ contains
           STREAMOUT%LOCAL_IndexLocation(K)%W = STREAMIN%LOCAL_IndexLocation(I)%W
 
           STREAMOUT%D(:,:,K) = STREAMIN%D(:,:,I)
+          STREAMOUT%pfaf_index         (K)   = STREAMIN%pfaf_index         (I)
        end if
     end do
     deallocate(MSK)
+
 
 ! Create a tile grid
 !-------------------
@@ -2824,7 +2828,6 @@ integer function GRIDINDEX(STREAM,GRID,RC)
   _VERIFY(STATUS)
 
   GridIndex = 0
-
   do N=1,STREAM%N_GRIDS
      if(STREAM%TILING(N)%NAME==NAME) then
         GridIndex = N
