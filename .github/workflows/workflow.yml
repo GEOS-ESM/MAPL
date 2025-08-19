@@ -43,7 +43,7 @@ jobs:
       fail-fast: false
       matrix:
         cmake-build-type: [Debug, Release]
-        cmake-generator: [Unix Makefiles]
+        cmake-generator: [Unix Makefiles, Ninja]
     env:
       OMPI_ALLOW_RUN_AS_ROOT: 1
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
@@ -72,7 +72,7 @@ jobs:
       fail-fast: false
       matrix:
         cmake-build-type: [Debug, Release]
-        cmake-generator: [Unix Makefiles]
+        cmake-generator: [Unix Makefiles, Ninja]
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -87,30 +87,26 @@ jobs:
           cmake-generator: ${{ matrix.cmake-generator }}
           fortran-compiler: ifort
 
-  # The following job is for Intel Fortran Compiler (ifx) builds.
-  # At the moment, ifx seems to have random issues with MAPL3
-  ################################################################################
-  # build_test_mapl_ifx:                                                         #
-  #   name: ifx / ${{ matrix.cmake-build-type }} / ${{ matrix.cmake-generator }} #
-  #   runs-on: ubuntu-latest                                                     #
-  #   container:                                                                 #
-  #     image: gmao/ubuntu24-geos-env:v7.33.0-intelmpi_2021.15-ifx_2025.1        #
-  #   strategy:                                                                  #
-  #     fail-fast: false                                                         #
-  #     matrix:                                                                  #
-  #       cmake-build-type: [Debug, Release]                                     #
-  #       cmake-generator: [Unix Makefiles]                                      #
-  #   steps:                                                                     #
-  #     - name: Checkout                                                         #
-  #       uses: actions/checkout@v4                                              #
-  #       with:                                                                  #
-  #         fetch-depth: 1                                                       #
-  #         filter: blob:none                                                    #
-  #                                                                              #
-  #     - name: Build and Test MAPL                                              #
-  #       uses: ./.github/actions/ci-build-and-test-mapl                         #
-  #       with:                                                                  #
-  #         cmake-build-type: ${{ matrix.cmake-build-type }}                     #
-  #         cmake-generator: ${{ matrix.cmake-generator }}                       #
-  #         fortran-compiler: ifx                                                #
-  ################################################################################
+  build_test_mapl_ifx:
+    name: ifx / ${{ matrix.cmake-build-type }} / ${{ matrix.cmake-generator }}
+    runs-on: ubuntu-latest
+    container:
+      image: gmao/ubuntu24-geos-env:v7.33.0-intelmpi_2021.15-ifx_2025.1
+    strategy:
+      fail-fast: false
+      matrix:
+        cmake-build-type: [Debug, Release]
+        cmake-generator: [Unix Makefiles, Ninja]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          filter: blob:none
+
+      - name: Build and Test MAPL
+        uses: ./.github/actions/ci-build-and-test-mapl
+        with:
+          cmake-build-type: ${{ matrix.cmake-build-type }}
+          cmake-generator: ${{ matrix.cmake-generator }}
+          fortran-compiler: ifx
