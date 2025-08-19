@@ -84,6 +84,7 @@ contains
          data_set%reff_time = string_to_esmf_time(file_reff_time)
       else
          last_token = index(data_set%file_template,'%',back=.true.)
+         allocate(data_set%reff_time)
          if (last_token.gt.0) then
             call ESMF_TimeGet(current_time, yy=iyy, mm=imm, dd=idd,h=ihh, m=imn, s=isc  ,_RC)
             token = data_set%file_template(last_token+1:last_token+2)
