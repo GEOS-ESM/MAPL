@@ -342,17 +342,8 @@ contains
       expected_itemtype = get_expected_itemtype(expectations, _RC)
 
       itemtype = get_itemtype(state, short_name, _RC)
-      block
-        integer :: itemCount
-        character(len=ESMF_MAXSTR), allocatable :: names(:)
-        if (expected_itemtype%ot /= itemtype%ot) then
-           call ESMF_StateGet(state, itemcount=itemcount, _RC)
-           allocate(names(itemCount))
-           call ESMF_StateGet(state, itemNameList=names, _RC)
-        end if
-      end block
-      @assert_that(msg // ':: check item type of '//short_name, expected_itemtype == itemtype, is(true()))
-
+      msg = msg // ':: check item type of '//short_name
+      @assert_that(msg, expected_itemtype == itemtype, is(true()))
 
       rc = 0
 
@@ -471,7 +462,8 @@ contains
 
       call ESMF_StateGet(state, short_name, field, _RC)
       call ESMF_FieldGet(field, typekind=found_field_typekind, _RC)
-      @assert_that(msg // ' field typekind: ',expected_field_typekind == found_field_typekind, is(true()))
+      msg = msg // ' field typekind: '
+      @assert_that(msg, expected_field_typekind == found_field_typekind, is(true()))
 
       rc = 0
    end subroutine check_field_typekind
