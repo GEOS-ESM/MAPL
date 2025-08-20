@@ -9,7 +9,7 @@ COMMENT = r'#'
 FORTCOMM = r'!'
 DASH = r'-'
 RS = r' | '
-SUBROUTINE_RE = re.compile(r'call\s+MAPL_Add(?P<state>\w+)Spec\s*\((?P<arguments>.*?)\)', re.IGNORECASE)
+SUBROUTINE_RE = re.compile(r'call\s+MAPL_Add(?P<state>\w+)Spec\s*\((?P<arguments>.*)\)\s*$', re.IGNORECASE)
 
 is_quoted = lambda s: (s[0] == "'" or s[0] == '"') and s[-1] == s[0]
 is_array = lambda s: (s[0], s[-1]) == ('[', ']')
