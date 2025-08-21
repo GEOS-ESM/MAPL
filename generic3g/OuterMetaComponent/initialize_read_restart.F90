@@ -26,6 +26,7 @@ contains
       character(:), allocatable :: filename
       type(esmf_Time) :: currTime
       integer :: status
+      class(Logger), pointer :: user_logger
 
       call recurse(this, phase_idx=GENERIC_INIT_READ_RESTART, _RC)
       _RETURN_UNLESS(this%has_geom())
@@ -33,11 +34,12 @@ contains
       driver => this%get_user_gc_driver()
       call esmf_ClockGet(driver%get_clock(), currTime=currTime, _RC)
 
+      user_logger => this%get_logger()
       restart_handler = RestartHandler( &
            driver%get_name(), &
            this%get_geom(), &
            currTime, &
-           this%get_logger())
+           user_logger)
 
       states = driver%get_states()
       subdir = get_checkpoint_subdir(this%hconfig, currTime, _RC)
