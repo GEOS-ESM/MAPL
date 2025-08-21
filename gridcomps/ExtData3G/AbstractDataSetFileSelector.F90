@@ -34,6 +34,7 @@ module mapl3g_AbstractDataSetFileSelector
          procedure :: detect_time_flow
          procedure :: get_dataset_metadata
          procedure :: get_file_template
+         procedure :: get_valid_range_single_file
          procedure(I_update_file_bracket), deferred :: update_file_bracket
     end type
 
@@ -164,6 +165,26 @@ module mapl3g_AbstractDataSetFileSelector
  
        if (allocated(this%file_template)) file_template = this%file_template
     end subroutine get_file_template
+
+    subroutine get_valid_range_single_file(this, rc)
+       class(AbstractDataSetFileSelector), intent(inout) :: this
+       integer, intent(out), optional :: rc
+
+       type(DataCollection), pointer :: collection
+       type(FileMetadataUtils), pointer :: metadata
+       type(ESMF_Time), allocatable :: time_series(:)
+       integer :: status
+
+       allocate(this%valid_range(2), _STAT)
+       collection => DataCollections%at(this%collection_id)
+       metadata => collection%find(this%file_template)
+       call metadata%get_time_info(timeVector=time_series, _RC) 
+       this%valid_range(1)=time_series(1)
+       this%valid_range(2)=time_series(size(time_series))
+  
+       _RETURN(_SUCCESS)
+
+    end subroutine get_valid_range_single_file 
 
 end module mapl3g_AbstractDataSetFileSelector
    
