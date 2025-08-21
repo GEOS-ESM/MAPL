@@ -112,11 +112,11 @@ contains
       str = esmf_HConfigAsString(hconfig, keystring=keystring, index=index, _RC)
 
       select case (ESMF_UtilStringUpperCase(str))
-      case ('ESMF_STATEITEM_FIELD')
+      case ('ESMF_STATEITEM_FIELD', 'FIELD')
          itemtype = ESMF_STATEITEM_FIELD
-      case ('ESMF_STATEITEM_FIELDBUNDLE')
+      case ('ESMF_STATEITEM_FIELDBUNDLE', 'FIELDBUNDLE', 'BUNDLE')
          itemtype = ESMF_STATEITEM_FIELDBUNDLE
-      case ('ESMF_STATEITEM_STATE')
+      case ('ESMF_STATEITEM_STATE', 'STATE')
          itemtype = ESMF_STATEITEM_STATE
       case default
          itemtype = ESMF_STATEITEM_UNKNOWN

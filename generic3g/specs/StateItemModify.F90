@@ -56,10 +56,6 @@ contains
       call ESMF_InfoGetFromHost(field, info, _RC)
       call FieldInfoGetInternal(info, spec_handle=spec_handle, _RC)
 
-      _HERE, present(units)
-      if (present(units)) then
-         _HERE, units
-      end if
       call stateitem_modify(spec_handle, &
            geom=geom, &
            vertical_grid=vertical_grid, &

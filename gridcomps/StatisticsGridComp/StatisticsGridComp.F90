@@ -30,7 +30,7 @@ contains
       type(esmf_HConfig) :: hconfig, items_hconfig
       type(esmf_HConfigIter) :: iter, b, e
 
-      call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, modify_advertise, phase_name='GENERIC::MODIFY_ADVERTISE', _RC)
+      call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, modify_advertise, phase_name='GENERIC::INIT_MODIFY_ADVERTISED', _RC)
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_READRESTART, custom_read_restart, phase_name='GENERIC:READ_RESTART', _RC)
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_WRITERESTART, custom_write_restart, phase_name='GENERIC::WRITE_RESTART', _RC)
@@ -66,26 +66,35 @@ contains
       type(esmf_StateItem_Flag) :: itemtype
       integer :: status
       type(esmf_HConfig) :: hconfig
+      type(VariableSpec) :: varspec
 
       hconfig = esmf_HConfigCreateAt(iter, _RC)
       action = esmf_HConfigAsString(hconfig, keystring='action', _RC)
       name = esmf_HConfigAsString(hconfig, keystring='name', _RC)
       itemtype = mapl_HConfigAsItemType(hconfig, keystring='itemtype', _RC)
-!#
-!#      call mapl_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_IMPORT, name, itemtype=itemtype, &
-!#           standard_name='<unknown>', _RC)
-!#
-!#      select case (action)
-!#      case ('average')
-!#         period = mapl_HConfigAsTimeInterval(hconfig, keystring='timestep', _RC)
-!#         offset= mapl_HConfigAsTimeInterval(hconfig, keystring='offset', _RC)
-!#         call mapl_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, itemtype=itemtype, &
+
+      varspec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, name, _RC)
+      call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+      select case (action)
+      case ('average')
+         period = mapl_HConfigAsTimeInterval(hconfig, keystring='period', _RC)
+         offset= mapl_HConfigAsTimeInterval(hconfig, keystring='offset', _RC)
+         varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, timestep=period, offset=offset, &
+              has_deferred_aspects=.true., _RC)
+         call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+!#         call mapl_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, dims='XY', vstagger=VERTICAL_STAGGER_NONE, &
+!#              itemtype=itemtype, _RC)
 !#              standard_name='<unknown>', timestep=period, &
-!#              refTime_offset=offset, accumulation_type='average', &
+!#              refTime_offset=offset, &
 !#              has_deferred_aspects=.true., _RC)
-!#      case default
-!#         _FAIL('unsupported action: '//action)
-!#      end select
+!#         call mapl_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, dims='XY', vstagger=VERTICAL_STAGGER_NONE, &
+!#              itemtype=itemtype, &
+!#              standard_name='<unknown>', timestep=period, &
+!#              refTime_offset=offset, &
+!#              has_deferred_aspects=.true., _RC)
+      case default
+         _FAIL('unsupported action: '//action)
+      end select
 
       call esmf_HConfigDestroy(hconfig, _RC)
 
@@ -106,6 +115,7 @@ contains
       type(esmf_HConfig) :: hconfig, items_hconfig
       class(AbstractTimeStatistic), allocatable :: item
 
+      _HERE
       _GET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE, stats)
       call mapl_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       items_hconfig = esmf_HConfigCreateAt(hconfig, keystring='stats', _RC)
@@ -139,15 +149,25 @@ contains
          character(:), allocatable :: standard_name, long_name
          type(esmf_TypeKind_Flag) :: typekind
          class(VerticalGrid), allocatable :: vertical_grid
-         type(UngriddedDims), pointer :: ungridded_dims
+         type(UngriddedDims) :: ungridded_dims
+         type(esmf_StateItem_Flag) :: itemtype
 
+         _HERE
+         _HERE, importState
          action = esmf_HConfigAsString(iter, keystring='action', _RC)
          name = esmf_HConfigAsString(iter, keystring='name', _RC)
 
-         call mapl_StateGet(importState, itemName=name, field=f_in, _RC)
+         call mapl_StateGet(importState, itemName=name, itemtype=itemtype, _RC)
+         _RETURN_IF(itemtype == ESMF_STATEITEM_NOTFOUND) 
 
+         _HERE
+         call mapl_StateGet(importState, itemName=name, field=f_in, _RC)
+         _HERE
          call mapl_FieldGet(f_in, allocation_status=allocation_status, _RC)
+         _HERE, allocation_status%to_string()
          _RETURN_UNLESS(allocation_status == STATEITEM_ALLOCATION_CONNECTED)
+
+         _HERE,' woo hoo - connected now !!!'
 
          call mapl_FieldGet(f_in, &
               geom=geom, &
@@ -157,6 +177,7 @@ contains
               _RC)
          call mapl_FieldGetVerticalGrid(f_in, vertical_grid=vertical_grid, _RC)
 
+         _HERE
          call mapl_StateGet(exportState, itemName=name, field=f_out, _RC)
          call mapl_FieldModify(f_out, &
               has_deferred_aspects=.false., &

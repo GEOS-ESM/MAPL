@@ -48,7 +48,7 @@ contains
          has_offset = ESMF_HConfigIsDefined(hconfig, keyString=KEY_RUN_TIME_OFFSET, _RC)
          _RETURN_UNLESS(has_offset)
 
-         offset = mapl_HConfigAsTimeInterval(hconfig, keystring=KEY_TIMESTEP, _RC)
+         offset = mapl_HConfigAsTimeInterval(hconfig, keystring=KEY_RUN_TIME_OFFSET, _RC)
 
          _RETURN(_SUCCESS)
 

@@ -299,6 +299,7 @@ contains
       _RETURN_IF(this%state_intent == ESMF_STATEINTENT_IMPORT)
 
       class_aspect => to_ClassAspect(this%aspects, _RC)
+
       call class_aspect%allocate(this%aspects, _RC)
       call this%set_allocated()
 
@@ -322,8 +323,6 @@ contains
       aspect_id = src_class_aspect%get_aspect_id()
       aspect_id = dst_class_aspect%get_aspect_id()
       call src_class_aspect%connect_to_import(dst_class_aspect, _RC)
-
-      call this%activate(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine connect_to_import

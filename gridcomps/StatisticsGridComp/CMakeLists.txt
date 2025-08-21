@@ -1,4 +1,4 @@
-esma_set_this (OVERRIDE MAPL.statistics)
+esma_set_this (OVERRIDE MAPL_StatisticsGridComp)
 
 set(srcs
   AbstractTimeStatistic.F90

@@ -1,4 +1,30 @@
-mapl:
-  states:
-    import: {}
-    export: {}
+# anchors for recurring cases
+monthly: &monthly
+  period: P1M
+  offset: PT0H # + 2000-01-01T00:00:00
+
+daily: &daily
+  period: PT24H
+  offset: PT0H
+
+hourly: &hourly
+  period: P1H
+  offset: PT30M # 30 minute offset
+
+monthly_average: &monthly_average
+  action: average
+  <<: monthly
+
+monthly_variance: &monthly_variance
+  action: variance
+  <<: monthly
+
+monthly_covariance: &monthly_covariance
+  action: variance
+  <<: monthly
+
+stats:
+  - name: A/TS
+    action: average
+    itemtype: field
+    <<: *daily

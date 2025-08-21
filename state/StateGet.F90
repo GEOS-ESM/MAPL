@@ -12,6 +12,7 @@ module mapl3g_StateGet
    public :: StateGet
 
    interface StateGet
+      procedure state_get_status
       procedure state_get
    end interface StateGet
 
@@ -60,4 +61,32 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine state_get
 
+   recursive subroutine state_get_status(state, itemName, itemType, rc)
+      type(ESMF_State), intent(in) :: state
+      character(*), intent(in) :: itemName
+      type(esmf_StateItem_Flag), intent(out) :: itemType
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: idx
+      type(esmf_State) :: nestedState
+      character(:), allocatable :: subname
+
+      idx = index(itemName, '/')
+      if (idx == 0) then
+         call esmf_StateGet(state, itemName=itemName, itemType=itemType, _RC)
+         _RETURN(_SUCCESS)
+      end if
+      subname = itemName(:idx-1)
+
+      call esmf_StateGet(state, itemName=subName, itemType=itemType, _RC)
+      _RETURN_IF(itemType == ESMF_STATEITEM_NOTFOUND)
+      _ASSERT(itemType == ESMF_STATEITEM_STATE, 'nestedState not found: '//subname)
+
+      call esmf_StateGet(state, itemName=subname, nestedState=nestedState, _RC)
+
+      call state_get_status(nestedState, itemName=itemName(idx+1:), itemType=itemType, _RC)
+      
+      _RETURN(_SUCCESS)
+   end subroutine state_get_status
 end module mapl3g_StateGet
