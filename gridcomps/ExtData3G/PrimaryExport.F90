@@ -15,6 +15,7 @@ module mapl3g_PrimaryExport
    use mapl3g_ExtDataCollection
    use mapl3g_ExtDataSample
    use pfio, only: i_clients
+   use VerticalCoordinateMod
    implicit none
 
    public PrimaryExport
@@ -26,6 +27,7 @@ module mapl3g_PrimaryExport
       class(AbstractDataSetFileSelector), allocatable :: file_selector
       type(DataSetBracket) :: bracket
       logical :: is_constant = .false.
+      type(VerticalCoordinate) :: vcoord
       contains
          procedure :: get_file_selector
          procedure :: complete_export_spec
@@ -110,10 +112,8 @@ module mapl3g_PrimaryExport
       type(ESMF_Geom) :: esmfgeom
       type(ESMF_FieldBundle) :: bundle
       type(GeomManager), pointer :: geom_mgr
-      !type(BasicVerticalGriddd) :: vertical_grid
+      type(BasicVerticalGrid) :: vertical_grid
 
-      !vertical_grid = BasicVerticalGrid(3)
-      _HERE
       if (this%is_constant) then
          _RETURN(_SUCCESS)
       end if
@@ -123,10 +123,21 @@ module mapl3g_PrimaryExport
       geom = geom_mgr%get_mapl_geom_from_metadata(metadata%metadata, _RC)
       esmfgeom = geom%get_geom()
 
+      this%vcoord = verticalCoordinate(metadata, this%file_var, _RC)
+
       call ESMF_StateGet(exportState, item_name, bundle, _RC)
-      _HERE
-      call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
-              vertical_stagger=VERTICAL_STAGGER_NONE,  _RC)
+      if (this%vcoord%vertical_type == NO_COORD) then
+         vertical_grid = BasicVerticalGrid(1)
+         call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
+                 vertical_stagger=VERTICAL_STAGGER_NONE,  vertical_grid=vertical_grid,  _RC)
+      else if (this%vcoord%vertical_type == SIMPLE_COORD) then
+         vertical_grid = BasicVerticalGrid(this%vcoord%num_levels)
+         call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', &
+                 typekind=ESMF_TYPEKIND_R4, vertical_grid=vertical_grid, &
+                 vertical_stagger=VERTICAL_STAGGER_CENTER,  _RC)
+      else
+         _FAIL("unsupported vertical coordinate for item "//trim(this%export_var))
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine complete_export_spec
