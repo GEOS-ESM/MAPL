@@ -127,9 +127,8 @@ module mapl3g_PrimaryExport
 
       call ESMF_StateGet(exportState, item_name, bundle, _RC)
       if (this%vcoord%vertical_type == NO_COORD) then
-         vertical_grid = BasicVerticalGrid(1)
          call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
-                 vertical_stagger=VERTICAL_STAGGER_NONE,  vertical_grid=vertical_grid,  _RC)
+                 vertical_stagger=VERTICAL_STAGGER_NONE,  _RC)
       else if (this%vcoord%vertical_type == SIMPLE_COORD) then
          vertical_grid = BasicVerticalGrid(this%vcoord%num_levels)
          call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', &
