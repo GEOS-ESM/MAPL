@@ -353,7 +353,7 @@ contains
       call esmf_TimeGet(startTime, timeStringISOFrac=iso_time, _RC)
       call lgr%info('start time: %a', trim(iso_time)) 
 
-      startTime = mapl_HConfigAsTime(clock_cfg, keystring='stop', _RC)
+      stopTime = mapl_HConfigAsTime(clock_cfg, keystring='stop', _RC)
       call esmf_TimeGet(stopTime, timeStringISOFrac=iso_time, _RC)
       call lgr%info('stop time: %a', trim(iso_time)) 
 
