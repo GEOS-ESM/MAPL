@@ -61,7 +61,7 @@ contains
            iter = this%component_spec%var_specs%begin()
            do while (iter /= e)
               var_spec => iter%of()
-              call advertise_variable( this, var_spec, _RC)
+              call this%advertise_variable(var_spec, _RC)
               call iter%next()
            end do
          end associate
@@ -70,42 +70,6 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine self_advertise
 
-   subroutine advertise_variable(this, var_spec, rc)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      type(VariableSpec), intent(in) :: var_spec
-      integer, optional, intent(out) :: rc
-      
-      integer :: status
-      type(StateItemSpec), target :: item_spec
-      type(StateItemSpec), pointer :: item_spec_ptr
-      type(StateItemExtension), pointer :: item_extension
-      type(VirtualConnectionPt) :: virtual_pt
-      
-      item_spec = var_spec%make_StateItemSpec(this%registry, &
-           this%geom, this%vertical_grid, timestep=this%user_timestep, offset=this%user_offset, _RC)
-      virtual_pt = var_spec%make_virtualPt()
-      call this%registry%add_primary_spec(virtual_pt, item_spec)
-      item_extension => this%registry%get_primary_extension(virtual_pt, _RC)
-      item_spec_ptr => item_extension%get_spec() 
-      call item_spec_ptr%create(_RC)
-      
-      if (this%component_spec%misc%activate_all_exports) then
-         if (var_spec%state_intent == ESMF_STATEINTENT_EXPORT) then
-            call item_spec_ptr%activate(_RC)
-         end if
-      end if
-      if (this%component_spec%misc%activate_all_imports) then
-         if (var_spec%state_intent == ESMF_STATEINTENT_IMPORT) then
-            call item_spec_ptr%activate(_RC)
-         end if
-      end if
-      
-      if (var_spec%state_intent == ESMF_STATEINTENT_INTERNAL) then
-         call item_spec_ptr%activate(_RC)
-      end if
-      
-      _RETURN(_SUCCESS)
-   end subroutine advertise_variable
 
    subroutine process_connections(this, rc)
       class(OuterMetaComponent), target, intent(inout) :: this

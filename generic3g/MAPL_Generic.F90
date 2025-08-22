@@ -66,6 +66,7 @@ module mapl3g_Generic
    ! These should be available to users
    public :: MAPL_GridCompAddVarSpec
    public :: MAPL_GridCompAddSpec
+   public :: MAPL_GridCompAdvertiseVariable
    public :: MAPL_GridCompIsGeneric
    public :: MAPL_GridCompIsUser
 
@@ -152,6 +153,10 @@ module mapl3g_Generic
    interface MAPL_GridCompAddSpec
       procedure :: gridcomp_add_spec
    end interface MAPL_GridCompAddSpec
+
+   interface mapl_GridCompAdvertiseVariable
+      procedure :: gridcomp_advertise_variable
+   end interface mapl_GridCompAdvertiseVariable
 
    interface MAPL_GridCompSetGeometry
       procedure :: gridcomp_set_geometry
@@ -558,6 +563,21 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_add_spec
+
+
+   subroutine gridcomp_advertise_variable(gridcomp, var_spec, rc)
+      type(esmf_GridComp), intent(inout) :: gridcomp
+      type(VariableSpec), intent(in) :: var_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call outer_meta%advertise_variable(var_spec, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine gridcomp_advertise_variable
 
    subroutine MAPL_GridCompSetVerticalGrid(gridcomp, vertical_grid, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
