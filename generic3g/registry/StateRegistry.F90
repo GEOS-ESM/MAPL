@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_StateRegistry
-
+   use mapl3g_Field_API
    use mapl3g_AbstractRegistry
    use mapl3g_RegistryPtr
    use mapl3g_RegistryPtrMap

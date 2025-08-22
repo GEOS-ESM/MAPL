@@ -3,8 +3,6 @@
 module mapl3g_DriverCap
    use mapl3
    use mapl3g_CapGridComp, only: cap_setservices => setServices
-   use mapl_TimeStringConversion, only: hconfig_to_esmf_time
-   use mapl_TimeStringConversion, only: hconfig_to_esmf_timeinterval
    use mapl_TimeStringConversion, only: string_to_esmf_time
    use mapl_os
    use pflogger
@@ -344,26 +342,26 @@ contains
 
       cap_restart_file = esmf_HConfigAsString(hconfig, keyString='restart', _RC)
       restart_cfg = esmf_HConfigCreate(filename=cap_restart_file, _RC)
-      currTime = hconfig_to_esmf_time(restart_cfg, 'currTime', _RC)
+      currTime = mapl_HConfigAsTime(restart_cfg, keystring='currTime', _RC)
       iso_time = esmf_HConfigAsString(restart_cfg, keystring='currTime', _RC)
       call lgr%info('current time: %a', trim(iso_time)) 
       call esmf_HConfigDestroy(restart_cfg, _RC)
 
       clock_cfg = esmf_HConfigCreateAt(hconfig, keystring='clock', _RC)
       
-      startTime = hconfig_to_esmf_time(clock_cfg, 'start', _RC)
+      startTime = mapl_HConfigAsTime(clock_cfg, keystring='start', _RC)
       call esmf_TimeGet(startTime, timeStringISOFrac=iso_time, _RC)
       call lgr%info('start time: %a', trim(iso_time)) 
 
-      stopTime = hconfig_to_esmf_time(clock_cfg, 'stop', _RC)
+      stopTime = mapl_HConfigAsTime(clock_cfg, keystring='stop', _RC)
       call esmf_TimeGet(stopTime, timeStringISOFrac=iso_time, _RC)
       call lgr%info('stop time: %a', trim(iso_time)) 
 
-      timeStep = hconfig_to_esmf_timeinterval(clock_cfg, 'dt', _RC)
+      timeStep = mapl_HConfigAsTimeInterval(clock_cfg, keystring='dt', _RC)
       call esmf_TimeGet(stopTime, timeStringISOFrac=iso_time, _RC)
       call lgr%info('time step: %a', trim(iso_time)) 
 
-      segment_duration = hconfig_to_esmf_timeinterval(clock_cfg, 'segment_duration', _RC)
+      segment_duration = mapl_HConfigAsTimeInterval(clock_cfg, keystring='segment_duration', _RC)
       end_of_segment = currTime + segment_duration
       call esmf_TimeGet(end_of_segment, timeStringISOFrac=iso_time, _RC)
       call lgr%info('segment stop time: %a', trim(iso_time))
@@ -371,7 +369,7 @@ contains
       has_repeatDuration = esmf_HConfigIsDefined(clock_cfg, keystring='repeat_duration', _RC)
       if (has_repeatDuration) then
          allocate(repeatDuration) ! anticipating NAG compiler issue here
-         repeatDuration = hconfig_to_esmf_timeinterval(clock_cfg, 'repeat_duration', _RC)
+         repeatDuration = mapl_HConfigAsTimeInterval(clock_cfg, keystring='repeat_duration', _RC)
          call esmf_TimeIntervalGet(repeatDuration, timeStringISOFrac=iso_time, _RC)
          call lgr%info('repeat duration: %a', trim(iso_time))
       end if
@@ -450,15 +448,15 @@ contains
          logical :: has_reftime
          integer :: status
 
-         ringInterval = hconfig_to_esmf_timeinterval(cfg, 'frequency', _RC)
+         ringInterval = mapl_HConfigAsTimeInterval(cfg, keystring='frequency', _RC)
          has_refTime = esmf_HConfigIsDefined(cfg, keystring='refTime', _RC)
          if (has_refTime) then
-            refTime = hconfig_to_esmf_time(cfg, 'refTime', _RC)
+            refTime = mapl_HConfigAsTime(cfg, keystring='refTime', _RC)
          else
             call esmf_ClockGet(clock, currTime=currTime, _RC)
             refTime = currTime
          end if
-         refTime = hconfig_to_esmf_time(cfg, 'refTime', _RC)
+         refTime = mapl_HConfigAsTime(cfg, keystring='refTime', _RC)
 
          alarm = esmf_AlarmCreate(clock, ringTime=refTime, ringInterval=ringInterval, sticky=.false., _RC)
          call esmf_AlarmRingerOff(alarm, _RC)

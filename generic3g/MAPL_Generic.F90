@@ -66,6 +66,7 @@ module mapl3g_Generic
    ! These should be available to users
    public :: MAPL_GridCompAddVarSpec
    public :: MAPL_GridCompAddSpec
+   public :: MAPL_GridCompAdvertiseVariable
    public :: MAPL_GridCompIsGeneric
    public :: MAPL_GridCompIsUser
 
@@ -152,6 +153,10 @@ module mapl3g_Generic
    interface MAPL_GridCompAddSpec
       procedure :: gridcomp_add_spec
    end interface MAPL_GridCompAddSpec
+
+   interface mapl_GridCompAdvertiseVariable
+      procedure :: gridcomp_advertise_variable
+   end interface mapl_GridCompAdvertiseVariable
 
    interface MAPL_GridCompSetGeometry
       procedure :: gridcomp_set_geometry
@@ -255,6 +260,7 @@ contains
    end subroutine gridcomp_get_registry
 
   subroutine gridcomp_get(gridcomp, unusable, &
+        name, &
         hconfig, &
         logger, &
         geom, &
@@ -264,6 +270,7 @@ contains
 
       type(ESMF_GridComp), intent(inout) :: gridcomp
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(:), optional, allocatable :: name
       type(ESMF_Hconfig), optional, intent(out) :: hconfig
       class(Logger_t), optional, pointer, intent(out) :: logger
       type(ESMF_Geom), optional, intent(out) :: geom
@@ -275,6 +282,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta_
       type(ESMF_Geom), allocatable :: geom_
       class(VerticalGrid), allocatable :: vertical_grid_
+      character(ESMF_MAXSTR) :: buffer
 
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta_, _RC)
 
@@ -288,6 +296,11 @@ contains
       if (present(num_levels)) then
          vertical_grid_ = outer_meta_%get_vertical_grid()
          num_levels = vertical_grid_%get_num_levels()
+      end if
+
+      if (present(name)) then
+         call esmf_GridCompGet(gridcomp, name=buffer, _RC)
+         name = trim(buffer)
       end if
 
       _RETURN(_SUCCESS)
@@ -558,6 +571,21 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_add_spec
+
+
+   subroutine gridcomp_advertise_variable(gridcomp, var_spec, rc)
+      type(esmf_GridComp), intent(inout) :: gridcomp
+      type(VariableSpec), intent(in) :: var_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call outer_meta%advertise_variable(var_spec, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine gridcomp_advertise_variable
 
    subroutine MAPL_GridCompSetVerticalGrid(gridcomp, vertical_grid, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
