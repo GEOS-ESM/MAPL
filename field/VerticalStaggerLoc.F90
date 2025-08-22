@@ -91,7 +91,17 @@ contains
    elemental logical function are_equal(this, that)
       type(VerticalStaggerLoc), intent(in) :: this
       type(VerticalStaggerLoc), intent(in) :: that
-      are_equal = this%name == that%name
+
+      integer :: n_mirror
+
+      are_equal = (this%name == that%name)
+      if (are_equal) return
+
+      ! Note: we may only want to allow imports (dst) to be mirror in
+      ! the future.
+      n_mirror = count([this%id,that%id] == MIRROR)
+      are_equal = (n_mirror == 1)
+
    end function are_equal
 
    elemental logical function are_not_equal(this, that)
