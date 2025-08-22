@@ -299,8 +299,10 @@ contains
       type(ESMF_State) :: state, substate
       character(:), allocatable :: full_name, inner_name
       integer :: idx
-
-      call multi_state%get_state(state, actual_pt%get_state_intent(), _RC)
+      character(:), allocatable :: intent
+      
+      intent = actual_pt%get_state_intent()
+      call multi_state%get_state(state, intent, _RC)
 
       full_name = actual_pt%get_full_name()
       idx = index(full_name, '/', back=.true.)
@@ -308,14 +310,15 @@ contains
       inner_name = full_name(idx+1:)
 
       alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
-       call ESMF_StateGet(substate, itemName=inner_name, itemType=itemType, _RC)
+      call ESMF_StateGet(substate, itemName=inner_name, itemType=itemType, _RC)
       if (itemType /= ESMF_STATEITEM_NOTFOUND) then
-         call ESMF_StateGet(substate, itemName=inner_name, fieldBundle=existing_bundle, _RC)
-         is_alias = mapl_FieldBundlesAreAliased(alias, existing_bundle, _RC)
-         _ASSERT(is_alias, 'Different field bundles added under the same name in state.')
-      else
-         call ESMF_StateAdd(substate, [alias], _RC)
+         if (intent /= 'import') then
+            call ESMF_StateGet(substate, itemName=inner_name, fieldBundle=existing_bundle, _RC)
+            is_alias = mapl_FieldBundlesAreAliased(alias, existing_bundle, _RC)
+            _ASSERT(is_alias, 'Different fields added under the same name in state.')
+         end if
       end if
+      call ESMF_StateAddReplace(substate, [alias], _RC)
 
       _RETURN(_SUCCESS)
    end subroutine add_to_state

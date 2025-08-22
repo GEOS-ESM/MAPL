@@ -26,7 +26,7 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      type(MultiState) :: user_states, tmp_states
+      type(MultiState) :: user_states
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
 
@@ -39,10 +39,7 @@ contains
       call this%registry%propagate_exports(_RC)
 
       user_states = this%user_gc_driver%get_states()
-      tmp_states = MultiState(exportState=user_states%exportState, internalState=user_states%internalState)
-      call this%registry%add_to_states(tmp_states, mode='user', _RC)
-      ! Destroy the temporary states
-      call ESMF_StateDestroy(tmp_states%importState, _RC)
+      call this%registry%add_to_states(user_states, mode='user', _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
