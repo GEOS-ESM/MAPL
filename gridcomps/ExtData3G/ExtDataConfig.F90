@@ -443,10 +443,11 @@ contains
       _RETURN(_SUCCESS)
    end function
 
-   function make_PrimaryExport(this, item_name, rc) result(export)
+   function make_PrimaryExport(this, full_name, base_name, rc) result(export)
       type(PrimaryExport) :: export
       class(ExtDataConfig), intent(inout) :: this
-      character(len=*), intent(in) :: item_name
+      character(len=*), intent(in) :: full_name
+      character(len=*), intent(in) :: base_name
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -457,7 +458,7 @@ contains
       type(NonClimDataSetFileSelector) :: non_clim_file_selector
       type(ExtDataSample), target :: default_sample
  
-      export_rule => this%rule_map%at(item_name)
+      export_rule => this%rule_map%at(full_name)
       collection => null()
       sample => this%sample_map%at(export_rule%sample_key)
       if (export_rule%collection /= "/dev/null") then
@@ -467,7 +468,7 @@ contains
          call default_sample%set_defaults()
          sample => default_sample
       end if
-      export = PrimaryExport(item_name, export_rule, collection, sample, _RC)
+      export = PrimaryExport(base_name, export_rule, collection, sample, _RC)
 
       _RETURN(_SUCCESS)
   end function

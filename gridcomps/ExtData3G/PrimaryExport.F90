@@ -11,6 +11,7 @@ module mapl3g_PrimaryExport
    use mapl3g_DataSetNode
    use mapl3g_ExtDataReader
    use gftl2_StringStringMap
+   use gftl2_IntegerVector
    use mapl3g_ExtDataRule
    use mapl3g_ExtDataCollection
    use mapl3g_ExtDataSample
@@ -28,6 +29,7 @@ module mapl3g_PrimaryExport
       type(DataSetBracket) :: bracket
       logical :: is_constant = .false.
       type(VerticalCoordinate) :: vcoord
+      type(ESMF_Time), allocatable :: start_and_end(:)
       contains
          procedure :: get_file_selector
          procedure :: complete_export_spec

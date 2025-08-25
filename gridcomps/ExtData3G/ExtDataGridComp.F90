@@ -28,6 +28,8 @@ module mapl3g_ExtDataGridComp
    character(*), parameter :: PRIVATE_STATE = "ExtData"
    type :: ExtDataGridComp
       type(PrimaryExportVector) :: export_vector
+      type(integerVector) :: rules_per_export
+      type(integerVector) :: export_id_start
       logical :: has_run_mod_advert = .false.
    end type ExtDataGridComp
 
@@ -61,7 +63,7 @@ contains
 
       integer :: status
 
-      integer :: rules_for_item
+      integer :: rules_for_item, rule_counter, j
       type(StringVector) :: active_items
       type(ExtDataConfig) :: config
       type(ESMF_Hconfig) :: hconfig
@@ -72,6 +74,7 @@ contains
       type(ExtDataGridComp), pointer :: extdata_gridcomp
       type(PrimaryExport) :: primary_export
       class(logger), pointer :: lgr
+      character(len=1) :: sidx
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
 
@@ -84,6 +87,7 @@ contains
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       active_items = get_active_items(exportState, _RC)
       call new_ExtDataConfig_from_yaml(config, hconfig, current_time,  _RC)
+      rule_counter = 0
       iter = active_items%ftn_begin()
       do while (iter /= active_items%ftn_end())
          call iter%next()
@@ -91,10 +95,21 @@ contains
          has_rule = config%has_rule_for(item_name, _RC)
          _ASSERT(has_rule, 'no rule for extdata item: '//item_name)
          rules_for_item = config%count_rules_for_item(item_name, _RC)
-         _ASSERT(rules_for_item == 1, 'only 1 rule per item supported now')
-         primary_export = config%make_PrimaryExport(item_name, _RC)
-         call primary_export%complete_export_spec(item_name, exportState, _RC)
-         call extdata_gridcomp%export_vector%push_back(primary_export)
+         
+         call extdata_gridcomp%rules_per_export%push_back(rules_for_item)
+         _ASSERT(rules_for_item > 0, 'item: '//item_name//' has no rule')
+         if (rules_for_item > 1) then
+            do j=1,rules_for_item
+               rule_counter = rule_counter + 1
+               write(sidx, '(I1)')j
+                
+            enddo 
+         else if (rules_for_item == 1) then
+            rule_counter = rule_counter + 1
+            primary_export = config%make_PrimaryExport(item_name, item_name, _RC)
+            call primary_export%complete_export_spec(item_name, exportState, _RC)
+            call extdata_gridcomp%export_vector%push_back(primary_export)
+         end if
       end do
 
       call report_active_items(extdata_gridcomp%export_vector, lgr)
