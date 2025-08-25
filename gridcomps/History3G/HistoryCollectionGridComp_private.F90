@@ -292,7 +292,6 @@ contains
          varspec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name, &
               units=opts%units, typekind=opts%typekind, &
               accumulation_type=opts%accumulation_type, timestep = opts%timestep, offset=opts%runTime_offset, &
-              vertical_stagger=VERTICAL_STAGGER_MIRROR, &
               _RC)
          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
       end do
