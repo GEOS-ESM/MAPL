@@ -146,6 +146,7 @@ end type MAPL_LocStreamXformType
 interface MAPL_LocStreamCreate
    module procedure MAPL_LocStreamCreateFromFile
    module procedure MAPL_LocStreamCreateFromStream
+   module procedure MAPL_LocStreamCreateSimple
 end interface
 
 interface MAPL_LocStreamTransform
@@ -2959,5 +2960,34 @@ subroutine MAPL_GridCoordAdjust(GRID, LOCSTREAM, RC)
   _RETURN(ESMF_SUCCESS)
 
 end subroutine MAPL_GridCoordAdjust
+
+!A special subroutine for Nx1 Grid in river-routing grid comp
+!Some information in the locstream is not filled
+subroutine MAPL_LocstreamCreateSimple(Locstream, grid, rc)
+   type(MAPL_LocStream), intent(OUT) :: LocStream
+   type(ESMF_Grid), intent(inout)      :: grid
+   integer, optional, intent(out) :: rc
+   integer :: status, i, i1, i2, j1, j2
+   type(MAPL_LocStreamType), pointer :: STREAM
+   integer :: globalCount(3)
+
+   LocStream%Ptr => null()
+   allocate(LocStream%Ptr, STAT=STATUS)
+   _VERIFY(STATUS)
+       
+   stream => LocStream%Ptr
+   stream%grid      = grid
+   call MAPL_grid_interior(grid, i1, i2, j1, j2)
+   _ASSERT( j1 == 1 .and. j2 ==1, "This simple Locstream is for Nx1 grid")
+   allocate(stream%local_id, source = [(i, i = i1, i2)])
+   stream%nt_local  = i2 - i1 + 1
+   call MAPL_GridGet(grid,globalCellCountPerDim=globalCount,rc=status)
+    _VERIFY(STATUS) 
+   stream%nt_global = globalCount(1)
+   call MAPL_LocStreamCreateTileGrid(LocStream, grid, RC=status)
+    _VERIFY(STATUS) 
+    
+  _RETURN(ESMF_SUCCESS)
+end subroutine MAPL_LocStreamCreateSimple
 
 end module MAPL_LocStreamMod
