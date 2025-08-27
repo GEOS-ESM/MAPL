@@ -46,12 +46,13 @@ module mapl3g_PrimaryExport
 
    contains
 
-   function new_PrimaryExport(export_var, rule, collection, sample, rc) result(primary_export) 
+   function new_PrimaryExport(export_var, rule, collection, sample, time_range, rc) result(primary_export) 
       type(PrimaryExport) :: primary_export
       character(len=*), intent(in) :: export_var
-      type(ExtDataRule), pointer :: rule
-      type(ExtDataCollection), pointer :: collection
-      type(ExtDataSample), pointer :: sample
+      type(ExtDataRule), pointer, intent(in) :: rule
+      type(ExtDataCollection), pointer, intent(in) :: collection
+      type(ExtDataSample), pointer, intent(in) :: sample
+      type(ESMF_Time), intent(in) :: time_range(:)
       integer, optional, intent(out) :: rc
       
       type(NonClimDataSetFileSelector) :: non_clim_file_selector 
@@ -72,6 +73,7 @@ module mapl3g_PrimaryExport
          call primary_export%file_selector%get_file_template(file_template)
          primary_export%client_collection_id = i_clients%add_data_collection(file_template, _RC)
          call primary_export%bracket%set_parameters(time_interpolation=sample%time_interpolation)
+         allocate(primary_export%start_and_end, source=time_range)
       end if
       _RETURN(_SUCCESS)
 

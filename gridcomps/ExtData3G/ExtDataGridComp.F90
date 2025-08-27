@@ -31,6 +31,8 @@ module mapl3g_ExtDataGridComp
       type(integerVector) :: rules_per_export
       type(integerVector) :: export_id_start
       logical :: has_run_mod_advert = .false.
+      contains
+         procedure :: get_item_index
    end type ExtDataGridComp
 
 contains
@@ -63,7 +65,7 @@ contains
 
       integer :: status
 
-      integer :: rules_for_item, rule_counter, j
+      integer :: rules_for_item, rule_counter, j, idx
       type(StringVector) :: active_items
       type(ExtDataConfig) :: config
       type(ESMF_Hconfig) :: hconfig
@@ -73,6 +75,7 @@ contains
       logical :: has_rule
       type(ExtDataGridComp), pointer :: extdata_gridcomp
       type(PrimaryExport) :: primary_export
+      type(PrimaryExport), pointer :: primary_export_ptr
       class(logger), pointer :: lgr
       character(len=1) :: sidx
 
@@ -95,21 +98,25 @@ contains
          has_rule = config%has_rule_for(item_name, _RC)
          _ASSERT(has_rule, 'no rule for extdata item: '//item_name)
          rules_for_item = config%count_rules_for_item(item_name, _RC)
-         
+         call extdata_gridcomp%export_id_start%push_back(rule_counter+1)
          call extdata_gridcomp%rules_per_export%push_back(rules_for_item)
+    
          _ASSERT(rules_for_item > 0, 'item: '//item_name//' has no rule')
          if (rules_for_item > 1) then
             do j=1,rules_for_item
                rule_counter = rule_counter + 1
                write(sidx, '(I1)')j
-                
+               primary_export = config%make_PrimaryExport(item_name, item_name, _RC)
+               call extdata_gridcomp%export_vector%push_back(primary_export)
             enddo 
          else if (rules_for_item == 1) then
             rule_counter = rule_counter + 1
             primary_export = config%make_PrimaryExport(item_name, item_name, _RC)
-            call primary_export%complete_export_spec(item_name, exportState, _RC)
             call extdata_gridcomp%export_vector%push_back(primary_export)
          end if
+         idx = extdata_gridcomp%get_item_index(item_name, current_time, _RC)
+         primary_export_ptr => extdata_gridcomp%export_vector%at(idx) 
+         call primary_export%complete_export_spec(item_name, exportState, _RC)
       end do
 
       call report_active_items(extdata_gridcomp%export_vector, lgr)
@@ -136,15 +143,23 @@ contains
       type(ExtDataReader) :: reader
       class(logger), pointer :: lgr
       type(ESMF_FieldBundle) :: bundle 
+      character(len=ESMF_MAXSTR), allocatable :: export_names(:)
+      integer :: num_exports, i, idx
 
+      call ESMF_StateGet(exportState, itemCount=num_exports, _RC)
+      allocate(export_names(num_exports))
+      call ESMF_StateGet(exportState, itemNameList=export_names, _RC) 
       call MAPL_GridCompGet(gridcomp, logger=lgr, _RC)
       _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
       call ESMF_ClockGet(clock, currTime=current_time, _RC) 
       call reader%initialize_reader(_RC)
-      iter = extdata_gridcomp%export_vector%ftn_begin()
+      !iter = extdata_gridcomp%export_vector%ftn_begin()
       do while (iter /= extdata_gridcomp%export_vector%ftn_end())
          call iter%next()
          export_item => iter%of() 
+      !do i =1, num_exports
+         !idx = extdata_gridcomp%get_item_index(trim(export_names(i)), current_time, _RC)
+         !export_item => extdata_gridcomp%export_vector%at(idx) 
          if (export_item%is_constant) cycle
 
          export_name = export_item%get_export_var_name()
@@ -158,6 +173,49 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine run
+
+  function get_item_index(this,base_name,current_time,rc) result(item_index)
+     integer :: item_index
+     class(ExtDataGridComp), intent(in) :: this
+     type(ESMF_Time) :: current_time
+     character(len=*),intent(in) :: base_name
+     integer, optional, intent(out) :: rc
+
+     character(len=:), allocatable :: export_name
+     integer :: i
+     integer, pointer :: num_rules,i_start
+     logical :: found
+     type(PrimaryExport), pointer :: item
+
+     found = .false.
+     do i=1,this%export_vector%size()
+        item => this%export_vector%at(i)
+        export_name = item%get_export_var_name()
+        if (export_name == base_name) then
+           found = .true.
+           i_start => this%export_id_start%at(i)
+           num_rules => this%rules_per_export%at(i)
+           exit
+        end if
+     enddo
+     _ASSERT(found,"ExtData no item with basename '"//TRIM(base_name)//"' found")
+
+     item_index = -1
+     if (num_rules == 1) then
+        item_index = i_start
+     else if (num_rules > 1) then
+        do i=1,num_rules
+           item => this%export_vector%at(i_start+i-1)
+           if (current_time >= item%start_and_end(1) .and. &
+               current_time <  item%start_and_end(2)) then
+              item_index = i_start + i -1
+              exit
+           endif
+        enddo
+     end if
+     _ASSERT(item_index/=-1,"ExtData did not find item index for basename "//TRIM(base_name))
+     _RETURN(_SUCCESS)
+  end function get_item_index
 
 end module mapl3g_ExtDataGridComp
 

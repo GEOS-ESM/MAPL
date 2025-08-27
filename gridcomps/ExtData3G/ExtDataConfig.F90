@@ -192,10 +192,11 @@ contains
       _RETURN(_SUCCESS)
    end function count_rules_for_item
 
-   function get_time_range(this,item_name,rc) result(time_range)
-      type(ESMF_Time), allocatable :: time_range(:)
+   subroutine get_time_range(this,full_name,base_name,time_range,rc)
       class(ExtDataConfig), target, intent(in) :: this
-      character(len=*), intent(in) :: item_name
+      character(len=*), intent(in) :: base_name
+      character(len=*), intent(in) :: full_name
+      type(ESMF_Time), allocatable, intent(out) :: time_range(:)
       integer, optional, intent(out) :: rc
 
       type(ExtDataRuleMapIterator) :: rule_iterator
@@ -205,30 +206,50 @@ contains
       type(ExtDataRule), pointer :: rule
       integer :: i,status,idx
       type(ESMF_Time) :: very_future_time
+      type(ESMF_Time) :: start_time
+      character(len=:), allocatable :: char_start_time
+      type(ESMF_Time), allocatable :: full_time_range(:)
 
       rule_iterator = this%rule_map%begin()
       do while(rule_iterator /= this%rule_map%end())
          key => rule_iterator%first()
+         rule => rule_iterator%second()
          idx = index(key,rule_sep)
          if (idx > 0) then
-            if (key(1:idx-1) == trim(item_name)) then
-               rule => rule_iterator%second()
+            if (key(1:idx-1) == trim(base_name)) then
                call start_times%push_back(rule%start_time)
             end if
+         end if
+         if (key == full_name .and. allocated(rule%start_time)) then
+            char_start_time = rule%start_time 
          end if
          call rule_iterator%next()
       enddo
 
       num_rules = start_times%size()
-      allocate(time_range(num_rules+1))
+      if (num_rules == 0) then
+         allocate(time_range(0))
+         _RETURN(_SUCCESS)
+      end if
+      start_time = string_to_esmf_time(char_start_time)
+
+      allocate(full_time_range(num_rules+1))
       do i=1,num_rules
-          time_range(i) = string_to_esmf_time(start_times%at(i))
+          full_time_range(i) = string_to_esmf_time(start_times%at(i))
       enddo
       call ESMF_TimeSet(very_future_time,yy=2365,mm=1,dd=1,_RC)
-      time_range(num_rules+1) = very_future_time
+      full_time_range(num_rules+1) = very_future_time
+
+      allocate(time_range(2))
+      do i=1,num_rules
+         if (start_time == full_time_range(i)) then
+            time_range(1) = full_time_range(i)
+            time_range(2) = full_time_range(i+1)
+         end if
+      enddo
 
       _RETURN(_SUCCESS)
-   end function get_time_range
+   end subroutine get_time_range
 
    function sort_rules_by_start(hconfig_sequence,rc) result(sorted_index)
       integer, allocatable :: sorted_index(:)
@@ -457,6 +478,7 @@ contains
       type(ExtDataSample), pointer :: sample
       type(NonClimDataSetFileSelector) :: non_clim_file_selector
       type(ExtDataSample), target :: default_sample
+      type(ESMF_Time), allocatable :: time_range(:)
  
       export_rule => this%rule_map%at(full_name)
       collection => null()
@@ -468,7 +490,8 @@ contains
          call default_sample%set_defaults()
          sample => default_sample
       end if
-      export = PrimaryExport(base_name, export_rule, collection, sample, _RC)
+      call this%get_time_range(full_name, base_name, time_range, _RC)
+      export = PrimaryExport(base_name, export_rule, collection, sample, time_range, _RC)
 
       _RETURN(_SUCCESS)
   end function
