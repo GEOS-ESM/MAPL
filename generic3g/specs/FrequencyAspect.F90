@@ -136,7 +136,7 @@ contains
       class is (FrequencyAspect)
          if(.not. allocated(dst%timeStep)) return
          call intervals_and_offset_are_compatible(src%timeStep, dst%timeStep, &
-            & src%offset-dst%offset, supports, rc=status)
+            & supports, src%offset-dst%offset, rc=status)
          supports = supports .and. status == _SUCCESS
       end select
 

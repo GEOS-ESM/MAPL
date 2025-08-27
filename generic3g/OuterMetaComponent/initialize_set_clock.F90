@@ -36,7 +36,7 @@ contains
 
       user_offset = this%user_offset
 
-      call intervals_and_offset_are_compatible(user_timestep, timeStep, user_offset, compatible, _RC)
+      call intervals_and_offset_are_compatible(user_timestep, timeStep, compatible, user_offset, _RC)
       _ASSERT(compatible, 'The user timestep and offset are not compatible with the outer timestep.')
 
       user_clock = ESMF_ClockCreate(outer_clock, _RC)
