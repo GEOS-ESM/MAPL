@@ -133,24 +133,24 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_ConfigGetAttribute(config, value=traj%var_name_time_full, default="", &
               label=trim(STR_KW) // 'time:', _RC)
          call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
-              label=trim(STR_KW) // 'obs_reftime:', _RC)
+              label=trim(STR_KW) // 'ref_time:', _RC)
          if (trim(STR1)=='') then
-            traj%obsfile_start_time = currTime
+            traj%obsfile_ref_time = currTime
             call ESMF_TimeGet(currTime, timestring=STR1, _RC)
             if (mapl_am_I_root()) then
-               write(6,105) 'obs reftime missing, default = currTime :', trim(STR1)
+               write(6,105) 'ref_time missing, default = currTime :', trim(STR1)
             endif
          else
-            call ESMF_TimeSet(traj%obsfile_start_time, STR1, _RC)
+            call ESMF_TimeSet(traj%obsfile_ref_time, STR1, _RC)
             if (mapl_am_I_root()) then
-               write(6,105) 'obs reftime provided: ', trim(STR1)
+               write(6,105) 'ref_time provided: ', trim(STR1)
             end if
          end if
          call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
-              label=trim(STR_KW)//'obs_frequency:', _RC)
-         _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
+              label=trim(STR_KW)//'frequency:', _RC)
+         _ASSERT(STR1/='', 'fatal error: frequency not provided in RC file')
 
-         if (mapl_am_I_root()) write(6,105) 'obs_file frequency:', trim(STR1)
+         if (mapl_am_I_root()) write(6,105) 'frequency [obs_file_interval]:', trim(STR1)
          if (mapl_am_I_root()) write(6,106) 'Epoch (second)   :', second
          i= index( trim(STR1), ' ' )
          if (i>0) then
@@ -273,24 +273,24 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          end if
 
          call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
-              label=trim(STR_KW) // 'obs_reftime:', _RC)
+              label=trim(STR_KW) // 'ref_time:', _RC)
          if (trim(STR1)=='') then
-            traj%obsfile_start_time = currTime
+            traj%obsfile_ref_time = currTime
             call ESMF_TimeGet(currTime, timestring=STR1, _RC)
             if (mapl_am_I_root()) then
-               write(6,105) 'obs reftime missing, default = currTime :', trim(STR1)
+               write(6,105) 'ref_time missing, default = currTime :', trim(STR1)
             endif
          else
-            call ESMF_TimeSet(traj%obsfile_start_time, STR1, _RC)
+            call ESMF_TimeSet(traj%obsfile_ref_time, STR1, _RC)
             if (mapl_am_I_root()) then
-               write(6,105) 'obs_reftime provided: ', trim(STR1)
+               write(6,105) 'ref_time provided: ', trim(STR1)
             end if
          end if
 
          call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
-              label=trim(STR_KW) // 'obs_frequency:', _RC)
-         _ASSERT(STR1/='', 'fatal error: obs_frequency not provided in RC file')
-         if (mapl_am_I_root()) write(6,105) 'obs_file_interval [obs_frequency]:', trim(STR1)
+              label=trim(STR_KW) // 'frequency:', _RC)
+         _ASSERT(STR1/='', 'fatal error: frequency not provided in RC file')
+         if (mapl_am_I_root()) write(6,105) 'frequency [obs_file_interval]:', trim(STR1)
          if (mapl_am_I_root()) write(6,106) 'Epoch (second)   :', second
 
          i= index( trim(STR1), ' ' )
@@ -529,13 +529,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
 
          call ESMF_ClockGet (this%clock, CurrTime=currTime, _RC)
-         call get_obsfile_Tbracket_from_epoch(currTime, this%obsfile_start_time, &
+         call get_obsfile_Tbracket_from_epoch(currTime, this%obsfile_ref_time, &
               this%obsfile_interval, this%epoch_frequency, &
               this%obsfile_Ts_index, this%obsfile_Te_index, _RC)
          if (this%obsfile_Te_index < 0) then
             if (mapl_am_I_root()) then
-               write(6,*) "model start time is earlier than obsfile_start_time"
-               write(6,*) "solution: adjust obsfile_start_time and Epoch in rc file"
+               write(6,*) "model start time is earlier than obsfile_ref_time"
+               write(6,*) "solution: adjust obsfile_ref_time and Epoch in rc file"
             end if
             _FAIL("obs file not found at init time")
          endif
@@ -872,7 +872,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                this%obs(k)%count_location_in_matching_file = 0      ! init
                do while (j<=fid_e)
                   filename = get_filename_from_template_use_index( &
-                       this%obsfile_start_time, this%obsfile_interval, &
+                       this%obsfile_ref_time, this%obsfile_interval, &
                        j, this%obs(k)%input_template, EX, _RC)
                   if (EX) then
                      call lgr%debug('%a %i10', 'exist: filename fid j      :', j)
@@ -911,7 +911,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   jj2 = 0           ! obs(k) count location
                   do while (j<=fid_e)
                      filename = get_filename_from_template_use_index( &
-                          this%obsfile_start_time, this%obsfile_interval, &
+                          this%obsfile_ref_time, this%obsfile_interval, &
                           j, this%obs(k)%input_template, EX, _RC)
                      if (EX) then
                         ii = ii + 1

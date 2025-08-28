@@ -3,10 +3,13 @@
 module mapl3g_FieldGet
    use mapl3g_VerticalStaggerLoc
    use mapl3g_FieldInfo
+   use mapl3g_StateItemAllocation
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use mapl3g_UngriddedDims
+   use mapl3g_RestartModes, only: MAPL_RESTART_MODE, MAPL_RESTART_REQUIRED
    use esmf
+
    implicit none (type,external)
    private
 
@@ -16,7 +19,6 @@ module mapl3g_FieldGet
       procedure field_get
    end interface FieldGet
 
-
 contains
 
    subroutine field_get(field, unusable, &
@@ -25,9 +27,9 @@ contains
         num_levels, vert_staggerloc, num_vgrid_levels, &
         ungridded_dims, &
         units, standard_name, long_name, &
-        is_active, &
+        allocation_status, &
+        restart_mode, &
         rc)
-
       type(ESMF_Field), intent(in) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(out) :: geom
@@ -40,8 +42,8 @@ contains
       character(len=:), optional, allocatable, intent(out) :: units
       character(len=:), optional, allocatable, intent(out) :: standard_name
       character(len=:), optional, allocatable, intent(out) :: long_name
-      logical, optional, intent(out) :: is_active
-
+      type(StateItemAllocation), optional, intent(out) :: allocation_status
+      integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(in) :: restart_mode
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -68,13 +70,13 @@ contains
            num_vgrid_levels=num_vgrid_levels, &
            ungridded_dims=ungridded_dims, &
            units=units, standard_name=standard_name, long_name=long_name, &
-           is_active=is_active, &
+           allocation_status=allocation_status, &
+           restart_mode=restart_mode, &
            _RC)
 
       _RETURN(_SUCCESS)
    end subroutine field_get
       
-
 end module mapl3g_FieldGet
         
         

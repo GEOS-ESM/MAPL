@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_ServiceClassAspect
+   use mapl3g_FieldBundle_API
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_ClassAspect
@@ -151,7 +152,9 @@ contains
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
-      type(ESMF_FieldBundle) :: alias
+      type(ESMF_FieldBundle) :: alias, existing_bundle
+      type(esmf_StateItem_Flag) :: itemType
+      logical :: is_alias
       character(:), allocatable :: short_name
       type(ESMF_State) :: substate
       integer :: status
@@ -161,10 +164,25 @@ contains
 
       ! Add bundle to both import and export specs.
       call get_substate(multi_state%importstate, actual_pt%get_comp_name(), substate=substate, _RC)
-      call ESMF_StateAdd(substate, [alias], _RC)
-      call get_substate(multi_state%exportstate, actual_pt%get_comp_name(), substate=substate, _RC)
-      call ESMF_StateAdd(substate, [alias], _RC)
+      call ESMF_StateGet(substate, itemName=short_name, itemType=itemType, _RC)
+      if (itemType /= ESMF_STATEITEM_NOTFOUND) then
+         call ESMF_StateGet(substate, itemName=short_name, fieldBundle=existing_bundle, _RC)
+         is_alias = mapl_FieldBundlesAreAliased(alias, existing_bundle, _RC)
+         _ASSERT(is_alias, 'Different field bundles added under the same name in state.')
+      else
+         call ESMF_StateAdd(substate, [alias], _RC)
+      end if
 
+      call get_substate(multi_state%exportstate, actual_pt%get_comp_name(), substate=substate, _RC)
+      call ESMF_StateGet(substate, itemName=short_name, itemType=itemType, _RC)
+      if (itemType /= ESMF_STATEITEM_NOTFOUND) then
+         call ESMF_StateGet(substate, itemName=short_name, fieldBundle=existing_bundle, _RC)
+         is_alias = mapl_FieldBundlesAreAliased(alias, existing_bundle, _RC)
+         _ASSERT(is_alias, 'Different field bundles added under the same name in state.')
+      else
+         call ESMF_StateAdd(substate, [alias], _RC)
+      end if
+ 
       _RETURN(_SUCCESS)
    end subroutine add_to_state
 

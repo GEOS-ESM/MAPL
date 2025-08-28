@@ -20,9 +20,12 @@ module mapl3g_HistoryCollectionGridComp
       type(ESMF_TimeInterval) :: time_offstep
       character(len=:), allocatable :: template
       character(len=:), allocatable :: current_file
+      type(ESMF_Time), allocatable :: time_vector(:)
+      real, allocatable :: real_time_vector(:)
    end type HistoryCollectionGridComp
 
    character(len=*), parameter :: null_file = 'null_file'
+   character(*), parameter :: PRIVATE_STATE = "HistoryCollection"
 
 contains
 
@@ -31,11 +34,10 @@ contains
       integer, intent(out) :: rc
 
       type(ESMF_HConfig) :: hconfig
-      character(*), parameter :: PRIVATE_STATE = "HistoryCollectionGridComp"
       integer :: status
 
       ! Set entry points
-      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init_geom, phase_name='GENERIC::INIT_ADVERTISE', _RC)
+      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init_geom, phase_name='GENERIC::INIT_GEOM_A', _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
 
@@ -56,7 +58,6 @@ contains
       integer, intent(out)  :: rc
 
       integer :: status
-      character(*), parameter :: PRIVATE_STATE = "HistoryCollectionGridComp"
       type(HistoryCollectionGridComp), pointer :: collection_gridcomp
       type(ESMF_HConfig) :: hconfig
       type(ESMF_Geom) :: geom
@@ -118,12 +119,11 @@ contains
 
       integer :: status, time_index
       type(HistoryCollectionGridComp), pointer :: collection_gridcomp
-      character(*), parameter :: PRIVATE_STATE = "HistoryCollectionGridComp"
       logical :: run_collection
       type(ESMF_Time) :: current_time
       character(len=ESMF_MAXSTR) :: name
       character(len=128) :: current_file
-      real, allocatable :: current_time_vector(:)
+      type(ESMF_Time), allocatable :: esmf_time_vector(:)
 
       call ESMF_GridCompGet(gridcomp, name=name, _RC)
       call ESMF_ClockGet(clock, currTime=current_time, _RC)
@@ -141,10 +141,21 @@ contains
          collection_gridcomp%current_file = current_file
          call collection_gridcomp%writer%update_time_on_server(current_time, _RC)
          collection_gridcomp%initial_file_time = current_time
+         if (allocated(collection_gridcomp%time_vector)) deallocate(collection_gridcomp%time_vector)
+         allocate(collection_gridcomp%time_vector(0), _STAT)
       end if
 
-      call get_current_time_info(collection_gridcomp%initial_file_time, current_time, collection_gridcomp%timeStep, time_index, current_time_vector, _RC)
-      call collection_gridcomp%writer%stage_time_to_file(collection_gridcomp%current_file, current_time_vector,  _RC)
+      time_index = size(collection_gridcomp%time_vector) + 1
+      allocate(esmf_time_vector(time_index), _STAT)
+      esmf_time_vector(1:time_index-1) = collection_gridcomp%time_vector
+      esmf_time_vector(time_index) = current_time
+      deallocate(collection_gridcomp%time_vector)
+      allocate(collection_gridcomp%time_vector(time_index), _STAT)
+      collection_gridcomp%time_vector = esmf_time_vector
+    
+      if (allocated(collection_gridcomp%real_time_vector))    deallocate(collection_gridcomp%real_time_vector)
+      call get_real_time_vector(collection_gridcomp%initial_file_time, collection_gridcomp%time_vector, collection_gridcomp%real_time_vector, _RC)
+      call collection_gridcomp%writer%stage_time_to_file(collection_gridcomp%current_file, collection_gridcomp%real_time_vector,  _RC)
       call collection_gridcomp%writer%stage_data_to_file(collection_gridcomp%output_bundle, collection_gridcomp%current_file, time_index, _RC)
       _RETURN(_SUCCESS)
 

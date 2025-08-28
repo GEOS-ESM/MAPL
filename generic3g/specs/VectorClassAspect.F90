@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_VectorClassAspect
+   use mapl3g_Field_API
    use mapl3g_FieldBundle_API
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
@@ -125,6 +126,7 @@ contains
       
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
       call FieldBundleInfoSetInternal(info, spec_handle=handle, _RC)
+      call MAPL_FieldBundleSet(this%payload, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
@@ -135,7 +137,7 @@ contains
 
       integer :: status
 
-      call MAPL_FieldBundleSet(this%payload, is_active=.true., _RC)
+      call MAPL_FieldBundleSet(this%payload, allocation_status=STATEITEM_ALLOCATION_ACTIVE, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine activate
@@ -290,13 +292,17 @@ contains
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
-      type(ESMF_FieldBundle) :: alias
+      type(ESMF_FieldBundle) :: alias, existing_bundle
+      type(esmf_StateItem_Flag) :: itemType
+      logical :: is_alias
       integer :: status
       type(ESMF_State) :: state, substate
       character(:), allocatable :: full_name, inner_name
       integer :: idx
-
-      call multi_state%get_state(state, actual_pt%get_state_intent(), _RC)
+      character(:), allocatable :: intent
+      
+      intent = actual_pt%get_state_intent()
+      call multi_state%get_state(state, intent, _RC)
 
       full_name = actual_pt%get_full_name()
       idx = index(full_name, '/', back=.true.)
@@ -304,7 +310,15 @@ contains
       inner_name = full_name(idx+1:)
 
       alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
-      call ESMF_StateAdd(substate, [alias], _RC)
+      call ESMF_StateGet(substate, itemName=inner_name, itemType=itemType, _RC)
+      if (itemType /= ESMF_STATEITEM_NOTFOUND) then
+         if (intent /= 'import') then
+            call ESMF_StateGet(substate, itemName=inner_name, fieldBundle=existing_bundle, _RC)
+            is_alias = mapl_FieldBundlesAreAliased(alias, existing_bundle, _RC)
+            _ASSERT(is_alias, 'Different fields added under the same name in state.')
+         end if
+      end if
+      call ESMF_StateAddReplace(substate, [alias], _RC)
 
       _RETURN(_SUCCESS)
    end subroutine add_to_state

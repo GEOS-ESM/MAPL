@@ -11,7 +11,9 @@ module mapl3g_FieldBundleClassAspect
    use mapl3g_ExtensionTransform
    use mapl3g_MultiState
    use mapl3g_ESMF_Utilities, only: get_substate
+   use mapl3g_Field_API
    use mapl3g_FieldBundle_API, only: MAPL_FieldBundleCreate, MAPL_FieldBundleInfoSetInternal
+   use mapl3g_FieldBundle_API, only: MAPL_FieldBundlesAreAliased
    use mapl3g_FieldBundleInfo, only: FieldBundleInfoSetInternal
    use mapl_ErrorHandling
    use esmf
@@ -99,7 +101,7 @@ contains
       _RETURN_UNLESS(present(handle))
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldBundleInfoSetInternal(info, spec_handle=handle, is_active=.false., _RC)
+      call FieldBundleInfoSetInternal(info, spec_handle=handle, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
@@ -112,7 +114,7 @@ contains
       type(ESMF_Info) :: info
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call MAPL_FieldBundleInfoSetInternal(info, is_active=.true., _RC)
+      call MAPL_FieldBundleInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_ACTIVE, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine activate
@@ -235,7 +237,9 @@ contains
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
-      type(ESMF_FieldBundle) :: alias
+      type(ESMF_FieldBundle) :: alias, existing_bundle
+      type(esmf_StateItem_Flag) :: itemType
+      logical :: is_alias
       type(ESMF_State) :: state, substate
       character(:), allocatable :: full_name, inner_name
       integer :: idx, status
@@ -248,8 +252,15 @@ contains
       inner_name = full_name(idx+1:)
 
       alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
-
-      call ESMF_StateAdd(substate, [alias], _RC)
+     alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
+      call ESMF_StateGet(substate, itemName=inner_name, itemType=itemType, _RC)
+      if (itemType /= ESMF_STATEITEM_NOTFOUND) then
+         call ESMF_StateGet(substate, itemName=inner_name, fieldBundle=existing_bundle, _RC)
+         is_alias = mapl_FieldBundlesAreAliased(alias, existing_bundle, _RC)
+         _ASSERT(is_alias, 'Different field bundles added under the same name in state.')
+      else
+         call ESMF_StateAdd(substate, [alias], _RC)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine add_to_state

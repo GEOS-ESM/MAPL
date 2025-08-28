@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_FieldClassAspect
+
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
@@ -11,7 +12,6 @@ module mapl3g_FieldClassAspect
    use mapl3g_UnitsAspect
    use mapl3g_TypekindAspect
    use mapl3g_UngriddedDimsAspect
-   use mapl3g_FieldInfo, only: FieldInfoSetInternal
 
    use mapl3g_VerticalGrid
    use mapl3g_VerticalStaggerLoc
@@ -24,12 +24,14 @@ module mapl3g_FieldClassAspect
    use mapl3g_ESMF_Utilities, only: get_substate
 
    use mapl3g_Field_API
-   use mapl3g_FieldInfo
-   use mapl_FieldUtilities
+   use mapl3g_FieldInfo, only: FieldInfoSetInternal, FieldInfoSetPrivate
+   use mapl3g_RestartModes, only: MAPL_RESTART_MODE
 
+   use mapl_FieldUtilities
    use mapl_ErrorHandling
    use esmf
    use pflogger
+
    implicit none(type,external)
    private
 
@@ -47,7 +49,10 @@ module mapl3g_FieldClassAspect
       type(ESMF_Field) :: payload
       character(:), allocatable :: standard_name
       character(:), allocatable :: long_name
+      character(:), allocatable :: short_name
+      character(:), allocatable :: gridcomp_name
       real(kind=ESMF_KIND_R4), allocatable :: default_value
+      integer(kind=kind(MAPL_RESTART_MODE)), allocatable :: restart_mode
    contains
       procedure :: get_aspect_order
       procedure :: supports_conversion_general
@@ -83,11 +88,20 @@ module mapl3g_FieldClassAspect
 
 contains
 
-   function new_FieldClassAspect(standard_name, long_name, default_value) result(aspect)
+   function new_FieldClassAspect( &
+        standard_name, &
+        long_name, &
+        short_name, &
+        gridcomp_name, &
+        default_value, &
+        restart_mode) result(aspect)
       type(FieldClassAspect) :: aspect
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
-      real(kind=ESMF_KIND_R4), intent(in), optional :: default_value
+      character(*), optional, intent(in) :: short_name
+      character(*), optional, intent(in) :: gridcomp_name
+      real(kind=ESMF_KIND_R4), optional, intent(in) :: default_value
+      integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(in) :: restart_mode
 
       aspect%standard_name = 'unknown'
       if (present(standard_name)) then
@@ -98,10 +112,22 @@ contains
       if (present(long_name)) then
          aspect%long_name = long_name
       end if
+
+      if (present(short_name)) then
+         aspect%short_name = short_name
+      end if
+
+      if (present(gridcomp_name)) then
+         aspect%gridcomp_name = gridcomp_name
+      end if
+
       if (present(default_value)) then
          aspect%default_value = default_value
       end if
 
+      if (present(restart_mode)) then
+         aspect%restart_mode = restart_mode
+      end if
    end function new_FieldClassAspect
 
    function get_aspect_order(this, goal_aspects, rc) result(aspect_ids)
@@ -121,7 +147,6 @@ contains
            ]
 
       _RETURN(_SUCCESS)
-
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
 
@@ -139,6 +164,7 @@ contains
       
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
       call FieldInfoSetInternal(info, spec_handle=handle, _RC)
+      call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
@@ -151,9 +177,7 @@ contains
       type(ESMF_Info) :: info
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldInfoSetInternal(info, &
-           is_active=.true., &
-           _RC)
+      call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_ACTIVE, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine activate
@@ -285,12 +309,23 @@ contains
 
       type(FieldClassAspect) :: export_
       integer :: status
+      type(ESMF_Info) :: info
 
       export_ = to_FieldClassAspect(export, _RC)
       call this%destroy(_RC) ! import is replaced by export/extension
       this%payload = export_%payload
 
       call mirror(this%default_value, export_%default_value)
+
+      call ESMF_InfoGetFromHost(this%payload, info, _RC)
+      call FieldInfoSetInternal(info, restart_mode=this%restart_mode, _RC)
+      call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CONNECTED, _RC)
+      if (allocated(this%restart_mode)) then
+         _ASSERT(allocated(this%gridcomp_name), "gridcomp name is not known")
+         _ASSERT(allocated(this%short_name), "field's short name is not known")
+         call ESMF_InfoGetFromHost(this%payload, info, _RC)
+         call FieldInfoSetPrivate(info, this%gridcomp_name, this%short_name, restart_mode=this%restart_mode, _RC)
+      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
@@ -383,13 +418,17 @@ contains
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
-      type(ESMF_Field) :: alias
+      type(ESMF_Field) :: alias, existing_field
+      type(esmf_StateItem_Flag) :: itemType
+      logical :: is_alias
       integer :: status
       type(ESMF_State) :: state, substate
       character(:), allocatable :: full_name, inner_name
       integer :: idx
-
-      call multi_state%get_state(state, actual_pt%get_state_intent(), _RC)
+      character(:), allocatable :: intent
+      
+      intent = actual_pt%get_state_intent()
+      call multi_state%get_state(state, intent, _RC)
 
       full_name = actual_pt%get_full_name()
       idx = index(full_name, '/', back=.true.)
@@ -398,7 +437,15 @@ contains
 
       alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
 
-      call ESMF_StateAdd(substate, [alias], _RC)
+      call ESMF_StateGet(substate, itemName=inner_name, itemType=itemType, _RC)
+      if (itemType /= ESMF_STATEITEM_NOTFOUND) then
+         if (intent /= 'import') then
+            call ESMF_StateGet(substate, itemName=inner_name, field=existing_field, _RC)
+            is_alias = mapl_FieldsAreAliased(alias, existing_field, _RC)
+            _ASSERT(is_alias, 'Different fields added under the same name in state.')
+         end if
+      end if
+      call ESMF_StateAddReplace(substate, [alias], _RC)
 
       _RETURN(_SUCCESS)
    end subroutine add_to_state
@@ -411,6 +458,7 @@ contains
       integer :: status
 
       call ESMF_FieldBundleAdd(field_bundle, [this%payload], multiflag=.true., _RC)
+
 
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle

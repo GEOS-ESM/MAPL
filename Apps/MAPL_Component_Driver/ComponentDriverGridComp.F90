@@ -31,6 +31,7 @@ module mapl3g_ComponentDriverGridComp
    character(len=*), parameter :: runModeGenerateExports = "GenerateExports"
    character(len=*), parameter :: runModeFillExportsFromImports = "FillExportsFromImports"
    character(len=*), parameter :: runModeFillImports = "FillImports"
+   character(len=*), parameter :: runModeCompareImportsToReference = "CompareImportsToReference"
 
 contains
 
@@ -111,6 +112,8 @@ contains
       _GET_NAMED_PRIVATE_STATE(gridcomp, Comp_Driver_Support, PRIVATE_STATE, support)
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
 
+      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC) 
+
       support%runMode = ESMF_HConfigAsString(hconfig, keyString='RUN_MODE', _RC)
       support%delay = -1.0
       is_present = ESMF_HConfigIsDefined(hconfig, keyString='delay', _RC)
@@ -129,7 +132,6 @@ contains
       call ESMF_ClockGet(clock, currTime=current_time, _RC)
       call support%tFunc%init_time(hconfig, current_time, _RC)
       
-      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC) 
       call initialize_internal_state(internal_state, support, _RC)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(importState)
@@ -159,6 +161,11 @@ contains
          call copy_state(exportState, importState, _RC)
       else if (support%runMode == "FillImports") then
          ! there's nothing to do here
+      else if (support%runMode == "CompareImportsToReference") then
+         call fill_state_from_internal(exportState, internal_state, support, _RC)
+         ! fill internal or export state
+         ! compare import state to reference state
+         call compare_states(importState, exportState, 0.001, _RC)
       else
          _FAIL("no run mode selected")
       end if
@@ -277,6 +284,37 @@ contains
       _RETURN(_SUCCESS)
    end subroutine
 
+   subroutine compare_states(state, reference_state, threshold, rc)
+      type(ESMF_State), intent(inout) :: state
+      type(ESMF_State), intent(inout) :: reference_state
+      real, intent(in) :: threshold
+      integer, optional, intent(out) :: rc
+
+      integer :: itemCount, i, status
+      type(ESMF_StateItem_Flag), allocatable :: itemTypeList(:)
+      type(ESMF_StateItem_Flag) :: source_type
+      character(len=ESMF_MAXSTR), allocatable :: itemNameList(:)
+      type(ESMF_Field) :: field, reference_field
+      real(ESMF_KIND_R4), pointer :: ptr(:), reference_ptr(:)
+
+      call ESMF_StateGet(state, itemCount=itemCount, _RC)
+      allocate(itemNameList(itemCount), _STAT)
+      allocate(itemTypeList(itemCount), _STAT)
+      call ESMF_StateGet(state, itemTypeList=itemTypeList, itemNameList=itemNameList, _RC)
+      do i=1,itemCount
+         call ESMF_StateGet(state, trim(itemNameList(i)), field, _RC)
+         call ESMF_StateGet(reference_state, trim(itemNameList(i)), source_type, _RC)
+         _ASSERT(source_type == ESMF_StateItem_Field, 'source and destination are not both fields')
+         call ESMF_StateGet(reference_state, trim(itemNameList(i)), reference_field, _RC)
+         call assign_fptr(field, ptr, _RC)
+         call assign_fptr(reference_field, reference_ptr, _RC)
+         if (any(abs(ptr-reference_ptr) > threshold)) then
+            _FAIL("state differs from reference state greater than allowed threshold")
+         end if
+      enddo
+
+      _RETURN(_SUCCESS)
+   end subroutine compare_states
 
 end module mapl3g_ComponentDriverGridComp
 

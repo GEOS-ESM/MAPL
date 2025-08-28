@@ -87,23 +87,3 @@ contains
    end subroutine display
 
 end module mapl3g_ExtDataDerived
-
-module mapl3g_ExtDataDerivedMap
-   use mapl3g_ExtDataDerived
-
-#include "types/key_deferredLengthString.inc"
-#define _value type(ExtDataDerived)
-#define _alt
-
-#define _map ExtDataDerivedMap
-#define _iterator ExtDataDerivedMapIterator
-
-#include "templates/map.inc"
-
-#undef _iterator
-#undef _map
-
-#undef _alt
-#undef _value
-
-end module mapl3g_ExtDataDerivedMap

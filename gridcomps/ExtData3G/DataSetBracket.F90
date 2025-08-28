@@ -13,7 +13,7 @@ module mapl3g_DataSetBracket
    type DataSetBracket
       type(DataSetNode) :: left_node
       type(DataSetNode) :: right_node
-      logical          :: disable_interpolation = .false.
+      logical          :: time_interpolation= .true.
       contains
          procedure :: compute_bracket_weights 
          procedure :: time_in_bracket
@@ -25,13 +25,13 @@ module mapl3g_DataSetBracket
 
 contains
 
-   subroutine set_parameters(this, disable_interpolation, left_node, right_node)
+   subroutine set_parameters(this, time_interpolation, left_node, right_node)
       class(DataSetBracket), intent(inout) :: this
-      logical, intent(in), optional :: disable_interpolation
+      logical, intent(in), optional :: time_interpolation
       type(DataSetNode), intent(inout), optional :: left_node
       type(DataSetNode), intent(inout), optional :: right_node
 
-      if (present(disable_interpolation)) this%disable_interpolation = disable_interpolation
+      if (present(time_interpolation)) this%time_interpolation = time_interpolation
       if (present(left_node)) this%left_node = left_node
       if (present(right_node)) this%right_node = right_node
    end subroutine
@@ -113,11 +113,9 @@ contains
       else if (left_enabled .and. right_enabled) then
          weights(1) = 1.0
          weights(2) = 0.0
-         _RETURN_IF(this%disable_interpolation) 
+         _RETURN_IF(.not.this%time_interpolation) 
          time1 = this%left_node%get_interp_time()
-         call ESMF_TimePrint(time1, options='String', preString='bmma left: ')
          time2 = this%right_node%get_interp_time()
-         call ESMF_TimePrint(time2, options='String', preString='bmma right: ')
          tinv1 = time - time1
          tinv2 = time2 - time1
          alpha = tinv1/tinv2

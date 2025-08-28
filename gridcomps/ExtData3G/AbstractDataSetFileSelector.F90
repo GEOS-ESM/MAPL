@@ -8,16 +8,15 @@ module mapl3g_AbstractDataSetFileSelector
    use mapl_StringTemplate
    use mapl_FileMetadataUtilsMod
    use mapl3g_geomio
+   use mapl3g_ExtDataConstants
    implicit none
    private
 
    public AbstractDataSetFileSelector
-   public file_not_found
    public NUM_SEARCH_TRIES
 
    integer, parameter :: MAX_TRIALS = 10
    integer, parameter :: NUM_SEARCH_TRIES = 1
-   character(len=*), parameter :: file_not_found = "NONE"
  
    type, abstract :: AbstractDataSetFileSelector
       character(:), allocatable :: file_template
@@ -34,15 +33,18 @@ module mapl3g_AbstractDataSetFileSelector
          procedure :: set_last_update
          procedure :: detect_time_flow
          procedure :: get_dataset_metadata
+         procedure :: get_file_template
+         procedure :: get_valid_range_single_file
          procedure(I_update_file_bracket), deferred :: update_file_bracket
     end type
 
     abstract interface
-       subroutine I_update_file_bracket(this, current_time, bracket, rc)
-          use ESMF, only: ESMF_Time
+       subroutine I_update_file_bracket(this, bundle, current_time, bracket, rc)
+          use ESMF, only: ESMF_Time, ESMF_FieldBundle
           use mapl3g_DataSetBracket
           import AbstractDataSetFileSelector
           class(AbstractDataSetFileSelector), intent(inout) :: this
+          type(ESMF_FieldBundle), intent(inout) :: bundle
           type(ESMF_Time), intent(in) :: current_time
           type(DataSetBracket), intent(inout) :: bracket
           integer, optional, intent(out) :: rc
@@ -156,6 +158,33 @@ module mapl3g_AbstractDataSetFileSelector
        time_jumped = abs(f1) > f2
        _RETURN(_SUCCESS)
     end function 
+
+    subroutine get_file_template(this, file_template)
+       class(AbstractDataSetFileSelector), intent(in) :: this
+       character(len=:), allocatable :: file_template
+ 
+       if (allocated(this%file_template)) file_template = this%file_template
+    end subroutine get_file_template
+
+    subroutine get_valid_range_single_file(this, rc)
+       class(AbstractDataSetFileSelector), intent(inout) :: this
+       integer, intent(out), optional :: rc
+
+       type(DataCollection), pointer :: collection
+       type(FileMetadataUtils), pointer :: metadata
+       type(ESMF_Time), allocatable :: time_series(:)
+       integer :: status
+
+       allocate(this%valid_range(2), _STAT)
+       collection => DataCollections%at(this%collection_id)
+       metadata => collection%find(this%file_template)
+       call metadata%get_time_info(timeVector=time_series, _RC) 
+       this%valid_range(1)=time_series(1)
+       this%valid_range(2)=time_series(size(time_series))
+  
+       _RETURN(_SUCCESS)
+
+    end subroutine get_valid_range_single_file 
 
 end module mapl3g_AbstractDataSetFileSelector
    

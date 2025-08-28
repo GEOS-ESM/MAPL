@@ -24,5 +24,9 @@ add_pfunit_ctest (
 set_target_properties(MAPL.profiler.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 set_tests_properties(MAPL.profiler.tests PROPERTIES LABELS "ESSENTIAL")
 
+if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
+  set_tests_properties(MAPL.profiler.tests PROPERTIES ENVIRONMENT "I_MPI_OFI_PROVIDER=psm3")
+endif()
+
 add_dependencies (build-tests MAPL.profiler.tests)
 

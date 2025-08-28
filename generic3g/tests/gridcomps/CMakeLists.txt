@@ -1,8 +1,12 @@
 esma_set_this ()
 
-add_library(proto_extdata_gc SHARED ProtoExtDataGC.F90)
+add_library(proto_extdata_gc SHARED
+  ProtoExtDataGC.F90)
 
-set (comps proto_extdata_gc)
+add_library(proto_stat_gc SHARED
+  ProtoStatGridComp.F90)
+
+set (comps proto_extdata_gc proto_stat_gc)
 foreach (comp ${comps})
   target_link_libraries(${comp} MAPL.generic3g)
   target_include_directories(${comp} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/..)

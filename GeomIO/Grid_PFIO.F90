@@ -11,7 +11,7 @@ module mapl3g_GridPFIO
    use PFIO
    use MAPL_BaseMod
    use MAPL_FieldPointerUtilities
-   use mapl3g_pFIOServerBounds
+   use mapl3g_pFIOServerBounds, only: pFIOServerBounds, PFIO_BOUNDS_WRITE, PFIO_BOUNDS_READ
 
    implicit none
    private
@@ -56,7 +56,7 @@ contains
          element_count = FieldGetLocalElementCount(field, _RC)
          call ESMF_FieldGet(field, grid=grid, typekind=tk,  _RC)
 
-         server_bounds = pFIOServerBounds(grid, element_count, time_index=time_index, _RC)
+         server_bounds = pFIOServerBounds(grid, element_count, PFIO_BOUNDS_WRITE, time_index=time_index, _RC)
          global_start = server_bounds%get_global_start()
          global_count = server_bounds%get_global_count()
          local_start = server_bounds%get_local_start()
@@ -74,17 +74,14 @@ contains
       _RETURN(_SUCCESS)
    end subroutine stage_data_to_file
 
-   subroutine request_data_from_file(this, file_name, state, rc)
+   subroutine request_data_from_file(this, filename, bundle, rc)
       ! Arguments
       class(GridPFIO), intent(inout) :: this
-      character(len=*), intent(in) :: file_name
-      type(ESMF_State), intent(inout) :: state
+      character(len=*), intent(in) :: filename
+      type(ESMF_FieldBundle), intent(inout) :: bundle
       integer, intent(out), optional :: rc
 
-      ! Locals
-      character(len=ESMF_MAXSTR), allocatable :: item_name(:)
-      type (ESMF_StateItem_Flag), allocatable  :: item_type(:)
-      character(len=ESMF_MAXSTR) :: var_name
+      character(len=ESMF_MAXSTR), allocatable :: field_names(:)
       type(ESMF_Field) :: field
       type(ESMF_FieldStatus_Flag) :: field_status
       type(ESMF_Grid) :: grid
@@ -98,18 +95,15 @@ contains
 
       collection_id = this%get_collection_id()
 
-      call ESMF_StateGet(state, itemCount=num_fields, _RC)
-      allocate(item_name(num_fields), stat=status); _VERIFY(status)
-      allocate(item_type(num_fields), stat=status); _VERIFY(status)
-      call ESMF_StateGet(state, itemNameList=item_name, itemTypeList=item_type, _RC)
+      call ESMF_FieldBundleGet(bundle, fieldCount=num_fields, _RC)
+      allocate(field_names(num_fields), _STAT)
+      call ESMF_FieldBundleGet(bundle, fieldNameList=field_names, _RC)
       do idx = 1, num_fields
-         _ASSERT(item_type(idx) == ESMF_STATEITEM_FIELD, "can read only ESMF fields")
-         var_name = item_name(idx)
-         call ESMF_StateGet(state, var_name, field, _RC)
+         call ESMF_FieldBundleGet(bundle, fieldName=field_names(idx), field=field, _RC)
          call ESMF_FieldGet(field, grid=grid, status=field_status, typekind=esmf_typekind, _RC)
          _ASSERT(field_status == ESMF_FIELDSTATUS_COMPLETE, "ESMF field is not complete")
          element_count = FieldGetLocalElementCount(field, _RC)
-         server_bounds = pFIOServerBounds(grid, element_count, _RC)
+         server_bounds = pFIOServerBounds(grid, element_count, PFIO_BOUNDS_READ, _RC)
          global_start = server_bounds%get_global_start()
          global_count = server_bounds%get_global_count()
          local_start = server_bounds%get_local_start()
@@ -119,8 +113,8 @@ contains
          ref = ArrayReference(address, pfio_typekind, new_element_count)
          call i_Clients%collective_prefetch_data( &
               collection_id, &
-              file_name, &
-              var_name, &
+              filename, &
+              field_names(idx), &
               ref, &
               start=local_start, &
               global_start=global_start, &

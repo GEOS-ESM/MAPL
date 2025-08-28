@@ -3,8 +3,6 @@
 module mapl3g_Cap
    use mapl3
    use mapl3g_CapGridComp, only: cap_setservices => setServices
-   use mapl_TimeStringConversion, only: hconfig_to_esmf_time
-   use mapl_TimeStringConversion, only: hconfig_to_esmf_timeinterval
    use mapl_os
    use pflogger
 !#   use esmf
@@ -51,11 +49,10 @@ contains
       clock = make_clock(hconfig, options%lgr, _RC)
       driver = make_driver(clock, hconfig, options, _RC)
 
-      call make_directory(options%checkpointing%path, force=.true., _RC)
       _RETURN_UNLESS(is_model_pet)
 
       ! TODO `initialize_phases` should be a MAPL procedure (name)
-      call initialize_phases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
+      call mapl_DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
       call integrate(driver, options%checkpointing, _RC)
       call driver%finalize(_RC)
 
@@ -112,9 +109,8 @@ contains
 
       type(esmf_Clock) :: clock
       integer :: alarmCount
-      character(:), allocatable :: path, timestamp_dir
+      character(:), allocatable :: timestamp
       logical :: is_record_time
-      logical :: last_exists
       integer :: status
 
       _RETURN_UNLESS(checkpointing%is_enabled)
@@ -125,30 +121,19 @@ contains
 
       _RETURN_UNLESS(is_record_time .neqv. final)
 
-      call mapl_PushDirectory(checkpointing%path, _RC)
-      timestamp_dir = make_timestamp_dir(clock, _RC)
+      timestamp = get_timestamp(clock, _RC)
+      call make_directory(MAPL_PathJoin(checkpointing%path, timestamp), force=.true., _RC)
 
       ! To avoid inconsistent state under failures, we delete symlink
-      ! "last" before creating new checkpoints.  Then create new
-      ! symlink.
-      if (mapl_AmIRoot()) then
-         last_exists = mapl_DirectoryExists(LAST_CHECKPOINT, _RC)
-         if (last_exists) then
-            call mapl_RemoveFile(LAST_CHECKPOINT, _RC)
-         end if
-      end if
-
+      ! "last" before writing new checkpoints. Then create new symlink
+      call remove_symlink(checkpointing%path, _RC)
       call driver%write_restart(_RC)
+      call make_symlink(checkpointing%path, timestamp, _RC)
 
-      if (mapl_AmIRoot()) then
-         call mapl_MakeSymbolicLink(src_path=timestamp_dir, link_path=LAST_CHECKPOINT, is_directory=.true., _RC)
-      end if
-
-      path = mapl_PopDirectory(_RC) ! top
       _RETURN(_SUCCESS)
    end subroutine checkpoint
 
-   function make_timestamp_dir(clock, rc) result(path)
+   function get_timestamp(clock, rc) result(path)
       character(:), allocatable :: path
       type(esmf_Clock), intent(in) :: clock
       integer, optional, intent(out) :: rc
@@ -160,10 +145,9 @@ contains
       call esmf_ClockGet(clock, currTime=currTime, _RC)
       call esmf_TimeGet(currTime, timeStringISOFrac=iso_time, _RC)
       path = trim(iso_time)
-      call make_directory(path, force=.true.,_RC)
       
       _RETURN(_SUCCESS)
-   end function make_timestamp_dir
+   end function get_timestamp
 
    function make_driver(clock, hconfig, options, rc) result(driver)
       use mapl3g_GenericGridComp, only: generic_SetServices => setServices
@@ -295,34 +279,35 @@ contains
 
       cap_restart_file = esmf_HConfigAsString(hconfig, keyString='restart', _RC)
       restart_cfg = esmf_HConfigCreate(filename=cap_restart_file, _RC)
-      currTime = hconfig_to_esmf_time(restart_cfg, 'currTime', _RC)
+      currTime = mapl_HConfigAsTime(restart_cfg, keyString='currTime', _RC)
       iso_time = esmf_HConfigAsString(restart_cfg, keystring='currTime', _RC)
       call lgr%info('current time: %a', trim(iso_time)) 
       call esmf_HConfigDestroy(restart_cfg, _RC)
 
       clock_cfg = esmf_HConfigCreateAt(hconfig, keystring='clock', _RC)
       
-      startTime = hconfig_to_esmf_time(clock_cfg, 'start', _RC)
+      startTime = mapl_HConfigAsTime(clock_cfg, keystring='start', _RC)
       call esmf_TimeGet(startTime, timeStringISOFrac=iso_time, _RC)
       call lgr%info('start time: %a', trim(iso_time)) 
 
-      stopTime = hconfig_to_esmf_time(clock_cfg, 'stop', _RC)
+      stopTime = mapl_HConfigAsTime(clock_cfg, keystring='stop', _RC)
       call esmf_TimeGet(stopTime, timeStringISOFrac=iso_time, _RC)
       call lgr%info('stop time: %a', trim(iso_time)) 
 
-      timeStep = hconfig_to_esmf_timeinterval(clock_cfg, 'dt', _RC)
+      timeStep = mapl_HConfigAsTimeInterval(clock_cfg, keystring='dt', _RC)
       call esmf_TimeGet(stopTime, timeStringISOFrac=iso_time, _RC)
       call lgr%info('time step: %a', trim(iso_time)) 
 
-      segment_duration = hconfig_to_esmf_timeinterval(clock_cfg, 'segment_duration', _RC)
+      segment_duration = mapl_HConfigAsTimeInterval(clock_cfg, keystring='segment_duration', _RC)
       end_of_segment = startTime + segment_duration
+
       call esmf_TimeGet(end_of_segment, timeStringISOFrac=iso_time, _RC)
       call lgr%info('segment stop time: %a', trim(iso_time))
 
       has_repeatDuration = esmf_HConfigIsDefined(clock_cfg, keystring='repeat_duration', _RC)
       if (has_repeatDuration) then
          allocate(repeatDuration) ! anticipating NAG compiler issue here
-         repeatDuration = hconfig_to_esmf_timeinterval(clock_cfg, 'repeat_duration', _RC)
+         repeatDuration = mapl_HConfigAsTimeInterval(clock_cfg, keystring='repeat_duration', _RC)
          call esmf_TimeIntervalGet(repeatDuration, timeStringISOFrac=iso_time, _RC)
          call lgr%info('repeat duration: %a', trim(iso_time))
       end if
@@ -401,15 +386,15 @@ contains
          logical :: has_reftime
          integer :: status
 
-         ringInterval = hconfig_to_esmf_timeinterval(cfg, 'frequency', _RC)
+         ringInterval = mapl_HConfigAsTimeInterval(cfg, keystring='frequency', _RC)
          has_refTime = esmf_HConfigIsDefined(cfg, keystring='refTime', _RC)
          if (has_refTime) then
-            refTime = hconfig_to_esmf_time(cfg, 'refTime', _RC)
+            refTime = mapl_HConfigAsTime(cfg, keystring='refTime', _RC)
          else
             call esmf_ClockGet(clock, currTime=currTime, _RC)
             refTime = currTime
          end if
-         refTime = hconfig_to_esmf_time(cfg, 'refTime', _RC)
+         refTime = mapl_HConfigAsTime(cfg, keystring='refTime', _RC)
 
          alarm = esmf_AlarmCreate(clock, ringTime=refTime, ringInterval=ringInterval, sticky=.false., _RC)
          call esmf_AlarmRingerOff(alarm, _RC)
@@ -506,5 +491,41 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine make_directory
-      
+
+   subroutine remove_symlink(checkpointing_path, rc)
+      character(*), intent(in) :: checkpointing_path
+      integer, optional, intent(out) :: rc
+
+      character(len=:), allocatable :: path
+      logical :: last_exists
+      integer :: status
+
+      path = MAPL_PathJoin(checkpointing_path, LAST_CHECKPOINT)
+      last_exists = MAPL_DirectoryExists(path, _RC)
+      if (last_exists) then
+         if (MAPL_AmIRoot()) then
+            call MAPL_RemoveFile(path, _RC)
+         end if
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine remove_symlink
+
+   subroutine make_symlink(checkpointing_path, target_name, rc)
+      character(*), intent(in) :: checkpointing_path
+      character(*), intent(in) :: target_name
+      integer, optional, intent(out) :: rc
+
+      character(len=:), allocatable :: path
+      integer :: status
+
+      if (MAPL_AmIRoot()) then
+         call MAPL_PushDirectory(checkpointing_path, _RC)
+         call MAPL_MakeSymbolicLink(src_path=target_name, link_path=LAST_CHECKPOINT, is_directory=.true., _RC)
+         path = MAPL_PopDirectory(_RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine make_symlink
+
 end module mapl3g_Cap

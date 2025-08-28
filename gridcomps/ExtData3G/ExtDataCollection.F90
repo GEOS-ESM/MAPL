@@ -84,6 +84,7 @@ contains
          data_set%reff_time = string_to_esmf_time(file_reff_time)
       else
          last_token = index(data_set%file_template,'%',back=.true.)
+         allocate(data_set%reff_time)
          if (last_token.gt.0) then
             call ESMF_TimeGet(current_time, yy=iyy, mm=imm, dd=idd,h=ihh, m=imn, s=isc  ,_RC)
             token = data_set%file_template(last_token+1:last_token+2)
@@ -218,23 +219,3 @@ contains
    end function is_valid_range_allocated
 
 end module mapl3g_ExtDataCollection
-
-module mapl3g_ExtDataCollectionMap
-   use mapl3g_ExtDataCollection
-
-#include "types/key_deferredLengthString.inc"
-#define _value type(ExtDataCollection)
-#define _alt
-
-#define _map ExtDataCollectionMap
-#define _iterator ExtDataCollectionMapIterator
-
-#include "templates/map.inc"
-
-#undef _iterator
-#undef _map
-
-#undef _alt
-#undef _value
-
-end module mapl3g_ExtDataCollectionMap

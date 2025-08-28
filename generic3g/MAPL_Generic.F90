@@ -31,33 +31,30 @@ module mapl3g_Generic
    use mapl3g_VerticalGrid
    use mapl3g_VerticalStaggerLoc, only: VerticalStaggerLoc
    use mapl3g_StateRegistry, only: StateRegistry
-   use mapl_InternalConstantsMod
    use mapl3g_HorizontalDimsSpec, only: HorizontalDimsSpec, HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_GEOM
+   use mapl3g_UngriddedDim, only: UngriddedDim
    use mapl3g_UngriddedDims, only: UngriddedDims
    use mapl3g_StateItem, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
    use mapl3g_ESMF_Utilities, only: esmf_state_intent_to_string
-   use esmf, only: ESMF_Info
-   use esmf, only: ESMF_InfoGetFromHost
-   use esmf, only: ESMF_InfoGet
-   use esmf, only: ESMF_InfoIsSet
-   use esmf, only: ESMF_GridComp
+   use mapl3g_hconfig_get
+   use mapl3g_RestartModes, only: MAPL_RESTART_MODE
+   use mapl_InternalConstantsMod
+   use mapl_ErrorHandling
+   use mapl_KeywordEnforcer
+   use esmf, only: ESMF_Info, ESMF_InfoIsSet, ESMF_InfoGet, ESMF_InfoGetFromHost
+   use esmf, only: ESMF_GridComp, ESMF_GridCompGet
    use esmf, only: ESMF_Geom, ESMF_GeomCreate, ESMF_GeomGet
    use esmf, only: ESMF_Grid, ESMF_Mesh, ESMF_Xgrid, ESMF_LocStream
    use esmf, only: ESMF_STAGGERLOC_INVALID
-   use esmf, only: ESMF_HConfig
+   use esmf, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
    use esmf, only: ESMF_Method_Flag
    use esmf, only: ESMF_StateIntent_Flag, ESMF_STATEINTENT_INTERNAL
    use esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
-   use esmf, only: ESMF_KIND_R8, ESMF_KIND_R4
-   use esmf, only: ESMF_Time, ESMF_TimeInterval, ESMF_TimeIntervalGet, ESMF_Clock
-   use esmf, only: ESMF_ClockGet
+   use esmf, only: ESMF_MAXSTR
+   use esmf, only: ESMF_Time, ESMF_TimeInterval, ESMF_TimeIntervalGet, ESMF_Clock, ESMF_ClockGet
    use esmf, only: ESMF_State, ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD
    use esmf, only: operator(==)
-   use mapl3g_hconfig_get
-   use mapl3g_RestartHandler
    use pflogger, only: logger_t => logger
-   use mapl_ErrorHandling
-   use mapl_KeywordEnforcer
 
    implicit none
    private
@@ -70,6 +67,7 @@ module mapl3g_Generic
    ! These should be available to users
    public :: MAPL_GridCompAddVarSpec
    public :: MAPL_GridCompAddSpec
+   public :: MAPL_GridCompAdvertiseVariable
    public :: MAPL_GridCompIsGeneric
    public :: MAPL_GridCompIsUser
 
@@ -105,9 +103,6 @@ module mapl3g_Generic
    ! Spec types
    public :: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
 
-   ! Restart types
-   public :: MAPL_RESTART, MAPL_RESTART_SKIP
-
    ! Interfaces
 
    interface MAPL_GridCompGetOuterMeta
@@ -139,7 +134,8 @@ module mapl3g_Generic
    end interface MAPL_GridCompGetInternalState
 
    interface MAPL_GridCompAddChild
-      procedure :: gridcomp_add_child_config
+      procedure :: gridcomp_add_child_by_config_file
+      procedure :: gridcomp_add_child_by_config
       procedure :: gridcomp_add_child_by_spec
    end interface MAPL_GridCompAddChild
 
@@ -158,6 +154,10 @@ module mapl3g_Generic
    interface MAPL_GridCompAddSpec
       procedure :: gridcomp_add_spec
    end interface MAPL_GridCompAddSpec
+
+   interface mapl_GridCompAdvertiseVariable
+      procedure :: gridcomp_advertise_variable
+   end interface mapl_GridCompAdvertiseVariable
 
    interface MAPL_GridCompSetGeometry
       procedure :: gridcomp_set_geometry
@@ -261,6 +261,7 @@ contains
    end subroutine gridcomp_get_registry
 
   subroutine gridcomp_get(gridcomp, unusable, &
+        name, &
         hconfig, &
         logger, &
         geom, &
@@ -270,6 +271,7 @@ contains
 
       type(ESMF_GridComp), intent(inout) :: gridcomp
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(:), optional, allocatable :: name
       type(ESMF_Hconfig), optional, intent(out) :: hconfig
       class(Logger_t), optional, pointer, intent(out) :: logger
       type(ESMF_Geom), optional, intent(out) :: geom
@@ -281,6 +283,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta_
       type(ESMF_Geom), allocatable :: geom_
       class(VerticalGrid), allocatable :: vertical_grid_
+      character(ESMF_MAXSTR) :: buffer
 
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta_, _RC)
 
@@ -294,6 +297,11 @@ contains
       if (present(num_levels)) then
          vertical_grid_ = outer_meta_%get_vertical_grid()
          num_levels = vertical_grid_%get_num_levels()
+      end if
+
+      if (present(name)) then
+         call esmf_GridCompGet(gridcomp, name=buffer, _RC)
+         name = trim(buffer)
       end if
 
       _RETURN(_SUCCESS)
@@ -337,7 +345,36 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_internal_state
 
-   subroutine gridcomp_add_child_config(gridcomp, child_name, setservices, hconfig, unusable, timeStep, refTime_offset, rc)
+   subroutine gridcomp_add_child_by_config_file(gridcomp, child_name, setservices, hconfig_file, unusable, timeStep, refTime_offset, rc)
+      use mapl3g_UserSetServices
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      character(len=*), intent(in) :: child_name
+      class(AbstractUserSetServices), intent(in) :: setservices
+      character(len=*), intent(in) :: hconfig_file
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      type(ESMF_TimeInterval), optional, intent(in) :: timeStep
+      type(ESMF_TimeInterval), optional, intent(in) :: refTime_offset
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_HConfig) :: hconfig
+
+      hconfig = ESMF_HConfigCreate(filename=hconfig_file, _RC)
+      call MAPL_GridCompAddChild( &
+           gridcomp, &
+           child_name, &
+           setservices, &
+           hconfig, &
+           timeStep=timeStep, &
+           refTime_offset=refTime_offset, &
+           _RC)
+      call ESMF_HConfigDestroy(hconfig, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine gridcomp_add_child_by_config_file
+
+   subroutine gridcomp_add_child_by_config(gridcomp, child_name, setservices, hconfig, unusable, timeStep, refTime_offset, rc)
       use mapl3g_UserSetServices
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name
@@ -358,7 +395,7 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end subroutine gridcomp_add_child_config
+   end subroutine gridcomp_add_child_by_config
 
    subroutine gridcomp_add_child_by_spec(gridcomp, child_name, child_spec, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
@@ -466,6 +503,7 @@ contains
         restart, &
         itemType, &
         add_to_export, &
+        has_deferred_aspects, &
         rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
@@ -475,11 +513,12 @@ contains
       type(VerticalStaggerLoc), intent(in) :: vstagger
       ! OPTIONAL
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(in) :: ungridded_dims(:)
+      type(UngriddedDim), optional, intent(in) :: ungridded_dims(:)
       character(*), optional, intent(in) :: units
-      integer(kind=kind(MAPL_RESTART)), optional, intent(in) :: restart
+      integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(in) :: restart
       type(ESMF_StateItem_Flag), optional, intent(in) :: itemType
       logical, optional, intent(in) :: add_to_export
+      logical, optional, intent(in) :: has_deferred_aspects
       integer, optional, intent(out) :: rc
 
       type(VariableSpec) :: var_spec
@@ -488,6 +527,7 @@ contains
       type(ComponentSpec), pointer :: component_spec
       character(len=:), allocatable :: units_
       type(UngriddedDims), allocatable :: dim_specs_vec
+      character(len=ESMF_MAXSTR) :: gridcomp_name
       integer :: status
 
       _ASSERT((dims=="xyz") .or. (dims=="xy") .or. (dims=="z"), "dims can be one of xyz/xy/z")
@@ -499,15 +539,19 @@ contains
       ! If input units is present, override using input values
       if (present(units)) units_ = units
       if (present(ungridded_dims)) dim_specs_vec = UngriddedDims(ungridded_dims)
+      call ESMF_GridCompGet(gridcomp, name=gridcomp_name, _RC)
       var_spec = make_VariableSpec( &
            state_intent, &
            short_name, &
+           gridcomp_name=trim(gridcomp_name), &
            standard_name=standard_name, &
            units=units_, &
            itemType=itemType, &
            vertical_stagger=vstagger, &
            ungridded_dims=dim_specs_vec, &
            horizontal_dims_spec=horizontal_dims_spec, &
+           has_deferred_aspects=has_deferred_aspects, &
+           restart_mode=restart, &
            _RC)
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
@@ -527,8 +571,22 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(restart)
    end subroutine gridcomp_add_spec
+
+
+   subroutine gridcomp_advertise_variable(gridcomp, var_spec, rc)
+      type(esmf_GridComp), intent(inout) :: gridcomp
+      type(VariableSpec), intent(in) :: var_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call outer_meta%advertise_variable(var_spec, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine gridcomp_advertise_variable
 
    subroutine MAPL_GridCompSetVerticalGrid(gridcomp, vertical_grid, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp

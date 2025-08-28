@@ -19,6 +19,7 @@ contains
       integer, optional, intent(out) :: rc
 
       ! Locals
+      character(*), parameter :: PHASE_NAME = 'GENERIC::WRITE_RESTART'
       type(GriddedComponentDriver), pointer :: driver
       type(MultiState) :: states
       type(RestartHandler) :: restart_handler
@@ -34,6 +35,7 @@ contains
       call esmf_ClockGet(driver%get_clock(), currTime=currTime, _RC)
 
       restart_handler = RestartHandler( &
+           driver%get_name(), &
            this%get_geom(), &
            currTime, &
            this%get_logger())
@@ -42,19 +44,21 @@ contains
       subdir = get_checkpoint_subdir(this%hconfig, currTime, _RC)
 
       if (this%component_spec%misc%checkpoint_controls%import) then
-         filename = mapl_PathJoin(subdir, this%get_name() // '_import.nc')
+         filename = mapl_PathJoin(subdir, driver%get_name() // '_import.nc')
          call restart_handler%write(states%importState, filename, _RC)
       end if
       
       if (this%component_spec%misc%checkpoint_controls%internal) then
-         filename = mapl_PathJoin(subdir, this%get_name() // '_internal.nc')
+         filename = mapl_PathJoin(subdir, driver%get_name() // '_internal.nc')
          call restart_handler%write(states%internalState, filename, _RC)
       end if
       
       if (this%component_spec%misc%checkpoint_controls%export) then
-         filename = mapl_PathJoin(subdir, this%get_name() // '_export.nc')
+         filename = mapl_PathJoin(subdir, driver%get_name() // '_export.nc')
          call restart_handler%write(states%exportState, filename, _RC)
       end if
+
+      call this%run_custom(ESMF_METHOD_WRITERESTART, PHASE_NAME, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)

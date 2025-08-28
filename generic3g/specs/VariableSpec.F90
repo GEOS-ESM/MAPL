@@ -36,6 +36,7 @@ module mapl3g_VariableSpec
    use mapl3g_EsmfRegridder, only: EsmfRegridderParam
    use mapl3g_FieldDictionary
    use mapl_KeywordEnforcerMod
+   use mapl3g_RestartModes, only: MAPL_RESTART_MODE
    use esmf
    use gFTL2_StringVector
    use nuopc
@@ -62,11 +63,15 @@ module mapl3g_VariableSpec
       !=====================
       ! class aspect
       !=====================
+      ! Gridcomp
+      character(:), allocatable :: gridcomp_name
+
       !---------------------
       ! Field & Vector
       !---------------------
       character(:), allocatable :: standard_name
       character(:), allocatable :: long_name ! from FieldDictionary or override
+      integer(kind=kind(MAPL_RESTART_MODE)), allocatable :: restart_mode
       !---------------------
       ! Vector
       !---------------------
@@ -135,6 +140,7 @@ module mapl3g_VariableSpec
       ! miscellaneous
       !=====================
       type(StringVector) :: dependencies ! default empty
+      logical :: has_deferred_aspects = .false.
 
    contains
       procedure :: make_virtualPt
@@ -156,6 +162,7 @@ contains
 
    function make_VariableSpec( &
         state_intent, short_name, unusable, &
+        gridcomp_name, &
         standard_name, &
         geom, &
         units, &
@@ -176,6 +183,8 @@ contains
         timeStep, &
         offset, &
         vector_component_names, &
+        has_deferred_aspects, &
+        restart_mode, &
         rc) result(var_spec)
 
       type(VariableSpec) :: var_spec
@@ -183,6 +192,7 @@ contains
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       ! Optional args:
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(*), optional, intent(in) :: gridcomp_name
       character(*), optional, intent(in) :: standard_name
       type(ESMF_Geom), optional, intent(in) :: geom
       character(*), optional, intent(in) :: units
@@ -203,6 +213,8 @@ contains
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
       type(ESMF_TimeInterval), optional, intent(in) :: offset
       type(StringVector), optional, intent(in) :: vector_component_names
+      logical, optional, intent(in) :: has_deferred_aspects
+      integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(in) :: restart_mode
       integer, optional, intent(out) :: rc
 
 !#      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
@@ -216,6 +228,7 @@ contains
 #  undef _SET_OPTIONAL
 #endif
 #define _SET_OPTIONAL(opt) if (present(opt)) var_spec%opt = opt
+      _SET_OPTIONAL(gridcomp_name)
       _SET_OPTIONAL(standard_name)
       _SET_OPTIONAL(geom)
       _SET_OPTIONAL(units)
@@ -236,6 +249,8 @@ contains
       _SET_OPTIONAL(timeStep)
       _SET_OPTIONAL(offset)
       _SET_OPTIONAL(vector_component_names)
+      _SET_OPTIONAL(has_deferred_aspects)
+      _SET_OPTIONAL(restart_mode)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -393,8 +408,7 @@ contains
 
       aspects = this%make_aspects(registry, component_geom, vertical_grid, timestep=timestep, offset=offset, _RC)
       dependencies = this%make_dependencies(_RC)
-      spec = new_StateItemSpec(aspects, dependencies=dependencies)
-
+      spec = new_StateItemSpec(this%state_intent, aspects, dependencies=dependencies, has_deferred_aspects=this%has_deferred_aspects)
 
       _RETURN(_SUCCESS)
    end function make_StateitemSpec
@@ -551,7 +565,12 @@ contains
 
       select case (this%itemType%ot)
       case (MAPL_STATEITEM_FIELD%ot)
-         aspect = FieldClassAspect(standard_name=this%standard_name, default_value=this%default_value)
+         aspect = FieldClassAspect( &
+              standard_name=this%standard_name, &
+              gridcomp_name=this%gridcomp_name, &
+              short_name=this%short_name, &
+              default_value=this%default_value, &
+              restart_mode=this%restart_mode)
       case (MAPL_STATEITEM_FIELDBUNDLE%ot)
          aspect = FieldBundleClassAspect(standard_name=this%standard_name)
       case (MAPL_STATEITEM_STATE%ot)
@@ -581,22 +600,40 @@ contains
 
    end function make_ClassAspect
 
-   subroutine validate_variable_spec(spec, rc)
+   subroutine verify_variable_spec(spec, rc)
       class(VariableSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
       integer :: status
 
-      call validate_state_intent(spec%state_intent, _RC)
       ! VariableSpec%short_name is allocatable because the length is unknown until instantiation,
       ! but it should always be allocated. short_name is not an optional argument to
       ! make_VariableSpec so VariableSpec%short_name should be set. Because VariableSpec
       ! members are public, so I check to make short short_name is allocated before validating it.
       _ASSERT(allocated(spec%short_name), 'short_name must be allocated.')
-      call validate_short_name(spec%short_name, _RC)
-      call validate_regrid(spec%regrid_param, spec%regrid_method, _RC)
+
+      call verify_state_intent(spec%state_intent, _RC)
+      call verify_short_name(spec%short_name, _RC)
+      call verify_regrid(spec%regrid_param, spec%regrid_method, _RC)
+      call verify_deferred_items_have_export_intent(spec%has_deferred_aspects, spec%state_intent, _RC)
+      
 
       _RETURN(_SUCCESS)
 
-   end subroutine validate_variable_spec
+   contains
+
+      subroutine verify_deferred_items_have_export_intent(has_deferred_aspects, state_intent, rc)
+         logical, intent(in) :: has_deferred_aspects
+         type(esmf_StateIntent_Flag), intent(in) :: state_intent
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+
+         _RETURN_UNLESS(has_deferred_aspects)
+
+         _ASSERT(state_intent == ESMF_STATEINTENT_EXPORT, 'only exports can be deferred')
+         _RETURN(_SUCCESS)
+      end subroutine verify_deferred_items_have_export_intent
+
+   end subroutine verify_variable_spec
 
 end module mapl3g_VariableSpec

@@ -7,6 +7,7 @@ module mapl3
    use MaplShared
    use pfio
    use mapl3g_geom_API
+   use mapl3g_hconfig_API
    
 
    ! We use default PUBLIC to avoid explicitly listing exports from

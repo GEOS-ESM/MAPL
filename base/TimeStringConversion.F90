@@ -11,8 +11,6 @@ module MAPL_TimeStringConversion
    public :: string_to_integer_date
    public :: string_to_esmf_time
    public :: string_to_esmf_timeinterval
-   public :: hconfig_to_esmf_time
-   public :: hconfig_to_esmf_timeinterval
 
 contains
 
@@ -241,41 +239,5 @@ contains
 
    end function string_to_esmf_timeinterval
 
-   function hconfig_to_esmf_time(hconfig, key, unusable, rc) result(time)
-      type(ESMF_Time) :: time
-      type(ESMF_HConfig), intent(in) :: hconfig
-      character(len=*), intent(in) :: key
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      character(len=:), allocatable :: iso_time
-
-      _UNUSED_DUMMY(unusable)
-
-      iso_time = ESMF_HConfigAsString(hconfig, keystring=key, _RC)
-      call esmf_TimeSet(time, timeString=iso_time, _RC)
-
-      _RETURN(_SUCCESS)
-   end function hconfig_to_esmf_time
-
-
-   function hconfig_to_esmf_timeinterval(hconfig, key, unusable, rc) result(time_interval)
-      type(ESMF_TimeInterval) :: time_interval
-      type(ESMF_HConfig), intent(in) :: hconfig
-      character(len=*), intent(in) :: key
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      character(len=:), allocatable :: iso_duration
-
-      _UNUSED_DUMMY(unusable)
-
-      iso_duration = ESMF_HConfigAsString(hconfig, keystring=key, _RC)
-      time_interval = string_to_esmf_timeinterval(iso_duration, _RC)
-
-      _RETURN(_SUCCESS)
-   end function hconfig_to_esmf_timeinterval
 
 end module MAPL_TimeStringConversion

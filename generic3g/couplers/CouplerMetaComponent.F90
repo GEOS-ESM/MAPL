@@ -449,13 +449,12 @@ contains
       _UNUSED_DUMMY(importState)
    end subroutine clock_advance
       
-   function add_consumer(this) result(consumer)
-      class(ComponentDriver), pointer :: consumer
+   subroutine add_consumer(this, consumer)
       class(CouplerMetaComponent), target, intent(inout) :: this
+      class(ComponentDriver) :: consumer
 
-      call this%consumers%resize(this%consumers%size() + 1)
-      consumer => this%consumers%back()
-   end function add_consumer
+      call this%consumers%push_back(consumer)
+   end subroutine add_consumer
 
    subroutine add_source(this, source)
       class(CouplerMetaComponent), target, intent(inout) :: this

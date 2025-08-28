@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_StateItemExtension
+   use mapl3g_GenericCoupler
    use mapl3g_StateItemSpec
    use mapl3g_ComponentDriver
    use mapl3g_GriddedComponentDriver
@@ -12,7 +13,7 @@ module mapl3g_StateItemExtension
    use mapl3g_StateItemAspect
    use mapl_ErrorHandling
    use esmf
-   implicit none
+   implicit none(type, external)
    private
 
    public :: StateItemExtension
@@ -38,6 +39,7 @@ module mapl3g_StateItemExtension
       procedure :: get_consumers
 
       procedure :: make_extension
+      procedure :: is_deferred
    end type StateItemExtension
 
    type :: StateItemExtensionPtr
@@ -99,14 +101,21 @@ contains
       consumers => this%consumers
    end function get_consumers
 
-   function add_consumer(this, consumer) result(reference)
+function add_consumer(this, consumer, rc) result(reference)
       class(ComponentDriver), pointer :: reference
       class(StateItemExtension), target, intent(inout) :: this
       type(GriddedComponentDriver), intent(in) :: consumer
+      integer, optional, intent(out) :: rc
+
+      integer :: status
 
       call this%consumers%push_back(consumer)
       reference => this%consumers%back()
+      _RETURN_UNLESS(associated(this%producer))
+      
+      call mapl_CouplerAddConsumer(this%producer, reference, _RC)
 
+      _RETURN(_SUCCESS)
    end function add_consumer
 
    ! Creation of an extension requires a new coupler that transforms
@@ -145,7 +154,6 @@ contains
          _ASSERT(associated(dst_aspect), 'dst aspect not found')
 
          _ASSERT(src_aspect%can_connect_to(dst_aspect), 'cannot connect aspect ' // aspect_ids(i)%to_string())
-
          if (src_aspect%needs_extension_for(dst_aspect)) then
             other_aspects => new_spec%get_aspects()
             allocate(transform, source=src_aspect%make_transform(dst_aspect, other_aspects, rc=status))
@@ -162,13 +170,20 @@ contains
          call new_spec%activate(_RC)
          source => this%get_producer()
          coupler_gridcomp = make_coupler(transform, source, _RC)
-         producer => this%add_consumer(GriddedComponentDriver(coupler_gridcomp))
+         producer => this%add_consumer(GriddedComponentDriver(coupler_gridcomp), _RC)
          extension = StateItemExtension(new_spec)
          call extension%set_producer(producer)
+
          _RETURN(_SUCCESS)
       end if
 
       _RETURN(_SUCCESS)
    end function make_extension
+
+   logical function is_deferred(this)
+      class(StateItemExtension), target, intent(in) :: this
+
+      is_deferred = this%spec%has_deferred_aspects()
+   end function is_deferred
 
 end module mapl3g_StateItemExtension

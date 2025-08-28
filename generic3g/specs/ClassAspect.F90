@@ -18,6 +18,7 @@ module mapl3g_ClassAspect
    end interface to_ClassAspect
 
    type, abstract, extends(StateItemAspect) :: ClassAspect
+      private
    contains
       procedure(I_get_aspect_order), deferred :: get_aspect_order
       procedure(I_create), deferred :: create

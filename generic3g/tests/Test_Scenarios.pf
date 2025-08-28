@@ -135,7 +135,10 @@ contains
               ScenarioDescription('vertical_regridding_2',   'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('vertical_regridding_3',   'AGCM.yaml',        check_name, check_stateitem), &
               ScenarioDescription('expression',              'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('expression_defer_geom',   'parent.yaml',      check_name, check_stateitem)  &
+              ScenarioDescription('expression_defer_geom',   'parent.yaml',      check_name, check_stateitem), &
+              ScenarioDescription('invalidate',              'cap.yaml',         check_name, check_stateitem), &
+!#              ScenarioDescription('statistics_real',         'cap.yaml',         check_name, check_stateitem),  &
+              ScenarioDescription('statistics',              'cap.yaml',         check_name, check_stateitem) &
               ]
       end function add_params
 
@@ -152,6 +155,8 @@ contains
       type(ESMF_Time) :: t0, t1
       type(ESMF_TimeInterval) :: dt
       type(ESMF_Clock) :: clock
+      integer :: n, numsteps
+      logical :: has_numsteps
 
       file_name = './scenarios/' // this%scenario_name // '/' // this%scenario_root
       config = ESMF_HConfigCreate(filename=file_name)
@@ -183,10 +188,23 @@ contains
            end associate
         end do
 
-        call ESMF_GridCompRun(outer_gc, &
-             importState=importState, exportState=exportState, clock=clock, &
-             userRC=user_status, phase=GENERIC_RUN_USER, _RC)
-        _VERIFY(user_status)
+        numsteps = 1
+        has_numsteps = esmf_HConfigIsDefined(config, keystring='numsteps', _RC)
+        if (has_numsteps) then
+           numSteps = esmf_HConfigAsI4(config, keystring='numsteps', _RC)
+        end if
+
+        do n = 1, numSteps
+           call ESMF_GridCompRun(outer_gc, &
+                importState=importState, exportState=exportState, clock=clock, &
+                userRC=user_status, phase=GENERIC_RUN_USER, _RC)
+           _VERIFY(user_status)
+           call esmf_ClockAdvance(clock, _RC)
+           call ESMF_GridCompRun(outer_gc, &
+                importState=importState, exportState=exportState, clock=clock, &
+                userRC=user_status, phase=GENERIC_RUN_CLOCK_ADVANCE, _RC)
+        end do
+
 
       end associate
 
@@ -271,7 +289,6 @@ contains
               call this%check_stateitem(expected_properties, state, item_name, test_description, _RC)
             end associate
          end do
-
          rc = 0
       end subroutine check_items_in_state
 
@@ -326,17 +343,8 @@ contains
       expected_itemtype = get_expected_itemtype(expectations, _RC)
 
       itemtype = get_itemtype(state, short_name, _RC)
-      block
-        integer :: itemCount
-        character(len=ESMF_MAXSTR), allocatable :: names(:)
-        if (expected_itemtype%ot /= itemtype%ot) then
-           call ESMF_StateGet(state, itemcount=itemcount, _RC)
-           allocate(names(itemCount))
-           call ESMF_StateGet(state, itemNameList=names, _RC)
-        end if
-      end block
-      @assert_that(msg // ':: check item type of '//short_name, expected_itemtype == itemtype, is(true()))
-
+      msg = msg // ':: check item type of '//short_name
+      @assert_that(msg, expected_itemtype == itemtype, is(true()))
 
       rc = 0
 
@@ -455,7 +463,8 @@ contains
 
       call ESMF_StateGet(state, short_name, field, _RC)
       call ESMF_FieldGet(field, typekind=found_field_typekind, _RC)
-      @assert_that(msg // ' field typekind: ',expected_field_typekind == found_field_typekind, is(true()))
+      msg = msg // ' field typekind: '
+      @assert_that(msg, expected_field_typekind == found_field_typekind, is(true()))
 
       rc = 0
    end subroutine check_field_typekind

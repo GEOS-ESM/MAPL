@@ -12,6 +12,7 @@ module mapl3g_StateItemSpec
    use mapl3g_ClassAspect
    use mapl3g_VerticalGrid
    use mapl_ErrorHandling
+   use mapl3g_Field_API
    use esmf
    use gftl2_stringvector
    implicit none
@@ -27,11 +28,12 @@ module mapl3g_StateItemSpec
    type :: StateItemSpec
       private
 
-      logical :: active = .false.
-      logical :: allocated = .false.
+      type(StateItemAllocation) :: allocation_status = STATEITEM_ALLOCATION_INVALID
       type(VirtualConnectionPtVector) :: dependencies
 
       type(AspectMap) :: aspects
+      logical :: has_deferred_aspects_ = .false.
+      type(esmf_StateIntent_Flag) :: state_intent
    contains
 
       procedure :: get_aspect_order ! as string vector
@@ -43,10 +45,15 @@ module mapl3g_StateItemSpec
 !#      generic :: write(formatted) => write_formatted
 !##endif
 
+      procedure, non_overridable :: set_allocation_status
+      procedure, non_overridable :: get_allocation_status
+
       procedure, non_overridable :: set_allocated
       procedure, non_overridable :: is_allocated
       procedure, non_overridable :: is_active
       procedure, non_overridable :: activate
+      procedure, non_overridable :: has_deferred_aspects
+      procedure, non_overridable :: set_has_deferred_aspects
       procedure :: get_aspect_by_id
       generic :: get_aspect => get_aspect_by_id
       procedure :: get_aspects
@@ -84,13 +91,18 @@ module mapl3g_StateItemSpec
 
 contains
 
-   function new_StateItemSpec(aspects, dependencies) result(spec)
+   function new_StateItemSpec(state_intent, aspects, dependencies, has_deferred_aspects) result(spec)
       type(StateItemSpec) :: spec
       type(AspectMap), intent(in) :: aspects
+      type(esmf_StateIntent_Flag), intent(in) :: state_intent
       type(VirtualConnectionPtVector), intent(in) :: dependencies
+      logical, optional, intent(in) :: has_deferred_aspects
 
+      spec%state_intent = state_intent
       spec%aspects = aspects
       spec%dependencies = dependencies
+      if (present(has_deferred_aspects)) spec%has_deferred_aspects_ = has_deferred_aspects
+
    end function new_StateItemSpec
 
 
@@ -106,16 +118,19 @@ contains
       class(StateItemSpec), intent(inout) :: this
       logical, optional, intent(in) :: allocated
 
-      this%allocated =  .true.
+      
+      this%allocation_status =  STATEITEM_ALLOCATION_ALLOCATED
       if (present(allocated)) then
-         this%allocated = allocated
+         if (allocated) then
+            this%allocation_status = STATEITEM_ALLOCATION_ALLOCATED
+         end if
       end if
 
    end subroutine set_allocated
 
    pure logical function is_allocated(this)
       class(StateItemSpec), intent(in) :: this
-      is_allocated = this%allocated
+      is_allocated = (this%allocation_status >= STATEITEM_ALLOCATION_ALLOCATED)
    end function is_allocated
 
    recursive subroutine activate(this, rc)
@@ -125,7 +140,8 @@ contains
       integer :: status
       class(ClassAspect), pointer :: class_aspect
 
-      this%active = .true.
+      call this%set_allocation_status(STATEITEM_ALLOCATION_ACTIVE)
+
       class_aspect => to_ClassAspect(this%aspects, _RC)
       call class_aspect%activate(_RC)
 
@@ -134,7 +150,7 @@ contains
 
    pure logical function is_active(this)
       class(StateItemSpec), intent(in) :: this
-      is_active = this%active
+      is_active = (this%allocation_status >= STATEITEM_ALLOCATION_ACTIVE)
    end function is_active
 
    function get_dependencies(this) result(dependencies)
@@ -280,9 +296,10 @@ contains
       class(ClassAspect), pointer :: class_aspect
 
       ! Kludge to prevent allocation of import items
-      _RETURN_IF(this%is_allocated())
+      _RETURN_IF(this%state_intent == ESMF_STATEINTENT_IMPORT)
 
       class_aspect => to_ClassAspect(this%aspects, _RC)
+
       call class_aspect%allocate(this%aspects, _RC)
       call this%set_allocated()
 
@@ -306,8 +323,6 @@ contains
       aspect_id = src_class_aspect%get_aspect_id()
       aspect_id = dst_class_aspect%get_aspect_id()
       call src_class_aspect%connect_to_import(dst_class_aspect, _RC)
-
-      call this%activate(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine connect_to_import
@@ -340,6 +355,8 @@ contains
 
       call import%connect_to_export(export, actual_pt, _RC)
       call export%connect_to_import(import, _RC)
+      import%allocation_status = STATEITEM_ALLOCATION_CONNECTED
+      export%allocation_status = STATEITEM_ALLOCATION_CONNECTED
 
       _RETURN(_SUCCESS)
    end subroutine connect
@@ -451,11 +468,11 @@ contains
       type(StateItemSpec), intent(out) :: a
       type(StateItemSpec), intent(in) :: b
 
+      a%state_intent = b%state_intent
       a%aspects = b%aspects
-
-      a%active = b%active
-      a%allocated = b%allocated
+      a%allocation_status = b%allocation_status
       a%dependencies = b%dependencies
+      a%has_deferred_aspects_ = b%has_deferred_aspects_
 
    end subroutine copy_item_spec
 
@@ -476,5 +493,33 @@ contains
       end associate
       
    end subroutine check
+
+   subroutine set_has_deferred_aspects(this, has_deferred_aspects)
+      class(StateItemSpec), intent(inout) :: this
+      logical, intent(in) :: has_deferred_aspects
+
+      this%has_deferred_aspects_ = has_deferred_aspects
+   end subroutine set_has_deferred_aspects
+
+   logical function has_deferred_aspects(this) result(flag)
+      class(StateItemSpec), intent(in) :: this
+
+      flag = this%has_deferred_aspects_
+
+   end function has_deferred_aspects
+
+   subroutine set_allocation_status(this, allocation_status)
+      class(StateItemSpec), intent(inout) :: this
+      type(StateItemAllocation), intent(in) :: allocation_status
+
+      this%allocation_status = allocation_status
+   end subroutine set_allocation_status
+
+   function get_allocation_status(this) result(allocation_status)
+      type(StateItemAllocation) :: allocation_status
+      class(StateItemSpec), intent(in) :: this
+
+      allocation_status = this%allocation_status
+   end function get_allocation_status
 
 end module mapl3g_StateItemSpec

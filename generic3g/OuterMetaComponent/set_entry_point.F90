@@ -2,7 +2,7 @@
 
 submodule (mapl3g_OuterMetaComponent) set_entry_point_smod
    use mapl_ErrorHandling
-   implicit none
+   implicit none(type,external)
 
 contains
 

@@ -98,6 +98,10 @@ contains
       class(StateItemAspect), pointer :: import_class_aspect
       integer :: status
 
+      ! Do not record duplicates (arises in multiple passes of
+      ! advertise_modify()
+      _RETURN_IF(this%matched_items%count(actual_pt) > 0)
+
       call this%matched_items%insert(actual_pt, export)
       
       _RETURN(_SUCCESS)

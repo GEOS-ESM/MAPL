@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_StateRegistry
-
+   use mapl3g_Field_API
    use mapl3g_AbstractRegistry
    use mapl3g_RegistryPtr
    use mapl3g_RegistryPtrMap
@@ -86,6 +86,7 @@ module mapl3g_StateRegistry
       generic :: write(formatted) => write_formatted
 
       procedure :: extend
+      procedure :: item_is_deferred
 
    end type StateRegistry
 
@@ -835,6 +836,23 @@ contains
 
       _RETURN(_SUCCESS)
    end function extend
+
+   logical function item_is_deferred(this, v_pt, rc) result(is_deferred)
+      class(StateRegistry), target, intent(in) :: this
+      type(VirtualConnectionPt), intent(in) :: v_pt
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ExtensionFamily), pointer :: family
+
+      is_deferred = .false.
+      _RETURN_UNLESS(v_pt%is_export())
+
+      family => this%get_extension_family(v_pt, _RC)
+      is_deferred = family%is_deferred(_RC)
+
+      _RETURN(_SUCCESS)
+   end function item_is_deferred
 
 end module mapl3g_StateRegistry
 

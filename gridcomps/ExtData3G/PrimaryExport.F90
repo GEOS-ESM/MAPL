@@ -3,12 +3,19 @@ module mapl3g_PrimaryExport
    use ESMF
    use MAPL_ExceptionHandling 
    use mapl3g_AbstractDataSetFileSelector
+   use mapl3g_NonClimDataSetFileSelector
    use mapl3g_Geom_API 
    use MAPL_FileMetadataUtilsMod
    use generic3g
    use mapl3g_DataSetBracket
    use mapl3g_DataSetNode
+   use mapl3g_ExtDataReader
    use gftl2_StringStringMap
+   use mapl3g_ExtDataRule
+   use mapl3g_ExtDataCollection
+   use mapl3g_ExtDataSample
+   use pfio, only: i_clients
+   use VerticalCoordinateMod
    implicit none
 
    public PrimaryExport
@@ -16,8 +23,11 @@ module mapl3g_PrimaryExport
    type :: PrimaryExport
       character(len=:),  allocatable :: export_var
       character(len=:),  allocatable :: file_var
+      integer :: client_collection_id
       class(AbstractDataSetFileSelector), allocatable :: file_selector
       type(DataSetBracket) :: bracket
+      logical :: is_constant = .false.
+      type(VerticalCoordinate) :: vcoord
       contains
          procedure :: get_file_selector
          procedure :: complete_export_spec
@@ -25,7 +35,7 @@ module mapl3g_PrimaryExport
          procedure :: get_export_var_name
          procedure :: get_bracket
          procedure :: update_my_bracket
-         procedure :: append_read_state
+         procedure :: append_state_to_reader
    end type
 
    interface PrimaryExport
@@ -34,23 +44,36 @@ module mapl3g_PrimaryExport
 
    contains
 
-   function new_PrimaryExport(export_var, file_var, file_selector) result(primary_export)
+   function new_PrimaryExport(export_var, rule, collection, sample, rc) result(primary_export) 
       type(PrimaryExport) :: primary_export
       character(len=*), intent(in) :: export_var
-      character(len=*), intent(in) :: file_var
-      class(AbstractDataSetFileSelector), intent(in) :: file_selector
-
+      type(ExtDataRule), pointer :: rule
+      type(ExtDataCollection), pointer :: collection
+      type(ExtDataSample), pointer :: sample
+      integer, optional, intent(out) :: rc
+      
+      type(NonClimDataSetFileSelector) :: non_clim_file_selector 
       type(DataSetNode) :: left_node, right_node
+      character(len=:), allocatable :: file_template
+      integer :: status
 
       primary_export%export_var = export_var
-      primary_export%file_var = file_var
-      allocate(primary_export%file_selector, source=file_selector)
-      call left_node%set_node_side(NODE_LEFT)
-      call right_node%set_node_side(NODE_RIGHT)
-      call primary_export%bracket%set_node(NODE_LEFT, left_node)
-      call primary_export%bracket%set_node(NODE_RIGHT, right_node)
+      primary_export%is_constant = .not.associated(collection)
+      if (associated(collection)) then
+         non_clim_file_selector = NonClimDataSetFileSelector(collection%file_template, collection%frequency, ref_time=collection%reff_time, persist_closest = (sample%extrap_outside == "persist_closest") )
+         allocate(primary_export%file_selector, source=non_clim_file_selector, _STAT)
+         primary_export%file_var = rule%file_var
+         call left_node%set_node_side(NODE_LEFT)
+         call right_node%set_node_side(NODE_RIGHT)
+         call primary_export%bracket%set_node(NODE_LEFT, left_node)
+         call primary_export%bracket%set_node(NODE_RIGHT, right_node)
+         call primary_export%file_selector%get_file_template(file_template)
+         primary_export%client_collection_id = i_clients%add_data_collection(file_template, _RC)
+         call primary_export%bracket%set_parameters(time_interpolation=sample%time_interpolation)
+      end if
+      _RETURN(_SUCCESS)
 
-   end function 
+   end function new_PrimaryExport
 
    function get_file_selector(this) result(file_selector)
       class(AbstractDataSetFileSelector), allocatable :: file_selector
@@ -89,23 +112,38 @@ module mapl3g_PrimaryExport
       type(ESMF_Geom) :: esmfgeom
       type(ESMF_FieldBundle) :: bundle
       type(GeomManager), pointer :: geom_mgr
-      !type(BasicVerticalGriddd) :: vertical_grid
+      type(BasicVerticalGrid) :: vertical_grid
 
-      !vertical_grid = BasicVerticalGrid(3)
+      if (this%is_constant) then
+         _RETURN(_SUCCESS)
+      end if
+
       metadata => this%file_selector%get_dataset_metadata(_RC)
       geom_mgr => get_geom_manager()
       geom = geom_mgr%get_mapl_geom_from_metadata(metadata%metadata, _RC)
       esmfgeom = geom%get_geom()
 
+      this%vcoord = verticalCoordinate(metadata, this%file_var, _RC)
+
       call ESMF_StateGet(exportState, item_name, bundle, _RC)
-      call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='NA', typekind=ESMF_TYPEKIND_R4, &
-              vertical_stagger=VERTICAL_STAGGER_NONE,  _RC)
+      if (this%vcoord%vertical_type == NO_COORD) then
+         call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
+                 vertical_stagger=VERTICAL_STAGGER_NONE,  _RC)
+      else if (this%vcoord%vertical_type == SIMPLE_COORD) then
+         vertical_grid = BasicVerticalGrid(this%vcoord%num_levels)
+         call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', &
+                 typekind=ESMF_TYPEKIND_R4, vertical_grid=vertical_grid, &
+                 vertical_stagger=VERTICAL_STAGGER_CENTER,  _RC)
+      else
+         _FAIL("unsupported vertical coordinate for item "//trim(this%export_var))
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine complete_export_spec
       
-   subroutine update_my_bracket(this, current_time, weights, rc)
+   subroutine update_my_bracket(this, bundle, current_time, weights, rc)
       class(PrimaryExport), intent(inout) :: this
+      type(ESMF_FieldBundle), intent(inout) :: bundle
       type(ESMF_Time), intent(in) :: current_time
       real, intent(out) :: weights(3)
       integer, optional, intent(out) :: rc
@@ -113,17 +151,16 @@ module mapl3g_PrimaryExport
       integer :: status
       real :: local_weights(2)
 
-      call this%file_selector%update_file_bracket(current_time, this%bracket, _RC)
+      call this%file_selector%update_file_bracket(bundle, current_time, this%bracket, _RC)
       local_weights = this%bracket%compute_bracket_weights(current_time, _RC)
       weights = [0.0, local_weights(1), local_weights(2)]
       _RETURN(_SUCCESS)
    end subroutine update_my_bracket
 
-   subroutine append_read_state(this, export_state, read_state, alias_map, rc)
+   subroutine append_state_to_reader(this, export_state, reader,  rc)
       class(PrimaryExport), intent(inout) :: this
-      type(ESMF_State), intent(in) :: export_state
-      type(ESMF_State), intent(out) :: read_state
-      type(StringStringMap), intent(out) :: alias_map
+      type(ESMF_State), intent(inout) :: export_state
+      type(ExtDataReader), intent(inout) :: reader
       integer, optional, intent(out) :: rc
 
       type(ESMF_FieldBundle) :: bundle
@@ -131,28 +168,29 @@ module mapl3g_PrimaryExport
       type(DataSetNode) :: node
       logical :: update_file
       type(ESMF_Field), allocatable :: field_list(:)
-      character(len=ESMF_MAXSTR) :: field_name
+      character(len=:), allocatable :: filename
+      integer :: time_index
      
       node = this%bracket%get_left_node()
       update_file = node%get_update()
       if (update_file) then
          call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
          call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
-         call ESMF_FieldGet(field_list(1), name=field_name, _RC)
-         call alias_map%insert(trim(field_name), this%file_var )
-         call ESMF_StateAdd(read_state, [field_list(1)], _RC)
+         time_index = node%get_time_index()
+         call node%get_file(filename)
+         call reader%add_item(field_list(1), this%file_var, filename, time_index, this%client_collection_id, _RC)
       end if
       node = this%bracket%get_right_node()
       update_file = node%get_update()
       if (update_file) then
          call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
          call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
-         call ESMF_FieldGet(field_list(2), name=field_name, _RC)
-         call alias_map%insert(trim(field_name), this%file_var )
-         call ESMF_StateAdd(read_state, [field_list(2)], _RC)
+         time_index = node%get_time_index()
+         call node%get_file(filename)
+         call reader%add_item(field_list(2), this%file_var, filename, time_index, this%client_collection_id, _RC)
       end if
 
       _RETURN(_SUCCESS)
-   end subroutine append_read_state
- 
+   end subroutine append_state_to_reader
+
 end module mapl3g_PrimaryExport

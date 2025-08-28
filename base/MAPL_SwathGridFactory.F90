@@ -492,18 +492,18 @@ contains
 
 
       call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
-           label= prefix// 'obs_reftime:', _RC)
-      _ASSERT (trim(STR1)/='', 'obs_reftime missing, critical for data with 5 min interval!')
+           label= prefix// 'ref_time:', _RC)
+      _ASSERT (trim(STR1)/='', 'ref_time missing, critical for data with 5 min interval!')
       call ESMF_TimeSet(this%obsfile_start_time, timestring=STR1, _RC)
 
       if (mapl_am_I_root()) then
-         write(6,105) 'obs_reftime provided: ', trim(STR1)
+         write(6,105) 'ref_time provided: ', trim(STR1)
       end if
 
       call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
-           label= prefix// 'obs_frequency:', _RC)
-      _ASSERT(STR1/='', 'fatal error: obs_frequency not provided in RC file')
-      if (mapl_am_I_root()) write(6,105) 'obs_frequency:', trim(STR1)
+           label= prefix// 'frequency:', _RC)
+      _ASSERT(STR1/='', 'fatal error: frequency not provided in RC file')
+      if (mapl_am_I_root()) write(6,105) 'frequency:', trim(STR1)
       if (mapl_am_I_root()) write(6,106) 'Epoch (second)   :', second
 
       i= index( trim(STR1), ' ' )

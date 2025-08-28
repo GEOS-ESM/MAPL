@@ -3,6 +3,7 @@
 module mapl3g_OuterMetaComponent
    use mapl3g_UserSetServices, only: AbstractUserSetServices
    use mapl3g_ComponentSpec
+   use mapl3g_VariableSpec
    use mapl3g_ChildSpec
    use mapl3g_InnerMetaComponent
    use mapl3g_MethodPhasesMap
@@ -77,8 +78,8 @@ module mapl3g_OuterMetaComponent
       procedure :: initialize_geom_a
       procedure :: initialize_geom_b
       procedure :: initialize_advertise
+      procedure :: advertise_variable
       procedure :: initialize_modify_advertised
-      procedure :: initialize_modify_advertised2
       procedure :: initialize_realize
       procedure :: initialize_read_restart
 
@@ -252,6 +253,12 @@ module mapl3g_OuterMetaComponent
          integer, optional, intent(out) :: rc
       end subroutine initialize_geom_b
 
+      module subroutine advertise_variable(this, var_spec, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
+         type(VariableSpec), intent(in) :: var_spec
+         integer, optional, intent(out) :: rc
+      end subroutine advertise_variable
+
       module recursive subroutine initialize_advertise(this, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          ! optional arguments
@@ -269,19 +276,12 @@ module mapl3g_OuterMetaComponent
          integer, optional, intent(out) :: rc
       end subroutine initialize_modify_advertised
 
-     module recursive subroutine initialize_modify_advertised2(this, importState, exportState, clock, unusable, rc)
-         class(OuterMetaComponent), target, intent(inout) :: this
-         ! optional arguments
+      module recursive subroutine initialize_realize(this, importState, exportState, clock, unusable, rc)
+         class(OuterMetaComponent), intent(inout) :: this
          type(ESMF_State) :: importState
          type(ESMF_State) :: exportState
          type(ESMF_Clock) :: clock
-         class(KE), optional, intent(in) :: unusable
-         integer, optional, intent(out) :: rc
-      end subroutine initialize_modify_advertised2
-
-      module recursive subroutine initialize_realize(this, unusable, rc)
-         class(OuterMetaComponent), intent(inout) :: this
-         ! optional arguments
+        ! optional arguments
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_realize

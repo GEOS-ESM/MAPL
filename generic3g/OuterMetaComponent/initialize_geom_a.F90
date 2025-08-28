@@ -37,6 +37,7 @@ contains
         end if
       end associate
 
+      call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
       call recurse(this, phase_idx=GENERIC_INIT_GEOM_A, _RC)
 
       associate (geometry_spec => this%component_spec%geometry_spec)

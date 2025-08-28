@@ -23,6 +23,7 @@ module ProtoExtDataGC
    private
 
    public :: setservices
+   logical, save :: resolved = .false.
    
 contains
 
@@ -35,13 +36,30 @@ contains
 
       call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, run, phase_name="run", _RC)
       call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, init_modify_advertised, phase_name='GENERIC::INIT_MODIFY_ADVERTISED', _RC)
-      call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, init_modify_advertised2, phase_name='GENERIC::INIT_MODIFY_ADVERTISED2', _RC)
+
+      resolved = .false.
 
       _RETURN(ESMF_SUCCESS)
    end subroutine setservices
 
    
    subroutine init_modify_advertised(gc, importState, exportState, clock, rc)
+      type(ESMF_GridComp) :: gc
+      type(ESMF_State) :: importState
+      type(ESMF_State) :: exportState
+      type(ESMF_Clock) :: clock
+      integer, intent(out) :: rc
+
+      integer :: status
+
+      _RETURN_IF(resolved)
+      call step_A(gc, importState, exportState, clock, _RC)
+      call step_B(gc, importState, exportState, clock, _RC)
+      resolved = .true.
+      _RETURN(_SUCCESS)
+   end subroutine init_modify_advertised
+
+   subroutine step_A(gc, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gc
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
@@ -99,10 +117,11 @@ contains
 
       call ESMF_HConfigDestroy(mapl_config, _RC)
 
-      _RETURN(ESMF_SUCCESS)
-   end subroutine init_modify_advertised
 
-   subroutine init_modify_advertised2(gc, importState, exportState, clock, rc)
+      _RETURN(ESMF_SUCCESS)
+   end subroutine step_A
+
+   subroutine step_B(gc, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gc
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
@@ -165,7 +184,7 @@ contains
 
       call ESMF_HConfigDestroy(mapl_config, _RC)
       _RETURN(ESMF_SUCCESS)
-   end subroutine init_modify_advertised2
+   end subroutine step_B
 
 
    subroutine run(gc, importState, exportState, clock, rc)

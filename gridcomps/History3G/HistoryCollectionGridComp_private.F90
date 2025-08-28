@@ -13,7 +13,7 @@ module mapl3g_HistoryCollectionGridComp_private
    public :: register_imports
    public :: create_output_bundle
    public :: set_start_stop_time
-   public :: get_current_time_info
+   public :: get_real_time_vector 
    public :: get_frequency
    ! These are public for testing.
    public :: parse_item_common
@@ -218,37 +218,25 @@ contains
       _RETURN(_SUCCESS)
    end function get_expression_variables
 
-   subroutine get_current_time_info(initial_time, current_time, frequency, time_index, time_vector, rc)
+   subroutine get_real_time_vector(initial_time, esmf_time_vector, real_time_vector, rc)
       type(ESMF_Time), intent(in) :: initial_time
-      type(ESMF_Time), intent(in) :: current_time
-      type(ESMF_TimeInterval), intent(in) :: frequency
-      integer, intent(out) :: time_index
-      real, allocatable, intent(out) :: time_vector(:)
+      type(ESMF_Time), intent(in) :: esmf_time_vector(:)
+      real, allocatable, intent(out) :: real_time_vector(:)
       integer, intent(out), optional :: rc
 
       integer :: status,i
-      type(ESMF_Time) :: temp_time
       type(ESMF_TimeInterval) :: tint
       real(ESMF_KIND_R8) :: time_in_minutes
 
-      time_index = 0
-      temp_time = initial_time
-      do while( temp_time <= current_time)
-         temp_time = temp_time + frequency
-         time_index = time_index + 1
+      allocate(real_time_vector(size(esmf_time_vector)), _STAT)
+      do i=1,size(esmf_time_vector)
+         tint = esmf_time_vector(i)-initial_time
+         call ESMF_TimeIntervalGet(tint, m_r8=time_in_minutes, _RC)
+         real_time_vector(i) = time_in_minutes
       enddo
 
-      allocate(time_vector(time_index),_STAT)
-      temp_time = initial_time
-      time_vector(1) = 0
-      do i=2,time_index
-         temp_time = temp_time + frequency
-         tint = temp_time - initial_time
-         call ESMF_TimeIntervalGet(tint, m_r8=time_in_minutes, _RC)
-         time_vector(i)=time_in_minutes
-      enddo
       _RETURN(_SUCCESS)
-   end subroutine get_current_time_info
+   end subroutine get_real_time_vector 
 
    subroutine register_imports(gridcomp, hconfig, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
@@ -304,7 +292,6 @@ contains
          varspec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name, &
               units=opts%units, typekind=opts%typekind, &
               accumulation_type=opts%accumulation_type, timestep = opts%timestep, offset=opts%runTime_offset, &
-              vertical_stagger=VERTICAL_STAGGER_MIRROR, &
               _RC)
          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
       end do
