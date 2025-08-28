@@ -7,15 +7,6 @@ module mapl3g_ESMF_Time_Utilities
 
    public :: zero_time_interval
    public :: intervals_and_offset_are_compatible
-   public :: comparable
-
-   type :: TimeIntervalInfo
-      logical :: comparable = .FALSE.
-      logical :: only_yy_mm = .FALSE.
-      logical :: no_yy_mm = .FALSE.
-      logical :: one_day = .FALSE.
-      logical :: nonzero = .FALSE.
-   end type TimeIntervalInfo
 
    interface zero_time_interval
       module procedure :: get_zero
@@ -27,56 +18,9 @@ module mapl3g_ESMF_Time_Utilities
    ! and returns a pointer to the value.
    type(ESMF_TimeInterval), target :: ZERO_TI
 
-   integer, parameter :: NUM_DT_PARTS = 9
+   integer, parameter :: SZ_DT = 9
 
 contains
-
-   subroutine interval_to_array(interval, a, rc)
-      type(ESMF_TimeInterval), intent(in) :: interval
-      integer(kind=I4), intent(out) :: a(NUM_DT_PARTS)
-      integer, optional, intent(out) :: rc
-      integer(kind=I4) :: yy, mm, d, h, m, s, ms, us, ns
-      integer :: status
-
-      call ESMF_TimeIntervalGet(interval, yy=yy, mm=mm, d=d, h=h, m=m, s=s, ms=ms, us=us, ns=ns, _RC)
-      a = [yy, mm, d, h, m, s, ms, us, ns]
-      _RETURN(_SUCCESS)
-
-   end subroutine interval_to_array
-
-   type(TimeIntervalInfo) function get_time_interval_info(interval) result(info)
-      type(ESMF_TimeInterval), intent(in) :: interval
-      integer(kind=I4) :: val(NUM_DT_PARTS)
-      integer, parameter :: DAY = 3
-      integer :: rc
-      logical :: only_yy_mm, no_yy_mm, one_day
-
-      call interval_to_array(interval, val, rc=rc)
-      info%comparable = (rc == ESMF_SUCCESS)
-      if(not(info%comparable)) return
-      info%nonzero = any(val /= 0_I4)
-      info%only_yy_mm = all(val(DAY:) == 0)
-      info%no_yy_mm = all(val(:DAY-1) == 0)
-      info%one_day = info%no_yy_mm .and. val(DAY) == 1 .and. all(val(DAY+1:) == 0)
-
-   end function get_time_interval_info
-
-   logical function comparable(larger, smaller) result(lval)
-      type(ESMF_TimeInterval), intent(in) :: larger, smaller
-      type(TimeIntervalInfo) :: linfo, sminfo
-
-      lval = larger == smaller
-      if(lval) return
-      linfo = get_time_interval_info(larger)
-      sminfo = get_time_interval_info(smaller)
-      if(not(linfo%comparable .and. sminfo%comparable .and. sminfo%nonzero)) return
-      if(linfo%no_yy_mm) then
-         lval = sminfo%no_yy_mm
-         return
-      end if
-      lval = linfo%only_yy_mm .and. (sminfo%only_yy_mm .or. sminfo%one_day)
-
-   end function comparable
 
    ! intervals must be comparable, abs(interval1) >= abs(interval2)
    ! abs(interval2) must evenly divide absolute difference of times
@@ -90,109 +34,120 @@ contains
       type(ESMF_TimeInterval), intent(in) :: interval2
       logical, intent(out) :: compatible
       type(ESMF_TimeInterval), optional, intent(in) :: offset
+!      type(ESMF_TimeInterval) :: mod_value
       integer, optional, intent(inout) :: rc
       integer :: status
-      type(ESMF_TimeInterval), pointer  :: zero => null()
-      integer, parameter :: DAY = 3
-      integer(kind=I4) :: parts1(NUM_DT_PARTS), parts2(NUM_DT_PARTS), partsoff(NUM_DT_PARTS)
+      integer, parameter :: MONTH = 2
+      integer, parameter :: DAY = MONTH + 1
+!      integer(kind=I4) :: f1(SZ_DT), f2(SZ_DT), foff(SZ_DT)
+!      character(len=32) :: timeString
+!      character(len=:), allocatable :: msg
 
-      zero => zero_time_interval()
-      call interval_to_array(interval2, parts2, _RC)
-      if(present(offset)) then
-         compatible = .FALSE.
-         call interval_to_array(offset, partsoff, _RC)
-         _RETURN_UNLESS(can_compare(parts2, partsoff))
-         _RETURN_IF(ESMF_TimeIntervalAbsValue(offset) < ESMF_TimeIntervalAbsValue(interval2))
-         _RETURN_UNLESS(mod(offset, interval2) == zero)
-      end if
-      compatible = .TRUE.
-      _RETURN_IF(interval1 == interval2)
-      compatible = .FALSE.
-      _RETURN_UNLESS(interval2 /= zero)
-      call interval_to_array(interval1, parts1, _RC)
-      _RETURN_UNLESS(can_compare(parts1, parts2))
-      _RETURN_IF(ESMF_TimeIntervalAbsValue(interval1) < ESMF_TimeIntervalAbsValue(interval2))
-      _RETURN_UNLESS(mod(interval1, interval2) == zero)
-      compatible = .TRUE.
+      associate(ti1 => interval1, ti2 => interval2, off => offset)
+         if(present(offset)) then
+            !foff = dt_args(off, _RC)
+            compatible = intervals_are_compatible(off, ti2, _RC)
+            _RETURN_UNLESS(compatible)
+            !mod_value = mod(off, ti2)
+            !compatible = .not. nonzero(mod_value, _RC)
+!            compatible = all(dt_args(mod(off, ti2), rc=status) == 0)
+!            _VERIFY(status)
+!            call ESMF_TimeIntervalGet(ti2, timeString=timeString, _RC)
+!            msg = ': ' // trim(timeString)
+!            call ESMF_TimeIntervalGet(offset, timeString=timeString, _RC)
+!            msg = msg // ', ' // trim(timeString)
+!            _ASSERT(abs_le(ti2, offset), 'Not less than or equal' // msg)
+!            _ASSERT(can_compare(f2, foff), "Can't comapre" // msg)
+!            _ASSERT(all(dt_args(mod(off, ti2), rc=status) == 0), 'Does not divide' // msg)
+         end if
+         _RETURN_IF(compatible .and. (ti1 == ti2))
+!         f1 = dt_args(ti1, _RC)
+         compatible = intervals_are_compatible(ti1, ti2, _RC)
+!         compatible = can_compare(f1, f2) .and. all(dt_args(mod(ti1, ti2), rc=status)==0) .and. abs_le(ti2, ti1)
+      end associate
       _RETURN(_SUCCESS)
 
    contains
 
-      logical function can_compare(vals1, vals2)
-         integer(kind=I4), intent(in) :: vals1(:), vals2(:)
-         
-         can_compare = only_yy_mm(vals1) .and. only_yy_mm(vals2) .or. no_yy_mm(vals1) .and. no_yy_mm(vals2)
-      end function can_compare
-
-      logical function has_yy_mm(vals)
-         integer(kind=I4), intent(in) :: vals(:)
-
-         has_yy_mm = any(vals(:DAY-1) /= 0)
-
-      end function has_yy_mm
-
-      logical function no_yy_mm(vals)
-         integer(kind=I4), intent(in) :: vals(:)
-         
-         no_yy_mm = all(vals(:DAY-1) == 0)
-
-      end function no_yy_mm
-
-      logical function has_time(vals)
-         integer(kind=I4), intent(in) :: vals(:)
-
-         has_time = any(vals(DAY+1:) /= 0)
-
-      end function has_time
-
-      logical function has_day(vals)
-         integer(kind=I4), intent(in) :: vals(:)
-
-         has_day = vals(DAY) /= 0
-
-      end function has_day
-
-      logical function only_yy_mm(vals)
-         integer(kind=I4), intent(in) :: vals(:)
-
-         only_yy_mm = all(vals(DAY:) == 0)
-!         only_yy_mm = .not. (has_day(vals) .or. has_time(vals))
-
-      end function only_yy_mm
-
-      logical function one_day(vals)
-         integer(kind=I4), intent(in) :: vals(:)
-
-         one_day = .not. has_yy_mm(vals) .and. vals(DAY) == 1 .and. all(vals(DAY+1:) == 0)
-
-      end function one_day
-
-      logical function offset_compatible(interval, offset) result(lval)
+      function get_fields(interval, rc) result(f)
+         integer(kind=I4) :: f(5)
          type(ESMF_TimeInterval), intent(in) :: interval
-         type(ESMF_TimeInterval), optional, intent(in) :: offset
+         integer, optional, intent(out) :: rc
+         integer :: status
 
-         lval = .TRUE.
-         if(present(offset)) lval = mod(offset, interval) == zero
+         call ESMF_TimeIntervalGet(interval, yy=f(1), mm=f(2), d=f(3), s=f(4), ns=f(5), _RC)
+         _RETURN(_SUCCESS)
 
-      end function offset_compatible
+      end function get_fields
 
-      logical function abs_less_equal(vals, vals2) result(lval)
-         integer(kind=I4), intent(in) :: vals(:), vals2(:)
-         integer(kind=I4), allocatable :: absvals(:), absvals2(:)
-         integer :: i
+      logical function nonzero(interval, rc) result(lval)
+         type(ESMF_TimeInterval), intent(in) :: interval
+         integer, optional, intent(out) :: rc
+         integer :: status
+         integer(kind=I4), allocatable, target :: fields(:)
+         integer(kind=I4), pointer :: yymm(:) => null()
+         integer(kind=I4), pointer :: ds(:) => null()
 
-         lval = .TRUE.
-         absvals = abs(vals)
-         absvals2 = abs(vals2)
-         do i=1, size(vals)
-            if(absvals(i) < absvals2(i)) return
-            if(absvals(i) > absvals2(i)) then
-               lval = .FALSE.
-               return
-            end if
-         end do
+         fields = get_fields(interval, _RC)
+         yymm => fields(:MONTH)
+         ds => fields(DAY:)
+         lval = (any(yymm /= 0) .and. all(ds == 0)) .or. (all(yymm == 0) .and. any(ds /= 0))
+         _RETURN(_SUCCESS)
 
-      end function abs_less_equal
+      end function nonzero
+
+      logical function zero_valued(interval, rc)
+         type(ESMF_TimeInterval), intent(in) :: interval
+         integer, optional, intent(out) :: rc
+         integer :: status
+         integer(kind=I4), allocatable :: fields(:)
+
+         fields = get_fields(interval, _RC)
+         zero_valued = all(fields == 0)
+         _RETURN(_SUCCESS)
+
+      end function zero_valued
+
+      logical function comparable(interval, rc)
+         type(ESMF_TimeInterval), intent(in) :: interval
+         integer, optional, intent(out) :: rc
+         integer :: status
+         integer(kind=I4), allocatable, target :: fields(:)
+         integer(kind=I4), pointer :: yymm(:) => null()
+         integer(kind=I4), pointer :: ds(:) => null()
+
+         fields = get_fields(interval, _RC)
+         yymm => fields(:MONTH)
+         ds => fields(DAY:)
+         comparable = all(ds==0) .neqv. all(yymm==0)
+         _RETURN(_SUCCESS)
+
+      end function comparable
+
+      logical function intervals_are_compatible(interval1, interval2, rc) result(lval)
+         type(ESMF_TimeInterval), intent(in) :: interval1
+         type(ESMF_TimeInterval), intent(in) :: interval2
+         integer, optional, intent(out) :: rc
+         integer :: status
+         integer(kind=I4), allocatable :: fields1(:), fields2(:)
+         type(ESMF_TimeInterval) :: abs1, abs2
+
+         lval = comparable(interval1, _RC)
+         lval = lval .and. comparable(interval2, _RC)
+         _RETURN_UNLESS(lval)
+
+         fields1 = get_fields(interval1, _RC)
+         fields2 = get_fields(interval2, _RC)
+
+         lval = all(fields1(DAY:)==0) .eqv. all(fields2(DAY:)==0)
+         _RETURN_UNLESS(lval)
+
+         abs1 = ESMF_TimeIntervalAbsValue(interval1)
+         abs2 = ESMF_TimeIntervalAbsValue(interval2)
+         lval = (abs1 >= abs2) .and. zero_valued(mod(interval1, interval2), _RC)
+         _RETURN(_SUCCESS)
+
+      end function intervals_are_compatible
 
    end subroutine intervals_and_offset_are_compatible
 
@@ -207,5 +162,49 @@ contains
       zero => ZERO_TI
 
    end function get_zero
+
+      logical function only_yy_mm(f)
+         integer(kind=I4), intent(in) :: f(:)
+         integer, parameter :: DAY = 3
+
+         only_yy_mm = all(f(DAY:) == 0)
+
+      end function only_yy_mm
+
+      logical function abs_le(interval1, interval2)
+         type(ESMF_TimeInterval), intent(in) :: interval1, interval2
+
+!         abs_le = ESMF_TimeIntervalAbsValue(interval1) <= ESMF_TimeIntervalAbsValue(interval2)
+         abs_le = interval1 <= interval2
+
+      end function abs_le
+         
+      logical function can_compare(f1, f2)
+         integer(kind=I4), intent(in) :: f1(:), f2(:)
+         
+         can_compare = only_yy_mm(f1) .and. only_yy_mm(f2) .or. no_yy_mm(f1) .and. no_yy_mm(f2)
+
+      end function can_compare
+
+      logical function no_yy_mm(f)
+         integer(kind=I4), intent(in) :: f(:)
+         integer, parameter :: DAY = 3
+         
+         no_yy_mm = all(f(:DAY-1) == 0)
+
+      end function no_yy_mm
+
+      function dt_args(interval, rc) result(a)
+         integer(kind=I4) :: a(SZ_DT)
+         type(ESMF_TimeInterval), intent(in) :: interval
+         integer, optional, intent(out) :: rc
+         integer(kind=I4) :: yy, mm, d, h, m, s, ms, us, ns
+         integer :: status
+
+         call ESMF_TimeIntervalGet(interval, mm=mm, d=d, h=h, m=m, s=s, ms=ms, us=us, ns=ns, _RC)
+         a = [0, mm, d, h, m, s, ms, us, ns]
+         _RETURN(_SUCCESS)
+
+      end function dt_args
 
 end module mapl3g_ESMF_Time_Utilities
