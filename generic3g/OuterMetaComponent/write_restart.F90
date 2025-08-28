@@ -19,6 +19,7 @@ contains
       integer, optional, intent(out) :: rc
 
       ! Locals
+      character(*), parameter :: PHASE_NAME = 'GENERIC::WRITE_RESTART'
       type(GriddedComponentDriver), pointer :: driver
       type(MultiState) :: states
       type(RestartHandler) :: restart_handler
@@ -56,6 +57,8 @@ contains
          filename = mapl_PathJoin(subdir, driver%get_name() // '_export.nc')
          call restart_handler%write(states%exportState, filename, _RC)
       end if
+
+      call this%run_custom(ESMF_METHOD_WRITERESTART, PHASE_NAME, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)

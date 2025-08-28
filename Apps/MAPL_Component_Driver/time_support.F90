@@ -1,8 +1,7 @@
 #include "MAPL.h"
 module timeSupport
-   use mapl_ErrorHandling
-   use ESMF
-   use MAPL_TimeStringConversion, only: hconfig_to_esmf_timeinterval
+   use mapl3
+   use esmf
    implicit none
 
    public timeVar
@@ -57,7 +56,7 @@ contains
       this%update_ref_time = -1
       isPresent = ESMF_HConfigIsDefined(hconfig, keyString='UPDATE_OFFSET', _RC)
       if (isPresent) then
-         this%update_offset = hconfig_to_esmf_timeinterval(hconfig, 'UPDATE_OFFSET', _RC)
+         this%update_offset = mapl_HConfigAsTimeInterval(hconfig, keystring='UDATE_OFFSET', _RC)
          this%have_offset = .true.
       end if
       

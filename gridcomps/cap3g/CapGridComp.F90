@@ -27,7 +27,6 @@ contains
       integer :: status
       type(CapGridComp), pointer :: cap
       character(:), allocatable :: extdata, history
-      type(OuterMetaComponent), pointer :: outer_meta
 
       ! Set entry points
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name='GENERIC::INIT_USER', _RC)

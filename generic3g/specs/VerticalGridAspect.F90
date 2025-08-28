@@ -96,12 +96,17 @@ contains
       class(VerticalGridAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
 
+      logical :: src_2d, dst_2d
       supports_conversion_specific = .false.
 
       select type (dst)
       class is (VerticalGridAspect)
          ! Note: "grid%can_connect_to()" reverses dst and src.   Something that should be fixed.
-         supports_conversion_specific = src%vertical_grid%can_connect_to(dst%vertical_grid)
+         ! tclune said this is is just wrong, replaced the following 3 lines
+         !supports_conversion_specific = src%vertical_grid%can_connect_to(dst%vertical_grid)
+         src_2d = src%vertical_stagger == VERTICAL_STAGGER_NONE
+         dst_2d = dst%vertical_stagger == VERTICAL_STAGGER_NONE
+         supports_conversion_specific = src_2d .eqv. dst_2d
       end select
 
    end function supports_conversion_specific
@@ -116,6 +121,8 @@ contains
             matches = .false. ! need geom extension
          else
             matches = dst%vertical_grid%is_identical_to(src%vertical_grid)
+            if (.not.matches) return
+            matches = dst%vertical_stagger == src%vertical_stagger
          end if
       class default
          matches = .false.
