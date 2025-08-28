@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated the default `VERSION` in History to `1` (which has been the effective default in `HISTORY.rc` for some time)
+
 ### Removed
 
 ### Deprecated
