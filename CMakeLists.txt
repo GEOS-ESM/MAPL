@@ -244,6 +244,7 @@ endif()
 
 add_subdirectory (geom)
 add_subdirectory (regridder_mgr)
+add_subdirectory (hconfig)
 add_subdirectory (hconfig_utils)
 
 if (PFUNIT_FOUND)

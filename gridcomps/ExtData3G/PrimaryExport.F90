@@ -3,6 +3,7 @@ module mapl3g_PrimaryExport
    use ESMF
    use MAPL_ExceptionHandling 
    use mapl3g_AbstractDataSetFileSelector
+   use mapl3g_NonClimDataSetFileSelector
    use mapl3g_Geom_API 
    use MAPL_FileMetadataUtilsMod
    use generic3g
@@ -10,7 +11,11 @@ module mapl3g_PrimaryExport
    use mapl3g_DataSetNode
    use mapl3g_ExtDataReader
    use gftl2_StringStringMap
+   use mapl3g_ExtDataRule
+   use mapl3g_ExtDataCollection
+   use mapl3g_ExtDataSample
    use pfio, only: i_clients
+   use VerticalCoordinateMod
    implicit none
 
    public PrimaryExport
@@ -22,6 +27,7 @@ module mapl3g_PrimaryExport
       class(AbstractDataSetFileSelector), allocatable :: file_selector
       type(DataSetBracket) :: bracket
       logical :: is_constant = .false.
+      type(VerticalCoordinate) :: vcoord
       contains
          procedure :: get_file_selector
          procedure :: complete_export_spec
@@ -38,34 +44,36 @@ module mapl3g_PrimaryExport
 
    contains
 
-   function new_PrimaryExport(export_var, file_var, file_selector, rc) result(primary_export)
+   function new_PrimaryExport(export_var, rule, collection, sample, rc) result(primary_export) 
       type(PrimaryExport) :: primary_export
       character(len=*), intent(in) :: export_var
-      character(len=*), intent(in) :: file_var
-      class(AbstractDataSetFileSelector), allocatable, intent(in) :: file_selector
+      type(ExtDataRule), pointer :: rule
+      type(ExtDataCollection), pointer :: collection
+      type(ExtDataSample), pointer :: sample
       integer, optional, intent(out) :: rc
-
+      
+      type(NonClimDataSetFileSelector) :: non_clim_file_selector 
       type(DataSetNode) :: left_node, right_node
       character(len=:), allocatable :: file_template
       integer :: status
 
       primary_export%export_var = export_var
-      primary_export%is_constant = .not. allocated(file_selector)
-      if (allocated(file_selector)) then
-         primary_export%file_var = file_var
-         allocate(primary_export%file_selector, source=file_selector)
+      primary_export%is_constant = .not.associated(collection)
+      if (associated(collection)) then
+         non_clim_file_selector = NonClimDataSetFileSelector(collection%file_template, collection%frequency, ref_time=collection%reff_time, persist_closest = (sample%extrap_outside == "persist_closest") )
+         allocate(primary_export%file_selector, source=non_clim_file_selector, _STAT)
+         primary_export%file_var = rule%file_var
          call left_node%set_node_side(NODE_LEFT)
          call right_node%set_node_side(NODE_RIGHT)
          call primary_export%bracket%set_node(NODE_LEFT, left_node)
          call primary_export%bracket%set_node(NODE_RIGHT, right_node)
-         call file_selector%get_file_template(file_template)
+         call primary_export%file_selector%get_file_template(file_template)
          primary_export%client_collection_id = i_clients%add_data_collection(file_template, _RC)
-      else 
-         primary_export%is_constant = .true.
+         call primary_export%bracket%set_parameters(time_interpolation=sample%time_interpolation)
       end if
       _RETURN(_SUCCESS)
 
-   end function 
+   end function new_PrimaryExport
 
    function get_file_selector(this) result(file_selector)
       class(AbstractDataSetFileSelector), allocatable :: file_selector
@@ -104,10 +112,8 @@ module mapl3g_PrimaryExport
       type(ESMF_Geom) :: esmfgeom
       type(ESMF_FieldBundle) :: bundle
       type(GeomManager), pointer :: geom_mgr
-      !type(BasicVerticalGriddd) :: vertical_grid
+      type(BasicVerticalGrid) :: vertical_grid
 
-      !vertical_grid = BasicVerticalGrid(3)
-      _HERE
       if (this%is_constant) then
          _RETURN(_SUCCESS)
       end if
@@ -117,10 +123,20 @@ module mapl3g_PrimaryExport
       geom = geom_mgr%get_mapl_geom_from_metadata(metadata%metadata, _RC)
       esmfgeom = geom%get_geom()
 
+      this%vcoord = verticalCoordinate(metadata, this%file_var, _RC)
+
       call ESMF_StateGet(exportState, item_name, bundle, _RC)
-      _HERE
-      call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
-              vertical_stagger=VERTICAL_STAGGER_NONE,  _RC)
+      if (this%vcoord%vertical_type == NO_COORD) then
+         call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
+                 vertical_stagger=VERTICAL_STAGGER_NONE,  _RC)
+      else if (this%vcoord%vertical_type == SIMPLE_COORD) then
+         vertical_grid = BasicVerticalGrid(this%vcoord%num_levels)
+         call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', &
+                 typekind=ESMF_TYPEKIND_R4, vertical_grid=vertical_grid, &
+                 vertical_stagger=VERTICAL_STAGGER_CENTER,  _RC)
+      else
+         _FAIL("unsupported vertical coordinate for item "//trim(this%export_var))
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine complete_export_spec

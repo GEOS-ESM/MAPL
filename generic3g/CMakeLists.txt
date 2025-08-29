@@ -7,6 +7,7 @@ set(srcs
   FieldDictionaryItem.F90
   FieldDictionaryItemMap.F90
   FieldDictionary.F90
+  StateItemGetVerticalGrid.F90
 
   GenericGrid.F90
 
@@ -46,7 +47,8 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.regridder_mgr MAPL.geom MAPL.GeomIO MAPL.esmf_utils MAPL.field MAPL.state MAPL.shared MAPL.profiler MAPL.base MAPL.hconfig_utils MAPL.vertical MAPL.component
+  DEPENDENCIES MAPL.regridder_mgr MAPL.geom MAPL.GeomIO MAPL.esmf_utils MAPL.field MAPL.state MAPL.hconfig MAPL.shared MAPL.profiler MAPL.base MAPL.hconfig_utils MAPL.vertical MAPL.component
+  DEPENDENCIES MAPL.regridder_mgr MAPL.geom MAPL.GeomIO MAPL.esmf_utils MAPL.field MAPL.state MAPL.hconfig MAPL.shared MAPL.profiler MAPL.base MAPL.hconfig_utils
   ESMF::ESMF NetCDF::NetCDF_Fortran udunits2f PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2 MAPL.esmf_utils
   TYPE SHARED
   )
@@ -65,6 +67,7 @@ esma_add_fortran_submodules(
           get_child_by_name.F90 run_child_by_name.F90 run_children.F90
           get_outer_meta_from_outer_gc.F90 attach_outer_meta.F90 free_outer_meta.F90
           get_phases.F90 set_hconfig.F90 get_hconfig.F90 has_geom.F90 get_geom.F90
+	  advertise_variable.F90
           initialize_advertise.F90
 	  initialize_modify_advertised.F90
           initialize_realize.F90 initialize_read_restart.F90 recurse.F90

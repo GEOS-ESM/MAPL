@@ -11,6 +11,7 @@ module mapl3g_ESMF_Subset
    use:: esmf, only: &
         ESMF_VM, &
         ESMF_Clock, &
+        ESMF_Alarm, &
         ESMF_Time, &
         ESMF_TimeInterval, &
         ESMF_Config, &

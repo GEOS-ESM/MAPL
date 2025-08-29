@@ -294,11 +294,17 @@ contains
 
       integer :: status
       class(ClassAspect), pointer :: class_aspect
+      logical, allocatable :: active, not_connected
 
-      ! Kludge to prevent allocation of import items
-      _RETURN_IF(this%state_intent == ESMF_STATEINTENT_IMPORT)
+      if (this%state_intent == ESMF_STATEINTENT_IMPORT) then
+         ! Allow allocation of non-connected imports to support some testing modes
+         active = (this%allocation_status >= STATEITEM_ALLOCATION_ACTIVE)
+         not_connected = (this%allocation_status < STATEITEM_ALLOCATION_CONNECTED)
+         _RETURN_UNLESS(active .and. not_connected)
+      end if
 
       class_aspect => to_ClassAspect(this%aspects, _RC)
+
       call class_aspect%allocate(this%aspects, _RC)
       call this%set_allocated()
 
@@ -322,8 +328,6 @@ contains
       aspect_id = src_class_aspect%get_aspect_id()
       aspect_id = dst_class_aspect%get_aspect_id()
       call src_class_aspect%connect_to_import(dst_class_aspect, _RC)
-
-      call this%activate(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine connect_to_import
