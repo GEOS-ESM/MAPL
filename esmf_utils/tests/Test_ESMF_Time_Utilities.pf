@@ -5,6 +5,8 @@ module Test_ESMF_Time_Utilities
    use funit
    implicit none
 
+   character(len=*), parameter :: SHOULD = 'The intervals should be compatible.'
+
 contains
 
    @Test
@@ -28,12 +30,11 @@ contains
       type(ESMF_TimeInterval) :: smaller
       logical :: compatible
       integer :: status
-      character(len=:), allocatable :: message
 
       call ESMF_TimeIntervalSet(larger, d=3, _RC)
       call ESMF_TimeIntervalSet(smaller, d=1, _RC)
-      call intervals_and_offset_are_compatible(larger, smaller, compatible, message=message, _RC)
-      @assertTrue(compatible, 'The intervals should be compatible: ' // message)
+      call intervals_and_offset_are_compatible(larger, smaller, compatible, _RC)
+      @assertTrue(compatible, SHOULD)
 
    end subroutine test_3d_1d
 
@@ -43,12 +44,11 @@ contains
       type(ESMF_TimeInterval) :: smaller
       logical :: compatible
       integer :: status
-      character(len=:), allocatable :: message
 
       call ESMF_TimeIntervalSet(larger, yy=1, _RC)
       call ESMF_TimeIntervalSet(smaller, d=1, _RC)
-      call intervals_and_offset_are_compatible(larger, smaller, compatible, message=message, _RC)
-      @assertFalse(compatible, message)
+      call intervals_and_offset_are_compatible(larger, smaller, compatible, _RC)
+      @assertFalse(compatible, 'The interval types are inconsistent.')
 
    end subroutine test_1yy_1d
 
@@ -59,13 +59,12 @@ contains
       type(ESMF_TimeInterval) :: offset
       logical :: compatible
       integer :: status
-      character(len=:), allocatable :: message
 
       call ESMF_TimeIntervalSet(larger, d=1, _RC)
       call ESMF_TimeIntervalSet(smaller, h=6, _RC)
       call ESMF_TimeIntervalSet(offset, h = 12, _RC)
-      call intervals_and_offset_are_compatible(larger, smaller, compatible, offset, message=message, _RC)
-      @assertTrue(compatible, 'The intervals and offset should be compatible: ' // message)
+      call intervals_and_offset_are_compatible(larger, smaller, compatible, offset=offset, _RC)
+      @assertTrue(compatible, 'The intervals and offset should be compatible: ')
 
    end subroutine test_1d_6h_12h
 
@@ -80,7 +79,7 @@ contains
       call ESMF_TimeIntervalSet(larger, h = 12, _RC)
       call ESMF_TimeIntervalSet(smaller, h = 2, _RC)
       call ESMF_TimeIntervalSet(offset, h = 3, _RC)
-      call intervals_and_offset_are_compatible(larger, smaller, compatible, offset, _RC)
+      call intervals_and_offset_are_compatible(larger, smaller, compatible, offset=offset, _RC)
       @assertFalse(compatible, 'The smaller interval does not divide the offset evenly.')
 
    end subroutine test_12h_2h_3h
@@ -105,12 +104,11 @@ contains
       type(ESMF_TimeInterval) :: smaller
       logical :: compatible
       integer :: status
-      character(len=:), allocatable :: message
 
       call ESMF_TimeIntervalSet(larger, yy=1, mm=1, d=0, h=0, _RC)
       call ESMF_TimeIntervalSet(smaller, yy=1, mm=0, d=1, h=0, _RC)
-      call intervals_and_offset_are_compatible(larger, smaller, compatible, message=message, _RC)
-      @assertFalse(compatible, message)
+      call intervals_and_offset_are_compatible(larger, smaller, compatible, _RC)
+      @assertFalse(compatible, 'The interval types are inconsistent.')
 
    end subroutine test_1yy1mm_1yy1d
    
@@ -120,12 +118,11 @@ contains
       type(ESMF_TimeInterval) :: smaller
       logical :: compatible
       integer :: status
-      character(len=:), allocatable :: message
 
       call ESMF_TimeIntervalSet(larger, d=2, _RC)
       call ESMF_TimeIntervalSet(smaller, mm=1, _RC)
-      call intervals_and_offset_are_compatible(larger, smaller, compatible, message=message, _RC)
-      @assertFalse(compatible, message)
+      call intervals_and_offset_are_compatible(larger, smaller, compatible, _RC)
+      @assertFalse(compatible, 'The interval types are inconsistent.')
 
    end subroutine test_2d_1mm
 
@@ -136,13 +133,12 @@ contains
       type(ESMF_TimeInterval) :: offset
       logical :: compatible
       integer :: status
-      character(len=:), allocatable :: message
 
       call ESMF_TimeIntervalSet(larger, yy=3, _RC)
       call ESMF_TimeIntervalSet(smaller, yy=1, _RC)
       call ESMF_TimeIntervalSet(offset, yy=2, _RC)
-      call intervals_and_offset_are_compatible(larger, smaller, compatible, offset, message=message, _RC)
-      @assertTrue(compatible, 'The intervals should be compatible: ' // message)
+      call intervals_and_offset_are_compatible(larger, smaller, compatible, offset=offset, _RC)
+      @assertTrue(compatible, SHOULD)
 
    end subroutine test_3yy_1yy_2yy
 
@@ -153,13 +149,12 @@ contains
       type(ESMF_TimeInterval) :: offset
       logical :: compatible
       integer :: status
-      character(len=:), allocatable :: message
 
       call ESMF_TimeIntervalSet(larger, mm=3, _RC)
       call ESMF_TimeIntervalSet(smaller, mm=1, _RC)
       call ESMF_TimeIntervalSet(offset, mm=2, _RC)
-      call intervals_and_offset_are_compatible(larger, smaller, compatible, offset, message=message, _RC)
-      @assertTrue(compatible, 'The intervals should be compatible: ' // message)
+      call intervals_and_offset_are_compatible(larger, smaller, compatible, offset=offset, _RC)
+      @assertTrue(compatible, SHOULD)
 
    end subroutine test_3mm_1mm_2mm
 

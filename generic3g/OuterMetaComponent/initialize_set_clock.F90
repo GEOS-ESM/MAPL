@@ -27,7 +27,6 @@ contains
       type(ESMF_Clock) :: user_clock
       type(ESMF_TimeInterval) :: timeStep, user_timeStep, user_offset
       logical :: compatible
-      character(len=:), allocatable :: message
       
       call ESMF_ClockGet(outer_clock, timeStep=timeStep, _RC)
 
@@ -37,8 +36,8 @@ contains
 
       user_offset = this%user_offset
 
-      call intervals_and_offset_are_compatible(user_timestep, timeStep, compatible, user_offset, message, _RC)
-      _ASSERT(compatible, 'The user timestep and offset are not compatible with the outer timestep: '// message)
+      call intervals_and_offset_are_compatible(user_timestep, timeStep, compatible, offset=user_offset, _RC)
+      _ASSERT(compatible, 'The user timestep and offset are not compatible with the outer timestep.')
 
       user_clock = ESMF_ClockCreate(outer_clock, _RC)
       call ESMF_ClockSet(user_clock, timestep=user_timeStep, _RC)
@@ -54,25 +53,6 @@ contains
 
    contains
 
-      function make_string_list(strings, d) result(list)
-         character(len=:), allocatable :: list
-         character(len=*), intent(in) :: strings(:)
-         character(len=*), optional, intent(in) :: d
-         character(len=:), allocatable :: d_
-         integer :: i
-
-         d_ = ', '
-         if(present(d)) d_ = d
-         if(size(strings) == 0) then
-            list = ''
-            return
-         end if
-         list = trim(strings(1))
-         do i=2, size(strings)
-            list = list // d_ // trim(strings(i))
-         end do
-
-      end function make_string_list
 
       subroutine set_children_outer_clock(children, clock, rc)
          type(GriddedComponentDriverMap), target, intent(inout) :: children
