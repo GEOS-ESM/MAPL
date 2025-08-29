@@ -4,6 +4,7 @@ module mapl3g_Cap
    use mapl3
    use mapl3g_CapGridComp, only: cap_setservices => setServices
    use mapl_os
+   use mapl_ErrorHandling, only: MAPL_Assert
    use pflogger
 !#   use esmf
    implicit none(type,external)
@@ -287,6 +288,7 @@ contains
       clock_cfg = esmf_HConfigCreateAt(hconfig, keystring='clock', _RC)
       
       startTime = mapl_HConfigAsTime(clock_cfg, keystring='start', _RC)
+      _ASSERT(currTime >= startTime, "current time should be >= start time")
       call esmf_TimeGet(startTime, timeStringISOFrac=iso_time, _RC)
       call lgr%info('start time: %a', trim(iso_time)) 
 
@@ -295,11 +297,11 @@ contains
       call lgr%info('stop time: %a', trim(iso_time)) 
 
       timeStep = mapl_HConfigAsTimeInterval(clock_cfg, keystring='dt', _RC)
-      call esmf_TimeGet(stopTime, timeStringISOFrac=iso_time, _RC)
+      call esmf_TimeIntervalGet(timeStep, timeStringISOFrac=iso_time, _RC)
       call lgr%info('time step: %a', trim(iso_time)) 
 
       segment_duration = mapl_HConfigAsTimeInterval(clock_cfg, keystring='segment_duration', _RC)
-      end_of_segment = startTime + segment_duration
+      end_of_segment = currTime + segment_duration
 
       call esmf_TimeGet(end_of_segment, timeStringISOFrac=iso_time, _RC)
       call lgr%info('segment stop time: %a', trim(iso_time))
