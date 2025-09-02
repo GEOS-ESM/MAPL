@@ -5,7 +5,7 @@ module mapl3g_FrequencyAspect
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_AccumulatorTransformInterface
-   use mapl3g_ESMF_Time_Utilities, only: intervals_and_offset_are_compatible, interval_is_all_zero
+   use mapl3g_ESMF_Time_Utilities, only: check_compatibility, interval_is_all_zero
    use esmf
    implicit none
    private
@@ -136,7 +136,7 @@ contains
       select type(dst)
       class is (FrequencyAspect)
          if(.not. allocated(dst%timeStep)) return
-         call intervals_and_offset_are_compatible(src%timeStep, dst%timeStep, &
+         call check_compatibility(src%timeStep, dst%timeStep, &
             & supports, offset=src%offset-dst%offset, rc=status)
          supports = supports .and. status == _SUCCESS
       end select

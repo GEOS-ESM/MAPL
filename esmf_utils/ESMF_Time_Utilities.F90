@@ -7,7 +7,7 @@ module mapl3g_ESMF_Time_Utilities
    implicit none (type, external)
    private
 
-   public :: intervals_and_offset_are_compatible
+   public :: check_compatibility
    public :: interval_is_all_zero
 
    ! This type provides additional logical fields for TimeInterval.
@@ -44,16 +44,14 @@ contains
       a%valid = status==ESMF_SUCCESS .and. (yymm_zero .or. ds_zero)
 
    end function construct_augmented_interval
-   
-   ! intervals must be comparable. Either:
-   ! 1) Both have years and/or months only.
-   ! 2) Both have day, second, and/or nanosecond only.
-   ! 3) The first interval is all zero.
-   ! This is because the ESMF_TimeInterval modulo operation returns results that cannot be used
-   ! to compare the intervals that are a mix of (years, months) and (days, seconds, nanoseconds).
-   ! In addition, the second interval cannot be all zero.
-   ! The same is true of the offset and the second interval.
-   subroutine intervals_and_offset_are_compatible(interval1, interval2, compatible, unusable, offset, rc)
+
+   ! The intervals and offset are compatible if the second interval evenly divides the first interval and
+   ! the offset (if present). To check this, intervals must be comparable. The second interval cannot be 
+   ! all zero. Either, the first interval is all zero, both have years and/or months only, or both have
+   ! day, second, and/or nanosecond only. This is because the ESMF_TimeInterval mod operation returns
+   ! results that cannot be used to compare the intervals that are a mix of (years, months) & (days,
+   ! seconds, nanoseconds). The same is true of the offset and the second interval.
+   subroutine check_compatibility(interval1, interval2, compatible, unusable, offset, rc)
       type(ESMF_TimeInterval), intent(in) :: interval1
       type(ESMF_TimeInterval), intent(in) :: interval2
       logical, intent(out) :: compatible
@@ -79,7 +77,7 @@ contains
       call intervals_are_compatible(a1, a2, compatible, _RC)
       _RETURN(_SUCCESS)
 
-   end subroutine intervals_and_offset_are_compatible
+   end subroutine check_compatibility
 
    subroutine intervals_are_compatible(aug1, aug2, compatible, rc)
       type(AugmentedInterval), intent(in) :: aug1
@@ -90,6 +88,7 @@ contains
       type(AugmentedInterval) :: augmod
       character(len=64) :: timeString
 
+      compatible = .FALSE.
       if(aug2%all_zero) then
          call ESMF_TimeIntervalGet(aug2%interval, timeString=timeString, _RC)
       end if
