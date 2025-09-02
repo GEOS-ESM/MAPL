@@ -5,7 +5,7 @@ module mapl3g_FrequencyAspect
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_AccumulatorTransformInterface
-   use mapl3g_ESMF_Time_Utilities, only: intervals_and_offset_are_compatible, zero_time_interval
+   use mapl3g_ESMF_Time_Utilities, only: intervals_and_offset_are_compatible, interval_is_all_zero
    use esmf
    implicit none
    private
@@ -64,18 +64,19 @@ contains
       class(FrequencyAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
       type(ESMF_TimeInterval) :: this_timeStep, other_timeStep
-      type(ESMF_TimeInterval), pointer :: zero
+      logical :: all_zero
 
       does_match = .TRUE.
       if(.not. allocated(src%timeStep)) return
-      zero => zero_time_interval()
       this_timeStep = src%timeStep
-      if(this_timeStep == zero) return
+      call interval_is_all_zero(this_timeStep, all_zero)
+      if(all_zero) return
       select type(dst)
       class is (FrequencyAspect)
          if(.not. allocated(dst%timeStep)) return
          other_timeStep = dst%timeStep
-         if(other_timeStep == zero) return
+         call interval_is_all_zero(other_timeStep, all_zero)
+         if(all_zero) return
          if(.not. accumulation_type_is_valid(dst%accumulation_type)) return
          does_match = other_timeStep == this_timeStep
       end select

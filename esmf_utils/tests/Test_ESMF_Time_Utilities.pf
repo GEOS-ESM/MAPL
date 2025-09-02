@@ -10,19 +10,42 @@ module Test_ESMF_Time_Utilities
 contains
 
    @Test
-   subroutine test_get_zero()
+   subroutine test_interval_is_all_zero()
       type(ESMF_TimeInterval) :: interval
-      integer(ESMF_KIND_I4) :: ns
-      integer(ESMF_KIND_I4), parameter :: EXPECTED_NS = 0
-      integer(ESMF_KIND_I4), parameter :: INITIAL_NS = 1
+      logical :: all_zero
       integer :: status
 
-      call ESMF_TimeIntervalSet(interval, ns=INITIAL_NS, _RC)
-      interval = zero_time_interval()
-      call ESMF_TimeIntervalGet(interval, ns=ns, _RC)
-      @assertEqual(EXPECTED_NS, ns, 'Interval is not zero.')
+      call ESMF_TimeIntervalSet(interval, s=0, _RC)
+      call interval_is_all_zero(interval, all_zero, _RC)
+      @assertTrue(all_zero, 'The interval should be all zero.')
 
-   end subroutine test_get_zero
+   end subroutine test_interval_is_all_zero
+
+   @Test
+   subroutine test_interval_is_not_all_zero()
+      type(ESMF_TimeInterval) :: interval
+      logical :: all_zero
+      integer :: status
+
+      call ESMF_TimeIntervalSet(interval, s=1, _RC)
+      call interval_is_all_zero(interval, all_zero, _RC)
+      @assertFalse(all_zero, 'The interval should not be all zero.')
+
+   end subroutine test_interval_is_not_all_zero
+
+   @Test
+   subroutine test_1h_30m()
+      type(ESMF_TimeInterval) :: interval1, interval2, offset
+      integer :: status
+      logical :: compatible
+
+      call ESMF_TimeIntervalSet(interval1, h=1, _RC)
+      call ESMF_TimeIntervalSet(interval2, m=30, _RC)
+      call ESMF_TimeIntervalSet(offset, h=2, _RC)
+      call intervals_and_offset_are_compatible(interval1, interval2, compatible, offset=offset, _RC)
+      @assertTrue(compatible, 'The intervals and offset should be compatible.')
+
+   end subroutine test_1h_30m
 
    @Test
    subroutine test_3d_1d()
@@ -64,7 +87,7 @@ contains
       call ESMF_TimeIntervalSet(smaller, h=6, _RC)
       call ESMF_TimeIntervalSet(offset, h = 12, _RC)
       call intervals_and_offset_are_compatible(larger, smaller, compatible, offset=offset, _RC)
-      @assertTrue(compatible, 'The intervals and offset should be compatible: ')
+      @assertTrue(compatible, 'The intervals and offset should be compatible.')
 
    end subroutine test_1d_6h_12h
 
