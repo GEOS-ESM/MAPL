@@ -33,7 +33,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [ifort]
+              compiler: [gfortran, ifort, ifx]
               cmake_generator: ['Unix Makefiles']
               build_type: ['Debug']
           baselibs_version: *baselibs_version
@@ -84,7 +84,7 @@ workflows:
 
   # MAPL3 will soon break GEOSgcm builds. We believe it can build, but not currently run
   #build-and-run-GEOSgcm:
-  build--GEOSgcm:
+  build-GEOSgcm:
     jobs:
       # Build GEOSgcm
       - ci/build:
@@ -93,7 +93,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              # ifx cannot build FMS
+              # ifx 2025.1 cannot build FMS, 2025.2 can, but fails with yafyaml
               #compiler: [gfortran, ifort, ifx]
               compiler: [gfortran, ifort]
           baselibs_version: *baselibs_version
