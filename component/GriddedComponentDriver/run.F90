@@ -1,13 +1,8 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 submodule(mapl3g_GriddedComponentDriver) run_smod
-
    use mapl_ErrorHandling
-   use mapl3g_OuterMetaComponent
-   use mapl3g_MethodPhasesMapUtils
-   use mapl3g_CouplerPhases, only: GENERIC_COUPLER_INVALIDATE, GENERIC_COUPLER_UPDATE
-
-   implicit none
+   implicit none(type,external)
 
 contains
 
