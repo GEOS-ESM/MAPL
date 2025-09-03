@@ -76,7 +76,6 @@ contains
         ungridded_dims, &
         units, long_name, standard_name, &
         allocation_status, &
-        restart_mode, &
         spec_handle, &
         rc)
       type(ESMF_Info), intent(inout) :: info
@@ -89,7 +88,6 @@ contains
       character(*), optional, intent(in) :: long_name
       character(*), optional, intent(in) :: standard_name
       type(StateItemAllocation), optional, intent(in) :: allocation_status
-      integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(in) :: restart_mode
       integer, optional, intent(in) :: spec_handle(:)
       integer, optional, intent(out) :: rc
 
@@ -163,7 +161,6 @@ contains
         units, long_name, standard_name, &
         ungridded_dims, &
         allocation_status, &
-        restart_mode, &
         spec_handle, &
         rc)
       type(ESMF_Info), intent(in) :: info
@@ -177,7 +174,6 @@ contains
       character(:), optional, allocatable, intent(out) :: standard_name
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       type(StateItemAllocation), optional, intent(out) :: allocation_status
-      integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(in) :: restart_mode
       integer, optional, allocatable, intent(out) :: spec_handle(:)
       integer, optional, intent(out) :: rc
 
