@@ -1,95 +1,123 @@
+#include "unused_dummy.H"
 #include "MAPL.h"
 module mapl3g_ESMF_Time_Utilities
    use esmf, I4 => ESMF_KIND_I4
    use mapl_ErrorHandling
+   use MAPL_KeywordEnforcerMod
    implicit none (type, external)
    private
 
-   public :: zero_time_interval
-   public :: intervals_and_offset_are_compatible
+   public :: check_compatibility
+   public :: interval_is_all_zero
 
-   interface zero_time_interval
-      module procedure :: get_zero
-   end interface zero_time_interval
+   ! This type provides additional logical fields for TimeInterval.
+   ! It allows checks on the values of the fields without calling
+   ! the ESMF_TimeIntervalGet subroutine and checking the status each time.
+   type :: AugmentedInterval
+      type(ESMF_TimeInterval), allocatable :: interval
+      integer(kind=I4), allocatable :: fields(:)
+      logical :: all_zero = .TRUE.
+      logical :: only_years_months = .FALSE.
+      logical :: valid = .FALSE.
+      integer :: status = -1
+   end type AugmentedInterval
 
-   integer, parameter :: NUM_INTERVAL_UNITS = 9
-
-   ! This value should not be accessed directly. Use get_zero() instead.
-   ! There is no constructor for ESMF_TimeInterval, so the value cannot be initialized
-   ! at construction. The get_zero() function initializes the value the first time
-   ! and returns a pointer to the value.
-   type(ESMF_TimeInterval), target :: ZERO_TI
+   interface AugmentedInterval
+      module procedure :: construct_augmented_interval
+   end interface AugmentedInterval
 
 contains
 
-   ! intervals must be comparable, abs(interval1) >= abs(interval2)
-   ! abs(interval2) must evenly divide absolute difference of times
-   subroutine intervals_and_offset_are_compatible(interval, interval2, offset, compatible, rc)
+   type(AugmentedInterval) function construct_augmented_interval(interval) result(a)
       type(ESMF_TimeInterval), intent(in) :: interval
+      integer(kind=I4) :: yy, mm, d, s, ns
+      integer :: status
+      logical :: yymm_zero, ds_zero
+
+      a%interval = interval
+      call ESMF_TimeIntervalGet(interval, yy=yy, mm=mm, d=d, s=s, ns=ns, rc=status)
+      a%status = status
+      yymm_zero = all([yy, mm]==0)
+      ds_zero = all([d, s, ns]==0)
+      a%all_zero = yymm_zero .and. ds_zero
+      a%only_years_months = (.not. yymm_zero) .and. ds_zero
+      a%valid = status==ESMF_SUCCESS .and. (yymm_zero .or. ds_zero)
+
+   end function construct_augmented_interval
+
+   ! The intervals and offset are compatible if the second interval evenly divides the first interval and
+   ! the offset (if present). To check this, intervals must be comparable. The second interval cannot be 
+   ! all zero. Either, the first interval is all zero, both have years and/or months only, or both have
+   ! day, second, and/or nanosecond only. This is because the ESMF_TimeInterval mod operation returns
+   ! results that cannot be used to compare the intervals that are a mix of (years, months) & (days,
+   ! seconds, nanoseconds). The same is true of the offset and the second interval.
+   subroutine check_compatibility(interval1, interval2, compatible, unusable, offset, rc)
+      type(ESMF_TimeInterval), intent(in) :: interval1
       type(ESMF_TimeInterval), intent(in) :: interval2
-      type(ESMF_TimeInterval), optional, intent(in) :: offset
       logical, intent(out) :: compatible
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      type(ESMF_TimeInterval), optional, intent(in) :: offset
       integer, optional, intent(inout) :: rc
       integer :: status
-      type(ESMF_TimeInterval), pointer  :: zero => null()
-      integer(kind=I4) :: units(NUM_INTERVAL_UNITS), units2(NUM_INTERVAL_UNITS)
+      type(AugmentedInterval), allocatable :: a1, a2
 
-      compatible = .FALSE.
-      zero => zero_time_interval()
-      _ASSERT(interval2 /= zero, 'The second interval must be nonzero.')
-      units = to_array(interval, _RC)
-      units2 = to_array(interval2, _RC)
-      _RETURN_IF(cannot_compare(units .ne. 0, units2 .ne. 0))
-      associate(abs1 => ESMF_TimeIntervalAbsValue(interval), &
-            & abs2 => ESMF_TimeIntervalAbsValue(interval2))
-         _RETURN_IF(abs1 < abs2 .or. mod(abs1, abs2) /= zero)
-         compatible = abs1 >= abs2 .and. mod(abs1, abs2) == zero
-         _RETURN_UNLESS(present(offset))
-         compatible = compatible .and. mod(ESMF_TimeIntervalAbsValue(offset), abs2) == zero
-      end associate
+      _UNUSED_DUMMY(unusable)
+      
+      a1 = AugmentedInterval(interval1)
+      a2 = AugmentedInterval(interval2)
+      compatible = a1%valid .and. a2%valid
+      _RETURN_UNLESS(compatible)
+
+      if(present(offset)) then
+         call intervals_are_compatible(AugmentedInterval(offset), a2, compatible, _RC)
+         _RETURN_UNLESS(compatible)
+      end if
+      _RETURN_IF(a1%interval == a2%interval)
+
+      call intervals_are_compatible(a1, a2, compatible, _RC)
       _RETURN(_SUCCESS)
 
-      contains
+   end subroutine check_compatibility
 
-!     These combinations (larger, smaller): (yy and/or mm, d), (yy and/or mm, h),
-!     (yy and/or mm, m), and (yy and/or mm, s) do not work because the
-!     ESMF_TimeInterval overload of the mod function gives incorrect results for
-!     these combinations. Presumably ms, us, and ns for the smaller interval do
-!     not work.
-
-      logical function cannot_compare(z, z2)
-         logical, intent(in) :: z(:), z2(:)
-         integer, parameter :: MONTH = 2
-
-         cannot_compare = (any(z(:MONTH)) .and. any(z2(MONTH+1:))) .or. &
-                          (any(z2(:MONTH)) .and. any(z(MONTH+1:)))
-
-      end function cannot_compare
-
-   end subroutine intervals_and_offset_are_compatible
-
-   function get_zero() result(zero)
-      type(ESMF_TimeInterval), pointer :: zero
-      logical, save :: zero_is_uninitialized = .TRUE.
-
-      if(zero_is_uninitialized) then
-         call ESMF_TimeIntervalSet(ZERO_TI, ns=0)
-         zero_is_uninitialized = .FALSE.
-      end if
-      zero => ZERO_TI
-
-   end function get_zero
-
-   function to_array(interval, rc) result(units)
-      integer(kind=I4) :: units(NUM_INTERVAL_UNITS)
-      type(ESMF_TimeInterval), intent(in) :: interval
+   subroutine intervals_are_compatible(aug1, aug2, compatible, rc)
+      type(AugmentedInterval), intent(in) :: aug1
+      type(AugmentedInterval), intent(in) :: aug2
+      logical, intent(out) :: compatible
       integer, optional, intent(out) :: rc
       integer :: status
+      type(AugmentedInterval) :: augmod
+      character(len=64) :: timeString
 
-      call ESMF_TimeIntervalGet(interval, yy=units(1), mm=units(2), d=units(3), &
-         & h=units(4), m=units(5), s=units(6), ms=units(7), us=units(8), ns=units(9), _RC)
+      compatible = .FALSE.
+      if(aug2%all_zero) then
+         call ESMF_TimeIntervalGet(aug2%interval, timeString=timeString, _RC)
+      end if
+      _ASSERT(.not. aug2%all_zero, 'The second interval is all zero: '// trim(timeString))
+      compatible = aug1%valid .and. aug2%valid
+      _RETURN_IF(aug1%all_zero .or. aug1%interval == aug2%interval)
+
+      compatible = compatible .and. (aug1%only_years_months .eqv. aug2%only_years_months)
+      _RETURN_UNLESS(compatible)
+
+      augmod = AugmentedInterval(mod(aug1%interval, aug2%interval))
+      _ASSERT(augmod%valid, 'Unable to perform modulo operation')
+      compatible = augmod%all_zero
       _RETURN(_SUCCESS)
 
-   end function to_array
+   end subroutine intervals_are_compatible
+   
+   subroutine interval_is_all_zero(interval, all_zero, rc)
+      type(ESMF_TimeInterval), intent(in) :: interval
+      logical, intent(out) :: all_zero
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(AugmentedInterval) :: aug
+
+      aug=AugmentedInterval(interval)
+      _ASSERT(aug%valid, 'Unable to determine values for time interval')
+      all_zero = aug%all_zero
+      _RETURN(_SUCCESS)
+
+   end subroutine interval_is_all_zero
 
 end module mapl3g_ESMF_Time_Utilities
