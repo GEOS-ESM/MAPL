@@ -234,29 +234,53 @@ contains
       integer :: i, j, num_field_levels, status
       type(Variable) :: level_var
       real(kind=REAL64), allocatable :: temp_coords(:)
+      logical :: lev_added, edge_added
 
       call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
+      lev_added = .false.
+      edge_added = .false.
       do i = 1, size(fieldList)
          call MAPL_FieldGet(fieldList(i), vert_staggerloc=vertical_stagger, _RC)
          if (vertical_stagger == VERTICAL_STAGGER_NONE) cycle
          call MAPL_FieldGet(fieldList(i), num_levels=num_field_levels, _RC)
          dim_name = vertical_stagger%get_dimension_name()
          call metadata%add_dimension(dim_name, num_field_levels)
-         allocate(temp_coords(num_field_levels))
-         temp_coords = [(j,j=1,num_field_levels)]
-         
-         level_var = Variable(type=PFIO_REAL64, dimensions=dim_name)
-         call level_var%add_attribute('long_name','vertical level')
-         call level_var%add_attribute('units','layer')
-         call level_var%add_attribute('positive','down')
-         call level_var%add_attribute('coordinate','eta')
-         call level_var%add_attribute('standard_name','model_layers')
-         call level_var%add_const_value(UnlimitedEntity(temp_coords))
-         call metadata%add_variable("lev", level_var, _RC)
+         if ((dim_name == "lev") .and. (.not. lev_added)) then
+            call add_lev_or_edge_(dim_name, num_field_levels, metadata, _RC)
+            lev_added = .true.
+         end if
+         if ((dim_name == "edge") .and. (.not. edge_added)) then
+            call add_lev_or_edge_(dim_name, num_field_levels, metadata, _RC)
+            edge_added = .true.
+         end if
       end do
 
       _RETURN(_SUCCESS)
    end subroutine add_vertical_dimensions
+
+   subroutine add_lev_or_edge_(dim_name, num_levels, metadata, rc)
+      character(len=*), intent(in) :: dim_name
+      integer, intent(in) :: num_levels
+      type(FileMetaData), intent(inout) :: metadata
+      integer, optional, intent(out) :: rc
+
+      type(Variable) :: level_var
+      real(kind=REAL64), allocatable :: temp_coords(:)
+      integer :: j, status
+
+      level_var = Variable(type=PFIO_REAL64, dimensions=dim_name)
+      call level_var%add_attribute('long_name','vertical level')
+      call level_var%add_attribute('units','layer')
+      call level_var%add_attribute('positive','down')
+      call level_var%add_attribute('coordinate','eta')
+      call level_var%add_attribute('standard_name','model_layers')
+      allocate(temp_coords(num_levels), _STAT)
+      temp_coords = [(j, j=1,num_levels)]
+      call level_var%add_const_value(UnlimitedEntity(temp_coords))
+      call metadata%add_variable(dim_name, level_var, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine add_lev_or_edge_
 
    function get_vertical_dimension_name_from_field(field, rc) result(dim_name)
       character(len=:), allocatable :: dim_name
