@@ -375,9 +375,10 @@ contains
       end if
       
       clock = esmf_ClockCreate(timeStep=timeStep, &
-           startTime=currTime, stopTime=end_of_segment, &
+           startTime=startTime, stopTime=end_of_segment, &
            refTime=startTime, &
            repeatDuration=repeatDuration, _RC)
+      call ESMF_ClockSet(clock, currTime=currTime, _RC)
 
       call esmf_HConfigDestroy(clock_cfg, _RC)
 

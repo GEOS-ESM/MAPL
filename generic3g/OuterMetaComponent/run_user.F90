@@ -26,12 +26,11 @@ contains
       type(ComponentDriverPtrVector) :: import_Couplers
       type(ComponentDriverPtr) :: drvr
       integer :: i
-
-      type(ESMF_Alarm) :: alarm
+      type(ESMF_Time) :: currTime
       logical :: is_ringing
 
-      call ESMF_ClockGetAlarm(clock, alarm=alarm, alarmName=RUN_USER_ALARM, _RC)
-      is_ringing = ESMF_AlarmIsRinging(alarm, _RC)
+      call ESMF_ClockGet(clock, currTime=currTime, _RC)
+      is_ringing = this%user_run_alarm%is_ringing(currTime, _RC)
       _RETURN_IF(.not. is_ringing)
 
       run_phases => this%get_phases(ESMF_METHOD_RUN)
