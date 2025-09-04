@@ -36,7 +36,6 @@ contains
 
       user_logger => this%get_logger()
       restart_handler = RestartHandler( &
-           driver%get_name(), &
            this%get_geom(), &
            currTime, &
            user_logger)

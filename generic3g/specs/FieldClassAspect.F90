@@ -49,8 +49,6 @@ module mapl3g_FieldClassAspect
       type(ESMF_Field) :: payload
       character(:), allocatable :: standard_name
       character(:), allocatable :: long_name
-      character(:), allocatable :: short_name
-      character(:), allocatable :: gridcomp_name
       real(kind=ESMF_KIND_R4), allocatable :: default_value
       integer(kind=kind(MAPL_RESTART_MODE)), allocatable :: restart_mode
    contains
@@ -91,15 +89,11 @@ contains
    function new_FieldClassAspect( &
         standard_name, &
         long_name, &
-        short_name, &
-        gridcomp_name, &
         default_value, &
         restart_mode) result(aspect)
       type(FieldClassAspect) :: aspect
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
-      character(*), optional, intent(in) :: short_name
-      character(*), optional, intent(in) :: gridcomp_name
       real(kind=ESMF_KIND_R4), optional, intent(in) :: default_value
       integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(in) :: restart_mode
 
@@ -111,14 +105,6 @@ contains
       aspect%long_name = 'unknown'
       if (present(long_name)) then
          aspect%long_name = long_name
-      end if
-
-      if (present(short_name)) then
-         aspect%short_name = short_name
-      end if
-
-      if (present(gridcomp_name)) then
-         aspect%gridcomp_name = gridcomp_name
       end if
 
       if (present(default_value)) then
@@ -308,8 +294,8 @@ contains
       integer, optional, intent(out) :: rc
 
       type(FieldClassAspect) :: export_
-      integer :: status
       type(ESMF_Info) :: info
+      integer :: status
 
       export_ = to_FieldClassAspect(export, _RC)
       call this%destroy(_RC) ! import is replaced by export/extension
@@ -318,14 +304,7 @@ contains
       call mirror(this%default_value, export_%default_value)
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldInfoSetInternal(info, restart_mode=this%restart_mode, _RC)
       call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CONNECTED, _RC)
-      if (allocated(this%restart_mode)) then
-         _ASSERT(allocated(this%gridcomp_name), "gridcomp name is not known")
-         _ASSERT(allocated(this%short_name), "field's short name is not known")
-         call ESMF_InfoGetFromHost(this%payload, info, _RC)
-         call FieldInfoSetPrivate(info, this%gridcomp_name, this%short_name, restart_mode=this%restart_mode, _RC)
-      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
@@ -420,12 +399,11 @@ contains
 
       type(ESMF_Field) :: alias, existing_field
       type(esmf_StateItem_Flag) :: itemType
-      logical :: is_alias
-      integer :: status
       type(ESMF_State) :: state, substate
-      character(:), allocatable :: full_name, inner_name
-      integer :: idx
-      character(:), allocatable :: intent
+      type(ESMF_Info) :: info
+      logical :: is_alias
+      character(:), allocatable :: full_name, inner_name, intent
+      integer :: idx, alias_id, status
       
       intent = actual_pt%get_state_intent()
       call multi_state%get_state(state, intent, _RC)
@@ -446,6 +424,12 @@ contains
          end if
       end if
       call ESMF_StateAddReplace(substate, [alias], _RC)
+
+      if (allocated(this%restart_mode)) then
+         call ESMF_NamedAliasGet(alias, id=alias_id, _RC)
+         call ESMF_InfoGetFromHost(alias, info, _RC)
+         call FieldInfoSetPrivate(info, alias_id, restart_mode=this%restart_mode, _RC)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine add_to_state

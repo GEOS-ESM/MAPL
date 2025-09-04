@@ -527,7 +527,6 @@ contains
       type(ComponentSpec), pointer :: component_spec
       character(len=:), allocatable :: units_
       type(UngriddedDims), allocatable :: dim_specs_vec
-      character(len=ESMF_MAXSTR) :: gridcomp_name
       integer :: status
 
       _ASSERT((dims=="xyz") .or. (dims=="xy") .or. (dims=="z"), "dims can be one of xyz/xy/z")
@@ -539,11 +538,9 @@ contains
       ! If input units is present, override using input values
       if (present(units)) units_ = units
       if (present(ungridded_dims)) dim_specs_vec = UngriddedDims(ungridded_dims)
-      call ESMF_GridCompGet(gridcomp, name=gridcomp_name, _RC)
       var_spec = make_VariableSpec( &
            state_intent, &
            short_name, &
-           gridcomp_name=trim(gridcomp_name), &
            standard_name=standard_name, &
            units=units_, &
            itemType=itemType, &

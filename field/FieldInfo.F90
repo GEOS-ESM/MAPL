@@ -247,18 +247,19 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine field_info_get_internal
 
-   subroutine field_info_set_private(info, gridcomp_name, short_name, unusable, restart_mode, rc)
+   subroutine field_info_set_private(info, named_alias_id, unusable, restart_mode, rc)
       type(ESMF_Info), intent(inout) :: info
-      character(*), intent(in) :: gridcomp_name
-      character(*), intent(in) :: short_name
+      integer, intent(in) :: named_alias_id
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(in) :: restart_mode
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(:), allocatable :: namespace
+      character(:), allocatable :: id_str, namespace
 
-      namespace = INFO_PRIVATE_NAMESPACE // "/" // trim(gridcomp_name) // "/" // trim(short_name)
+      id_str = ESMF_UtilStringInt2String(named_alias_id, _RC)
+      ! NOTE: the 'x' is to keep ESMF_Info from getting confused
+      namespace = INFO_PRIVATE_NAMESPACE // "/x" // trim(id_str)
 
       if (present(restart_mode)) then
          call MAPL_InfoSet(info, namespace // KEY_RESTART_MODE, restart_mode, _RC)
@@ -268,19 +269,20 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine field_info_set_private
 
-   subroutine field_info_get_private(info, gridcomp_name, short_name, unusable, restart_mode, rc)
+   subroutine field_info_get_private(info, named_alias_id, unusable, restart_mode, rc)
       type(ESMF_Info), intent(in) :: info
-      character(*), intent(in) :: gridcomp_name
-      character(*), intent(in) :: short_name
+      integer, intent(in) :: named_alias_id
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(out) :: restart_mode
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(:), allocatable :: namespace, key
+      character(:), allocatable :: id_str, namespace, key
       logical :: key_is_present
 
-      namespace = INFO_PRIVATE_NAMESPACE // "/" // trim(gridcomp_name) // "/" // trim(short_name)
+      id_str = ESMF_UtilStringInt2String(named_alias_id, _RC)
+      ! NOTE: the 'x' is to keep ESMF_Info from getting confused
+      namespace = INFO_PRIVATE_NAMESPACE // "/x" // trim(id_str)
 
       if (present(restart_mode)) then
          key = namespace // KEY_RESTART_MODE

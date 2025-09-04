@@ -318,7 +318,7 @@ contains
       end associate
 
       call esmf_ClockGet(clock, currTime=currTime, _RC)
-      restart_handler = RestartHandler(name, geom, currTime, lgr)
+      restart_handler = RestartHandler(geom, currTime, lgr)
 
       filename = name // '_custom_import.nc'
       call restart_handler%read(state, filename, _RC)
@@ -360,7 +360,7 @@ contains
       end associate
 
       call esmf_ClockGet(clock, currTime=currTime, _RC)
-      restart_handler = RestartHandler(name, geom, currTime, lgr)
+      restart_handler = RestartHandler(geom, currTime, lgr)
 
        filename = name // '_custom_import.nc'
      call restart_handler%write(state, filename, _RC)

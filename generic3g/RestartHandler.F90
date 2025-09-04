@@ -20,7 +20,6 @@ module mapl3g_RestartHandler
 
    type :: RestartHandler
       private
-      character(len=:), allocatable :: gridcomp_name
       type(ESMF_Geom) :: gridcomp_geom
       type(ESMF_Time) :: current_time
       class(logger), pointer :: lgr => null()
@@ -38,15 +37,12 @@ module mapl3g_RestartHandler
 
 contains
 
-   function new_RestartHandler(gridcomp_name, gridcomp_geom, current_time, gridcomp_logger) result(restart_handler)
-      ! pchakrab: TODO - it may just be better to pass in the gridcomp
-      character(len=*), intent(in) :: gridcomp_name
+   function new_RestartHandler(gridcomp_geom, current_time, gridcomp_logger) result(restart_handler)
       type(ESMF_Geom), intent(in) :: gridcomp_geom
       type(ESMF_Time), intent(in) :: current_time
       class(logger), pointer, optional, intent(in) :: gridcomp_logger
       type(RestartHandler) :: restart_handler ! result
 
-      restart_handler%gridcomp_name = gridcomp_name
       restart_handler%gridcomp_geom = gridcomp_geom
       restart_handler%current_time = current_time
       restart_handler%lgr => logging%get_logger('mapl.restart')
@@ -159,7 +155,7 @@ contains
       character(len=ESMF_MAXSTR), allocatable :: names(:)
       type (ESMF_StateItem_Flag), allocatable  :: types(:)
       type(ESMF_Info) :: info
-      character(len=ESMF_MAXSTR) :: short_name
+      integer :: named_alias_id
       integer(kind=kind(MAPL_RESTART_MODE)) :: restart_mode
       integer :: idx, num_fields, status
 
@@ -174,9 +170,9 @@ contains
             cycle
          end if
          call ESMF_StateGet(state, names(idx), field, _RC)
-         call ESMF_FieldGet(field, name=short_name, _RC)
          call ESMF_InfoGetFromHost(field, info, _RC)
-         call FieldInfoGetPrivate(info, this%gridcomp_name, short_name, restart_mode=restart_mode, _RC)
+         call ESMF_NamedAliasGet(field, id=named_alias_id, _RC)
+         call FieldInfoGetPrivate(info, named_alias_id, restart_mode=restart_mode, _RC)
          if (restart_mode==MAPL_RESTART_SKIP) cycle
          call ESMF_FieldBundleAdd(bundle, [field], _RC)
       end do

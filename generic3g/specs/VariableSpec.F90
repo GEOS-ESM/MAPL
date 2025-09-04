@@ -63,9 +63,6 @@ module mapl3g_VariableSpec
       !=====================
       ! class aspect
       !=====================
-      ! Gridcomp
-      character(:), allocatable :: gridcomp_name
-
       !---------------------
       ! Field & Vector
       !---------------------
@@ -162,7 +159,6 @@ contains
 
    function make_VariableSpec( &
         state_intent, short_name, unusable, &
-        gridcomp_name, &
         standard_name, &
         geom, &
         units, &
@@ -192,7 +188,6 @@ contains
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       ! Optional args:
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      character(*), optional, intent(in) :: gridcomp_name
       character(*), optional, intent(in) :: standard_name
       type(ESMF_Geom), optional, intent(in) :: geom
       character(*), optional, intent(in) :: units
@@ -228,7 +223,6 @@ contains
 #  undef _SET_OPTIONAL
 #endif
 #define _SET_OPTIONAL(opt) if (present(opt)) var_spec%opt = opt
-      _SET_OPTIONAL(gridcomp_name)
       _SET_OPTIONAL(standard_name)
       _SET_OPTIONAL(geom)
       _SET_OPTIONAL(units)
@@ -567,8 +561,6 @@ contains
       case (MAPL_STATEITEM_FIELD%ot)
          aspect = FieldClassAspect( &
               standard_name=this%standard_name, &
-              gridcomp_name=this%gridcomp_name, &
-              short_name=this%short_name, &
               default_value=this%default_value, &
               restart_mode=this%restart_mode)
       case (MAPL_STATEITEM_FIELDBUNDLE%ot)
