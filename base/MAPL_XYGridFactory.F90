@@ -504,6 +504,7 @@ contains
       call ESMF_ConfigGetAttribute(config, this%thin_factor,  label=prefix//'thin_factor:',  default=1,   _RC)
 
       if (mapl_am_i_root()) then
+         write(6, '(2(2x, a))') 'XYgrid filename =', trim(this%grid_file_name)
          call get_ncfile_dimension(this%grid_file_name, nlon=n1, nlat=n2, &
               key_lon=this%index_name_x, key_lat=this%index_name_y, _RC)
          arr(1)=n1
