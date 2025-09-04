@@ -801,3 +801,67 @@ subroutine MAPL_MemReport(comm,file_name,line,decorator,rc)
 end subroutine
 
 end module MAPL_MemUtilsMod
+
+
+
+!
+!  Part-II:  verified on Mac only
+!
+module quick_mem_usage_mod
+  use iso_c_binding
+  implicit none
+
+  ! --- C struct definitions ---
+  type, bind(C) :: c_timeval
+     integer(c_long) :: tv_sec
+     integer(c_long) :: tv_usec
+  end type c_timeval
+
+  type, bind(C) :: c_rusage
+     type(c_timeval) :: ru_utime
+     type(c_timeval) :: ru_stime
+     integer(c_long) :: ru_maxrss
+     integer(c_long) :: ru_ixrss
+     integer(c_long) :: ru_idrss
+     integer(c_long) :: ru_isrss
+     integer(c_long) :: ru_minflt
+     integer(c_long) :: ru_majflt
+     integer(c_long) :: ru_nswap
+     integer(c_long) :: ru_inblock
+     integer(c_long) :: ru_oublock
+     integer(c_long) :: ru_msgsnd
+     integer(c_long) :: ru_msgrcv
+     integer(c_long) :: ru_nsignals
+     integer(c_long) :: ru_nvcsw
+     integer(c_long) :: ru_nivcsw
+  end type c_rusage
+
+  interface
+     function getrusage(who, usage) bind(C, name="getrusage")
+       import :: c_int, c_rusage
+       integer(c_int), value :: who
+       type(c_rusage) :: usage
+       integer(c_int) :: getrusage
+     end function getrusage
+  end interface
+
+contains
+
+  subroutine get_memory_usage(rss_kb)
+    use iso_c_binding
+    implicit none
+    integer(kind=8), intent(out) :: rss_kb
+    type(c_rusage) :: usage
+    integer(c_int) :: ret
+
+    ret = getrusage(0_c_int, usage)  ! RUSAGE_SELF = 0
+    if (ret == 0) then
+       ! On macOS ru_maxrss is in byte
+       rss_kb = usage%ru_maxrss /1024
+       ! On Linux ru_maxrss is in KB
+    else
+       rss_kb = -1
+    end if
+  end subroutine get_memory_usage
+
+end module quick_mem_usage_mod
