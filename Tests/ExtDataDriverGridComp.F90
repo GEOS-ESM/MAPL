@@ -11,7 +11,7 @@ module ExtData_DriverGridCompMod
   use MAPL_HistoryGridCompMod, only : Hist_SetServices => SetServices
   use MAPL_Profiler, only : get_global_time_profiler, BaseProfiler
   use mpi
-  use quick_mem_usage_mod      ! on mac
+  use quick_mem_usage_mod
 
   implicit none
   private
@@ -710,7 +710,7 @@ contains
        if (this%AmIRoot) write(6,1000) AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S,mem_percent
 1000   format(1x,'TestDriver Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2,2x,f5.1,'%Memory Committed')
     else
-       call get_memory_usage(rss_kb)    ! mac: 1 node
+       call get_memory_usage(rss_kb)    ! mac case
        if (this%AmIRoot) write(6,1001) AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S,rss_kb/1024
 1001   format(1x,'TestDriver Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2, 2x, I10,' MB Memory used on mac root')
     end if
