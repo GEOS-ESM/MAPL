@@ -24,20 +24,20 @@ module mapl3g_ESMF_Interfaces
    interface MAPL_UserCompGetInternalState
       subroutine ESMF_UserCompGetInternalState(gridcomp, name, wrapper, status)
          use ESMF, only: ESMF_GridComp
-         type(ESMF_GridComp), intent(inout) :: gridcomp
-         character(*), intent(in) :: name
-         type(*), intent(inout) :: wrapper
-         integer, optional, intent(out) :: status
+         type(*) :: gridcomp
+         character(*), optional :: name
+         type(*) :: wrapper
+         integer :: status
       end subroutine ESMF_UserCompGetInternalState
    end interface MAPL_UserCompGetInternalState
 
    interface MAPL_UserCompSetInternalState
       subroutine ESMF_UserCompSetInternalState(gridcomp, name, wrapper, status)
          use ESMF, only: ESMF_GridComp
-         type(ESMF_GridComp), intent(inout) :: gridcomp
-         character(*), intent(in) :: name
-         type(*), intent(inout) :: wrapper
-         integer, optional, intent(out) :: status
+         type(*) :: gridcomp
+         character(*), optional :: name
+         type(*) :: wrapper
+         integer :: status
       end subroutine ESMF_UserCompSetInternalState
    end interface MAPL_UserCompSetInternalState
 
@@ -58,8 +58,8 @@ module mapl3g_ESMF_Interfaces
          type(ESMF_GridComp)   :: gridcomp
          type(ESMF_State)      :: importState
          type(ESMF_State)      :: exportState
-         type(ESMF_Clock)      :: clock      
-         integer, intent(out)  :: rc         
+         type(ESMF_Clock)      :: clock
+         integer, intent(out)  :: rc
       end subroutine I_Run
 
       subroutine I_CplSetServices(cplcomp, rc)
@@ -78,8 +78,8 @@ module mapl3g_ESMF_Interfaces
          type(ESMF_CplComp)    :: cplcomp
          type(ESMF_State)      :: importState
          type(ESMF_State)      :: exportState
-         type(ESMF_Clock)      :: clock      
-         integer, intent(out)  :: rc         
+         type(ESMF_Clock)      :: clock
+         integer, intent(out)  :: rc
       end subroutine I_CplRun
 
    end interface

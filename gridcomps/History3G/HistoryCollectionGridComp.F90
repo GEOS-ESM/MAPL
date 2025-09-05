@@ -5,6 +5,7 @@ module mapl3g_HistoryCollectionGridComp
    use mapl3g_HistoryCollectionGridComp_private
    use esmf
    use MAPL_StringTemplate, only: fill_grads_template_esmf
+   use pFlogger, only: logger, logging
    implicit none
    private
 
@@ -22,6 +23,7 @@ module mapl3g_HistoryCollectionGridComp
       character(len=:), allocatable :: current_file
       type(ESMF_Time), allocatable :: time_vector(:)
       real, allocatable :: real_time_vector(:)
+      logical :: shift_back
    end type HistoryCollectionGridComp
 
    character(len=*), parameter :: null_file = 'null_file'
@@ -82,7 +84,7 @@ contains
       collection_gridcomp%timeStep = get_frequency(hconfig, _RC)
       collection_gridcomp%current_file = null_file
       collection_gridcomp%template = ESMF_HConfigAsString(hconfig, keyString='template', _RC)
-      
+      collection_gridcomp%shift_back = ESMF_HConfigAsLogical(hconfig, keyString='shift_back', _RC)
 
       _RETURN(_SUCCESS)
    end subroutine init
@@ -124,17 +126,23 @@ contains
       character(len=ESMF_MAXSTR) :: name
       character(len=128) :: current_file
       type(ESMF_Time), allocatable :: esmf_time_vector(:)
+      class(logger), pointer :: lgr
 
-      call ESMF_GridCompGet(gridcomp, name=name, _RC)
-      call ESMF_ClockGet(clock, currTime=current_time, _RC)
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
+      call ESMF_GridCompGet(gridcomp, name=name, _RC)
+      !call MAPL_GridCompGet(gridcomp, logger=lgr, _RC)
+      lgr => logging%get_logger('HIST.'//name)
+
+      if (collection_gridcomp%shift_back) then
+         call ESMF_ClockGetNextTime(clock, current_time, _RC)
+      else
+         call ESMF_ClockGet(clock, currTime=current_time, _RC)
+      end if
 
       run_collection = (current_time >= collection_gridcomp%start_stop_times(1)) .and. &
                            (current_time <= collection_gridcomp%start_stop_times(2))
 
       _RETURN_UNLESS(run_collection)
-
-      _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
 
       call fill_grads_template_esmf(current_file, collection_gridcomp%template, collection_id=name, time=current_time, _RC)
       if (trim(current_file) /= collection_gridcomp%current_file) then
@@ -157,6 +165,8 @@ contains
       call get_real_time_vector(collection_gridcomp%initial_file_time, collection_gridcomp%time_vector, collection_gridcomp%real_time_vector, _RC)
       call collection_gridcomp%writer%stage_time_to_file(collection_gridcomp%current_file, collection_gridcomp%real_time_vector,  _RC)
       call collection_gridcomp%writer%stage_data_to_file(collection_gridcomp%output_bundle, collection_gridcomp%current_file, time_index, _RC)
+
+      call lgr%info('History writing file '//collection_gridcomp%current_file)
       _RETURN(_SUCCESS)
 
    end subroutine run

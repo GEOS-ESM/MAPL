@@ -32,6 +32,7 @@ module mapl3g_Generic
    use mapl3g_VerticalStaggerLoc, only: VerticalStaggerLoc
    use mapl3g_StateRegistry, only: StateRegistry
    use mapl3g_HorizontalDimsSpec, only: HorizontalDimsSpec, HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_GEOM
+   use mapl3g_UngriddedDim, only: UngriddedDim
    use mapl3g_UngriddedDims, only: UngriddedDims
    use mapl3g_StateItem, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
    use mapl3g_ESMF_Utilities, only: esmf_state_intent_to_string
@@ -512,7 +513,7 @@ contains
       type(VerticalStaggerLoc), intent(in) :: vstagger
       ! OPTIONAL
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(in) :: ungridded_dims(:)
+      type(UngriddedDim), optional, intent(in) :: ungridded_dims(:)
       character(*), optional, intent(in) :: units
       integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(in) :: restart
       type(ESMF_StateItem_Flag), optional, intent(in) :: itemType

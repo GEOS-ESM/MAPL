@@ -14,6 +14,7 @@ module mapl3g_OuterMetaComponent
    use mapl3g_GriddedComponentDriverMap, only: GriddedComponentDriverMap
    use mapl3g_GriddedComponentDriverMap, only: operator(/=)
    use mapl3g_VerticalGrid
+   use mapl3g_SimpleAlarm
    use gFTL2_StringVector
    use mapl_keywordEnforcer, only: KE => KeywordEnforcer
    use esmf
@@ -53,6 +54,8 @@ module mapl3g_OuterMetaComponent
       type(ComponentSpec)                         :: component_spec
 
       integer :: counter
+
+      type(SimpleAlarm) :: user_run_alarm
 
    contains
 
