@@ -14,6 +14,7 @@ module mapl3g_SimpleAlarm
    public :: SimpleAlarm
 
    type SimpleAlarm
+      private
       type(ESMF_Time) :: initial_ring_time
       type(ESMF_TimeInterval) :: ring_interval
       logical :: use_naive =.false.
