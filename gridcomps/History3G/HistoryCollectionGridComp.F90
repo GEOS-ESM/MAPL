@@ -5,7 +5,7 @@ module mapl3g_HistoryCollectionGridComp
    use mapl3g_HistoryCollectionGridComp_private
    use esmf
    use MAPL_StringTemplate, only: fill_grads_template_esmf
-   use pFlogger, only: logger
+   use pFlogger, only: logger, logging
    implicit none
    private
 
@@ -130,7 +130,8 @@ contains
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
       call ESMF_GridCompGet(gridcomp, name=name, _RC)
-      call MAPL_GridCompGet(gridcomp, logger=lgr, _RC)
+      !call MAPL_GridCompGet(gridcomp, logger=lgr, _RC)
+      lgr => logging%get_logger('HIST.'//name)
 
       if (collection_gridcomp%shift_back) then
          call ESMF_ClockGetNextTime(clock, current_time, _RC)
