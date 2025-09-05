@@ -7,8 +7,8 @@ module mapl3g_RestartHandler
    use mapl3g_Geom_API, only: MaplGeom
    use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Return, MAPL_Assert
    use mapl3g_geomio, only: bundle_to_metadata, GeomPFIO, make_geom_pfio, get_mapl_geom
-   use mapl3g_FieldInfo, only: FieldInfoGetPrivate
-   use mapl3g_RestartModes, only: MAPL_RESTART_MODE, MAPL_RESTART_SKIP
+   use mapl3g_FieldInfo, only: FieldInfoGetInternal
+   use mapl3g_RestartModes, only: RestartMode, operator(==), MAPL_RESTART_SKIP
    use pFIO, only: PFIO_READ, FileMetaData, NetCDF4_FileFormatter
    use pFIO, only: i_Clients, o_Clients
    use pFlogger, only: logging, logger
@@ -155,8 +155,8 @@ contains
       character(len=ESMF_MAXSTR), allocatable :: names(:)
       type (ESMF_StateItem_Flag), allocatable  :: types(:)
       type(ESMF_Info) :: info
-      integer :: named_alias_id
-      integer(kind=kind(MAPL_RESTART_MODE)) :: restart_mode
+      integer :: alias_id
+      type(RestartMode) :: restart_mode
       integer :: idx, num_fields, status
 
       call ESMF_StateGet(state, itemCount=num_fields, _RC)
@@ -171,8 +171,8 @@ contains
          end if
          call ESMF_StateGet(state, names(idx), field, _RC)
          call ESMF_InfoGetFromHost(field, info, _RC)
-         call ESMF_NamedAliasGet(field, id=named_alias_id, _RC)
-         call FieldInfoGetPrivate(info, named_alias_id, restart_mode=restart_mode, _RC)
+         call ESMF_NamedAliasGet(field, id=alias_id, _RC)
+         call FieldInfoGetInternal(info, alias_id, restart_mode, _RC)
          if (restart_mode==MAPL_RESTART_SKIP) cycle
          call ESMF_FieldBundleAdd(bundle, [field], _RC)
       end do

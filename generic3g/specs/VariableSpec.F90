@@ -36,7 +36,7 @@ module mapl3g_VariableSpec
    use mapl3g_EsmfRegridder, only: EsmfRegridderParam
    use mapl3g_FieldDictionary
    use mapl_KeywordEnforcerMod
-   use mapl3g_RestartModes, only: MAPL_RESTART_MODE
+   use mapl3g_RestartModes, only: RestartMode
    use esmf
    use gFTL2_StringVector
    use nuopc
@@ -68,7 +68,7 @@ module mapl3g_VariableSpec
       !---------------------
       character(:), allocatable :: standard_name
       character(:), allocatable :: long_name ! from FieldDictionary or override
-      integer(kind=kind(MAPL_RESTART_MODE)), allocatable :: restart_mode
+      type(RestartMode), allocatable :: restart_mode
       !---------------------
       ! Vector
       !---------------------
@@ -209,7 +209,7 @@ contains
       type(ESMF_TimeInterval), optional, intent(in) :: offset
       type(StringVector), optional, intent(in) :: vector_component_names
       logical, optional, intent(in) :: has_deferred_aspects
-      integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(in) :: restart_mode
+      type(RestartMode), optional, intent(in) :: restart_mode
       integer, optional, intent(out) :: rc
 
 !#      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method

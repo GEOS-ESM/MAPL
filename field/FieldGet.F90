@@ -7,7 +7,6 @@ module mapl3g_FieldGet
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use mapl3g_UngriddedDims
-   use mapl3g_RestartModes, only: MAPL_RESTART_MODE, MAPL_RESTART_REQUIRED
    use esmf
 
    implicit none (type,external)

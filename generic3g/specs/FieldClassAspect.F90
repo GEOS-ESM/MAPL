@@ -24,8 +24,8 @@ module mapl3g_FieldClassAspect
    use mapl3g_ESMF_Utilities, only: get_substate
 
    use mapl3g_Field_API
-   use mapl3g_FieldInfo, only: FieldInfoSetInternal, FieldInfoSetPrivate
-   use mapl3g_RestartModes, only: MAPL_RESTART_MODE
+   use mapl3g_FieldInfo, only: FieldInfoSetInternal
+   use mapl3g_RestartModes, only: RestartMode
 
    use mapl_FieldUtilities
    use mapl_ErrorHandling
@@ -50,7 +50,7 @@ module mapl3g_FieldClassAspect
       character(:), allocatable :: standard_name
       character(:), allocatable :: long_name
       real(kind=ESMF_KIND_R4), allocatable :: default_value
-      integer(kind=kind(MAPL_RESTART_MODE)), allocatable :: restart_mode
+      type(RestartMode), allocatable :: restart_mode
    contains
       procedure :: get_aspect_order
       procedure :: supports_conversion_general
@@ -95,7 +95,7 @@ contains
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
       real(kind=ESMF_KIND_R4), optional, intent(in) :: default_value
-      integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(in) :: restart_mode
+      type(RestartMode), optional, intent(in) :: restart_mode
 
       aspect%standard_name = 'unknown'
       if (present(standard_name)) then
@@ -428,7 +428,7 @@ contains
       if (allocated(this%restart_mode)) then
          call ESMF_NamedAliasGet(alias, id=alias_id, _RC)
          call ESMF_InfoGetFromHost(alias, info, _RC)
-         call FieldInfoSetPrivate(info, alias_id, restart_mode=this%restart_mode, _RC)
+         call FieldInfoSetInternal(info, alias_id, this%restart_mode, _RC)
       end if
 
       _RETURN(_SUCCESS)

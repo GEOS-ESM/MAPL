@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_FieldInfo
+
    use mapl3g_esmf_info_keys, only: INFO_SHARED_NAMESPACE
    use mapl3g_esmf_info_keys, only: INFO_INTERNAL_NAMESPACE
    use mapl3g_esmf_info_keys, only: INFO_PRIVATE_NAMESPACE
@@ -8,10 +9,11 @@ module mapl3g_FieldInfo
    use mapl3g_UngriddedDims
    use mapl3g_VerticalStaggerLoc
    use mapl3g_StateItemAllocation
-   use mapl3g_RestartModes, only: MAPL_RESTART_MODE, MAPL_RESTART_REQUIRED
+   use mapl3g_RestartModes, only: RestartMode, MAPL_RESTART_REQUIRED
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
+
    implicit none(type,external)
    private
 
@@ -19,8 +21,6 @@ module mapl3g_FieldInfo
    public :: FieldInfoSetShared
    public :: FieldInfoSetInternal
    public :: FieldInfoGetInternal
-   public :: FieldInfoSetPrivate
-   public :: FieldInfoGetPrivate
    public :: FieldInfoCopyShared
 
    interface FieldInfoSetShared
@@ -35,19 +35,13 @@ module mapl3g_FieldInfo
 
    interface FieldInfoSetInternal
       module procedure field_info_set_internal
+      module procedure field_info_set_internal_restart_mode
    end interface FieldInfoSetInternal
 
    interface FieldInfoGetInternal
       module procedure field_info_get_internal
+      module procedure field_info_get_internal_restart_mode
    end interface FieldInfoGetInternal
-
-   interface FieldInfoSetPrivate
-      module procedure field_info_set_private
-   end interface FieldInfoSetPrivate
-
-   interface FieldInfoGetPrivate
-      module procedure field_info_get_private
-   end interface FieldInfoGetPrivate
 
    interface FieldInfoCopyShared
       procedure :: field_info_copy_shared
@@ -183,7 +177,6 @@ contains
       character(:), allocatable :: vert_staggerloc_str, allocation_status_str
       type(VerticalStaggerLoc) :: vert_staggerloc_
       character(:), allocatable :: namespace_ 
-      logical :: key_is_present
 
       namespace_ = INFO_INTERNAL_NAMESPACE
       if (present(namespace)) then
@@ -247,55 +240,48 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine field_info_get_internal
 
-   subroutine field_info_set_private(info, named_alias_id, unusable, restart_mode, rc)
+   subroutine field_info_set_internal_restart_mode(info, named_alias_id, restart_mode, rc)
       type(ESMF_Info), intent(inout) :: info
       integer, intent(in) :: named_alias_id
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(in) :: restart_mode
+      type(RestartMode), intent(in) :: restart_mode
       integer, optional, intent(out) :: rc
 
       integer :: status
       character(:), allocatable :: id_str, namespace
 
       id_str = ESMF_UtilStringInt2String(named_alias_id, _RC)
-      ! NOTE: the 'x' is to keep ESMF_Info from getting confused
-      namespace = INFO_PRIVATE_NAMESPACE // "/x" // trim(id_str)
+      ! NOTE: the 'alias' is to keep ESMF_Info from getting confused
+      namespace = INFO_INTERNAL_NAMESPACE // "/alias" // trim(id_str)
 
-      if (present(restart_mode)) then
-         call MAPL_InfoSet(info, namespace // KEY_RESTART_MODE, restart_mode, _RC)
-      end if
+      call MAPL_InfoSet(info, namespace // KEY_RESTART_MODE, restart_mode%get_mode(), _RC)
 
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine field_info_set_private
+   end subroutine field_info_set_internal_restart_mode
 
-   subroutine field_info_get_private(info, named_alias_id, unusable, restart_mode, rc)
+   subroutine field_info_get_internal_restart_mode(info, named_alias_id, restart_mode, rc)
       type(ESMF_Info), intent(in) :: info
       integer, intent(in) :: named_alias_id
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(out) :: restart_mode
+      type(RestartMode), intent(out) :: restart_mode
       integer, optional, intent(out) :: rc
 
-      integer :: status
+      integer :: mode, status
       character(:), allocatable :: id_str, namespace, key
       logical :: key_is_present
 
       id_str = ESMF_UtilStringInt2String(named_alias_id, _RC)
-      ! NOTE: the 'x' is to keep ESMF_Info from getting confused
-      namespace = INFO_PRIVATE_NAMESPACE // "/x" // trim(id_str)
+      ! NOTE: the 'alias' is to keep ESMF_Info from getting confused
+      namespace = INFO_INTERNAL_NAMESPACE // "/alias" // trim(id_str)
 
-      if (present(restart_mode)) then
-         key = namespace // KEY_RESTART_MODE
-         key_is_present = ESMF_InfoIsPresent(info, key=key, _RC)
-         restart_mode = MAPL_RESTART_REQUIRED
-         if (key_is_present) then
-            call MAPL_InfoGet(info, key, restart_mode, _RC)
-         end if
+      restart_mode = MAPL_RESTART_REQUIRED
+      key = namespace // KEY_RESTART_MODE
+      key_is_present = ESMF_InfoIsPresent(info, key=key, _RC)
+      if (key_is_present) then
+         call MAPL_InfoGet(info, key, mode, _RC)
+         call restart_mode%set_mode(mode)
       end if
 
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine field_info_get_private
+   end subroutine field_info_get_internal_restart_mode
 
    subroutine info_field_get_shared_i4(field, key, value, unusable, rc)
       type(ESMF_Field), intent(in) :: field

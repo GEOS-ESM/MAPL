@@ -37,7 +37,7 @@ module mapl3g_Generic
    use mapl3g_StateItem, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
    use mapl3g_ESMF_Utilities, only: esmf_state_intent_to_string
    use mapl3g_hconfig_get
-   use mapl3g_RestartModes, only: MAPL_RESTART_MODE
+   use mapl3g_RestartModes, only: RestartMode
    use mapl_InternalConstantsMod
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
@@ -515,7 +515,7 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(UngriddedDim), optional, intent(in) :: ungridded_dims(:)
       character(*), optional, intent(in) :: units
-      integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(in) :: restart
+      type(RestartMode), optional, intent(in) :: restart
       type(ESMF_StateItem_Flag), optional, intent(in) :: itemType
       logical, optional, intent(in) :: add_to_export
       logical, optional, intent(in) :: has_deferred_aspects
