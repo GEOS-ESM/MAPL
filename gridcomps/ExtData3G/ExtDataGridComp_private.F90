@@ -121,12 +121,11 @@ contains
    end function get_active_items
 
    subroutine report_active_items(exports, lgr)
-      type(PrimaryExportVector), intent(in) :: exports
+      type(StringVector), intent(in) :: exports
       class(logger), pointer :: lgr
 
-      type(PrimaryExportVectorIterator) :: iter
-      type(PrimaryExport), pointer :: export
-      character(len=:), allocatable :: export_name
+      type(StringVectorIterator) :: iter
+      character(len=:), pointer :: export_name
       integer :: i
 
       call lgr%info('*******************************************************')
@@ -136,8 +135,7 @@ contains
       i=0
       do while (iter /= exports%ftn_end())
          call iter%next()
-         export => iter%of() 
-         export_name = export%get_export_var_name() 
+         export_name => iter%of() 
          i=i+1
          call lgr%info('---- %i0.5~: %a', i, export_name)
       end do

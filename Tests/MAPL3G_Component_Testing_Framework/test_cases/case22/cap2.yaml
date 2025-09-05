@@ -1,0 +1,41 @@
+esmf:
+  logKindFlag: ESMF_LOGKIND_MULTI
+  logAppendFlag: false
+
+
+mapl:
+  model_petcount: 1
+  pflogger_cfg_file: logging.yaml
+#
+#  servers:
+#    pfio:
+#       nodes: 1
+#    mit:
+#       nodes: 0
+
+cap:
+  name: cap
+  restart: cap_restart2.yaml
+
+  clock:
+    dt: PT1H
+    start: 2009-01-01T00:00:00
+    stop: 2999-03-02T21:00:00
+    segment_duration: P365D
+
+  extdata_name: EXTDATA
+  history_name: HIST
+  root_name: GCM
+
+  mapl:
+    children:
+      GCM:
+        dso: libMAPL.componentDriverGridComp.dylib
+        setServices: setservices_
+        config_file: GCM2.yaml
+      EXTDATA:
+        dso: libMAPL.extdata3g.dylib
+        config_file: extdata2.yaml
+      HIST:
+        dso: libMAPL.history3g.dylib
+        config_file: history2.yaml

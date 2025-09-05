@@ -31,6 +31,7 @@ module mapl3g_ExtDataGridComp
       type(integerVector) :: rules_per_export
       type(integerVector) :: export_id_start
       logical :: has_run_mod_advert = .false.
+      type(StringVector) :: active_items
       contains
          procedure :: get_item_index
    end type ExtDataGridComp
@@ -66,7 +67,6 @@ contains
       integer :: status
 
       integer :: rules_for_item, rule_counter, j, idx
-      type(StringVector) :: active_items
       type(ExtDataConfig) :: config
       type(ESMF_Hconfig) :: hconfig
       type(ESMF_Time) :: current_time
@@ -88,11 +88,11 @@ contains
       call MAPL_GridCompGet(gridcomp, logger=lgr, _RC)
       call ESMF_ClockGet(clock, currTime=current_time, _RC)
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
-      active_items = get_active_items(exportState, _RC)
+      extdata_gridcomp%active_items = get_active_items(exportState, _RC)
       call new_ExtDataConfig_from_yaml(config, hconfig, current_time,  _RC)
       rule_counter = 0
-      iter = active_items%ftn_begin()
-      do while (iter /= active_items%ftn_end())
+      iter = extdata_gridcomp%active_items%ftn_begin()
+      do while (iter /= extdata_gridcomp%active_items%ftn_end())
          call iter%next()
          item_name => iter%of()
          has_rule = config%has_rule_for(item_name, _RC)
@@ -119,7 +119,7 @@ contains
          call primary_export%complete_export_spec(item_name, exportState, _RC)
       end do
 
-      call report_active_items(extdata_gridcomp%export_vector, lgr)
+      call report_active_items(extdata_gridcomp%active_items, lgr)
       extdata_gridcomp%has_run_mod_advert = .true. 
 
       _RETURN(_SUCCESS)
@@ -135,31 +135,27 @@ contains
       integer :: status
 
       type(ExtDataGridComp), pointer :: extdata_gridcomp
-      type(PrimaryExportVectorIterator) :: iter
+      type(StringVectorIterator) :: iter
       type(PrimaryExport), pointer :: export_item
       type(ESMF_Time) :: current_time
       real :: weights(3)
       character(len=:), allocatable :: export_name
+      character(len=:), pointer :: base_name
       type(ExtDataReader) :: reader
       class(logger), pointer :: lgr
       type(ESMF_FieldBundle) :: bundle 
-      character(len=ESMF_MAXSTR), allocatable :: export_names(:)
-      integer :: num_exports, i, idx
+      integer :: idx
 
-      call ESMF_StateGet(exportState, itemCount=num_exports, _RC)
-      allocate(export_names(num_exports))
-      call ESMF_StateGet(exportState, itemNameList=export_names, _RC) 
       call MAPL_GridCompGet(gridcomp, logger=lgr, _RC)
       _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
       call ESMF_ClockGet(clock, currTime=current_time, _RC) 
       call reader%initialize_reader(_RC)
-      !iter = extdata_gridcomp%export_vector%ftn_begin()
-      do while (iter /= extdata_gridcomp%export_vector%ftn_end())
+      iter = extdata_gridcomp%active_items%ftn_begin()
+      do while (iter /= extdata_gridcomp%active_items%ftn_end())
          call iter%next()
-         export_item => iter%of() 
-      !do i =1, num_exports
-         !idx = extdata_gridcomp%get_item_index(trim(export_names(i)), current_time, _RC)
-         !export_item => extdata_gridcomp%export_vector%at(idx) 
+         base_name => iter%of() 
+         idx = extdata_gridcomp%get_item_index(base_name, current_time, _RC)
+         export_item => extdata_gridcomp%export_vector%at(idx) 
          if (export_item%is_constant) cycle
 
          export_name = export_item%get_export_var_name()
