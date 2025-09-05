@@ -4,7 +4,11 @@ import argparse
 from functools import reduce, partial
 from pathlib import Path
 from itertools import filterfalse, chain
+from collections import defaultdict
 
+SPACE = r' '
+BLANK = r''
+BLANK_LINE = [BLANK]
 COMMENT = r'#'
 FORTCOMM = r'!'
 DASH = r'-'
@@ -15,7 +19,10 @@ is_quoted = lambda s: (s[0] == "'" or s[0] == '"') and s[-1] == s[0]
 is_array = lambda s: (s[0], s[-1]) == ('[', ']')
 remove_delimiters = lambda s: s[1:-1] if is_quoted(s) or is_array(s) else s
 make_comment = lambda s: f"{COMMENT}{s}"
-make_divider = lambda c, n: make_comment(f"{c * max(0, n-1)}"[:max(0, n-1)])
+make_divider = lambda c, n: make_comment(f"{c * max(0, n-1)}")
+
+def newline(n=1):
+    return  max(n, 0) *'\n'
 
 #==============================================================================#
 
@@ -38,14 +45,14 @@ strip_comment = partial(general_strip_comment, FORTCOMM)
 
 #==============================================================================#
 
-def join_line(line, lines=['']):
+def join_line(line, lines=BLANK_LINE):
     stripped = line.strip()
     complete = not stripped.endswith('&')
     if len(lines) == 0:
-        lines.append('')
+        lines.append(BLANK)
     lines[-1] = lines[-1] + stripped.strip('&')
     if complete:
-        lines.append('')
+        lines.append(BLANK)
     return lines
 
 #==============================================================================#
@@ -86,23 +93,26 @@ def parse_call(args):
 def make_output(state, records):
     key_filter = lambda k: k != 'RC'
     cols = list(filter(key_filter, unique(chain.from_iterable(map(lambda d: d.keys(), records)))))
-    rows = list(map(lambda r: map(lambda c: r.get(c, ''), cols), records))
-    llen = max_row_len([cols]+rows, RS)
+    rows = [cols] + [[r.get(c, BLANK) for c in cols] for r in records]
+    row_lines = [RS.join(row) for row in pad_all(rows)]
+    llen = max([len(line) for line in row_lines])
     divider = make_divider(DASH, llen-1)
-    header = [f'category: {state}', divider, RS.join(list(cols)), divider]
-    rows = [RS.join(list(v)) for v in ((r.get(c, '') for c in cols) for r in records)]
-    return header + rows + ['']
+    cols_line, *row_lines = row_lines
+    return [f'category: {state}', divider, cols_line, divider, *row_lines]
 
 #==============================================================================#
 
-def column_widths(table):
-    return tuple(max(len(r) for r in col) for col in zip(table))
+def check_none(table):
+    return any(map(lambda r: True if r is None else any(tuple(map(lambda c: c is None, r))), table))
 
 #==============================================================================#
+def pad(s, w):
+    d = w - len(s.strip())
+    return (d//2)*SPACE + s.strip() + (d//2 + d%2)*SPACE
 
-def max_row_len(table, delim=None):
-    delim_len = len(delim)*(len(table[0])-1) if delim else 0
-    return max(tuple(map(lambda r: sum(tuple(map(len, r))), table))) + delim_len
+transpose = lambda m: list(zip(*m))
+widths = lambda t: [max(len(r.strip()) for r in c)+2 for c in transpose(t)]
+pad_all = lambda t: transpose([pad(r, w) for r in c] for c, w in zip(transpose(t), widths(t)))
 
 #==============================================================================#
 
@@ -115,6 +125,14 @@ def make_parser():
     parser.add_argument("-d", "--debug", action='store', default=None, help="debug log")
     return parser
 
+def update(d, t):
+    d[t[0]].append(t[1])
+    return d
+
+def prepend(s, e):
+    s.insert(0, e)
+    return s
+
 #==============================================================================#
 
 def main(args):
@@ -122,15 +140,14 @@ def main(args):
     skipped = [] if args.debug else None
     component = args.component if args.component else Path(args.input).stem if args.input else None
     records = parse_file(args, skipped)
-    lines = ['schema_version: 2.0.0', f'component: {component}', '']
-    for state in set(s for s, _ in records):
-        state_records = [r for s, r in records if s == state]
-        lines.extend(make_output(state, state_records))
+    state_records = reduce(update, records, defaultdict(list))
+    sections = [newline().join(l) for l in (make_output(*sr) for sr in sorted(state_records.items(), key=lambda t: t[0]))]
     with open(args.output, 'w') as f:
-        f.writelines(f'{line}\n' for line in lines)
+        f.write(f'schema_version: 2.0.0{newline()}component: {component}{newline(2)}')
+        f.write(newline(2).join(sections))
     if skipped:
         with open(args.debug, 'w') as f:
-            f.writelines(f'{line}\n' for line in skipped)
+            f.writelines(f'{line}{newline()}' for line in skipped)
 
 # Main
 if __name__ == '__main__':
