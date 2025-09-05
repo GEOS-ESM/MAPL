@@ -12,7 +12,7 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.shared PFLOGGER::pflogger ESMF::ESMF
+  DEPENDENCIES MAPL.shared ESMF::ESMF
   TYPE SHARED
   )
 
