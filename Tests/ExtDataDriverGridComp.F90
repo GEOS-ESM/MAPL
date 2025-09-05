@@ -704,7 +704,7 @@ contains
             clock = this%clock, userrc = status)
        _VERIFY(status)
     end if
-    mem_on_discover = 1
+    mem_on_discover = 0
     if (mem_on_discover==1) then
        call MAPL_MemCommited ( mem_total, mem_commit, mem_percent, RC=STATUS )
        if (this%AmIRoot) write(6,1000) AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S,mem_percent

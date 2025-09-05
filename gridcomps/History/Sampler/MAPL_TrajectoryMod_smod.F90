@@ -522,6 +522,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             end if
          end if
 
+         if (allocated(this%regridder)) deallocate ( this%regridder )
+         if (allocated(this%locstream_factory)) deallocate ( this%locstream_factory )
+         
          do k=1, this%nobs_type
             call this%vdata%append_vertical_metadata(this%obs(k)%metadata,this%bundle,_RC)
          end do
@@ -542,6 +545,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call this%create_grid(_RC)
 
          call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
+         allocate( this%regridder )
          this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)
          this%output_bundle = this%create_new_bundle(_RC)
          this%acc_bundle    = this%create_new_bundle(_RC)
@@ -956,6 +960,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             !
             ! empty shell to keep regridding and destroy_RH_LS to work
             !
+            allocate(this%locstream_factory)
             this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
             this%LS_rt = this%locstream_factory%create_locstream(_RC)
             call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
@@ -1175,6 +1180,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          _VERIFY(ierr)
 
          ! -- root
+         allocate(this%locstream_factory)
          this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
          this%LS_rt = this%locstream_factory%create_locstream(_RC)
 
@@ -1698,6 +1704,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            call this%locstream_factory%destroy_locstream(this%LS_rt, _RC)
            call this%locstream_factory%destroy_locstream(this%LS_ds, _RC)
            call this%regridder%destroy(_RC)
+           deallocate ( this%regridder )
+           deallocate ( this%locstream_factory )
+           
            deallocate (this%lons, this%lats, &
                 this%times_R8, this%obstype_id, this%location_index_ioda, _STAT)
 

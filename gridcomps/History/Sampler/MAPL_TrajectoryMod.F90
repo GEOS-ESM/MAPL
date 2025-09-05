@@ -20,7 +20,7 @@ module HistoryTrajectoryMod
      type(ESMF_LocStream)   :: LS_rt
      type(ESMF_LocStream)   :: LS_ds
      type(ESMF_LocStream)   :: LS_chunk
-     type(LocStreamFactory) :: locstream_factory
+     type(LocStreamFactory), allocatable :: locstream_factory
      type(obs_unit),    allocatable :: obs(:)
      type(ESMF_Time),   allocatable :: times(:)
      real(kind=REAL64), allocatable :: lons(:)
@@ -41,7 +41,7 @@ module HistoryTrajectoryMod
      logical :: do_vertical_regrid
      logical :: write_lev_first
 
-     type(LocstreamRegridder) :: regridder
+     type(LocstreamRegridder), allocatable :: regridder
      type(TimeData)           :: time_info
      type(ESMF_Clock)         :: clock
      type(ESMF_Alarm), public :: alarm
