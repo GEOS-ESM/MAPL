@@ -135,6 +135,7 @@ contains
       call ESMF_TimeGet(time, yy=year, mm=month, dd=day, _RC)
       call ESMF_TimeSet(new_time, yy=year, mm=month, dd=day, h=0, m=0, s=0, _RC)
       new_time=new_time+time_interval
+
       _RETURN(_SUCCESS)
    end function sub_time_in_datetime
 
