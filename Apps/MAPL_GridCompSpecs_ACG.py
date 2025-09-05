@@ -437,8 +437,8 @@ def get_args():
     parser.add_argument("--" + LONGNAME_GLOB_PREFIX, dest=LONGNAME_GLOB_PREFIX,
                         action="store", nargs='?', default=None,
                         help="alternative prefix for long_name substitution")
+    parser.add_argument("--debug", action='store_true', help="report errors and exceptions")
     return parser.parse_args()
-    
 
 # READ_SPECS function
 def read_specs(specs_filename):
@@ -486,60 +486,120 @@ def read_specs(specs_filename):
 
 
 # DIGEST
-def digest(specs, args):
+def digest(specs, args, errors):
     """ Set Option values from parsed specs """
+
+    def digest_spec(spec, errs):
+        """Set Option values for a single parsed specs"""
+        dims = None
+        ungridded = None
+        alias = None
+        option_values = dict() # dict of option values
+        option = Option.STATE
+        option_values[option] = option.emit(category)
+        for column in spec: # for spec emit value
+            column_value = spec[column]
+            option = Option[column.upper()] # use column name to find Option
+             # emit value
+            if type(option.emit) is ParameterizedEmitFunction:
+                option_value = option.emit(column_value, arg_dict)
+            else:
+                option_value = option.emit(column_value)
+            option_values[option] = option_value # add value to dict
+            if option == Option.SHORT_NAME:
+                option_values[Option.MANGLED_NAME] = Option.MANGLED_NAME(column_value)
+                option_values[Option.INTERNAL_NAME] = Option.INTERNAL_NAME(column_value)
+            elif option == Option.DIMS:
+                dims = option_value
+            elif option == Option.UNGRIDDED:
+                ungridded = option_value
+            elif option == Option.ALIAS:
+                alias = Option.ALIAS(column_value)
+        if alias:
+            option_values[Option.INTERNAL_NAME] = alias
+        option = Option.CONFIG
+        option_values[option] = option.emit(option_values.get(Option.FILTER))
+# MANDATORY
+        for option in mandatory_options:
+            option_value = option_values.get(option)
+            if option_value:
+                continue
+#            if option not in option_values:
+                #raise RuntimeError(option.name + " is missing from spec.")
+            name = option_values.get(Option.SHORT_NAME, '[NAME UNKNOWN]')
+            errs.append(f'"{option.name}" for state "{category}" is missing from spec {name}')
+        if errs:
+            return {}
+# END MANDATORY
+
+        option_values[Option.RANK] = compute_rank(dims, ungridded)
+# CHECKS HERE
+        try:
+            check_option_values(option_values)
+        except Exception:
+            raise
+# END CHECKS
+        return option_values
+
     arg_dict = vars(args)
     mandatory_options = Option.get_mandatory_options()
     digested_specs = dict()
-
     for category in specs:
         category_specs = list() # All the specs for the category
         for spec in specs[category]: # spec from list
-            dims = None
-            ungridded = None
-            alias = None
-            option_values = dict() # dict of option values
-            option = Option.STATE
-            option_values[option] = option.emit(category)
-            for column in spec: # for spec emit value
-                column_value = spec[column]
-                option = Option[column.upper()] # use column name to find Option
-                 # emit value
-                if type(option.emit) is ParameterizedEmitFunction:
-                    option_value = option.emit(column_value, arg_dict)
-                else:
-                    option_value = option.emit(column_value)
-                option_values[option] = option_value # add value to dict
-                if option == Option.SHORT_NAME:
-                    option_values[Option.MANGLED_NAME] = Option.MANGLED_NAME(column_value)
-                    option_values[Option.INTERNAL_NAME] = Option.INTERNAL_NAME(column_value)
-                elif option == Option.DIMS:
-                    dims = option_value
-                elif option == Option.UNGRIDDED:
-                    ungridded = option_value
-                elif option == Option.ALIAS:
-                    alias = Option.ALIAS(column_value)
-            if alias:
-                option_values[Option.INTERNAL_NAME] = alias
-            option = Option.CONFIG
-            option_values[option] = option.emit(option_values.get(Option.FILTER))
-# MANDATORY
-            for option in mandatory_options:
-                if option not in option_values:
-                    raise RuntimeError(option.name + " is missing from spec.")
-# END MANDATORY
-            option_values[Option.RANK] = compute_rank(dims, ungridded)
-# CHECKS HERE
-            try:
-                check_option_values(option_values)
-            except Exception:
-                raise
-# END CHECKS
-            category_specs.append(option_values)
+            errs = []
+            option_values = digest_spec(spec, errs)
+#            dims = None
+#            ungridded = None
+#            alias = None
+#            option_values = dict() # dict of option values
+#            option = Option.STATE
+#            option_values[option] = option.emit(category)
+#            for column in spec: # for spec emit value
+#                column_value = spec[column]
+#                option = Option[column.upper()] # use column name to find Option
+#                 # emit value
+#                if type(option.emit) is ParameterizedEmitFunction:
+#                    option_value = option.emit(column_value, arg_dict)
+#                else:
+#                    option_value = option.emit(column_value)
+#                option_values[option] = option_value # add value to dict
+#                if option == Option.SHORT_NAME:
+#                    option_values[Option.MANGLED_NAME] = Option.MANGLED_NAME(column_value)
+#                    option_values[Option.INTERNAL_NAME] = Option.INTERNAL_NAME(column_value)
+#                elif option == Option.DIMS:
+#                    dims = option_value
+#                elif option == Option.UNGRIDDED:
+#                    ungridded = option_value
+#                elif option == Option.ALIAS:
+#                    alias = Option.ALIAS(column_value)
+#            if alias:
+#                option_values[Option.INTERNAL_NAME] = alias
+#            option = Option.CONFIG
+#            option_values[option] = option.emit(option_values.get(Option.FILTER))
+## MANDATORY
+#            for option in mandatory_options:
+#                if option not in option_values:
+#                    #raise RuntimeError(option.name + " is missing from spec.")
+#                    name = option_values.get(Option.SHORT_NAME, '[NAME UNKNOWN]')
+#                    errs.append(f'"{option.name}" for state {category} is missing from spec "{name}"')
+#            if errs:
+#                errors.extend(errs)
+#                continue
+## END MANDATORY
+#            option_values[Option.RANK] = compute_rank(dims, ungridded)
+## CHECKS HERE
+#            try:
+#                check_option_values(option_values)
+#            except Exception:
+#                raise
+## END CHECKS
+            errors.extend(errs)
+            if option_values:
+                category_specs.append(option_values)
         digested_specs[category] = category_specs 
 
     return digested_specs
-    
 
 ################################# EMIT_VALUES ##################################
 def emit_values(specs, args):
@@ -591,6 +651,10 @@ def emit_values(specs, args):
     if f_get_pointers:
         f_get_pointers.close()
 
+def write_errors(errors):
+    if errors:
+        for e in errors:
+            print(e)
 
 #############################################
 # MAIN program begins here
@@ -604,14 +668,13 @@ if __name__ == "__main__":
     parsed_specs = read_specs(args.input)
 
 # Digest specs from file to output structure
-    try:
-        specs = digest(parsed_specs, args)
-
-    except Exception:
-        raise
+    errors = []
+    specs = digest(parsed_specs, args, errors)
 
 # Emit values
     emit_values(specs, args)
+    if args.debug:
+        write_errors(errors)
 
 # FIN
     sys.exit(SUCCESS)
