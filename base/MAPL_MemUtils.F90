@@ -805,7 +805,7 @@ end module MAPL_MemUtilsMod
 
 
 !
-!  Part-II:  verified on Mac only
+!  Part-II:  not fully verified, use with caution
 !
 module quick_mem_usage_mod
   use iso_c_binding
