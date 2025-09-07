@@ -13,7 +13,7 @@ module HistoryTrajectoryMod
   implicit none
 
   private
-
+  
   public :: HistoryTrajectory
   type :: HistoryTrajectory
      private
@@ -97,6 +97,8 @@ module HistoryTrajectoryMod
      module procedure HistoryTrajectory_from_config
   end interface HistoryTrajectory
 
+  integer*8 :: rss_kb, del_rss_kb
+  
   interface
      module function HistoryTrajectory_from_config(config,string,clock,schema_version,GENSTATE,rc) result(traj)
        type(HistoryTrajectory) :: traj

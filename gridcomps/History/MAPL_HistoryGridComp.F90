@@ -60,6 +60,7 @@
   use gFTL_StringStringMap
   !use ESMF_CFIOMOD
   use MAPL_EpochSwathMod
+  use quick_mem_usage_mod
 
   use pflogger, only: Logger, logging
   use mpi
@@ -145,6 +146,8 @@
   integer, parameter :: MAPL_T2G = 2
   integer, parameter :: MAPL_T2G2G = 3
 
+  integer*8 :: rss_kb, del_rss_kb  
+  
   public HISTORY_ExchangeListWrap
 
   type(samplerHQ) :: Hsampler
@@ -3984,16 +3987,26 @@ ENDDO PARSER
       if (list(n)%timeseries_output) then
          call MAPL_TimerOn(GENSTATE,"trajectory")
          call MAPL_TimerOn(GENSTATE,"RegridAccum")
-         call list(n)%trajectory%regrid_accumulate(_RC)
+!!         call list(n)%trajectory%regrid_accumulate(_RC)
          call MAPL_TimerOff(GENSTATE,"RegridAccum")
          if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
             call MAPL_TimerOn(GENSTATE,"AppendFile")
-            call list(n)%trajectory%append_file(current_time,_RC)
+            ! ygyu skip
+            !! call list(n)%trajectory%append_file(current_time,_RC)
             call list(n)%trajectory%close_file_handle(_RC)
             call MAPL_TimerOff(GENSTATE,"AppendFile")
             if ( .not. ESMF_AlarmIsRinging(list(n)%end_alarm) ) then
+               ! ygyu skip
                call MAPL_TimerOn(GENSTATE,"RegenLS")
                call list(n)%trajectory%destroy_rh_regen_LS (_RC)
+
+               call get_memory_usage(rss_kb, del_rss_kb)
+               call list(n)%trajectory%initialize(reinitialize=.true., _RC)
+               call get_memory_usage(rss_kb, del_rss_kb)
+               if (mapl_am_i_root()) then
+                  write(6,'(2x,a, 2i10, 2x, a)') 'bf  call this%initialize, mem/dmem =', rss_kb/1024, del_rss_kb, ' MB/kb'
+               end if
+
                call MAPL_TimerOff(GENSTATE,"RegenLS")
             end if
          end if

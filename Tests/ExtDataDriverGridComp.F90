@@ -18,6 +18,7 @@ module ExtData_DriverGridCompMod
 
   character(*), parameter :: internal_cap_name = "InternalCapGridComp"
   character(*), parameter :: internal_meta_comp_name = "InternalCapMetaComp"
+  integer :: mem_on_discover = 0
 
   public :: ExtData_DriverGridComp
   public :: new_ExtData_DriverGridComp
@@ -431,6 +432,8 @@ contains
        _FAIL("can not run forwards and backwards with specific times")
     end if
 
+    call get_memory_usage_initialize
+    
     _RETURN(ESMF_SUCCESS)
   end subroutine initialize_gc
 
@@ -704,7 +707,6 @@ contains
             clock = this%clock, userrc = status)
        _VERIFY(status)
     end if
-    mem_on_discover = 0
     if (mem_on_discover==1) then
        call MAPL_MemCommited ( mem_total, mem_commit, mem_percent, RC=STATUS )
        if (this%AmIRoot) write(6,1000) AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S,mem_percent

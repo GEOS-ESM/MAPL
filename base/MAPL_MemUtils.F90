@@ -811,6 +811,8 @@ module quick_mem_usage_mod
   use iso_c_binding
   implicit none
 
+  integer(kind=8) :: rss_kb_prev
+  
   ! --- C struct definitions ---
   type, bind(C) :: c_timeval
      integer(c_long) :: tv_sec
@@ -847,10 +849,15 @@ module quick_mem_usage_mod
 
 contains
 
-  subroutine get_memory_usage(rss_kb)
+  subroutine get_memory_usage_initialize
+    rss_kb_prev = 0
+  end subroutine get_memory_usage_initialize
+    
+  subroutine get_memory_usage(rss_kb, del_rss_kb)
     use iso_c_binding
     implicit none
     integer(kind=8), intent(out) :: rss_kb
+    integer(kind=8), optional, intent(out) :: del_rss_kb
     type(c_rusage) :: usage
     integer(c_int) :: ret
 
@@ -862,6 +869,15 @@ contains
     else
        rss_kb = -1
     end if
+    if (present(del_rss_kb)) then
+       if (rss_kb_prev /= 0) then
+          del_rss_kb = rss_kb  - rss_kb_prev
+       else
+          del_rss_kb = rss_kb
+       end if
+    end if
+    rss_kb_prev = rss_kb
   end subroutine get_memory_usage
-
+    
+    
 end module quick_mem_usage_mod

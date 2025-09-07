@@ -20,6 +20,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
   use MAPL_StringTemplate
   use Plain_netCDF_Time
   use MAPL_ObsUtilMod
+  use quick_mem_usage_mod
   use MPI, only : MPI_INTEGER, MPI_REAL, MPI_REAL8
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
@@ -522,9 +523,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             end if
          end if
 
-         if (allocated(this%regridder)) deallocate ( this%regridder )
-         if (allocated(this%locstream_factory)) deallocate ( this%locstream_factory )
-         
          do k=1, this%nobs_type
             call this%vdata%append_vertical_metadata(this%obs(k)%metadata,this%bundle,_RC)
          end do
@@ -542,10 +540,20 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             end if
             _FAIL("obs file not found at init time")
          endif
+
+
+         call get_memory_usage(rss_kb, del_rss_kb)
+         
          call this%create_grid(_RC)
 
+           call get_memory_usage(rss_kb, del_rss_kb)
+           if (mapl_am_i_root()) then
+              write(6,'(2x,a, 2i10, 2x, a)') 'inside init  call this%create_grid, mem/dmem =', rss_kb/1024, del_rss_kb, ' MB/KB'
+           end if
+
+
+         
          call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
-         allocate( this%regridder )
          this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)
          this%output_bundle = this%create_new_bundle(_RC)
          this%acc_bundle    = this%create_new_bundle(_RC)
@@ -960,7 +968,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             !
             ! empty shell to keep regridding and destroy_RH_LS to work
             !
-            allocate(this%locstream_factory)
             this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
             this%LS_rt = this%locstream_factory%create_locstream(_RC)
             call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
@@ -1180,7 +1187,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          _VERIFY(ierr)
 
          ! -- root
-         allocate(this%locstream_factory)
          this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
          this%LS_rt = this%locstream_factory%create_locstream(_RC)
 
@@ -1199,13 +1205,26 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          ptAT(:) = times_R8_chunk(:)
          this%obsTime= -1.d0
 
+
+
          call ESMF_FieldRedistStore (this%fieldA, this%fieldB, RH, _RC)
          call ESMF_FieldRedist      (this%fieldA, this%fieldB, RH, _RC)
 
+
+         call get_memory_usage(rss_kb, del_rss_kb)
          call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
+         call get_memory_usage(rss_kb, del_rss_kb)
+         if (mapl_am_I_root()) then
+            write(6,'(2x,a, 2x, 2I10, 2x, a)')  "ck: create_grid, af  ESMF_FieldRedistRelease,  mem/dmem = ", rss_kb, del_rss_kb, ' KB/KB'
+         end if
+         
          call ESMF_FieldDestroy(this%fieldA,nogarbage=.true.,_RC)
          ! defer destroy fieldB at regen_grid step
          !
+         call get_memory_usage(rss_kb, del_rss_kb)         
+         if (mapl_am_I_root()) then
+            write(6,'(2x,a, 2x, 2I10, 2x, a)')  "ck: create_grid, af   ESMF_FieldDestroy,  mem/dmem = ", rss_kb, del_rss_kb, ' KB/KB'
+         end if
 
          _RETURN(_SUCCESS)
        end procedure create_grid
@@ -1695,7 +1714,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            character(len=ESMF_MAXSTR), allocatable :: names(:)
            type(ESMF_Field) :: field
            type(ESMF_Time)  :: currTime
-
+           integer(kind=8)  :: rss_kb
+           type(ESMF_VM) :: vm
+           integer :: mypet, petcount, mpic, iroot
+           
           if (.NOT. this%active) then
              _RETURN(ESMF_SUCCESS)
           endif
@@ -1704,9 +1726,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            call this%locstream_factory%destroy_locstream(this%LS_rt, _RC)
            call this%locstream_factory%destroy_locstream(this%LS_ds, _RC)
            call this%regridder%destroy(_RC)
-           deallocate ( this%regridder )
-           deallocate ( this%locstream_factory )
-           
            deallocate (this%lons, this%lats, &
                 this%times_R8, this%obstype_id, this%location_index_ioda, _STAT)
 
@@ -1765,8 +1784,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
            this%epoch_index(1:2)=0
 
-           call this%initialize(reinitialize=.true., _RC)
+!!           call this%initialize(reinitialize=.true., _RC)
+           
 
+           call ESMF_VMGetCurrent(vm,_RC)
+           call ESMF_VMGet(vm, mpiCommunicator=mpic, petCount=petCount, localPet=mypet, _RC)
+!           call get_memory_usage(rss_kb)
+!           if (mapl_am_i_root())  print '(A,I3,A,I2,A,I30,A)', 'Rank ', mypet, ' Iter ', 0, ' RSS = ', rss_kb, ' KB'
+           
            _RETURN(ESMF_SUCCESS)
 
          end procedure destroy_rh_regen_LS
