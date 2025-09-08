@@ -247,6 +247,8 @@ add_subdirectory (regridder_mgr)
 add_subdirectory (hconfig)
 add_subdirectory (hconfig_utils)
 
+add_subdirectory (mesh2)
+
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)
   add_subdirectory (pfunit EXCLUDE_FROM_ALL)
