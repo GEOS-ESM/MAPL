@@ -158,7 +158,7 @@ contains
       geom_aspect = to_GeomAspect(other_aspects, _RC)
       typekind_aspect = to_TypekindAspect(other_aspects, _RC)
       units = src%vertical_grid%get_units()
-      
+
       call src%vertical_grid%get_coordinate_field(v_in_field, v_in_coupler, 'ignore', &
            geom_aspect%get_geom(), typekind_aspect%get_typekind(), units, src%vertical_stagger, _RC)
       call dst_%vertical_grid%get_coordinate_field(v_out_field, v_out_coupler, 'ignore', &

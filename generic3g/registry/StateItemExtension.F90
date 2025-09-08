@@ -158,15 +158,14 @@ function add_consumer(this, consumer, rc) result(reference)
             other_aspects => new_spec%get_aspects()
             allocate(transform, source=src_aspect%make_transform(dst_aspect, other_aspects, rc=status))
             _VERIFY(status)
-
             call new_spec%set_aspect(dst_aspect, _RC)
+            call new_spec%create(_RC)
             exit
          end if
 
       end do
 
       if (allocated(transform)) then
-         call new_spec%create(_RC)
          call new_spec%activate(_RC)
          source => this%get_producer()
          coupler_gridcomp = make_coupler(transform, source, _RC)

@@ -13,6 +13,7 @@ module mapl3g_StateItemSpec
    use mapl3g_VerticalGrid
    use mapl_ErrorHandling
    use mapl3g_Field_API
+   use mapl3g_UnitsAspect
    use esmf
    use gftl2_stringvector
    implicit none
@@ -172,8 +173,19 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      class(ClassAspect), pointer :: class_aspect
+      type(UnitsAspect), pointer :: units_aspect
 
       aspect => this%aspects%at(aspect_id, _RC)
+
+      if (this%allocation_status >= STATEITEM_ALLOCATION_CREATED) then
+         class_aspect => to_ClassAspect(this%aspects, _RC)
+         if (aspect_id == UNITS_ASPECT_ID) then
+            units_aspect => to_UnitsAspect(aspect, _RC)
+            call class_aspect%update_units_aspect(units_aspect, _RC)
+         endif
+      end if
+
 
       _RETURN(_SUCCESS)
    end function get_aspect_by_id
@@ -193,6 +205,8 @@ contains
       type(AspectId) :: id
       type(AspectMapIterator) :: iter
       type(AspectPair), pointer :: pair
+      class(ClassAspect), pointer :: class_aspect
+      type(UnitsAspect), pointer :: units_aspect
 
 
       id = aspect%get_aspect_id()
@@ -202,6 +216,14 @@ contains
       allocate(pair%second, source=aspect)
 ! Following line breaks under ifort 2021.13
 !      call this%aspects%insert(aspect%get_aspect_id(), aspect)
+
+      if (this%allocation_status >= STATEITEM_ALLOCATION_CREATED) then
+         class_aspect => to_ClassAspect(this%aspects, _RC)
+         if (id == UNITS_ASPECT_ID) then
+            units_aspect => to_UnitsAspect(aspect, _RC)
+            call class_aspect%update_units_info(units_aspect, _RC)
+         endif
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine set_aspect
@@ -258,7 +280,7 @@ contains
       integer, allocatable :: handle(:)
 
       class_aspect => to_ClassAspect(this%aspects, _RC)
-      call class_aspect%create(make_handle(this), _RC)
+      call class_aspect%create(this%aspects, make_handle(this), _RC)
 
       _RETURN(_SUCCESS)
    contains

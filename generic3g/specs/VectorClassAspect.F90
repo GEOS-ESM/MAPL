@@ -113,8 +113,9 @@ contains
       end select
    end function matches
 
-   subroutine create(this, handle, rc)
+   subroutine create(this, other_aspects, handle, rc)
       class(VectorClassAspect), intent(inout) :: this
+      type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(in) :: handle(:)
       integer, optional, intent(out) :: rc
 
@@ -153,7 +154,7 @@ contains
       type(FieldClassAspect) :: tmp
 
       do i = 1, NUM_COMPONENTS
-         call this%component_specs(i)%create(_RC)
+         call this%component_specs(i)%create(other_aspects, _RC)
          call this%component_specs(i)%allocate(other_aspects, _RC)
          call this%component_specs(i)%add_to_bundle(this%payload, _RC)
       end do

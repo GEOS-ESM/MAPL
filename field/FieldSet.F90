@@ -38,11 +38,16 @@ contains
       integer :: status
       type(ESMF_Info) :: field_info
       type(FieldDelta) :: field_delta
+      type(esmf_FieldStatus_Flag) :: fstatus
 
+      call esmf_FieldGet(field, status=fstatus, _RC)
+      if (fstatus == ESMF_FIELDSTATUS_COMPLETE) then
+         field_delta = FieldDelta(geom=geom, num_levels=num_levels, units=units)
+         call field_delta%update_field(field, _RC)
+      end if
 
-      field_delta = FieldDelta(geom=geom, num_levels=num_levels, units=units)
-      call field_delta%update_field(field, _RC)
-
+      call esmf_InfoGetFromHost(field, field_info, _RC)
+      call FieldInfoSetInternal(field_info, units=units, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine field_set

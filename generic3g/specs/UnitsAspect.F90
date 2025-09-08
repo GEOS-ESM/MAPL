@@ -33,6 +33,7 @@ module mapl3g_UnitsAspect
 
       procedure :: get_units
       procedure :: set_units
+
    end type UnitsAspect
 
    interface UnitsAspect
@@ -130,15 +131,15 @@ contains
    end subroutine connect_to_export
 
    function to_units_from_poly(aspect, rc) result(units_aspect)
-      type(UnitsAspect) :: units_aspect
-      class(StateItemAspect), intent(in) :: aspect
+      type(UnitsAspect), pointer :: units_aspect
+      class(StateItemAspect), target, intent(in) :: aspect
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       select type(aspect)
       class is (UnitsAspect)
-         units_aspect = aspect
+         units_aspect => aspect
       class default
          _FAIL('aspect is not UnitsAspect')
       end select
@@ -147,7 +148,7 @@ contains
    end function to_units_from_poly
 
    function to_units_from_map(map, rc) result(units_aspect)
-      type(UnitsAspect) :: units_aspect
+      type(UnitsAspect), pointer :: units_aspect
       type(AspectMap), target, intent(in) :: map
       integer, optional, intent(out) :: rc
 
@@ -155,7 +156,7 @@ contains
       class(StateItemAspect), pointer :: poly
 
       poly => map%at(UNITS_ASPECT_ID, _RC)
-      units_aspect = to_UnitsAspect(poly, _RC)
+      units_aspect => to_UnitsAspect(poly, _RC)
 
       _RETURN(_SUCCESS)
    end function to_units_from_map

@@ -28,6 +28,9 @@ module mapl3g_ClassAspect
 
       procedure(I_add_to_state), deferred :: add_to_state
       procedure, nopass :: get_aspect_id
+
+      procedure :: update_units_aspect
+      procedure :: update_units_info
    end type ClassAspect
 
    abstract interface
@@ -42,9 +45,11 @@ module mapl3g_ClassAspect
       end function I_get_aspect_order
 
       ! Will use ESMF so cannot be PURE
-      subroutine I_create(this, handle, rc)
+      subroutine I_create(this, other_aspects, handle, rc)
          import ClassAspect
+         import AspectMap
          class(ClassAspect), intent(inout) :: this
+         type(AspectMap), intent(in) :: other_aspects
          integer, optional, intent(in) :: handle(:)
          integer, optional, intent(out) :: rc
       end subroutine I_create
@@ -119,5 +124,34 @@ contains
       type(AspectId) :: aspect_id
       aspect_id = CLASS_ASPECT_ID
    end function get_aspect_id
+
+
+   ! Default implementation - should be overridden by subclasses
+   subroutine update_units_aspect(this, units_aspect, rc)
+      use mapl3g_UnitsAspect
+      class(ClassAspect), intent(inout) :: this
+      type(UnitsAspect), intent(inout) :: units_aspect
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _HERE, 'This procedure should always be overridden.'
+      _RETURN(_SUCCESS)
+
+   end subroutine update_units_aspect
+
+   ! Default implementation - should be overridden by subclasses
+   subroutine update_units_info(this, units_aspect, rc)
+      use mapl3g_UnitsAspect
+      class(ClassAspect), intent(inout) :: this
+      type(UnitsAspect), intent(inout) :: units_aspect
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _HERE, 'This procedure should always be overridden.'
+      _RETURN(_SUCCESS)
+
+   end subroutine update_units_info
 
 end module mapl3g_ClassAspect

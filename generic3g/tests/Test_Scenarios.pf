@@ -539,6 +539,11 @@ contains
             select case(rank)
             case(2)
                call ESMF_FieldGet(field, farrayPtr=x2, _RC)
+               if (.not. all(abs(x2 - expected_field_value) <= tolerance)) then
+                  _HERE, short_name
+                  _HERE, expected_field_value
+                  _HERE, minval(x2), maxval(x2)
+               end if
                @assert_that('value of '//short_name, all(abs(x2 - expected_field_value) <= tolerance), is(true()))
             case(3)
                call ESMF_FieldGet(field, farrayPtr=x3, _RC)
