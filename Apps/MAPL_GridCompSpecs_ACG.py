@@ -11,6 +11,7 @@ from os import linesep
 
 ################################# CONSTANTS####################################
 SUCCESS = 0
+FAILURE = SUCCESS - 1
 CATEGORIES = ("IMPORT","EXPORT","INTERNAL")
 LONGNAME_GLOB_PREFIX = "longname_glob_prefix"
 # constants for logicals
@@ -39,9 +40,9 @@ def make_string_array(s):
     ss = ','.join([add_quotes(s) for s in ls])
     return f"[character(len={n}) :: {ss}]"
 
-def make_entry_emit(dictionary):
-    """ Returns a emit function that looks up the value in dictionary """
-    return lambda key: dictionary[key] if key in dictionary else key if key in dictionary.values() else None
+def make_entry_emit(d):
+    """ Returns a emit function that looks up the value in d """
+    return lambda k: d.get(k, k if k in d.values() else None)
 
 def mangle_name_prefix(name, parameters = None):
     pre = 'comp_name'
@@ -63,8 +64,8 @@ def get_fortran_logical(value_in):
             val_out = FALSE_VALUE
         else:
             raise ValueError("Unrecognized logical: " + value_in)
-    except Exception:
-        raise
+    except Exception as ex:
+        raise RuntimeError(ex)
 
     return val_out
 
@@ -437,6 +438,7 @@ def get_args():
                         action="store", nargs='?', default=None,
                         help="alternative prefix for long_name substitution")
     parser.add_argument("--debug", action='store_true', help="report errors and exceptions")
+    parser.add_argument("--skip-checks", dest='run_checks', action='store_false', help="skip consistency checks")
     return parser.parse_args()
 
 # READ_SPECS function
@@ -488,7 +490,7 @@ def read_specs(specs_filename):
 def digest(specs, args, errors):
     """ Set Option values from parsed specs """
 
-    def digest_spec(spec, errs):
+    def digest_spec(spec, errs, run_checks=True):
         """Set Option values for a single parsed specs"""
         dims = None
         ungridded = None
@@ -518,12 +520,12 @@ def digest(specs, args, errors):
             option_values[Option.INTERNAL_NAME] = alias
         option = Option.CONFIG
         option_values[option] = option.emit(option_values.get(Option.FILTER))
+        name = option_values.get(Option.SHORT_NAME, '[NAME UNKNOWN]')
 # MANDATORY
         for option in mandatory_options:
             option_value = option_values.get(option)
             if option_value:
                 continue
-            name = option_values.get(Option.SHORT_NAME, '[NAME UNKNOWN]')
             errs.append(f'"{option.name}" for state "{category}" is missing from spec {name}')
         if errs:
             return {}
@@ -531,10 +533,11 @@ def digest(specs, args, errors):
 
         option_values[Option.RANK] = compute_rank(dims, ungridded)
 # CHECKS HERE
-#        try:
-#            check_option_values(option_values)
-#        except Exception:
-#            raise
+        if arg_dict['run_checks']:
+            try:
+                check_option_values(option_values)
+            except RuntimeError as ex:
+                raise RuntimeError(f'{name} failed the value checks: {ex}')
 # END CHECKS
         return option_values
 
@@ -545,7 +548,10 @@ def digest(specs, args, errors):
         category_specs = list() # All the specs for the category
         for spec in specs[category]: # spec from list
             errs = []
-            option_values = digest_spec(spec, errs)
+            try:
+                option_values = digest_spec(spec, errs)
+            except RuntimeError as err:
+                raise RuntimeError(f'A RuntimeError occurred while processing state "{category}": {err}') from err
             errors.extend(errs)
             if option_values:
                 category_specs.append(option_values)
@@ -608,6 +614,7 @@ def emit_values(specs, args):
 #############################################
 
 if __name__ == "__main__":
+    rc = FAILURE
 # Process command line arguments
     args = get_args()
 
@@ -616,12 +623,22 @@ if __name__ == "__main__":
 
 # Digest specs from file to output structure
     errors = []
-    specs = digest(parsed_specs, args, errors)
+    try:
+        specs = digest(parsed_specs, args, errors)
+    except RuntimeError as err:
+        print(err)
+        sys.exit(rc)
 
 # Emit values
-    emit_values(specs, args)
+    try:
+        emit_values(specs, args)
+    except Exception as ex:
+        print(f'An Exception occuring while emitting values: {ex}.')
+        sys.exit(rc)
+    else:
+        rc = FAILURE if errors else SUCCESS
+# FIN
     if args.debug and errors:
         print(linesep.join(errors))
 
-# FIN
-    sys.exit(SUCCESS)
+    sys.exit(rc)
