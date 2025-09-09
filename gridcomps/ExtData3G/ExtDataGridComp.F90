@@ -28,7 +28,12 @@ module mapl3g_ExtDataGridComp
    character(*), parameter :: PRIVATE_STATE = "ExtData"
    type :: ExtDataGridComp
       type(PrimaryExportVector) :: export_vector
+      type(integerVector) :: rules_per_export
+      type(integerVector) :: export_id_start
       logical :: has_run_mod_advert = .false.
+      type(StringVector) :: active_items
+      contains
+         procedure :: get_item_index
    end type ExtDataGridComp
 
 contains
@@ -61,16 +66,17 @@ contains
 
       integer :: status
 
-      integer :: rules_for_item
-      type(StringVector) :: active_items
+      integer :: rules_for_item, rule_counter, j, idx
       type(ExtDataConfig) :: config
       type(ESMF_Hconfig) :: hconfig
       type(ESMF_Time) :: current_time
       type(StringVectorIterator) :: iter
       character(len=:), pointer :: item_name
+      character(len=ESMF_MAXSTR) :: full_name
       logical :: has_rule
       type(ExtDataGridComp), pointer :: extdata_gridcomp
       type(PrimaryExport) :: primary_export
+      type(PrimaryExport), pointer :: primary_export_ptr
       class(logger), pointer :: lgr
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
@@ -82,22 +88,33 @@ contains
       call MAPL_GridCompGet(gridcomp, logger=lgr, _RC)
       call ESMF_ClockGet(clock, currTime=current_time, _RC)
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
-      active_items = get_active_items(exportState, _RC)
+      extdata_gridcomp%active_items = get_active_items(exportState, _RC)
       call new_ExtDataConfig_from_yaml(config, hconfig, current_time,  _RC)
-      iter = active_items%ftn_begin()
-      do while (iter /= active_items%ftn_end())
+      rule_counter = 0
+      iter = extdata_gridcomp%active_items%ftn_begin()
+      do while (iter /= extdata_gridcomp%active_items%ftn_end())
          call iter%next()
          item_name => iter%of()
          has_rule = config%has_rule_for(item_name, _RC)
          _ASSERT(has_rule, 'no rule for extdata item: '//item_name)
          rules_for_item = config%count_rules_for_item(item_name, _RC)
-         _ASSERT(rules_for_item == 1, 'only 1 rule per item supported now')
-         primary_export = config%make_PrimaryExport(item_name, _RC)
+         call extdata_gridcomp%export_id_start%push_back(rule_counter+1)
+         call extdata_gridcomp%rules_per_export%push_back(rules_for_item)
+    
+         _ASSERT(rules_for_item > 0, 'item: '//item_name//' has no rule')
+         do j=1,rules_for_item
+            rule_counter = rule_counter + 1
+            full_name = item_name
+            if (rules_for_item > 1) write(full_name,'(A,A1,I0)')trim(item_name),rule_sep,j
+            primary_export = config%make_PrimaryExport(trim(full_name), item_name, _RC)
+            call extdata_gridcomp%export_vector%push_back(primary_export)
+         enddo 
+         idx = extdata_gridcomp%get_item_index(item_name, current_time, _RC)
+         primary_export_ptr => extdata_gridcomp%export_vector%at(idx) 
          call primary_export%complete_export_spec(item_name, exportState, _RC)
-         call extdata_gridcomp%export_vector%push_back(primary_export)
       end do
 
-      call report_active_items(extdata_gridcomp%export_vector, lgr)
+      call report_active_items(extdata_gridcomp%active_items, lgr)
       extdata_gridcomp%has_run_mod_advert = .true. 
 
       _RETURN(_SUCCESS)
@@ -113,23 +130,27 @@ contains
       integer :: status
 
       type(ExtDataGridComp), pointer :: extdata_gridcomp
-      type(PrimaryExportVectorIterator) :: iter
+      type(StringVectorIterator) :: iter
       type(PrimaryExport), pointer :: export_item
       type(ESMF_Time) :: current_time
       real :: weights(3)
       character(len=:), allocatable :: export_name
+      character(len=:), pointer :: base_name
       type(ExtDataReader) :: reader
       class(logger), pointer :: lgr
       type(ESMF_FieldBundle) :: bundle 
+      integer :: idx
 
       call MAPL_GridCompGet(gridcomp, logger=lgr, _RC)
       _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
       call ESMF_ClockGet(clock, currTime=current_time, _RC) 
       call reader%initialize_reader(_RC)
-      iter = extdata_gridcomp%export_vector%ftn_begin()
-      do while (iter /= extdata_gridcomp%export_vector%ftn_end())
+      iter = extdata_gridcomp%active_items%ftn_begin()
+      do while (iter /= extdata_gridcomp%active_items%ftn_end())
          call iter%next()
-         export_item => iter%of() 
+         base_name => iter%of() 
+         idx = extdata_gridcomp%get_item_index(base_name, current_time, _RC)
+         export_item => extdata_gridcomp%export_vector%at(idx) 
          if (export_item%is_constant) cycle
 
          export_name = export_item%get_export_var_name()
@@ -143,6 +164,49 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine run
+
+  function get_item_index(this,base_name,current_time,rc) result(item_index)
+     integer :: item_index
+     class(ExtDataGridComp), intent(in) :: this
+     type(ESMF_Time) :: current_time
+     character(len=*),intent(in) :: base_name
+     integer, optional, intent(out) :: rc
+
+     character(len=:), allocatable :: export_name
+     integer :: i
+     integer, pointer :: num_rules,i_start
+     logical :: found
+     type(PrimaryExport), pointer :: item
+
+     found = .false.
+     do i=1,this%export_vector%size()
+        item => this%export_vector%at(i)
+        export_name = item%get_export_var_name()
+        if (export_name == base_name) then
+           found = .true.
+           i_start => this%export_id_start%at(i)
+           num_rules => this%rules_per_export%at(i)
+           exit
+        end if
+     enddo
+     _ASSERT(found,"ExtData no item with basename '"//TRIM(base_name)//"' found")
+
+     item_index = -1
+     if (num_rules == 1) then
+        item_index = i_start
+     else if (num_rules > 1) then
+        do i=1,num_rules
+           item => this%export_vector%at(i_start+i-1)
+           if (current_time >= item%start_and_end(1) .and. &
+               current_time <  item%start_and_end(2)) then
+              item_index = i_start + i -1
+              exit
+           endif
+        enddo
+     end if
+     _ASSERT(item_index/=-1,"ExtData did not find item index for basename "//TRIM(base_name))
+     _RETURN(_SUCCESS)
+  end function get_item_index
 
 end module mapl3g_ExtDataGridComp
 

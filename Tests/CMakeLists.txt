@@ -22,7 +22,7 @@ if (BUILD_WITH_FARGPARSE)
   target_link_libraries (ExtDataDriver.x PRIVATE MAPL MAPL.test_utilities FARGPARSE::fargparse ESMF::ESMF OpenMP::OpenMP_Fortran)
   set_target_properties(ExtDataDriver.x PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
   target_compile_definitions (ExtDataDriver.x PRIVATE $<$<BOOL:${USE_EXTDATA2G}>:BUILD_WITH_EXTDATA2G>)
-  #add_subdirectory(ExtData_Testing_Framework EXCLUDE_FROM_ALL)
+  add_subdirectory(ExtData_Testing_Framework EXCLUDE_FROM_ALL)
 
   # ExtDataDriver.x is needed for 'make tests'
   add_dependencies(build-tests ExtDataDriver.x)
