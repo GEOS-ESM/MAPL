@@ -1,5 +1,7 @@
 cmake_minimum_required (VERSION 3.24)
 
+# This is a comment to trigger CI
+
 get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(NOT is_multi_config AND NOT (CMAKE_BUILD_TYPE OR DEFINED ENV{CMAKE_BUILD_TYPE}))
   message (STATUS "Setting build type to 'Release' as none was specified.")
