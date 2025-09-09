@@ -1,7 +1,5 @@
 # MAPL Repository
 
-This is a random edit
-
 [![GEOS-ESM](https://circleci.com/gh/GEOS-ESM/MAPL.svg?style=svg)](https://app.circleci.com/pipelines/github/GEOS-ESM/MAPL)
 
 [![DOI](https://zenodo.org/badge/195083467.svg)](https://zenodo.org/badge/latestdoi/195083467)
