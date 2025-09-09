@@ -21,7 +21,6 @@ jobs:
     name: Spack CI GCC Build
     runs-on: ubuntu-24.04
     steps:
-
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
@@ -70,9 +69,8 @@ jobs:
         shell: spack-bash {0}
         run: |
           spack -e spack-env mirror add geos-buildcache oci://ghcr.io/GEOS-ESM/geos-buildcache
-          spack -e spack-env mirror set --oci-username ${{ github.actor }} --oci-password "${{ secrets.BUILDCACHE_TOKEN }}" geos-buildcache
+          spack -e spack-env mirror set --oci-username-variable "${{ secrets.BUILDCACHE_USERNAME }}" --oci-password-variable "${{ secrets.BUILDCACHE_TOKEN }}" geos-buildcache
           spack -e spack-env mirror list
-          spack -e spack-env buildcache update-index geos-buildcache
           spack -e spack-env buildcache list --allarch
 
       - name: Concretize
