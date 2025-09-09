@@ -72,6 +72,7 @@ contains
       type(ESMF_Time) :: current_time
       type(StringVectorIterator) :: iter
       character(len=:), pointer :: item_name
+      character(len=:), allocatable :: full_name
       logical :: has_rule
       type(ExtDataGridComp), pointer :: extdata_gridcomp
       type(PrimaryExport) :: primary_export
@@ -106,7 +107,8 @@ contains
             do j=1,rules_for_item
                rule_counter = rule_counter + 1
                write(sidx, '(I1)')j
-               primary_export = config%make_PrimaryExport(item_name, item_name, _RC)
+               full_name = item_name//rule_sep//sidx       
+               primary_export = config%make_PrimaryExport(full_name, item_name, _RC)
                call extdata_gridcomp%export_vector%push_back(primary_export)
             enddo 
          else if (rules_for_item == 1) then

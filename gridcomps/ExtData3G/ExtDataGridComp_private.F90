@@ -28,7 +28,7 @@ contains
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
-      logical :: is_seq, file_found
+      logical :: is_seq, file_found, is_map
       integer :: status, i
       character(len=:), allocatable :: sub_configs(:)
       type(ESMF_HConfig) :: sub_config, export_config, temp_config
@@ -54,12 +54,19 @@ contains
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             short_name = ESMF_HConfigAsStringMapKey(hconfigIter, _RC)
             temp_config = ESMF_HConfigCreateAtMapVal(hconfigIter, _RC)
-            collection_name = ESMF_HConfigAsString(temp_config, keyString='collection', _RC)
-            if (collection_name == "/dev/null") then
-               str_const = get_constant(temp_config, _RC)
-               varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name, &
-               itemType=MAPL_STATEITEM_EXPRESSION, expression=str_const, units="<unknown>", &
-               _RC)
+            is_map =ESMF_HConfigIsMap(temp_config, _RC)
+            if (is_map) then
+               collection_name = ESMF_HConfigAsString(temp_config, keyString='collection', _RC)
+               if (collection_name == "/dev/null") then
+                  str_const = get_constant(temp_config, _RC)
+                  varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name, &
+                  itemType=MAPL_STATEITEM_EXPRESSION, expression=str_const, units="<unknown>", &
+                  _RC)
+               else
+                  varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name, &
+                  itemType=MAPL_STATEITEM_BRACKET, bracket_size = 2, &
+                  _RC)
+               end if
             else
                varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name, &
                itemType=MAPL_STATEITEM_BRACKET, bracket_size = 2, &

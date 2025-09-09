@@ -25,6 +25,7 @@ module mapl3g_ExtDataConfig
    public ExtDataConfig
    public new_ExtDataConfig_from_yaml
    public make_PrimaryExport
+   public rule_sep
 
    character(len=1), parameter :: rule_sep = "+"
 
