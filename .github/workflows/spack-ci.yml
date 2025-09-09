@@ -20,11 +20,6 @@ jobs:
   build:
     name: Spack CI GCC Build
     runs-on: ubuntu-24.04
-    env:
-      # expose credentials via env vars (Spack will read these)
-      GITHUB_USER: ${{ github.actor }}
-      BUILDCACHE_TOKEN: ${{ secrets.BUILDCACHE_TOKEN }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -70,18 +65,11 @@ jobs:
           spack env create spack-env
           spack env activate spack-env
 
-      - name: Configure buildcache mirror (env-backed creds)
+      - name: Login
         shell: spack-bash {0}
         run: |
-          # If you previously added the mirror, remove it to avoid stale config
-          spack -e spack-env mirror remove geos-buildcache || true
-
-          # Define mirror and wire credentials to env vars (no plaintext in config)
-          spack -e spack-env config add "mirrors:geos-buildcache:url:oci://ghcr.io/GEOS-ESM/geos-buildcache"
-          spack -e spack-env config add "mirrors:geos-buildcache:binary:true"
-          spack -e spack-env config add "mirrors:geos-buildcache:access_pair:id_variable:GITHUB_USER"
-          spack -e spack-env config add "mirrors:geos-buildcache:access_pair:secret_variable:BUILDCACHE_TOKEN"
-
+          spack -e spack-env mirror add geos-buildcache oci://ghcr.io/GEOS-ESM/geos-buildcache
+          spack -e spack-env mirror set --oci-username ${{ github.actor }} --oci-password-variable "${{ secrets.BUILDCACHE_TOKEN }}" geos-buildcache
           spack -e spack-env mirror list
           spack -e spack-env buildcache update-index geos-buildcache
           spack -e spack-env buildcache list --allarch
