@@ -13,6 +13,7 @@ module MockAspect_mod
    use mapl3g_ClassAspect
    use mapl3g_NullTransform
    use mapl3g_MultiState
+   use mapl3g_UnitsAspect
    use mapl3g_VirtualConnectionPtVector
    use mapl_ErrorHandling
    use esmf
@@ -25,6 +26,8 @@ module MockAspect_mod
    type, extends(ClassAspect) :: MockAspect
       integer :: value = -1
       logical :: supports_conversion_ = .false.
+
+      character(:), allocatable :: internal_units
    contains
       procedure :: matches
       procedure :: make_transform
@@ -41,6 +44,10 @@ module MockAspect_mod
       procedure :: get_aspect_order
       
       procedure, nopass :: get_aspect_id
+
+      procedure :: update_units_aspect
+      procedure :: update_units_info
+
    end type MockAspect
 
    interface MockAspect
@@ -96,7 +103,6 @@ contains
 
       mock_aspect = MockAspect(value, mirror_, time_dependent_, supports_conversion_)
       call aspects%insert(CLASS_ASPECT_ID, mock_aspect)
-
 
    end function MockItemSpec
 
@@ -263,6 +269,47 @@ contains
       type(AspectId) :: aspect_id
       aspect_id = CLASS_ASPECT_ID
    end function get_aspect_id
+
+   subroutine update_units_aspect(this, units_aspect, rc)
+      class(MockAspect), intent(inout) :: this
+      type(UnitsAspect), intent(inout) :: units_aspect
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: units
+
+      units = '<MIRROR>'
+      if (allocated(this%internal_units)) then
+         units = this%internal_units
+      end if
+
+      if (units == '<MIRROR>') then
+         call units_aspect%set_mirror(.true.)
+      else
+         call units_aspect%set_units(units, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine update_units_aspect
+
+   subroutine update_units_info(this, units_aspect, rc)
+      class(MockAspect), intent(inout) :: this
+      type(UnitsAspect), intent(inout) :: units_aspect
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: units
+
+      if (units_aspect%is_mirror()) then
+         units = '<MIRROR>'
+      else
+         units = units_aspect%get_units(_RC)
+      end if
+
+      this%internal_units = units
+
+      _RETURN(_SUCCESS)
+   end subroutine update_units_info
 
 
 end module MockAspect_mod

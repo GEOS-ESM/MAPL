@@ -7,6 +7,7 @@ module mapl3g_WildcardClassAspect
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_ClassAspect
+   use mapl3g_UnitsAspect
    use mapl3g_FieldClassAspect
    use mapl3g_ExtensionTransform
    use mapl3g_NullTransform
@@ -36,6 +37,8 @@ module mapl3g_WildcardClassAspect
       procedure :: destroy
       procedure :: add_to_state
  
+      procedure :: update_units_aspect
+      procedure :: update_units_info
    end type WildcardClassAspect
 
    interface WildcardClassAspect
@@ -231,5 +234,27 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
- 
+
+   ! Wildcard cannot be modified, so aspects are always up to date.
+   subroutine update_units_aspect(this, units_aspect, rc)
+      class(WildcardClassAspect), intent(inout) :: this
+      type(UnitsAspect), intent(inout) :: units_aspect
+      integer, optional, intent(out) :: rc
+
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(units_aspect)
+   end subroutine update_units_aspect
+
+   subroutine update_units_info(this, units_aspect, rc)
+      class(WildcardClassAspect), intent(inout) :: this
+      type(UnitsAspect), intent(inout) :: units_aspect
+      integer, optional, intent(out) :: rc
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(units_aspect)
+   end subroutine update_units_info
+
 end module mapl3g_WildcardClassAspect

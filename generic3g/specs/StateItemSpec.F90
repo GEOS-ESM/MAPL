@@ -179,6 +179,7 @@ contains
       aspect => this%aspects%at(aspect_id, _RC)
 
       if (this%allocation_status >= STATEITEM_ALLOCATION_CREATED) then
+         _ASSERT(this%aspects%count(CLASS_ASPECT_ID) > 0, 'Must have a ClassAspect')
          class_aspect => to_ClassAspect(this%aspects, _RC)
          if (aspect_id == UNITS_ASPECT_ID) then
             units_aspect => to_UnitsAspect(aspect, _RC)

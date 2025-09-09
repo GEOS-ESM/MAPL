@@ -135,7 +135,7 @@ contains
 
       integer :: status
 
-      _HERE, 'This procedure should always be overridden.'
+      _FAIL('This procedure should always be overridden.')
       _RETURN(_SUCCESS)
 
    end subroutine update_units_aspect
@@ -149,7 +149,7 @@ contains
 
       integer :: status
 
-      _HERE, 'This procedure should always be overridden.'
+      _FAIL('This procedure should always be overridden.')
       _RETURN(_SUCCESS)
 
    end subroutine update_units_info

@@ -65,6 +65,9 @@ module mapl3g_VectorClassAspect
 
       procedure :: get_payload
       procedure, nopass :: get_aspect_id
+
+      procedure :: update_units_aspect
+      procedure :: update_units_info
    end type VectorClassAspect
 
    interface VectorClassAspect
@@ -121,10 +124,15 @@ contains
 
       integer :: status
       type(ESMF_Info) :: info
+      type(UnitsAspect), pointer :: units_aspect
+      character(:), allocatable :: units
 
       this%payload = MAPL_FieldBundleCreate(fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
       _RETURN_UNLESS(present(handle))
       
+      units_aspect => to_UnitsAspect(other_aspects, _RC)
+      call update_units_info(this, units_aspect, _RC)
+
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
       call FieldBundleInfoSetInternal(info, spec_handle=handle, _RC)
       call MAPL_FieldBundleSet(this%payload, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
@@ -337,4 +345,40 @@ contains
       aspect_id = CLASS_ASPECT_ID
    end function get_aspect_id
 
+   subroutine update_units_aspect(this, units_aspect, rc)
+      class(VectorClassAspect), intent(inout) :: this
+      type(UnitsAspect), intent(inout) :: units_aspect
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: units
+
+      call mapl_FieldBundleGet(this%payload, units=units, _RC)
+      if (units == '<MIRROR>') then
+         call units_aspect%set_mirror(.true.)
+      else
+         call units_aspect%set_units(units, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine update_units_aspect
+
+   subroutine update_units_info(this, units_aspect, rc)
+      class(VectorClassAspect), intent(inout) :: this
+      type(UnitsAspect), intent(inout) :: units_aspect
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: units
+
+      if (units_aspect%is_mirror()) then
+         units = '<MIRROR>'
+      else
+         units = units_aspect%get_units(_RC)
+      end if
+
+      call mapl_FieldBundleSet(this%payload, units=units, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine update_units_info
 end module mapl3g_VectorClassAspect
