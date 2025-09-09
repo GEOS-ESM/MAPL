@@ -72,13 +72,12 @@ contains
       type(ESMF_Time) :: current_time
       type(StringVectorIterator) :: iter
       character(len=:), pointer :: item_name
-      character(len=:), allocatable :: full_name
+      character(len=ESMF_MAXSTR) :: full_name
       logical :: has_rule
       type(ExtDataGridComp), pointer :: extdata_gridcomp
       type(PrimaryExport) :: primary_export
       type(PrimaryExport), pointer :: primary_export_ptr
       class(logger), pointer :: lgr
-      character(len=1) :: sidx
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
 
@@ -103,19 +102,13 @@ contains
          call extdata_gridcomp%rules_per_export%push_back(rules_for_item)
     
          _ASSERT(rules_for_item > 0, 'item: '//item_name//' has no rule')
-         if (rules_for_item > 1) then
-            do j=1,rules_for_item
-               rule_counter = rule_counter + 1
-               write(sidx, '(I1)')j
-               full_name = item_name//rule_sep//sidx       
-               primary_export = config%make_PrimaryExport(full_name, item_name, _RC)
-               call extdata_gridcomp%export_vector%push_back(primary_export)
-            enddo 
-         else if (rules_for_item == 1) then
+         do j=1,rules_for_item
             rule_counter = rule_counter + 1
-            primary_export = config%make_PrimaryExport(item_name, item_name, _RC)
+            full_name = item_name
+            if (rules_for_item > 1) write(full_name,'(A,A1,I0)')trim(item_name),rule_sep,j
+            primary_export = config%make_PrimaryExport(trim(full_name), item_name, _RC)
             call extdata_gridcomp%export_vector%push_back(primary_export)
-         end if
+         enddo 
          idx = extdata_gridcomp%get_item_index(item_name, current_time, _RC)
          primary_export_ptr => extdata_gridcomp%export_vector%at(idx) 
          call primary_export%complete_export_spec(item_name, exportState, _RC)
