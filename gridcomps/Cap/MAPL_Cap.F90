@@ -478,6 +478,12 @@ contains
       integer :: npes_world
       logical :: halting_mode(5)
 
+      logical :: set_halting_allowed = ieee_support_halting(ieee_invalid) .and. &
+         ieee_support_halting(ieee_overflow) .and. &
+         ieee_support_halting(ieee_divide_by_zero) .and. &
+         ieee_support_halting(ieee_underflow) .and. &
+         ieee_support_halting(ieee_inexact)
+
       _UNUSED_DUMMY(unusable)
 
       call MPI_Initialized(this%mpi_already_initialized, ierror)
@@ -488,12 +494,20 @@ contains
 
          ! Testing with GCC 14 + MVAPICH 4 found that it was failing with
          ! a SIGFPE in MPI_Init_thread(). Turning off ieee halting
-         ! around the call seems to "fix" it
-         call ieee_get_halting_mode(ieee_all, halting_mode)
-         call ieee_set_halting_mode(ieee_all, .false.)
+         ! around the call seems to "fix" it.
+
+         ! NOTE: The test is that with NAG on Arm macOS, halting is
+         ! not supported properly, so we check if halting is allowed via
+         ! set_halting_allowed constant defined above.
+         if (set_halting_allowed) then
+            call ieee_get_halting_mode(ieee_all, halting_mode)
+            call ieee_set_halting_mode(ieee_all, .false.)
+         end if
          call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierror)
          _VERIFY(ierror)
-         call ieee_set_halting_mode(ieee_all, halting_mode)
+         if (set_halting_allowed) then
+            call ieee_set_halting_mode(ieee_all, halting_mode)
+         end if
 
       else
          ! If we are here, then MPI has already been initialized by the user
