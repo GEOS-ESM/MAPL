@@ -127,6 +127,8 @@ contains
       character(len=128) :: current_file
       type(ESMF_Time), allocatable :: esmf_time_vector(:)
       class(logger), pointer :: lgr
+      character(len=*), parameter :: isostring = '1999-12-31T23:29:59'
+      character(len=len(isostring)) :: time_string
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
       call ESMF_GridCompGet(gridcomp, name=name, _RC)
@@ -166,7 +168,8 @@ contains
       call collection_gridcomp%writer%stage_time_to_file(collection_gridcomp%current_file, collection_gridcomp%real_time_vector,  _RC)
       call collection_gridcomp%writer%stage_data_to_file(collection_gridcomp%output_bundle, collection_gridcomp%current_file, time_index, _RC)
 
-      call lgr%info('History writing file '//collection_gridcomp%current_file)
+      call ESMF_TimeGet(current_time, timeString=time_string, _RC)
+      call lgr%info('History writing file '//collection_gridcomp%current_file//' at '//time_string)
       _RETURN(_SUCCESS)
 
    end subroutine run

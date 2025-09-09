@@ -1,0 +1,23 @@
+shift_back: false
+geoms:
+  geom1: &geom1
+    class: latlon
+    im_world: 13
+    jm_world: 9
+    pole: PC
+    dateline: DC
+
+active_collections:
+  - test2
+
+time_specs:
+  three_hour: &one_hour
+    frequency: PT24H
+
+collections:
+  test2:
+    template: "%c.nc4"
+    geom: *geom1
+    time_spec: *one_hour
+    var_list:
+      E_1: {expr: E_1}
