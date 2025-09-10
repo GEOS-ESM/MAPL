@@ -106,7 +106,6 @@ type MAPL_LocStreamType
    integer,                  pointer  :: GLOBAL_Id(:)           =>null() !! All Location Ids in file order
    integer,                  pointer  :: LOCAL_Id (:)           =>null() !! Location Ids on local PE
    integer,                  pointer  :: pfaf_index(:)          =>null() !! tile's pfaf index
-   integer,                  pointer  :: global_pfaf_index(:)   =>null() !! global tile's pfaf index temporary holders
    type(MAPL_GeoLocation),   pointer  :: Global_GeoLocation  (:)=>null() !! All GeoLocations
 !C   type(MAPL_IndexLocation), pointer  :: Global_IndexLocation(:)=>null() !C All IndexLocations for attach grid
    type(MAPL_GeoLocation),   pointer  :: Local_GeoLocation   (:)=>null() !! GeoLocations on local PE
@@ -114,7 +113,6 @@ type MAPL_LocStreamType
    type(MAPL_Tiling),        pointer  :: Tiling(:)              =>null() !! Grid associated tilings
    real,                     pointer  :: D(:,:,:)=>null()                !! Bilinear weights
    logical                            :: IsTileAreaValid
-   integer                            :: pfafstetter_catchments
 end type MAPL_LocStreamType
 
 type MAPL_LocStreamXformType
@@ -331,7 +329,7 @@ contains
 ! later in various ways. Currently we only decompose it by
 ! "attaching" it to a decomposed grid.
 !
-  subroutine MAPL_LocStreamCreateFromFile(LocStream, LAYOUT, FILENAME, NAME, MASK, GRID, NewGridNames, use_pfaf, RC)
+  subroutine MAPL_LocStreamCreateFromFile(LocStream, LAYOUT, FILENAME, NAME, MASK, GRID, NewGridNames, RC)
 
     !ARGUMENTS:
     type(MAPL_LocStream),                 intent(  OUT) :: LocStream
@@ -341,7 +339,6 @@ contains
     integer,                    optional, intent(IN   ) :: MASK(:)
     type(ESMF_Grid), optional,            intent(INout) :: GRID
     logical,                    optional, intent(IN   ) :: NewGridNames
-    logical,                    optional, intent(In   ) :: use_pfaf
     integer,                    optional, intent(  OUT) :: RC
 
 ! Local variables
@@ -371,7 +368,7 @@ contains
     type (ESMF_VM)                    :: vm
     logical                           :: NewGridNames_
     integer                           :: hdr(2)
-    integer, allocatable              :: pfaf_index(:)
+    integer, allocatable              :: pfaf_index(:), global_pfaf_index(:)
     real,    allocatable              :: tile_area(:)
     real                              :: cell_area
 #ifdef NEW_INTERP_CODE
@@ -381,7 +378,6 @@ contains
     real, pointer     :: lons(:,:), lats(:,:)
     real, allocatable :: hlons(:,:), hlats(:,:)
 #endif
-    logical :: use_pfaf_
 
 ! Begin
 !------
@@ -389,11 +385,6 @@ contains
     NewGridNames_ = .false.
     if (present(NewGridNames)) then
        NewGridNames_ = NewGridNames
-    end if
-    if (present(use_pfaf)) then
-       use_pfaf_=use_pfaf
-    else
-       use_pfaf_=.false.
     end if
 
 ! Allocate the Location Stream
@@ -428,17 +419,13 @@ contains
 
        if (isnc4) then
           if (MAPL_AM_I_root()) then
-            call MAPL_ReadTilingNC4(FILENAME, GridName=GridNames, IM=IMs, JM=JMs, N_Grids=N_Grids, N_PfafCat=N_PfafCat, AVR=AVR, _RC)
+            call MAPL_ReadTilingNC4(FILENAME, GridName=GridNames, IM=IMs, JM=JMs, N_Grids=N_Grids, AVR=AVR, _RC)
             NT = size(AVR,1)
           endif
           call MAPL_CommsBcast(layout, NT,        1,    MAPL_Root, status)
           call MAPL_CommsBcast(layout, N_Grids,   1,    MAPL_Root, status)
           call MAPL_CommsBcast(layout, IMs,       2,    MAPL_Root, status)
           call MAPL_CommsBcast(layout, JMs,       2,    MAPL_Root, status)
-
-          if (use_pfaf_) then
-            call MAPL_CommsBcast(layout, N_PfafCat, 1,    MAPL_Root, status)
-          endif
 
           do N = 1, N_Grids
             call MAPL_CommsBcast(layout, GridNames(N), MAPL_TileNameLength, MAPL_Root, status)
@@ -468,12 +455,6 @@ contains
           STREAM%TILING(N)%IM   = IMs(N)
           STREAM%TILING(N)%JM   = JMs(N)
        enddo
-       if (use_pfaf_) then
-          stream%pfafstetter_catchments = N_PfafCat
-          STREAM%TILING(2)%IM = stream%pfafstetter_catchments
-          STREAM%TILING(2)%JM = 1
-          STREAM%TILING(2)%name = "CATCHMENT_GRID"
-       end if
 
        allocate(tile_area(NT))
        allocate(pfaf_index(NT))
@@ -490,10 +471,6 @@ contains
          pfaf_index = int(AVR(:,9))
        endif
      
-       !if (use_pfaf_) then
-          !AVR(:,NumGlobalVars+2+NumLocalVars) = 1
-       !end if
-
 
 ! Allocate msk for which tiles to include in the stream being created.
 !--------------------------------------------------------------------
@@ -541,13 +518,8 @@ contains
                    if(MSK(I)) then
                       K = K + 1
                       II = nint(AVR(I,NumGlobalVars+1+NumLocalVars*(N-1)))
-                      if (use_pfaf_ .and. (n==2)) then
-                         !JJ = nint(AVR(I,NumGlobalVars+2+NumLocalVars*(N-1)))
-                         JJ = 1
-                      else
-                         JJ = nint(AVR(I,NumGlobalVars+2+NumLocalVars*(N-1)))
-                         !JJ=1
-                      end if
+                      JJ = nint(AVR(I,NumGlobalVars+2+NumLocalVars*(N-1)))
+
                       ISMINE(K) = I1<=II .and. IN>=II .and. &
                                   J1<=JJ .and. JN>=JJ
                    endif
@@ -586,7 +558,7 @@ contains
        _VERIFY(STATUS)
        allocate(STREAM%GLOBAL_GEOLOCATION(STREAM%NT_GLOBAL), STAT=STATUS)
        _VERIFY(STATUS)
-       allocate(STREAM%global_pfaf_index(STREAM%NT_GLOBAL), STAT=STATUS)
+       allocate(global_pfaf_index(STREAM%NT_GLOBAL), STAT=STATUS)
        _VERIFY(STATUS)
 
 !C       do N=1,STREAM%N_GRIDS
@@ -608,7 +580,7 @@ contains
              STREAM%GLOBAL_GeoLocation(K)%A =      tile_area(I)
              STREAM%GLOBAL_GeoLocation(K)%X =      AVR(I,3) * (MAPL_PI/180.)
              STREAM%GLOBAL_GeoLocation(K)%Y =      AVR(I,4) * (MAPL_PI/180.)
-             STREAM%global_pfaf_index(K)    =      pfaf_index(I)
+             global_pfaf_index(K)           =      pfaf_index(I)
              
 !C             X = AVR(I,3)
 !C             Y = AVR(I,4)
@@ -633,14 +605,8 @@ contains
 
 ! Total number of tiles in exchange grid
 !---------------------------------------
-       if (use_pfaf_) then
-          if ( MAPL_am_I_root() ) read(UNIT) NT,stream%pfafstetter_catchments
-          call MAPL_CommsBcast(vm, DATA=NT, N=1, ROOT=0, RC=status)
-          call MAPL_CommsBcast(vm, DATA=stream%pfafstetter_catchments, N=1, ROOT=0, RC=status)
-       else
-          if ( MAPL_am_I_root() ) read(UNIT) NT
-          call MAPL_CommsBcast(vm, DATA=NT, N=1, ROOT=0, RC=status)
-       end if
+       if ( MAPL_am_I_root() ) read(UNIT) NT
+       call MAPL_CommsBcast(vm, DATA=NT, N=1, ROOT=0, RC=status)
 
 ! Number of grids that can be attached
 !-------------------------------------
@@ -670,11 +636,6 @@ contains
           call MAPL_CommsBcast(vm, DATA=STREAM%TILING(N)%IM, N=1, ROOT=0, RC=status)
           call MAPL_CommsBcast(vm, DATA=STREAM%TILING(N)%JM, N=1, ROOT=0, RC=status)
        enddo
-       if (use_pfaf_) then
-          STREAM%TILING(2)%IM = stream%pfafstetter_catchments
-          STREAM%TILING(2)%JM = 1
-          STREAM%TILING(2)%name = "CATCHMENT_GRID"
-       end if
 
 ! Read location stream file into AVR
 !---------------------------------------
@@ -749,7 +710,6 @@ contains
                 call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
                 if ( MAPL_am_I_root() ) read(UNIT) AVR
                 call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
-                !if (use_pfaf_) avr(:,1)=1
                 K = 0
                 do I=1, NT
                    if(MSK(I)) then
@@ -814,7 +774,6 @@ contains
              call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
              K = 0
              L = 0
-             !if (use_pfaf_) avr(:,1)=1
              do I=1, NT
                 if(MSK(I)) then
                    K = K + 1
@@ -978,20 +937,20 @@ contains
 
        DEALOC__(MSK)
        DEALOC_(AVR)
-    else  ! .not.isascii
+    else  ! .not. binary
        if(present(GRID)) then
           STREAM%LOCAL_GeoLocation   = pack(STREAM%GLOBAL_GeoLocation,  ISMINE)
           STREAM%LOCAL_ID            = pack(STREAM%GLOBAL_ID,           ISMINE)
-          STREAM%pfaf_index          = pack(STREAM%GLOBAL_pfaf_index,   ISMINE)
+          STREAM%pfaf_index          = pack(GLOBAL_pfaf_index,          ISMINE)
 
           deallocate(STREAM%GLOBAL_GeoLocation)
           deallocate(Stream%Global_id)
-          deallocate(Stream%Global_pfaf_index)
+          deallocate(Global_pfaf_index)
        end if
     endif
 
 
-    if(present(Grid) .and. (.not.use_pfaf_)) then ! A grid was attached
+    if(present(Grid)) then ! A grid was attached
        deallocate(ISMINE)
 
        DoCoeffs = .true.
