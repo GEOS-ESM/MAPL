@@ -106,6 +106,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated the default `VERSION` in History to `1` (which has been the effective default in `HISTORY.rc` for some time)
 - Update `components.yaml`
   - `ESMA_env` v5.13.0
     - Update to Baselibs 8.18.0
