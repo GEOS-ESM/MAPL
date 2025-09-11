@@ -99,6 +99,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.60.0] - 2025-09-11
+
+### Fixed
+
 - Fix NRL Solar Constant read routine for cycle-Cycle24 option
 - Change a few keyword names in sampler for consistency with HISTORY
 - Fixes for NVHPC: Move some subroutines in `MAPL_MaskMod` from submodule to module
@@ -124,11 +136,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Add `FindISSM.cmake`
 - Update CI to use Baselibs 8.18.0
 - Allow row lookups to return key if key in values (ACG2)
-
-### Removed
-
-### Deprecated
-
 ## [2.59.0] - 2025-08-06
 
 ### Fixed
