@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix NRL Solar Constant read routine for cycle-Cycle24 option
 - Change a few keyword names in sampler for consistency with HISTORY
 - Fixes for NVHPC: Move some subroutines in `MAPL_MaskMod` from submodule to module
 - Fix for NAG + macOS Arm which does not support IEEE halting properly
