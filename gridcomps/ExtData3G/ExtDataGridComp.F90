@@ -32,6 +32,7 @@ module mapl3g_ExtDataGridComp
       type(integerVector) :: export_id_start
       logical :: has_run_mod_advert = .false.
       type(StringVector) :: active_items
+      type(StringIntegerMap) :: last_item
       contains
          procedure :: get_item_index
    end type ExtDataGridComp
@@ -78,6 +79,7 @@ contains
       type(PrimaryExport) :: primary_export
       type(PrimaryExport), pointer :: primary_export_ptr
       class(logger), pointer :: lgr
+      integer, pointer :: last_index
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
 
@@ -111,7 +113,8 @@ contains
          enddo 
          idx = extdata_gridcomp%get_item_index(item_name, current_time, _RC)
          primary_export_ptr => extdata_gridcomp%export_vector%at(idx) 
-         call primary_export%complete_export_spec(item_name, exportState, _RC)
+         call primary_export_ptr%complete_export_spec(item_name, exportState, _RC)
+         call extdata_gridcomp%last_item%insert(item_name, idx)
       end do
 
       call report_active_items(extdata_gridcomp%active_items, lgr)
@@ -140,6 +143,7 @@ contains
       class(logger), pointer :: lgr
       type(ESMF_FieldBundle) :: bundle 
       integer :: idx
+      integer, pointer :: last_index
 
       call MAPL_GridCompGet(gridcomp, logger=lgr, _RC)
       _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
@@ -150,7 +154,12 @@ contains
          call iter%next()
          base_name => iter%of() 
          idx = extdata_gridcomp%get_item_index(base_name, current_time, _RC)
+         last_index => extdata_gridcomp%last_item%of(base_name)
          export_item => extdata_gridcomp%export_vector%at(idx) 
+         if (last_index /= idx) then
+            last_index = idx
+            call export_item%update_export_spec(base_name, exportState, _RC)
+         end if 
          if (export_item%is_constant) cycle
 
          export_name = export_item%get_export_var_name()

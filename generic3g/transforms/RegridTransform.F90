@@ -134,6 +134,12 @@ contains
       else ! bundle case
          call ESMF_StateGet(importState, itemName='import[1]', fieldBundle=fb_in, _RC)
          call ESMF_StateGet(exportState, itemName='export[1]', fieldBundle=fb_out, _RC)
+         block
+           character(len=ESMF_MAXSTR) :: bname_in, bname_out
+         call ESMF_FieldBundleGet(fb_in, name=bname_in, _RC)
+         call ESMF_FieldBundleGet(fb_out, name=bname_out, _RC)
+         _HERE,' bmaa '//trim(bname_in)//" "//trim(bname_out)
+         end block
          call this%regrdr%regrid(fb_in, fb_out, _RC)
       end if
 

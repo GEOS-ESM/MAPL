@@ -309,6 +309,8 @@ contains
          call assign_fptr(field, ptr, _RC)
          call assign_fptr(reference_field, reference_ptr, _RC)
          if (any(abs(ptr-reference_ptr) > threshold)) then
+            write(*,*)"bmaa maxval ",maxval(ptr),maxval(reference_ptr)
+            write(*,*)"bmaa minval ",minval(ptr),minval(reference_ptr)
             _FAIL("state differs from reference state greater than allowed threshold")
          end if
       enddo

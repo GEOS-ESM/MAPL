@@ -54,17 +54,18 @@ contains
 
       ! TODO `initialize_phases` should be a MAPL procedure (name)
       call mapl_DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
-      call integrate(driver, hconfig, options%checkpointing, _RC)
+      call integrate(driver, hconfig, options%checkpointing, options%lgr, _RC)
       call driver%finalize(_RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine mapl_run_driver
 
-   subroutine integrate(driver, hconfig, checkpointing, rc)
+   subroutine integrate(driver, hconfig, checkpointing, lgr, rc)
       type(GriddedComponentDriver), intent(inout) :: driver
       type(ESMF_HConfig), intent(in) :: hconfig
       type(CheckpointOptions), intent(in) :: checkpointing
+      class(Logger), intent(inout) :: lgr
       integer, optional, intent(out) :: rc
 
       type(esmf_Clock) :: clock
@@ -89,6 +90,8 @@ contains
          do_run = time_in_vector(currTime, time_vector)
 
          if (do_run) then
+            call ESMF_TimeGet(currTime, timeString=iso_time, _RC)
+            call lgr%info('current time: %a', trim(iso_time)) 
             call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
          end if
          currTime = advance_clock(driver, _RC)
