@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Support for libaec
     - Add `FindISSM.cmake`
 - Update CI to use Baselibs 8.18.0
+- Allow row lookups to return key if key in values (ACG2)
 
 ### Removed
 
