@@ -393,8 +393,8 @@ module MaskSamplerMod
 
     s_iter = global_attributes%begin()
     do while(s_iter /= global_attributes%end())
-       attr_name => s_iter%key()
-       attr_val => s_iter%value()
+       attr_name => s_iter%first()
+       attr_val => s_iter%second()
        call this%metadata%add_attribute(attr_name,attr_val,_RC)
        call s_iter%next()
     enddo
