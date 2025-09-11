@@ -10,10 +10,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix NRL Solar Constant read routine for cycle-Cycle24 option
+- Change a few keyword names in sampler for consistency with HISTORY
+- Fix for NAG + macOS Arm which does not support IEEE halting properly
 
 ### Added
 
 ### Changed
+
+- Updated the default `VERSION` in History to `1` (which has been the effective default in `HISTORY.rc` for some time)
+- Update `components.yaml`
+  - `ESMA_env` v5.13.0
+    - Update to Baselibs 8.18.0
+      - ESMF 8.9.0
+      - curl 8.15.0
+      - NCO 5.3.4
+      - CDO 2.5.3
+      - nccmp 1.10.0.0
+      - *Removed* szip, *added* libaec
+        - Note: To use libaec correctly, users should use `ESMA_cmake` v3.63.0/v4.20.0 or higher
+  - `ESMA_cmake` v3.64.0
+    - Support for libaec
+    - Add `FindISSM.cmake`
+- Update CI to use Baselibs 8.18.0
+- Allow row lookups to return key if key in values (ACG2)
 
 ### Removed
 
