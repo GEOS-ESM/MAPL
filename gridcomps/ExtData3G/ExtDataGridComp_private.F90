@@ -7,6 +7,8 @@ module mapl3g_ExtDataGridComp_private
    use mapl3g_stateitem
    use mapl3g_PrimaryExportVector
    use mapl3g_PrimaryExport
+   use mapl3g_EsmfRegridder, only: EsmfRegridderParam
+   use mapl3g_RegridderMethods
    implicit none
    private
 
@@ -166,5 +168,25 @@ contains
       end if
       _RETURN(_SUCCESS)
    end function get_constant
+
+   function get_regridder_param(hconfig, rc) result(regridder_param)
+      type(EsmfRegridderParam) :: regridder_param
+      type(ESMF_HConfig), intent(in) :: hconfig
+      integer, optional, intent(out) :: rc
+
+      integer :: status, regrid_method_int
+      logical :: is_defined
+      character(len=:), allocatable :: regrid_method_str
+
+      is_defined = ESMF_HConfigIsDefined(hconfig, keyString='regrid', _RC)
+      regridder_param = generate_esmf_regrid_param(REGRID_METHOD_BILINEAR, ESMF_TYPEKIND_R4, _RC)
+      if (is_defined) then
+         regrid_method_str = ESMF_HConfigAsString(hconfig, keyString='regrid', _RC)
+         regrid_method_int = regrid_method_string_to_int(regrid_method_str)
+         regridder_param = generate_esmf_regrid_param(regrid_method_int, ESMF_TYPEKIND_R4, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end function
 
 end module mapl3g_ExtDataGridComp_private
