@@ -30,6 +30,8 @@ module mapl3g_PrimaryExport
       logical :: is_constant = .false.
       type(VerticalCoordinate) :: vcoord
       type(ESMF_Time), allocatable :: start_and_end(:)
+      real :: linear_trans(2) ! offset, scaling
+
       contains
          procedure :: get_file_selector
          procedure :: complete_export_spec
@@ -66,6 +68,7 @@ module mapl3g_PrimaryExport
          non_clim_file_selector = NonClimDataSetFileSelector(collection%file_template, collection%frequency, ref_time=collection%reff_time, persist_closest = (sample%extrap_outside == "persist_closest") )
          allocate(primary_export%file_selector, source=non_clim_file_selector, _STAT)
          primary_export%file_var = rule%file_var
+         primary_export%linear_trans = rule%linear_trans
          call left_node%set_node_side(NODE_LEFT)
          call right_node%set_node_side(NODE_RIGHT)
          call primary_export%bracket%set_node(NODE_LEFT, left_node)
@@ -158,6 +161,10 @@ module mapl3g_PrimaryExport
       call this%file_selector%update_file_bracket(bundle, current_time, this%bracket, _RC)
       local_weights = this%bracket%compute_bracket_weights(current_time, _RC)
       weights = [0.0, local_weights(1), local_weights(2)]
+
+      ! apply optional linear transformation
+      weights(1) = this%linear_trans(1)
+      weights(2:3) = weights(2:3)*this%linear_trans(2)
       _RETURN(_SUCCESS)
    end subroutine update_my_bracket
 
