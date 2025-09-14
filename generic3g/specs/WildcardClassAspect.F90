@@ -8,6 +8,7 @@ module mapl3g_WildcardClassAspect
    use mapl3g_StateItemAspect
    use mapl3g_ClassAspect
    use mapl3g_UnitsAspect
+   use mapl3g_TypekindAspect
    use mapl3g_FieldClassAspect
    use mapl3g_ExtensionTransform
    use mapl3g_NullTransform
@@ -38,7 +39,7 @@ module mapl3g_WildcardClassAspect
       procedure :: add_to_state
  
       procedure :: update_units_aspect
-      procedure :: update_units_info
+      procedure :: update_typekind_aspect
    end type WildcardClassAspect
 
    interface WildcardClassAspect
@@ -247,14 +248,15 @@ contains
       _UNUSED_DUMMY(units_aspect)
    end subroutine update_units_aspect
 
-   subroutine update_units_info(this, units_aspect, rc)
+   subroutine update_typekind_aspect(this, typekind_aspect, rc)
       class(WildcardClassAspect), intent(inout) :: this
-      type(UnitsAspect), intent(inout) :: units_aspect
+      type(TypeKindAspect), intent(inout) :: typekind_aspect
       integer, optional, intent(out) :: rc
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(units_aspect)
-   end subroutine update_units_info
+      _UNUSED_DUMMY(typekind_aspect)
+   end subroutine update_typekind_aspect
+
 
 end module mapl3g_WildcardClassAspect

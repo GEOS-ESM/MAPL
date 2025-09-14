@@ -59,13 +59,14 @@ contains
          call ESMF_FieldGet(field, geom=geom, _RC)
       end if
 
-      if (present(typekind)) then
-         call ESMF_FieldGet(field, typekind=typekind, _RC)
-      end if
+!#      if (present(typekind)) then
+!#         call ESMF_FieldGet(field, typekind=typekind, _RC)
+!#      end if
 
       call ESMF_InfoGetFromHost(field, field_info, _RC)
       call FieldInfoGetInternal(field_info, &
            num_levels=num_levels, &
+           typekind=typekind,&
            vert_staggerloc=vert_staggerloc, &
            num_vgrid_levels=num_vgrid_levels, &
            ungridded_dims=ungridded_dims, &

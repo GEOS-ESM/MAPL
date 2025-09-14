@@ -11,6 +11,7 @@ module mapl3g_VectorClassAspect
    use mapl3g_GeomAspect
    use mapl3g_VerticalGridAspect
    use mapl3g_UnitsAspect
+   use mapl3g_TypeKindAspect
    use mapl3g_TypekindAspect
    use mapl3g_UngriddedDimsAspect
    use mapl3g_FieldBundleInfo, only: FieldBundleInfoSetInternal
@@ -68,6 +69,8 @@ module mapl3g_VectorClassAspect
 
       procedure :: update_units_aspect
       procedure :: update_units_info
+      procedure :: update_typekind_aspect
+      procedure :: update_typekind_info
    end type VectorClassAspect
 
    interface VectorClassAspect
@@ -126,12 +129,16 @@ contains
       type(ESMF_Info) :: info
       type(UnitsAspect), pointer :: units_aspect
       character(:), allocatable :: units
+      type(TypeKindAspect), pointer :: typekind_aspect
+      type(ESMF_TypeKind_Flag) :: typekind
 
       this%payload = MAPL_FieldBundleCreate(fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
       _RETURN_UNLESS(present(handle))
       
       units_aspect => to_UnitsAspect(other_aspects, _RC)
       call update_units_info(this, units_aspect, _RC)
+      typekind_aspect => to_TypeKindAspect(other_aspects, _RC)
+      call update_typekind_info(this, typekind_aspect, _RC)
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
       call FieldBundleInfoSetInternal(info, spec_handle=handle, _RC)
@@ -381,4 +388,35 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine update_units_info
+
+   subroutine update_typekind_aspect(this, typekind_aspect, rc)
+      class(VectorClassAspect), intent(inout) :: this
+      type(TypeKindAspect), intent(inout) :: typekind_aspect
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(esmf_TypeKind_Flag) :: typekind
+
+      call mapl_FieldBundleGet(this%payload, typekind=typekind, _RC)
+      call typekind_aspect%set_typekind(typekind)
+
+      _RETURN(_SUCCESS)
+   end subroutine update_typekind_aspect
+
+   subroutine update_typekind_info(this, typekind_aspect, rc)
+      class(VectorClassAspect), intent(inout) :: this
+      type(TypeKindAspect), intent(inout) :: typekind_aspect
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(esmf_TypeKind_Flag) :: typekind
+
+      typekind = typekind_aspect%get_typekind()
+      call mapl_FieldBundleSet(this%payload, typekind=typekind, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine update_typekind_info
+   
+
+
 end module mapl3g_VectorClassAspect

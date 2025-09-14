@@ -135,16 +135,17 @@ contains
    end function get_aspect_id
 
    function to_typekind_from_poly(aspect, rc) result(typekind_aspect)
-      type(TypekindAspect) :: typekind_aspect
-      class(StateItemAspect), intent(in) :: aspect
+      type(TypekindAspect), pointer :: typekind_aspect
+      class(StateItemAspect), target, intent(in) :: aspect
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       select type(aspect)
       class is (TypekindAspect)
-         typekind_aspect = aspect
+         typekind_aspect => aspect
       class default
+         typekind_aspect => null()
          _FAIL('aspect is not TypekindAspect')
       end select
 
@@ -152,7 +153,7 @@ contains
    end function to_typekind_from_poly
 
    function to_typekind_from_map(map, rc) result(typekind_aspect)
-      type(TypekindAspect) :: typekind_aspect
+      type(TypekindAspect), pointer :: typekind_aspect
       type(AspectMap), target, intent(in) :: map
       integer, optional, intent(out) :: rc
 
@@ -160,7 +161,7 @@ contains
       class(StateItemAspect), pointer :: poly
 
       poly => map%at(TYPEKIND_ASPECT_ID, _RC)
-      typekind_aspect = to_TypekindAspect(poly, _RC)
+      typekind_aspect => to_TypekindAspect(poly, _RC)
 
       _RETURN(_SUCCESS)
    end function to_typekind_from_map

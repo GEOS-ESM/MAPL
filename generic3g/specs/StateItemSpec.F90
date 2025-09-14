@@ -14,6 +14,7 @@ module mapl3g_StateItemSpec
    use mapl_ErrorHandling
    use mapl3g_Field_API
    use mapl3g_UnitsAspect
+   use mapl3g_TypeKindAspect
    use esmf
    use gftl2_stringvector
    implicit none
@@ -82,6 +83,7 @@ module mapl3g_StateItemSpec
 
    interface StateItemSpec
       procedure :: new_StateItemSpec
+      procedure :: new_StateItemSpec_copy
    end interface StateItemSpec
 
 #ifndef __GFORTRAN__
@@ -106,6 +108,18 @@ contains
 
    end function new_StateItemSpec
 
+   ! New spec should not be in "CREATED" state yet.  It also does not make sense
+   ! to propagate dependencies.
+   function new_StateItemSpec_copy(orig) result(spec)
+      type(StateItemSpec) :: spec
+      type(StateItemSpec), intent(in) :: orig
+
+      spec%allocation_status = STATEITEM_ALLOCATION_INVALID
+      spec%aspects = orig%aspects
+      spec%has_deferred_aspects_ = orig%has_deferred_aspects_
+      spec%state_intent = orig%state_intent
+
+   end function new_StateItemSpec_copy
 
    function new_StateItemSpecPtr(state_item) result(wrap)
       type(StateItemSpecPtr) :: wrap
@@ -175,6 +189,7 @@ contains
       integer :: status
       class(ClassAspect), pointer :: class_aspect
       type(UnitsAspect), pointer :: units_aspect
+      type(TypeKindAspect), pointer :: typekind_aspect
 
       aspect => this%aspects%at(aspect_id, _RC)
 
@@ -185,8 +200,11 @@ contains
             units_aspect => to_UnitsAspect(aspect, _RC)
             call class_aspect%update_units_aspect(units_aspect, _RC)
          endif
+         if (aspect_id == TYPEKIND_ASPECT_ID) then
+            typekind_aspect => to_TypeKindAspect(aspect, _RC)
+            call class_aspect%update_typekind_aspect(typekind_aspect, _RC)
+         endif
       end if
-
 
       _RETURN(_SUCCESS)
    end function get_aspect_by_id
@@ -208,6 +226,7 @@ contains
       type(AspectPair), pointer :: pair
       class(ClassAspect), pointer :: class_aspect
       type(UnitsAspect), pointer :: units_aspect
+      type(TypeKindAspect), pointer :: typekind_aspect
 
 
       id = aspect%get_aspect_id()
@@ -221,10 +240,15 @@ contains
       if (this%allocation_status >= STATEITEM_ALLOCATION_CREATED) then
          class_aspect => to_ClassAspect(this%aspects, _RC)
          if (id == UNITS_ASPECT_ID) then
-            units_aspect => to_UnitsAspect(aspect, _RC)
+            units_aspect => to_UnitsAspect(this%aspects, _RC)
             call class_aspect%update_units_info(units_aspect, _RC)
          endif
+         if (id == TYPEKIND_ASPECT_ID) then
+            typekind_aspect => to_TypeKindAspect(this%aspects, _RC)
+            call class_aspect%update_typekind_info(typekind_aspect, _RC)
+         endif
       end if
+
 
       _RETURN(_SUCCESS)
    end subroutine set_aspect

@@ -6,6 +6,8 @@ module mapl3g_ClassAspect
    use mapl3g_MultiState
    use mapl_ErrorHandling
    use mapl3g_ActualConnectionPt
+   use mapl3g_UnitsAspect
+   use mapl3g_TypeKindAspect
    implicit none
    private
 
@@ -31,6 +33,9 @@ module mapl3g_ClassAspect
 
       procedure :: update_units_aspect
       procedure :: update_units_info
+      procedure :: update_typekind_aspect
+      procedure :: update_typekind_info
+
    end type ClassAspect
 
    abstract interface
@@ -128,7 +133,6 @@ contains
 
    ! Default implementation - should be overridden by subclasses
    subroutine update_units_aspect(this, units_aspect, rc)
-      use mapl3g_UnitsAspect
       class(ClassAspect), intent(inout) :: this
       type(UnitsAspect), intent(inout) :: units_aspect
       integer, optional, intent(out) :: rc
@@ -142,7 +146,6 @@ contains
 
    ! Default implementation - should be overridden by subclasses
    subroutine update_units_info(this, units_aspect, rc)
-      use mapl3g_UnitsAspect
       class(ClassAspect), intent(inout) :: this
       type(UnitsAspect), intent(inout) :: units_aspect
       integer, optional, intent(out) :: rc
@@ -153,5 +156,33 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine update_units_info
+
+   ! Default implementation - should be overridden by subclasses
+   subroutine update_typekind_aspect(this, typekind_aspect, rc)
+      class(ClassAspect), intent(inout) :: this
+      type(TypeKindAspect), intent(inout) :: typekind_aspect
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+!#      _HERE, 'This procedure should always be overridden.'
+      _FAIL('This procedure should always be overridden.')
+      _RETURN(_SUCCESS)
+
+   end subroutine update_typekind_aspect
+
+   ! Default implementation - should be overridden by subclasses
+   subroutine update_typekind_info(this, typekind_aspect, rc)
+      class(ClassAspect), intent(inout) :: this
+      type(TypeKindAspect), intent(inout) :: typekind_aspect
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+!#      _HERE, 'This procedure should always be overridden.'
+      _FAIL('This procedure should always be overridden.')
+      _RETURN(_SUCCESS)
+
+   end subroutine update_typekind_info
 
 end module mapl3g_ClassAspect

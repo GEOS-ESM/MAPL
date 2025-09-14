@@ -10,7 +10,7 @@ module mapl3g_FieldClassAspect
    use mapl3g_HorizontalDimsSpec
    use mapl3g_VerticalGridAspect
    use mapl3g_UnitsAspect
-   use mapl3g_TypekindAspect
+   use mapl3g_TypeKindAspect
    use mapl3g_UngriddedDimsAspect
 
    use mapl3g_VerticalGrid
@@ -53,6 +53,7 @@ module mapl3g_FieldClassAspect
       character(:), allocatable :: gridcomp_name
       real(kind=ESMF_KIND_R4), allocatable :: default_value
       integer(kind=kind(MAPL_RESTART_MODE)), allocatable :: restart_mode
+
    contains
       procedure :: get_aspect_order
       procedure :: supports_conversion_general
@@ -74,6 +75,10 @@ module mapl3g_FieldClassAspect
 
       procedure :: update_units_aspect
       procedure :: update_units_info
+
+      procedure :: update_typekind_aspect
+      procedure :: update_typekind_info
+
    end type FieldClassAspect
 
    interface
@@ -87,7 +92,6 @@ module mapl3g_FieldClassAspect
    interface FieldClassAspect
       procedure :: new_FieldClassAspect
    end interface FieldClassAspect
-
 
 contains
 
@@ -163,15 +167,28 @@ contains
       integer :: status
       type(ESMF_Info) :: info
       type(UnitsAspect), pointer :: units_aspect
+      type(TypeKindAspect), pointer :: typekind_aspect
       character(:), allocatable :: units
-
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
       _RETURN_UNLESS(present(handle))
 
       units_aspect => to_UnitsAspect(other_aspects, _RC)
       call update_units_info(this, units_aspect, _RC)
-      
+
+      typekind_aspect => to_TypeKindAspect(other_aspects, _RC)
+      call update_typekind_info(this, typekind_aspect, _RC)
+
+      block
+        character(:), allocatable :: units
+        type(esmf_typekind_flag) :: typekind
+        units = 'foo'
+        if (allocated(units_aspect%units)) then
+           units =units_aspect%units
+        end if
+        typekind = typekind_aspect%get_typekind()
+        call mapl_FieldGet(this%payload, typekind=typekind, _RC)
+      end block
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
       call FieldInfoSetInternal(info, spec_handle=handle, _RC)
       call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
@@ -523,5 +540,33 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine update_units_info
+
+   subroutine update_typekind_aspect(this, typekind_aspect, rc)
+      class(FieldClassAspect), intent(inout) :: this
+      type(TypekindAspect), intent(inout) :: typekind_aspect
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(esmf_TypeKind_Flag) :: typekind
+
+      call mapl_FieldGet(this%payload, typekind=typekind, _RC)
+      typekind_aspect = TypeKindAspect(typekind)
+
+      _RETURN(_SUCCESS)
+   end subroutine update_typekind_aspect
+
+   subroutine update_typekind_info(this, typekind_aspect, rc)
+      class(FieldClassAspect), intent(inout) :: this
+      type(TypekindAspect), intent(inout) :: typekind_aspect
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(esmf_TypeKind_Flag) :: typekind
+
+      typekind = typekind_aspect%get_typekind()
+      call mapl_FieldSet(this%payload, typekind=typekind, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine update_typekind_info
 
 end module mapl3g_FieldClassAspect

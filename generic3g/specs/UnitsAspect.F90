@@ -21,7 +21,7 @@ module mapl3g_UnitsAspect
    end interface to_UnitsAspect
 
    type, extends(StateItemAspect) :: UnitsAspect
-      private
+!#      private
       character(:), allocatable :: units
    contains
       procedure :: matches
@@ -108,7 +108,7 @@ contains
          allocate(transform, source=ConvertUnitsTransform(src%units, dst%units))
       class default
          allocate(transform, source=NullTransform())
-         _FAIL('UnitsApsect cannot convert from other supclass.')
+         _FAIL('UnitsAspect cannot convert from other supclass.')
       end select
 
       _RETURN(_SUCCESS)
@@ -141,6 +141,7 @@ contains
       class is (UnitsAspect)
          units_aspect => aspect
       class default
+         units_aspect => null()
          _FAIL('aspect is not UnitsAspect')
       end select
 

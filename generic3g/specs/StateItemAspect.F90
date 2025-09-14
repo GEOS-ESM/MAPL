@@ -83,6 +83,7 @@ module mapl3g_StateItemAspect
       procedure, non_overridable :: set_mirror
       procedure, non_overridable :: is_time_dependent
       procedure, non_overridable :: set_time_dependent
+
    end type StateItemAspect
 
 #include "map/specification.inc"

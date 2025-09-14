@@ -14,6 +14,7 @@ module MockAspect_mod
    use mapl3g_NullTransform
    use mapl3g_MultiState
    use mapl3g_UnitsAspect
+   use mapl3g_TypekindAspect
    use mapl3g_VirtualConnectionPtVector
    use mapl_ErrorHandling
    use esmf
@@ -28,6 +29,7 @@ module MockAspect_mod
       logical :: supports_conversion_ = .false.
 
       character(:), allocatable :: internal_units
+      type(esmf_TypeKind_Flag) :: internal_typekind = ESMF_NOKIND
    contains
       procedure :: matches
       procedure :: make_transform
@@ -48,6 +50,8 @@ module MockAspect_mod
       procedure :: update_units_aspect
       procedure :: update_units_info
 
+      procedure :: update_typekind_aspect
+      procedure :: update_typekind_info
    end type MockAspect
 
    interface MockAspect
@@ -102,6 +106,11 @@ contains
       aspects => mock_spec%get_aspects()
 
       mock_aspect = MockAspect(value, mirror_, time_dependent_, supports_conversion_)
+
+      if (present(typekind)) then
+         mock_aspect%internal_typekind = typekind
+      end if
+
       call aspects%insert(CLASS_ASPECT_ID, mock_aspect)
 
    end function MockItemSpec
@@ -311,5 +320,28 @@ contains
       _RETURN(_SUCCESS)
    end subroutine update_units_info
 
+   subroutine update_typekind_aspect(this, typekind_aspect, rc)
+      class(MockAspect), intent(inout) :: this
+      type(TypekindAspect), intent(inout) :: typekind_aspect
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      typekind_aspect = TypeKindAspect(this%internal_typekind)
+
+      _RETURN(_SUCCESS)
+   end subroutine update_typekind_aspect
+
+   subroutine update_typekind_info(this, typekind_aspect, rc)
+      class(MockAspect), intent(inout) :: this
+      type(TypekindAspect), intent(inout) :: typekind_aspect
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      this%internal_typekind = typekind_aspect%get_typekind()
+
+      _RETURN(_SUCCESS)
+   end subroutine update_typekind_info
 
 end module MockAspect_mod

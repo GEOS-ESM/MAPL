@@ -141,9 +141,10 @@ function add_consumer(this, consumer, rc) result(reference)
       class(StateItemAspect), pointer :: src_aspect, dst_aspect
       type(AspectMap), pointer :: other_aspects
 
+      ! If a spec is extended, it certainly must be used (activated).
       call this%spec%activate(_RC)
 
-      new_spec = this%spec
+      new_spec = StateItemSpec(this%spec)
 
       aspect_ids = this%spec%get_aspect_order(goal)
       do i = 1, size(aspect_ids)
@@ -162,7 +163,6 @@ function add_consumer(this, consumer, rc) result(reference)
             call new_spec%create(_RC)
             exit
          end if
-
       end do
 
       if (allocated(transform)) then
@@ -172,7 +172,6 @@ function add_consumer(this, consumer, rc) result(reference)
          producer => this%add_consumer(GriddedComponentDriver(coupler_gridcomp), _RC)
          extension = StateItemExtension(new_spec)
          call extension%set_producer(producer)
-
          _RETURN(_SUCCESS)
       end if
 

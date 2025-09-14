@@ -22,6 +22,7 @@ contains
 
    subroutine field_set(field, &
         geom, &
+        typekind, &
         unusable, &
         num_levels, &
         units, &
@@ -31,6 +32,7 @@ contains
       type(ESMF_Field), intent(inout) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
+      type(esmf_TypeKind_Flag), optional, intent(in) :: typekind
       integer, optional, intent(in) :: num_levels
       character(len=*), optional, intent(in) :: units
       integer, optional, intent(out) :: rc
@@ -47,7 +49,7 @@ contains
       end if
 
       call esmf_InfoGetFromHost(field, field_info, _RC)
-      call FieldInfoSetInternal(field_info, units=units, _RC)
+      call FieldInfoSetInternal(field_info, typekind=typekind, units=units, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine field_set
