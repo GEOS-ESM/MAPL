@@ -1,0 +1,61 @@
+module Test_ConvertUnitsTransform
+
+   use mapl3g_ConvertUnitsTransform
+   use esmf
+   use MAPL_FieldUtils
+   use pfunit
+   use ESMF_TestMethod_mod
+   implicit none
+
+   type(ESMF_Clock) :: clock
+   type(ESMF_Field) :: importField, exportField
+   type(ESMF_State) :: importState, exportState
+   type(ESMF_TypeKind_Flag) :: typekind
+   type(ESMF_Grid) :: grid
+
+   integer(kind=ESMF_KIND_I4), parameter :: DTS = 1, YEAR=2025, MONTH=1, DAY=1, HOUR=9, MINUTE=30
+   logical :: TIME_INITIALIZED = .FALSE.
+   type(ESMF_Time) :: START_TIME
+   type(ESMF_TimeInterval) :: TIMESTEP
+
+contains
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_R4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      @assertEqual(0, 0)
+
+   end subroutine test_update_R4
+
+   @Before
+   subroutine set_up()
+      integer :: status 
+
+      call initialize_clock(clock, _RC)
+
+   end subroutine set_up
+
+   @After
+   subroutine take_down()
+      integer :: status
+
+      call ESMF_ClockDestroy(clock, _RC)
+
+   end subroutine take_down()
+
+   subroutine initialize_clock(clock, rc)
+      type(ESMF_Clock), intent(inout) :: clock
+      integer, optional, intent(out) :: rc
+      integer :: status
+      
+      if(not(TIME_INITIALIZED)) then
+         call ESMF_TimeIntervalSet(TIMESTEP, s=DTS, _RC)
+         call ESMF_TimeSet(START_TIME, yy=YEAR, mm=MONTH, dd=DAY, h=HOUR, m=MINUTE, _RC)
+      end if
+      clock = ESMF_ClockCreate(timeStep=TIMESTEP, startTime=START_TIME, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine initialize_clock
+
+end module Test_ConvertUnitsTransform
