@@ -22,6 +22,8 @@ contains
       type(ComponentDriverPtr) :: drvr
       integer :: i
 
+      call recurse(this, phase_idx=GENERIC_INIT_USER, _RC)
+
       import_couplers = this%registry%get_import_couplers()
       do i = 1, import_couplers%size()
          drvr = import_couplers%of(i)
@@ -29,7 +31,6 @@ contains
       end do
 
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
-      call recurse(this, phase_idx=GENERIC_INIT_USER, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
