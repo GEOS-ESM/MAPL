@@ -7,6 +7,7 @@ set(srcs
  DataSetBracket.F90
  AbstractDataSetFileSelector.F90
  NonClimDataSetFileSelector.F90
+ ClimDataSetFileSelector.F90
  ExtDataUtilities.F90
  ExtDataCollection.F90
  ExtDataCollectionMap.F90

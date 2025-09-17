@@ -4,6 +4,7 @@ module mapl3g_PrimaryExport
    use MAPL_ExceptionHandling 
    use mapl3g_AbstractDataSetFileSelector
    use mapl3g_NonClimDataSetFileSelector
+   use mapl3g_ClimDataSetFileSelector
    use mapl3g_Geom_API 
    use MAPL_FileMetadataUtilsMod
    use generic3g
@@ -56,6 +57,7 @@ module mapl3g_PrimaryExport
       integer, optional, intent(out) :: rc
       
       type(NonClimDataSetFileSelector) :: non_clim_file_selector 
+      type(ClimDataSetFileSelector) :: clim_file_selector 
       type(DataSetNode) :: left_node, right_node
       character(len=:), allocatable :: file_template
       integer :: status
@@ -63,8 +65,13 @@ module mapl3g_PrimaryExport
       primary_export%export_var = export_var
       primary_export%is_constant = .not.associated(collection)
       if (associated(collection)) then
-         non_clim_file_selector = NonClimDataSetFileSelector(collection%file_template, collection%frequency, ref_time=collection%reff_time, persist_closest = (sample%extrap_outside == "persist_closest") )
-         allocate(primary_export%file_selector, source=non_clim_file_selector, _STAT)
+         if (sample%extrap_outside == 'clim') then
+            clim_file_selector = ClimDataSetFileSelector(collection%file_template, collection%valid_range, collection%frequency, ref_time=collection%reff_time)
+            allocate(primary_export%file_selector, source=clim_file_selector, _STAT)
+         else
+            non_clim_file_selector = NonClimDataSetFileSelector(collection%file_template, collection%frequency, ref_time=collection%reff_time, persist_closest = (sample%extrap_outside == "persist_closest") )
+            allocate(primary_export%file_selector, source=non_clim_file_selector, _STAT)
+         end if
          primary_export%file_var = rule%file_var
          call left_node%set_node_side(NODE_LEFT)
          call right_node%set_node_side(NODE_RIGHT)

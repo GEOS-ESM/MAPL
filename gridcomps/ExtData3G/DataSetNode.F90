@@ -191,9 +191,9 @@ contains
          _RETURN(_SUCCESS)
       end if
       if (this%node_side == NODE_LEFT) then
-         node_is_valid = (current_time >= this%file_time)
+         node_is_valid = (current_time >= this%interp_time)
       else if (this%node_side == NODE_RIGHT) then
-         node_is_valid = (current_time < this%file_time)
+         node_is_valid = (current_time < this%interp_time)
       end if
       _RETURN(_SUCCESS)
    end function
