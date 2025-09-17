@@ -27,6 +27,7 @@ module mapl3g_RegridTransform
       procedure :: update
       procedure :: change_geoms
       procedure :: get_transformId
+      procedure :: update_transform
    end type ScalarRegridTransform
 
    interface RegridTransform
@@ -122,9 +123,6 @@ contains
       type(ESMF_FieldBundle) :: fb_in, fb_out
       type(ESMF_StateItem_Flag) :: itemType_in, itemType_out
       type(ESMF_Geom) :: geom_in, geom_out
-      logical :: scr_geom_changed, dst_geom_changed
-      type(RegridderSpec) :: spec
-      type(RegridderManager), pointer :: regridder_manager
 
       call ESMF_StateGet(importState, itemName='import[1]', itemType=itemType_in, _RC)
       call ESMF_StateGet(exportState, itemName='export[1]', itemType=itemType_out, _RC)
@@ -136,37 +134,43 @@ contains
          call ESMF_StateGet(exportState, itemName='export[1]', field=f_out, _RC)
          call ESMF_FieldGet(f_in, geom=geom_in, _RC)
          call ESMF_FieldGet(f_out, geom=geom_out, _RC)
+         call this%update_transform(geom_in, geom_out)
+         call this%regrdr%regrid(f_in, f_out, _RC)
       else ! bundle case
          call ESMF_StateGet(importState, itemName='import[1]', fieldBundle=fb_in, _RC)
          call ESMF_StateGet(exportState, itemName='export[1]', fieldBundle=fb_out, _RC)
          call MAPL_FieldBundleGet(fb_in, geom=geom_in, _RC)
          call MAPL_FieldBundleGet(fb_out, geom=geom_out, _RC)
+         call this%update_transform(geom_in, geom_out)
+         call this%regrdr%regrid(fb_in, fb_out, _RC)
       end if
 
-      scr_geom_changed = ESMF_GEOMMATCH_GEOMALIAS /= ESMF_GeomMatch(geom_in, this%src_geom)
-      dst_geom_changed = ESMF_GEOMMATCH_GEOMALIAS /= ESMF_GeomMatch(geom_out, this%dst_geom)
-      if (scr_geom_changed) call this%change_geoms(src_geom=geom_in)      
-      if (dst_geom_changed) call this%change_geoms(dst_geom=geom_out)
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(clock)
+   end subroutine update
+
+   subroutine update_transform(this, src_geom, dst_geom, rc)
+      class(ScalarRegridTransform), intent(inout) :: this
+      type(ESMF_Geom), intent(in) :: src_geom
+      type(ESMF_Geom), intent(in) :: dst_geom
+      integer, optional, intent(out) :: rc
+
+      logical :: scr_geom_changed, dst_geom_changed
+      type(RegridderSpec) :: spec
+      type(RegridderManager), pointer :: regridder_manager
+      integer :: status
+
+      scr_geom_changed = ESMF_GEOMMATCH_GEOMALIAS /= ESMF_GeomMatch(src_geom, this%src_geom)
+      dst_geom_changed = ESMF_GEOMMATCH_GEOMALIAS /= ESMF_GeomMatch(dst_geom, this%dst_geom)
+      if (scr_geom_changed) call this%change_geoms(src_geom=src_geom)      
+      if (dst_geom_changed) call this%change_geoms(dst_geom=dst_geom)
       if (scr_geom_changed .or. dst_geom_changed) then
          regridder_manager => get_regridder_manager()
          spec = RegridderSpec(this%dst_param, this%src_geom, this%dst_geom)
          this%regrdr => regridder_manager%get_regridder(spec, _RC)
       end if
-
-      if (itemType_in == MAPL_STATEITEM_FIELD) then
-         call ESMF_StateGet(importState, itemName='import[1]', field=f_in, _RC)
-         call ESMF_StateGet(exportState, itemName='export[1]', field=f_out, _RC)
-         call this%regrdr%regrid(f_in, f_out, _RC)
-      else ! bundle case
-         call ESMF_StateGet(importState, itemName='import[1]', fieldBundle=fb_in, _RC)
-         call ESMF_StateGet(exportState, itemName='export[1]', fieldBundle=fb_out, _RC)
-         call this%regrdr%regrid(fb_in, fb_out, _RC)
-      end if
-
-
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(clock)
-   end subroutine update
+   end subroutine update_transform
 
    function get_transformId(this) result(id)
       type(TransformId) :: id
