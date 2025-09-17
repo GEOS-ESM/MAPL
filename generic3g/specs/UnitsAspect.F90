@@ -8,7 +8,10 @@ module mapl3g_UnitsAspect
    use mapl3g_ConvertUnitsTransform
    use mapl3g_NullTransform
    use mapl_ErrorHandling
+   use mapl3g_Field_API
+   use mapl3g_FieldBundle_API
    use udunits2f, only: are_convertible
+   use esmf
    implicit none
    private
 
@@ -33,6 +36,8 @@ module mapl3g_UnitsAspect
 
       procedure :: get_units
       procedure :: set_units
+
+      procedure :: update_from_payload
 
    end type UnitsAspect
 
@@ -192,5 +197,33 @@ contains
       _RETURN(_SUCCESS)
    end subroutine set_units
 
+   subroutine update_from_payload(this, field, bundle, state, rc)
+      class(UnitsAspect), intent(inout) :: this
+      type(esmf_Field), optional, intent(in) :: field
+      type(esmf_FieldBundle), optional, intent(in) :: bundle
+      type(esmf_State), optional, intent(in) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: units
+
+      _RETURN_UNLESS(present(field) .or. present(bundle))
+
+      if (present(field)) then
+         call mapl_FieldGet(field, units=units, _RC)
+      else if (present(bundle)) then
+         call mapl_FieldBundleGet(bundle, units=units, _RC)
+      end if
+
+
+      if (units == '<MIRROR>') then
+         call this%set_mirror(.true.)
+      else
+         call this%set_mirror(.false.)
+         call this%set_units(units, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine update_from_payload
 
 end module mapl3g_UnitsAspect

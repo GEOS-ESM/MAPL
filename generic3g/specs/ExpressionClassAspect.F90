@@ -249,7 +249,6 @@ contains
       type(AspectMap), pointer :: aspects
       class(StateItemAspect), pointer :: class_aspect
       type(AspectMap), pointer :: goal_aspects
-      type(ESMF_Field) :: field
       type(VirtualConnectionPtVector) :: empty
       integer :: n
       type(StringVector) :: expression_variables
@@ -287,7 +286,6 @@ contains
             class_aspect => new_spec%get_aspect(CLASS_ASPECT_ID, _RC)
             select type(class_aspect)
             type is (FieldClassAspect)
-               field = class_aspect%get_payload()
                a_pt = ActualConnectionPt(v_pt)
                call class_aspect%add_to_state(multi_state, a_pt, _RC)
             class default

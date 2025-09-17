@@ -190,16 +190,28 @@ contains
       class(ClassAspect), pointer :: class_aspect
       type(UnitsAspect), pointer :: units_aspect
       type(TypeKindAspect), pointer :: typekind_aspect
+      type(esmf_Field), allocatable :: field
+      type(esmf_FieldBundle), allocatable :: bundle
+      type(esmf_State), allocatable :: state
 
       aspect => this%aspects%at(aspect_id, _RC)
 
       if (this%allocation_status >= STATEITEM_ALLOCATION_CREATED) then
          _ASSERT(this%aspects%count(CLASS_ASPECT_ID) > 0, 'Must have a ClassAspect')
+
          class_aspect => to_ClassAspect(this%aspects, _RC)
-         if (aspect_id == UNITS_ASPECT_ID) then
-            units_aspect => to_UnitsAspect(aspect, _RC)
-            call class_aspect%update_units_aspect(units_aspect, _RC)
-         endif
+         select case (aspect_id%to_string())
+         case ('UNITS')
+            call class_aspect%get_payload(field, bundle, state, _RC)
+            call aspect%update_from_payload(field, bundle, state, _RC)
+         case default
+            ! do nothing for now
+         end select
+
+!#         if (aspect_id == UNITS_ASPECT_ID) then
+!#            units_aspect => to_UnitsAspect(aspect, _RC)
+!#            call class_aspect%update_units_aspect(units_aspect, _RC)
+!#         endif
          if (aspect_id == TYPEKIND_ASPECT_ID) then
             typekind_aspect => to_TypeKindAspect(aspect, _RC)
             call class_aspect%update_typekind_aspect(typekind_aspect, _RC)

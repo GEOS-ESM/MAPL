@@ -8,6 +8,7 @@ module mapl3g_ClassAspect
    use mapl3g_ActualConnectionPt
    use mapl3g_UnitsAspect
    use mapl3g_TypeKindAspect
+   use esmf
    implicit none
    private
 
@@ -31,6 +32,7 @@ module mapl3g_ClassAspect
       procedure(I_add_to_state), deferred :: add_to_state
       procedure, nopass :: get_aspect_id
 
+      procedure :: get_payload
       procedure :: update_units_aspect
       procedure :: update_units_info
       procedure :: update_typekind_aspect
@@ -184,5 +186,17 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine update_typekind_info
+
+   subroutine get_payload(this, field, bundle, state, rc)
+      class(ClassAspect), intent(in) :: this
+      type(esmf_Field), optional, allocatable, intent(out) :: field
+      type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
+      type(esmf_State), optional, allocatable, intent(out) :: state
+      integer, optional, intent(out) :: rc
+
+      ! Default is to do nothing
+
+      _RETURN(_SUCCESS)
+   end subroutine get_payload
 
 end module mapl3g_ClassAspect

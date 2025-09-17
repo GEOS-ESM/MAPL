@@ -42,6 +42,7 @@ module mapl3g_StateItemAspect
    use iso_fortran_env, only: INT64
    use mapl3g_AspectId
    use mapl_ErrorHandling
+   use esmf
 
 #define Key AspectId
 #define Key_LT(a,b) (a) < (b)
@@ -83,6 +84,8 @@ module mapl3g_StateItemAspect
       procedure, non_overridable :: set_mirror
       procedure, non_overridable :: is_time_dependent
       procedure, non_overridable :: set_time_dependent
+
+      procedure :: update_from_payload
 
    end type StateItemAspect
 
@@ -137,6 +140,18 @@ end interface
 
 contains
 
+
+   subroutine update_from_payload(this, field, bundle, state, rc)
+      class(StateItemAspect), intent(inout) :: this
+      type(esmf_Field), optional, intent(in) :: field
+      type(esmf_FieldBundle), optional, intent(in) :: bundle
+      type(esmf_State), optional, intent(in) :: state
+      integer, optional, intent(out) :: rc
+
+      ! Default do nothing - override in subclasses.  When done
+      ! make this just an interface.
+      _RETURN(_SUCCESS)
+   end subroutine update_from_payload
 
 #include "map/procedures.inc"
 #include "map/tail.inc"

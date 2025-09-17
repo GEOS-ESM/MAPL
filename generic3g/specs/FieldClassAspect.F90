@@ -70,9 +70,9 @@ module mapl3g_FieldClassAspect
       procedure :: add_to_state
       procedure :: add_to_bundle
 
-      procedure :: get_payload
       procedure, nopass :: get_aspect_id
 
+      procedure :: get_payload
       procedure :: update_units_aspect
       procedure :: update_units_info
 
@@ -491,13 +491,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle
 
-   function get_payload(this) result(field)
-      type(ESMF_Field) :: field
-      class(FieldClassAspect), intent(in) :: this
-      field = this%payload
-   end function get_payload
-
-
    function get_aspect_id() result(aspect_id)
       type(AspectId) :: aspect_id
       aspect_id = CLASS_ASPECT_ID
@@ -568,5 +561,20 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine update_typekind_info
+
+   subroutine get_payload(this, field, bundle, state, rc)
+      class(FieldClassAspect), intent(in) :: this
+      type(esmf_Field), optional, allocatable, intent(out) :: field
+      type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
+      type(esmf_State), optional, allocatable, intent(out) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _ASSERT(present(field), 'Must pass field to FieldClassAspect.')
+      field = this%payload
+
+      _RETURN(_SUCCESS)
+   end subroutine get_payload
 
 end module mapl3g_FieldClassAspect

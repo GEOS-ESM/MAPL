@@ -326,10 +326,19 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_state
 
-   function get_payload(this) result(payload)
+   subroutine get_payload(this, field, bundle, state, rc)
       class(BracketClassAspect), intent(in) :: this
-      type(ESMF_FieldBundle) :: payload
-      payload = this%payload
-   end function get_payload
+      type(esmf_Field), optional, allocatable, intent(out) :: field
+      type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
+      type(esmf_State), optional, allocatable, intent(out) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _ASSERT(present(bundle), 'Must request bundle from BracketClassAspect')
+      bundle = this%payload
+
+      _RETURN(_SUCCESS)
+   end subroutine get_payload
 
 end module mapl3g_BracketClassAspect
