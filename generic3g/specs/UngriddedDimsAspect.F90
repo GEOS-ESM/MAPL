@@ -7,7 +7,10 @@ module mapl3g_UngriddedDimsAspect
    use mapl3g_ExtensionTransform
    use mapl3g_UngriddedDims
    use mapl3g_NullTransform
+   use mapl3g_Field_API
+   use mapl3g_FieldBundle_API
    use mapl_ErrorHandling
+   use ESMF, only: esmf_Field, esmf_FieldBundle, esmf_State
    implicit none
    private
 
@@ -31,6 +34,9 @@ module mapl3g_UngriddedDimsAspect
       procedure, nopass :: get_aspect_id
 
       procedure :: get_ungridded_dims
+
+      procedure :: update_from_payload
+      procedure :: update_payload
    end type UngriddedDimsAspect
 
    interface UngriddedDimsAspect
@@ -156,5 +162,42 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_ungridded_dims
+
+   subroutine update_from_payload(this, field, bundle, state, rc)
+      class(UngriddedDimsAspect), intent(inout) :: this
+      type(esmf_Field), optional, intent(in) :: field
+      type(esmf_FieldBundle), optional, intent(in) :: bundle
+      type(esmf_State), optional, intent(in) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _RETURN_UNLESS(present(field) .or. present(bundle))
+
+      if (present(field)) then
+         call mapl_FieldGet(field, ungridded_dims=this%ungridded_dims, _RC)
+      else if (present(bundle)) then
+         call mapl_FieldBundleGet(bundle, ungridded_dims=this%ungridded_dims, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine update_from_payload
+
+   subroutine update_payload(this, field, bundle, state, rc)
+      class(UngriddedDimsAspect), intent(in) :: this
+      type(esmf_Field), optional, intent(inout) :: field
+      type(esmf_FieldBundle), optional, intent(inout) :: bundle
+      type(esmf_State), optional, intent(inout) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: units
+
+      _FAIL('UngriddedDimsAspect cannot update payload.')
+
+      _RETURN_UNLESS(present(field) .or. present(bundle))
+
+      _RETURN(_SUCCESS)
+   end subroutine update_payload
 
 end module mapl3g_UngriddedDimsAspect
