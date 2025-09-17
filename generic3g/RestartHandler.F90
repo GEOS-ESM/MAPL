@@ -70,7 +70,6 @@ contains
 
       call this%lgr%info("Writing checkpoint: %a", filename)
       bundle = this%get_field_bundle_from_state_(state, _RC)
-      bundle = this%filter_fields_(bundle, _RC)
       call this%write_bundle_(bundle, filename, rc)
       call ESMF_FieldBundleDestroy(bundle, _RC)
 

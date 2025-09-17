@@ -163,42 +163,31 @@ contains
       type(StateClassAspect) :: export_
       integer :: status
 
-      _FAIL("StateClassAspect::connect_to_export - not implemented yet")
-
-      ! export_ = to_FieldClassAspect(export, _RC)
-      ! call this%destroy(_RC) ! import is replaced by export/extension
-      ! this%payload = export_%payload
-
-      ! call mirror(this%default_value, export_%default_value)
+      export_ = to_StateClassAspect(export, _RC)
+      call this%destroy(_RC) ! import is replaced by export/extension
+      this%payload = export_%payload
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(export)
       _UNUSED_DUMMY(actual_pt)
       _UNUSED_DUMMY(rc)
-
-   ! contains
-
-   !   subroutine mirror(dst, src)
-   !      real, allocatable, intent(inout) :: dst
-   !      real, allocatable, intent(in) :: src
-
-   !      if (.not. allocated(src)) return
-
-   !      if (.not. allocated(dst)) then
-   !         dst = src
-   !         return
-   !      end if
-
-   !      ! TODO: Problematic case: both allocated with different values.
-   !      if (dst /= src) then
-   !         _HERE, "WARNING: mismatched default values for ", actual_pt
-   !         _HERE, "    src = ", src, "; dst = ",dst, " (src value wins)"
-   !      end if
-
-   !    end subroutine mirror
-
    end subroutine connect_to_export
+
+   function to_StateClassAspect(aspect, rc) result(state_aspect)
+      class(StateItemAspect), intent(in) :: aspect
+      integer, optional, intent(out) :: rc
+      type(StateClassAspect) :: state_aspect ! result
+
+      select type(aspect)
+      class is (StateClassAspect)
+         state_aspect = aspect
+      class default
+         _FAIL('aspect is not StateClassAspect')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function to_StateClassAspect
 
    function make_transform(src, dst, other_aspects, rc) result(transform)
       class(ExtensionTransform), allocatable :: transform
@@ -236,9 +225,10 @@ contains
       type(esmf_StateItem_Flag) :: itemType
       logical :: is_alias
       type(ESMF_State) :: state, substate
-      character(:), allocatable :: full_name, inner_name
+      character(:), allocatable :: full_name, inner_name, intent
       integer :: idx, status
 
+      intent = actual_pt%get_state_intent()
       call multi_state%get_state(state, actual_pt%get_state_intent(), _RC)
 
       full_name = actual_pt%get_full_name()
@@ -249,14 +239,13 @@ contains
       alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
       call ESMF_StateGet(substate, itemName=inner_name, itemType=itemType, _RC)
       if (itemType /= ESMF_STATEITEM_NOTFOUND) then
-         call ESMF_StateGet(substate, itemName=inner_name, nestedState=existing_state, _RC)
-!#         is_alias = mapl_FieldBundlesAreAliased(alias, existing_bundle, _RC)
-         is_alias = associated(alias%statep, existing_state%statep)
-         _ASSERT(is_alias, 'Different field bundles added under the same name in state.')
-      else
-         call ESMF_StateAdd(substate, [alias], _RC)
+         if (intent /= "import") then
+            call ESMF_StateGet(substate, itemName=inner_name, nestedState=existing_state, _RC)
+            is_alias = associated(alias%statep, existing_state%statep)
+            _ASSERT(is_alias, 'Different states added under the same name in state.')
+         end if
       end if
-
+      call ESMF_StateAddReplace(substate, [alias], _RC)
 
       _RETURN(_SUCCESS)
    end subroutine add_to_state
