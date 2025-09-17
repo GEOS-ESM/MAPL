@@ -64,9 +64,6 @@
 #endif
      !$omp end critical
 #if (_RANK > 0)
-     if (trim(var_name) == 'E_1') then
-        write(*,*)'bmaa getvar ',minval(values), maxval(values)
-     end if
 #endif
       _ASSERT(status==0,"Unable to get variable: "//trim(var_name)//" from file: "//trim(this%origin_file))
 

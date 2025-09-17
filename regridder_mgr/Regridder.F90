@@ -81,13 +81,6 @@ contains
 
       do i = 1, size(fieldList_in)
          call this%regrid(fieldList_in(i), fieldList_out(i), _RC)
-         block
-            real, pointer :: ptr_in(:), ptr_out(:)
-            call assign_fptr(fieldList_in(i), ptr_in, _RC)
-            call assign_fptr(fieldList_out(i), ptr_out, _RC)
-            _HERE,' bmaa size ',size(ptr_in), size(ptr_out)
-            _HERE,' bmaa ', minval(ptr_in), maxval(ptr_in), minval(ptr_out), maxval(ptr_out)
-         end block
       end do
 
       _RETURN(_SUCCESS)

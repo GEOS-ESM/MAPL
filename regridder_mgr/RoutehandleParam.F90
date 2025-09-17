@@ -162,7 +162,6 @@ contains
       call ESMF_FieldEmptySet(field_out, geom_out, _RC)
       call ESMF_FieldEmptyComplete(field_out, typekind=ESMF_TypeKind_R4, _RC)
 
-      _HERE,' bmaa regridstore '
       call ESMF_FieldRegridStore(field_in, field_out, &
            srcMaskValues=param%srcMaskValues, &
            dstMaskValues=param%dstMaskValues, &
