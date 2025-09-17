@@ -92,7 +92,7 @@ contains
          allocate(rule%linear_trans(2))
          rule%linear_trans = ESMF_HConfigAsR4Seq(config,keyString="linear_transformation",_RC)
       else
-         allocate(rule%linear_trans,source=[0.0,0.0])
+         allocate(rule%linear_trans,source=[0.0,1.0])
       end if
 
       if (allocated(tempc)) deallocate(tempc)
