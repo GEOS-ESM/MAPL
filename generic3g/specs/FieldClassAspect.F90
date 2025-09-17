@@ -73,11 +73,6 @@ module mapl3g_FieldClassAspect
       procedure, nopass :: get_aspect_id
 
       procedure :: get_payload
-      procedure :: update_units_aspect
-      procedure :: update_units_info
-
-      procedure :: update_typekind_aspect
-      procedure :: update_typekind_info
 
    end type FieldClassAspect
 
@@ -174,10 +169,10 @@ contains
       _RETURN_UNLESS(present(handle))
 
       units_aspect => to_UnitsAspect(other_aspects, _RC)
-      call update_units_info(this, units_aspect, _RC)
+      call units_aspect%update_payload(this%payload, _RC)
 
       typekind_aspect => to_TypeKindAspect(other_aspects, _RC)
-      call update_typekind_info(this, typekind_aspect, _RC)
+      call typekind_aspect%update_payload(this%payload, _RC)
 
       block
         character(:), allocatable :: units
@@ -496,71 +491,6 @@ contains
       aspect_id = CLASS_ASPECT_ID
    end function get_aspect_id
 
-
-   subroutine update_units_aspect(this, units_aspect, rc)
-      class(FieldClassAspect), intent(inout) :: this
-      type(UnitsAspect), intent(inout) :: units_aspect
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      character(:), allocatable :: units
-
-      call mapl_FieldGet(this%payload, units=units, _RC)
-      if (units == '<MIRROR>') then
-         call units_aspect%set_mirror(.true.)
-      else
-         call units_aspect%set_units(units, _RC)
-      end if
-
-      _RETURN(_SUCCESS)
-   end subroutine update_units_aspect
-
-   subroutine update_units_info(this, units_aspect, rc)
-      class(FieldClassAspect), intent(inout) :: this
-      type(UnitsAspect), intent(inout) :: units_aspect
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      character(:), allocatable :: units
-
-      if (units_aspect%is_mirror()) then
-         units = '<MIRROR>'
-      else
-         units = units_aspect%get_units(_RC)
-      end if
-
-      call mapl_FieldSet(this%payload, units=units, _RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine update_units_info
-
-   subroutine update_typekind_aspect(this, typekind_aspect, rc)
-      class(FieldClassAspect), intent(inout) :: this
-      type(TypekindAspect), intent(inout) :: typekind_aspect
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(esmf_TypeKind_Flag) :: typekind
-
-      call mapl_FieldGet(this%payload, typekind=typekind, _RC)
-      typekind_aspect = TypeKindAspect(typekind)
-
-      _RETURN(_SUCCESS)
-   end subroutine update_typekind_aspect
-
-   subroutine update_typekind_info(this, typekind_aspect, rc)
-      class(FieldClassAspect), intent(inout) :: this
-      type(TypekindAspect), intent(inout) :: typekind_aspect
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(esmf_TypeKind_Flag) :: typekind
-
-      typekind = typekind_aspect%get_typekind()
-      call mapl_FieldSet(this%payload, typekind=typekind, _RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine update_typekind_info
 
    subroutine get_payload(this, field, bundle, state, rc)
       class(FieldClassAspect), intent(in) :: this

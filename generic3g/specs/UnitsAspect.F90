@@ -38,6 +38,7 @@ module mapl3g_UnitsAspect
       procedure :: set_units
 
       procedure :: update_from_payload
+      procedure :: update_payload
 
    end type UnitsAspect
 
@@ -225,5 +226,33 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine update_from_payload
+
+   subroutine update_payload(this, field, bundle, state, rc)
+      class(UnitsAspect), intent(in) :: this
+      type(esmf_Field), optional, intent(inout) :: field
+      type(esmf_FieldBundle), optional, intent(inout) :: bundle
+      type(esmf_State), optional, intent(inout) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: units
+
+      _RETURN_UNLESS(present(field) .or. present(bundle))
+
+      if (this%is_mirror()) then
+         units = '<MIRROR>'
+      else
+         units = this%get_units()
+      end if
+
+      if (present(field)) then
+         call mapl_FieldSet(field, units=units, _RC)
+      else if (present(bundle)) then
+         call mapl_FieldBundleSet(bundle, units=units, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine update_payload
+
 
 end module mapl3g_UnitsAspect

@@ -6,8 +6,6 @@ module mapl3g_ClassAspect
    use mapl3g_MultiState
    use mapl_ErrorHandling
    use mapl3g_ActualConnectionPt
-   use mapl3g_UnitsAspect
-   use mapl3g_TypeKindAspect
    use esmf
    implicit none
    private
@@ -33,10 +31,6 @@ module mapl3g_ClassAspect
       procedure, nopass :: get_aspect_id
 
       procedure :: get_payload
-      procedure :: update_units_aspect
-      procedure :: update_units_info
-      procedure :: update_typekind_aspect
-      procedure :: update_typekind_info
 
    end type ClassAspect
 
@@ -131,61 +125,6 @@ contains
       type(AspectId) :: aspect_id
       aspect_id = CLASS_ASPECT_ID
    end function get_aspect_id
-
-
-   ! Default implementation - should be overridden by subclasses
-   subroutine update_units_aspect(this, units_aspect, rc)
-      class(ClassAspect), intent(inout) :: this
-      type(UnitsAspect), intent(inout) :: units_aspect
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      _FAIL('This procedure should always be overridden.')
-      _RETURN(_SUCCESS)
-
-   end subroutine update_units_aspect
-
-   ! Default implementation - should be overridden by subclasses
-   subroutine update_units_info(this, units_aspect, rc)
-      class(ClassAspect), intent(inout) :: this
-      type(UnitsAspect), intent(inout) :: units_aspect
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      _FAIL('This procedure should always be overridden.')
-      _RETURN(_SUCCESS)
-
-   end subroutine update_units_info
-
-   ! Default implementation - should be overridden by subclasses
-   subroutine update_typekind_aspect(this, typekind_aspect, rc)
-      class(ClassAspect), intent(inout) :: this
-      type(TypeKindAspect), intent(inout) :: typekind_aspect
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-!#      _HERE, 'This procedure should always be overridden.'
-      _FAIL('This procedure should always be overridden.')
-      _RETURN(_SUCCESS)
-
-   end subroutine update_typekind_aspect
-
-   ! Default implementation - should be overridden by subclasses
-   subroutine update_typekind_info(this, typekind_aspect, rc)
-      class(ClassAspect), intent(inout) :: this
-      type(TypeKindAspect), intent(inout) :: typekind_aspect
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-!#      _HERE, 'This procedure should always be overridden.'
-      _FAIL('This procedure should always be overridden.')
-      _RETURN(_SUCCESS)
-
-   end subroutine update_typekind_info
 
    subroutine get_payload(this, field, bundle, state, rc)
       class(ClassAspect), intent(in) :: this

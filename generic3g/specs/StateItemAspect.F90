@@ -86,6 +86,7 @@ module mapl3g_StateItemAspect
       procedure, non_overridable :: set_time_dependent
 
       procedure :: update_from_payload
+      procedure :: update_payload
 
    end type StateItemAspect
 
@@ -152,6 +153,18 @@ contains
       ! make this just an interface.
       _RETURN(_SUCCESS)
    end subroutine update_from_payload
+
+   subroutine update_payload(this, field, bundle, state, rc)
+      class(StateItemAspect), intent(in) :: this
+      type(esmf_Field), optional, intent(inout) :: field
+      type(esmf_FieldBundle), optional, intent(inout) :: bundle
+      type(esmf_State), optional, intent(inout) :: state
+      integer, optional, intent(out) :: rc
+
+      ! Default do nothing - override in subclasses.  When done
+      ! make this just an interface.
+      _RETURN(_SUCCESS)
+   end subroutine update_payload
 
 #include "map/procedures.inc"
 #include "map/tail.inc"

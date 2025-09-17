@@ -188,8 +188,6 @@ contains
 
       integer :: status
       class(ClassAspect), pointer :: class_aspect
-      type(UnitsAspect), pointer :: units_aspect
-      type(TypeKindAspect), pointer :: typekind_aspect
       type(esmf_Field), allocatable :: field
       type(esmf_FieldBundle), allocatable :: bundle
       type(esmf_State), allocatable :: state
@@ -201,21 +199,13 @@ contains
 
          class_aspect => to_ClassAspect(this%aspects, _RC)
          select case (aspect_id%to_string())
-         case ('UNITS')
+         case ('UNITS', 'TYPEKIND')
             call class_aspect%get_payload(field, bundle, state, _RC)
             call aspect%update_from_payload(field, bundle, state, _RC)
          case default
             ! do nothing for now
          end select
 
-!#         if (aspect_id == UNITS_ASPECT_ID) then
-!#            units_aspect => to_UnitsAspect(aspect, _RC)
-!#            call class_aspect%update_units_aspect(units_aspect, _RC)
-!#         endif
-         if (aspect_id == TYPEKIND_ASPECT_ID) then
-            typekind_aspect => to_TypeKindAspect(aspect, _RC)
-            call class_aspect%update_typekind_aspect(typekind_aspect, _RC)
-         endif
       end if
 
       _RETURN(_SUCCESS)
@@ -237,9 +227,9 @@ contains
       type(AspectMapIterator) :: iter
       type(AspectPair), pointer :: pair
       class(ClassAspect), pointer :: class_aspect
-      type(UnitsAspect), pointer :: units_aspect
-      type(TypeKindAspect), pointer :: typekind_aspect
-
+      type(esmf_Field), allocatable :: field
+      type(esmf_FieldBundle), allocatable :: bundle
+      type(esmf_State), allocatable :: state
 
       id = aspect%get_aspect_id()
       iter = this%aspects%find(id)
@@ -251,16 +241,14 @@ contains
 
       if (this%allocation_status >= STATEITEM_ALLOCATION_CREATED) then
          class_aspect => to_ClassAspect(this%aspects, _RC)
-         if (id == UNITS_ASPECT_ID) then
-            units_aspect => to_UnitsAspect(this%aspects, _RC)
-            call class_aspect%update_units_info(units_aspect, _RC)
-         endif
-         if (id == TYPEKIND_ASPECT_ID) then
-            typekind_aspect => to_TypeKindAspect(this%aspects, _RC)
-            call class_aspect%update_typekind_info(typekind_aspect, _RC)
-         endif
+         select case (id%to_string())
+         case ('UNITS', 'TYPEKIND')
+            call class_aspect%get_payload(field, bundle, state, _RC)
+            call aspect%update_payload(field, bundle, state, _RC)
+         case default
+            ! do nothing for now
+         end select
       end if
-
 
       _RETURN(_SUCCESS)
    end subroutine set_aspect

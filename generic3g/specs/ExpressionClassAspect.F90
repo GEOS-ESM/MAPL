@@ -76,9 +76,6 @@ module mapl3g_ExpressionClassAspect
 
       procedure, nopass :: get_aspect_id
 
-      procedure :: update_units_aspect
-      procedure :: update_typekind_aspect
-
    end type ExpressionClassAspect
 
    interface ExpressionClassAspect
@@ -360,36 +357,5 @@ contains
 !#      end select
    end function matches
 
-   subroutine update_units_aspect(this, units_aspect, rc)
-      class(ExpressionClassAspect), intent(inout) :: this
-      type(UnitsAspect), intent(inout) :: units_aspect
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      character(:), allocatable :: units
-
-!#      call mapl_FieldGet(this%payload, units=units, _RC)
-!#      if (units == '<MIRROR>') then
-!#         call units_aspect%set_mirror(.true.)
-!#      else
-!#         call units_aspect%set_units(units, _RC)
-!#      end if
-
-      _RETURN(_SUCCESS)
-   end subroutine update_units_aspect
-
-   subroutine update_typekind_aspect(this, typekind_aspect, rc)
-      class(ExpressionClassAspect), intent(inout) :: this
-      type(TypekindAspect), intent(inout) :: typekind_aspect
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(esmf_TypeKind_Flag) :: typekind
-
-!#      call mapl_FieldGet(this%payload, typekind=typekind, _RC)
-!#      typekind_aspect = TypeKindAspect(typekind)
-
-      _RETURN(_SUCCESS)
-   end subroutine update_typekind_aspect
 
  end module mapl3g_ExpressionClassAspect
