@@ -80,7 +80,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine
 
-   ! for now we hardcode some weights until we flesh this out 
    subroutine set_weights(state, export_name, weights, rc)
       type(ESMF_State), intent(inout) :: state
       character(len=*), intent(in) :: export_name
