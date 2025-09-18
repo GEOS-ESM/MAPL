@@ -31,9 +31,12 @@ contains
 
   subroutine bundle_set(fieldBundle, unusable, &
         geom, &
-        fieldBundleType, typekind, interpolation_weights, &
+        fieldBundleType, &
+        vertical_grid, &
+        vert_staggerloc, &
+        typekind, interpolation_weights, &
         ungridded_dims, &
-        num_levels, vert_staggerloc, &
+        num_levels, &
         units, &
         attributes, &
         standard_name, long_name, &
@@ -44,11 +47,12 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
       type(FieldBundleType_Flag), optional, intent(in) :: fieldBundleType
+      class(VerticalGrid), optional, target, intent(in) :: vertical_grid
+      type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       real(ESMF_KIND_R4), optional, intent(in) :: interpolation_weights(:)
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       integer, optional, intent(in) :: num_levels
-      type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       character(*), optional, intent(in) :: units
       type(StringVector), optional, intent(in) :: attributes
       character(*), optional, intent(in) :: standard_name
@@ -86,9 +90,11 @@ contains
       call ESMF_InfoGetFromHost(fieldBundle, bundle_info, _RC)
       call FieldBundleInfoSetInternal(bundle_info, &
            fieldBundleType=fieldBundleType, &
+           vertical_grid=vertical_grid, &
+           vert_staggerloc=vert_staggerloc, &
            typekind=typekind, interpolation_weights=interpolation_weights, &
            ungridded_dims=ungridded_dims, &
-           num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
+           num_levels=num_levels, &
            units=units, attributes=attributes, &
            standard_name=standard_name, long_name=long_name, &
            allocation_status=allocation_status, &

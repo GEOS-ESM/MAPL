@@ -15,6 +15,8 @@ module mapl3g_VerticalGridAspect
    use mapl3g_VerticalStaggerLoc
    use mapl3g_VerticalRegridMethod
    use mapl3g_ComponentDriver
+   use mapl3g_Field_API
+   use mapl3g_FieldBundle_API
    use mapl_ErrorHandling
    use ESMF
    implicit none(type,external)
@@ -45,6 +47,10 @@ module mapl3g_VerticalGridAspect
       procedure :: get_vertical_grid
       procedure :: get_vertical_stagger
       procedure :: set_vertical_stagger
+
+      procedure :: update_from_payload
+      procedure :: update_payload
+      
    end type VerticalGridAspect
 
    interface VerticalGridAspect
@@ -255,5 +261,49 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_vertical_stagger
+
+   subroutine update_from_payload(this, field, bundle, state, rc)
+      class(VerticalGridAspect), intent(inout) :: this
+      type(esmf_Field), optional, intent(in) :: field
+      type(esmf_FieldBundle), optional, intent(in) :: bundle
+      type(esmf_State), optional, intent(in) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _RETURN_UNLESS(present(field) .or. present(bundle))
+
+      if (present(field)) then
+         call mapl_FieldGet(field, vertical_grid=this%vertical_grid, vert_staggerloc=this%vertical_stagger, _RC)
+      else if (present(bundle)) then
+         call mapl_FieldBundleGet(bundle, vertical_grid=this%vertical_grid, vert_staggerloc=this%vertical_stagger, _RC)
+      end if
+      call this%set_mirror(allocated(this%vertical_grid))
+
+      _RETURN(_SUCCESS)
+   end subroutine update_from_payload
+
+   subroutine update_payload(this, field, bundle, state, rc)
+      class(VerticalGridAspect), intent(in) :: this
+      type(esmf_Field), optional, intent(inout) :: field
+      type(esmf_FieldBundle), optional, intent(inout) :: bundle
+      type(esmf_State), optional, intent(inout) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: units
+
+      _RETURN_UNLESS(present(field) .or. present(bundle))
+
+      _RETURN_IF(this%is_mirror())
+
+      if (present(field)) then
+         call mapl_FieldSet(field, vertical_grid=this%vertical_grid, vert_staggerloc=this%vertical_stagger, _RC)
+      else if (present(bundle)) then
+         call mapl_FieldBundleSet(bundle, vertical_grid=this%vertical_grid, vert_staggerloc=this%vertical_stagger, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine update_payload
 
 end module mapl3g_VerticalGridAspect

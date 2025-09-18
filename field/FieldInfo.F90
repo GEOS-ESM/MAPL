@@ -5,6 +5,7 @@ module mapl3g_FieldInfo
    use mapl3g_esmf_info_keys, only: INFO_SHARED_NAMESPACE
    use mapl3g_esmf_info_keys, only: INFO_INTERNAL_NAMESPACE
    use mapl3g_esmf_info_keys, only: INFO_PRIVATE_NAMESPACE
+   use mapl3g_VerticalGrid
    use mapl3g_InfoUtilities
    use mapl3g_UngriddedDims
    use mapl3g_VerticalStaggerLoc
@@ -55,6 +56,7 @@ module mapl3g_FieldInfo
       procedure :: field_info_copy_shared
    end interface FieldInfoCopyShared
 
+   character(*), parameter :: KEY_VERTICAL_GRID = "/vertical_grid"
    character(*), parameter :: KEY_TYPEKIND = "/typekind"
    character(*), parameter :: KEY_UNITS = "/units"
    character(*), parameter :: KEY_ATTRIBUTES = "/attributes"
@@ -72,10 +74,15 @@ module mapl3g_FieldInfo
    character(*), parameter :: KEY_SPEC_HANDLE = "/spec_handle"
    character(*), parameter :: KEY_RESTART_MODE = "/restart_mode"
 
+   type :: VGridWrapper
+      class(VerticalGrid), pointer :: ptr
+   end type VGridWrapper
+
 contains
 
    subroutine field_info_set_internal(info, unusable, &
         namespace, &
+        vertical_grid, &
         typekind, &
         num_levels, vert_staggerloc, &
         ungridded_dims, &
@@ -88,6 +95,7 @@ contains
       type(ESMF_Info), intent(inout) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: namespace
+      class(VerticalGrid), optional, target, intent(in) :: vertical_grid
       type(esmf_typekind_Flag), optional, intent(in) :: typekind
       integer, optional, intent(in) :: num_levels
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
@@ -106,10 +114,18 @@ contains
       character(:), allocatable :: attributes_str(:)
       character(:), allocatable :: namespace_
       character(:), allocatable :: str
+      type(VGridWrapper) :: vgrid_wrapper
+      integer, allocatable :: encoded_vgrid(:)
 
       namespace_ = INFO_INTERNAL_NAMESPACE
       if (present(namespace)) then
          namespace_ = namespace
+      end if
+
+      if (present(vertical_grid)) then
+         vgrid_wrapper%ptr => vertical_grid
+         encoded_vgrid = transfer(vgrid_wrapper, [1])
+         call mapl_InfoSet(info, namespace_ // KEY_VERTICAL_GRID, encoded_vgrid, _RC)
       end if
 
       if (present(typekind)) then
@@ -150,14 +166,14 @@ contains
 
          if (present(num_levels) .and. present(vert_staggerloc)) then
             if (vert_staggerLoc == VERTICAL_STAGGER_NONE) then
-               call MAPL_InfoSet(info, namespace_ // "/vertical_dim/vloc", "VERTICAL_DIM_NONE", _RC)
-               call MAPL_InfoSet(info, namespace_ // "/vertical_grid/num_levels", 0, _RC)
+               call MAPL_InfoSet(info, namespace_ // KEY_VERT_STAGGERLOC, "VERTICAL_DIM_NONE", _RC)
+               call MAPL_InfoSet(info, namespace_ // KEY_NUM_LEVELS, 0, _RC)
             else if (vert_staggerLoc == VERTICAL_STAGGER_EDGE) then
-               call MAPL_InfoSet(info, namespace_ // "/vertical_dim/vloc", "VERTICAL_DIM_EDGE", _RC)
-               call MAPL_InfoSet(info, namespace_ // "/vertical_grid/num_levels", num_levels-1, _RC)
+               call MAPL_InfoSet(info, namespace_ // KEY_VERT_STAGGERLOC, "VERTICAL_DIM_EDGE", _RC)
+               call MAPL_InfoSet(info, namespace_ // KEY_NUM_LEVELS, num_levels-1, _RC)
             else if (vert_staggerLoc == VERTICAL_STAGGER_CENTER) then
-               call MAPL_InfoSet(info, namespace_ // "/vertical_dim/vloc", "VERTICAL_DIM_CENTER", _RC)
-               call MAPL_InfoSet(info, namespace_ // "/vertical_grid/num_levels", num_levels, _RC)
+               call MAPL_InfoSet(info, namespace_ // KEY_VERT_STAGGERLOC, "VERTICAL_DIM_CENTER", _RC)
+               call MAPL_InfoSet(info, namespace_ // KEY_NUM_LEVELS, num_levels, _RC)
             else
                _FAIL('unsupported vertical stagger')
             end if
@@ -179,6 +195,7 @@ contains
 
    subroutine field_info_get_internal(info, unusable, &
         namespace, &
+        vertical_grid, &
         typekind, &
         num_levels, vert_staggerloc, num_vgrid_levels, &
         units, &
@@ -192,6 +209,7 @@ contains
       type(ESMF_Info), intent(in) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: namespace
+      class(VerticalGrid), optional, allocatable, intent(out) :: vertical_grid
       type(esmf_TypeKind_Flag), optional, intent(out) :: typekind
       integer, optional, intent(out) :: num_levels
       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
@@ -215,12 +233,24 @@ contains
       character(:), allocatable :: str
       character(:), allocatable :: attributes_str(:)
       logical :: key_is_present
-
+      integer, allocatable :: encoded_vgrid(:)
+      type(VGridWrapper) :: vgrid_wrapper
+      logical :: is_present
+      
       namespace_ = INFO_INTERNAL_NAMESPACE
       if (present(namespace)) then
          namespace_ = namespace
       end if
 
+      if (present(vertical_grid)) then
+         
+         is_present= esmf_InfoIsPresent(info, namespace_ // KEY_VERTICAL_GRID, _RC)
+         if (is_present) then
+            call mapl_InfoGet(info, namespace_ //KEY_VERTICAL_GRID, encoded_vgrid, _RC)
+            vgrid_wrapper = transfer(encoded_vgrid, vgrid_wrapper)
+            vertical_grid = vgrid_wrapper%ptr
+         end if
+      end if
       if (present(typekind)) then
          call mapl_InfoGet(info, namespace_ // KEY_TYPEKIND, str, _RC)
          typekind = to_Typekind(str)

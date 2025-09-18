@@ -129,7 +129,7 @@ contains
       this%payload = MAPL_FieldBundleCreate(fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
       _RETURN_UNLESS(present(handle))
       
-      ids = [UNITS_ASPECT_ID, TYPEKIND_ASPECT_ID, UNGRIDDED_DIMS_ASPECT_ID]
+      ids = [GEOM_ASPECT_ID, VERTICAL_GRID_ASPECT_ID, UNITS_ASPECT_ID, TYPEKIND_ASPECT_ID, UNGRIDDED_DIMS_ASPECT_ID, ATTRIBUTES_ASPECT_ID]
       do i = 1, size(ids)
          aspect => other_aspects%at(ids(i), _RC)
          call aspect%update_payload(bundle=this%payload, _RC)

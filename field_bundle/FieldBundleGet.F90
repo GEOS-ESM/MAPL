@@ -33,6 +33,7 @@ contains
         ! Bracket specific items
         typekind, interpolation_weights, &
         ! Bracket field-prototype items
+        vertical_grid, &
         ungridded_dims, num_levels, vert_staggerloc, num_vgrid_levels, &
         units, &
         attributes, &
@@ -49,6 +50,7 @@ contains
       type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
       real(ESMF_KIND_R4), optional, allocatable, intent(out) :: interpolation_weights(:)
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
+      class(VerticalGrid), optional, allocatable, intent(out) :: vertical_grid
       integer, optional, intent(out) :: num_levels
       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
       integer, optional, intent(out) :: num_vgrid_levels
@@ -83,6 +85,7 @@ contains
       call ESMF_InfoGetFromHost(fieldBundle, bundle_info, _RC)
       call FieldBundleInfoGetInternal(bundle_info, &
            fieldBundleType=fieldBundleType, &
+           vertical_grid=vertical_grid, &
            typekind=typekind, interpolation_weights=interpolation_weights, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, num_vgrid_levels=num_vgrid_levels, &

@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_FieldSet
+   use mapl3g_VerticalGrid
    use mapl3g_VerticalStaggerLoc
    use mapl3g_FieldInfo
    use mapl3g_FieldDelta
@@ -23,6 +24,8 @@ contains
 
    subroutine field_set(field, &
         geom, &
+        vertical_grid, &
+        vert_staggerloc, &
         typekind, &
         unusable, &
         num_levels, &
@@ -35,6 +38,8 @@ contains
       type(ESMF_Field), intent(inout) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
+      class(VerticalGrid), optional, target, intent(in) :: vertical_grid
+      type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       type(esmf_TypeKind_Flag), optional, intent(in) :: typekind
       integer, optional, intent(in) :: num_levels
       character(len=*), optional, intent(in) :: units
@@ -54,7 +59,10 @@ contains
       end if
 
       call esmf_InfoGetFromHost(field, field_info, _RC)
-      call FieldInfoSetInternal(field_info, typekind=typekind, units=units, &
+      call FieldInfoSetInternal(field_info, &
+           vertical_grid=vertical_grid, &
+           vert_staggerloc=vert_staggerloc, &
+           typekind=typekind, units=units, &
            ungridded_dims=ungridded_dims, attributes=attributes, _RC)
 
       _RETURN(_SUCCESS)

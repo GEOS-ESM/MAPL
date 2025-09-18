@@ -213,7 +213,6 @@ contains
       if (present(ignore)) ignore_ = ignore
 
       call this%reallocate_field(field, ignore=ignore_, _RC)
-
       call update_num_levels(this%num_levels, field, ignore=ignore_, _RC)
       call update_units(this%units, field, ignore=ignore_, _RC)
 
