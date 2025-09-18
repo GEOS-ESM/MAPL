@@ -8358,6 +8358,7 @@ contains
       character(len=ESMF_MAXSTR)            :: IAm
       integer                               :: status
       character(len=ESMF_MAXSTR)            :: comp_name
+      character(len=ESMF_MAXSTR)            :: child_comp_name
 
       ! Local variables
       ! ---------------
@@ -8402,6 +8403,8 @@ contains
          call MAPL_GenericConnCheck(gridcomp, RC=status)
          if (status /= ESMF_SUCCESS) then
             err = .true.
+            call ESMF_GridCompGet( gridcomp, NAME=child_comp_name, _RC)
+            CALL WRITE_PARALLEL("MAPL ConnCheck PROBLEM with CHILD GRIDCOMP "//TRIM(child_comp_name))
          end if
       end do
 
