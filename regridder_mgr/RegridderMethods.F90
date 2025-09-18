@@ -1,10 +1,10 @@
 #include "MAPL.h"
 module mapl3g_RegridderMethods
    use ESMF
-   use mapl3g_EsmfRegridder
    use mapl3g_DynamicMask
    use mapl_ErrorHandlingMod
    use MAPL_Constants, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
+   use mapl3g_EsmfRegridder, only: EsmfRegridderParam
    implicit none
    private
 
@@ -121,7 +121,6 @@ module mapl3g_RegridderMethods
       integer, intent(out), optional :: rc
 
       type(DynamicMask) :: mapl_dyn_mask
-      type(ESMF_REGRIDMETHOD_FLAG) :: esmf_regrid_method
       integer :: status
 
       select case (regrid_method)
