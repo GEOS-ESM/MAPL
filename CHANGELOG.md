@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Added support for ESMF 9
+  - Requires `#ifdef` to support changes in deprecated `ESMF_Attribute` API in ESMF 9
+
 ### Added
 
 ### Changed
