@@ -1,5 +1,7 @@
-module Test_ConvertUnitsTransform
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
 
+module Test_ConvertUnitsTransform
    use mapl3g_ConvertUnitsTransform
    use esmf
    use MAPL_FieldUtils
@@ -8,54 +10,179 @@ module Test_ConvertUnitsTransform
    implicit none
 
    type(ESMF_Clock) :: clock
-   type(ESMF_Field) :: importField, exportField
-   type(ESMF_State) :: importState, exportState
-   type(ESMF_TypeKind_Flag) :: typekind
+   type(ESMF_State) :: importState, exportState, states(2)
    type(ESMF_Grid) :: grid
-
-   integer(kind=ESMF_KIND_I4), parameter :: DTS = 1, YEAR=2025, MONTH=1, DAY=1, HOUR=9, MINUTE=30
+   character(len=*), parameter :: SRC_UNITS = 'Pa'
+   character(len=*), parameter :: DST_UNITS = 'bar'
+   integer, parameter :: R4 = ESMF_KIND_R4
+   integer, parameter :: R8 = ESMF_KIND_R8
+   integer, parameter :: SUCCESS = _SUCCESS
+   integer, parameter :: FAILURE = SUCCESS - 1
+   character(len=*), parameter :: FIELD_NAMES(*) = &
+      & [character(len=ESMF_MAXSTR) :: 'import[1]', 'export[1]']
    logical :: TIME_INITIALIZED = .FALSE.
    type(ESMF_Time) :: START_TIME
    type(ESMF_TimeInterval) :: TIMESTEP
+   type(ConvertUnitsTransform) :: transform
 
 contains
 
    @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_typekind(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+      states = [importState, exportState]
+      call initialize_states(states, grid,[ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8], rc=status)
+      @assertEqual(0, status, "Unable to initialize ESMF_State's")
+
+   end subroutine test_typekind
+
+   @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_update_R4(this)
       class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+      type(ESMF_Field) :: field
+      real(kind=ESMF_KIND_R4), pointer :: fptr(:)
+      real(kind=ESMF_KIND_R4), parameter :: UPDATE = 100000_R4
 
-      @assertEqual(0, 0)
+      _UNUSED_DUMMY(this)
+      states = [importState, exportState]
+      call initialize_states(states, grid, [ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R4], rc=status)
+      call get_field(importState, field, rc=status)
+      call assign_fptr(field, fptr, _RC)
+      fptr = UPDATE
+      call transform%update(importState, exportState, clock, rc=status)
+      @assertEqual(SUCCESS, status, 'Failed to update transform')
+      call ESMF_FieldDestroy(field, rc=status)
 
    end subroutine test_update_R4
 
-   @Before
-   subroutine set_up()
-      integer :: status 
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_R8(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+      type(ESMF_Field) :: field
+      real(kind=ESMF_KIND_R8), pointer :: fptr(:)
+      real(kind=ESMF_KIND_R8), parameter :: UPDATE = 100000_R8
 
-      call initialize_clock(clock, _RC)
+      _UNUSED_DUMMY(this)
+      states = [importState, exportState]
+      call initialize_states(states, grid, [ESMF_TYPEKIND_R8, ESMF_TYPEKIND_R8], rc=status)
+      call get_field(importState, field, rc=status)
+      call assign_fptr(field, fptr, _RC)
+      fptr = UPDATE
+      call transform%update(importState, exportState, clock, rc=status)
+      @assertEqual(SUCCESS, status, 'Failed to update transform')
+      call ESMF_FieldDestroy(field, rc=status)
+
+   end subroutine test_update_R8
+
+   @Before
+   subroutine set_up(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status 
+      integer(kind=ESMF_KIND_I4), parameter :: DTS = 1, YEAR=2025, MONTH=1, DAY=1, HOUR=9, MINUTE=30
+
+      _UNUSED_DUMMY(this)
+      call ESMF_TimeIntervalSet(TIMESTEP, s=DTS, rc=status)
+      @assertEqual(0, status, 'Unable to set timeStep')
+      call ESMF_TimeSet(START_TIME, yy=YEAR, mm=MONTH, dd=DAY, h=HOUR, m=MINUTE, _RC)
+      @assertEqual(0, status, 'Unable to set startTime')
+      clock = ESMF_ClockCreate(timeStep=TIMESTEP, startTime=START_TIME, _RC)
+      @assertEqual(0, status, 'Unable to create ESMF_Clock')
+      call create_grid(grid, _RC)
+      importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, name='import', _RC)
+      exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, name='export', _RC)
+      transform = ConvertUnitsTransform(SRC_UNITS, DST_UNITS)
 
    end subroutine set_up
 
+   subroutine initialize_states(states, grid, typekinds, rc)
+      type(ESMF_State), intent(inout) :: states(:)
+      type(ESMF_Grid), intent(in) :: grid
+      type(ESMF_TypeKind_Flag), intent(in) :: typekinds(:)
+      integer, intent(out) :: rc
+      type(ESMF_Field) :: field
+      integer :: i, n
+
+      n = size(states)
+      rc = FAILURE
+      if(.not. size(typekinds) == n) return
+      do i=1, n
+         field = ESMF_FieldCreate(grid=grid, name=trim(FIELD_NAMES(i)), typekind=typekinds(i), rc=rc)
+         if(.not. successful(rc)) exit
+         call ESMF_StateAdd(states(i), fieldList=[field], rc=rc)
+         if(.not. successful(rc)) exit
+      end do
+
+   end subroutine initialize_states
+
+   subroutine destroy_state(state, rc)
+      type(ESMF_State), intent(inout) :: state
+      integer, intent(out) :: rc
+      type(ESMF_Field) :: field
+
+      call get_field(state, field, rc=rc)
+      if(.not. successful(rc)) return
+      call ESMF_StateDestroy(state, rc=rc)
+      if(.not. successful(rc)) return
+      call ESMF_FieldDestroy(field, rc=rc)
+
+   end subroutine destroy_state
+
    @After
-   subroutine take_down()
+   subroutine take_down(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       integer :: status
 
-      call ESMF_ClockDestroy(clock, _RC)
+      _UNUSED_DUMMY(this)
+      call destroy_state(importState, rc=status)
+      call destroy_state(exportState, rc=status)
+      call ESMF_GridDestroy(grid, rc=status)
+      call ESMF_ClockDestroy(clock, rc=status)
 
-   end subroutine take_down()
+   end subroutine take_down
 
-   subroutine initialize_clock(clock, rc)
-      type(ESMF_Clock), intent(inout) :: clock
+   subroutine create_grid(grid, rc)
+      type(ESMF_Grid), optional, intent(inout) :: grid
       integer, optional, intent(out) :: rc
       integer :: status
-      
-      if(not(TIME_INITIALIZED)) then
-         call ESMF_TimeIntervalSet(TIMESTEP, s=DTS, _RC)
-         call ESMF_TimeSet(START_TIME, yy=YEAR, mm=MONTH, dd=DAY, h=HOUR, m=MINUTE, _RC)
+      integer, parameter :: MAX_INDEX(2) = [4, 4]
+      integer, parameter :: REG_DECOMP(2) = [1, 1]
+
+      _UNUSED_DUMMY(rc)
+      grid = ESMF_GridCreate(regDecomp=REG_DECOMP, maxIndex=MAX_INDEX, _RC)
+
+   end subroutine create_grid
+
+   subroutine get_field(state, field, rc)
+      type(ESMF_State), intent(inout) :: state
+      type(ESMF_Field), intent(inout) :: field
+      integer, optional, intent(out) :: rc
+      character(len=:), allocatable :: string
+
+      integer :: status
+      character(len=ESMF_MAXSTR) :: itemNameList(1)
+      integer :: itemCount
+
+      call ESMF_StateGet(state, itemCount=itemCount, _RC)
+      if(itemCount /= 1) then
+         string = ESMF_UtilStringInt2String(itemCount, _RC)
+         if(present(rc)) rc=FAILURE
+         return
       end if
-      clock = ESMF_ClockCreate(timeStep=TIMESTEP, startTime=START_TIME, _RC)
-      _RETURN(_SUCCESS)
+      call ESMF_StateGet(state, itemNameList=itemNameList, _RC)
+      call ESMF_StateGet(state, itemName=itemNameList(1), field=field, _RC)
 
-   end subroutine initialize_clock
+   end subroutine get_field
 
+   logical function successful(rc) result(lval)
+      integer, intent(in) :: rc
+
+      lval = rc == SUCCESS
+
+   end function successful
+      
 end module Test_ConvertUnitsTransform
