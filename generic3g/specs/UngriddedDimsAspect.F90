@@ -86,15 +86,15 @@ contains
 
 
    function to_ungridded_dims_from_poly(aspect, rc) result(ungridded_dims_aspect)
-      type(UngriddedDimsAspect) :: ungridded_dims_aspect
-      class(StateItemAspect), intent(in) :: aspect
+      type(UngriddedDimsAspect), pointer :: ungridded_dims_aspect
+      class(StateItemAspect), target, intent(in) :: aspect
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       select type(aspect)
       class is (UngriddedDimsAspect)
-         ungridded_dims_aspect = aspect
+         ungridded_dims_aspect => aspect
       class default
          _FAIL('aspect is not UngriddedDimsAspect')
       end select
@@ -103,7 +103,7 @@ contains
    end function to_ungridded_dims_from_poly
 
    function to_ungridded_dims_from_map(map, rc) result(ungridded_dims_aspect)
-      type(UngriddedDimsAspect) :: ungridded_dims_aspect
+      type(UngriddedDimsAspect), pointer :: ungridded_dims_aspect
       type(AspectMap), target, intent(in) :: map
       integer, optional, intent(out) :: rc
 
@@ -111,7 +111,7 @@ contains
       class(StateItemAspect), pointer :: poly
 
       poly => map%at(UNGRIDDED_DIMS_ASPECT_ID, _RC)
-      ungridded_dims_aspect = to_UngriddedDimsAspect(poly, _RC)
+      ungridded_dims_aspect => to_UngriddedDimsAspect(poly, _RC)
 
       _RETURN(_SUCCESS)
    end function to_ungridded_dims_from_map
@@ -191,11 +191,14 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(:), allocatable :: units
-
-      _FAIL('UngriddedDimsAspect cannot update payload.')
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
+
+      if (present(field)) then
+         call mapl_FieldSet(field, ungridded_dims=this%ungridded_dims, _RC)
+      else if (present(bundle)) then
+         call mapl_FieldBundleSet(bundle, ungridded_dims=this%ungridded_dims, _RC)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine update_payload

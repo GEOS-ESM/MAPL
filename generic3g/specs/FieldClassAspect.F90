@@ -161,29 +161,20 @@ contains
 
       integer :: status
       type(ESMF_Info) :: info
-      type(UnitsAspect), pointer :: units_aspect
-      type(TypeKindAspect), pointer :: typekind_aspect
+      type(AspectId), allocatable :: ids(:)
+      integer :: i
       character(:), allocatable :: units
+      class(StateItemAspect), pointer :: aspect
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
       _RETURN_UNLESS(present(handle))
 
-      units_aspect => to_UnitsAspect(other_aspects, _RC)
-      call units_aspect%update_payload(this%payload, _RC)
+      ids = [UNITS_ASPECT_ID, TYPEKIND_ASPECT_ID, UNGRIDDED_DIMS_ASPECT_ID]
+      do i = 1, size(ids)
+         aspect => other_aspects%at(ids(i), _RC)
+         call aspect%update_payload(this%payload, _RC)
+      end do
 
-      typekind_aspect => to_TypeKindAspect(other_aspects, _RC)
-      call typekind_aspect%update_payload(this%payload, _RC)
-
-      block
-        character(:), allocatable :: units
-        type(esmf_typekind_flag) :: typekind
-        units = 'foo'
-        if (allocated(units_aspect%units)) then
-           units =units_aspect%units
-        end if
-        typekind = typekind_aspect%get_typekind()
-        call mapl_FieldGet(this%payload, typekind=typekind, _RC)
-      end block
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
       call FieldInfoSetInternal(info, spec_handle=handle, _RC)
       call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)

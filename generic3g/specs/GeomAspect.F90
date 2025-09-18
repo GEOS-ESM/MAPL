@@ -253,7 +253,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(:), allocatable :: units
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
 

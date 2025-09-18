@@ -122,19 +122,18 @@ contains
 
       integer :: status
       type(ESMF_Info) :: info
-      type(UnitsAspect), pointer :: units_aspect
-      character(:), allocatable :: units
-      type(TypeKindAspect), pointer :: typekind_aspect
-      type(ESMF_TypeKind_Flag) :: typekind
+      class(StateItemAspect), pointer :: aspect
+      type(AspectId), allocatable :: ids(:)
+      integer :: i
 
       this%payload = MAPL_FieldBundleCreate(fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
       _RETURN_UNLESS(present(handle))
       
-      units_aspect => to_UnitsAspect(other_aspects, _RC)
-      call units_aspect%update_payload(bundle=this%payload, _RC)
-
-      typekind_aspect => to_TypeKindAspect(other_aspects, _RC)
-      call typekind_aspect%update_payload(bundle=this%payload, _RC)
+      ids = [UNITS_ASPECT_ID, TYPEKIND_ASPECT_ID, UNGRIDDED_DIMS_ASPECT_ID]
+      do i = 1, size(ids)
+         aspect => other_aspects%at(ids(i), _RC)
+         call aspect%update_payload(bundle=this%payload, _RC)
+      end do
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
       call FieldBundleInfoSetInternal(info, spec_handle=handle, _RC)

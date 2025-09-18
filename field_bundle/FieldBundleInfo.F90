@@ -12,6 +12,7 @@ module mapl3g_FieldBundleInfo
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
+   use gFTL2_StringVector
    implicit none(type,external)
    private
 
@@ -37,7 +38,9 @@ contains
         fieldBundleType, &
         typekind, interpolation_weights, &
         ungridded_dims, num_levels, vert_staggerloc, num_vgrid_levels, &
-        units, long_name, standard_name, &
+        units, &
+        attributes, &
+        long_name, standard_name, &
         allocation_status, &
         spec_handle, &
         rc)
@@ -53,6 +56,7 @@ contains
       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
       integer, optional, intent(out) :: num_vgrid_levels
       character(:), optional, allocatable, intent(out) :: units
+      type(StringVector), optional, intent(out) :: attributes
       character(:), optional, allocatable, intent(out) :: long_name
       character(:), optional, allocatable, intent(out) :: standard_name
       type(StateItemAllocation), optional, intent(out) :: allocation_status
@@ -93,7 +97,8 @@ contains
       call FieldInfoGetInternal(info, namespace = namespace_//KEY_FIELD_PROTOTYPE, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, num_vgrid_levels=num_vgrid_levels, &
-           units=units, long_name=long_name, standard_name=standard_name, spec_handle=spec_handle, _RC)
+           units=units, attributes=attributes, &
+           long_name=long_name, standard_name=standard_name, spec_handle=spec_handle, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -124,7 +129,7 @@ contains
         fieldBundleType, typekind, interpolation_weights, &
         ungridded_dims, &
         num_levels, vert_staggerloc, &
-        units, standard_name, long_name, &
+        units, attributes, standard_name, long_name, &
         allocation_status, &
         spec_handle, &
         rc)
@@ -140,6 +145,7 @@ contains
       integer, optional, intent(in) :: num_levels
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       character(*), optional, intent(in) :: units
+      type(StringVector), optional, intent(in) :: attributes
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
       type(StateItemAllocation), optional, intent(in) :: allocation_status
@@ -177,7 +183,8 @@ contains
        call FieldInfoSetInternal(info, namespace=namespace_ // KEY_FIELD_PROTOTYPE, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
-           units=units, long_name=long_name, standard_name=standard_name, &
+           units=units, attributes=attributes, &
+           long_name=long_name, standard_name=standard_name, &
            spec_handle=spec_handle, _RC)
 
        _RETURN(_SUCCESS)

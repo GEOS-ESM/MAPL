@@ -13,6 +13,7 @@ module mapl3g_FieldInfo
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
+   use gftl2_StringVector
    implicit none(type,external)
    private
 
@@ -56,6 +57,7 @@ module mapl3g_FieldInfo
 
    character(*), parameter :: KEY_TYPEKIND = "/typekind"
    character(*), parameter :: KEY_UNITS = "/units"
+   character(*), parameter :: KEY_ATTRIBUTES = "/attributes"
    character(*), parameter :: KEY_LONG_NAME = "/long_name"
    character(*), parameter :: KEY_STANDARD_NAME = "/standard_name"
    character(*), parameter :: KEY_NUM_LEVELS = "/num_levels"
@@ -78,6 +80,7 @@ contains
         num_levels, vert_staggerloc, &
         ungridded_dims, &
         units, long_name, standard_name, &
+        attributes, &
         allocation_status, &
         restart_mode, &
         spec_handle, &
@@ -90,6 +93,7 @@ contains
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       character(*), optional, intent(in) :: units
+      type(StringVector), optional, intent(in) :: attributes
       character(*), optional, intent(in) :: long_name
       character(*), optional, intent(in) :: standard_name
       type(StateItemAllocation), optional, intent(in) :: allocation_status
@@ -99,6 +103,7 @@ contains
 
       integer :: status
       type(ESMF_Info) :: ungridded_info
+      character(:), allocatable :: attributes_str(:)
       character(:), allocatable :: namespace_
       character(:), allocatable :: str
 
@@ -119,6 +124,11 @@ contains
 
       if (present(units)) then
          call MAPL_InfoSet(info, namespace_ // KEY_UNITS, units, _RC)
+      end if
+
+      if (present(attributes)) then
+         attributes_str = make_attributes_string(attributes)
+         call MAPL_InfoSet(info, namespace_ // KEY_ATTRIBUTES, attributes_str, _RC)
       end if
 
       if (present(long_name)) then
@@ -171,7 +181,9 @@ contains
         namespace, &
         typekind, &
         num_levels, vert_staggerloc, num_vgrid_levels, &
-        units, long_name, standard_name, &
+        units, &
+        attributes, &
+        long_name, standard_name, &
         ungridded_dims, &
         allocation_status, &
         restart_mode, &
@@ -185,6 +197,7 @@ contains
       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
       integer, optional, intent(out) :: num_vgrid_levels
       character(:), optional, allocatable, intent(out) :: units
+      type(StringVector), optional, intent(out) ::  attributes
       character(:), optional, allocatable, intent(out) :: long_name
       character(:), optional, allocatable, intent(out) :: standard_name
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
@@ -200,6 +213,7 @@ contains
       type(VerticalStaggerLoc) :: vert_staggerloc_
       character(:), allocatable :: namespace_ 
       character(:), allocatable :: str
+      character(:), allocatable :: attributes_str(:)
       logical :: key_is_present
 
       namespace_ = INFO_INTERNAL_NAMESPACE
@@ -246,6 +260,11 @@ contains
 
       if (present(units)) then
          call MAPL_InfoGet(info, namespace_ // KEY_UNITS, units, _RC)
+      end if
+
+      if (present(attributes)) then
+         call mapl_InfoGet(info, namespace_ // KEY_ATTRIBUTES, attributes_str, _RC)
+         attributes = from_string(attributes_str)
       end if
 
       if (present(long_name)) then
@@ -456,4 +475,37 @@ contains
    end function to_typekind
 
 
+   function make_attributes_string(attributes) result(str)
+      character(:), allocatable :: str(:)
+      type(StringVector), intent(in) :: attributes
+
+      integer :: status
+      integer :: i, n, maxlen
+
+      maxlen = 0
+      n = attributes%size()
+      do i = 1, n
+         maxlen = max(maxlen, len(attributes%of(i)))
+      end do
+
+      allocate(character(len=maxlen) :: str(n))
+      do i = 1, n
+         str(i) = attributes%of(i)
+      end do
+
+   end function make_attributes_string
+
+   function from_string(str) result(attributes)
+      type(StringVector) :: attributes
+      character(*), intent(in) :: str(:)
+
+      integer :: i, n
+
+      n = size(str)
+      do i = 1, n
+         call attributes%push_back(trim(str(i)))
+      end do
+
+   end function from_string
+      
 end module mapl3g_FieldInfo

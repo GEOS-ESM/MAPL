@@ -9,6 +9,7 @@ module mapl3g_FieldGet
    use mapl3g_UngriddedDims
    use mapl3g_RestartModes, only: MAPL_RESTART_MODE, MAPL_RESTART_REQUIRED
    use esmf
+   use gftl2_StringVector
 
    implicit none (type,external)
    private
@@ -26,7 +27,9 @@ contains
         geom, &
         num_levels, vert_staggerloc, num_vgrid_levels, &
         ungridded_dims, &
-        units, standard_name, long_name, &
+        units, &
+        attributes, &
+        standard_name, long_name, &
         allocation_status, &
         restart_mode, &
         rc)
@@ -40,6 +43,7 @@ contains
       integer, optional, intent(out) :: num_vgrid_levels
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       character(len=:), optional, allocatable, intent(out) :: units
+      type(StringVector), optional, intent(out) :: attributes
       character(len=:), optional, allocatable, intent(out) :: standard_name
       character(len=:), optional, allocatable, intent(out) :: long_name
       type(StateItemAllocation), optional, intent(out) :: allocation_status
@@ -70,6 +74,7 @@ contains
            vert_staggerloc=vert_staggerloc, &
            num_vgrid_levels=num_vgrid_levels, &
            ungridded_dims=ungridded_dims, &
+           attributes=attributes, &
            units=units, standard_name=standard_name, long_name=long_name, &
            allocation_status=allocation_status, &
            restart_mode=restart_mode, &

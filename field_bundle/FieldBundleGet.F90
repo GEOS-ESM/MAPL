@@ -10,6 +10,7 @@ module mapl3g_FieldBundleGet
    use mapl3g_InfoUtilities
    use mapl3g_LU_Bound
    use esmf
+   use gftl2_StringVector
    implicit none
    private
 
@@ -33,7 +34,9 @@ contains
         typekind, interpolation_weights, &
         ! Bracket field-prototype items
         ungridded_dims, num_levels, vert_staggerloc, num_vgrid_levels, &
-        units, standard_name, long_name, &
+        units, &
+        attributes, &
+        standard_name, long_name, &
         allocation_status, &
         rc)
 
@@ -50,6 +53,7 @@ contains
       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
       integer, optional, intent(out) :: num_vgrid_levels
       character(:), optional, allocatable, intent(out) :: units
+      type(StringVector), optional, intent(out) :: attributes
       character(:), optional, allocatable, intent(out) :: standard_name
       character(:), optional, allocatable, intent(out) :: long_name
       type(StateItemAllocation), optional, intent(out) :: allocation_status
@@ -82,7 +86,8 @@ contains
            typekind=typekind, interpolation_weights=interpolation_weights, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, num_vgrid_levels=num_vgrid_levels, &
-           units=units, standard_name=standard_name, long_name=long_name, &
+           units=units, attributes=attributes, &
+           standard_name=standard_name, long_name=long_name, &
            allocation_status=allocation_status, &
            _RC)
 

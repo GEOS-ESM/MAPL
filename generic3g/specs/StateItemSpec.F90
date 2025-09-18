@@ -199,7 +199,7 @@ contains
 
          class_aspect => to_ClassAspect(this%aspects, _RC)
          select case (aspect_id%to_string())
-         case ('UNITS', 'TYPEKIND')
+         case ('UNITS', 'TYPEKIND', 'UNGRIDDED_DIMS')
             call class_aspect%get_payload(field, bundle, state, _RC)
             call aspect%update_from_payload(field, bundle, state, _RC)
          case default
@@ -242,7 +242,7 @@ contains
       if (this%allocation_status >= STATEITEM_ALLOCATION_CREATED) then
          class_aspect => to_ClassAspect(this%aspects, _RC)
          select case (id%to_string())
-         case ('UNITS', 'TYPEKIND','GEOM','UNGRIDDED_DIMS')
+         case ('UNITS', 'TYPEKIND','GEOM','UNGRIDDED_DIMS', 'ATTRIBUTES')
             call class_aspect%get_payload(field, bundle, state, _RC)
             call aspect%update_payload(field, bundle, state, _RC)
          case default

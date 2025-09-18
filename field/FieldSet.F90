@@ -8,6 +8,7 @@ module mapl3g_FieldSet
    use mapl_ErrorHandling
    use mapl3g_UngriddedDims
    use esmf
+   use gftl2_StringVector
    implicit none (type, external)
    private
 
@@ -26,6 +27,8 @@ contains
         unusable, &
         num_levels, &
         units, &
+        ungridded_dims, &
+        attributes, &
         rc)
 
 
@@ -35,6 +38,8 @@ contains
       type(esmf_TypeKind_Flag), optional, intent(in) :: typekind
       integer, optional, intent(in) :: num_levels
       character(len=*), optional, intent(in) :: units
+      type(UngriddedDims), optional, intent(in) :: ungridded_dims
+      type(StringVector), optional, intent(in) :: attributes
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -49,7 +54,8 @@ contains
       end if
 
       call esmf_InfoGetFromHost(field, field_info, _RC)
-      call FieldInfoSetInternal(field_info, typekind=typekind, units=units, _RC)
+      call FieldInfoSetInternal(field_info, typekind=typekind, units=units, &
+           ungridded_dims=ungridded_dims, attributes=attributes, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine field_set
