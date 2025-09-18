@@ -129,6 +129,7 @@ contains
          keyVal = ESMF_HConfigAsStringMapVal(iter, _RC)
          call support%fillDefs%insert(key, keyVal) 
       enddo 
+     
       call ESMF_ClockGet(clock, currTime=current_time, _RC)
       call support%tFunc%init_time(hconfig, current_time, _RC)
       
@@ -308,6 +309,7 @@ contains
          call ESMF_StateGet(reference_state, trim(itemNameList(i)), reference_field, _RC)
          call assign_fptr(field, ptr, _RC)
          call assign_fptr(reference_field, reference_ptr, _RC)
+         write(*,*)'bmaa vals: ',maxval(reference_ptr), maxval(ptr)
          if (any(abs(ptr-reference_ptr) > threshold)) then
             _FAIL("state differs from reference state greater than allowed threshold")
          end if

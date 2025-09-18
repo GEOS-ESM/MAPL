@@ -86,6 +86,7 @@ contains
 
       time: do while (currTime < stopTime)
 
+         call ESMF_TimePrint(currTime, options='string', prestring='bmaa cap time: ')
          do_run = time_in_vector(currTime, time_vector)
 
          if (do_run) then

@@ -26,18 +26,15 @@ module mapl3g_DataSetNode
       logical :: update = .false.
       logical :: enabled = .false.
       type(ESMF_Time) :: interp_time
-      type(ESMF_Time) :: file_time
       character(len=:), allocatable :: file
       integer :: time_index 
       contains
-         procedure :: set_file_time
          procedure :: set_interp_time
          procedure :: set_time_index
          procedure :: set_file
          procedure :: set_node_side
          procedure :: set_update
          procedure :: set_enabled
-         procedure :: get_file_time 
          procedure :: get_interp_time
          procedure :: get_time_index
          procedure :: get_file
@@ -59,16 +56,14 @@ module mapl3g_DataSetNode
 
 contains
 
-   function new_DataSetNode(file, time_index, file_time, interp_time, enabled, update) result(node)
+   function new_DataSetNode(file, time_index, interp_time, enabled, update) result(node)
       type(DataSetNode) :: node
       character(len=*), intent(in) :: file
       integer, intent(in) :: time_index
-      type(ESMF_Time), intent(in) :: file_time
       type(ESMF_Time), intent(in) :: interp_time
       logical, intent(in) :: enabled
       logical, intent(in) :: update
 
-      node%file_time = file_time
       node%interp_time = interp_time
       node%file = trim(file)
       node%time_index = time_index
@@ -76,12 +71,6 @@ contains
       node%update = update
       
    end function new_DataSetNode
-
-   subroutine set_file_time(this, file_time)
-      class(DataSetNode), intent(inout) :: this
-      type(ESMF_Time), intent(in) :: file_time
-      this%file_time=file_time
-   end subroutine
 
    subroutine set_interp_time(this, interp_time)
       class(DataSetNode), intent(inout) :: this
@@ -118,12 +107,6 @@ contains
       logical, intent(in) :: update
       this%update = update 
    end subroutine
-
-   function get_file_time(this) result(file_time)
-      type(ESMF_Time) :: file_time
-      class(DataSetNode), intent(inout) :: this
-      file_time=this%file_time
-   end function
 
    function get_interp_time(this) result(interp_time)
       type(ESMF_Time) :: interp_time
@@ -165,7 +148,7 @@ contains
       class(DataSetNode), intent(in) :: a
       class(DataSetNode), intent(in) :: b
 
-      equals = (trim(a%file)==trim(b%file)) .and. (a%file_time==b%file_time) .and. (a%time_index==b%time_index) .and. (a%interp_time==b%interp_time)
+      equals = (trim(a%file)==trim(b%file)) .and. (a%time_index==b%time_index) .and. (a%interp_time==b%interp_time)
    end function equals
 
    subroutine reset(this)
@@ -232,7 +215,6 @@ contains
             if (target_time >= time_vector(i)) then
                this%file = filename
                this%interp_time = time_vector(i)
-               this%file_time = time_vector(i)
                this%time_index = i
                this%enabled = .true.
                this%update = .true.
@@ -244,7 +226,6 @@ contains
             if (target_time < time_vector(i)) then
                this%file = filename
                this%interp_time = time_vector(i)
-               this%file_time = time_vector(i)
                this%time_index = i
                this%enabled = .true.
                this%update = .true.
@@ -280,6 +261,5 @@ contains
       end if
       print*,'time_index ',this%time_index
       call ESMF_TimePrint(this%interp_time, options='string', prestring='interp time: ')
-      call ESMF_TimePrint(this%file_time, options='string', prestring='file time: ')
   end subroutine
 end module mapl3g_DataSetNode
