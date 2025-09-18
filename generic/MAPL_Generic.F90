@@ -448,7 +448,7 @@ module MAPL_GenericMod
       integer                        , pointer :: phase_coldstart(:)=> null()
       integer                        , pointer :: phase_refresh(:)=> null()
       procedure(i_run), public, nopass, pointer :: customRefresh => null()
-      
+
       ! Make accessors?
       type(ESMF_GridComp)                      :: RootGC
       type(ESMF_GridComp)            , pointer :: parentGC         => null()
@@ -6060,7 +6060,7 @@ contains
 
       nwrgt1 = (mpl%grid%num_readers > 1)
 
-      isNC4 = MAPL_FILETYPE_UNK 
+      isNC4 = MAPL_FILETYPE_UNK
       if (on_tiles) mpl%grid%split_restart = .false.
       if(INDEX(FNAME,'*') == 0) then
          if (AmIRoot) then
@@ -7855,18 +7855,26 @@ contains
       character(len=ESMF_MAXSTR)            :: NAME
       logical                               :: VALUE
 
-      call ESMF_AttributeGet(FIELDIN, count=NF, RC=status)
-      _VERIFY(status)
+      ! ESMF 9 made internal changes to the Info object that underlies the (now deprecated)
+      ! Attribute API. So, to get attributes by index, we need to specify
+      ! the convention and purpose arguments. Once MAPL requires ESMF 9, remove this
+      ! ifdef. (Not applicable to MAPL3 which uses Info natively.)
+#ifdef ESMF_VER_GE_9
+      call ESMF_AttributeGet(FIELDIN, count=NF, convention="ESMF", purpose="General", _RC)
+#else
+      call ESMF_AttributeGet(FIELDIN, count=NF, _RC)
+#endif
 
       do I=1,NF
-         call ESMF_AttributeGet(FIELDIN,attributeIndex=I,NAME=NAME,RC=status)
-         _VERIFY(status)
+#ifdef ESMF_VER_GE_9
+         call ESMF_AttributeGet(FIELDIN,attributeIndex=I,NAME=NAME,convention="ESMF", purpose="General",_RC)
+#else
+         call ESMF_AttributeGet(FIELDIN,attributeIndex=I,NAME=NAME,_RC)
+#endif
          NAME = trim(NAME)
          if(NAME(1:10)=='FriendlyTo') then
-            call ESMF_AttributeGet(FIELDIN , NAME=NAME, VALUE=VALUE, RC=status)
-            _VERIFY(status)
-            call ESMF_AttributeSet(FIELDOUT, NAME=NAME, VALUE=VALUE, RC=status)
-            _VERIFY(status)
+            call ESMF_AttributeGet(FIELDIN , NAME=NAME, VALUE=VALUE, _RC)
+            call ESMF_AttributeSet(FIELDOUT, NAME=NAME, VALUE=VALUE, _RC)
          end if
       end do
 
