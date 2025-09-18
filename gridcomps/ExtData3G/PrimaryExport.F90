@@ -18,6 +18,7 @@ module mapl3g_PrimaryExport
    use mapl3g_ExtDataSample
    use pfio, only: i_clients
    use VerticalCoordinateMod
+   use mapl3g_FieldBundleSet
    implicit none
 
    public PrimaryExport
@@ -31,9 +32,12 @@ module mapl3g_PrimaryExport
       logical :: is_constant = .false.
       type(VerticalCoordinate) :: vcoord
       type(ESMF_Time), allocatable :: start_and_end(:)
+      real :: linear_trans(2) ! offset, scaling
+
       contains
          procedure :: get_file_selector
          procedure :: complete_export_spec
+         procedure :: update_export_spec
          procedure :: get_file_var_name
          procedure :: get_export_var_name
          procedure :: get_bracket
@@ -73,6 +77,7 @@ module mapl3g_PrimaryExport
             allocate(primary_export%file_selector, source=non_clim_file_selector, _STAT)
          end if
          primary_export%file_var = rule%file_var
+         primary_export%linear_trans = rule%linear_trans
          call left_node%set_node_side(NODE_LEFT)
          call right_node%set_node_side(NODE_RIGHT)
          call primary_export%bracket%set_node(NODE_LEFT, left_node)
@@ -152,6 +157,48 @@ module mapl3g_PrimaryExport
       _RETURN(_SUCCESS)
    end subroutine complete_export_spec
       
+   subroutine update_export_spec(this, item_name, exportState, rc)
+      class(PrimaryExport), intent(inout) :: this
+      character(len=*), intent(in) :: item_name
+      type(ESMF_State), intent(inout) :: exportState
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      type(FileMetaDataUtils), pointer :: metadata
+      type(MAPLGeom) :: geom
+      type(ESMF_Geom) :: esmfgeom
+      type(ESMF_FieldBundle) :: bundle
+      type(GeomManager), pointer :: geom_mgr
+      type(BasicVerticalGrid) :: vertical_grid
+
+      if (this%is_constant) then
+         _RETURN(_SUCCESS)
+      end if
+
+      metadata => this%file_selector%get_dataset_metadata(_RC)
+      geom_mgr => get_geom_manager()
+      geom = geom_mgr%get_mapl_geom_from_metadata(metadata%metadata, _RC)
+      esmfgeom = geom%get_geom()
+
+      this%vcoord = verticalCoordinate(metadata, this%file_var, _RC)
+
+      call ESMF_StateGet(exportState, item_name, bundle, _RC)
+      if (this%vcoord%vertical_type == NO_COORD) then
+         call FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
+                 vert_staggerloc=VERTICAL_STAGGER_NONE,  _RC)
+      else if (this%vcoord%vertical_type == SIMPLE_COORD) then
+         vertical_grid = BasicVerticalGrid(this%vcoord%num_levels)
+         call FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', &
+                 typekind=ESMF_TYPEKIND_R4, num_levels=this%vcoord%num_levels, &
+                 vert_staggerloc=VERTICAL_STAGGER_CENTER,  _RC)
+      else
+         _FAIL("unsupported vertical coordinate for item "//trim(this%export_var))
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine update_export_spec
+      
    subroutine update_my_bracket(this, bundle, current_time, weights, rc)
       class(PrimaryExport), intent(inout) :: this
       type(ESMF_FieldBundle), intent(inout) :: bundle
@@ -165,6 +212,10 @@ module mapl3g_PrimaryExport
       call this%file_selector%update_file_bracket(bundle, current_time, this%bracket, _RC)
       local_weights = this%bracket%compute_bracket_weights(current_time, _RC)
       weights = [0.0, local_weights(1), local_weights(2)]
+
+      ! apply optional linear transformation
+      weights(1) = this%linear_trans(1)
+      weights(2:3) = weights(2:3)*this%linear_trans(2)
       _RETURN(_SUCCESS)
    end subroutine update_my_bracket
 
