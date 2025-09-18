@@ -17,6 +17,7 @@ module mapl3g_PrimaryExport
    use mapl3g_ExtDataSample
    use pfio, only: i_clients
    use VerticalCoordinateMod
+   use mapl3g_FieldBundleSet
    implicit none
 
    public PrimaryExport
@@ -35,6 +36,7 @@ module mapl3g_PrimaryExport
       contains
          procedure :: get_file_selector
          procedure :: complete_export_spec
+         procedure :: update_export_spec
          procedure :: get_file_var_name
          procedure :: get_export_var_name
          procedure :: get_bracket
@@ -147,6 +149,48 @@ module mapl3g_PrimaryExport
 
       _RETURN(_SUCCESS)
    end subroutine complete_export_spec
+      
+   subroutine update_export_spec(this, item_name, exportState, rc)
+      class(PrimaryExport), intent(inout) :: this
+      character(len=*), intent(in) :: item_name
+      type(ESMF_State), intent(inout) :: exportState
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      type(FileMetaDataUtils), pointer :: metadata
+      type(MAPLGeom) :: geom
+      type(ESMF_Geom) :: esmfgeom
+      type(ESMF_FieldBundle) :: bundle
+      type(GeomManager), pointer :: geom_mgr
+      type(BasicVerticalGrid) :: vertical_grid
+
+      if (this%is_constant) then
+         _RETURN(_SUCCESS)
+      end if
+
+      metadata => this%file_selector%get_dataset_metadata(_RC)
+      geom_mgr => get_geom_manager()
+      geom = geom_mgr%get_mapl_geom_from_metadata(metadata%metadata, _RC)
+      esmfgeom = geom%get_geom()
+
+      this%vcoord = verticalCoordinate(metadata, this%file_var, _RC)
+
+      call ESMF_StateGet(exportState, item_name, bundle, _RC)
+      if (this%vcoord%vertical_type == NO_COORD) then
+         call FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
+                 vert_staggerloc=VERTICAL_STAGGER_NONE,  _RC)
+      else if (this%vcoord%vertical_type == SIMPLE_COORD) then
+         vertical_grid = BasicVerticalGrid(this%vcoord%num_levels)
+         call FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', &
+                 typekind=ESMF_TYPEKIND_R4, num_levels=this%vcoord%num_levels, &
+                 vert_staggerloc=VERTICAL_STAGGER_CENTER,  _RC)
+      else
+         _FAIL("unsupported vertical coordinate for item "//trim(this%export_var))
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine update_export_spec
       
    subroutine update_my_bracket(this, bundle, current_time, weights, rc)
       class(PrimaryExport), intent(inout) :: this
