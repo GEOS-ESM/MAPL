@@ -15,6 +15,8 @@ module mapl3g_RegridTransform
    private
 
    public :: RegridTransform
+   public :: IMPORT_FIELD_NAME
+   public :: EXPORT_FIELD_NAME
 
    type, extends(ExtensionTransform) :: ScalarRegridTransform
       type(ESMF_Geom) :: src_geom
@@ -34,6 +36,8 @@ module mapl3g_RegridTransform
       module procedure :: new_ScalarRegridTransform
    end interface RegridTransform
 
+   character(len=*), parameter :: IMPORT_FIELD_NAME = 'import[1]'
+   character(len=*), parameter :: EXPORT_FIELD_NAME = 'export[1]'
 contains
 
    function new_ScalarRegridTransform(src_geom, dst_geom, dst_param) result(transform)
@@ -73,8 +77,8 @@ contains
 
       regridder_manager => get_regridder_manager()
 
-      this%src_geom = get_geom(importState, 'import[1]')
-      this%dst_geom = get_geom(exportState, 'export[1]')
+      this%src_geom = get_geom(importState, IMPORT_FIELD_NAME)
+      this%dst_geom = get_geom(exportState, EXPORT_FIELD_NAME)
       spec = RegridderSpec(this%dst_param, this%src_geom, this%dst_geom)
       this%regrdr => regridder_manager%get_regridder(spec, _RC)
 
@@ -124,21 +128,21 @@ contains
       type(ESMF_StateItem_Flag) :: itemType_in, itemType_out
       type(ESMF_Geom) :: geom_in, geom_out
 
-      call ESMF_StateGet(importState, itemName='import[1]', itemType=itemType_in, _RC)
-      call ESMF_StateGet(exportState, itemName='export[1]', itemType=itemType_out, _RC)
+      call ESMF_StateGet(importState, itemName=IMPORT_FIELD_NAME, itemType=itemType_in, _RC)
+      call ESMF_StateGet(exportState, itemName=EXPORT_FIELD_NAME, itemType=itemType_out, _RC)
 
       _ASSERT(itemType_in == itemType_out, 'Regridder requires same itemType for input and output.')
 
       if (itemType_in == MAPL_STATEITEM_FIELD) then
-         call ESMF_StateGet(importState, itemName='import[1]', field=f_in, _RC)
-         call ESMF_StateGet(exportState, itemName='export[1]', field=f_out, _RC)
+         call ESMF_StateGet(importState, itemName=IMPORT_FIELD_NAME, field=f_in, _RC)
+         call ESMF_StateGet(exportState, itemName=EXPORT_FIELD_NAME, field=f_out, _RC)
          call ESMF_FieldGet(f_in, geom=geom_in, _RC)
          call ESMF_FieldGet(f_out, geom=geom_out, _RC)
          call this%update_transform(geom_in, geom_out)
          call this%regrdr%regrid(f_in, f_out, _RC)
       else ! bundle case
-         call ESMF_StateGet(importState, itemName='import[1]', fieldBundle=fb_in, _RC)
-         call ESMF_StateGet(exportState, itemName='export[1]', fieldBundle=fb_out, _RC)
+         call ESMF_StateGet(importState, itemName=IMPORT_FIELD_NAME, fieldBundle=fb_in, _RC)
+         call ESMF_StateGet(exportState, itemName=EXPORT_FIELD_NAME, fieldBundle=fb_out, _RC)
          call MAPL_FieldBundleGet(fb_in, geom=geom_in, _RC)
          call MAPL_FieldBundleGet(fb_out, geom=geom_out, _RC)
          call this%update_transform(geom_in, geom_out)

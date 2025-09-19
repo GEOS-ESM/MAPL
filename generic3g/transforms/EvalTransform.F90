@@ -15,6 +15,7 @@ module mapl3g_EvalTransform
    private
 
    public :: EvalTransform
+   public :: EXPORT_FIELD_NAME
 
    type, extends(ExtensionTransform) :: EvalTransform
       private
@@ -31,6 +32,7 @@ module mapl3g_EvalTransform
       procedure :: new_EvalTransform
    end interface EvalTransform
 
+   character(len=*), parameter :: EXPORT_FIELD_NAME = 'export[1]'
 contains
 
    function new_EvalTransform(expression, input_state, input_couplers) result(transform)
@@ -102,7 +104,7 @@ contains
 
       call update_with_target_attr(this, importState, exportState, clock, _RC)
 
-      call ESMF_StateGet(exportState, itemName='export[1]', field=f, _RC)
+      call ESMF_StateGet(exportState, itemName=EXPORT_FIELD_NAME, field=f, _RC)
 
       call MAPL_StateEval(this%input_state, this%expression, f, _RC)
 
