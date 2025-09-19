@@ -83,27 +83,50 @@ jobs:
           spack -e spack-env buildcache list --allarch
           spack -e spack-env buildcache list --allarch | grep -E '^esmf@' || true
 
-      - name: Select roots by hash and concretize and install
+      - name: Select ESMF by hash and concretize
         shell: spack-bash {0}
         run: |
           set -euo pipefail
+
           # Make env tolerant + avoid reuse during solve
           spack -e spack-env config add "concretizer:unify:false"
           spack -e spack-env config add "concretizer:reuse:false"
 
-          # Find the exact ESMF 9.0.0b03 hash in the buildcache matching gcc@14.2.0 and x86_64_v3
-          HASH=$(spack -e spack-env buildcache list --allarch --format '{name}@{version} %{compiler} {target} /{hash}' \
-            | awk '/^esmf@9\.0\.0b03/ && /gcc@14\.2\.0/ && /x86_64_v3/ {print $NF; exit}')
-          test -n "$HASH" || { echo "No matching esmf@9.0.0b03 binary in buildcache for gcc@14.2.0 x86_64_v3"; exit 1; }
+          # Pin toolchain/arch to match your cache entries
+          spack -e spack-env config add "packages:all:compiler:[gcc@14.2.0]"
+          spack -e spack-env config add "packages:all:target:[x86_64_v3]"
 
-          # Add the concrete ESMF by hash (no need for the package to know the version)
+          # Find the exact esmf@9.0.0b03 built for gcc@14.2.0 on x86_64_v3
+          # Example line format (old Spack):
+          # esmf@9.0.0b03%gcc@14.2.0 arch=linux-ubuntu24.04-x86_64_v3  /5x3q4k...
+          LINE=$(spack -e spack-env buildcache list --allarch -L \
+            | awk '$1 ~ /^esmf@9\.0\.0b03/ && $0 ~ /%gcc@14\.2\.0/ && $0 ~ /arch=linux-ubuntu24\.04-x86_64_v3/ {print; exit}')
+
+          if [ -z "${LINE:-}" ]; then
+            echo "No matching esmf@9.0.0b03 binary for gcc@14.2.0 x86_64_v3 found in buildcache."
+            spack -e spack-env buildcache list --allarch -L | grep -E '^esmf@' || true
+            exit 1
+          fi
+
+          HASH=$(printf '%s\n' "$LINE" | awk '{print $NF}')
+          HASH=${HASH#/}   # drop leading slash if present
+          echo "Using ESMF concrete hash: /$HASH"
+          [[ "$HASH" =~ ^[a-f0-9]{16,}$ ]]
+
+          # Add the exact prebuilt spec by hash (no version lookup needed)
           spack -e spack-env add /"$HASH"
 
           # Add your other roots normally
           spack -e spack-env add gftl gftl-shared fargparse pflogger pfunit yafyaml ecbuild udunits openblas
 
-          # Concretize and install from cache only
+          # Concretize and verify
           spack -e spack-env concretize --force
+          spack -e spack-env find -elv esmf
+
+      - name: Install from buildcache only
+        shell: spack-bash {0}
+        run: |
+          set -euo pipefail
           spack clean -m
           spack -e spack-env install --no-check-signature --use-buildcache only
 
