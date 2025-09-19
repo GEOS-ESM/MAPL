@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Added
+- Add mem_usage_mod for mac and used in ExtDataDriver.x
 
 ### Changed
 
