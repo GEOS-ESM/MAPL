@@ -89,6 +89,7 @@ jobs:
           set -euo pipefail
           spack -e spack-env config add "concretizer:unify:false"
           spack -e spack-env config add "concretizer:reuse:false"
+          spack -e spack-env config add "view:false"
 
           # Add the exact prebuilt ESMF by its concrete hash from your mirror
           # We have to do it like this because 9.0.0b03 is not in any Spack release yet
@@ -99,7 +100,6 @@ jobs:
 
           # Concretize and verify ESMF presence
           spack -e spack-env concretize --force
-          spack -e spack-env find --explicit --long esmf || true
 
       - name: Install from buildcache only
         shell: spack-bash {0}
