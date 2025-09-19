@@ -61,6 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add validation for VariableSpec
 - Add a common set of string functions (StringCommon) in shared to consolidate
 - Add a new implementation of MAPL_HConfigGet that does not require a HConfigParams object
+- Add and use character parameters for `ESMF_Field` names in ExtensionTransform subclasses
 
 ### Changed
 
