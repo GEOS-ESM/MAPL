@@ -63,7 +63,9 @@ module mapl3g_FieldInfo
    character(*), parameter :: KEY_LONG_NAME = "/long_name"
    character(*), parameter :: KEY_STANDARD_NAME = "/standard_name"
    character(*), parameter :: KEY_NUM_LEVELS = "/num_levels"
+   character(*), parameter :: KEY_NUM_VGRID_LEVELS = "/num_vgrid_levels"
    character(*), parameter :: KEY_VERT_STAGGERLOC = "/vert_staggerloc"
+   character(*), parameter :: KEY_VERT_DIM = "/vert_dim"
    character(*), parameter :: KEY_UNGRIDDED_DIMS = "/ungridded_dims"
    character(*), parameter :: KEY_ALLOCATION_STATUS = "/allocation_status"
 
@@ -165,15 +167,16 @@ contains
          ! Delete later - needed for transition
 
          if (present(num_levels) .and. present(vert_staggerloc)) then
+            
             if (vert_staggerLoc == VERTICAL_STAGGER_NONE) then
-               call MAPL_InfoSet(info, namespace_ // KEY_VERT_STAGGERLOC, "VERTICAL_DIM_NONE", _RC)
-               call MAPL_InfoSet(info, namespace_ // KEY_NUM_LEVELS, 0, _RC)
+               call MAPL_InfoSet(info, namespace_ // KEY_VERT_DIM, "VERTICAL_DIM_NONE", _RC)
+               call MAPL_InfoSet(info, namespace_ // KEY_NUM_VGRID_LEVELS, 0, _RC)
             else if (vert_staggerLoc == VERTICAL_STAGGER_EDGE) then
-               call MAPL_InfoSet(info, namespace_ // KEY_VERT_STAGGERLOC, "VERTICAL_DIM_EDGE", _RC)
-               call MAPL_InfoSet(info, namespace_ // KEY_NUM_LEVELS, num_levels-1, _RC)
+               call MAPL_InfoSet(info, namespace_ // KEY_VERT_DIM, "VERTICAL_DIM_EDGE", _RC)
+               call MAPL_InfoSet(info, namespace_ // KEY_NUM_VGRID_LEVELS, num_levels-1, _RC)
             else if (vert_staggerLoc == VERTICAL_STAGGER_CENTER) then
-               call MAPL_InfoSet(info, namespace_ // KEY_VERT_STAGGERLOC, "VERTICAL_DIM_CENTER", _RC)
-               call MAPL_InfoSet(info, namespace_ // KEY_NUM_LEVELS, num_levels, _RC)
+               call MAPL_InfoSet(info, namespace_ // KEY_VERT_DIM, "VERTICAL_DIM_CENTER", _RC)
+               call MAPL_InfoSet(info, namespace_ // KEY_NUM_VGRID_LEVELS, num_levels, _RC)
             else
                _FAIL('unsupported vertical stagger')
             end if
