@@ -373,7 +373,7 @@ CONTAINS
             num_primary=num_primary+1
             write(sidx,'(I1)')j
             allocate(temp_item)
-            call config_yaml%fillin_primary(current_base_name//"+"//sidx,current_base_name,temp_item,time,clock,_RC)
+            call config_yaml%fillin_primary(current_base_name//"+"//sidx,current_base_name,temp_item,time,clock,rc=status)
             _ASSERT(status==0, "ExtData multi-rule problem with BASE NAME "//TRIM(current_base_name))
             allocate(temp_item%start_end_time(2))
             temp_item%start_end_time(1)=time_ranges(j)

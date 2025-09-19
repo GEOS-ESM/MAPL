@@ -15,28 +15,33 @@ mapl:
 
 cap:
   name: cap
-  restart: cap_restart3.yaml
+  restart: cap_restart1.yaml
 
   clock:
-    dt: PT12H
-    #start: 2004-02-01T00:00:00
-    start: 2008-12-29T12:00:00
+    dt: PT15M
+    start: 2004-04-14T21:00:00
     stop: 2999-03-02T21:00:00
-    segment_duration: P5D
+    segment_duration: P6D
 
   extdata_name: EXTDATA
   history_name: HIST
   root_name: GCM
+
+  run_times:
+    - '2004-04-15T21:00:00'
+    - '2004-04-16T21:00:00'
+    - '2004-04-17T21:00:00'
+    - '2004-04-18T21:00:00'
 
   mapl:
     children:
       GCM:
         dso: libMAPL.componentDriverGridComp.dylib
         setServices: setservices_
-        config_file: GCM3.yaml
+        config_file: GCM1.yaml
       EXTDATA:
         dso: libMAPL.extdata3g.dylib
-        config_file: extdata3.yaml
+        config_file: extdata1.yaml
       HIST:
         dso: libMAPL.history3g.dylib
-        config_file: history3.yaml
+        config_file: history1.yaml
