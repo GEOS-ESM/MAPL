@@ -8,6 +8,8 @@ module mapl3g_TypekindAspect
    use mapl3g_Copytransform
    use mapl3g_NullTransform
    use mapl_ErrorHandling
+   use mapl3g_Field_API
+   use mapl3g_FieldBundle_API
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
    use esmf
    implicit none(type,external)
@@ -34,6 +36,9 @@ module mapl3g_TypekindAspect
 
       procedure :: set_typekind
       procedure :: get_typekind
+
+      procedure :: update_from_payload
+      procedure :: update_payload
    end type TypekindAspect
 
    interface TypekindAspect
@@ -135,16 +140,17 @@ contains
    end function get_aspect_id
 
    function to_typekind_from_poly(aspect, rc) result(typekind_aspect)
-      type(TypekindAspect) :: typekind_aspect
-      class(StateItemAspect), intent(in) :: aspect
+      type(TypekindAspect), pointer :: typekind_aspect
+      class(StateItemAspect), target, intent(in) :: aspect
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       select type(aspect)
       class is (TypekindAspect)
-         typekind_aspect = aspect
+         typekind_aspect => aspect
       class default
+         typekind_aspect => null()
          _FAIL('aspect is not TypekindAspect')
       end select
 
@@ -152,7 +158,7 @@ contains
    end function to_typekind_from_poly
 
    function to_typekind_from_map(map, rc) result(typekind_aspect)
-      type(TypekindAspect) :: typekind_aspect
+      type(TypekindAspect), pointer :: typekind_aspect
       type(AspectMap), target, intent(in) :: map
       integer, optional, intent(out) :: rc
 
@@ -160,10 +166,51 @@ contains
       class(StateItemAspect), pointer :: poly
 
       poly => map%at(TYPEKIND_ASPECT_ID, _RC)
-      typekind_aspect = to_TypekindAspect(poly, _RC)
+      typekind_aspect => to_TypekindAspect(poly, _RC)
 
       _RETURN(_SUCCESS)
    end function to_typekind_from_map
    
+   subroutine update_from_payload(this, field, bundle, state, rc)
+      class(TypekindAspect), intent(inout) :: this
+      type(esmf_Field), optional, intent(in) :: field
+      type(esmf_FieldBundle), optional, intent(in) :: bundle
+      type(esmf_State), optional, intent(in) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _RETURN_UNLESS(present(field) .or. present(bundle))
+
+      if (present(field)) then
+         call mapl_FieldGet(field, typekind=this%typekind, _RC)
+      else if (present(bundle)) then
+         call mapl_FieldBundleGet(bundle, typekind=this%typekind, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine update_from_payload
+
+   subroutine update_payload(this, field, bundle, state, rc)
+      class(TypekindAspect), intent(in) :: this
+      type(esmf_Field), optional, intent(inout) :: field
+      type(esmf_FieldBundle), optional, intent(inout) :: bundle
+      type(esmf_State), optional, intent(inout) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: units
+
+      _RETURN_UNLESS(present(field) .or. present(bundle))
+
+      if (present(field)) then
+         call mapl_FieldSet(field, typekind=this%typekind, _RC)
+      else if (present(bundle)) then
+         call mapl_FieldBundleSet(bundle, typekind=this%typekind, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine update_payload
+
  
 end module mapl3g_TypekindAspect

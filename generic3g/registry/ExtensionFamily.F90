@@ -146,7 +146,6 @@ contains
          do j = 1, subgroup%size()
             extension_ptr = subgroup%of(j)
             spec => extension_ptr%ptr%get_spec()
-
             src_aspect => spec%get_aspect(aspect_ids(i), _RC)
             _ASSERT(associated(src_aspect),'aspect '// aspect_ids(i)%to_string() // ' not found')
 

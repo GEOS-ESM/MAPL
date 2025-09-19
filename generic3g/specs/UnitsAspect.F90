@@ -8,7 +8,10 @@ module mapl3g_UnitsAspect
    use mapl3g_ConvertUnitsTransform
    use mapl3g_NullTransform
    use mapl_ErrorHandling
+   use mapl3g_Field_API
+   use mapl3g_FieldBundle_API
    use udunits2f, only: are_convertible
+   use esmf
    implicit none
    private
 
@@ -21,7 +24,7 @@ module mapl3g_UnitsAspect
    end interface to_UnitsAspect
 
    type, extends(StateItemAspect) :: UnitsAspect
-      private
+!#      private
       character(:), allocatable :: units
    contains
       procedure :: matches
@@ -33,6 +36,10 @@ module mapl3g_UnitsAspect
 
       procedure :: get_units
       procedure :: set_units
+
+      procedure :: update_from_payload
+      procedure :: update_payload
+
    end type UnitsAspect
 
    interface UnitsAspect
@@ -107,7 +114,7 @@ contains
          allocate(transform, source=ConvertUnitsTransform(src%units, dst%units))
       class default
          allocate(transform, source=NullTransform())
-         _FAIL('UnitsApsect cannot convert from other supclass.')
+         _FAIL('UnitsAspect cannot convert from other supclass.')
       end select
 
       _RETURN(_SUCCESS)
@@ -130,16 +137,17 @@ contains
    end subroutine connect_to_export
 
    function to_units_from_poly(aspect, rc) result(units_aspect)
-      type(UnitsAspect) :: units_aspect
-      class(StateItemAspect), intent(in) :: aspect
+      type(UnitsAspect), pointer :: units_aspect
+      class(StateItemAspect), target, intent(in) :: aspect
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       select type(aspect)
       class is (UnitsAspect)
-         units_aspect = aspect
+         units_aspect => aspect
       class default
+         units_aspect => null()
          _FAIL('aspect is not UnitsAspect')
       end select
 
@@ -147,7 +155,7 @@ contains
    end function to_units_from_poly
 
    function to_units_from_map(map, rc) result(units_aspect)
-      type(UnitsAspect) :: units_aspect
+      type(UnitsAspect), pointer :: units_aspect
       type(AspectMap), target, intent(in) :: map
       integer, optional, intent(out) :: rc
 
@@ -155,7 +163,7 @@ contains
       class(StateItemAspect), pointer :: poly
 
       poly => map%at(UNITS_ASPECT_ID, _RC)
-      units_aspect = to_UnitsAspect(poly, _RC)
+      units_aspect => to_UnitsAspect(poly, _RC)
 
       _RETURN(_SUCCESS)
    end function to_units_from_map
@@ -189,6 +197,62 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine set_units
+
+   subroutine update_from_payload(this, field, bundle, state, rc)
+      class(UnitsAspect), intent(inout) :: this
+      type(esmf_Field), optional, intent(in) :: field
+      type(esmf_FieldBundle), optional, intent(in) :: bundle
+      type(esmf_State), optional, intent(in) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: units
+
+      _RETURN_UNLESS(present(field) .or. present(bundle))
+
+      if (present(field)) then
+         call mapl_FieldGet(field, units=units, _RC)
+      else if (present(bundle)) then
+         call mapl_FieldBundleGet(bundle, units=units, _RC)
+      end if
+
+
+      if (units == '<MIRROR>') then
+         call this%set_mirror(.true.)
+      else
+         call this%set_mirror(.false.)
+         call this%set_units(units, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine update_from_payload
+
+   subroutine update_payload(this, field, bundle, state, rc)
+      class(UnitsAspect), intent(in) :: this
+      type(esmf_Field), optional, intent(inout) :: field
+      type(esmf_FieldBundle), optional, intent(inout) :: bundle
+      type(esmf_State), optional, intent(inout) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: units
+
+      _RETURN_UNLESS(present(field) .or. present(bundle))
+
+      if (this%is_mirror()) then
+         units = '<MIRROR>'
+      else
+         units = this%get_units()
+      end if
+
+      if (present(field)) then
+         call mapl_FieldSet(field, units=units, _RC)
+      else if (present(bundle)) then
+         call mapl_FieldBundleSet(bundle, units=units, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine update_payload
 
 
 end module mapl3g_UnitsAspect

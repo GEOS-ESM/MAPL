@@ -2,6 +2,7 @@ esma_set_this (OVERRIDE MAPL.field)
 
 set(srcs
   API.F90
+  VerticalGrid.F90
   FieldUtils.F90
   FieldBLAS.F90
   FieldPointerUtilities.F90
@@ -30,7 +31,7 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.shared MAPL.esmf_utils PFLOGGER::pflogger ESMF::ESMF udunits2f
+  DEPENDENCIES MAPL.component MAPL.shared MAPL.esmf_utils PFLOGGER::pflogger ESMF::ESMF udunits2f
   TYPE SHARED
   )
   
