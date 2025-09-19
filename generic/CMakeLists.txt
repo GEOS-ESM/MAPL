@@ -71,6 +71,15 @@ target_include_directories (${this} PUBLIC
 target_link_libraries (${this} PUBLIC ESMF::ESMF NetCDF::NetCDF_Fortran
   PRIVATE OpenMP::OpenMP_Fortran)
 
+# ESMF 9 made internal changes to the Info object that underlies the (now deprecated)
+# Attribute API. So, to get attributes by index, we need to specify
+# the convention and purpose arguments. Once MAPL requires ESMF 9, remove this
+# ifdef. (Not applicable to MAPL3 which uses Info natively.)
+if (ESMF_VERSION VERSION_GREATER_EQUAL 9.0.0)
+  message(STATUS "ESMF 9 detected. Setting -DESMF_VER_GE_9")
+  target_compile_definitions(${this} PRIVATE ESMF_VER_GE_9)
+endif ()
+
 if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()
