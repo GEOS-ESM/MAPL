@@ -68,9 +68,6 @@ jobs:
           spack -e spack-env config add "concretizer:unify:false"
           spack -e spack-env config add "concretizer:reuse:false"   # <-- key bit
 
-          # (optional but helpful) Prefer exactly this ESMF version
-          spack -e spack-env config add "packages:esmf:version:[9.0.0b03]"
-
           # sanity check the effective settings
           spack -e spack-env config get concretizer
           spack -e spack-env config get packages | sed -n '/^packages:/,$p'
@@ -86,15 +83,27 @@ jobs:
           spack -e spack-env buildcache list --allarch
           spack -e spack-env buildcache list --allarch | grep -E '^esmf@' || true
 
-      - name: Select roots and concretize (reuse prebuilt if possible)
+      - name: Select roots by hash and concretize and install
         shell: spack-bash {0}
         run: |
-          spack -e spack-env add esmf@9.0.0b03 gftl gftl-shared fargparse pflogger pfunit yafyaml ecbuild udunits openblas
-          spack -e spack-env concretize --force
+          set -euo pipefail
+          # Make env tolerant + avoid reuse during solve
+          spack -e spack-env config add "concretizer:unify:false"
+          spack -e spack-env config add "concretizer:reuse:false"
 
-      - name: Install from buildcache only
-        shell: spack-bash {0}
-        run: |
+          # Find the exact ESMF 9.0.0b03 hash in the buildcache matching gcc@14.2.0 and x86_64_v3
+          HASH=$(spack -e spack-env buildcache list --allarch --format '{name}@{version} %{compiler} {target} /{hash}' \
+            | awk '/^esmf@9\.0\.0b03/ && /gcc@14\.2\.0/ && /x86_64_v3/ {print $NF; exit}')
+          test -n "$HASH" || { echo "No matching esmf@9.0.0b03 binary in buildcache for gcc@14.2.0 x86_64_v3"; exit 1; }
+
+          # Add the concrete ESMF by hash (no need for the package to know the version)
+          spack -e spack-env add /"$HASH"
+
+          # Add your other roots normally
+          spack -e spack-env add gftl gftl-shared fargparse pflogger pfunit yafyaml ecbuild udunits openblas
+
+          # Concretize and install from cache only
+          spack -e spack-env concretize --force
           spack clean -m
           spack -e spack-env install --no-check-signature --use-buildcache only
 
