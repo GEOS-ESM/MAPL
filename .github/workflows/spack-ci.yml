@@ -64,7 +64,7 @@ jobs:
         run: |
           spack env create spack-env
           spack -e spack-env config add "concretizer:unify:false"
-          spack -e spack-env config add "concretizer:reuse:true"
+          spack -e spack-env config add "concretizer:reuse:false"
           spack env activate spack-env
 
       - name: Login
@@ -74,12 +74,13 @@ jobs:
           spack -e spack-env mirror set --oci-username-variable "${{ secrets.BUILDCACHE_USERNAME }}" --oci-password-variable "${{ secrets.BUILDCACHE_TOKEN }}" geos-buildcache
           spack -e spack-env mirror list
           spack -e spack-env buildcache list --allarch
+          spack -e spack-env buildcache list --allarch | grep -E '^esmf@' || true
 
       - name: Select roots and concretize (reuse prebuilt if possible)
         shell: spack-bash {0}
         run: |
           spack -e spack-env add esmf@9.0.0b03 gftl gftl-shared fargparse pflogger pfunit yafyaml ecbuild udunits openblas
-          spack -e spack-env concretize --force --reuse   # reuse + unify:false lets CI pick an exact prebuilt
+          spack -e spack-env concretize --force --no-reuse          # <-- also OK instead of config add
 
       - name: Install from buildcache only
         shell: spack-bash {0}
