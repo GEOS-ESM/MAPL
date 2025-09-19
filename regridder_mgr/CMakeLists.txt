@@ -23,6 +23,7 @@ set(srcs
   EsmfRegridderFactory.F90
   RegridderFactoryVector.F90
   RegridderManager.F90
+  RegridderMethods.F90
 #HorzFluxRegridder.F90
 
   )
