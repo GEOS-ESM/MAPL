@@ -102,7 +102,8 @@ module mapl3g_OuterMetaComponent
       generic :: run_child => run_child_by_name
       generic :: run_children => run_children_
 
-      procedure :: get_children_names
+      procedure :: get_num_children
+      procedure :: get_child_name
       procedure :: set_entry_point
       procedure :: set_geom
       procedure :: get_name
@@ -192,10 +193,17 @@ module mapl3g_OuterMetaComponent
          integer, optional, intent(out) :: rc
       end subroutine run_children_
 
-      module function get_children_names(this) result(names)
-         class(OuterMetaComponent), target, intent(inout) :: this
-         type(StringVector) :: names
-      end function get_children_names
+      module function get_num_children(this) result(num_children)
+         class(OuterMetaComponent), target, intent(in) :: this
+         integer :: num_children
+      end function get_num_children
+
+      module function get_child_name(this, index, rc) result(name)
+         class(OuterMetaComponent), target, intent(in) :: this
+         integer, intent(in) :: index
+         integer, optional, intent(out) :: rc
+         character(len=:), allocatable :: name
+      end function get_child_name
 
       module function get_outer_meta_from_outer_gc(gridcomp, rc) result(outer_meta)
          type(OuterMetaComponent), pointer :: outer_meta
