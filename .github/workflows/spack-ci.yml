@@ -63,8 +63,18 @@ jobs:
         shell: spack-bash {0}
         run: |
           spack env create spack-env
+
+          # After creating/activating the env in CI
           spack -e spack-env config add "concretizer:unify:false"
-          spack -e spack-env config add "concretizer:reuse:false"
+          spack -e spack-env config add "concretizer:reuse:false"   # <-- key bit
+
+          # (optional but helpful) Prefer exactly this ESMF version
+          spack -e spack-env config add "packages:esmf:version:[9.0.0b03]"
+
+          # sanity check the effective settings
+          spack -e spack-env config get concretizer
+          spack -e spack-env config get packages | sed -n '/^packages:/,$p'
+
           spack env activate spack-env
 
       - name: Login
@@ -80,7 +90,7 @@ jobs:
         shell: spack-bash {0}
         run: |
           spack -e spack-env add esmf@9.0.0b03 gftl gftl-shared fargparse pflogger pfunit yafyaml ecbuild udunits openblas
-          spack -e spack-env concretize --force --no-reuse          # <-- also OK instead of config add
+          spack -e spack-env concretize --force
 
       - name: Install from buildcache only
         shell: spack-bash {0}
