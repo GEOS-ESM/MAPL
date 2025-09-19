@@ -63,6 +63,8 @@ jobs:
         shell: spack-bash {0}
         run: |
           spack env create spack-env
+          spack -e spack-env config add "concretizer:unify:false"
+          spack -e spack-env config add "concretizer:reuse:true"
           spack env activate spack-env
 
       - name: Login
@@ -73,17 +75,17 @@ jobs:
           spack -e spack-env mirror list
           spack -e spack-env buildcache list --allarch
 
-      - name: Concretize
+      - name: Select roots and concretize (reuse prebuilt if possible)
         shell: spack-bash {0}
         run: |
-          spack -e spack-env concretize
+          spack -e spack-env add esmf@9.0.0b03 gftl gftl-shared fargparse pflogger pfunit yafyaml ecbuild udunits openblas
+          spack -e spack-env concretize --force --reuse   # reuse + unify:false lets CI pick an exact prebuilt
 
-      - name: Install
+      - name: Install from buildcache only
         shell: spack-bash {0}
         run: |
           spack clean -m
-          spack -e spack-env install --add --no-check-signature --use-buildcache only \
-            esmf@9.0.0b03 gftl gftl-shared fargparse pflogger pfunit yafyaml ecbuild udunits openblas
+          spack -e spack-env install --no-check-signature --use-buildcache only
 
       - name: Build with Cmake
         shell: spack-bash {0}
