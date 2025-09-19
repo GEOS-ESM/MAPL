@@ -26,7 +26,7 @@ module mapl3g_GeomAspect
    type, extends(StateItemAspect) :: GeomAspect
 !#      private
       type(ESMF_Geom), allocatable :: geom
-      type(EsmfRegridderParam) :: regridder_param
+      type(EsmfRegridderParam), allocatable :: regridder_param
       type(HorizontalDimsSpec) :: horizontal_dims_spec = HORIZONTAL_DIMS_GEOM ! none, geom
    contains
       procedure :: matches
@@ -36,6 +36,7 @@ module mapl3g_GeomAspect
       procedure :: supports_conversion_specific
       procedure :: set_geom
       procedure :: get_geom
+      procedure :: set_regridder_param
       procedure :: get_horizontal_dims_spec
       procedure, nopass :: get_aspect_id
    end type GeomAspect
@@ -60,9 +61,8 @@ contains
          call aspect%set_mirror(.false.)
       end if
 
-      aspect%regridder_param = EsmfRegridderParam() ! default
       if (present(regridder_param)) then
-         aspect%regridder_param = regridder_param
+         allocate(aspect%regridder_param, source=regridder_param)
       end if
 
       aspect%horizontal_dims_spec = HORIZONTAL_DIMS_GEOM ! default
@@ -120,6 +120,7 @@ contains
 
       integer :: status
       type(GeomAspect) :: dst_
+      type(EsmfRegridderParam) :: regridder_param
 
       allocate(transform,source=NullTransform()) ! just in case
       dst_ = to_GeomAspect(dst, _RC)
@@ -129,11 +130,36 @@ contains
       if (src%is_mirror()) then
          allocate(transform, source=ExtendTransform())
       else
-         allocate(transform, source=RegridTransform(src%geom, dst_%geom, dst_%regridder_param))
+         regridder_param = get_regridder_param(src, dst_, _RC)
+         allocate(transform, source=RegridTransform(src%geom, dst_%geom, regridder_param))
       end if
 
       _RETURN(_SUCCESS)
    end function make_transform
+
+   function get_regridder_param(src_aspect, dst_aspect, rc) result(regridder_param)
+      type(EsmfRegridderParam) :: regridder_param
+      class(GeomAspect), intent(in) :: src_aspect
+      class(GeomAspect), intent(in) :: dst_aspect
+      integer, optional, intent(out) :: rc
+
+      logical :: allocated_dst_rgdr_param
+      logical :: allocated_src_rgdr_param
+
+      allocated_dst_rgdr_param = allocated(dst_aspect%regridder_param)
+      allocated_src_rgdr_param = allocated(src_aspect%regridder_param)
+
+      if (allocated_dst_rgdr_param .and. allocated_src_rgdr_param) then
+         _FAIL('both src and dst specified regridder params only one can')
+      else if (allocated_dst_rgdr_param .and. (.not. allocated_src_rgdr_param)) then
+         regridder_param = dst_aspect%regridder_param
+      else if (allocated_src_rgdr_param .and. (.not. allocated_dst_rgdr_param)) then
+         regridder_param = src_aspect%regridder_param
+      else
+         regridder_param = EsmfRegridderParam() ! default
+      end if 
+      _RETURN(_SUCCESS)
+   end function get_regridder_param
 
    subroutine set_geom(this, geom)
       class(GeomAspect), intent(inout) :: this
@@ -143,6 +169,14 @@ contains
       call this%set_mirror(.false.)
       
    end subroutine set_geom
+
+   subroutine set_regridder_param(this, regridder_param)
+      class(GeomAspect), intent(inout) :: this
+      type(EsmfRegridderParam) :: regridder_param
+
+      this%regridder_param = regridder_param
+      
+   end subroutine set_regridder_param
 
    function get_geom(this, rc) result(geom)
       class(GeomAspect), intent(in) :: this
