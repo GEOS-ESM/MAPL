@@ -4,6 +4,8 @@ module mapl3g_HistoryCollectionGridComp_private
    use esmf
    use gFTL2_StringVector
    use gFTL2_StringSet
+   use mapl3g_EsmfRegridder, only: EsmfRegridderParam
+   use mapl3g_RegridderMethods
 
    implicit none(type,external)
    private
@@ -26,6 +28,7 @@ module mapl3g_HistoryCollectionGridComp_private
       type(ESMF_TimeInterval), allocatable :: timeStep
       type(ESMF_TimeInterval), allocatable :: runTime_offset
       character(len=:), allocatable :: accumulation_type
+      type(EsmfRegridderParam) :: regrid_param
    end type HistoryOptions
 
    interface parse_item
@@ -291,7 +294,9 @@ contains
          short_name = ftn_iter%of()
          varspec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name, &
               units=opts%units, typekind=opts%typekind, &
-              accumulation_type=opts%accumulation_type, timestep = opts%timestep, offset=opts%runTime_offset, &
+              accumulation_type=opts%accumulation_type, timestep = opts%timestep, &
+              offset=opts%runTime_offset, &
+              regrid_param = opts%regrid_param, &
               _RC)
          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
       end do
@@ -308,6 +313,7 @@ contains
       call parse_frequency_aspect_options(hconfig, options, _RC)
       call parse_units_aspect_options(hconfig, options, _RC)
       call parse_typekind_aspect_options(hconfig, options, _RC)
+      call parse_regridder_option(hconfig, options, _RC)
       _RETURN(_SUCCESS)
 
    end subroutine parse_options_hconfig
@@ -471,5 +477,25 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_frequency
+
+   subroutine parse_regridder_option(hconfig, options, rc)
+      type(ESMF_HConfig), intent(in) :: hconfig
+      class(HistoryOptions), intent(inout) :: options
+      integer, optional, intent(out) :: rc
+
+      integer :: status, regrid_method_int
+      logical :: is_defined
+      character(len=:), allocatable :: regrid_method_str
+
+      is_defined = ESMF_HConfigIsDefined(hconfig, keyString='regrid', _RC)
+      options%regrid_param = generate_esmf_regrid_param(REGRID_METHOD_BILINEAR, ESMF_TYPEKIND_R4, _RC)
+      if (is_defined) then
+         regrid_method_str = ESMF_HConfigAsString(hconfig, keyString='regrid', _RC)
+         regrid_method_int = regrid_method_string_to_int(regrid_method_str)
+         options%regrid_param = generate_esmf_regrid_param(regrid_method_int, ESMF_TYPEKIND_R4, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine 
 
 end module mapl3g_HistoryCollectionGridComp_private

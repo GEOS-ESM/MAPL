@@ -14,6 +14,7 @@ module mapl3g_StateItemModify
    use mapl3g_VerticalGrid
    use mapl3g_FieldInfo, only: FieldInfoGetInternal
    use mapl3g_FieldBundleInfo, only: FieldBundleInfoGetInternal
+   use mapl3g_regridder_mgr, only: EsmfRegridderParam
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
@@ -37,7 +38,7 @@ contains
 
 
    subroutine field_modify(field, unusable, geom, vertical_grid, vertical_stagger, ungridded_dims, &
-        units, typekind, has_deferred_aspects, rc)
+        units, typekind, regridder_param, has_deferred_aspects, rc)
       type(ESMF_Field), intent(inout) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
@@ -46,6 +47,7 @@ contains
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       character(*), optional, intent(in) :: units
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
+      type(EsmfRegridderParam), optional, intent(in) :: regridder_param
       logical, optional, intent(in) :: has_deferred_aspects 
       integer, optional, intent(out) :: rc
 
@@ -63,6 +65,7 @@ contains
            ungridded_dims=ungridded_dims, &
            units=units, &
            typekind=typekind, &
+           regridder_param=regridder_param, &
            has_deferred_aspects=has_deferred_aspects, &
            _RC)
 
@@ -70,7 +73,7 @@ contains
 
 
    subroutine bundle_modify(fieldbundle, unusable, geom, vertical_grid, vertical_stagger, ungridded_dims, &
-        units, typekind, has_deferred_aspects, rc)
+        units, typekind, regridder_param, has_deferred_aspects, rc)
       type(ESMF_FieldBundle), intent(inout) :: fieldbundle
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
@@ -79,6 +82,7 @@ contains
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       character(*), optional, intent(in) :: units
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
+      type(EsmfRegridderParam), optional, intent(in) :: regridder_param
       logical, optional, intent(in) :: has_deferred_aspects
       integer, optional, intent(out) :: rc
 
@@ -97,13 +101,14 @@ contains
            ungridded_dims=ungridded_dims, &
            units=units, &
            typekind=typekind, &
+           regridder_param=regridder_param, &
            has_deferred_aspects=has_deferred_aspects, &
            _RC)
 
    end subroutine bundle_modify
 
    subroutine stateitem_modify(spec_handle, unusable, geom, vertical_grid, vertical_stagger, ungridded_dims, &
-        units, typekind, has_deferred_aspects, rc)
+        units, typekind, regridder_param, has_deferred_aspects, rc)
       integer, intent(in) :: spec_handle(:)
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
@@ -112,6 +117,7 @@ contains
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       character(*), optional, intent(in) :: units
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
+      type(EsmfRegridderParam), optional, intent(in) :: regridder_param
       logical, optional, intent(in) :: has_deferred_aspects
       integer, optional, intent(out) :: rc
 
@@ -128,6 +134,16 @@ contains
          select type(aspect)
          type is (GeomAspect)
             call aspect%set_geom(geom)
+         class default
+            _FAIL('incorrect aspect')
+         end select
+      end if
+
+      if (present(regridder_param)) then
+         aspect => spec%get_aspect(GEOM_ASPECT_ID)
+         select type(aspect)
+         type is (GeomAspect)
+            call aspect%set_regridder_param(regridder_param)
          class default
             _FAIL('incorrect aspect')
          end select
