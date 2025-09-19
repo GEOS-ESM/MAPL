@@ -22,9 +22,7 @@ contains
       _ASSERT(index <= this%get_num_children(), "index should be <= num_children")
 
       iter = this%children%ftn_begin()
-      do i = 1, index
-         call iter%next()
-      end do
+      call advance(iter, index)
       name = iter%first()
 
       _RETURN(_SUCCESS)
