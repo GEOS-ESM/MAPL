@@ -1,4 +1,3 @@
-
 #include "MAPL.h"
 
 !---------------------------------------------------------------------
@@ -55,6 +54,7 @@ module mapl3g_Generic
    use esmf, only: ESMF_State, ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD
    use esmf, only: operator(==)
    use pflogger, only: logger_t => logger
+   use gftl2_StringVector, only: StringVector
 
    implicit none
    private
@@ -78,6 +78,7 @@ module mapl3g_Generic
    public :: MAPL_GridCompAddChild
    public :: MAPL_GridCompRunChild
    public :: MAPL_GridCompRunChildren
+   public :: MAPL_GridCompGetChildrenNames
 
    public :: MAPL_GridCompGetInternalState
 
@@ -146,6 +147,10 @@ module mapl3g_Generic
    interface MAPL_GridCompRunChildren
       procedure :: gridcomp_run_children
    end interface MAPL_GridCompRunChildren
+
+   interface MAPL_GridCompGetChildrenNames
+      procedure :: gridcomp_get_children_names
+   end interface MAPL_GridCompGetChildrenNames
 
    interface MAPL_GridCompAddVarSpec
       procedure :: gridcomp_add_varspec_basic
@@ -416,7 +421,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gridcomp_add_child_by_spec
 
-
    ! In this procedure, gridcomp is actually an _outer_ gridcomp.   The intent is that
    ! an inner gridcomp will call this on its child which is a wrapped user comp.
    recursive subroutine gridcomp_run_child_by_name(gridcomp, child_name, unusable, phase_name, rc)
@@ -436,7 +440,6 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_run_child_by_name
 
-
    recursive subroutine gridcomp_run_children(gridcomp, unusable, phase_name, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -453,6 +456,19 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_run_children
 
+   function gridcomp_get_children_names(gridcomp, rc) result(names)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      integer, optional, intent(out) :: rc
+      type(StringVector) :: names
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      names = outer_meta%get_children_names()
+
+      _RETURN(_SUCCESS)
+   end function gridcomp_get_children_names
 
    subroutine gridcomp_set_entry_point(gridcomp, method_flag, userProcedure, unusable, phase_name, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
