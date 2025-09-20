@@ -7,3 +7,5 @@ Note all test cases are in a numbered directory caseX, where a X is an integer a
 5. simple everytime update with daily files and time interpolation
 9. Single time file, persisted at all times
 19. Test set file to /dev/null
+22. Test multiple rules for an item
+39. Test adding a scaling and offset to an item
