@@ -1,4 +1,3 @@
-
 #include "MAPL.h"
 
 !---------------------------------------------------------------------
@@ -36,8 +35,9 @@ module mapl3g_Generic
    use mapl3g_UngriddedDims, only: UngriddedDims
    use mapl3g_StateItem, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
    use mapl3g_ESMF_Utilities, only: esmf_state_intent_to_string
+   use mapl3g_ESMF_Interfaces, only: MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
    use mapl3g_hconfig_get
-   use mapl3g_RestartModes, only: MAPL_RESTART_MODE
+   use mapl3g_RestartModes, only: RestartMode
    use mapl_InternalConstantsMod
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
@@ -55,6 +55,7 @@ module mapl3g_Generic
    use esmf, only: ESMF_State, ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD
    use esmf, only: operator(==)
    use pflogger, only: logger_t => logger
+   use gftl2_StringVector, only: StringVector
 
    implicit none
    private
@@ -76,6 +77,7 @@ module mapl3g_Generic
    public :: MAPL_GridCompSetEntryPoint
 
    public :: MAPL_GridCompAddChild
+   public :: MAPL_GridCompGetChildName
    public :: MAPL_GridCompRunChild
    public :: MAPL_GridCompRunChildren
 
@@ -102,6 +104,8 @@ module mapl3g_Generic
 
    ! Spec types
    public :: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
+
+   public :: MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
 
    ! Interfaces
 
@@ -138,6 +142,10 @@ module mapl3g_Generic
       procedure :: gridcomp_add_child_by_config
       procedure :: gridcomp_add_child_by_spec
    end interface MAPL_GridCompAddChild
+
+   interface MAPL_GridCompGetChildName
+      procedure :: gridcomp_get_child_name_by_index
+   end interface MAPL_GridCompGetChildName
 
    interface MAPL_GridCompRunChild
       procedure :: gridcomp_run_child_by_name
@@ -267,6 +275,7 @@ contains
         geom, &
         grid, &
         num_levels, &
+        num_children, &
         rc)
 
       type(ESMF_GridComp), intent(inout) :: gridcomp
@@ -277,6 +286,7 @@ contains
       type(ESMF_Geom), optional, intent(out) :: geom
       type(ESMF_Grid), optional, intent(out) :: grid
       integer, optional, intent(out) :: num_levels
+      integer, optional, intent(out) :: num_children
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -302,6 +312,10 @@ contains
       if (present(name)) then
          call esmf_GridCompGet(gridcomp, name=buffer, _RC)
          name = trim(buffer)
+      end if
+
+      if (present(num_children)) then
+         num_children = outer_meta_%get_num_children()
       end if
 
       _RETURN(_SUCCESS)
@@ -416,7 +430,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gridcomp_add_child_by_spec
 
-
    ! In this procedure, gridcomp is actually an _outer_ gridcomp.   The intent is that
    ! an inner gridcomp will call this on its child which is a wrapped user comp.
    recursive subroutine gridcomp_run_child_by_name(gridcomp, child_name, unusable, phase_name, rc)
@@ -436,7 +449,6 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_run_child_by_name
 
-
    recursive subroutine gridcomp_run_children(gridcomp, unusable, phase_name, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -453,6 +465,20 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_run_children
 
+   function gridcomp_get_child_name_by_index(gridcomp, index, rc) result(name)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      integer, intent(in) :: index
+      integer, optional, intent(out) :: rc
+      character(len=:), allocatable :: name
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      name = outer_meta%get_child_name(index, _RC)
+
+      _RETURN(_SUCCESS)
+   end function gridcomp_get_child_name_by_index
 
    subroutine gridcomp_set_entry_point(gridcomp, method_flag, userProcedure, unusable, phase_name, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
@@ -515,7 +541,7 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(UngriddedDim), optional, intent(in) :: ungridded_dims(:)
       character(*), optional, intent(in) :: units
-      integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(in) :: restart
+      type(RestartMode), optional, intent(in) :: restart
       type(ESMF_StateItem_Flag), optional, intent(in) :: itemType
       logical, optional, intent(in) :: add_to_export
       logical, optional, intent(in) :: has_deferred_aspects
@@ -527,7 +553,6 @@ contains
       type(ComponentSpec), pointer :: component_spec
       character(len=:), allocatable :: units_
       type(UngriddedDims), allocatable :: dim_specs_vec
-      character(len=ESMF_MAXSTR) :: gridcomp_name
       integer :: status
 
       _ASSERT((dims=="xyz") .or. (dims=="xy") .or. (dims=="z"), "dims can be one of xyz/xy/z")
@@ -539,11 +564,9 @@ contains
       ! If input units is present, override using input values
       if (present(units)) units_ = units
       if (present(ungridded_dims)) dim_specs_vec = UngriddedDims(ungridded_dims)
-      call ESMF_GridCompGet(gridcomp, name=gridcomp_name, _RC)
       var_spec = make_VariableSpec( &
            state_intent, &
            short_name, &
-           gridcomp_name=trim(gridcomp_name), &
            standard_name=standard_name, &
            units=units_, &
            itemType=itemType, &
@@ -1025,7 +1048,7 @@ contains
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
       call component_spec%add_connectivity(src_comp=src_comp, src_names=src_names, dst_comp=dst_comp, dst_names=dst_names, _RC)
-      
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_add_simple_connectivity

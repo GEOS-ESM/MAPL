@@ -36,7 +36,7 @@ module mapl3g_VariableSpec
    use mapl3g_EsmfRegridder, only: EsmfRegridderParam
    use mapl3g_FieldDictionary
    use mapl_KeywordEnforcerMod
-   use mapl3g_RestartModes, only: MAPL_RESTART_MODE
+   use mapl3g_RestartModes, only: RestartMode
    use esmf
    use gFTL2_StringVector
    use nuopc
@@ -63,15 +63,12 @@ module mapl3g_VariableSpec
       !=====================
       ! class aspect
       !=====================
-      ! Gridcomp
-      character(:), allocatable :: gridcomp_name
-
       !---------------------
       ! Field & Vector
       !---------------------
       character(:), allocatable :: standard_name
       character(:), allocatable :: long_name ! from FieldDictionary or override
-      integer(kind=kind(MAPL_RESTART_MODE)), allocatable :: restart_mode
+      type(RestartMode), allocatable :: restart_mode
       !---------------------
       ! Vector
       !---------------------
@@ -162,7 +159,6 @@ contains
 
    function make_VariableSpec( &
         state_intent, short_name, unusable, &
-        gridcomp_name, &
         standard_name, &
         geom, &
         units, &
@@ -192,7 +188,6 @@ contains
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       ! Optional args:
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      character(*), optional, intent(in) :: gridcomp_name
       character(*), optional, intent(in) :: standard_name
       type(ESMF_Geom), optional, intent(in) :: geom
       character(*), optional, intent(in) :: units
@@ -214,7 +209,7 @@ contains
       type(ESMF_TimeInterval), optional, intent(in) :: offset
       type(StringVector), optional, intent(in) :: vector_component_names
       logical, optional, intent(in) :: has_deferred_aspects
-      integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(in) :: restart_mode
+      type(RestartMode), optional, intent(in) :: restart_mode
       integer, optional, intent(out) :: rc
 
 !#      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
@@ -228,7 +223,6 @@ contains
 #  undef _SET_OPTIONAL
 #endif
 #define _SET_OPTIONAL(opt) if (present(opt)) var_spec%opt = opt
-      _SET_OPTIONAL(gridcomp_name)
       _SET_OPTIONAL(standard_name)
       _SET_OPTIONAL(geom)
       _SET_OPTIONAL(units)
@@ -567,8 +561,6 @@ contains
       case (MAPL_STATEITEM_FIELD%ot)
          aspect = FieldClassAspect( &
               standard_name=this%standard_name, &
-              gridcomp_name=this%gridcomp_name, &
-              short_name=this%short_name, &
               default_value=this%default_value, &
               restart_mode=this%restart_mode)
       case (MAPL_STATEITEM_FIELDBUNDLE%ot)
