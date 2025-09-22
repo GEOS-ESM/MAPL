@@ -22,8 +22,8 @@ module mapl3g_VerticalRegridTransform
    public :: VERTICAL_REGRID_LINEAR
    public :: VERTICAL_REGRID_CONSERVATIVE
    public :: operator(==), operator(/=)
-   public :: IMPORT_FIELD_NAME
-   public :: EXPORT_FIELD_NAME
+   public :: COUPLER_IMPORT_NAME
+   public :: COUPLER_EXPORT_NAME
 
    type, extends(ExtensionTransform) :: VerticalRegridTransform
       type(ESMF_Field) :: v_in_coord, v_out_coord
@@ -43,8 +43,8 @@ module mapl3g_VerticalRegridTransform
       procedure :: new_VerticalRegridTransform
    end interface VerticalRegridTransform
 
-   character(len=*), parameter :: IMPORT_FIELD_NAME = 'import[1]'
-   character(len=*), parameter :: EXPORT_FIELD_NAME = 'export[1]'
+   character(len=*), parameter :: COUPLER_IMPORT_NAME = 'coupler_import'
+   character(len=*), parameter :: COUPLER_EXPORT_NAME = 'coupler_export'
 
 contains
 
@@ -106,17 +106,17 @@ contains
 
       call compute_interpolation_matrix_(this%v_in_coord, this%v_out_coord, this%matrix, _RC)
 
-      call ESMF_StateGet(importState, itemName=IMPORT_FIELD_NAME, itemtype=itemtype_in, _RC)
-      call ESMF_StateGet(exportState, itemName=EXPORT_FIELD_NAME, itemtype=itemtype_out, _RC)
+      call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, itemtype=itemtype_in, _RC)
+      call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, itemtype=itemtype_out, _RC)
       _ASSERT(itemtype_out == itemtype_in, "Mismathed item types.")
 
       if (itemtype_in == MAPL_STATEITEM_FIELD) then
-         call ESMF_StateGet(importState, itemName=IMPORT_FIELD_NAME, field=f_in, _RC)
-         call ESMF_StateGet(exportState, itemName=EXPORT_FIELD_NAME, field=f_out, _RC)
+         call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=f_in, _RC)
+         call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=f_out, _RC)
          call regrid_field_(this%matrix, f_in, f_out, _RC)
       elseif (itemtype_in == MAPL_STATEITEM_FIELDBUNDLE) then
-         call ESMF_StateGet(importState, itemName=IMPORT_FIELD_NAME, fieldBundle=fb_in, _RC)
-         call ESMF_StateGet(exportState, itemName=EXPORT_FIELD_NAME, fieldBundle=fb_out, _RC)
+         call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, fieldBundle=fb_in, _RC)
+         call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, fieldBundle=fb_out, _RC)
          call MAPL_FieldBundleGet(fb_in, fieldlist=fieldlist_in, _RC)
          call MAPL_FieldBundleGet(fb_out, fieldlist=fieldlist_out, _RC)
          do i = 1, size(fieldlist_in)

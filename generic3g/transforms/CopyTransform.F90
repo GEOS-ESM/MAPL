@@ -12,8 +12,8 @@ module mapl3g_CopyTransform
 
    private
    public :: CopyTransform
-   public :: IMPORT_FIELD_NAME
-   public :: EXPORT_FIELD_NAME
+   public :: COUPLER_IMPORT_NAME
+   public :: COUPLER_EXPORT_NAME
 
    type, extends(ExtensionTransform) :: CopyTransform
       private
@@ -30,8 +30,8 @@ module mapl3g_CopyTransform
        module procedure new_CopyTransform
    end interface CopyTransform
 
-   character(len=*), parameter :: IMPORT_FIELD_NAME = 'import[1]'
-   character(len=*), parameter :: EXPORT_FIELD_NAME = 'export[1]'
+   character(len=*), parameter :: COUPLER_IMPORT_NAME = 'coupler_import'
+   character(len=*), parameter :: COUPLER_EXPORT_NAME = 'coupler_export'
 
 contains
 
@@ -76,8 +76,8 @@ contains
       integer :: status
       type(ESMF_Field) :: f_in, f_out
 
-      call ESMF_StateGet(importState, itemName=IMPORT_FIELD_NAME, field=f_in, _RC)
-      call ESMF_StateGet(exportState, itemName=EXPORT_FIELD_NAME, field=f_out, _RC)
+      call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=f_in, _RC)
+      call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=f_out, _RC)
 
       call FieldCopy(f_in, f_out, _RC)
 

@@ -13,8 +13,8 @@ module mapl3g_ConvertUnitsTransform
    private
 
    public :: ConvertUnitsTransform
-   public :: IMPORT_FIELD_NAME
-   public :: EXPORT_FIELD_NAME
+   public :: COUPLER_IMPORT_NAME
+   public :: COUPLER_EXPORT_NAME
 
    type, extends(ExtensionTransform) :: ConvertUnitsTransform
       private
@@ -32,8 +32,8 @@ module mapl3g_ConvertUnitsTransform
       procedure new_converter
    end interface ConvertUnitsTransform
 
-   character(len=*), parameter :: IMPORT_FIELD_NAME = 'import[1]'
-   character(len=*), parameter :: EXPORT_FIELD_NAME = 'export[1]'
+   character(len=*), parameter :: COUPLER_IMPORT_NAME = 'coupler_import'
+   character(len=*), parameter :: COUPLER_EXPORT_NAME = 'coupler_export'
 
 contains
 
@@ -82,8 +82,8 @@ contains
       real(kind=ESMF_KIND_R8), pointer :: x8_in(:)
       real(kind=ESMF_KIND_R8), pointer :: x8_out(:)
 
-      call ESMF_StateGet(importState, itemName=IMPORT_FIELD_NAME, field=f_in, _RC)
-      call ESMF_StateGet(exportState, itemName=EXPORT_FIELD_NAME, field=f_out, _RC)
+      call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=f_in, _RC)
+      call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=f_out, _RC)
 
       call ESMF_FieldGet(f_in, typekind=typekind, _RC)
       if (typekind == ESMF_TYPEKIND_R4) then
