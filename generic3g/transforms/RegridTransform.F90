@@ -145,7 +145,6 @@ contains
          call this%update_transform(geom_in, geom_out)
          do_transform = check_do_transform(fb_in, fb_out, _RC)
          if (do_transform) then
-            _HERE, do_transform
             call this%regrdr%regrid(fb_in, fb_out, _RC)
          end if
       end if
