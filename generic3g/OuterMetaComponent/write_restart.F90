@@ -34,10 +34,7 @@ contains
       driver => this%get_user_gc_driver()
       call esmf_ClockGet(driver%get_clock(), currTime=currTime, _RC)
 
-      restart_handler = RestartHandler( &
-           this%get_geom(), &
-           currTime, &
-           this%get_logger())
+      restart_handler = RestartHandler(this%get_geom(), currTime, this%get_logger())
 
       states = driver%get_states()
       subdir = get_checkpoint_subdir(this%hconfig, currTime, _RC)

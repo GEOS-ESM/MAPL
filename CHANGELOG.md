@@ -99,13 +99,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Change a few keyword names in sampler for consistency with HISTORY
-- Fix for NAG + macOS Arm which does not support IEEE halting properly
-
 ### Added
 
 ### Changed
 
+### Removed
+
+### Deprecated
+
+## [2.61.0] - 2025-09-18
+
+### Changed
+
+- Added support for ESMF 9
+  - Requires `#ifdef` to support changes in deprecated `ESMF_Attribute` API in ESMF 9
+- Improved some error statements
+
+## [2.60.0] - 2025-09-11
+
+### Fixed
+
+- Fix NRL Solar Constant read routine for cycle-Cycle24 option
+- Change a few keyword names in sampler for consistency with HISTORY
+- Fixes for NVHPC: Move some subroutines in `MAPL_MaskMod` from submodule to module
+- Fix for NAG + macOS Arm which does not support IEEE halting properly
+
+### Changed
+
+- Updated the default `VERSION` in History to `1` (which has been the effective default in `HISTORY.rc` for some time)
 - Update `components.yaml`
   - `ESMA_env` v5.13.0
     - Update to Baselibs 8.18.0
@@ -120,10 +141,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Support for libaec
     - Add `FindISSM.cmake`
 - Update CI to use Baselibs 8.18.0
-
-### Removed
-
-### Deprecated
+- Allow row lookups to return key if key in values (ACG2)
 
 ## [2.59.0] - 2025-08-06
 

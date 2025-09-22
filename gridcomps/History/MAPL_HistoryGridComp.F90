@@ -549,7 +549,7 @@ contains
     call ESMF_ConfigGetAttribute(config, value=snglcol,          &
                                          label='SINGLE_COLUMN:', default=0, _RC)
     call ESMF_ConfigGetAttribute(config, value=intstate%version,          &
-                                         label='VERSION:', default=0, _RC)
+                                         label='VERSION:', default=1, _RC)
     if( MAPL_AM_I_ROOT() ) then
        print *
        print *, 'EXPSRC:',trim(INTSTATE%expsrc)

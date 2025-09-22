@@ -9,6 +9,8 @@ module mapl3g_RestartHandler
    use mapl3g_geomio, only: bundle_to_metadata, GeomPFIO, make_geom_pfio, get_mapl_geom
    use mapl3g_FieldInfo, only: FieldInfoGetInternal
    use mapl3g_RestartModes, only: RestartMode, operator(==), MAPL_RESTART_SKIP
+   use mapl3g_Field_API, only: MAPL_FieldGet
+   use mapl3g_FieldBundle_API, only: MAPL_FieldBundleAdd, MAPL_FieldBundleGet
    use pFIO, only: PFIO_READ, FileMetaData, NetCDF4_FileFormatter
    use pFIO, only: i_Clients, o_Clients
    use pFlogger, only: logging, logger
@@ -28,7 +30,8 @@ module mapl3g_RestartHandler
       procedure, public :: read
       procedure, private :: write_bundle_
       procedure, private :: read_bundle_
-      procedure, private :: filter_fields_create_bundle_
+      procedure, private :: get_field_bundle_from_state_
+      procedure, private :: filter_fields_
    end type RestartHandler
 
    interface RestartHandler
@@ -62,7 +65,7 @@ contains
       _RETURN_UNLESS(item_count>0)
 
       call this%lgr%info("Writing checkpoint: %a", filename)
-      bundle = this%filter_fields_create_bundle_(state, _RC)
+      bundle = this%get_field_bundle_from_state_(state, _RC)
       call this%write_bundle_(bundle, filename, rc)
       call ESMF_FieldBundleDestroy(bundle, _RC)
 
@@ -89,7 +92,8 @@ contains
          _RETURN(_SUCCESS)
       end if
       call this%lgr%info("Reading restart: %a", trim(filename))
-      bundle = this%filter_fields_create_bundle_(state, _RC)
+      bundle = this%get_field_bundle_from_state_(state, _RC)
+      bundle = this%filter_fields_(bundle, _RC)
       call this%read_bundle_(filename, bundle, _RC)
       call ESMF_FieldBundleDestroy(bundle, _RC)
 
@@ -145,39 +149,70 @@ contains
       _RETURN(_SUCCESS)
    end subroutine read_bundle_
 
-   function filter_fields_create_bundle_(this, state, rc) result(bundle)
+   recursive function get_field_bundle_from_state_(this, state, rc) result(bundle)
       class(RestartHandler), intent(in) :: this
       type(ESMF_State), intent(in) :: state
       integer, optional, intent(out) :: rc
       type(ESMF_FieldBundle) :: bundle ! result
 
-      type(ESMF_Field) :: field
-      character(len=ESMF_MAXSTR), allocatable :: names(:)
-      type (ESMF_StateItem_Flag), allocatable  :: types(:)
-      type(ESMF_Info) :: info
-      integer :: alias_id
-      type(RestartMode) :: restart_mode
-      integer :: idx, num_fields, status
+      ! character(len=:), allocatable :: prefix
+      type(ESMF_Field) :: field, alias
+      type(ESMF_Field), allocatable :: field_list(:)
+      type(ESMF_FieldBundle) :: bundle2
+      type (ESMF_StateItem_Flag), allocatable  :: item_types(:)
+      character(len=ESMF_MAXSTR), allocatable :: item_names(:)
+      character(len=:), allocatable :: item_name, short_name
+      integer :: idx, jdx, item_count, status
 
-      call ESMF_StateGet(state, itemCount=num_fields, _RC)
-      allocate(names(num_fields), _STAT)
-      allocate(types(num_fields), _STAT)
-      call ESMF_StateGet(state, itemNameList=names, itemTypeList=types, _RC)
       bundle = ESMF_FieldBundleCreate(_RC)
-      do idx = 1, num_fields
-         if (types(idx) /= ESMF_STATEITEM_FIELD) then
-            call this%lgr%warning("Item [ %a ] is not a field! Not handled at the moment", trim(names(idx)))
-            cycle
+      call ESMF_StateGet(state, itemCount=item_count, _RC)
+      allocate(item_names(item_count), _STAT)
+      allocate(item_types(item_count), _STAT)
+      call ESMF_StateGet(state, itemNameList=item_names, itemTypeList=item_types, _RC)
+      do idx = 1, item_count
+         if (allocated(field_list)) deallocate(field_list, _STAT)
+         item_name = trim(item_names(idx))
+         if (item_types(idx) == ESMF_STATEITEM_FIELD) then
+            call ESMF_StateGet(state, item_name, field, _RC)
+            call MAPL_FieldBundleAdd(bundle, [field], _RC)
+         else if (item_types(idx) == ESMF_STATEITEM_FIELDBUNDLE) then
+            call ESMF_StateGet(state, item_name, bundle2, _RC)
+            call MAPL_FieldBundleGet(bundle2, fieldList=field_list, _RC)
+            do jdx = 1, size(field_list)
+               call MAPL_FieldGet(field_list(jdx), short_name=short_name, _RC)
+               alias = ESMF_NamedAlias(field_list(jdx), name=item_name//"_"//short_name, _RC)
+               call MAPL_FieldBundleAdd(bundle, [alias], _RC)
+            end do
+         else
+            call this%lgr%warning("Item [ %a ] is not a field/bundle! Not handled", item_name)
          end if
-         call ESMF_StateGet(state, names(idx), field, _RC)
-         call ESMF_InfoGetFromHost(field, info, _RC)
-         call ESMF_NamedAliasGet(field, id=alias_id, _RC)
-         call FieldInfoGetInternal(info, alias_id, restart_mode, _RC)
-         if (restart_mode==MAPL_RESTART_SKIP) cycle
-         call ESMF_FieldBundleAdd(bundle, [field], _RC)
       end do
 
       _RETURN(_SUCCESS)
-   end function filter_fields_create_bundle_
+   end function get_field_bundle_from_state_
+
+   function filter_fields_(this, bundle_in, rc) result(filtered_bundle)
+      class(RestartHandler), intent(in) :: this
+      type(ESMF_FieldBundle), intent(in) :: bundle_in
+      integer, optional, intent(out) :: rc
+      type(ESMF_FieldBundle) :: filtered_bundle ! result
+
+      type(ESMF_Field), allocatable :: field_list(:)
+      type(ESMF_Info) :: info
+      type(RestartMode) :: restart_mode
+      integer :: idx, alias_id, status
+
+      filtered_bundle = ESMF_FieldBundleCreate(_RC)
+      call MAPL_FieldBundleGet(bundle_in, fieldList=field_list, _RC)
+      do idx = 1, size(field_list)
+         call ESMF_InfoGetFromHost(field_list(idx), info, _RC)
+         call ESMF_NamedAliasGet(field_list(idx), id=alias_id, _RC)
+         call FieldInfoGetInternal(info, alias_id, restart_mode, _RC)
+         if (restart_mode==MAPL_RESTART_SKIP) cycle
+         call MAPL_FieldBundleAdd(filtered_bundle, [field_list(idx)], _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+   end function filter_fields_
 
 end module mapl3g_RestartHandler
