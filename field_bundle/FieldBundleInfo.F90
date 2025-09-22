@@ -17,6 +17,7 @@ module mapl3g_FieldBundleInfo
 
    public :: FieldBundleInfoGetInternal
    public :: FieldBundleInfoSetInternal
+   public :: FieldBundleInfoIsPresentInternal
 
    interface FieldBundleInfoGetInternal
       procedure fieldbundle_get_internal
@@ -24,6 +25,10 @@ module mapl3g_FieldBundleInfo
 
    interface FieldBundleInfoSetInternal
       procedure fieldbundle_set_internal
+   end interface
+
+   interface FieldBundleInfoIsPresentInternal
+      procedure fieldbundle_is_present_internal
    end interface
 
    character(*), parameter :: KEY_FIELDBUNDLETYPE_FLAG = '/FieldBundleType_Flag'
@@ -220,5 +225,29 @@ contains
 
              
    end subroutine fieldbundle_set_internal
+
+   subroutine fieldbundle_is_present_internal(info, unusable, namespace, do_regrid_transform, rc)
+      type(ESMF_Info), intent(inout) :: info
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(*), optional, intent(in) :: namespace
+      logical, optional, intent(out) :: do_regrid_transform
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: namespace_
+
+      namespace_ = INFO_INTERNAL_NAMESPACE
+      if (present(namespace)) then
+         namespace_ = namespace
+      end if
+
+      if (present(do_regrid_transform)) then
+         do_regrid_transform = ESMF_InfoIsPresent(info, key=namespace_ // KEY_REGRID_TRANSFORM, _RC)
+      end if
+
+       _RETURN(_SUCCESS)
+       _UNUSED_DUMMY(unusable)
+
+   end subroutine fieldbundle_is_present_internal
 
 end module mapl3g_FieldBundleInfo

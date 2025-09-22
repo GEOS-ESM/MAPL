@@ -160,13 +160,19 @@ contains
       type(ESMF_FieldBundle), intent(in) :: fb_out
       integer, optional, intent(out) :: rc
 
-      logical :: present_in, present_out, do_trans_in, do_trans_out 
+      logical :: do_trans_in, do_trans_out, present_in, present_out 
       integer :: status
 
-      call MAPL_FieldBundleGet(fb_in, do_regrid_transform=do_trans_in, rc=status)
-      present_in = (status == _SUCCESS)
-      call MAPL_FieldBundleGet(fb_out, do_regrid_transform=do_trans_out, rc=status)
-      present_out = (status == _SUCCESS)
+      do_trans_in = .true.
+      do_trans_out = .true.
+      call MAPL_FieldBundleIsPresent(fb_in, do_regrid_transform=present_in, _RC)
+      if (present_in) then
+         call MAPL_FieldBundleGet(fb_in, do_regrid_transform=do_trans_in, _RC)
+      end if
+      call MAPL_FieldBundleIsPresent(fb_out, do_regrid_transform=present_out, _RC)
+      if (present_out) then
+         call MAPL_FieldBundleGet(fb_out, do_regrid_transform=do_trans_out, _RC)
+      end if
 
       do_transform = .true.
       if (present_in .and. present_out) then
