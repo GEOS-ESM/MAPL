@@ -50,22 +50,16 @@ jobs:
           buildcache: false # Do not use the spack buildcache
 
       - name: Patch ESMF package for 9.0.0b03
-        shell: spack-bash {0}
         run: |
           # Use spack to find where the esmf package is located
           ESMF_PKG_PATH=$(spack location -p esmf 2>/dev/null || echo "")
 
-          if [ -z "$ESMF_PKG_PATH" ]; then
-            # Try alternative method - search for package.py files
-            ESMF_PKG_PATH=$(find spack -name "package.py" -path "*/esmf/*" | head -1)
+          if [ -n "$ESMF_PKG_PATH" ] && [ -d "$ESMF_PKG_PATH" ]; then
+            # Location is a directory, so find package.py inside it
+            ESMF_PKG_PATH="${ESMF_PKG_PATH}/package.py"
           fi
 
-          if [ -z "$ESMF_PKG_PATH" ]; then
-            # Last resort - search more broadly
-            ESMF_PKG_PATH=$(find . -name "package.py" -exec grep -l "class Esmf" {} \; | head -1)
-          fi
-
-          if [ -n "$ESMF_PKG_PATH" ]; then
+          if [ -n "$ESMF_PKG_PATH" ] && [ -f "$ESMF_PKG_PATH" ]; then
             echo "Found ESMF package at: $ESMF_PKG_PATH"
 
             # Check if version already exists
@@ -77,6 +71,9 @@ jobs:
             fi
           else
             echo "ERROR: Could not find ESMF package.py file"
+            # Debug information
+            echo "Debug: looking for esmf package.py files:"
+            find . -name "package.py" | grep -i esmf || echo "No files found"
             exit 1
           fi
 
