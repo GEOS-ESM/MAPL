@@ -143,7 +143,7 @@ contains
          call MAPL_FieldBundleGet(fb_in, geom=geom_in, _RC)
          call MAPL_FieldBundleGet(fb_out, geom=geom_out, _RC)
          call this%update_transform(geom_in, geom_out)
-         do_transform = check_do_transform(fb_in, _RC)
+         call MAPL_FieldBundleGet(fb_in, bracket_updated=do_transform, _RC)
          if (do_transform) then
             call this%regrdr%regrid(fb_in, fb_out, _RC)
          end if
@@ -152,19 +152,6 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(clock)
    end subroutine update
-
-   function check_do_transform(fb_in, rc) result(do_transform)
-      logical :: do_transform
-      type(ESMF_FieldBundle), intent(in) :: fb_in
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      call MAPL_FieldBundleGet(fb_in, bracket_updated=do_transform, _RC)
-
-      _RETURN(_SUCCESS)
-
-   end function
 
    subroutine update_transform(this, src_geom, dst_geom, rc)
       class(ScalarRegridTransform), intent(inout) :: this
