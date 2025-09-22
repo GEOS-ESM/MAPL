@@ -63,6 +63,8 @@ jobs:
         shell: spack-bash {0}
         run: |
           spack env create spack-env
+          spack -e spack-env config add "concretizer:unify:false"
+          spack -e spack-env config add "view:false"
           spack env activate spack-env
 
       - name: Login
