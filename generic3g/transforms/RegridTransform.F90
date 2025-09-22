@@ -163,8 +163,6 @@ contains
       logical :: do_trans_in, do_trans_out, present_in, present_out 
       integer :: status
 
-      do_trans_in = .true.
-      do_trans_out = .true.
       call MAPL_FieldBundleIsPresent(fb_in, do_regrid_transform=present_in, _RC)
       if (present_in) then
          call MAPL_FieldBundleGet(fb_in, do_regrid_transform=do_trans_in, _RC)
