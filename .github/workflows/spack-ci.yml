@@ -63,15 +63,6 @@ jobs:
         shell: spack-bash {0}
         run: |
           spack env create spack-env
-
-          # After creating/activating the env in CI
-          spack -e spack-env config add "concretizer:unify:false"
-          spack -e spack-env config add "concretizer:reuse:false"   # <-- key bit
-
-          # sanity check the effective settings
-          spack -e spack-env config get concretizer
-          spack -e spack-env config get packages | sed -n '/^packages:/,$p'
-
           spack env activate spack-env
 
       - name: Login
@@ -81,32 +72,18 @@ jobs:
           spack -e spack-env mirror set --oci-username-variable "${{ secrets.BUILDCACHE_USERNAME }}" --oci-password-variable "${{ secrets.BUILDCACHE_TOKEN }}" geos-buildcache
           spack -e spack-env mirror list
           spack -e spack-env buildcache list --allarch
-          spack -e spack-env buildcache list --allarch | grep -E '^esmf@' || true
 
-      - name: Select ESMF by hash and concretize
+      - name: Concretize
         shell: spack-bash {0}
         run: |
-          set -euo pipefail
-          spack -e spack-env config add "concretizer:unify:false"
-          spack -e spack-env config add "concretizer:reuse:false"
-          spack -e spack-env config add "view:false"
+          spack -e spack-env concretize
 
-          # Add the exact prebuilt ESMF by its concrete hash from your mirror
-          # We have to do it like this because 9.0.0b03 is not in any Spack release yet
-          spack -e spack-env add /ilcjiwyt25jcbdqq6dtm57tismjurmei
-
-          # Add your other roots normally
-          spack -e spack-env add gftl gftl-shared fargparse pflogger pfunit yafyaml ecbuild udunits openblas
-
-          # Concretize and verify ESMF presence
-          spack -e spack-env concretize --force
-
-      - name: Install from buildcache only
+      - name: Install
         shell: spack-bash {0}
         run: |
-          set -euo pipefail
           spack clean -m
-          spack -e spack-env install --no-check-signature --use-buildcache only
+          spack -e spack-env install --add --no-check-signature --use-buildcache only \
+            esmf@9.0.0b03 gftl gftl-shared fargparse pflogger pfunit yafyaml ecbuild udunits openblas
 
       - name: Build with Cmake
         shell: spack-bash {0}
