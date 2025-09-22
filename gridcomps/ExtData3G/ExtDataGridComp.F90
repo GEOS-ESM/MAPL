@@ -164,6 +164,7 @@ contains
 
          export_name = export_item%get_export_var_name()
          call ESMF_StateGet(exportState, export_name, bundle, _RC) 
+         call MAPL_FieldBundleSet(bundle, do_regrid_transform=.false., _RC)
          call export_item%update_my_bracket(bundle, current_time, weights, _RC)
          call set_weights(exportState, export_name, weights, _RC)
          call export_item%append_state_to_reader(exportState, reader, _RC)

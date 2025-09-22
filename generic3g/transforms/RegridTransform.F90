@@ -123,6 +123,7 @@ contains
       type(ESMF_FieldBundle) :: fb_in, fb_out
       type(ESMF_StateItem_Flag) :: itemType_in, itemType_out
       type(ESMF_Geom) :: geom_in, geom_out
+      logical :: do_transform
 
       call ESMF_StateGet(importState, itemName='import[1]', itemType=itemType_in, _RC)
       call ESMF_StateGet(exportState, itemName='export[1]', itemType=itemType_out, _RC)
@@ -142,12 +143,42 @@ contains
          call MAPL_FieldBundleGet(fb_in, geom=geom_in, _RC)
          call MAPL_FieldBundleGet(fb_out, geom=geom_out, _RC)
          call this%update_transform(geom_in, geom_out)
-         call this%regrdr%regrid(fb_in, fb_out, _RC)
+         do_transform = check_do_transform(fb_in, fb_out, _RC)
+         if (do_transform) then
+            _HERE, do_transform
+            call this%regrdr%regrid(fb_in, fb_out, _RC)
+         end if
       end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(clock)
    end subroutine update
+
+   function check_do_transform(fb_in, fb_out, rc) result(do_transform)
+      logical :: do_transform
+      type(ESMF_FieldBundle), intent(in) :: fb_in
+      type(ESMF_FieldBundle), intent(in) :: fb_out
+      integer, optional, intent(out) :: rc
+
+      logical :: present_in, present_out, do_trans_in, do_trans_out 
+      integer :: status
+
+      call MAPL_FieldBundleGet(fb_in, do_regrid_transform=do_trans_in, rc=status)
+      present_in = (status == _SUCCESS)
+      call MAPL_FieldBundleGet(fb_out, do_regrid_transform=do_trans_out, rc=status)
+      present_out = (status == _SUCCESS)
+
+      do_transform = .true.
+      if (present_in .and. present_out) then
+         _FAIL('both source and destination bundle cannot control when they regrid')
+      else if (present_in .and. (.not. present_out)) then
+         do_transform = do_trans_in
+      else if (present_out .and. (.not. present_in)) then
+         do_transform = do_trans_out
+      end if
+      _RETURN(_SUCCESS)
+
+   end function
 
    subroutine update_transform(this, src_geom, dst_geom, rc)
       class(ScalarRegridTransform), intent(inout) :: this

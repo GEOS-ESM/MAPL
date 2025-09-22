@@ -40,6 +40,7 @@ contains
         units, long_name, standard_name, &
         allocation_status, &
         spec_handle, &
+        do_regrid_transform, &
         rc)
 
       type(ESMF_Info), intent(in) :: info
@@ -57,6 +58,7 @@ contains
       character(:), optional, allocatable, intent(out) :: standard_name
       type(StateItemAllocation), optional, intent(out) :: allocation_status
       integer, optional, allocatable, intent(out) :: spec_handle(:)
+      logical, optional, intent(out) :: do_regrid_transform 
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -87,6 +89,10 @@ contains
       if (present(allocation_status)) then
          call MAPL_InfoGet(info, key=namespace_//KEY_ALLOCATION_STATUS, value=allocation_status_str, _RC)
          allocation_status = StateItemAllocation(allocation_status_str)
+      end if
+
+      if (present(do_regrid_transform)) then
+         call ESMF_InfoGet(info, key=namespace_//KEY_REGRID_TRANSFORM, value=do_regrid_transform, _RC)
       end if
 
       ! Field-prototype items that come from field-info
@@ -127,6 +133,7 @@ contains
         units, standard_name, long_name, &
         allocation_status, &
         spec_handle, &
+        do_regrid_transform, &
         rc)
 
       type(ESMF_Info), intent(inout) :: info
@@ -144,6 +151,7 @@ contains
       character(*), optional, intent(in) :: long_name
       type(StateItemAllocation), optional, intent(in) :: allocation_status
       integer, optional, intent(in) :: spec_handle(:)
+      logical, optional, intent(in) :: do_regrid_transform
       integer, optional, intent(out) :: rc
       
       integer :: status
@@ -172,6 +180,10 @@ contains
 
       if (present(interpolation_weights)) then
          call ESMF_InfoSet(info, key=namespace_ // KEY_INTERPOLATION_WEIGHTS, values=interpolation_weights, _RC)
+      end if
+
+      if (present(do_regrid_transform)) then
+         call ESMF_InfoSet(info, key=namespace_ // KEY_REGRID_TRANSFORM, value=do_regrid_transform, _RC)
       end if
 
        call FieldInfoSetInternal(info, namespace=namespace_ // KEY_FIELD_PROTOTYPE, &
