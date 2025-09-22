@@ -19,6 +19,8 @@ module mapl3g_PrimaryExport
    use pfio, only: i_clients
    use VerticalCoordinateMod
    use mapl3g_FieldBundleSet
+   use mapl3g_EsmfRegridder, only: EsmfRegridderParam
+   use mapl3g_RegridderMethods
    implicit none
 
    public PrimaryExport
@@ -33,6 +35,7 @@ module mapl3g_PrimaryExport
       type(VerticalCoordinate) :: vcoord
       type(ESMF_Time), allocatable :: start_and_end(:)
       real :: linear_trans(2) ! offset, scaling
+      character(len=:), allocatable :: regridding_method
 
       contains
          procedure :: get_file_selector
@@ -78,6 +81,7 @@ module mapl3g_PrimaryExport
          end if
          primary_export%file_var = rule%file_var
          primary_export%linear_trans = rule%linear_trans
+         primary_export%regridding_method = rule%regrid_method
          call left_node%set_node_side(NODE_LEFT)
          call right_node%set_node_side(NODE_RIGHT)
          call primary_export%bracket%set_node(NODE_LEFT, left_node)
@@ -129,6 +133,7 @@ module mapl3g_PrimaryExport
       type(ESMF_FieldBundle) :: bundle
       type(GeomManager), pointer :: geom_mgr
       type(BasicVerticalGrid) :: vertical_grid
+      type(EsmfRegridderParam) :: regridder_param
 
       if (this%is_constant) then
          _RETURN(_SUCCESS)
@@ -140,16 +145,18 @@ module mapl3g_PrimaryExport
       esmfgeom = geom%get_geom()
 
       this%vcoord = verticalCoordinate(metadata, this%file_var, _RC)
+      regridder_param = generate_esmf_regrid_param(regrid_method_string_to_int(this%regridding_method), &
+         ESMF_TYPEKIND_R4, _RC)
 
       call ESMF_StateGet(exportState, item_name, bundle, _RC)
       if (this%vcoord%vertical_type == NO_COORD) then
          call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
-                 vertical_stagger=VERTICAL_STAGGER_NONE,  _RC)
+                 vertical_stagger=VERTICAL_STAGGER_NONE, regridder_param=regridder_param,  _RC)
       else if (this%vcoord%vertical_type == SIMPLE_COORD) then
          vertical_grid = BasicVerticalGrid(this%vcoord%num_levels)
          call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', &
                  typekind=ESMF_TYPEKIND_R4, vertical_grid=vertical_grid, &
-                 vertical_stagger=VERTICAL_STAGGER_CENTER,  _RC)
+                 vertical_stagger=VERTICAL_STAGGER_CENTER, regridder_param=regridder_param,  _RC)
       else
          _FAIL("unsupported vertical coordinate for item "//trim(this%export_var))
       end if
