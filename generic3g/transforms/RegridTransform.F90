@@ -143,7 +143,7 @@ contains
          call MAPL_FieldBundleGet(fb_in, geom=geom_in, _RC)
          call MAPL_FieldBundleGet(fb_out, geom=geom_out, _RC)
          call this%update_transform(geom_in, geom_out)
-         do_transform = check_do_transform(fb_in, fb_out, _RC)
+         do_transform = check_do_transform(fb_in, _RC)
          if (do_transform) then
             call this%regrdr%regrid(fb_in, fb_out, _RC)
          end if
@@ -153,32 +153,15 @@ contains
       _UNUSED_DUMMY(clock)
    end subroutine update
 
-   function check_do_transform(fb_in, fb_out, rc) result(do_transform)
+   function check_do_transform(fb_in, rc) result(do_transform)
       logical :: do_transform
       type(ESMF_FieldBundle), intent(in) :: fb_in
-      type(ESMF_FieldBundle), intent(in) :: fb_out
       integer, optional, intent(out) :: rc
 
-      logical :: do_trans_in, do_trans_out, present_in, present_out 
       integer :: status
 
-      call MAPL_FieldBundleIsPresent(fb_in, do_regrid_transform=present_in, _RC)
-      if (present_in) then
-         call MAPL_FieldBundleGet(fb_in, do_regrid_transform=do_trans_in, _RC)
-      end if
-      call MAPL_FieldBundleIsPresent(fb_out, do_regrid_transform=present_out, _RC)
-      if (present_out) then
-         call MAPL_FieldBundleGet(fb_out, do_regrid_transform=do_trans_out, _RC)
-      end if
+      call MAPL_FieldBundleGet(fb_in, bracket_updated=do_transform, _RC)
 
-      do_transform = .true.
-      if (present_in .and. present_out) then
-         _FAIL('both source and destination bundle cannot control when they regrid')
-      else if (present_in .and. (.not. present_out)) then
-         do_transform = do_trans_in
-      else if (present_out .and. (.not. present_in)) then
-         do_transform = do_trans_out
-      end if
       _RETURN(_SUCCESS)
 
    end function

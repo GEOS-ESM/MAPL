@@ -35,7 +35,7 @@ contains
         ungridded_dims, num_levels, vert_staggerloc, num_vgrid_levels, &
         units, standard_name, long_name, &
         allocation_status, &
-        do_regrid_transform, &
+        bracket_updated, &
         rc)
 
       type(ESMF_FieldBundle), intent(in) :: fieldBundle
@@ -54,7 +54,7 @@ contains
       character(:), optional, allocatable, intent(out) :: standard_name
       character(:), optional, allocatable, intent(out) :: long_name
       type(StateItemAllocation), optional, intent(out) :: allocation_status
-      logical, optional, intent(out) :: do_regrid_transform
+      logical, optional, intent(out) :: bracket_updated
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -86,7 +86,7 @@ contains
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, num_vgrid_levels=num_vgrid_levels, &
            units=units, standard_name=standard_name, long_name=long_name, &
            allocation_status=allocation_status, &
-           do_regrid_transform=do_regrid_transform, &
+           bracket_updated=bracket_updated, &
            _RC)
 
       _RETURN(_SUCCESS)

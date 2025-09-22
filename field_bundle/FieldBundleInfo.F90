@@ -17,7 +17,6 @@ module mapl3g_FieldBundleInfo
 
    public :: FieldBundleInfoGetInternal
    public :: FieldBundleInfoSetInternal
-   public :: FieldBundleInfoIsPresentInternal
 
    interface FieldBundleInfoGetInternal
       procedure fieldbundle_get_internal
@@ -25,10 +24,6 @@ module mapl3g_FieldBundleInfo
 
    interface FieldBundleInfoSetInternal
       procedure fieldbundle_set_internal
-   end interface
-
-   interface FieldBundleInfoIsPresentInternal
-      procedure fieldbundle_is_present_internal
    end interface
 
    character(*), parameter :: KEY_FIELDBUNDLETYPE_FLAG = '/FieldBundleType_Flag'
@@ -45,7 +40,7 @@ contains
         units, long_name, standard_name, &
         allocation_status, &
         spec_handle, &
-        do_regrid_transform, &
+        bracket_updated, &
         rc)
 
       type(ESMF_Info), intent(in) :: info
@@ -63,7 +58,7 @@ contains
       character(:), optional, allocatable, intent(out) :: standard_name
       type(StateItemAllocation), optional, intent(out) :: allocation_status
       integer, optional, allocatable, intent(out) :: spec_handle(:)
-      logical, optional, intent(out) :: do_regrid_transform 
+      logical, optional, intent(out) :: bracket_updated 
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -96,8 +91,8 @@ contains
          allocation_status = StateItemAllocation(allocation_status_str)
       end if
 
-      if (present(do_regrid_transform)) then
-         call ESMF_InfoGet(info, key=namespace_//KEY_REGRID_TRANSFORM, value=do_regrid_transform, _RC)
+      if (present(bracket_updated)) then
+         call ESMF_InfoGet(info, key=namespace_//KEY_BRACKET_UPDATED, value=bracket_updated, _RC)
       end if
 
       ! Field-prototype items that come from field-info
@@ -138,7 +133,7 @@ contains
         units, standard_name, long_name, &
         allocation_status, &
         spec_handle, &
-        do_regrid_transform, &
+        bracket_updated, &
         rc)
 
       type(ESMF_Info), intent(inout) :: info
@@ -156,7 +151,7 @@ contains
       character(*), optional, intent(in) :: long_name
       type(StateItemAllocation), optional, intent(in) :: allocation_status
       integer, optional, intent(in) :: spec_handle(:)
-      logical, optional, intent(in) :: do_regrid_transform
+      logical, optional, intent(in) :: bracket_updated
       integer, optional, intent(out) :: rc
       
       integer :: status
@@ -187,8 +182,8 @@ contains
          call ESMF_InfoSet(info, key=namespace_ // KEY_INTERPOLATION_WEIGHTS, values=interpolation_weights, _RC)
       end if
 
-      if (present(do_regrid_transform)) then
-         call ESMF_InfoSet(info, key=namespace_ // KEY_REGRID_TRANSFORM, value=do_regrid_transform, _RC)
+      if (present(bracket_updated)) then
+         call ESMF_InfoSet(info, key=namespace_ // KEY_BRACKET_UPDATED, value=bracket_updated, _RC)
       end if
 
        call FieldInfoSetInternal(info, namespace=namespace_ // KEY_FIELD_PROTOTYPE, &
@@ -225,29 +220,5 @@ contains
 
              
    end subroutine fieldbundle_set_internal
-
-   subroutine fieldbundle_is_present_internal(info, unusable, namespace, do_regrid_transform, rc)
-      type(ESMF_Info), intent(inout) :: info
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      character(*), optional, intent(in) :: namespace
-      logical, optional, intent(out) :: do_regrid_transform
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      character(:), allocatable :: namespace_
-
-      namespace_ = INFO_INTERNAL_NAMESPACE
-      if (present(namespace)) then
-         namespace_ = namespace
-      end if
-
-      if (present(do_regrid_transform)) then
-         do_regrid_transform = ESMF_InfoIsPresent(info, key=namespace_ // KEY_REGRID_TRANSFORM, _RC)
-      end if
-
-       _RETURN(_SUCCESS)
-       _UNUSED_DUMMY(unusable)
-
-   end subroutine fieldbundle_is_present_internal
 
 end module mapl3g_FieldBundleInfo
