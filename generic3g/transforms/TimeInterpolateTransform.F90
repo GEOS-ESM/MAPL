@@ -15,6 +15,10 @@ module mapl3g_TimeInterpolateTransform
    private
 
    public :: TimeInterpolateTransform
+!   public :: COUPLER_IMPORT_NAME
+!   public :: COUPLER_EXPORT_NAME
+!  import[1]
+!  export[1]
 
    type, extends(ExtensionTransform) :: TimeInterpolateTransform
    contains
@@ -26,6 +30,9 @@ module mapl3g_TimeInterpolateTransform
    interface TimeInterpolateTransform
       module procedure :: new_TimeInterpolateTransform
    end interface TimeInterpolateTransform
+
+!   character(len=*), parameter :: COUPLER_IMPORT_NAME = 'coupler_import'
+!   character(len=*), parameter :: COUPLER_EXPORT_NAME = 'coupler_export'
 
 contains
 
@@ -58,14 +65,14 @@ contains
       type(ESMF_Field) :: field_out
       type(ESMF_TypeKind_Flag) :: typekind
 
-      call ESMF_StateGet(importState, 'import[1]', itemType=itemType, _RC)
+      call ESMF_StateGet(importState, COUPLER_IMPORT_NAME, itemType=itemType, _RC)
       _ASSERT(itemType == ESMF_STATEITEM_FIELDBUNDLE, 'Expected FieldBundle in importState.')
 
-      call ESMF_StateGet(exportState, 'export[1]', itemType=itemType, _RC)
+      call ESMF_StateGet(exportState, COUPLER_EXPORT_NAME, itemType=itemType, _RC)
       _ASSERT(itemType == ESMF_STATEITEM_FIELD, 'Expected Field in exportState.')
 
-      call ESMF_StateGet(importState, itemName='import[1]', fieldbundle=bundle_in, _RC)
-      call ESMF_StateGet(exportState, itemName='export[1]', field=field_out, _RC)
+      call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, fieldbundle=bundle_in, _RC)
+      call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=field_out, _RC)
       call ESMF_FieldGet(field_out, typekind=typekind, _RC)
 
 
