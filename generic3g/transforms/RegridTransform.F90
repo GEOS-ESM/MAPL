@@ -124,6 +124,7 @@ contains
       type(ESMF_StateItem_Flag) :: itemType_in, itemType_out
       type(ESMF_Geom) :: geom_in, geom_out
       logical :: do_transform
+      type(FieldBundleType_Flag) :: field_bundle_type
 
       call ESMF_StateGet(importState, itemName='import[1]', itemType=itemType_in, _RC)
       call ESMF_StateGet(exportState, itemName='export[1]', itemType=itemType_out, _RC)
@@ -143,7 +144,11 @@ contains
          call MAPL_FieldBundleGet(fb_in, geom=geom_in, _RC)
          call MAPL_FieldBundleGet(fb_out, geom=geom_out, _RC)
          call this%update_transform(geom_in, geom_out)
-         call MAPL_FieldBundleGet(fb_in, bracket_updated=do_transform, _RC)
+         do_transform = .true.
+         call MAPL_FieldBundleGet(fb_in, fieldBundleType= field_bundle_type, _RC)
+         if (field_bundle_type == FIELDBUNDLETYPE_BRACKET) then 
+            call MAPL_FieldBundleGet(fb_in, bracket_updated=do_transform, _RC)
+         end if
          if (do_transform) then
             call this%regrdr%regrid(fb_in, fb_out, _RC)
          end if
