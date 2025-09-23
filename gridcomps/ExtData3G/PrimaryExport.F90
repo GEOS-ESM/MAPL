@@ -237,6 +237,7 @@ module mapl3g_PrimaryExport
       update_file = node%get_update()
       if (update_file) then
          call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
+         call MAPL_FieldBundleSet(bundle, bracket_updated=.true., _RC)
          call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
          time_index = node%get_time_index()
          call node%get_file(filename)
@@ -246,6 +247,7 @@ module mapl3g_PrimaryExport
       update_file = node%get_update()
       if (update_file) then
          call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
+         call MAPL_FieldBundleSet(bundle, bracket_updated=.true., _RC)
          call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
          time_index = node%get_time_index()
          call node%get_file(filename)

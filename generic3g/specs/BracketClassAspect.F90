@@ -132,7 +132,7 @@ contains
       _RETURN_UNLESS(present(handle))
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldBundleInfoSetInternal(info, spec_handle=handle, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
+      call FieldBundleInfoSetInternal(info, spec_handle=handle, allocation_status=STATEITEM_ALLOCATION_CREATED, bracket_updated=.true.,  _RC)
 
       _RETURN(_SUCCESS)
    end subroutine create
