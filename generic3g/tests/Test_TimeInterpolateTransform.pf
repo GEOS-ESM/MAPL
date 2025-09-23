@@ -32,6 +32,7 @@ contains
       exportState = ESMF_StateCreate(_RC)
 
       bracket = ESMF_FieldBundleCreate(name='import[1]', _RC)
+      call MAPL_FieldBundleSet(bracket, bracket_updated=.true., _RC)
 
       call ESMF_StateAdd(importState, [bracket], _RC)
       call MAPL_FieldBundleSet(bracket, interpolation_weights=[7.0], _RC)
@@ -89,6 +90,7 @@ contains
          x = 2. * i
       end do
       bracket = ESMF_FieldBundleCreate(name='import[1]', multiflag=.true., fieldList=b, _RC)
+      call MAPL_FieldBundleSet(bracket, bracket_updated=.true., _RC)
       call ESMF_StateAdd(importState, [bracket], _RC)
       call MAPL_FieldBundleSet(bracket, interpolation_weights=[1.0, 0.5, 0.5], _RC)
 
@@ -149,6 +151,7 @@ contains
       
       x(2) = MAPL_UNDEFINED_REAL
       bracket = ESMF_FieldBundleCreate(name='import[1]', multiflag=.true., fieldList=b, _RC)
+      call MAPL_FieldBundleSet(bracket, bracket_updated=.true., _RC)
       call ESMF_StateAdd(importState, [bracket], _RC)
       call MAPL_FieldBundleSet(bracket, interpolation_weights=[1.0, 0.5, 0.5], _RC)
 
