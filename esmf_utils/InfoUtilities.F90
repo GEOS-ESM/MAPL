@@ -28,6 +28,7 @@ module mapl3g_InfoUtilities
    use esmf, only: ESMF_KIND_I4
    use esmf, only: ESMF_KIND_R4
    use esmf, only: ESMF_KIND_R8
+   use esmf, only: ESMF_MAXSTR
 
    implicit none(type,external)
    private
@@ -50,6 +51,7 @@ module mapl3g_InfoUtilities
    ! Direct access through ESMF_Info object
    interface MAPL_InfoGet
       procedure :: info_get_string
+      procedure :: info_get_string_1d
       procedure :: info_get_logical
       procedure :: info_get_i4
       procedure :: info_get_r4
@@ -131,6 +133,37 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine info_get_string
+
+   subroutine info_get_string_1d(info, key, values, unusable, rc)
+      type(ESMF_Info), intent(in) :: info
+      character(*), intent(in) :: key
+      character(:), allocatable, intent(out) :: values(:)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: is_present
+      integer :: i, n, maxlen
+      character(ESMF_MAXSTR), allocatable :: tmp(:)
+
+      is_present = ESMF_InfoIsPresent(info, key=key, _RC)
+      if (.not. is_present) call ESMF_InfoPrint(info)
+      _ASSERT(is_present,  "Key not found in info object: " // key)
+
+      call ESMF_InfoGetAlloc(info, key=key, values=tmp, _RC)
+      n = size(tmp)
+      maxlen = 0
+      do i = 1, n
+         maxlen=max(maxlen, len_trim(tmp(i)))
+      end do
+
+      allocate(character(len=maxlen) :: values(n))
+      do i = 1, n
+         values(i) = trim(tmp(i))
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine info_get_string_1d
 
    subroutine info_get_logical(info, key, value, unusable, rc)
       type(ESMF_Info), intent(in) :: info

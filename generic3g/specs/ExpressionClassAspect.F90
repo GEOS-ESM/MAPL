@@ -6,9 +6,10 @@ module mapl3g_ExpressionClassAspect
    use mapl3g_ClassAspect
    use mapl3g_FieldClassAspect
    use mapl3g_GeomAspect
+   use mapl3g_UnitsAspect
+   use mapl3g_TypekindAspect
    use mapl3g_HorizontalDimsSpec
    use mapl3g_VerticalGridAspect
-   use mapl3g_UnitsAspect
    use mapl3g_TypekindAspect
    use mapl3g_UngriddedDimsAspect
 
@@ -74,6 +75,7 @@ module mapl3g_ExpressionClassAspect
       procedure :: add_to_bundle
 
       procedure, nopass :: get_aspect_id
+
    end type ExpressionClassAspect
 
    interface ExpressionClassAspect
@@ -102,6 +104,7 @@ contains
       aspect_ids = [ &
            GEOM_ASPECT_ID, &
            VERTICAL_GRID_ASPECT_ID, &
+           UNITS_ASPECT_ID, &
            TYPEKIND_ASPECT_ID, &
            CLASS_ASPECT_ID &
            ]
@@ -113,8 +116,9 @@ contains
 
 
    ! No op
-   subroutine create(this, handle, rc)
+   subroutine create(this, other_aspects, handle, rc)
       class(ExpressionClassAspect), intent(inout) :: this
+      type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(in) :: handle(:)
       integer, optional, intent(out) :: rc
 
@@ -242,7 +246,6 @@ contains
       type(AspectMap), pointer :: aspects
       class(StateItemAspect), pointer :: class_aspect
       type(AspectMap), pointer :: goal_aspects
-      type(ESMF_Field) :: field
       type(VirtualConnectionPtVector) :: empty
       integer :: n
       type(StringVector) :: expression_variables
@@ -280,7 +283,6 @@ contains
             class_aspect => new_spec%get_aspect(CLASS_ASPECT_ID, _RC)
             select type(class_aspect)
             type is (FieldClassAspect)
-               field = class_aspect%get_payload()
                a_pt = ActualConnectionPt(v_pt)
                call class_aspect%add_to_state(multi_state, a_pt, _RC)
             class default
@@ -355,5 +357,5 @@ contains
 !#      end select
    end function matches
 
-   
-end module mapl3g_ExpressionClassAspect
+
+ end module mapl3g_ExpressionClassAspect

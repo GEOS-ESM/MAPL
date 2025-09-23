@@ -13,6 +13,8 @@ module mapl3g_StateItemSpec
    use mapl3g_VerticalGrid
    use mapl_ErrorHandling
    use mapl3g_Field_API
+   use mapl3g_UnitsAspect
+   use mapl3g_TypeKindAspect
    use esmf
    use gftl2_stringvector
    implicit none
@@ -81,6 +83,7 @@ module mapl3g_StateItemSpec
 
    interface StateItemSpec
       procedure :: new_StateItemSpec
+      procedure :: new_StateItemSpec_copy
    end interface StateItemSpec
 
 #ifndef __GFORTRAN__
@@ -105,6 +108,18 @@ contains
 
    end function new_StateItemSpec
 
+   ! New spec should not be in "CREATED" state yet.  It also does not make sense
+   ! to propagate dependencies.
+   function new_StateItemSpec_copy(orig) result(spec)
+      type(StateItemSpec) :: spec
+      type(StateItemSpec), intent(in) :: orig
+
+      spec%allocation_status = STATEITEM_ALLOCATION_INVALID
+      spec%aspects = orig%aspects
+      spec%has_deferred_aspects_ = orig%has_deferred_aspects_
+      spec%state_intent = orig%state_intent
+
+   end function new_StateItemSpec_copy
 
    function new_StateItemSpecPtr(state_item) result(wrap)
       type(StateItemSpecPtr) :: wrap
@@ -172,8 +187,26 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      class(ClassAspect), pointer :: class_aspect
+      type(esmf_Field), allocatable :: field
+      type(esmf_FieldBundle), allocatable :: bundle
+      type(esmf_State), allocatable :: state
 
       aspect => this%aspects%at(aspect_id, _RC)
+
+      if (this%allocation_status >= STATEITEM_ALLOCATION_CREATED) then
+         _ASSERT(this%aspects%count(CLASS_ASPECT_ID) > 0, 'Must have a ClassAspect')
+
+         class_aspect => to_ClassAspect(this%aspects, _RC)
+         select case (aspect_id%to_string())
+         case ('UNITS', 'TYPEKIND', 'UNGRIDDED_DIMS')
+            call class_aspect%get_payload(field, bundle, state, _RC)
+            call aspect%update_from_payload(field, bundle, state, _RC)
+         case default
+            ! do nothing for now
+         end select
+
+      end if
 
       _RETURN(_SUCCESS)
    end function get_aspect_by_id
@@ -193,7 +226,10 @@ contains
       type(AspectId) :: id
       type(AspectMapIterator) :: iter
       type(AspectPair), pointer :: pair
-
+      class(ClassAspect), pointer :: class_aspect
+      type(esmf_Field), allocatable :: field
+      type(esmf_FieldBundle), allocatable :: bundle
+      type(esmf_State), allocatable :: state
 
       id = aspect%get_aspect_id()
       iter = this%aspects%find(id)
@@ -202,6 +238,17 @@ contains
       allocate(pair%second, source=aspect)
 ! Following line breaks under ifort 2021.13
 !      call this%aspects%insert(aspect%get_aspect_id(), aspect)
+
+      if (this%allocation_status >= STATEITEM_ALLOCATION_CREATED) then
+         class_aspect => to_ClassAspect(this%aspects, _RC)
+         select case (id%to_string())
+         case ('UNITS', 'TYPEKIND','GEOM','UNGRIDDED_DIMS', 'ATTRIBUTES')
+            call class_aspect%get_payload(field, bundle, state, _RC)
+            call aspect%update_payload(field, bundle, state, _RC)
+         case default
+            ! do nothing for now
+         end select
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine set_aspect
@@ -258,7 +305,7 @@ contains
       integer, allocatable :: handle(:)
 
       class_aspect => to_ClassAspect(this%aspects, _RC)
-      call class_aspect%create(make_handle(this), _RC)
+      call class_aspect%create(this%aspects, make_handle(this), _RC)
 
       _RETURN(_SUCCESS)
    contains

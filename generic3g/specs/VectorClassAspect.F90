@@ -11,7 +11,7 @@ module mapl3g_VectorClassAspect
    use mapl3g_GeomAspect
    use mapl3g_VerticalGridAspect
    use mapl3g_UnitsAspect
-   use mapl3g_TypekindAspect
+   use mapl3g_TypeKindAspect
    use mapl3g_UngriddedDimsAspect
    use mapl3g_FieldBundleInfo, only: FieldBundleInfoSetInternal
 
@@ -63,8 +63,9 @@ module mapl3g_VectorClassAspect
       procedure :: destroy
       procedure :: add_to_state
 
-      procedure :: get_payload
       procedure, nopass :: get_aspect_id
+      procedure :: get_payload
+
    end type VectorClassAspect
 
    interface VectorClassAspect
@@ -113,17 +114,27 @@ contains
       end select
    end function matches
 
-   subroutine create(this, handle, rc)
+   subroutine create(this, other_aspects, handle, rc)
       class(VectorClassAspect), intent(inout) :: this
+      type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(in) :: handle(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(ESMF_Info) :: info
+      class(StateItemAspect), pointer :: aspect
+      type(AspectId), allocatable :: ids(:)
+      integer :: i
 
       this%payload = MAPL_FieldBundleCreate(fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
       _RETURN_UNLESS(present(handle))
       
+      ids = [GEOM_ASPECT_ID, VERTICAL_GRID_ASPECT_ID, UNITS_ASPECT_ID, TYPEKIND_ASPECT_ID, UNGRIDDED_DIMS_ASPECT_ID, ATTRIBUTES_ASPECT_ID]
+      do i = 1, size(ids)
+         aspect => other_aspects%at(ids(i), _RC)
+         call aspect%update_payload(bundle=this%payload, _RC)
+      end do
+
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
       call FieldBundleInfoSetInternal(info, spec_handle=handle, _RC)
       call MAPL_FieldBundleSet(this%payload, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
@@ -153,7 +164,7 @@ contains
       type(FieldClassAspect) :: tmp
 
       do i = 1, NUM_COMPONENTS
-         call this%component_specs(i)%create(_RC)
+         call this%component_specs(i)%create(other_aspects, _RC)
          call this%component_specs(i)%allocate(other_aspects, _RC)
          call this%component_specs(i)%add_to_bundle(this%payload, _RC)
       end do
@@ -324,16 +335,25 @@ contains
    end subroutine add_to_state
 
 
-   function get_payload(this) result(field_bundle)
-      type(ESMF_FieldBundle) :: field_bundle
-      class(VectorClassAspect), intent(in) :: this
-      field_bundle = this%payload
-   end function get_payload
-
-   
    function get_aspect_id() result(aspect_id)
       type(AspectId) :: aspect_id
       aspect_id = CLASS_ASPECT_ID
    end function get_aspect_id
+
+
+   subroutine get_payload(this, field, bundle, state, rc)
+      class(VectorClassAspect), intent(in) :: this
+      type(esmf_Field), optional, allocatable, intent(out) :: field
+      type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
+      type(esmf_State), optional, allocatable, intent(out) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _ASSERT(present(bundle), 'Must request bundle from BracketClassAspect')
+      bundle = this%payload
+
+      _RETURN(_SUCCESS)
+   end subroutine get_payload
 
 end module mapl3g_VectorClassAspect

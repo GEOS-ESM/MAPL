@@ -90,8 +90,9 @@ contains
    end function supports_conversion_specific
 
 
-   subroutine create(this, handle, rc)
+   subroutine create(this, other_aspects, handle, rc)
       class(ServiceClassAspect), intent(inout) :: this
+      type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(in) :: handle(:) ! not used here
       integer, optional, intent(out) :: rc
 

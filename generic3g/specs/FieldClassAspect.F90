@@ -10,7 +10,7 @@ module mapl3g_FieldClassAspect
    use mapl3g_HorizontalDimsSpec
    use mapl3g_VerticalGridAspect
    use mapl3g_UnitsAspect
-   use mapl3g_TypekindAspect
+   use mapl3g_TypeKindAspect
    use mapl3g_UngriddedDimsAspect
 
    use mapl3g_VerticalGrid
@@ -53,6 +53,7 @@ module mapl3g_FieldClassAspect
       character(:), allocatable :: gridcomp_name
       real(kind=ESMF_KIND_R4), allocatable :: default_value
       integer(kind=kind(MAPL_RESTART_MODE)), allocatable :: restart_mode
+
    contains
       procedure :: get_aspect_order
       procedure :: supports_conversion_general
@@ -69,8 +70,10 @@ module mapl3g_FieldClassAspect
       procedure :: add_to_state
       procedure :: add_to_bundle
 
-      procedure :: get_payload
       procedure, nopass :: get_aspect_id
+
+      procedure :: get_payload
+
    end type FieldClassAspect
 
    interface
@@ -84,7 +87,6 @@ module mapl3g_FieldClassAspect
    interface FieldClassAspect
       procedure :: new_FieldClassAspect
    end interface FieldClassAspect
-
 
 contains
 
@@ -151,17 +153,28 @@ contains
    end function get_aspect_order
 
 
-   subroutine create(this, handle, rc)
+   subroutine create(this, other_aspects, handle, rc)
       class(FieldClassAspect), intent(inout) :: this
+      type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(in) :: handle(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(ESMF_Info) :: info
+      type(AspectId), allocatable :: ids(:)
+      integer :: i
+      character(:), allocatable :: units
+      class(StateItemAspect), pointer :: aspect
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
       _RETURN_UNLESS(present(handle))
-      
+
+      ids = [GEOM_ASPECT_ID, VERTICAL_GRID_ASPECT_ID, UNITS_ASPECT_ID, TYPEKIND_ASPECT_ID, UNGRIDDED_DIMS_ASPECT_ID, ATTRIBUTES_ASPECT_ID]
+      do i = 1, size(ids)
+         aspect => other_aspects%at(ids(i), _RC)
+         call aspect%update_payload(this%payload, _RC)
+      end do
+
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
       call FieldInfoSetInternal(info, spec_handle=handle, _RC)
       call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
@@ -320,6 +333,7 @@ contains
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
       call FieldInfoSetInternal(info, restart_mode=this%restart_mode, _RC)
       call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CONNECTED, _RC)
+
       if (allocated(this%restart_mode)) then
          _ASSERT(allocated(this%gridcomp_name), "gridcomp name is not known")
          _ASSERT(allocated(this%short_name), "field's short name is not known")
@@ -463,16 +477,25 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle
 
-   function get_payload(this) result(field)
-      type(ESMF_Field) :: field
-      class(FieldClassAspect), intent(in) :: this
-      field = this%payload
-   end function get_payload
-
-   
    function get_aspect_id() result(aspect_id)
       type(AspectId) :: aspect_id
       aspect_id = CLASS_ASPECT_ID
    end function get_aspect_id
+
+
+   subroutine get_payload(this, field, bundle, state, rc)
+      class(FieldClassAspect), intent(in) :: this
+      type(esmf_Field), optional, allocatable, intent(out) :: field
+      type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
+      type(esmf_State), optional, allocatable, intent(out) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _ASSERT(present(field), 'Must pass field to FieldClassAspect.')
+      field = this%payload
+
+      _RETURN(_SUCCESS)
+   end subroutine get_payload
 
 end module mapl3g_FieldClassAspect

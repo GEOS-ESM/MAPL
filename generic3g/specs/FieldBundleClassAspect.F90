@@ -89,8 +89,9 @@ contains
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
 
-   subroutine create(this, handle, rc)
+   subroutine create(this, other_aspects, handle, rc)
       class(FieldBundleClassAspect), intent(inout) :: this
+      type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(in) :: handle(:)
       integer, optional, intent(out) :: rc
 
@@ -256,12 +257,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_state
 
-   function get_payload(this) result(field_bundle)
-      type(ESMF_FieldBundle) :: field_bundle
-      class(FieldBundleClassAspect), intent(in) :: this
-      field_bundle = this%payload
-   end function get_payload
-
    function get_aspect_id() result(aspect_id)
       type(AspectId) :: aspect_id
       aspect_id = CLASS_ASPECT_ID
@@ -282,5 +277,20 @@ contains
 
       _UNUSED_DUMMY(src)
    end function matches_a
+
+   subroutine get_payload(this, field, bundle, state, rc)
+      class(FieldBundleClassAspect), intent(in) :: this
+      type(esmf_Field), optional, allocatable, intent(out) :: field
+      type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
+      type(esmf_State), optional, allocatable, intent(out) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _ASSERT(present(bundle), 'Must request bundle from BracketClassAspect')
+      bundle = this%payload
+
+      _RETURN(_SUCCESS)
+   end subroutine get_payload
 
 end module mapl3g_FieldBundleClassAspect

@@ -7,6 +7,8 @@ module mapl3g_WildcardClassAspect
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_ClassAspect
+   use mapl3g_UnitsAspect
+   use mapl3g_TypekindAspect
    use mapl3g_FieldClassAspect
    use mapl3g_ExtensionTransform
    use mapl3g_NullTransform
@@ -108,8 +110,9 @@ contains
    end subroutine typesafe_connect_to_export
    
    ! No-op
-   subroutine create(this, handle, rc)
+   subroutine create(this, other_aspects, handle, rc)
       class(WildcardClassAspect), intent(inout) :: this
+      type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(in) :: handle(:)
       integer, optional, intent(out) :: rc
 
@@ -230,5 +233,5 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
- 
+
 end module mapl3g_WildcardClassAspect

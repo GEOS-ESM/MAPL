@@ -68,7 +68,7 @@ contains
            _RC)
 
       call MAPL_FieldGet(field, num_levels=num_levels, _RC)
-      @assertEqual(num_levels, num_vgrid_levels+1)
+      @assert_that(num_levels, is(num_vgrid_levels+1))
       call assign_fptr_condensed_array(field, farray, _RC)
       @assertEqual(shape(farray), [1, num_vgrid_levels+1, 1])
 

@@ -12,6 +12,7 @@ module mapl3g_FieldBundleInfo
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
+   use gFTL2_StringVector
    implicit none(type,external)
    private
 
@@ -35,9 +36,12 @@ contains
    subroutine fieldbundle_get_internal(info, unusable, &
         namespace, &
         fieldBundleType, &
+        vertical_grid, &
         typekind, interpolation_weights, &
         ungridded_dims, num_levels, vert_staggerloc, num_vgrid_levels, &
-        units, long_name, standard_name, &
+        units, &
+        attributes, &
+        long_name, standard_name, &
         allocation_status, &
         spec_handle, &
         bracket_updated, &
@@ -50,10 +54,12 @@ contains
       type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
       real(kind=ESMF_KIND_R4), optional, allocatable, intent(out) :: interpolation_weights(:)
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
+      class(VerticalGrid), optional, allocatable, intent(out) :: vertical_grid
       integer, optional, intent(out) :: num_levels
       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
       integer, optional, intent(out) :: num_vgrid_levels
       character(:), optional, allocatable, intent(out) :: units
+      type(StringVector), optional, intent(out) :: attributes
       character(:), optional, allocatable, intent(out) :: long_name
       character(:), optional, allocatable, intent(out) :: standard_name
       type(StateItemAllocation), optional, intent(out) :: allocation_status
@@ -97,9 +103,11 @@ contains
 
       ! Field-prototype items that come from field-info
       call FieldInfoGetInternal(info, namespace = namespace_//KEY_FIELD_PROTOTYPE, &
+           vertical_grid=vertical_grid, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, num_vgrid_levels=num_vgrid_levels, &
-           units=units, long_name=long_name, standard_name=standard_name, spec_handle=spec_handle, _RC)
+           units=units, attributes=attributes, &
+           long_name=long_name, standard_name=standard_name, spec_handle=spec_handle, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -127,10 +135,12 @@ contains
    subroutine fieldbundle_set_internal(info, unusable, &
         namespace, &
         geom, &
+        vertical_grid, &
+        vert_staggerloc, &
         fieldBundleType, typekind, interpolation_weights, &
         ungridded_dims, &
-        num_levels, vert_staggerloc, &
-        units, standard_name, long_name, &
+        num_levels, &
+        units, attributes, standard_name, long_name, &
         allocation_status, &
         spec_handle, &
         bracket_updated, &
@@ -141,12 +151,14 @@ contains
       character(*), optional, intent(in) :: namespace
       type(ESMF_Geom), optional, intent(in) :: geom
       type(FieldBundleType_Flag), optional, intent(in) :: fieldBundleType
+      class(VerticalGrid), optional, target, intent(in) :: vertical_grid
+      type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       real(ESMF_KIND_R4), optional, intent(in) :: interpolation_weights(:)
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       integer, optional, intent(in) :: num_levels
-      type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       character(*), optional, intent(in) :: units
+      type(StringVector), optional, intent(in) :: attributes
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
       type(StateItemAllocation), optional, intent(in) :: allocation_status
@@ -187,10 +199,12 @@ contains
       end if
 
        call FieldInfoSetInternal(info, namespace=namespace_ // KEY_FIELD_PROTOTYPE, &
-           ungridded_dims=ungridded_dims, &
-           num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
-           units=units, long_name=long_name, standard_name=standard_name, &
-           spec_handle=spec_handle, _RC)
+            ungridded_dims=ungridded_dims, &
+            vertical_grid=vertical_grid, &
+            num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
+            units=units, attributes=attributes, &
+            long_name=long_name, standard_name=standard_name, &
+            spec_handle=spec_handle, _RC)
 
        _RETURN(_SUCCESS)
        _UNUSED_DUMMY(unusable)
