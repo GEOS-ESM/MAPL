@@ -22,8 +22,10 @@ module mapl3g_VerticalRegridTransform
    public :: VERTICAL_REGRID_LINEAR
    public :: VERTICAL_REGRID_CONSERVATIVE
    public :: operator(==), operator(/=)
-   public :: COUPLER_IMPORT_NAME
-   public :: COUPLER_EXPORT_NAME
+!   public :: COUPLER_IMPORT_NAME
+!   public :: COUPLER_EXPORT_NAME
+!  import[1]
+!  export[1]
 
    type, extends(ExtensionTransform) :: VerticalRegridTransform
       type(ESMF_Field) :: v_in_coord, v_out_coord
@@ -43,8 +45,8 @@ module mapl3g_VerticalRegridTransform
       procedure :: new_VerticalRegridTransform
    end interface VerticalRegridTransform
 
-   character(len=*), parameter :: COUPLER_IMPORT_NAME = 'coupler_import'
-   character(len=*), parameter :: COUPLER_EXPORT_NAME = 'coupler_export'
+!   character(len=*), parameter :: COUPLER_IMPORT_NAME = 'coupler_import'
+!   character(len=*), parameter :: COUPLER_EXPORT_NAME = 'coupler_export'
 
 contains
 

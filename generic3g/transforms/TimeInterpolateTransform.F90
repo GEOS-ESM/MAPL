@@ -15,8 +15,10 @@ module mapl3g_TimeInterpolateTransform
    private
 
    public :: TimeInterpolateTransform
-   public :: COUPLER_IMPORT_NAME
-   public :: COUPLER_EXPORT_NAME
+!   public :: COUPLER_IMPORT_NAME
+!   public :: COUPLER_EXPORT_NAME
+!  import[1]
+!  export[1]
 
    type, extends(ExtensionTransform) :: TimeInterpolateTransform
    contains
@@ -29,8 +31,8 @@ module mapl3g_TimeInterpolateTransform
       module procedure :: new_TimeInterpolateTransform
    end interface TimeInterpolateTransform
 
-   character(len=*), parameter :: COUPLER_IMPORT_NAME = 'coupler_import'
-   character(len=*), parameter :: COUPLER_EXPORT_NAME = 'coupler_export'
+!   character(len=*), parameter :: COUPLER_IMPORT_NAME = 'coupler_import'
+!   character(len=*), parameter :: COUPLER_EXPORT_NAME = 'coupler_export'
 
 contains
 

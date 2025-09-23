@@ -15,7 +15,8 @@ module mapl3g_EvalTransform
    private
 
    public :: EvalTransform
-   public :: COUPLER_EXPORT_NAME
+!   public :: COUPLER_EXPORT_NAME
+!  export[1]
 
    type, extends(ExtensionTransform) :: EvalTransform
       private
@@ -32,7 +33,7 @@ module mapl3g_EvalTransform
       procedure :: new_EvalTransform
    end interface EvalTransform
 
-   character(len=*), parameter :: COUPLER_EXPORT_NAME = 'coupler_export'
+!   character(len=*), parameter :: COUPLER_EXPORT_NAME = 'coupler_export'
 contains
 
    function new_EvalTransform(expression, input_state, input_couplers) result(transform)

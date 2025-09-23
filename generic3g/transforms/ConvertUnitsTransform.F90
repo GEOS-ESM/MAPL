@@ -13,8 +13,10 @@ module mapl3g_ConvertUnitsTransform
    private
 
    public :: ConvertUnitsTransform
-   public :: COUPLER_IMPORT_NAME
-   public :: COUPLER_EXPORT_NAME
+!   public :: COUPLER_IMPORT_NAME
+!   public :: COUPLER_EXPORT_NAME
+! 'import[1]'
+! 'export[1]'
 
    type, extends(ExtensionTransform) :: ConvertUnitsTransform
       private
@@ -32,8 +34,8 @@ module mapl3g_ConvertUnitsTransform
       procedure new_converter
    end interface ConvertUnitsTransform
 
-   character(len=*), parameter :: COUPLER_IMPORT_NAME = 'coupler_import'
-   character(len=*), parameter :: COUPLER_EXPORT_NAME = 'coupler_export'
+!   character(len=*), parameter :: COUPLER_IMPORT_NAME = 'coupler_import'
+!   character(len=*), parameter :: COUPLER_EXPORT_NAME = 'coupler_export'
 
 contains
 

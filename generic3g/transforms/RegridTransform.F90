@@ -15,8 +15,10 @@ module mapl3g_RegridTransform
    private
 
    public :: RegridTransform
-   public :: COUPLER_IMPORT_NAME
-   public :: COUPLER_EXPORT_NAME
+!   public :: COUPLER_IMPORT_NAME
+!   public :: COUPLER_EXPORT_NAME
+! import[1]
+! export[1]
 
    type, extends(ExtensionTransform) :: ScalarRegridTransform
       type(ESMF_Geom) :: src_geom
@@ -36,8 +38,8 @@ module mapl3g_RegridTransform
       module procedure :: new_ScalarRegridTransform
    end interface RegridTransform
 
-   character(len=*), parameter :: COUPLER_IMPORT_NAME = 'coupler_import'
-   character(len=*), parameter :: COUPLER_EXPORT_NAME = 'coupler_export'
+!   character(len=*), parameter :: COUPLER_IMPORT_NAME = 'coupler_import'
+!   character(len=*), parameter :: COUPLER_EXPORT_NAME = 'coupler_export'
 contains
 
    function new_ScalarRegridTransform(src_geom, dst_geom, dst_param) result(transform)
