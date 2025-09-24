@@ -17,6 +17,9 @@ module mapl3g_PrimaryExport
    use mapl3g_ExtDataSample
    use pfio, only: i_clients
    use VerticalCoordinateMod
+   use mapl3g_FieldBundleSet
+   use mapl3g_EsmfRegridder, only: EsmfRegridderParam
+   use mapl3g_RegridderMethods
    implicit none
 
    public PrimaryExport
@@ -30,9 +33,13 @@ module mapl3g_PrimaryExport
       logical :: is_constant = .false.
       type(VerticalCoordinate) :: vcoord
       type(ESMF_Time), allocatable :: start_and_end(:)
+      real :: linear_trans(2) ! offset, scaling
+      character(len=:), allocatable :: regridding_method
+
       contains
          procedure :: get_file_selector
          procedure :: complete_export_spec
+         procedure :: update_export_spec
          procedure :: get_file_var_name
          procedure :: get_export_var_name
          procedure :: get_bracket
@@ -66,6 +73,8 @@ module mapl3g_PrimaryExport
          non_clim_file_selector = NonClimDataSetFileSelector(collection%file_template, collection%frequency, ref_time=collection%reff_time, persist_closest = (sample%extrap_outside == "persist_closest") )
          allocate(primary_export%file_selector, source=non_clim_file_selector, _STAT)
          primary_export%file_var = rule%file_var
+         primary_export%linear_trans = rule%linear_trans
+         primary_export%regridding_method = rule%regrid_method
          call left_node%set_node_side(NODE_LEFT)
          call right_node%set_node_side(NODE_RIGHT)
          call primary_export%bracket%set_node(NODE_LEFT, left_node)
@@ -117,6 +126,51 @@ module mapl3g_PrimaryExport
       type(ESMF_FieldBundle) :: bundle
       type(GeomManager), pointer :: geom_mgr
       type(BasicVerticalGrid) :: vertical_grid
+      type(EsmfRegridderParam) :: regridder_param
+
+      if (this%is_constant) then
+         _RETURN(_SUCCESS)
+      end if
+
+      metadata => this%file_selector%get_dataset_metadata(_RC)
+      geom_mgr => get_geom_manager()
+      geom = geom_mgr%get_mapl_geom_from_metadata(metadata%metadata, _RC)
+      esmfgeom = geom%get_geom()
+
+      this%vcoord = verticalCoordinate(metadata, this%file_var, _RC)
+      regridder_param = generate_esmf_regrid_param(regrid_method_string_to_int(this%regridding_method), &
+         ESMF_TYPEKIND_R4, _RC)
+
+      call ESMF_StateGet(exportState, item_name, bundle, _RC)
+      if (this%vcoord%vertical_type == NO_COORD) then
+         call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
+                 vertical_stagger=VERTICAL_STAGGER_NONE, regridder_param=regridder_param,  _RC)
+      else if (this%vcoord%vertical_type == SIMPLE_COORD) then
+         vertical_grid = BasicVerticalGrid(this%vcoord%num_levels)
+         call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', &
+                 typekind=ESMF_TYPEKIND_R4, vertical_grid=vertical_grid, &
+                 vertical_stagger=VERTICAL_STAGGER_CENTER, regridder_param=regridder_param,  _RC)
+      else
+         _FAIL("unsupported vertical coordinate for item "//trim(this%export_var))
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine complete_export_spec
+      
+   subroutine update_export_spec(this, item_name, exportState, rc)
+      class(PrimaryExport), intent(inout) :: this
+      character(len=*), intent(in) :: item_name
+      type(ESMF_State), intent(inout) :: exportState
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      type(FileMetaDataUtils), pointer :: metadata
+      type(MAPLGeom) :: geom
+      type(ESMF_Geom) :: esmfgeom
+      type(ESMF_FieldBundle) :: bundle
+      type(GeomManager), pointer :: geom_mgr
+      type(BasicVerticalGrid) :: vertical_grid
 
       if (this%is_constant) then
          _RETURN(_SUCCESS)
@@ -131,19 +185,19 @@ module mapl3g_PrimaryExport
 
       call ESMF_StateGet(exportState, item_name, bundle, _RC)
       if (this%vcoord%vertical_type == NO_COORD) then
-         call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
-                 vertical_stagger=VERTICAL_STAGGER_NONE,  _RC)
+         call FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
+                 vert_staggerloc=VERTICAL_STAGGER_NONE,  _RC)
       else if (this%vcoord%vertical_type == SIMPLE_COORD) then
          vertical_grid = BasicVerticalGrid(this%vcoord%num_levels)
-         call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', &
-                 typekind=ESMF_TYPEKIND_R4, vertical_grid=vertical_grid, &
-                 vertical_stagger=VERTICAL_STAGGER_CENTER,  _RC)
+         call FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', &
+                 typekind=ESMF_TYPEKIND_R4, num_levels=this%vcoord%num_levels, &
+                 vert_staggerloc=VERTICAL_STAGGER_CENTER,  _RC)
       else
          _FAIL("unsupported vertical coordinate for item "//trim(this%export_var))
       end if
 
       _RETURN(_SUCCESS)
-   end subroutine complete_export_spec
+   end subroutine update_export_spec
       
    subroutine update_my_bracket(this, bundle, current_time, weights, rc)
       class(PrimaryExport), intent(inout) :: this
@@ -158,6 +212,10 @@ module mapl3g_PrimaryExport
       call this%file_selector%update_file_bracket(bundle, current_time, this%bracket, _RC)
       local_weights = this%bracket%compute_bracket_weights(current_time, _RC)
       weights = [0.0, local_weights(1), local_weights(2)]
+
+      ! apply optional linear transformation
+      weights(1) = this%linear_trans(1)
+      weights(2:3) = weights(2:3)*this%linear_trans(2)
       _RETURN(_SUCCESS)
    end subroutine update_my_bracket
 
@@ -179,6 +237,7 @@ module mapl3g_PrimaryExport
       update_file = node%get_update()
       if (update_file) then
          call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
+         call MAPL_FieldBundleSet(bundle, bracket_updated=.true., _RC)
          call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
          time_index = node%get_time_index()
          call node%get_file(filename)
@@ -188,6 +247,7 @@ module mapl3g_PrimaryExport
       update_file = node%get_update()
       if (update_file) then
          call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
+         call MAPL_FieldBundleSet(bundle, bracket_updated=.true., _RC)
          call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
          time_index = node%get_time_index()
          call node%get_file(filename)

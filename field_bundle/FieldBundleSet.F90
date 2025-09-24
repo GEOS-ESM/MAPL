@@ -35,6 +35,7 @@ contains
         num_levels, vert_staggerloc, &
         units, standard_name, long_name, &
         allocation_status, &
+        bracket_updated, &
         rc)
 
       type(ESMF_FieldBundle), intent(inout) :: fieldBundle
@@ -50,6 +51,7 @@ contains
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
       type(StateItemAllocation), optional, intent(in) :: allocation_status
+      logical, optional, intent(in) :: bracket_updated
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -87,6 +89,7 @@ contains
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
            units=units, standard_name=standard_name, long_name=long_name, &
            allocation_status=allocation_status, &
+           bracket_updated=bracket_updated, &
            _RC)
 
       _RETURN(_SUCCESS)

@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.60.0
+  VERSION 2.61.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
@@ -136,15 +136,15 @@ if (NOT Baselibs_FOUND)
   endif()
 
   if (NOT TARGET ESMF::ESMF)
-    find_package(ESMF 8.8.1 MODULE REQUIRED)
+    find_package(ESMF 9.0.0 MODULE REQUIRED)
     target_link_libraries(ESMF::ESMF INTERFACE MPI::MPI_Fortran)
   endif ()
 else ()
   # This is an ESMF version test when using Baselibs which doesn't use the
   # same find_package internally in ESMA_cmake as used above (with a version
   # number) so this lets us at least trap use of old Baselibs here.
-  if (ESMF_VERSION VERSION_LESS 8.8.1)
-    message(FATAL_ERROR "ESMF must be at least 8.8.1")
+  if (ESMF_VERSION VERSION_LESS 9.0.0)
+    message(FATAL_ERROR "ESMF must be at least 9.0.0")
   endif ()
 endif ()
 

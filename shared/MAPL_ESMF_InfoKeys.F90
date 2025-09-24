@@ -28,6 +28,7 @@ module mapl3g_esmf_info_keys
    public :: KEY_DIM_STRINGS
    public :: make_dim_key
    public :: KEY_VERT_STAGGERLOC
+   public :: KEY_BRACKET_UPDATED
    private
 
    ! FieldSpec info keys
@@ -59,6 +60,9 @@ module mapl3g_esmf_info_keys
    character(len=*), parameter :: KEY_UNGRIDDED_NAME = 'name'
    character(len=*), parameter :: KEY_UNGRIDDED_UNITS = 'units'
    character(len=*), parameter :: KEY_UNGRIDDED_COORD = 'coordinates'
+
+   ! Regridding info keys
+   character(len=*), parameter :: KEY_BRACKET_UPDATED = '/bracket_updated'
 
    character(len=*), parameter :: KEY_DIM_STRINGS(9) = [ &
       KEYSTUB_DIM // '1', KEYSTUB_DIM // '2', KEYSTUB_DIM // '3', &

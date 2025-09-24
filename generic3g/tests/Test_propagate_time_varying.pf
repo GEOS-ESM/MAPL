@@ -96,6 +96,7 @@ contains
          x = 3.
          
          fb0 = MAPL_FieldBundleCreate(fieldList=bracket0, fieldBundleType=FIELDBUNDLETYPE_BRACKET, _RC)
+         call MAPL_FieldBundleSet(fb0, bracket_updated=.true., _RC)
          call MAPL_FieldBundleSet(fb0, geom=geom_0, interpolation_weights=weights0, _RC)
          fb0_alias = ESMF_NamedAlias(fb0, name='import[1]', _RC)
 
@@ -107,6 +108,7 @@ contains
          x = 3.
          
          fb1 = MAPL_FieldBundleCreate(fieldList=bracket1, fieldBundleType=FIELDBUNDLETYPE_BRACKET, _RC)
+         call MAPL_FieldBundleSet(fb1, bracket_updated=.true., _RC)
          call MAPL_FieldBundleSet(fb1, geom=geom_1, interpolation_weights=weights0, _RC)
          fb1_alias = ESMF_NamedAlias(fb1, name='export[1]', _RC)
 
@@ -202,6 +204,7 @@ contains
          x = 3.
          
          fb = MAPL_FieldBundleCreate(fieldList=bracket, _RC)
+         call MAPL_FieldBundleSet(fb, bracket_updated=.true., _RC)
          call MAPL_FieldBundleSet(fb, geom=geom_1, interpolation_weights=[0.0, 0.5,0.5], _RC)
          block
            real, allocatable :: w(:)
