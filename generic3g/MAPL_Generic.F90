@@ -37,7 +37,7 @@ module mapl3g_Generic
    use mapl3g_ESMF_Utilities, only: esmf_state_intent_to_string
    use mapl3g_ESMF_Interfaces, only: MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
    use mapl3g_hconfig_get
-   use mapl3g_RestartModes, only: MAPL_RESTART_MODE
+   use mapl3g_RestartModes, only: RestartMode
    use mapl_InternalConstantsMod
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
@@ -541,7 +541,7 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(UngriddedDim), optional, intent(in) :: ungridded_dims(:)
       character(*), optional, intent(in) :: units
-      integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(in) :: restart
+      type(RestartMode), optional, intent(in) :: restart
       type(ESMF_StateItem_Flag), optional, intent(in) :: itemType
       logical, optional, intent(in) :: add_to_export
       logical, optional, intent(in) :: has_deferred_aspects
@@ -553,7 +553,6 @@ contains
       type(ComponentSpec), pointer :: component_spec
       character(len=:), allocatable :: units_
       type(UngriddedDims), allocatable :: dim_specs_vec
-      character(len=ESMF_MAXSTR) :: gridcomp_name
       integer :: status
 
       _ASSERT((dims=="xyz") .or. (dims=="xy") .or. (dims=="z"), "dims can be one of xyz/xy/z")
@@ -565,11 +564,9 @@ contains
       ! If input units is present, override using input values
       if (present(units)) units_ = units
       if (present(ungridded_dims)) dim_specs_vec = UngriddedDims(ungridded_dims)
-      call ESMF_GridCompGet(gridcomp, name=gridcomp_name, _RC)
       var_spec = make_VariableSpec( &
            state_intent, &
            short_name, &
-           gridcomp_name=trim(gridcomp_name), &
            standard_name=standard_name, &
            units=units_, &
            itemType=itemType, &
