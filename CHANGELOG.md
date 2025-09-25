@@ -9,10 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- CMake workaround for ifx 2025.2
-  - NOTE: Still needs updates in GFE not yet in Baselibs
-
 ### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.62.0] - 2025-09-25
+
+### Fixed
+
+- CMake workaround for ifx 2025.2
+  - NOTE: Requires ESMA_cmake v3.65.0 for ifx 2025.2 support as well as updates in GFE not yet in Baselibs
 
 ### Changed
 
@@ -24,9 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `ESMA_cmake` v3.65.0
     - Workaround for ifx 2025.2
 
-### Removed
-
-### Deprecated
 
 ## [2.61.0] - 2025-09-18
 
