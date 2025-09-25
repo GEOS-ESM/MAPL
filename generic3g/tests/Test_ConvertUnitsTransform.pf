@@ -3,6 +3,7 @@
 
 module Test_ConvertUnitsTransform
    use mapl3g_ConvertUnitsTransform
+   use mapl3g_ExtensionTransform
    use esmf
    use MAPL_FieldUtils
    use pfunit
@@ -18,11 +19,11 @@ module Test_ConvertUnitsTransform
    integer, parameter :: R8 = ESMF_KIND_R8
    integer, parameter :: SUCCESS = _SUCCESS
    integer, parameter :: FAILURE = SUCCESS - 1
-   character(len=*), parameter :: IMPORT_FIELD_NAME = 'import[1]'
-   character(len=*), parameter :: EXPORT_FIELD_NAME = 'export[1]'
+!   character(len=*), parameter :: IMPORT_FIELD_NAME = 'import[1]'
+!   character(len=*), parameter :: EXPORT_FIELD_NAME = 'export[1]'
 
    character(len=*), parameter :: FIELD_NAMES(*) = &
-      & [character(len=ESMF_MAXSTR) :: IMPORT_FIELD_NAME, EXPORT_FIELD_NAME]
+      & [character(len=ESMF_MAXSTR) :: COUPLER_IMPORT_NAME, COUPLER_EXPORT_NAME]
    logical :: TIME_INITIALIZED = .FALSE.
    type(ESMF_Time) :: START_TIME
    type(ESMF_TimeInterval) :: TIMESTEP
