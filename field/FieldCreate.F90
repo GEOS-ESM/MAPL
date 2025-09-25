@@ -116,7 +116,7 @@ contains
            ungriddedUBound=bounds%upper, &
            _RC)
 
-      ! Initialize field to zero
+      ! Initialize field
       if (typekind==ESMF_TYPEKIND_I4) then
          call ESMF_FieldFill(field, dataFillScheme="const", param1I4=MAPL_UNDEFINED_INTEGER, _RC)
       else
