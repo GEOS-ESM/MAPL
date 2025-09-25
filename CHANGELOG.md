@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix a memory leak in trajectory sampler due to misuage of FieldRegrid which should be FieldRedist
+
 ### Added
 
 ### Changed
