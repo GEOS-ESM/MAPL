@@ -73,7 +73,7 @@ contains
       _UNUSED_DUMMY(unusable)
    end function field_create
 
-   subroutine field_empty_complete( field, &
+   subroutine field_empty_complete(field, &
         typekind, unusable, &
         gridToFieldMap, ungridded_dims, &
         num_levels, vert_staggerloc, &
@@ -115,6 +115,9 @@ contains
            ungriddedLBound=bounds%lower, &
            ungriddedUBound=bounds%upper, &
            _RC)
+
+      ! Initialize field to zero
+      call ESMF_FieldFill(field, dataFillScheme="const", const1=0.d0, _RC)
 
       call ESMF_InfoGetFromHost(field, field_info, _RC)
       vert_staggerloc_ = VERTICAL_STAGGER_NONE
