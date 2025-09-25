@@ -1,5 +1,6 @@
 #include "MAPL_TestErr.h"
 module Test_TimeInterpolateTransform
+   use mapl3g_ExtensionTransform 
    use mapl3g_TimeInterpolateTransform
    use mapl3g_InfoUtilities
    use MAPL_FieldPointerUtilities
@@ -31,7 +32,7 @@ contains
       importState = ESMF_StateCreate(_RC)
       exportState = ESMF_StateCreate(_RC)
 
-      bracket = ESMF_FieldBundleCreate(name=COUPLER_IMPORT, _RC)
+      bracket = ESMF_FieldBundleCreate(name=COUPLER_IMPORT_NAME, _RC)
       call MAPL_FieldBundleSet(bracket, bracket_updated=.true., _RC)
 
       call ESMF_StateAdd(importState, [bracket], _RC)
@@ -39,7 +40,7 @@ contains
 
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom = ESMF_GeomCreate(grid, _RC)
-      f = ESMF_FieldEmptyCreate(name=COUPLER_EXPORT, _RC)
+      f = ESMF_FieldEmptyCreate(name=COUPLER_EXPORT_NAME, _RC)
       call ESMF_FieldEmptySet(f, geom=geom, _RC)
       call ESMF_FieldEmptyComplete(f, typekind=ESMF_TYPEKIND_R4, _RC)
       call ESMF_StateAdd(exportState, [f], _RC)
@@ -89,13 +90,13 @@ contains
          call assign_fptr(b(i), x, _RC)
          x = 2. * i
       end do
-      bracket = ESMF_FieldBundleCreate(name=COUPLER_IMPORT, multiflag=.true., fieldList=b, _RC)
+      bracket = ESMF_FieldBundleCreate(name=COUPLER_IMPORT_NAME, multiflag=.true., fieldList=b, _RC)
       call MAPL_FieldBundleSet(bracket, bracket_updated=.true., _RC)
       call ESMF_StateAdd(importState, [bracket], _RC)
       call MAPL_FieldBundleSet(bracket, interpolation_weights=[1.0, 0.5, 0.5], _RC)
 
 
-      f = ESMF_FieldEmptyCreate(name=COUPLER_EXPORT, _RC)
+      f = ESMF_FieldEmptyCreate(name=COUPLER_EXPORT_NAME, _RC)
       call ESMF_FieldEmptySet(f, geom=geom, _RC)
       call ESMF_FieldEmptyComplete(f, typekind=ESMF_TYPEKIND_R4, _RC)
       call ESMF_StateAdd(exportState, [f], _RC)
@@ -150,12 +151,12 @@ contains
       ! the result is undefined at the same location.
       
       x(2) = MAPL_UNDEFINED_REAL
-      bracket = ESMF_FieldBundleCreate(name=COUPLER_IMPORT, multiflag=.true., fieldList=b, _RC)
+      bracket = ESMF_FieldBundleCreate(name=COUPLER_IMPORT_NAME, multiflag=.true., fieldList=b, _RC)
       call MAPL_FieldBundleSet(bracket, bracket_updated=.true., _RC)
       call ESMF_StateAdd(importState, [bracket], _RC)
       call MAPL_FieldBundleSet(bracket, interpolation_weights=[1.0, 0.5, 0.5], _RC)
 
-      f = ESMF_FieldEmptyCreate(name=COUPLER_EXPORT, _RC)
+      f = ESMF_FieldEmptyCreate(name=COUPLER_EXPORT_NAME, _RC)
       call ESMF_FieldEmptySet(f, geom=geom, _RC)
       call ESMF_FieldEmptyComplete(f, typekind=ESMF_TYPEKIND_R4, _RC)
       call ESMF_StateAdd(exportState, [f], _RC)
