@@ -9,7 +9,7 @@ module mapl3g_FieldCreate
    use mapl3g_LU_Bound
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
-   use mapl_InternalConstantsMod, only: MAPL_UNDEFINED_REAL
+   use mapl_InternalConstantsMod, only: MAPL_UNDEFINED_INTEGER
    use esmf, MAPL_FieldEmptyCreate => ESMF_FieldEmptyCreate
 
    implicit none(type,external)
@@ -117,7 +117,11 @@ contains
            _RC)
 
       ! Initialize field to zero
-      call ESMF_FieldFill(field, dataFillScheme="const", const1=0.d0, _RC)
+      if (typekind==ESMF_TYPEKIND_I4) then
+         call ESMF_FieldFill(field, dataFillScheme="const", param1I4=MAPL_UNDEFINED_INTEGER, _RC)
+      else
+         call ESMF_FieldFill(field, dataFillScheme="nan", _RC)
+      end if
 
       call ESMF_InfoGetFromHost(field, field_info, _RC)
       vert_staggerloc_ = VERTICAL_STAGGER_NONE
