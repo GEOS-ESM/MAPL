@@ -248,6 +248,7 @@ module mapl3g_PrimaryExport
          call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
          time_index = node%get_time_index()
          call node%get_file(filename)
+         call node%write_node() !  bmaa
          call reader%add_item(field_list(1), this%file_var, filename, time_index, this%client_collection_id, _RC)
       end if
       node = this%bracket%get_right_node()
@@ -257,6 +258,7 @@ module mapl3g_PrimaryExport
          call MAPL_FieldBundleSet(bundle, bracket_updated=.true., _RC)
          call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
          time_index = node%get_time_index()
+         call node%write_node() !  bmaa
          call node%get_file(filename)
          call reader%add_item(field_list(2), this%file_var, filename, time_index, this%client_collection_id, _RC)
       end if

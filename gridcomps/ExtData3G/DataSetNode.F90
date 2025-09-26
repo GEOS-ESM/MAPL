@@ -7,6 +7,7 @@ module mapl3g_DataSetNode
    use pFIO
    use MAPL_FileMetadataUtilsMod
    use mapl3g_geomio
+   use mapl3g_ExtDataUtilities
    implicit none
    private
 
@@ -151,13 +152,6 @@ contains
       equals = (trim(a%file)==trim(b%file)) .and. (a%time_index==b%time_index) .and. (a%interp_time==b%interp_time)
    end function equals
 
-   subroutine reset(this)
-      class(DataSetNode), intent(inout) :: this
-      deallocate(this%file)
-      this%enabled = .false.
-      this%update = .false.
-   end subroutine
-
    function validate(this, current_time, rc) result(node_is_valid)
       logical :: node_is_valid
       class(DataSetNode), intent(inout) :: this
@@ -262,4 +256,5 @@ contains
       print*,'time_index ',this%time_index
       call ESMF_TimePrint(this%interp_time, options='string', prestring='interp time: ')
   end subroutine
+
 end module mapl3g_DataSetNode

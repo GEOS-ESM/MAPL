@@ -17,17 +17,14 @@ module mapl3g_ClimDataSetFileSelector
 
    public ClimDataSetFileSelector
 
-   integer, parameter :: CLIM_NULL = -100000 
    type, extends(AbstractDataSetFileSelector):: ClimDataSetFileSelector
       type(ESMF_Time), allocatable :: source_time(:)
-      integer :: clim_year = CLIM_NULL
       contains
          procedure :: update_file_bracket
          procedure :: in_valid_range
-         procedure :: update_node
-         procedure :: update_both_brackets
-         procedure :: update_bracket_in_range
-         procedure :: update_bracket_out_of_range
+         procedure :: update_node_out_of_range_multi
+         procedure :: update_both_brackets_out_range_multi
+         procedure :: update_bracket_out_of_range_multi
     end type
 
     interface ClimDataSetFileSelector
@@ -81,13 +78,13 @@ module mapl3g_ClimDataSetFileSelector
        type(DataSetBracket), intent(inout) :: bracket
        integer, optional, intent(out) :: rc
 
-       type(ESMF_Time) :: target_time
+       type(ESMF_Time) :: target_time, original_time
        integer :: status, node_side, valid_years(2)
        type(DataSetNode) :: left_node, right_node, test_node
        logical :: node_is_valid, both_valid, time_jumped, both_invalid
 
-       _HERE,'bmaa '
        target_time = current_time
+       original_time = current_time
        _ASSERT(size(this%valid_range) == 2, 'Valid range must be of size 2 to do climatological extrpolation')
        call ESMF_TimeGet(this%valid_range(1),yy=valid_years(1),_RC)
        call ESMF_TimeGet(this%valid_range(2),yy=valid_years(2),_RC)
@@ -99,28 +96,22 @@ module mapl3g_ClimDataSetFileSelector
        end if
 
        if (target_time <= this%valid_range(1)) then
-          this%clim_year = valid_years(1)
-          call swap_year(target_time, this%clim_year, _RC)
+          call swap_year(target_time, valid_years(1), _RC)
+
        else if (target_time >= this%valid_range(2)) then
-          this%clim_year = valid_years(2)
-          call swap_year(target_time, this%clim_year, _RC)
+          call swap_year(target_time, valid_years(2), _RC)
        end if
 
-       call ESMF_TimePrint(target_time, options='string', prestring='bmaa target time: ')
-       _HERE,'bmaa '
-       if (this%clim_year == CLIM_NULL) then
-          call this%update_bracket_in_range(bundle, target_time, bracket, _RC)
-       else
-          call this%update_bracket_out_of_range(bundle, target_time, bracket, _RC)
-       end if
-       call this%set_last_update(current_time, _RC)
+       call this%update_bracket_out_of_range_multi(bundle, target_time, original_time, bracket, _RC)
+       call this%set_last_update(original_time, _RC)
        _RETURN(_SUCCESS)
     end subroutine update_file_bracket
 
-    subroutine update_bracket_in_range(this, bundle, target_time, bracket, rc)
+    subroutine update_bracket_out_of_range_multi(this, bundle, target_time, original_time, bracket, rc)
        class(ClimDataSetFileSelector), intent(inout) :: this
        type(ESMF_FieldBundle), intent(inout) :: bundle
        type(ESMF_Time), intent(in) :: target_time 
+       type(ESMF_Time), intent(in) :: original_time 
        type(DataSetBracket), intent(inout) :: bracket
        integer, optional, intent(out) :: rc
 
@@ -129,16 +120,15 @@ module mapl3g_ClimDataSetFileSelector
        type(DataSetNode) :: left_node, right_node, test_node
        logical :: node_is_valid, both_valid, time_jumped, both_invalid
 
-       _HERE,'bmaa '
        left_node = bracket%get_left_node(_RC)
        right_node = bracket%get_right_node(_RC)
-       both_valid = left_node%validate(target_time) .and. right_node%validate(target_time) 
-       time_jumped = this%detect_time_flow(target_time)
-       both_invalid = (left_node%validate(target_time) .eqv. .false.) .and. &
-                      (right_node%validate(target_time) .eqv. .false.)
+       both_valid = left_node%validate(original_time) .and. right_node%validate(original_time) 
+       time_jumped = this%detect_time_flow(original_time)
+       both_invalid = (left_node%validate(original_time) .eqv. .false.) .and. &
+                      (right_node%validate(original_time) .eqv. .false.)
 
        if (time_jumped .or. both_invalid) then ! if time moved more than 1 clock dt, force update
-          call this%update_both_brackets(bracket, target_time, _RC)
+          call this%update_both_brackets_out_range_multi(bracket, target_time, original_time,  _RC)
        else if (both_valid) then ! else if it did not, both still valid, don't update
           call left_node%set_update(.false.)
           call right_node%set_update(.false.)
@@ -147,74 +137,28 @@ module mapl3g_ClimDataSetFileSelector
        else ! finally need to update one of them, try swapping right to left and update left
           test_node = right_node
           call test_node%set_node_side(NODE_LEFT)
-          node_is_valid = test_node%validate(target_time)
+          node_is_valid = test_node%validate(original_time)
           if (node_is_valid) then
              left_node = test_node 
              call left_node%set_update(.false.)
              call bracket%set_parameters(left_node=left_node)
-             call this%update_node(target_time, right_node, _RC)
+             call this%update_node_out_of_range_multi(target_time, original_time, right_node, _RC)
              call bracket%set_parameters(right_node=right_node)
              call swap_bracket_fields(bundle, _RC)
           else 
-             call this%update_both_brackets(bracket, target_time, _RC)
+             call this%update_both_brackets_out_range_multi(bracket, target_time, original_time, _RC)
           end if
        end if
 
        _RETURN(_SUCCESS)
 
-    end subroutine update_bracket_in_range
+    end subroutine update_bracket_out_of_range_multi
 
-    subroutine update_bracket_out_of_range(this, bundle, target_time, bracket, rc)
-       class(ClimDataSetFileSelector), intent(inout) :: this
-       type(ESMF_FieldBundle), intent(inout) :: bundle
-       type(ESMF_Time), intent(in) :: target_time 
-       type(DataSetBracket), intent(inout) :: bracket
-       integer, optional, intent(out) :: rc
-
-       integer :: status, node_side
-       logical :: establish_both
-       type(DataSetNode) :: left_node, right_node, test_node
-       logical :: node_is_valid, both_valid, time_jumped, both_invalid
-
-       _HERE,'bmaa '
-       left_node = bracket%get_left_node(_RC)
-       right_node = bracket%get_right_node(_RC)
-       both_valid = left_node%validate(target_time) .and. right_node%validate(target_time) 
-       time_jumped = this%detect_time_flow(target_time)
-       both_invalid = (left_node%validate(target_time) .eqv. .false.) .and. &
-                      (right_node%validate(target_time) .eqv. .false.)
-
-       if (time_jumped .or. both_invalid) then ! if time moved more than 1 clock dt, force update
-          call this%update_both_brackets(bracket, target_time, _RC)
-       else if (both_valid) then ! else if it did not, both still valid, don't update
-          call left_node%set_update(.false.)
-          call right_node%set_update(.false.)
-          call bracket%set_parameters(left_node=left_node)
-          call bracket%set_parameters(right_node=right_node)
-       else ! finally need to update one of them, try swapping right to left and update left
-          test_node = right_node
-          call test_node%set_node_side(NODE_LEFT)
-          node_is_valid = test_node%validate(target_time)
-          if (node_is_valid) then
-             left_node = test_node 
-             call left_node%set_update(.false.)
-             call bracket%set_parameters(left_node=left_node)
-             call this%update_node(target_time, right_node, _RC)
-             call bracket%set_parameters(right_node=right_node)
-             call swap_bracket_fields(bundle, _RC)
-          else 
-             call this%update_both_brackets(bracket, target_time, _RC)
-          end if
-       end if
-
-       _RETURN(_SUCCESS)
-
-    end subroutine update_bracket_out_of_range
-
-    subroutine update_both_brackets(this, bracket, target_time, rc)
+    subroutine update_both_brackets_out_range_multi(this, bracket, target_time, original_time, rc)
        class(ClimDataSetFileSelector), intent(inout) :: this
        type(DataSetBracket), intent(inout) :: bracket
        type(ESMF_Time), intent(in) :: target_time
+       type(ESMF_Time), intent(in) :: original_time
        integer, optional, intent(out) :: rc
 
        type(DataSetNode) :: left_node, right_node
@@ -222,24 +166,26 @@ module mapl3g_ClimDataSetFileSelector
 
        left_node = bracket%get_left_node(_RC)
        right_node = bracket%get_right_node(_RC)
-       call this%update_node(target_time, left_node, _RC)
+       call this%update_node_out_of_range_multi(target_time, original_time, left_node, _RC)
        call bracket%set_parameters(left_node=left_node)
-       call this%update_node(target_time, right_node, _RC)
+       call this%update_node_out_of_range_multi(target_time, original_time, right_node, _RC)
        call bracket%set_parameters(right_node=right_node)
        _RETURN(_SUCCESS)
-    end subroutine update_both_brackets
+    end subroutine update_both_brackets_out_range_multi
 
-    subroutine update_node(this, current_time, node, rc)
+    subroutine update_node_out_of_range_multi(this, current_time, original_time, node, rc)
        class(ClimDataSetFileSelector), intent(inout) :: this
        type(ESMF_Time), intent(in) :: current_time
+       type(ESMF_Time), intent(in) :: original_time
        type(DataSetNode), intent(inout) :: node
        integer, optional, intent(out) :: rc
        
-       integer :: status, local_search_stop, step,  node_side, i
-       type(ESMF_Time) :: trial_time
+       integer :: status, local_search_stop, step,  node_side, i, shift, year
+       type(ESMF_Time) :: trial_time, interp_time, local_current_time
        character(len=ESMF_MAXPATHLEN) :: trial_file
-       logical :: file_found, valid_node
+       logical :: file_found, valid_node, in_range 
 
+       local_current_time = current_time
        node_side = node%get_node_side()
        select case(node_side)
        case (NODE_LEFT)
@@ -250,19 +196,36 @@ module mapl3g_ClimDataSetFileSelector
             step = 1
        end select
        valid_node = .false.
+       shift = 0
+       in_range = (local_current_time >= this%valid_range(1)) .and. (local_current_time < this%valid_range(2))
+       if ( (.not. in_range) .and. (node_side == NODE_LEFT)) then
+          shift = 1
+          call shift_year(local_current_time, shift, _RC)
+       else if ( (.not. in_range) .and. (node_side == NODE_RIGHT)) then
+          shift = -1
+          call shift_year(local_current_time, shift, _RC)
+       end if
        do i=0,local_search_stop,step
-          trial_time = this%compute_trial_time(current_time, i, _RC)
+          trial_time = this%compute_trial_time(local_current_time, i, _RC)
           call fill_grads_template(trial_file, this%file_template, time=trial_time, _RC)
           inquire(file=trial_file, exist=file_found)
           if (file_found) then 
              call node%invalidate()
-             call node%update_node_from_file(trial_file, current_time, _RC)
-             valid_node = node%validate(current_time, _RC)
+             call node%update_node_from_file(trial_file, local_current_time, _RC)
+             ! how went past or before the end of data for year
+             ! need to adjust interp time
+             if (node%get_enabled()) then
+                interp_time = node%get_interp_time()
+                call ESMF_TimeGet(original_time, yy=year, _RC)
+                call swap_year(interp_time, year-shift, _RC)
+                call node%set_interp_time(interp_time)
+             end if
+             valid_node = node%validate(original_time, _RC)
              _RETURN_IF(valid_node)
           end if
        enddo
        _FAIL("Could not find a valid node")
-    end subroutine update_node
+    end subroutine update_node_out_of_range_multi
 
     function in_valid_range(this, target_time) result(target_in_valid_range)
        logical :: target_in_valid_range
@@ -284,24 +247,6 @@ module mapl3g_ClimDataSetFileSelector
 
        _RETURN(_SUCCESS)
     end subroutine swap_bracket_fields
-
-    subroutine swap_year(time,year,rc)
-       type(ESMF_Time), intent(inout) :: time
-       integer, intent(in) :: year
-       integer, optional, intent(out) :: rc
-       logical :: is_leap_year
-       type(ESMF_Calendar) :: calendar
-       integer :: status, month, day, hour, minute, second
-
-       is_leap_year=.false.
-       call ESMF_TimeGet(time,mm=month,dd=day,h=hour,m=minute,s=second,calendar=calendar,_RC)
-       if (day==29 .and. month==2) then
-          is_leap_year = ESMF_CalendarIsLeapYear(calendar,year,_RC)
-          if (.not.is_leap_year) day=28
-       end if
-       call ESMF_TimeSet(time,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,_RC)
-       _RETURN(_SUCCESS)
-   end subroutine
 
 end module mapl3g_ClimDataSetFileSelector
    
