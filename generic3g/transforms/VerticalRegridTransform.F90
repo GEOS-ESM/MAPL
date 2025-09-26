@@ -22,10 +22,6 @@ module mapl3g_VerticalRegridTransform
    public :: VERTICAL_REGRID_LINEAR
    public :: VERTICAL_REGRID_CONSERVATIVE
    public :: operator(==), operator(/=)
-!   public :: COUPLER_IMPORT_NAME
-!   public :: COUPLER_EXPORT_NAME
-!  import[1]
-!  export[1]
 
    type, extends(ExtensionTransform) :: VerticalRegridTransform
       type(ESMF_Field) :: v_in_coord, v_out_coord
@@ -44,9 +40,6 @@ module mapl3g_VerticalRegridTransform
    interface VerticalRegridTransform
       procedure :: new_VerticalRegridTransform
    end interface VerticalRegridTransform
-
-!   character(len=*), parameter :: COUPLER_IMPORT_NAME = 'coupler_import'
-!   character(len=*), parameter :: COUPLER_EXPORT_NAME = 'coupler_export'
 
 contains
 
@@ -132,6 +125,38 @@ contains
       _UNUSED_DUMMY(clock)
    end subroutine update
 
+!   subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
+!      class(VerticalRegridTransform), intent(in) :: this
+!      integer, intent(in) :: unit
+!      character(*), intent(in) :: iotype
+!      integer, intent(in) :: v_list(:)
+!      integer, intent(out) :: iostat
+!      character(*), intent(inout) :: iomsg
+!
+!      real(ESMF_KIND_R4), pointer :: v_in(:), v_out(:)
+!      integer :: rc, status
+!
+!      call ESMF_FieldGet(this%v_in_coord, fArrayPtr=v_in, _RC)
+!      call ESMF_FieldGet(this%v_out_coord, fArrayPtr=v_out, _RC)
+!
+!      write(unit, "(a, a)", iostat=iostat, iomsg=iomsg) "VerticalRegridTransform(", new_line("a")
+!      if (iostat /= 0) return
+!      write(unit, "(4x, a, l1, a, 4x, a, l1, a)", iostat=iostat, iomsg=iomsg) &
+!           "v_in_coupler: ", associated(this%v_in_coupler), new_line("a"), &
+!           "v_out_coupler: ", associated(this%v_out_coupler), new_line("a")
+!      if (iostat /= 0) return
+!      write(unit, "(4x, a, *(g0, 1x))", iostat=iostat, iomsg=iomsg) "v_in_coord: ", v_in
+!      if (iostat /= 0) return
+!      write(unit, "(a)", iostat=iostat, iomsg=iomsg) new_line("a")
+!      if (iostat /= 0) return
+!      write(unit, "(4x, a, *(g0, 1x))", iostat=iostat, iomsg=iomsg) "v_out_coord: ", v_out
+!      if (iostat /= 0) return
+!      write(unit, "(a, 1x, a)", iostat=iostat, iomsg=iomsg) new_line("a"), ")"
+!
+!      _UNUSED_DUMMY(iotype)
+!      _UNUSED_DUMMY(v_list)
+!   end subroutine write_formatted
+
    subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
       class(VerticalRegridTransform), intent(in) :: this
       integer, intent(in) :: unit
@@ -139,12 +164,7 @@ contains
       integer, intent(in) :: v_list(:)
       integer, intent(out) :: iostat
       character(*), intent(inout) :: iomsg
-
-      real(ESMF_KIND_R4), pointer :: v_in(:), v_out(:)
       integer :: rc, status
-
-      call ESMF_FieldGet(this%v_in_coord, fArrayPtr=v_in, _RC)
-      call ESMF_FieldGet(this%v_out_coord, fArrayPtr=v_out, _RC)
 
       write(unit, "(a, a)", iostat=iostat, iomsg=iomsg) "VerticalRegridTransform(", new_line("a")
       if (iostat /= 0) return
@@ -152,16 +172,14 @@ contains
            "v_in_coupler: ", associated(this%v_in_coupler), new_line("a"), &
            "v_out_coupler: ", associated(this%v_out_coupler), new_line("a")
       if (iostat /= 0) return
-      write(unit, "(4x, a, *(g0, 1x))", iostat=iostat, iomsg=iomsg) "v_in_coord: ", v_in
+      call write_field(this%v_in_coord, "v_in_coord: ", unit, iotype, v_list, iostat, iomsg)
       if (iostat /= 0) return
       write(unit, "(a)", iostat=iostat, iomsg=iomsg) new_line("a")
       if (iostat /= 0) return
-      write(unit, "(4x, a, *(g0, 1x))", iostat=iostat, iomsg=iomsg) "v_out_coord: ", v_out
+      call write_field(this%v_out_coord, "v_out_coord: ", unit, iotype, v_list, iostat, iomsg)
       if (iostat /= 0) return
       write(unit, "(a, 1x, a)", iostat=iostat, iomsg=iomsg) new_line("a"), ")"
 
-      _UNUSED_DUMMY(iotype)
-      _UNUSED_DUMMY(v_list)
    end subroutine write_formatted
 
    subroutine compute_interpolation_matrix_(v_in_coord, v_out_coord, matrix, rc)
@@ -229,5 +247,70 @@ contains
 
       id = VERTICAL_GRID_TRANSFORM_ID
    end function get_transformId
+
+   subroutine write_field(field, tag, unit, iotype, v_list, iostat, iomsg)
+      type(ESMF_Field), intent(in) :: field
+      character(len=*), intent(in) :: tag
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+      type(ESMF_TypeKind_Flag) :: typekind
+      integer :: rc, status
+
+      call ESMF_FieldGet(field, typekind=typekind, _RC)
+
+      if(typekind == ESMF_TYPEKIND_R4) then
+         call write_fieldR4(field, tag, unit, iotype, v_list, iostat, iomsg)
+         _RETURN(_SUCCESS)
+      endif
+
+      if(typekind == ESMF_TYPEKIND_R8) then
+         call write_fieldR8(field, tag, unit, iotype, v_list, iostat, iomsg)
+         _RETURN(_SUCCESS)
+      endif
+
+      _FAIL('unsupported typekind')
+
+   end subroutine write_field
+
+   subroutine write_fieldR4(field, tag, unit, iotype, v_list, iostat, iomsg)
+      type(ESMF_Field), intent(in) :: field
+      character(len=*), intent(in) :: tag
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+      real(kind=ESMF_KIND_R4), pointer :: v(:)
+      integer :: rc, status
+
+      call ESMF_FieldGet(field, fArrayPtr=v, _RC)
+      write(unit, "(4x, a, *(g0, 1x))", iostat=iostat, iomsg=iomsg) trim(tag), v
+
+      _UNUSED_DUMMY(iotype)
+      _UNUSED_DUMMY(v_list)
+
+   end subroutine write_fieldR4
+
+   subroutine write_fieldR8(field, tag, unit, iotype, v_list, iostat, iomsg)
+      type(ESMF_Field), intent(in) :: field
+      character(len=*), intent(in) :: tag
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+      real(kind=ESMF_KIND_R8), pointer :: v(:)
+      integer :: rc, status
+
+      call ESMF_FieldGet(field, fArrayPtr=v, _RC)
+      write(unit, "(4x, a, *(g0, 1x))", iostat=iostat, iomsg=iomsg) trim(tag), v
+
+      _UNUSED_DUMMY(iotype)
+      _UNUSED_DUMMY(v_list)
+
+   end subroutine write_fieldR8
 
 end module mapl3g_VerticalRegridTransform
