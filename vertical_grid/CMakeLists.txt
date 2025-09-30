@@ -12,7 +12,7 @@ set(srcs
 
   # gftl containers
   IntegerVerticalGridMap.F90
-  VerticalGridFactorymap.F90
+  VerticalGridFactoryMap.F90
 )
 esma_add_library(${this}
   SRCS ${srcs}
