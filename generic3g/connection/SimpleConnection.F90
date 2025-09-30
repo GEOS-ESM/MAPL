@@ -167,8 +167,9 @@ contains
       dst_pt = this%get_destination()
       dst_extensions = dst_registry%get_extensions(dst_pt%v_pt, _RC)
 
-      _HERE, src_pt%v_pt
-      _HERE, dst_pt%v_pt
+      ! Very useful for debugging:
+!#      _HERE, src_pt%v_pt
+!#      _HERE, dst_pt%v_pt
       do i = 1, size(dst_extensions)
 
          dst_extension => dst_extensions(i)%ptr
@@ -186,7 +187,6 @@ contains
             call dst_extension%set_producer(new_extension%get_producer(), _RC)
          end if
       end do
-      _HERE
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
