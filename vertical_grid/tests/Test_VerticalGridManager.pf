@@ -30,7 +30,7 @@ contains
       type(VerticalGridManager), target :: manager
       
       @assert_that('New manager should be empty', manager%get_size(), is(0))
-      @assert_that('New manager should not have any ID', manager%has_id(1), is(.false.))
+      @assert_that('New manager should not have any ID', manager%has_id(1), is(false()))
    end subroutine test_manager_initial_state
 
 
@@ -44,7 +44,7 @@ contains
       call manager%initialize(rc)
       @assert_that('Initialize should succeed', rc, is(0))
       names = manager%list_factories()
-      @assert_that('Manager should have registered factories', names%size() > 0, is(.true.))
+      @assert_that('Manager should have registered factories', names%size() > 0, is(true()))
       
       ! Test double initialization is safe
       call manager%initialize(rc)
@@ -109,13 +109,13 @@ contains
       ! Add grid
       retrieved_grid => manager%add_grid(mock_grid, rc)
       @assert_that('Add grid should succeed', rc, is(0))
-      @assert_that('Returned grid should be associated', associated(retrieved_grid), is(.true.))
+      @assert_that('Returned grid should be associated', associated(retrieved_grid), is(true()))
       @assert_that('Manager should have 1 grid', manager%get_size(), is(1))
       
       ! Retrieve by ID
       retrieved_grid => manager%get_grid(1, rc)
       @assert_that('Get grid should succeed', rc, is(0))
-      @assert_that('Retrieved grid should be associated', associated(retrieved_grid), is(.true.))
+      @assert_that('Retrieved grid should be associated', associated(retrieved_grid), is(true()))
       @assert_that('Grid should have correct ID', retrieved_grid%get_id(), is(1))
    end subroutine test_manager_add_and_get_grid
 
@@ -128,7 +128,7 @@ contains
       
       retrieved_grid => manager%get_grid(999, rc)
       @assertExceptionRaised('Invalid id')
-      @assert_that('Returned grid should be null', associated(retrieved_grid), is(.false.))
+      @assert_that('Returned grid should be null', associated(retrieved_grid), is(false()))
    end subroutine test_manager_get_nonexistent_grid
 
 
@@ -147,7 +147,7 @@ contains
 
       @assert_that('Remove grid should succeed', rc, is(0))
       @assert_that('Manager should be empty', manager%get_size(), is(0))
-      @assert_that('Manager should not have ID 1', manager%has_id(1), is(.false.))
+      @assert_that('Manager should not have ID 1', manager%has_id(1), is(false()))
    end subroutine test_manager_remove_grid
 
 
