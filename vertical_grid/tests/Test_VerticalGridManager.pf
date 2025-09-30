@@ -1,0 +1,219 @@
+module Test_VerticalGridManager
+   use pfunit
+   use mapl3g_VerticalGridManager, only: VerticalGridManager
+   use mapl3g_BasicVerticalGrid, only: BasicVerticalGridFactory
+   use mapl3g_VerticalGrid, only: VerticalGrid
+   use mapl3g_VerticalStaggerLoc, only: VERTICAL_STAGGER_CENTER, VerticalStaggerLoc
+   use esmf, only: esmf_HConfig, esmf_Field, esmf_Geom
+   use esmf, only: ESMF_TYPEKIND_R4
+   use gftl2_StringVector
+   use, intrinsic :: iso_fortran_env, only: INT64
+   implicit none
+
+   ! Mock grid for testing
+   type, extends(VerticalGrid) :: MockVerticalGrid
+      integer :: num_levels = 10
+   contains
+      procedure :: get_coordinate_field => mock_create_field
+      procedure :: get_supported_physical_dimensions => mock_get_supported_physical_dimensions
+      procedure :: get_units => mock_get_units
+      procedure :: get_num_levels
+      procedure :: matches
+   end type MockVerticalGrid
+
+
+contains
+
+
+   @test
+   subroutine test_manager_initial_state()
+      type(VerticalGridManager), target :: manager
+      
+      @assert_that('New manager should be empty', manager%get_size(), is(0))
+      @assert_that('New manager should not have any ID', manager%has_id(1), is(.false.))
+   end subroutine test_manager_initial_state
+
+
+   @test
+   subroutine test_manager_initialize()
+      type(VerticalGridManager), target :: manager
+      integer :: rc
+      
+      type(StringVector) :: names
+
+      call manager%initialize(rc)
+      @assert_that('Initialize should succeed', rc, is(0))
+      names = manager%list_factories()
+      @assert_that('Manager should have registered factories', names%size() > 0, is(.true.))
+      
+      ! Test double initialization is safe
+      call manager%initialize(rc)
+      @assert_that('Double initialize should succeed', rc, is(0))
+   end subroutine test_manager_initialize
+
+
+   @test
+   subroutine test_manager_register_factory()
+      type(VerticalGridManager), target :: manager
+      type(BasicVerticalGridFactory), target :: factory
+      type(StringVector) :: names
+      integer :: rc
+      
+      call manager%register_factory("TestBasic", factory, rc)
+      @assert_that('Register factory should succeed', rc, is(0))
+      
+      names = manager%list_factories()
+      @assert_that('Should have one registered factory', names%size(), is(1_INT64))
+      @assertEqual("TestBasic", names%of(1), 'Factory name should match')
+   end subroutine test_manager_register_factory
+
+
+   @test
+   subroutine test_manager_register_empty_name()
+      type(VerticalGridManager), target :: manager
+      type(BasicVerticalGridFactory) :: factory
+      integer :: rc
+      
+      call manager%register_factory("", factory, rc)
+      @assertExceptionRaised('Factory name cannot be empty')
+
+   end subroutine test_manager_register_empty_name
+
+
+   @test
+   subroutine test_manager_get_next_id_sequence()
+      type(VerticalGridManager), target :: manager
+      integer :: id1, id2, id3, rc
+      
+      id1 = manager%get_next_id(rc)
+      @assert_that('First ID generation should succeed', rc, is(0))
+      @assert_that('First ID should be 1', id1, is(1))
+      
+      id2 = manager%get_next_id(rc)
+      @assert_that('Second ID generation should succeed', rc, is(0))
+      @assert_that('Second ID should be 2', id2, is(2))
+      
+      id3 = manager%get_next_id(rc)
+      @assert_that('Third ID generation should succeed', rc, is(0))
+      @assert_that('Third ID should be 3', id3, is(3))
+   end subroutine test_manager_get_next_id_sequence
+
+
+   @test
+   subroutine test_manager_add_and_get_grid()
+      type(VerticalGridManager),target :: manager
+      type(MockVerticalGrid) :: mock_grid
+      class(VerticalGrid), pointer :: retrieved_grid
+      integer :: rc
+      
+      ! Add grid
+      retrieved_grid => manager%add_grid(mock_grid, rc)
+      @assert_that('Add grid should succeed', rc, is(0))
+      @assert_that('Returned grid should be associated', associated(retrieved_grid), is(.true.))
+      @assert_that('Manager should have 1 grid', manager%get_size(), is(1))
+      
+      ! Retrieve by ID
+      retrieved_grid => manager%get_grid(1, rc)
+      @assert_that('Get grid should succeed', rc, is(0))
+      @assert_that('Retrieved grid should be associated', associated(retrieved_grid), is(.true.))
+      @assert_that('Grid should have correct ID', retrieved_grid%get_id(), is(1))
+   end subroutine test_manager_add_and_get_grid
+
+
+   @test
+   subroutine test_manager_get_nonexistent_grid()
+      type(VerticalGridManager), target :: manager
+      class(VerticalGrid), pointer :: retrieved_grid
+      integer :: rc
+      
+      retrieved_grid => manager%get_grid(999, rc)
+      @assertExceptionRaised('Invalid id')
+      @assert_that('Returned grid should be null', associated(retrieved_grid), is(.false.))
+   end subroutine test_manager_get_nonexistent_grid
+
+
+   @test
+   subroutine test_manager_remove_grid()
+      type(VerticalGridManager), target :: manager
+      type(MockVerticalGrid) :: mock_grid
+      class(VerticalGrid), pointer :: grid_ptr
+      integer :: rc
+      
+      ! Add and remove grid
+      grid_ptr => manager%add_grid(mock_grid, rc)
+      @assert_that('Manager should have 1 grid', manager%get_size(), is(1))
+
+      call manager%remove_grid(1, rc)
+
+      @assert_that('Remove grid should succeed', rc, is(0))
+      @assert_that('Manager should be empty', manager%get_size(), is(0))
+      @assert_that('Manager should not have ID 1', manager%has_id(1), is(.false.))
+   end subroutine test_manager_remove_grid
+
+
+   @test
+   subroutine test_manager_remove_nonexistent_grid()
+      type(VerticalGridManager), target :: manager
+      integer :: rc
+      
+      call manager%remove_grid(999, rc)
+      @assertExceptionRaised('Cannot remove grid: ID not found in manager')
+
+   end subroutine test_manager_remove_nonexistent_grid
+
+
+   function mock_create_field(this, geom, physical_dimension, units, typekind, coupler, rc) result(field)
+      use esmf, only: esmf_Field, esmf_FieldEmptyCreate, esmf_TypeKind_Flag
+      use mapl3g_ComponentDriver, only: ComponentDriver
+      type(esmf_Field) :: field
+      class(MockVerticalGrid), intent(in) :: this
+      type(esmf_Geom), intent(in) :: geom
+      character(len=*), intent(in) :: physical_dimension
+      character(len=*), intent(in) :: units
+      type(esmf_TypeKind_Flag), intent(in) :: typekind
+      class(ComponentDriver), pointer, intent(out) :: coupler
+      integer, intent(out), optional :: rc
+      
+      ! Create empty field for testing
+      field = esmf_FieldEmptyCreate()
+      if (present(rc)) rc = 0
+   end function mock_create_field
+
+   function get_num_levels(this) result(n_levels)
+      integer :: n_levels
+      class(MockVerticalGrid), intent(in) :: this
+      
+      n_levels = this%num_levels
+   end function get_num_levels
+
+   function mock_get_supported_physical_dimensions(this) result(dimensions)
+      type(StringVector) :: dimensions
+      class(MockVerticalGrid), target, intent(in) :: this
+
+      call dimensions%push_back('pressure')
+   end function mock_get_supported_physical_dimensions
+
+   function mock_get_units(this, physical_dimension, rc) result(units)
+      character(len=:), allocatable :: units
+      class(MockVerticalGrid), intent(in) :: this
+      character(len=*), intent(in) :: physical_dimension
+      integer, optional, intent(out) :: rc
+
+      ! Default units based on physical dimension
+      select case (trim(physical_dimension))
+      case ('pressure')
+         units = 'Pa'
+      case default
+         units = ''
+         rc = -1
+      end select
+   end function mock_get_units
+
+   logical function matches(this, other)
+      class(MockVerticalGrid), intent(in) :: this
+      class(VerticalGrid), intent(in) :: other
+
+      matches = .false.
+
+   end function matches
+end module Test_VerticalGridManager
