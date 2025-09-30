@@ -8,7 +8,7 @@ module mapl3g_FieldBundleInfo
    use mapl3g_FieldInfo
    use mapl3g_UngriddedDims
    use mapl3g_FieldBundleType_Flag
-   use mapl3g_VerticalStaggerLoc
+   use mapl3g_VerticalGrid_API
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf

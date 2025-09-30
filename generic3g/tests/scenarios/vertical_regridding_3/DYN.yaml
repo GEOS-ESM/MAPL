@@ -8,21 +8,18 @@ mapl:
       pole: PC
       dateline: DC
     vertical_grid:
-      class: model
-      standard_name: air_pressure
-      field_edge: PLE
-      field_center: PL
-      units: hPa
+      grid_type: model
+      fields: {pressure: PLE}
       num_levels: 4
 
   states:
     import: {}
     export:
-      PL:
+      PLE:
         standard_name: air_pressure_dyn_center
         units: hPa
-        default_vertical_profile: [40., 30., 20., 10.]
-        vertical_dim_spec: center
+        default_vertical_profile: [50., 40., 30., 20., 10.]
+        vertical_dim_spec: edge
       T_DYN:
         standard_name: temperature_dyn_center
         units: K

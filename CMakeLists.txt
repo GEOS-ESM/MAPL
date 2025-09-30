@@ -244,6 +244,7 @@ if (BUILD_WITH_FARGPARSE)
 endif()
 
 add_subdirectory (geom)
+add_subdirectory (vertical_grid)
 add_subdirectory (regridder_mgr)
 add_subdirectory (hconfig)
 add_subdirectory (hconfig_utils)

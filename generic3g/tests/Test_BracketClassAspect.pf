@@ -5,7 +5,7 @@ module Test_BracketClassAspect
    use mapl3g_StateItemSpec
    use mapl3g_BracketClassAspect
    use mapl3g_VerticalGridAspect
-   use mapl3g_BasicVerticalGrid
+   use mapl3g_VerticalGrid_API
    use mapl3g_VariableSpec
    use mapl3g_StateItemAspect
    use mapl3g_StateRegistry
@@ -47,11 +47,17 @@ contains
       type(BracketClassAspect) :: bracket_aspect
       integer, parameter :: BRACKET_SIZE = 2
       type(StateRegistry), target :: registry
+      type(BasicVerticalGridSpec) :: vspec
+      class(VerticalGrid), allocatable :: vgrid
 
+      type(BasicVerticalGridFactory) :: factory
+      
       var_spec = make_VariableSpec(itemtype=MAPL_STATEITEM_BRACKET, state_intent=ESMF_STATEINTENT_EXPORT, &
            short_name='a', standard_name='A', geom=geom, units='m', bracket_size=BRACKET_SIZE, _RC)
 
-      state_item_spec = var_spec%make_StateItemSpec(registry, vertical_grid=BasicVerticalGrid(5), _RC)
+      vspec = BasicVerticalGridSpec(num_levels=5)
+      vgrid = factory%create_grid_from_spec(vspec, _RC)
+      state_item_spec = var_spec%make_StateItemSpec(registry, vertical_grid=vgrid, _RC)
 
       call state_item_spec%create(_RC)
       call state_item_spec%allocate(_RC)

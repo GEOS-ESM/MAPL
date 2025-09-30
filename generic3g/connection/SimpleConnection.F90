@@ -167,12 +167,14 @@ contains
       dst_pt = this%get_destination()
       dst_extensions = dst_registry%get_extensions(dst_pt%v_pt, _RC)
 
+      _HERE, src_pt%v_pt
+      _HERE, dst_pt%v_pt
       do i = 1, size(dst_extensions)
+
          dst_extension => dst_extensions(i)%ptr
          dst_spec => dst_extension%get_spec()
 
          new_extension => src_registry%extend(src_pt%v_pt, dst_spec, _RC)
-
          ! In the case of wildcard specs, we need to pass an actual_pt to
          ! the dst_spec to support multiple matches.  A bit of a kludge.
          effective_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
@@ -180,12 +182,12 @@ contains
          new_spec => new_extension%get_spec()
 
          call dst_spec%connect(new_spec, effective_pt, _RC)
-            
          if (new_extension%has_producer()) then
             call dst_extension%set_producer(new_extension%get_producer(), _RC)
          end if
       end do
-         
+      _HERE
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine connect_sibling

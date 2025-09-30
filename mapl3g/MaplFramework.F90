@@ -8,6 +8,9 @@
 module mapl3g_MaplFramework
    use mapl_ErrorHandling
    use mapl_KeywordEnforcerMod
+   use mapl3g_VerticalGrid_API
+   use mapl3g_FixedLevelsVerticalGrid
+   use mapl3g_ModelVerticalGrid
    use mapl_profiler, only: DistributedProfiler
    use pfio_DirectoryServiceMod, only: DirectoryService
    use pfio_ClientManagerMod
@@ -86,9 +89,12 @@ contains
       character(*), optional, intent(in) :: level_name
       integer, optional, intent(in) :: configFilenameFromArgNum
       integer, optional, intent(out) :: rc
+      type(VerticalGridManager), pointer :: vgrid_manager
 
       integer :: status
-
+      type(FixedLevelsVerticalGridFactory) :: fixed_levels_vgrid_factory
+      type(ModelVerticalGridFactory) :: model_vgrid_factory
+      
 
       _ASSERT(.not. this%mapl_initialized, "MaplFramework object is already initialized")
       this%mapl_initialized = .true.
@@ -104,6 +110,11 @@ contains
       call this%initialize_profilers(_RC)
       call this%initialize_servers(is_model_pet=is_model_pet, servers=servers, _RC)
       call this%initialize_udunits(_RC)
+
+      vgrid_manager => get_vertical_grid_manager(_RC)
+      call vgrid_manager%initialize(_RC)
+      call vgrid_manager%register_factory("FixedLevels", fixed_levels_vgrid_factory, _RC)
+      call vgrid_manager%register_factory("Model", model_vgrid_factory, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
