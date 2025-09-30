@@ -8,6 +8,7 @@ module mapl3g_DataSetNode
    use MAPL_FileMetadataUtilsMod
    use mapl3g_geomio
    use mapl3g_ExtDataUtilities
+   use pFlogger, only: logger
    implicit none
    private
 
@@ -237,24 +238,21 @@ contains
       is_allocated = allocated(this%file)
    end function
  
-   subroutine write_node(this, pre_string)
+   subroutine write_node(this, lgr)
       class(DataSetNode), intent(inout) :: this
-      character(len=*), optional, intent(in) :: pre_string
-      if (present(pre_string)) then
-         print*,pre_string//'writing node '
-      else
-         print*,'writing node '
+      class(logger), intent(in), pointer :: lgr
+
+      character(len=:), allocatable :: node_side
+      character(len=ESMF_MAXSTR) :: interp_time_string
+
+      if (this%node_side == NODE_LEFT) then
+         node_side = "left"
+      else if (this%node_side == NODE_RIGHT) then
+         node_side = "right"
       end if
-      print*,'node_side: ',this%node_side
-      print*,'update: ',this%update
-      print*,'enabled: ',this%enabled
-      if (allocated(this%file)) then
-         print*,'file: ',trim(this%file)
-      else
-         print*,'file not allocated'
-      end if
-      print*,'time_index ',this%time_index
-      call ESMF_TimePrint(this%interp_time, options='string', prestring='interp time: ')
+      call ESMF_TimeGet(this%interp_time, timeString=interp_time_string)
+
+      call lgr%info('node status side %a at time %a time index %i0.5 updated %l enabled %l', node_side, interp_time_string, this%time_index, this%update, this%enabled)
   end subroutine
 
 end module mapl3g_DataSetNode

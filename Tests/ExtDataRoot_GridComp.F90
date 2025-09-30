@@ -784,7 +784,6 @@ MODULE ExtDataUtRoot_GridCompMod
             call assign_fptr(field2, ptr2, _RC)
             _ASSERT(size(ptr1)==size(ptr2),'needs informative message')
             foundDiff(i)=.false.
-            write(*,*)'bmaa ext2 vals ',maxval(ptr1),maxval(ptr2)
             if (any(abs(ptr1-ptr2) > tol)) then
                 foundDiff(i) = .true.
             end if

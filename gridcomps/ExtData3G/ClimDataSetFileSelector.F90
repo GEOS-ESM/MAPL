@@ -127,6 +127,7 @@ module mapl3g_ClimDataSetFileSelector
        both_invalid = (left_node%validate(original_time) .eqv. .false.) .and. &
                       (right_node%validate(original_time) .eqv. .false.)
 
+       _HERE,' bmaa ',time_jumped, both_invalid
        if (time_jumped .or. both_invalid) then ! if time moved more than 1 clock dt, force update
           call this%update_both_brackets_out_range_multi(bracket, target_time, original_time,  _RC)
        else if (both_valid) then ! else if it did not, both still valid, don't update

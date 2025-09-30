@@ -465,11 +465,12 @@ contains
       _RETURN(_SUCCESS)
    end function
 
-   function make_PrimaryExport(this, full_name, base_name, rc) result(export)
+   function make_PrimaryExport(this, full_name, base_name, time_step, rc) result(export)
       type(PrimaryExport) :: export
       class(ExtDataConfig), intent(inout) :: this
       character(len=*), intent(in) :: full_name
       character(len=*), intent(in) :: base_name
+      type(ESMF_TimeInterval), intent(in) :: time_step
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -492,7 +493,7 @@ contains
          sample => default_sample
       end if
       call this%get_time_range(full_name, base_name, time_range, _RC)
-      export = PrimaryExport(base_name, export_rule, collection, sample, time_range, _RC)
+      export = PrimaryExport(base_name, export_rule, collection, sample, time_range, time_step, _RC)
 
       _RETURN(_SUCCESS)
   end function
