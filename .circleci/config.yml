@@ -101,7 +101,9 @@ workflows:
           checkout_fixture: true
           fixture_branch: release/MAPL-v3
           mepodevelop: true
-          checkout_mapl3_release_branch: true
+          # MAPL3 GEOSgcm should have the right branches in its components.yaml
+          # so we do not need to checkout MAPL3 release branches
+          checkout_mapl3_release_branch: false
           checkout_mapl_branch: true
           persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
 
@@ -153,7 +155,7 @@ workflows:
   #         mepodevelop: false                            #
   #         checkout_fixture: true                        #
   #         fixture_branch: release/MAPL-v3               #
-  #         checkout_mapl3_release_branch: true           #
+  #         checkout_mapl3_release_branch: false          #
   #         checkout_mapl_branch: true                    #
   #########################################################
 
@@ -173,7 +175,7 @@ workflows:
   #         repo: GEOSadas                                             #
   #         checkout_fixture: true                                     #
   #         fixture_branch: release/MAPL-v3                            #
-  #         checkout_mapl3_release_branch: true                        #
+  #         checkout_mapl3_release_branch: false                       #
   #         checkout_mapl_branch: true                                 #
   #         mepodevelop: false                                         #
   #         rebuild_procs: 4                                           #
