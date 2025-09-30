@@ -116,7 +116,8 @@ contains
       
       ! Create spec and then grid from spec
       spec = this%create_spec_from_config(config, _RC)
-      grid = this%create_grid_from_spec(spec, _RC)
+      allocate(grid, source=this%create_grid_from_spec(spec, rc=status))
+      _VERIFY(status)
       
       _RETURN(_SUCCESS)
    end function create_grid_from_config

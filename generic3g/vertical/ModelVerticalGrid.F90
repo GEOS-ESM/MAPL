@@ -28,7 +28,6 @@ module mapl3g_ModelVerticalGrid
    use pfio
    use esmf
    use gftl2_StringVector, only: StringVector
-   use gftl2_StringStringMap
    implicit none(type,external)
    private
 
@@ -38,7 +37,8 @@ module mapl3g_ModelVerticalGrid
 
    type, extends(VerticalGridSpec) :: ModelVerticalGridSpec
       private
-      type(StringStringMap) :: fields
+      type(StringVector) :: names
+      type(StringVector) :: physical_dimensions
       integer :: num_levels = -1
    end type ModelVerticalGridSpec
 
@@ -99,7 +99,8 @@ contains
       integer, intent(in) :: num_levels
 
       vgrid%spec%num_levels = num_levels
-      call vgrid%spec%fields%insert(physical_dimension, short_name)
+      call vgrid%spec%names%push_back(short_name)
+      call vgrid%spec%physical_dimensions%push_back(physical_dimension)
    end function new_ModelVerticalGrid_basic
 
    integer function get_num_levels(this) result(num_levels)
@@ -119,11 +120,19 @@ contains
       type(StateItemSpec), pointer :: spec
       class(StateItemAspect), pointer :: class_aspect
       type(esmf_Field) :: field
+      integer :: i, n
       integer :: status
 
       units = '<invalid>'
-      
-      short_name = this%spec%fields%at(physical_dimension, _RC)
+
+      n = this%spec%physical_dimensions%size()
+      do i = 1, n
+         if (this%spec%physical_dimensions%of(i) == physical_dimension) then
+            short_name = this%spec%names%of(i)
+            exit
+         end if
+      end do
+      _ASSERT(i <= n, 'Physical dimension not found.')
 
       v_pt = VirtualConnectionPt(state_intent="export", short_name=short_name)
       primary => this%registry%get_primary_extension(v_pt, _RC)
@@ -147,7 +156,8 @@ contains
       character(len=*), intent(in) :: short_name
       character(len=*), intent(in) :: physical_dimension
 
-      call this%spec%fields%insert(physical_dimension, short_name)
+      call this%spec%names%push_back(short_name)
+      call this%spec%physical_dimensions%push_back(physical_dimension)
    end subroutine add_field
 
 
@@ -176,6 +186,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      integer :: i, n
       character(:), allocatable :: short_name
       type(VirtualConnectionPt) :: v_pt
       type(StateItemExtension), pointer :: new_extension
@@ -184,7 +195,15 @@ contains
       type(AspectMap), pointer :: aspects
       class(StateItemAspect), pointer :: class_aspect
 
-      short_name = this%spec%fields%at(physical_dimension, _RC)
+      n = this%spec%physical_dimensions%size()
+      do i = 1, n
+         if (this%spec%physical_dimensions%of(i) == physical_dimension) then
+            short_name = this%spec%names%of(i)
+            exit
+         end if
+      end do
+      _ASSERT(i <= n, 'Physical dimension not found.')
+
       v_pt = VirtualConnectionPt(state_intent="export", short_name=short_name)
 
       aspects => goal_spec%get_aspects()
@@ -238,15 +257,7 @@ contains
       type(StringVector) :: dimensions
       class(ModelVerticalGrid), target, intent(in) :: this
 
-      type(StringStringMapIterator) :: iter
-
-      iter = this%spec%fields%ftn_begin()
-      associate(e => this%spec%fields%ftn_end())
-        do while (iter /= e)
-           call iter%next()
-           call dimensions%push_back(iter%first())
-        end do
-      end associate
+      dimensions = this%spec%physical_dimensions
 
    end function get_supported_physical_dimensions
 
@@ -262,9 +273,6 @@ contains
    logical function matches(this, other)
       class(ModelVerticalGrid), intent(in) :: this
       class(VerticalGrid), intent(in) :: other
-
-      type(StringVector) :: this_dims
-      type(StringVector) :: other_dims
 
       matches = this%get_num_levels() == other%get_num_levels()
       if (.not. matches) return
@@ -370,7 +378,8 @@ contains
          do while (ESMF_HConfigIterLoop(iter, b, e))
             physical_dimension = ESMF_HConfigAsStringMapKey(iter, _RC)
             field_name = ESMF_HConfigAsStringMapVal(iter, _RC)
-            call spec%fields%insert(physical_dimension, field_name)
+            call spec%names%push_back(field_name)
+            call spec%physical_dimensions%push_back(physical_dimension)
          end do
          call esmf_HConfigDestroy(fields_cfg, _RC)
       end select
@@ -405,7 +414,6 @@ contains
       class default
          _RETURN(_FAILURE)
       end select
-      
       _RETURN(_SUCCESS)
    end function create_grid_from_spec
 

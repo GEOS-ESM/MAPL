@@ -360,8 +360,8 @@ function find_factory_for_spec(this, spec, rc) result(factory_ptr)
       _ASSERT(associated(factory), 'No factory found that supports the provided configuration')
 
       ! Create grid using factory
-      new_grid = factory%create_grid_from_config(config, _RC)
-
+      allocate(new_grid, source=factory%create_grid_from_config(config,rc=status))
+      _VERIFY(status)
       ! Add grid to manager and get reference to stored copy
       grid_ptr => this%add_grid(new_grid, _RC)
       
