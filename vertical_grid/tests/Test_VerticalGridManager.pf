@@ -105,6 +105,7 @@ contains
       type(MockVerticalGrid) :: mock_grid
       class(VerticalGrid), pointer :: retrieved_grid
       integer :: rc
+      integer :: id
       
       ! Add grid
       retrieved_grid => manager%add_grid(mock_grid, rc)
@@ -116,7 +117,8 @@ contains
       retrieved_grid => manager%get_grid(1, rc)
       @assert_that('Get grid should succeed', rc, is(0))
       @assert_that('Retrieved grid should be associated', associated(retrieved_grid), is(true()))
-      @assert_that('Grid should have correct ID', retrieved_grid%get_id(), is(1))
+      id = retrieved_grid%get_id()
+      @assert_that('Grid should have correct ID', id, is(1))
    end subroutine test_manager_add_and_get_grid
 
 
