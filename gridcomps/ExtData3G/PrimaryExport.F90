@@ -151,7 +151,6 @@ module mapl3g_PrimaryExport
                  vertical_stagger=VERTICAL_STAGGER_NONE, regridder_param=regridder_param,  _RC)
       else if (this%vcoord%vertical_type == SIMPLE_COORD) then
          vertical_grid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
-         _HERE, associated(vertical_grid)
          call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', &
                  typekind=ESMF_TYPEKIND_R4, vertical_grid=vertical_grid, &
                  vertical_stagger=VERTICAL_STAGGER_CENTER, regridder_param=regridder_param,  _RC)
@@ -196,7 +195,6 @@ module mapl3g_PrimaryExport
                  vert_staggerloc=VERTICAL_STAGGER_NONE,  _RC)
       else if (this%vcoord%vertical_type == SIMPLE_COORD) then
          vertical_grid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
-         _HERE, associated(vertical_grid)
          call FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', &
                  typekind=ESMF_TYPEKIND_R4, num_levels=this%vcoord%num_levels, &
                  vert_staggerloc=VERTICAL_STAGGER_CENTER,  _RC)

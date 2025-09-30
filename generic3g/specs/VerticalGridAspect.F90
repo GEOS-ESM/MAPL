@@ -130,8 +130,15 @@ contains
       select type (dst)
       type is (VerticalGridAspect)
          if (src%is_mirror()) then
-            matches = .false.
+            matches = .false. ! need geom extension
+            return
          else
+            if (any([src%vertical_stagger,dst%vertical_stagger] == VERTICAL_STAGGER_NONE)) then
+               ! both must be 2D
+               matches = src%vertical_stagger == dst%vertical_stagger
+               return
+            end if
+            ! Both must have vertical grids to get here, so can compare ids.
             matches = dst%vertical_grid%get_id() == src%vertical_grid%get_id()
             if (matches) return
             ! The following allows Basic to match to grids that have the same number of levels
