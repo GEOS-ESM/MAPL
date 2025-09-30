@@ -14,8 +14,8 @@ supported with:
 
 - Intel Fortran Classic `ifort` 2021.6.0 and 2021.13.0
 - Intel Fortran LLVM `ifx` 2025.0
-- GCC 13.2.0 and 14.2.0
-- NAG Fortran 7.2.20
+- GCC 13.2.0, 14.2.0, 15.2.0
+- NAG Fortran 7.2.28
 
 Note that at the moment MAPL does not support LLVM Flang or NVHPC.
 Efforts are underway to support these.
@@ -44,25 +44,26 @@ MAPL currently depends on many libraries for full use of its capabilities. These
   - [pFUnit](https://github.com/Goddard-Fortran-Ecosystem/pFUnit) (for unit testing)
   - [yaFyaml](https://github.com/Goddard-Fortran-Ecosystem/yaFyaml)
   - [pFlogger](https://github.com/Goddard-Fortran-Ecosystem/pFlogger)
+- [UDUNITS2](https://github.com/GMAO-SI-Team/UDUNITS-2)
 
 MAPL is currently tested with the following library versions:
 
 | Package        | Tested Version |
 |:---------------|:---------------|
-| HDF5           | v1.10.11       |
 | netCDF-C       | v4.9.2         |
 | netCDF-Fortran | v4.6.1         |
-| ESMF           | v8.8.0         |
+| UDUNITS2       | v2.2.28        |
+| ESMF           | v8.9.0         |
 | GFE            | v1.19.0        |
 
-Note that in most cases, MAPL will support *higher* versions of these libraries
-(e.g., HDF5 1.14), it's just operationally we have not moved to them and fully
-tested it.
+#### ESMF Versions
 
+NOTE: MAPL only requires ESMF 8.6.1, but we currently build with
+ESMF 8.9.0 and have support for ESMF 9 betas.
 
 #### ESMA Baselibs
 
-The above libraries are equivalent to ESMA-Baselibs v7.32.0. This is used
+The above libraries are equivalent to ESMA-Baselibs v8.19.0. This is used
 internally by GEOS-ESM users at the GMAO.
 
 ## Getting MAPL
