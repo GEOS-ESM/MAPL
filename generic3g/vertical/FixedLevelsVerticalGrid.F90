@@ -1,186 +1,321 @@
 #include "MAPL.h"
-
 module mapl3g_FixedLevelsVerticalGrid
-
-   use mapl_ErrorHandling
-   use mapl3g_VerticalGrid
-   use mapl3g_MirrorVerticalGrid
-   use mapl3g_VerticalStaggerLoc
-   use mapl3g_FieldCreate
+   use mapl3g_Field_API
+   use mapl3g_VerticalGrid, only: VerticalGrid
+   use mapl3g_VerticalGridSpec, only: VerticalGridSpec
+   use mapl3g_VerticalGridFactory, only: VerticalGridFactory
+   use mapl3g_BasicVerticalGrid
    use mapl3g_ComponentDriver
-   use mapl3g_VerticalStaggerLoc
    use mapl3g_FieldCondensedArray, only: assign_fptr_condensed_array
+   use pfio
+   use esmf, only: esmf_HConfig, esmf_Field, esmf_Geom, esmf_TypeKind_Flag
    use esmf
-
-   implicit none
+   use mapl3g_VerticalStaggerLoc
+   use gftl2_StringVector, only: StringVector
+   use mapl_ErrorHandling
+   implicit none(type,external)
    private
-
+   
    public :: FixedLevelsVerticalGrid
-   public :: operator(==)
-   public :: operator(/=)
-
+   public :: FixedLevelsVerticalGridSpec
+   public :: FixedLevelsVerticalGridFactory
+   public :: get_default_units
+   
+   ! Spec type
+   type, extends(VerticalGridSpec) :: FixedLevelsVerticalGridSpec
+      character(len=:), allocatable :: physical_dimension
+      real, allocatable :: levels(:)
+      character(len=:), allocatable :: units
+   end type FixedLevelsVerticalGridSpec
+   
+   ! Grid type
    type, extends(VerticalGrid) :: FixedLevelsVerticalGrid
       private
-      real(kind=ESMF_KIND_R4), allocatable :: levels(:)
-      character(:), allocatable :: standard_name ! air_pressure, height, etc.
+      type(FixedLevelsVerticalGridSpec) :: spec
    contains
+      procedure :: initialize
+      procedure :: get_levels
+      procedure :: get_physical_dimension
+      procedure :: get_units
       procedure :: get_num_levels
       procedure :: get_coordinate_field
-      procedure :: can_connect_to
-      procedure :: is_identical_to
-      procedure :: write_formatted
+      procedure :: get_supported_physical_dimensions
+      procedure :: matches
    end type FixedLevelsVerticalGrid
+   
+   ! Factory type
+   type, extends(VerticalGridFactory) :: FixedLevelsVerticalGridFactory
+   contains
+      procedure :: get_name
+      procedure :: supports_spec
+      procedure :: supports_file_metadata
+      procedure :: supports_config
+      procedure :: create_spec_from_config
+      procedure :: create_spec_from_file_metadata
+      procedure :: create_grid_from_spec
+   end type FixedLevelsVerticalGridFactory
 
-   interface FixedLevelsVerticalGrid
-      procedure new_FixedLevelsVerticalGrid_r32
-   end interface FixedLevelsVerticalGrid
-
-   interface operator(==)
-      module procedure equal_FixedLevelsVerticalGrid
-   end interface operator(==)
-
-   interface operator(/=)
-      module procedure not_equal_FixedLevelsVerticalGrid
-   end interface operator(/=)
+   interface FixedLevelsVerticalGridSpec
+      procedure :: new_FixedLevelsVerticalGridSpec
+   end interface FixedLevelsVerticalGridSpec
 
 contains
 
-   function new_FixedLevelsVerticalGrid_r32(standard_name, levels, units) result(vgrid)
-      type(FixedLevelsVerticalGrid) :: vgrid
-      character(*), intent(in) :: standard_name
-      real(kind=ESMF_KIND_R4), intent(in) :: levels(:)
+   function new_FixedLevelsVerticalGridSpec(physical_dimension, levels, units) result(spec)
+      type(FixedLevelsVerticalGridSpec) :: spec
+      character(*), intent(in) :: physical_dimension
+      real, intent(in) :: levels(:)
       character(*), intent(in) :: units
 
-      call vgrid%set_id()
-      vgrid%standard_name = standard_name
-      vgrid%levels = levels
-      call vgrid%set_units(units)
-   end function new_FixedLevelsVerticalGrid_r32
+      spec%physical_dimension = physical_dimension
+      spec%levels = levels
+      spec%units = units
+   end function new_FixedLevelsVerticalGridSpec
 
-   integer function get_num_levels(this) result(num_levels)
-      class(FixedLevelsVerticalGrid), intent(in) :: this
-      num_levels = size(this%levels)
-   end function get_num_levels
 
-   subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, vertical_stagger, rc)
+   subroutine initialize(this, spec)
+      class(FixedLevelsVerticalGrid), intent(inout) :: this
+      type(FixedLevelsVerticalGridSpec), intent(in) :: spec
+
+      this%spec = spec
+   end subroutine initialize
+
+   function get_levels(this) result(levels)
+      real, allocatable :: levels(:)
       class(FixedLevelsVerticalGrid), intent(in) :: this
-      type(ESMF_Field), intent(out) :: field
-      class(ComponentDriver), pointer, intent(out) :: coupler
-      character(*), intent(in) :: standard_name
-      type(ESMF_Geom), intent(in) :: geom
-      type(ESMF_TypeKind_Flag), intent(in) :: typekind
-      character(*), intent(in) :: units
-      type(VerticalStaggerLoc), intent(in) :: vertical_stagger
+      
+      levels = this%spec%levels
+   end function get_levels
+
+   function get_physical_dimension(this) result(physical_dimension)
+      character(len=:), allocatable :: physical_dimension
+      class(FixedLevelsVerticalGrid), intent(in) :: this
+      
+      physical_dimension = this%spec%physical_dimension
+   end function get_physical_dimension
+
+   function get_units(this, physical_dimension, rc) result(units)
+      character(len=:), allocatable :: units
+      class(FixedLevelsVerticalGrid), intent(in) :: this
+      character(len=*), intent(in) :: physical_dimension
       integer, optional, intent(out) :: rc
 
-      real(kind=ESMF_KIND_R4), pointer :: farray3d(:, :, :)
-      integer :: shape_(3), horz, ungrd, status
+      integer :: status
+      _ASSERT(physical_dimension == this%get_physical_dimension(), 'Unsupported physical dimension: '//physical_dimension)
+      units = this%spec%units
 
+      _RETURN(_SUCCESS)
+   end function get_units
+
+   function get_num_levels(this) result(num_levels)
+      integer :: num_levels
+      class(FixedLevelsVerticalGrid), intent(in) :: this
+
+      num_levels = size(this%spec%levels)
+   end function get_num_levels
+
+   function get_coordinate_field(this, geom, physical_dimension, units, typekind, coupler, rc) result(field)
+      type(esmf_Field) :: field
+      class(FixedLevelsVerticalGrid), intent(in) :: this
+      type(esmf_Geom), intent(in) :: geom
+      character(len=*), intent(in) :: physical_dimension
+      character(len=*), intent(in) :: units
+      type(esmf_TypeKind_Flag), intent(in) :: typekind
+      class(ComponentDriver), pointer, intent(out) :: coupler
+      integer, intent(out), optional :: rc
+      
+      integer :: status
+      real(kind=ESMF_KIND_R4), pointer :: farray3d(:, :, :)
+      integer :: shape_(3), horz, ungrd
+
+      coupler => null()
       field = MAPL_FieldCreate( &
            geom=geom, &
            typekind=ESMF_TYPEKIND_R4, &
-           num_levels=size(this%levels), &
+           num_levels=size(this%spec%levels), &
            vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            _RC)
+
+
       ! Copy the 1D array, levels(:), to each point of the horz grid
       call assign_fptr_condensed_array(field, farray3d, _RC)
       shape_ = shape(farray3d)
       do concurrent (horz=1:shape_(1), ungrd=1:shape_(3))
-         farray3d(horz, :, ungrd) = this%levels(:)
+         farray3d(horz, :, ungrd) = this%spec%levels(:)
       end do
 
+      
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(coupler)
-      _UNUSED_DUMMY(standard_name)
-      _UNUSED_DUMMY(typekind)
-      _UNUSED_DUMMY(units)
-      _UNUSED_DUMMY(vertical_stagger)
-   end subroutine get_coordinate_field
+   end function get_coordinate_field
 
-   logical function can_connect_to(this, dst, rc)
+   function get_supported_physical_dimensions(this) result(dimensions)
+      type(StringVector) :: dimensions
+      class(FixedLevelsVerticalGrid), target, intent(in) :: this
+      
+      call dimensions%push_back(this%get_physical_dimension())
+   end function get_supported_physical_dimensions
+
+   logical function matches(this, other)
       class(FixedLevelsVerticalGrid), intent(in) :: this
-      class(VerticalGrid), intent(in) :: dst
-      integer, optional, intent(out) :: rc
+      class(VerticalGrid), intent(in) :: other
 
-      if (this%same_id(dst)) then
-         can_connect_to = .true.
-         _RETURN(_SUCCESS)
-      end if
+      type(StringVector) :: supported_dims
 
-      select type(dst)
-      type is (FixedLevelsVerticalGrid)
-         can_connect_to = .true.
-      type is (MirrorVerticalGrid)
-         can_connect_to = .true.
+      matches = this%get_num_levels() == other%get_num_levels()
+      if (.not. matches) return
+
+      select type (other)
+      type is (BasicVerticalGrid)
+         matches = .true.
+         return
       class default
-         _FAIL("FixedLevelsVerticalGrid can only connect to FixedLevelsVerticalGrid, or MirrorVerticalGrid")
+         matches = .false.
       end select
+      
+   end function matches
 
-      _RETURN(_SUCCESS)
-   end function can_connect_to
+   ! Factory methods
+   function get_name(this) result(name)
+      character(len=:), allocatable :: name
+      class(FixedLevelsVerticalGridFactory), intent(in) :: this
+      
+      name = "FixedLevelsVerticalGrid"
+   end function get_name
 
-   logical function is_identical_to(this, that, rc)
-      class(FixedLevelsVerticalGrid), intent(in) :: this
-      class(VerticalGrid), allocatable, intent(in) :: that
+   function supports_spec(this, spec, rc) result(is_supported)
+      logical :: is_supported
+      class(FixedLevelsVerticalGridFactory), intent(in) :: this
+      class(VerticalGridSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
 
-      is_identical_to = .false.
+      integer :: status
+      type(FixedLevelsVerticalGridSpec) :: fixed_spec
 
-      ! Mirror grid
-      if (.not. allocated(that)) then
-         is_identical_to = .true.
-         _RETURN(_SUCCESS) ! mirror grid
-      end if
-
-      ! Same id
-      is_identical_to = this%same_id(that)
-      if (is_identical_to) then
-         _RETURN(_SUCCESS)
-      end if
-
-      select type(that)
-      type is(FixedLevelsVerticalGrid)
-         is_identical_to = (this == that)
-      end select
+      is_supported = same_type_as(spec, fixed_spec)
 
       _RETURN(_SUCCESS)
-   end function is_identical_to
+   end function supports_spec
 
-   subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
-      class(FixedLevelsVerticalGrid), intent(in) :: this
-      integer, intent(in) :: unit
-      character(*), intent(in) :: iotype
-      integer, intent(in) :: v_list(:)
-      integer, intent(out) :: iostat
-      character(*), intent(inout) :: iomsg
+   function supports_file_metadata(this, file_metadata, rc) result(is_supported)
+      logical :: is_supported
+      class(FixedLevelsVerticalGridFactory), intent(in) :: this
+      type(FileMetadata), intent(in), target :: file_metadata
+      integer, optional, intent(out) :: rc
+      
+      ! Implementation would check if file_metadata contains required information
+      is_supported = .false.  ! Placeholder
+      _RETURN(_SUCCESS)
+   end function supports_file_metadata
 
-      write(unit, "(a, a, 3x, a, a, a, 3x, a, a, a, 3x, a, *(g0, 1x))", iostat=iostat, iomsg=iomsg) &
-           "FixedLevelsVerticalGrid(", new_line("a"), &
-           "standard name: ", this%standard_name, new_line("a"), &
-           "units: ", this%get_units(), new_line("a"), &
-           "levels: ", this %levels
-      write(unit, "(a)", iostat=iostat, iomsg=iomsg) ")"
+   function supports_config(this, config, rc) result(is_supported)
+      logical :: is_supported
+      class(FixedLevelsVerticalGridFactory), intent(in) :: this
+      type(esmf_HConfig), intent(in) :: config
+      integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(iotype)
-      _UNUSED_DUMMY(v_list)
-   end subroutine write_formatted
+      logical :: has_levels
+      logical :: has_physical_dimension
+      logical :: has_grid_type
+      character(:), allocatable :: grid_type
+      integer :: status
 
-   impure elemental logical function equal_FixedLevelsVerticalGrid(a, b) result(equal)
-      type(FixedLevelsVerticalGrid), intent(in) :: a, b
+      is_supported = .false.
 
-      equal = a%standard_name == b%standard_name
-      if (.not. equal) return
-      equal = a%get_units() == b%get_units()
-      if (.not. equal) return
-      equal = size(a%levels) == size(b%levels)
-      if (.not. equal) return
-      equal = all(a%levels == b%levels)
-   end function equal_FixedLevelsVerticalGrid
+      has_grid_type = esmf_HConfigIsDefined(config, keyString="grid_type", _RC)
+      if (has_grid_type) then
+         grid_type = esmf_HConfigAsString(config, keyString="grid_type", _RC)
+         _RETURN_UNLESS(grid_type == 'fixed_levels')
+      end if
+      has_levels = esmf_HConfigIsDefined(config, keyString="levels", _RC)
+      has_physical_dimension = esmf_HConfigIsDefined(config, keyString="physical_dimension", _RC)
 
-   impure elemental logical function not_equal_FixedLevelsVerticalGrid(a, b) result(not_equal)
-      type(FixedLevelsVerticalGrid), intent(in) :: a, b
+      is_supported = has_levels .and. has_physical_dimension
+           
+      _RETURN(_SUCCESS)
+   end function supports_config
 
-      not_equal = .not. (a==b)
-   end function not_equal_FixedLevelsVerticalGrid
+   function create_spec_from_config(this, config, rc) result(spec)
+      class(VerticalGridSpec), allocatable :: spec
+      class(FixedLevelsVerticalGridFactory), intent(in) :: this
+      type(esmf_HConfig), intent(in), target :: config
+      integer, intent(out), optional :: rc
+      
+      type(FixedLevelsVerticalGridSpec) :: local_spec
+      integer :: status
+      
+      _ASSERT(this%supports(config), 'FixedLevelsVerticalGridFactory does not support this configuration')
+      
+      ! Get physical dimension (required)
+      local_spec%physical_dimension = esmf_HConfigAsString(config, keyString="physical_dimension", _RC)
+      _ASSERT(len_trim(local_spec%physical_dimension) > 0, 'Physical dimension cannot be empty')
+      
+      ! Get levels (required)
+      local_spec%levels = esmf_HConfigAsR4Seq(config, keyString="levels", _RC)
+      _ASSERT(allocated(local_spec%levels), 'Levels array must be specified')
+      _ASSERT(size(local_spec%levels) > 0, 'Levels array cannot be empty')
+      
+      ! Get units (optional - use default if not specified)
+      if (esmf_HConfigIsDefined(config, keyString="units")) then
+         local_spec%units = esmf_HConfigAsString(config, keyString="units", _RC)
+      else
+         local_spec%units = get_default_units(local_spec%physical_dimension)
+      end if
+      
+      ! Use polymorphic allocation
+      allocate(spec, source=local_spec)
+      
+      _RETURN(_SUCCESS)
+   end function create_spec_from_config
+
+   function create_spec_from_file_metadata(this, file_metadata, rc) result(spec)
+      class(VerticalGridSpec), allocatable :: spec
+      class(FixedLevelsVerticalGridFactory), intent(in) :: this
+      type(FileMetadata), intent(in), target :: file_metadata
+      integer, intent(out), optional :: rc
+      
+      ! Placeholder implementation
+      integer :: status
+      _RETURN(_FAILURE)
+   end function create_spec_from_file_metadata
+
+   function create_grid_from_spec(this, spec, rc) result(grid)
+      class(VerticalGrid), allocatable :: grid
+      class(FixedLevelsVerticalGridFactory), intent(in) :: this
+      class(VerticalGridSpec), intent(in) :: spec
+      integer, intent(out), optional :: rc
+      
+      type(FixedLevelsVerticalGrid) :: local_grid
+      integer :: status
+      
+      select type (spec)
+      type is (FixedLevelsVerticalGridSpec)
+         call local_grid%initialize(spec)
+         allocate(grid, source=local_grid)
+      class default
+         _RETURN(_FAILURE)
+      end select
+      
+      _RETURN(_SUCCESS)
+   end function create_grid_from_spec
+
+   ! Helper function to get default units for a physical dimension
+   function get_default_units(physical_dimension) result(units)
+      character(len=:), allocatable :: units
+      character(len=*), intent(in) :: physical_dimension
+      
+      select case (physical_dimension)
+         case ('pressure')
+            units = 'Pa'
+         case ('height', 'altitude')
+            units = 'm'
+         case ('depth')
+            units = 'm'
+         case ('layer')
+            units = '1'
+         case default
+            units = '<unknown>'
+      end select
+   end function get_default_units
 
 end module mapl3g_FixedLevelsVerticalGrid
+

@@ -1,8 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_FieldBundleSet
-   use mapl_KeywordEnforcer
-   use mapl_ErrorHandling
+   use mapl3g_VerticalGrid_API
    use mapl3g_Field_API
    use mapl3g_UngriddedDims
    use mapl3g_FieldBundleType_Flag
@@ -10,6 +9,8 @@ module mapl3g_FieldBundleSet
    use mapl3g_InfoUtilities
    use mapl3g_FieldBundleGet
    use mapl3g_LU_Bound
+   use mapl_KeywordEnforcer
+   use mapl_ErrorHandling
    use esmf
    implicit none(type,external)
    private

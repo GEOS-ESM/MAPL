@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_FieldSet
-   use mapl3g_VerticalStaggerLoc
+   use mapl3g_VerticalGrid_API
    use mapl3g_FieldInfo
    use mapl3g_FieldDelta
    use mapl_KeywordEnforcer

@@ -1,13 +1,12 @@
 #include "MAPL.h"
 
 module mapl3g_FieldGet
-   use mapl3g_VerticalStaggerLoc
+   use mapl3g_VerticalGrid_API
    use mapl3g_FieldInfo
    use mapl3g_StateItemAllocation
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use mapl3g_UngriddedDims
-   use mapl3g_RestartModes, only: MAPL_RESTART_MODE, MAPL_RESTART_REQUIRED
    use esmf
 
    implicit none (type,external)
@@ -28,7 +27,6 @@ contains
         ungridded_dims, &
         units, standard_name, long_name, &
         allocation_status, &
-        restart_mode, &
         rc)
       type(ESMF_Field), intent(in) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -43,7 +41,6 @@ contains
       character(len=:), optional, allocatable, intent(out) :: standard_name
       character(len=:), optional, allocatable, intent(out) :: long_name
       type(StateItemAllocation), optional, intent(out) :: allocation_status
-      integer(kind=kind(MAPL_RESTART_MODE)), optional, intent(in) :: restart_mode
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -71,7 +68,6 @@ contains
            ungridded_dims=ungridded_dims, &
            units=units, standard_name=standard_name, long_name=long_name, &
            allocation_status=allocation_status, &
-           restart_mode=restart_mode, &
            _RC)
 
       _RETURN(_SUCCESS)

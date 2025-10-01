@@ -49,6 +49,34 @@ jobs:
           path: spack       # Where to clone Spack
           buildcache: false # Do not use the spack buildcache
 
+      - name: Patch ESMF package for 9.0.0b03
+        run: |
+          # Use spack to find where the esmf package is located
+          ESMF_PKG_PATH=$(spack location -p esmf 2>/dev/null || echo "")
+
+          if [ -n "$ESMF_PKG_PATH" ] && [ -d "$ESMF_PKG_PATH" ]; then
+            # Location is a directory, so find package.py inside it
+            ESMF_PKG_PATH="${ESMF_PKG_PATH}/package.py"
+          fi
+
+          if [ -n "$ESMF_PKG_PATH" ] && [ -f "$ESMF_PKG_PATH" ]; then
+            echo "Found ESMF package at: $ESMF_PKG_PATH"
+
+            # Check if version already exists
+            if ! grep -q "9.0.0b03" "$ESMF_PKG_PATH"; then
+              sed -i '/# generate chksum with/a \    version("9.0.0b03", tag="v9.0.0b03")' "$ESMF_PKG_PATH"
+              echo "Successfully added ESMF 9.0.0b03 version"
+            else
+              echo "ESMF 9.0.0b03 version already exists"
+            fi
+          else
+            echo "ERROR: Could not find ESMF package.py file"
+            # Debug information
+            echo "Debug: looking for esmf package.py files:"
+            find . -name "package.py" | grep -i esmf || echo "No files found"
+            exit 1
+          fi
+
       - name: Find compilers
         shell: spack-bash {0}
         run: |
@@ -65,11 +93,13 @@ jobs:
           spack env create spack-env
           spack env activate spack-env
 
+      # NOTE: We use a different buildcache for ESMF9 builds since I couldn't figure out
+      # how to get the the original buildcache to work with two different esmf versions
       - name: Login
         shell: spack-bash {0}
         run: |
-          spack -e spack-env mirror add geos-buildcache oci://ghcr.io/GEOS-ESM/geos-buildcache
-          spack -e spack-env mirror set --oci-username-variable "${{ secrets.BUILDCACHE_USERNAME }}" --oci-password-variable "${{ secrets.BUILDCACHE_TOKEN }}" geos-buildcache
+          spack -e spack-env mirror add geos-buildcache-esmf9 oci://ghcr.io/GEOS-ESM/geos-buildcache-esmf9
+          spack -e spack-env mirror set --oci-username-variable "${{ secrets.BUILDCACHE_USERNAME }}" --oci-password-variable "${{ secrets.BUILDCACHE_TOKEN }}" geos-buildcache-esmf9
           spack -e spack-env mirror list
           spack -e spack-env buildcache list --allarch
 
