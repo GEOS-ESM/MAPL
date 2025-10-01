@@ -63,6 +63,7 @@ module mapl3g_ClimDataSetFileSelector
           file_handler%timeStep = timeStep
        end if
 
+       allocate(file_handler%source_time(0))
        if (present(source_time)) then
           _ASSERT(size(source_time) == 2, 'Source time must be of size 2')
           file_handler%source_time = source_time 
