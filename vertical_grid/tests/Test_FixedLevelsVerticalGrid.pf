@@ -1,0 +1,191 @@
+module Test_FixedLevelsVerticalGrid
+   use pfunit
+   use mapl3g_FixedLevelsVerticalGrid
+   use mapl3g_VerticalGridSpec, only: VerticalGridSpec
+   use mapl3g_VerticalGrid, only: VerticalGrid
+   use mapl3g_VerticalStaggerLoc, only: VERTICAL_STAGGER_CENTER, VERTICAL_STAGGER_EDGE
+   use esmf, only: esmf_HConfig, ESMF_TYPEKIND_R4
+   use esmf, only: esmf_HConfigCreate, esmf_HConfigDestroy
+   implicit none
+
+contains
+
+
+   @test
+   subroutine test_fixed_level_spec_initialization()
+      type(FixedLevelsVerticalGridSpec) :: spec
+      real, parameter :: test_levels(5) = [1000.0, 850.0, 700.0, 500.0, 300.0]
+      real, allocatable :: retrieved_levels(:)
+      
+      ! Initialize spec components
+      spec%levels = test_levels
+      spec%physical_dimension = "pressure"
+      spec%units = "hPa"
+      
+      @assert_that('Spec should have correct number of levels', size(spec%levels), is(5))
+      @assertEqual("pressure", spec%physical_dimension, 'Physical dimension should match')
+      @assertEqual("hPa", spec%units, 'Units should match')
+      
+      retrieved_levels = spec%levels
+      @assert_that('Retrieved levels should match', size(retrieved_levels), is(5))
+      @assert_that('First level should match', retrieved_levels(1), is(1000.0))
+      @assert_that('Last level should match', retrieved_levels(5), is(300.0))
+   end subroutine test_fixed_level_spec_initialization
+
+
+   @test
+   subroutine test_fixed_level_grid_initialization()
+      type(FixedLevelsVerticalGridSpec) :: spec
+      type(FixedLevelsVerticalGrid) :: grid
+      real, parameter :: test_levels(3) = [1000.0, 500.0, 100.0]
+      
+      ! Initialize spec
+      spec%levels = test_levels
+      spec%physical_dimension = "pressure"
+      spec%units = "Pa"
+      
+      call grid%initialize(spec)
+      @assert_that('Grid should have correct number of levels', grid%get_num_levels(), is(3))
+      @assertEqual("pressure", grid%get_physical_dimension(), 'Physical dimension should match')
+      @assertEqual("Pa", grid%get_units('pressure'), 'Units should match')
+   end subroutine test_fixed_level_grid_initialization
+
+
+   @test
+   subroutine test_fixed_level_factory_get_name()
+      type(FixedLevelsVerticalGridFactory), target :: factory
+      character(len=:), allocatable :: name
+      
+      name = factory%get_name()
+      @assertEqual("FixedLevelsVerticalGrid", name, 'Factory should return correct name')
+   end subroutine test_fixed_level_factory_get_name
+
+
+   @test
+   subroutine test_fixed_level_factory_supports_config()
+      type(FixedLevelsVerticalGridFactory), target :: factory
+      type(esmf_HConfig) :: config
+      logical :: supported
+      real, parameter :: levels(3) = [1000.0, 500.0, 100.0]
+      
+      ! Create config with required parameters
+      config = esmf_HConfigCreate(content='{levels: [1000.0, 500.0, 100.0], physical_dimension: pressure}')
+      
+      supported = factory%supports_config(config)
+      @assert_that('Should support config with levels and physical_dimension', supported, is(.true.))
+
+      call esmf_HConfigDestroy(config)
+   end subroutine test_fixed_level_factory_supports_config
+
+
+   @test
+   subroutine test_fixed_level_factory_supports_config_explicit_type()
+      type(FixedLevelsVerticalGridFactory), target :: factory
+      type(esmf_HConfig) :: config
+      logical :: supported
+      
+      ! Create config with explicit grid type
+      config = esmf_HConfigCreate(content='{grid_type: fixed_levels, levels: [1.,2.], physical_dimension: height}')
+      
+      supported = factory%supports_config(config)
+      @assert_that('Should support explicit fixed_level grid type', supported, is(.true.))
+      call esmf_HConfigDestroy(config)
+   end subroutine test_fixed_level_factory_supports_config_explicit_type
+
+
+   @test
+   subroutine test_fixed_level_factory_unsupported_config()
+      type(FixedLevelsVerticalGridFactory), target :: factory
+      type(esmf_HConfig) :: config
+      logical :: supported
+      
+      ! Create config without required parameters
+      config = esmf_HConfigCreate(content='{grid_type: other, physical_dimension: pressure, levels: [1.,2.]}')
+      ! Missing levels array
+      
+      supported = factory%supports_config(config)
+      @assert_that('Should not support config without levels', supported, is(.false.))
+      call esmf_HConfigDestroy(config)
+   end subroutine test_fixed_level_factory_unsupported_config
+
+
+   @test
+   subroutine test_default_units_pressure()
+      character(len=:), allocatable :: units
+      
+      units = get_default_units("pressure")
+      @assertEqual("Pa", units, 'Default units for pressure should be Pa')
+   end subroutine test_default_units_pressure
+
+
+   @test
+   subroutine test_default_units_height()
+      character(len=:), allocatable :: units
+      
+      units = get_default_units("height")
+      @assertEqual("m", units, 'Default units for height should be m')
+   end subroutine test_default_units_height
+
+
+   @test
+   subroutine test_default_units_unknown()
+      character(len=:), allocatable :: units
+      
+      units = get_default_units("unknown_dimension")
+      @assertEqual("<unknown>", units, 'Default units for unknown dimension should be dimensionless')
+   end subroutine test_default_units_unknown
+
+
+   @test
+   subroutine test_fixed_level_factory_create_spec_with_default_units()
+      type(FixedLevelsVerticalGridFactory), target :: factory
+      type(esmf_HConfig) :: config
+      class(VerticalGridSpec), allocatable :: spec
+      real, parameter :: levels(3) = [1000.0, 500.0, 100.0]
+      integer :: rc
+      
+      ! Create config without units (should use defaults)
+      config = esmf_HConfigCreate(content='{levels: [1000.0, 500.0, 100.0], physical_dimension: pressure}')
+      
+      spec = factory%create_spec_from_config(config, rc)
+      @assert_that('Create spec should succeed', rc, is(0))
+      
+      select type (spec)
+      type is (FixedLevelsVerticalGridSpec)
+         @assertEqual("Pa", spec%units, 'Should use default units for pressure')
+      class default
+         @assertFail('Spec should be FixedLevelsVerticalGridSpec type')
+      end select
+
+      call esmf_HConfigDestroy(config)
+   end subroutine test_fixed_level_factory_create_spec_with_default_units
+
+
+   @test
+   subroutine test_fixed_level_factory_create_spec_with_explicit_units()
+      type(FixedLevelsVerticalGridFactory), target :: factory
+      type(esmf_HConfig) :: config
+      class(VerticalGridSpec), allocatable :: spec
+      real, parameter :: levels(3) = [1000.0, 500.0, 100.0]
+      integer :: rc
+      
+      ! Create config with explicit units
+      
+      config = esmf_HConfigCreate(content='{levels: [1000.0, 500.0, 100.0], physical_dimension: pressure, units: hPa}')
+      spec = factory%create_spec_from_config(config, rc)
+      @assert_that('Create spec should succeed', rc, is(0))
+      
+      select type (spec)
+      type is (FixedLevelsVerticalGridSpec)
+         @assertEqual("hPa", spec%units, 'Should use explicit units')
+         @assertEqual("pressure", spec%physical_dimension, 'Physical dimension should match')
+         @assert_that('Should have correct number of levels', size(spec%levels), is(3))
+      class default
+         @assertFail('Spec should be FixedLevelsVerticalGridSpec type')
+      end select
+      call esmf_HConfigDestroy(config)
+
+   end subroutine test_fixed_level_factory_create_spec_with_explicit_units
+   
+end module Test_FixedLevelsVerticalGrid
+

@@ -1,3 +1,4 @@
+#include "MAPL.h"
 module mapl3g_VerticalStaggerLoc
    implicit none
    private

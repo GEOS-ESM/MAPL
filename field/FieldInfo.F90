@@ -7,7 +7,7 @@ module mapl3g_FieldInfo
    use mapl3g_esmf_info_keys, only: INFO_PRIVATE_NAMESPACE
    use mapl3g_InfoUtilities
    use mapl3g_UngriddedDims
-   use mapl3g_VerticalStaggerLoc
+   use mapl3g_VerticalGrid_API
    use mapl3g_StateItemAllocation
    use mapl3g_RestartModes, only: RestartMode, MAPL_RESTART_REQUIRED
    use mapl_KeywordEnforcer

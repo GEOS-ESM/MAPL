@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_FieldGet
-   use mapl3g_VerticalStaggerLoc
+   use mapl3g_VerticalGrid_API
    use mapl3g_FieldInfo
    use mapl3g_StateItemAllocation
    use mapl_KeywordEnforcer

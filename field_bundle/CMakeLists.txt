@@ -18,7 +18,7 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.field MAPL.shared ESMF::ESMF
+  DEPENDENCIES MAPL.vertical_grid MAPL.field MAPL.shared ESMF::ESMF
   TYPE SHARED
   )
   

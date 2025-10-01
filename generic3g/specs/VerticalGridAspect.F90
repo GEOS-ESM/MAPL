@@ -16,7 +16,8 @@ module mapl3g_VerticalGridAspect
    use mapl3g_VerticalRegridMethod
    use mapl3g_ComponentDriver
    use mapl_ErrorHandling
-   use ESMF
+   use esmf
+   use gftl2_StringVector
    implicit none(type,external)
    private
 
@@ -92,37 +93,56 @@ contains
       supports_conversion_general = .true.
    end function supports_conversion_general
 
+
    logical function supports_conversion_specific(src, dst)
       class(VerticalGridAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
 
-      logical :: src_2d, dst_2d
+      type(StringVector) :: vec_in
+      type(StringVector) :: vec_out
+      integer :: i
+
       supports_conversion_specific = .false.
 
       select type (dst)
       class is (VerticalGridAspect)
-         ! Note: "grid%can_connect_to()" reverses dst and src.   Something that should be fixed.
-         ! tclune said this is is just wrong, replaced the following 3 lines
-         !supports_conversion_specific = src%vertical_grid%can_connect_to(dst%vertical_grid)
-         src_2d = src%vertical_stagger == VERTICAL_STAGGER_NONE
-         dst_2d = dst%vertical_stagger == VERTICAL_STAGGER_NONE
-         supports_conversion_specific = src_2d .eqv. dst_2d
-      end select
 
+         vec_in = src%vertical_grid%get_supported_physical_dimensions()
+         vec_out = dst%vertical_grid%get_supported_physical_dimensions()
+
+         do i = 1, vec_in%size()
+            if (find(vec_out%begin(), vec_out%end(), vec_in%of(i)) /= vec_out%end()) then
+               supports_conversion_specific = .true.
+               return
+            end if
+         end do
+         supports_conversion_specific = .false.
+      end select
    end function supports_conversion_specific
 
    logical function matches(src, dst)
       class(VerticalGridAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
 
-      select type(dst)
-      class is (VerticalGridAspect)
+      matches = dst%is_mirror()
+      if (matches) return
+
+      select type (dst)
+      type is (VerticalGridAspect)
          if (src%is_mirror()) then
             matches = .false. ! need geom extension
+            return
          else
-            matches = dst%vertical_grid%is_identical_to(src%vertical_grid)
-            if (.not.matches) return
-            matches = dst%vertical_stagger == src%vertical_stagger
+            if (any([src%vertical_stagger,dst%vertical_stagger] == VERTICAL_STAGGER_NONE)) then
+               ! both must be 2D
+               matches = src%vertical_stagger == dst%vertical_stagger
+               return
+            end if
+            ! Both must have vertical grids to get here, so can compare ids.
+            matches = dst%vertical_grid%get_id() == src%vertical_grid%get_id()
+            if (matches) return
+            ! The following allows Basic to match to grids that have the same number of levels
+            matches = src%vertical_grid%matches(dst%vertical_grid)
          end if
       class default
          matches = .false.
@@ -130,7 +150,32 @@ contains
 
    end function matches
 
-  function make_transform(src, dst, other_aspects, rc) result(transform)
+   function find_common_physical_dimension(src, dst, rc) result(physical_dimension)
+      character(:), allocatable :: physical_dimension
+      class(VerticalGridAspect), intent(in) :: src
+      class(VerticalGridAspect), intent(in) :: dst
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(StringVector) :: vec_in
+      type(StringVector) :: vec_out
+      integer :: i
+
+      physical_dimension = 'not found'
+      vec_in = src%vertical_grid%get_supported_physical_dimensions()
+      vec_out = dst%vertical_grid%get_supported_physical_dimensions()
+
+      do i = 1, vec_in%size()
+         if (find(vec_out%begin(), vec_out%end(), vec_in%of(i)) /= vec_out%end()) then
+            physical_dimension = vec_in%of(i)
+            _RETURN(_SUCCESS)
+         end if
+      end do
+
+      _FAIL('No common physical dimension found between source and destination VerticalGridAspect')
+   end function find_common_physical_dimension
+
+   function make_transform(src, dst, other_aspects, rc) result(transform)
       class(ExtensionTransform), allocatable :: transform
       class(VerticalGridAspect), intent(in) :: src
       class(StateItemAspect), intent(in)  :: dst
@@ -144,6 +189,7 @@ contains
       type(GeomAspect) :: geom_aspect
       type(TypekindAspect) :: typekind_aspect
       character(:), allocatable :: units
+      character(:), allocatable :: physical_dimension
       integer :: status
 
       if (src%is_mirror()) then
@@ -153,17 +199,23 @@ contains
 
       allocate(transform,source=NullTransform()) ! just in case
       dst_ = to_VerticalGridAspect(dst, _RC)
-      deallocate(transform)
 
       geom_aspect = to_GeomAspect(other_aspects, _RC)
       typekind_aspect = to_TypekindAspect(other_aspects, _RC)
-      units = src%vertical_grid%get_units()
+
+
+      physical_dimension = find_common_physical_dimension(src, dst_, _RC)
+      units = dst_%vertical_grid%get_units(physical_dimension, _RC)
       
-      call src%vertical_grid%get_coordinate_field(v_in_field, v_in_coupler, 'ignore', &
-           geom_aspect%get_geom(), typekind_aspect%get_typekind(), units, src%vertical_stagger, _RC)
-      call dst_%vertical_grid%get_coordinate_field(v_out_field, v_out_coupler, 'ignore', &
-           geom_aspect%get_geom(), typekind_aspect%get_typekind(), units, dst_%vertical_stagger, _RC)
-      transform = VerticalRegridTransform(v_in_field, v_in_coupler, v_out_field, v_out_coupler, dst_%regrid_method)
+      v_in_field = src%vertical_grid%get_coordinate_field(geom_aspect%get_geom(), physical_dimension, &
+           units, typekind_aspect%get_typekind(), coupler=v_in_coupler, _RC)
+      v_out_field = dst_%vertical_grid%get_coordinate_field(geom_aspect%get_geom(), physical_dimension, &
+           units, typekind_aspect%get_typekind(), coupler=v_out_coupler, _RC)
+      deallocate(transform)
+      transform = VerticalRegridTransform( &
+           v_in_field, v_in_coupler, src%vertical_stagger, &
+           v_out_field, v_out_coupler, dst_%vertical_stagger, &
+           dst_%regrid_method)
 
       _RETURN(_SUCCESS)
    end function make_transform

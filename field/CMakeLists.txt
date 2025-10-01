@@ -18,7 +18,6 @@ set(srcs
   FieldSet.F90
   FieldInfo.F90
   StateItemAllocation.F90
-  VerticalStaggerLoc.F90
   RestartModes.F90
 )
 
@@ -30,7 +29,7 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.shared MAPL.esmf_utils PFLOGGER::pflogger ESMF::ESMF udunits2f
+  DEPENDENCIES MAPL.vertical_grid MAPL.shared MAPL.esmf_utils PFLOGGER::pflogger ESMF::ESMF udunits2f
   TYPE SHARED
   )
   
