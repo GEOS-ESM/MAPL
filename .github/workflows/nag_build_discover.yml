@@ -2,14 +2,10 @@ name: NAG Build on Discover
 
 on:
   workflow_dispatch:
-  pull_request:
-    paths-ignore:
-      - "**.md"
-      - "**.json"
-      - "Python/**"
-      - ".github/CODEOWNERS"
-      - ".github/PULL_REQUEST_TEMPLATE.md"
-      - ".editorconfig"
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    # This example runs at midnight every day
+    - cron:  '0 0 * * *'
 
 defaults:
   run:
