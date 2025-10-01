@@ -4,6 +4,7 @@ module mapl3g_PrimaryExport
    use MAPL_ExceptionHandling 
    use mapl3g_AbstractDataSetFileSelector
    use mapl3g_NonClimDataSetFileSelector
+   use mapl3g_ClimDataSetFileSelector
    use mapl3g_Geom_API
    use mapl3g_VerticalGrid_API
    use MAPL_FileMetadataUtilsMod
@@ -54,16 +55,18 @@ module mapl3g_PrimaryExport
 
    contains
 
-   function new_PrimaryExport(export_var, rule, collection, sample, time_range, rc) result(primary_export) 
+   function new_PrimaryExport(export_var, rule, collection, sample, time_range, time_step,  rc) result(primary_export) 
       type(PrimaryExport) :: primary_export
       character(len=*), intent(in) :: export_var
       type(ExtDataRule), pointer, intent(in) :: rule
       type(ExtDataCollection), pointer, intent(in) :: collection
       type(ExtDataSample), pointer, intent(in) :: sample
       type(ESMF_Time), intent(in) :: time_range(:)
+      type(ESMF_TimeInterval), intent(in) :: time_step
       integer, optional, intent(out) :: rc
       
       type(NonClimDataSetFileSelector) :: non_clim_file_selector 
+      type(ClimDataSetFileSelector) :: clim_file_selector 
       type(DataSetNode) :: left_node, right_node
       character(len=:), allocatable :: file_template
       integer :: status
@@ -71,8 +74,13 @@ module mapl3g_PrimaryExport
       primary_export%export_var = export_var
       primary_export%is_constant = .not.associated(collection)
       if (associated(collection)) then
-         non_clim_file_selector = NonClimDataSetFileSelector(collection%file_template, collection%frequency, ref_time=collection%reff_time, persist_closest = (sample%extrap_outside == "persist_closest") )
-         allocate(primary_export%file_selector, source=non_clim_file_selector, _STAT)
+         if (sample%extrap_outside == 'clim') then
+            clim_file_selector = ClimDataSetFileSelector(collection%file_template, collection%valid_range, collection%frequency, ref_time=collection%reff_time, timeStep=time_step)
+            allocate(primary_export%file_selector, source=clim_file_selector, _STAT)
+         else
+            non_clim_file_selector = NonClimDataSetFileSelector(collection%file_template, collection%frequency, ref_time=collection%reff_time, persist_closest = (sample%extrap_outside == "persist_closest"), timeStep=time_step )
+            allocate(primary_export%file_selector, source=non_clim_file_selector, _STAT)
+         end if
          primary_export%file_var = rule%file_var
          primary_export%linear_trans = rule%linear_trans
          primary_export%regridding_method = rule%regrid_method
@@ -225,10 +233,11 @@ module mapl3g_PrimaryExport
       _RETURN(_SUCCESS)
    end subroutine update_my_bracket
 
-   subroutine append_state_to_reader(this, export_state, reader,  rc)
+   subroutine append_state_to_reader(this, export_state, reader, lgr, rc)
       class(PrimaryExport), intent(inout) :: this
       type(ESMF_State), intent(inout) :: export_state
       type(ExtDataReader), intent(inout) :: reader
+      class(logger), intent(in), pointer :: lgr
       integer, optional, intent(out) :: rc
 
       type(ESMF_FieldBundle) :: bundle
@@ -247,6 +256,8 @@ module mapl3g_PrimaryExport
          call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
          time_index = node%get_time_index()
          call node%get_file(filename)
+         call lgr%info("updating %a", this%export_var)
+         call node%write_node(lgr) !  bmaa
          call reader%add_item(field_list(1), this%file_var, filename, time_index, this%client_collection_id, _RC)
       end if
       node = this%bracket%get_right_node()
@@ -256,6 +267,8 @@ module mapl3g_PrimaryExport
          call MAPL_FieldBundleSet(bundle, bracket_updated=.true., _RC)
          call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
          time_index = node%get_time_index()
+         call lgr%info("updating %a", this%export_var)
+         call node%write_node(lgr) !  bmaa
          call node%get_file(filename)
          call reader%add_item(field_list(2), this%file_var, filename, time_index, this%client_collection_id, _RC)
       end if

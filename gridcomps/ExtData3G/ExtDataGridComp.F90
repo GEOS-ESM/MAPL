@@ -80,6 +80,7 @@ contains
       type(PrimaryExport), pointer :: primary_export_ptr
       class(logger), pointer :: lgr
       integer, pointer :: last_index
+      type(ESMF_TimeInterval) :: time_step
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
 
@@ -88,7 +89,7 @@ contains
       end if
 
       call MAPL_GridCompGet(gridcomp, logger=lgr, _RC)
-      call ESMF_ClockGet(clock, currTime=current_time, _RC)
+      call ESMF_ClockGet(clock, currTime=current_time, timeStep=time_step, _RC)
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       extdata_gridcomp%active_items = get_active_items(exportState, _RC)
       call new_ExtDataConfig_from_yaml(config, hconfig, current_time,  _RC)
@@ -108,7 +109,7 @@ contains
             rule_counter = rule_counter + 1
             full_name = item_name
             if (rules_for_item > 1) write(full_name,'(A,A1,I0)')trim(item_name),rule_sep,j
-            primary_export = config%make_PrimaryExport(trim(full_name), item_name, _RC)
+            primary_export = config%make_PrimaryExport(trim(full_name), item_name, time_step, _RC)
             call extdata_gridcomp%export_vector%push_back(primary_export)
          enddo 
          idx = extdata_gridcomp%get_item_index(item_name, current_time, _RC)
@@ -167,7 +168,7 @@ contains
          call MAPL_FieldBundleSet(bundle, bracket_updated=.false., _RC)
          call export_item%update_my_bracket(bundle, current_time, weights, _RC)
          call set_weights(exportState, export_name, weights, _RC)
-         call export_item%append_state_to_reader(exportState, reader, _RC)
+         call export_item%append_state_to_reader(exportState, reader, lgr, _RC)
       end do
       call reader%read_items(lgr, _RC)
       call reader%destroy_reader(_RC)
