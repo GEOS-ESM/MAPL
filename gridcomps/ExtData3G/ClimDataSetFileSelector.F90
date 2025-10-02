@@ -128,7 +128,6 @@ module mapl3g_ClimDataSetFileSelector
        both_invalid = (left_node%validate(original_time) .eqv. .false.) .and. &
                       (right_node%validate(original_time) .eqv. .false.)
 
-       _HERE,' bmaa ',time_jumped, both_invalid
        if (time_jumped .or. both_invalid) then ! if time moved more than 1 clock dt, force update
           call this%update_both_brackets_out_range_multi(bracket, target_time, original_time,  _RC)
        else if (both_valid) then ! else if it did not, both still valid, don't update
@@ -185,7 +184,7 @@ module mapl3g_ClimDataSetFileSelector
        integer :: status, local_search_stop, step,  node_side, i, shift, year
        type(ESMF_Time) :: trial_time, interp_time, local_current_time
        character(len=ESMF_MAXPATHLEN) :: trial_file
-       logical :: file_found, valid_node, in_range 
+       logical :: file_found, valid_node
 
        local_current_time = current_time
        node_side = node%get_node_side()
@@ -199,11 +198,10 @@ module mapl3g_ClimDataSetFileSelector
        end select
        valid_node = .false.
        shift = 0
-       in_range = (local_current_time >= this%valid_range(1)) .and. (local_current_time < this%valid_range(2))
-       if ( (.not. in_range) .and. (node_side == NODE_LEFT)) then
+       if ( (local_current_time <= this%valid_range(1)) .and. (node_side == NODE_LEFT)) then
           shift = 1
           call shift_year(local_current_time, shift, _RC)
-       else if ( (.not. in_range) .and. (node_side == NODE_RIGHT)) then
+       else if ( (local_current_time > this%valid_range(2)) .and. (node_side == NODE_RIGHT)) then
           shift = -1
           call shift_year(local_current_time, shift, _RC)
        end if
