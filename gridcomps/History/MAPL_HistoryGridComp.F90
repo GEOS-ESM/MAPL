@@ -1590,7 +1590,7 @@ contains
        enddo
     else
        do n=1,nstatelist
-          call MAPL_ExportStateGet ( exptmp,statelist(n),export(n),_RC )
+          call MAPL_ExportStateGet ( exptmp,statelist(n),export(n), rc=status)
           call ESMF_VMAllReduce(vm, sendData=status, recvData=globalStatus, &
                reduceflag=ESMF_REDUCE_MAX, rc=localStatus)
 
