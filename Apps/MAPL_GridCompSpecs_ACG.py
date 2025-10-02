@@ -396,12 +396,10 @@ class MAPL_DataSpec:
         return text
 
     def emit_arg(self, option):
-        value = self.spec_values.get(option)
-        if value:
-            text = option.name_key + "=" + value + MAPL_DataSpec.DELIMITER + self.continue_line()
-        else:
-            text = ''
-        return text
+        value = self.spec_values.get(option, '').strip()
+        if not value:
+            return ''
+        return option.name_key + "=" + value + MAPL_DataSpec.DELIMITER + self.continue_line()
 
     def emit_trailer(self, nullify=False):
         if self.condition:
