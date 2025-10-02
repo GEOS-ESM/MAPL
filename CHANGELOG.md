@@ -104,6 +104,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Update CI to use Baselibs 8.19.0
+- Add gcc15 test
+
 ### Removed
 
 ### Deprecated
