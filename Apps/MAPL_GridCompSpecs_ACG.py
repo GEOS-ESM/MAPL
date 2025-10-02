@@ -22,7 +22,7 @@ FALSE_VALUES = {'f', 'false', 'no', 'n', 'no', 'non', 'nao'}
 
 # constants used for Option.DIMS and computing rank
 DIMS_OPTIONS = [('MAPL_DimsVertOnly', 1, 'z'), ('MAPL_DimsHorzOnly', 2, 'xy'), ('MAPL_DimsHorzVert', 3, 'xyz')]
-RANKS = dict([(entry, rank) for entry, rank, _ in DIMS_OPTIONS])
+RANKS = dict([(entry.casefold(), rank) for entry, rank, _ in DIMS_OPTIONS])
 
 ############################### HELPER FUNCTIONS ###############################
 def make_string_array(s):
@@ -42,7 +42,12 @@ def make_string_array(s):
 
 def make_entry_emit(d):
     """ Returns a emit function that looks up the value in d """
-    return lambda k: d.get(k, k if k in d.values() else None)
+    casefolded = dict((v.casefold(), v) for v in d.values())
+    def inner(key):
+        if key in d:
+            return d[key]
+        return casefolded.get(key.casefold())
+    return inner
 
 def mangle_name_prefix(name, parameters = None):
     pre = 'comp_name'
@@ -71,7 +76,7 @@ def get_fortran_logical(value_in):
 
 def compute_rank(dims, ungridded):
     extra_rank = len(ungridded.strip('][').split(',')) if ungridded else 0
-    return RANKS[dims] + extra_rank
+    return RANKS[dims.casefold()] + extra_rank
 
 def header():
     """
