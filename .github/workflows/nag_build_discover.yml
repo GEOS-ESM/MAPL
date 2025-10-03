@@ -1,0 +1,16 @@
+name: NAG Build on Discover
+
+on:
+  workflow_dispatch:
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    # This example runs at midnight every day
+    - cron:  '0 0 * * *'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  run-nag-build-discover:
+    uses: GEOS-ESM/CI-workflows/.github/workflows/nag-build.yml@project/mapl
