@@ -252,7 +252,7 @@ contains
       end if
       call ESMF_TimeGet(this%interp_time, timeString=interp_time_string)
 
-      call lgr%info('node status side %a at time %a time index %i0.5 updated %l enabled %l', node_side, interp_time_string, this%time_index, this%update, this%enabled)
+      call lgr%info('node status side %a at time %a time index %i0.5 updated %g0 enabled %g0', node_side, interp_time_string, this%time_index, this%update, this%enabled)
   end subroutine
 
 end module mapl3g_DataSetNode
