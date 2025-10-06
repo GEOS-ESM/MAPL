@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update CI to use Baselibs 8.19.0
 - Add gcc15 test
+- Allow case-insensitive value lookups for ACG2 column values.
+- Recognize double quotes in columns as empty strings, but not empty column values.
 
 ### Removed
 
