@@ -6,8 +6,10 @@ import csv
 from collections import namedtuple
 import operator
 from functools import partial
+from itertools import repeat
 from enum import Enum
 from os import linesep
+import re
 
 ################################# CONSTANTS####################################
 SUCCESS = 0
@@ -19,6 +21,9 @@ TRUE_VALUE = '.true.'
 FALSE_VALUE = '.false.'
 TRUE_VALUES = {'t', 'true', 'yes', 'y', 'si', 'oui', 'sim'}
 FALSE_VALUES = {'f', 'false', 'no', 'n', 'no', 'non', 'nao'}
+QUOTE = r'"'
+APOSTROPHE = r"'"
+QUOTES = f'{QUOTE}{APOSTROPHE}'
 
 # constants used for Option.DIMS and computing rank
 DIMS_OPTIONS = [('MAPL_DimsVertOnly', 1, 'z'), ('MAPL_DimsHorzOnly', 2, 'xy'), ('MAPL_DimsHorzVert', 3, 'xyz')]
@@ -54,7 +59,7 @@ def mangle_name_prefix(name, parameters = None):
     if isinstance(parameters, tuple):
         pre = parameters[0] if parameters[0] else pre
     codestring = f"'//trim({pre})//'" 
-    return string_emit(name.replace("*",codestring)) if name else None
+    return add_quotes(name.replace("*",codestring)) if name else None
 
 def get_fortran_logical(value_in):
     """ Return string representing Fortran logical from an input string """
@@ -122,10 +127,13 @@ def make_procedure_call(name, is_function=False, delimiter=', ', terminator=None
 
 
 ##################### EMIT functions for writing AddSpecs ######################
+# Add quotes
+def add_quotes(s, use_single=True):
+    q = APOSTROPHE if use_single else QUOTE
+    return f'''{q}{s}{q}'''
+
 # Return the value
 identity_emit = lambda value: value
-# Return value in quotes
-string_emit = lambda value: ("'" + value + "'") if value else None
 # Return value in brackets
 array_emit = lambda value: ('[' + value + ']') if value else None
 # Strip '.' and ' ' [SPACE]
@@ -133,7 +141,7 @@ lstripped = lambda s: s.lower().strip(' .')
 # emit function for character arrays
 string_array_emit = lambda value: make_string_array(value) if value else None
 # mangle name for SHORT_NAME
-mangle_name = lambda name: string_emit(name.replace("*","'//trim(comp_name)//'")) if name else None 
+mangle_name = lambda name: add_quotes(name.replace("*","'//trim(comp_name)//'")) if name else None 
 # mangle name for internal use
 make_internal_name = lambda name: name.replace('*','') if name else None
 # emit function for LONG_NAME
@@ -151,6 +159,44 @@ RESTART_EMIT = make_entry_emit({'OPT'  : 'MAPL_RestartOptional', 'SKIP' : 'MAPL_
         'REQ'  : 'MAPL_RestartRequired', 'BOOT' : 'MAPL_RestartBoot',
         'SKIPI': 'MAPL_RestartSkipInitial'})
 
+# Return value in quotes
+def string_emit_match_case(value):
+    if not value:
+        return None
+    m = None
+    match value.strip():
+        case '':
+            m = None
+        case [r'"', *_, r"'"] | [r"'", *_, r'"']:
+            m = None
+        case r'""' | r"''":
+            m = ''
+        case [r'"', m, r'"'] | [r"'", m, r"'"]:
+            m = ''.join(m).strip().replace(QUOTE, APOSTROPHE)
+        case str() as s:
+            m = s
+    return None if m is None else (f"'{QUOTE}'" if m == QUOTE else f'"{m}"')
+
+def string_emit_if_else(value):
+    if not value:
+        return None
+    if not value.strip():
+        return None
+    s = value.strip()
+    middle = r''
+    head, *tail = s
+    if tail:
+        *middle, tail = tail
+    if s in (r'\'"', r"\"'"):
+        return None
+    if s in (r'""', r"''"):
+        return r'""'
+    if s == QUOTE:
+        return f"'{QUOTE}'"
+    s = s.strip(QUOTES).replace(QUOTE, APOSTROPHE)
+    return f'"{s}"'
+
+string_emit = string_emit_match_case if (sys.version_info >= (3, 10)) else string_emit_if_else
 
 ############################ Special EMIT functions ############################
 
@@ -396,8 +442,8 @@ class MAPL_DataSpec:
         return text
 
     def emit_arg(self, option):
-        value = self.spec_values.get(option, '').strip()
-        if not value:
+        value = self.spec_values.get(option)
+        if value is None:
             return ''
         return option.name_key + "=" + value + MAPL_DataSpec.DELIMITER + self.continue_line()
 
@@ -471,7 +517,8 @@ def read_specs(specs_filename):
     # So all lookups in the dict below should be converted to lowercase.
     specs = {}
     with open(specs_filename, 'r') as specs_file:
-        specs_reader = csv.reader(specs_file, skipinitialspace=True,delimiter='|')
+        specs_reader = csv.reader(specs_file, skipinitialspace=True,
+                delimiter='|', quoting=csv.QUOTE_NONE)
         gen = csv_record_reader(specs_reader)
         schema_version = next(gen)[0].split(' ')[1]
         component = next(gen)[0].split(' ')[1]
