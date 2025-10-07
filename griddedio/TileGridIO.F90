@@ -257,14 +257,14 @@ module MAPL_TileGridIOMod
         if (this%timeInfo%is_initialized) then
            
            if (fieldRank==1) then
-              vdims = grid_dims
+              vdims = grid_dims//",time"
               call ESMF_FieldGet(field,farrayPtr=ptr1d, _RC)
            else if (fieldRank==2) then
-              vdims=grid_dims//",unkown_dim1,time"
+              vdims=grid_dims//",unknown_dim1,time"
            else if (fieldRank==3) then
-              vdims=grid_dims//"unkown_dim2, unknown_dim1,time"
+              vdims=grid_dims//",unknown_dim2,unknown_dim1,time"
            else if (fieldRank==4) then
-              vdims=grid_dims//",ungrid_1,ungrid_2,time"
+              vdims=grid_dims//",unknown_dim3,unknown_dim2,unknown_dim1,time"
            else 
               _FAIL( 'Unsupported field rank')
            end if
@@ -272,9 +272,9 @@ module MAPL_TileGridIOMod
            if (fieldRank==1) then
               vdims = grid_dims
            elseif (fieldRank==2) then
-              vdims=grid_dims//",unkown_dim1"
+              vdims=grid_dims//",unknown_dim1"
            else if (fieldRank==3) then
-              vdims=grid_dims//",unkown_dim2,unkown_dim1"
+              vdims=grid_dims//",unknown_dim2,unkown_dim1"
            else
               _FAIL( 'Unsupported field rank')
            end if
