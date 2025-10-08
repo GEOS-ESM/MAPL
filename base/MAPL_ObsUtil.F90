@@ -345,7 +345,7 @@ contains
     M=j
 
     _ASSERT ( M < size(filenames) , 'code crash, number of files exceeds upper bound')
-    _ASSERT (M/=0, 'M is zero, no files found for currTime')
+    _ASSERT (M/=0, 'M is zero, no files found for currTime, e.g., filename = '//trim(test_file))
 
     _RETURN(_SUCCESS)
 
