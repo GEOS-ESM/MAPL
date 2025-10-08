@@ -9,11 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed `mapl_acg.cmake` to allow for more than one StateSpecs file per target
+
 ### Added
 
 - Added TileGridIO.F90 to output NC4 History file in tile space. The collection's format should be 'CFIO' 
 
 ### Changed
+
+- Update CI to use Baselibs 8.19.0
+- Add gcc15 test
 
 ### Removed
 
