@@ -44,6 +44,12 @@ contains
       call ESMF_ClockSet(user_clock, timestep=user_timeStep, _RC)
       call set_run_user_alarm(this, outer_clock, user_clock, _RC)
 
+      block
+         type(ESMF_Time) :: current_time
+         character(len=ESMF_MAXSTR) :: time_string
+         call ESMF_ClockGet(user_clock, currTime=current_time, _RC)
+         call ESMF_TimeGet(current_time, timeString=time_string, _RC)
+      end block
       call this%user_gc_driver%set_clock(user_clock)
 
       call set_children_outer_clock(this%children, user_clock, _RC)
@@ -83,12 +89,12 @@ contains
   subroutine set_run_user_alarm(this, outer_clock, user_clock,  rc)
       class(OuterMetaComponent), intent(inout) :: this
       type(ESMF_Clock), intent(in) :: outer_clock
-      type(ESMF_Clock), intent(in) :: user_clock
+      type(ESMF_Clock), intent(inout) :: user_clock
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(ESMF_TimeInterval) :: outer_timestep, user_timestep, ref_time, t24
-      type(ESMF_Time) :: currTime, clock_refTime, user_runTime, startTime
+      type(ESMF_Time) :: currTime, clock_refTime, user_runTime, startTime, user_clockTime
       logical :: has_shift_back, has_ref_time, shift_back
 
       call ESMF_ClockGet(outer_clock, timestep=outer_timestep, currTime=currTime, refTime=clock_refTime, startTime=startTime, _RC)
@@ -105,8 +111,9 @@ contains
          call ESMF_TimeIntervalSet(t24, h=24, _RC)
          _ASSERT(ref_time <= t24, 'reference time must be between 0 and 24 hours')
          user_runTime = sub_time_in_datetime(currTime, ref_time, _RC)
+         user_clockTime = user_runTime
          if (user_runTime < currTime) then
-            user_runTime = user_runTime +(INT((currTime-user_runTime)/user_timestep)+1)*user_timestep
+            user_clockTime = user_runTime +(INT((currTime-user_runTime)/user_timestep)+1)*user_timestep
          end if
       else
          user_runTime = clock_refTime + this%user_offset
@@ -117,12 +124,41 @@ contains
          shift_back = ESMF_HConfigAsLogical(this%hconfig, keyString='shift_back', _RC)
       end if
       if (shift_back) user_runTime = user_runTime - outer_timestep
-      if (user_runTime < currTime) user_runTime=user_runTime+user_timestep
 
       this%user_run_alarm = SimpleAlarm(user_runTime, user_timeStep, _RC)
+      if (has_ref_time) then 
+         ! want to shift it back until user_clockTime is greater OR equal to start time of clock
+         call reset_user_time(user_clockTime, currTime, user_timestep, _RC)
+         if (shift_back .and. (user_clockTime > currTime)) user_clockTime = user_clockTime - user_timestep
+         call ESMF_ClockGet(user_clock, startTime=startTime, _RC)
+         if (startTime > user_clockTime) then
+            call ESMF_ClockSet(user_clock, startTime=user_clockTime, _RC)
+         end if
+         call ESMF_ClockSet(user_clock, currTime=user_clockTime, _RC) 
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine set_run_user_alarm
+
+   subroutine reset_user_time(user_clockTime, currTime, user_timeStep, rc)
+         type(ESMF_Time), intent(inout) :: user_clockTime
+         type(ESMF_Time), intent(in) :: currTime
+         type(ESMF_TimeInterval), intent(in) :: user_timeStep
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         type(ESMF_Time) :: temp_time
+
+         temp_time = user_clockTime
+         do while(temp_time >= currTime)
+            temp_time=temp_time-user_timeStep
+         enddo
+         if (temp_time < currTime) temp_time=temp_time+user_timeStep
+         user_clockTime = temp_time
+ 
+         _RETURN(_SUCCESS)
+
+   end subroutine reset_user_time
 
    function sub_time_in_datetime(time, time_interval, rc) result(new_time)
       type(ESMF_Time) :: new_time

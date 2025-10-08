@@ -9,6 +9,7 @@ Note all test cases are in a numbered directory caseX, where a X is an integer a
 5. simple everytime update with daily files and time interpolation
 6. daily files for 0z for a year, fill a time at 12z on the 31st of december 2006 as a climatology
 7. 12-month/12 time 2004 file with an update that will wrap around the year
+8. simple everytime update with a new file every 3 hours relative to 003000z
 9. Single time file, persisted at all times
 19. Test set file to /dev/null
 22. Test multiple rules for an item
