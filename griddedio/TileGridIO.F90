@@ -125,9 +125,6 @@ module MAPL_TileGridIOMod
         integer :: status
         type(Variable) :: v
 
-        if ( allocated (this%metadata) ) deallocate(this%metadata)
-        allocate(this%metadata)
-
         call MAPL_FieldBundleDestroy(this%output_bundle, _RC)
 
         this%items = items
