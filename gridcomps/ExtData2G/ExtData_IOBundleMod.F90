@@ -10,7 +10,7 @@ module MAPL_ExtDataNG_IOBundleMod
   use ESMF
   use MAPL_BaseMod
   use MAPL_GriddedIOMod
-  use MAPL_TileIOMod
+  use MAPL_TileGridIOMod
   use MAPL_ExceptionHandling
   use MAPL_GriddedIOItemMod
   use MAPL_GriddedIOItemVectorMod
@@ -19,7 +19,7 @@ module MAPL_ExtDataNG_IOBundleMod
 
   type ExtDataNG_IOBundle
      type (MAPL_GriddedIO) :: grid_io
-     type (MAPL_TileIO) :: tile_io
+     type (MAPL_TileGridIO) :: tile_io
      type (ESMF_FieldBundle) :: pbundle
      character(:), allocatable :: template
      integer :: regrid_method
@@ -100,7 +100,7 @@ contains
     integer, optional, intent(out) :: rc
 
      if (this%on_tiles) then
-        this%tile_io = MAPL_TileIO(this%pbundle,this%server_coll_id)
+        this%tile_io = MAPL_TileGridIO(this%pbundle,this%server_coll_id)
      else
         this%grid_io = MAPL_GriddedIO(output_bundle=this%pbundle,regrid_method=this%regrid_method, &
                            read_collection_id=this%server_coll_id, &

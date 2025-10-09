@@ -1620,8 +1620,12 @@ contains
        I1 = AL(1, deId)
        IN = AU(1, deId)
        !    _ASSERT(gridRank > 1, 'tilegrid is 1d (without RC this only for info')
-       J1 = AL(2, deId)
-       JN = AU(2, deId)
+       J1 = 1
+       JN = 1
+       if (gridRank > 1) then
+         J1 = AL(2, deId)
+         JN = AU(2, deId)
+       endif
        deallocate(AU, AL, localDeToDeMap)
     end if
 
