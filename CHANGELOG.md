@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added TileGridIO.F90 to output NC4 History file in tile space. The collection's format should be 'CFIO' 
+
 ### Changed
 
 - Update CI to use Baselibs 8.19.0
@@ -21,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update CI to use organization reusable workflows
 
 ### Removed
+
+- Removed TileIO.F90. It is integrated into TileGridIO.F90
 
 ### Deprecated
 
