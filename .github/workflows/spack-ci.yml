@@ -17,115 +17,22 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
-  build:
-    name: Spack CI GCC Build
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 1
-          filter: blob:none
-
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.13'
-
-      - name: Pip install mepo
-        run: |
-          python -m pip install --upgrade pip
-          pip install mepo
-
-      - name: Mepo clone
-        run: |
-          mepo clone --partial blobless
-
-      - name: Set up Spack
-        uses: spack/setup-spack@v2
-        with:
-          ref: develop      # Spack version (examples: develop, releases/v0.21)
-          color: true       # Force color output (SPACK_COLOR=always)
-          path: spack       # Where to clone Spack
-          buildcache: false # Do not use the spack buildcache
-
-      - name: Patch ESMF package for 9.0.0b03
-        run: |
-          # Use spack to find where the esmf package is located
-          ESMF_PKG_PATH=$(spack location -p esmf 2>/dev/null || echo "")
-
-          if [ -n "$ESMF_PKG_PATH" ] && [ -d "$ESMF_PKG_PATH" ]; then
-            # Location is a directory, so find package.py inside it
-            ESMF_PKG_PATH="${ESMF_PKG_PATH}/package.py"
-          fi
-
-          if [ -n "$ESMF_PKG_PATH" ] && [ -f "$ESMF_PKG_PATH" ]; then
-            echo "Found ESMF package at: $ESMF_PKG_PATH"
-
-            # Check if version already exists
-            if ! grep -q "9.0.0b03" "$ESMF_PKG_PATH"; then
-              sed -i '/# generate chksum with/a \    version("9.0.0b03", tag="v9.0.0b03")' "$ESMF_PKG_PATH"
-              echo "Successfully added ESMF 9.0.0b03 version"
-            else
-              echo "ESMF 9.0.0b03 version already exists"
-            fi
-          else
-            echo "ERROR: Could not find ESMF package.py file"
-            # Debug information
-            echo "Debug: looking for esmf package.py files:"
-            find . -name "package.py" | grep -i esmf || echo "No files found"
-            exit 1
-          fi
-
-      - name: Find compilers
-        shell: spack-bash {0}
-        run: |
-          spack compiler find
-
-      - name: Set default compiler and target
-        shell: spack-bash {0}
-        run: |
-          spack config add 'packages:all:require:target=x86_64_v3'
-
-      - name: Create Spack environment
-        shell: spack-bash {0}
-        run: |
-          spack env create spack-env
-          spack env activate spack-env
-
-      # NOTE: We use a different buildcache for ESMF9 builds since I couldn't figure out
-      # how to get the the original buildcache to work with two different esmf versions
-      - name: Login
-        shell: spack-bash {0}
-        run: |
-          spack -e spack-env mirror add geos-buildcache-esmf9 oci://ghcr.io/GEOS-ESM/geos-buildcache-esmf9
-          spack -e spack-env mirror set --oci-username-variable "${{ secrets.BUILDCACHE_USERNAME }}" --oci-password-variable "${{ secrets.BUILDCACHE_TOKEN }}" geos-buildcache-esmf9
-          spack -e spack-env mirror list
-          spack -e spack-env buildcache list --allarch
-
-      - name: Concretize
-        shell: spack-bash {0}
-        run: |
-          spack -e spack-env concretize
-
-      - name: Install
-        shell: spack-bash {0}
-        run: |
-          spack clean -m
-          spack -e spack-env install --add --no-check-signature --use-buildcache only \
-            esmf gftl gftl-shared fargparse pflogger pfunit yafyaml ecbuild udunits openblas
-
-      - name: Build with Cmake
-        shell: spack-bash {0}
-        run: |
-          spack env activate spack-env
-          spack load \
-            esmf gftl gftl-shared fargparse pflogger pfunit yafyaml ecbuild udunits openblas
-          spack find --loaded
-          FC=gfortran-14 CC=gcc-14 CXX=g++-14
-          cmake -B build -S . -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF -DCMAKE_Fortran_COMPILER=${FC} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX}
-          cmake --build build -j 4
-          cmake --install build
-          cd build
-          make -j4 tests
-
+  spack_builds:
+    strategy:
+      matrix:
+        include:
+          - name: "stable"
+            use-esmf-develop: false
+            run-tests: true
+          - name: "develop"
+            use-esmf-develop: true
+            run-tests: true
+    uses: GEOS-ESM/CI-workflows/.github/workflows/spack_gcc_build.yml@project/geosgcm
+    name: Spack Build with ESMF (${{ matrix.name }})
+    secrets:
+      BUILDCACHE_USERNAME: ${{ secrets.BUILDCACHE_USERNAME }}
+      BUILDCACHE_TOKEN: ${{ secrets.BUILDCACHE_TOKEN }}
+    with:
+      use-esmf-develop: ${{ matrix.use-esmf-develop }}
+      run-tests: ${{ matrix.run-tests }}
+      run-mepo-develop: false
