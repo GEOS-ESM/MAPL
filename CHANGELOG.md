@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix NVHPC issue with IEEE halting code
 
 ### Added
+- Add mem_usage_mod for mac and used in ExtDataDriver.x
 
 - Added TileGridIO.F90 to output NC4 History file in tile space. The collection's format should be 'CFIO' 
 
