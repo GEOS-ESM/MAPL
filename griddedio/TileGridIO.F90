@@ -769,6 +769,7 @@ module MAPL_TileGridIOMod
 
         call MAPL_LocStreamGet(locstream, attachedgrid=attachedgrid, _RC)
         call MAPL_grid_interior(attachedgrid, i1, i2, j1, j2)
+        call ESMF_GridGet(attachedgrid, name=gname, _RC)
 
         ptr1d(:) = tilelons(:)
         call ESMF_FieldRedist(this%field_in, this%field_out, this%routeHandle, rc=status)
@@ -779,10 +780,12 @@ module MAPL_TileGridIOMod
         this%tilelats = outptr1d*MAPL_RADIANS_TO_DEGREES
 
         ptr1d(:) = local_i(:) + i1 -1
+        if (index(gname, 'EASE') /=0) ptr1d = ptr1d - 1
         call ESMF_FieldRedist(this%field_in, this%field_out, this%routeHandle, rc=status)
         this%i_index = nint(outptr1d)
 
         ptr1d(:) = local_j(:) + j1 -1
+        if (index(gname, 'EASE') /=0) ptr1d = ptr1d - 1
         call ESMF_FieldRedist(this%field_in, this%field_out, this%routeHandle, rc=status)
         this%j_index = nint(outptr1d) 
      endif
