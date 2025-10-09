@@ -290,7 +290,7 @@ module MAPL_TileGridIOMod
         call this%metadata%add_variable(trim(varName),v,rc=status)
         _VERIFY(status)
         ! finally make a new field if neccessary
-        newField = ESMF_FieldCreate(field, datacopyflag=ESMF_DATACOPY_VALUE, name=trim(varName), _RC)
+        newField = ESMF_FieldCreate(this%output_grid, name=trim(varName), typekind=ESMF_TYPEKIND_R4, _RC)
         call MAPL_FieldCopyAttributes(FIELD_IN=field, FIELD_OUT= newField, _RC)
         !MAPL_FieldCreate(field,this%output_grid,rc=status)
         !_VERIFY(status)
@@ -352,6 +352,7 @@ module MAPL_TileGridIOMod
               call this%stageData(outField,filename,tIndex, oClients=oClients,rc=status)
               _VERIFY(status)
            else if (item%itemType == ItemTypeVector) then
+              _FAIL('NO Vector for redistribution')
               !call this%RegridVector(item%xname,item%yname,rc=status)
               !_VERIFY(status)
               !call ESMF_FieldBundleGet(this%output_bundle,item%xname,field=outField,rc=status)
@@ -409,20 +410,21 @@ module MAPL_TileGridIOMod
            call ESMF_FieldRedist(field, outField, this%routeHandle, rc=status)
            _VERIFY(status)
         else if (fieldRank==2) then
-           call MAPL_FieldGetPointer(Field,    ptr2d,rc=status)
-           _VERIFY(status)
-           call MAPL_FieldGetPointer(outField, outptr2d,rc=status)
-           _VERIFY(status)
-           call MAPL_FieldGetPointer(this%field_in,ptr1d,rc=status)
-           _VERIFY(status)
-           call MAPL_FieldGetPointer(this%field_out,outptr1d,rc=status)
-           _VERIFY(status)
-           do i =1, size(ptr2d, 2)
-              ptr1d(:) = ptr2d(:,i)
-              call ESMF_FieldRedist(this%field_in, this%field_out, this%routeHandle, rc=status)
-              _VERIFY(status)
-              outptr2d(:,i) = outptr1d(:)
-           enddo
+           _FAIL('NO 2d for tile redistribution')
+          !call MAPL_FieldGetPointer(Field,    ptr2d,rc=status)
+          ! _VERIFY(status)
+          ! call MAPL_FieldGetPointer(outField, outptr2d,rc=status)
+          ! _VERIFY(status)
+          ! call MAPL_FieldGetPointer(this%field_in,ptr1d,rc=status)
+          ! _VERIFY(status)
+          ! call MAPL_FieldGetPointer(this%field_out,outptr1d,rc=status)
+          ! _VERIFY(status)
+          ! do i =1, size(ptr2d, 2)
+          !    ptr1d(:) = ptr2d(:,i)
+          !    call ESMF_FieldRedist(this%field_in, this%field_out, this%routeHandle, rc=status)
+          !    _VERIFY(status)
+          !    outptr2d(:,i) = outptr1d(:)
+          ! enddo
 
         else if (fieldRank==3) then
 
