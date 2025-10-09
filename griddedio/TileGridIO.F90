@@ -30,7 +30,7 @@ module MAPL_TileGridIOMod
   use MAPL_FileMetadataUtilsMod
   use MAPL_DownbitMod
   use, intrinsic :: ISO_C_BINDING
-  use, intrinsic :: iso_fortran_env, only: REAL64
+  use, intrinsic :: iso_fortran_env, only: REAL64, INT64
   use ieee_arithmetic, only: isnan => ieee_is_nan
   use netcdf, only: nf90_inq_libvers
   use FIleIOSharedMod, only: MAPL_TileMaskGet
