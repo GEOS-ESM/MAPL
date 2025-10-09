@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added EASE grid support to Regridder_Util program
+
 ### Changed
 
 - Update CI to use Baselibs 8.19.0
