@@ -49,7 +49,7 @@ module MAPL_TileGridIOMod
      type(tile_buffer), allocatable :: tile_buffer(:)
      type(ESMF_Field)               :: field_in, field_out
      type(ESMF_RouteHandle)         :: routeHandle
-     real(REAL64), allocatable      :: tilelons(:), tilelats(:)
+     real, allocatable              :: tilelons(:), tilelats(:)
      integer, allocatable           :: i_index(:), j_index(:)
      contains
         procedure :: CreateFileMetaData
@@ -164,25 +164,25 @@ module MAPL_TileGridIOMod
         enddo
 
         if (allocated(this%tilelons)) then
-           v = Variable(type=PFIO_REAL64,dimensions='tile')
+           v = Variable(type=PFIO_REAL32,dimensions='tile')
            call v%add_attribute('units','degrees_east')
            call v%add_attribute('long_name','longitude')
            call this%metadata%add_variable('lon',v,rc=status)
            _VERIFY(status)
-           v = Variable(type=PFIO_REAL64,dimensions='tile')
+           v = Variable(type=PFIO_REAL32,dimensions='tile')
            call v%add_attribute('units','degrees_north')
            call v%add_attribute('long_name','latitude')
            call this%metadata%add_variable('lat',v,rc=status)
            _VERIFY(status)
            v = Variable(type=PFIO_INT32,dimensions='tile')
            call v%add_attribute('units','1')
-           call v%add_attribute('long_name','I_index')
-           call this%metadata%add_variable('i_index',v,rc=status)
+           call v%add_attribute('long_name','i_index')
+           call this%metadata%add_variable('IG',v,rc=status)
            _VERIFY(status)
            v = Variable(type=PFIO_INT32,dimensions='tile')
            call v%add_attribute('units','1')
-           call v%add_attribute('long_name','J_index')
-           call this%metadata%add_variable('j_index',v,rc=status)
+           call v%add_attribute('long_name','j_index')
+           call this%metadata%add_variable('JG',v,rc=status)
            _VERIFY(status)
         endif
 
@@ -472,11 +472,11 @@ module MAPL_TileGridIOMod
              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
 
         ref = ArrayReference(this%i_index)
-        call oClients%collective_stage_data(this%write_collection_id,trim(filename),'i_index', &
+        call oClients%collective_stage_data(this%write_collection_id,trim(filename),'IG', &
              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
         
         ref = ArrayReference(this%j_index)
-        call oClients%collective_stage_data(this%write_collection_id,trim(filename),'j_index', &
+        call oClients%collective_stage_data(this%write_collection_id,trim(filename),'JG', &
              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
 
      endif
