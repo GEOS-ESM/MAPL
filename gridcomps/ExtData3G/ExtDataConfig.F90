@@ -86,7 +86,7 @@ contains
          do i=1,size(sub_configs)
             inquire(file=trim(sub_configs(i)),exist=file_found)
             _ASSERT(file_found,"could not find: "//trim(sub_configs(i)))
-            sub_config = ESMF_HConfigCreate(filename=sub_configs(i), _RC)
+            sub_config = ESMF_HConfigCreate(filename=trim(sub_configs(i)), _RC)
             call new_ExtDataConfig_from_yaml(ext_config,sub_config,current_time,_RC)
          enddo
       end if
