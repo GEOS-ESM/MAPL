@@ -201,7 +201,7 @@ module mapl3g_ClimDataSetFileSelector
        if ( (local_current_time <= this%valid_range(1)) .and. (node_side == NODE_LEFT)) then
           shift = 1
           call shift_year(local_current_time, shift, _RC)
-       else if ( (local_current_time > this%valid_range(2)) .and. (node_side == NODE_RIGHT)) then
+       else if ( (local_current_time >= this%valid_range(2)) .and. (node_side == NODE_RIGHT)) then
           shift = -1
           call shift_year(local_current_time, shift, _RC)
        end if
