@@ -525,6 +525,7 @@ end subroutine set_param
        end do
        allocate( mask(IM, JM), _STAT)
        mask(1:IM, 1:JM) = abs(farrayPtr(1:IM, 1:JM))
+       call ESMF_FieldHaloRelease(routehandle=RH_halo, _RC)
 
        this%npt_mask = k    ! # of masked pts on CS grid
        allocate( this%index_mask(2,k), _STAT )
