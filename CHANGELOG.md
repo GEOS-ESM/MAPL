@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added EASE grid support to Regridder_Util program
 - Added TileGridIO.F90 to output NC4 History file in tile space. The collection's format should be 'CFIO' 
 
 ### Changed
