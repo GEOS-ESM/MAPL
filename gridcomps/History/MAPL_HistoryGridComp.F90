@@ -2574,9 +2574,9 @@ ENDDO PARSER
           call ESMF_GridGet(grid_In, name=gname_tmp, _RC)
           ! for tilegrid, do not assign label 
           if (index(gname_tmp, 'tile_grid') /=0 .and. list(n)%output_grid_label =='' ) then
-            list(n)%mGriddedIO = MAPL_TileGridIO()
+            allocate(list(n)%mGriddedIO, source = MAPL_TileGridIO())
           else
-            list(n)%mGriddedIO = MAPL_GriddedIO()
+            allocate(list(n)%mGriddedIO, source = MAPL_GriddedIO())
           endif  
 
           call list(n)%mGriddedIO%set_param(deflation=list(n)%deflate,_RC)
