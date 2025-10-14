@@ -86,15 +86,31 @@ function (mapl_acg target specs_file)
   endif ()
   set(generator ${_generator_dir}/MAPL_GridCompSpecs_ACG.py)
 
-  add_custom_command (
+  add_custom_command(
     OUTPUT ${generated}
     COMMAND ${generator} ${CMAKE_CURRENT_SOURCE_DIR}/${specs_file} ${options}
     MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/${specs_file}
     DEPENDS ${generator} ${specs_file}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Generating automatic code for ${specs_file}"
-    )
-  add_custom_target (acg_phony_${target} DEPENDS ${generated})
-  add_dependencies (${target} acg_phony_${target})
+  )
+
+  # 1) Ensure the aggregate phony target exists exactly once
+  if (NOT TARGET acg_phony_${target})
+    add_custom_target(acg_phony_${target})
+    # ensure the real target builds after the aggregate
+    add_dependencies(${target} acg_phony_${target})
+  endif()
+
+  # 2) Create a per-call child target with a unique name
+  #    (sanitize the specs_file to be safe in a target name)
+  get_filename_component(_spec_base "${specs_file}" NAME_WE)
+  string(REPLACE "." "_" _spec_sanitized "${_spec_base}")
+  string(REPLACE "/" "_" _spec_sanitized "${_spec_sanitized}")
+
+  add_custom_target(acg_gen_${target}_${_spec_sanitized} DEPENDS ${generated})
+
+  # 3) Wire the aggregate to depend on this child
+  add_dependencies(acg_phony_${target} acg_gen_${target}_${_spec_sanitized})
 
 endfunction ()
