@@ -693,6 +693,9 @@ module MAPL_TileGridIOMod
      integer :: status
      if(allocated(this%chunking)) deallocate(this%chunking)
      call ESMF_FieldRedistRelease(this%routeHandle, _RC)
+     call MAPL_FieldBundleDestroy(this%output_bundle, _RC)
+     call ESMF_FieldDestroy(this%field_in, noGarbage=.true., _RC)
+     call ESMF_FieldDestroy(this%field_out,noGarbage=.true., _RC)
      _RETURN(_SUCCESS)
   end subroutine destroy
 
