@@ -2572,12 +2572,12 @@ ENDDO PARSER
           endif
           call ESMF_FieldBundleGet(list(n)%bundle, grid=grid_In, _RC)
           call ESMF_GridGet(grid_In, name=gname_tmp, _RC)
-          ! for tilegrid, do not assign label 
+          ! for tilegrid, do not assign label
           if (index(gname_tmp, 'tile_grid') /=0 .and. list(n)%output_grid_label =='' ) then
             allocate(list(n)%mGriddedIO, source = MAPL_TileGridIO())
           else
             allocate(list(n)%mGriddedIO, source = MAPL_GriddedIO())
-          endif  
+          endif
 
           call list(n)%mGriddedIO%set_param(deflation=list(n)%deflate,_RC)
           call list(n)%mGriddedIO%set_param(quantize_algorithm=list(n)%quantize_algorithm,_RC)
@@ -4066,6 +4066,8 @@ ENDDO PARSER
     do n=1,nlist
        if (list(n)%sampler_type == 'mask') then
           call list(n)%mask_sampler%finalize(_RC)
+       elseif (list(n)%sampler_type == 'station') then
+          call list(n)%station_sampler%finalize(_RC)
        end if
     end do
 
