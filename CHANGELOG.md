@@ -102,7 +102,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed `mapl_acg.cmake` to allow for more than one StateSpecs file per target
 - Fix NVHPC issue with IEEE halting code
-- Fixed test case12
 
 ### Added
 
@@ -119,6 +118,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed TileIO.F90. It is integrated into TileGridIO.F90
 
 ### Deprecated
+
+## [2.62.1] - 2025-09-25
+
+### Fixed
+
+- Fixed bug when regridding with grid that has PET with no DEs
 
 ## [2.62.0] - 2025-09-25
 
