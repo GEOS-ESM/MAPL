@@ -102,10 +102,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed `mapl_acg.cmake` to allow for more than one StateSpecs file per target
 - Fix NVHPC issue with IEEE halting code
+- Fixed test case12
 
 ### Added
 
-- Added TileGridIO.F90 to output NC4 History file in tile space. The collection's format should be 'CFIO' 
+- Added TileGridIO.F90 to output NC4 History file in tile space. The collection's format should be 'CFIO'
 
 ### Changed
 
