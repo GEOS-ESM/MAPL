@@ -4089,6 +4089,10 @@ ENDDO PARSER
          if( MAPL_CFIOIsCreated(list(n)%mcfio) ) then
             CALL MAPL_CFIOdestroy (list(n)%mcfio, _RC)
          end if
+         if (allocated(list(n)%mGriddedIO)) then
+            call list(n)%mGriddedIO%destroy()
+            deallocate(list(n)%mGriddedIO)
+         endif
       ELSE
          if( list(n)%unit.ne.0 ) call FREE_FILE( list(n)%unit )
       END if

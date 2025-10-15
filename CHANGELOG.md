@@ -106,6 +106,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Create TilgridIO's outbundle from output grid and deallocate mGriddedIO in History 
 - Added TileGridIO.F90 to output NC4 History file in tile space. The collection's format should be 'CFIO'
 
 ### Changed
