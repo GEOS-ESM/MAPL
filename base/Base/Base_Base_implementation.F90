@@ -2148,26 +2148,6 @@ contains
 
   end subroutine MAPL_GridGetCorners
 
-  !............................................................................
-
-
-  !
-  ! Note: The routine below came from ESMFL; it has been moved here to
-  !       avoid circular dependencies (Arlindo).
-  !
-  module subroutine MAPL_GridGetInterior(GRID,I1,IN,J1,JN)
-    type (ESMF_Grid), intent(IN) :: grid
-    integer, intent(OUT)         :: I1, IN, J1, JN
-
-    ! local vars
-    integer                               :: status
-    !    character(len=ESMF_MAXSTR)            :: IAm='MAPL_GridGetInterior'
-
-    call MAPL_Grid_Interior( GRID,I1,IN,J1,JN)
-
-    _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_GridGetInterior
-
   !.......................................................................
 
   module function MAPL_RmQualifier(str, del) result(new)
