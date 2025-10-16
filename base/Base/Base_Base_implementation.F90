@@ -2163,56 +2163,9 @@ contains
     integer                               :: status
     !    character(len=ESMF_MAXSTR)            :: IAm='MAPL_GridGetInterior'
 
-    type (ESMF_DistGrid)                  :: distGrid
-    type(ESMF_DELayout)                   :: LAYOUT
-    type (ESMF_VM)                        :: vm
-    integer,               allocatable    :: AL(:,:)
-    integer,               allocatable    :: AU(:,:)
-    integer                               :: nDEs
-    integer                               :: deId
-    integer                               :: gridRank
-    integer                               :: rc
-    logical                               :: isPresent
-    integer, allocatable                  :: global_grid_info(:)
-    integer                               :: itemCount
+    call MAPL_Grid_Interior( GRID,I1,IN,J1,JN)
 
-    i1=-1
-    j1=-1
-    in=-1
-    jn=-1
-
-    call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", isPresent=isPresent, _RC)
-    if (isPresent) then
-      call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", itemCount=itemCount, _RC)
-      allocate(global_grid_info(itemCount), _STAT)
-      call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", valueList=global_grid_info, _RC)
-      I1 = global_grid_info(7)
-      IN = global_grid_info(8)
-      j1 = global_grid_info(9)
-      JN = global_grid_info(10)
-      deallocate(global_grid_info, _STAT)
-      _RETURN(_SUCCESS)
-    end if
-
-
-    call ESMF_GridGet    (GRID, dimCount=gridRank, distGrid=distGrid, _RC)
-    call ESMF_DistGridGet(distGRID, delayout=layout, _RC)
-    call ESMF_DELayoutGet(layout, vm=vm, _RC)
-    call ESMF_VmGet(vm, localPet=deId, petCount=nDEs, _RC)
-
-    allocate (AL(gridRank,0:nDEs-1),  _STAT)
-    allocate (AU(gridRank,0:nDEs-1),  _STAT)
-
-    call MAPL_DistGridGet(distgrid, &
-         minIndex=AL, maxIndex=AU, _RC)
-
-    I1 = AL(1, deId)
-    IN = AU(1, deId)
-    !    _ASSERT(gridRank > 1, 'tilegrid is 1d (without RC this only for info')
-    J1 = AL(2, deId)
-    JN = AU(2, deId)
-    deallocate(AU, AL)
-
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_GridGetInterior
 
   !.......................................................................
