@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Combine MAPL_Grid_interior and MAPL_GridgetInterior
 - Update CI to use Baselibs 8.19.0
 - Add gcc15 test
 - Update CI to use organization reusable workflows
