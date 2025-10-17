@@ -9,14 +9,72 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Change a few keyword names in sampler for consistency with HISTORY
-- Fix for NAG + macOS Arm which does not support IEEE halting properly
+- Fix a memory leak in trajectory sampler due to misuage of FieldRegrid which should be FieldRedist
+- Fixed `mapl_acg.cmake` to allow for more than one StateSpecs file per target
+- Fix NVHPC issue with IEEE halting code
 
 ### Added
 - Added updated version of `MAPL_GridCompSpecs_ACG_writer.py`
 
+- Create TilgridIO's outbundle from output grid and deallocate mGriddedIO in History 
+- Added TileGridIO.F90 to output NC4 History file in tile space. The collection's format should be 'CFIO'
+
 ### Changed
 
+- Update CI to use Baselibs 8.19.0
+- Add gcc15 test
+- Update CI to use organization reusable workflows
+
+### Removed
+
+- Removed TileIO.F90. It is integrated into TileGridIO.F90
+
+### Deprecated
+
+## [2.62.1] - 2025-10-14
+
+### Fixed
+
+- Fixed bug when regridding with grid that has PET with no DEs
+
+## [2.62.0] - 2025-09-25
+
+### Fixed
+
+- CMake workaround for ifx 2025.2
+  - NOTE: Requires ESMA_cmake v3.65.0 for ifx 2025.2 support as well as updates in GFE not yet in Baselibs
+
+### Changed
+
+- Update `components.yaml`
+  - `ESMA_env` v5.14.0
+    - Update to Baselibs 8.19.0
+      - esmf 9.0.0b03
+      - curl 8.16.0
+  - `ESMA_cmake` v3.65.0
+    - Workaround for ifx 2025.2
+
+
+## [2.61.0] - 2025-09-18
+
+### Changed
+
+- Added support for ESMF 9
+  - Requires `#ifdef` to support changes in deprecated `ESMF_Attribute` API in ESMF 9
+- Improved some error statements
+
+## [2.60.0] - 2025-09-11
+
+### Fixed
+
+- Fix NRL Solar Constant read routine for cycle-Cycle24 option
+- Change a few keyword names in sampler for consistency with HISTORY
+- Fixes for NVHPC: Move some subroutines in `MAPL_MaskMod` from submodule to module
+- Fix for NAG + macOS Arm which does not support IEEE halting properly
+
+### Changed
+
+- Updated the default `VERSION` in History to `1` (which has been the effective default in `HISTORY.rc` for some time)
 - Update `components.yaml`
   - `ESMA_env` v5.13.0
     - Update to Baselibs 8.18.0
@@ -31,10 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Support for libaec
     - Add `FindISSM.cmake`
 - Update CI to use Baselibs 8.18.0
-
-### Removed
-
-### Deprecated
+- Allow row lookups to return key if key in values (ACG2)
 
 ## [2.59.0] - 2025-08-06
 

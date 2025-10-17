@@ -478,11 +478,7 @@ contains
       integer :: npes_world
       logical :: halting_mode(5)
 
-      logical :: set_halting_allowed = ieee_support_halting(ieee_invalid) .and. &
-         ieee_support_halting(ieee_overflow) .and. &
-         ieee_support_halting(ieee_divide_by_zero) .and. &
-         ieee_support_halting(ieee_underflow) .and. &
-         ieee_support_halting(ieee_inexact)
+      logical :: set_halting_allowed
 
       _UNUSED_DUMMY(unusable)
 
@@ -491,6 +487,12 @@ contains
 
       if (.not. this%mpi_already_initialized) then
          call ESMF_InitializePreMPI(_RC)
+
+         set_halting_allowed = ieee_support_halting(ieee_invalid) .and. &
+            ieee_support_halting(ieee_overflow) .and. &
+            ieee_support_halting(ieee_divide_by_zero) .and. &
+            ieee_support_halting(ieee_underflow) .and. &
+            ieee_support_halting(ieee_inexact)
 
          ! Testing with GCC 14 + MVAPICH 4 found that it was failing with
          ! a SIGFPE in MPI_Init_thread(). Turning off ieee halting

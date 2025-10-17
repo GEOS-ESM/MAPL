@@ -1276,6 +1276,7 @@ contains
     character(len=ESMF_MAXSTR) :: newName_
     character(len=ESMF_MAXSTR), parameter :: Iam='MAPL_FieldCreateNewgrid'
     real, pointer :: ptr1d(:)
+    logical :: has_de
 
     call ESMF_FieldGet(FIELD, grid=fgrid, _RC)
 
@@ -1361,8 +1362,11 @@ contains
     ! otherwise we will overwrite it
     call ESMF_AttributeSet(F, NAME='DIMS', VALUE=DIMS, _RC)
 
-    call assign_fptr(f, ptr1d, _RC)
-    ptr1d = 0.0    
+    has_de = MAPL_GridHasDe(grid, _RC)
+    if (has_de) then
+       call assign_fptr(f, ptr1d, _RC)
+       ptr1d = 0.0
+    end if
 
     _RETURN(ESMF_SUCCESS)
   end function MAPL_FieldCreateNewgrid
@@ -1605,8 +1609,12 @@ contains
        I1 = AL(1, deId)
        IN = AU(1, deId)
        !    _ASSERT(gridRank > 1, 'tilegrid is 1d (without RC this only for info')
-       J1 = AL(2, deId)
-       JN = AU(2, deId)
+       J1 = 1
+       JN = 1
+       if (gridRank > 1) then
+         J1 = AL(2, deId)
+         JN = AU(2, deId)
+       endif
        deallocate(AU, AL, localDeToDeMap)
     end if
 
