@@ -57,7 +57,7 @@ esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared GFT
 target_include_directories (${this} PRIVATE ${MAPL_SOURCE_DIR}/include)
 target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 
-add_subdirectory (demo EXCLUDE_FROM_ALL)
+add_subdirectory (demo)
 if (PFUNIT_FOUND)
   add_subdirectory (tests EXCLUDE_FROM_ALL)
 endif ()
