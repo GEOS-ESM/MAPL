@@ -12,6 +12,7 @@ module mapl3g_GridPFIO
    use MAPL_BaseMod
    use MAPL_FieldPointerUtilities
    use mapl3g_pFIOServerBounds, only: pFIOServerBounds, PFIO_BOUNDS_WRITE, PFIO_BOUNDS_READ
+   use, intrinsic :: iso_c_binding, only: c_loc
 
    implicit none
    private
@@ -22,9 +23,64 @@ module mapl3g_GridPFIO
    contains
       procedure :: stage_data_to_file
       procedure :: request_data_from_file
+      procedure :: stage_coordinates_to_file
    end type GridPFIO
 
 contains
+
+   subroutine stage_coordinates_to_file(this, filename, rc)
+      class(GridPFIO), intent(inout) :: this
+      character(len=*), intent(in) :: filename
+      integer, intent(out), optional :: rc
+
+      integer :: status, collection_id
+      logical :: has_ll
+      type(FileMetadata) :: file_metadata
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: EsmfGeom
+      type(ESMF_Field) :: field
+      integer, allocatable :: local_start(:), global_start(:), global_count(:)
+      integer, allocatable :: element_count(:), new_element_count(:)
+      type(pFIOServerBounds) :: server_bounds
+      type(ESMF_TypeKind_Flag) :: tk
+      type(c_ptr) :: address
+      integer :: type_kind
+      type(ArrayReference) :: ref
+      real(ESMF_Kind_R8), pointer :: coords(:,:)
+
+      file_metadata = this%get_file_metadata()
+      has_ll = file_metadata%has_variable('lons') .and. file_metadata%has_variable('lats') 
+      if (has_ll) then
+         collection_id = this%get_collection_id()
+         EsmfGeom = this%get_esmf_geom()
+         call ESMF_GeomGet(EsmfGeom, grid=grid, _RC)
+         call ESMF_GridGet(grid, coordTypeKind=tk, _RC)
+         field = ESMF_FieldCreate(grid=grid, typekind=tk, _RC)
+         element_count = FieldGetLocalElementCount(field, _RC)
+         server_bounds = pFIOServerBounds(grid, element_count, PFIO_BOUNDS_WRITE, _RC)
+         global_start = server_bounds%get_global_start()
+         global_count = server_bounds%get_global_count()
+         local_start = server_bounds%get_local_start()
+
+         type_kind = esmf_to_pfio_type(tk, _RC)
+         new_element_count = server_bounds%get_file_shape()
+
+         call ESMF_GridGetCoord(grid, 1, farrayPtr=coords, _RC)
+         address = c_loc(coords)
+         ref = ArrayReference(address, type_kind, new_element_count)
+         call o_clients%collective_stage_data(collection_id,filename, 'lons', &
+              ref, start=local_start, global_start=global_start, global_count=global_count)
+
+         call ESMF_GridGetCoord(grid, 2, farrayPtr=coords, _RC)
+         address = c_loc(coords)
+         ref = ArrayReference(address, type_kind, new_element_count)
+         call o_clients%collective_stage_data(collection_id,filename, 'lats', &
+              ref, start=local_start, global_start=global_start, global_count=global_count)
+
+         call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+      end if
+      _RETURN(_SUCCESS)
+   end subroutine stage_coordinates_to_file
 
    subroutine stage_data_to_file(this, bundle, filename, time_index, rc)
       class(GridPFIO), intent(inout) :: this

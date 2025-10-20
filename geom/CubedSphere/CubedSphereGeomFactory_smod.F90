@@ -249,14 +249,16 @@ contains
       ! Coordinate variables
       v = Variable(type=PFIO_REAL64, dimensions='Xdim')
       call v%add_attribute('long_name', 'Fake Longitude for GrADS Compatibility')
-      call v%add_attribute('units', 'degrees_east')
+      !call v%add_attribute('units', 'degrees_east')
+      call v%add_attribute('units', 'index')
       temp_coords = [(i,i=1,im_world)]
       call file_metadata%add_variable('Xdim', CoordinateVariable(v, temp_coords))
       deallocate(temp_coords)
 
       v = Variable(type=PFIO_REAL64, dimensions='Ydim')
       call v%add_attribute('long_name', 'Fake Latitude for GrADS Compatibility')
-      call v%add_attribute('units', 'degrees_north')
+      !call v%add_attribute('units', 'degrees_north')
+      call v%add_attribute('units', 'index')
       temp_coords = [(i,i=1,im_world)] 
       call file_metadata%add_variable('Ydim', CoordinateVariable(v, temp_coords))
       deallocate(temp_coords)
