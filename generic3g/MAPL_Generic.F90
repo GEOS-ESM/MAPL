@@ -52,7 +52,7 @@ module mapl3g_Generic
    use esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
    use esmf, only: ESMF_MAXSTR
    use esmf, only: ESMF_Time, ESMF_TimeInterval, ESMF_TimeIntervalGet, ESMF_Clock, ESMF_ClockGet
-   use esmf, only: ESMF_State, ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD
+   use esmf, only: ESMF_State, ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, ESMF_TypeKind_Flag
    use esmf, only: operator(==)
    use pflogger, only: logger_t => logger
    use gftl2_StringVector, only: StringVector
@@ -523,10 +523,11 @@ contains
         dims, &
         vstagger, &
         ! OPTIONAL
-        ungridded_dims, &
         unusable, &
+        ungridded_dims, &
         units, &
         restart, &
+        typekind, &
         itemType, &
         add_to_export, &
         has_deferred_aspects, &
@@ -542,6 +543,7 @@ contains
       type(UngriddedDim), optional, intent(in) :: ungridded_dims(:)
       character(*), optional, intent(in) :: units
       type(RestartMode), optional, intent(in) :: restart
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       type(ESMF_StateItem_Flag), optional, intent(in) :: itemType
       logical, optional, intent(in) :: add_to_export
       logical, optional, intent(in) :: has_deferred_aspects
@@ -570,6 +572,7 @@ contains
            standard_name=standard_name, &
            units=units_, &
            itemType=itemType, &
+           typekind=typekind, &
            vertical_stagger=vstagger, &
            ungridded_dims=dim_specs_vec, &
            horizontal_dims_spec=horizontal_dims_spec, &

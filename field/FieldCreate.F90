@@ -47,7 +47,7 @@ contains
       type(ESMF_Geom), intent(in) :: geom
       type(ESMF_TypeKind_Flag), intent(in) :: typekind
       class(KeywordEnforcer), optional, intent(in) :: unusable
-        character(*), optional, intent(in) :: name
+      character(*), optional, intent(in) :: name
       integer, optional, intent(in) :: gridToFieldMap(:)
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       integer, optional, intent(in) :: num_levels
@@ -57,14 +57,18 @@ contains
       character(len=*), optional, intent(in) :: long_name
       integer, optional, intent(out) :: rc
 
+      type(UngriddedDims) :: ungrd
       integer :: status
 
       field = MAPL_FieldEmptyCreate(name=name, _RC)
       call vertical_level_sanity_check(num_levels, vert_staggerloc, _RC)
 
+      ungrd = UngriddedDims()
+      if (present(ungridded_dims)) ungrd = ungridded_dims
+
       call ESMF_FieldEmptySet(field, geom=geom, _RC)
       call MAPL_FieldEmptyComplete(field, &
-           typekind=typekind, gridToFieldMap=gridToFieldMap, ungridded_dims=ungridded_dims, &
+           typekind=typekind, gridToFieldMap=gridToFieldMap, ungridded_dims=ungrd, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
            units=units, standard_name=standard_name, long_name=long_name, &
            _RC)
