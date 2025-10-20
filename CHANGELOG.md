@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Removed obsolte a pfio test
+- Removed obsolete pfio test
 - Fix a memory leak in trajectory sampler due to misuage of FieldRegrid which should be FieldRedist
 - Fixed `mapl_acg.cmake` to allow for more than one StateSpecs file per target
 - Fix NVHPC issue with IEEE halting code
