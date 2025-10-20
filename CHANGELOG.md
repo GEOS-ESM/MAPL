@@ -15,12 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Create TilgridIO's outbundle from output grid and deallocate mGriddedIO in History 
+- Create TilgridIO's outbundle from output grid and deallocate mGriddedIO in History
 - Added TileGridIO.F90 to output NC4 History file in tile space. The collection's format should be 'CFIO'
 
 ### Changed
 
-- Update CI to use Baselibs 8.19.0
+- Update CI to use Baselibs 8.20.0
 - Add gcc15 test
 - Update CI to use organization reusable workflows
 
