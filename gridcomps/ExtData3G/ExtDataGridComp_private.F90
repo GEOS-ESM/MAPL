@@ -40,8 +40,9 @@ contains
          is_seq = ESMF_HConfigIsSequence(hconfig, keyString='subconfigs') 
          sub_configs = ESMF_HConfigAsStringSeq(hconfig, ESMF_MAXPATHLEN, keystring='subconfigs', _RC)
          do i=1,size(sub_configs)
+            inquire(file=trim(sub_configs(i)), exist=file_found)
             _ASSERT(file_found,"could not find: "//trim(sub_configs(i)))
-            sub_config = ESMF_HConfigCreate(filename=sub_configs(i), _RC)
+            sub_config = ESMF_HConfigCreate(filename=trim(sub_configs(i)), _RC)
             call add_var_specs(gridcomp, sub_config, _RC)
          enddo
       end if

@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_FieldBundleGet
+   use mapl3g_VerticalGrid_API
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use mapl3g_Field_API

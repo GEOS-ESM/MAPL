@@ -2,6 +2,7 @@
 
 module mapl3g_VerticalRegridTransform
    use mapl3g_TransformId
+   use mapl3g_Field_API
    use mapl_ErrorHandling
    use mapl3g_FieldBundle_API
    use mapl3g_StateItem
@@ -9,6 +10,7 @@ module mapl3g_VerticalRegridTransform
    use mapl3g_ComponentDriver
    use mapl3g_CouplerPhases, only: GENERIC_COUPLER_UPDATE
    use mapl3g_VerticalRegridMethod
+   use mapl3g_VerticalStaggerLoc
    use mapl3g_VerticalLinearMap, only: compute_linear_map
    use mapl3g_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp, matmul
    use mapl3g_FieldCondensedArray, only: assign_fptr_condensed_array
@@ -28,18 +30,18 @@ module mapl3g_VerticalRegridTransform
    ! with real32 and real64 matrices, respectively.
    type, extends(ExtensionTransform) :: VerticalRegridTransform
       type(ESMF_Field) :: v_in_coord, v_out_coord
-      type(SparseMatrix_sp), allocatable :: matrix_sp(:)
-      type(SparseMatrix_dp), allocatable :: matrix_dp(:)
+      type(SparseMatrix_sp), allocatable :: matrix(:)
       class(ComponentDriver), pointer :: v_in_coupler => null()
       class(ComponentDriver), pointer :: v_out_coupler => null()
       type(VerticalRegridMethod) :: method = VERTICAL_REGRID_UNKNOWN
+      type(VerticalStaggerLoc) :: stagger_in
+      type(VerticalStaggerLoc) :: stagger_out
    contains
       procedure :: initialize
       procedure :: update
       procedure :: get_transformId
       procedure :: write_formatted
       generic :: write(formatted) => write_formatted
-      procedure :: get_typekind
    end type VerticalRegridTransform
 
    interface VerticalRegridTransform
@@ -48,12 +50,14 @@ module mapl3g_VerticalRegridTransform
 
 contains
 
-   function new_VerticalRegridTransform(v_in_coord, v_in_coupler, v_out_coord, v_out_coupler, method) result(transform)
+   function new_VerticalRegridTransform(v_in_coord, v_in_coupler, stagger_in, v_out_coord, v_out_coupler, stagger_out, method) result(transform)
       type(VerticalRegridTransform) :: transform
       type(ESMF_Field), intent(in) :: v_in_coord
       class(ComponentDriver), pointer, intent(in) :: v_in_coupler
+      type(VerticalStaggerLoc), intent(in) :: stagger_in
       type(ESMF_Field), intent(in) :: v_out_coord
       class(ComponentDriver), pointer, intent(in) :: v_out_coupler
+      type(VerticalStaggerLoc), intent(in) :: stagger_out
       type(VerticalRegridMethod), optional, intent(in) :: method
 
       transform%v_in_coord = v_in_coord
@@ -61,6 +65,9 @@ contains
 
       transform%v_in_coupler => v_in_coupler
       transform%v_out_coupler => v_out_coupler
+
+      transform%stagger_in = stagger_in
+      transform%stagger_out = stagger_out
 
       if (present(method)) then
          transform%method = method
@@ -105,10 +112,8 @@ contains
       !    call this%v_out_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
       ! end if
 
-      ! The interpolation matrix is currently real32. It may need to be real64
-      ! if the ESMF_Field's are ESMF_KIND_R8.
-
-      call compute_interpolation_matrix_(this%v_in_coord, this%v_out_coord, this%matrix_sp, _RC)
+      _ASSERT(this%method == VERTICAL_REGRID_LINEAR, "conservative not supported (yet)")
+      call compute_interpolation_matrix_(this%v_in_coord, this%stagger_in, this%v_out_coord, this%stagger_out, this%matrix, _RC)
 
       call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, itemtype=itemtype_in, _RC)
       call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, itemtype=itemtype_out, _RC)
@@ -159,15 +164,19 @@ contains
 
    end subroutine write_formatted
 
-   subroutine compute_interpolation_matrix_(v_in_coord, v_out_coord, matrix, rc)
+   subroutine compute_interpolation_matrix_(v_in_coord, stagger_in, v_out_coord, stagger_out, matrix, rc)
       type(ESMF_Field), intent(inout) :: v_in_coord
+      type(VerticalStaggerLoc), intent(in) :: stagger_in
       type(ESMF_Field), intent(inout) :: v_out_coord
+      type(VerticalStaggerLoc), intent(in) :: stagger_out
       type(SparseMatrix_sp), allocatable, intent(out) :: matrix(:)
       integer, optional, intent(out) :: rc
 
       real(ESMF_KIND_R4), pointer :: v_in(:, :, :), v_out(:, :, :)
       integer :: shape_in(3), shape_out(3), n_horz, n_ungridded
       integer :: horz, ungrd, status
+      type(VerticalStaggerLoc) :: grid_stagger
+      real(ESMF_KIND_R4), allocatable :: vv_in(:, :, :), vv_out(:, :, :)
 
       call assign_fptr_condensed_array(v_in_coord, v_in, _RC)
       shape_in = shape(v_in)
@@ -179,12 +188,17 @@ contains
       _ASSERT((shape_in(1) == shape_out(1)), "horz dims are expected to be equal")
       _ASSERT((shape_in(3) == shape_out(3)), "ungridded dims are expected to be equal")
 
+      call mapl_FieldGet(v_in_coord, vert_staggerloc=grid_stagger, _RC)
+      vv_in = adjust_coords(v_in, grid_stagger, stagger_in, _RC)
+      call mapl_FieldGet(v_out_coord, vert_staggerloc=grid_stagger, _RC)
+      vv_out = adjust_coords(v_out, grid_stagger, stagger_out, _RC)
+
       allocate(matrix(n_horz))
 
       ! TODO: Convert to a `do concurrent` loop
       do horz = 1, n_horz
          do ungrd = 1, n_ungridded
-            associate(src => v_in(horz, :, ungrd), dst => v_out(horz, :, ungrd))
+            associate(src => vv_in(horz, :, ungrd), dst => vv_out(horz, :, ungrd))
               call compute_linear_map(src, dst, matrix(horz), _RC)
             end associate
          end do
@@ -192,6 +206,31 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine compute_interpolation_matrix_
+
+   function adjust_coords(v, grid_stagger, field_stagger, rc) result(vv)
+      real(kind=ESMF_KIND_R4), allocatable :: vv(:,:,:)
+      real(kind=ESMF_KIND_R4), intent(in) :: v(:,:,:)
+      type(VerticalStaggerLoc), intent(in) :: grid_stagger
+      type(VerticalStaggerLoc), intent(in) :: field_stagger
+      integer, optional, intent(out)  :: rc
+
+      integer :: status
+      integer :: n
+
+      if (grid_stagger == field_stagger) then
+         vv = v
+         _RETURN(_SUCCESS)
+      end if
+
+      if (grid_stagger == VERTICAL_STAGGER_EDGE) then
+         n = size(v,2)
+         vv = (v(:,1:n-1,:) + v(:,2:n,:)) / 2
+         _RETURN(_SUCCESS)
+      end if
+
+      allocate(vv(0,0,0))
+      _FAIL("Cannot have edge variable on centered vertical grid.")
+   end function adjust_coords
 
    subroutine regrid_field_(matrix, f_in, f_out, rc)
       type(SparseMatrix_sp), allocatable, intent(in) :: matrix(:)

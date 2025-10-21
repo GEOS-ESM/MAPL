@@ -129,6 +129,7 @@ contains
          keyVal = ESMF_HConfigAsStringMapVal(iter, _RC)
          call support%fillDefs%insert(key, keyVal) 
       enddo 
+     
       call ESMF_ClockGet(clock, currTime=current_time, _RC)
       call support%tFunc%init_time(hconfig, current_time, _RC)
       

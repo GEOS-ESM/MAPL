@@ -806,7 +806,7 @@ contains
       type(StateItemSpec), pointer :: last_spec, new_spec
 
       family => registry%get_extension_family(v_pt, _RC)
-      
+
       closest_extension => family%find_closest_extension(goal_spec, _RC)
       iter_count = 0
       do

@@ -1,0 +1,125 @@
+module Test_VerticalStaggerLoc
+   use pfunit
+   use mapl3g_VerticalStaggerLoc
+   implicit none
+
+contains
+
+
+   @test
+   subroutine test_predefined_stagger_constants()
+      @assertEqual("VERTICAL_STAGGER_NONE", VERTICAL_STAGGER_NONE%to_string(), 'NONE constant name should match')
+      @assertEqual("VERTICAL_STAGGER_EDGE", VERTICAL_STAGGER_EDGE%to_string(), 'EDGE constant name should match')
+      @assertEqual("VERTICAL_STAGGER_CENTER", VERTICAL_STAGGER_CENTER%to_string(), 'CENTER constant name should match')
+      @assertEqual("VERTICAL_STAGGER_MIRROR", VERTICAL_STAGGER_MIRROR%to_string(), 'MIRROR constant name should match')
+   end subroutine test_predefined_stagger_constants
+
+
+   @test
+   subroutine test_dimension_names()
+      @assertEqual("", VERTICAL_STAGGER_NONE%get_dimension_name(), 'NONE dimension should be empty')
+      @assertEqual("edge", VERTICAL_STAGGER_EDGE%get_dimension_name(), 'EDGE dimension should match')
+      @assertEqual("lev", VERTICAL_STAGGER_CENTER%get_dimension_name(), 'CENTER dimension should match')
+      @assertEqual("mirror", VERTICAL_STAGGER_MIRROR%get_dimension_name(), 'MIRROR dimension should match')
+   end subroutine test_dimension_names
+
+
+   @test
+   subroutine test_num_levels_none()
+      integer, parameter :: vgrid_levels = 72
+      integer :: num_levels
+      
+      num_levels = VERTICAL_STAGGER_NONE%get_num_levels(vgrid_levels)
+      @assert_that('NONE stagger should have 0 levels', num_levels, is(0))
+   end subroutine test_num_levels_none
+
+
+   @test
+   subroutine test_num_levels_edge()
+      integer, parameter :: vgrid_levels = 72
+      integer :: num_levels
+      
+      num_levels = VERTICAL_STAGGER_EDGE%get_num_levels(vgrid_levels)
+      @assert_that('EDGE stagger should have same number of levels', num_levels, is(vgrid_levels))
+   end subroutine test_num_levels_edge
+
+
+   @test
+   subroutine test_num_levels_center()
+      integer, parameter :: vgrid_levels = 72
+      integer :: num_levels
+      
+      num_levels = VERTICAL_STAGGER_CENTER%get_num_levels(vgrid_levels)
+      @assert_that('CENTER stagger should have one less level', num_levels, is(vgrid_levels - 1))
+   end subroutine test_num_levels_center
+
+
+   @test
+   subroutine test_num_levels_mirror()
+      integer, parameter :: vgrid_levels = 72
+      integer :: num_levels
+      
+      num_levels = VERTICAL_STAGGER_MIRROR%get_num_levels(vgrid_levels)
+      @assert_that('MIRROR stagger should have same number of levels', num_levels, is(vgrid_levels))
+   end subroutine test_num_levels_mirror
+
+
+   @test
+   subroutine test_equality_same_type()
+      logical :: are_equal
+      
+      are_equal = (VERTICAL_STAGGER_CENTER == VERTICAL_STAGGER_CENTER)
+      @assert_that('Same stagger types should be equal', are_equal, is(.true.))
+      
+      are_equal = (VERTICAL_STAGGER_EDGE == VERTICAL_STAGGER_CENTER)
+      @assert_that('Different stagger types should not be equal', are_equal, is(.false.))
+   end subroutine test_equality_same_type
+
+
+   @test
+   subroutine test_equality_with_mirror()
+      logical :: are_equal
+      
+      ! Mirror should be compatible with other types
+      are_equal = (VERTICAL_STAGGER_MIRROR == VERTICAL_STAGGER_CENTER)
+      @assert_that('MIRROR should be compatible with CENTER', are_equal, is(.true.))
+      
+      are_equal = (VERTICAL_STAGGER_CENTER == VERTICAL_STAGGER_MIRROR)
+      @assert_that('CENTER should be compatible with MIRROR', are_equal, is(.true.))
+   end subroutine test_equality_with_mirror
+
+
+   @test
+   subroutine test_inequality()
+      logical :: are_not_equal
+      
+      are_not_equal = (VERTICAL_STAGGER_EDGE /= VERTICAL_STAGGER_CENTER)
+      @assert_that('Different staggers should be not equal', are_not_equal, is(.true.))
+      
+      are_not_equal = (VERTICAL_STAGGER_CENTER /= VERTICAL_STAGGER_CENTER)
+      @assert_that('Same staggers should not be not equal', are_not_equal, is(.false.))
+   end subroutine test_inequality
+
+
+   @test
+   subroutine test_constructor_valid_names()
+      type(VerticalStaggerLoc) :: stagger
+      
+      stagger = VerticalStaggerLoc("VERTICAL_STAGGER_EDGE")
+      @assert_that('Valid name should create correct stagger', stagger == VERTICAL_STAGGER_EDGE, is(.true.))
+      
+      stagger = VerticalStaggerLoc("VERTICAL_STAGGER_CENTER") 
+      @assert_that('Valid name should create correct stagger', stagger == VERTICAL_STAGGER_CENTER, is(.true.))
+   end subroutine test_constructor_valid_names
+
+
+   @test
+   subroutine test_constructor_invalid_name()
+      type(VerticalStaggerLoc) :: stagger
+      
+      stagger = VerticalStaggerLoc("INVALID_NAME")
+      @assert_that('Invalid name should create INVALID stagger', stagger == VERTICAL_STAGGER_INVALID, is(.true.))
+   end subroutine test_constructor_invalid_name
+
+end module Test_VerticalStaggerLoc
+

@@ -1450,7 +1450,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,_RC)
                   call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,_RC)
                   p_src= reshape(p_acc_3d,shape(p_src), order=[2,1])
-                  call ESMF_FieldRegrid(src_field,dst_field,RH,_RC)
+                  call ESMF_FieldRedist(src_field,dst_field,RH,_RC)
 
                   if (this%level_by_level) then
                      ! p_dst (lm, nx)

@@ -249,8 +249,6 @@ contains
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _ASSERT(fstatus == ESMF_FIELDSTATUS_COMPLETE, 'ESMF field status problem.')
 
-      ! Set field to zero, override with default_value, if provided
-      call FieldSet(this%payload, 0., _RC)
       if (allocated(this%default_value)) then
          call FieldSet(this%payload, this%default_value, _RC)
       end if

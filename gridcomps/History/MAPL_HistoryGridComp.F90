@@ -46,6 +46,8 @@
   use MAPL_VerticalDataMod
   use MAPL_TimeDataMod
   use mapl_RegridMethods
+  use MAPL_GriddedIOMod
+  use MAPL_TileGridIOMod
   use MAPL_GriddedIOitemVectorMod
   use MAPL_GriddedIOitemMod
   use pFIO_ClientManagerMod, only: o_Clients
@@ -287,7 +289,7 @@ contains
     character(len=ESMF_MAXSTR)     :: string
     character(len=ESMF_MAXSTR)     :: tmpstring
     character(len=ESMF_MAXSTR)     :: tilefile
-    character(len=ESMF_MAXSTR)     :: gridname
+    character(len=ESMF_MAXSTR)     :: gridname, gname_tmp
     character(len=MAPL_TileNameLength), pointer :: gnames(:)
     integer                        :: L, LM
     integer                        :: NG
@@ -1589,7 +1591,7 @@ contains
        enddo
     else
        do n=1,nstatelist
-          call MAPL_ExportStateGet ( exptmp,statelist(n),export(n),_RC )
+          call MAPL_ExportStateGet ( exptmp,statelist(n),export(n), rc=status)
           call ESMF_VMAllReduce(vm, sendData=status, recvData=globalStatus, &
                reduceflag=ESMF_REDUCE_MAX, rc=localStatus)
 
@@ -2572,6 +2574,14 @@ ENDDO PARSER
              call list(n)%xsampler%set_param(regrid_method=list(n)%regrid_method,_RC)
              call list(n)%xsampler%set_param(itemOrder=intState%fileOrderAlphabetical,_RC)
              call Hsampler%verify_epoch_equals_freq (list(n)%frequency, list(n)%output_grid_label, _RC)
+          endif
+          call ESMF_FieldBundleGet(list(n)%bundle, grid=grid_In, _RC)
+          call ESMF_GridGet(grid_In, name=gname_tmp, _RC)
+          ! for tilegrid, do not assign label
+          if (index(gname_tmp, 'tile_grid') /=0 .and. list(n)%output_grid_label =='' ) then
+            allocate(list(n)%mGriddedIO, source = MAPL_TileGridIO())
+          else
+            allocate(list(n)%mGriddedIO, source = MAPL_GriddedIO())
           endif
 
           call list(n)%mGriddedIO%set_param(deflation=list(n)%deflate,_RC)
@@ -4064,6 +4074,8 @@ ENDDO PARSER
     do n=1,nlist
        if (list(n)%sampler_type == 'mask') then
           call list(n)%mask_sampler%finalize(_RC)
+       elseif (list(n)%sampler_type == 'station') then
+          call list(n)%station_sampler%finalize(_RC)
        end if
     end do
 
@@ -4077,6 +4089,10 @@ ENDDO PARSER
          if( MAPL_CFIOIsCreated(list(n)%mcfio) ) then
             CALL MAPL_CFIOdestroy (list(n)%mcfio, _RC)
          end if
+         if (allocated(list(n)%mGriddedIO)) then
+            call list(n)%mGriddedIO%destroy()
+            deallocate(list(n)%mGriddedIO)
+         endif
       ELSE
          if( list(n)%unit.ne.0 ) call FREE_FILE( list(n)%unit )
       END if

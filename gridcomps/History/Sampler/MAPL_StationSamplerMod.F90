@@ -59,6 +59,7 @@ module StationSamplerMod
      procedure                      :: get_file_start_time
      procedure                      :: compute_time_for_current
      procedure                      :: create_variable => create_metadata_variable
+     procedure                      :: finalize
   end type StationSampler
 
   interface StationSampler
@@ -408,6 +409,7 @@ contains
     call ESMF_FieldBundleGet(bundle,grid=grid,_RC)
     this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)
 
+
     !__ 4. route handle  LS_ds --> LS_chunk
     !
     src_field = ESMF_FieldCreate(this%LS_ds,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1],_RC)
@@ -743,6 +745,15 @@ contains
     end if
     _RETURN(_SUCCESS)
   end subroutine close_file_handle
+
+  subroutine finalize(this,rc)
+    class(StationSampler), intent(inout) :: this
+    integer, optional, intent(out) :: rc
+    integer :: status
+    call ESMF_FieldRedistRelease(this%RH, noGarbage=.true., _RC)
+    call this%regridder%destroy(_RC)
+    _RETURN(_SUCCESS)
+  end subroutine finalize
 
 
   function compute_time_for_current(this,current_time,rc) result(rtimes)

@@ -16,7 +16,7 @@ parameters:
 
 # Anchors to prevent forgetting to update a version
 os_version: &os_version ubuntu24
-baselibs_version: &baselibs_version v8.19.0
+baselibs_version: &baselibs_version v8.20.0
 bcs_version: &bcs_version v11.6.0
 tag_build_arg_name: &tag_build_arg_name maplversion
 
@@ -100,8 +100,10 @@ workflows:
           repo: GEOSgcm
           checkout_fixture: true
           fixture_branch: release/MAPL-v3
-          mepodevelop: true
-          checkout_mapl3_release_branch: true
+          mepodevelop: false
+          # MAPL3 GEOSgcm should have the right branches in its components.yaml
+          # so we do not need to checkout MAPL3 release branches
+          checkout_mapl3_release_branch: false
           checkout_mapl_branch: true
           persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
 
@@ -153,7 +155,7 @@ workflows:
   #         mepodevelop: false                            #
   #         checkout_fixture: true                        #
   #         fixture_branch: release/MAPL-v3               #
-  #         checkout_mapl3_release_branch: true           #
+  #         checkout_mapl3_release_branch: false          #
   #         checkout_mapl_branch: true                    #
   #########################################################
 
@@ -173,7 +175,7 @@ workflows:
   #         repo: GEOSadas                                             #
   #         checkout_fixture: true                                     #
   #         fixture_branch: release/MAPL-v3                            #
-  #         checkout_mapl3_release_branch: true                        #
+  #         checkout_mapl3_release_branch: false                       #
   #         checkout_mapl_branch: true                                 #
   #         mepodevelop: false                                         #
   #         rebuild_procs: 4                                           #
@@ -213,9 +215,9 @@ workflows:
           baselibs_version: *baselibs_version
           container_name: mapl
           mpi_name: intelmpi
-          mpi_version: "2021.15"
+          mpi_version: "2021.16"
           compiler_name: ifx
-          compiler_version: "2025.1"
+          compiler_version: "2025.2"
           image_name: geos-env
           tag_build_arg_name: *tag_build_arg_name
       - ci/publish_docker:
