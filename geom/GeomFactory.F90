@@ -23,6 +23,7 @@ module mapl3g_GeomFactory
       procedure(I_make_geom), deferred :: make_geom
       procedure(I_make_file_metadata), deferred :: make_file_metadata
       procedure(I_make_gridded_dims), deferred :: make_gridded_dims
+      procedure(I_make_variable_attributes), deferred :: make_variable_attributes
    end type GeomFactory
 
 
@@ -90,6 +91,18 @@ module mapl3g_GeomFactory
          class(GeomSpec), intent(in) :: geom_spec
          integer, optional, intent(out) :: rc
       end function I_make_gridded_dims
+
+      function I_make_variable_attributes(this, geom_spec, rc) result(variable_attributes)
+         use mapl3g_GeomSpec
+         use gFTL2_StringStringMap
+         import GeomFactory
+         implicit none
+
+         type(StringStringMap) :: variable_attributes
+         class(GeomFactory), intent(in) :: this
+         class(GeomSpec), intent(in) :: geom_spec
+         integer, optional, intent(out) :: rc
+      end function I_make_variable_attributes
 
       logical function I_supports_spec(this, geom_spec) result(supports)
          use mapl3g_GeomSpec

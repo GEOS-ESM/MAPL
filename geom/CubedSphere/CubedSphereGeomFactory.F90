@@ -6,6 +6,7 @@ module mapl3g_CubedSphereGeomFactory
    use mapl3g_CubedSphereGeomSpec
    use mapl_KeywordEnforcerMod
    use gftl2_StringVector
+   use gftl2_StringStringMap
    use pfio
    use esmf
    implicit none
@@ -25,6 +26,7 @@ module mapl3g_CubedSphereGeomFactory
       procedure :: make_geom
       procedure :: make_file_metadata
       procedure :: make_gridded_dims
+      procedure :: make_variable_attributes
 
       ! Helper methods
    end type CubedSphereGeomFactory
@@ -99,6 +101,12 @@ module mapl3g_CubedSphereGeomFactory
          integer, optional, intent(out) :: rc
       end function make_gridded_dims
 
+      module function make_variable_attributes(this, geom_spec, rc) result(variable_attributes)
+         type(StringStringMap) :: variable_attributes
+         class(CubedSphereGeomFactory), intent(in) :: this
+         class(GeomSpec), intent(in) :: geom_spec
+         integer, optional, intent(out) :: rc
+      end function make_variable_attributes
 
       module function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
          use mapl_KeywordEnforcerMod

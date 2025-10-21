@@ -7,6 +7,7 @@ module mapl3g_MaplGeom
    use pfio_FileMetadataMod, only: FileMetadata
    use ESMF, only: ESMF_Geom
    use gftl2_StringVector
+   use gftl2_StringStringMap
    implicit none
    private
 
@@ -28,6 +29,7 @@ module mapl3g_MaplGeom
       class(GeomFactory), allocatable :: factory
       type(FileMetadata) :: file_metadata
       type(StringVector) :: gridded_dims ! center staggered
+      type(StringStringMap) :: variable_attributes
 
       ! Derived - lazy initialization
       type(VectorBases) :: bases
@@ -39,6 +41,7 @@ module mapl3g_MaplGeom
 !!$      procedure :: get_grid
       procedure :: get_file_metadata
       procedure :: get_gridded_dims
+      procedure :: get_variable_attributes
 
       ! Only used by regridder
       procedure :: get_basis
@@ -49,13 +52,14 @@ module mapl3g_MaplGeom
    end interface MaplGeom
 
    interface 
-      module function new_MaplGeom(spec, geom, factory, file_metadata, gridded_dims) result(mapl_geom)
+      module function new_MaplGeom(spec, geom, factory, file_metadata, gridded_dims, variable_attributes) result(mapl_geom)
          class(GeomSpec), intent(in) :: spec
          type(MaplGeom) :: mapl_geom
          type(ESMF_Geom), intent(in) :: geom
          class(GeomFactory), intent(in) :: factory
          type(FileMetadata), optional, intent(in) :: file_metadata
          type(StringVector), optional, intent(in) :: gridded_dims
+         type(StringStringMap), optional, intent(in) :: variable_attributes
       end function new_MaplGeom
 
       module subroutine set_id(this, id, rc)
@@ -88,6 +92,11 @@ module mapl3g_MaplGeom
          type(StringVector) :: gridded_dims
          class(MaplGeom), intent(in) :: this
       end function get_gridded_dims
+
+      module function get_variable_attributes(this) result(variable_attributes)
+         type(StringStringMap) :: variable_attributes
+         class(MaplGeom), intent(in) :: this
+      end function get_variable_attributes
 
       recursive module function get_basis(this, mode, rc) result(basis)
          type(VectorBasis), pointer :: basis

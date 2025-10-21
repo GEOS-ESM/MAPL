@@ -20,6 +20,7 @@ module mapl3g_GridPFIO
    public :: GridPFIO
    type, extends (GeomPFIO) :: GridPFIO
       private
+      real(ESMF_KIND_R8), allocatable :: lons(:,:), lats(:,:), corner_lons(:,:), corner_lats(:,:)
    contains
       procedure :: stage_data_to_file
       procedure :: request_data_from_file
@@ -40,11 +41,10 @@ contains
       type(ESMF_Geom) :: EsmfGeom
       type(ESMF_Field) :: field
       integer, allocatable :: local_start(:), global_start(:), global_count(:)
-      integer, allocatable :: element_count(:), new_element_count(:)
+      integer, allocatable :: element_count(:)
       type(pFIOServerBounds) :: server_bounds
       type(ESMF_TypeKind_Flag) :: tk
       type(c_ptr) :: address
-      integer :: type_kind
       type(ArrayReference) :: ref
       real(ESMF_Kind_R8), pointer :: coords(:,:)
 
@@ -62,19 +62,52 @@ contains
          global_count = server_bounds%get_global_count()
          local_start = server_bounds%get_local_start()
 
-         type_kind = esmf_to_pfio_type(tk, _RC)
-         new_element_count = server_bounds%get_file_shape()
-
          call ESMF_GridGetCoord(grid, 1, farrayPtr=coords, _RC)
-         address = c_loc(coords)
-         ref = ArrayReference(address, type_kind, new_element_count)
+         if (allocated(this%lons)) deallocate(this%lons)
+         allocate(this%lons(size(coords,1), size(coords,2)), _STAT)
+         this%lons = coords*MAPL_RADIANS_TO_DEGREES
+         ref = ArrayReference(this%lons)
          call o_clients%collective_stage_data(collection_id,filename, 'lons', &
               ref, start=local_start, global_start=global_start, global_count=global_count)
 
          call ESMF_GridGetCoord(grid, 2, farrayPtr=coords, _RC)
-         address = c_loc(coords)
-         ref = ArrayReference(address, type_kind, new_element_count)
+         if (allocated(this%lats)) deallocate(this%lats)
+         allocate(this%lats(size(coords,1), size(coords,2)), _STAT)
+         this%lats = coords*MAPL_RADIANS_TO_DEGREES
+         ref = ArrayReference(this%lats)
          call o_clients%collective_stage_data(collection_id,filename, 'lats', &
+              ref, start=local_start, global_start=global_start, global_count=global_count)
+
+         call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+      end if
+
+      has_ll = file_metadata%has_variable('corner_lons') .and. file_metadata%has_variable('corner_lats') 
+      if (has_ll) then
+         collection_id = this%get_collection_id()
+         EsmfGeom = this%get_esmf_geom()
+         call ESMF_GeomGet(EsmfGeom, grid=grid, _RC)
+         call ESMF_GridGet(grid, coordTypeKind=tk, _RC)
+         field = ESMF_FieldCreate(grid=grid, typekind=tk, staggerLoc=ESMF_STAGGERLOC_CORNER, _RC)
+         element_count = FieldGetLocalElementCount(field, _RC)
+         server_bounds = pFIOServerBounds(grid, element_count, PFIO_BOUNDS_WRITE, _RC)
+         global_start = server_bounds%get_corner_global_start()
+         global_count = server_bounds%get_corner_global_count()
+         local_start = server_bounds%get_corner_local_start()
+
+         call ESMF_GridGetCoord(grid, 1, farrayPtr=coords, staggerloc=ESMF_STAGGERLOC_CORNER, _RC)
+         if (allocated(this%corner_lats)) deallocate(this%corner_lats)
+         allocate(this%corner_lons(size(coords,1), size(coords,2)), _STAT)
+         this%corner_lons = coords*MAPL_RADIANS_TO_DEGREES
+         ref = ArrayReference(this%corner_lons)
+         call o_clients%collective_stage_data(collection_id,filename, 'corner_lons', &
+              ref, start=local_start, global_start=global_start, global_count=global_count)
+
+         call ESMF_GridGetCoord(grid, 2, farrayPtr=coords, staggerloc=ESMF_STAGGERLOC_CORNER, _RC)
+         if (allocated(this%corner_lats)) deallocate(this%corner_lats)
+         allocate(this%corner_lats(size(coords,1), size(coords,2)), _STAT)
+         this%corner_lats = coords*MAPL_RADIANS_TO_DEGREES
+         ref = ArrayReference(this%corner_lats)
+         call o_clients%collective_stage_data(collection_id,filename, 'corner_lats', &
               ref, start=local_start, global_start=global_start, global_count=global_count)
 
          call ESMF_FieldDestroy(field, noGarbage=.true., _RC)

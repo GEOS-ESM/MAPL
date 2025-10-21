@@ -8,6 +8,7 @@ contains
    
    module function make_mapl_geom_from_spec(this, spec, rc) result(mapl_geom)
       use gftl2_StringVector
+      use gftl2_StringStringMap
       type(MaplGeom) :: mapl_geom
       class(GeomManager), target, intent(inout) :: this
       class(GeomSpec), intent(in) :: spec
@@ -19,6 +20,7 @@ contains
       type(ESMF_Geom) :: geom
       type(FileMetadata) :: file_metadata
       type(StringVector) :: gridded_dims
+      type(StringStringMap) :: variable_attributes
       logical :: found
 
       found = .false.
@@ -34,7 +36,8 @@ contains
       geom = factory%make_geom(spec, _RC)
       file_metadata = factory%make_file_metadata(spec, _RC)
       gridded_dims = factory%make_gridded_dims(spec, _RC)
-      mapl_geom = MaplGeom(spec=spec, geom=geom, factory=factory, file_metadata=file_metadata, gridded_dims=gridded_dims)
+      variable_attributes = factory%make_variable_attributes(spec, _RC)
+      mapl_geom = MaplGeom(spec=spec, geom=geom, factory=factory, file_metadata=file_metadata, gridded_dims=gridded_dims, variable_attributes=variable_attributes)
 
       _RETURN(_SUCCESS)
    end function make_mapl_geom_from_spec

@@ -9,6 +9,7 @@ module mapl3g_SharedIO
    use pfio, only: FileMetaData, Variable, UnlimitedEntity
    use pfio, only: PFIO_UNLIMITED, PFIO_REAL32, PFIO_REAL64
    use gFTL2_StringVector
+   use gFTL2_StringStringMap
    use gFTL2_StringSet
    use mapl3g_Geom_API
    use MAPL_BaseMod
@@ -98,10 +99,16 @@ contains
       character(len=:), allocatable :: long_name
       character(len=:), allocatable :: standard_name
 
-      type(ESMF_Geom) :: geom
+      type(ESMF_Geom) :: esmfgeom
       integer :: pfio_type
+      type(MAPLGeom), pointer :: mapl_geom
+      type(StringStringMap) :: extra_attributes
+      type(StringStringMapIterator) :: s_iter
+      character(len=:), pointer :: attr_name, attr_val
 
-      variable_dim_names = get_variable_dim_names(field, geom, _RC)
+      variable_dim_names = get_variable_dim_names(field, _RC)
+      call ESMF_FieldGet(field, geom=esmfgeom, _RC)
+      mapl_geom => get_mapl_geom(esmfgeom, _RC)
       call MAPL_FieldGet(field, short_name=short_name, typekind=typekind, _RC)
       pfio_type = esmf_to_pfio_type(typekind ,_RC)
       v = Variable(type=pfio_type, dimensions=variable_dim_names)
@@ -118,15 +125,23 @@ contains
          call v%add_attribute('standard_name', standard_name)
       end if
 
+      extra_attributes = mapl_geom%get_variable_attributes()
+      s_iter = extra_attributes%begin()
+      do while(s_iter /= extra_attributes%end())
+         attr_name => s_iter%first()
+         attr_val => s_iter%second()
+         call v%add_attribute(attr_name, attr_val)
+         call s_iter%next()
+      enddo
+
       call metadata%add_variable(short_name, v, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine add_variable
 
-   function get_variable_dim_names(field, geom, rc) result(dim_names)
+   function get_variable_dim_names(field, rc) result(dim_names)
       character(len=:), allocatable :: dim_names
       type(ESMF_Field), intent(in) :: field
-      type(ESMF_Geom), intent(in) :: geom
       integer, optional, intent(out) :: rc
 
       type(MAPLGeom), pointer :: mapl_geom
