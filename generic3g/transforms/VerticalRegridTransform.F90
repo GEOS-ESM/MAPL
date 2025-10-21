@@ -23,9 +23,13 @@ module mapl3g_VerticalRegridTransform
    public :: VERTICAL_REGRID_CONSERVATIVE
    public :: operator(==), operator(/=)
 
+   ! The interpolation matrix is real32. This type may need to be extended
+   ! with a subtype for ESMF_KIND_R4 Fields and a subtype for ESMF_KIND_R8 Fields
+   ! with real32 and real64 matrices, respectively.
    type, extends(ExtensionTransform) :: VerticalRegridTransform
       type(ESMF_Field) :: v_in_coord, v_out_coord
-      type(SparseMatrix_sp), allocatable :: matrix(:)
+      type(SparseMatrix_sp), allocatable :: matrix_sp(:)
+      type(SparseMatrix_dp), allocatable :: matrix_dp(:)
       class(ComponentDriver), pointer :: v_in_coupler => null()
       class(ComponentDriver), pointer :: v_out_coupler => null()
       type(VerticalRegridMethod) :: method = VERTICAL_REGRID_UNKNOWN
@@ -35,6 +39,7 @@ module mapl3g_VerticalRegridTransform
       procedure :: get_transformId
       procedure :: write_formatted
       generic :: write(formatted) => write_formatted
+      procedure :: get_typekind
    end type VerticalRegridTransform
 
    interface VerticalRegridTransform
@@ -90,6 +95,7 @@ contains
       type(ESMF_Field), allocatable :: fieldlist_in(:), fieldlist_out(:)
       integer :: status
       integer :: i
+      type(ESMF_TypeKind_Flag) :: typekind, export_typekind
 
       ! if (associated(this%v_in_coupler)) then
       !    call this%v_in_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
@@ -99,7 +105,10 @@ contains
       !    call this%v_out_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
       ! end if
 
-      call compute_interpolation_matrix_(this%v_in_coord, this%v_out_coord, this%matrix, _RC)
+      ! The interpolation matrix is currently real32. It may need to be real64
+      ! if the ESMF_Field's are ESMF_KIND_R8.
+
+      call compute_interpolation_matrix_(this%v_in_coord, this%v_out_coord, this%matrix_sp, _RC)
 
       call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, itemtype=itemtype_in, _RC)
       call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, itemtype=itemtype_out, _RC)
@@ -124,39 +133,7 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(clock)
    end subroutine update
-
-!   subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
-!      class(VerticalRegridTransform), intent(in) :: this
-!      integer, intent(in) :: unit
-!      character(*), intent(in) :: iotype
-!      integer, intent(in) :: v_list(:)
-!      integer, intent(out) :: iostat
-!      character(*), intent(inout) :: iomsg
-!
-!      real(ESMF_KIND_R4), pointer :: v_in(:), v_out(:)
-!      integer :: rc, status
-!
-!      call ESMF_FieldGet(this%v_in_coord, fArrayPtr=v_in, _RC)
-!      call ESMF_FieldGet(this%v_out_coord, fArrayPtr=v_out, _RC)
-!
-!      write(unit, "(a, a)", iostat=iostat, iomsg=iomsg) "VerticalRegridTransform(", new_line("a")
-!      if (iostat /= 0) return
-!      write(unit, "(4x, a, l1, a, 4x, a, l1, a)", iostat=iostat, iomsg=iomsg) &
-!           "v_in_coupler: ", associated(this%v_in_coupler), new_line("a"), &
-!           "v_out_coupler: ", associated(this%v_out_coupler), new_line("a")
-!      if (iostat /= 0) return
-!      write(unit, "(4x, a, *(g0, 1x))", iostat=iostat, iomsg=iomsg) "v_in_coord: ", v_in
-!      if (iostat /= 0) return
-!      write(unit, "(a)", iostat=iostat, iomsg=iomsg) new_line("a")
-!      if (iostat /= 0) return
-!      write(unit, "(4x, a, *(g0, 1x))", iostat=iostat, iomsg=iomsg) "v_out_coord: ", v_out
-!      if (iostat /= 0) return
-!      write(unit, "(a, 1x, a)", iostat=iostat, iomsg=iomsg) new_line("a"), ")"
-!
-!      _UNUSED_DUMMY(iotype)
-!      _UNUSED_DUMMY(v_list)
-!   end subroutine write_formatted
-
+   
    subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
       class(VerticalRegridTransform), intent(in) :: this
       integer, intent(in) :: unit
