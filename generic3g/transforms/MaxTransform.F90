@@ -13,6 +13,7 @@ module mapl3g_MaxTransform
    type, extends(AccumulatorTransform) :: MaxTransform
    contains
       procedure :: accumulate_R4 => max_accumulate_R4
+      procedure :: accumulate_R8 => max_accumulate_R8
    end type MaxTransform
 
 contains
@@ -23,28 +24,49 @@ contains
 
       acc%typekind = typekind
       acc%CLEAR_VALUE_R4 = MAPL_UNDEFINED_REAL
+      acc%CLEAR_VALUE_R8 = MAPL_UNDEFINED_REAL64
 
    end function construct_MaxTransform
 
+!   subroutine max_accumulate_R4(this, update_field, rc)
+!      class(MaxTransform), intent(inout) :: this
+!      type(ESMF_Field), intent(inout) :: update_field
+!      integer, optional, intent(out) :: rc
+
+!      integer :: status
+!      real(kind=ESMF_KIND_R4), pointer :: current(:)
+!      real(kind=ESMF_KIND_R4), pointer :: latest(:)
+!      real(kind=ESMF_KIND_R4), parameter :: UNDEF = MAPL_UNDEFINED_REAL
+
+!      call assign_fptr(this%accumulation_field, current, _RC)
+!      call assign_fptr(update_field, latest, _RC)
+!      where(current == UNDEF)
+!         current = latest
+!      elsewhere(latest /= UNDEF)
+!         current = max(current, latest)
+!      end where
+!      _RETURN(_SUCCESS)
+
+!   end subroutine max_accumulate_R4
+
+#include "macros_undef.h"
+#define FUNC_ max
+
+#define KIND_ ESMF_KIND_R4
+#define UNDEF_ MAPL_UNDEFINED_REAL
+
    subroutine max_accumulate_R4(this, update_field, rc)
-      class(MaxTransform), intent(inout) :: this
-      type(ESMF_Field), intent(inout) :: update_field
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      real(kind=ESMF_KIND_R4), pointer :: current(:)
-      real(kind=ESMF_KIND_R4), pointer :: latest(:)
-      real(kind=ESMF_KIND_R4), parameter :: UNDEF = MAPL_UNDEFINED_REAL
-
-      call assign_fptr(this%accumulation_field, current, _RC)
-      call assign_fptr(update_field, latest, _RC)
-      where(current == UNDEF)
-         current = latest
-      elsewhere(latest /= UNDEF)
-         current = max(current, latest)
-      end where
-      _RETURN(_SUCCESS)
-
+#include "accumulate_template.h"
+#include "max_min_where_block.h"
    end subroutine max_accumulate_R4
+
+#include "macros_undef.h"
+#define KIND_ ESMF_KIND_R8
+#define UNDEF_ MAPL_UNDEFINED_REAL64
+
+   subroutine max_accumulate_R8(this, update_field, rc)
+#include "accumulate_template.h"
+#include "max_min_where_block.h"
+   end subroutine max_accumulate_R8
 
 end module mapl3g_MaxTransform
