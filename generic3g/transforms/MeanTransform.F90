@@ -1,4 +1,5 @@
 #include "MAPL.h"
+#include "accumulator_type_undef.h"
 module mapl3g_MeanTransform
    use mapl3g_AccumulatorTransform
    use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
@@ -126,14 +127,9 @@ contains
 
 !   end subroutine calculate_mean_R4
 
-#if not defined(USE_COUNTER_)
-#  define USE_COUNTER_
-#endif
-
+#define MEAN_ACCUMULATOR_
 #include "macros_undef.h"
-#define KIND_ ESMF_KIND_R4
-#define UNDEF_ MAPL_UNDEFINED_REAL
-
+#include "macros.h"
    subroutine calculate_mean_R4(this, rc)
 #include "calculate_mean_template.h"
    end subroutine calculate_mean_R4
@@ -141,13 +137,11 @@ contains
    subroutine accumulate_R4(this, update_field, rc)
       class(MeanTransform), intent(inout) :: this
 #include "accumulate_template.h"
-#include "mean_where_block.h"
    end subroutine accumulate_R4
 
 #include "macros_undef.h"
-#define KIND_ ESMF_KIND_R8
-#define UNDEF_ MAPL_UNDEFINED_REAL64
-
+#define DP_
+#include "macros.h"
    subroutine calculate_mean_R8(this, rc)
 #include "calculate_mean_template.h"
    end subroutine calculate_mean_R8
@@ -155,7 +149,8 @@ contains
    subroutine accumulate_R8(this, update_field, rc)
       class(MeanTransform), intent(inout) :: this
 #include "accumulate_template.h"
-#include "mean_where_block.h"
    end subroutine accumulate_R8
+#undef DP_
+#undef MEAN_ACCUMULATOR_
 
 end module mapl3g_MeanTransform

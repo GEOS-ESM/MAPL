@@ -1,4 +1,6 @@
 #include "MAPL.h"
+#include "accumulator_type_undef.h"
+
 module mapl3g_MaxTransform
    use mapl3g_AccumulatorTransform
    use MAPL_ExceptionHandling
@@ -49,24 +51,21 @@ contains
 
 !   end subroutine max_accumulate_R4
 
+#define MAX_ACCUMULATOR_
 #include "macros_undef.h"
-#define FUNC_ max
-
-#define KIND_ ESMF_KIND_R4
-#define UNDEF_ MAPL_UNDEFINED_REAL
-
+#include "macros.h"
    subroutine max_accumulate_R4(this, update_field, rc)
+      class(MaxTransform), intent(inout) :: this
 #include "accumulate_template.h"
-#include "max_min_where_block.h"
    end subroutine max_accumulate_R4
 
 #include "macros_undef.h"
-#define KIND_ ESMF_KIND_R8
-#define UNDEF_ MAPL_UNDEFINED_REAL64
-
+#define DP_
+#include "macros.h"
    subroutine max_accumulate_R8(this, update_field, rc)
+      class(MaxTransform), intent(inout) :: this
 #include "accumulate_template.h"
-#include "max_min_where_block.h"
    end subroutine max_accumulate_R8
-
+#undef DP_
+#undef MAX_ACCUMULATOR_
 end module mapl3g_MaxTransform

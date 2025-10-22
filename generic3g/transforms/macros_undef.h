@@ -5,8 +5,13 @@
 #if defined(UNDEF_)
 #  undef UNDEF_
 #endif
-! vim: ft=fortran
 
-#if defined(FUNC_)
-#  undef FUNC_
+#if defined(DP_)
+#  undef DP_
 #endif
+
+#if defined(MAXMIN_)
+#  undef MAXMIN_
+#endif
+
+! vim: ft=fortran

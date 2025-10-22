@@ -212,22 +212,20 @@ contains
    end subroutine accumulate
 
 #include "macros_undef.h"
-#define KIND_ ESMF_KIND_R4
-#define UNDEF_ MAPL_UNDEFINED_REAL
+#include "macros.h"
    subroutine accumulate_R4(this, update_field, rc)
       class(AccumulatorTransform), intent(inout) :: this
 #include "accumulate_template.h"
-#include "accumulate_where_block.h"
    end subroutine accumulate_R4
 
 #include "macros_undef.h"
-#define KIND_ ESMF_KIND_R8
-#define UNDEF_ MAPL_UNDEFINED_REAL64
+#define DP_
+#include "macros.h"
    subroutine accumulate_R8(this, update_field, rc)
       class(AccumulatorTransform), intent(inout) :: this
 #include "accumulate_template.h"
-#include "accumulate_where_block.h"
    end subroutine accumulate_R8
+#undef DP_
 
    logical function runs_invalidate(this)
       class(AccumulatorTransform), intent(in) :: this
