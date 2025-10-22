@@ -65,7 +65,7 @@ program main
 
 !$   call mem_prof%start('lap')
    call do_lap(lap_prof) ! lap 1
-   call lap_prof%finalize()
+   call lap_prof%stop()
    call main_prof%accumulate(lap_prof)
 !$   call mem_prof%stop('lap')
 
@@ -85,7 +85,7 @@ program main
 !$   call mem_prof%start('lap')
    call lap_prof%reset()
    call do_lap(lap_prof) ! lap 2
-   call lap_prof%finalize()
+   call lap_prof%stop()
    call main_prof%accumulate(lap_prof)
    call main_prof%start('use reporter')
 
@@ -102,7 +102,7 @@ program main
    call main_prof%stop('use reporter')
 !$   call mem_prof%stop('lap')
 
-   call main_prof%finalize()
+   call main_prof%stop()
    call main_prof%reduce()
    report_lines = reporter%generate_report(main_prof)
    if (rank == 0) then
@@ -147,6 +147,8 @@ program main
 !$      write(*,'(a)') ''
 !$   end if
 
+   call lap_prof%finalize()
+   call main_prof%finalize()
    call MPI_Finalize(ierror)
 
 contains
