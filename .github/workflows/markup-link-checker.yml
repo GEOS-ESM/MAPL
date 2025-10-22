@@ -11,7 +11,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v5
 
-    - name: Markup Link Checker (mlc)
-      uses: becheran/mlc@v1.0.0
+    - name: Markup Link Checker (mlc) - with retries
+      uses: Wandalen/wretry.action@master
       with:
-        args: '.'
+        action: becheran/mlc@v1.0.0
+        with: |
+          args: '.'
+        attempt_limit: 3
+        attempt_delay: 2000
+

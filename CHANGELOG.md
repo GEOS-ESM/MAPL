@@ -9,17 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix a memory leak in trajectory sampler due to misuage of FieldRegrid which should be FieldRedist
 - Fixed `mapl_acg.cmake` to allow for more than one StateSpecs file per target
 - Fix NVHPC issue with IEEE halting code
 
 ### Added
 
 - Added EASE grid support to Regridder_Util program
-- Added TileGridIO.F90 to output NC4 History file in tile space. The collection's format should be 'CFIO' 
+- Create TilegridIO's outbundle from output grid and deallocate mGriddedIO in History
+- Added TileGridIO.F90 to output NC4 History file in tile space. The collection's format should be 'CFIO'
+>>>>>>> develop
 
 ### Changed
 
-- Update CI to use Baselibs 8.19.0
+- Update CI to use Baselibs 8.20.0
 - Add gcc15 test
 - Update CI to use organization reusable workflows
 
@@ -28,6 +31,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed TileIO.F90. It is integrated into TileGridIO.F90
 
 ### Deprecated
+
+## [2.62.1] - 2025-10-14
+
+### Fixed
+
+- Fixed bug when regridding with grid that has PET with no DEs
 
 ## [2.62.0] - 2025-09-25
 
