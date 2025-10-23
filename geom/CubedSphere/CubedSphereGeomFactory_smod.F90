@@ -10,6 +10,7 @@ submodule (mapl3g_CubedSphereGeomFactory) CubedSphereGeomFactory_smod
    use mapl_Constants
    use pFIO
    use gFTL2_StringVector
+   use mapl3g_StringDictionary
    use esmf
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
    implicit none(type,external)
@@ -186,6 +187,24 @@ contains
       _UNUSED_DUMMY(this)
    end function make_gridded_dims
 
+   module function make_variable_attributes(this, geom_spec, rc) result(variable_attributes)
+      type(StringDictionary) :: variable_attributes
+      class(CubedSphereGeomFactory), intent(in) :: this
+      class(GeomSpec), intent(in) :: geom_spec
+      integer, optional, intent(out) :: rc
+
+      variable_attributes = StringDictionary()
+      select type(geom_spec)
+      type is (CubedSphereGeomSpec)
+         call variable_attributes%put('coordinates','lons lats')
+         call variable_attributes%put('grid_mapping','cubed_sphere')
+      class default
+         _FAIL('geom_spec is not of dynamic type CubedSphereGeomSpec.')
+      end select
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+   end function make_variable_attributes
 
    module function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
       type(FileMetadata) :: file_metadata
@@ -249,14 +268,16 @@ contains
       ! Coordinate variables
       v = Variable(type=PFIO_REAL64, dimensions='Xdim')
       call v%add_attribute('long_name', 'Fake Longitude for GrADS Compatibility')
-      call v%add_attribute('units', 'degrees_east')
+      !call v%add_attribute('units', 'degrees_east')
+      call v%add_attribute('units', 'index')
       temp_coords = [(i,i=1,im_world)]
       call file_metadata%add_variable('Xdim', CoordinateVariable(v, temp_coords))
       deallocate(temp_coords)
 
       v = Variable(type=PFIO_REAL64, dimensions='Ydim')
       call v%add_attribute('long_name', 'Fake Latitude for GrADS Compatibility')
-      call v%add_attribute('units', 'degrees_north')
+      !call v%add_attribute('units', 'degrees_north')
+      call v%add_attribute('units', 'index')
       temp_coords = [(i,i=1,im_world)] 
       call file_metadata%add_variable('Ydim', CoordinateVariable(v, temp_coords))
       deallocate(temp_coords)
