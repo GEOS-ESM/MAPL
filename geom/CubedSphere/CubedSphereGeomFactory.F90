@@ -6,7 +6,7 @@ module mapl3g_CubedSphereGeomFactory
    use mapl3g_CubedSphereGeomSpec
    use mapl_KeywordEnforcerMod
    use gftl2_StringVector
-   use gftl2_StringStringMap
+   use mapl3g_StringDictionary
    use pfio
    use esmf
    implicit none
@@ -102,7 +102,7 @@ module mapl3g_CubedSphereGeomFactory
       end function make_gridded_dims
 
       module function make_variable_attributes(this, geom_spec, rc) result(variable_attributes)
-         type(StringStringMap) :: variable_attributes
+         type(StringDictionary) :: variable_attributes
          class(CubedSphereGeomFactory), intent(in) :: this
          class(GeomSpec), intent(in) :: geom_spec
          integer, optional, intent(out) :: rc

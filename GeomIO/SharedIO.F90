@@ -9,7 +9,7 @@ module mapl3g_SharedIO
    use pfio, only: FileMetaData, Variable, UnlimitedEntity
    use pfio, only: PFIO_UNLIMITED, PFIO_REAL32, PFIO_REAL64
    use gFTL2_StringVector
-   use gFTL2_StringStringMap
+   use mapl3g_StringDictionary
    use gFTL2_StringSet
    use mapl3g_Geom_API
    use MAPL_BaseMod
@@ -100,11 +100,12 @@ contains
       character(len=:), allocatable :: standard_name
 
       type(ESMF_Geom) :: esmfgeom
-      integer :: pfio_type
+      integer :: pfio_type, i
       type(MAPLGeom), pointer :: mapl_geom
-      type(StringStringMap) :: extra_attributes
-      type(StringStringMapIterator) :: s_iter
-      character(len=:), pointer :: attr_name, attr_val
+      type(StringDictionary) :: extra_attributes
+      character(len=:), pointer :: attr_name
+      character(len=:), allocatable :: attr_val
+      type(StringVector) :: extra_keys
 
       variable_dim_names = get_variable_dim_names(field, _RC)
       call ESMF_FieldGet(field, geom=esmfgeom, _RC)
@@ -126,12 +127,11 @@ contains
       end if
 
       extra_attributes = mapl_geom%get_variable_attributes()
-      s_iter = extra_attributes%begin()
-      do while(s_iter /= extra_attributes%end())
-         attr_name => s_iter%first()
-         attr_val => s_iter%second()
+      extra_keys = extra_attributes%get_keys()
+      do i=1,extra_keys%size()
+         attr_name => extra_keys%at(i)
+         attr_val = extra_attributes%get(attr_name)
          call v%add_attribute(attr_name, attr_val)
-         call s_iter%next()
       enddo
 
       call metadata%add_variable(short_name, v, _RC)

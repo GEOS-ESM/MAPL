@@ -94,11 +94,11 @@ module mapl3g_GeomFactory
 
       function I_make_variable_attributes(this, geom_spec, rc) result(variable_attributes)
          use mapl3g_GeomSpec
-         use gFTL2_StringStringMap
+         use mapl3g_StringDictionary
          import GeomFactory
          implicit none
 
-         type(StringStringMap) :: variable_attributes
+         type(StringDictionary) :: variable_attributes
          class(GeomFactory), intent(in) :: this
          class(GeomSpec), intent(in) :: geom_spec
          integer, optional, intent(out) :: rc

@@ -9,7 +9,7 @@ submodule (mapl3g_LatLonGeomFactory) make_variable_attributes_smod
    use mapl_ErrorHandlingMod
    use mapl_Constants
    use pFIO
-   use gFTL2_StringStringMap
+   use mapl3g_StringDictionary
    use esmf
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
    implicit none (type, external)
@@ -18,12 +18,12 @@ submodule (mapl3g_LatLonGeomFactory) make_variable_attributes_smod
 contains
 
    module function make_variable_attributes(this, geom_spec, rc) result(variable_attributes)
-      type(StringStringMap) :: variable_attributes
+      type(StringDictionary) :: variable_attributes
       class(LatLonGeomFactory), intent(in) :: this
       class(GeomSpec), intent(in) :: geom_spec
       integer, optional, intent(out) :: rc
 
-      variable_attributes = StringStringMap()
+      variable_attributes = StringDictionary()
 
       _RETURN(_SUCCESS)
    end function make_variable_attributes

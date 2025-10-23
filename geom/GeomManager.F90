@@ -163,7 +163,7 @@ module mapl3g_GeomManager
 
       module function make_mapl_geom_from_spec(this, spec, rc) result(mapl_geom)
          use gftl2_StringVector
-         use gftl2_StringStringMap
+         use mapl3g_StringDictionary
          type(MaplGeom) :: mapl_geom
          class(GeomManager), target, intent(inout) :: this
          class(GeomSpec), intent(in) :: spec

@@ -19,7 +19,7 @@ contains
       class(GeomFactory), intent(in) :: factory
       type(FileMetadata), optional, intent(in) :: file_metadata
       type(StringVector), optional, intent(in) :: gridded_dims
-      type(StringStringMap), optional, intent(in) :: variable_attributes
+      type(StringDictionary), optional, intent(in) :: variable_attributes
 
       mapl_geom%spec = spec
       mapl_geom%geom = geom

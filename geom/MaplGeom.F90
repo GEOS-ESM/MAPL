@@ -7,7 +7,7 @@ module mapl3g_MaplGeom
    use pfio_FileMetadataMod, only: FileMetadata
    use ESMF, only: ESMF_Geom
    use gftl2_StringVector
-   use gftl2_StringStringMap
+   use mapl3g_StringDictionary
    implicit none
    private
 
@@ -29,7 +29,7 @@ module mapl3g_MaplGeom
       class(GeomFactory), allocatable :: factory
       type(FileMetadata) :: file_metadata
       type(StringVector) :: gridded_dims ! center staggered
-      type(StringStringMap) :: variable_attributes
+      type(StringDictionary) :: variable_attributes
 
       ! Derived - lazy initialization
       type(VectorBases) :: bases
@@ -59,7 +59,7 @@ module mapl3g_MaplGeom
          class(GeomFactory), intent(in) :: factory
          type(FileMetadata), optional, intent(in) :: file_metadata
          type(StringVector), optional, intent(in) :: gridded_dims
-         type(StringStringMap), optional, intent(in) :: variable_attributes
+         type(StringDictionary), optional, intent(in) :: variable_attributes
       end function new_MaplGeom
 
       module subroutine set_id(this, id, rc)
@@ -94,7 +94,7 @@ module mapl3g_MaplGeom
       end function get_gridded_dims
 
       module function get_variable_attributes(this) result(variable_attributes)
-         type(StringStringMap) :: variable_attributes
+         type(StringDictionary) :: variable_attributes
          class(MaplGeom), intent(in) :: this
       end function get_variable_attributes
 

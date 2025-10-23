@@ -7,7 +7,7 @@ module mapl3g_LatLonGeomFactory
    use mapl_KeywordEnforcerMod
    use mapl_ErrorHandlingMod
    use gftl2_StringVector
-   use gftl2_StringStringMap
+   use mapl3g_StringDictionary
    use pfio
    use esmf
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
@@ -70,7 +70,7 @@ module mapl3g_LatLonGeomFactory
       end function make_gridded_dims
 
       module function make_variable_attributes(this, geom_spec, rc) result(variable_attributes)
-         type(StringStringMap) :: variable_attributes
+         type(StringDictionary) :: variable_attributes
          class(LatLonGeomFactory), intent(in) :: this
          class(GeomSpec), intent(in) :: geom_spec
          integer, optional, intent(out) :: rc

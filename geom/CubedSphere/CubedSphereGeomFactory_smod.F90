@@ -10,7 +10,7 @@ submodule (mapl3g_CubedSphereGeomFactory) CubedSphereGeomFactory_smod
    use mapl_Constants
    use pFIO
    use gFTL2_StringVector
-   use gFTL2_StringStringMap
+   use mapl3g_StringDictionary
    use esmf
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
    implicit none(type,external)
@@ -188,16 +188,16 @@ contains
    end function make_gridded_dims
 
    module function make_variable_attributes(this, geom_spec, rc) result(variable_attributes)
-      type(StringStringMap) :: variable_attributes
+      type(StringDictionary) :: variable_attributes
       class(CubedSphereGeomFactory), intent(in) :: this
       class(GeomSpec), intent(in) :: geom_spec
       integer, optional, intent(out) :: rc
 
-      variable_attributes = StringStringMap()
+      variable_attributes = StringDictionary()
       select type(geom_spec)
       type is (CubedSphereGeomSpec)
-         call variable_attributes%insert('coordinates','lons lats')
-         call variable_attributes%insert('grid_mapping','cubed_sphere')
+         call variable_attributes%put('coordinates','lons lats')
+         call variable_attributes%put('grid_mapping','cubed_sphere')
       class default
          _FAIL('geom_spec is not of dynamic type CubedSphereGeomSpec.')
       end select
