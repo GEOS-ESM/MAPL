@@ -21,4 +21,5 @@ Note all test cases are in a numbered directory caseX, where a X is an integer a
 19. Test set file to /dev/null
 22. Test multiple rules for an item
 23. Test multiple datasets and treat Climatology in the first and a real-time in the 2nd
+24. Test ability to read and write cubed-sphere files
 39. Test adding a scaling and offset to an item
