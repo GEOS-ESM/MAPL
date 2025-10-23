@@ -29,6 +29,11 @@ module mapl3g_esmf_info_keys
    public :: make_dim_key
    public :: KEY_VERT_STAGGERLOC
    public :: KEY_BRACKET_UPDATED
+   public :: KEY_COMPRESSION
+   public :: KEY_DEFLATE
+   public :: KEY_ZSTANDARD
+   public :: KEY_QUANTIZE_LEV
+   public :: KEY_QUANTIZE_ALGO
    private
 
    ! FieldSpec info keys
@@ -63,6 +68,13 @@ module mapl3g_esmf_info_keys
 
    ! Regridding info keys
    character(len=*), parameter :: KEY_BRACKET_UPDATED = '/bracket_updated'
+
+   ! Compression info keys
+   character(len=*), parameter :: KEY_COMPRESSION = '/compression'
+   character(len=*), parameter :: KEY_DEFLATE = '/deflate'
+   character(len=*), parameter :: KEY_ZSTANDARD = '/zstandard'
+   character(len=*), parameter :: KEY_QUANTIZE_LEV = '/quantize_level'
+   character(len=*), parameter :: KEY_QUANTIZE_ALGO = '/quantize_algo'
 
    character(len=*), parameter :: KEY_DIM_STRINGS(9) = [ &
       KEYSTUB_DIM // '1', KEYSTUB_DIM // '2', KEYSTUB_DIM // '3', &
