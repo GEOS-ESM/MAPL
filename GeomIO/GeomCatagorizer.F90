@@ -20,7 +20,12 @@ module mapl3g_GeomCatagorizer
 
       type(GridPFIO) :: grid_pfio
 
+
+#ifdef IFX_RELEASE_BUG
+      geom_pfio = grid_pfio
+#else
       allocate(geom_pfio, source=grid_pfio)
+#endif
       _RETURN(_SUCCESS)
    end function make_geom_pfio
 
