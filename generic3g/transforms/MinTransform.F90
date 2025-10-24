@@ -1,5 +1,6 @@
 #include "MAPL.h"
 #include "accumulator_type_undef.h"
+
 module mapl3g_MinTransform
    use mapl3g_AccumulatorTransform
    use MAPL_ExceptionHandling
@@ -28,27 +29,6 @@ contains
       acc%CLEAR_VALUE_R8 = MAPL_UNDEFINED_REAL64
 
    end function construct_MinTransform
-
-!   subroutine min_accumulate_R4(this, update_field, rc)
-!      class(MinTransform), intent(inout) :: this
-!      type(ESMF_Field), intent(inout) :: update_field
-!      integer, optional, intent(out) :: rc
-
-!      integer :: status
-!      real(kind=ESMF_KIND_R4), pointer :: current(:)
-!      real(kind=ESMF_KIND_R4), pointer :: latest(:)
-!      real(kind=ESMF_KIND_R4), parameter :: UNDEF = MAPL_UNDEFINED_REAL
-
-!      call assign_fptr(this%accumulation_field, current, _RC)
-!      call assign_fptr(update_field, latest, _RC)
-!      where(current == UNDEF)
-!         current = latest
-!      elsewhere(latest /= UNDEF)
-!         current = min(current, latest)
-!      end where
-!      _RETURN(_SUCCESS)
-
-!   end subroutine min_accumulate_R4
 
 #define MIN_ACCUMULATOR_
 #include "macros_undef.h"

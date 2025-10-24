@@ -20,6 +20,7 @@ module MAPL_FieldUtilities
 
    interface FieldIsConstant
       procedure FieldIsConstantR4
+      procedure FieldIsConstantR8
    end interface FieldIsConstant
 
    interface FieldSet
@@ -54,6 +55,33 @@ contains
       _RETURN(_SUCCESS)
 
    end function FieldIsConstantR4
+
+   function FieldIsConstantR8(field,constant_val,rc) result(field_is_constant)
+      logical :: field_is_constant
+      type(ESMF_Field), intent(inout) :: field
+      real(kind=ESMF_KIND_R8) :: constant_val
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      real(ESMF_KIND_R8), pointer :: f_ptr_r8(:)
+
+      type(ESMF_TypeKind_Flag) :: type_kind
+
+      call ESMF_FieldGet(field,typekind=type_kind,_RC)
+
+      field_is_constant = .false.
+      if (type_kind == ESMF_TYPEKIND_R8) then
+         call assign_fptr(field,f_ptr_r8,_RC)
+         field_is_constant = all(f_ptr_r8 == constant_val)
+      else
+         _FAIL("constant_val is double precision so you can not check if it is all undef for an R4")
+      end if
+
+      _RETURN(_SUCCESS)
+
+   end function FieldIsConstantR8
+
 
    subroutine FieldSet_r8(field,constant_val,rc)
       type(ESMF_Field), intent(inout) :: field
