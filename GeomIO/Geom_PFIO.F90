@@ -14,9 +14,11 @@ module mapl3g_GeomPFIO
    type, abstract :: GeomPFIO
       private
       integer :: collection_id
-      type(MaplGeom), pointer :: mapl_geom
+      type(ESMF_Geom) :: esmfgeom
+      type(FileMetadata) :: file_metadata
    contains
       procedure(I_stage_data_to_file), deferred :: stage_data_to_file
+      procedure(I_stage_coordinates_to_file), deferred :: stage_coordinates_to_file
       procedure(I_request_data_from_file), deferred :: request_data_from_file
       procedure, private :: init_with_metadata
       procedure, private :: init_with_filename
@@ -24,6 +26,8 @@ module mapl3g_GeomPFIO
       procedure :: update_time_on_server
       procedure :: stage_time_to_file
       procedure, non_overridable :: get_collection_id
+      procedure, non_overridable :: get_file_metadata
+      procedure, non_overridable :: get_esmf_geom
    end type GeomPFIO
 
    abstract interface
@@ -37,6 +41,14 @@ module mapl3g_GeomPFIO
         integer, intent(in) :: time_index
         integer, intent(out), optional :: rc
      end subroutine I_stage_data_to_file
+
+     subroutine I_stage_coordinates_to_file(this, filename, rc)
+        use esmf
+        import GeomPFIO
+        class(GeomPFIO), intent(inout) :: this
+        character(len=*), intent(in) :: filename
+        integer, intent(out), optional :: rc
+     end subroutine I_stage_coordinates_to_file
 
      subroutine I_request_data_from_file(this, filename, bundle, rc)
         use esmf
@@ -82,29 +94,30 @@ contains
 
    end subroutine
 
-   subroutine init_with_metadata(this, metadata, mapl_geom,  rc)
+   subroutine init_with_metadata(this, metadata, esmfgeom,  rc)
       class(GeomPFIO), intent(inout) :: this
       type(FileMetadata), intent(in) :: metadata
-      type(MaplGeom), intent(in), pointer :: mapl_geom
+      type(ESMF_Geom), intent(in) :: esmfgeom
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      this%mapl_geom => mapl_geom
+      this%esmfgeom = esmfgeom
       this%collection_id = o_Clients%add_data_collection(metadata, _RC)
+      this%file_metadata = metadata
 
       _RETURN(_SUCCESS)
    end subroutine init_with_metadata
 
-   subroutine init_with_filename(this, file_name, mapl_geom,  rc)
+   subroutine init_with_filename(this, file_name, esmfgeom,  rc)
       class(GeomPFIO), intent(inout) :: this
       character(len=*), intent(in) :: file_name
-      type(MaplGeom), intent(in), pointer :: mapl_geom
+      type(ESMF_Geom), intent(in) :: esmfgeom
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      this%mapl_geom => mapl_geom
+      this%esmfgeom = esmfgeom
       this%collection_id = i_Clients%add_data_collection(file_name, _RC)
 
       _RETURN(_SUCCESS)
@@ -115,5 +128,19 @@ contains
  
       get_collection_id = this%collection_id
    end function get_collection_id
+
+   function get_file_metadata(this) result(file_metadata)
+      type(FileMetadata) :: file_metadata
+      class(GeomPFIO), intent(in) :: this
+ 
+      file_metadata = this%file_metadata
+   end function get_file_metadata
+
+   function get_esmf_geom(this) result(esmfgeom)
+      type(ESMF_Geom) :: esmfgeom
+      class(GeomPFIO), intent(in) :: this
+
+      esmfgeom=this%esmfgeom
+   end function get_esmf_geom
 
 end module mapl3g_GeomPFIO

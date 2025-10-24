@@ -1,0 +1,154 @@
+module Test_StringStringMap
+    use pfunit
+    use mapl3g_StringStringMap
+    use gftl2_StringVector
+    implicit none
+
+contains
+
+    @test
+    subroutine test_new_dictionary()
+        type(StringDictionary) :: dict
+        
+        dict = StringDictionary()
+        @assertEqual(0, dict%size(), "New dictionary should be empty")
+    end subroutine test_new_dictionary
+    
+    @test
+    subroutine test_put_and_get()
+        type(StringDictionary) :: dict
+        character(len=:), allocatable :: value
+        logical :: found
+        
+        dict = StringDictionary()
+        
+        ! Test putting new key-value pairs
+        call dict%put("key1", "value1")
+        call dict%put("key2", "value2")
+        
+        @assertEqual(2, dict%size(), "Dictionary should have 2 entries")
+        
+        ! Test getting values
+        value = dict%get("key1", found)
+        @assertTrue(found, "Key1 should be found")
+        @assertEqual("value1", value, "Should retrieve correct value for key1")
+        
+        value = dict%get("key2", found)
+        @assertTrue(found, "Key2 should be found")
+        @assertEqual("value2", value, "Should retrieve correct value for key2")
+        
+        value = dict%get("nonexistent", found)
+        @assertFalse(found, "Nonexistent key should not be found")
+        @assertEqual("", value, "Nonexistent key should return empty string")
+        
+        ! Test updating value
+        call dict%put("key1", "updated_value")
+        value = dict%get("key1", found)
+        @assertTrue(found, "Updated key should be found")
+        @assertEqual("updated_value", value, "Should retrieve updated value")
+        @assertEqual(2, dict%size(), "Size should not change when updating")
+    end subroutine test_put_and_get
+    
+    @test
+    subroutine test_has_key()
+        type(StringDictionary) :: dict
+        
+        dict = StringDictionary()
+        call dict%put("existing", "value")
+        
+        @assertTrue(dict%has_key("existing"), "Should find existing key")
+        @assertFalse(dict%has_key("nonexistent"), "Should not find nonexistent key")
+    end subroutine test_has_key
+    
+    @test
+    subroutine test_remove()
+        type(StringDictionary) :: dict
+        logical :: success
+        character(len=:), allocatable :: value
+        logical :: found
+        
+        dict = StringDictionary()
+        call dict%put("key1", "value1")
+        call dict%put("key2", "value2")
+        call dict%put("key3", "value3")
+        
+        @assertEqual(3, dict%size(), "Dictionary should have 3 entries initially")
+        
+        ! Remove existing key
+        call dict%remove("key2", success)
+        @assertTrue(success, "Removing existing key should succeed")
+        @assertEqual(2, dict%size(), "Size should decrease after removal")
+        @assertFalse(dict%has_key("key2"), "Removed key should no longer exist")
+        
+        ! Verify remaining keys are intact
+        value = dict%get("key1", found)
+        @assertTrue(found, "Key1 should still exist after removing key2")
+        @assertEqual("value1", value, "Key1 value should be preserved")
+        
+        value = dict%get("key3", found)
+        @assertTrue(found, "Key3 should still exist after removing key2")
+        @assertEqual("value3", value, "Key3 value should be preserved")
+        
+        ! Remove non-existing key
+        call dict%remove("nonexistent", success)
+        @assertFalse(success, "Removing nonexistent key should fail")
+        @assertEqual(2, dict%size(), "Size should not change when removing nonexistent key")
+    end subroutine test_remove
+    
+    @test
+    subroutine test_clear()
+        type(StringDictionary) :: dict
+        
+        dict = StringDictionary()
+        call dict%put("key1", "value1")
+        call dict%put("key2", "value2")
+        
+        @assertEqual(2, dict%size(), "Dictionary should have entries before clear")
+        
+        call dict%clear()
+        @assertEqual(0, dict%size(), "Dictionary should be empty after clear")
+        @assertFalse(dict%has_key("key1"), "Keys should not exist after clear")
+        @assertFalse(dict%has_key("key2"), "Keys should not exist after clear")
+    end subroutine test_clear
+    
+    @test
+    subroutine test_keys_and_values()
+        type(StringDictionary) :: dict
+        type(StringVector) :: keys, values
+        
+        dict = StringDictionary()
+        call dict%put("key1", "value1")
+        call dict%put("key2", "value2")
+        
+        ! Test keys
+        keys = dict%get_keys()
+        @assertEqual(2, keys%size(), "Keys vector should have correct size")
+        
+        ! Since we can't guarantee order, we'll check that both keys exist
+        @assertTrue(contains_string(keys, "key1"), "Keys vector should contain key1")
+        @assertTrue(contains_string(keys, "key2"), "Keys vector should contain key2")
+        
+        ! Test values
+        values = dict%get_values()
+        @assertEqual(2, values%size(), "Values vector should have correct size")
+        @assertTrue(contains_string(values, "value1"), "Values vector should contain value1")
+        @assertTrue(contains_string(values, "value2"), "Values vector should contain value2")
+    end subroutine test_keys_and_values
+    
+    ! Helper function to check if a StringVector contains a specific string
+    function contains_string(vector, str) result(found)
+        type(StringVector), intent(in) :: vector
+        character(len=*), intent(in) :: str
+        logical :: found
+        integer :: i
+        
+        found = .false.
+        do i = 1, vector%size()
+            if (vector%of(i) == str) then
+                found = .true.
+                exit
+            end if
+        end do
+    end function contains_string
+    
+end module Test_StringStringMap
