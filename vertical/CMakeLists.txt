@@ -1,7 +1,7 @@
 esma_set_this (OVERRIDE MAPL.vertical)
 
 set (srcs
-  Eta2Eta.F90  
+  Eta2Eta.F90
   VerticalCoordinate.F90
   VerticalRegridConserveInterface.F90
   VerticalRegridUtilities.F90
@@ -10,7 +10,7 @@ set (srcs
 esma_add_library(${this}
     SRCS ${srcs}
     DEPENDENCIES MAPL.shared MAPL.base MAPL.pfio PFLOGGER::pflogger
-    TYPE ${MAPL_LIBARRY_TYPE}
+    TYPE SHARED
     )
 
 target_include_directories (${this} PUBLIC
