@@ -2497,7 +2497,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       type(ESMF_Time)            :: currentTime, origTime
       type(ESMF_Time)            :: timeBasedOnCycle24
       type(ESMF_Time)            :: startCycle24, startCycle25
-      type(ESMF_TimeInterval)    :: timeSinceStartOfCycle25
+      type(ESMF_TimeInterval)    :: timeSinceStartOfCycle25, lengthofCycle24
 
       integer :: currentYear, currentMon, currentDay, currentDOY
       integer :: prevDOY, nextDOY, prevNoonYear, nextNoonYear
@@ -2693,11 +2693,17 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
             timeSinceStartOfCycle25 = currentTime - startCycle25
 
-            ! Make a new time based on that
-            ! interval past start of Cycle 24
-            ! -------------------------------
+            ! Get the length of Cycle 24
+            ! --------------------------
 
-            timeBasedOnCycle24 = startCycle24 + timeSinceStartOfCycle25
+            lengthofCycle24 = startCycle25 - startCycle24
+
+            ! Make a new time based on that interval past start of Cycle
+            ! 24 NOTE: We need to use modulo to ensure that we are
+            ! always in the range of the Cycle 24 time interval
+            ! ----------------------------------------------------------
+
+            timeBasedOnCycle24 = startCycle24 + mod(timeSinceStartOfCycle25, lengthofCycle24)
 
             ! Store our original time just in case
             ! ------------------------------------
