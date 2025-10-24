@@ -10,6 +10,7 @@ set(srcs
   DataCollection.F90
   DataCollectionVector.F90
   DataCollectionManager.F90
+  CompressionSettings.F90
   )
 
 esma_add_library(${this}
