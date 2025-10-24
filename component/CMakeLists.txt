@@ -14,7 +14,7 @@ set (srcs
 esma_add_library(${this}
     SRCS ${srcs}
     DEPENDENCIES MAPL.esmf_utils MAPL.shared
-    TYPE ${MAPL_LIBARRY_TYPE}
+    TYPE SHARED
     )
 
 esma_add_fortran_submodules(
