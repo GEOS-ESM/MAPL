@@ -199,8 +199,16 @@ contains
       type(ESMF_CubedSphereTransform_Args) :: transformArgument
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'create_basic_grid'
+      character(len=:), allocatable :: grid_name
 
       _UNUSED_DUMMY(unusable)
+
+
+      if (this%grid_name == MAPL_GRID_NAME_DEFAULT) then
+         grid_name = this%generate_grid_name()
+      else
+         grid_name = this%grid_name
+      endif
 
       if (this%grid_type <=3) then
          nTile=6
@@ -229,7 +237,7 @@ contains
             transformArgument%target_lon=this%target_lon
             transformArgument%target_lat=this%target_lat
             grid = ESMF_GridCreateCubedSPhere(this%im_world,countsPerDEDim1PTile=ims, &
-                      countsPerDEDim2PTile=jms ,name=this%grid_name, &
+                      countsPerDEDim2PTile=jms ,name=grid_name, &
                       staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, &
                       transformArgs=transformArgument,rc=status)
             _VERIFY(status)
@@ -241,14 +249,14 @@ contains
             _VERIFY(status)
          else
             grid = ESMF_GridCreateCubedSPhere(this%im_world,countsPerDEDim1PTile=ims, &
-                      countsPerDEDim2PTile=jms ,name=this%grid_name, &
+                      countsPerDEDim2PTile=jms ,name=grid_name, &
                       staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
             _VERIFY(status)
          end if
          call ESMF_AttributeSet(grid, name='GridType', value='Cubed-Sphere', rc=status)
       else
          grid = ESMF_GridCreateNoPeriDim( &
-              & name = this%grid_name, &
+              & name = grid_name, &
               & countsPerDEDim1=this%ims, &
               & countsPerDEDim2=this%jms, &
               & indexFlag=ESMF_INDEX_DELOCAL, &
