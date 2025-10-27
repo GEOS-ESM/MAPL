@@ -135,6 +135,7 @@ module MAPL_GriddedIOMod
         character(len=:), pointer :: attr_name, attr_val
         class(Variable), pointer :: coord_var
         integer :: status
+        character(len=ESMF_MAXSTR) :: Gridname
 
         call MAPL_FieldBundleDestroy(this%output_bundle, _RC)
 
@@ -230,10 +231,15 @@ module MAPL_GriddedIOMod
               call s_iter%next()
            enddo
         end if
+
+        if (.not. this%metadata%has_attribute('Gridname')) then
+          call ESMF_Gridget(this%output_grid, name=Gridname, _RC)
+          call this%metadata%add_attribute('Gridname', trim(Gridname), _RC)
+        endif
+
         _RETURN(_SUCCESS)
 
       end subroutine CreateFileMetaData
-
 
       subroutine destroy(this, rc)
         class (MAPL_GriddedIO), intent(inout) :: this
