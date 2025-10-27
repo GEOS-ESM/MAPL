@@ -1,5 +1,4 @@
 `MAPL_GridCompSpecs_ACG_writer.py`
-
 ===
 
 **`MAPL_GridCompSpecs_ACG_writer.py`** is a Python script that processes
