@@ -108,13 +108,11 @@ contains
 
       type(FileMetaData) :: metadata
       class(GeomPFIO), allocatable :: writer
-      type(MaplGeom), pointer :: mapl_geom
       integer :: status
 
       metadata = bundle_to_metadata(bundle, this%gridcomp_geom, _RC)
       allocate(writer, source=make_geom_pfio(metadata), _STAT)
-      mapl_geom => get_mapl_geom(this%gridcomp_geom, _RC)
-      call writer%initialize(metadata, mapl_geom, _RC)
+      call writer%initialize(metadata, this%gridcomp_geom, _RC)
       call writer%update_time_on_server(this%current_time, _RC)
       ! TODO: no-op if bundle is empty, or should we skip empty bundles?
       call writer%stage_data_to_file(bundle, filename, 1, _RC)
@@ -133,15 +131,13 @@ contains
       type(NetCDF4_FileFormatter) :: file_formatter
       type(FileMetaData) :: metadata
       class(GeomPFIO), allocatable :: reader
-      type(MaplGeom), pointer :: mapl_geom
       integer :: status
 
       call file_formatter%open(filename, PFIO_READ, _RC)
       metadata = file_formatter%read(_RC)
       call file_formatter%close(_RC)
       allocate(reader, source=make_geom_pfio(metadata), _STAT)
-      mapl_geom => get_mapl_geom(this%gridcomp_geom, _RC)
-      call reader%initialize(filename, mapl_geom, _RC)
+      call reader%initialize(filename, this%gridcomp_geom, _RC)
       call reader%request_data_from_file(filename, bundle, _RC)
       call i_Clients%done_collective_prefetch()
       call i_Clients%wait()

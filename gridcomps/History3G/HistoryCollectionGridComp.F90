@@ -65,7 +65,6 @@ contains
       type(ESMF_Geom) :: geom
       character(len=ESMF_MAXSTR) :: name
       type(FileMetadata) :: metadata
-      type(MaplGeom), pointer :: mapl_geom
 
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       call ESMF_GridCompGet(gridcomp, name=name, _RC)
@@ -75,10 +74,9 @@ contains
 
       geom = detect_geom(collection_gridcomp%output_bundle, name, _RC)
       metadata = bundle_to_metadata(collection_gridcomp%output_bundle, geom, _RC)
-      mapl_geom => get_mapl_geom(geom, _RC)
       allocate(collection_gridcomp%writer, source=make_geom_pfio(metadata, rc=status))
       _VERIFY(STATUS)
-      call collection_gridcomp%writer%initialize(metadata, mapl_geom, _RC)
+      call collection_gridcomp%writer%initialize(metadata, geom, _RC)
 
       collection_gridcomp%start_stop_times = set_start_stop_time(clock, hconfig, _RC)
       collection_gridcomp%timeStep = get_frequency(hconfig, _RC)
@@ -166,6 +164,9 @@ contains
       if (allocated(collection_gridcomp%real_time_vector))    deallocate(collection_gridcomp%real_time_vector)
       call get_real_time_vector(collection_gridcomp%initial_file_time, collection_gridcomp%time_vector, collection_gridcomp%real_time_vector, _RC)
       call collection_gridcomp%writer%stage_time_to_file(collection_gridcomp%current_file, collection_gridcomp%real_time_vector,  _RC)
+      if (time_index == 1) then
+         call collection_gridcomp%writer%stage_coordinates_to_file(collection_gridcomp%current_file, _RC)
+      end if
       call collection_gridcomp%writer%stage_data_to_file(collection_gridcomp%output_bundle, collection_gridcomp%current_file, time_index, _RC)
 
       call ESMF_TimeGet(current_time, timeString=time_string, _RC)

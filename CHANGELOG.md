@@ -104,9 +104,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix a memory leak in trajectory sampler due to misuage of FieldRegrid which should be FieldRedist
 - Fixed `mapl_acg.cmake` to allow for more than one StateSpecs file per target
 - Fix NVHPC issue with IEEE halting code
+- Fix a misspelled `MAPL_LIBRARY_TYPE` in `vertical`
 
 ### Added
 
+- Added 'Gridname' attribute to history output
 - Create TilgridIO's outbundle from output grid and deallocate mGriddedIO in History
 - Added TileGridIO.F90 to output NC4 History file in tile space. The collection's format should be 'CFIO'
 

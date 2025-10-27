@@ -20,7 +20,7 @@ esma_add_fortran_submodules(
   TARGET MAPL.geom
   SUBDIRECTORY LatLonGeomFactory
   SOURCES make_geom.F90 typesafe_make_geom.F90 create_basic_grid.F90
-          fill_coordinates.F90 make_gridded_dims.F90
+          fill_coordinates.F90 make_gridded_dims.F90 make_variable_attributes.F90
           make_file_metadata.F90 typesafe_make_file_metadata.F90)
 
 esma_add_fortran_submodules(
