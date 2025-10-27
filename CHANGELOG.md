@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix a misspelled `MAPL_LIBRARY_TYPE` in `vertical`
 
 ### Added
+- Add mem_usage_mod for mac and used in ExtDataDriver.x
 
 - Added 'Gridname' attribute to history output
 - Create TilgridIO's outbundle from output grid and deallocate mGriddedIO in History
