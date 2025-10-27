@@ -15,6 +15,7 @@ module mapl3g_SharedIO
    use MAPL_BaseMod
    use mapl3g_UngriddedDims
    use mapl3g_UngriddedDim
+   use mapl3g_CompressionSettings
    use esmf
 
    implicit none(type,external)
@@ -100,19 +101,30 @@ contains
       character(len=:), allocatable :: standard_name
 
       type(ESMF_Geom) :: esmfgeom
-      integer :: pfio_type, i
+      integer :: pfio_type, i, deflate_level, quantize_level, quantize_algorithm, zstandard_level
       type(MAPLGeom), pointer :: mapl_geom
       type(StringDictionary) :: extra_attributes
       character(len=:), pointer :: attr_name
       character(len=:), allocatable :: attr_val
       type(StringVector) :: extra_keys
+      type(ESMF_Info) :: infoh
+      type(CompressionSettings) :: compression_settings
 
       variable_dim_names = get_variable_dim_names(field, _RC)
       call ESMF_FieldGet(field, geom=esmfgeom, _RC)
       mapl_geom => get_mapl_geom(esmfgeom, _RC)
       call MAPL_FieldGet(field, short_name=short_name, typekind=typekind, _RC)
       pfio_type = esmf_to_pfio_type(typekind ,_RC)
-      v = Variable(type=pfio_type, dimensions=variable_dim_names)
+      call ESMF_InfoGetFromHost(field, infoh, _RC)
+      call compression_settings%update_from_info(infoh, _RC)
+      deflate_level = compression_settings%get_deflate_level()
+      zstandard_level = compression_settings%get_zstandard_level()
+      quantize_level = compression_settings%get_quantize_level()
+      quantize_algorithm = compression_settings%get_quantize_algorithm()
+
+      v = Variable(type=pfio_type, dimensions=variable_dim_names, &
+                   deflation=deflate_level, zstandard_level=zstandard_level, &
+                   quantize_level=quantize_level, quantize_algorithm=quantize_algorithm)
 
       ! Attributes
       call MAPL_FieldGet(field, units=units, long_name=long_name, standard_name=standard_name, _RC)

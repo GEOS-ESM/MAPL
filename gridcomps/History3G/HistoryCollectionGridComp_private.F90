@@ -6,6 +6,7 @@ module mapl3g_HistoryCollectionGridComp_private
    use gFTL2_StringSet
    use mapl3g_EsmfRegridder, only: EsmfRegridderParam
    use mapl3g_RegridderMethods
+   use mapl3g_CompressionSettings
 
    implicit none(type,external)
    private
@@ -81,12 +82,14 @@ contains
       character(len=:), allocatable :: alias, short_name
       type(ESMF_Field) :: field, new_field
       type(ESMF_Info) :: info, new_info
+      type(CompressionSettings) :: compression_settings
 
       var_list = ESMF_HConfigCreateAt(hconfig, keystring=VAR_LIST_KEY, _RC)
       iter_begin = ESMF_HConfigIterBegin(var_list,_RC)
       iter_end = ESMF_HConfigIterEnd(var_list,_RC)
       iter = iter_begin
 
+      call parse_compression_options(hconfig, compression_settings, _RC)
       bundle = ESMF_FieldBundleCreate(_RC)
       do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
          call parse_item(iter, alias, short_name, _RC)
@@ -95,6 +98,7 @@ contains
          call ESMF_InfoGetFromHost(field, info, _RC)
          call ESMF_InfoGetFromHost(new_field, new_info, _RC)
          call ESMF_InfoSet(new_info, key="", value=info, _RC)
+         call compression_settings%sync_to_info(new_info, _RC)
          call ESMF_FieldBundleAdd(bundle, [new_field], _RC)
       end do
 
@@ -477,6 +481,18 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_frequency
+
+   subroutine parse_compression_options(hconfig, compression_settings, rc)
+      type(ESMF_HConfig), intent(in) :: hconfig
+      type(CompressionSettings), intent(out) :: compression_settings
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      compression_settings = CompressionSettings(hconfig, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine parse_compression_options
 
    subroutine parse_regridder_option(hconfig, options, rc)
       type(ESMF_HConfig), intent(in) :: hconfig
