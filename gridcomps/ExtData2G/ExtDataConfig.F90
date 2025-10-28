@@ -288,7 +288,7 @@ contains
       rule_iterator = this%rule_map%begin()
       do while(rule_iterator /= this%rule_map%end())
          key => rule_iterator%key()
-         if (index(key,trim(item_name))/=0) then
+         if (trim(key)==trim(item_name)) then
             found_rule = .true.
             found_key = key
             exit
