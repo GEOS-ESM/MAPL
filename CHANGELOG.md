@@ -9,8 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed bug when one of the two names in an ExtData2G rule for a vector is contained is a substring in another item, for example UA;VA and EVAP
-
 ### Added
 
 ### Changed
@@ -18,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.62.2] - 2025-10-29
+
+### Fixed
+
+- Fixed bug when one of the two names in an ExtData2G rule for a vector is contained is a substring in another item, for example UA;VA and EVAP
 
 ## [2.62.1] - 2025-10-14
 
