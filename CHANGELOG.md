@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix a misspelled `MAPL_LIBRARY_TYPE` in `vertical`
 
 ### Added
+- Added updated version of `MAPL_GridCompSpecs_ACG_writer.py`
 
 - Added 'Gridname' attribute to history output
 - Create TilgridIO's outbundle from output grid and deallocate mGriddedIO in History
@@ -25,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update CI to use Baselibs 8.20.0
 - Add gcc15 test
 - Update CI to use organization reusable workflows
+- Update README_ACG_WRITER.md.
 
 ### Removed
 
