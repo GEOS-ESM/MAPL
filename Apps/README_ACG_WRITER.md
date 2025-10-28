@@ -1,4 +1,4 @@
-#`MAPL_GridCompSpecs_ACG_writer.py`
+# `MAPL_GridCompSpecs_ACG_writer.py`
 
 ## Introduction
 
