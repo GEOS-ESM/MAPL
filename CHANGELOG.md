@@ -13,9 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix a memory leak in trajectory sampler due to misuage of FieldRegrid which should be FieldRedist
 - Fixed `mapl_acg.cmake` to allow for more than one StateSpecs file per target
 - Fix NVHPC issue with IEEE halting code
+- Fix a misspelled `MAPL_LIBRARY_TYPE` in `vertical`
 
 ### Added
+- Added updated version of `MAPL_GridCompSpecs_ACG_writer.py`
 
+- Added 'Gridname' attribute to history output
 - Create TilgridIO's outbundle from output grid and deallocate mGriddedIO in History
 - Added TileGridIO.F90 to output NC4 History file in tile space. The collection's format should be 'CFIO'
 
@@ -24,12 +27,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update CI to use Baselibs 8.20.0
 - Add gcc15 test
 - Update CI to use organization reusable workflows
+- Update README_ACG_WRITER.md.
 
 ### Removed
 
 - Removed TileIO.F90. It is integrated into TileGridIO.F90
 
 ### Deprecated
+
+## [2.62.2] - 2025-10-29
+
+### Fixed
+
+- Fixed bug when one of the two names in an ExtData2G rule for a vector is contained is a substring in another item, for example UA;VA and EVAP
 
 ## [2.62.1] - 2025-10-14
 
