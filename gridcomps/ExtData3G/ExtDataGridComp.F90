@@ -173,8 +173,39 @@ contains
       call reader%read_items(lgr, _RC)
       call reader%destroy_reader(_RC)
 
+      call handle_fractional_regrid(extdata_gridcomp, current_time, exportState, _RC)
+
       _RETURN(_SUCCESS)
    end subroutine run
+
+  subroutine handle_fractional_regrid(extdata_internal, current_time, export_state, rc)
+      type(ExtDataGridComp), intent(in) :: extdata_internal
+      type(ESMF_Time), intent(in) :: current_time
+      type(ESMF_State), intent(inout) :: export_state
+      integer, optional, intent(out) :: rc
+
+      type(StringVectorIterator) :: iter
+      type(PrimaryExport), pointer :: export_item
+      character(len=:), allocatable :: export_name
+      character(len=:), pointer :: base_name
+      type(ESMF_FieldBundle) :: bundle 
+      integer :: idx, status
+
+      ! this entire loop is for the handling of the fractional regrid case
+      ! has to be done after everything is read
+      iter = extdata_internal%active_items%ftn_begin()
+      do while (iter /= extdata_internal%active_items%ftn_end())
+         call iter%next()
+         base_name => iter%of() 
+         idx = extdata_internal%get_item_index(base_name, current_time, _RC)
+         export_item => extdata_internal%export_vector%at(idx) 
+         if (export_item%is_constant) cycle
+         export_name = export_item%get_export_var_name()
+         call ESMF_StateGet(export_state, export_name, bundle, _RC) 
+         call export_item%set_fraction_values_to_zero(bundle, _RC)
+      enddo
+      _RETURN(_SUCCESS)
+  end subroutine handle_fractional_regrid
 
   function get_item_index(this,base_name,current_time,rc) result(item_index)
      integer :: item_index
