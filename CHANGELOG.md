@@ -62,6 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add a common set of string functions (StringCommon) in shared to consolidate
 - Add a new implementation of MAPL_HConfigGet that does not require a HConfigParams object
 - Add and use character parameters for `ESMF_Field` names in ExtensionTransform subclasses
+- Extend ExtensionTransform derived types to support ESMF_KIND_R8
 
 ### Changed
 
@@ -100,6 +101,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Removed obsolete pfio test
 - Fix a memory leak in trajectory sampler due to misuage of FieldRegrid which should be FieldRedist
 - Fixed `mapl_acg.cmake` to allow for more than one StateSpecs file per target
 - Fix NVHPC issue with IEEE halting code

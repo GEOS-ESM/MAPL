@@ -24,11 +24,10 @@ module mapl3g_VerticalRegridTransform
    public :: VERTICAL_REGRID_LINEAR
    public :: VERTICAL_REGRID_CONSERVATIVE
    public :: operator(==), operator(/=)
-!   public :: COUPLER_IMPORT_NAME
-!   public :: COUPLER_EXPORT_NAME
-!  import[1]
-!  export[1]
 
+   ! The interpolation matrix is real32. This type may need to be extended
+   ! with a subtype for ESMF_KIND_R4 Fields and a subtype for ESMF_KIND_R8 Fields
+   ! with real32 and real64 matrices, respectively.
    type, extends(ExtensionTransform) :: VerticalRegridTransform
       type(ESMF_Field) :: v_in_coord, v_out_coord
       type(SparseMatrix_sp), allocatable :: matrix(:)
@@ -48,9 +47,6 @@ module mapl3g_VerticalRegridTransform
    interface VerticalRegridTransform
       procedure :: new_VerticalRegridTransform
    end interface VerticalRegridTransform
-
-!   character(len=*), parameter :: COUPLER_IMPORT_NAME = 'coupler_import'
-!   character(len=*), parameter :: COUPLER_EXPORT_NAME = 'coupler_export'
 
 contains
 

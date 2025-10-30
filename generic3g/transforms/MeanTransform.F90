@@ -1,4 +1,6 @@
 #include "MAPL.h"
+#include "accumulator_type_undef.h"
+
 module mapl3g_MeanTransform
    use mapl3g_AccumulatorTransform
    use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
@@ -21,7 +23,9 @@ module mapl3g_MeanTransform
       procedure :: update_result => update_result_mean
       procedure :: calculate_mean
       procedure :: calculate_mean_R4
+      procedure :: calculate_mean_R8
       procedure :: accumulate_R4
+      procedure :: accumulate_R8
    end type MeanTransform
 
    type(ESMF_TypeKind_Flag), parameter :: COUNTER_TYPEKIND = ESMF_TYPEKIND_I4
@@ -84,7 +88,7 @@ contains
       if(this%typekind == ESMF_TYPEKIND_R4) then
          call this%calculate_mean_R4(_RC)
       else
-         _FAIL('Unsupported typekind')
+         call this%calculate_mean_R8(_RC)
       end if
       _RETURN(_SUCCESS)
 
@@ -102,51 +106,30 @@ contains
 
    end subroutine update_result_mean
 
+#define MEAN_ACCUMULATOR_
+#include "macros_undef.h"
+#include "macros.h"
    subroutine calculate_mean_R4(this, rc)
-      class(MeanTransform), intent(inout) :: this
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      real(kind=ESMF_KIND_R4), pointer :: current_ptr(:)
-      integer(kind=COUNTER_KIND), pointer :: counter(:)
-      real(kind=ESMF_KIND_R4), parameter :: UNDEF = MAPL_UNDEFINED_REAL
-
-      current_ptr => null()
-      counter => null()
-      call assign_fptr(this%accumulation_field, current_ptr, _RC)
-      call assign_fptr(this%counter_field, counter, _RC)
-      where(counter /= 0)
-         current_ptr = current_ptr / counter
-      elsewhere
-         current_ptr = UNDEF
-      end where
-      _RETURN(_SUCCESS)
-
+#include "calculate_mean_template.h"
    end subroutine calculate_mean_R4
 
    subroutine accumulate_R4(this, update_field, rc)
       class(MeanTransform), intent(inout) :: this
-      type(ESMF_Field), intent(inout) :: update_field
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      real(kind=ESMF_KIND_R4), pointer :: current(:)
-      real(kind=ESMF_KIND_R4), pointer :: latest(:)
-      integer(kind=COUNTER_KIND), pointer :: counter(:)
-      real(kind=ESMF_KIND_R4), parameter :: UNDEF = MAPL_UNDEFINED_REAL
-
-      current => null()
-      latest => null()
-      counter => null()
-      call assign_fptr(this%accumulation_field, current, _RC)
-      call assign_fptr(update_field, latest, _RC)
-      call assign_fptr(this%counter_field, counter, _RC)
-      where(latest /= UNDEF)
-        current = current + latest
-        counter = counter + 1_COUNTER_KIND
-      end where
-      _RETURN(_SUCCESS)
-
+#include "accumulate_template.h"
    end subroutine accumulate_R4
+
+#include "macros_undef.h"
+#define DP_
+#include "macros.h"
+   subroutine calculate_mean_R8(this, rc)
+#include "calculate_mean_template.h"
+   end subroutine calculate_mean_R8
+
+   subroutine accumulate_R8(this, update_field, rc)
+      class(MeanTransform), intent(inout) :: this
+#include "accumulate_template.h"
+   end subroutine accumulate_R8
+#undef DP_
+#undef MEAN_ACCUMULATOR_
 
 end module mapl3g_MeanTransform

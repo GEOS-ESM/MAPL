@@ -114,9 +114,9 @@ contains
          _FAIL('unsupported geomtype; needs simple extension')
 
          _RETURN(_SUCCESS)
+
       end subroutine get_geom
 
    end subroutine bundle_get
-
 
 end module mapl3g_FieldBundleGet

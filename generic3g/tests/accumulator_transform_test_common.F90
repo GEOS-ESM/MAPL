@@ -51,6 +51,22 @@ contains
 
    end subroutine set_undef
 
+   elemental logical function undef_r8(t) result(lval)
+      use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL64
+      real(kind=ESMF_KIND_R8), intent(in) :: t
+
+      lval = t == MAPL_UNDEFINED_REAL64
+
+   end function undef_r8
+
+   elemental subroutine set_undef_r8(t)
+      use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL64
+      real(kind=ESMF_KIND_R8), intent(inout) :: t
+
+      t = MAPL_UNDEFINED_REAL64
+
+   end subroutine set_undef_r8
+
    subroutine create_grid(grid, rc)
       type(ESMF_Grid), optional, intent(inout) :: grid
       integer, optional, intent(out) :: rc
