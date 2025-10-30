@@ -17,6 +17,7 @@ module mapl3g_AccumulatorTransform
       type(ESMF_Field), allocatable :: accumulation_field
       type(ESMF_Field), allocatable :: result_field
       real(kind=ESMF_KIND_R4) :: CLEAR_VALUE_R4 = 0.0_ESMF_KIND_R4
+      real(kind=ESMF_KIND_R8) :: CLEAR_VALUE_R8 = 0.0_ESMF_KIND_R8
       logical :: update_calculated = .FALSE.
       logical :: initialized = .FALSE.
    contains
@@ -30,6 +31,7 @@ module mapl3g_AccumulatorTransform
       ! Helpers
       procedure :: accumulate
       procedure :: accumulate_R4
+      procedure :: accumulate_R8
       procedure :: clear
       procedure :: create_fields
       procedure :: update_result
@@ -54,7 +56,7 @@ contains
       if(this%typekind == ESMF_TYPEKIND_R4) then
          call FieldSet(this%accumulation_field, this%CLEAR_VALUE_R4, _RC)
       else
-         _FAIL('Unsupported typekind')
+         call FieldSet(this%accumulation_field, this%CLEAR_VALUE_R8, _RC)
       end if
       _RETURN(_SUCCESS)
 
@@ -79,8 +81,8 @@ contains
       ! Get fields from state and confirm typekind match and conformable.
       call get_field(importState, import_field, _RC)
       call ESMF_FieldGet(import_field, typekind=typekind, _RC)
-      ! This check goes away if ESMF_TYPEKIND_R8 is supported.
-      _ASSERT(this%typekind==typekind, 'Import typekind does not match accumulator typekind')
+      _ASSERT(typekind == ESMF_TYPEKIND_R4 .or. typekind == ESMF_TYPEKIND_R8, 'Invalid typekind')
+      this%typekind = typekind
 
       call get_field(exportState, export_field, _RC)
       same_typekind = FieldsAreSameTypeKind(import_field, export_field, _RC)
@@ -202,35 +204,28 @@ contains
       if(this%typekind == ESMF_TYPEKIND_R4) then
          call this%accumulate_R4(update_field, _RC)
       else
-         _FAIL('Unsupported typekind value')
+         call this%accumulate_R8(update_field, _RC)
       end if
 
       _RETURN(_SUCCESS)
 
    end subroutine accumulate
 
+#include "macros_undef.h"
+#include "macros.h"
    subroutine accumulate_R4(this, update_field, rc)
       class(AccumulatorTransform), intent(inout) :: this
-      type(ESMF_Field), intent(inout) :: update_field
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      real(kind=ESMF_KIND_R4), pointer :: current(:)
-      real(kind=ESMF_KIND_R4), pointer :: latest(:)
-      real(kind=ESMF_KIND_R4), parameter :: UNDEF = MAPL_UNDEFINED_REAL
-
-      current => null()
-      latest => null()
-      call assign_fptr(this%accumulation_field, current, _RC)
-      call assign_fptr(update_field, latest, _RC)
-      where(current /= UNDEF .and. latest /= UNDEF)
-        current = current + latest
-      elsewhere(latest == UNDEF)
-        current = UNDEF
-      end where
-      _RETURN(_SUCCESS)
-
+#include "accumulate_template.h"
    end subroutine accumulate_R4
+
+#include "macros_undef.h"
+#define DP_
+#include "macros.h"
+   subroutine accumulate_R8(this, update_field, rc)
+      class(AccumulatorTransform), intent(inout) :: this
+#include "accumulate_template.h"
+   end subroutine accumulate_R8
+#undef DP_
 
    logical function runs_invalidate(this)
       class(AccumulatorTransform), intent(in) :: this
