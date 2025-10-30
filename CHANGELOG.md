@@ -16,14 +16,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix a misspelled `MAPL_LIBRARY_TYPE` in `vertical`
 
 ### Added
-- Added updated version of `MAPL_GridCompSpecs_ACG_writer.py`
 
+- Added updated version of `MAPL_GridCompSpecs_ACG_writer.py`
 - Added 'Gridname' attribute to history output
 - Create TilgridIO's outbundle from output grid and deallocate mGriddedIO in History
 - Added TileGridIO.F90 to output NC4 History file in tile space. The collection's format should be 'CFIO'
 
 ### Changed
 
+- Added `pfaf_index` to `MAPL_Losctream`
+- Enforced present of grid when reading binary tile file
 - Update CI to use Baselibs 8.20.0
 - Add gcc15 test
 - Update CI to use organization reusable workflows
@@ -84,8 +86,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Added pfaf_index to MAPL_Losctream
-- Enforced present of grid when reading binary tile file
 - Updated the default `VERSION` in History to `1` (which has been the effective default in `HISTORY.rc` for some time)
 - Update `components.yaml`
   - `ESMA_env` v5.13.0
