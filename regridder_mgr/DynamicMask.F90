@@ -483,16 +483,13 @@ contains
       real(ESMF_KIND_R8),            intent(in), optional :: dynamicDstMaskValue
       integer,                       intent(out)          :: rc
       integer :: i, j, k, n
-      real(ESMF_KIND_R8), allocatable  :: renorm(:)
 
       if (associated(dynamicMaskList)) then
          n = size(dynamicMaskList(1)%srcElement(1)%ptr)
-         allocate(renorm(n))
 
          do i=1, size(dynamicMaskList)
             dynamicMaskList(i)%dstElement = 0.0 ! set to zero
 
-            renorm = 0.d0 ! reset
             do j=1, size(dynamicMaskList(i)%factor)
                do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
                   if (.not. &
@@ -500,7 +497,6 @@ contains
                      if (nint(dynamicMaskList(i)%srcElement(j)%ptr(k)) == 0) then
                         dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) + &
                              & dynamicMaskList(i)%factor(j)
-                        renorm(k) = renorm(k) + dynamicMaskList(i)%factor(j)
                      end if
                   endif
                end do
@@ -520,16 +516,13 @@ contains
       real(ESMF_KIND_R4),            intent(in), optional :: dynamicDstMaskValue
       integer,                       intent(out)          :: rc
       integer :: i, j, k, n
-      real(ESMF_KIND_R4), allocatable  :: renorm(:)
 
       if (associated(dynamicMaskList)) then
          n = size(dynamicMaskList(1)%srcElement(1)%ptr)
-         allocate(renorm(n))
 
          do i=1, size(dynamicMaskList)
             dynamicMaskList(i)%dstElement = 0.0 ! set to zero
 
-            renorm = 0.d0 ! reset
             do j=1, size(dynamicMaskList(i)%factor)
                do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
                   if (.not. &
@@ -537,7 +530,6 @@ contains
                      if (nint(dynamicMaskList(i)%srcElement(j)%ptr(k)) == 0) then
                         dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) + &
                              & dynamicMaskList(i)%factor(j)
-                        renorm(k) = renorm(k) + dynamicMaskList(i)%factor(j)
                      end if
                   endif
                end do

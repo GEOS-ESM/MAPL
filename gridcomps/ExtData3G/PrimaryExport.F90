@@ -20,6 +20,7 @@ module mapl3g_PrimaryExport
    use pfio, only: i_clients
    use VerticalCoordinateMod
    use mapl3g_FieldBundleSet
+   use mapl3g_FieldBundleGet
    use mapl3g_EsmfRegridder, only: EsmfRegridderParam
    use mapl3g_RegridderMethods
    implicit none
@@ -37,6 +38,7 @@ module mapl3g_PrimaryExport
       type(ESMF_Time), allocatable :: start_and_end(:)
       real :: linear_trans(2) ! offset, scaling
       character(len=:), allocatable :: regridding_method
+      integer :: fraction_value
 
       contains
          procedure :: get_file_selector
@@ -47,6 +49,7 @@ module mapl3g_PrimaryExport
          procedure :: get_bracket
          procedure :: update_my_bracket
          procedure :: append_state_to_reader
+         procedure :: set_fraction_values_to_zero
    end type
 
    interface PrimaryExport
@@ -69,7 +72,7 @@ module mapl3g_PrimaryExport
       type(ClimDataSetFileSelector) :: clim_file_selector 
       type(DataSetNode) :: left_node, right_node
       character(len=:), allocatable :: file_template
-      integer :: status
+      integer :: status, semi_pos
 
       primary_export%export_var = export_var
       primary_export%is_constant = .not.associated(collection)
@@ -83,7 +86,14 @@ module mapl3g_PrimaryExport
          end if
          primary_export%file_var = rule%file_var
          primary_export%linear_trans = rule%linear_trans
-         primary_export%regridding_method = rule%regrid_method
+         if (index(rule%regrid_method, 'FRACTION') > 0) then
+            semi_pos = index(rule%regrid_method, ';')
+            _ASSERT(semi_pos > 0, "Specified fractional regridding but did not specify fraction value")
+            read(rule%regrid_method(semi_pos+1:),*)primary_export%fraction_value
+            primary_Export%regridding_method = 'FRACTION'
+         else
+            primary_export%regridding_method = rule%regrid_method
+         end if
          call left_node%set_node_side(NODE_LEFT)
          call right_node%set_node_side(NODE_RIGHT)
          call primary_export%bracket%set_node(NODE_LEFT, left_node)
@@ -275,5 +285,33 @@ module mapl3g_PrimaryExport
 
       _RETURN(_SUCCESS)
    end subroutine append_state_to_reader
+
+   subroutine set_fraction_values_to_zero(this, bundle, rc)
+      class(PrimaryExport), intent(inout) :: this
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Field), allocatable :: field_list(:)
+      integer :: status, i
+      type(ESMF_TypeKind_Flag) :: tk
+      real(ESMF_KIND_R4), pointer :: ptr_r4(:)
+      real(ESMF_KIND_R8), pointer :: ptr_r8(:)
+
+      call FieldBundleGet(bundle, fieldList=field_list, _RC)
+      do i=1,size(field_list)
+         call ESMF_FieldGet(field_list(i), typekind=tk, _RC)
+         if (tk == ESMF_TYPEKIND_R4) then
+            call assign_fptr(field_list(i), ptr_r4, _RC)
+            ptr_r4 = ptr_r4 - real(this%fraction_value, kind=ESMF_KIND_R4)
+         else if (tk == ESMF_TYPEKIND_R8) then
+            call assign_fptr(field_list(i), ptr_r8, _RC)
+            ptr_r8 = ptr_r8 - real(this%fraction_value, kind=ESMF_KIND_R8)
+         else
+            _FAIL('Unsupported typekind')
+         end if
+      enddo 
+      _RETURN(_SUCCESS)
+
+   end subroutine set_fraction_values_to_zero
 
 end module mapl3g_PrimaryExport
