@@ -199,7 +199,7 @@ contains
          base_name => iter%of() 
          idx = extdata_internal%get_item_index(base_name, current_time, _RC)
          export_item => extdata_internal%export_vector%at(idx) 
-         if (export_item%is_constant) cycle
+         if (export_item%is_constant .or. (export_item%regridding_method /= 'FRACTION')) cycle
          export_name = export_item%get_export_var_name()
          call ESMF_StateGet(export_state, export_name, bundle, _RC) 
          call export_item%set_fraction_values_to_zero(bundle, _RC)
