@@ -278,7 +278,7 @@ contains
 
       type(ExtDataRuleMapIterator) :: rule_iterator
       character(len=:), pointer :: key
-      character(len=:), allocatable :: found_key
+      character(len=:), allocatable :: found_key, stripped_name
       logical :: found_rule
 
       _UNUSED_DUMMY(unusable)
@@ -288,7 +288,8 @@ contains
       rule_iterator = this%rule_map%begin()
       do while(rule_iterator /= this%rule_map%end())
          key => rule_iterator%key()
-         if (index(key,trim(item_name))/=0) then
+         stripped_name = strip_multi_rule(key)
+         if (trim(stripped_name)==trim(item_name)) then
             found_rule = .true.
             found_key = key
             exit
@@ -316,6 +317,20 @@ contains
          found_rule = .true.
       end if
       _RETURN(_SUCCESS)
+
+   contains
+      function strip_multi_rule(full_name) result(stripped_name)
+         character(len=:), allocatable :: stripped_name
+         character(len=*), intent(in) :: full_name
+ 
+         integer :: plus_sign
+         plus_sign = index(full_name,'+')
+         if (plus_sign == 0) then
+            stripped_name=full_name
+         else
+            stripped_name=full_name(:plus_sign-1)
+         end if
+      end function
    end function get_item_type
 
    subroutine add_new_rule(this,key,export_rule,multi_rule,rc)
