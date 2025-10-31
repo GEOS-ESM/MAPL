@@ -1,4 +1,6 @@
 #include "MAPL.h"
+#include "accumulator_type_undef.h"
+
 module mapl3g_MinTransform
    use mapl3g_AccumulatorTransform
    use MAPL_ExceptionHandling
@@ -13,6 +15,7 @@ module mapl3g_MinTransform
    type, extends(AccumulatorTransform) :: MinTransform
    contains
       procedure :: accumulate_R4 => min_accumulate_R4
+      procedure :: accumulate_R8 => min_accumulate_R8
    end type MinTransform
 
 contains
@@ -23,28 +26,26 @@ contains
 
       acc%typekind = typekind
       acc%CLEAR_VALUE_R4 = MAPL_UNDEFINED_REAL
+      acc%CLEAR_VALUE_R8 = MAPL_UNDEFINED_REAL64
 
    end function construct_MinTransform
 
+#define MIN_ACCUMULATOR_
+#include "macros_undef.h"
+#include "macros.h"
    subroutine min_accumulate_R4(this, update_field, rc)
       class(MinTransform), intent(inout) :: this
-      type(ESMF_Field), intent(inout) :: update_field
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      real(kind=ESMF_KIND_R4), pointer :: current(:)
-      real(kind=ESMF_KIND_R4), pointer :: latest(:)
-      real(kind=ESMF_KIND_R4), parameter :: UNDEF = MAPL_UNDEFINED_REAL
-
-      call assign_fptr(this%accumulation_field, current, _RC)
-      call assign_fptr(update_field, latest, _RC)
-      where(current == UNDEF)
-         current = latest
-      elsewhere(latest /= UNDEF)
-         current = min(current, latest)
-      end where
-      _RETURN(_SUCCESS)
-
+#include "accumulate_template.h"
    end subroutine min_accumulate_R4
+
+#include "macros_undef.h"
+#define DP_
+#include "macros.h"
+   subroutine min_accumulate_R8(this, update_field, rc)
+      class(MinTransform), intent(inout) :: this
+#include "accumulate_template.h"
+   end subroutine min_accumulate_R8
+#undef DP_
+#undef MAX_ACCUMULATOR_
 
 end module mapl3g_MinTransform

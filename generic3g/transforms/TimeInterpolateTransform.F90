@@ -7,7 +7,7 @@ module mapl3g_TimeInterpolateTransform
    use mapl3g_FieldBundle_API
    use mapl3g_InfoUtilities
    use MAPL_FieldUtils
-   use MAPL_Constants, only: MAPL_UNDEFINED_REAL
+   use MAPL_Constants, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
    use mapl_ErrorHandling
    use esmf
 
@@ -15,10 +15,6 @@ module mapl3g_TimeInterpolateTransform
    private
 
    public :: TimeInterpolateTransform
-!   public :: COUPLER_IMPORT_NAME
-!   public :: COUPLER_EXPORT_NAME
-!  import[1]
-!  export[1]
 
    type, extends(ExtensionTransform) :: TimeInterpolateTransform
    contains
@@ -30,9 +26,6 @@ module mapl3g_TimeInterpolateTransform
    interface TimeInterpolateTransform
       module procedure :: new_TimeInterpolateTransform
    end interface TimeInterpolateTransform
-
-!   character(len=*), parameter :: COUPLER_IMPORT_NAME = 'coupler_import'
-!   character(len=*), parameter :: COUPLER_EXPORT_NAME = 'coupler_export'
 
 contains
 
@@ -81,17 +74,16 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-!#      if (typekind == ESMF_TYPEKIND_R8) then
-!#         call run_r8(bundle_in, field_out, _RC)
-!#         _RETURN(_SUCCESS)
-!#      end if
+      if (typekind == ESMF_TYPEKIND_R8) then
+         call run_r8(bundle_in, field_out, _RC)
+         _RETURN(_SUCCESS)
+      end if
       
       _FAIL('unexpected typekind')
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(clock)
    end subroutine update
-
 
    subroutine run_r4(bundle_in, field_out, rc)
       type(ESMF_FieldBundle), intent(in) :: bundle_in
@@ -122,6 +114,36 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine run_r4
+
+   subroutine run_r8(bundle_in, field_out, rc)
+      type(ESMF_FieldBundle), intent(in) :: bundle_in
+      type(ESMF_Field), intent(inout) :: field_out
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      real(kind=ESMF_KIND_R8), pointer :: y(:), xi(:)
+      real(kind=ESMF_KIND_R4), allocatable :: weights(:)
+      integer :: i
+      type(ESMF_Field), allocatable :: fieldList(:)
+      type(ESMF_Info) :: bundle_info
+
+
+      call MAPL_FieldBundleGet(bundle_in, fieldList=fieldList, interpolation_weights=weights, _RC)
+
+      call assign_fptr(field_out, y, _RC)
+      y = weights(1)
+      do i = 1, size(fieldList)
+         call assign_fptr(fieldList(i), xi, _RC)
+         where (xi /= MAPL_UNDEFINED_REAL64 .and. y /= MAPL_UNDEFINED_REAL64)
+            y = y + weights(i+1) * xi
+         elsewhere
+            y = MAPL_UNDEFINED_REAL
+         end where
+      end do
+
+      _RETURN(_SUCCESS)
+
+   end subroutine run_r8
 
    function get_transformId(this) result(id)
       type(TransformId) :: id
