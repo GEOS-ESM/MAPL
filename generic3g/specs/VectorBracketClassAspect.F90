@@ -133,7 +133,7 @@ contains
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
       call FieldBundleInfoSetInternal(info, spec_handle=handle, allocation_status=STATEITEM_ALLOCATION_CREATED, bracket_updated=.true.,  _RC)
-      call MAPL_FieldBundleSet(this%payload, allocation_status=STATE_ALLOCATIONS_CREATED, _RC)
+      call MAPL_FieldBundleSet(this%payload, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine create
