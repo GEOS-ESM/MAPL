@@ -51,6 +51,8 @@ contains
          type_flag = FIELDBUNDLETYPE_VECTOR
       case ("FIELDBUNDLETYPE_BRACKET")
          type_flag = FIELDBUNDLETYPE_BRACKET
+      case ("FIELDBUNDLETYPE_BRACKET")
+         type_flag = FIELDBUNDLETYPE_BRACKET_VECTOR
       case default
          type_flag = FIELDBUNDLETYPE_INVALID
       end select

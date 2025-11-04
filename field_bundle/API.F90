@@ -28,6 +28,7 @@ module mapl3g_FieldBundle_API
    public :: FIELDBUNDLETYPE_BASIC
    public :: FIELDBUNDLETYPE_VECTOR
    public :: FIELDBUNDLETYPE_BRACKET
+   public :: FIELDBUNDLETYPE_VECTOR_BRACKET
 
    public :: operator(==)
    public :: operator(/=)
