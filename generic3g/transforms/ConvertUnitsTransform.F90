@@ -2,6 +2,7 @@
 
 module mapl3g_ConvertUnitsTransform
    use mapl3g_TransformId
+   use mapl3g_StateItem
    use mapl3g_ExtensionTransform
    use udunits2f, only: UDUNITS_Converter => Converter
    use udunits2f, only: UDUNITS_GetConverter => get_converter
@@ -60,7 +61,54 @@ contains
       _UNUSED_DUMMY(clock)
    end subroutine initialize
 
+   subroutine update_field(f_in, f_out, converter, rc)
+      type(ESMF_Field), intent(inout) :: f_in, f_out
+      type(UDUNITS_converter), intent(in) :: converter
+      integer, optional, intent(out) :: rc
+      integer :: status
+      real(kind=ESMF_KIND_R4), pointer :: x4_in(:)
+      real(kind=ESMF_KIND_R4), pointer :: x4_out(:)
+      real(kind=ESMF_KIND_R8), pointer :: x8_in(:)
+      real(kind=ESMF_KIND_R8), pointer :: x8_out(:)
+      type(ESMF_TypeKind_Flag) :: typekind
+
+      call ESMF_FieldGet(f_in, typekind=typekind, _RC)
+      if (typekind == ESMF_TYPEKIND_R4) then
+         call assign_fptr(f_in, x4_in, _RC)
+         call assign_fptr(f_out, x4_out, _RC)
+         x4_out = converter%convert(x4_in)
+         _RETURN(_SUCCESS)
+      end if
+
+      if (typekind == ESMF_TYPEKIND_R8) then
+         call assign_fptr(f_in, x8_in, _RC)
+         call assign_fptr(f_out, x8_out, _RC)
+         x8_out = converter%convert(x8_in)
+         _RETURN(_SUCCESS)
+      end if
+
+      _FAIL('unsupported typekind')
+
+   end subroutine update_field
       
+   subroutine update_field_bundle(fb_in, fb_out, converter, rc)
+      type(ESMF_FieldBundle), intent(inout) :: fb_in, fb_out
+      type(UDUNITS_Converter), intent(in) :: converter
+      integer, optional, intent(out) :: rc
+      integer :: status
+      integer :: i
+      type(ESMF_Field), allocatable :: fieldlist_in(:), fieldlist_out(:)
+
+      call ESMF_FieldBundleGet(fb_in, fieldlist=fieldlist_in, _RC)
+      call ESMF_FieldBundleGet(fb_out, fieldlist=fieldlist_out, _RC)
+      _ASSERT(size(fieldlist_in) == size(fieldlist_out), 'The FieldBundles have different sizes.')
+      do i=1, size(fieldlist_in)
+         call update_field(fieldlist_in(i), fieldlist_out(i), converter, _RC)
+      end do
+      _RETURN(_SUCCESS)
+
+   end subroutine update_field_bundle
+
    subroutine update(this, importState, exportState, clock, rc)
       use esmf
       class(ConvertUnitsTransform), intent(inout) :: this
@@ -68,34 +116,48 @@ contains
       type(ESMF_State)      :: exportState
       type(ESMF_Clock)      :: clock      
       integer, optional, intent(out) :: rc
+!      type(ESMF_TypeKind_Flag) :: typekind
 
       integer :: status
-      type(ESMF_TypeKind_Flag) :: typekind
+!      type(ESMF_TypeKind_Flag) :: typekind
       type(ESMF_Field) :: f_in, f_out
-      real(kind=ESMF_KIND_R4), pointer :: x4_in(:)
-      real(kind=ESMF_KIND_R4), pointer :: x4_out(:)
-      real(kind=ESMF_KIND_R8), pointer :: x8_in(:)
-      real(kind=ESMF_KIND_R8), pointer :: x8_out(:)
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+!      real(kind=ESMF_KIND_R4), pointer :: x4_in(:)
+!      real(kind=ESMF_KIND_R4), pointer :: x4_out(:)
+!      real(kind=ESMF_KIND_R8), pointer :: x8_in(:)
+!      real(kind=ESMF_KIND_R8), pointer :: x8_out(:)
+      type(ESMF_StateItem_Flag) :: itemtype_in, itemtype_out
 
-      call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=f_in, _RC)
-      call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=f_out, _RC)
+      call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, itemtype=itemtype_in, _RC)
+      call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, itemtype=itemtype_out, _RC)
+      _ASSERT(itemtype_in == itemtype_out, "Mismatched item types.")
 
-      call ESMF_FieldGet(f_in, typekind=typekind, _RC)
-      if (typekind == ESMF_TYPEKIND_R4) then
-         call assign_fptr(f_in, x4_in, _RC)
-         call assign_fptr(f_out, x4_out, _RC)
-         x4_out = this%converter%convert(x4_in)
-         _RETURN(_SUCCESS)
+      if(itemtype_in == MAPL_STATEITEM_FIELD) then
+         call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=f_in, _RC)
+         call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=f_out, _RC)
+         call update_field(f_in, f_out, this%converter, _RC)
+!      call ESMF_FieldGet(f_in, typekind=typekind, _RC)
+!      if (typekind == ESMF_TYPEKIND_R4) then
+!         call assign_fptr(f_in, x4_in, _RC)
+!         call assign_fptr(f_out, x4_out, _RC)
+!         x4_out = this%converter%convert(x4_in)
+!         _RETURN(_SUCCESS)
+      elseif(itemtype_in == MAPL_STATEITEM_FIELDBUNDLE) then
+         call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, fieldBundle=fb_in, _RC)
+         call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, fieldBundle=fb_out, _RC)
+         call update_field_bundle(fb_in, fb_out, this%converter, _RC)
+      else
+         _FAIL("Unsupported state item type")
       end if
 
-      if (typekind == ESMF_TYPEKIND_R8) then
-         call assign_fptr(f_in, x8_in, _RC)
-         call assign_fptr(f_out, x8_out, _RC)
-         x8_out = this%converter%convert(x8_in)
-         _RETURN(_SUCCESS)
-      end if
+!      if (typekind == ESMF_TYPEKIND_R8) then
+!         call assign_fptr(f_in, x8_in, _RC)
+!         call assign_fptr(f_out, x8_out, _RC)
+!         x8_out = this%converter%convert(x8_in)
+!         _RETURN(_SUCCESS)
+!      end if
 
-      _FAIL('unsupported typekind')
+!      _FAIL('unsupported typekind')
       _UNUSED_DUMMY(clock)
    end subroutine update
    
