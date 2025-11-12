@@ -35,6 +35,7 @@ contains
       type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
       character(len=:), allocatable :: short_name, collection_name, str_const
       type(VariableSpec) :: varspec
+      type(ESMF_StateItem_Flag) :: item_type
 
       if (ESMF_HConfigIsDefined(hconfig, keyString='subconfigs')) then
          is_seq = ESMF_HConfigIsSequence(hconfig, keyString='subconfigs') 
@@ -64,13 +65,15 @@ contains
                   itemType=MAPL_STATEITEM_EXPRESSION, expression=str_const, units="<unknown>", &
                   _RC)
                else
+                  item_type = get_maplitem_type(hconfig, _RC)
                   varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name, &
-                  itemType=MAPL_STATEITEM_BRACKET, bracket_size = 2, &
+                  itemType=item_type, bracket_size = 2, &
                   _RC)
                end if
             else
+               item_type = get_maplitem_type(hconfig, _RC)
                varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name, &
-               itemType=MAPL_STATEITEM_BRACKET, bracket_size = 2, &
+               itemType=item_type, bracket_size = 2, &
                _RC)
             end if
             call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
@@ -166,5 +169,23 @@ contains
       end if
       _RETURN(_SUCCESS)
    end function get_constant
+
+   function get_maplitem_type(hconfig, rc) result(item_type)
+      type(ESMF_StateItem_Flag) :: item_type
+      type(ESMF_HConfig), intent(in) :: hconfig
+      integer, intent(out) :: rc
+
+      logical :: has_variable
+      integer :: status
+      character(len=:), allocatable :: variable_name
+
+      item_type = MAPL_STATEITEM_BRACKET
+      has_variable = ESMF_HConfigIsDefined(hconfig, keyString='variable', _RC)
+      if (has_variable) then
+         variable_name = ESMF_HConfigAsString(hconfig, keyString='variable', _RC)
+         if (index(variable_name, ';') > 0) item_type = MAPL_STATEITEM_VECTOR_BRACKET
+      end if
+      _RETURN(_SUCCESS)
+   end function get_maplitem_type
 
 end module mapl3g_ExtDataGridComp_private
