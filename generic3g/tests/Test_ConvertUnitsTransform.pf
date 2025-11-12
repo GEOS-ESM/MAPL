@@ -10,6 +10,7 @@
 #  undef _SAFE_ALLOC
 #endif
 #define _SAFE_ALLOC(A, N) if(allocated(A)) deallocate(A); allocate(A(N))
+
 module Test_ConvertUnitsTransform
    use mapl3g_ConvertUnitsTransform
    use mapl3g_ExtensionTransform
@@ -175,58 +176,64 @@ contains
       type(ESMF_TypeKind_Flag), intent(in) :: typekinds(:)
       character(len=*), intent(in) :: names(:)
       integer, optional, intent(in) :: num_fields(:)
-      integer, intent(out) :: rc
+      integer, optional, intent(out) :: rc
+      integer :: status
       type(ESMF_Field) :: field
       type(ESMF_FieldBundle) :: field_bundle
       integer :: i, j, n
-      type(ESMF_StateItem_Flag) :: itemtype, itemtype_next
+      type(ESMF_StateItem_Flag) :: itemtype
       character(len=:), allocatable :: bundle_name
       type(ESMF_Field), allocatable :: field_list(:)
 
+      _HERE, '# states:', size(states)
+      do i=1, size(names)
+         _HERE, 'name: ' // trim(names(i))
+      end do
       n = size(states)
-      rc = FAILURE
+      if(.not. (size(typekinds) == n .and. size(names) == n)) then
+         _RETURN(FAILURE)
+      end if
+
       itemtype = MAPL_STATEITEM_FIELD
-      if(size(typekinds) /= n) return
-      if(size(names) /= n) return
       if(present(num_fields)) then
-         _HERE, num_fields
+         _HERE, 'num_fields = ', num_fields
          itemtype = MAPL_STATEITEM_FIELDBUNDLE
-         if(size(num_fields) /= n) return
+         if(size(num_fields) /= n) then
+            _RETURN(FAILURE)
+         end if
       end if
 
       if(itemtype == MAPL_STATEITEM_FIELD) then
+         _HERE, 'MAPL_STATEITEM_FIELD'
          do i=1, n
-            field = ESMF_FieldCreate(grid=grid, name=trim(names(i)), typekind=typekinds(i), rc=rc)
-            if(.not. successful(rc)) exit
-            call ESMF_StateAdd(states(i), fieldList=[field], rc=rc)
-            if(.not. successful(rc)) exit
+            _HERE, 'Create field ', i
+            field = ESMF_FieldCreate(grid=grid, name=trim(names(i)), typekind=typekinds(i), _RC)
+            _HERE, 'Add field ', i
+            call ESMF_StateAdd(states(i), fieldList=[field], _RC)
+            _HERE, 'Created and added field ', i
          end do
-         return
+         _RETURN(_SUCCESS)
       end if
 
-      rc = FAILURE
-      if(itemtype /= MAPL_STATEITEM_FIELDBUNDLE) return
+      if(itemtype /= MAPL_STATEITEM_FIELDBUNDLE) then
+         _RETURN(FAILURE)
+      end if
 
-      _HERE
+      _HERE, 'MAPL_STATEITEM_FIELDBUNDLE'
       do i = 1, n
          bundle_name = trim(names(i))
-         field_bundle = ESMF_FieldBundleCreate(name=bundle_name, rc=rc)
-         if(.not. successful(rc)) exit
+         field_bundle = ESMF_FieldBundleCreate(name=bundle_name, _RC)
          _SAFE_ALLOC(field_list, num_fields(i))
-         !allocate(field_list(num_fields(i)))
          do j = 1, size(field_list)
             field = ESMF_FieldCreate(grid=grid, name=bundle_name//integer_to_character(j),&
-            & typekind=typekinds(i), rc=rc)
-            if(.not. successful(rc)) exit
+            & typekind=typekinds(i), _RC)
             field_list(j) = field
          end do
-         if(.not. successful(rc)) exit
-         call ESMF_FieldBundleAdd(field_bundle, fieldList=field_list, rc=rc)
-         if(.not. successful(rc)) exit
-         call ESMF_StateAdd(states(i), fieldbundleList=[field_bundle], rc=rc)
+         call ESMF_FieldBundleAdd(field_bundle, fieldList=field_list, _RC)
+         call ESMF_StateAdd(states(i), fieldbundleList=[field_bundle], _RC)
       end do
 
-      _HERE, '# states:', size(states)
+      _RETURN(_SUCCESS)
    end subroutine initialize_states
 
    subroutine get_items(state, fields, bundles, rc)
@@ -238,7 +245,9 @@ contains
       integer :: itemcount
       type(ESMF_StateItem_Flag), allocatable :: itemtypes(:)
       character(len=ESMF_MAXSTR), allocatable :: itemnames(:)
+      character(len=ESMF_MAXSTR), allocatable :: packed_names(:)
 
+      _HERE, 'Into get_items'
       if(.not. (present(fields) .or. present(bundles))) then
          _RETURN(SUCCESS)
       end if
@@ -248,13 +257,27 @@ contains
       allocate(itemnames(itemcount))
       call ESMF_StateGet(state, itemTypeList=itemtypes, itemNameList=itemnames, _RC)
 
+      allocate(fields(0))
       if(present(fields)) then
-         fields = get_fields(state, pack(itemnames, itemtypes == MAPL_STATEITEM_FIELD), _RC)
+         packed_names = pack(itemnames, itemtypes == MAPL_STATEITEM_FIELD)
+         if(size(packed_names) > 0) then
+            _HERE, 'get fields'
+            _HERE, 'size(packed_names): ', size(packed_names)
+            fields = get_fields(state, packed_names, _RC)
+         end if
       end if
 
+      allocate(bundles(0))
       if(present(bundles)) then
-         bundles = get_bundles(state, pack(itemnames, itemtypes == MAPL_STATEITEM_FIELDBUNDLE), _RC)
+         packed_names = pack(itemnames, itemtypes == MAPL_STATEITEM_FIELDBUNDLE)
+         if(size(packed_names) > 0) then
+            _HERE, 'get bundles'
+            _HERE, 'size(packed_names): ', size(packed_names)
+            bundles = get_bundles(state, packed_names, _RC)
+         end if
       end if
+
+      _HERE, 'Exiting get items'
 
       _RETURN(_SUCCESS)
 
@@ -284,8 +307,11 @@ contains
          integer :: status
          integer :: i
 
+         _HERE, 'size(names) = ', size(names)
          allocate(fb(size(names)))
+         _HERE, 'size(fb) = ', size(fb)
          do i=1, size(fb)
+            _HERE, 'i = ', i
             call ESMF_StateGet(state, itemName=names(i), fieldbundle=fb(i), _RC)
          end do
          _RETURN(_SUCCESS)
@@ -311,18 +337,29 @@ contains
       type(ESMF_State), intent(inout) :: state
       integer, optional, intent(out) :: rc
       integer :: status
-      type(ESMF_Field) :: field
-      type(ESMF_FieldBundle) :: bundle
       type(ESMF_Field), allocatable :: fields(:)
       type(ESMF_FieldBundle), allocatable :: bundles(:)
-      integer :: fieldcount, i
-      type(ESMF_StateItem_Flag), allocatable :: itemtypes(:)
-      character(len=ESMF_MAXSTR), allocatable :: itemnames(:)
+      integer :: sz_fields, sz_bundles
 
+      sz_fields = 0
+      sz_bundles = 0
+      _HERE, 'entering destroy state'
       call get_items(state, fields=fields, bundles=bundles, _RC)
+      _HERE
+      if(allocated(fields)) sz_fields = size(fields) 
+      if(allocated(bundles)) sz_bundles = size(bundles) 
       call ESMF_StateDestroy(state, _RC)
-      call destroy(fields, _RC)
-      call destroy(bundles, _RC)
+      _HERE
+      if(sz_fields > 0) then
+         call destroy(fields, _RC)
+         _HERE
+      end if
+      _HERE
+      if(sz_bundles > 0) then
+         call destroy(bundles, _RC)
+         _HERE
+      end if
+      _HERE
       _RETURN(_SUCCESS)
 
    end subroutine destroy_state
@@ -333,8 +370,10 @@ contains
       integer :: status
       integer :: i
 
+      _HERE, 'destroy fields, size(fields) = ', size(fields)
       do i=1, size(fields)
          call ESMF_FieldDestroy(fields(i), _RC)
+         _HERE
       end do
       _RETURN(_SUCCESS)
 
@@ -347,13 +386,21 @@ contains
       type(ESMF_Field), allocatable :: fields(:)
       integer :: fieldcount, i
 
+      _HERE, 'destroy bundles, size(bundles) = ', size(bundles)
       do i=1, size(bundles)
+         _HERE
          call ESMF_FieldBundleGet(bundles(i), fieldCount=fieldcount, _RC)
+         _HERE
          allocate(fields(fieldcount))
+         _HERE
          call ESMF_FieldBundleGet(bundles(i), fieldList=fields, _RC)
+         _HERE
          call ESMF_FieldBundleDestroy(bundles(i), _RC)
+         _HERE
          call destroy(fields, _RC)
+         _HERE
       end do
+      _HERE, 'Exiting destroy_bundles: ', _SUCCESS
       _RETURN(_SUCCESS)
 
    end subroutine destroy_bundles
@@ -383,44 +430,59 @@ contains
 
    end subroutine create_grid
 
-   subroutine get_field(state, field, rc)
+   subroutine get_field(state, field, field_name, rc)
       type(ESMF_State), intent(inout) :: state
       type(ESMF_Field), intent(inout) :: field
+      character(len=*), optional, intent(in) :: field_name
       integer, optional, intent(out) :: rc
 
       integer :: status
       character(len=ESMF_MAXSTR), allocatable :: itemNameList(:)
       integer :: itemCount
+      character(len=ESMF_MAXSTR) :: itemName
 
-      call ESMF_StateGet(state, itemCount=itemCount, _RC)
-      allocate(itemNameList(itemCount))
-      call ESMF_StateGet(state, itemNameList=itemNameList, _RC)
-      call ESMF_StateGet(state, itemName=itemNameList(1), field=field, _RC)
+      if(present(field_name)) then
+         itemName = field_name
+      else
+         call ESMF_StateGet(state, itemCount=itemCount, _RC)
+         allocate(itemNameList(itemCount))
+         call ESMF_StateGet(state, itemNameList=itemNameList, _RC)
+         itemName = itemNameList(1)
+      end if
+      call ESMF_StateGet(state, itemName=itemName, field=field, _RC)
+      _RETURN(_SUCCESS)
 
    end subroutine get_field
 
-   subroutine get_bundle_fields(state, fields, rc)
+   subroutine get_bundle_fields(state, fields, bundle_name, rc)
       type(ESMF_State), intent(inout) :: state
       type(ESMF_Field), allocatable, intent(inout) :: fields(:)
+      character(len=*), optional, intent(in) :: bundle_name
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_StateItem_Flag), allocatable :: itemtype(:)
-      character(len=ESMF_MAXSTR), allocatable :: itemname(:)
+      type(ESMF_StateItem_Flag), allocatable :: itemtypes(:)
+      character(len=ESMF_MAXSTR), allocatable :: itemnames(:)
       type(ESMF_FieldBundle) :: fb
       integer :: itemcount, fieldcount, i
+      character(len=ESMF_MAXSTR) :: itemName
 
-      call ESMF_StateGet(state, itemCount=itemcount, _RC)
-      _HERE, itemcount
-      allocate(itemtype(itemcount))
-      allocate(itemname(itemcount))
-      call ESMF_StateGet(state, itemNameList=itemname, itemTypeList=itemtype, _RC)
-      i = lbound(itemtype, dim=1)
-      if(itemtype(i) /= MAPL_STATEITEM_FIELDBUNDLE) then
-         if(present(rc)) rc = FAILURE
-         return
+      if(present(bundle_name)) then
+         itemName = bundle_name
+      else
+         call ESMF_StateGet(state, itemCount=itemcount, _RC)
+         _HERE, 'itemcount = ', itemcount
+         allocate(itemtypes(itemcount))
+         allocate(itemnames(itemcount))
+         call ESMF_StateGet(state, itemNameList=itemnames, itemTypeList=itemtypes, _RC)
+         i = lbound(itemtypes, dim=1)
+         if(itemtypes(i) /= MAPL_STATEITEM_FIELDBUNDLE) then
+            if(present(rc)) rc = FAILURE
+            return
+         end if
+         itemName = itemnames(i)
       end if
-      call ESMF_StateGet(state, itemName=itemname(i), fieldbundle=fb, _RC)
+      call ESMF_StateGet(state, itemName=itemName, fieldbundle=fb, _RC)
       call ESMF_FieldBundleGet(fb, fieldCount=fieldcount, _RC)
       allocate(fields(fieldcount))
       call ESMF_FieldBundleGet(fb, fieldList=fields, _RC)
