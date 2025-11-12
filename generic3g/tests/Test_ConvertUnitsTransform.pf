@@ -1,15 +1,15 @@
 #include "MAPL_TestErr.h"
 #include "unused_dummy.H"
 
+#if defined(_FAILURE)
+#  undef _FAILURE
+#endif
+#define _FAILURE _SUCCESS-1
+
 #if defined(_RETURN)
 #  undef _RETURN
 #endif
-#define _RETURN(A) if(present(rc)) rc=status; return
-
-#if defined(_SAFE_ALLOC)
-#  undef _SAFE_ALLOC
-#endif
-#define _SAFE_ALLOC(A, N) if(allocated(A)) deallocate(A); allocate(A(N))
+#define _RETURN(A) if(present(rc)) rc=A; return
 
 module Test_ConvertUnitsTransform
    use mapl3g_ConvertUnitsTransform
@@ -29,14 +29,13 @@ module Test_ConvertUnitsTransform
    end interface
 
    type(ESMF_Clock) :: clock
-   type(ESMF_State) :: importState, exportState, states(2)
+   type(ESMF_State) :: importState, exportState
+   type(ESMF_State), allocatable :: states(:)
    type(ESMF_Grid) :: grid
    character(len=*), parameter :: SRC_UNITS = 'Pa'
    character(len=*), parameter :: DST_UNITS = 'bar'
    integer, parameter :: R4 = ESMF_KIND_R4
    integer, parameter :: R8 = ESMF_KIND_R8
-   integer, parameter :: SUCCESS = _SUCCESS
-   integer, parameter :: FAILURE = SUCCESS - 1
 
    character(len=*), parameter :: ESMF_NAMES(*) = &
       & [character(len=ESMF_MAXSTR) :: COUPLER_IMPORT_NAME, COUPLER_EXPORT_NAME]
@@ -53,7 +52,6 @@ contains
       integer :: status
 
       _UNUSED_DUMMY(this)
-      states = [importState, exportState]
       call initialize_states(states, grid,[ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8],&
          & ESMF_NAMES, rc=status)
       @assertEqual(0, status, "Unable to initialize ESMF_State's")
@@ -69,15 +67,13 @@ contains
       real(kind=ESMF_KIND_R4), parameter :: UPDATE = 100000_R4
 
       _UNUSED_DUMMY(this)
-      states = [importState, exportState]
       call initialize_states(states, grid, [ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R4],&
          & ESMF_NAMES, rc=status)
-      call get_field(importState, field, rc=status)
+      call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=field, _RC)
       call assign_fptr(field, fptr, _RC)
       fptr = UPDATE
       call transform%update(importState, exportState, clock, rc=status)
-      @assertEqual(SUCCESS, status, 'Failed to update transform')
-!      call ESMF_FieldDestroy(field, rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to update transform')
 
    end subroutine test_update_R4
 
@@ -90,15 +86,13 @@ contains
       real(kind=ESMF_KIND_R8), parameter :: UPDATE = 100000_R8
 
       _UNUSED_DUMMY(this)
-      states = [importState, exportState]
       call initialize_states(states, grid, [ESMF_TYPEKIND_R8, ESMF_TYPEKIND_R8],&
          ESMF_NAMES, rc=status)
-      call get_field(importState, field, rc=status)
+      call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=field, _RC)
       call assign_fptr(field, fptr, _RC)
       fptr = UPDATE
       call transform%update(importState, exportState, clock, rc=status)
-      @assertEqual(SUCCESS, status, 'Failed to update transform')
-!      call ESMF_FieldDestroy(field, rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to update transform')
 
    end subroutine test_update_R8
 
@@ -112,17 +106,15 @@ contains
       integer :: i
 
       _UNUSED_DUMMY(this)
-      states = [importState, exportState]
       call initialize_states(states, grid, [ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R4],&
          & ESMF_NAMES, [2, 2], rc=status)
-      call get_bundle_fields(importState, fields, rc=status)
+      call get_bundle_fields(importState, COUPLER_IMPORT_NAME, fields, rc=status)
       do i=1, size(fields)
          call assign_fptr(fields(i), fptr, _RC)
          fptr = UPDATE
       end do
       call transform%update(importState, exportState, clock, rc=status)
-      @assertEqual(SUCCESS, status, 'Failed to update transform')
-!      call ESMF_FieldDestroy(field, rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to update transform')
 
    end subroutine test_update_bundle_R4
 
@@ -136,17 +128,15 @@ contains
       integer :: i
 
       _UNUSED_DUMMY(this)
-      states = [importState, exportState]
       call initialize_states(states, grid, [ESMF_TYPEKIND_R8, ESMF_TYPEKIND_R8],&
          & ESMF_NAMES, [2, 2], rc=status)
-      call get_bundle_fields(importState, fields, rc=status)
+      call get_bundle_fields(importState, COUPLER_IMPORT_NAME, fields, rc=status)
       do i=1, size(fields)
          call assign_fptr(fields(i), fptr, _RC)
          fptr = UPDATE
       end do
       call transform%update(importState, exportState, clock, rc=status)
-      @assertEqual(SUCCESS, status, 'Failed to update transform')
-!      call ESMF_FieldDestroy(field, rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to update transform')
 
    end subroutine test_update_bundle_R8
 
@@ -166,6 +156,8 @@ contains
       call create_grid(grid, _RC)
       importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, name='import', _RC)
       exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, name='export', _RC)
+      if(allocated(states)) deallocate(states)
+      states = [importState, exportState]
       transform = ConvertUnitsTransform(SRC_UNITS, DST_UNITS)
 
    end subroutine set_up
@@ -185,45 +177,37 @@ contains
       character(len=:), allocatable :: bundle_name
       type(ESMF_Field), allocatable :: field_list(:)
 
-      _HERE, '# states:', size(states)
-      do i=1, size(names)
-         _HERE, 'name: ' // trim(names(i))
-      end do
+      status = _FAILURE
       n = size(states)
       if(.not. (size(typekinds) == n .and. size(names) == n)) then
-         _RETURN(FAILURE)
+         _RETURN(status)
       end if
 
       itemtype = MAPL_STATEITEM_FIELD
       if(present(num_fields)) then
-         _HERE, 'num_fields = ', num_fields
          itemtype = MAPL_STATEITEM_FIELDBUNDLE
          if(size(num_fields) /= n) then
-            _RETURN(FAILURE)
+            _RETURN(status)
          end if
       end if
 
       if(itemtype == MAPL_STATEITEM_FIELD) then
-         _HERE, 'MAPL_STATEITEM_FIELD'
          do i=1, n
-            _HERE, 'Create field ', i
             field = ESMF_FieldCreate(grid=grid, name=trim(names(i)), typekind=typekinds(i), _RC)
-            _HERE, 'Add field ', i
             call ESMF_StateAdd(states(i), fieldList=[field], _RC)
-            _HERE, 'Created and added field ', i
          end do
          _RETURN(_SUCCESS)
       end if
 
       if(itemtype /= MAPL_STATEITEM_FIELDBUNDLE) then
-         _RETURN(FAILURE)
+         _RETURN(_FAILURE)
       end if
 
-      _HERE, 'MAPL_STATEITEM_FIELDBUNDLE'
       do i = 1, n
          bundle_name = trim(names(i))
          field_bundle = ESMF_FieldBundleCreate(name=bundle_name, _RC)
-         _SAFE_ALLOC(field_list, num_fields(i))
+         if(allocated(field_list)) deallocate(field_list)
+         allocate(field_list(num_fields(i)))
          do j = 1, size(field_list)
             field = ESMF_FieldCreate(grid=grid, name=bundle_name//integer_to_character(j),&
             & typekind=typekinds(i), _RC)
@@ -234,6 +218,7 @@ contains
       end do
 
       _RETURN(_SUCCESS)
+
    end subroutine initialize_states
 
    subroutine get_items(state, fields, bundles, rc)
@@ -247,9 +232,8 @@ contains
       character(len=ESMF_MAXSTR), allocatable :: itemnames(:)
       character(len=ESMF_MAXSTR), allocatable :: packed_names(:)
 
-      _HERE, 'Into get_items'
       if(.not. (present(fields) .or. present(bundles))) then
-         _RETURN(SUCCESS)
+         _RETURN(_SUCCESS)
       end if
 
       call ESMF_StateGet(state, itemCount=itemcount, _RC)
@@ -257,27 +241,21 @@ contains
       allocate(itemnames(itemcount))
       call ESMF_StateGet(state, itemTypeList=itemtypes, itemNameList=itemnames, _RC)
 
-      allocate(fields(0))
       if(present(fields)) then
+         allocate(fields(0))
          packed_names = pack(itemnames, itemtypes == MAPL_STATEITEM_FIELD)
          if(size(packed_names) > 0) then
-            _HERE, 'get fields'
-            _HERE, 'size(packed_names): ', size(packed_names)
             fields = get_fields(state, packed_names, _RC)
          end if
       end if
 
-      allocate(bundles(0))
       if(present(bundles)) then
+         allocate(bundles(0))
          packed_names = pack(itemnames, itemtypes == MAPL_STATEITEM_FIELDBUNDLE)
          if(size(packed_names) > 0) then
-            _HERE, 'get bundles'
-            _HERE, 'size(packed_names): ', size(packed_names)
             bundles = get_bundles(state, packed_names, _RC)
          end if
       end if
-
-      _HERE, 'Exiting get items'
 
       _RETURN(_SUCCESS)
 
@@ -307,11 +285,8 @@ contains
          integer :: status
          integer :: i
 
-         _HERE, 'size(names) = ', size(names)
          allocate(fb(size(names)))
-         _HERE, 'size(fb) = ', size(fb)
          do i=1, size(fb)
-            _HERE, 'i = ', i
             call ESMF_StateGet(state, itemName=names(i), fieldbundle=fb(i), _RC)
          end do
          _RETURN(_SUCCESS)
@@ -343,23 +318,16 @@ contains
 
       sz_fields = 0
       sz_bundles = 0
-      _HERE, 'entering destroy state'
       call get_items(state, fields=fields, bundles=bundles, _RC)
-      _HERE
       if(allocated(fields)) sz_fields = size(fields) 
       if(allocated(bundles)) sz_bundles = size(bundles) 
       call ESMF_StateDestroy(state, _RC)
-      _HERE
       if(sz_fields > 0) then
          call destroy(fields, _RC)
-         _HERE
       end if
-      _HERE
       if(sz_bundles > 0) then
          call destroy(bundles, _RC)
-         _HERE
       end if
-      _HERE
       _RETURN(_SUCCESS)
 
    end subroutine destroy_state
@@ -370,10 +338,8 @@ contains
       integer :: status
       integer :: i
 
-      _HERE, 'destroy fields, size(fields) = ', size(fields)
       do i=1, size(fields)
          call ESMF_FieldDestroy(fields(i), _RC)
-         _HERE
       end do
       _RETURN(_SUCCESS)
 
@@ -386,37 +352,28 @@ contains
       type(ESMF_Field), allocatable :: fields(:)
       integer :: fieldcount, i
 
-      _HERE, 'destroy bundles, size(bundles) = ', size(bundles)
       do i=1, size(bundles)
-         _HERE
          call ESMF_FieldBundleGet(bundles(i), fieldCount=fieldcount, _RC)
-         _HERE
          allocate(fields(fieldcount))
-         _HERE
          call ESMF_FieldBundleGet(bundles(i), fieldList=fields, _RC)
-         _HERE
          call ESMF_FieldBundleDestroy(bundles(i), _RC)
-         _HERE
          call destroy(fields, _RC)
-         _HERE
       end do
-      _HERE, 'Exiting destroy_bundles: ', _SUCCESS
       _RETURN(_SUCCESS)
 
    end subroutine destroy_bundles
 
    @After
-   subroutine take_down(this)
+   subroutine tear_down(this)
       class(ESMF_TestMethod), intent(inout) :: this
       integer :: status
 
       _UNUSED_DUMMY(this)
-      call destroy(importState, rc=status)
-      call destroy(exportState, rc=status)
+      call destroy(states, rc=status)
       call ESMF_GridDestroy(grid, rc=status)
       call ESMF_ClockDestroy(clock, rc=status)
 
-   end subroutine take_down
+   end subroutine tear_down
 
    subroutine create_grid(grid, rc)
       type(ESMF_Grid), optional, intent(inout) :: grid
@@ -425,77 +382,28 @@ contains
       integer, parameter :: MAX_INDEX(2) = [4, 4]
       integer, parameter :: REG_DECOMP(2) = [1, 1]
 
-      _UNUSED_DUMMY(rc)
       grid = ESMF_GridCreate(regDecomp=REG_DECOMP, maxIndex=MAX_INDEX, _RC)
+      _RETURN(_SUCCESS)
 
    end subroutine create_grid
 
-   subroutine get_field(state, field, field_name, rc)
+   subroutine get_bundle_fields(state, bundle_name, fields, rc)
       type(ESMF_State), intent(inout) :: state
-      type(ESMF_Field), intent(inout) :: field
-      character(len=*), optional, intent(in) :: field_name
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      character(len=ESMF_MAXSTR), allocatable :: itemNameList(:)
-      integer :: itemCount
-      character(len=ESMF_MAXSTR) :: itemName
-
-      if(present(field_name)) then
-         itemName = field_name
-      else
-         call ESMF_StateGet(state, itemCount=itemCount, _RC)
-         allocate(itemNameList(itemCount))
-         call ESMF_StateGet(state, itemNameList=itemNameList, _RC)
-         itemName = itemNameList(1)
-      end if
-      call ESMF_StateGet(state, itemName=itemName, field=field, _RC)
-      _RETURN(_SUCCESS)
-
-   end subroutine get_field
-
-   subroutine get_bundle_fields(state, fields, bundle_name, rc)
-      type(ESMF_State), intent(inout) :: state
+      character(len=*), intent(in) :: bundle_name
       type(ESMF_Field), allocatable, intent(inout) :: fields(:)
-      character(len=*), optional, intent(in) :: bundle_name
       integer, optional, intent(out) :: rc
-
       integer :: status
-      type(ESMF_StateItem_Flag), allocatable :: itemtypes(:)
-      character(len=ESMF_MAXSTR), allocatable :: itemnames(:)
       type(ESMF_FieldBundle) :: fb
-      integer :: itemcount, fieldcount, i
-      character(len=ESMF_MAXSTR) :: itemName
+      integer :: fieldcount
 
-      if(present(bundle_name)) then
-         itemName = bundle_name
-      else
-         call ESMF_StateGet(state, itemCount=itemcount, _RC)
-         _HERE, 'itemcount = ', itemcount
-         allocate(itemtypes(itemcount))
-         allocate(itemnames(itemcount))
-         call ESMF_StateGet(state, itemNameList=itemnames, itemTypeList=itemtypes, _RC)
-         i = lbound(itemtypes, dim=1)
-         if(itemtypes(i) /= MAPL_STATEITEM_FIELDBUNDLE) then
-            if(present(rc)) rc = FAILURE
-            return
-         end if
-         itemName = itemnames(i)
-      end if
-      call ESMF_StateGet(state, itemName=itemName, fieldbundle=fb, _RC)
+      call ESMF_StateGet(state, itemName=bundle_name, fieldbundle=fb, _RC)
       call ESMF_FieldBundleGet(fb, fieldCount=fieldcount, _RC)
       allocate(fields(fieldcount))
       call ESMF_FieldBundleGet(fb, fieldList=fields, _RC)
+      _RETURN(_SUCCESS)
       
    end subroutine get_bundle_fields
 
-   logical function successful(rc) result(lval)
-      integer, intent(in) :: rc
-
-      lval = rc == SUCCESS
-
-   end function successful
-      
    function integer_to_character(i) result(s)
       character(len=:), allocatable :: s
       integer,  intent(in) :: i
