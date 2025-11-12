@@ -18,6 +18,7 @@ module mapl3g_ComponentDriverGridComp
 
    type :: Comp_Driver_Support
       type(StringStringMap) :: fillDefs
+      type(StringVector) :: import_testing_expressions
       character(len=:), allocatable :: runMode
       type(timeVar) :: tFunc
       real :: delay ! in seconds
@@ -32,6 +33,7 @@ module mapl3g_ComponentDriverGridComp
    character(len=*), parameter :: runModeFillExportsFromImports = "FillExportsFromImports"
    character(len=*), parameter :: runModeFillImports = "FillImports"
    character(len=*), parameter :: runModeCompareImportsToReference = "CompareImportsToReference"
+   character(len=*), parameter :: runModeCompareImportsToExpression = "CompareImportsToExpression"
 
 contains
 
@@ -84,6 +86,13 @@ contains
                                         vertical_stagger=VERTICAL_STAGGER_NONE, &
                                         default_value=0.0, _RC)
             call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+            varspec = make_VariableSpec(state_intent=ESMF_STATEINTENT_INTERNAL, &
+                                        short_name='quarter_grid' , & 
+                                        standard_name='quarter_grid', &
+                                        units='NA', &
+                                        vertical_stagger=VERTICAL_STAGGER_NONE, &
+                                        default_value=0.0, _RC)
+            call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
             _RETURN(_SUCCESS)
 
          end subroutine
@@ -97,7 +106,7 @@ contains
       integer, intent(out) :: rc
 
       character(:), allocatable :: field_name
-      type(ESMF_HConfig) :: hconfig, mapl_cfg, states_cfg, export_cfg, field_cfg, fill_def
+      type(ESMF_HConfig) :: hconfig, mapl_cfg, states_cfg, export_cfg, field_cfg, fill_def, import_comp_expressions
       logical :: has_export_section, has_default_vert_profile
       real(kind=ESMF_KIND_R4), allocatable :: default_vert_profile(:)
       real(kind=ESMF_KIND_R4), pointer :: ptr3d(:, :, :)
@@ -106,7 +115,7 @@ contains
       type(Comp_Driver_Support), pointer :: support
       type(ESMF_HConfigIter) :: iter, e, b
       logical :: is_present
-      character(len=:), allocatable :: key, keyVal
+      character(len=:), allocatable :: key, keyVal, vector_val
       type(ESMF_Time) :: current_time
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, Comp_Driver_Support, PRIVATE_STATE, support)
@@ -129,11 +138,23 @@ contains
          keyVal = ESMF_HConfigAsStringMapVal(iter, _RC)
          call support%fillDefs%insert(key, keyVal) 
       enddo 
+    
+      is_present =  ESMF_HConfigIsDefined(hconfig, keyString='import_comparison_expressions', _RC)
+      if (is_present) then 
+         import_comp_expressions = ESMF_HConfigCreateAt(hconfig, keyString='import_comparison_expressions', _RC)
+         b = ESMF_HConfigIterBegin(import_comp_expressions, _RC)
+         e = ESMF_HConfigIterEnd(import_comp_expressions, _RC)
+         iter = b
+         do while (ESMF_HConfigIterLoop(iter, b, e))
+            vector_val = ESMF_HConfigAsString(iter, _RC)
+            call support%import_testing_expressions%push_back(vector_val) 
+         enddo 
+      end if
      
       call ESMF_ClockGet(clock, currTime=current_time, _RC)
       call support%tFunc%init_time(hconfig, current_time, _RC)
       
-      call initialize_internal_state(internal_state, support, _RC)
+      call initialize_internal_state(internal_state, support, hconfig, _RC)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(importState)
       _UNUSED_DUMMY(clock)
@@ -150,6 +171,7 @@ contains
       type(ESMF_State) :: internal_state
       type(Comp_Driver_Support), pointer :: support
       type(ESMF_Time) :: current_time
+      type(ESMF_Grid) :: grid
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, Comp_Driver_Support, PRIVATE_STATE, support)
       call ESMF_ClockGet(clock, currTime=current_time, _RC)
@@ -167,6 +189,9 @@ contains
          ! fill internal or export state
          ! compare import state to reference state
          call compare_states(importState, exportState, 0.001, _RC)
+      else if (support%runMode == "CompareImportsToExpression") then
+         call MAPL_GridCompGet(gridcomp, grid=grid, _RC)
+         call compare_state_to_expressions(importState, internal_state, grid, support, 0.001, _RC)
       else
          _FAIL("no run mode selected")
       end if
@@ -177,18 +202,21 @@ contains
 
    end subroutine run
 
-   subroutine initialize_internal_state(internal_state, support, rc)
+   subroutine initialize_internal_state(internal_state, support, hconfig, rc)
       type(ESMF_State), intent(inout) :: internal_state
       type(Comp_Driver_Support), intent(inout) :: support
+      type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
       real, pointer :: ptr_2d(:,:)
       real(ESMF_KIND_R8), pointer :: coords(:,:)
-      integer :: status, seed_size, mypet
+      integer :: status, seed_size, mypet, i, j
       integer, allocatable :: seeds(:)
       type(ESMF_Field) :: field
       type(ESMF_Grid) :: grid
       type(ESMF_VM) :: vm
+      logical :: is_present
+      real :: quarter_grid_fac1, quarter_grid_fac2
 
       ! rand
       call MAPL_StateGetPointer(internal_state, ptr_2d, 'rand', _RC)
@@ -213,6 +241,24 @@ contains
                              farrayPtr=coords, _RC)
       ptr_2d = coords
 
+      quarter_grid_fac1 = 1.0
+      quarter_grid_fac2 = 2.0
+      is_present = ESMF_HConfigIsDefined(hconfig, keystring='quarter_grid_fac1', _RC)
+      if (is_present) then 
+         quarter_grid_fac1 = ESMF_HConfigAsR4(hconfig, keystring='quarter_grid_fac1', _RC)
+      end if
+      is_present = ESMF_HConfigIsDefined(hconfig, keystring='quarter_grid_fac2', _RC)
+      if (is_present) then 
+         quarter_grid_fac2 = ESMF_HConfigAsR4(hconfig, keystring='quarter_grid_fac2', _RC)
+      end if
+      call MAPL_StateGetPointer(internal_state, ptr_2d, 'quarter_grid', _RC)
+      ptr_2d=quarter_grid_fac2
+      do i=1,size(ptr_2d,2),2
+         do j=1,size(ptr_2d,2),2       
+            ptr_2d(i,j)=quarter_grid_fac1
+         enddo
+      enddo 
+
       _RETURN(_SUCCESS)
 
    end subroutine initialize_internal_state
@@ -232,6 +278,43 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine update_internal_state
+
+   subroutine compare_state_to_expressions(state, internal_state, grid, support, threshold, rc)
+      type(ESMF_State), intent(inout) :: state
+      type(ESMF_State), intent(inout) :: internal_state
+      type(ESMF_Grid), intent(in) :: grid
+      type(Comp_Driver_Support), intent(inout) :: support
+      real, intent(in) :: threshold
+      integer, optional, intent(out) :: rc
+
+      integer :: status, equal_pos
+      character(len=:), allocatable :: lhs, rhs
+      character(len=:), pointer :: equality
+      type(StringVectorIterator) :: iter 
+      type(ESMF_Field) :: field_lhs, field_rhs
+      real, pointer :: ptr_lhs(:), ptr_rhs(:)
+      
+      field_lhs = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, _RC)
+      field_rhs = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, _RC)
+      iter = support%import_testing_expressions%begin()
+      do while(iter /= support%import_testing_expressions%end() )
+         equality => iter%of()
+         equal_pos = index(equality,'=')
+         _ASSERT(equal_pos /= 0, 'comparison expression is invalid')
+         lhs = equality(:equal_pos-1)
+         rhs = equality(equal_pos+1:)
+         call MAPL_StateEval(state, lhs, field_lhs, _RC)
+         call MAPL_StateEval(internal_state, rhs, field_rhs, _RC)
+         call assign_fptr(field_lhs, ptr_lhs, _RC)
+         call assign_fptr(field_rhs, ptr_rhs, _RC)
+         if (any(abs(ptr_lhs-ptr_rhs) > threshold)) then
+            _FAIL("state differs from reference state greater than allowed threshold")
+         end if
+         
+         call iter%next()
+      enddo
+      _RETURN(_SUCCESS)
+   end subroutine compare_state_to_expressions
 
    subroutine fill_state_from_internal(state, internal_state, support, rc)
       type(ESMF_State), intent(inout) :: state
