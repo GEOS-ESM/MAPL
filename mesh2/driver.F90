@@ -34,11 +34,11 @@ program main
    integer :: i, n
    type(ESMF_Mesh) :: msh, msh2
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 2.0 ! C48
-   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0 ! C90
+!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0 ! C90
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/2 ! C180
-!#  real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/4 ! C360
+!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/4 ! C360
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/8 ! C720
-!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/16 ! C1440
+   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/16 ! C1440
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/32 ! C2880
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/64 ! C5760
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 0. ! fully resolved
