@@ -527,7 +527,7 @@ contains
 
       if (MAPL_AmIRoot()) then
          call MAPL_PushDirectory(checkpointing_path, _RC)
-         call MAPL_MakeSymbolicLink(src_path=target_name, link_path=LAST_CHECKPOINT, is_directory=.true., _RC)
+         call MAPL_MakeSymbolicLink(src_path=target_name, link_path=LAST_CHECKPOINT, _RC)
          path = MAPL_PopDirectory(_RC)
       end if
 
