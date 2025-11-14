@@ -45,7 +45,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Update `ifx` flags to match as close as possible to `ifort` flags
     - Update site detection for NAS
     - Updates for f2py and flang
-    - Updated the Python and Python3 detection better find f2py and f2py3 given the found Python executable
 
 ### Removed
 
