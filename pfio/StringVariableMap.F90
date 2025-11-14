@@ -3,7 +3,7 @@
 
 module pFIO_StringVariableMapMod
    use pFIO_VariableMod
-   use pFIO_CoordinateVariableMod 
+!!$   use pFIO_CoordinateVariableMod 
 
    ! Create a map (associative array) between names and pFIO_Variables.
 
@@ -16,6 +16,7 @@ module pFIO_StringVariableMapMod
 #define _ASSIGN(dest,src) allocate(dest%key,source=src%key); if(allocated(src%value)) allocate(dest%value,source=src%value)
 #define _MOVE(dest,src) call move_alloc(from=src%key,to=dest%key); if (allocated(src%value)) call move_alloc(from=src%value,to=dest%value)
 #define _FREE(x) deallocate(x%key,x%value)
+#define _pair StringVariablePair
 #define _map StringVariableMap
 #define _iterator StringVariableMapIterator
 
@@ -24,6 +25,7 @@ module pFIO_StringVariableMapMod
 
 #undef _alt
 #undef _map
+#undef _pair
 #undef _iterator
 #undef _value
 #undef _value_allocatable

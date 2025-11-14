@@ -98,6 +98,7 @@ module MAPL_ExtDataDerivedMap
 #define _value type(ExtDataDerived)
 #define _alt
 
+#define _pair ExtDataDerivedPair
 #define _map ExtDataDerivedMap
 #define _iterator ExtDataDerivedMapIterator
 
@@ -105,6 +106,7 @@ module MAPL_ExtDataDerivedMap
 
 #undef _iterator
 #undef _map
+#undef _pair
 
 #undef _alt
 #undef _value
