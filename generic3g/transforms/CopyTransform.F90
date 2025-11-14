@@ -5,6 +5,7 @@
 module mapl3g_CopyTransform
    use mapl3g_TransformId
    use mapl3g_ExtensionTransform
+   use mapl3g_StateItem
    use mapl_ErrorHandling
    use esmf
    use MAPL_FieldUtils
@@ -60,6 +61,25 @@ contains
       _UNUSED_DUMMY(clock)
    end subroutine initialize
 
+!   subroutine update(this, importState, exportState, clock, rc)
+!      use esmf
+!      class(CopyTransform), intent(inout) :: this
+!      type(ESMF_State)      :: importState
+!      type(ESMF_State)      :: exportState
+!      type(ESMF_Clock)      :: clock      
+!      integer, optional, intent(out) :: rc
+
+!      integer :: status
+!      type(ESMF_Field) :: f_in, f_out
+
+!      call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=f_in, _RC)
+!      call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=f_out, _RC)
+
+!      call FieldCopy(f_in, f_out, _RC)
+
+!      _RETURN(_SUCCESS)
+!   end subroutine update
+
    subroutine update(this, importState, exportState, clock, rc)
       use esmf
       class(CopyTransform), intent(inout) :: this
@@ -67,16 +87,30 @@ contains
       type(ESMF_State)      :: exportState
       type(ESMF_Clock)      :: clock      
       integer, optional, intent(out) :: rc
-
       integer :: status
-      type(ESMF_Field) :: f_in, f_out
+      type(ESMF_StateItem_Flag) :: importType, exportType
+      type(ESMF_Field) :: importField, exportField
+      type(ESMF_FieldBundle) :: importBundle, exportBundle
 
-      call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=f_in, _RC)
-      call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=f_out, _RC)
+      call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, itemType=importType, _RC)
+      call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, itemType=exportType, _RC)
+      _ASSERT(importType == exportType, 'The state items are differt types.')
+      if(importType == MAPL_STATEITEM_FIELD) then
+         call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=importField, _RC)
+         call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=exportField, _RC)
+         call FieldCopy(importField, exportField, _RC)
+         _RETURN(_SUCCESS)
+      end if
 
-      call FieldCopy(f_in, f_out, _RC)
-
+      _ASSERT(importType == MAPL_STATEITEM_FIELDBUNDLE, 'Unsupported ESMF_State item type.') 
+     
+      call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, fieldbundle=importBundle, _RC)
+      call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, fieldbundle=exportBundle, _RC)
+      call copy_bundle(importBundle, exportBundle, _RC)
       _RETURN(_SUCCESS)
+      
+      _UNUSED_DUMMY(clock)
+
    end subroutine update
 
    function get_transformId(this) result(id)
@@ -85,5 +119,42 @@ contains
 
       id = TYPEKIND_TRANSFORM_ID
    end function get_transformId
+
+   subroutine copy_bundle(bundle_in, bundle_out, ignore_names, rc)
+      type(ESMF_FieldBundle), intent(inout) :: bundle_in, bundle_out
+      logical, optional, intent(in) :: ignore_names
+      integer, optional, intent(out) :: rc
+      integer :: status
+      integer :: field_count, n, i
+      character(len=ESMF_MAXSTR), allocatable :: names_in(:), names_out(:)
+      type(ESMF_Field), allocatable :: fields_in(:), fields_out(:)
+      logical :: check_names
+
+      call ESMF_FieldBundleGet(bundle_in, fieldCount=field_count, _RC)
+      call ESMF_FieldBundleGet(bundle_out, fieldCount=n, _RC)
+      _ASSERT(field_count==n, 'The fieldCount values do not match.')
+
+      check_names = .TRUE.
+      if(present(ignore_names)) check_names = .not. ignore_names
+
+      if(check_names) then
+         allocate(names_in(n))
+         allocate(names_out(n))
+         call ESMF_FieldBundleGet(bundle_in, itemorderflag=ESMF_ITEMORDER_ABC, fieldNameList=names_in, _RC)
+         call ESMF_FieldBundleGet(bundle_out, itemorderflag=ESMF_ITEMORDER_ABC, fieldNameList=names_out, _RC)
+         _ASSERT(all(names_in == names_out), 'The field names do not match.')
+      end if            
+
+      allocate(fields_in(n))
+      allocate(fields_out(n))
+      call ESMF_FieldBundleGet(bundle_in, itemorderflag=ESMF_ITEMORDER_ABC, fieldList=fields_in, _RC)
+      call ESMF_FieldBundleGet(bundle_out, itemorderflag=ESMF_ITEMORDER_ABC, fieldList=fields_out, _RC)
+      do i = 1, n
+         call FieldCopy(fields_in(i), fields_out(i), _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+
+   end subroutine copy_bundle
 
 end module mapl3g_CopyTransform

@@ -116,16 +116,10 @@ contains
       type(ESMF_State)      :: exportState
       type(ESMF_Clock)      :: clock      
       integer, optional, intent(out) :: rc
-!      type(ESMF_TypeKind_Flag) :: typekind
 
       integer :: status
-!      type(ESMF_TypeKind_Flag) :: typekind
       type(ESMF_Field) :: f_in, f_out
       type(ESMF_FieldBundle) :: fb_in, fb_out
-!      real(kind=ESMF_KIND_R4), pointer :: x4_in(:)
-!      real(kind=ESMF_KIND_R4), pointer :: x4_out(:)
-!      real(kind=ESMF_KIND_R8), pointer :: x8_in(:)
-!      real(kind=ESMF_KIND_R8), pointer :: x8_out(:)
       type(ESMF_StateItem_Flag) :: itemtype_in, itemtype_out
 
       call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, itemtype=itemtype_in, _RC)
@@ -136,12 +130,7 @@ contains
          call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=f_in, _RC)
          call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=f_out, _RC)
          call update_field(f_in, f_out, this%converter, _RC)
-!      call ESMF_FieldGet(f_in, typekind=typekind, _RC)
-!      if (typekind == ESMF_TYPEKIND_R4) then
-!         call assign_fptr(f_in, x4_in, _RC)
-!         call assign_fptr(f_out, x4_out, _RC)
-!         x4_out = this%converter%convert(x4_in)
-!         _RETURN(_SUCCESS)
+
       elseif(itemtype_in == MAPL_STATEITEM_FIELDBUNDLE) then
          call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, fieldBundle=fb_in, _RC)
          call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, fieldBundle=fb_out, _RC)
@@ -150,14 +139,6 @@ contains
          _FAIL("Unsupported state item type")
       end if
 
-!      if (typekind == ESMF_TYPEKIND_R8) then
-!         call assign_fptr(f_in, x8_in, _RC)
-!         call assign_fptr(f_out, x8_out, _RC)
-!         x8_out = this%converter%convert(x8_in)
-!         _RETURN(_SUCCESS)
-!      end if
-
-!      _FAIL('unsupported typekind')
       _UNUSED_DUMMY(clock)
    end subroutine update
    
