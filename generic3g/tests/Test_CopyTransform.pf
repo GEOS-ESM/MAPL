@@ -9,6 +9,7 @@
 module Test_CopyTransform
    use mapl3g_CopyTransform
    use mapl3g_StateItem
+   use mapl3g_ExtensionTransform, only: COUPLER_IMPORT_NAME, COUPLER_EXPORT_NAME
    use pfunit
    use esmf
    use ESMF_TestMethod_mod
@@ -27,6 +28,14 @@ module Test_CopyTransform
    type(ESMF_State) :: exportState
    type(ESMF_Grid) :: grid
    type(ESMF_Clock) :: clock
+   character(len=*), parameter :: BUNDLE_FIELD_NAME = 'BUNDLE_FIELD_NAME'
+   integer, parameter :: GRID_RANK = 2
+   integer, parameter :: MAX_INDEX(GRID_RANK) = [4, 4]
+   integer, parameter :: REG_DECOMP(GRID_RANK) = [1, 1]
+   real(kind=ESMF_KIND_R4), parameter :: R4_VALUE = 4_ESMF_KIND_R4
+   real(kind=ESMF_KIND_R8), parameter :: R8_VALUE = 8_ESMF_KIND_R8
+   real(kind=ESMF_KIND_R4), pointer :: fptr_R4(:, :)
+   real(kind=ESMF_KIND_R8), pointer :: fptr_R8(:, :)
 
 contains
 
@@ -34,21 +43,62 @@ contains
    subroutine test_new_CopyTransform(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(CopyTransform), allocatable :: transform
-      type(ESMF_TypeKind_Flag) :: src_typekind = ESMF_TYPEKIND_R4
-      type(ESMF_TypeKind_Flag) :: dst_typekind = ESMF_TYPEKIND_R8
 
-      transform = CopyTransform(src_typekind, dst_typekind)
+      transform = CopyTransform(ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8)
       @assertTrue(allocated(transform), 'The transform was not constructed.')
+      _UNUSED_DUMMY(this)
 
    end subroutine test_new_CopyTransform
 
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_update_field(this)
       class(ESMF_TestMethod), intent(inout) :: this
+      type(CopyTransform), allocatable :: transform
+      type(ESMF_TypeKind_Flag), parameter :: IMPORT_TK = ESMF_TYPEKIND_R4
+      type(ESMF_TypeKind_Flag), parameter :: EXPORT_TK = ESMF_TYPEKIND_R8
+      type(ESMF_Field) :: field
+      logical :: all_equal
+      integer :: status
 
-      @assertTrue(.FALSE., 'Not implemented')
+      call initialize_state(importState, COUPLER_IMPORT_NAME,&
+         & IMPORT_TK, MAPL_STATEITEM_FIELD, _RC)
+      call initialize_state(exportState, COUPLER_EXPORT_NAME,&
+         & EXPORT_TK, MAPL_STATEITEM_FIELD, _RC)
+      transform = CopyTransform(IMPORT_TK, EXPORT_TK)
+      call transform%update(importState, exportState, clock, _RC)
+      call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=field, _RC)
+      call ESMF_FieldGet(field, farrayPtr=fptr_R8, _RC)
+      all_equal = all(fptr_R8 == real(R4_VALUE, ESMF_KIND_R8))
+      @assertTrue(all_equal, 'Field values do not match after transform.')
+      _UNUSED_DUMMY(this)
 
    end subroutine test_update_field
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_bundle(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(CopyTransform), allocatable :: transform
+      type(ESMF_TypeKind_Flag), parameter :: IMPORT_TK = ESMF_TYPEKIND_R4
+      type(ESMF_TypeKind_Flag), parameter :: EXPORT_TK = ESMF_TYPEKIND_R8
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+      logical :: all_equal
+      integer :: status
+
+      call initialize_state(importState, COUPLER_IMPORT_NAME,&
+         & IMPORT_TK, MAPL_STATEITEM_FIELDBUNDLE, _RC)
+      call initialize_state(exportState, COUPLER_EXPORT_NAME,&
+         & EXPORT_TK, MAPL_STATEITEM_FIELDBUNDLE, _RC)
+      transform = CopyTransform(IMPORT_TK, EXPORT_TK)
+      call transform%update(importState, exportState, clock, _RC)
+      call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, fieldbundle=bundle, _RC)
+      call ESMF_FieldBundleGet(bundle, fieldName=BUNDLE_FIELD_NAME, field=field, _RC)
+      call ESMF_FieldGet(field, farrayPtr=fptr_R8, _RC)
+      all_equal = all(fptr_R8 == real(R4_VALUE, ESMF_KIND_R8))
+      @assertTrue(all_equal, 'Field values do not match after transform.')
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_bundle
 
    @Before
    subroutine set_up(this)
@@ -60,42 +110,79 @@ contains
       call ESMF_TimeIntervalSet(timeStep, s=1, _RC)
       call ESMF_TimeSet(startTime, yy=2025, mm=11, dd=13, h=11, m=24, _RC)
       clock = ESMF_ClockCreate(timeStep=timeStep, startTime=startTime, _RC)
-      call create_grid(grid, _RC)
+      call create_grid(grid, REG_DECOMP, MAX_INDEX, _RC)
       importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, name='import', _RC)
       exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, name='export', _RC)
-
+      fptr_R4 => null()
+      fptr_R8 => null()
       _UNUSED_DUMMY(this)
+
    end subroutine set_up
    
    @After
    subroutine tear_down(this)
       class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
 
-      call destroy_states()
-      call ESMF_GridDestroy(grid)
-      call ESMF_ClockDestroy(clock)
-
+      call destroy_states(rc=status)
+      call ESMF_GridDestroy(grid, rc=status)
+      call ESMF_ClockDestroy(clock, rc=status)
       _UNUSED_DUMMY(this)
+
    end subroutine tear_down
 
-   subroutine create_grid(grid, rc)
+   subroutine create_grid(grid, regDecomp, maxIndex, rc)
       type(ESMF_Grid), intent(inout) :: grid
+      integer, intent(in) :: maxIndex(:)
+      integer, intent(in) :: regDecomp(:)
       integer, optional, intent(out) :: rc
       integer :: status
-      integer, parameter :: MAX_INDEX(2) = [4, 4]
-      integer, parameter :: REG_DECOMP(2) = [1, 1]
 
-      grid = ESMF_GridCreate(regDecomp=REG_DECOMP, maxIndex=MAX_INDEX, _RC)
+      grid = ESMF_GridCreate(regDecomp=regDecomp, maxIndex=maxIndex, _RC)
       _RETURN(_SUCCESS)
 
    end subroutine create_grid
 
+   subroutine initialize_state(state, name, typekind, itemtype, rc)
+      type(ESMF_State), intent(inout) :: state
+      character(len=*), intent(in) :: name
+      type(ESMF_TypeKind_Flag), intent(in) :: typekind
+      type(ESMF_StateItem_Flag), intent(in) :: itemtype
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+      character(len=ESMF_MAXSTR) :: field_name
+      logical :: make_bundle
+
+      make_bundle = itemtype == MAPL_STATEITEM_FIELDBUNDLE
+      field_name = name
+      if(make_bundle) field_name = BUNDLE_FIELD_NAME
+      field = ESMF_FieldCreate(grid=grid, name=field_name, typekind=typekind, _RC)
+      if(typekind==ESMF_TYPEKIND_R4) then
+         call ESMF_FieldGet(field, farrayPtr=fptr_R4, _RC)
+         fptr_R4 = R4_VALUE
+      else
+         call ESMF_FieldGet(field, farrayPtr=fptr_R8, _RC)
+         fptr_R8 = R8_VALUE
+      end if
+      if(make_bundle) then 
+         bundle = ESMF_FieldBundleCreate(fieldList=[field], name=name, _RC)
+         call ESMF_StateAdd(state, fieldbundleList=[bundle], _RC)
+      else
+         call ESMF_StateAdd(state, fieldList=[field], _RC)
+      end if
+      _RETURN(_SUCCESS)
+
+   end subroutine initialize_state
+      
    subroutine destroy_states(rc)
       integer, optional, intent(out) :: rc
       integer :: status
 
       call destroy(importState, _RC)
       call destroy(exportState, _RC)
+      _RETURN(_SUCCESS)
 
    end subroutine destroy_states
 
@@ -106,7 +193,7 @@ contains
       type(ESMF_StateItem_Flag), allocatable :: itemTypeList(:)
       character(len=ESMF_MAXSTR), allocatable :: itemNameList(:)
       character(len=ESMF_MAXSTR), allocatable :: names(:)
-      integer :: itemCount, fieldCount
+      integer :: itemCount
       type(ESMF_Field), allocatable :: fields(:)
       type(ESMF_FieldBundle), allocatable :: bundles(:)
 
@@ -142,7 +229,7 @@ contains
       type(ESMF_FieldBundle), intent(inout) :: bundle
       integer, optional, intent(out) :: rc
       integer :: status
-      integer :: i, fieldCount
+      integer :: fieldCount
       type(ESMF_Field), allocatable :: fieldList(:)
 
       call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount, _RC)
@@ -190,6 +277,8 @@ contains
       do i=1, size(fields)
          call ESMF_StateGet(state, names(i), fields(i), _RC)
       end do
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(rc)
 
    end subroutine get_fields
 
@@ -205,6 +294,8 @@ contains
       do i=1, size(bundles)
          call ESMF_StateGet(state, names(i), bundles(i), _RC)
       end do
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(rc)
 
    end subroutine get_bundles
 

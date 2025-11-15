@@ -1,4 +1,5 @@
 #include "MAPL.h"
+#include "unused_dummy.H"
 
 ! A copy might be between different kinds and precisions, so is really
 ! a converter.  But ... what is a better name.
@@ -61,25 +62,6 @@ contains
       _UNUSED_DUMMY(clock)
    end subroutine initialize
 
-!   subroutine update(this, importState, exportState, clock, rc)
-!      use esmf
-!      class(CopyTransform), intent(inout) :: this
-!      type(ESMF_State)      :: importState
-!      type(ESMF_State)      :: exportState
-!      type(ESMF_Clock)      :: clock      
-!      integer, optional, intent(out) :: rc
-
-!      integer :: status
-!      type(ESMF_Field) :: f_in, f_out
-
-!      call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=f_in, _RC)
-!      call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=f_out, _RC)
-
-!      call FieldCopy(f_in, f_out, _RC)
-
-!      _RETURN(_SUCCESS)
-!   end subroutine update
-
    subroutine update(this, importState, exportState, clock, rc)
       use esmf
       class(CopyTransform), intent(inout) :: this
@@ -95,6 +77,7 @@ contains
       call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, itemType=importType, _RC)
       call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, itemType=exportType, _RC)
       _ASSERT(importType == exportType, 'The state items are differt types.')
+
       if(importType == MAPL_STATEITEM_FIELD) then
          call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=importField, _RC)
          call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=exportField, _RC)
@@ -103,13 +86,14 @@ contains
       end if
 
       _ASSERT(importType == MAPL_STATEITEM_FIELDBUNDLE, 'Unsupported ESMF_State item type.') 
-     
+
       call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, fieldbundle=importBundle, _RC)
       call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, fieldbundle=exportBundle, _RC)
       call copy_bundle(importBundle, exportBundle, _RC)
       _RETURN(_SUCCESS)
       
       _UNUSED_DUMMY(clock)
+      _UNUSED_DUMMY(this)
 
    end subroutine update
 
@@ -118,6 +102,8 @@ contains
       class(CopyTransform), intent(in) :: this
 
       id = TYPEKIND_TRANSFORM_ID
+      _UNUSED_DUMMY(this)
+
    end function get_transformId
 
    subroutine copy_bundle(bundle_in, bundle_out, ignore_names, rc)

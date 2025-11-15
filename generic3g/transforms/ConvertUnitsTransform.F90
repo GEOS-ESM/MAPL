@@ -1,4 +1,5 @@
 #include "MAPL.h"
+#include "unused_dummy.H"
 
 module mapl3g_ConvertUnitsTransform
    use mapl3g_TransformId
@@ -147,6 +148,8 @@ contains
       class(ConvertUnitsTransform), intent(in) :: this
 
       id = UNITS_TRANSFORM_ID
+      _UNUSED_DUMMY(this)
+
    end function get_transformId
 
 end module mapl3g_ConvertUnitsTransform
