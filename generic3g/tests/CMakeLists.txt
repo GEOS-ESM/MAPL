@@ -44,6 +44,7 @@ set (test_srcs
   Test_ClockGet.pf
   Test_VariableSpec_private.pf
   Test_ConvertUnitsTransform.pf
+  Test_CopyTransform.pf
 )
 
 add_pfunit_ctest(
