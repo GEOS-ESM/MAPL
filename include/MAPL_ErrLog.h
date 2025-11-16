@@ -109,6 +109,7 @@
 #       define _RETURN_UNLESS(cond)     if(.not.(cond))then;_RETURN(_SUCCESS);endif
 #       define _VERIFY(A)     if(MAPL_Verify(A,_FILE_,__LINE__ __rc(rc))) __return
 #    endif
+#    define _ESTOP(status)  if (status /= 0) error stop				
 #    define _RC_(rc,status) rc=status);_VERIFY(status
 #    define _USERRC userRC=user_status, rc=status); _VERIFY(status); _VERIFY(user_status
 #    define _RC _RC_(rc,status)
