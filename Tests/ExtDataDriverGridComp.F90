@@ -4,10 +4,7 @@
 module ExtData_DriverGridCompMod
   use ESMF
   use MAPL
-#if defined(BUILD_WITH_EXTDATA2G)
   use MAPL_ExtDataGridComp2G, only : ExtData2G_SetServices => SetServices
-#endif
-  use MAPL_ExtDataGridCompMod, only : ExtData1G_SetServices => SetServices
   use MAPL_HistoryGridCompMod, only : Hist_SetServices => SetServices
   use MAPL_Profiler, only : get_global_time_profiler, BaseProfiler
   use mpi
@@ -334,15 +331,7 @@ contains
 
        call MAPL_Set(MAPLOBJ, CF=CAP%CF_EXT, RC=STATUS)
        _VERIFY(STATUS)
-       if (use_extdata2g) then
-#if defined(BUILD_WITH_EXTDATA2G)
-          cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData2G_SetServices, _RC)
-#else
-          _FAIL('ExtData2G requested but not built')
-#endif
-       else
-          cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData1G_SetServices, _RC)
-       end if
+       cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData2G_SetServices, _RC)
 
     end if
 
