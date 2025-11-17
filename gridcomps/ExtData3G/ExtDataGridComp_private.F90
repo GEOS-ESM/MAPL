@@ -29,7 +29,7 @@ contains
       integer, optional, intent(out) :: rc
 
       logical :: is_seq, file_found, is_map
-      integer :: status, i
+      integer :: status, i, bracket_size
       character(len=:), allocatable :: sub_configs(:)
       type(ESMF_HConfig) :: sub_config, export_config, temp_config
       type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
@@ -65,15 +65,17 @@ contains
                   itemType=MAPL_STATEITEM_EXPRESSION, expression=str_const, units="<unknown>", &
                   _RC)
                else
-                  item_type = get_maplitem_type(hconfig, _RC)
+                  item_type = get_maplitem_type(temp_config, _RC)
+                  bracket_size = get_bracket_size(item_type)
                   varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name, &
-                  itemType=item_type, bracket_size = 2, &
+                  itemType=item_type, bracket_size = bracket_size, &
                   _RC)
                end if
             else
-               item_type = get_maplitem_type(hconfig, _RC)
+               item_type = get_maplitem_type(temp_config, _RC)
+               bracket_size = get_bracket_size(item_type)
                varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name, &
-               itemType=item_type, bracket_size = 2, &
+               itemType=item_type, bracket_size = bracket_size, &
                _RC)
             end if
             call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
@@ -85,7 +87,7 @@ contains
    subroutine set_weights(state, export_name, weights, rc)
       type(ESMF_State), intent(inout) :: state
       character(len=*), intent(in) :: export_name
-      real, intent(in) :: weights(3)
+      real, intent(in) :: weights(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -188,4 +190,13 @@ contains
       _RETURN(_SUCCESS)
    end function get_maplitem_type
 
+   function get_bracket_size(item_type) result(bracket_size)
+      integer :: bracket_size
+      type(ESMF_StateItem_Flag) :: item_type
+      if (item_type == MAPL_STATEITEM_BRACKET) then
+         bracket_size = 2
+      else if (item_type == MAPL_STATEITEM_VECTOR_BRACKET) then
+         bracket_size = 4
+      end if
+    end function get_bracket_size
 end module mapl3g_ExtDataGridComp_private

@@ -401,7 +401,6 @@ contains
       type(VirtualConnectionPtVector) :: dependencies
       integer :: status
 
-      _HERE,' bmaa making: '//trim(this%short_name),this%state_intent==esmf_STATEINTENT_IMPORT,this%state_intent==ESMF_STATEINTENT_EXPORT,this%has_deferred_aspects
       aspects = this%make_aspects(registry, component_geom, vertical_grid, timestep=timestep, offset=offset, _RC)
       dependencies = this%make_dependencies(_RC)
       spec = new_StateItemSpec(this%state_intent, aspects, dependencies=dependencies, has_deferred_aspects=this%has_deferred_aspects)

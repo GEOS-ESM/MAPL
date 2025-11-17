@@ -137,7 +137,7 @@ contains
       type(StringVectorIterator) :: iter
       type(PrimaryExport), pointer :: export_item
       type(ESMF_Time) :: current_time
-      real :: weights(3)
+      real, allocatable :: weights(:)
       character(len=:), allocatable :: export_name
       character(len=:), pointer :: base_name
       type(ExtDataReader) :: reader

@@ -9,6 +9,7 @@ module mapl3g_VectorBracketClassAspect
    use mapl3g_GeomAspect
    use mapl3g_ClassAspect
    use mapl3g_FieldClassAspect
+   use mapl3g_VectorClassAspect
    use mapl3g_GeomAspect
    use mapl3g_VerticalGridAspect
    use mapl3g_UnitsAspect
@@ -278,14 +279,14 @@ contains
       supports_conversion_general = .true.
    end function supports_conversion_general
 
-   ! Only can convert if import is FieldClassAspect.
+   ! Only can convert if import is VectorClassAspect.
    logical function supports_conversion_specific(src, dst)
       class(VectorBracketClassAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
 
       supports_conversion_specific = .false.
       select type (dst)
-      type is (FieldClassAspect)
+      type is (VectorClassAspect)
          supports_conversion_specific = .true.
       end select
 

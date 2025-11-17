@@ -367,32 +367,9 @@ contains
       call rule%set_defaults(rc=status)
       _VERIFY(status)
       rule = ExtDataRule(export_rule,this%sample_map,key,multi_rule=usable_multi_rule,_RC)
-      semi_pos = index(key,";")
-      if (semi_pos > 0) then
-         rule_n_pos = index(key,rule_sep)
-         original_key = key
-         if (rule_n_pos > 0) original_key = key(1:rule_n_pos-1)
-
-         call rule%split_vector(original_key,ucomp,vcomp,rc=status)
-         uname = key(1:semi_pos-1)
-         vname = key(semi_pos+1:len_trim(key))
-
-         if (rule_n_pos > 0) then
-            rule_num = key(rule_n_pos+1:rule_n_pos+1)
-            uname=uname//rule_sep//rule_num
-         end if
-
-         temp_rule => this%rule_map%at(trim(uname))
-         _ASSERT(.not.associated(temp_rule),"duplicated export entry key: "//trim(uname))
-         call this%rule_map%insert(trim(uname),ucomp)
-         temp_rule => this%rule_map%at(trim(vname))
-         _ASSERT(.not.associated(temp_rule),"duplicated export entry key: "//trim(vname))
-         call this%rule_map%insert(trim(vname),vcomp)
-      else
-         temp_rule => this%rule_map%at(trim(key))
-         _ASSERT(.not.associated(temp_rule),"duplicated export entry key: "//trim(key))
-         call this%rule_map%insert(trim(key),rule)
-      end if
+      temp_rule => this%rule_map%at(trim(key))
+      _ASSERT(.not.associated(temp_rule),"duplicated export entry key: "//trim(key))
+       call this%rule_map%insert(trim(key),rule)
       _RETURN(_SUCCESS)
    end subroutine add_new_rule
 
