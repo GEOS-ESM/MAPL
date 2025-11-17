@@ -30,7 +30,6 @@ contains
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
       call recurse(this, phase_idx=GENERIC_INIT_MODIFY_ADVERTISED, _RC)
 
-!#       _HERE
       call process_connections(this, _RC)
       call this%registry%propagate_exports(_RC)
 
@@ -41,7 +40,7 @@ contains
       _UNUSED_DUMMY(exportState)
       _UNUSED_DUMMY(clock)
    end subroutine initialize_modify_advertised
-   
+
    subroutine process_connections(this, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
