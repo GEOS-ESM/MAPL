@@ -107,10 +107,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed `mapl_acg.cmake` to allow for more than one StateSpecs file per target
 - Fix NVHPC issue with IEEE halting code
 - Fix a misspelled `MAPL_LIBRARY_TYPE` in `vertical`
+- Workaround for Flang
 
 ### Added
-- Added updated version of `MAPL_GridCompSpecs_ACG_writer.py`
 
+- Added updated version of `MAPL_GridCompSpecs_ACG_writer.py`
 - Added 'Gridname' attribute to history output
 - Create TilgridIO's outbundle from output grid and deallocate mGriddedIO in History
 - Added TileGridIO.F90 to output NC4 History file in tile space. The collection's format should be 'CFIO'
@@ -121,6 +122,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add gcc15 test
 - Update CI to use organization reusable workflows
 - Update README_ACG_WRITER.md.
+- Update `components.yaml`
+  - `ESMA_env` v5.16.0
+    - Update to Baselibs 8.20.0
+      - GFE v1.20.0
+        - gFTL v1.16.0
+        - gFTL-shared v1.11.0
+        - fArgParse v1.10.0
+        - pFUnit v4.13.0
+        - yaFyaml v1.6.0
+        - pFlogger v1.17.0
+      - NCO 5.3.5
+      - This is mainly for ifx 2025.2 support
+      - Requires CMake 3.24
+  - `ESMA_cmake` v3.68.0
+    - Update `ifx` flags to match as close as possible to `ifort` flags
+    - Update site detection for NAS
+    - Updates for f2py and flang
 
 ### Removed
 
@@ -156,7 +174,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
       - curl 8.16.0
   - `ESMA_cmake` v3.65.0
     - Workaround for ifx 2025.2
-
 
 ## [2.61.0] - 2025-09-18
 
