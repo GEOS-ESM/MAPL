@@ -10,6 +10,7 @@ module mapl3g_CopyTransform
    use mapl_ErrorHandling
    use esmf
    use MAPL_FieldUtils
+   use mapl3g_FieldBundleCopy, only: FieldBundleCopy
    implicit none
 
    private
@@ -89,7 +90,7 @@ contains
 
       call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, fieldbundle=importBundle, _RC)
       call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, fieldbundle=exportBundle, _RC)
-      call copy_bundle(importBundle, exportBundle, _RC)
+      call FieldBundleCopy(importBundle, exportBundle, _RC)
       _RETURN(_SUCCESS)
       
       _UNUSED_DUMMY(clock)
@@ -106,41 +107,41 @@ contains
 
    end function get_transformId
 
-   subroutine copy_bundle(bundle_in, bundle_out, ignore_names, rc)
-      type(ESMF_FieldBundle), intent(inout) :: bundle_in, bundle_out
-      logical, optional, intent(in) :: ignore_names
-      integer, optional, intent(out) :: rc
-      integer :: status
-      integer :: field_count, n, i
-      character(len=ESMF_MAXSTR), allocatable :: names_in(:), names_out(:)
-      type(ESMF_Field), allocatable :: fields_in(:), fields_out(:)
-      logical :: check_names
+!   subroutine copy_bundle(bundle_in, bundle_out, ignore_names, rc)
+!      type(ESMF_FieldBundle), intent(inout) :: bundle_in, bundle_out
+!      logical, optional, intent(in) :: ignore_names
+!      integer, optional, intent(out) :: rc
+!      integer :: status
+!      integer :: field_count, n, i
+!      character(len=ESMF_MAXSTR), allocatable :: names_in(:), names_out(:)
+!      type(ESMF_Field), allocatable :: fields_in(:), fields_out(:)
+!      logical :: check_names
 
-      call ESMF_FieldBundleGet(bundle_in, fieldCount=field_count, _RC)
-      call ESMF_FieldBundleGet(bundle_out, fieldCount=n, _RC)
-      _ASSERT(field_count==n, 'The fieldCount values do not match.')
+!      call ESMF_FieldBundleGet(bundle_in, fieldCount=field_count, _RC)
+!      call ESMF_FieldBundleGet(bundle_out, fieldCount=n, _RC)
+!      _ASSERT(field_count==n, 'The fieldCount values do not match.')
 
-      check_names = .TRUE.
-      if(present(ignore_names)) check_names = .not. ignore_names
+!      check_names = .TRUE.
+!      if(present(ignore_names)) check_names = .not. ignore_names
 
-      if(check_names) then
-         allocate(names_in(n))
-         allocate(names_out(n))
-         call ESMF_FieldBundleGet(bundle_in, itemorderflag=ESMF_ITEMORDER_ABC, fieldNameList=names_in, _RC)
-         call ESMF_FieldBundleGet(bundle_out, itemorderflag=ESMF_ITEMORDER_ABC, fieldNameList=names_out, _RC)
-         _ASSERT(all(names_in == names_out), 'The field names do not match.')
-      end if            
+!      if(check_names) then
+!         allocate(names_in(n))
+!         allocate(names_out(n))
+!         call ESMF_FieldBundleGet(bundle_in, itemorderflag=ESMF_ITEMORDER_ABC, fieldNameList=names_in, _RC)
+!         call ESMF_FieldBundleGet(bundle_out, itemorderflag=ESMF_ITEMORDER_ABC, fieldNameList=names_out, _RC)
+!         _ASSERT(all(names_in == names_out), 'The field names do not match.')
+!      end if            
 
-      allocate(fields_in(n))
-      allocate(fields_out(n))
-      call ESMF_FieldBundleGet(bundle_in, itemorderflag=ESMF_ITEMORDER_ABC, fieldList=fields_in, _RC)
-      call ESMF_FieldBundleGet(bundle_out, itemorderflag=ESMF_ITEMORDER_ABC, fieldList=fields_out, _RC)
-      do i = 1, n
-         call FieldCopy(fields_in(i), fields_out(i), _RC)
-      end do
+!      allocate(fields_in(n))
+!      allocate(fields_out(n))
+!      call ESMF_FieldBundleGet(bundle_in, itemorderflag=ESMF_ITEMORDER_ABC, fieldList=fields_in, _RC)
+!      call ESMF_FieldBundleGet(bundle_out, itemorderflag=ESMF_ITEMORDER_ABC, fieldList=fields_out, _RC)
+!      do i = 1, n
+!         call FieldCopy(fields_in(i), fields_out(i), _RC)
+!      end do
 
-      _RETURN(_SUCCESS)
+!      _RETURN(_SUCCESS)
 
-   end subroutine copy_bundle
+!   end subroutine copy_bundle
 
 end module mapl3g_CopyTransform
