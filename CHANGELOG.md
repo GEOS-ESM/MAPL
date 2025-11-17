@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Added `pfaf_index` to `MAPL_Losctream`
+- Enforced present of grid when reading binary tile file
 - Update CI to use Baselibs 8.20.0
 - Add gcc15 test
 - Update CI to use organization reusable workflows
