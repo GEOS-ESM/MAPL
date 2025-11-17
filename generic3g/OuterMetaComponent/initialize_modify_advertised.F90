@@ -43,7 +43,7 @@ contains
    end subroutine initialize_modify_advertised
    
    subroutine process_connections(this, rc)
-      class(OuterMetaComponent), intent(inout) :: this
+      class(OuterMetaComponent), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status

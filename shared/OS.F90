@@ -305,10 +305,9 @@ contains
    end function path_join
 
 
-   subroutine make_symbolic_link(src_path, link_path, is_directory, rc)
+   subroutine make_symbolic_link(src_path, link_path, rc)
       character(*), intent(in) :: src_path
       character(*), intent(in) :: link_path
-      logical, optional, intent(in) :: is_directory
       integer, optional, intent(out) :: rc
 
       interface
