@@ -29,6 +29,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add gcc15 test
 - Update CI to use organization reusable workflows
 - Update README_ACG_WRITER.md.
+- Update `components.yaml`
+  - `ESMA_env` v5.16.0
+    - Update to Baselibs 8.20.0
+      - GFE v1.20.0
+        - gFTL v1.16.0
+        - gFTL-shared v1.11.0
+        - fArgParse v1.10.0
+        - pFUnit v4.13.0
+        - yaFyaml v1.6.0
+        - pFlogger v1.17.0
+      - NCO 5.3.5
+      - This is mainly for ifx 2025.2 support
+      - Requires CMake 3.24
+  - `ESMA_cmake` v3.68.0
+    - Update `ifx` flags to match as close as possible to `ifort` flags
+    - Update site detection for NAS
+    - Updates for f2py and flang
 
 ### Removed
 
@@ -64,7 +81,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
       - curl 8.16.0
   - `ESMA_cmake` v3.65.0
     - Workaround for ifx 2025.2
-
 
 ## [2.61.0] - 2025-09-18
 
