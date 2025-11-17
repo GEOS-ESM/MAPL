@@ -61,7 +61,6 @@ contains
          call this%regrid_vector(fb_in, fb_out, _RC)
          _RETURN(_SUCCESS)
       else if (bundleType_in == FIELDBUNDLETYPE_VECTOR_BRACKET) then
-         _HERE,' bmaa '
          call MAPL_FieldBundleGet(fb_in, fieldList=field_list_in, _RC)
          call MAPL_FieldBundleGet(fb_out, fieldList=field_list_out, _RC)
 
@@ -127,12 +126,6 @@ contains
       _ASSERT(size(uv_in) == 2, 'TangentVector must consiste of exactly 2 fields.')
       _ASSERT(size(uv_out) == 2, 'TangentVector must consiste of exactly 2 fields.')
       
-      block
-         real, pointer :: u(:,:), v(:,:)
-         call ESMF_FieldGet(uv_in(1), 0, farrayPtr=u, _RC)
-         call ESMF_FieldGet(uv_in(2), 0, farrayPtr=v, _RC)
-         write(*,*)"bmaa uv: ",maxval(u), maxval(v)
-      end block
       call create_field_vector(archetype=uv_in(1), fv=xyz_in, _RC)
       call create_field_vector(archetype=uv_out(1), fv=xyz_out, _RC)
 
