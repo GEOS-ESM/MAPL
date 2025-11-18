@@ -25,10 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Update CI to use Baselibs 8.20.0
-- Add gcc15 test
-- Update CI to use organization reusable workflows
-- Update README_ACG_WRITER.md.
+- Update CI
+  - Use Baselibs 8.20.0
+  - Add gcc15 test
+  - Use organization reusable workflows
+  - Run CI build test with NAG on PRs
+- Update `README_ACG_WRITER.md`
 - Update `components.yaml`
   - `ESMA_env` v5.16.0
     - Update to Baselibs 8.20.0
