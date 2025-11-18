@@ -203,6 +203,7 @@ module MAPL_ExtDataFileStreamMap
 #define _value type(ExtDataFileStream)
 #define _alt
 
+#define _pair ExtDataFileStreamPair
 #define _map ExtDataFileStreamMap
 #define _iterator ExtDataFileStreamMapIterator
 
@@ -210,6 +211,7 @@ module MAPL_ExtDataFileStreamMap
 
 #undef _iterator
 #undef _map
+#undef _pair
 
 #undef _alt
 #undef _value
