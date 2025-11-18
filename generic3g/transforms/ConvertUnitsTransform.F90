@@ -97,14 +97,19 @@ contains
       type(UDUNITS_Converter), intent(in) :: converter
       integer, optional, intent(out) :: rc
       integer :: status
-      integer :: i
-      type(ESMF_Field), allocatable :: fieldlist_in(:), fieldlist_out(:)
+      integer :: i, fieldCount
+      type(ESMF_Field), allocatable :: flist_in(:), flist_out(:)
 
-      call ESMF_FieldBundleGet(fb_in, fieldlist=fieldlist_in, _RC)
-      call ESMF_FieldBundleGet(fb_out, fieldlist=fieldlist_out, _RC)
-      _ASSERT(size(fieldlist_in) == size(fieldlist_out), 'The FieldBundles have different sizes.')
-      do i=1, size(fieldlist_in)
-         call update_field(fieldlist_in(i), fieldlist_out(i), converter, _RC)
+      call ESMF_FieldBundleGet(fb_out, fieldCount=fieldCount, _RC)
+      call ESMF_FieldBundleGet(fb_in, fieldCount=i, _RC)
+      _ASSERT(i==fieldCount, 'The number of ESMF_Field''s in the ESMF_Bundles'' do not match.')
+      allocate(flist_in(fieldCount))
+      allocate(flist_out(fieldCount))
+      call ESMF_FieldBundleGet(fb_in, fieldList=flist_in, _RC)
+      call ESMF_FieldBundleGet(fb_out, fieldList=flist_out, _RC)
+      _ASSERT(size(flist_in) == size(flist_out), 'The FieldBundles have different sizes.')
+      do i=1, size(flist_in)
+         call update_field(flist_in(i), flist_out(i), converter, _RC)
       end do
       _RETURN(_SUCCESS)
 
@@ -131,7 +136,6 @@ contains
          call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=f_in, _RC)
          call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=f_out, _RC)
          call update_field(f_in, f_out, this%converter, _RC)
-
       elseif(itemtype_in == MAPL_STATEITEM_FIELDBUNDLE) then
          call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, fieldBundle=fb_in, _RC)
          call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, fieldBundle=fb_out, _RC)
