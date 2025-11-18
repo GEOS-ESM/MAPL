@@ -197,7 +197,7 @@ contains
             sub_hconfig = ESMF_HConfigCreateAt(hconfigIter, _RC)
             item_type =get_maplitem_type_single_map(sub_hconfig, _RC)
             if (first_item .eqv. .false.) then
-               _ASSERT(item_type == last_type, 'vector and scalar in multi rule item')
+               _ASSERT(item_type /= last_type, 'vector and scalar in multi rule item')
             end if
             first_item = .false.
          enddo
