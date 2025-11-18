@@ -253,7 +253,7 @@ contains
       end if
       call MAPL_StateGetPointer(internal_state, ptr_2d, 'quarter_grid', _RC)
       ptr_2d=quarter_grid_fac2
-      do i=1,size(ptr_2d,2),2
+      do i=1,size(ptr_2d,1),2
          do j=1,size(ptr_2d,2),2       
             ptr_2d(i,j)=quarter_grid_fac1
          enddo
@@ -322,19 +322,40 @@ contains
       type(Comp_Driver_Support), intent(inout) :: support
       integer, optional, intent(out) :: rc
      
-      integer :: status, item_count, i
+      integer :: status, item_count, i, j
       character(len=ESMF_MAXSTR), allocatable :: name_list(:)
+      type(ESMF_StateItem_Flag), allocatable :: itemTypeList(:)
       type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field), allocatable :: field_list(:)
       character(len=:), pointer :: expression
+      character(len=:), allocatable :: composite_name
+      character(len=ESMF_MAXSTR) :: component_name 
+      character(*), parameter :: VECTOR_JOINTER = ";"
+      character(len=1) :: jc
     
       call ESMF_StateGet(state, itemCount=item_count, _RC) 
       allocate(name_list(item_count), _STAT)
-      call ESMF_StateGet(state, itemNameList=name_list, _RC)
+      allocate(itemTypeList(item_count), _STAT)
+      call ESMF_StateGet(state, itemTypeList=itemTypeList, itemNameList=name_list, _RC)
       do i=1,item_count
-         call ESMF_StateGet(state, trim(name_list(i)), field, _RC)
-         expression => support%fillDefs%at(trim(name_list(i)))
-         _ASSERT(associated(expression), "no expression for item "//trim(name_list(i)))
-         call MAPL_StateEval(internal_state, expression, field, _RC)
+         if (itemTypeList(i) == ESMF_STATEITEM_FIELD) then
+            call ESMF_StateGet(state, trim(name_list(i)), field, _RC)
+            expression => support%fillDefs%at(trim(name_list(i)))
+            _ASSERT(associated(expression), "no expression for item "//trim(name_list(i)))
+            call MAPL_StateEval(internal_state, expression, field, _RC)
+         else if (itemTypeList(i) == ESMF_STATEITEM_FIELDBUNDLE) then
+            call ESMF_StateGet(state, trim(name_list(i)), bundle, _RC)
+            call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
+            do j=1,size(field_list)
+               call ESMF_FieldGet(field_list(j), name=component_name, _RC)
+               write(jc,'(I1)')j
+               composite_name = trim(name_list(i))//VECTOR_JOINTER//'comp_'//jc
+               expression => support%fillDefs%at(composite_name)
+               _ASSERT(associated(expression), "no expression for item "//composite_name)
+               call MAPL_StateEval(internal_state, expression, field_list(j), _RC)
+            enddo
+         end if
       enddo
       
       _RETURN(_SUCCESS)
@@ -347,22 +368,36 @@ contains
       type(ESMF_State), intent(inout) :: source_state
       integer, optional, intent(out) :: rc
 
-      integer :: itemCount, i, status
+      integer :: itemCount, i, j, status
       type(ESMF_StateItem_Flag), allocatable :: itemTypeList(:)
       type(ESMF_StateItem_Flag) :: source_type
       character(len=ESMF_MAXSTR), allocatable :: itemNameList(:)
       type(ESMF_Field) :: dest_field, source_field
+      type(ESMF_FieldBundle) :: dest_bundle, source_bundle
+      type(ESMF_Field), allocatable :: dest_field_list(:), source_field_list(:)
 
       call ESMF_StateGet(dest_state, itemCount=itemCount, _RC)
       allocate(itemNameList(itemCount), _STAT)
       allocate(itemTypeList(itemCount), _STAT)
       call ESMF_StateGet(dest_state, itemTypeList=itemTypeList, itemNameList=itemNameList, _RC)
       do i=1,itemCount
-         call ESMF_StateGet(dest_state, trim(itemNameList(i)), dest_field, _RC)
-         call ESMF_StateGet(source_state, trim(itemNameList(i)), source_type, _RC)
-         _ASSERT(source_type == ESMF_StateItem_Field, 'source and destination are not both fields')
-         call ESMF_StateGet(source_state, trim(itemNameList(i)), source_field, _RC)
-         call FieldCopy(source_field, dest_field, _RC)
+         if (itemTypeList(i) == ESMF_STATEITEM_FIELD) then
+            call ESMF_StateGet(dest_state, trim(itemNameList(i)), dest_field, _RC)
+            call ESMF_StateGet(source_state, trim(itemNameList(i)), source_type, _RC)
+            _ASSERT(source_type == ESMF_StateItem_Field, 'source and destination are not both fields')
+            call ESMF_StateGet(source_state, trim(itemNameList(i)), source_field, _RC)
+            call FieldCopy(source_field, dest_field, _RC)
+         else if (itemTypeList(i) == ESMF_STATEITEM_FIELDBUNDLE) then
+            call ESMF_StateGet(dest_state, trim(itemNameList(i)), dest_bundle, _RC)
+            call ESMF_StateGet(source_state, trim(itemNameList(i)), source_type, _RC)
+            _ASSERT(source_type == ESMF_StateItem_FieldBundle, 'source and destination are not both fieldbundles')
+            call ESMF_StateGet(source_state, trim(itemNameList(i)), source_bundle, _RC)
+            call MAPL_FieldBundleGet(source_bundle, fieldList=source_field_list, _RC)
+            call MAPL_FieldBundleGet(dest_bundle, fieldList=dest_field_list, _RC)
+            do j=1,size(source_field_list)
+               call FieldCopy(source_field_list(j), dest_field_list(j), _RC)
+            enddo
+         end if
       enddo
 
       _RETURN(_SUCCESS)
@@ -374,26 +409,45 @@ contains
       real, intent(in) :: threshold
       integer, optional, intent(out) :: rc
 
-      integer :: itemCount, i, status
+      integer :: itemCount, i, j, status
       type(ESMF_StateItem_Flag), allocatable :: itemTypeList(:)
       type(ESMF_StateItem_Flag) :: source_type
       character(len=ESMF_MAXSTR), allocatable :: itemNameList(:)
       type(ESMF_Field) :: field, reference_field
       real(ESMF_KIND_R4), pointer :: ptr(:), reference_ptr(:)
+      type(ESMF_FieldBundle) :: bundle, reference_bundle
+      type(ESMF_Field), allocatable :: field_list(:), reference_field_list(:)
 
       call ESMF_StateGet(state, itemCount=itemCount, _RC)
       allocate(itemNameList(itemCount), _STAT)
       allocate(itemTypeList(itemCount), _STAT)
       call ESMF_StateGet(state, itemTypeList=itemTypeList, itemNameList=itemNameList, _RC)
       do i=1,itemCount
-         call ESMF_StateGet(state, trim(itemNameList(i)), field, _RC)
-         call ESMF_StateGet(reference_state, trim(itemNameList(i)), source_type, _RC)
-         _ASSERT(source_type == ESMF_StateItem_Field, 'source and destination are not both fields')
-         call ESMF_StateGet(reference_state, trim(itemNameList(i)), reference_field, _RC)
-         call assign_fptr(field, ptr, _RC)
-         call assign_fptr(reference_field, reference_ptr, _RC)
-         if (any(abs(ptr-reference_ptr) > threshold)) then
-            _FAIL("state differs from reference state greater than allowed threshold")
+         if (itemTypeList(i) == ESMF_STATEITEM_FIELD) then
+            call ESMF_StateGet(state, trim(itemNameList(i)), field, _RC)
+            call ESMF_StateGet(reference_state, trim(itemNameList(i)), source_type, _RC)
+            _ASSERT(source_type == ESMF_StateItem_Field, 'source and destination are not both fields')
+            call ESMF_StateGet(reference_state, trim(itemNameList(i)), reference_field, _RC)
+            call assign_fptr(field, ptr, _RC)
+            call assign_fptr(reference_field, reference_ptr, _RC)
+            if (any(abs(ptr-reference_ptr) > threshold)) then
+               _FAIL("state differs from reference state greater than allowed threshold")
+            end if
+         else if (itemTypeList(i) == ESMF_STATEITEM_FIELDBUNDLE) then
+            call ESMF_StateGet(reference_state, trim(itemNameList(i)), reference_bundle, _RC)
+            call ESMF_StateGet(state, trim(itemNameList(i)), source_type, _RC)
+            _ASSERT(source_type == ESMF_StateItem_FieldBundle, 'source and destination are not both fieldbundles')
+            call ESMF_StateGet(state, trim(itemNameList(i)), bundle, _RC)
+            call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
+            call MAPL_FieldBundleGet(reference_bundle, fieldList=reference_field_list, _RC)
+            _ASSERT(size(field_list) == size(reference_field_list), 'fields from vector bundle not same size')
+            do j=1,size(field_list)
+               call assign_fptr(field_list(j), ptr, _RC)
+               call assign_fptr(reference_field_list(j), reference_ptr, _RC)
+               if (any(abs(ptr-reference_ptr) > threshold)) then
+                  _FAIL("state differs from reference state greater than allowed threshold")
+               end if
+            enddo   
          end if
       enddo
 

@@ -256,7 +256,7 @@ contains
 
          ! (1) Interpolation weights can only change on import side
          call MAPL_FieldBundleGet(fb_in, fieldBundleType=fieldBundleType, _RC)
-         if (fieldBundleType == FIELDBUNDLETYPE_BRACKET) then
+         if (fieldBundleType == FIELDBUNDLETYPE_BRACKET .or. FieldBundleType == FIELDBUNDLETYPE_VECTOR_BRACKET) then
             call MAPL_FieldBundleGet(fb_in, interpolation_weights=interpolation_weights, _RC)
             if (.not. same_weights(interpolation_weights, this%time_varying%interpolation_weights)) then
                call MAPL_FieldBundleSet(fb_out, interpolation_weights=interpolation_weights, _RC)

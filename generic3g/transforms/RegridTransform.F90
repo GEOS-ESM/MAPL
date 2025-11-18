@@ -146,7 +146,7 @@ contains
          call this%update_transform(geom_in, geom_out)
          do_transform = .true.
          call MAPL_FieldBundleGet(fb_in, fieldBundleType= field_bundle_type, _RC)
-         if (field_bundle_type == FIELDBUNDLETYPE_BRACKET) then 
+         if (field_bundle_type == FIELDBUNDLETYPE_BRACKET .or. field_bundle_type == FIELDBUNDLETYPE_VECTOR_BRACKET) then 
             call MAPL_FieldBundleGet(fb_in, bracket_updated=do_transform, _RC)
          end if
          if (do_transform) then

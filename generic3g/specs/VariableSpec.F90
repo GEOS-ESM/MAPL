@@ -11,6 +11,7 @@ module mapl3g_VariableSpec
    use mapl3g_StateClassAspect
    use mapl3g_VectorClassAspect
    use mapl3g_BracketClassAspect
+   use mapl3g_VectorBracketClassAspect
    use mapl3g_WildcardClassAspect
    use mapl3g_ServiceClassAspect
    use mapl3g_ExpressionClassAspect
@@ -556,6 +557,7 @@ contains
 
       integer :: status
       character(:), allocatable :: std_name_1, std_name_2
+      type(StringVector) :: vector_component_names
 
       select case (this%itemType%ot)
       case (MAPL_STATEITEM_FIELD%ot)
@@ -568,7 +570,17 @@ contains
       case (MAPL_STATEITEM_STATE%ot)
          aspect = StateClassAspect(state_intent=this%state_intent, standard_name=this%standard_name)
       case (MAPL_STATEITEM_VECTOR%ot)
-         call split_name(this%standard_name, std_name_1, std_name_2, _RC)
+         std_name_1 = 'unknown'
+         std_name_2 = 'unknown'
+         if (allocated(this%standard_name)) then
+            call split_name(this%standard_name, std_name_1, std_name_2, _RC)
+         end if
+         if (this%vector_component_names%size() == 0) then
+            call vector_component_names%push_back('unknown')
+            call vector_component_names%push_back('unknown')
+         else
+            vector_component_names = this%vector_component_names
+         end if
          aspect = VectorClassAspect(this%vector_component_names, &
               [ &
               FieldClassAspect(standard_name=std_name_1, default_value=this%default_value), &
@@ -576,6 +588,8 @@ contains
               ])
       case (MAPL_STATEITEM_BRACKET%ot)
          aspect = BracketClassAspect(this%bracket_size, this%standard_name)
+      case (MAPL_STATEITEM_VECTOR_BRACKET%ot)
+         aspect = VectorBracketClassAspect(this%bracket_size, this%standard_name)
       case (MAPL_STATEITEM_WILDCARD%ot)
          allocate(aspect,source=WildcardClassAspect())
       case (MAPL_STATEITEM_SERVICE%ot)

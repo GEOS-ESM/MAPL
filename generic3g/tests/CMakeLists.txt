@@ -45,6 +45,7 @@ set (test_srcs
   Test_VariableSpec_private.pf
   Test_ConvertUnitsTransform.pf
   Test_CopyTransform.pf
+  Test_VectorBracketClassAspect.pf
 )
 
 add_pfunit_ctest(

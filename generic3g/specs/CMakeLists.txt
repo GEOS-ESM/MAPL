@@ -13,6 +13,7 @@ target_sources(MAPL.generic3g PRIVATE
   WildcardClassAspect.F90
   ServiceClassAspect.F90
   BracketClassAspect.F90
+  VectorBracketClassAspect.F90
   ExpressionClassAspect.F90
 
   AttributesAspect.F90
