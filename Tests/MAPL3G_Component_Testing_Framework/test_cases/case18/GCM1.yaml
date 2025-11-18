@@ -1,0 +1,49 @@
+FILL_DEF:
+  U: time_interval*2.0
+  V: time_interval
+
+#RUN_MODE: FillExportsFromImports
+#RUN_MODE: FillImports
+RUN_MODE: GenerateExports
+
+REF_TIME: 2004-07-01T00:00:00
+
+mapl:
+
+  #misc:
+    #activate_all_exports: true
+
+  states:
+    export:
+      #E_1:
+        #standard_name: 'foo'
+        ##class: vector
+        ##standard_name: '(eastward_wind, northward_wind) horizontal velocity'
+        ##vector_component_names: [U, V]
+        #units: "m s-1"
+        #typekind: R4
+        #default_value: 17.
+        #vertical_dim_spec: NONE
+      U:
+        standard_name: 'eastward_wind'
+        units: "m s-1"
+        typekind: R4
+        default_value: 17.
+        vertical_dim_spec: NONE
+      V:
+        standard_name: 'northward_wind'
+        units: "m s-1"
+        typekind: R4
+        default_value: 17.
+        vertical_dim_spec: NONE
+
+  geometry:
+    esmf_geom:
+      class: latlon
+      im_world: 20
+      jm_world: 11
+      pole: PC
+      dateline: DC
+    vertical_grid:
+      grid_type: basic
+      num_levels: 3
