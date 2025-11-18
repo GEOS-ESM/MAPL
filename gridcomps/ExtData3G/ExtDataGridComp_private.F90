@@ -177,6 +177,39 @@ contains
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, intent(out) :: rc
 
+      logical :: is_map, is_sequence, first_item
+      integer :: status
+      type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
+      type(ESMF_HConfig) :: sub_hconfig
+      type(ESMF_StateItem_Flag) :: last_type
+
+      is_map = ESMF_HConfigIsMap(hconfig, _RC)
+      is_sequence = ESMF_HConfigIsSequence(hconfig, _RC)
+      if (is_map) then
+         item_type =get_maplitem_type_single_map(hconfig, _RC)
+      else if (is_sequence) then
+         last_type = ESMF_STATEITEM_UNKNOWN
+         first_item = .true.
+         hconfigIterBegin = ESMF_HConfigIterBegin(hconfig)
+         hconfigIter = hconfigIterBegin
+         hconfigIterEnd = ESMF_HConfigIterEnd(hconfig)
+         do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
+            sub_hconfig = ESMF_HConfigCreateAt(hconfigIter, _RC)
+            item_type =get_maplitem_type_single_map(sub_hconfig, _RC)
+            if (first_item .eqv. .false.) then
+               _ASSERT(item_type == last_type, 'vector and scalar in multi rule item')
+            end if
+            first_item = .false.
+         enddo
+      end if
+      _RETURN(_SUCCESS)
+   end function get_maplitem_type
+
+   function get_maplitem_type_single_map(hconfig, rc) result(item_type)
+      type(ESMF_StateItem_Flag) :: item_type
+      type(ESMF_HConfig), intent(in) :: hconfig
+      integer, intent(out) :: rc
+
       logical :: has_variable
       integer :: status
       character(len=:), allocatable :: variable_name
@@ -188,7 +221,8 @@ contains
          if (index(variable_name, ';') > 0) item_type = MAPL_STATEITEM_VECTOR_BRACKET
       end if
       _RETURN(_SUCCESS)
-   end function get_maplitem_type
+   end function get_maplitem_type_single_map
+
 
    function get_bracket_size(item_type) result(bracket_size)
       integer :: bracket_size
