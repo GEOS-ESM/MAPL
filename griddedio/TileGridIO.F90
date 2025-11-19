@@ -496,16 +496,12 @@ module MAPL_TileGridIOMod
      integer :: status
      integer :: fieldRank
      character(len=ESMF_MAXSTR) :: fieldName
-     real, pointer :: ptr3d(:,:,:) => null()
-     real, pointer :: ptr2d(:,:) => null()
      real, pointer :: ptr1d(:) => null()
      type(ArrayReference) :: ref
-     integer :: lm
      logical :: hasDE
      integer, allocatable :: localStart(:),globalStart(:),globalCount(:)
      integer, allocatable :: gridLocalStart(:),gridGlobalStart(:),gridGlobalCount(:)
-     class (AbstractGridFactory), pointer :: factory
-     real, allocatable :: temp_2d(:,:), temp_3d(:,:,:)
+     real, allocatable :: temp_1d(:)
      type(ESMF_VM) :: vm
      integer :: mpi_comm, i1, in, j1, jn, global_dim(3)
 
@@ -515,11 +511,23 @@ module MAPL_TileGridIOMod
      call MAPL_GridGetInterior(this%output_grid,i1,in,j1,jn)
      call ESMF_FieldGet(field,rank=fieldRank,name=fieldName,rc=status)
      _VERIFY(status)
+     hasDE = MAPL_GridHasDE(this%output_grid,rc=status)
+     _VERIFY(status)
+
      if (fieldRank == 1) then
        allocate(localstart,source=[i1])
        allocate(globalstart,source=[1])
        allocate(globalcount,source=[global_dim(1)])
-       call ESMF_FieldGet(Field,farrayPtr=ptr1d,rc=status)
+       if ( hasDE ) then
+         call ESMF_FieldGet(Field,farrayPtr=ptr1d, _RC)
+         if (this%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
+            allocate(temp_1d,source=ptr1d)
+            call DownBit(temp_1d,ptr1d,this%nbits_to_keep,undef=MAPL_undef,mpi_comm=mpi_comm,rc=status)
+            _VERIFY(status)
+          end if
+       else
+         allocate(ptr1d(0))
+       endif
        ref = ArrayReference(ptr1d)
      else
        _FAIL('only 1d so far')
