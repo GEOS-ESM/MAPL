@@ -1,13 +1,16 @@
 #include "MAPL.h"
+#include "unused_dummy.H"
 
 ! A copy might be between different kinds and precisions, so is really
 ! a converter.  But ... what is a better name.
 module mapl3g_CopyTransform
    use mapl3g_TransformId
    use mapl3g_ExtensionTransform
+   use mapl3g_StateItem
    use mapl_ErrorHandling
    use esmf
    use MAPL_FieldUtils
+   use mapl3g_FieldBundleCopy, only: FieldBundleCopy
    implicit none
 
    private
@@ -67,16 +70,32 @@ contains
       type(ESMF_State)      :: exportState
       type(ESMF_Clock)      :: clock      
       integer, optional, intent(out) :: rc
-
       integer :: status
-      type(ESMF_Field) :: f_in, f_out
+      type(ESMF_StateItem_Flag) :: importType, exportType
+      type(ESMF_Field) :: importField, exportField
+      type(ESMF_FieldBundle) :: importBundle, exportBundle
 
-      call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=f_in, _RC)
-      call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=f_out, _RC)
+      call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, itemType=importType, _RC)
+      call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, itemType=exportType, _RC)
+      _ASSERT(importType == exportType, 'The state items are differt types.')
 
-      call FieldCopy(f_in, f_out, _RC)
+      if(importType == MAPL_STATEITEM_FIELD) then
+         call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=importField, _RC)
+         call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=exportField, _RC)
+         call FieldCopy(importField, exportField, _RC)
+         _RETURN(_SUCCESS)
+      end if
 
+      _ASSERT(importType == MAPL_STATEITEM_FIELDBUNDLE, 'Unsupported ESMF_State item type.') 
+
+      call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, fieldbundle=importBundle, _RC)
+      call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, fieldbundle=exportBundle, _RC)
+      call FieldBundleCopy(importBundle, exportBundle, _RC)
       _RETURN(_SUCCESS)
+      
+      _UNUSED_DUMMY(clock)
+      _UNUSED_DUMMY(this)
+
    end subroutine update
 
    function get_transformId(this) result(id)
@@ -84,6 +103,8 @@ contains
       class(CopyTransform), intent(in) :: this
 
       id = TYPEKIND_TRANSFORM_ID
+      _UNUSED_DUMMY(this)
+
    end function get_transformId
 
 end module mapl3g_CopyTransform

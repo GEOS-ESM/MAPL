@@ -63,6 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add a new implementation of MAPL_HConfigGet that does not require a HConfigParams object
 - Add and use character parameters for `ESMF_Field` names in ExtensionTransform subclasses
 - Extend ExtensionTransform derived types to support ESMF_KIND_R8
+- Extend ExtensionTransform derived types to support ESMF_FieldBundle objects
 
 ### Changed
 
@@ -117,10 +118,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Update CI to use Baselibs 8.20.0
-- Add gcc15 test
-- Update CI to use organization reusable workflows
-- Update README_ACG_WRITER.md.
+- Update CI
+  - Use Baselibs 8.20.0
+  - Add gcc15 test
+  - Use organization reusable workflows
+  - Run CI build test with NAG on PRs
+- Update `README_ACG_WRITER.md`
 - Update `components.yaml`
   - `ESMA_env` v5.16.0
     - Update to Baselibs 8.20.0

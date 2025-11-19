@@ -1,11 +1,26 @@
 name: NAG Build on Discover
 
 on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    # Do not run if the only files changed cannot affect the build
+    paths-ignore:
+      - "**.md"
+      - "**.pro"
+      - "**.sh"
+      - "**.perl"
+      - ".github/CODEOWNERS"
   workflow_dispatch:
   schedule:
     # * is a special character in YAML so you have to quote this string
     # This example runs at 4 am every day
     - cron: '0 4 * * *'
+
+concurrency:
+  # For PRs: one slot per PR number.
+  # For non-PR events (schedule, workflow_dispatch): one slot per ref.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 defaults:
   run:
