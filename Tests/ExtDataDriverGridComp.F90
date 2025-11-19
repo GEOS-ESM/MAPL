@@ -208,7 +208,7 @@ contains
     _VERIFY(status)
 
     ! !RESOURCE_ITEM: string :: Name of ExtData's config file
-    call MAPL_GetResource(MAPLOBJ, EXTDATA_CF, "EXTDATA_CF:", default = 'ExtData.rc', rc = status)
+    call MAPL_GetResource(MAPLOBJ, EXTDATA_CF, "EXTDATA_CF:", default = 'extdata.yaml', rc = status)
     _VERIFY(status)
 
     ! !RESOURCE_ITEM: string :: Control Timers
@@ -285,7 +285,7 @@ contains
     end if
 
     if (cap%run_extdata) then
-       ! Add NX and NY from AGCM.rc to ExtData.rc as well as name of ExtData rc file
+       ! Add NX and NY from AGCM.rc to extdata.yaml as well as name of extdata configuration file
        cap%cf_ext = ESMF_ConfigCreate(rc=STATUS )
        _VERIFY(STATUS)
        call ESMF_ConfigLoadFile(cap%cf_ext, EXTDATA_CF, rc=STATUS )

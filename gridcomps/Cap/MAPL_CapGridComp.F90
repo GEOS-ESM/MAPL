@@ -373,7 +373,7 @@ contains
     call MAPL_GetResource(MAPLOBJ, HIST_CF, "HIST_CF:", default = "HIST.rc", _RC)
 
     ! !RESOURCE_ITEM: string :: Name of ExtData's config file
-    call MAPL_GetResource(MAPLOBJ, EXTDATA_CF, "EXTDATA_CF:", default = 'ExtData.rc', _RC)
+    call MAPL_GetResource(MAPLOBJ, EXTDATA_CF, "EXTDATA_CF:", default = 'extdata.yaml', _RC)
 
     ! !RESOURCE_ITEM: string :: Control Timers
     call MAPL_GetResource(MAPLOBJ, enableTimers, "MAPL_ENABLE_TIMERS:", default = 'NO', _RC)
@@ -520,7 +520,7 @@ contains
     cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData2G_SetServices, _RC)
     call t_p%stop('SetService')
 
-    ! Add NX and NY from AGCM.rc to ExtData.rc as well as name of ExtData rc file
+    ! Add NX and NY from AGCM.rc to extdata.yaml as well as name of extdata configuration file
     call ESMF_ConfigGetAttribute(cap%cf_root, value = NX, Label="NX:", _RC)
     call ESMF_ConfigGetAttribute(cap%cf_root, value = NY, Label="NY:", _RC)
     call MAPL_ConfigSetAttribute(cap%cf_ext, value=NX,  Label="NX:",  _RC)
