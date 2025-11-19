@@ -31,6 +31,7 @@ set(srcs
   ESMF_HConfigUtilities.F90
   RestartHandler.F90
   )
+
 # Workaround for strict NAG Fortran with ESMF implicit interface for private state.
 #set_property( SOURCE InnerMetaComponent.F90 OuterMetaComponent.F90
 #  PROPERTY COMPILE_FLAGS ${MISMATCH})
