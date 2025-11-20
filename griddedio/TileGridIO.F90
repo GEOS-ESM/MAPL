@@ -511,8 +511,7 @@ module MAPL_TileGridIOMod
      call MAPL_GridGetInterior(this%output_grid,i1,in,j1,jn)
      call ESMF_FieldGet(field,rank=fieldRank,name=fieldName,rc=status)
      _VERIFY(status)
-     hasDE = MAPL_GridHasDE(this%output_grid,rc=status)
-     _VERIFY(status)
+     hasDE = MAPL_GridHasDE(this%output_grid, _RC)
 
      if (fieldRank == 1) then
        allocate(localstart,source=[i1])
