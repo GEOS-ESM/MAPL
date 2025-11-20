@@ -63,6 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add a new implementation of MAPL_HConfigGet that does not require a HConfigParams object
 - Add and use character parameters for `ESMF_Field` names in ExtensionTransform subclasses
 - Extend ExtensionTransform derived types to support ESMF_KIND_R8
+- Extend ExtensionTransform derived types to support ESMF_FieldBundle objects
 
 ### Changed
 
@@ -114,6 +115,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added 'Gridname' attribute to history output
 - Create TilgridIO's outbundle from output grid and deallocate mGriddedIO in History
 - Added TileGridIO.F90 to output NC4 History file in tile space. The collection's format should be 'CFIO'
+- Added bit shave to TileGridIO
 
 ### Changed
 

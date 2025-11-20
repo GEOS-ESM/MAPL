@@ -50,6 +50,8 @@ contains
 
       integer :: status
       type(FieldBundleType_Flag) :: bundleType_in, bundleType_out
+      type(ESMF_FieldBundle) :: tb_in, tb_out
+      type(ESMF_Field), allocatable :: field_list_in(:), field_list_out(:)
 
       call MAPL_FieldBundleGet(fb_in, fieldBundleType=bundleType_in, _RC)
       call MAPL_FieldBundleGet(fb_out, fieldBundleType=bundleType_out, _RC)
@@ -57,6 +59,23 @@ contains
 
       if (bundleType_in == FIELDBUNDLETYPE_VECTOR) then
          call this%regrid_vector(fb_in, fb_out, _RC)
+         _RETURN(_SUCCESS)
+      else if (bundleType_in == FIELDBUNDLETYPE_VECTOR_BRACKET) then
+         call MAPL_FieldBundleGet(fb_in, fieldList=field_list_in, _RC)
+         call MAPL_FieldBundleGet(fb_out, fieldList=field_list_out, _RC)
+
+         tb_in = ESMF_FieldBundleCreate(fieldList=field_list_in(1:2), _RC)
+         tb_out = ESMF_FieldBundleCreate(fieldList=field_list_out(1:2), _RC)
+         call this%regrid_vector(tb_in, tb_out, _RC)
+         call ESMF_FieldBundleDestroy(tb_in, noGarbage=.true., _RC)
+         call ESMF_FieldBundleDestroy(tb_out, noGarbage=.true., _RC)
+
+         tb_in = ESMF_FieldBundleCreate(fieldList=field_list_in(3:4), _RC)
+         tb_out = ESMF_FieldBundleCreate(fieldList=field_list_out(3:4), _RC)
+         call this%regrid_vector(tb_in, tb_out, _RC)
+         call ESMF_FieldBundleDestroy(tb_in, noGarbage=.true., _RC)
+         call ESMF_FieldBundleDestroy(tb_out, noGarbage=.true., _RC)
+
          _RETURN(_SUCCESS)
       end if
 
@@ -106,7 +125,7 @@ contains
 
       _ASSERT(size(uv_in) == 2, 'TangentVector must consiste of exactly 2 fields.')
       _ASSERT(size(uv_out) == 2, 'TangentVector must consiste of exactly 2 fields.')
-
+      
       call create_field_vector(archetype=uv_in(1), fv=xyz_in, _RC)
       call create_field_vector(archetype=uv_out(1), fv=xyz_out, _RC)
 
