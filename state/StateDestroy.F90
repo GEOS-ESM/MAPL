@@ -51,6 +51,7 @@ contains
       call ESMF_StateValidate(state, rc=status)
       _ASSERT(status /= ESMF_SUCCESS, 'The state was not destroyed successfully.')
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
 
    end subroutine destroy_state
 
