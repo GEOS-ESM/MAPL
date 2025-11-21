@@ -1,15 +1,7 @@
-#define _VERIFY(status) \
-   if(status /= 0) then; \
-      call assert_that(status, is(0), location=SourceLocation(__FILE__,__LINE__)); \
-      if (anyExceptions()) return; \
-   endif
-#define _RC rc=status); _VERIFY(status
+#include "MAPL_TestErr.h"
 
-! Helper procedures
-#define _SUCCESS 0
 #define _RC2 rc=status); _VERIFY2(status
 #define _VERIFY2(status)  if (status /= 0) then; if (present(rc)) rc=status; return; endif
-#define _RETURN(status) if (present(rc)) rc=status; return
 
 module Test_RouteHandleManager
    use pfunit
@@ -23,7 +15,7 @@ contains
 
    ! Helper procedures
    ! TODO add error handling to helper procedures
-   
+
    function make_geom(geom_mgr, hconfig, rc) result(geom)
       type(ESMF_Geom) :: geom
       type(GeomManager), intent(inout) :: geom_mgr
@@ -60,6 +52,7 @@ contains
       call ESMF_FieldGet(field, farrayptr=x, _RC2)
       x = value
 
+      _RETURN(_SUCCESS)
    end function make_field
 
    @test(type=ESMF_TestMethod, npes=[1])

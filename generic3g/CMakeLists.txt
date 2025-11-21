@@ -31,6 +31,7 @@ set(srcs
   ESMF_HConfigUtilities.F90
   RestartHandler.F90
   )
+
 # Workaround for strict NAG Fortran with ESMF implicit interface for private state.
 #set_property( SOURCE InnerMetaComponent.F90 OuterMetaComponent.F90
 #  PROPERTY COMPILE_FLAGS ${MISMATCH})
@@ -47,7 +48,7 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.regridder_mgr MAPL.geom MAPL.vertical_grid MAPL.GeomIO MAPL.esmf_utils MAPL.field MAPL.state MAPL.hconfig MAPL.shared MAPL.profiler MAPL.base MAPL.hconfig_utils MAPL.vertical MAPL.component
+  DEPENDENCIES MAPL.regridder_mgr MAPL.geom MAPL.vertical_grid MAPL.GeomIO MAPL.esmf_utils MAPL.field MAPL.state MAPL.hconfig MAPL.shared MAPL.profiler MAPL.base MAPL.hconfig_utils MAPL.vertical MAPL.component MAPL.field_bundle
   DEPENDENCIES MAPL.regridder_mgr MAPL.geom MAPL.GeomIO MAPL.esmf_utils MAPL.field MAPL.state MAPL.hconfig MAPL.shared MAPL.profiler MAPL.base MAPL.hconfig_utils
   ESMF::ESMF NetCDF::NetCDF_Fortran udunits2f PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2 MAPL.esmf_utils MAPL.alarm
   TYPE SHARED
