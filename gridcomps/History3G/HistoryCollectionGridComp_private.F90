@@ -7,6 +7,8 @@ module mapl3g_HistoryCollectionGridComp_private
    use mapl3g_EsmfRegridder, only: EsmfRegridderParam
    use mapl3g_RegridderMethods
    use mapl3g_CompressionSettings
+   use mapl3g_StateItem
+   use mapl3g_State_API
 
    implicit none(type,external)
    private
@@ -19,7 +21,7 @@ module mapl3g_HistoryCollectionGridComp_private
    public :: get_real_time_vector 
    public :: get_frequency
    ! These are public for testing.
-   public :: parse_item_common
+   public :: parse_item
    public :: replace_delimiter
    public :: get_expression_variables
 
@@ -31,11 +33,6 @@ module mapl3g_HistoryCollectionGridComp_private
       character(len=:), allocatable :: accumulation_type
       type(EsmfRegridderParam) :: regrid_param
    end type HistoryOptions
-
-   interface parse_item
-      module procedure :: parse_item_expression
-      module procedure :: parse_item_simple
-   end interface parse_item
 
    interface parse_options
       module procedure :: parse_options_hconfig
@@ -80,9 +77,14 @@ contains
       type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
       type(ESMF_HConfig) :: var_list
       character(len=:), allocatable :: alias, short_name
+      character(len=:), allocatable :: comp1_name, comp2_name
       type(ESMF_Field) :: field, new_field
-      type(ESMF_Info) :: info, new_info
       type(CompressionSettings) :: compression_settings
+      type(ESMF_StateItem_Flag) :: item_type
+      type(FieldBundleType_Flag) :: bundle_type
+      type(ESMF_FieldBundle) :: vector_bundle
+      type(StringVector) :: alias_vector
+      type(ESMF_Field), allocatable :: field_list(:)
 
       var_list = ESMF_HConfigCreateAt(hconfig, keystring=VAR_LIST_KEY, _RC)
       iter_begin = ESMF_HConfigIterBegin(var_list,_RC)
@@ -92,18 +94,63 @@ contains
       call parse_compression_options(hconfig, compression_settings, _RC)
       bundle = ESMF_FieldBundleCreate(_RC)
       do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
-         call parse_item(iter, alias, short_name, _RC)
-         call ESMF_StateGet(import_state, short_name, field, _RC)
-         new_field = ESMF_FieldCreate(field, dataCopyFlag=ESMF_DATACOPY_REFERENCE, name=alias,  _RC)
-         call ESMF_InfoGetFromHost(field, info, _RC)
-         call ESMF_InfoGetFromHost(new_field, new_info, _RC)
-         call ESMF_InfoSet(new_info, key="", value=info, _RC)
-         call compression_settings%sync_to_info(new_info, _RC)
-         call ESMF_FieldBundleAdd(bundle, [new_field], _RC)
+         call parse_item(iter, short_name, alias, _RC)
+         call MAPL_StateGet(import_state, short_name, item_type, _RC)
+         if (item_type == MAPL_STATEITEM_FIELD) then
+            call ESMF_StateGet(import_state, short_name, field, _RC)
+            new_field = create_alias_field(field, alias, compression_settings, _RC)
+            call ESMF_FieldBundleAdd(bundle, [new_field], _RC)
+         else if (item_type == ESMF_STATEITEM_FIELDBUNDLE) then
+            call ESMF_StateGet(import_state, short_name, vector_bundle, _RC)
+            call MAPL_FieldBundleGet(vector_bundle, fieldBundleType=bundle_type, fieldList=field_list, _RC)
+            _ASSERT(bundle_type == FIELDBUNDLETYPE_VECTOR, 'not vector type')
+            alias_vector = split_alias(alias, _RC)
+            new_field = create_alias_field(field_list(1), alias_vector%at(1), compression_settings, _RC)
+            call ESMF_FieldBundleAdd(bundle, [new_field], _RC)
+            new_field = create_alias_field(field_list(2), alias_vector%at(2), compression_settings, _RC)
+            call ESMF_FieldBundleAdd(bundle, [new_field], _RC)
+         else
+            _FAIL('unsupported item type being output in history')
+         end if
       end do
 
       _RETURN(_SUCCESS)
    end function create_output_bundle
+
+   function create_alias_field(old_field, alias, compression_settings, rc) result(new_field)
+      type(ESMF_Field) :: new_field
+      type(ESMF_Field), intent(in)  :: old_field
+      character(len=*), intent(in) :: alias
+      type(CompressionSettings), intent(in) :: compression_settings
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: info, new_info
+
+      new_field = ESMF_FieldCreate(old_field, dataCopyFlag=ESMF_DATACOPY_REFERENCE, name=alias,  _RC)
+      call ESMF_InfoGetFromHost(old_field, info, _RC)
+      call ESMF_InfoGetFromHost(new_field, new_info, _RC)
+      call ESMF_InfoSet(new_info, key="", value=info, _RC)
+      call compression_settings%sync_to_info(new_info, _RC)
+
+      _RETURN(_SUCCESS)
+   end function create_alias_field
+
+   function split_alias(input_alias, rc) result(alias_vector)
+      type(StringVector) :: alias_vector
+      character(len=*), intent(in) :: input_alias
+      integer, intent(out), optional :: rc
+
+      integer :: start_bracket, end_bracket, comma, status
+
+      comma = index(input_alias, ',')
+      start_bracket = index(input_alias, '[')
+      end_bracket = index(input_alias, ']')
+      _ASSERT(comma > 0 .and. start_bracket > 0 .and. end_bracket > 0, 'alias for vector is not correct')
+      call alias_vector%push_back(input_alias(start_bracket+1:comma-1))
+      call alias_vector%push_back(input_alias(comma+1:end_bracket-1))
+      _RETURN(_SUCCESS)
+   end function split_alias
 
    function set_start_stop_time(clock, hconfig, rc) result(start_stop_time)
       type(ESMF_Time) :: start_stop_time(2)
@@ -131,38 +178,10 @@ contains
       _RETURN(_SUCCESS)
    end function set_start_stop_time
 
-   subroutine parse_item_expression(item, item_name, var_names, rc)
+   subroutine parse_item(item, short_name, alias, rc)
       type(ESMF_HConfigIter), intent(in) :: item
-      character(len=:), allocatable, intent(out) :: item_name
-      type(StringVector), intent(out) :: var_names
-      integer, optional, intent(out) :: rc
-      character(len=:), allocatable :: expression
-      integer :: status
-
-      call parse_item_common(item, item_name, expression, _RC)
-      var_names = get_expression_variables(expression, _RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine parse_item_expression
-
-   subroutine parse_item_simple(item, item_name, var_name, rc)
-      type(ESMF_HConfigIter), intent(in) :: item
-      character(len=:), allocatable, intent(out) :: item_name
-      character(len=:), allocatable, intent(out) :: var_name
-      integer, optional, intent(out) :: rc
-      character(len=:), allocatable :: expression
-      integer :: status
-
-      call parse_item_common(item, item_name, expression, _RC)
-      var_name = replace_delimiter(expression)
-
-      _RETURN(_SUCCESS)
-   end subroutine parse_item_simple
-
-   subroutine parse_item_common(item, item_name, expression, rc)
-      type(ESMF_HConfigIter), intent(in) :: item
-      character(len=:), allocatable, intent(out) :: item_name
-      character(len=:), allocatable, intent(out) :: expression
+      character(len=:), allocatable, intent(out) :: short_name
+      character(len=:), allocatable, intent(out) :: alias
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: EXPRESSION_KEY = 'expr'
       integer :: status
@@ -174,14 +193,15 @@ contains
       isMap = ESMF_HConfigIsMapMapVal(item, _RC)
       _ASSERT(isMap, 'Variable list item does not have a map value.')
 
-      item_name = ESMF_HConfigAsStringMapKey(item, asOkay=asOK, _RC)
+      alias = ESMF_HConfigAsStringMapKey(item, asOkay=asOK, _RC)
       _ASSERT(asOK, 'Item name could not be processed as a String.')
 
       value = ESMF_HConfigCreateAtMapVal(item, _RC)
-      expression = ESMF_HConfigAsString(value, keyString=EXPRESSION_KEY, _RC)
+      short_name = ESMF_HConfigAsString(value, keyString=EXPRESSION_KEY, _RC)
+      short_name = replace_delimiter(short_name)
 
       _RETURN(_SUCCESS)
-   end subroutine parse_item_common
+   end subroutine parse_item
 
    function replace_delimiter(string, delimiter, replacement) result(replaced)
       character(len=:), allocatable :: replaced
@@ -251,10 +271,11 @@ contains
       integer, optional, intent(out) :: rc
       type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
       type(ESMF_HConfig) :: var_list
-      character(len=:), allocatable :: item_name
-      type(StringVector) :: variable_names
+      character(len=:), allocatable :: alias
+      character(len=:), allocatable :: short_name
       type(HistoryOptions) :: options
       integer :: status
+      type(ESMF_StateItem_Flag) :: itemtype
 
       ! Get Options for collection
       call parse_options(hconfig, options, _RC)
@@ -273,37 +294,34 @@ contains
       ! Add VariableSpec objects
       do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
          _VERIFY(status)
-         call parse_item(iter, item_name, variable_names, _RC)
+         call parse_item(iter, short_name, alias, _RC)
          call parse_options(iter, options, _RC)
-         call add_var_specs(gridcomp, variable_names, options, _RC)
+         call add_var_specs(gridcomp, short_name, alias, options, _RC)
       end do
 
       _RETURN(_SUCCESS)
    end subroutine register_imports
 
-   subroutine add_var_specs(gridcomp, variable_names, opts, rc)
+   subroutine add_var_specs(gridcomp, short_name, alias, opts, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
-      type(StringVector), intent(in) :: variable_names
+      character(len=*), intent(in) :: short_name
+      character(len=*), intent(in) :: alias
       type(HistoryOptions), intent(in) :: opts
       integer, optional, intent(out) :: rc
       integer :: status
-      type(StringVectorIterator) :: ftn_iter, ftn_end
       type(VariableSpec) :: varspec
-      character(len=:), allocatable :: short_name
+      type(ESMF_StateItem_Flag) :: item_type
 
-      ftn_end = variable_names%ftn_end()
-      ftn_iter = variable_names%ftn_begin()
-      do while (ftn_iter /= ftn_end)
-         call ftn_iter%next()
-         short_name = ftn_iter%of()
-         varspec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name, &
-              units=opts%units, typekind=opts%typekind, &
-              accumulation_type=opts%accumulation_type, timestep = opts%timestep, &
-              offset=opts%runTime_offset, &
-              regrid_param = opts%regrid_param, &
-              _RC)
-         call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
-      end do
+      item_type=MAPL_STATEITEM_FIELD
+      if (index(alias,'[') /= 0 .and. index(alias,']') /= 0 .and. index(alias,',') /= 0) item_type = MAPL_STATEITEM_VECTOR
+      varspec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name, &
+           units=opts%units, typekind=opts%typekind, &
+           accumulation_type=opts%accumulation_type, timestep = opts%timestep, &
+           offset=opts%runTime_offset, &
+           regrid_param = opts%regrid_param, &
+           itemtype=item_type, &
+           _RC)
+      call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
       _RETURN(_SUCCESS)
 
    end subroutine add_var_specs

@@ -142,16 +142,16 @@ contains
    end subroutine test_get_expression_variables
 
    @Test
-   subroutine test_parse_item_common()
+   subroutine test_parse_item()
       type(ESMF_HConfig) :: hconfig
       type(ESMF_HConfigIter) :: hc_iter, hc_iter_begin, hc_iter_end
-      character(len=:), allocatable :: expression, item_name, content, expected_name, expected_expression
+      character(len=:), allocatable :: alias, item_name, content, expected_name, expected_alias
       integer :: status
 
       expected_name = 'A_1'
-      expected_expression = 'GC1.F1+GC2.F2'
+      expected_alias= 'A1'
 
-      content = '{' // expected_name // ': {expr: ' // expected_expression // '}}'
+      content = '{' // expected_alias // ': {expr: ' // expected_name// '}}'
 !      content = '{A_1: {expr: GC1.F1+GC2.F2}}' 
       hconfig = ESMF_HConfigCreate(content=content, _RC)
 
@@ -161,12 +161,12 @@ contains
 
       do while (ESMF_HConfigIterLoop(hc_iter, hc_iter_begin, hc_iter_end, rc=status))
          @assertEqual(0, status, 'Nonzero status returned.')
-         call parse_item_common(hc_iter, item_name, expression)
+         call parse_item(hc_iter, item_name, alias)
          @assertEqual(expected_name, item_name, 'Actual item_name does not match actual item_name.')
-         @assertEqual(expected_expression, expression, 'Actual expression does not match actual expression')
+         @assertEqual(expected_alias, alias, 'Actual alias does not match actual alias')
       end do
 
-   end subroutine test_parse_item_common
+   end subroutine test_parse_item
 
    subroutine test_set_start_stop_time()
       type(ESMF_HConfig) :: hconfig
