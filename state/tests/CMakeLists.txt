@@ -4,6 +4,7 @@ set (test_srcs
   Test_StateMask.pf
   Test_StateFilter.pf
   Test_StateArithmetic.pf
+  Test_StateDestroy.pf
   )
 
 
