@@ -1,5 +1,5 @@
 #define I_AM_MAIN
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 program  time_ave
 
@@ -126,6 +126,7 @@ program  time_ave
    logical :: file_has_lev
    type(DistributedProfiler), target :: t_prof
    type(ProfileReporter) :: reporter
+   type(ESMF_Info) :: infoh
 
 ! **********************************************************************
 ! ****                       Initialization                         ****
@@ -383,7 +384,8 @@ program  time_ave
    else
       output_grid = input_grid
    end if
-   call ESMF_AttributeGet(output_grid,'GridType',grid_type,_RC)
+   call ESMF_InfoGetFromHost(output_grid,infoh,_RC)
+   call ESMF_InfoGet(infoh,'GridType',grid_type,_RC)
    allow_zonal_means = trim(grid_type) == 'LatLon'
    if (trim(grid_type) == "Cubed-Sphere") then
       _ASSERT(mod(npes,6)==0,"If input files are Cubed-Sphere, must be run on multiple of 6 proccessors")
@@ -1232,6 +1234,7 @@ contains
 
       integer :: status
       type(ESMF_Field) :: field
+      type(ESMF_Info) :: infoh
 
       if (lm == 0) then
          field = ESMF_FieldCreate(grid,name=trim(field_name),typekind=ESMF_TYPEKIND_R4,_RC)
@@ -1239,14 +1242,15 @@ contains
          field = ESMF_FieldCreate(grid,name=trim(field_name),typekind=ESMF_TYPEKIND_R4, &
                ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
       end if
-      call ESMF_AttributeSet(field,name='LONG_NAME',value=trim(long_name),_RC)
-      call ESMF_AttributeSet(field,name='UNITS',value=trim(units),_RC)
+      call ESMF_InfoGetFromHost(field,infoh,_RC)
+      call ESMF_InfoSet(infoh,key='LONG_NAME',value=trim(long_name),_RC)
+      call ESMF_InfoSet(infoh,key='UNITS',value=trim(units),_RC)
       if (lm == 0) then
-         call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsHorzOnly,_RC)
-         call ESMF_AttributeSet(field,name='VLOCATION',value=MAPL_VLocationNone,_RC)
+         call ESMF_InfoSet(infoh,key='DIMS',value=MAPL_DimsHorzOnly,_RC)
+         call ESMF_InfoSet(infoh,key='VLOCATION',value=MAPL_VLocationNone,_RC)
       else if (lm > 0) then
-         call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsHorzVert,_RC)
-         call ESMF_AttributeSet(field,name='VLOCATION',value=MAPL_VLocationCenter,_RC)
+         call ESMF_InfoSet(infoh,key='DIMS',value=MAPL_DimsHorzVert,_RC)
+         call ESMF_InfoSet(infoh,key='VLOCATION',value=MAPL_VLocationCenter,_RC)
       end if
       call MAPL_FieldBundleAdd(bundle,field,_RC)
       if (present(rc)) then
@@ -1326,6 +1330,7 @@ contains
       integer :: status
       character(len=ESMF_MAXSTR), allocatable :: field_list(:)
       type(ESMF_Field) :: field
+      type(ESMF_Info) :: infoh
       integer :: i,num_fields
 
       call ESMF_FieldBundleGet(bundle,fieldCount=num_fields,_RC)
@@ -1334,7 +1339,8 @@ contains
       call ESMF_FieldBundleGet(bundle,fieldNameList=field_list,_RC)
       do i=1,num_fields
          call ESMF_FieldBundleGet(bundle,field_list(i),field=field,_RC)
-         call ESMF_AttributeGet(field,name='LONG_NAME',value=long_names(i),_RC)
+         call ESMF_InfoGetFromHost(field,infoh,_RC)
+         call ESMF_InfoGet(infoh,key='LONG_NAME',value=long_names(i),_RC)
       enddo
       if (present(rc)) then
          RC=_SUCCESS
@@ -1349,6 +1355,7 @@ contains
       integer :: status
       character(len=ESMF_MAXSTR), allocatable :: field_list(:)
       type(ESMF_Field) :: field
+      type(ESMF_Info) :: infoh
       integer :: i,num_fields
 
       call ESMF_FieldBundleGet(bundle,fieldCount=num_fields,_RC)
@@ -1357,7 +1364,8 @@ contains
       call ESMF_FieldBundleGet(bundle,fieldNameList=field_list,_RC)
       do i=1,num_fields
          call ESMF_FieldBundleGet(bundle,field_list(i),field=field,_RC)
-         call ESMF_AttributeGet(field,name='UNITS',value=units(i),_RC)
+         call ESMF_InfoGetFromHost(field,infoh,_RC)
+         call ESMF_InfoGet(infoh,key='UNITS',value=units(i),_RC)
       enddo
       if (present(rc)) then
          RC=_SUCCESS

@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 #include "unused_dummy.H"
 
 module MAPL_CapGridCompMod
@@ -27,7 +27,7 @@ module MAPL_CapGridCompMod
   use MAPL_ExternalGridFactoryMod
   use MAPL_GridManagerMod
   use pFIO
-  use gFTL_StringVector
+  use gFTL2_StringVector
   use pflogger, only: logging, Logger
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
   use MAPL_ExternalGCStorage
@@ -653,9 +653,9 @@ contains
     if (cap_exports_vec%size() /= 0) then
        iter = cap_exports_vec%begin()
        do while(iter /= cap_exports_vec%end())
-          component_name = iter%get()
+          component_name = iter%of()
           component_name = trim(component_name(index(component_name, ",")+1:))
-          field_name = iter%get()
+          field_name = iter%of()
           field_name = trim(field_name(1:index(field_name, ",")-1))
           call MAPL_ExportStateGet([cap%child_exports(cap%root_id)], component_name, &
                component_state, status)
@@ -669,10 +669,10 @@ contains
     if (extdata_imports_vec%size() /= 0) then
        iter = extdata_imports_vec%begin()
        do while(iter /= extdata_imports_vec%end())
-          component_name = iter%get()
+          component_name = iter%of()
           component_name = trim(component_name(index(component_name, ",")+1:))
 
-          field_name = iter%get()
+          field_name = iter%of()
           field_name = trim(field_name(1:index(field_name, ",")-1))
 
           call MAPL_ExportStateGet([cap%child_exports(cap%root_id)], component_name, &
@@ -1010,7 +1010,7 @@ contains
 
     if (vector%size() /= 0) then
        do while (iter /= vector%end())
-          if (trim(string) == iter%get()) then
+          if (trim(string) == iter%of()) then
              vector_contains_str = .true.
              return
           end if
@@ -1348,6 +1348,7 @@ contains
 
      type(ESMF_Grid)           :: mapl_grid
      type(ExternalGridFactory) :: external_grid_factory
+     type(ESMF_Info)           :: infoh
      integer                   :: status
      character(len=ESMF_MAXSTR):: grid_type_
 
@@ -1368,13 +1369,15 @@ contains
           _ASSERT(grid_type_ == grid_type, "The grid types don't match")
         endif
         if (grid_manager%is_valid_prototype(grid_type)) then
-           call ESMF_AttributeSet(mapl_grid, 'GridType', grid_type, _RC)
+           call ESMF_InfoGetFromHost(mapl_grid, infoh, _RC)
+           call ESMF_InfoSet(infoh, 'GridType', grid_type, _RC)
         else
            _RETURN(_FAILURE)
         end if
      else if (grid_type_ /= "") then
         if (grid_manager%is_valid_prototype(grid_type_)) then
-           call ESMF_AttributeSet(mapl_grid, 'GridType', grid_type_, _RC)
+           call ESMF_InfoGetFromHost(mapl_grid, infoh, _RC)
+           call ESMF_InfoSet(infoh, 'GridType', grid_type, _RC)
         else
            _RETURN(_FAILURE)
         end if

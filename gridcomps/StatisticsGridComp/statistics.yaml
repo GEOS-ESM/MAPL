@@ -1,0 +1,54 @@
+---
+# anchors for recurring cases
+monthly: &monthly
+  period: P1M
+  offset: PT0H # + 2000-01-01T00:00:00
+
+daily: &daily
+  period: PT24H
+  offset: PT0H
+
+hourly: &hourly
+  period: P1H
+  offset: PT30M # 30 minute offset
+
+monthly_average: &monthly_average
+  action: average
+  <<: monthly
+
+monthly_variance: &monthly_variance
+  action: variance
+  <<: monthly
+
+monthly_covariance: &monthly_covariance
+  action: variance
+  <<: monthly
+
+stats:
+  - name: T
+    itemtype: field
+    <<: *monthly_average
+  - name: UV
+    import: UV
+    itemtype: vector
+    <<: *monthly_average
+  - export: Q_avg
+    import: Q
+    <<: *monthly_average
+  - name: T
+    export_units: (*)^2
+    <<: *monthly_variance
+  - export: T_var
+    import: T
+    export_units: K+2
+    <<: *monthly_variance
+  - export: Q_var
+    import: Q
+    <<: *monthly_variance
+  - export: T_diurnal
+    import: T
+    action: diurnal
+  - export: TQ_variance
+    imports: [T, Q]
+    <<: *monthly_covariance
+...

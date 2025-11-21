@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 #include "unused_dummy.H"
 
 module ExtData_DriverGridCompMod
@@ -76,6 +76,7 @@ contains
        allocate(cap%name, source='CAP')
     end if
 
+
     if (present(configFileName)) then
        allocate(cap%configFile, source=configFileName)
     else
@@ -151,7 +152,7 @@ contains
     _UNUSED_DUMMY(export_state)
     _UNUSED_DUMMY(clock)
 
-    t_p => get_global_time_profiler()
+   t_p => get_global_time_profiler()
 
     cap => get_CapGridComp_from_gc(gc)
     maplobj => get_MetaComp_from_gc(gc)
@@ -510,12 +511,9 @@ contains
 
     integer :: status
 
-    call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, userRoutine = initialize_gc, rc = status)
-    _VERIFY(status)
-    call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, userRoutine = run_gc, rc = status)
-    _VERIFY(status)
-    call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_FINALIZE, userRoutine = finalize_gc, rc = status)
-    _VERIFY(status)
+    call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, userRoutine = initialize_gc, _RC)
+    call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, userRoutine = run_gc, _RC)
+    call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_FINALIZE, userRoutine = finalize_gc, _RC)
     _RETURN(ESMF_SUCCESS)
 
   end subroutine set_services_gc

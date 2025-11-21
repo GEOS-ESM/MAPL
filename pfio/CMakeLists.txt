@@ -37,7 +37,7 @@ set (srcs
   CollectiveStageDoneMessage.F90
   DummyMessage.F90
   HandShakeMessage.F90
-  AddExtCollectionMessage.F90
+  AddReadDataCollectionMessage.F90
   IDMessage.F90
   AbstractDataMessage.F90
   AbstractCollectiveDataMessage.F90
@@ -45,7 +45,7 @@ set (srcs
   StageDataMessage.F90
   CollectivePrefetchDataMessage.F90
   CollectiveStageDataMessage.F90
-  AddHistCollectionMessage.F90
+  AddWriteDataCollectionMessage.F90
   ModifyMetadataMessage.F90
   ReplaceMetadataMessage.F90
   ForwardDataAndMessage.F90
@@ -95,9 +95,9 @@ if (BUILD_WITH_PFLOGGER)
   find_package (PFLOGGER REQUIRED)
 endif ()
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE ${MAPL_LIBRARY_TYPE})
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE SHARED)
 
-target_link_libraries (${this} PUBLIC GFTL::gftl-v2 GFTL_SHARED::gftl-shared-v2 PFLOGGER::pflogger PRIVATE MPI::MPI_Fortran OpenMP::OpenMP_Fortran)
+target_link_libraries (${this} PUBLIC GFTL::gftl-v2 GFTL_SHARED::gftl-shared-v2 GFTL_SHARED::gftl-shared PFLOGGER::pflogger PRIVATE MPI::MPI_Fortran OpenMP::OpenMP_Fortran)
 target_include_directories (${this} PUBLIC
           $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 

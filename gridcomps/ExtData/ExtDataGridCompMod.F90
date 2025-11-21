@@ -5,7 +5,7 @@
 !------------------------------------------------------------------------------
 !
 !#include "MAPL_Exceptions.h"
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 #include "unused_dummy.H"
 !
 !>
@@ -35,6 +35,8 @@
    use MAPL_BaseMod
    use MAPL_CommsMod
    use MAPL_ShmemMod
+   use pfio_VariableMod
+   use pfio_FileMetadataMod
    use ESMFL_Mod
    use MAPL_VarSpecMod
    use ESMF_CFIOFileMod
@@ -377,6 +379,7 @@ CONTAINS
    type(ESMF_VM) :: vm
    type(MAPL_MetaComp),pointer :: MAPLSTATE
    type(ESMF_StateItem_Flag)   :: itemType
+   type(ESMF_Info)             :: infoh
 
 
 !  Get my name and set-up traceback handle
@@ -981,7 +984,7 @@ CONTAINS
       call GetLevs(item,time,self%ExtDataState,self%allowExtrap,_RC)
       call ESMF_VMBarrier(vm)
       ! register collections
-      item%iclient_collection_id=i_clients%add_ext_collection(trim(item%file))
+      item%iclient_collection_id=i_clients%add_data_collection(trim(item%file))
       ! create interpolating fields, check if the vertical levels match the file
       if (item%vartype == MAPL_FieldItem) then
 
@@ -1024,9 +1027,11 @@ CONTAINS
          block
             integer :: gridRotation1, gridRotation2
             call ESMF_StateGet(self%ExtDataState, trim(item%vcomp1), field,_RC)
-            call ESMF_AttributeGet(field, NAME='ROTATION', value=gridRotation1, _RC)
+            call ESMF_InfoGetFromHost(field, infoh, _RC)
+            call ESMF_InfoGet(infoh,'ROTATION', gridRotation1, _RC)
             call ESMF_StateGet(self%ExtDataState, trim(item%vcomp2), field,_RC)
-            call ESMF_AttributeGet(field, NAME='ROTATION', value=gridRotation2, _RC)
+            call ESMF_InfoGetFromHost(field, infoh, _RC)
+            call ESMF_InfoGet(infoh,'ROTATION', gridRotation2, _RC)
             _ASSERT(GridRotation1 == gridRotation2,'Grid rotations must match when performing vector re-gridding')
          end block
 
@@ -2120,7 +2125,7 @@ CONTAINS
 
         var => null()
         if (item%isVector) then
-           var=>metadata%get_variable(trim(item%fcomp1))
+           var => metadata%get_variable(trim(item%fcomp1))
            _ASSERT(associated(var),"Variable "//TRIM(item%fcomp1)//" not found in file "//TRIM(item%file))
            var => null()
            var=>metadata%get_variable(trim(item%fcomp2))
@@ -4149,6 +4154,7 @@ CONTAINS
      type(ESMF_Config)         :: cflocal
      real :: stretch_factor, target_lat_degrees, target_lon_degrees
      logical :: isPresent
+     type(ESMF_Info) :: infoh
 
      IAM = "MAPL_ExtDataGridChangeLev"
 
@@ -4177,28 +4183,30 @@ CONTAINS
         call MAPL_ConfigSetAttribute(cflocal,value=trim(gname), label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"GRIDNAME:",rc=status)
         _VERIFY(status)
 
-        call ESMF_AttributeGet(grid, name='STRETCH_FACTOR', isPresent=isPresent, rc=status)
+        call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+        _VERIFY(status)
+        isPresent = ESMF_InfoIsPresent(infoh,'STRETCH_FACTOR',rc=status)
         _VERIFY(status)
         if (isPresent) then
-           call ESMF_AttributeGet(grid, name='STRETCH_FACTOR', value=stretch_factor, rc=status)
+           call ESMF_InfoGet(infoh,'STRETCH_FACTOR',stretch_factor,rc=status)
            _VERIFY(status)
            call MAPL_ConfigSetAttribute(cflocal,value=stretch_factor, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"STRETCH_FACTOR:",rc=status)
            _VERIFY(status)
         endif
 
-        call ESMF_AttributeGet(grid, name='TARGET_LON', isPresent=isPresent, rc=status)
+        isPresent = ESMF_InfoIsPresent(infoh,'TARGET_LON',rc=status)
         _VERIFY(status)
         if (isPresent) then
-           call ESMF_AttributeGet(grid, name='TARGET_LON', value=target_lon_degrees, rc=status)
+           call ESMF_InfoGet(infoh,'TARGET_LON',target_lon_degrees,rc=status)
            _VERIFY(status)
            call MAPL_ConfigSetAttribute(cflocal,value=target_lon_degrees, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"TARGET_LON:",rc=status)
            _VERIFY(status)
         endif
 
-        call ESMF_AttributeGet(grid, name='TARGET_LAT', isPresent=isPresent, rc=status)
+        isPresent = ESMF_InfoIsPresent(infoh,'TARGET_LAT',rc=status)
         _VERIFY(status)
         if (isPresent) then
-           call ESMF_AttributeGet(grid, name='TARGET_LAT', value=target_lat_degrees, rc=status)
+           call ESMF_InfoGet(infoh,'TARGET_LAT',target_lat_degrees,rc=status)
            _VERIFY(status)
            call MAPL_ConfigSetAttribute(cflocal,value=target_lat_degrees, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"TARGET_LAT:",rc=status)
            _VERIFY(status)

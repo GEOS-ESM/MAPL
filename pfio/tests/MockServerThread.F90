@@ -1,6 +1,7 @@
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 module MockServerThreadMod
+
    use MAPL_ExceptionHandling
    use pFIO_ServerThreadMod
    use pFIO_AbstractMessageMod
@@ -10,7 +11,7 @@ module MockServerThreadMod
    use pFIO_TerminateMessageMod
    use pFIO_DoneMessageMod
    use pFIO_PrefetchDoneMessageMod
-   use pFIO_AddExtCollectionMessageMod
+   use pFIO_AddReadDataCollectionMessageMod
    use pFIO_IdMessageMod
    use pFIO_PrefetchDataMessageMod
 
@@ -26,7 +27,7 @@ module MockServerThreadMod
       procedure :: handle_Terminate
       procedure :: handle_Done
       procedure :: handle_Done_prefetch
-      procedure :: handle_AddExtCollection
+      procedure :: handle_AddReadDataCollection
       procedure :: handle_PrefetchData
    end type MockServerThread
 
@@ -85,16 +86,16 @@ contains
       _RETURN(_SUCCESS)
    end subroutine handle_Done_prefetch
 
-   subroutine handle_AddExtCollection(this, message, rc)
+   subroutine handle_AddReadDataCollection(this, message, rc)
       class (MockServerThread), target, intent(inout) :: this
-      type (AddExtCollectionMessage), intent(in) :: message
+      type (AddReadDataCollectionMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
       _UNUSED_DUMMY(message)
 
-      call this%prefix('handle_AddExtCollection()')
+      call this%prefix('handle_AddReadDataCollection()')
       _RETURN(_SUCCESS)
-   end subroutine handle_AddExtCollection
+   end subroutine handle_AddReadDataCollection
 
    subroutine handle_PrefetchData(this, message, rc)
       class (MockServerThread), target, intent(inout) :: this

@@ -3,7 +3,7 @@ set (srcs
     ParentNoChildren_GridComp.F90
     )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL TYPE ${MAPL_LIBRARY_TYPE})
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL TYPE SHARED)
 target_link_libraries(${this} PRIVATE ESMF::ESMF OpenMP::OpenMP_Fortran)
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})

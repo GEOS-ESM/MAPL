@@ -603,19 +603,21 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
         logical :: is_present
         integer :: field_rank, status
         character(len=ESMF_MAXSTR) :: var_name,long_name,units,vdims
+        type(ESMF_Info) :: infoh
         integer :: k, ig
 
         call ESMF_FieldBundleGet(this%bundle,vname,field=field,_RC)
         call ESMF_FieldGet(field,name=var_name,rank=field_rank,_RC)
-        call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=is_present,_RC)
+        call ESMF_InfoGetFromHost(field,infoh,_RC)
+        is_present = ESMF_InfoIsPresent(infoh,"LONG_NAME",_RC)
         if ( is_present ) then
-           call ESMF_AttributeGet  (FIELD, NAME="LONG_NAME",VALUE=long_name, _RC)
+           call ESMF_InfoGet(infoh,"LONG_NAME",long_name,_RC)
         else
            long_name = var_name
         endif
-        call ESMF_AttributeGet(field,name="UNITS",isPresent=is_present,_RC)
+        is_present = ESMF_InfoIsPresent(infoh,"UNITS",_RC)
         if ( is_present ) then
-           call ESMF_AttributeGet  (FIELD, NAME="UNITS",VALUE=units, _RC)
+           call ESMF_InfoGet(infoh,"UNITS",units,_RC)
         else
            units = 'unknown'
         endif

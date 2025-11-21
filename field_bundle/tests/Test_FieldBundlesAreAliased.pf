@@ -1,0 +1,104 @@
+#include "MAPL_TestErr.h"
+module Test_FieldBundlesAreAliased
+   use mapl3g_FieldBundle_API, only: mapl_FieldBundlesAreAliased
+   use esmf
+   use funit
+   use ESMF_TestMethod_mod
+   implicit none(type,external)
+
+contains
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_self_is_alias(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(esmf_FieldBundle) :: fb
+
+      logical :: are_aliased
+      integer :: status
+
+      fb = esmf_FieldBundleCreate(_RC)
+      are_aliased = mapl_FieldBundlesAreAliased(fb, fb, _RC) 
+      @assert_that(are_aliased, is(true()))
+      call esmf_FieldBundleDestroy(fb, _RC)
+      
+   end subroutine test_self_is_alias
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_alias_is_alias(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(esmf_FieldBundle) :: fb1, fb2
+
+      logical :: are_aliased
+      integer :: status
+
+      fb1 = esmf_FieldBundleCreate(_RC)
+      fb2 = esmf_NamedAlias(fb1, name='other', _RC) ! is an alias
+      are_aliased = mapl_FieldBundlesAreAliased(fb1, fb2, _RC) 
+      @assert_that(are_aliased, is(true()))
+
+      call esmf_FieldBundleDestroy(fb1, _RC)
+
+   end subroutine test_alias_is_alias
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_nonalias_is_not_alias(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(esmf_FieldBundle) :: fb1, fb2
+
+      logical :: are_aliased
+      integer :: status
+
+      fb1 = esmf_FieldBundleCreate(_RC)
+      fb2 = esmf_FieldBundleCreate(_RC) ! not an alias
+      are_aliased = mapl_FieldBundlesAreAliased(fb1, fb2, _RC) 
+      @assert_that(are_aliased, is(false()))
+
+      call esmf_FieldBundleDestroy(fb1, _RC)
+      call esmf_FieldBundleDestroy(fb2, _RC)
+
+   end subroutine test_nonalias_is_not_alias
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_2_alias_of_original(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(esmf_FieldBundle) :: fb1, fb2, fb3
+
+      logical :: are_aliased
+      integer :: status
+
+      fb1 = esmf_FieldBundleCreate(_RC)
+      fb2 = esmf_NamedAlias(fb1, name='other', _RC) ! is an alias
+      fb3 = esmf_NamedAlias(fb1, name='other', _RC) ! is an alias
+
+      are_aliased = mapl_FieldBundlesAreAliased(fb2, fb3, _RC) 
+      @assert_that(are_aliased, is(true()))
+
+      call esmf_FieldBundleDestroy(fb1, _RC)
+
+   end subroutine test_2_alias_of_original
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_alias_of_alias(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(esmf_FieldBundle) :: fb1, fb2, fb3
+
+      logical :: are_aliased
+      integer :: status
+
+      fb1 = esmf_FieldBundleCreate(_RC)
+      fb2 = esmf_NamedAlias(fb1, name='other', _RC) ! is an alias
+      fb3 = esmf_NamedAlias(fb2, name='other', _RC) ! is an alias
+
+      are_aliased = mapl_FieldBundlesAreAliased(fb3, fb1, _RC) 
+      @assert_that(are_aliased, is(true()))
+
+      call esmf_FieldBundleDestroy(fb1, _RC)
+
+   end subroutine test_alias_of_alias
+
+end module Test_FieldBundlesAreAliased

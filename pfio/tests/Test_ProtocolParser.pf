@@ -5,7 +5,7 @@ module test_ProtocolParser
 
    use pFIO_TerminateMessageMod
    use pFIO_DoneMessageMod
-   use pFIO_AddExtCollectionMessageMod
+   use pFIO_AddReadDataCollectionMessageMod
    use pFIO_IdMessageMod
    use pFIO_PrefetchDataMessageMod
 
@@ -22,7 +22,7 @@ contains
       parser = ProtocolParser()
       
       buffer = parser%encode(expected_message)
-      allocate(found_message, source=parser%decode(buffer))
+      call parser%decode(buffer, found_message)
 
       @assertTrue(same_type_as(expected_message, found_message))
       

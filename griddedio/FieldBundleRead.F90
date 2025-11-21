@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 module MAPL_ESMFFieldBundleRead
    use ESMF
    use pFIO
@@ -20,10 +20,9 @@ module MAPL_ESMFFieldBundleRead
    use MAPL_GriddedIOItemVectorMod
    use MAPL_SimpleAlarm
    use MAPL_StringTemplate
-   use gFTL_StringVector
+   use gFTL2_StringVector
    use MAPL_RegridMethods
    use pFlogger, only: logging, Logger
-   use, intrinsic :: iso_fortran_env, only: REAL32
    implicit none
    private
 
@@ -56,12 +55,14 @@ module MAPL_ESMFFieldBundleRead
          type (StringVectorIterator) :: dim_iter
          integer :: lev_size, grid_size(3)
          character(len=:), allocatable :: units,long_name
+         type(ESMF_Info) :: infoh
 
          collection => DataCollections%at(metadata_id)
+         _ASSERT(associated(collection), 'specified metadata_id not found')
          metadata => collection%find(trim(file_name), _RC)
+         _ASSERT(associated(metadata), 'filename <'//trim(file_name)//'> not found')
          file_grid=collection%src_grid
-         lev_name = metadata%get_level_name(rc=status)
-         _VERIFY(status)
+         lev_name = metadata%get_level_name(_RC)
          has_vertical_level = (metadata%get_level_name(rc=status)/='')
          call ESMF_FieldBundleGet(bundle,grid=grid,FieldCount=num_fields,rc=status)
          _VERIFY(status)
@@ -76,18 +77,20 @@ module MAPL_ESMFFieldBundleRead
          if (has_vertical_level) lev_size = metadata%get_dimension(trim(lev_name))
 
          variables => metadata%get_variables()
-         var_iter = variables%begin()
-         do while (var_iter /= variables%end())
+         var_iter = variables%ftn_begin()
+         do while (var_iter /= variables%ftn_end())
+            call var_iter%next()
+
             var_has_levels = .false.
-            var_name_ptr => var_iter%key()
+            var_name_ptr => var_iter%first()
             var_name = ","//var_name_ptr//","
-            this_variable => var_iter%value()
+            this_variable => var_iter%second()
 
             if (has_vertical_level) then
                dimensions => this_variable%get_dimensions()
                dim_iter = dimensions%begin()
                do while (dim_iter /= dimensions%end())
-                  dim_name => dim_iter%get()
+                  dim_name => dim_iter%of()
                   if (trim(dim_name) == lev_name) var_has_levels=.true.
                   call dim_iter%next()
                enddo
@@ -135,20 +138,21 @@ module MAPL_ESMFFieldBundleRead
                            ptr2d =0.0
                         end block
                end if
-               call ESMF_AttributeSet(field,name='DIMS',value=dims,rc=status)
+               call ESMF_InfoGetFromHost(field,infoh,rc=status)
                _VERIFY(status)
-               call ESMF_AttributeSet(field,name='VLOCATION',value=location,rc=status)
+               call ESMF_InfoSet(infoh,'DIMS',dims,rc=status)
+               _VERIFY(status)
+               call ESMF_InfoSet(infoh,'VLOCATION',location,rc=status)
                _VERIFY(status)
                units = metadata%get_var_attr_string(var_name_ptr,'units',_RC)
                long_name = metadata%get_var_attr_string(var_name_ptr,'long_name',_RC)
-               call ESMF_AttributeSet(field,name='UNITS',value=units,rc=status)
+               call ESMF_InfoSet(infoh,'UNITS',units,rc=status)
                _VERIFY(status)
-               call ESMF_AttributeSet(field,name='LONG_NAME',value=long_name,rc=status)
+               call ESMF_InfoSet(infoh,'LONG_NAME',long_name,rc=status)
                _VERIFY(status)
                call MAPL_FieldBundleAdd(bundle,field,rc=status)
                _VERIFY(status)
             end if
-            call var_iter%next()
          end do
 
          _RETURN(_SUCCESS)
@@ -188,15 +192,16 @@ module MAPL_ESMFFieldBundleRead
          call fill_grads_template(file_name,file_tmpl,time=time,rc=status)
          _VERIFY(status)
 
-         collection_id=i_clients%add_ext_collection(trim(file_tmpl))
+         collection_id=i_clients%add_data_collection(trim(file_tmpl))
 
          metadata_id = MAPL_DataAddCollection(trim(file_tmpl))
          collection => DataCollections%at(metadata_id)
+         _ASSERT(associated(collection), 'specified metadata_id not found')
          if (present(file_override)) file_name = file_override
 
          metadata => collection%find(trim(file_name), _RC)
-         call metadata%get_time_info(timeVector=time_series,rc=status)
-         _VERIFY(status)
+         _ASSERT(associated(metadata), 'filename <'//trim(file_name)//'> not found')
+         call metadata%get_time_info(timeVector=time_series,_RC)
          time_index=-1
          do i=1,size(time_series)
             if (time==time_series(i)) then

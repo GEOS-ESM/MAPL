@@ -1,0 +1,81 @@
+# For each component:
+#   - provide a path to the outer/user componen in the hierarchy
+#   - list the fields expected in each import/export/internal states
+#   - annotate whether field is "complete"
+
+- component: child_A/<user>
+  import:
+    S:
+      class: bundle
+      fieldcount: 2
+  export:
+    S:
+      class: bundle
+      fieldcount: 2
+  internal:
+    Z_A1: {status: complete}
+    Z_A2: {status: complete}
+
+- component: child_A
+  import:
+    S:
+      class: bundle
+      fieldcount: 2
+  export:
+    S:
+      class: bundle
+      fieldcount: 2
+
+- component: child_C/<user>
+  import:
+    S1:
+      class: bundle
+      fieldcount: 1
+  export:
+    S1:
+      class: bundle
+      fieldcount: 1
+  internal:
+    W: {status: complete}
+
+- component: child_C
+  import:
+    S1:
+      class: bundle
+      fieldcount: 1
+  export:
+    S1:
+      class: bundle
+      fieldcount: 1
+
+- component: child_B/<user>
+  import:
+    S:
+      class: bundle
+      fieldcount: 3
+  export:
+    S:
+      class: bundle
+      fieldcount: 3
+
+- component: child_B
+  import:
+    S:
+      class: bundle
+      fieldcount: 3
+  export:
+    S:
+      class: bundle
+      fieldcount: 3
+
+- component: <user>
+  import: {}
+  export: {}
+  internal: {}
+
+- component: <root>
+  import: {}
+  export:
+    "child_B/S":
+      class: bundle
+      fieldcount: 3

@@ -18,7 +18,7 @@
    logical, optional, intent(IN   ) :: alloc
    logical, optional, intent(IN   ) :: notFoundOK
    integer, optional, intent(  OUT) :: RC
-   
+
    integer                         :: STATUS
 
    type (ESMF_FieldBundle)         :: bundle
@@ -27,6 +27,7 @@
    integer                         :: loc
    type(ESMF_FieldStatus_Flag)     :: fieldStatus
    type(ESMF_StateItem_Flag)       :: itemType
+   type(ESMF_Info)                 :: infoh
 
    NULLIFY(ptr)
    if (present(notFoundOK)) then
@@ -83,12 +84,13 @@
          _VERIFY(STATUS)
       endif
    endif
-   
+
 !ALT I dont think the next lines are needed anymore
 #if 0
    block
      integer :: DIMS
-     call ESMF_AttributeGet(field, name='VLOCATION', value=DIMS, rc=status)
+     call ESMF_InfoGetFromHost(field,infoh,rc=status)
+     call ESMF_InfoGet(infoh,'VLOCATION',DIMS,rc=status)
      if (STATUS==ESMF_SUCCESS) then
         if (DIMS == MAPL_VLocationEdge .and. associated(ptr)) then
 #if RANK_ == 3
@@ -102,7 +104,7 @@
 #endif
 
    _RETURN(ESMF_SUCCESS)
-   
+
  end subroutine SUB_
 
 #undef DIMENSIONS_

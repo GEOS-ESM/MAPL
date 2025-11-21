@@ -21,7 +21,7 @@ Understanding the Issue
 ---
 
 Consider the `MOIST` gridded component for example. It has over fifty (50) *IMPORTS* and over five hundred (500) *EXPORTS*.
-Registering them (with `MAPL_AddImportSpec` and `MAPL_AddExportSpec` calls) in the `SetServices` routine requires at least seven (7) lines of Fortran statements for each Field. 
+Registering them (with `MAPL_AddImportSpec` and `MAPL_AddExportSpec` calls) in the `SetServices` routine requires at least seven (7) lines of Fortran statements for each Field.
 For instance, assume that we have:
 - `PLE`, `ZLE`, and `T` as *IMPORTS*, and
 - `ZPBLCN` and `CNV_FRC` as *EXPORTS*.
@@ -82,7 +82,7 @@ call MAPL_AddExportSpec(GC,                              &
 
 </details>
 
-Such statements for over five hundred fifty (550) fields leads to more than thirty five hundred (3500) lines of code. 
+Such statements for over five hundred fifty (550) fields leads to more than thirty five hundred (3500) lines of code.
 In addition, we must declare the necessary multi-dimensional arrays and access the memory location of each member variable through a `MAPL_GetPointer` call in the `Run` subroutine.
 
 <details>
@@ -177,12 +177,12 @@ The following abbreviations are supported currently:
 | | `MAPL_RestartSkipInitial` &nbsp; | *`SKIPI`* |
 | `ADD2EXPORT` | `.TRUE.` | *`T`* |
 | | `.FALSE.` | *`F`* |
- 
-Because the rows are delimited by the pipe symbol, the row values do not appear in quotes or brackets, and commas are treated as part of the value.
-In a block, if a column is blank in a Field row, that column is ignored for the Field. 
 
-Assume that we create such a file (that we name `MyComponent_StateSpecs.rc`) and include the fields used in the previous section.
-`MyComponent_StateSpecs.rc` looks like:
+Because the rows are delimited by the pipe symbol, the row values do not appear in quotes or brackets, and commas are treated as part of the value.
+In a block, if a column is blank in a Field row, that column is ignored for the Field.
+
+Assume that we create such a file (that we name `MyComponent_StateSpecs.acg`) and include the fields used in the previous section.
+`MyComponent_StateSpecs.acg` looks like:
 
 <a name="custom-anchor-point-spec-file"></a>
 
@@ -217,7 +217,14 @@ category: INTERNAL
 #---------------------------------------------------------------------------
 ```
 
-Running the automatic code generator on the file `MyComponent_StateSpecs.rc` generates four (4) include files at compilation time:
+</details>
+
+> __Important__
+> It is required to have the settings for the two variable `schema_version` (here `2.0.0`) and `component` (here `MyComponent`) on top of the `spec` file.
+>
+
+
+Running `MAPL_GridCompSpecs_ACG.py` on the file `MyComponent_StateSpecs.acg` generates at compilation time four (4) include files:
 
 1. `MyComponent_Export___.h` for the `MAPL_AddExportSpec` calls in the `SetServices` routine:
 
@@ -297,8 +304,7 @@ call MAPL_GetPointer(EXPORT, CNV_FRC, 'CNV_FRC', ALLOC=.TRUE., _RC)
 Edit the Source Code
 ---
 
-In the `SetServices` routine, the `MAPL_AddExportSpec`, `MAPL_AddImportSpec`, `MAPL_AddInternalSpec` calls for the all the variables listed in the `MyComponent_StateSpecs.rc` must be removed and replaced with the two lines just after the declaration of the local variables:
-
+In the `SetServices` routine, all the `MAPL_AddExportSpec` and `MAPL_AddImportSpec` calls for the variables listed in the `MyComponent_StateSpecs.acg` need to be removed and replaced with the two lines just after the declaration of the local variables:
 ```
 ...
 #include "MyComponent_Export___.h"
@@ -323,12 +329,12 @@ Edit the `CMakeLists.txt` File
 The following lines need to be added to the  `CMakeLists.txt` file:
 
 ```
-mapl_acg (${this}   MyComponent_StateSpecs.rc
+mapl_acg (${this}   MyComponent_StateSpecs.acg
           IMPORT_SPECS EXPORT_SPECS INTERNAL_SPECS
           GET_POINTERS DECLARE_POINTERS)
 ```
 
-If there is no Internal state, `INTERNAL_SPECS` is not required in the above command, but there is no harm in including it. 
+If there is no Internal state, `INTERNAL_SPECS` is not required in the above command, but there is no harm in including it.
 
 <a name="custom-anchor-point-columns"></a>
 
@@ -377,9 +383,9 @@ A few are discussed below.
 
 ### Conditional Fields
 The `CONDITION` column places an `if` block around the procedure calls for a Field.
-For example, if the `IMPORT` block includes the `CONDITION` column, `if` blocks will be placed around the `MAPL_AddImportSpec` and `MAPL_GetPointer` calls for any Fields 
+For example, if the `IMPORT` block includes the `CONDITION` column, `if` blocks will be placed around the `MAPL_AddImportSpec` and `MAPL_GetPointer` calls for any Fields
 where the `CONDITION` column is not blank. For this `IMPORT` block:
-    
+
 ```fortran
 category: IMPORT
 #----------------------------------------------------------------------------
@@ -417,7 +423,7 @@ and
 
 ```fortran
 if (NOX=.TRUE.) then
-    call MAPL_GetPointer(IMPORT, PU,     'PU'     , _RC) 
+    call MAPL_GetPointer(IMPORT, PU,     'PU'     , _RC)
 else
     nullify(PU)
 end if
@@ -445,7 +451,7 @@ The following abbreviations can be used for some of the column names:
 
 ### Use of asterisk to expand names
 
-The values in the `SHORT_NAME` and `LONG_NAME` columns can be preceded by an asterisk (`*`). 
+The values in the `SHORT_NAME` and `LONG_NAME` columns can be preceded by an asterisk (`*`).
 When the tool processes the `spec` file , the `*` is substituted with the component name.
 
 For instance the `spec` file:
@@ -481,14 +487,14 @@ will lead to the source code:
    call MAPL_GetPointer(IMPORT, mycomponentmass, "MyComponentMASS", _RC)
 ...
 ```
-Note the addition of `MyComponent` to the short and long names. 
+Note the addition of `MyComponent` to the short and long names.
 This feature can be important if we want to use the content of a `spec` file
 across several instances of a component.
 
 ### Pointer Variable Names
 
 By default, the ACG uses the value of the column `SHORT_NAME` as the name of the
-pointer variable associated with the field. For instance if `mass` is the short name in 
+pointer variable associated with the field. For instance if `mass` is the short name in
 the `spec` file, the created pointer variable is `mass`. To use an alternate name for the pointer variable add the column `ALIAS`, and supply the alternate name in the specification file.
 
 For instance, if we have the following in the `spec` file:

@@ -47,6 +47,10 @@ add_pfunit_ctest(MAPL.pfio.tests
 set_target_properties(MAPL.pfio.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 set_tests_properties(MAPL.pfio.tests PROPERTIES LABELS "ESSENTIAL")
 
+if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
+  set_tests_properties(MAPL.pfio.tests PROPERTIES ENVIRONMENT "I_MPI_OFI_PROVIDER=psm3")
+endif()
+
 include_directories(
    ${CMAKE_CURRENT_SOURCE_DIR}
 )

@@ -23,7 +23,8 @@ module MAPL_AbstractGridFactoryMod
 
    contains
 
-      procedure, nopass :: make_arbitrary_decomposition
+!!$      procedure, nopass :: make_arbitrary_decomposition
+      procedure :: make_arbitrary_decomposition
       procedure :: make_grid
       procedure :: get_grid
       procedure (make_new_grid), deferred :: make_new_grid
@@ -79,6 +80,7 @@ module MAPL_AbstractGridFactoryMod
       procedure(generate_file_corner_bounds), deferred :: generate_file_corner_bounds
       procedure(generate_file_reference2D), deferred :: generate_file_reference2D
       procedure(generate_file_reference3D), deferred :: generate_file_reference3D
+      ! Following needs a better name:  Really lists file variable to _ignore_
       procedure(get_file_format_vars), deferred :: get_file_format_vars
       procedure(decomps_are_equal), deferred :: decomps_are_equal
       procedure(physical_params_are_equal), deferred :: physical_params_are_equal
@@ -364,9 +366,11 @@ contains
    ! that is as close as possible to sqrt(npes)*sqrt(npes) with the
    ! leading dimension using fewer processes
    ! --------------------------------------------------------------------
-   subroutine make_arbitrary_decomposition(nx, ny, unusable, reduceFactor, rc)
+!!$   subroutine make_arbitrary_decomposition(nx, ny, unusable, reduceFactor, rc)
+   subroutine make_arbitrary_decomposition(this, nx, ny, unusable, reduceFactor, rc)
       use ESMF
       use MAPL_KeywordEnforcerMod
+      class(AbstractGridFactory), intent(in) :: this
       integer, intent(out) :: nx
       integer, intent(out) :: ny
       class (KeywordEnforcer), optional, intent(in) :: unusable

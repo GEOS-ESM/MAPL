@@ -1,6 +1,9 @@
 module HistoryTrajectoryMod
   use ESMF
   use MAPL_FileMetadataUtilsMod
+  use pfio_FileMetadataMod
+  use pfio_NetCDF4_FileFormatterMod
+  use pfio_VariableMod
   use MAPL_GriddedIOItemVectorMod
   use MAPL_TimeDataMod
   use MAPL_VerticalDataMod
@@ -91,6 +94,7 @@ module HistoryTrajectoryMod
      procedure :: regrid_accumulate => regrid_accumulate_on_xsubset
      procedure :: destroy_rh_regen_LS
      procedure :: get_x_subset
+
   end type HistoryTrajectory
 
   interface HistoryTrajectory

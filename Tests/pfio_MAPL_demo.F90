@@ -38,7 +38,6 @@ program main
       integer,           parameter ::              num_dims = 2 ! number of dimension to decompose
 
       ! PFIO specific variables
-      type(MAPL_FargparseCLI) :: cli
       type(MAPL_CapOptions)   :: cap_options
       type(ServerManager)     :: ioserver_manager
       type(SplitCommunicator) :: split_comm
@@ -85,8 +84,7 @@ program main
 !------------------------------------------------------------------------------
 
       ! Read and parse the command line, and set parameters
-      cli = MAPL_FargparseCLI()
-      cap_options = MAPL_CapOptions(cli)
+      cap_options = FargparseCLI()
 
       ! Initialize MPI if MPI_Init has not been called
       call initialize_mpi(MPI_COMM_WORLD)
@@ -345,7 +343,7 @@ CONTAINS
       call fmd%add_attribute('Title', 'Sample code to test PFIO')
       call fmd%add_attribute('HISTORY', 'File writtem by PFIO vx.x.x')
 
-      hist_id = o_clients%add_hist_collection(fmd)
+      hist_id = o_clients%add_data_collection(fmd)
    end subroutine create_file_metada
 !------------------------------------------------------------------------------
 !>

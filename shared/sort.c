@@ -140,32 +140,32 @@ void QuickSortS(int a[], int b[], int l, int r, int m, int n)
 
 
 
-// FORTRAN INTERFACES
+// Fortran INTERFACES
 
-void QSORT0(long long a[], int *r) {
+void QSORT0(long long a[], int r) {
   int *b=NULL;
-  (void)QuickSort(a,b,0,*r-1,*r,0);
+  (void)QuickSort(a,b,0,r-1,r,0);
 }
 
-void QSORTL(long long a[], int b[], int *r, int *n) {
-  (void)QuickSort(a,b,0,*r-1,*r,*n);
+void QSORTL(long long a[], int b[], int r, int n) {
+  (void)QuickSort(a,b,0,r-1,r,n);
 }
 
-void QSORTS (int a[], int b[], int *r, int *n) {
-  (void)QuickSortS(a,b,0,*r-1,*r,*n);
+void QSORTS (int a[], int b[], int r, int n) {
+  (void)QuickSortS(a,b,0,r-1,r,n);
 }
 
 // Extra aliases for other loaders
 
-void qsort0 (long long a[],          int *r        ) { (void)QSORT0(a  ,r  ); }
-void qsortl (long long a[], int b[], int *r, int *n) { (void)QSORTL(a,b,r,n); }
-void qsorts (int       a[], int b[], int *r, int *n) { (void)QSORTS(a,b,r,n); }
+void qsort0 (long long a[],          int r        ) { (void)QSORT0(a  ,r  ); }
+void qsortl (long long a[], int b[], int r, int n) { (void)QSORTL(a,b,r,n); }
+void qsorts (int       a[], int b[], int r, int n) { (void)QSORTS(a,b,r,n); }
 
-void QSORT0_(long long a[],          int *r        ) { (void)QSORT0(a  ,r  ); }
-void QSORTL_(long long a[], int b[], int *r, int *n) { (void)QSORTL(a,b,r,n); }
-void QSORTS_(int       a[], int b[], int *r, int *n) { (void)QSORTS(a,b,r,n); }
+void QSORT0_(long long a[],          int r        ) { (void)QSORT0(a  ,r  ); }
+void QSORTL_(long long a[], int b[], int r, int n) { (void)QSORTL(a,b,r,n); }
+void QSORTS_(int       a[], int b[], int r, int n) { (void)QSORTS(a,b,r,n); }
 
-void qsort0_(long long a[],          int *r        ) { (void)QSORT0(a,  r  ); }
-void qsortl_(long long a[], int b[], int *r, int *n) { (void)QSORTL(a,b,r,n); }
-void qsorts_(int       a[], int b[], int *r, int *n) { (void)QSORTS(a,b,r,n); }
+void qsort0_(long long a[],          int r        ) { (void)QSORT0(a,  r  ); }
+void qsortl_(long long a[], int b[], int r, int n) { (void)QSORTL(a,b,r,n); }
+void qsorts_(int       a[], int b[], int r, int n) { (void)QSORTS(a,b,r,n); }
 

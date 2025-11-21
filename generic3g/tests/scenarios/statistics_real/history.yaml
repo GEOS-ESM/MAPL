@@ -1,0 +1,21 @@
+mapl:
+  children:
+    collection_1:
+      timestep: PT24H
+      dso: libconfigurable_gridcomp
+      config_file: scenarios/statistics_real/collection_1.yaml
+    stat:
+      dso: libmapl_statisticsgridcomp
+      config_file: scenarios/statistics_real/stat.yaml
+
+  states: {}
+
+  import: {}
+#    A/TS:
+#      vertical_dim_spec: MIRROR
+
+  connections:
+    - src_name: A/TS
+      src_comp: stat
+      dst_name: TS_avg
+      dst_comp: collection_1

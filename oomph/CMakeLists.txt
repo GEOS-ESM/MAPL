@@ -30,5 +30,5 @@ set (srcs
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.base GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2 TYPE ${MAPL_LIBRARY_TYPE}
+  DEPENDENCIES MAPL.base GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2 TYPE SHARED
   )

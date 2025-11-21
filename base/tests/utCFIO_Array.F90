@@ -2,7 +2,7 @@
 ! Simple unit test for CFIO Read/Write of Arrays
 !
 
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
    Program utCFIO
 

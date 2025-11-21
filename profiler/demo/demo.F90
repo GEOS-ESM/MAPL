@@ -16,6 +16,7 @@ program main
    character(:), allocatable :: report_lines(:)
    integer :: i
    integer :: ierror, rc, status
+   character(1) :: empty(0)
 
    call MPI_Init(ierror)
    _VERIFY(ierror)
@@ -26,6 +27,7 @@ program main
    !mem_prof = MemoryProfiler('TOTAL')
 
    call main_prof%start('init reporter')
+   reporter = ProfileReporter(empty)
    call reporter%add_column(NameColumn(20))
    call reporter%add_column(FormattedTextColumn('#-cycles','(i5.0)', 5, NumCyclesColumn()))
    call reporter%add_column(FormattedTextColumn(' T(inc)','(f9.6)', 9, InclusiveColumn()))

@@ -1,0 +1,27 @@
+mapl:
+
+  geometry:
+    esmf_geom:
+      class: latlon
+      im_world: 12
+      jm_world: 13
+      pole: PC
+      dateline: DC
+    vertical_grid:
+      grid_type: model
+      fields: {pressure: PLE, height: ZLE}
+      num_levels: 4
+
+  states:
+    import: {}
+    export:
+      PL:
+        standard_name: air_pressure
+        units: hPa
+        default_value: 17.
+        vertical_dim_spec: center
+      PLE:
+        standard_name: air_pressure_ple_edge
+        units: hPa
+        default_value: 13.
+        vertical_dim_spec: edge

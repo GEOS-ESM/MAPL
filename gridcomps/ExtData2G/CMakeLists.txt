@@ -24,7 +24,7 @@ set (srcs
     )
 
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.base MAPL.generic MAPL.griddedio udunits2f MAPL.vertical MAPL.state_utils TYPE ${MAPL_LIBRARY_TYPE})
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.base MAPL.generic MAPL.griddedio udunits2f MAPL.vertical MAPL.state TYPE SHARED)
 target_link_libraries (${this} PUBLIC GFTL::gftl GFTL_SHARED::gftl-shared ESMF::ESMF NetCDF::NetCDF_Fortran
                                PRIVATE MPI::MPI_Fortran)
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)

@@ -1,6 +1,6 @@
 #define I_AM_MAIN
 
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 program CapDriver_Main
    use MPI
@@ -10,12 +10,10 @@ program CapDriver_Main
 
    character(len=*), parameter :: Iam="CapDriver_Main"
    type (MAPL_Cap) :: cap
-   type (MAPL_FargparseCLI) :: cli
    type (MAPL_CapOptions) :: cap_options
    integer :: status
 
-   cli = MAPL_FargparseCLI()
-   cap_options = MAPL_CapOptions(cli)
+   cap_options = FargparseCLI()
    cap = MAPL_Cap('Root', ROOT_SetServices, cap_options = cap_options)
 
    call cap%run(_RC)

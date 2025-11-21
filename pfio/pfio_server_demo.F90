@@ -9,7 +9,7 @@
 !
 module server_demo_CLI
    use MAPL_ExceptionHandling
-   use gFTL_StringVector
+   use gFTL2_StringVector
    implicit none
    private
 
@@ -123,7 +123,7 @@ module FakeExtDataMod_server
    use MAPL_ExceptionHandling
    use server_demo_CLI
    use pFIO
-   use gFTL_StringVector
+   use gFTL2_StringVector
    use, intrinsic :: iso_fortran_env, only: REAL32
    implicit none
    private
@@ -162,7 +162,7 @@ contains
    
 
    subroutine init(this, options, comm, d_s)
-      use gFTL_StringIntegerMap
+      use gFTL2_StringIntegerMap
       class (FakeExtData), intent(inout) :: this
       type (CommandLineOptions), intent(in) :: options
       integer, intent(in) :: comm
@@ -220,9 +220,9 @@ contains
       !do i = 1,9999
       !   tmp= ''
       !   write(tmp,'(I4.4)') i
-      !collection_id = this%c%add_ext_collection('collection-name'//tmp)
+      !collection_id = this%c%add_data_collection('collection-name'//tmp)
       !enddo
-      collection_id = this%c%add_ext_collection('collection-name')
+      collection_id = this%c%add_data_collection('collection-name')
 
       select case (step)
       case (1) ! read 1st file; prefetch 2nd

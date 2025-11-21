@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 #include "MAPL_ErrLog.h"
 module StationSamplerMod
   use ESMF
@@ -439,18 +439,20 @@ contains
     integer :: rank,lb(1),ub(1)
     integer :: k, ig
     integer, allocatable :: chunksizes(:)
+    type(ESMF_Info) :: infoh
 
     call ESMF_FieldBundleGet(this%bundle,vname,field=field,_RC)
     call ESMF_FieldGet(field,name=var_name,rank=field_rank,_RC)
-    call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=is_present,_RC)
+    call ESMF_InfoGetFromHost(field,infoh,_RC)
+    is_present = ESMF_InfoIsPresent(infoh, 'LONG_NAME',_RC)
     long_name = var_name
     if ( is_present ) then
-       call ESMF_AttributeGet  (FIELD, NAME="LONG_NAME",VALUE=long_name, _RC)
+       call ESMF_InfoGet(infoh, KEY="LONG_NAME",VALUE=long_name, _RC)
     endif
-    call ESMF_AttributeGet(field,name="UNITS",isPresent=is_present,_RC)
+    is_present = ESMF_InfoIsPresent(infoh, 'UNITS',_RC)
     units = 'unknown'
     if ( is_present ) then
-       call ESMF_AttributeGet  (FIELD, NAME="UNITS",VALUE=units, _RC)
+       call ESMF_InfoGet(infoh, KEY="UNITS",VALUE=units, _RC)
     endif
 
     vdims = "station_index,time"

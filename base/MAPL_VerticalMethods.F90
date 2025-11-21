@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module MAPL_VerticalDataMod
   use ESMF
@@ -316,7 +316,7 @@ module MAPL_VerticalDataMod
             km_e = size(this%ple3d,3)
             this%nedge = km_e
             allocate(ple3d(D1,D2,km_e))
-            ple3d = this%ple3d 
+            ple3d = this%ple3d
             do lev =1, levo
                pp = flip_sign*this%interp_levels(lev)
                pb = flip_sign*ple3d(:,:,km_e)
@@ -637,6 +637,7 @@ module MAPL_VerticalDataMod
         integer :: status
         type(Variable) :: v
         logical :: isPresent
+        type(ESMF_Info) :: infoh
         character(len=4) :: positive
 
         ! loop over variables in file
@@ -653,9 +654,10 @@ module MAPL_VerticalDataMod
         do i=1,numVars
            call ESMF_FieldBundleGet(bundle,i,field,_RC)
            positive = 'down'
-           call ESMF_AttributeGet(field,NAME="POSITIVE",isPresent=isPresent,_RC)
+           call ESMF_InfoGetFromHost(field,infoh,_RC)
+           isPresent = ESMF_InfoIsPresent(infoh,'POSITIVE',_RC)
            if (isPresent) then
-              call ESMF_AttributeGet(field,name="POSITIVE", value=positive, _RC)
+              call ESMF_InfoGet(infoh,key='POSITIVE',value=positive,_RC)
            end if
            if (i .eq. 1) this%positive=positive
            if (i .gt. 1) then
@@ -666,24 +668,25 @@ module MAPL_VerticalDataMod
            if (fieldRank==2) then
               varDims(i)=0
            else if (fieldRank==3) then
-              call ESMF_AttributeGet(field,name="VLOCATION", value=location(i),_RC)
+              call ESMF_InfoGet(infoh,key='VLOCATION',value=location(i),_RC)
               call ESMF_FieldGet(field,farrayPtr=ptr3d,_RC)
               varDims(i)=size(ptr3d,3)
               if (location(i) == MAPL_VLocationNone) then
                  hasUngrid(I) = .true.
-                 call ESMF_AttributeGet(field,NAME="UNGRIDDED_UNIT",value=ungridded_unit,_RC)
-                 call ESMF_AttributeGet(field,NAME="UNGRIDDED_NAME",value=ungridded_name,_RC)
+                 call ESMF_InfoGetFromHost(field,infoh,_RC)
+                 call ESMF_InfoGet(infoh,'UNGRIDDED_UNIT',ungridded_unit,_RC)
+                 call ESMF_InfoGet(infoh,'UNGRIDDED_NAME',ungridded_name,_RC)
                  ungridded_names(i) = ungridded_name
                  ungridded_units(i) = ungridded_unit
-                 call ESMF_AttributeGet(field,NAME="UNGRIDDED_COORDS",isPresent=isPresent,_RC)
+                 isPresent = ESMF_InfoIsPresent(infoh,'UNGRIDDED_COORDS',_RC)
                  if (isPresent) then
-                    call ESMF_AttributeGet(field,NAME="UNGRIDDED_COORDS",itemcount=ungrdsize,_RC)
+                    call ESMF_InfoGet(infoh,key='UNGRIDDED_COORDS',size=ungrdsize,_RC)
                     if (ungrdsize/=0) then
                        _ASSERT(varDims(i)==ungrdsize,"ungridded size does not match variable")
-                       if (.not.allocated(ungridded_coord)) allocate(ungridded_coord(ungrdsize),stat=status)
+!                       if (.not.allocated(ungridded_coord)) allocate(ungridded_coord(ungrdsize),stat=status)
                        if (.not.allocated(ungridded_coords)) allocate(ungridded_coords(NumVars,ungrdsize),stat=status)
                        _VERIFY(STATUS)
-                       call ESMF_AttributeGet(field,NAME="UNGRIDDED_COORDS",valuelist=ungridded_coord,_RC)
+                       call ESMF_InfoGet(infoh,key='UNGRIDDED_COORDS',values=ungridded_coord,_RC)
                        ungridded_coords(i,:) = ungridded_coord
                     end if
                  end if

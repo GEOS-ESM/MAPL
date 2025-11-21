@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 #define _DEALOCS(A) if(associated(A)) then;if(MAPL_ShmInitialized) then; call MAPL_DeAllocNodeArray(A,rc=status);else; deallocate(A);endif;NULLIFY(A);endif
 
 module MAPL_TilingRegridderMod

@@ -3,7 +3,7 @@
 ! overload set interfaces in legacy
 ! Document PE, PC, DC, DE, GC
 
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 ! This module generates ESMF_Grids corresponding to _regular_ lat-lon coordinate grids.
 ! I.e., spacing between lats (lons) is constant.
@@ -159,6 +159,7 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
+      type (ESMF_Info) :: infoh
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'create_basic_grid'
 
@@ -181,12 +182,15 @@ contains
       call ESMF_GridAddCoord(grid, rc=status)
       _VERIFY(status)
 
+      call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+      _VERIFY(status)
+
       if (this%lm /= MAPL_UNDEFINED_INTEGER) then
-         call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, rc=status)
+         call ESMF_InfoSet(infoh,'GRID_LM',this%lm,rc=status)
          _VERIFY(status)
       end if
 
-      call ESMF_AttributeSet(grid, 'GridType', 'Llc', rc=status)
+      call ESMF_InfoSet(infoh,'GridType','Llc',rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)

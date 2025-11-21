@@ -1,6 +1,7 @@
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 module MockSocketMod
+
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_c_binding, only: c_f_pointer
    use MAPL_ExceptionHandling
@@ -13,7 +14,7 @@ module MockSocketMod
    use pFIO_DoneMessageMod
    use pFIO_PrefetchDoneMessageMod
    use pFIO_DummyMessageMod
-   use pFIO_AddExtCollectionMessageMod
+   use pFIO_AddReadDataCollectionMessageMod
    use pFIO_IdMessageMod
    use pFIO_PrefetchDataMessageMod
    use pFIO_AbstractDataReferenceMod
@@ -107,9 +108,9 @@ contains
 
    end subroutine add_message
 
-   function receive(this, rc) result(message)
-      class (AbstractMessage), pointer :: message
+   subroutine receive(this, message, rc)
       class (MockSocket), intent(inout) :: this
+      class (AbstractMessage), allocatable, intent(out) :: message
       integer, optional, intent(out) :: rc
 
       type (MessageVectorIterator) :: iter
@@ -126,16 +127,17 @@ contains
             call this%prefix('receive<Done>')
          type is (PrefetchDoneMessage)
             call this%prefix('receive<Done_prefetch>')
-         type is (AddExtCollectionMessage)
-            call this%prefix("receive<AddExtCollection('"//message%template//"')>")  
+         type is (AddReadDataCollectionMessage)
+            call this%prefix("receive<AddReadDataCollection('"//message%template//"')>")  
          type is (PrefetchDataMessage)
             call this%prefix("receive<PrefetchData('"//message%var_name//"')>")  
          end select
       else
-         message => null()
+         ! leave message unallocated.
+!#         message => null()
       end if
       _RETURN(_SUCCESS)
-   end function receive
+   end subroutine receive
 
 
    subroutine send(this, message, rc)
@@ -149,8 +151,8 @@ contains
       type is (IdMessage)
          write(buffer,'("(",i3.3,")")') message%id
          call this%prefix('send<Id'//trim(buffer)//'>')
-      type is (AddExtCollectionMessage)
-         call this%prefix("send<AddExtCollection('" // message%template // "')>")
+      type is (AddReadDataCollectionMessage)
+         call this%prefix("send<AddReadDataCollection('" // message%template // "')>")
          this%collection_counter = this%collection_counter + 1
          call this%messages%push_back(IdMessage(this%collection_counter))
       type is (PrefetchDataMessage)

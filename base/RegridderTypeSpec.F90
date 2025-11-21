@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 ! A RegridderSpec is used to indicate which subclass of regridder will be used.
 module mapl_RegridderTypeSpec
    use MAPL_Constants

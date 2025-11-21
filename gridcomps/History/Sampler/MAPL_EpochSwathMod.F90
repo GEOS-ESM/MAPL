@@ -1,7 +1,7 @@
 !
 ! __ Analogy to GriddedIO.F90 with a twist for Epoch Swath grid
 !
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module MAPL_EpochSwathMod
   use ESMF
@@ -19,10 +19,11 @@ module MAPL_EpochSwathMod
   use MAPL_GriddedIOItemMod
   use MAPL_ExceptionHandling
   use pFIO_ClientManagerMod
+  use pFIO_FileMetadataMod
   use MAPL_DataCollectionMod
   use MAPL_DataCollectionManagerMod
-  use gFTL_StringVector
-  use gFTL_StringStringMap
+  use gFTL2_StringVector
+  use gFTL2_StringStringMap
   use MAPL_StringGridMapMod
   use MAPL_FileMetadataUtilsMod
   use MAPL_DownbitMod
@@ -442,6 +443,7 @@ contains
         type(GriddedIOitemVectorIterator) :: iter
         type(GriddedIOitem), pointer :: item
         integer :: status
+        type(ESMF_Info) :: infoh
 
         this%items = items
         this%input_bundle = bundle
@@ -529,7 +531,8 @@ contains
         !
         ! add attribute
         !
-        call ESMF_AttributeSet(new_field,'UNITS',trim(tunit),_RC)
+        call ESMF_InfoGetFromHost(new_field,infoh,_RC)
+        call ESMF_InfoSet(infoh,'UNITS',trim(tunit),_RC)
         call MAPL_FieldBundleAdd( this%acc_bundle, new_field, _RC )
 
         _RETURN(_SUCCESS)
@@ -646,6 +649,7 @@ contains
         integer :: fieldRank
         logical :: isPresent
         character(len=ESMF_MAXSTR) :: varName,longName,units
+        type(ESMF_Info) :: infoh
 
 
         call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,rc=status)
@@ -658,18 +662,17 @@ contains
         _VERIFY(status)
         call ESMF_FieldGet(field,name=varName,rc=status)
         _VERIFY(status)
-        call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=isPresent,rc=status)
-        _VERIFY(status)
+        call ESMF_InfoGetFromHost(field,infoh,_RC)
+        isPresent = ESMF_InfoIsPresent(infoh,'LONG_NAME',_RC)
         if ( isPresent ) then
-           call ESMF_AttributeGet  (FIELD, NAME="LONG_NAME",VALUE=LongName, RC=STATUS)
+           call ESMF_InfoGet(infoh, "LONG_NAME", LongName, RC=STATUS)
            _VERIFY(STATUS)
         else
            LongName = varName
         endif
-        call ESMF_AttributeGet(field,name="UNITS",isPresent=isPresent,rc=status)
-        _VERIFY(status)
+        isPresent = ESMF_InfoIsPresent(infoh,'UNITS',_RC)
         if ( isPresent ) then
-           call ESMF_AttributeGet  (FIELD, NAME="UNITS",VALUE=units, RC=STATUS)
+           call ESMF_InfoGet(infoh, "UNITS", units, RC=STATUS)
            _VERIFY(STATUS)
         else
            units = 'unknown'

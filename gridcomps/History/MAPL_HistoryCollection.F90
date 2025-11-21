@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module MAPL_HistoryCollectionMod
   use ESMF
@@ -11,7 +11,7 @@ module MAPL_HistoryCollectionMod
   use HistoryTrajectoryMod
   use MaskSamplerMod
   use StationSamplerMod
-  use gFTL_StringStringMap
+  use gFTL2_StringStringMap
   use MAPL_EpochSwathMod
   implicit none
 

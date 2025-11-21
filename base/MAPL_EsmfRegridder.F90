@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module MAPL_EsmfRegridderMod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
@@ -1442,6 +1442,7 @@ contains
      type(ESMF_RouteHandle) :: route_handle, transpose_route_handle
      character(len=ESMF_MAXPATHLEN) :: rh_file,rh_trans_file
      logical :: rh_file_exists, file_weights, compute_transpose
+     type(ESMF_Info) :: infoh
 
      type(Logger), pointer :: lgr
      lgr => logging%get_logger('MAPL')
@@ -1512,20 +1513,22 @@ contains
            end if
            call ESMF_GridGetItem(spec%grid_out,itemflag=ESMF_GRIDITEM_MASK, &
            staggerloc=ESMF_STAGGERLOC_CENTER, isPresent = has_mask, _RC)
-           call ESMF_AttributeGet(spec%grid_out, name=MAPL_DESTINATIONMASK, isPresent=has_dstMaskValues, _RC)
+           call ESMF_InfoGetFromHost(spec%grid_out,infoh,_RC)
+           has_dstMaskValues = ESMF_InfoIsPresent(infoh,MAPL_DESTINATIONMASK,_RC)
            if (has_dstMaskValues) then
               _ASSERT(has_mask, "masking destination values when no masks is present")
-              call ESMF_AttributeGet(spec%grid_out, name=MAPL_DESTINATIONMASK, itemcount=num_mask_values, _RC)
+              call ESMF_InfoGet(infoh,MAPL_DESTINATIONMASK,num_mask_values,_RC)
               allocate(dstMaskValues(num_mask_values), _STAT)
-              call ESMF_AttributeGet(spec%grid_out, name=MAPL_DESTINATIONMASK, valuelist=dstMaskValues, _RC)
+              call ESMF_InfoGet(infoh,MAPL_DESTINATIONMASK,dstMaskValues,_RC)
            end if
 
            counter = counter + 1
 
            srcTermProcessing=0
-           call ESMF_AttributeGet(spec%grid_in, name='Global',isPresent=isPresent,rc=status)
+           call ESMF_InfoGetFromHost(spec%grid_in,infoh,_RC)
+           isPresent = ESMF_InfoIsPresent(infoh,'Global',_RC)
            if (isPresent) then
-              call ESMF_AttributeGet(spec%grid_in, name='Global',value=global,rc=status)
+              call ESMF_InfoGet(infoh,'Global',global,_RC)
               if (.not.global) unmappedaction=ESMF_UNMAPPEDACTION_IGNORE
            end if
            select case (spec%regrid_method)

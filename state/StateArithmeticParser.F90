@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 ! Part of this code is based on a fortran parser by Roland Schmehl:
 !
 !------- -------- --------- --------- --------- --------- --------- --------- -------
@@ -55,7 +55,7 @@ MODULE MAPL_StateArithmeticParserMod
   use MAPL_FieldUtils
   use MAPL_CommsMod
   use MAPL_ExceptionHandling
-  use gFTL_StringVector
+  use gFTL2_StringVector
 
   IMPLICIT NONE
   !------- -------- --------- --------- --------- --------- --------- --------- -------
@@ -764,6 +764,7 @@ CONTAINS
     INTEGER                        , INTENT(out  ) :: rc
     INTEGER                                     :: istat, i
     integer                                     :: status
+    type(ESMF_Info)                             :: infoh
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     IF (ASSOCIATED(Comp%ByteCode)) DEALLOCATE ( Comp%ByteCode, &
                                                    Comp%Immed,    &
@@ -780,7 +781,8 @@ CONTAINS
 
     DO i=1,Comp%StackSize
        call FieldClone(field,comp%stack(i),_RC)
-       call ESMF_AttributeSet(field,name="missing_value",value=MAPL_UNDEF,_RC)
+       call ESMF_InfoGetFromHost(field,infoh,_RC)
+       call ESMF_InfoSet(infoh,key="missing_value",value=MAPL_UNDEF,_RC)
     END DO
 
     Comp%ByteCodeSize = 0

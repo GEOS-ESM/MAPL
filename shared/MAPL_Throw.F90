@@ -120,14 +120,30 @@ contains
       character(:), allocatable :: base_name
       character(*), intent(in) :: filename
 
-      integer :: idx
+      integer :: idx, idx2
 
       idx = scan(filename, '/', back=.true.)
+      if (idx /= 0) then
+         idx2 = scan(filename(:idx-1), '/', back=.true.)
+      else
+         idx2 = idx
+      end if
 
-      base_name = filename(idx+1:)
+      base_name = filename(idx2+1:)
 
    end function get_base_name
 
+!   function get_base_name(filename) result(base_name)
+!      character(:), allocatable :: base_name
+!      character(*), intent(in) :: filename
+!
+!      integer :: idx
+!
+!      idx = scan(filename, '/', back=.true.)
+!
+!      base_name = filename(idx+1:)
+!
+!   end function get_base_name
 
 
 end module MAPL_ThrowMod

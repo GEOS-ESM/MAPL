@@ -168,6 +168,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(ESMF_Info) :: infoh
       character(len=*), parameter :: Iam = MOD_NAME // 'create_basic_grid'
 
       _UNUSED_DUMMY(unusable)
@@ -192,11 +193,14 @@ contains
 
       _VERIFY(status)
 
+      call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+      _VERIFY(status)
+
       if (this%lm /= MAPL_UNDEFINED_INTEGER) then
-         call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, _RC)
+         call ESMF_InfoSet(infoh, 'GRID_LM', this%lm, _RC)
       end if
 
-      call ESMF_AttributeSet(grid, 'GridType', 'XY', _RC)
+      call ESMF_InfoSet(infoh, 'GridType', 'XY', _RC)
 
       _RETURN(_SUCCESS)
    end function create_basic_grid
@@ -1016,6 +1020,7 @@ contains
       integer :: status
       type(ESMF_VM) :: vm
       integer :: has_undef, local_has_undef
+      type(ESMF_Info) :: infoh
 
       call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
          staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
@@ -1037,8 +1042,8 @@ contains
       mask = MAPL_MASK_IN
       where(fptr==MAPL_UNDEF) mask = MAPL_MASK_OUT
 
-      call ESMF_AttributeSet(grid, name=MAPL_DESTINATIONMASK, &
-           itemCount=1, valueList=[MAPL_MASK_OUT], _RC)
+      call ESMF_InfoGetFromHost(grid,infoh,_RC)
+      call ESMF_InfoSet(infoh,key=MAPL_DESTINATIONMASK,values=[MAPL_MASK_OUT],_RC)
 
       _RETURN(_SUCCESS)
     end subroutine add_mask

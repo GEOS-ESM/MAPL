@@ -8,6 +8,7 @@ module MAPL_ExtDataTypeDef
    use MAPL_FileMetadataUtilsMod
    use MAPL_StateUtils
    use VerticalCoordinateMod
+   use mapl_ErrorHandlingMod
    implicit none
 
    public PrimaryExport
@@ -58,7 +59,7 @@ module MAPL_ExtDataTypeDef
      type(FileMetadataUtils)      :: file_metadata
      type(ExtDataPointerUpdate)   :: update_freq
      type(VerticalCoordinate)     :: vcoord
-     logical                      :: delivered_item = .true. 
+     logical                      :: delivered_item = .true.
 
      ! new stuff
      logical                      :: cycling
@@ -79,12 +80,12 @@ module MAPL_ExtDataTypeDef
      real, allocatable :: molecular_weight
 
   end type PrimaryExport
-  
+
   type DerivedExport
      character(len=ESMF_MAXSTR)     :: name
      character(len=ESMF_MAXPATHLEN) :: expression
      logical                        :: masking
-     type(StateMask), allocatable :: mask_definition 
+     type(StateMask), allocatable :: mask_definition
      type(ExtDataPointerUpdate)     :: update_freq
      contains
         procedure :: evaluate_derived_field
@@ -122,7 +123,7 @@ module MAPL_ExtDataTypeDef
          p2%delivered_item = .false.
 
       end subroutine
-         
+
       subroutine evaluate_derived_field(this,state,rc)
          class(DerivedExport), intent(inout) :: this
          type(ESMF_State), intent(inout) :: state

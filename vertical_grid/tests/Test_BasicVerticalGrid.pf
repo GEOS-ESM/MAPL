@@ -1,0 +1,171 @@
+module Test_BasicVerticalGrid
+   use pfunit
+   use mapl3g_BasicVerticalGrid
+   use mapl3g_VerticalGridSpec, only: VerticalGridSpec
+   use mapl3g_VerticalGrid, only: VerticalGrid
+   use mapl3g_VerticalStaggerLoc, only: VERTICAL_STAGGER_CENTER, VERTICAL_STAGGER_EDGE
+   use esmf, only: esmf_HConfig, ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8
+   use esmf, only: esmf_HConfigCreate, esmf_HConfigDestroy
+   implicit none
+
+contains
+
+
+   @test
+   subroutine test_basic_grid_spec_initialization()
+      type(BasicVerticalGridSpec) :: spec
+      type(BasicVerticalGrid) :: grid
+      
+      ! Initialize spec directly (for testing)
+      spec = BasicVerticalGridSpec(num_levels=72)
+      
+      call grid%initialize(spec)
+      @assert_that('Grid should have correct number of levels', grid%get_num_levels(), is(72))
+   end subroutine test_basic_grid_spec_initialization
+
+
+   @test
+   subroutine test_basic_factory_get_name()
+      type(BasicVerticalGridFactory) :: factory
+      character(len=:), allocatable :: name
+      
+      name = factory%get_name()
+      @assertEqual("BasicVerticalGrid", name, 'Factory should return correct name')
+   end subroutine test_basic_factory_get_name
+
+
+   @test
+   subroutine test_basic_factory_supports_config_explicit()
+      type(BasicVerticalGridFactory) :: factory
+      type(esmf_HConfig) :: config
+      logical :: supported
+      integer :: rc
+      
+      ! Create config with explicit grid type
+      config = esmf_HConfigCreate(content= '{grid_type: basic, num_levels: 15}')
+      
+      supported = factory%supports_config(config)
+      @assert_that('Should support explicit basic grid type', supported, is(.true.))
+
+      call esmf_HConfigDestroy(config)
+   end subroutine test_basic_factory_supports_config_explicit
+
+   @test
+   subroutine test_basic_factory_does_not_support_other_type()
+      type(BasicVerticalGridFactory) :: factory
+      type(esmf_HConfig) :: config
+      logical :: supported
+      integer :: rc
+      
+      ! Create config with explicit grid type
+      config = esmf_HConfigCreate(content= '{grid_type: other, num_levels: 15}')
+      
+      supported = factory%supports_config(config)
+      @assert_that('Should support explicit basic grid type', supported, is(.false.))
+
+      call esmf_HConfigDestroy(config)
+   end subroutine test_basic_factory_does_not_support_other_type
+
+
+   @test
+   subroutine test_basic_factory_supports_config_num_levels()
+      type(BasicVerticalGridFactory) :: factory
+      type(esmf_HConfig) :: config
+      logical :: supported
+      integer :: rc
+      
+      ! Create config with num_levels
+      config = esmf_HConfigCreate(content= '{num_levels: 72}')
+      
+      supported = factory%supports_config(config)
+      @assert_that('Should support config with num_levels', supported, is(.true.))
+       call esmf_HConfigDestroy(config)
+    end subroutine test_basic_factory_supports_config_num_levels
+
+
+   @test
+   subroutine test_basic_factory_unsupported_config()
+      type(BasicVerticalGridFactory) :: factory
+      type(esmf_HConfig) :: config
+      logical :: supported
+      
+      ! Create empty config
+      config = esmf_HConfigCreate(content='{}')
+      
+      supported = factory%supports_config(config)
+      @assert_that('Should not support empty config', supported, is(.false.))
+      call esmf_HConfigDestroy(config)
+   end subroutine test_basic_factory_unsupported_config
+
+
+   @test
+   subroutine test_basic_factory_create_spec_from_config()
+      type(BasicVerticalGridFactory) :: factory
+      type(esmf_HConfig) :: config
+      class(VerticalGridSpec), allocatable :: spec
+      integer :: rc
+      
+      ! Create config
+      config = esmf_HConfigCreate(content='{num_levels: 72}')
+      
+      spec = factory%create_spec_from_config(config, rc)
+      @assert_that('Create spec should succeed', rc, is(0))
+      @assert_that('Spec should be allocated', allocated(spec), is(.true.))
+      
+      select type (spec)
+      type is (BasicVerticalGridSpec)
+         @assert_that('Spec should have correct num_levels', spec%num_levels, is(72))
+      class default
+         @assertFail('Spec should be BasicVerticalGridSpec type')
+      end select
+      call esmf_HConfigDestroy(config)
+  end subroutine test_basic_factory_create_spec_from_config
+
+
+   @test
+   subroutine test_basic_factory_create_grid_from_spec()
+      type(BasicVerticalGridFactory) :: factory
+      type(BasicVerticalGridSpec) :: spec
+      class(VerticalGrid), allocatable :: grid
+      integer :: rc
+      
+      ! Initialize spec
+      spec = BasicVerticalGridSpec(num_levels=72)
+      
+      grid = factory%create_grid_from_spec(spec, rc)
+      @assert_that('Create grid should succeed', rc, is(0))
+      @assert_that('Grid should be allocated', allocated(grid), is(.true.))
+      
+      select type (grid)
+      type is (BasicVerticalGrid)
+         @assert_that('Grid should have correct num_levels', grid%get_num_levels(), is(72))
+      class default
+         @assertFail('Grid should be BasicVerticalGrid type')
+      end select
+   end subroutine test_basic_factory_create_grid_from_spec
+
+
+   @test
+   subroutine test_basic_factory_create_grid_from_config()
+      type(BasicVerticalGridFactory) :: factory
+      type(esmf_HConfig) :: config
+      class(VerticalGrid), allocatable :: grid
+      integer :: rc
+      
+      ! Create config
+      config = esmf_HConfigCreate(content='{num_levels: 144}')
+      
+      grid = factory%create_grid_from_config(config, rc)
+      @assert_that('Create grid from config should succeed', rc, is(0))
+      @assert_that('Grid should be allocated', allocated(grid), is(.true.))
+      
+      select type (grid)
+      type is (BasicVerticalGrid)
+         @assert_that('Grid should have correct num_levels', grid%get_num_levels(), is(144))
+      class default
+         @assertFail('Grid should be BasicVerticalGrid type')
+      end select
+      call esmf_HConfigDestroy(config)
+   end subroutine test_basic_factory_create_grid_from_config
+
+end module Test_BasicVerticalGrid

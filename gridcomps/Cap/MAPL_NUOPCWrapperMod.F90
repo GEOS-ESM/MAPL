@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 #include "NUOPC_ErrLog.h"
 
 module MAPL_NUOPCWrapperMod
@@ -420,6 +420,7 @@ contains
         type(ESMF_Field)                        :: field
         character(len=ESMF_MAXSTR), allocatable :: item_names(:)
         character(len=ESMF_MAXSTR)              :: str
+        type(ESMF_Info)                         :: infoh
 
         call ESMF_StateGet(state, itemcount = num_items, rc = rc)
         VERIFY_NUOPC_(rc)
@@ -438,7 +439,9 @@ contains
             VERIFY_NUOPC_(rc)
             attributes(i)%field = field
 
-            call ESMF_AttributeGet(field, name = "LONG_NAME", value = str, rc = rc)
+            call ESMF_InfoGetFromHost(field,infoh,rc = rc)
+            VERIFY_NUOPC_(rc)
+            call ESMF_InfoGet(infoh,'LONG_NAME',str,rc = rc)
             VERIFY_NUOPC_(rc)
             attributes(i)%long_name = trim(str)
 
@@ -446,7 +449,9 @@ contains
             VERIFY_NUOPC_(rc)
             attributes(i)%short_name = trim(str)
 
-            call ESMF_AttributeGet(field, name = "UNITS", value = str, rc = rc)
+            call ESMF_InfoGetFromHost(field,infoh,rc = rc)
+            VERIFY_NUOPC_(rc)
+            call ESMF_InfoGet(infoh,'UNITS',str,rc = rc)
             VERIFY_NUOPC_(rc)
             if (str == "" .or. str == " ") str = "1" ! NUOPC doesn't like blank units
             attributes(i)%units = trim(str)

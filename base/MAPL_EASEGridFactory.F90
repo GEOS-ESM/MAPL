@@ -215,6 +215,7 @@ contains
       character(len=:), allocatable :: grid_name
       integer :: status
       type(ESMF_PoleKind_Flag) :: polekindflag(2)
+      type(ESMF_Info) :: infoh
 
       _UNUSED_DUMMY(unusable)
 
@@ -260,13 +261,14 @@ contains
       call ESMF_GridAddCoord(grid, _RC)
       call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CORNER, _RC)
 
+      call ESMF_InfoGetFromHost(grid,infoh,_RC)
       if (this%lm /= MAPL_UNDEFINED_INTEGER) then
-         call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, _RC)
+         call ESMF_InfoSet(infoh, 'GRID_LM', this%lm, _RC)
       end if
 
-      call ESMF_AttributeSet(grid, 'GridType',  'EASE', _RC)
+      call ESMF_InfoSet(infoh, 'GridType', 'EASE', _RC)
       ! set to false. no pole in EASE
-      call ESMF_AttributeSet(grid, 'Global', .false., _RC)
+      call ESMF_InfoSet(infoh, 'Global', .false., _RC)
 
       _RETURN(_SUCCESS)
    end function create_basic_grid

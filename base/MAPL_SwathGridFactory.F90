@@ -180,6 +180,7 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       integer :: status
+      type(ESMF_Info) :: infoh
 
       _UNUSED_DUMMY(unusable)
 
@@ -195,12 +196,13 @@ contains
 
       ! Allocate coords at default stagger location
       call ESMF_GridAddCoord(grid, _RC)
+      call ESMF_InfoGetFromHost(grid,infoh,_RC)
 
       if (this%lm /= MAPL_UNDEFINED_INTEGER) then
-         call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, _RC)
+         call ESMF_InfoSet(infoh, 'GRID_LM', this%lm, _RC)
       end if
-      call ESMF_AttributeSet(grid, 'GridType', 'Swath', _RC)
-      call ESMF_AttributeSet(grid, 'Global', .false., _RC)
+      call ESMF_InfoSet(infoh, 'GridType', 'Swath', _RC)
+      call ESMF_InfoSet(infoh, 'Global', .false., _RC)
 
       _RETURN(_SUCCESS)
    end function create_basic_grid

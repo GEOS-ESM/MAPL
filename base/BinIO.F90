@@ -297,6 +297,7 @@ module  BinIOMod
     type (ESMF_FieldBundle)              :: bundle
     type (ESMF_Field)                    :: field
     type (ESMF_Grid)                     :: grid
+    type (ESMF_Info)                     :: infoh
     integer                              :: status
     integer                              :: I
     integer                              :: ITEMCOUNT
@@ -343,7 +344,9 @@ module  BinIOMod
     endif
 
     attrName = MAPL_StateItemOrderList
-    call ESMF_AttributeGet(state, NAME=attrName, itemcount=natt, RC=STATUS)
+    call ESMF_InfoGetFromHost(state,infoh,RC=STATUS)
+    _VERIFY(STATUS)
+    call ESMF_InfoGet(infoh,key=attrName,size=natt,RC=STATUS)
     _VERIFY(STATUS)
 
     _ASSERT(natt > 0, 'natt not > 0')
@@ -353,7 +356,7 @@ module  BinIOMod
     _VERIFY(STATUS)
 
     ! get the current list
-    call ESMF_AttributeGet(state, NAME=attrName, VALUELIST=currList, rc=status)
+    call ESMF_InfoGet(infoh,key=attrName,values=currList,rc=status)
     _VERIFY(STATUS)
 
     orderList = -1 ! not found
@@ -390,10 +393,12 @@ module  BinIOMod
              _VERIFY(STATUS)
 
              skipReading = .false.
-             call ESMF_AttributeGet(bundle, name='RESTART', isPresent=isPresent, rc=status)
+             call ESMF_InfoGetFromHost(bundle,infoh,rc=status)
+             _VERIFY(STATUS)
+             isPresent = ESMF_InfoIsPresent(infoh,'RESTART',rc=status)
              _VERIFY(STATUS)
              if (isPresent) then
-                call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
+                call ESMF_InfoGet(infoh,'RESTART',RST,rc=status)
                 _VERIFY(STATUS)
              else
                 RST = MAPL_RestartOptional
@@ -413,10 +418,12 @@ module  BinIOMod
              _VERIFY(STATUS)
 
              skipReading = .false.
-             call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
+             call ESMF_InfoGetFromHost(field,infoh,rc=status)
+             _VERIFY(STATUS)
+             isPresent = ESMF_InfoIsPresent(infoh,'RESTART',rc=status)
              _VERIFY(STATUS)
              if (isPresent) then
-                call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
+               call ESMF_InfoGet(infoh,'RESTART',RST,rc=status)
                 _VERIFY(STATUS)
              else
                 RST = MAPL_RestartOptional
@@ -424,10 +431,10 @@ module  BinIOMod
              skipReading = (RST == MAPL_RestartSkip)
 
              if (skipReading) cycle
-             call ESMF_AttributeGet(field, name='doNotAllocate', isPresent=isPresent, rc=status)
+             isPresent = ESMF_InfoIsPresent(infoh,'doNotAllocate',rc=status)
              _VERIFY(STATUS)
              if (isPresent) then
-                call ESMF_AttributeGet(field, name='doNotAllocate', value=dna, rc=status)
+                call ESMF_InfoGet(infoh,'doNotAllocate',dna,rc=status)
                 _VERIFY(STATUS)
                 skipReading = (dna /= 0)
              end if
@@ -439,7 +446,7 @@ module  BinIOMod
              end if
 
              if(.not.associated(MASK)) then
-                call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
+                call ESMF_InfoGet(infoh,'DIMS',DIMS,rc=status)
                 _VERIFY(STATUS)
                 if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                    call ESMF_FieldGet   (field, grid=grid, rc=status)
@@ -493,6 +500,7 @@ module  BinIOMod
     logical                            :: skipReading
     logical                            :: bootstrapable_
     logical                            :: isPresent
+    type(ESMF_Info)                    :: infoh
 
     call ESMF_FieldBundleGet(bundle, fieldCount=N, name=BundleName, rc=STATUS)
     _VERIFY(STATUS)
@@ -512,10 +520,12 @@ module  BinIOMod
        call MAPL_FieldBundleGet(bundle, fieldIndex=J, field=field, rc=status)
        _VERIFY(STATUS)
 
-       call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
+       call ESMF_InfoGetFromHost(field,infoh,rc=status)
+       _VERIFY(STATUS)
+       isPresent = ESMF_InfoIsPresent(infoh,'RESTART',rc=status)
        _VERIFY(STATUS)
        if (isPresent) then
-          call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
+          call ESMF_InfoGet(infoh,'RESTART',RST,rc=status)
           _VERIFY(STATUS)
        else
           RST = MAPL_RestartOptional
@@ -568,6 +578,7 @@ module  BinIOMod
     type (ESMF_DistGrid)               :: distGrid
     integer                            :: stat
     logical                            :: ignoreEOF_
+    type(ESMF_Info)                    :: infoh
 
     if (unit < 0 .or. present(arrdes)) then
        FORMATTED = "NO"
@@ -607,7 +618,9 @@ module  BinIOMod
        _VERIFY(STATUS)
     end if
 
-    call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
+     call ESMF_InfoGetFromHost(field,infoh,rc=status)
+     _VERIFY(STATUS)
+     call ESMF_InfoGet(infoh,'DIMS',DIMS,rc=status)
     _VERIFY(STATUS)
     if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
        if(present(HomePE)) then
@@ -1907,6 +1920,7 @@ module  BinIOMod
     type (ESMF_FieldBundle)              :: bundle
     type (ESMF_Field)                    :: field
     type (ESMF_Grid)                     :: grid
+    type (ESMF_Info)                     :: infoh
     integer                              :: status
     integer                              :: I, ITEMCOUNT
     type (ESMF_StateItem_Flag), pointer  :: ITEMTYPES(:)
@@ -1953,7 +1967,9 @@ module  BinIOMod
     endif
 
     attrName = MAPL_StateItemOrderList
-    call ESMF_AttributeGet(state, NAME=attrName, itemcount=natt, RC=STATUS)
+    call ESMF_InfoGetFromHost(state,infoh,RC=STATUS)
+    _VERIFY(STATUS)
+    call ESMF_InfoGet(infoh,key=attrName,size=natt,RC=STATUS)
     _VERIFY(STATUS)
 
     _ASSERT(natt > 0, 'natt not > 0')
@@ -1963,7 +1979,7 @@ module  BinIOMod
     _VERIFY(STATUS)
 
     ! get the current list
-    call ESMF_AttributeGet(state, NAME=attrName, VALUELIST=currList, rc=status)
+    call ESMF_InfoGet(infoh,key=attrName,values=currList,rc=status)
     _VERIFY(STATUS)
 
     orderList = -1 ! not found
@@ -1994,10 +2010,12 @@ module  BinIOMod
 
              skipWriting = .false.
              if (.not. forceWriteNoRestart_) then
-                call ESMF_AttributeGet(bundle, name='RESTART', isPresent=isPresent, rc=status)
+                call ESMF_InfoGetFromHost(bundle,infoh,rc=status)
+                _VERIFY(STATUS)
+                isPresent = ESMF_InfoIsPresent(infoh,'RESTART',rc=status)
                 _VERIFY(STATUS)
                 if (isPresent) then
-                   call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
+                   call ESMF_InfoGet(infoh,'RESTART',RST,rc=status)
                    _VERIFY(STATUS)
                    skipWriting = (RST == MAPL_RestartSkip)
                 end if
@@ -2013,27 +2031,31 @@ module  BinIOMod
 
              skipWriting = .false.
              if (.not. forceWriteNoRestart_) then
-                call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
+                call ESMF_InfoGetFromHost(field,infoh,rc=status)
+                _VERIFY(STATUS)
+                isPresent = ESMF_InfoIsPresent(infoh,'RESTART',rc=status)
                 _VERIFY(STATUS)
                 if (isPresent) then
-                   call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
+                   call ESMF_InfoGet(infoh,'RESTART',RST,rc=status)
                    _VERIFY(STATUS)
                    skipWriting = (RST == MAPL_RestartSkip)
                 end if
              end if
              if (skipWriting) cycle
 
-             call ESMF_AttributeGet(field, name='doNotAllocate', isPresent=isPresent, rc=status)
+             call ESMF_InfoGetFromHost(field,infoh,rc=status)
+             _VERIFY(STATUS)
+             isPresent = ESMF_InfoIsPresent(infoh,'doNotAllocate',rc=status)
              _VERIFY(STATUS)
              if (isPresent) then
-                call ESMF_AttributeGet(field, name='doNotAllocate', value=dna, rc=status)
+                call ESMF_InfoGet(infoh,'doNotAllocate',dna,rc=status)
                 _VERIFY(STATUS)
                 skipWriting = (dna /= 0)
              endif
              if (skipWriting) cycle
 
              if(.not.associated(MASK)) then
-                call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
+                call ESMF_InfoGet(infoh,'DIMS',DIMS,rc=status)
                 _VERIFY(STATUS)
                 if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                    call ESMF_FieldGet   (field, grid=grid, rc=status)
@@ -2129,6 +2151,7 @@ module  BinIOMod
     character(len=ESMF_MAXSTR)         :: FORMATTED
     integer                            :: J,K
     type (ESMF_DistGrid)               :: distGrid
+    type(ESMF_Info)                    :: infoh
 
     if (unit < 0 .or. present(arrdes)) then
        FORMATTED = "NO"
@@ -2143,7 +2166,9 @@ module  BinIOMod
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
     _VERIFY(STATUS)
 
-    call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
+    call ESMF_InfoGetFromHost(field,infoh,rc=status)
+    _VERIFY(STATUS)
+    call ESMF_InfoGet(infoh,'DIMS',DIMS,rc=status)
     _VERIFY(STATUS)
     if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
        if(present(HomePE)) then

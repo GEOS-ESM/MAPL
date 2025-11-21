@@ -1,0 +1,32 @@
+mapl:
+  geometry:
+    esmf_geom:
+      class: latlon
+      im_world: 12
+      jm_world: 13
+      pole: PC
+      dateline: DC
+
+    vertical_grid:
+      class: basic
+      num_levels: 5
+
+
+  states:
+    export:
+      E1:
+        standard_name: 'T1'
+        units: none
+        typekind: R8 # must match collection for now
+        vertical_dim_spec: NONE
+        default_value: 7
+      E2:
+        standard_name: 'T1'
+        units: none
+        typekind: R4 # must match collection for now
+        vertical_dim_spec: NONE
+
+  children:
+    collection_1:
+      dso: libconfigurable_gridcomp
+      config_file: scenarios/extdata_1/collection_1.yaml
