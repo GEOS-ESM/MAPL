@@ -55,7 +55,7 @@ contains
 
    end subroutine destroy_state
 
-   subroutine destroy_items(state, rc)
+   subroutine destroy_contents(state, rc)
       type(ESMF_State), intent(inout) :: state
       integer, optional, intent(out) :: rc
       integer :: status
