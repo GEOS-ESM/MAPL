@@ -13,39 +13,25 @@ module mapl3g_StateDestroy
    interface MAPL_StateDestroy
       procedure :: destroy_state
    end interface MAPL_StateDestroy
-
-   interface destroy
-      procedure :: destroy_fields
-      procedure :: destroy_bundle
-      procedure :: destroy_bundles
-      procedure :: destroy_states
-      procedure :: destroy_items
-   end interface destroy
    
-   interface remove
-      procedure :: remove_state_fields
-      procedure :: remove_bundle_fields
-      procedure :: remove_bundles
-      procedure :: remove_states
-   end interface remove
-
    logical, parameter :: NESTED = .TRUE.
+
 contains
       
 !================================= ESMF_STATE ==================================
 
-   subroutine destroy_state(state, unusable, recurse, rc)
+   subroutine destroy_state(state, unusable, destroy_contents, rc)
       type(ESMF_State), intent(inout) :: state
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      logical, optional, intent(in) :: recurse
+      logical, optional, intent(in) :: destroy_contents
       integer, optional, intent(out) :: rc
       integer :: status
-      logical :: doing_recursion
+      logical :: destroying_contents
 
-      doing_recursion = .FALSE.
-      if(present(recurse)) doing_recursion = recurse
-      if(doing_recursion) then
-         call destroy(state, _RC)
+      destroying_contents = .FALSE.
+      if(present(destroy_contents)) destroying_contents = destroy_contents
+      if(destroying_contents) then
+         call destroy_state_contents(state, _RC)
       end if
       call ESMF_StateDestroy(state, _RC)
       call ESMF_StateValidate(state, rc=status)
@@ -55,7 +41,7 @@ contains
 
    end subroutine destroy_state
 
-   subroutine destroy_items(state, rc)
+   subroutine destroy_state_contents(state, rc)
       type(ESMF_State), intent(inout) :: state
       integer, optional, intent(out) :: rc
       integer :: status
@@ -64,27 +50,27 @@ contains
       integer :: itemCount
       type(ESMF_Field), allocatable :: fields(:)
       type(ESMF_FieldBundle), allocatable :: bundles(:)
-      type(ESMF_State), allocatable :: states(:)
+      type(ESMF_State), allocatable :: nested_states(:)
 
       call ESMF_StateGet(state, nestedFlag=NESTED, itemCount=itemCount, _RC)
       allocate(types(itemCount))
       allocate(names(itemCount))
       call ESMF_StateGet(state, nestedFlag=NESTED, itemTypeList=types, itemNameList=names, _RC)
 
-      call remove(state, pack(names, types == ESMF_STATEITEM_FIELD), fields, _RC)
-      call destroy(fields, _RC)
+      call remove_state_fields(state, pack(names, types == ESMF_STATEITEM_FIELD), fields, _RC)
+      call destroy_fields(fields, _RC)
 
-      call remove(state, pack(names, types == ESMF_STATEITEM_FIELDBUNDLE), bundles, _RC)
-      call destroy(bundles, _RC)
+      call remove_bundles(state, pack(names, types == ESMF_STATEITEM_FIELDBUNDLE), bundles, _RC)
+      call destroy_bundles(bundles, _RC)
 
-      call remove(state, pack(names, types == ESMF_STATEITEM_STATE), states, _RC)
-      call destroy(states, _RC)
+      call remove_nested_states(state, pack(names, types == ESMF_STATEITEM_STATE), nested_states, _RC)
+      call destroy_states(nested_states, _RC)
 
       call ESMF_StateGet(state, nestedFlag=NESTED, itemCount=itemCount, _RC)
       _ASSERT(itemCount == 0, 'Some MAPL_StateItems remain in state.')
       _RETURN(_SUCCESS)
 
-   end subroutine destroy_items
+   end subroutine destroy_state_contents
 
    subroutine remove_state_fields(state, names, fields, rc)
       type(ESMF_State), intent(inout) :: state
@@ -126,7 +112,7 @@ contains
 
    end subroutine remove_bundles
 
-   subroutine remove_states(state, names, states, rc)
+   subroutine remove_nested_states(state, names, states, rc)
       type(ESMF_State), intent(inout) :: state
       character(len=ESMF_MAXSTR), intent(in) :: names(:)
       type(ESMF_State), allocatable, intent(inout) :: states(:)
@@ -144,7 +130,7 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(rc)
 
-   end subroutine remove_states
+   end subroutine remove_nested_states
      
    subroutine destroy_states(states, rc)
       type(ESMF_State), intent(inout) :: states(:)
@@ -170,7 +156,7 @@ contains
       integer :: status, i
       
       do i=1, size(bundles)
-         call destroy(bundles(i), _RC)
+         call destroy_bundle(bundles(i), _RC)
       end do
       _RETURN(_SUCCESS)
      
@@ -183,8 +169,8 @@ contains
       type(ESMF_Field), allocatable :: fieldList(:)
       character(len=ESMF_MAXSTR) :: name
 
-      call remove(bundle, fieldList, _RC)
-      call destroy(fieldList, _RC)
+      call remove_bundle_fields(bundle, fieldList, _RC)
+      call destroy_fields(fieldList, _RC)
       call ESMF_FieldBundleGet(bundle, name=name, _RC)
       call ESMF_FieldBundleDestroy(bundle, _RC)
       call ESMF_FieldBundleValidate(bundle, rc=status)

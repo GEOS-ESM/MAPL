@@ -45,21 +45,21 @@ contains
    end subroutine shutDown
 
    @Test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_destroy_state(this)
+   subroutine test_MAPL_StateDestroy(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_State) :: state
       integer :: status
       _UNUSED_DUMMY(this)
 
       state = ESMF_StateCreate(_RC)
-      call destroy_state(state, recurse=.FALSE., _RC)
+      call MAPL_StateDestroy(state, destroy_contents=.FALSE., _RC)
       call ESMF_StateValidate(state, rc=status)
       @assertTrue(status /= ESMF_SUCCESS, 'state was not successfully destroyed.')
 
-   end subroutine test_destroy_state
+   end subroutine test_MAPL_StateDestroy
 
    @Test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_destroy_state_recurse(this)
+   subroutine test_MAPL_StateDestroy_contents(this)
       class(ESMF_TestMethod), intent(inout) :: this
       integer, parameter :: NUM = 4
       integer  :: expected_item_count
@@ -93,13 +93,13 @@ contains
       @assertEqual(expected_item_count, itemCount, 'The number of items was incorrect.') 
       call ESMF_StateValidate(state, nestedFlag=.TRUE., rc=status)
       @assertFalse(status /= ESMF_SUCCESS, 'The state is invalid.')
-      call destroy_state(state, recurse=.TRUE., _RC)
+      call MAPL_StateDestroy(state, destroy_contents=.TRUE., _RC)
       call ESMF_StateValidate(state, nestedFlag=.TRUE., rc=status)
       @assertTrue(status /= ESMF_SUCCESS, 'The state was not successfully destroyed.')
 
       _UNUSED_DUMMY(this)
       
-   end subroutine test_destroy_state_recurse
+   end subroutine test_MAPL_StateDestroy_contents
 
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_remove_state_fields(this)
@@ -172,7 +172,7 @@ contains
    end subroutine test_remove_bundles
 
    @Test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_remove_states(this)
+   subroutine test_remove_nested_states(this)
       class(ESMF_TestMethod), intent(inout) :: this
       integer, parameter :: NUM_STATES = 3
       type(ESMF_State) :: state
@@ -187,7 +187,7 @@ contains
          call ESMF_StateGet(nestedStates(i), name=names(i), _RC)
       end do
       state = ESMF_StateCreate(nestedStateList=nestedStates, _RC) 
-      call remove_states(state, names, actualStates, _RC)
+      call remove_nested_states(state, names, actualStates, _RC)
       call ESMF_StateGet(state, itemCount=itemCount, _RC)
       @assertEqual(0, itemCount, 'There should be no remaining nested States.')
       @assertEqual(size(actualStates), NUM_STATES, 'The number of removed nested States is incorrect.')
@@ -203,7 +203,7 @@ contains
 
       _UNUSED_DUMMY(this)
 
-   end subroutine test_remove_states
+   end subroutine test_remove_nested_states
 
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_destroy_states(this)
@@ -224,20 +224,6 @@ contains
       _UNUSED_DUMMY(this)
 
    end subroutine test_destroy_states
-
-   @Test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_destroy_bundles(this)
-      class(ESMF_TestMethod), intent(inout) :: this
-      _UNUSED_DUMMY(this)
-
-   end subroutine test_destroy_bundles
-
-   @Test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_destroy_bundle(this)
-      class(ESMF_TestMethod), intent(inout) :: this
-      _UNUSED_DUMMY(this)
-
-   end subroutine test_destroy_bundle
 
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_remove_bundle_fields(this)
