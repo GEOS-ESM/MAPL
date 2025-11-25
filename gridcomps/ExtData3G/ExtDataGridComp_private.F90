@@ -33,7 +33,7 @@ contains
       character(len=:), allocatable :: sub_configs(:)
       type(ESMF_HConfig) :: sub_config, export_config, temp_config
       type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
-      character(len=:), allocatable :: short_name, collection_name, str_const
+      character(len=:), allocatable :: short_name, collection_name, str_const, expression
       type(VariableSpec) :: varspec
       type(ESMF_StateItem_Flag) :: item_type
 
@@ -81,6 +81,22 @@ contains
             call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
          enddo
       end if
+
+      _RETURN_UNLESS(ESMF_HConfigIsDefined(hconfig, keyString='Derived'))
+      export_config = ESMF_HConfigCreateAt(hconfig, keyString='Derived', _RC)
+      hconfigIterBegin = ESMF_HConfigIterBegin(export_config)
+      hconfigIter = hconfigIterBegin
+      hconfigIterEnd = ESMF_HConfigIterEnd(export_config)
+      do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
+         short_name = ESMF_HConfigAsStringMapKey(hconfigIter, _RC)
+         temp_config = ESMF_HConfigCreateAtMapVal(hconfigIter, _RC)
+         expression = ESMF_HConfigAsString(temp_config, keyString='function', _RC)
+         varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name, &
+                   itemType=MAPL_STATEITEM_EXPRESSION, expression=expression, &
+                   units='<unknown>', _RC)
+         call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+      enddo
+
       _RETURN(_SUCCESS)
    end subroutine
 

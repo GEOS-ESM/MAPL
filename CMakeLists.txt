@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.63.0
+  VERSION 2.63.1
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
@@ -97,13 +97,7 @@ if(BUILD_WITH_FARGPARSE)
   message (STATUS "Found fArgParse: ${FARGPARSE_DIR} (found version ${FARGPARSE_VERSION})")
 endif()
 
-option(USE_EXTDATA2G "Use ExtData2G" ON)
-if(USE_EXTDATA2G)
-  set (EXTDATA2G_TARGET "MAPL.ExtData2G" CACHE STRING "ExtData2G Target")
-  message (STATUS "Building with ExtData2G")
-else()
-  set (EXTDATA2G_TARGET "" CACHE STRING "ExtData2G Target")
-endif()
+message (STATUS "Building with ExtData2G")
 
 option(BUILD_WITH_PFLOGGER "Build MAPL with pFlogger library support" ON)
 if (BUILD_WITH_PFLOGGER)
