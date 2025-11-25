@@ -77,12 +77,13 @@ module mapl3g_PrimaryExport
 
       primary_export%export_var = export_var
       primary_export%is_constant = .not.associated(collection)
+
       if (associated(collection)) then
          if (sample%extrap_outside == 'clim') then
-            clim_file_selector = ClimDataSetFileSelector(collection%file_template, collection%valid_range, collection%frequency, ref_time=collection%reff_time, timeStep=time_step)
+            clim_file_selector = ClimDataSetFileSelector(collection%file_template, collection%valid_range, collection%frequency, ref_time=collection%reff_time, timeStep=time_step, source_time=sample%source_time)
             allocate(primary_export%file_selector, source=clim_file_selector, _STAT)
          else
-            non_clim_file_selector = NonClimDataSetFileSelector(collection%file_template, collection%frequency, ref_time=collection%reff_time, persist_closest = (sample%extrap_outside == "persist_closest"), timeStep=time_step )
+            non_clim_file_selector = NonClimDataSetFileSelector(collection%file_template, collection%frequency, ref_time=collection%reff_time, persist_closest = (sample%extrap_outside == "persist_closest"), timeStep=time_step, valid_range=collection%valid_range, source_time=sample%source_time)
             allocate(primary_export%file_selector, source=non_clim_file_selector, _STAT)
          end if
          primary_export%file_vars = rule%file_vars

@@ -35,6 +35,7 @@ module mapl3g_AbstractDataSetFileSelector
          procedure :: get_dataset_metadata
          procedure :: get_file_template
          procedure :: get_valid_range_single_file
+         procedure :: adjust_valid_range
          procedure(I_update_file_bracket), deferred :: update_file_bracket
     end type
 
@@ -175,6 +176,7 @@ module mapl3g_AbstractDataSetFileSelector
        type(ESMF_Time), allocatable :: time_series(:)
        integer :: status
 
+       _ASSERT(index(this%file_template,'%')==0,'file template has tokens, provide valid range')
        allocate(this%valid_range(2), _STAT)
        collection => DataCollections%at(this%collection_id)
        metadata => collection%find(this%file_template)
@@ -185,6 +187,26 @@ module mapl3g_AbstractDataSetFileSelector
        _RETURN(_SUCCESS)
 
     end subroutine get_valid_range_single_file 
+
+
+    subroutine adjust_valid_range(this, source_time, rc)
+       class(AbstractDataSetFileSelector), intent(inout) :: this
+       type(ESMF_Time), intent(in) :: source_time(:)
+       integer, optional, intent(out) :: rc
+
+       integer :: status
+
+       if (size(source_time)==2) then
+          _ASSERT(size(this%valid_range)==2, 'source time but no valid range specified')
+          _ASSERT(source_time(1) >= this%valid_range(1),'source time outside valid range')
+          _ASSERT(source_time(1) <=  this%valid_range(2),'source time outside valid range')
+          _ASSERT(source_time(2) >=  this%valid_range(1),'source time outside valid range')
+          _ASSERT(source_time(2) <= this%valid_range(2),'source time outside valid range')
+          this%valid_range = source_time
+       end if
+       _RETURN(_SUCCESS)
+
+    end subroutine adjust_valid_range
 
 end module mapl3g_AbstractDataSetFileSelector
    

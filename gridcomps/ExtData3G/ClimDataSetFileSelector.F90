@@ -18,7 +18,6 @@ module mapl3g_ClimDataSetFileSelector
    public ClimDataSetFileSelector
 
    type, extends(AbstractDataSetFileSelector):: ClimDataSetFileSelector
-      type(ESMF_Time), allocatable :: source_time(:)
       contains
          procedure :: update_file_bracket
          procedure :: in_valid_range
@@ -40,7 +39,7 @@ module mapl3g_ClimDataSetFileSelector
        type(ESMF_TimeInterval), intent(in), optional :: file_frequency
        type(ESMF_Time), intent(in), optional :: ref_time 
        type(ESMF_TimeInterval), intent(in), optional :: timeStep
-       type(ESMF_Time), intent(in), optional :: source_time(:)
+       type(ESMF_Time), optional, intent(in) :: source_time(:)
        integer, intent(out), optional :: rc
 
        integer :: status
@@ -62,13 +61,11 @@ module mapl3g_ClimDataSetFileSelector
        if (present(timeStep)) then
           file_handler%timeStep = timeStep
        end if
-
-       allocate(file_handler%source_time(0))
+  
        if (present(source_time)) then
-          _ASSERT(size(source_time) == 2, 'Source time must be of size 2')
-          file_handler%source_time = source_time 
+          call file_handler%adjust_valid_range(source_time, _RC)
        end if
-       
+
        _RETURN(_SUCCESS) 
     end function
 
@@ -89,12 +86,6 @@ module mapl3g_ClimDataSetFileSelector
        _ASSERT(size(this%valid_range) == 2, 'Valid range must be of size 2 to do climatological extrpolation')
        call ESMF_TimeGet(this%valid_range(1),yy=valid_years(1),_RC)
        call ESMF_TimeGet(this%valid_range(2),yy=valid_years(2),_RC)
-       if (size(this%source_time)==2) then
-          _ASSERT(this%source_time(1) >= this%valid_range(1),'source time outside valid range')
-          _ASSERT(this%source_time(1) <=  this%valid_range(2),'source time outside valid range')
-          _ASSERT(this%source_time(2) >=  this%valid_range(1),'source time outside valid range')
-          _ASSERT(this%source_time(2) <= this%valid_range(2),'source time outside valid range')
-       end if
 
        if (target_time <= this%valid_range(1)) then
           call swap_year(target_time, valid_years(1), _RC)

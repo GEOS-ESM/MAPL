@@ -33,7 +33,7 @@ module mapl3g_NonClimDataSetFileSelector
        
     contains
 
-    function new_NonClimDataSetFileSelector(file_template, file_frequency, ref_time, timeStep, valid_range, persist_closest, rc) result(file_handler)
+    function new_NonClimDataSetFileSelector(file_template, file_frequency, ref_time, timeStep, valid_range, persist_closest, source_time, rc) result(file_handler)
        type(NonClimDataSetFileSelector) :: file_handler
        character(len=*), intent(in) :: file_template
        type(ESMF_TimeInterval), intent(in), optional :: file_frequency
@@ -41,6 +41,7 @@ module mapl3g_NonClimDataSetFileSelector
        type(ESMF_Time), intent(in), optional :: valid_range(:)
        type(ESMF_TimeInterval), intent(in), optional :: timeStep
        logical, intent(in), optional :: persist_closest
+       type(ESMF_Time), intent(in), optional :: source_time(:)
        integer, intent(out), optional :: rc
 
        integer :: status
@@ -68,7 +69,10 @@ module mapl3g_NonClimDataSetFileSelector
          file_handler%timeStep = timeStep
        end if
 
-       
+       if (present(source_time)) then
+          call file_handler%adjust_valid_range(source_time, _RC)
+       end if
+
        _RETURN(_SUCCESS) 
     end function
 
