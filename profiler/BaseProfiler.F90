@@ -178,7 +178,7 @@ contains
       integer, optional, intent(out) :: rc
 
       type(MeterNodePtr), pointer :: node_ptr
-      class(AbstractMeterNode), pointer :: node => Null()
+      class(AbstractMeterNode), pointer :: node => null()
 
       logical :: name_is_node_name
 
