@@ -4,10 +4,7 @@
 module ExtData_DriverGridCompMod
   use ESMF
   use MAPL
-#if defined(BUILD_WITH_EXTDATA2G)
   use MAPL_ExtDataGridComp2G, only : ExtData2G_SetServices => SetServices
-#endif
-  use MAPL_ExtDataGridCompMod, only : ExtData1G_SetServices => SetServices
   use MAPL_HistoryGridCompMod, only : Hist_SetServices => SetServices
   use MAPL_Profiler, only : get_global_time_profiler, BaseProfiler
   use mpi
@@ -211,7 +208,7 @@ contains
     _VERIFY(status)
 
     ! !RESOURCE_ITEM: string :: Name of ExtData's config file
-    call MAPL_GetResource(MAPLOBJ, EXTDATA_CF, "EXTDATA_CF:", default = 'ExtData.rc', rc = status)
+    call MAPL_GetResource(MAPLOBJ, EXTDATA_CF, "EXTDATA_CF:", default = 'extdata.yaml', rc = status)
     _VERIFY(status)
 
     ! !RESOURCE_ITEM: string :: Control Timers
@@ -288,7 +285,7 @@ contains
     end if
 
     if (cap%run_extdata) then
-       ! Add NX and NY from AGCM.rc to ExtData.rc as well as name of ExtData rc file
+       ! Add NX and NY from AGCM.rc to extdata.yaml as well as name of extdata configuration file
        cap%cf_ext = ESMF_ConfigCreate(rc=STATUS )
        _VERIFY(STATUS)
        call ESMF_ConfigLoadFile(cap%cf_ext, EXTDATA_CF, rc=STATUS )
@@ -334,15 +331,7 @@ contains
 
        call MAPL_Set(MAPLOBJ, CF=CAP%CF_EXT, RC=STATUS)
        _VERIFY(STATUS)
-       if (use_extdata2g) then
-#if defined(BUILD_WITH_EXTDATA2G)
-          cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData2G_SetServices, _RC)
-#else
-          _FAIL('ExtData2G requested but not built')
-#endif
-       else
-          cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData1G_SetServices, _RC)
-       end if
+       cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData2G_SetServices, _RC)
 
     end if
 
