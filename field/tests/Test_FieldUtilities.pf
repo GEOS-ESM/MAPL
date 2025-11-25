@@ -1,0 +1,87 @@
+#include "MAPL_TestErr.h"
+module Test_FieldUtilities
+   use MAPL_FieldUtilities, only: FieldsDestroy
+   use pfunit
+   use ESMF_TestMethod_mod
+
+   implicit none(type, external)
+
+   type(ESMF_Field) :: original
+
+contains
+
+   @Before
+   subroutine setUp(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_TypeKind_Flag), parameter :: TYPEKIND = ESMF_TYPEKIND_R4
+      type(ESMF_Grid) :: grid
+      integer :: status
+      integer, parameter :: MAX_INDEX(2) = [4, 4]
+      integer, parameter :: REG_DECOMP(2) = [1, 1]
+
+      grid = ESMF_GridCreate(regDecomp=REG_DECOMP, maxIndex=MAX_INDEX, _RC)
+      original = ESMF_FieldCreate(grid=grid, typekind=typekind, _RC)
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine setUp
+   
+   @After
+   subroutine shutDown(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      integer :: status
+
+      call ESMF_FieldGet(original, grid=grid, _RC)
+      call ESMF_FieldDestroy(original, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine shutDown
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_MAPL_FieldsDestroy(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Field) :: fields(4)
+      integer :: i
+      logical :: created, destroyed
+      integer :: status
+
+      call make_fields(original, fields, _RC)
+      call destroy_fields(fields, _RC)
+
+      do i=1, size(fields)
+         destroyed = .not. ESMF_FieldIsCreated(fields(i), _RC)
+         @assertTrue(destroyed, 'Field was not destroyed.')
+      end do
+      
+      do i=1, size(fields)
+         created = ESMF_FieldIsCreated(fields(i), _RC)
+         if(created) then
+            call ESMF_FieldDestroy(fields(i), _RC)
+         end if
+      end do
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_MAPL_FieldsDestroy
+
+   subroutine make_fields(field, fields, rc)
+      type(ESMF_Field), intent(inout) :: field
+      type(ESMF_Field), intent(inout) :: fields(:)
+      integer, optional, intent(out) :: rc
+      integer :: status
+      integer :: i
+      logical :: created
+
+      do i=1, size(fields)
+         fields(i) = ESMF_FieldCreate(field, _RC)
+         created = ESMF_FieldIsCreated(fields(i), _RC)
+         if(created) cycle
+         _RETURN(_FAILURE)
+      end do
+      _RETURN(_SUCCESS)
+
+   end subroutine make_fields
+
+end module Test_FieldUtilities

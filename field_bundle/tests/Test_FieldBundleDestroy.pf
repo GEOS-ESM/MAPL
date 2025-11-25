@@ -1,0 +1,105 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_FieldBundleDestroy
+   use mapl3g_FieldBundleDestroy
+   use esmf
+   use pfunit
+   use ESMF_TestMethod_mod
+
+   implicit none(type, external)
+
+contains
+   
+   @Before
+   subroutine setUp(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_TypeKind_Flag), parameter :: TYPEKIND = ESMF_TYPEKIND_R4
+      type(ESMF_Grid) :: grid
+      integer :: status
+      integer, parameter :: MAX_INDEX(2) = [4, 4]
+      integer, parameter :: REG_DECOMP(2) = [1, 1]
+
+      grid = ESMF_GridCreate(regDecomp=REG_DECOMP, maxIndex=MAX_INDEX, _RC)
+      original = ESMF_FieldCreate(grid=grid, typekind=typekind, _RC)
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine setUp
+
+   @After
+   subroutine shutDown(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      integer :: status
+
+      call ESMF_FieldGet(original, grid=grid, _RC)
+      call ESMF_FieldDestroy(original, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine shutDown
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_MAPL_FieldBundleDestroy(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_FieldBundle) :: bundle
+      integer, parameter :: N = 4
+      integer :: status, fieldCount, i
+      type(ESMF_Field) :: fields(N)
+      logical :: valid
+
+      call make_fields(original, fields, _RC)
+      bundle = ESMF_FieldBundleCreate(fieldList=fields, _RC)
+      call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount, _RC)
+      @assertEqual(fieldCount, size(fields), 'The number of fields is incorrect.')
+      call FieldBundleDestroy(bundle, rc=status)
+      @assertEqual(status, _SUCCESS, 'The destroy operation failed.')
+      do i=1, size(fields)
+         call ESMF_FieldValidate(fields(i), rc=status)
+         @assertFalse(status == _SUCCESS, 'Field was not destroyed.')
+      end do
+      call ESMF_FieldBundleValidate(bundle, rc=status)
+      @assertFalse(status == _SUCCESS, 'FieldBundle was not destroyed.')
+
+   end subroutine test_MAPL_FieldBundleDestroy
+
+   subroutine make_fields(field, fields, rc)
+      type(ESMF_Field), intent(inout) :: field
+      type(ESMF_Field), intent(inout) :: fields(:)
+      integer, optional, intent(out) :: rc
+      integer :: status
+      integer :: i
+      logical :: created
+
+      do i=1, size(fields)
+         fields(i) = ESMF_FieldCreate(field, _RC)
+         created = ESMF_FieldIsCreated(fields(i), _RC)
+         if(created) cycle
+         _RETURN(_FAILURE)
+      end do
+      _RETURN(_SUCCESS)
+
+   end subroutine make_fields
+
+   subroutine make_bundle(field, n, bundle, rc)
+      type(ESMF_Field), intent(inout) :: field
+      integer, intent(in) :: n
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      integer, optional, intent(out) :: rc
+      integer :: status
+      integer :: fieldCount
+      type(ESMF_Field), allocatable :: fields(:)
+     
+      allocate(fields(n))      
+      call make_fields(field, fields, _RC)
+      bundle = ESMF_FieldBundleCreate(fieldList=fields, _RC)
+      call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount, _RC)
+      status = _SUCCESS
+      if(fieldCount /= n) status = _FAILURE
+      _RETURN(_SUCCESS)
+
+   end subroutine make_bundle
+
+end module Test_FieldBundleDestroy
