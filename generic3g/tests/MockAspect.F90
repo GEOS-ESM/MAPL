@@ -172,8 +172,9 @@ contains
       _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
-   subroutine create(this, handle, rc)
+   subroutine create(this, other_aspects, handle, rc)
       class(MockAspect), intent(inout) :: this
+      type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(in) :: handle(:)
       integer, optional, intent(out) :: rc
 

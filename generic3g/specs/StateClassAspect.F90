@@ -88,8 +88,9 @@ contains
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
 
-   subroutine create(this, handle, rc)
+   subroutine create(this, other_aspects, handle, rc)
       class(StateClassAspect), intent(inout) :: this
+      type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(in) :: handle(:) ! unused
       integer, optional, intent(out) :: rc
 

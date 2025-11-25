@@ -113,8 +113,9 @@ contains
 
 
    ! No op
-   subroutine create(this, handle, rc)
+   subroutine create(this, other_aspects, handle, rc)
       class(ExpressionClassAspect), intent(inout) :: this
+      type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(in) :: handle(:)
       integer, optional, intent(out) :: rc
 

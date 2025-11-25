@@ -42,9 +42,11 @@ module mapl3g_ClassAspect
       end function I_get_aspect_order
 
       ! Will use ESMF so cannot be PURE
-      subroutine I_create(this, handle, rc)
+      subroutine I_create(this, other_aspects, handle, rc)
+         use mapl3g_StateItemAspect
          import ClassAspect
          class(ClassAspect), intent(inout) :: this
+         type(AspectMap), intent(in) :: other_aspects
          integer, optional, intent(in) :: handle(:)
          integer, optional, intent(out) :: rc
       end subroutine I_create

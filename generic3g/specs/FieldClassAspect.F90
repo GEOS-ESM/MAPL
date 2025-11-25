@@ -137,17 +137,27 @@ contains
    end function get_aspect_order
 
 
-   subroutine create(this, handle, rc)
+   subroutine create(this, other_aspects, handle, rc)
       class(FieldClassAspect), intent(inout) :: this
+      type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(in) :: handle(:)
       integer, optional, intent(out) :: rc
 
-      integer :: status
       type(ESMF_Info) :: info
+      type(AspectId), allocatable :: ids(:)
+      integer :: i
+      class(StateItemAspect), pointer :: aspect
+      integer :: status
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
       _RETURN_UNLESS(present(handle))
-      
+
+      ids = [GEOM_ASPECT_ID]
+      do i = 1, size(ids)
+         aspect => other_aspects%at(ids(i), _RC)
+         call aspect%update_payload(this%payload, _RC)
+      end do
+
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
       call FieldInfoSetInternal(info, spec_handle=handle, _RC)
       call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)

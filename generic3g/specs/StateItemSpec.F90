@@ -258,7 +258,7 @@ contains
       integer, allocatable :: handle(:)
 
       class_aspect => to_ClassAspect(this%aspects, _RC)
-      call class_aspect%create(make_handle(this), _RC)
+      call class_aspect%create(this%aspects, make_handle(this), _RC)
 
       _RETURN(_SUCCESS)
    contains
