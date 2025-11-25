@@ -19,7 +19,6 @@ module mapl3g_ConvertUnitsTransform
    type, extends(ExtensionTransform) :: ConvertUnitsTransform
       private
       type(UDUNITS_converter) :: converter
-      type(ESMF_Field) :: f_in, f_out
       character(:), allocatable :: src_units, dst_units
    contains
       procedure :: initialize
@@ -31,6 +30,13 @@ module mapl3g_ConvertUnitsTransform
    interface ConvertUnitsTransform
       procedure new_converter
    end interface ConvertUnitsTransform
+
+   type(ESMF_StateItem_Flag), parameter :: ALLOWED_BUNDLES(*) = [&
+      & MAPL_STATEITEM_FIELDBUNDLE, &
+      & MAPL_STATEITEM_BRACKET, &
+      & MAPL_STATEITEM_VECTOR, &
+      & MAPL_STATEITEM_VECTOR_BRACKET&
+      &]
 
 contains
 
@@ -136,7 +142,7 @@ contains
          call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=f_in, _RC)
          call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=f_out, _RC)
          call update_field(f_in, f_out, this%converter, _RC)
-      elseif(itemtype_in == MAPL_STATEITEM_FIELDBUNDLE) then
+      elseif(any(ALLOWED_BUNDLES == itemType_in)) then
          call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, fieldBundle=fb_in, _RC)
          call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, fieldBundle=fb_out, _RC)
          call update_field_bundle(fb_in, fb_out, this%converter, _RC)
@@ -145,6 +151,7 @@ contains
       end if
 
       _UNUSED_DUMMY(clock)
+
    end subroutine update
    
    function get_transformId(this) result(id)
