@@ -27,3 +27,4 @@ Note all test cases are in a numbered directory caseX, where a X is an integer a
 30. Case1 with deflate compression
 39. Test adding a scaling and offset to an item
 40. Test fractional regridding, ensure fractions of c24 cells regridded to c12 add up to 1
+41. Test source time option in sample to persist
