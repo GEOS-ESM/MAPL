@@ -143,7 +143,7 @@ contains
 
       class(AbstractMeter), allocatable :: m
       type(MeterNodePtr), pointer :: node_ptr
-      class(AbstractMeterNode), pointer :: node => Null()
+      class(AbstractMeterNode), pointer :: node => null()
 
       logical :: stack_is_not_empty
 
