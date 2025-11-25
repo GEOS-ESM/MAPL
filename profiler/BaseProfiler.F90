@@ -143,7 +143,7 @@ contains
 
       class(AbstractMeter), allocatable :: m
       type(MeterNodePtr), pointer :: node_ptr
-      class(AbstractMeterNode), pointer :: node
+      class(AbstractMeterNode), pointer :: node => Null()
 
       logical :: stack_is_not_empty
 
@@ -164,7 +164,9 @@ contains
       end if
       !$omp end master
       _ASSERT_RC(stack_is_not_empty, "Timer <"//name// "> should not start when empty.",INCORRECTLY_NESTED_METERS)
+      !$omp master
       call this%start(node)
+      !$omp end master
 
       _RETURN(_SUCCESS)
    end subroutine start_name
@@ -176,7 +178,7 @@ contains
       integer, optional, intent(out) :: rc
 
       type(MeterNodePtr), pointer :: node_ptr
-      class(AbstractMeterNode), pointer :: node
+      class(AbstractMeterNode), pointer :: node => Null()
 
       logical :: name_is_node_name
 
