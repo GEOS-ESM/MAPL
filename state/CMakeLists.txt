@@ -10,6 +10,7 @@ set(srcs
   StateArithmeticParser.F90
   StateMasking.F90
   StateFilter.F90
+  StateDestroy.F90
 )
 
 list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")

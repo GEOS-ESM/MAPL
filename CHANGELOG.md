@@ -64,6 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add and use character parameters for `ESMF_Field` names in ExtensionTransform subclasses
 - Extend ExtensionTransform derived types to support ESMF_KIND_R8
 - Extend ExtensionTransform derived types to support ESMF_FieldBundle objects
+- Add utility to destroy states including states, bundles, and fields nested in them
 
 ### Changed
 

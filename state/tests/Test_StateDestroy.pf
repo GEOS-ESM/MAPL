@@ -1,0 +1,321 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+#define _ASSERT_STATUS(V) @assertEqual(V, status, 'The status was incorrect.')
+#define _ASSERT_STATUS_NOT(V) @assertFalse(status == V, 'The status was incorrect.')
+
+module Test_StateDestroy
+   use mapl3g_StateDestroy
+   use pfunit
+   use ESMF_TestMethod_mod
+
+   implicit none(type, external)
+
+   type(ESMF_Field) :: original
+
+contains
+
+   @Before
+   subroutine setUp(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_TypeKind_Flag), parameter :: TYPEKIND = ESMF_TYPEKIND_R4
+      type(ESMF_Grid) :: grid
+      integer :: status
+      integer, parameter :: MAX_INDEX(2) = [4, 4]
+      integer, parameter :: REG_DECOMP(2) = [1, 1]
+
+      grid = ESMF_GridCreate(regDecomp=REG_DECOMP, maxIndex=MAX_INDEX, _RC)
+      original = ESMF_FieldCreate(grid=grid, typekind=typekind, _RC)
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine setUp
+   
+   @After
+   subroutine shutDown(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      integer :: status
+
+      call ESMF_FieldGet(original, grid=grid, _RC)
+      call ESMF_FieldDestroy(original, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine shutDown
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_MAPL_StateDestroy(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: state
+      integer :: status
+      _UNUSED_DUMMY(this)
+
+      state = ESMF_StateCreate(_RC)
+      call MAPL_StateDestroy(state, destroy_contents=.FALSE., _RC)
+      call ESMF_StateValidate(state, rc=status)
+      @assertTrue(status /= ESMF_SUCCESS, 'state was not successfully destroyed.')
+
+   end subroutine test_MAPL_StateDestroy
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_MAPL_StateDestroy_contents(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer, parameter :: NUM = 4
+      integer  :: expected_item_count
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: fields(NUM)
+      type(ESMF_FieldBundle) :: bundles(NUM)
+      type(ESMF_State) :: nestedStates(NUM)
+      integer :: i, j, status, itemCount
+
+      expected_item_count = 0
+      do i=1, NUM
+         do j=1, NUM
+            call make_bundle(original, NUM, bundles(j), _RC)
+            call ESMF_FieldBundleGet(bundles(j), fieldList=fields, _RC)
+         end do
+         call make_fields(original, fields, _RC)
+         nestedStates(i) = ESMF_StateCreate(fieldbundleList=bundles, &
+            & fieldList=fields, _RC)
+         expected_item_count = expected_item_count + size(bundles) + size(fields)
+      end do
+      do i=1, NUM
+         call make_bundle(original, NUM, bundles(i), _RC)
+         call ESMF_FieldBundleGet(bundles(i), fieldList=fields, _RC)
+      end do
+      call make_fields(original, fields, _RC)
+      
+      state = ESMF_StateCreate(nestedStateList=nestedStates,&
+         & fieldbundleList=bundles, fieldList=fields, _RC)
+      expected_item_count = expected_item_count + size(nestedStates) + size(bundles) + size(fields)
+      call ESMF_StateGet(state, nestedFlag=.TRUE., itemCount=itemCount, _RC)
+      @assertEqual(expected_item_count, itemCount, 'The number of items was incorrect.') 
+      call ESMF_StateValidate(state, nestedFlag=.TRUE., rc=status)
+      @assertFalse(status /= ESMF_SUCCESS, 'The state is invalid.')
+      call MAPL_StateDestroy(state, destroy_contents=.TRUE., _RC)
+      call ESMF_StateValidate(state, nestedFlag=.TRUE., rc=status)
+      @assertTrue(status /= ESMF_SUCCESS, 'The state was not successfully destroyed.')
+
+      _UNUSED_DUMMY(this)
+      
+   end subroutine test_MAPL_StateDestroy_contents
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_remove_state_fields(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer, parameter :: NUM_FIELDS = 4
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: fields(NUM_FIELDS)
+      type(ESMF_Field), allocatable :: actual_fields(:)
+      character(len=ESMF_MAXSTR), allocatable :: names(:)
+      integer :: i, status, itemCount
+
+      allocate(names(NUM_FIELDS))
+      do i=1, NUM_FIELDS
+         fields(i) = ESMF_FieldCreate(original, _RC)
+         call ESMF_FieldGet(fields(i), name=names(i), _RC)
+      end do
+      state = ESMF_StateCreate(fieldList=fields, _RC)
+      call remove_state_fields(state, names, actual_fields, _RC)
+      call ESMF_StateGet(state, itemCount=itemCount, _RC)
+      @assertEqual(0, itemCount, 'There should be no remaining fields.')
+      @assertEqual(size(actual_fields), NUM_FIELDS, 'The number of fields is incorrect.')
+
+      do i=1, size(fields)
+         call ESMF_FieldDestroy(fields(i), _RC)
+      end do
+
+      do i=1, size(actual_fields)
+         call ESMF_FieldDestroy(actual_fields(i), _RC)
+      end do
+
+      call ESMF_StateDestroy(state, _RC)
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_remove_state_fields
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_remove_bundles(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer, parameter :: NUM_BUNDLES = 4
+      type(ESMF_State) :: state
+      type(ESMF_FieldBundle) :: bundles(NUM_BUNDLES)
+      type(ESMF_FieldBundle), allocatable :: actual_bundles(:)
+      character(len=ESMF_MAXSTR), allocatable :: names(:)
+      integer :: i, status, itemCount
+
+      allocate(names(NUM_BUNDLES))
+      do i=1, NUM_BUNDLES
+         bundles(i) = ESMF_FieldBundleCreate(_RC)
+         call ESMF_FieldBundleGet(bundles(i), name=names(i), _RC)
+      end do
+      state = ESMF_StateCreate(fieldbundleList=bundles, _RC)
+      call remove_bundles(state, names, actual_bundles, _RC)
+      call ESMF_StateGet(state, itemCount=itemCount, _RC)
+      @assertEqual(0, itemCount, 'There should be no remaining bundles.')
+      @assertEqual(size(actual_bundles), NUM_BUNDLES, 'The number of bundles is incorrect.')
+
+      do i=1, size(bundles)
+         call ESMF_FieldBundleDestroy(bundles(i), _RC)
+      end do
+
+      do i=1, size(actual_bundles)
+         call ESMF_FieldBundleDestroy(actual_bundles(i), _RC)
+      end do
+
+      call ESMF_StateDestroy(state, _RC)
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_remove_bundles
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_remove_nested_states(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer, parameter :: NUM_STATES = 3
+      type(ESMF_State) :: state
+      type(ESMF_State) :: nestedStates(NUM_STATES)
+      type(ESMF_State), allocatable :: actualStates(:)
+      character(len=ESMF_MAXSTR), allocatable :: names(:)
+      integer :: i, itemCount, status
+
+      allocate(names(NUM_STATES))
+      do i=1, NUM_STATES
+         nestedStates(i) = ESMF_StateCreate(_RC)
+         call ESMF_StateGet(nestedStates(i), name=names(i), _RC)
+      end do
+      state = ESMF_StateCreate(nestedStateList=nestedStates, _RC) 
+      call remove_nested_states(state, names, actualStates, _RC)
+      call ESMF_StateGet(state, itemCount=itemCount, _RC)
+      @assertEqual(0, itemCount, 'There should be no remaining nested States.')
+      @assertEqual(size(actualStates), NUM_STATES, 'The number of removed nested States is incorrect.')
+      do i=1, size(nestedStates)
+         call ESMF_StateDestroy(nestedStates(i), _RC)
+      end do
+      
+      do i=1, size(actualStates)
+         call ESMF_StateDestroy(actualStates(i), _RC)
+      end do
+
+      call ESMF_StateDestroy(state, _RC)
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_remove_nested_states
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_destroy_states(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer, parameter :: NUM = 4
+      type(ESMF_State) :: states(NUM)
+      integer :: i, status
+
+      do i=1, NUM
+         states(i) = ESMF_StateCreate(_RC)
+      end do
+      call destroy_states(states, rc=status)
+      @assertEqual(ESMF_SUCCESS, status, 'destroy_states returned a non-success status.')
+      do i=1, NUM
+         call ESMF_StateValidate(states(i), rc=status)
+         @assertFalse(status == ESMF_SUCCESS, 'One of the states was not destroyed.')
+      end do
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_destroy_states
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_remove_bundle_fields(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field), allocatable :: actual(:)
+      integer :: status
+      integer :: fieldCount, NUM_FIELDS=4
+
+      call make_bundle(original, NUM_FIELDS, bundle, _RC)
+      call remove_bundle_fields(bundle, actual, _RC)
+      call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount, _RC)
+      @assertEqual(fieldCount, 0, 'Not all fields removed')
+      @assertEqual(size(actual), NUM_FIELDS, 'The wrong number of fields returned.')
+      call destroy_fields(actual, _RC)
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_remove_bundle_fields
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_destroy_fields(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Field) :: fields(4)
+      integer :: i
+      logical :: created, destroyed
+      integer :: status
+
+      call make_fields(original, fields, _RC)
+      call destroy_fields(fields, _RC)
+
+      do i=1, size(fields)
+         destroyed = .not. ESMF_FieldIsCreated(fields(i), _RC)
+         @assertTrue(destroyed, 'Field was not destroyed.')
+      end do
+      
+      do i=1, size(fields)
+         created = ESMF_FieldIsCreated(fields(i), _RC)
+         if(created) then
+            call ESMF_FieldDestroy(fields(i), _RC)
+         end if
+      end do
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_destroy_fields
+
+   subroutine make_fields(field, fields, rc)
+      type(ESMF_Field), intent(inout) :: field
+      type(ESMF_Field), intent(inout) :: fields(:)
+      integer, optional, intent(out) :: rc
+      integer :: status
+      integer :: i
+      logical :: created
+
+      do i=1, size(fields)
+         fields(i) = ESMF_FieldCreate(field, _RC)
+         created = ESMF_FieldIsCreated(fields(i), _RC)
+         if(created) cycle
+         _RETURN(_FAILURE)
+      end do
+      _RETURN(_SUCCESS)
+
+   end subroutine make_fields
+
+   subroutine make_bundle(field, n, bundle, rc)
+      type(ESMF_Field), intent(inout) :: field
+      integer, intent(in) :: n
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      integer, optional, intent(out) :: rc
+      integer :: status
+      integer :: fieldCount
+      type(ESMF_Field), allocatable :: fields(:)
+     
+      allocate(fields(n))      
+      call make_fields(field, fields, _RC)
+      bundle = ESMF_FieldBundleCreate(fieldList=fields, _RC)
+      call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount, _RC)
+      status = _SUCCESS
+      if(fieldCount /= n) status = _FAILURE
+      _RETURN(_SUCCESS)
+
+   end subroutine make_bundle
+
+   function integer_string(n) result(s)
+      character(len=:), allocatable :: s
+      integer, intent(in) :: n
+      character(len=*), parameter :: FMT = '(I32)'
+      character(len=32) :: s_
+
+      write(s_, FMT) n
+      s = trim(adjustl(s_))
+
+   end function integer_string
+      
+end module Test_StateDestroy
