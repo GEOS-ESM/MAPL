@@ -5,7 +5,7 @@ module mapl3g_FieldBundleDestroy
    use esmf
    use MAPL_ExceptionHandling
    use mapl_KeywordEnforcer
-   use MAPL_FieldUtils, only :: FieldsDestroy
+   use MAPL_FieldUtils, only : FieldsDestroy
 
    implicit none(type, external)
 

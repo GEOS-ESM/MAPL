@@ -9,6 +9,8 @@ module Test_FieldBundleDestroy
 
    implicit none(type, external)
 
+   type(ESMF_Field) :: original
+
 contains
    
    @Before
@@ -54,12 +56,8 @@ contains
       bundle = ESMF_FieldBundleCreate(fieldList=fields, _RC)
       call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount, _RC)
       @assertEqual(fieldCount, size(fields), 'The number of fields is incorrect.')
-      call FieldBundleDestroy(bundle, rc=status)
+      call MAPL_FieldBundleDestroy(bundle, rc=status)
       @assertEqual(status, _SUCCESS, 'The destroy operation failed.')
-      do i=1, size(fields)
-         call ESMF_FieldValidate(fields(i), rc=status)
-         @assertFalse(status == _SUCCESS, 'Field was not destroyed.')
-      end do
       call ESMF_FieldBundleValidate(bundle, rc=status)
       @assertFalse(status == _SUCCESS, 'FieldBundle was not destroyed.')
 

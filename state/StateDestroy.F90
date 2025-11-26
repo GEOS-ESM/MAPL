@@ -9,7 +9,7 @@ module mapl3g_StateDestroy
    use mapl_KeywordEnforcer
    implicit none(type, external)
 
-   !private
+   private
    public :: MAPL_StateDestroy
 
    interface MAPL_StateDestroy
@@ -19,8 +19,6 @@ module mapl3g_StateDestroy
    logical, parameter :: NESTED = .TRUE.
 
 contains
-      
-!================================= ESMF_STATE ==================================
 
    subroutine destroy_state(state, unusable, destroy_contents, rc)
       type(ESMF_State), intent(inout) :: state
@@ -150,70 +148,16 @@ contains
          
    end subroutine destroy_states
 
-!============================== ESMF_FieldBundle ===============================
-
    subroutine destroy_bundles(bundles, rc)
       type(ESMF_FieldBundle), intent(inout) :: bundles(:)
       integer, optional, intent(out) :: rc
       integer :: status, i
       
       do i=1, size(bundles)
-         call FieldBundleDestroy(bundles(i), _RC)
+         call MAPL_FieldBundleDestroy(bundles(i), _RC)
       end do
       _RETURN(_SUCCESS)
      
    end subroutine destroy_bundles
-
-!   subroutine destroy_bundle(bundle, rc)
-!      type(ESMF_FieldBundle), intent(inout) :: bundle
-!      integer, optional, intent(out) :: rc
-!      integer :: status
-!      type(ESMF_Field), allocatable :: fieldList(:)
-!      character(len=ESMF_MAXSTR) :: name
-
-!      call remove_bundle_fields(bundle, fieldList, _RC)
-!      call destroy_fields(fieldList, _RC)
-!      call ESMF_FieldBundleGet(bundle, name=name, _RC)
-!      call ESMF_FieldBundleDestroy(bundle, _RC)
-!      call ESMF_FieldBundleValidate(bundle, rc=status)
-!      _ASSERT(status /= ESMF_SUCCESS, 'Bundle "' // trim(name) // '" was not destroyed.')
-!      _RETURN(_SUCCESS)
-
-!   end subroutine destroy_bundle
-
-!   subroutine remove_bundle_fields(bundle, fields, rc)
-!      type(ESMF_FieldBundle), intent(inout) :: bundle
-!      type(ESMF_Field), allocatable, intent(inout) :: fields(:)
-!      integer, optional, intent(out) :: rc
-!      integer :: status, fieldCount
-!      character(len=ESMF_MAXSTR), allocatable :: fieldNameList(:)
-
-!      call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount, _RC)
-!      allocate(fields(fieldCount))
-!      allocate(fieldNameList(fieldCount))
-!      call ESMF_FieldBundleGet(bundle, fieldList=fields, fieldNameList=fieldNameList, _RC)
-!      call ESMF_FieldBundleRemove(bundle, fieldNameList=fieldNameList, _RC)
-!      call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount, _RC)
-!      _ASSERT(fieldCount == 0, 'Some fields were not removed.')
-!      _RETURN(_SUCCESS)
-
-!   end subroutine remove_bundle_fields
-
-!================================= ESMF_Field ==================================
-
-!   subroutine destroy_fields(fields, rc)
-!      type(ESMF_Field), intent(inout) :: fields(:)
-!      integer, optional, intent(out) :: rc
-!      integer :: status, i
-!      character(len=ESMF_MAXSTR) :: name
-
-!      do i=1, size(fields)
-!         call ESMF_FieldGet(fields(i), name=name, _RC)
-!         call ESMF_FieldDestroy(fields(i), _RC)
-!         call ESMF_FieldValidate(fields(i), rc=status)
-!         _ASSERT(status /= ESMF_SUCCESS, 'Field "' // trim(name) // '" was not destroyed.')
-!      end do
-         
-!   end subroutine destroy_fields
 
 end module mapl3g_StateDestroy
