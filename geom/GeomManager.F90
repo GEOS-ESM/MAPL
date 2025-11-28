@@ -156,7 +156,7 @@ module mapl3g_GeomManager
       module function make_geom_spec_from_hconfig(this, hconfig, rc) result(geom_spec)
          class(GeomSpec), allocatable :: geom_spec
          class(GeomManager), target, intent(inout) :: this
-         type(ESMF_HConfig), intent(inout) :: hconfig
+         type(ESMF_HConfig), intent(in) :: hconfig
          integer, optional, intent(out) :: rc
       end function make_geom_spec_from_hconfig
 

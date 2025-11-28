@@ -5,7 +5,7 @@ module mapl3g_Geom_API
    use mapl3g_GeomSpec, only: GeomSpec
    use mapl3g_GeomManager, only: GeomManager, geom_manager, get_geom_manager
    use mapl3g_GeomUtilities, only: MAPL_SameGeom, MAPL_GeomGetId
-   use esmf, only: ESMF_Grid, ESMF_KIND_R4
+   use esmf, only: ESMF_Grid, ESMF_Geom, ESMF_KIND_R4, ESMF_HConfig
 
    implicit none(type,external)
 
@@ -13,6 +13,7 @@ module mapl3g_Geom_API
 
    ! Available to users
    public :: MAPL_GridGet
+   public :: MAPL_GeomCreate
 
    ! Used internally by MAPL
    ! Users shouldn't need these
@@ -25,7 +26,12 @@ module mapl3g_Geom_API
       procedure ::  grid_get
    end interface MAPL_GridGet
 
+   interface MAPL_GeomCreate
+      procedure :: geom_create_from_hconfig
+   end interface MAPL_GeomCreate
+
    interface
+
       module subroutine grid_get(grid, unusable, im, jm, latitudes, longitudes, rc)
          type(ESMF_Grid), intent(in) :: grid
          class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -35,6 +41,13 @@ module mapl3g_Geom_API
          real(kind=ESMF_KIND_R4), optional, pointer, intent(out) :: longitudes(:,:)
          integer, optional, intent(out) :: rc
       end subroutine grid_get
+
+      module function geom_create_from_hconfig(hconfig, rc) result(geom)
+         type(ESMF_HConfig), intent(in) :: hconfig
+         integer, optional, intent(out) :: rc
+         type(ESMF_Geom) :: geom
+      end function geom_create_from_hconfig
+
    end interface
 
 end module mapl3g_Geom_API
