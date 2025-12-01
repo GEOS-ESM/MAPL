@@ -50,7 +50,6 @@ contains
       integer, parameter :: N = 4
       integer :: status, fieldCount, i
       type(ESMF_Field) :: fields(N)
-      logical :: valid
 
       call make_fields(original, fields, _RC)
       bundle = ESMF_FieldBundleCreate(fieldList=fields, _RC)
@@ -60,8 +59,31 @@ contains
       @assertEqual(status, _SUCCESS, 'The destroy operation failed.')
       call ESMF_FieldBundleValidate(bundle, rc=status)
       @assertFalse(status == _SUCCESS, 'FieldBundle was not destroyed.')
+      do i=1, size(fields)
+         call ESMF_FieldValidate(fields(i), rc=status)
+         @assertEqual(status, _SUCCESS, 'Field should not be destroyed.')
+      end do
 
    end subroutine test_MAPL_FieldBundleDestroy
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_MAPL_FieldBundleDestroy_contents(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_FieldBundle) :: bundle
+      integer, parameter :: N = 4
+      integer :: status, fieldCount, i
+      type(ESMF_Field) :: fields(N)
+
+      call make_fields(original, fields, _RC)
+      bundle = ESMF_FieldBundleCreate(fieldList=fields, _RC)
+      call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount, _RC)
+      @assertEqual(fieldCount, size(fields), 'The number of fields is incorrect.')
+      call MAPL_FieldBundleDestroy(bundle, destroy_contents=.TRUE., rc=status)
+      @assertEqual(status, _SUCCESS, 'The destroy operation failed.')
+      call ESMF_FieldBundleValidate(bundle, rc=status)
+      @assertFalse(status == _SUCCESS, 'FieldBundle was not destroyed.')
+
+   end subroutine test_MAPL_FieldBundleDestroy_contents
 
    subroutine make_fields(field, fields, rc)
       type(ESMF_Field), intent(inout) :: field
