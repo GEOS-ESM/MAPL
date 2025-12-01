@@ -1,7 +1,7 @@
 set(MODULE_DIRECTORY "${esma_include}/MAPL.field_bundle.tests")
 
 add_pfunit_ctest(MAPL.field_bundle.tests
-                TEST_SOURCES   Test_FieldBundleDelta.pf Test_FieldBundlesAreAliased.pf
+                TEST_SOURCES   Test_FieldBundleDelta.pf Test_FieldBundlesAreAliased.pf Test_FieldBundleDestroy.pf
                 LINK_LIBRARIES MAPL.field_bundle MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE MAPL_pFUnit_Initialize

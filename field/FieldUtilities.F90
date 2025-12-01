@@ -17,6 +17,7 @@ module MAPL_FieldUtilities
    public :: FieldSet
    public :: FieldNegate
    public :: FieldPow
+   public :: FieldsDestroy
 
    interface FieldIsConstant
       procedure FieldIsConstantR4
@@ -27,6 +28,10 @@ module MAPL_FieldUtilities
       procedure FieldSet_R4
       procedure FieldSet_R8
    end interface FieldSet
+
+   interface FieldsDestroy
+      procedure :: destroy_fields
+   end interface FieldsDestroy
 
 contains
 
@@ -228,7 +233,19 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine FieldPow
 
+   subroutine destroy_fields(fields, rc)
+      type(ESMF_Field), intent(inout) :: fields(:)
+      integer, optional, intent(out) :: rc
+      integer :: status, i
+      character(len=ESMF_MAXSTR) :: name
+
+      do i=1, size(fields)
+         call ESMF_FieldGet(fields(i), name=name, _RC)
+         call ESMF_FieldDestroy(fields(i), _RC)
+         call ESMF_FieldValidate(fields(i), rc=status)
+         _ASSERT(status /= ESMF_SUCCESS, 'Field "' // trim(name) // '" was not destroyed.')
+      end do
+         
+   end subroutine destroy_fields
 
 end module MAPL_FieldUtilities
-
-

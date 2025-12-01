@@ -83,6 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Change refTime to refTime_offset for several MAPL derived types
 - Change `.rc` to `.acg` in user guide and acg tutorial
 - Refactor ACG to produce MAPL3 procedures
+- Pulled destroy_bundle and destroy_fields from MAPL_StateDestroy into MAPL_FieldBundleDestroy and FieldsDestroy
 
 ### Fixed
 
