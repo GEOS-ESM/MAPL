@@ -38,6 +38,7 @@ module mapl3g_Generic
    use mapl3g_ESMF_Interfaces, only: MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
    use mapl3g_hconfig_get
    use mapl3g_RestartModes, only: RestartMode
+   use mapl3g_ComponentSpecParser, only: parse_geometry_spec
    use mapl_InternalConstantsMod
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
@@ -169,6 +170,7 @@ module mapl3g_Generic
 
    interface MAPL_GridCompSetGeometry
       procedure :: gridcomp_set_geometry
+      procedure :: gridcomp_set_geometry_from_hconfig
    end interface MAPL_GridCompSetGeometry
 
    interface MAPL_GridCompSetEntryPoint
@@ -1032,6 +1034,24 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gridcomp_set_geometry
 
+   subroutine gridcomp_set_geometry_from_hconfig(gridcomp, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      integer, optional, intent(out) :: rc
+
+      type(ComponentSpec), pointer :: component_spec
+      type(ESMF_HConfig) :: hconfig
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(StateRegistry), pointer :: registry
+      integer :: status
+
+      call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      component_spec => outer_meta%get_component_spec()
+      call MAPL_GridCompGetRegistry(gridcomp, registry=registry, _RC)
+      component_spec%geometry_spec = parse_geometry_spec(hconfig, registry, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine gridcomp_set_geometry_from_hconfig
 
    ! Use "<SELF>" to indicate connection to gridcomp.
    ! src_name and dst_name can be comma-delimited strings for multiple connection
