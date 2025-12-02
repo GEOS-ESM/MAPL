@@ -12,7 +12,7 @@ set_tests_properties(MAPL.field.test_fieldcreate PROPERTIES LABELS "ESSENTIAL")
 
 add_pfunit_ctest(MAPL.field.test_utils
                 TEST_SOURCES   Test_FieldBLAS.pf Test_FieldArithmetic.pf Test_FieldCondensedArray_private.pf
-                               Test_FieldDelta.pf Test_FieldInfo.pf
+                               Test_FieldDelta.pf Test_FieldInfo.pf Test_FieldUtilities.pf
                 LINK_LIBRARIES MAPL.field MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE MAPL_pFUnit_Initialize

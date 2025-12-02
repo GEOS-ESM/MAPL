@@ -21,7 +21,7 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.vertical_grid MAPL.base MAPL.field MAPL.shared MAPL.esmf_utils ESMF::ESMF PFLOGGER::pflogger
+  DEPENDENCIES MAPL.vertical_grid MAPL.base MAPL.field MAPL.field_bundle MAPL.shared MAPL.esmf_utils ESMF::ESMF PFLOGGER::pflogger
   TYPE SHARED
 )
 
