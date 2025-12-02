@@ -530,7 +530,7 @@ contains
    end function is_stale
 
    function get_geom(state, itemName, rc) result(geom)
-      type(ESMF_Geom) :: geom
+      type(ESMF_Geom), allocatable :: geom
       type(ESMF_State), intent(inout) :: state
       character(*), intent(in) :: itemName
       integer, optional, intent(out) :: rc
@@ -550,6 +550,8 @@ contains
       else
          _FAIL('unsupported itemType')
       end if
+
+      _ASSERT(allocated(geom), 'geom should be allocated by this point')
 
       _RETURN(_SUCCESS)
    end function get_geom

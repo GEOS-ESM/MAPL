@@ -275,6 +275,8 @@ contains
          call mapl_FieldBundleGet(bundle, geom=this%geom, _RC)
       end if
 
+      call this%set_mirror(.not. allocated(this%geom))
+
       _RETURN(_SUCCESS)
    end subroutine update_from_payload
 

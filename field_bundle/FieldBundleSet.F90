@@ -37,6 +37,7 @@ contains
         units, standard_name, long_name, &
         allocation_status, &
         bracket_updated, &
+        has_geom, &
         rc)
 
       type(ESMF_FieldBundle), intent(inout) :: fieldBundle
@@ -53,6 +54,7 @@ contains
       character(*), optional, intent(in) :: long_name
       type(StateItemAllocation), optional, intent(in) :: allocation_status
       logical, optional, intent(in) :: bracket_updated
+      logical, optional, intent(in) :: has_geom
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -102,7 +104,7 @@ contains
 
       type(ESMF_FieldBundleStatus) :: status_
 
-      status_ = ESMF_FieldBundleStatus(2) ! ESMF_FBSTATUS_EMPTY
+      status_ = ESMF_FieldBundleStatus(2) ! ESMF_FBSTATUS_EMPTY - default
       if (present(status)) status_ = status
       fieldBundle%this%status = status_
       

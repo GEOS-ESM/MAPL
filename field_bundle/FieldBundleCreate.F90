@@ -39,7 +39,7 @@ contains
 
       fieldBundleType_ = FIELDBUNDLETYPE_BASIC
       if (present(fieldBundleType)) fieldBundleType_ = fieldBundleType
-      call FieldBundleSet(bundle, fieldBundleType=fieldBundleType_)
+      call FieldBundleSet(bundle, fieldBundleType=fieldBundleType_, has_geom=.false., _RC)
 
       _RETURN(_SUCCESS)
    end function create_bundle_empty

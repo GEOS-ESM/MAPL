@@ -28,7 +28,7 @@ module mapl3g_FieldBundleInfo
 
    character(*), parameter :: KEY_FIELDBUNDLETYPE_FLAG = '/FieldBundleType_Flag'
    character(*), parameter :: KEY_ALLOCATION_STATUS = "/allocation_status"
-
+   character(*), parameter :: KEY_HAS_GEOM = "/has_geom"
 
 contains
 
@@ -41,6 +41,7 @@ contains
         allocation_status, &
         spec_handle, &
         bracket_updated, &
+        has_geom, &
         rc)
 
       type(ESMF_Info), intent(in) :: info
@@ -58,7 +59,8 @@ contains
       character(:), optional, allocatable, intent(out) :: standard_name
       type(StateItemAllocation), optional, intent(out) :: allocation_status
       integer, optional, allocatable, intent(out) :: spec_handle(:)
-      logical, optional, intent(out) :: bracket_updated 
+      logical, optional, intent(out) :: bracket_updated
+      logical, optional, intent(out) :: has_geom
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -93,6 +95,10 @@ contains
 
       if (present(bracket_updated)) then
          call ESMF_InfoGet(info, key=namespace_//KEY_BRACKET_UPDATED, value=bracket_updated, _RC)
+      end if
+
+      if (present(has_geom)) then
+         call ESMF_InfoGet(info, key=namespace_//KEY_HAS_GEOM, value=has_geom, _RC)
       end if
 
       ! Field-prototype items that come from field-info

@@ -30,7 +30,7 @@ contains
         rc)
       type(ESMF_Field), intent(in) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_Geom), optional, intent(out) :: geom
+      type(ESMF_Geom), allocatable, optional, intent(out) :: geom
       character(len=:), optional, allocatable, intent(out) :: short_name
       type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
       integer, optional, intent(out) :: num_levels
@@ -46,6 +46,7 @@ contains
       integer :: status
       type(ESMF_Info) :: field_info
       character(len=ESMF_MAXSTR) :: fname
+      type(ESMF_FieldStatus_Flag) :: fstatus
 
       if (present(short_name)) then
          call ESMF_FieldGet(field, name=fname, _RC)
@@ -53,7 +54,14 @@ contains
       end if
 
       if (present(geom)) then
-         call ESMF_FieldGet(field, geom=geom, _RC)
+         call esmf_FieldGet(field, status=fstatus, _RC)
+         if (fstatus == ESMF_FIELDSTATUS_EMPTY) then
+            ! no op - already deallocated
+         end if
+         if (any(fstatus == [ESMF_FIELDSTATUS_GRIDSET, ESMF_FIELDSTATUS_COMPLETE])) then
+            allocate(geom)
+            call ESMF_FieldGet(field, geom=geom, _RC)
+         end if
       end if
 
       if (present(typekind)) then

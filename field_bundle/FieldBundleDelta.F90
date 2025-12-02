@@ -209,7 +209,7 @@ contains
 
       integer :: status
       type(ESMF_Field), allocatable :: fieldList(:)
-      type(ESMF_Geom) :: bundle_geom
+      type(ESMF_Geom), allocatable :: bundle_geom
       integer :: i
       type(LU_Bound), allocatable :: bounds(:)
       type(LU_Bound) :: vertical_bounds
@@ -250,6 +250,7 @@ contains
            vert_staggerloc=vert_staggerloc, &
            _RC)
 
+      _ASSERT(allocated(bundle_geom), 'geom should be allocated by this point')
       _ASSERT(vert_staggerloc /= VERTICAL_STAGGER_INVALID, 'Vert stagger is INVALID.')
       if (vert_staggerloc /= VERTICAL_STAGGER_NONE) then
          ! Allocate num_levels so that it is PRESENT() int FieldEmptyComplete() below.
