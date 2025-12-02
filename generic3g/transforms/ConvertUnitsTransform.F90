@@ -9,8 +9,10 @@ module mapl3g_ConvertUnitsTransform
    use udunits2f, only: UDUNITS_GetConverter => get_converter
    use udunits2f, only: UDUNITS_Initialize => Initialize
    use MAPL_FieldUtils
+   use mapl3g_FieldBundle_API
    use mapl_ErrorHandling
    use esmf
+
    implicit none
    private
 
@@ -31,15 +33,7 @@ module mapl3g_ConvertUnitsTransform
       procedure new_converter
    end interface ConvertUnitsTransform
 
-   type(ESMF_StateItem_Flag), parameter :: ALLOWED_BUNDLES(*) = [&
-      & MAPL_STATEITEM_FIELDBUNDLE, &
-      & MAPL_STATEITEM_BRACKET, &
-      & MAPL_STATEITEM_VECTOR, &
-      & MAPL_STATEITEM_VECTOR_BRACKET&
-      &]
-
 contains
-
 
    function new_converter(src_units, dst_units) result(transform)
       type(ConvertUnitsTransform) :: transform
@@ -133,6 +127,7 @@ contains
       type(ESMF_Field) :: f_in, f_out
       type(ESMF_FieldBundle) :: fb_in, fb_out
       type(ESMF_StateItem_Flag) :: itemtype_in, itemtype_out
+      type(FieldBundleType_Flag) :: bundletype_in, bundletype_out
 
       call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, itemtype=itemtype_in, _RC)
       call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, itemtype=itemtype_out, _RC)
@@ -142,9 +137,10 @@ contains
          call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=f_in, _RC)
          call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=f_out, _RC)
          call update_field(f_in, f_out, this%converter, _RC)
-      elseif(any(ALLOWED_BUNDLES == itemType_in)) then
+      elseif(itemType_in == MAPL_STATEITEM_FIELDBUNDLE) then
          call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, fieldBundle=fb_in, _RC)
          call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, fieldBundle=fb_out, _RC)
+         call bundle_types_valid(fb_in, fb_out, _RC)
          call update_field_bundle(fb_in, fb_out, this%converter, _RC)
       else
          _FAIL("Unsupported state item type")
@@ -153,6 +149,28 @@ contains
       _UNUSED_DUMMY(clock)
 
    end subroutine update
+
+   subroutine bundle_types_valid(b1, b2, rc)
+      type(ESMF_FieldBundle), intent(inout) :: b1, b2
+      integer, intent(out) :: rc
+      integer :: status
+      type(FieldBundleType_Flag) :: bt1, bt2
+      type(FieldBundleType_Flag), parameter :: ALLOWED_BUNDLE_TYPES(*) = [&
+         & FIELDBUNDLETYPE_BASIC, &
+         & FIELDBUNDLETYPE_BRACKET, &
+         & FIELDBUNDLETYPE_VECTOR, &
+         & FIELDBUNDLETYPE_VECTOR_BRACKET&
+         &]
+      character(len=:), allocatable :: msg
+
+      call MAPL_FieldBundleGet(b1, fieldBundleType=bt1, _RC)
+      msg = bt1%to_string()
+      _ASSERT(any(ALLOWED_BUNDLE_TYPES == bt1), 'FieldBundleType ' // msg // ' is not supported.')
+      call MAPL_FieldBundleGet(b2, fieldBundleType=bt2, _RC)
+      msg = '(' // msg // ', ' // bt2%to_string() // ')'
+      _ASSERT(bt1 == bt2, 'FieldBundleType values ' // msg // ' do not match.')
+
+   end subroutine bundle_types_valid
    
    function get_transformId(this) result(id)
       type(TransformId) :: id
