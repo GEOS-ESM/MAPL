@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added `pfaf_index` to `MAPL_Losctream`
-- Enforced present of grid when reading binary tile file
+- Enforced presence of `grid` when reading binary tile file
 - Added a simple MAPL_LosctreamCreate
 
 ### Changed
