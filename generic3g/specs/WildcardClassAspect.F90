@@ -12,6 +12,7 @@ module mapl3g_WildcardClassAspect
    use mapl3g_NullTransform
    use mapl3g_MultiState
    use mapl_ErrorHandling
+   use mapl_KeywordEnforcer
    use esmf
    implicit none(type,external)
    private
@@ -35,6 +36,7 @@ module mapl3g_WildcardClassAspect
       procedure :: allocate
       procedure :: destroy
       procedure :: add_to_state
+      procedure :: get_payload
  
    end type WildcardClassAspect
 
@@ -232,4 +234,15 @@ contains
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
  
+   subroutine get_payload(this, unusable, field, bundle, state, rc)
+      class(WildcardClassAspect), intent(in) :: this
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      type(esmf_Field), optional, allocatable, intent(out) :: field
+      type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
+      type(esmf_State), optional, allocatable, intent(out) :: state
+      integer, optional, intent(out) :: rc
+
+      _FAIL('unsupported')
+   end subroutine get_payload
+
 end module mapl3g_WildcardClassAspect

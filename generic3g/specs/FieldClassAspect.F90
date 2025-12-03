@@ -29,6 +29,7 @@ module mapl3g_FieldClassAspect
 
    use mapl_FieldUtilities
    use mapl_ErrorHandling
+   use mapl_KeywordEnforcer
    use esmf
    use pflogger
 
@@ -457,11 +458,19 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle
 
-   function get_payload(this) result(field)
-      type(ESMF_Field) :: field
+   subroutine get_payload(this, unusable, field, bundle, state, rc)
       class(FieldClassAspect), intent(in) :: this
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      type(esmf_Field), optional, allocatable, intent(out) :: field
+      type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
+      type(esmf_State), optional, allocatable, intent(out) :: state
+      integer, optional, intent(out) :: rc
+
       field = this%payload
-   end function get_payload
+
+      _RETURN(_SUCCESS)
+
+   end subroutine get_payload
 
    
    function get_aspect_id() result(aspect_id)

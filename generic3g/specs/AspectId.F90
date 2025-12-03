@@ -83,12 +83,12 @@ contains
    end function to_string
 
 
-   logical function equal(a, b)
+   logical elemental function equal(a, b)
       class(AspectId), intent(in) :: a, b
       equal = a%id == b%id
    end function equal
 
-   logical function not_equal(a, b)
+   logical elemental function not_equal(a, b)
       class(AspectId), intent(in) :: a, b
       not_equal = .not. (a%id == b%id)
    end function not_equal

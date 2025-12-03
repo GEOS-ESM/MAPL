@@ -14,6 +14,7 @@ module MockAspect_mod
    use mapl3g_NullTransform
    use mapl3g_MultiState
    use mapl3g_VirtualConnectionPtVector
+   use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
    implicit none
@@ -41,6 +42,7 @@ module MockAspect_mod
       procedure :: get_aspect_order
       
       procedure, nopass :: get_aspect_id
+      procedure :: get_payload
    end type MockAspect
 
    interface MockAspect
@@ -263,6 +265,17 @@ contains
       type(AspectId) :: aspect_id
       aspect_id = CLASS_ASPECT_ID
    end function get_aspect_id
+
+   subroutine get_payload(this, unusable, field, bundle, state, rc)
+      class(MockAspect), intent(in) :: this
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      type(esmf_Field), optional, allocatable, intent(out) :: field
+      type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
+      type(esmf_State), optional, allocatable, intent(out) :: state
+      integer, optional, intent(out) :: rc
+
+      _RETURN(_SUCCESS)
+   end subroutine get_payload
 
 
 end module MockAspect_mod

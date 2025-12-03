@@ -28,6 +28,7 @@ module mapl3g_VectorClassAspect
    use mapl3g_FieldCreate
    use mapl_FieldUtilities
 
+   use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use gftl2_StringVector
    use esmf
@@ -325,12 +326,19 @@ contains
    end subroutine add_to_state
 
 
-   function get_payload(this) result(field_bundle)
-      type(ESMF_FieldBundle) :: field_bundle
+   subroutine get_payload(this, unusable, field, bundle, state, rc)
       class(VectorClassAspect), intent(in) :: this
-      field_bundle = this%payload
-   end function get_payload
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      type(esmf_Field), optional, allocatable, intent(out) :: field
+      type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
+      type(esmf_State), optional, allocatable, intent(out) :: state
+      integer, optional, intent(out) :: rc
 
+      bundle = this%payload
+
+      _RETURN(_SUCCESS)
+
+   end subroutine get_payload
    
    function get_aspect_id() result(aspect_id)
       type(AspectId) :: aspect_id

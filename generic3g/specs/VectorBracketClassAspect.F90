@@ -30,6 +30,7 @@ module mapl3g_VectorBracketClassAspect
    use mapl3g_FieldCreate
    use mapl_FieldUtilities
 
+   use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
    implicit none(type,external)
@@ -328,10 +329,18 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_state
 
-   function get_payload(this) result(payload)
+   subroutine get_payload(this, unusable, field, bundle, state, rc)
       class(VectorBracketClassAspect), intent(in) :: this
-      type(ESMF_FieldBundle) :: payload
-      payload = this%payload
-   end function get_payload
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      type(esmf_Field), optional, allocatable, intent(out) :: field
+      type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
+      type(esmf_State), optional, allocatable, intent(out) :: state
+      integer, optional, intent(out) :: rc
+
+      bundle = this%payload
+
+      _RETURN(_SUCCESS)
+
+   end subroutine get_payload
 
 end module mapl3g_VectorBracketClassAspect
