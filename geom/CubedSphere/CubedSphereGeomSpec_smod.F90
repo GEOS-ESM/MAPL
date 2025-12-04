@@ -116,10 +116,10 @@ contains
       integer, intent(in) :: cube_size
       integer, optional, intent(out) :: rc
       integer, allocatable :: ims(:), jms(:)
-      integer :: nx, ny
+      integer :: nx_face, ny_face
 
       integer :: status
-      logical :: has_ims, has_jms, has_nx, has_ny
+      logical :: has_ims, has_jms, has_nx_face, has_ny_face
 
       has_ims = ESMF_HConfigIsDefined(hconfig, keystring='ims', _RC)
       has_jms = ESMF_HConfigIsDefined(hconfig, keystring='jms', _RC)
@@ -132,14 +132,14 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      has_nx = ESMF_HConfigIsDefined(hconfig, keystring='nx', _RC)
-      has_ny = ESMF_HConfigIsDefined(hconfig, keystring='ny', _RC)
-      _ASSERT(has_nx .eqv. has_ny, 'nx and ny must be both defined or both undefined')
+      has_nx_face = ESMF_HConfigIsDefined(hconfig, keystring='nx_face', _RC)
+      has_ny_face = ESMF_HConfigIsDefined(hconfig, keystring='ny_face', _RC)
+      _ASSERT(has_nx_face .eqv. has_ny_face, 'nx_face and ny_face must be both defined or both undefined')
 
-      if (has_nx) then
-         nx = ESMF_HConfigAsI4(hconfig, keyString='nx', _RC)
-         ny = ESMF_HConfigAsI4(hconfig, keyString='ny', _RC)
-         decomp = CubedSphereDecomposition([cube_size,cube_size], topology=[nx, ny])
+      if (has_nx_face) then
+         nx_face = ESMF_HConfigAsI4(hconfig, keyString='nx_face', _RC)
+         ny_face = ESMF_HConfigAsI4(hconfig, keyString='ny_face', _RC)
+         decomp = CubedSphereDecomposition([cube_size,cube_size], topology=[nx_face, ny_face])
          _RETURN(_SUCCESS)
       end if
 
