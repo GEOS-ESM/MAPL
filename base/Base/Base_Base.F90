@@ -140,6 +140,12 @@ module MAPL_Base
      module procedure MAPL_FieldBundleGetByIndex
   end interface MAPL_FieldBundleGet
 
+  ! Note: The routine below came from ESMFL; it has been moved here to
+  !       avoid circular dependencies (Arlindo).
+  interface  MAPL_GridGetInterior
+    module procedure MAPL_Grid_Interior
+  end interface 
+
 
   interface
      module subroutine MAPL_AllocateCoupling(field, rc)
@@ -579,21 +585,6 @@ module MAPL_Base
        integer, optional, intent(  OUT) :: RC
 
      end subroutine MAPL_GridGetCorners
-
-     !............................................................................
-
-
-     !
-     ! Note: The routine below came from ESMFL; it has been moved here to
-     !       avoid circular dependencies (Arlindo).
-     !
-     module subroutine MAPL_GridGetInterior(GRID,I1,IN,J1,JN)
-       use ESMF, only: ESMF_Grid
-       type (ESMF_Grid), intent(IN) :: grid
-       integer, intent(OUT)         :: I1, IN, J1, JN
-     end subroutine MAPL_GridGetInterior
-
-     !.......................................................................
 
      module function MAPL_RmQualifier(str, del) result(new)
 
