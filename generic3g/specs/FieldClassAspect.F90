@@ -153,7 +153,7 @@ contains
       this%payload = ESMF_FieldEmptyCreate(_RC)
       _RETURN_UNLESS(present(handle))
 
-      ids = [GEOM_ASPECT_ID]
+      ids = [GEOM_ASPECT_ID, TYPEKIND_ASPECT_ID, UNITS_ASPECT_ID, UNGRIDDED_DIMS_ASPECT_ID]
       do i = 1, size(ids)
          aspect => other_aspects%at(ids(i), _RC)
          call aspect%update_payload(this%payload, _RC)

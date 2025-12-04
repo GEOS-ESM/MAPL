@@ -4,9 +4,11 @@ module mapl3g_TypekindAspect
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
+   use mapl3g_CopyTransform
    use mapl3g_ExtensionTransform
-   use mapl3g_Copytransform
    use mapl3g_NullTransform
+   use mapl3g_Field_API
+   use mapl3g_FieldBundle_API
    use mapl_ErrorHandling
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
    use esmf
@@ -34,6 +36,9 @@ module mapl3g_TypekindAspect
 
       procedure :: set_typekind
       procedure :: get_typekind
+
+      procedure :: update_from_payload
+      procedure :: update_payload
    end type TypekindAspect
 
    interface TypekindAspect
@@ -165,5 +170,45 @@ contains
       _RETURN(_SUCCESS)
    end function to_typekind_from_map
    
+   subroutine update_from_payload(this, field, bundle, state, rc)
+      class(TypekindAspect), intent(inout) :: this
+      type(esmf_Field), optional, intent(in) :: field
+      type(esmf_FieldBundle), optional, intent(in) :: bundle
+      type(esmf_State), optional, intent(in) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _RETURN_UNLESS(present(field) .or. present(bundle))
+
+      if (present(field)) then
+         call mapl_FieldGet(field, typekind=this%typekind, _RC)
+      else if (present(bundle)) then
+         call mapl_FieldBundleGet(bundle, typekind=this%typekind, _RC)
+      end if
+      call this%set_mirror(this%typekind == MAPL_TYPEKIND_MIRROR)
+
+      _RETURN(_SUCCESS)
+   end subroutine update_from_payload
+
+   subroutine update_payload(this, field, bundle, state, rc)
+      class(TypekindAspect), intent(in) :: this
+      type(esmf_Field), optional, intent(inout) :: field
+      type(esmf_FieldBundle), optional, intent(inout) :: bundle
+      type(esmf_State), optional, intent(inout) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _RETURN_UNLESS(present(field) .or. present(bundle))
+
+      if (present(field)) then
+         call mapl_FieldSet(field, typekind=this%typekind, _RC)
+      else if (present(bundle)) then
+         call mapl_FieldBundleSet(bundle, typekind=this%typekind, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine update_payload
  
 end module mapl3g_TypekindAspect

@@ -174,9 +174,7 @@ contains
       integer :: status
 
       aspect => this%aspects%at(aspect_id, _RC)
-      if (any(aspect_id == [GEOM_ASPECT_ID])) then
-         call aspect%update_from_payload(_RC)
-      end if
+      call aspect%update_from_payload(_RC)
 
       _RETURN(_SUCCESS)
    end function get_aspect_by_id
