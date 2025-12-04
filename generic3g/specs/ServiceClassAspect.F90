@@ -300,7 +300,7 @@ contains
       type(esmf_State), optional, allocatable, intent(out) :: state
       integer, optional, intent(out) :: rc
 
-      _FAIL('unsupported')
+      _RETURN(_SUCCESS)
    end subroutine get_payload
  
 end module mapl3g_ServiceClassAspect

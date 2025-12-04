@@ -153,12 +153,6 @@ contains
       this%payload = ESMF_FieldEmptyCreate(_RC)
       _RETURN_UNLESS(present(handle))
 
-      ids = [GEOM_ASPECT_ID, TYPEKIND_ASPECT_ID, UNITS_ASPECT_ID, UNGRIDDED_DIMS_ASPECT_ID]
-      do i = 1, size(ids)
-         aspect => other_aspects%at(ids(i), _RC)
-         call aspect%update_payload(this%payload, _RC)
-      end do
-
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
       call FieldInfoSetInternal(info, spec_handle=handle, _RC)
       call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
