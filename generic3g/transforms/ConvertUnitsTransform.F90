@@ -5,11 +5,12 @@ module mapl3g_ConvertUnitsTransform
    use mapl3g_TransformId
    use mapl3g_StateItem
    use mapl3g_ExtensionTransform
+   use mapl3g_ExtensionTransformUtils, only: bundle_types_valid
    use udunits2f, only: UDUNITS_Converter => Converter
    use udunits2f, only: UDUNITS_GetConverter => get_converter
    use udunits2f, only: UDUNITS_Initialize => Initialize
    use MAPL_FieldUtils
-   use mapl3g_FieldBundle_API
+!   use mapl3g_FieldBundle_API
    use mapl_ErrorHandling
    use esmf
 
@@ -127,7 +128,6 @@ contains
       type(ESMF_Field) :: f_in, f_out
       type(ESMF_FieldBundle) :: fb_in, fb_out
       type(ESMF_StateItem_Flag) :: itemtype_in, itemtype_out
-      type(FieldBundleType_Flag) :: bundletype_in, bundletype_out
 
       call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, itemtype=itemtype_in, _RC)
       call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, itemtype=itemtype_out, _RC)
@@ -150,27 +150,27 @@ contains
 
    end subroutine update
 
-   subroutine bundle_types_valid(b1, b2, rc)
-      type(ESMF_FieldBundle), intent(inout) :: b1, b2
-      integer, intent(out) :: rc
-      integer :: status
-      type(FieldBundleType_Flag) :: bt1, bt2
-      type(FieldBundleType_Flag), parameter :: ALLOWED_BUNDLE_TYPES(*) = [&
-         & FIELDBUNDLETYPE_BASIC, &
-         & FIELDBUNDLETYPE_BRACKET, &
-         & FIELDBUNDLETYPE_VECTOR, &
-         & FIELDBUNDLETYPE_VECTOR_BRACKET&
-         &]
-      character(len=:), allocatable :: msg
+!   subroutine bundle_types_valid(b1, b2, rc)
+!      type(ESMF_FieldBundle), intent(inout) :: b1, b2
+!      integer, intent(out) :: rc
+!      integer :: status
+!      type(FieldBundleType_Flag) :: bt1, bt2
+!      type(FieldBundleType_Flag), parameter :: ALLOWED_BUNDLE_TYPES(*) = [&
+!         & FIELDBUNDLETYPE_BASIC, &
+!         & FIELDBUNDLETYPE_BRACKET, &
+!         & FIELDBUNDLETYPE_VECTOR, &
+!         & FIELDBUNDLETYPE_VECTOR_BRACKET&
+!         &]
+!      character(len=:), allocatable :: msg
 
-      call MAPL_FieldBundleGet(b1, fieldBundleType=bt1, _RC)
-      msg = bt1%to_string()
-      _ASSERT(any(ALLOWED_BUNDLE_TYPES == bt1), 'FieldBundleType ' // msg // ' is not supported.')
-      call MAPL_FieldBundleGet(b2, fieldBundleType=bt2, _RC)
-      msg = '(' // msg // ', ' // bt2%to_string() // ')'
-      _ASSERT(bt1 == bt2, 'FieldBundleType values ' // msg // ' do not match.')
+!      call MAPL_FieldBundleGet(b1, fieldBundleType=bt1, _RC)
+!      msg = bt1%to_string()
+!      _ASSERT(any(ALLOWED_BUNDLE_TYPES == bt1), 'FieldBundleType ' // msg // ' is not supported.')
+!      call MAPL_FieldBundleGet(b2, fieldBundleType=bt2, _RC)
+!      msg = '(' // msg // ', ' // bt2%to_string() // ')'
+!      _ASSERT(bt1 == bt2, 'FieldBundleType values ' // msg // ' do not match.')
 
-   end subroutine bundle_types_valid
+!   end subroutine bundle_types_valid
    
    function get_transformId(this) result(id)
       type(TransformId) :: id

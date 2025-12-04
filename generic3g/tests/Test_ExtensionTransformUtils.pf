@@ -1,0 +1,155 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_ExtensionTransformUtils
+   use mapl3g_ExtensionTransformUtils
+   use mapl3g_FieldBundle_API
+   use pfunit
+   use esmf, only: ESMF_FieldBundle, ESMF_FieldBundleCreate, ESMF_FieldBundleDestroy
+   use ESMF_TestMethod_mod
+
+   implicit none(type, external)
+
+contains
+
+   @Before
+   subroutine setUp(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      _UNUSED_DUMMY(this)
+   end subroutine setUp
+   
+   @After
+   subroutine shutDown(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      _UNUSED_DUMMY(this)
+   end subroutine shutDown
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_bundle_types_valid_basic(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_FieldBundle) :: b1, b2
+      type(FieldBundleType_Flag) :: bt1, bt2
+      integer :: status
+
+      bt1 = FIELDBUNDLETYPE_BASIC
+      bt2 = bt1
+      b1 = make_bundle(bt1, _RC)
+      b2 = make_bundle(bt2, _RC)
+      call bundle_types_valid(b1, b2, rc=status)
+      @assertEqual(_SUCCESS, status, 'Bundle types should be valid and equal.')
+      call ESMF_FieldBundleDestroy(b1)
+      call ESMF_FieldBundleDestroy(b2)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_bundle_types_valid_basic
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_bundle_types_valid_bracket(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_FieldBundle) :: b1, b2
+      type(FieldBundleType_Flag) :: bt1, bt2
+      integer :: status
+
+      bt1 = FIELDBUNDLETYPE_BRACKET
+      bt2 = bt1
+      b1 = make_bundle(bt1, _RC)
+      b2 = make_bundle(bt2, _RC)
+      call bundle_types_valid(b1, b2, rc=status)
+      @assertEqual(_SUCCESS, status, 'Bundle types should be valid and equal.')
+      call ESMF_FieldBundleDestroy(b1)
+      call ESMF_FieldBundleDestroy(b2)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_bundle_types_valid_bracket
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_bundle_types_valid_vector(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_FieldBundle) :: b1, b2
+      type(FieldBundleType_Flag) :: bt1, bt2
+      integer :: status
+
+      bt1 = FIELDBUNDLETYPE_VECTOR
+      bt2 = bt1
+      b1 = make_bundle(bt1, _RC)
+      b2 = make_bundle(bt2, _RC)
+      call bundle_types_valid(b1, b2, rc=status)
+      @assertEqual(_SUCCESS, status, 'Bundle types should be valid and equal.')
+      call ESMF_FieldBundleDestroy(b1)
+      call ESMF_FieldBundleDestroy(b2)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_bundle_types_valid_vector
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_bundle_types_valid_vector_bracket(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_FieldBundle) :: b1, b2
+      type(FieldBundleType_Flag) :: bt1, bt2
+      integer :: status
+
+      bt1 = FIELDBUNDLETYPE_VECTOR_BRACKET
+      bt2 = bt1
+      b1 = make_bundle(bt1, _RC)
+      b2 = make_bundle(bt2, _RC)
+      call bundle_types_valid(b1, b2, rc=status)
+      @assertEqual(_SUCCESS, status, 'Bundle types should be valid and equal.')
+      call ESMF_FieldBundleDestroy(b1)
+      call ESMF_FieldBundleDestroy(b2)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_bundle_types_valid_vector_bracket
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_bundle_types_valid_invalid(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_FieldBundle) :: b1, b2
+      type(FieldBundleType_Flag) :: bt1, bt2
+      integer :: status
+
+      bt1 = FIELDBUNDLETYPE_INVALID
+      bt2 = bt1
+      b1 = make_bundle(bt1, _RC)
+      b2 = make_bundle(bt2, _RC)
+      call bundle_types_valid(b1, b2, rc=status)
+      @assertExceptionRaised()
+      call ESMF_FieldBundleDestroy(b1)
+      call ESMF_FieldBundleDestroy(b2)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_bundle_types_valid_invalid
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_bundle_types_valid_mismatch(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_FieldBundle) :: b1, b2
+      type(FieldBundleType_Flag) :: bt1, bt2
+      integer :: status
+
+      bt1 = FIELDBUNDLETYPE_BASIC
+      bt2 = FIELDBUNDLETYPE_BRACKET
+      b1 = make_bundle(bt1, _RC)
+      b2 = make_bundle(bt2, _RC)
+      call bundle_types_valid(b1, b2, rc=status)
+      @assertExceptionRaised()
+      call ESMF_FieldBundleDestroy(b1)
+      call ESMF_FieldBundleDestroy(b2)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_bundle_types_valid_mismatch
+
+   function make_bundle(bundle_type, rc) result(bundle)
+      type(ESMF_FieldBundle) :: bundle
+      class(FieldBundleType_Flag), optional, intent(in) :: bundle_type
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      bundle = ESMF_FieldBundleCreate(_RC)
+      if(present(bundle_type)) then
+         call MAPL_FieldBundleSet(bundle, fieldBundleType=bundle_type, _RC)
+      end if
+      _RETURN(_SUCCESS)
+
+   end function make_bundle
+
+end module Test_ExtensionTransformUtils

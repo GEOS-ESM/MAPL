@@ -19,4 +19,5 @@ target_sources(MAPL.generic3g PRIVATE
   AccumulatorTransformInterface.F90
 
   EvalTransform.F90
+  ExtensionTransformUtils.F90
 )
