@@ -166,7 +166,7 @@ contains
       integer :: i, j, n
       type(ESMF_StateItem_Flag) :: itemtype
       character(len=:), allocatable :: bundle_name
-      type(FieldBundleType_Flag), parameter :: bundle_type = FIELDBUNDLETYPE_BASIC
+      type(FieldBundleType_Flag), parameter :: BUNDLE_TYPE = FIELDBUNDLETYPE_BASIC
       type(ESMF_Field), allocatable :: field_list(:)
 
       status = _FAILURE
@@ -198,7 +198,7 @@ contains
       do i = 1, n
          bundle_name = trim(names(i))
          field_bundle = ESMF_FieldBundleCreate(name=bundle_name, _RC)
-         call MAPL_FieldBundleSet(field_bundle, fieldBundleType=bundle_type, _RC)
+         call MAPL_FieldBundleSet(field_bundle, fieldBundleType=BUNDLE_TYPE, _RC)
          if(allocated(field_list)) deallocate(field_list)
          allocate(field_list(num_fields(i)))
          do j = 1, size(field_list)
