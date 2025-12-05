@@ -14,7 +14,9 @@ set(srcs
 
   GeomManager.F90
 
-# gFTL containers
+  GeomGet.F90
+
+  # gFTL containers
   GeomFactoryVector.F90
   GeomSpecVector.F90
   IntegerMaplGeomMap.F90
