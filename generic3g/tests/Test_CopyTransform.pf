@@ -150,7 +150,7 @@ contains
       type(ESMF_FieldBundle) :: bundle
       character(len=ESMF_MAXSTR) :: field_name
       logical :: make_bundle
-      type(FieldBundleType_Flag), parameter :: bundle_type = FIELDBUNDLETYPE_BASIC
+      type(FieldBundleType_Flag), parameter :: BUNDLE_TYPE = FIELDBUNDLETYPE_BASIC
 
       make_bundle = itemtype == MAPL_STATEITEM_FIELDBUNDLE
       field_name = name
@@ -165,7 +165,7 @@ contains
       end if
       if(make_bundle) then 
          bundle = ESMF_FieldBundleCreate(fieldList=[field], name=name, _RC)
-         call MAPL_FieldBundleSet(bundle, fieldBundleType=bundle_type, _RC)
+         call MAPL_FieldBundleSet(bundle, fieldBundleType=BUNDLE_TYPE, _RC)
          call ESMF_StateAdd(state, fieldbundleList=[bundle], _RC)
       else
          call ESMF_StateAdd(state, fieldList=[field], _RC)
