@@ -10,8 +10,11 @@ module mapl3g_GeomAspect
    use mapl3g_ExtendTransform
    use mapl3g_RegridTransform
    use mapl3g_NullTransform
+   use mapl3g_Field_API
+   use mapl3g_FieldBundle_API
    use mapl_ErrorHandling
-   use ESMF, only: ESMF_Geom
+   use ESMF, only: esmf_Geom
+   use ESMF, only: esmf_Field, esmf_FieldBundle, esmf_State
    implicit none
    private
 
@@ -39,6 +42,9 @@ module mapl3g_GeomAspect
       procedure :: set_regridder_param
       procedure :: get_horizontal_dims_spec
       procedure, nopass :: get_aspect_id
+
+      procedure :: update_from_payload
+      procedure :: update_payload
    end type GeomAspect
 
    interface GeomAspect
@@ -251,5 +257,47 @@ contains
       type(AspectId) :: aspect_id
       aspect_id = GEOM_ASPECT_ID
    end function get_aspect_id
+
+   subroutine update_from_payload(this, field, bundle, state, rc)
+      class(GeomAspect), intent(inout) :: this
+      type(esmf_Field), optional, intent(in) :: field
+      type(esmf_FieldBundle), optional, intent(in) :: bundle
+      type(esmf_State), optional, intent(in) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _RETURN_UNLESS(present(field) .or. present(bundle))
+
+      if (present(field)) then
+         call mapl_FieldGet(field, geom=this%geom, _RC)
+      else if (present(bundle)) then
+         call mapl_FieldBundleGet(bundle, geom=this%geom, _RC)
+      end if
+
+      call this%set_mirror(.not. allocated(this%geom))
+
+      _RETURN(_SUCCESS)
+   end subroutine update_from_payload
+
+   subroutine update_payload(this, field, bundle, state, rc)
+      class(GeomAspect), intent(in) :: this
+      type(esmf_Field), optional, intent(inout) :: field
+      type(esmf_FieldBundle), optional, intent(inout) :: bundle
+      type(esmf_State), optional, intent(inout) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _RETURN_UNLESS(present(field) .or. present(bundle))
+
+      if (present(field)) then
+         call mapl_FieldSet(field, geom=this%geom, _RC)
+      else if (present(bundle)) then
+         call mapl_FieldBundleSet(bundle, geom=this%geom, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine update_payload
 
 end module mapl3g_GeomAspect

@@ -164,11 +164,13 @@ module mapl3g_PrimaryExport
       if (this%vcoord%vertical_type == NO_COORD) then
          call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
                  vertical_stagger=VERTICAL_STAGGER_NONE, regridder_param=regridder_param,  _RC)
+         call MAPL_FieldBundleSet(bundle, geom=esmfgeom, _RC)
       else if (this%vcoord%vertical_type == SIMPLE_COORD) then
          vertical_grid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
          call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', &
                  typekind=ESMF_TYPEKIND_R4, vertical_grid=vertical_grid, &
                  vertical_stagger=VERTICAL_STAGGER_CENTER, regridder_param=regridder_param,  _RC)
+         call MAPL_FieldBundleSet(bundle, geom=esmfgeom, _RC)
       else
          _FAIL("unsupported vertical coordinate for item "//trim(this%export_var))
       end if

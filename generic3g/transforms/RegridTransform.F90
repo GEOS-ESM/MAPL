@@ -95,16 +95,22 @@ contains
          type(ESMF_FieldBundle) :: fb
          type(ESMF_Geom) :: geom
 
+         type(ESMF_Geom), allocatable :: geom_
+
          call ESMF_StateGet(state, itemName, itemType=itemType, _RC)
          if (itemType == ESMF_STATEITEM_FIELD) then
             call ESMF_StateGet(state, itemName, field=f, _RC)
-            call MAPL_FieldGet(f, geom=geom, _RC)
+            call MAPL_FieldGet(f, geom=geom_, _RC)
          elseif (itemType == ESMF_STATEITEM_FIELDBUNDLE) then
             call ESMF_StateGet(state, itemName, fieldBundle=fb, _RC)
-            call MAPL_FieldBundleGet(fb, geom=geom, _RC)
+            call MAPL_FieldBundleGet(fb, geom=geom_, _RC)
          else
             _FAIL('unsupported itemType')
          end if
+
+         _ASSERT(allocated(geom_), 'Guard that geom is allocated before we return.')
+
+         geom = geom_
 
          _RETURN(_SUCCESS)
       end function get_geom
@@ -122,7 +128,7 @@ contains
       type(ESMF_Field) :: f_in, f_out
       type(ESMF_FieldBundle) :: fb_in, fb_out
       type(ESMF_StateItem_Flag) :: itemType_in, itemType_out
-      type(ESMF_Geom) :: geom_in, geom_out
+      type(ESMF_Geom), allocatable :: geom_in, geom_out
       logical :: do_transform
       type(FieldBundleType_Flag) :: field_bundle_type
 
@@ -134,6 +140,7 @@ contains
       if (itemType_in == MAPL_STATEITEM_FIELD) then
          call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=f_in, _RC)
          call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=f_out, _RC)
+         allocate(geom_in, geom_out)
          call ESMF_FieldGet(f_in, geom=geom_in, _RC)
          call ESMF_FieldGet(f_out, geom=geom_out, _RC)
          call this%update_transform(geom_in, geom_out)
@@ -143,6 +150,9 @@ contains
          call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, fieldBundle=fb_out, _RC)
          call MAPL_FieldBundleGet(fb_in, geom=geom_in, _RC)
          call MAPL_FieldBundleGet(fb_out, geom=geom_out, _RC)
+         _ASSERT(allocated(geom_in), 'should be allocated by here')
+         _ASSERT(allocated(geom_out), 'should be allocated by here')
+
          call this%update_transform(geom_in, geom_out)
          do_transform = .true.
          call MAPL_FieldBundleGet(fb_in, fieldBundleType= field_bundle_type, _RC)
