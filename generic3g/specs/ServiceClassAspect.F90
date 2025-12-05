@@ -15,6 +15,7 @@ module mapl3g_ServiceClassAspect
    use mapl3g_StateItemExtension
    use mapl3g_NullTransform
    use mapl3g_ESMF_Utilities, only: get_substate
+   use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use gftl2_StringVector
    use esmf
@@ -48,6 +49,8 @@ module mapl3g_ServiceClassAspect
       procedure :: destroy
       procedure :: add_to_state
       procedure :: connect_to_import
+
+      procedure :: get_payload
    end type ServiceClassAspect
 
    interface ServiceClassAspect
@@ -90,8 +93,9 @@ contains
    end function supports_conversion_specific
 
 
-   subroutine create(this, handle, rc)
+   subroutine create(this, other_aspects, handle, rc)
       class(ServiceClassAspect), intent(inout) :: this
+      type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(in) :: handle(:) ! not used here
       integer, optional, intent(out) :: rc
 
@@ -288,5 +292,15 @@ contains
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
  
+   subroutine get_payload(this, unusable, field, bundle, state, rc)
+      class(ServiceClassAspect), intent(in) :: this
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      type(esmf_Field), optional, allocatable, intent(out) :: field
+      type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
+      type(esmf_State), optional, allocatable, intent(out) :: state
+      integer, optional, intent(out) :: rc
+
+      _RETURN(_SUCCESS)
+   end subroutine get_payload
  
 end module mapl3g_ServiceClassAspect

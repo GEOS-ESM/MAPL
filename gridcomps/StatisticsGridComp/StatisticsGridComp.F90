@@ -144,7 +144,7 @@ contains
          type(StateItemAllocation) :: allocation_status
          type(esmf_HConfig) :: hconfig
 
-         type(esmf_Geom) :: geom
+         type(esmf_Geom), allocatable :: geom
          character(:), allocatable :: units
          character(:), allocatable :: standard_name, long_name
          type(esmf_TypeKind_Flag) :: typekind

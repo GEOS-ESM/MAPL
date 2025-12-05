@@ -39,7 +39,7 @@ contains
    subroutine test_allocate()
       type(VariableSpec) :: var_spec
       type(StateItemSpec), target :: state_item_spec
-      type(ESMF_FieldBundle) :: field_bundle
+      type(ESMF_FieldBundle), allocatable :: field_bundle
 
       integer :: status
       integer :: fieldCount
@@ -64,7 +64,7 @@ contains
 
       aspects => state_item_spec%get_aspects()
       bracket_aspect = to_VectorBracketClassAspect(aspects, _RC)
-      field_bundle = bracket_aspect%get_payload()
+      call bracket_aspect%get_payload(bundle=field_bundle, _RC)
 
       call ESMF_FieldBundleValidate(field_bundle, _RC)
       call ESMF_FieldBundleGet(field_bundle, fieldCount=fieldCount, _RC)

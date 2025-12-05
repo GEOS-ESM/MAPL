@@ -28,6 +28,8 @@ module mapl3g_ClassAspect
 
       procedure(I_add_to_state), deferred :: add_to_state
       procedure, nopass :: get_aspect_id
+
+      procedure(I_get_payload), deferred :: get_payload
    end type ClassAspect
 
    abstract interface
@@ -42,9 +44,11 @@ module mapl3g_ClassAspect
       end function I_get_aspect_order
 
       ! Will use ESMF so cannot be PURE
-      subroutine I_create(this, handle, rc)
+      subroutine I_create(this, other_aspects, handle, rc)
+         use mapl3g_StateItemAspect
          import ClassAspect
          class(ClassAspect), intent(inout) :: this
+         type(AspectMap), intent(in) :: other_aspects
          integer, optional, intent(in) :: handle(:)
          integer, optional, intent(out) :: rc
       end subroutine I_create
@@ -79,6 +83,18 @@ module mapl3g_ClassAspect
          type(ActualConnectionPt), intent(in) :: actual_pt
          integer, optional, intent(out) :: rc
       end subroutine I_add_to_state
+
+      subroutine I_get_payload(this, unusable, field, bundle, state, rc)
+         use mapl_KeywordEnforcer
+         use esmf
+         import ClassAspect
+         class(ClassAspect), intent(in) :: this
+         class(KeywordEnforcer), optional, intent(out) :: unusable
+         type(esmf_Field), optional, allocatable, intent(out) :: field
+         type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
+         type(esmf_State), optional, allocatable, intent(out) :: state
+         integer, optional, intent(out) :: rc
+      end subroutine I_get_payload
 
    end interface
 

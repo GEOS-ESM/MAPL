@@ -30,6 +30,7 @@ module mapl3g_BracketClassAspect
    use mapl_FieldUtilities
 
    use mapl_ErrorHandling
+   use mapl_KeywordEnforcer
    use esmf
    implicit none(type,external)
    private
@@ -120,10 +121,11 @@ contains
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
 
-   subroutine create(this, handle, rc)
+   subroutine create(this, other_aspects, handle, rc)
       class(BracketClassAspect), intent(inout) :: this
+      type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(in) :: handle(:) 
-     integer, optional, intent(out) :: rc
+      integer, optional, intent(out) :: rc
 
      integer :: status
      type(ESMF_Info) :: info
@@ -162,7 +164,7 @@ contains
         
         do i = 1, n
            tmp = this%field_aspect
-           call tmp%create(_RC)
+           call tmp%create(other_aspects, _RC)
            call tmp%allocate(other_aspects, _RC)
            call tmp%add_to_bundle(this%payload, _RC)
         end do
@@ -325,10 +327,18 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_state
 
-   function get_payload(this) result(payload)
+   subroutine get_payload(this, unusable, field, bundle, state, rc)
       class(BracketClassAspect), intent(in) :: this
-      type(ESMF_FieldBundle) :: payload
-      payload = this%payload
-   end function get_payload
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      type(esmf_Field), optional, allocatable, intent(out) :: field
+      type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
+      type(esmf_State), optional, allocatable, intent(out) :: state
+      integer, optional, intent(out) :: rc
+
+      bundle = this%payload
+
+      _RETURN(_SUCCESS)
+
+   end subroutine get_payload
 
 end module mapl3g_BracketClassAspect
