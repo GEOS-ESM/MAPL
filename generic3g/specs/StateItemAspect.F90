@@ -42,7 +42,7 @@ module mapl3g_StateItemAspect
    use iso_fortran_env, only: INT64
    use mapl3g_AspectId
    use mapl_ErrorHandling
-   use esmf
+   use esmf, only: esmf_Field, esmf_FieldBundle, esmf_State
 
 #define Key AspectId
 #define Key_LT(a,b) (a) < (b)
