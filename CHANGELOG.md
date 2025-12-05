@@ -84,6 +84,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Change `.rc` to `.acg` in user guide and acg tutorial
 - Refactor ACG to produce MAPL3 procedures
 - Pulled destroy_bundle and destroy_fields from MAPL_StateDestroy into MAPL_FieldBundleDestroy and FieldsDestroy
+- Added checks for bundle type in ExtensionTransform subtypes
 
 ### Fixed
 

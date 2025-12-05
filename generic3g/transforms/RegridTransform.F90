@@ -8,6 +8,7 @@ module mapl3g_RegridTransform
    use mapl3g_TransformId
    use mapl3g_regridder_mgr
    use mapl3g_StateItem
+   use mapl3g_ExtensionTransformUtils, only: bundle_types_valid
    use mapl_ErrorHandling
    use esmf
 
@@ -141,6 +142,7 @@ contains
       else ! bundle case
          call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, fieldBundle=fb_in, _RC)
          call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, fieldBundle=fb_out, _RC)
+         call bundle_types_valid(fb_in, fb_out, _RC)
          call MAPL_FieldBundleGet(fb_in, geom=geom_in, _RC)
          call MAPL_FieldBundleGet(fb_out, geom=geom_out, _RC)
          call this%update_transform(geom_in, geom_out)
