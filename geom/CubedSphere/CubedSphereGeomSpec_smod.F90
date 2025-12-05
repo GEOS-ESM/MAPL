@@ -1,6 +1,7 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_CubedSphereGeomSpec) CubedSphereGeomSpec_smod
+
    use mapl3g_CoordinateAxis
    use mapl3g_GeomSpec
    use pfio
@@ -10,11 +11,11 @@ submodule (mapl3g_CubedSphereGeomSpec) CubedSphereGeomSpec_smod
    use mapl_Constants
    use esmf
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
+
    implicit none
    real(ESMF_Kind_R8) :: undef_schmidt = 1d15
-   
-contains
 
+contains
 
    ! Basic constructor for CubedSphereGeomSpec
    module function new_CubedSphereGeomSpec(im_world, schmidt_parameters, decomposition) result(spec)
@@ -22,15 +23,14 @@ contains
       integer, intent(in) :: im_world
       type(ESMF_CubedSphereTransform_Args), intent(in) :: schmidt_parameters
       type(CubedSphereDecomposition), intent(in) :: decomposition
-      
+
       spec%im_world = im_world
       spec%schmidt_parameters = schmidt_parameters
       spec%decomposition = decomposition
-      
    end function new_CubedSphereGeomSpec
 
-
    pure logical module function equal_to(a, b)
+
       class(CubedSphereGeomSpec), intent(in) :: a
       class(GeomSpec), intent(in) :: b
 
@@ -45,18 +45,19 @@ contains
          equal_to = .false.
       end select
 
-      contains
+   contains
+
       pure logical function equal_schmidt(a,b)
          type(ESMF_CubedSphereTransform_Args), intent(in) :: a
          type(ESMF_CubedSphereTransform_Args), intent(in) :: b
 
-         equal_schmidt = (a%target_lat /= b%target_lat) .and. &
-                        (a%target_lon /= b%target_lon) .and. &
-                        (a%stretch_factor /= b%stretch_factor)
+         equal_schmidt = &
+              (a%target_lat /= b%target_lat) .and. &
+              (a%target_lon /= b%target_lon) .and. &
+              (a%stretch_factor /= b%stretch_factor)
       end function equal_schmidt
 
    end function equal_to
-
 
    ! HConfig section
    module function make_CubedSphereGeomSpec_from_hconfig(hconfig, rc) result(spec)
@@ -68,7 +69,7 @@ contains
       logical :: found
 
       spec%im_world = ESMF_HConfigAsI4(hconfig, keyString='im_world', asOkay=found, _RC)
-      _ASSERT(found, '"im_world" not found.') 
+      _ASSERT(found, '"im_world" not found.')
       spec%decomposition = make_Decomposition(hconfig, cube_size=spec%im_world, _RC)
       spec%schmidt_parameters = make_SchmidtParameters_from_hconfig(hconfig, _RC)
 
@@ -82,11 +83,11 @@ contains
 
       integer :: status, ifound
       logical :: has_tlon, has_tlat, has_sfac, consistent
-  
-      schmidt_parameters%stretch_factor = undef_schmidt 
-      schmidt_parameters%target_lon= undef_schmidt 
-      schmidt_parameters%target_lat= undef_schmidt 
-      ifound = 0 
+
+      schmidt_parameters%stretch_factor = undef_schmidt
+      schmidt_parameters%target_lon= undef_schmidt
+      schmidt_parameters%target_lat= undef_schmidt
+      ifound = 0
       has_sfac = ESMF_HConfigIsDefined(hconfig, keystring='stretch_factor', _RC)
       if (has_sfac) then
          schmidt_parameters%stretch_factor = ESMF_HConfigAsR8(hconfig, keystring='stretch_factor' ,_RC)
@@ -106,8 +107,8 @@ contains
       end if
       consistent = (ifound .eq. 3) .or. (ifound .eq. 0)
       _ASSERT(consistent, "specfied partial stretch parameters")
-      _RETURN(_SUCCESS)
 
+      _RETURN(_SUCCESS)
    end function make_SchmidtParameters_from_hconfig
 
    function make_decomposition(hconfig, cube_size, rc) result(decomp)
@@ -115,9 +116,9 @@ contains
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, intent(in) :: cube_size
       integer, optional, intent(out) :: rc
+
       integer, allocatable :: ims(:), jms(:)
       integer :: nx_face, ny_face
-
       integer :: status
       logical :: has_ims, has_jms, has_nx_face, has_ny_face
 
@@ -145,7 +146,7 @@ contains
 
       ! Invent a decomposition
       decomp = make_CubedSphereDecomposition([cube_size,cube_size], _RC)
-      
+
       _RETURN(_SUCCESS)
    end function make_decomposition
 
@@ -156,13 +157,13 @@ contains
 
       integer :: status, im_world
       type(ESMF_CubedSphereTransform_Args) :: schmidt_parameters
-      type(CubedSphereDecomposition) :: decomposition 
+      type(CubedSphereDecomposition) :: decomposition
 
       im_world = file_metadata%get_dimension("Xdim", _RC)
       decomposition = make_CubedSphereDecomposition([im_world,im_world], _RC)
       schmidt_parameters = make_SchmidtParameters_from_metadata(file_metadata, _RC)
       spec = CubedSphereGeomSpec(im_world, schmidt_parameters, decomposition)
-      
+
       _RETURN(_SUCCESS)
    end function make_CubedSphereGeomSpec_from_metadata
 
@@ -173,11 +174,11 @@ contains
 
       integer :: status, ifound
       logical :: has_tlon, has_tlat, has_sfac, consistent
-  
-      schmidt_parameters%stretch_factor = undef_schmidt 
-      schmidt_parameters%target_lon= undef_schmidt 
-      schmidt_parameters%target_lat= undef_schmidt 
-      ifound = 0 
+
+      schmidt_parameters%stretch_factor = undef_schmidt
+      schmidt_parameters%target_lon= undef_schmidt
+      schmidt_parameters%target_lat= undef_schmidt
+      ifound = 0
       has_sfac = file_metadata%has_attribute('stretch_factor')
       if (has_sfac) then
          schmidt_parameters%stretch_factor = return_r8(file_metadata, 'stretch_factor', _RC)
@@ -198,8 +199,8 @@ contains
 
       consistent = (ifound .eq. 3) .or. (ifound .eq. 0)
       _ASSERT(consistent, "specfied partial stretch parameters")
-      _RETURN(_SUCCESS)
 
+      _RETURN(_SUCCESS)
    end function make_SchmidtParameters_from_metadata
 
    function return_r8(file_metadata, attr_name, rc) result(param)
@@ -207,7 +208,7 @@ contains
       type(FileMetadata), intent(in) :: file_metadata
       character(len=*), intent(in) :: attr_name
       integer, optional, intent(out) :: rc
- 
+
       integer :: status
       class(*), pointer :: attr_val(:)
       type(Attribute), pointer :: attr
@@ -222,9 +223,9 @@ contains
       class default
          _FAIL('unsupported subclass for stretch parameters')
       end select
+
       _RETURN(_SUCCESS)
    end function return_r8
-      
 
    ! Accessors
    pure module function get_decomposition(spec) result(decomposition)
@@ -233,6 +234,19 @@ contains
 
       decomposition = spec%decomposition
    end function get_decomposition
+
+   pure module function get_topology(spec) result(topology)
+      class(CubedSphereGeomSpec), intent(in) :: spec
+      integer, allocatable :: topology(:)
+
+      ! type(CubedSphereDecomposition) :: decomposition
+      integer :: nx_face, ny_face
+
+      ! decomposition = spec%decomposition
+      nx_face = size(spec%decomposition%get_x_distribution())
+      ny_face = size(spec%decomposition%get_y_distribution())
+      topology = [nx_face, ny_face]
+   end function get_topology
 
    pure module function get_im_world(spec) result(im_world)
       integer :: im_world
@@ -263,7 +277,7 @@ contains
       geom_class = ESMF_HConfigAsString(hconfig, keyString='class', _RC)
       supports = (geom_class == 'CubedSphere')
       _RETURN_UNLESS(supports)
-      
+
       _RETURN(_SUCCESS)
    end function supports_hconfig_
 

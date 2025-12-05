@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_GeomManager
+
    use mapl3g_GeomSpec
    use mapl3g_NullGeomSpec
    use mapl3g_MaplGeom
@@ -12,15 +13,16 @@ module mapl3g_GeomManager
    use pfio_FileMetadataMod
    use esmf
    use gftl2_IntegerVector
+
    implicit none
    private
 
    public :: GeomManager
    public :: geom_manager ! singleton
    public :: get_geom_manager
+   public :: get_mapl_geom
 
    type GeomManager
-!#      private
       type(GeomFactoryVector) :: factories
 
       ! A GeomSpecId map would be more elegant here, but imposing an ordering
@@ -105,7 +107,6 @@ module mapl3g_GeomManager
          integer, optional, intent(out) :: rc
       end subroutine delete_mapl_geom
 
-
       module function get_mapl_geom_from_hconfig(this, hconfig, rc) result(mapl_geom)
          type(MaplGeom), pointer :: mapl_geom
          class(GeomManager), target, intent(inout) :: this
@@ -127,14 +128,12 @@ module mapl3g_GeomManager
          integer, optional, intent(out) :: rc
       end function get_mapl_geom_from_id
 
-
       module function get_mapl_geom_from_spec(this, geom_spec, rc) result(mapl_geom)
          type(MaplGeom), pointer :: mapl_geom
          class(GeomManager), target, intent(inout) :: this
          class(GeomSpec), intent(in) :: geom_spec
          integer, optional, intent(out) :: rc
       end function get_mapl_geom_from_spec
-
 
       ! Add a new mapl_geom given a geom_spec.
       ! This also labels the geom with a unique id using ESMF_Info.
@@ -144,7 +143,6 @@ module mapl3g_GeomManager
          class(GeomSpec), intent(in) :: geom_spec
          integer, optional, intent(out) :: rc
       end function add_mapl_geom
-
 
       module function make_geom_spec_from_metadata(this, file_metadata, rc) result(geom_spec)
          class(GeomSpec), allocatable :: geom_spec
@@ -159,7 +157,6 @@ module mapl3g_GeomManager
          type(ESMF_HConfig), intent(inout) :: hconfig
          integer, optional, intent(out) :: rc
       end function make_geom_spec_from_hconfig
-
 
       module function make_mapl_geom_from_spec(this, spec, rc) result(mapl_geom)
          use gftl2_StringVector
@@ -180,6 +177,12 @@ module mapl3g_GeomManager
       module function get_geom_manager() result(geom_mgr)
          type(GeomManager), pointer :: geom_mgr
       end function get_geom_manager
+
+      module function get_mapl_geom(geom, rc) result(mapl_geom)
+         type(ESMF_Geom), intent(in) :: geom
+         integer, optional, intent(out) :: rc
+         type(MaplGeom), pointer :: mapl_geom
+      end function get_mapl_geom
 
       module function find_factory(factories, predicate, rc) result(factory)
          class(GeomFactory), pointer :: factory
