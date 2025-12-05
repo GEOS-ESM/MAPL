@@ -22,7 +22,6 @@ module mapl3g_SharedIO
 
    public add_variables
    public add_variable
-   public get_mapl_geom
    public create_time_variable
    public bundle_to_metadata
    public esmf_to_pfio_type
@@ -184,21 +183,6 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_variable_dim_names
-
-   function get_mapl_geom(geom, rc) result(mapl_geom)
-      type(MAPLGeom), pointer :: mapl_geom
-      type(ESMF_Geom), intent(in) :: geom
-      integer, optional, intent(out) :: rc
-
-      integer :: status, id
-      type(GeomManager), pointer :: geom_mgr
-
-      geom_mgr => get_geom_manager()
-      id = MAPL_GeomGetId(geom, _RC)
-      mapl_geom => geom_mgr%get_mapl_geom_from_id(id, _RC)
-      _RETURN(_SUCCESS)
-
-   end function get_mapl_geom
 
    function esmf_to_pfio_type(esmf_type, rc) result(pfio_type)
       integer :: pfio_type

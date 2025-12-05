@@ -1,0 +1,45 @@
+#define I_AM_PFUNIT
+#include "MAPL_ErrLog.h"
+
+module Test_GeomGet
+
+   use pfunit
+   use mapl3g_Geom_API, only: GeomSpec, GeomManager, get_geom_manager, MaplGeom, MAPL_GeomGet
+   use esmf
+
+   implicit none
+
+contains
+
+   @test(npes=[6])
+   subroutine test_geom_get(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: hconfig
+      type(GeomManager), pointer :: geom_mgr
+      class(GeomSpec), allocatable :: geom_spec
+
+      type(MaplGeom), pointer :: mapl_geom
+      type(ESMF_Geom), allocatable :: geom
+      integer, allocatable :: topology(:)
+      integer :: im, jm, status
+
+      hconfig = ESMF_HConfigCreate(content="{class: CubedSphere, im_world: 48, nx_face: 1, ny_face: 1}", rc=status)
+      @assert_that(status, is(0))
+
+      geom_mgr => get_geom_manager()
+      mapl_geom => geom_mgr%get_mapl_geom(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      geom = mapl_geom%get_geom()
+      call MAPL_GeomGet(geom, topology, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(size(topology), is(2))
+      @assert_that(topology(1), is(1))
+      @assert_that(topology(2), is(1))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+   end subroutine test_geom_get
+
+end module Test_GeomGet
