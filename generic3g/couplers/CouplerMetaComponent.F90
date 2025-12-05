@@ -104,15 +104,16 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_Geom) :: geom_in, geom_out
+      type(ESMF_Geom), allocatable :: geom_in, geom_out
 
       call this%initialize_sources(_RC)
 
       if (all(this%transform%get_transformId() /= [EXTEND_TRANSFORM_ID, EVAL_TRANSFORM_ID])) then
          call copy_shared_attributes()
-            
-         geom_in = get_geom(importState, IMPORT_NAME, _RC)
-         geom_out = get_geom(exportState, EXPORT_NAME, _RC)
+
+         call get_geom(importState, IMPORT_NAME, geom_in, _RC)
+         call get_geom(exportState, EXPORT_NAME, geom_out, _RC)
+
          if (this%transform%get_transformId() /= GEOM_TRANSFORM_ID) then
 !#         _ASSERT(geom_in == geom_out, 'mismatched geom in non regrid coupler')
             this%time_varying%geom = geom_in
@@ -290,13 +291,13 @@ contains
          integer :: status
          type(ESMF_FieldBundle) :: fb_in
          type(ESMF_Field) :: f_out
-         type(ESMF_Geom) :: geom_in, geom_out
+         type(ESMF_Geom), allocatable :: geom_in, geom_out
 
          call ESMF_StateGet(importState, itemName=IMPORT_NAME, fieldBundle=fb_in, _RC)
          call ESMF_StateGet(exportState, itemName=EXPORT_NAME, field=f_out, _RC)
 
-         geom_in = get_geom(importState, IMPORT_NAME, _RC)
-         geom_out = get_geom(exportState, EXPORT_NAME, _RC)
+         call get_geom(importState, IMPORT_NAME, geom_in, _RC)
+         call get_geom(exportState, EXPORT_NAME, geom_out, _RC)
 
          if (this%transform%get_transformId() /= GEOM_TRANSFORM_ID) then ! only one side can vary
             if (geom_in /= this%time_varying%geom) then
@@ -324,13 +325,13 @@ contains
 
          integer :: status
          type(ESMF_Field) :: f_in, f_out
-         type(ESMF_Geom) :: geom_in, geom_out
+         type(ESMF_Geom), allocatable :: geom_in, geom_out
 
          call ESMF_StateGet(importState, itemName=IMPORT_NAME, field=f_in, _RC)
          call ESMF_StateGet(exportState, itemName=EXPORT_NAME, field=f_out, _RC)
 
-         geom_in = get_geom(importState, IMPORT_NAME, _RC)
-         geom_out = get_geom(exportState, EXPORT_NAME, _RC)
+         call get_geom(importState, IMPORT_NAME, geom_in, _RC)
+         call get_geom(exportState, EXPORT_NAME, geom_out, _RC)
 
          if (this%transform%get_transformId() /= GEOM_TRANSFORM_ID) then ! only one side can vary
             if (geom_in /= this%time_varying%geom) then
@@ -529,10 +530,10 @@ contains
       is_stale = this%stale
    end function is_stale
 
-   function get_geom(state, itemName, rc) result(geom)
-      type(ESMF_Geom), allocatable :: geom
+   subroutine get_geom(state, itemName, geom, rc)
       type(ESMF_State), intent(inout) :: state
       character(*), intent(in) :: itemName
+      type(ESMF_Geom), allocatable, intent(out) :: geom
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -554,7 +555,7 @@ contains
       _ASSERT(allocated(geom), 'geom should be allocated by this point')
 
       _RETURN(_SUCCESS)
-   end function get_geom
+   end subroutine get_geom
 
       subroutine get_info(state, itemName, info, rc)
          type(ESMF_State), intent(inout) :: state

@@ -98,7 +98,7 @@ contains
       end if
 
       if (present(has_geom)) then
-         call ESMF_InfoGet(info, key=namespace_//KEY_HAS_GEOM, value=has_geom, _RC)
+         call ESMF_InfoGet(info, key=namespace_//KEY_HAS_GEOM, value=has_geom, default=.false., _RC)
       end if
 
       ! Field-prototype items that come from field-info
@@ -132,7 +132,6 @@ contains
 
    subroutine fieldbundle_set_internal(info, unusable, &
         namespace, &
-        geom, &
         fieldBundleType, typekind, interpolation_weights, &
         ungridded_dims, &
         num_levels, vert_staggerloc, &
@@ -140,12 +139,12 @@ contains
         allocation_status, &
         spec_handle, &
         bracket_updated, &
+        has_geom, &
         rc)
 
       type(ESMF_Info), intent(inout) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: namespace
-      type(ESMF_Geom), optional, intent(in) :: geom
       type(FieldBundleType_Flag), optional, intent(in) :: fieldBundleType
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       real(ESMF_KIND_R4), optional, intent(in) :: interpolation_weights(:)
@@ -158,6 +157,7 @@ contains
       type(StateItemAllocation), optional, intent(in) :: allocation_status
       integer, optional, intent(in) :: spec_handle(:)
       logical, optional, intent(in) :: bracket_updated
+      logical, optional, intent(in) :: has_geom
       integer, optional, intent(out) :: rc
       
       integer :: status
@@ -190,6 +190,10 @@ contains
 
       if (present(bracket_updated)) then
          call ESMF_InfoSet(info, key=namespace_ // KEY_BRACKET_UPDATED, value=bracket_updated, _RC)
+      end if
+
+      if (present(has_geom)) then
+         call ESMF_InfoSet(info, key=namespace_ // KEY_HAS_GEOM, value=has_geom, _RC)
       end if
 
        call FieldInfoSetInternal(info, namespace=namespace_ // KEY_FIELD_PROTOTYPE, &

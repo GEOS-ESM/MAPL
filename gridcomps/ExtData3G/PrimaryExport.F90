@@ -169,6 +169,7 @@ module mapl3g_PrimaryExport
          call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', &
                  typekind=ESMF_TYPEKIND_R4, vertical_grid=vertical_grid, &
                  vertical_stagger=VERTICAL_STAGGER_CENTER, regridder_param=regridder_param,  _RC)
+         call MAPL_FieldBundleSet(bundle, geom=esmfgeom, _RC)
       else
          _FAIL("unsupported vertical coordinate for item "//trim(this%export_var))
       end if

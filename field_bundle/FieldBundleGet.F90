@@ -37,7 +37,6 @@ contains
         units, standard_name, long_name, &
         allocation_status, &
         bracket_updated, &
-        has_geom, &
         rc)
 
       type(ESMF_FieldBundle), intent(in) :: fieldBundle
@@ -57,12 +56,12 @@ contains
       character(:), optional, allocatable, intent(out) :: long_name
       type(StateItemAllocation), optional, intent(out) :: allocation_status
       logical, optional, intent(out) :: bracket_updated
-      logical, optional, intent(out) :: has_geom
       integer, optional, intent(out) :: rc
 
       integer :: status
       integer :: fieldCount_
       type(ESMF_Info) :: bundle_info
+      logical :: has_geom
 
       if (present(fieldCount) .or. present(fieldList)) then
          call ESMF_FieldBundleGet(fieldBundle, fieldCount=fieldCount_, _RC)
@@ -89,11 +88,10 @@ contains
            has_geom=has_geom, &
            _RC)
 
-      if (present(geom)) then
+      if (present(geom) .and. has_geom) then
          allocate(geom)
          call get_geom(fieldBundle, geom, rc)
       end if
-
 
       _RETURN(_SUCCESS)
 

@@ -37,7 +37,6 @@ contains
         units, standard_name, long_name, &
         allocation_status, &
         bracket_updated, &
-        has_geom, &
         rc)
 
       type(ESMF_FieldBundle), intent(inout) :: fieldBundle
@@ -54,7 +53,6 @@ contains
       character(*), optional, intent(in) :: long_name
       type(StateItemAllocation), optional, intent(in) :: allocation_status
       logical, optional, intent(in) :: bracket_updated
-      logical, optional, intent(in) :: has_geom
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -63,6 +61,7 @@ contains
       type(ESMF_Grid) :: grid
       integer :: i
       type(ESMF_Field), allocatable :: fieldList(:)
+      logical, allocatable :: has_geom
 
       if (present(geom)) then
          ! ToDo - update when ESMF makes this interface public.
@@ -82,6 +81,13 @@ contains
          end if
 
       end if
+      
+      ! Note it is important that the next line ALLOCATEs has_geom we
+      ! don't want to set it either way in info if geom is not
+      ! present.
+      if (present(geom)) then
+         has_geom = .true.
+      end if
 
       ! Some things are treated as field info:
       call ESMF_InfoGetFromHost(fieldBundle, bundle_info, _RC)
@@ -93,6 +99,7 @@ contains
            units=units, standard_name=standard_name, long_name=long_name, &
            allocation_status=allocation_status, &
            bracket_updated=bracket_updated, &
+           has_geom=has_geom, &
            _RC)
 
       _RETURN(_SUCCESS)
