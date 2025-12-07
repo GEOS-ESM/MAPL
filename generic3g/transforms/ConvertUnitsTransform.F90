@@ -5,12 +5,14 @@ module mapl3g_ConvertUnitsTransform
    use mapl3g_TransformId
    use mapl3g_StateItem
    use mapl3g_ExtensionTransform
+   use mapl3g_ExtensionTransformUtils, only: bundle_types_valid
    use udunits2f, only: UDUNITS_Converter => Converter
    use udunits2f, only: UDUNITS_GetConverter => get_converter
    use udunits2f, only: UDUNITS_Initialize => Initialize
    use MAPL_FieldUtils
    use mapl_ErrorHandling
    use esmf
+
    implicit none
    private
 
@@ -19,7 +21,6 @@ module mapl3g_ConvertUnitsTransform
    type, extends(ExtensionTransform) :: ConvertUnitsTransform
       private
       type(UDUNITS_converter) :: converter
-      type(ESMF_Field) :: f_in, f_out
       character(:), allocatable :: src_units, dst_units
    contains
       procedure :: initialize
@@ -33,7 +34,6 @@ module mapl3g_ConvertUnitsTransform
    end interface ConvertUnitsTransform
 
 contains
-
 
    function new_converter(src_units, dst_units) result(transform)
       type(ConvertUnitsTransform) :: transform
@@ -136,17 +136,19 @@ contains
          call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=f_in, _RC)
          call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=f_out, _RC)
          call update_field(f_in, f_out, this%converter, _RC)
-      elseif(itemtype_in == MAPL_STATEITEM_FIELDBUNDLE) then
+      elseif(itemType_in == MAPL_STATEITEM_FIELDBUNDLE) then
          call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, fieldBundle=fb_in, _RC)
          call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, fieldBundle=fb_out, _RC)
+         call bundle_types_valid(fb_in, fb_out, _RC)
          call update_field_bundle(fb_in, fb_out, this%converter, _RC)
       else
          _FAIL("Unsupported state item type")
       end if
 
       _UNUSED_DUMMY(clock)
+
    end subroutine update
-   
+
    function get_transformId(this) result(id)
       type(TransformId) :: id
       class(ConvertUnitsTransform), intent(in) :: this

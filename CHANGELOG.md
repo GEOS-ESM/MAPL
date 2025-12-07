@@ -84,6 +84,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Change `.rc` to `.acg` in user guide and acg tutorial
 - Refactor ACG to produce MAPL3 procedures
 - Pulled destroy_bundle and destroy_fields from MAPL_StateDestroy into MAPL_FieldBundleDestroy and FieldsDestroy
+- Added checks for bundle type in ExtensionTransform subtypes
 
 ### Fixed
 
@@ -111,6 +112,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.64.0] - 2025-12-05
+
+### Added
+
+- Added `pfaf_index` to `MAPL_Locstream`
+- Added a simple MAPL_LocstreamCreate
+
+### Changed
+
+- Enforced presence of `grid` when reading binary tile file
 
 ## [2.63.1] - 2025-11-25
 

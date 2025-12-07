@@ -119,7 +119,7 @@ contains
       type(StateItemExtension), pointer :: primary
       type(StateItemSpec), pointer :: spec
       class(StateItemAspect), pointer :: class_aspect
-      type(esmf_Field) :: field
+      type(esmf_Field), allocatable :: field
       integer :: i, n
       integer :: status
 
@@ -141,7 +141,7 @@ contains
       class_aspect => spec%get_aspect(CLASS_ASPECT_ID, _RC)
       select type (class_aspect)
       type is (FieldClassAspect)
-         field = class_aspect%get_payload()
+         call class_aspect%get_payload(field=field, _RC)
          call mapl_FieldGet(field, units=units, _RC)
       class default
          _FAIL("unsupported aspect type; must be FieldClassAspect")
@@ -194,6 +194,7 @@ contains
       type(StateItemSpec), target :: goal_spec
       type(AspectMap), pointer :: aspects
       class(StateItemAspect), pointer :: class_aspect
+      type(esmf_Field), allocatable :: field_
 
       n = this%spec%physical_dimensions%size()
       do i = 1, n
@@ -222,7 +223,9 @@ contains
       class_aspect => new_spec%get_aspect(CLASS_ASPECT_ID, _RC)
       select type (class_aspect)
       type is (FieldClassAspect)
-         field = class_aspect%get_payload()
+         call class_aspect%get_payload(field=field_, _RC)
+         _ASSERT(allocated(field_), 'expected payload to have a field')
+         field = field_
       class default
          _FAIL("unsupported aspect type; must be FieldClassAspect")
       end select

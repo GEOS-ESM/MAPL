@@ -139,7 +139,8 @@ contains
       integer :: status
       type(ESMF_Field) :: f, f_alias, bracket(2)
       type(ESMF_FieldBundle) :: fb, fb_alias
-      type(ESMF_Geom) ::  geom_1, geom_2, geom
+      type(ESMF_Geom) ::  geom_1, geom_2
+      type(ESMF_Geom), allocatable :: geom
       type(ESMF_Grid) :: grid, grid_2
       class(ExtensionTransform), allocatable :: transform
       type(ESMF_GridComp) :: coupler
@@ -157,6 +158,7 @@ contains
 
       ! Check geom on f
       call MAPL_FieldGet(f, geom=geom, _RC)
+      @assert_that(allocated(geom), is(true()))
       call ESMF_GeomGet(geom_2, grid=grid_2, _RC)
       call ESMF_GeomGet(geom, grid=grid, _RC)
 

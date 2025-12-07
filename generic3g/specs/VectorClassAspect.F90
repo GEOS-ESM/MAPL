@@ -28,6 +28,7 @@ module mapl3g_VectorClassAspect
    use mapl3g_FieldCreate
    use mapl_FieldUtilities
 
+   use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use gftl2_StringVector
    use esmf
@@ -113,8 +114,9 @@ contains
       end select
    end function matches
 
-   subroutine create(this, handle, rc)
+   subroutine create(this, other_aspects, handle, rc)
       class(VectorClassAspect), intent(inout) :: this
+      type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(in) :: handle(:)
       integer, optional, intent(out) :: rc
 
@@ -153,7 +155,7 @@ contains
       type(FieldClassAspect) :: tmp
 
       do i = 1, NUM_COMPONENTS
-         call this%component_specs(i)%create(_RC)
+         call this%component_specs(i)%create(other_aspects, _RC)
          call this%component_specs(i)%allocate(other_aspects, _RC)
          call this%component_specs(i)%add_to_bundle(this%payload, _RC)
       end do
@@ -324,12 +326,19 @@ contains
    end subroutine add_to_state
 
 
-   function get_payload(this) result(field_bundle)
-      type(ESMF_FieldBundle) :: field_bundle
+   subroutine get_payload(this, unusable, field, bundle, state, rc)
       class(VectorClassAspect), intent(in) :: this
-      field_bundle = this%payload
-   end function get_payload
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      type(esmf_Field), optional, allocatable, intent(out) :: field
+      type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
+      type(esmf_State), optional, allocatable, intent(out) :: state
+      integer, optional, intent(out) :: rc
 
+      bundle = this%payload
+
+      _RETURN(_SUCCESS)
+
+   end subroutine get_payload
    
    function get_aspect_id() result(aspect_id)
       type(AspectId) :: aspect_id

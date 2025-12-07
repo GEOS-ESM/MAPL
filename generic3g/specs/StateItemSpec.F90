@@ -174,6 +174,7 @@ contains
       integer :: status
 
       aspect => this%aspects%at(aspect_id, _RC)
+      call aspect%update_from_payload(_RC)
 
       _RETURN(_SUCCESS)
    end function get_aspect_by_id
@@ -256,9 +257,14 @@ contains
       integer :: status
       class(ClassAspect), pointer :: class_aspect
       integer, allocatable :: handle(:)
-
+      type(esmf_Field), allocatable :: field
+      type(esmf_FieldBundle), allocatable :: bundle
+      type(esmf_State), allocatable :: state
+      
       class_aspect => to_ClassAspect(this%aspects, _RC)
-      call class_aspect%create(make_handle(this), _RC)
+      call class_aspect%create(this%aspects, make_handle(this), _RC)
+      call class_aspect%get_payload(field=field, bundle=bundle, state=state, _RC)
+      call update_payload_from_aspects(this, field=field, bundle=bundle, state=state, _RC)
 
       _RETURN(_SUCCESS)
    contains
@@ -272,6 +278,30 @@ contains
          ptr = c_loc(this)
          handle = transfer(ptr, [1])
       end function make_handle
+
+      subroutine update_payload_from_aspects(this, field, bundle, state, rc)
+         class(StateItemSpec), target, intent(in) :: this
+         type(esmf_Field), optional, intent(inout) :: field
+         type(esmf_FieldBundle), optional, intent(inout) :: bundle
+         type(esmf_State), optional, intent(inout) :: state
+         integer, optional, intent(out) :: rc
+
+         ! allocatable to be "not-present" in other calls
+         type(AspectMapIterator) :: iter
+         class(StateItemAspect), pointer :: aspect
+         integer :: status
+
+         associate(e => this%aspects%ftn_end())
+           iter = this%aspects%ftn_begin()
+           do while (iter /= e)
+             call iter%next()
+             aspect => iter%second()
+             call aspect%update_payload(field=field, bundle=bundle, state=state, _RC)
+          end do
+         end associate
+
+         _RETURN(_SUCCESS)
+      end subroutine update_payload_from_aspects
 
    end subroutine create
 

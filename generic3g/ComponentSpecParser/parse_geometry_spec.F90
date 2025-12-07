@@ -113,8 +113,10 @@ contains
       vgrid_manager => get_vertical_grid_manager(_RC)
       vgrid => vgrid_manager%create_grid(vertical_grid_cfg, _RC)
 
-      ! ModelVerticalGrid needs a registry which cannot be derived from a config.
-      ! This should only be used in testing.
+      ! ModelVerticalGrid needs a registry which cannot be derived
+      ! from a config.  Could possibly make registry an argument on
+      ! create_grid() above, and just ignore it for other vertical
+      ! grid subclasses?
       select type(vgrid)
       type is(ModelVerticalGrid)
          call vgrid%set_registry(registry)

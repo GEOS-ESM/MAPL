@@ -29,6 +29,7 @@ module mapl3g_FieldClassAspect
 
    use mapl_FieldUtilities
    use mapl_ErrorHandling
+   use mapl_KeywordEnforcer
    use esmf
    use pflogger
 
@@ -137,17 +138,21 @@ contains
    end function get_aspect_order
 
 
-   subroutine create(this, handle, rc)
+   subroutine create(this, other_aspects, handle, rc)
       class(FieldClassAspect), intent(inout) :: this
+      type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(in) :: handle(:)
       integer, optional, intent(out) :: rc
 
-      integer :: status
       type(ESMF_Info) :: info
+      type(AspectId), allocatable :: ids(:)
+      integer :: i
+      class(StateItemAspect), pointer :: aspect
+      integer :: status
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
       _RETURN_UNLESS(present(handle))
-      
+
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
       call FieldInfoSetInternal(info, spec_handle=handle, _RC)
       call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
@@ -447,11 +452,19 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle
 
-   function get_payload(this) result(field)
-      type(ESMF_Field) :: field
+   subroutine get_payload(this, unusable, field, bundle, state, rc)
       class(FieldClassAspect), intent(in) :: this
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      type(esmf_Field), optional, allocatable, intent(out) :: field
+      type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
+      type(esmf_State), optional, allocatable, intent(out) :: state
+      integer, optional, intent(out) :: rc
+
       field = this%payload
-   end function get_payload
+
+      _RETURN(_SUCCESS)
+
+   end subroutine get_payload
 
    
    function get_aspect_id() result(aspect_id)

@@ -7,8 +7,12 @@ module mapl3g_UnitsAspect
    use mapl3g_ExtensionTransform
    use mapl3g_ConvertUnitsTransform
    use mapl3g_NullTransform
+   use mapl3g_Field_API
+   use mapl3g_FieldBundle_API
+   use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use udunits2f, only: are_convertible
+   use esmf
    implicit none
    private
 
@@ -33,6 +37,9 @@ module mapl3g_UnitsAspect
 
       procedure :: get_units
       procedure :: set_units
+
+      procedure :: update_from_payload
+      procedure :: update_payload
    end type UnitsAspect
 
    interface UnitsAspect
@@ -190,5 +197,47 @@ contains
       _RETURN(_SUCCESS)
    end subroutine set_units
 
+   subroutine update_from_payload(this, field, bundle, state, rc)
+      class(UnitsAspect), intent(inout) :: this
+      type(esmf_Field), optional, intent(in) :: field
+      type(esmf_FieldBundle), optional, intent(in) :: bundle
+      type(esmf_State), optional, intent(in) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _RETURN_UNLESS(present(field) .or. present(bundle))
+
+      if (present(field)) then
+         call mapl_FieldGet(field, units=this%units, _RC)
+      else if (present(bundle)) then
+         call mapl_FieldBundleGet(bundle, units=this%units, _RC)
+      end if
+
+      call this%set_mirror(.not. allocated(this%units))
+
+      _RETURN(_SUCCESS)
+   end subroutine update_from_payload
+
+   subroutine update_payload(this, field, bundle, state, rc)
+      class(UnitsAspect), intent(in) :: this
+      type(esmf_Field), optional, intent(inout) :: field
+      type(esmf_FieldBundle), optional, intent(inout) :: bundle
+      type(esmf_State), optional, intent(inout) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _RETURN_UNLESS(present(field) .or. present(bundle))
+
+      if (present(field)) then
+         call mapl_FieldSet(field, units=this%units, _RC)
+      else if (present(bundle)) then
+         call mapl_FieldBundleSet(bundle, units=this%units, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine update_payload
+ 
 
 end module mapl3g_UnitsAspect

@@ -61,6 +61,7 @@ contains
       type(ESMF_Grid) :: grid
       integer :: i
       type(ESMF_Field), allocatable :: fieldList(:)
+      logical, allocatable :: has_geom
 
       if (present(geom)) then
          ! ToDo - update when ESMF makes this interface public.
@@ -80,6 +81,13 @@ contains
          end if
 
       end if
+      
+      ! Note it is important that the next line ALLOCATEs has_geom we
+      ! don't want to set it either way in info if geom is not
+      ! present.
+      if (present(geom)) then
+         has_geom = .true.
+      end if
 
       ! Some things are treated as field info:
       call ESMF_InfoGetFromHost(fieldBundle, bundle_info, _RC)
@@ -91,6 +99,7 @@ contains
            units=units, standard_name=standard_name, long_name=long_name, &
            allocation_status=allocation_status, &
            bracket_updated=bracket_updated, &
+           has_geom=has_geom, &
            _RC)
 
       _RETURN(_SUCCESS)
@@ -102,7 +111,7 @@ contains
 
       type(ESMF_FieldBundleStatus) :: status_
 
-      status_ = ESMF_FieldBundleStatus(2) ! ESMF_FBSTATUS_EMPTY
+      status_ = ESMF_FieldBundleStatus(2) ! ESMF_FBSTATUS_EMPTY - default
       if (present(status)) status_ = status
       fieldBundle%this%status = status_
       

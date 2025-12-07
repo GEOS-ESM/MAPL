@@ -40,7 +40,8 @@ module mapl3g_ExpressionClassAspect
    use gftl2_StringVector
 
    use mapl_ErrorHandling
-   use esmf
+    use mapl_KeywordEnforcer
+  use esmf
    implicit none(type,external)
    private
 
@@ -74,6 +75,7 @@ module mapl3g_ExpressionClassAspect
       procedure :: add_to_bundle
 
       procedure, nopass :: get_aspect_id
+      procedure :: get_payload
    end type ExpressionClassAspect
 
    interface ExpressionClassAspect
@@ -113,8 +115,9 @@ contains
 
 
    ! No op
-   subroutine create(this, handle, rc)
+   subroutine create(this, other_aspects, handle, rc)
       class(ExpressionClassAspect), intent(inout) :: this
+      type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(in) :: handle(:)
       integer, optional, intent(out) :: rc
 
@@ -242,7 +245,7 @@ contains
       type(AspectMap), pointer :: aspects
       class(StateItemAspect), pointer :: class_aspect
       type(AspectMap), pointer :: goal_aspects
-      type(ESMF_Field) :: field
+      type(ESMF_Field), allocatable :: field
       type(VirtualConnectionPtVector) :: empty
       integer :: n
       type(StringVector) :: expression_variables
@@ -280,7 +283,7 @@ contains
             class_aspect => new_spec%get_aspect(CLASS_ASPECT_ID, _RC)
             select type(class_aspect)
             type is (FieldClassAspect)
-               field = class_aspect%get_payload()
+               call class_aspect%get_payload(field=field, _RC)
                a_pt = ActualConnectionPt(v_pt)
                call class_aspect%add_to_state(multi_state, a_pt, _RC)
             class default
@@ -355,5 +358,15 @@ contains
 !#      end select
    end function matches
 
+   subroutine get_payload(this, unusable, field, bundle, state, rc)
+      class(ExpressionClassAspect), intent(in) :: this
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      type(esmf_Field), optional, allocatable, intent(out) :: field
+      type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
+      type(esmf_State), optional, allocatable, intent(out) :: state
+      integer, optional, intent(out) :: rc
+
+      _RETURN(_SUCCESS)
+   end subroutine get_payload
    
 end module mapl3g_ExpressionClassAspect
