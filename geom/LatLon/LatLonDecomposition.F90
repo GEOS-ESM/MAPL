@@ -1,9 +1,9 @@
 #include "MAPL_ErrLog.h"
 
 module mapl3g_LatLonDecomposition
-   use MAPL_Base
    use mapl3g_LonAxis
    use mapl3g_LatAxis
+   use mapl_Partition
    use mapl_KeywordEnforcer
    use esmf
    implicit none
@@ -98,7 +98,7 @@ module mapl3g_LatLonDecomposition
 
    CONTAINS
 
-   pure function new_LatLonDecomposition_basic(lon_distribution, lat_distribution) result(decomp)
+   function new_LatLonDecomposition_basic(lon_distribution, lat_distribution) result(decomp)
       use mapl_KeywordEnforcer
       type(LatLonDecomposition) :: decomp
       integer, intent(in) :: lon_distribution(:)
@@ -109,7 +109,7 @@ module mapl3g_LatLonDecomposition
  
    end function new_LatLonDecomposition_basic
 
-   pure function new_LatLonDecomposition_petcount(dims, unusable, petCount) result(decomp)
+   function new_LatLonDecomposition_petcount(dims, unusable, petCount) result(decomp)
       use mapl_KeywordEnforcer
       type(LatLonDecomposition) :: decomp
       integer, intent(in) :: dims(2)
@@ -131,18 +131,15 @@ module mapl3g_LatLonDecomposition
  
    end function new_LatLonDecomposition_petcount
 
-   pure function new_LatLonDecomposition_topo(dims, unusable, topology) result(decomp)
+   function new_LatLonDecomposition_topo(dims, unusable, topology) result(decomp)
       use mapl_KeywordEnforcer
       type(LatLonDecomposition) :: decomp
       integer, intent(in) :: dims(2)
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, intent(in) :: topology(2)
 
-      allocate(decomp%lon_distribution(topology(1)))
-      allocate(decomp%lat_distribution(topology(2)))
-
-      call MAPL_DecomposeDim(dims(1), decomp%lon_distribution, topology(1), min_DE_extent=2)
-      call MAPL_DecomposeDim(dims(2), decomp%lat_distribution, topology(2), min_DE_extent=2)
+      decomp%lon_distribution = mapl_GetPartition(dims(1), k=topology(1), min_extent=2)
+      decomp%lat_distribution = mapl_GetPartition(dims(2), k=topology(2), min_extent=2)
 
    end function new_LatLonDecomposition_topo
 
