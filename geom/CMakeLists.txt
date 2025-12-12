@@ -14,7 +14,6 @@ set(srcs
 
   GeomManager.F90
 
-  GeomGet.F90
   GridGet.F90
 
   # gFTL containers
