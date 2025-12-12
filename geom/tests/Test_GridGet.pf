@@ -46,8 +46,8 @@ contains
 
       call mapl_GridGet(grid, longitudes=lons, latitudes=lats, rc=status)
       @assert_that(status, is(0))
-      @assertEqual([12,13], shape(lons))
-      @assertEqual([12,13], shape(lats))
+      @assert_that(shape(lons), is(equal_to([12,13])))
+      @assert_that(shape(lats), is(equal_to([12,13])))
 
    end subroutine test_grid_get
 
