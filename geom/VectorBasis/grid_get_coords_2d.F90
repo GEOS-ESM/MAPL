@@ -1,7 +1,6 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_VectorBasis) grid_get_coords_2d_smod
-   use mapl_base, only: MAPL_GridGetCorners
 contains
 
    module subroutine grid_get_coords_2d(grid, longitudes, latitudes, rc)

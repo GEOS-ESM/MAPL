@@ -27,7 +27,7 @@ esma_add_fortran_submodules(
   TARGET MAPL.geom
   SUBDIRECTORY LatLonGeomSpec
   SOURCES equal_to.F90 make_decomposition.F90 
-          make_distribution.F90 supports_hconfig.F90
+          supports_hconfig.F90
           make_LatLonGeomSpec_from_hconfig.F90
           supports_metadata.F90
           make_LatLonGeomSpec_from_metadata.F90)

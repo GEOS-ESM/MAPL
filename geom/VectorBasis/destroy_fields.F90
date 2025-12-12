@@ -1,7 +1,6 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_VectorBasis) destroy_field_smod
-   use mapl_base, only: MAPL_GridGetCorners
 contains
 
    module subroutine destroy_fields(this)
