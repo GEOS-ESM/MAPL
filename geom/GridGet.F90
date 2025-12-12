@@ -18,6 +18,7 @@ contains
    subroutine grid_get(grid, unusable, &
         dimCount, coordDimCount, &
         im, jm, &
+        longitudes, latitudes, &
         name, &
         rc)
 
@@ -26,6 +27,8 @@ contains
       integer, optional, intent(out) :: dimCount
       integer, optional, allocatable, intent(out) :: coordDimCount(:)
       integer, optional, intent(out) :: im, jm
+      real(ESMF_KIND_R8), optional, pointer :: longitudes(:,:)
+      real(ESMF_KIND_R8), optional, pointer :: latitudes(:,:)
       character(:), optional, allocatable :: name
       integer, optional, intent(out) :: rc
 
@@ -49,11 +52,20 @@ contains
          name = trim(name_)
       end if
 
+      if (present(longitudes)) then
+         call esmf_GridGetCoord(grid, coordDim=1, farrayPtr=longitudes, _RC)
+      end if
+
+      if (present(latitudes)) then
+         call esmf_GridGetCoord(grid, coordDim=2, farrayPtr=latitudes, _RC)
+      end if
+
       if (present(im) .or. present(jm)) then
          call esmf_GridGetCoord(grid, coordDim=1, farrayPtr=lons, _RC)
          if (present(im)) im = size(lons,1)
          if (present(jm)) jm = size(lons,2)
       end if
+
 
       _RETURN(_SUCCESS)
    end subroutine Grid_Get

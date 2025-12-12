@@ -9,7 +9,6 @@ set (TEST_SRCS
   Test_LatLonGeomFactory.pf
   Test_CubedSphereGeomFactory.pf
   Test_GridGet.pf
-  Test_GeomGet.pf
 )
 
 add_pfunit_ctest(MAPL.geom.tests

@@ -21,6 +21,7 @@ contains
       type(ESMF_Geom) :: geom
       type(ESMF_Grid) :: grid
       integer :: im, jm, status
+      real(kind=ESMF_KIND_R8), pointer :: lons(:,:), lats(:,:)
 
       hconfig = ESMF_HConfigCreate( &
            content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", &
@@ -31,16 +32,23 @@ contains
       mapl_geom => geom_manager%get_mapl_geom(hconfig, rc=status)
       @assert_that(status, is(0))
 
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+
       geom = mapl_geom%get_geom()
       call ESMF_GeomGet(geom, grid=grid, rc=status)
+      @assert_that(status, is(0))
 
       call mapl_GridGet(grid, im=im, jm=jm, rc=status)
       @assert_that(status, is(0))
       @assert_that(im, is(12))
       @assert_that(jm, is(13))
 
-      call ESMF_HConfigDestroy(hconfig, rc=status)
+      call mapl_GridGet(grid, longitudes=lons, latitudes=lats, rc=status)
       @assert_that(status, is(0))
+      @assertEqual([12,13], shape(lons))
+      @assertEqual([12,13], shape(lats))
+
    end subroutine test_grid_get
 
 end module Test_GridGet
