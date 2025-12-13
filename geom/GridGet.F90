@@ -20,6 +20,7 @@ contains
         im, jm, &
         longitudes, latitudes, &
         name, &
+        globalCellCountPerDim, localCellCountPerDim, &
         rc)
 
       type(esmf_Grid), intent(in) :: grid
@@ -30,12 +31,15 @@ contains
       real(ESMF_KIND_R8), optional, pointer :: longitudes(:,:)
       real(ESMF_KIND_R8), optional, pointer :: latitudes(:,:)
       character(:), optional, allocatable :: name
+      integer, optional, intent(inout) :: globalCellCountPerDim(:)
+      integer, optional, intent(inout) :: localCellCountPerDim(:)
       integer, optional, intent(out) :: rc
 
       integer :: dimCount_
       character(ESMF_MAXSTR) :: name_
       integer :: status
       real(kind=ESMF_KIND_R8), pointer :: lons(:,:)
+      logical :: has_de
 
       call esmf_GridGet(grid, dimCount=dimCount_, _RC)
       if (present(dimCount)) then
@@ -66,8 +70,42 @@ contains
          if (present(jm)) jm = size(lons,2)
       end if
 
+      if (present(localCellCountPerDim)) then
+         _HERE, 'deprecated'
+         localCellCountPerDim = 1 ! unless
+         has_DE = grid_has_de(grid, _RC)
+         if (HasDE) then
+            call esmf_GridGet(grid, localDE=0, &
+                 staggerloc=ESMF_STAGGERLOC_CENTER, &
+                 exclusiveCount=localCellCountPerDim, _RC)
+         end if
+      end if
+ 
+      if (present(globalCellCountPerDim)) then
+         _HERE, 'deprecated'
+         globalCellCountPerDim = 1
+         
+      end if
 
       _RETURN(_SUCCESS)
-   end subroutine Grid_Get
+   end subroutine grid_get
+   
+   function grid_has_DE(grid,rc) result(has_DE)
+      type(ESMF_Grid), intent(in) :: grid
+      integer, intent(out), optional :: rc
+      
+      integer :: status
+      type(ESMF_DistGrid) :: distGrid
+      type(ESMF_DeLayout) :: layout
+      integer :: localDECount
+      logical :: hasDE
+      
+      call ESMF_GridGet    (GRID, distGrid=distGrid, _RC)
+      call ESMF_DistGridGet(distGRID, delayout=layout, _RC)
+      call ESMF_DELayoutGet(layout, localDeCount=localDeCount,_RC)
+      has_DE = (localDECount /=0)
+      
+      _RETURN(_SUCCESS)
+   end function grid_has_DE
 
 end module mapl3g_GridGet
