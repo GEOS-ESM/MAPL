@@ -25,6 +25,8 @@ module mapl3g_FrequencyAspect
       procedure :: make_transform
       procedure :: connect_to_export
       procedure, nopass :: get_aspect_id
+      procedure :: update_from_payload
+      procedure :: update_payload
    end type FrequencyAspect
 
    interface FrequencyAspect
@@ -147,5 +149,32 @@ contains
       type(AspectId) :: aspect_id
       aspect_id = FREQUENCY_ASPECT_ID
    end function get_aspect_id
+
+   ! Frequency aspect is going away (I think)
+   subroutine update_from_payload(this, field, bundle, state, rc)
+      class(FrequencyAspect), intent(inout) :: this
+      type(esmf_Field), optional, intent(in) :: field
+      type(esmf_FieldBundle), optional, intent(in) :: bundle
+      type(esmf_State), optional, intent(in) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _RETURN(_SUCCESS)
+   end subroutine update_from_payload
+
+   subroutine update_payload(this, field, bundle, state, rc)
+      class(FrequencyAspect), intent(in) :: this
+      type(esmf_Field), optional, intent(inout) :: field
+      type(esmf_FieldBundle), optional, intent(inout) :: bundle
+      type(esmf_State), optional, intent(inout) :: state
+      integer, optional, intent(out) :: rc
+
+       integer :: status
+
+      ! no-op; see above
+
+      _RETURN(_SUCCESS)
+   end subroutine update_payload
 
 end module mapl3g_FrequencyAspect
