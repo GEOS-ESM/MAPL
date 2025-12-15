@@ -47,9 +47,11 @@ contains
       end do
 
       logger => this%get_logger()
-      call logger%info("Run (user phase: "//phase_name//"): starting...")
+      call logger%debug("Run (phase: "//phase_name//"): starting...")
+      call this%start_time_profiler("Run "//this%get_name()//" (phase:"//phase_name//")")
       call this%user_gc_driver%run(phase_idx=phase, _RC)
-      call logger%info("Run (user phase: "//phase_name//"): ...completed")
+      call this%stop_time_profiler("Run "//this%get_name()//" (phase:"//phase_name//")")
+      call logger%debug("Run (phase: "//phase_name//"): ...completed")
 
       export_couplers = this%registry%get_export_couplers()
       do i = 1, export_couplers%size()

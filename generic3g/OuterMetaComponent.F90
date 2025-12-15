@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_OuterMetaComponent
+
    use mapl3g_UserSetServices, only: AbstractUserSetServices
    use mapl3g_ComponentSpec
    use mapl3g_VariableSpec
@@ -91,6 +92,9 @@ module mapl3g_OuterMetaComponent
       procedure :: finalize
       procedure :: write_restart
 
+      procedure :: start_time_profiler
+      procedure :: stop_time_profiler
+
       ! Hierarchy
       procedure, private :: add_child_by_spec
       procedure, private :: get_child_by_name
@@ -122,7 +126,6 @@ module mapl3g_OuterMetaComponent
    type OuterMetaWrapper
       type(OuterMetaComponent), pointer :: outer_meta
    end type OuterMetaWrapper
-
 
    interface get_outer_meta
       module procedure :: get_outer_meta_from_outer_gc
@@ -378,6 +381,18 @@ module mapl3g_OuterMetaComponent
          integer, optional, intent(out) :: rc
       end subroutine write_restart
 
+      module subroutine start_time_profiler(this, name, rc)
+         class(OuterMetaComponent), intent(inout) :: this
+         character(len=*), intent(in) :: name
+         integer, optional, intent(out) :: rc
+      end subroutine start_time_profiler
+
+      module subroutine stop_time_profiler(this, name, rc)
+         class(OuterMetaComponent), intent(inout) :: this
+         character(len=*), intent(in) :: name
+         integer, optional, intent(out) :: rc
+      end subroutine stop_time_profiler
+
       module function get_name(this, rc) result(name)
          character(:), allocatable :: name
          class(OuterMetaComponent), intent(in) :: this
@@ -453,12 +468,11 @@ module mapl3g_OuterMetaComponent
          integer, optional, intent(out) :: rc
       end function get_checkpoint_subdir
 
-   end interface
+   end interface ! submodule interfaces
 
    interface OuterMetaComponent
       module procedure new_outer_meta
    end interface OuterMetaComponent
-
 
    interface recurse
       module procedure recurse_

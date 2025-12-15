@@ -34,9 +34,11 @@ contains
       end do
 
       logger => this%get_logger()
-      call logger%info("Initialize (user):: starting...")
+      call logger%debug("Initialize:: starting...")
+      call this%start_time_profiler("Initialize "//this%get_name(), _RC)
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
-      call logger%info("Initialize (user):: ...completed")
+      call this%stop_time_profiler("Initialize "//this%get_name(), _RC)
+      call logger%debug("Initialize:: ...completed")
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)

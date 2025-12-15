@@ -41,9 +41,9 @@ contains
       user_gridcomp = this%user_gc_driver%get_gridcomp()
       call attach_inner_meta(user_gridcomp, this%self_gridcomp, _RC)
       logger => this%get_logger()
-      call logger%info("SetServices:: starting...")
+      call logger%debug("SetServices:: starting...")
       call this%user_setservices%run(user_gridcomp, _RC)
-      call logger%info("SetServices:: ...completed")
+      call logger%debug("SetServices:: ...completed")
       call add_children(this, _RC)
       call run_children_setservices(this, _RC)
 
