@@ -8,7 +8,6 @@ module mapl3g_GridGet
    private
 
    public :: GridGet
-   public :: GridGetCoords
 
    interface GridGet
       procedure :: grid_get
