@@ -8,6 +8,7 @@ module mapl3g_GridGet
    private
 
    public :: GridGet
+   public :: GridGetCoords
 
    interface GridGet
       procedure :: grid_get
@@ -74,7 +75,7 @@ contains
          _HERE, 'deprecated'
          localCellCountPerDim = 1 ! unless
          has_DE = grid_has_de(grid, _RC)
-         if (HasDE) then
+         if (has_DE) then
             call esmf_GridGet(grid, localDE=0, &
                  staggerloc=ESMF_STAGGERLOC_CENTER, &
                  exclusiveCount=localCellCountPerDim, _RC)
@@ -90,7 +91,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine grid_get
    
-   function grid_has_DE(grid,rc) result(has_DE)
+   logical function grid_has_DE(grid,rc) result(has_DE)
       type(ESMF_Grid), intent(in) :: grid
       integer, intent(out), optional :: rc
       
