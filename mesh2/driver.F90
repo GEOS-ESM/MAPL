@@ -88,6 +88,9 @@ program main
 
    call ESMF_Initialize(_RC)
    _HERE
+
+   call m%reorder_elements(_RC)
+
    call m%to_netcdf_0('surface_mesh.nc', _RC)
    _HERE
 
