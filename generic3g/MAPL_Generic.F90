@@ -532,6 +532,7 @@ contains
         typekind, &
         itemType, &
         add_to_export, &
+        export_name, &
         has_deferred_aspects, &
         rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
@@ -548,6 +549,7 @@ contains
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       type(ESMF_StateItem_Flag), optional, intent(in) :: itemType
       logical, optional, intent(in) :: add_to_export
+      character(*), optional, intent(in) :: export_name
       logical, optional, intent(in) :: has_deferred_aspects
       integer, optional, intent(out) :: rc
 
@@ -593,6 +595,7 @@ contains
                  src_comp="<self>", &
                  src_name=short_name, &
                  src_intent=esmf_state_intent_to_string(state_intent), &
+                 new_name=export_name, &
                  _RC)
          end if
       end if
