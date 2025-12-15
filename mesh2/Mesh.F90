@@ -53,6 +53,7 @@ module sf_Mesh
       procedure :: aspect_ratio
       procedure :: get_centroid
       procedure :: resolution
+      procedure :: reorder_elements
    end type Mesh
 
 
@@ -1696,6 +1697,7 @@ contains
            j = j + 1
          endif
        enddo
+       e%iv_0 = nodes(e%iv_0)
      enddo
 
      call reorder_vertices(this%vertices, nodes)
@@ -1794,7 +1796,7 @@ contains
             node = nodes_reorder(k)
             vtemp = vertices%of(node)
 
-            do dir = 1, 4
+            do dir = 1, N_DIR
                iv = vtemp%connections(dir)
                if (iv /= -1) then
                  vtemp%connections(dir) = nodes(iv)
