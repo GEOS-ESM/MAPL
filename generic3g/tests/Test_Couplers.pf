@@ -1,0 +1,86 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_Couplers
+   use mapl3g_StateItem, only: MAPL_STATEITEM_FIELD
+   use mapl3g_VariableSpec, only: VariableSpec, make_VariableSpec
+   use mapl3g_StateItemSpec, only: StateItemSpec
+   use mapl3g_StateRegistry, only: StateRegistry
+   use mapl3g_UnitsAspect, only: UnitsAspect
+   use mapl3g_StateItemAspect, only: StateItemAspect
+   use mapl3g_VirtualConnectionPt, only: VirtualConnectionPt
+   use mapl3g_StateItemExtension, only: StateItemExtension
+   use mapl3g_AspectId, only: UNITS_ASPECT_ID
+   use pfunit
+   use ESMF_TestMethod_mod
+   use esmf
+
+   implicit none(type, external)
+
+contains
+
+   @Before
+   subroutine setUp(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+   end subroutine setUp
+   
+   @After
+   subroutine shutDown(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+   end subroutine shutDown
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_units(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_StateItem_Flag), parameter :: ITEMTYPE = MAPL_STATEITEM_FIELD
+      character(len=*), parameter :: EXPORT_NAME = 'EXPORT_NAME'
+      character(len=*), parameter :: IMPORT_NAME = 'IMPORT_NAME'
+      type(ESMF_TypeKind_Flag), parameter :: TYPEKIND = ESMF_TYPEKIND_R4 
+      character(len=*), parameter :: EXPORT_UNITS = 'm s-1'
+      character(len=*), parameter :: IMPORT_UNITS = 'km s-1'
+      type(StateRegistry), target :: registry
+      type(StateRegistry), pointer :: regptr
+      type(VariableSpec) :: var_spec
+      type(StateItemSpec) :: export_spec, import_spec
+      type(VirtualConnectionPt) :: v_pt
+      type(StateItemExtension), pointer :: extension
+      type(StateItemSpec), pointer :: new_spec
+      class(StateItemAspect), pointer :: aspect
+      character(len=:), allocatable :: units
+      integer :: status
+
+      registry = StateRegistry('StateRegistry')
+      regptr => registry
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, EXPORT_NAME,&
+         & typekind=TYPEKIND, itemtype=ITEMTYPE, units=EXPORT_UNITS, _RC)
+      export_spec = var_spec%make_StateItemSpec(regptr, _RC)
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, IMPORT_NAME,&
+         & typekind=TYPEKIND, itemtype=ITEMTYPE, units=IMPORT_UNITS, _RC)
+      import_spec = var_spec%make_StateItemSpec(regptr, _RC)
+      v_pt = VirtualConnectionPt(state_intent='export', short_name=EXPORT_NAME)
+
+      call registry%add_spec(virtual_pt=v_pt, spec=export_spec, _RC)
+      extension => registry%extend(v_pt, import_spec, _RC)
+
+      new_spec => extension%get_spec()
+      aspect => new_spec%get_aspect(UNITS_ASPECT_ID, _RC)
+
+      select type(aspect)
+      type is (UnitsAspect)
+         units = aspect%get_units()
+      end select
+      @assertEqual(EXPORT_UNITS, units)
+
+   end subroutine test_units
+
+!   export_spec = make_StateItem ...
+!   call export_spec%create(_RC)
+
+!   ! call to change metada - set units to 'm s-1'
+!   aspect => export_spec%get_aspect(GEOM_ASPECT_ID, _RC)
+!   select type (aspect)
+!   type UnitsAspect
+!     units = aspect%get_units()
+!  @assertEqual('m s-1', units)
+!   end  
+end module Test_Couplers
