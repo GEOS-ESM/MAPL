@@ -1,7 +1,6 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_VectorBasis) grid_get_centers_smod
-   use mapl_base, only: MAPL_GridGetCorners
 contains
 
    module subroutine grid_get_centers(grid, centers, rc)
