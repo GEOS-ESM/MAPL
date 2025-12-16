@@ -1119,7 +1119,7 @@ contains
       integer :: status
 
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
-      call outer_meta%start_time_profiler(name, _RC)
+      call outer_meta%start_timer(name, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine gridcomp_timer_start
@@ -1133,7 +1133,7 @@ contains
       integer :: status
 
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
-      call outer_meta%stop_time_profiler(name, _RC)
+      call outer_meta%stop_timer(name, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine gridcomp_timer_stop

@@ -92,8 +92,8 @@ module mapl3g_OuterMetaComponent
       procedure :: finalize
       procedure :: write_restart
 
-      procedure :: start_time_profiler
-      procedure :: stop_time_profiler
+      procedure :: start_timer
+      procedure :: stop_timer
 
       ! Hierarchy
       procedure, private :: add_child_by_spec
@@ -381,17 +381,17 @@ module mapl3g_OuterMetaComponent
          integer, optional, intent(out) :: rc
       end subroutine write_restart
 
-      module subroutine start_time_profiler(this, name, rc)
+      module subroutine start_timer(this, name, rc)
          class(OuterMetaComponent), intent(inout) :: this
          character(len=*), intent(in) :: name
          integer, optional, intent(out) :: rc
-      end subroutine start_time_profiler
+      end subroutine start_timer
 
-      module subroutine stop_time_profiler(this, name, rc)
+      module subroutine stop_timer(this, name, rc)
          class(OuterMetaComponent), intent(inout) :: this
          character(len=*), intent(in) :: name
          integer, optional, intent(out) :: rc
-      end subroutine stop_time_profiler
+      end subroutine stop_timer
 
       module function get_name(this, rc) result(name)
          character(:), allocatable :: name

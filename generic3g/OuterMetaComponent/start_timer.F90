@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_OuterMetaComponent) start_time_profiler_smod
+submodule (mapl3g_OuterMetaComponent) start_timer_smod
 
    use mapl_ErrorHandling
    use MAPL_Profiler, only: DistributedProfiler, get_global_time_profiler
@@ -9,7 +9,7 @@ submodule (mapl3g_OuterMetaComponent) start_time_profiler_smod
 
 contains
 
-   module subroutine start_time_profiler(this, name, rc)
+   module subroutine start_timer(this, name, rc)
       class(OuterMetaComponent), intent(inout) :: this
       character(len=*), intent(in) :: name
       integer, optional, intent(out) :: rc
@@ -21,6 +21,6 @@ contains
       call t_profiler%start(name, _RC)
 
       _RETURN(ESMF_SUCCESS)
-   end subroutine start_time_profiler
+   end subroutine start_timer
 
-end submodule start_time_profiler_smod
+end submodule start_timer_smod
