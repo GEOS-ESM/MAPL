@@ -146,7 +146,7 @@ jobs:
       matrix:
         compiler: [ifort, gfortran-14, gfortran-15]
         build-type: [Debug]
-    # This job uses a development version of the GEOSgcm build and test workflows with Ninja?
+    # This job uses a development version of the GEOSgcm build and test workflows with two build-jobs
     uses: GEOS-ESM/CI-workflows/.github/workflows/geosgcm_build_tests.yml@project/geosgcm-devel
     with:
       compiler: ${{ matrix.compiler }}
@@ -154,3 +154,4 @@ jobs:
       fixture-repo: GEOS-ESM/GEOSgcm
       fixture-ref: release/MAPL-v3
       run-mepo-develop: false
+      build-jobs: 2
