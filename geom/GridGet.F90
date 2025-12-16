@@ -23,21 +23,13 @@ module mapl3g_GridGet
 
 contains
 
-   subroutine grid_get(grid, unusable, &
-        name, &
-        dimCount, coordDimCount, &
-        im, jm, &
-        longitudes, latitudes, &
-        rc)
-
+   subroutine grid_get(grid, unusable, name, dimCount, coordDimCount, im, jm, rc)
       type(esmf_Grid), intent(in) :: grid
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(:), optional, allocatable, intent(out) :: name
       integer, optional, intent(out) :: dimCount
       integer, optional, allocatable, intent(out) :: coordDimCount(:)
       integer, optional, intent(out) :: im, jm
-      real(kind=ESMF_KIND_R4), optional, allocatable, intent(out) :: longitudes(:,:)
-      real(kind=ESMF_KIND_R4), optional, allocatable, intent(out) :: latitudes(:,:)
       integer, optional, intent(out) :: rc
 
       integer :: dimCount_
@@ -65,10 +57,6 @@ contains
          call esmf_GridGetCoord(grid, coordDim=1, farrayPtr=coords, _RC)
          if (present(im)) im = size(coords,1)
          if (present(jm)) jm = size(coords,2)
-      end if
-
-      if (present(longitudes) .or. present(latitudes)) then
-         call GridGetCoordinates(grid, longitudes=longitudes, latitudes=latitudes, _RC)
       end if
 
       _RETURN(_SUCCESS)
