@@ -6,7 +6,6 @@ submodule (mapl3g_CubedSphereGeomSpec) CubedSphereGeomSpec_smod
    use mapl3g_GeomSpec
    use pfio
    use MAPL_RangeMod
-   use MAPLBase_Mod
    use mapl_ErrorHandling
    use mapl_Constants
    use esmf
@@ -235,7 +234,7 @@ contains
       decomposition = spec%decomposition
    end function get_decomposition
 
-   pure module function get_topology(spec) result(topology)
+   module function get_topology(spec) result(topology)
       class(CubedSphereGeomSpec), intent(in) :: spec
       integer, allocatable :: topology(:)
 

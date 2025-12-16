@@ -102,7 +102,7 @@ interface
          class(CubedSphereGeomSpec), intent(in) :: spec
       end function get_decomposition
 
-      pure module function get_topology(spec) result(topology)
+      module function get_topology(spec) result(topology)
          class(CubedSphereGeomSpec), intent(in) :: spec
          integer, allocatable :: topology(:)
       end function get_topology
