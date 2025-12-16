@@ -4,7 +4,6 @@ module mapl3g_ComponentDriverGridComp
 
    use mapl_ErrorHandling
    use mapl3
-   use mapl, only: MAPL_GetPointer
    use esmf
    use gFTL2_StringStringMap
    use MAPL_StateUtils
