@@ -30,7 +30,7 @@ module mapl3g_FieldBundleSet
 contains
 
   subroutine bundle_set(fieldBundle, unusable, &
-        geom, &
+        geom, vgrid, &
         fieldBundleType, typekind, interpolation_weights, &
         ungridded_dims, &
         num_levels, vert_staggerloc, &
@@ -42,6 +42,7 @@ contains
       type(ESMF_FieldBundle), intent(inout) :: fieldBundle
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
+      class(VerticalGrid), optional, intent(in) :: vgrid
       type(FieldBundleType_Flag), optional, intent(in) :: fieldBundleType
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       real(ESMF_KIND_R4), optional, intent(in) :: interpolation_weights(:)
@@ -62,6 +63,7 @@ contains
       integer :: i
       type(ESMF_Field), allocatable :: fieldList(:)
       logical, allocatable :: has_geom
+      integer, allocatable :: vgrid_id
 
       if (present(geom)) then
          ! ToDo - update when ESMF makes this interface public.
@@ -81,6 +83,10 @@ contains
          end if
 
       end if
+
+      if (present(vgrid)) then
+         vgrid_id = vgrid%get_id() ! allocate so "present" below
+      end if
       
       ! Note it is important that the next line ALLOCATEs has_geom we
       ! don't want to set it either way in info if geom is not
@@ -92,6 +98,7 @@ contains
       ! Some things are treated as field info:
       call ESMF_InfoGetFromHost(fieldBundle, bundle_info, _RC)
       call FieldBundleInfoSetInternal(bundle_info, &
+           vgrid_id=vgrid_id, &
            fieldBundleType=fieldBundleType, &
            typekind=typekind, interpolation_weights=interpolation_weights, &
            ungridded_dims=ungridded_dims, &

@@ -28,7 +28,7 @@ contains
    ! For "bracket" bundles, additional metadata is stored in the info object
 
    subroutine bundle_get(fieldBundle, unusable, &
-        fieldCount, fieldList, geom, &
+        fieldCount, fieldList, geom, vgrid, &
         fieldBundleType, &
         ! Bracket specific items
         typekind, interpolation_weights, &
@@ -44,6 +44,7 @@ contains
       integer, optional, intent(out) :: fieldCount
       type(ESMF_Field), optional, allocatable, intent(out) :: fieldList(:)
       type(ESMF_Geom), allocatable, optional, intent(out) :: geom
+      class(VerticalGrid), pointer, optional, intent(out) :: vgrid
       type(FieldBundleType_Flag), optional, intent(out) :: fieldBundleType
       type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
       real(ESMF_KIND_R4), optional, allocatable, intent(out) :: interpolation_weights(:)
@@ -62,6 +63,8 @@ contains
       integer :: fieldCount_
       type(ESMF_Info) :: bundle_info
       logical :: has_geom
+      integer, allocatable :: vgrid_id
+      type(VerticalGridManager), pointer :: vgrid_manager
 
       if (present(fieldCount) .or. present(fieldList)) then
          call ESMF_FieldBundleGet(fieldBundle, fieldCount=fieldCount_, _RC)
@@ -75,7 +78,11 @@ contains
          call ESMF_FieldBundleGet(fieldBundle, fieldList=fieldList, itemOrderflag=ESMF_ITEMORDER_ADDORDER, _RC)
       end if
 
-      ! Get these from FieldBundleInfo
+       if (present(vgrid)) then
+         allocate(vgrid_id) ! trigger "is present"
+      end if
+
+     ! Get these from FieldBundleInfo
       call ESMF_InfoGetFromHost(fieldBundle, bundle_info, _RC)
       call FieldBundleInfoGetInternal(bundle_info, &
            fieldBundleType=fieldBundleType, &
@@ -86,6 +93,7 @@ contains
            allocation_status=allocation_status, &
            bracket_updated=bracket_updated, &
            has_geom=has_geom, &
+           vgrid_id=vgrid_id, &
            _RC)
 
       if (present(geom) .and. has_geom) then

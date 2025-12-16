@@ -12,6 +12,7 @@ module mapl3g_AttributesAspect
    use mapl3g_NullTransform
    use mapl_ErrorHandling
    use gftl2_StringVector
+   use esmf, only: esmf_FIeld, esmf_FieldBundle, esmf_State
    implicit none
    private
 
@@ -28,6 +29,9 @@ module mapl3g_AttributesAspect
       procedure :: make_transform
       procedure :: connect_to_export
       procedure, nopass :: get_aspect_id
+
+      procedure :: update_from_payload
+      procedure :: update_payload
    end type AttributesAspect
 
    interface AttributesAspect
@@ -124,5 +128,36 @@ contains
       _UNUSED_DUMMY(export)
       _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
+
+   subroutine update_from_payload(this, field, bundle, state, rc)
+      class(AttributesAspect), intent(inout) :: this
+      type(esmf_Field), optional, intent(in) :: field
+      type(esmf_FieldBundle), optional, intent(in) :: bundle
+      type(esmf_State), optional, intent(in) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      ! no-op
+      ! public attributes are shared across connections
+      ! private attributes do not change and are
+      ! set explicitly by the user.
+
+      _RETURN(_SUCCESS)
+   end subroutine update_from_payload
+
+   subroutine update_payload(this, field, bundle, state, rc)
+      class(AttributesAspect), intent(in) :: this
+      type(esmf_Field), optional, intent(inout) :: field
+      type(esmf_FieldBundle), optional, intent(inout) :: bundle
+      type(esmf_State), optional, intent(inout) :: state
+      integer, optional, intent(out) :: rc
+
+       integer :: status
+
+      ! no-op; see above
+
+      _RETURN(_SUCCESS)
+   end subroutine update_payload
 
 end module mapl3g_AttributesAspect

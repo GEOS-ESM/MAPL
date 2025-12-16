@@ -4,8 +4,6 @@ submodule (mapl3g_LatLonGeomSpec) supports_hconfig_smod
    use mapl3g_CoordinateAxis
    use mapl3g_GeomSpec
    use pfio
-   use MAPL_RangeMod
-   use MAPLBase_Mod
    use mapl_ErrorHandling
    use esmf
    implicit none (type, external)

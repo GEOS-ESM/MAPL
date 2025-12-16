@@ -3,6 +3,8 @@
 module mapl3g_VerticalGridAspect
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
+   use mapl3g_Field_API
+   use mapl3g_FieldBundle_API
    use mapl3g_StateItemAspect
    use mapl3g_ExtensionTransform
    use mapl3g_ExtendTransform
@@ -46,6 +48,10 @@ module mapl3g_VerticalGridAspect
       procedure :: get_vertical_grid
       procedure :: get_vertical_stagger
       procedure :: set_vertical_stagger
+
+      procedure :: update_from_payload
+      procedure :: update_payload
+
    end type VerticalGridAspect
 
    interface VerticalGridAspect
@@ -307,5 +313,55 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_vertical_stagger
+
+   subroutine update_from_payload(this, field, bundle, state, rc)
+      class(VerticalGridAspect), intent(inout) :: this
+      type(esmf_Field), optional, intent(in) :: field
+      type(esmf_FieldBundle), optional, intent(in) :: bundle
+      type(esmf_State), optional, intent(in) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      ! Must use a pointer for get/set, but aspect uses an allocatable
+      ! Future work should consider changing aspect to also be pointer.
+      class(VerticalGrid), pointer :: vgrid
+
+      _RETURN_UNLESS(present(field) .or. present(bundle))
+
+      if (present(field)) then
+         call mapl_FieldGet(field, vgrid=vgrid, _RC)
+      else if (present(bundle)) then
+         call mapl_FieldBundleGet(bundle, vgrid=vgrid, _RC)
+      end if
+
+      call this%set_mirror(.not. associated(vgrid))
+
+      deallocate(this%vertical_grid)
+      if (associated(vgrid)) then
+         this%vertical_grid = vgrid
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine update_from_payload
+
+   subroutine update_payload(this, field, bundle, state, rc)
+      class(VerticalGridAspect), intent(in) :: this
+      type(esmf_Field), optional, intent(inout) :: field
+      type(esmf_FieldBundle), optional, intent(inout) :: bundle
+      type(esmf_State), optional, intent(inout) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _RETURN_UNLESS(present(field) .or. present(bundle))
+
+      if (present(field)) then
+         call mapl_FieldSet(field, vgrid=this%vertical_grid, _RC)
+      else if (present(bundle)) then
+         call mapl_FieldBundleSet(bundle, vgrid=this%vertical_grid, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine update_payload
 
 end module mapl3g_VerticalGridAspect
