@@ -210,6 +210,7 @@ if (APPLE)
   add_compile_definitions("-D__DARWIN")
 endif()
 
+add_subdirectory (MAPL)
 add_subdirectory (udunits2f)
 add_subdirectory (pfio)
 add_subdirectory (profiler)
