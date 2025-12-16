@@ -6,6 +6,7 @@ module mapl3g_ClassAspect
    use mapl3g_MultiState
    use mapl_ErrorHandling
    use mapl3g_ActualConnectionPt
+   use esmf, only: esmf_FIeld, esmf_FieldBundle, esmf_State
    implicit none
    private
 
@@ -30,6 +31,8 @@ module mapl3g_ClassAspect
       procedure, nopass :: get_aspect_id
 
       procedure(I_get_payload), deferred :: get_payload
+      procedure :: update_from_payload
+      procedure :: update_payload
    end type ClassAspect
 
    abstract interface
@@ -135,5 +138,32 @@ contains
       type(AspectId) :: aspect_id
       aspect_id = CLASS_ASPECT_ID
    end function get_aspect_id
+
+   ! We provide a default implementation for update_from_payload, and
+   ! update_payload, as there is nothing to be done for some class
+   ! aspects.
+
+   ! E.g., it would sort of be natural for FiendBundle subtypes to set their
+   ! BundleType in this layer.  Currently this is done explicitly at the
+   ! create aspect as, it should not change.
+   subroutine update_from_payload(this, field, bundle, state, rc)
+      class(ClassAspect), intent(inout) :: this
+      type(esmf_Field), optional, intent(in) :: field
+      type(esmf_FieldBundle), optional, intent(in) :: bundle
+      type(esmf_State), optional, intent(in) :: state
+      integer, optional, intent(out) :: rc
+
+      _RETURN(_SUCCESS)
+   end subroutine update_from_payload
+
+   subroutine update_payload(this, field, bundle, state, rc)
+      class(ClassAspect), intent(in) :: this
+      type(esmf_Field), optional, intent(inout) :: field
+      type(esmf_FieldBundle), optional, intent(inout) :: bundle
+      type(esmf_State), optional, intent(inout) :: state
+      integer, optional, intent(out) :: rc
+
+      _RETURN(_SUCCESS)
+   end subroutine update_payload
 
 end module mapl3g_ClassAspect

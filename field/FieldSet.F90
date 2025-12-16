@@ -23,7 +23,7 @@ contains
 
 subroutine field_set(field, &
         geom, &
-        vertical_grid, &
+        vgrid, &
         vert_staggerloc, &
         typekind, &
         unusable, &
@@ -37,7 +37,7 @@ subroutine field_set(field, &
       type(ESMF_Field), intent(inout) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
-      class(VerticalGrid), optional, target, intent(in) :: vertical_grid
+      class(VerticalGrid), optional, intent(in) :: vgrid
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       type(esmf_TypeKind_Flag), optional, intent(in) :: typekind
       integer, optional, intent(in) :: num_levels
@@ -50,6 +50,7 @@ subroutine field_set(field, &
       type(ESMF_Info) :: field_info
       type(FieldDelta) :: field_delta
       type(esmf_FieldStatus_Flag) :: fstatus
+      integer, allocatable :: vgrid_id
 
       call esmf_FieldGet(field, status=fstatus, _RC)
       if (fstatus == ESMF_FIELDSTATUS_COMPLETE) then
@@ -57,9 +58,13 @@ subroutine field_set(field, &
          call field_delta%update_field(field, _RC)
       end if
 
+      if (present(vgrid)) then
+         vgrid_id = vgrid%get_id() ! allocate so "present" below
+      end if
+
       call esmf_InfoGetFromHost(field, field_info, _RC)
       call FieldInfoSetInternal(field_info, &
-           vertical_grid=vertical_grid, &
+           vgrid_id=vgrid_id, &
            vert_staggerloc=vert_staggerloc, &
            typekind=typekind, units=units, &
            ungridded_dims=ungridded_dims, _RC)
