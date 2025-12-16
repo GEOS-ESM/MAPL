@@ -1,7 +1,6 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_VectorBasis) xyz2latlon_smod
-   use mapl_base, only: MAPL_GridGetCorners
 contains
 
    pure module function xyz2latlon(xyz_coord) result(sph_coord)

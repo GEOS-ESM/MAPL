@@ -75,12 +75,6 @@ interface
          integer, optional, intent(out) :: rc
       end function make_LatLonGeomSpec_from_metadata
 
-      module function make_distribution(im, nx) result(distribution)
-         integer, allocatable :: distribution(:)
-         integer, intent(in) :: im, nx
-      end function make_distribution
-
-
       ! ------------------------------------------------------------------------------------
       ! This module function attempts to find a layout with roughly square
       ! domains on each process.  Optimal value for
