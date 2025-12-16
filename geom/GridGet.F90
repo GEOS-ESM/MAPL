@@ -1,9 +1,11 @@
 #include "MAPL.h"
 
 module mapl3g_GridGet
+
    use esmf
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
+
    implicit none
    private
 
@@ -30,18 +32,18 @@ contains
 
       type(esmf_Grid), intent(in) :: grid
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      character(:), optional, allocatable :: name
+      character(:), optional, allocatable, intent(out) :: name
       integer, optional, intent(out) :: dimCount
       integer, optional, allocatable, intent(out) :: coordDimCount(:)
       integer, optional, intent(out) :: im, jm
-      real(kind=ESMF_KIND_R4), optional, pointer :: longitudes(:,:), latitudes(:,:)
+      real(kind=ESMF_KIND_R4), optional, allocatable, intent(out) :: longitudes(:,:)
+      real(kind=ESMF_KIND_R4), optional, allocatable, intent(out) :: latitudes(:,:)
       integer, optional, intent(out) :: rc
 
       integer :: dimCount_
       character(ESMF_MAXSTR) :: name_
       integer :: status
       real(kind=ESMF_KIND_R8), pointer :: coords(:,:)
-      real(kind=ESMF_KIND_R4), allocatable, target :: lons(:,:), lats(:,:)
       logical :: has_de
 
       call esmf_GridGet(grid, dimCount=dimCount_, _RC)
@@ -66,15 +68,11 @@ contains
       end if
 
       if (present(longitudes) .or. present(latitudes)) then
-         call GridGetCoordinates(grid, longitudes=lons, latitudes=lats, _RC)
-         if (present(longitudes)) then
-            longitudes => lons
-         end if
-         if (present(latitudes)) then
-            latitudes => lats
-         end if
+         call GridGetCoordinates(grid, longitudes=longitudes, latitudes=latitudes, _RC)
       end if
+
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine grid_get
    
    logical function grid_has_DE(grid,rc) result(has_DE)
@@ -128,7 +126,6 @@ contains
       latitudes = ptr
 
       _RETURN(_SUCCESS)
-
    end subroutine grid_get_coordinates_r8
 
 end module mapl3g_GridGet
