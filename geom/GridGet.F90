@@ -8,37 +8,40 @@ module mapl3g_GridGet
    private
 
    public :: GridGet
+   public :: GridGetCoordinates
 
    interface GridGet
       procedure :: grid_get
    end interface GridGet
 
+   interface GridGetCoordinates
+      procedure :: grid_get_coordinates_r4
+      procedure :: grid_get_coordinates_r8
+   end interface GridGetCoordinates
+
 contains
 
    subroutine grid_get(grid, unusable, &
+        name, &
         dimCount, coordDimCount, &
         im, jm, &
         longitudes, latitudes, &
-        name, &
-        globalCellCountPerDim, localCellCountPerDim, &
         rc)
 
       type(esmf_Grid), intent(in) :: grid
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(:), optional, allocatable :: name
       integer, optional, intent(out) :: dimCount
       integer, optional, allocatable, intent(out) :: coordDimCount(:)
       integer, optional, intent(out) :: im, jm
-      real(ESMF_KIND_R8), optional, pointer :: longitudes(:,:)
-      real(ESMF_KIND_R8), optional, pointer :: latitudes(:,:)
-      character(:), optional, allocatable :: name
-      integer, optional, intent(inout) :: globalCellCountPerDim(:)
-      integer, optional, intent(inout) :: localCellCountPerDim(:)
+      real(kind=ESMF_KIND_R4), optional, pointer :: longitudes(:,:), latitudes(:,:)
       integer, optional, intent(out) :: rc
 
       integer :: dimCount_
       character(ESMF_MAXSTR) :: name_
       integer :: status
-      real(kind=ESMF_KIND_R8), pointer :: lons(:,:)
+      real(kind=ESMF_KIND_R8), pointer :: coords(:,:)
+      real(kind=ESMF_KIND_R4), allocatable, target :: lons(:,:), lats(:,:)
       logical :: has_de
 
       call esmf_GridGet(grid, dimCount=dimCount_, _RC)
@@ -56,37 +59,21 @@ contains
          name = trim(name_)
       end if
 
-      if (present(longitudes)) then
-         call esmf_GridGetCoord(grid, coordDim=1, farrayPtr=longitudes, _RC)
-      end if
-
-      if (present(latitudes)) then
-         call esmf_GridGetCoord(grid, coordDim=2, farrayPtr=latitudes, _RC)
-      end if
-
       if (present(im) .or. present(jm)) then
-         call esmf_GridGetCoord(grid, coordDim=1, farrayPtr=lons, _RC)
-         if (present(im)) im = size(lons,1)
-         if (present(jm)) jm = size(lons,2)
+         call esmf_GridGetCoord(grid, coordDim=1, farrayPtr=coords, _RC)
+         if (present(im)) im = size(coords,1)
+         if (present(jm)) jm = size(coords,2)
       end if
 
-      if (present(localCellCountPerDim)) then
-         _HERE, 'deprecated'
-         localCellCountPerDim = 1 ! unless
-         has_DE = grid_has_de(grid, _RC)
-         if (has_DE) then
-            call esmf_GridGet(grid, localDE=0, &
-                 staggerloc=ESMF_STAGGERLOC_CENTER, &
-                 exclusiveCount=localCellCountPerDim, _RC)
+      if (present(longitudes) .or. present(latitudes)) then
+         call GridGetCoordinates(grid, longitudes=lons, latitudes=lats, _RC)
+         if (present(longitudes)) then
+            longitudes => lons
+         end if
+         if (present(latitudes)) then
+            latitudes => lats
          end if
       end if
- 
-      if (present(globalCellCountPerDim)) then
-         _HERE, 'deprecated'
-         globalCellCountPerDim = 1
-         
-      end if
-
       _RETURN(_SUCCESS)
    end subroutine grid_get
    
@@ -98,7 +85,6 @@ contains
       type(ESMF_DistGrid) :: distGrid
       type(ESMF_DeLayout) :: layout
       integer :: localDECount
-      logical :: hasDE
       
       call ESMF_GridGet    (GRID, distGrid=distGrid, _RC)
       call ESMF_DistGridGet(distGRID, delayout=layout, _RC)
@@ -107,5 +93,42 @@ contains
       
       _RETURN(_SUCCESS)
    end function grid_has_DE
+
+   subroutine grid_get_coordinates_r4(grid, longitudes, latitudes, rc)
+      type(esmf_Grid), intent(in) :: grid
+      real(ESMF_KIND_R4), allocatable, intent(out) :: longitudes(:,:)
+      real(ESMF_KIND_R4), allocatable, intent(out) :: latitudes(:,:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      real(ESMF_KIND_R8), pointer :: ptr(:,:)
+
+      call esmf_GridGetCoord(grid, coordDim=1, farrayPtr=ptr, _RC)
+      longitudes = ptr
+
+      call esmf_GridGetCoord(grid, coordDim=2, farrayPtr=ptr, _RC)
+      latitudes = ptr
+
+      _RETURN(_SUCCESS)
+   end subroutine grid_get_coordinates_r4
+
+   subroutine grid_get_coordinates_r8(grid, longitudes, latitudes, rc)
+      type(esmf_Grid), intent(in) :: grid
+      real(ESMF_KIND_R8), allocatable, intent(out) :: longitudes(:,:)
+      real(ESMF_KIND_R8), allocatable, intent(out) :: latitudes(:,:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      real(ESMF_KIND_R8), pointer :: ptr(:,:)
+
+      call esmf_GridGetCoord(grid, coordDim=1, farrayPtr=ptr, _RC)
+      longitudes = ptr
+
+      call esmf_GridGetCoord(grid, coordDim=2, farrayPtr=ptr, _RC)
+      latitudes = ptr
+
+      _RETURN(_SUCCESS)
+
+   end subroutine grid_get_coordinates_r8
 
 end module mapl3g_GridGet

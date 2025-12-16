@@ -21,7 +21,7 @@ contains
       type(ESMF_Geom) :: geom
       type(ESMF_Grid) :: grid
       integer :: im, jm, status
-      real(kind=ESMF_KIND_R8), pointer :: lons(:,:), lats(:,:)
+      real(kind=ESMF_KIND_R8), allocatable :: lons(:,:), lats(:,:)
 
       hconfig = ESMF_HConfigCreate( &
            content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", &
@@ -44,7 +44,7 @@ contains
       @assert_that(im, is(12))
       @assert_that(jm, is(13))
 
-      call mapl_GridGet(grid, longitudes=lons, latitudes=lats, rc=status)
+      call mapl_GridGetCoordinates(grid, longitudes=lons, latitudes=lats, rc=status)
       @assert_that(status, is(0))
       @assert_that(shape(lons), is(equal_to([12,13])))
       @assert_that(shape(lats), is(equal_to([12,13])))
