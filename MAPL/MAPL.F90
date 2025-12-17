@@ -2,11 +2,9 @@
 ! of the underlying packages.
 module MAPL
 ! NAG 7.2.36 (at least) has issues with this sort of rename
-#if !defined(__NAG_COMPILER_RELEASE)
    use mapl3, private_mapl_GridGet => mapl_GridGet, &
       private_mapl_Initialize => mapl_Initialize, &
       private_mapl_Finalize => mapl_Finalize
-#endif
    use MAPLBase_mod
    use MAPL_GenericMod
    use MAPL_VarSpecMiscMod
