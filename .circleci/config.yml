@@ -41,27 +41,31 @@ workflows:
           mepodevelop: false
           run_unit_tests: true
           ctest_options: "-L 'ESSENTIAL' --output-on-failure"
-          persist_workspace: true # Needed for MAPL tutorials
+          persist_workspace: false # Needed for MAPL tutorials
 
-      # Run MAPL Tutorials
-      - ci/run_mapl_tutorial:
-          name: run-<< matrix.tutorial_name >>-Tutorial-with-<< matrix.compiler >>-built-with-<< matrix.build_type >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [ifort]
-              build_type: ['Debug']
-              tutorial_name:
-                - hello_world
-                - parent_no_children
-                - parent_one_child_import_via_extdata
-                - parent_one_child_no_imports
-                - parent_two_siblings_connect_import_export
-          # We will only run the tutorials with GNU make. No need to double up as Ninja is a build test only
-          requires:
-            - build-and-test-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>-using-Unix Makefiles
-          baselibs_version: *baselibs_version
+      # Tutorials have been removed (for now) from MAPL3
+      # NOTE: When we restore tutorials, change persist_workspace to true above!!!
+      ###################################################################################################################
+      # # Run MAPL Tutorials                                                                                            #
+      # - ci/run_mapl_tutorial:                                                                                         #
+      #     name: run-<< matrix.tutorial_name >>-Tutorial-with-<< matrix.compiler >>-built-with-<< matrix.build_type >> #
+      #     context:                                                                                                    #
+      #       - docker-hub-creds                                                                                        #
+      #     matrix:                                                                                                     #
+      #       parameters:                                                                                               #
+      #         compiler: [ifort]                                                                                       #
+      #         build_type: ['Debug']                                                                                   #
+      #         tutorial_name:                                                                                          #
+      #           - hello_world                                                                                         #
+      #           - parent_no_children                                                                                  #
+      #           - parent_one_child_import_via_extdata                                                                 #
+      #           - parent_one_child_no_imports                                                                         #
+      #           - parent_two_siblings_connect_import_export                                                           #
+      #     # We will only run the tutorials with GNU make. No need to double up as Ninja is a build test only          #
+      #     requires:                                                                                                   #
+      #       - build-and-test-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>-using-Unix Makefiles            #
+      #     baselibs_version: *baselibs_version                                                                         #
+      ###################################################################################################################
 
       # Builds MAPL without pFlogger and fargparse and pFUnit
       - ci/build:
