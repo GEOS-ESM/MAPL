@@ -4,7 +4,7 @@ module MAPL
 ! NAG 7.2.36 (at least) has issues with this sort of rename
    use mapl3, private_mapl_GridGet => mapl_GridGet, &
       private_mapl_Initialize => mapl_Initialize, &
-      private_mapl_Finalize => mapl_Finalize
+      private_mapl_Finalize => mapl_Finalize, &
       private_mapl_GridCompSetEntryPoint => mapl_GridCompSetEntryPoint
    use MAPLBase_mod
    use MAPL_GenericMod
