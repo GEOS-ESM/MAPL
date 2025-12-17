@@ -273,7 +273,7 @@ contains
 
          msg = comp_path // '::' // state_intent
 
-         state_items = ESMF_HConfigCreateAt(comp_expectations,keyString=state_intent,_RC)
+         state_items = ESMF_HConfigCreateAt(comp_expectations, keyString=state_intent,_RC)
          @assertTrue(ESMF_HConfigIsMap(state_items), msg)
 
          hconfigIter = ESMF_HConfigIterBegin(state_items)
@@ -397,8 +397,8 @@ contains
 
       msg = short_name // ':: '// description
 
-      call ESMF_StateGet(state, short_name, itemtype=itemtype, _RC)
-      if (itemtype /= ESMF_STATEITEM_FIELD) then
+      itemtype = get_itemtype(state, short_name, _RC)
+      if (itemtype /= ESMF_STATEITEM_FIELD) then ! that's ok
          rc = 0
          return
       end if
@@ -440,8 +440,8 @@ contains
 
       msg = description
 
-      call ESMF_StateGet(state, short_name, itemtype=itemtype, _RC)
-      if (itemtype /= ESMF_STATEITEM_FIELD) then
+      itemtype = get_itemtype(state, short_name, _RC)
+      if (itemtype /= ESMF_STATEITEM_FIELD) then ! that's ok
          rc = 0
          return
       end if
@@ -463,7 +463,7 @@ contains
 
       call ESMF_StateGet(state, short_name, field, _RC)
       call ESMF_FieldGet(field, typekind=found_field_typekind, _RC)
-      msg = msg // ' field typekind: '
+      msg = msg // short_name
       @assert_that(msg, expected_field_typekind == found_field_typekind, is(true()))
 
       rc = 0
