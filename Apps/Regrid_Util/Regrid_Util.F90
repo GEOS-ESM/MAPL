@@ -4,7 +4,7 @@
 
    use ESMF
    use MAPL
-   use gFTL_StringVector
+   use gFTL2_StringVector
 
    implicit NONE
 
