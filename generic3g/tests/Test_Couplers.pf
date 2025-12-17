@@ -2,7 +2,8 @@
 #include "unused_dummy.H"
 
 module Test_Couplers
-   use mapl3g_StateItem, only: MAPL_STATEITEM_FIELD
+   !use mapl3g_StateItem, only: MAPL_STATEITEM_FIELD
+   use mapl3g_StateItem
    use mapl3g_VariableSpec, only: VariableSpec, make_VariableSpec
    use mapl3g_StateItemSpec, only: StateItemSpec
    use mapl3g_StateRegistry, only: StateRegistry
@@ -14,20 +15,20 @@ module Test_Couplers
    use pfunit
    use ESMF_TestMethod_mod
    use esmf
-
-   implicit none(type, external)
+   !implicit none(type, external)
+   implicit none
 
 contains
 
-   @Before
-   subroutine setUp(this)
-      class(ESMF_TestMethod), intent(inout) :: this
-   end subroutine setUp
+!   @Before
+!   subroutine setUp(this)
+!      class(ESMF_TestMethod), intent(inout) :: this
+!   end subroutine setUp
    
-   @After
-   subroutine shutDown(this)
-      class(ESMF_TestMethod), intent(inout) :: this
-   end subroutine shutDown
+!   @After
+!   subroutine shutDown(this)
+!      class(ESMF_TestMethod), intent(inout) :: this
+!   end subroutine shutDown
 
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_units(this)
@@ -42,7 +43,7 @@ contains
       type(StateRegistry), pointer :: regptr
       type(VariableSpec) :: var_spec
       type(StateItemSpec) :: export_spec, import_spec
-      type(VirtualConnectionPt) :: v_pt
+      type(VirtualConnectionPt) :: virtual_pt
       type(StateItemExtension), pointer :: extension
       type(StateItemSpec), pointer :: new_spec
       class(StateItemAspect), pointer :: aspect
@@ -57,19 +58,18 @@ contains
       var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, IMPORT_NAME,&
          & typekind=TYPEKIND, itemtype=ITEMTYPE, units=IMPORT_UNITS, _RC)
       import_spec = var_spec%make_StateItemSpec(regptr, _RC)
-      v_pt = VirtualConnectionPt(state_intent='export', short_name=EXPORT_NAME)
-
-      call registry%add_spec(virtual_pt=v_pt, spec=export_spec, _RC)
-      extension => registry%extend(v_pt, import_spec, _RC)
-
+      virtual_pt = VirtualConnectionPt(state_intent='export', short_name=EXPORT_NAME)
+      call registry%add_virtual_pt(virtual_pt, _RC) 
+      call registry%add_spec(virtual_pt=virtual_pt, spec=export_spec, _RC)
+      extension => registry%extend(virtual_pt, import_spec, _RC)
       new_spec => extension%get_spec()
       aspect => new_spec%get_aspect(UNITS_ASPECT_ID, _RC)
-
       select type(aspect)
       type is (UnitsAspect)
          units = aspect%get_units()
       end select
       @assertEqual(EXPORT_UNITS, units)
+      _UNUSED_DUMMY(this)
 
    end subroutine test_units
 
