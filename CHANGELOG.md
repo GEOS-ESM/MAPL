@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Restore workaround for binary restart reads with GNU
+  - Brings back changes from PR #1038: Added a workaround for a gfortran bug that handles end-of-file incorrectly (returns IOSTAT=5001).
 
 ## [2.64.0] - 2025-12-05
 
