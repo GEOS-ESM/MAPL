@@ -76,9 +76,13 @@ contains
       character(len=:), allocatable :: units
       integer :: status
 
+      ! VerticalGrid should be allocated in @Before subroutine
+      @assertTrue(allocated(vertical_grid), 'The VerticalGrid has not been allocated.')
+
       registry = StateRegistry('StateRegistry')
       regptr => registry
-      @assertTrue(allocated(vertical_grid), 'The VerticalGrid has not been allocated.')
+
+      ! Make VariableSpec and make export/import StateItemSpec's
       var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, EXPORT_NAME,&
          & typekind=TYPEKIND, itemtype=ITEMTYPE, units=EXPORT_UNITS, _RC)
       export_spec = var_spec%make_StateItemSpec(regptr, component_geom=geom,&
@@ -92,10 +96,13 @@ contains
       call import_spec%create(_RC)
 
       virtual_pt = VirtualConnectionPt(state_intent='export', short_name=EXPORT_NAME)
-!      call registry%add_virtual_pt(virtual_pt, _RC) 
       call registry%add_primary_spec(virtual_pt=virtual_pt, spec=export_spec, _RC)
+
+      ! Extend to import StateItemSpec
       extension => registry%extend(virtual_pt, import_spec, _RC)
       new_spec => extension%get_spec()
+
+      ! Compare extension StateItemSpec units to import StateItemSpec units
       aspect => new_spec%get_aspect(UNITS_ASPECT_ID, _RC)
       select type(aspect)
       type is (UnitsAspect)
@@ -106,14 +113,4 @@ contains
 
    end subroutine test_units
 
-!   export_spec = make_StateItem ...
-!   call export_spec%create(_RC)
-
-!   ! call to change metada - set units to 'm s-1'
-!   aspect => export_spec%get_aspect(GEOM_ASPECT_ID, _RC)
-!   select type (aspect)
-!   type UnitsAspect
-!     units = aspect%get_units()
-!  @assertEqual('m s-1', units)
-!   end  
 end module Test_Couplers
