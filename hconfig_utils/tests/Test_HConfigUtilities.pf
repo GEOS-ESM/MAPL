@@ -12,12 +12,12 @@ module Test_HConfigUtilities
    type(ESMF_HConfig) :: child
    type(ESMF_HConfig) :: merged
    type(ESMF_HConfig) :: hconfig_content
-   character(len=*), parameter :: MAPLKEY = 'mapl: '
-   character(len=*), parameter :: KEY1 = 'key1: '
-   character(len=*), parameter :: KEY2 = 'key2: '
-   character(len=*), parameter :: KEY3 = 'key3: '
-   character(len=*), parameter :: KEY4 = 'key4: '
-   character(len=*), parameter :: KEY5 = 'key5: '
+   character(len=*), parameter :: MAPLKEY = 'mapl'
+   character(len=*), parameter :: KEY1 = 'key1'
+   character(len=*), parameter :: KEY2 = 'key2'
+   character(len=*), parameter :: KEY3 = 'key3'
+   character(len=*), parameter :: KEY4 = 'key4'
+   character(len=*), parameter :: KEY5 = 'key5'
    integer, parameter :: KEYLEN = len(KEY1)
    character(len=*), parameter :: PVALUE1 = 'parent_value1'
    character(len=*), parameter :: PVALUE2 = 'parent_value2'
@@ -32,8 +32,8 @@ contains
    @Before
    subroutine set_up()
       integer :: status
-      parent = ESMF_HConfigCreate(_RC)
-      child = ESMF_HConfigCreate(_RC)
+      parent = ESMF_HConfigCreate(content='', _RC)
+      child = ESMF_HConfigCreate(content='', _RC)
       hconfig_content = ESMF_HConfigCreate(_RC)
    end subroutine set_up
 
