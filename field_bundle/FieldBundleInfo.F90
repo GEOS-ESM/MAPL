@@ -34,6 +34,7 @@ contains
 
    subroutine fieldbundle_get_internal(info, unusable, &
         namespace, &
+        vgrid_id, &
         fieldBundleType, &
         typekind, interpolation_weights, &
         ungridded_dims, num_levels, vert_staggerloc, num_vgrid_levels, &
@@ -46,6 +47,7 @@ contains
 
       type(ESMF_Info), intent(in) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: vgrid_id
       character(*), optional, intent(in) :: namespace
       type(FieldBundleType_Flag), optional, intent(out) :: fieldBundleType
       type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
@@ -73,7 +75,7 @@ contains
          namespace_ = namespace
       end if
 
-      if (present(fieldBundleType)) then
+     if (present(fieldBundleType)) then
          call ESMF_InfoGetCharAlloc(info, key=namespace_//KEY_FIELDBUNDLETYPE_FLAG, value=fieldBundleType_str, _RC)
          fieldBundleType = FieldBundleType_Flag(fieldBundleType_str)
       end if
@@ -105,7 +107,9 @@ contains
       call FieldInfoGetInternal(info, namespace = namespace_//KEY_FIELD_PROTOTYPE, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, num_vgrid_levels=num_vgrid_levels, &
-           units=units, long_name=long_name, standard_name=standard_name, spec_handle=spec_handle, _RC)
+           units=units, long_name=long_name, standard_name=standard_name, spec_handle=spec_handle, &
+           vgrid_id=vgrid_id, &
+           _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -137,6 +141,7 @@ contains
         num_levels, vert_staggerloc, &
         units, standard_name, long_name, &
         allocation_status, &
+        vgrid_id, &
         spec_handle, &
         bracket_updated, &
         has_geom, &
@@ -155,6 +160,7 @@ contains
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
       type(StateItemAllocation), optional, intent(in) :: allocation_status
+      integer, optional, intent(in) :: vgrid_id
       integer, optional, intent(in) :: spec_handle(:)
       logical, optional, intent(in) :: bracket_updated
       logical, optional, intent(in) :: has_geom
@@ -200,6 +206,7 @@ contains
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
            units=units, long_name=long_name, standard_name=standard_name, &
+           vgrid_id=vgrid_id, &
            spec_handle=spec_handle, _RC)
 
        _RETURN(_SUCCESS)
