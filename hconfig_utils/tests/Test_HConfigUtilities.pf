@@ -32,8 +32,8 @@ contains
    @Before
    subroutine set_up()
       integer :: status
-      parent = ESMF_HConfigCreate(content='', _RC)
-      child = ESMF_HConfigCreate(content='', _RC)
+      parent = ESMF_HConfigCreate(_RC)
+      child = ESMF_HConfigCreate(_RC)
       hconfig_content = ESMF_HConfigCreate(_RC)
    end subroutine set_up
 
@@ -68,7 +68,6 @@ contains
       integer :: status
       logical :: defined
       character(len=80) :: msg
-
 
       call ESMF_HConfigAdd(hconfig_content, content=PVALUE1, addKeyString=KEY1, _RC)
       call ESMF_HConfigAdd(hconfig_content, content=PVALUE5, addKeyString=KEY5, _RC)
