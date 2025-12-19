@@ -1,7 +1,7 @@
 #include "MAPL_ErrLog.h"
 module mapl3g_PrimaryExport
    use ESMF
-   use MAPL_ExceptionHandling 
+   use MAPL_ExceptionHandling
    use mapl3g_AbstractDataSetFileSelector
    use mapl3g_NonClimDataSetFileSelector
    use mapl3g_ClimDataSetFileSelector
@@ -25,6 +25,7 @@ module mapl3g_PrimaryExport
    use mapl3g_EsmfRegridder, only: EsmfRegridderParam
    use mapl3g_RegridderMethods
    implicit none
+   private
 
    public PrimaryExport
 
@@ -59,7 +60,7 @@ module mapl3g_PrimaryExport
 
    contains
 
-   function new_PrimaryExport(export_var, rule, collection, sample, time_range, time_step,  rc) result(primary_export) 
+   function new_PrimaryExport(export_var, rule, collection, sample, time_range, time_step,  rc) result(primary_export)
       type(PrimaryExport) :: primary_export
       character(len=*), intent(in) :: export_var
       type(ExtDataRule), pointer, intent(in) :: rule
@@ -68,9 +69,9 @@ module mapl3g_PrimaryExport
       type(ESMF_Time), intent(in) :: time_range(:)
       type(ESMF_TimeInterval), intent(in) :: time_step
       integer, optional, intent(out) :: rc
-      
-      type(NonClimDataSetFileSelector) :: non_clim_file_selector 
-      type(ClimDataSetFileSelector) :: clim_file_selector 
+
+      type(NonClimDataSetFileSelector) :: non_clim_file_selector
+      type(ClimDataSetFileSelector) :: clim_file_selector
       type(DataSetNode) :: left_node, right_node
       character(len=:), allocatable :: file_template
       integer :: status, semi_pos
@@ -177,7 +178,7 @@ module mapl3g_PrimaryExport
 
       _RETURN(_SUCCESS)
    end subroutine complete_export_spec
-      
+
    subroutine update_export_spec(this, item_name, exportState, rc)
       class(PrimaryExport), intent(inout) :: this
       character(len=*), intent(in) :: item_name
@@ -223,7 +224,7 @@ module mapl3g_PrimaryExport
 
       _RETURN(_SUCCESS)
    end subroutine update_export_spec
-      
+
    subroutine update_my_bracket(this, bundle, current_time, weights, rc)
       class(PrimaryExport), intent(inout) :: this
       type(ESMF_FieldBundle), intent(inout) :: bundle
@@ -254,7 +255,7 @@ module mapl3g_PrimaryExport
          weights(1) = this%linear_trans(1)
          weights(2:5) = weights(2:5)*this%linear_trans(2)
       end if
-      
+
       _RETURN(_SUCCESS)
    end subroutine update_my_bracket
 
@@ -273,7 +274,7 @@ module mapl3g_PrimaryExport
       character(len=:), allocatable :: filename
       integer :: time_index,i,list_start
       character(len=:), pointer :: variable_name
-    
+
       list_start=1
       if (this%file_vars%size() == 2) list_start = 2
       node = this%bracket%get_left_node()
@@ -333,7 +334,7 @@ module mapl3g_PrimaryExport
          else
             _FAIL('Unsupported typekind')
          end if
-      enddo 
+      enddo
       _RETURN(_SUCCESS)
 
    end subroutine set_fraction_values_to_zero

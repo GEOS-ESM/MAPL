@@ -2,7 +2,7 @@ esma_set_this(OVERRIDE MAPL.gridcomps)
 
 esma_add_library (${this}
      SRCS MAPL_GridComps.F90
-     DEPENDENCIES MAPL.base MAPL.pfio MAPL_cfio_r4 MAPL.cap
+     DEPENDENCIES MAPL.base MAPL.pfio MAPL_cfio_r4
                   $<$<BOOL:${BUILD_WITH_FARGPARSE}>:FARGPARSE::fargparse>
      TYPE SHARED
      )
@@ -14,13 +14,10 @@ if (BUILD_WITH_FARGPARSE)
   target_compile_definitions (${this} PRIVATE USE_FARGPARSE)
 endif()
 
-add_subdirectory(Cap)
-add_subdirectory(History)
 add_subdirectory(Orbit)
 add_subdirectory(cap3g)
 add_subdirectory(History3G)
 add_subdirectory(configurable)
 add_subdirectory(ExtData3G)
-add_subdirectory(ExtData2G)
 add_subdirectory(StatisticsGridComp)
 add_subdirectory(FakeParent)
