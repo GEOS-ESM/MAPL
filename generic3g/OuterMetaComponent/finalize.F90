@@ -33,14 +33,14 @@ contains
   
       call recurse_finalize_(this, phase_idx=GENERIC_FINALIZE_USER, _RC)
 
+      ! Finalize profiler
+      call this%profiler%stop(_RC)
+      call report_generic_profile(this, _RC)
+
       ! User gridcomp may not have any given phase; not an error condition if not found
       finalize_phases => this%user_phases_map%at(ESMF_METHOD_FINALIZE, _RC)
       phase_idx = get_phase_index(finalize_phases, phase_name=phase_name, found=found)
       _RETURN_UNLESS(found)
-
-      ! Finalize profiler
-      call this%profiler%stop(_RC)
-      call report_generic_profile(this, _RC)
 
       call this%run_custom(ESMF_METHOD_FINALIZE, PHASE_NAME, _RC)
 
