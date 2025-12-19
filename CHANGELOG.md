@@ -1,4 +1,4 @@
-# Changelog
+# Changelog 
 
 All notable changes to this project will be documented in this file.
 
@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- Removes backward compatibility for MAPL_FargparseCLI functions. Only accepts function usage in which the result is of
+- Removes backward compatibility for `MAPL_FargparseCLI` functions. Only accepts function usage in which the result is of
   MAPL_CapOptions type.
 - Remove FLAP support.
 - Remove `BUILD_SHARED_MAPL` CMake option. MAPL3 is now always built as a shared library.
