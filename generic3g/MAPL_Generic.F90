@@ -65,7 +65,6 @@ module mapl3g_Generic
    public :: MAPL_GridCompGetOuterMeta
    public :: MAPL_GridCompGetRegistry
 
-
    ! These should be available to users
    public :: MAPL_GridCompAddVarSpec
    public :: MAPL_GridCompAddSpec
@@ -102,6 +101,10 @@ module mapl3g_Generic
    public :: MAPL_GridCompAddConnectivity
    public :: MAPL_GridCompReexport
    public :: MAPL_GridCompConnectAll
+
+   ! Timers
+   public :: MAPL_GridCompTimerStart
+   public :: MAPL_GridCompTimerStop
 
    ! Spec types
    public :: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
@@ -211,6 +214,14 @@ module mapl3g_Generic
       procedure :: gridcomp_connect_all
    end interface MAPL_GridCompConnectAll
 
+   interface MAPL_GridCompTimerStart
+      procedure :: gridcomp_timer_start
+   end interface MAPL_GridCompTimerStart
+
+   interface MAPL_GridCompTimerStop
+      procedure :: gridcomp_timer_stop
+   end interface MAPL_GridCompTimerStop
+
    interface MAPL_ClockGet
       procedure :: clock_get_dt
    end interface MAPL_ClockGet
@@ -279,7 +290,6 @@ contains
         num_levels, &
         num_children, &
         rc)
-
       type(ESMF_GridComp), intent(inout) :: gridcomp
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(:), optional, allocatable :: name
@@ -603,7 +613,6 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_add_spec
-
 
    subroutine gridcomp_advertise_variable(gridcomp, var_spec, rc)
       type(esmf_GridComp), intent(inout) :: gridcomp
@@ -1079,7 +1088,6 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_add_simple_connectivity
 
-
    subroutine gridcomp_reexport(gridcomp, unusable, src_comp, src_name, src_intent, new_name, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -1101,6 +1109,34 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_reexport
+
+   subroutine gridcomp_timer_start(gridcomp, name, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      character(len=*), intent(in) :: name
+      integer, optional, intent(out) :: rc
+
+      type(OuterMetaComponent), pointer :: outer_meta
+      integer :: status
+
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call outer_meta%start_timer(name, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine gridcomp_timer_start
+
+   subroutine gridcomp_timer_stop(gridcomp, name, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      character(len=*), intent(in) :: name
+      integer, optional, intent(out) :: rc
+
+      type(OuterMetaComponent), pointer :: outer_meta
+      integer :: status
+
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call outer_meta%stop_timer(name, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine gridcomp_timer_stop
 
    subroutine clock_get_dt(clock, dt, rc)
       type(ESMF_Clock), intent(in) :: clock

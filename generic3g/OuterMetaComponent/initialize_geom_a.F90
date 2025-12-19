@@ -1,11 +1,14 @@
 #include "MAPL.h"
 
 submodule (mapl3g_OuterMetaComponent) initialize_geom_a_smod
+
    use mapl3g_GenericPhases
    use mapl3g_GeometrySpec
    use mapl3g_Geom_API
    use mapl3g_GriddedComponentDriver
    use mapl_ErrorHandling
+   use MAPL_MpiTimerGauge, only: MpiTimerGauge
+
    implicit none(type,external)
 
 contains
@@ -17,13 +20,14 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_GEOM_A'
       class(GriddedComponentDriver), pointer :: provider
       type(ESMF_GridComp) :: provider_gc
       type(OuterMetaComponent), pointer :: provider_meta
       type(MaplGeom), pointer :: mapl_geom
       type(GeomManager), pointer :: geom_mgr
+      type(ESMF_VM) :: vm
+      integer :: comm, status
 
       ! Handle case where component provides its own geometry.
        associate (geometry_spec => this%component_spec%geometry_spec)
@@ -36,6 +40,12 @@ contains
            this%vertical_grid = geometry_spec%vertical_grid
         end if
       end associate
+
+      ! Initialize profiler
+      call ESMF_VMGetCurrent(vm, _RC)
+      call ESMF_VMGet(vm, mpiCommunicator=comm, _RC)
+      this%profiler = DistributedProfiler(this%user_gc_driver%get_name(), MpiTimerGauge(), comm=comm)
+      call this%profiler%start(_RC)
 
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
       call recurse(this, phase_idx=GENERIC_INIT_GEOM_A, _RC)

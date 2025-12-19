@@ -1,11 +1,14 @@
 #include "MAPL.h"
 
 submodule (mapl3g_OuterMetaComponent) initialize_user_smod
+
    use mapl3g_GenericPhases
    use mapl3g_ComponentDriver
    use mapl3g_ComponentDriverPtrVector
    use mapl3g_CouplerPhases, only: GENERIC_COUPLER_INITIALIZE
    use mapl_ErrorHandling
+   use pflogger, only: logger_t => logger
+
    implicit none
 
 contains
@@ -16,11 +19,11 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_USER'
       type(ComponentDriverPtrVector) :: import_Couplers
       type(ComponentDriverPtr) :: drvr
-      integer :: i
+      class(logger_t), pointer :: logger
+      integer :: i, status
 
       call recurse(this, phase_idx=GENERIC_INIT_USER, _RC)
 
@@ -30,7 +33,12 @@ contains
          call drvr%ptr%initialize(phase_idx=GENERIC_COUPLER_INITIALIZE, _RC)
       end do
 
+      logger => this%get_logger()
+      call logger%info("Initialize:: starting...")
+      call this%start_timer("Initialize", _RC)
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
+      call this%stop_timer("Initialize", _RC)
+      call logger%info("Initialize:: ...completed")
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)

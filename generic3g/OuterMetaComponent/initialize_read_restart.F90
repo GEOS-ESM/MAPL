@@ -42,12 +42,16 @@ contains
 
       if (this%component_spec%misc%restart_controls%import) then
          filename = mapl_PathJoin(subdir, driver%get_name() // '_import.nc')
+         call this%start_timer("ReadImportRestart", _RC)
          call restart_handler%read(states%importState, filename, _RC)
+         call this%stop_timer("ReadImportRestart", _RC)
       end if
       
       if (this%component_spec%misc%restart_controls%internal) then
          filename = mapl_PathJoin(subdir, driver%get_name() // '_internal.nc')
+         call this%start_timer("ReadInternalRestart", _RC)
          call restart_handler%read(states%internalState, filename, _RC)
+         call this%stop_timer("ReadInternalRestart", _RC)
       end if
       
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
