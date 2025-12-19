@@ -4,6 +4,7 @@ module mapl3g_HConfigUtilities
    use esmf, only: ESMF_HConfigIterEnd, ESMF_HConfigIterLoop
    use esmf, only: ESMF_HConfigCreate, ESMF_HConfigIsMap, ESMF_HConfigAsStringMapKey
    use esmf, only: ESMF_HConfigIsDefined, ESMF_HConfigCreateAtMapVal, ESMF_HConfigSet
+   use esmf, only: ESMF_HConfigFileSave, ESMF_HConfigFileLoad
    use mapl_ErrorHandling
    implicit none(type,external)
    private
@@ -37,14 +38,14 @@ contains
       _ASSERT(ESMF_HConfigIsMap(child_hconfig), 'child hconfig must be a mapping.')
       total_hconfig = ESMF_HConfigCreate(child_hconfig, _RC)
 
-      iter_begin = ESMF_HConfigIterBegin(parent_hconfig, rc=rc)
-      iter_end = ESMF_HConfigIterEnd(parent_hconfig, rc=rc)
+      iter_begin = ESMF_HConfigIterBegin(parent_hconfig, _RC)
+      iter_end = ESMF_HConfigIterEnd(parent_hconfig, _RC)
       iter = iter_begin
       do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
          _VERIFY(status)
 
          ! ignore mapl section
-         key = ESMF_HConfigAsStringMapKey(iter, rc=rc)
+         key = ESMF_HConfigAsStringMapKey(iter, _RC)
          if (key == MAPL_SECTION) cycle
 
          ! ignore duplicate key
