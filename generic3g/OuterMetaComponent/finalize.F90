@@ -20,34 +20,46 @@ contains
 
       type(GriddedComponentDriver), pointer :: child
       type(GriddedComponentDriverMapIterator) :: iter
-      integer :: status
+      integer :: phase_idx, status
       character(*), parameter :: PHASE_NAME = 'GENERIC::FINALIZE_USER'
       type(StringVector), pointer :: finalize_phases
       logical :: found
   
-      finalize_phases => this%user_phases_map%at(ESMF_METHOD_FINALIZE, _RC)
+      call recurse_finalize_(this, phase_idx=GENERIC_FINALIZE_USER, _RC)
+
       ! User gridcomp may not have any given phase; not an error condition if not found.
-      associate (phase => get_phase_index(finalize_phases, phase_name=phase_name, found=found))
-        _RETURN_UNLESS(found)
+      finalize_phases => this%user_phases_map%at(ESMF_METHOD_FINALIZE, _RC)
+      phase_idx = get_phase_index(finalize_phases, phase_name=phase_name, found=found)
+      _RETURN_UNLESS(found)
 
-        associate(b => this%children%begin(), e => this%children%end())
-          iter = b
-          do while (iter /= e)
-             child => iter%second()
-             call child%finalize(phase_idx=GENERIC_FINALIZE_USER, _RC)
-             call iter%next()
-          end do
-        end associate
+      call this%run_custom(ESMF_METHOD_FINALIZE, PHASE_NAME, _RC)
 
-        call this%run_custom(ESMF_METHOD_FINALIZE, PHASE_NAME, _RC)
-
-        ! TODO - component profile
-        ! TODO - release resources
-
-      end associate
+      ! TODO - component profile
+      ! TODO - release resources
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine finalize
+
+   recursive subroutine recurse_finalize_(this, phase_idx, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer :: phase_idx
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(GriddedComponentDriverMapIterator) :: iter
+      type(GriddedComponentDriver), pointer :: child
+
+      associate(e => this%children%ftn_end())
+        iter = this%children%ftn_begin()
+        do while (iter /= e)
+           call iter%next()
+           child => iter%second()
+           call child%finalize(phase_idx=phase_idx, _RC)
+        end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine recurse_finalize_
 
 end submodule finalize_smod
