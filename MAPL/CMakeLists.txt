@@ -3,7 +3,7 @@ esma_set_this()
 
 esma_add_library (${this}
   SRCS MAPL.F90
-  DEPENDENCIES MAPL.base MAPL.generic MAPL.pfio MAPL_cfio_r4 MAPL.gridcomps MAPL.orbit MAPL.griddedio MAPL.field ${EXTDATA_TARGET}
+  DEPENDENCIES mapl3g MAPL.base MAPL.generic MAPL.pfio MAPL_cfio_r4 MAPL.gridcomps MAPL.orbit MAPL.griddedio MAPL.field ${EXTDATA_TARGET}
                ESMF::ESMF NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   TYPE SHARED
   )
