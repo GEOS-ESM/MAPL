@@ -332,7 +332,7 @@
    use MAPL_ESMFFieldBundleRead
    use MAPL_ServerManager
    use MAPL_FileMetadataUtilsMod
-   use gFTL_StringVector
+   use gFTL2_StringVector
    use regrid_util_support_mod
    use mpi
 

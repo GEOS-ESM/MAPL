@@ -1,11 +1,6 @@
 ! This module re-exports the public entities
 ! of the underlying packages.
 module MAPL
-! NAG 7.2.36 (at least) has issues with this sort of rename
-   use mapl3, private_mapl_GridGet => mapl_GridGet, &
-      private_mapl_Initialize => mapl_Initialize, &
-      private_mapl_Finalize => mapl_Finalize, &
-      private_mapl_GridCompSetEntryPoint => mapl_GridCompSetEntryPoint
    use MAPLBase_mod
    use MAPL_GenericMod
    use MAPL_VarSpecMiscMod
@@ -20,6 +15,8 @@ module MAPL
    use MAPL_OpenMP_Support, only : MAPL_find_bounds => find_bounds
    use MAPL_OpenMP_Support, only : MAPL_Interval => Interval
    use MAPL_Profiler, initialize_profiler => initialize, finalize_profiler => finalize
+   use MAPL_FieldUtils
+   use MAPL_StateUtils
    implicit none
 end module MAPL
 
