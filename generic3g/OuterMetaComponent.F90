@@ -18,6 +18,7 @@ module mapl3g_OuterMetaComponent
    use mapl3g_SimpleAlarm
    use gFTL2_StringVector
    use mapl_keywordEnforcer, only: KE => KeywordEnforcer
+   use MAPL_Profiler, only: DistributedProfiler
    use esmf
    use pflogger, only: Logger
 
@@ -57,6 +58,7 @@ module mapl3g_OuterMetaComponent
       integer :: counter
 
       type(SimpleAlarm) :: user_run_alarm
+      type(DistributedProfiler) :: profiler
 
    contains
 

@@ -34,11 +34,11 @@ contains
       end do
 
       logger => this%get_logger()
-      call logger%debug("Initialize:: starting...")
-      call this%start_timer("Initialize "//this%get_name(), _RC)
+      call logger%info("Initialize:: starting...")
+      call this%start_timer("Initialize", _RC)
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
-      call this%stop_timer("Initialize "//this%get_name(), _RC)
-      call logger%debug("Initialize:: ...completed")
+      call this%stop_timer("Initialize", _RC)
+      call logger%info("Initialize:: ...completed")
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
