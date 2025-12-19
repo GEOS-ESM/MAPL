@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated CI to use Baselibs 8.24.0
+  - This provides ESMF 9.0.0b08
+  - Update ifx tests to 2025.3 (enabled by ESMF 9.0.0b08)
+
 ### Removed
 
 ### Deprecated
