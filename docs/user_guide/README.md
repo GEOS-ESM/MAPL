@@ -1,6 +1,6 @@
 # MAPL User's Guide
 
-This document describes the Modeling Analysis and Prediction Layer (MAPL), a software layer and set of conventions standardize the use of [ESMF](http://www.earthsystemmodeling.org). 
+This document describes the Modeling Analysis and Prediction Layer (MAPL), a software layer and set of conventions standardize the use of [ESMF](http://www.earthsystemmodeling.org).
 MAPL seats on to of ESMF to simplify the creation and use of ESMF gridded components
 in a hierarchical architecture.
 It:
@@ -8,7 +8,7 @@ It:
 1. Facilitates the porting of existing codes to ESMF.
 2. Provides tools and a straightforward recipe for building
    new ESMF components.
-3. Provides much greater interoperability between compliant components 
+3. Provides much greater interoperability between compliant components
    than between current ESMF compliant components.
 
 ## 1 [Introduction](docs/mapl_Introduction.md)
@@ -35,4 +35,6 @@ It:
 
 ### 3.9 [Automatic Code Generator](docs/mapl_code_generator.md)
 
+<!--
 ## 4 [Demos](../tutorial/README.md)
+-->
