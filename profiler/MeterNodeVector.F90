@@ -1,15 +1,16 @@
 module MAPL_MeterNodeVector
    use MAPL_AbstractMeterNode
 
-#define _type  class (AbstractMeterNode)
-#define _allocatable
-#define _vector MeterNodeVector
-#define _iterator MeterNodeVectorIterator
-#include "templates/vector.inc"
+#define T AbstractMeterNode
+#define T_polymorphic
+#define Vector MeterNodeVector
+#define VectorIterator MeterNodeVectorIterator
 
-#undef _iterator
-#undef _vector
-#undef _pointer
-#undef _type
+#include "vector/template.inc"
+
+#undef VectorIterator
+#undef Vector
+#undef T_polymorphic
+#undef T
    
 end module MAPL_MeterNodeVector

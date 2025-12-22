@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 module MAPL_MemoryProfiler_private
    use MAPL_BaseProfiler, only: BaseProfiler
    use MAPL_BaseProfiler, only: MemoryProfilerIterator => BaseProfilerIterator
@@ -53,7 +53,8 @@ contains
       class(MemoryProfiler), target, intent(inout) :: new
       class(BaseProfiler), target, intent(in) :: old
 
-      call new%copy_profiler(old)
+      _HERE
+!#      call new%copy_profiler(old)
 
    end subroutine copy
 

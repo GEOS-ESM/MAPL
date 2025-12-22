@@ -1,5 +1,4 @@
-#include "unused_dummy.H"
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 module mapl_TimeProfiler_private
    use mapl_BaseProfiler, only: BaseProfiler
@@ -49,7 +48,8 @@ contains
       class(TimeProfiler), target, intent(inout) :: new
       class(BaseProfiler), target, intent(in) :: old
 
-      call new%copy_profiler(old)
+      _HERE
+!#      call new%copy_profiler(old)
 
    end subroutine copy
 
