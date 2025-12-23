@@ -1,3 +1,4 @@
+#include "MAPL.h"
 module MAPL_DistributedProfiler
    use MAPL_AbstractMeter
    use MAPL_AbstractGauge
@@ -20,7 +21,7 @@ module MAPL_DistributedProfiler
    contains
       procedure :: make_meter
       procedure :: reduce
-      procedure :: copy
+!#      procedure :: copy
    end type DistributedProfiler
 
    interface DistributedProfiler

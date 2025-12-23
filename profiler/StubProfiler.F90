@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 module MAPL_StubProfiler
    use MAPL_BaseProfiler, only: BaseProfiler
    use MAPL_DistributedProfiler
@@ -62,7 +62,8 @@ contains
       class(StubProfiler), target, intent(inout) :: new
       class(BaseProfiler), target, intent(in) :: old
 
-      call new%copy_profiler(old)
+      _HERE
+!#      call new%copy_profiler(old)
 
    end subroutine copy
 
