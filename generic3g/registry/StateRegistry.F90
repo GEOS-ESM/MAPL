@@ -332,6 +332,7 @@ contains
          _FAIL('Illegal subtype of AbstractRegistry encountered.')
       end select
 
+      _RETURN(_SUCCESS)
    end function get_subregistry_by_name
 
    function get_subregistry_by_conn_pt(this, conn_pt, rc) result(subregistry)

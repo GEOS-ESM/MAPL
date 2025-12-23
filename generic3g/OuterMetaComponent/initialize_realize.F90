@@ -9,7 +9,7 @@ submodule (mapl3g_OuterMetaComponent) initialize_realize_smod
 contains
 
    module recursive subroutine initialize_realize(this, importState, exportState, clock, unusable, rc)
-      class(OuterMetaComponent), intent(inout) :: this
+      class(OuterMetaComponent), target, intent(inout) :: this
       type(esmf_State) :: importState
       type(esmf_State) :: exportState
       type(esmf_Clock) :: clock
