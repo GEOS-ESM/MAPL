@@ -102,8 +102,7 @@ CONTAINS
 
 !   Wrap internal state for storing in GC; rename legacyState
 !   -------------------------------------
-    allocate ( self, stat=STATUS )
-    _VERIFY(STATUS)
+    allocate ( self, _STAT )
     wrap%ptr => self
 
 !   Load private Config Attributes
@@ -111,8 +110,7 @@ CONTAINS
     self%CF = ESMF_ConfigCreate(_RC)
     inquire(file="MAPL_OrbGridComp.rc", exist=found)
     if (found) then
-       call ESMF_ConfigLoadFile ( self%CF,'MAPL_OrbGridComp.rc',rc=status)
-       _VERIFY(STATUS)
+       call ESMF_ConfigLoadFile ( self%CF,'MAPL_OrbGridComp.rc',_RC)
 
        call ESMF_ConfigGetAttribute(self%CF, self%verbose, Label='verbose:', default=.false. ,  _RC )
 
@@ -150,15 +148,12 @@ CONTAINS
 
 !   Set the Initialize, Run, Finalize entry points
 !   ----------------------------------------------
-    call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_INITIALIZE, Initialize_, RC=STATUS)
-    _VERIFY(STATUS)
-    call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_RUN,   Run_,       RC=STATUS)
-    _VERIFY(STATUS)
+    call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_INITIALIZE, Initialize_, _RC)
+    call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_RUN,   Run_,       _RC)
 
 !   Store internal state in GC
 !   --------------------------
     call ESMF_UserCompSetInternalState ( GC, 'Orb_state', wrap, STATUS )
-    _VERIFY(STATUS)
 
 !                         ------------------
 !                         MAPL Data Services
@@ -169,7 +164,7 @@ CONTAINS
         SHORT_NAME     = trim(self%Instrument(i)) , &
         UNITS          = 'days' , &
         DIMS           = MAPL_DimsHorzOnly , &
-                RC = STATUS )
+                _RC )
     enddo
 
     call MAPL_AddExportSpec(GC, &
@@ -178,10 +173,9 @@ CONTAINS
      UNITS          = 'days' , &
      DIMS           = MAPL_DimsHorzOnly , &
      DATATYPE       = MAPL_BundleItem , &
-                RC = STATUS )
-    _VERIFY(STATUS)
+                _RC )
 
-    call MAPL_TimerAdd (gc,name="Run"     ,rc=status)
+    call MAPL_TimerAdd (gc,name="Run"     ,_RC)
 
 !   Generic Set Services
 !   --------------------
@@ -234,26 +228,21 @@ CONTAINS
 ! Get the target components name and set-up traceback handle.
 ! -----------------------------------------------------------
 
-    call ESMF_GridCompGet ( GC, name=COMP_NAME, VM=VM, RC=STATUS )
-    _VERIFY(STATUS)
+    call ESMF_GridCompGet ( GC, name=COMP_NAME, VM=VM, _RC )
     Iam = trim(COMP_NAME)//'::Initialize_'
 
-    call MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK,  RC=STATUS)
-    _VERIFY(STATUS)
+    call MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK,  _RC)
 
     call ESMF_UserCompGetInternalState(gc, 'Orb_state', WRAP, STATUS)
-    _VERIFY(STATUS)
     self => wrap%ptr
 
     if (self%no == 0) then
        _RETURN(ESMF_SUCCESS)
     endif
 
-    call ESMF_StateGet(EXPORT,'SATORB',BUNDLE,RC=STATUS)
-    _VERIFY(STATUS)
+    call ESMF_StateGet(EXPORT,'SATORB',BUNDLE,_RC)
 
-    call ESMF_GridCompGet ( GC, grid=GRID, RC=STATUS)
-    _VERIFY(STATUS)
+    call ESMF_GridCompGet ( GC, grid=GRID, _RC)
 
     ! set some info about the fields we will be adding . . .
     HW=0
@@ -261,33 +250,23 @@ CONTAINS
     LOCATION=MAPL_VLocationCenter
     KND=MAPL_R4
     do i = 1, self%no
-     field=mapl_FieldCreateEmpty(trim(self%Instrument(i)),Grid,RC=STATUS)
-     _VERIFY(STATUS)
-     call MAPL_FieldAllocCommit(field, dims=dims, location=location, typekind=knd, hw=hw, RC=STATUS)
-     _VERIFY(STATUS)
-     call MAPL_FieldBundleAdd(Bundle,Field,RC=STATUS)
-     _VERIFY(STATUS)
+     field=mapl_FieldCreateEmpty(trim(self%Instrument(i)),Grid,_RC)
+     call MAPL_FieldAllocCommit(field, dims=dims, location=location, typekind=knd, hw=hw, _RC)
+     call MAPL_FieldBundleAdd(Bundle,Field,_RC)
     enddo
 
     ! find out what type of grid we are on, if so
     gridtype_default='Lat-Lon'
-    call ESMF_InfoGetFromHost(Grid,infoh,rc=status)
-    _VERIFY(STATUS)
-    call ESMF_InfoGet(infoh,key='GridType',value=gridtype,default=gridtype_default,rc=status)
-    _VERIFY(STATUS)
+    call ESMF_InfoGetFromHost(Grid,infoh,_RC)
+    call ESMF_InfoGet(infoh,key='GridType',value=gridtype,default=gridtype_default,_RC)
     if (gridtype=='Cubed-Sphere') then
 
-       call MAPL_GetObjectFromGC(GC,MAPL_OBJ,rc=status)
-       _VERIFY(STATUS)
-       call MAPL_Get(MAPL_OBJ, im=im, jm=jm, rc=status)
-       _VERIFY(STATUS)
+       call MAPL_GetObjectFromGC(GC,MAPL_OBJ,_RC)
+       call MAPL_Get(MAPL_OBJ, im=im, jm=jm, _RC)
 
-       allocate(EdgeLons(IM+1,JM+1),stat=status)
-       _VERIFY(STATUS)
-       allocate(EdgeLats(IM+1,JM+1),stat=status)
-       _VERIFY(STATUS)
-       call MAPL_GridGetCorners(Grid,EdgeLons,EdgeLats,rc=status)
-       _VERIFY(STATUS)
+       allocate(EdgeLons(IM+1,JM+1),_STAT)
+       allocate(EdgeLats(IM+1,JM+1),_STAT)
+       call MAPL_GridGetCorners(Grid,EdgeLons,EdgeLats,_RC)
        call check_face(IM+1,JM+1,EdgeLons,EdgeLats,FACE)
        self%face=face
        allocate(self%x(IM+1,JM+1),self%y(IM+1,JM+1))
@@ -373,8 +352,7 @@ CONTAINS
       _RETURN(ESMF_SUCCESS)
    endif
 
-   call MAPL_GetObjectFromGC ( GC, MAPL_OBJ, RC=STATUS)
-   _VERIFY(STATUS)
+   call MAPL_GetObjectFromGC ( GC, MAPL_OBJ, _RC)
    call MAPL_TimerOn(MAPL_OBJ,"Run")
    call MAPL_Get(MAPL_OBJ,            &
         IM                  = IM,     &
@@ -382,16 +360,13 @@ CONTAINS
         LM                  = LM,     &
         LONS     = LONS,              &
         LATS     = LATS,              &
-        RC=STATUS )
-   _VERIFY(STATUS)
+        _RC )
 
 !  Figure out what type of grid we are on
 
    gridtype_default='Lat-Lon'
-   call ESMF_InfoGetFromHost(Grid,infoh,rc=status)
-   _VERIFY(STATUS)
-   call ESMF_InfoGet(infoh,key='GridType',value=gridtype,default=gridtype_default,rc=status)
-   _VERIFY(STATUS)
+   call ESMF_InfoGetFromHost(Grid,infoh,_RC)
+   call ESMF_InfoGet(infoh,key='GridType',value=gridtype,default=gridtype_default,_RC)
 
 !  Get the time interval, and start and end time
 !   timeinterval=timeinterval/2
@@ -411,8 +386,7 @@ CONTAINS
 
 !  set swath to zero for now
    swath=0.
-   call MAPL_GridGet(GRID, globalCellCountPerDim=COUNTS, RC=STATUS)
-   _VERIFY(STATUS)
+   call MAPL_GridGet(GRID, globalCellCountPerDim=COUNTS, _RC)
    IM_world = counts(1)
    JM_world = counts(2)
    if (JM_world == 6*IM_world) then
@@ -421,17 +395,16 @@ CONTAINS
       imsize = IM_World
    endif
 !  swatch(3) is actually the size of the length to use for interpolation
-   if( imsize.le.200       ) call ESMF_ConfigGetAttribute(self%CF,swath(3),LABEL='INTERPOLATION_WIDTH:', DEFAULT= 10.0 ,RC=STATUS)
+   if( imsize.le.200       ) call ESMF_ConfigGetAttribute(self%CF,swath(3),LABEL='INTERPOLATION_WIDTH:', DEFAULT= 10.0 ,_RC)
    if( imsize.gt.200 .and. &
-       imsize.le.400       ) call ESMF_ConfigGetAttribute(self%CF,swath(3),LABEL='INTERPOLATION_WIDTH:', DEFAULT= 5.0 ,RC=STATUS)
+       imsize.le.400       ) call ESMF_ConfigGetAttribute(self%CF,swath(3),LABEL='INTERPOLATION_WIDTH:', DEFAULT= 5.0 ,_RC)
    if( imsize.gt.400 .and. &
-       imsize.le.800       ) call ESMF_ConfigGetAttribute(self%CF,swath(3),LABEL='INTERPOLATION_WIDTH:', DEFAULT= 2.0 ,RC=STATUS)
+       imsize.le.800       ) call ESMF_ConfigGetAttribute(self%CF,swath(3),LABEL='INTERPOLATION_WIDTH:', DEFAULT= 2.0 ,_RC)
    if( imsize.gt.800 .and. &
-       imsize.le.1600      ) call ESMF_ConfigGetAttribute(self%CF,swath(3),LABEL='INTERPOLATION_WIDTH:', DEFAULT=  1.0 ,RC=STATUS)
-   if( imsize.gt.1600      ) call ESMF_ConfigGetAttribute(self%CF,swath(3),LABEL='INTERPOLATION_WIDTH:', DEFAULT=  0.5 ,RC=STATUS)
+       imsize.le.1600      ) call ESMF_ConfigGetAttribute(self%CF,swath(3),LABEL='INTERPOLATION_WIDTH:', DEFAULT=  1.0 ,_RC)
+   if( imsize.gt.1600      ) call ESMF_ConfigGetAttribute(self%CF,swath(3),LABEL='INTERPOLATION_WIDTH:', DEFAULT=  0.5 ,_RC)
 
-   call ESMF_ConfigDestroy( self%CF, rc=status)
-   _VERIFY(STATUS)
+   call ESMF_ConfigDestroy( self%CF, _RC)
 
 !  define undef
    undef=MAPL_UNDEF
@@ -440,18 +413,14 @@ CONTAINS
    deltat=10
 
 !  get orb bundle
-   call ESMF_StateGet(EXPORT,'SATORB',BUNDLE,RC=STATUS)
-   _VERIFY(STATUS)
-   call ESMF_FieldBundleGet(BUNDLE,fieldCOUNT=NORB,RC=STATUS)
-   _VERIFY(STATUS)
+   call ESMF_StateGet(EXPORT,'SATORB',BUNDLE,_RC)
+   call ESMF_FieldBundleGet(BUNDLE,fieldCOUNT=NORB,_RC)
    _ASSERT(NORB==self%no,'needs informative message')
 
 !  loop over each satellite and get it's mask
    do k=1,NORB
-    call ESMFL_BundleGetPointerToData(BUNDLE,trim(self%instrument(k)),PTR_TMP,RC=STATUS)
-    _VERIFY(STATUS)
-    call MAPL_GetPointer(EXPORT,PTR_TMP_EX,trim(self%instrument(k)),RC=STATUS)
-    _VERIFY(STATUS)
+    call ESMFL_BundleGetPointerToData(BUNDLE,trim(self%instrument(k)),PTR_TMP,_RC)
+    call MAPL_GetPointer(EXPORT,PTR_TMP_EX,trim(self%instrument(k)),_RC)
     sat_name=trim(self%Satellite(k))
     swath(1)=self%swath(k)
     swath(2)=self%swath(k)
@@ -460,11 +429,11 @@ CONTAINS
     if (gridtype == 'Lat-Lon') then
      if (associated(PTR_TMP)) call DoMasking_ (PTR_TMP, im, jm, lons, lats, undef, &
                               sat_name, interval_nymd, interval_nhms, deltat, swath,  &
-                              ihalo, jhalo, rc=status )
+                              ihalo, jhalo, _RC )
     else if (gridtype == 'Cubed-Sphere') then
      if (associated(PTR_TMP)) call DoMasking_CS (PTR_TMP, im, jm, self%x, self%y, undef, &
                               sat_name, interval_nymd, interval_nhms, deltat, swath,  &
-                              ihalo, jhalo, self%face, rc=status )
+                              ihalo, jhalo, self%face, _RC )
     endif
     ! if HISTORY is asking for mask to write this will be allocated
     if (associated(PTR_TMP_EX)) PTR_TMP_EX=PTR_TMP
@@ -515,7 +484,6 @@ CONTAINS
 !   Get my internal state
 !   ---------------------
     call ESMF_UserCompGetInternalState(gc, 'Orb_state', WRAP, STATUS)
-    _VERIFY(STATUS)
     self => wrap%ptr
 
 !   Get the configuration
@@ -713,8 +681,7 @@ CONTAINS
 
 !         Simple masking
 !         --------------
-          call orb_mask_xy(mask,im,jm,x,y,tlons,tlats,size(tlons),jsegs,0.,360.,face,rc=status)
-!          _VERIFY(STATUS)
+          call orb_mask_xy(mask,im,jm,x,y,tlons,tlats,size(tlons),jsegs,0.,360.,face,_RC)
 
           deallocate(tlons,tlats)
 
