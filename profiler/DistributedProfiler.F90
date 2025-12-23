@@ -21,10 +21,6 @@ module MAPL_DistributedProfiler
    contains
       procedure :: make_meter
       procedure :: reduce
-<<<<<<< HEAD
-!#      procedure :: copy
-=======
->>>>>>> 6ef8fe82 (Some code cleanup.)
    end type DistributedProfiler
 
    interface DistributedProfiler
