@@ -41,6 +41,7 @@
 
 ! Legacy state
 ! ------------
+  character(*), parameter :: PRIVATE_STATE = "StateOrb"
   TYPE Orb_State
      PRIVATE
 
@@ -60,9 +61,9 @@
 
 ! Hook for the ESMF
 ! -----------------
-  TYPE Orb_Wrap
-     TYPE (Orb_State), pointer :: PTR => null()
-  END TYPE Orb_WRAP
+!  TYPE Orb_Wrap
+!     TYPE (Orb_State), pointer :: PTR => null()
+!  END TYPE Orb_WRAP
 !
 !------------------------------------------------------------------------------
 CONTAINS
@@ -79,7 +80,7 @@ CONTAINS
 !   Local derived type aliases
 !   --------------------------
     type (Orb_State), pointer  :: self   ! internal, that is
-    type (Orb_wrap)            :: wrap
+!    type (Orb_wrap)            :: wrap
 
     character(len=ESMF_MAXSTR) :: comp_name
 
@@ -102,8 +103,8 @@ CONTAINS
 
 !   Wrap internal state for storing in GC; rename legacyState
 !   -------------------------------------
-    allocate ( self, _STAT )
-    wrap%ptr => self
+!    allocate ( self, _STAT )
+!    wrap%ptr => self
 
 !   Load private Config Attributes
 !   ------------------------------
@@ -153,7 +154,8 @@ CONTAINS
 
 !   Store internal state in GC
 !   --------------------------
-    call ESMF_UserCompSetInternalState ( GC, 'Orb_state', wrap, STATUS )
+    _SET_NAMED_PRIVATE_STATE(GC, Orb_state, PRIVATE_STATE)
+!    call ESMF_UserCompSetInternalState ( GC, 'Orb_state', wrap, STATUS )
 
 !                         ------------------
 !                         MAPL Data Services
@@ -211,7 +213,7 @@ CONTAINS
     type(ESMF_GRID)                         :: GRID
     type(ESMF_FIELDBUNDLE)                  :: BUNDLE
     type(Orb_state), pointer           :: self         ! Legacy state
-    type(Orb_Wrap)               :: wrap
+!    type(Orb_Wrap)               :: wrap
 
     integer :: KND, HW, DIMS, LOCATION
     integer :: i
@@ -233,8 +235,9 @@ CONTAINS
 
     call MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK,  _RC)
 
-    call ESMF_UserCompGetInternalState(gc, 'Orb_state', WRAP, STATUS)
-    self => wrap%ptr
+     _GET_NAMED_PRIVATE_STATE(GC, Orb_State, PRIVATE_STATE, self)
+!    call ESMF_UserCompGetInternalState(gc, 'Orb_state', WRAP, STATUS)
+!    self => wrap%ptr
 
     if (self%no == 0) then
        _RETURN(ESMF_SUCCESS)
@@ -470,7 +473,7 @@ CONTAINS
 
                                  _Iam_('extract_')
 
-    type(Orb_Wrap)               :: wrap
+!    type(Orb_Wrap)               :: wrap
     integer                       :: iyr, imm, idd, ihr, imn, isc
     integer                       :: status
 
@@ -483,8 +486,9 @@ CONTAINS
 
 !   Get my internal state
 !   ---------------------
-    call ESMF_UserCompGetInternalState(gc, 'Orb_state', WRAP, STATUS)
-    self => wrap%ptr
+     _GET_NAMED_PRIVATE_STATE(GC, Orb_State, PRIVATE_STATE, self)
+!    call ESMF_UserCompGetInternalState(gc, 'Orb_state', WRAP, STATUS)
+!    self => wrap%ptr
 
 !   Get the configuration
 !   ---------------------
