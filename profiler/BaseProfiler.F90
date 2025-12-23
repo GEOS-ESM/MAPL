@@ -53,8 +53,6 @@ module mapl_BaseProfiler
       procedure :: get_root_node
       procedure :: get_status
       procedure :: copy_profiler
-!#      procedure(copy_profiler), deferred :: copy
-!#      generic :: assignment(=) => copy
 
       procedure :: reset
       procedure :: accumulate

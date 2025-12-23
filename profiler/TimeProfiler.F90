@@ -18,7 +18,7 @@ module mapl_TimeProfiler_private
       private
    contains
       procedure :: make_meter
-      procedure :: copy
+
    end type TimeProfiler
 
    interface TimeProfiler
@@ -43,15 +43,6 @@ contains
       _UNUSED_DUMMY(this)
       meter = AdvancedMeter(MpiTimerGauge())
    end function make_meter
-
-   subroutine copy(new, old)
-      class(TimeProfiler), target, intent(inout) :: new
-      class(BaseProfiler), target, intent(in) :: old
-
-      _HERE
-!#      call new%copy_profiler(old)
-
-   end subroutine copy
 
 end module mapl_TimeProfiler_Private
 

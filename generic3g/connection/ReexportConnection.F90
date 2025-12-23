@@ -62,7 +62,7 @@ contains
 
    ! No-op: reexports are always active
    recursive subroutine activate(this, registry, rc)
-      class(ReexportConnection), intent(in) :: this
+      class(ReexportConnection), target, intent(in) :: this
       type(StateRegistry), target, intent(inout) :: registry
       integer, optional, intent(out) :: rc
 
@@ -80,7 +80,7 @@ contains
    end subroutine activate
 
    recursive subroutine connect(this, registry, rc)
-      class(ReexportConnection), intent(inout) :: this
+      class(ReexportConnection), target, intent(inout) :: this
       type(StateRegistry), target, intent(inout) :: registry
       integer, optional, intent(out) :: rc
 
