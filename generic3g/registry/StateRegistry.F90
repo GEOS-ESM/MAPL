@@ -321,7 +321,7 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      wrap => this%subregistries%at(name,_RC)
+      wrap => this%subregistries%at(name, _RC)
       _ASSERT(associated(wrap%registry), 'null pointer encountered for subregistry.')
 
       select type (q => wrap%registry)
@@ -343,7 +343,7 @@ contains
 
       integer :: status
 
-      subregistry => this%get_subregistry(conn_pt%component_name,_RC)
+      subregistry => this%get_subregistry(conn_pt%component_name, _RC)
 
       _RETURN(_SUCCESS)
    end function get_subregistry_by_conn_pt
@@ -693,7 +693,8 @@ contains
 
       type(VirtualConnectionPt), pointer :: v_pt
       type(VirtualPtFamilyMapIterator) :: iter
-      
+
+      matches = VirtualConnectionPtVector()
       associate (e => this%family_map%ftn_end())
         iter = this%family_map%ftn_begin()
         do while (iter /= e)
