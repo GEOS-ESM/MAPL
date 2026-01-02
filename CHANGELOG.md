@@ -62,8 +62,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added updated version of `MAPL_GridCompSpecs_ACG_writer.py`
+- Added EASE grid support to Regridder_Util program
+- Create TilegridIO's outbundle from output grid and deallocate mGriddedIO in History
 - Added 'Gridname' attribute to history output
-- Create TilgridIO's outbundle from output grid and deallocate mGriddedIO in History
 - Added TileGridIO.F90 to output NC4 History file in tile space. The collection's format should be 'CFIO'
 - Added bit shave to TileGridIO
 
