@@ -136,7 +136,7 @@ program main
       end do
       write(*,'(a)') ''
    end if
-   
+
 !   call mem_prof%finalize()
 !   if (rank == 0) then
 !      report_lines = mem_reporter%generate_report(mem_prof)
@@ -161,7 +161,7 @@ contains
       real, allocatable :: x(:)
       integer :: thread, nthreads
 
-!$omp parallel private(x, thread)
+!$omp parallel default(none) private(x, thread, nthreads) shared(prof, rank)
       thread = OMP_GET_THREAD_NUM()
       nthreads = OMP_GET_NUM_THREADS()
       call prof%start('timer_1') ! 2
@@ -182,13 +182,10 @@ contains
       call prof%stop('timer_2')
 
       call prof%start('timer_1') ! 2
-      block
-        real, allocatable :: x(:)
-        allocate(x(1000000))
-        call random_number(x)
+      allocate(x(1000000))
+      call random_number(x)
       print*, 'Second sum rank, thread ', rank, thread, ' of ', nthreads, ' threads: ', sum(x)
-        deallocate(x)
-      end block
+      deallocate(x)
       call prof%start('timer_1a')! 3
       call prof%stop('timer_1a')
       call prof%stop('timer_1')
