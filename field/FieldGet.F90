@@ -28,6 +28,7 @@ contains
         ungridded_dims, &
         units, standard_name, long_name, &
         allocation_status, &
+        has_deferred_aspects, &
         rc)
       type(ESMF_Field), intent(in) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -43,13 +44,14 @@ contains
       character(len=:), optional, allocatable, intent(out) :: standard_name
       character(len=:), optional, allocatable, intent(out) :: long_name
       type(StateItemAllocation), optional, intent(out) :: allocation_status
+      logical, optional, intent(out) :: has_deferred_aspects
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(ESMF_Info) :: field_info
       character(len=ESMF_MAXSTR) :: fname
       type(ESMF_FieldStatus_Flag) :: fstatus
-      integer, allocatable :: vgrid_id
+      integer :: vgrid_id
       type(VerticalGridManager), pointer :: vgrid_manager
 
       if (present(short_name)) then
@@ -68,28 +70,30 @@ contains
          end if
       end if
 
-      if (present(vgrid)) then
-         allocate(vgrid_id) ! trigger "is present"
-      end if
-
       if (present(typekind)) then
-         call ESMF_FieldGet(field, typekind=typekind, _RC)
+!#         call ESMF_FieldGet(field, typekind=typekind, _RC)
       end if
 
       call ESMF_InfoGetFromHost(field, field_info, _RC)
       call FieldInfoGetInternal(field_info, &
+           typekind=typekind, &
            num_levels=num_levels, &
            vert_staggerloc=vert_staggerloc, &
            num_vgrid_levels=num_vgrid_levels, &
            ungridded_dims=ungridded_dims, &
            units=units, standard_name=standard_name, long_name=long_name, &
-           allocation_status=allocation_status, &
            vgrid_id=vgrid_id, &
+           allocation_status=allocation_status, &
+           has_deferred_aspects=has_deferred_aspects, &
            _RC)
 
       if (present(vgrid)) then
-         vgrid_manager => get_vertical_grid_manager()
-         vgrid => vgrid_manager%get_grid(id=vgrid_id, _RC)
+         if (vgrid_id == VERTICAL_GRID_NOT_FOUND) then
+            vgrid => null()
+         else
+            vgrid_manager => get_vertical_grid_manager()
+            vgrid => vgrid_manager%get_grid(id=vgrid_id, _RC)
+         end if
       end if
 
       _RETURN(_SUCCESS)

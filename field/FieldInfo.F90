@@ -6,6 +6,7 @@ module mapl3g_FieldInfo
    use mapl3g_esmf_info_keys, only: INFO_INTERNAL_NAMESPACE
    use mapl3g_esmf_info_keys, only: INFO_PRIVATE_NAMESPACE
    use mapl3g_InfoUtilities
+   use mapl3g_VerticalGrid_API
    use mapl3g_UngriddedDims
    use mapl3g_VerticalStaggerLoc
    use mapl3g_StateItemAllocation
@@ -66,6 +67,7 @@ module mapl3g_FieldInfo
 
    character(*), parameter :: KEY_SPEC_HANDLE = "/spec_handle"
    character(*), parameter :: KEY_RESTART_MODE = "/restart_mode"
+   character(*), parameter :: KEY_HAS_DEFERRED_ASPECTS = "/has_deferred_aspects"
 
 contains
 
@@ -75,9 +77,10 @@ contains
         num_levels, vert_staggerloc, &
         ungridded_dims, &
         units, long_name, standard_name, &
-        allocation_status, &
         vgrid_id, &
         spec_handle, &
+        allocation_status, &
+        has_deferred_aspects, &
         rc)
       type(ESMF_Info), intent(inout) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -91,6 +94,7 @@ contains
       character(*), optional, intent(in) :: long_name
       character(*), optional, intent(in) :: standard_name
       type(StateItemAllocation), optional, intent(in) :: allocation_status
+      logical, optional, intent(in) :: has_deferred_aspects
       integer, optional, intent(in) :: spec_handle(:)
       integer, optional, intent(out) :: rc
 
@@ -140,7 +144,7 @@ contains
          ! Delete later - needed for transition
 
          if (present(num_levels) .and. present(vert_staggerloc)) then
-            
+
             if (vert_staggerLoc == VERTICAL_STAGGER_NONE) then
                call MAPL_InfoSet(info, namespace_ // KEY_VERT_DIM, "VERTICAL_DIM_NONE", _RC)
                call MAPL_InfoSet(info, namespace_ // KEY_NUM_VGRID_LEVELS, 0, _RC)
@@ -161,6 +165,10 @@ contains
          call MAPL_InfoSet(info, namespace_ // KEY_ALLOCATION_STATUS, allocation_status%to_string(), _RC)
       end if
 
+      if (present(has_deferred_aspects)) then
+         call MAPL_InfoSet(info, namespace_ // KEY_HAS_DEFERRED_ASPECTS, has_deferred_aspects, _RC)
+      end if
+
       if (present(spec_handle)) then
          call MAPL_InfoSet(info, namespace_ // KEY_SPEC_HANDLE, spec_handle, _RC)
       end if
@@ -179,6 +187,7 @@ contains
         ungridded_dims, &
         allocation_status, &
         spec_handle, &
+        has_deferred_aspects, &
         rc)
       type(ESMF_Info), intent(in) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -194,6 +203,7 @@ contains
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       type(StateItemAllocation), optional, intent(out) :: allocation_status
       integer, optional, allocatable, intent(out) :: spec_handle(:)
+      logical, optional, intent(out) :: has_deferred_aspects
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -203,7 +213,6 @@ contains
       type(VerticalStaggerLoc) :: vert_staggerloc_
       character(:), allocatable :: namespace_ 
       character(:), allocatable :: str
-      logical :: key_is_present
       logical :: is_present
       
       namespace_ = INFO_INTERNAL_NAMESPACE
@@ -212,7 +221,8 @@ contains
       end if
 
       if (present(vgrid_id)) then
-         call mapl_InfoGet(info, namespace_ // KEY_VGRID_ID, vgrid_id, _RC)
+         call esmf_InfoGet(info, key=namespace_ // KEY_VGRID_ID, &
+              value=vgrid_id, default=VERTICAL_GRID_NOT_FOUND, _RC)
       end if
 
       if (present(typekind)) then
@@ -221,14 +231,22 @@ contains
       end if
 
       if (present(ungridded_dims)) then
-         ungridded_info = ESMF_InfoCreate(info, namespace_ // KEY_UNGRIDDED_DIMS, _RC)
-         ungridded_dims = make_UngriddedDims(ungridded_info, _RC)
+         is_present = esmf_InfoIsPresent(info, namespace_ // KEY_UNGRIDDED_DIMS, _RC)
+         if (is_present) then
+            ungridded_info = ESMF_InfoCreate(info, namespace_ // KEY_UNGRIDDED_DIMS, _RC)
+            ungridded_dims = make_UngriddedDims(ungridded_info, _RC)
+         else
+            ungridded_dims = UngriddedDims(is_mirror=.true.)
+         end if
       end if
 
       if (present(num_levels) .or. present(num_vgrid_levels)) then
-         call MAPL_InfoGet(info, namespace_ // KEY_NUM_LEVELS, num_levels_, _RC)
-         if (present(num_levels)) then
-            num_levels = num_levels_
+         is_present = esmf_InfoIsPresent(info, namespace_ // KEY_NUM_LEVELS, _RC)
+         if (is_present) then
+            call MAPL_InfoGet(info, namespace_ // KEY_NUM_LEVELS, num_levels_, _RC)
+            if (present(num_levels)) then
+               num_levels = num_levels_
+            end if
          end if
       end if
 
@@ -242,7 +260,7 @@ contains
 
       if (present(num_vgrid_levels)) then
          if (vert_staggerloc_ == VERTICAL_STAGGER_NONE) then
-            num_vgrid_levels = 0
+            num_vgrid_levels = 0 ! num_levels_ must not be used here
          else if (vert_staggerloc_ == VERTICAL_STAGGER_EDGE) then
             num_vgrid_levels = num_levels_ - 1
          else if (vert_staggerloc_ == VERTICAL_STAGGER_CENTER) then
@@ -252,8 +270,11 @@ contains
          end if
       end if
 
-      if (present(units)) then
-         call MAPL_InfoGet(info, namespace_ // KEY_UNITS, units, _RC)
+      if (present(units)) then ! leave unallocated unless found
+         is_present = esmf_InfoIsPresent(info, key=namespace_ // KEY_UNITS, _RC)
+         if (is_present) then 
+            call MAPL_InfoGet(info, namespace_ // KEY_UNITS, units, _RC)
+         end if
       end if
 
       if (present(long_name)) then
@@ -273,7 +294,12 @@ contains
          call MAPL_InfoGet(info, namespace_ // KEY_SPEC_HANDLE, spec_handle, _RC)
       end if
 
-      _RETURN(_SUCCESS)
+      if (present(has_deferred_aspects)) then
+         call esmf_InfoGet(info, key=namespace_ // KEY_HAS_DEFERRED_ASPECTS, &
+              value=has_deferred_aspects, default=.false., _RC)
+      end if
+
+     _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine field_info_get_internal
 
