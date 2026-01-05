@@ -10,6 +10,7 @@ set (test_srcs
 
   Test_ConfigurableGridComp.pf
 
+  Test_ComponentSpec.pf
   Test_ComponentSpecParser.pf
   Test_Aspects.pf
   Test_BracketClassAspect.pf
