@@ -163,15 +163,13 @@ module mapl3g_PrimaryExport
 
       call ESMF_StateGet(exportState, item_name, bundle, _RC)
       if (this%vcoord%vertical_type == NO_COORD) then
-         call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
-                 vertical_stagger=VERTICAL_STAGGER_NONE, regridder_param=regridder_param,  _RC)
-         call MAPL_FieldBundleSet(bundle, geom=esmfgeom, _RC)
+         call mapl_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
+                 vert_staggerloc=VERTICAL_STAGGER_NONE, _RC) ! regridder_param=regridder_param, _RC)
       else if (this%vcoord%vertical_type == SIMPLE_COORD) then
          vertical_grid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
-         call MAPL_FieldBundleModify(bundle, geom=esmfgeom, units='<unknown>', &
-                 typekind=ESMF_TYPEKIND_R4, vertical_grid=vertical_grid, &
-                 vertical_stagger=VERTICAL_STAGGER_CENTER, regridder_param=regridder_param,  _RC)
-         call MAPL_FieldBundleSet(bundle, geom=esmfgeom, _RC)
+         call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', &
+                 typekind=ESMF_TYPEKIND_R4, vgrid=vertical_grid, &
+                 vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC) !regridder_param=regridder_param,  _RC)
       else
          _FAIL("unsupported vertical coordinate for item "//trim(this%export_var))
       end if
