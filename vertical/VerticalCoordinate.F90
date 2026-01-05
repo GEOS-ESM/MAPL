@@ -104,6 +104,28 @@ contains
             if (vertical_coord%levels(1) > vertical_coord%levels(2)) vertical_coord%positive = "up" !bmaa
             _RETURN(_SUCCESS)
          end if
+
+         ! now test if no positive attribute and does not have pressure units,
+         if ((.not. coord_var%is_attribute_present("positive")) .and. &
+              (.not. has_pressure_units)) then
+            standard_name = coord_var%get_attribute_string("standard_name")
+            ! metadata combinations that imply integer levels
+            if ( ((trim(standard_name) == "level" )  .or.  &
+                  (trim(standard_name) == "levels")) .and. &
+                 ((trim(temp_units) == "1"     ) .or. &
+                  (trim(temp_units) == "level")) ) then
+               if (vertical_coord%levels(1) > vertical_coord%levels(2)) then
+                  ! e.g. [72,71,...,2,1]
+                  vertical_coord%positive = "down"
+               else
+                  ! e.g. [1,2,...,71,72]]
+                  vertical_coord%positive = "up"
+               endif
+            else
+               _ASSERT(.false.,'lev positive attribute not in file and no rule defined for setting it from standard_name and units')
+            endif
+         endif
+
          ! now test if this is a "fixed" height level, if has height units, then dimensioanl coordinate, but must have positive 
          has_height_units = safe_are_convertible(temp_units, 'm', _RC)
          if (has_height_units) then
