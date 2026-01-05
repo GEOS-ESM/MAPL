@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added ExtData2G criteria for presence of vertical coordinate for cases of non-CF-compliant files
 
 ### Changed
+- Changed default ExtData2G import vertical direction from down to up
 
 ### Removed
 
