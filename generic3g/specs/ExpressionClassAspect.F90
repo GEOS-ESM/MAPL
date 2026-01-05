@@ -58,6 +58,7 @@ module mapl3g_ExpressionClassAspect
       private
       character(:), allocatable :: expression
       type(StateRegistry), pointer :: registry => null()
+      type(ESMF_Field) :: payload ! to hold metadata
    contains
       procedure :: get_aspect_order
       procedure :: supports_conversion_general
@@ -122,6 +123,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+
+      this%payload = ESMF_FieldEmptyCreate(name='expression', _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
@@ -252,10 +255,12 @@ contains
       type(StringVectorIterator) :: iter
       character(:), pointer :: variable
 
+      transform = NullTransform()
       multi_state = MultiState()
 
       select type (dst)
       type is (FieldClassAspect)
+
 
          expression_variables = parser_variables_in_expression(src%expression, _RC)
          associate (b => expression_variables%begin(), e => expression_variables%end()) 
@@ -271,7 +276,9 @@ contains
          goal_aspects => goal_spec%get_aspects()
          n = goal_aspects%erase(CLASS_ASPECT_ID)
          call goal_aspects%insert(CLASS_ASPECT_ID, FieldClassAspect(standard_name='', long_name=''))
-        do i = 1, inputs%size()
+         call goal_spec%create(_RC)
+
+         do i = 1, inputs%size()
             v_pt => inputs%of(i)
             new_extension => src%registry%extend(v_pt, goal_spec, _RC)
             coupler => new_extension%get_producer()
@@ -289,11 +296,11 @@ contains
             class default
                _FAIL("unsupported aspect type; must be FieldClassAspect")
             end select
-         end do
+        end do
 
+         deallocate(transform)
          allocate(transform, source=EvalTransform(src%expression, multi_state%exportState, input_couplers))
       class default
-         allocate(transform, source=NullTransform())
          _FAIL('expression connected to non-field')
       end select
 
@@ -365,6 +372,8 @@ contains
       type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
       type(esmf_State), optional, allocatable, intent(out) :: state
       integer, optional, intent(out) :: rc
+
+      field = this%payload
 
       _RETURN(_SUCCESS)
    end subroutine get_payload
