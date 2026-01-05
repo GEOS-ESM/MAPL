@@ -125,6 +125,7 @@ contains
 
       src_pt = this%get_source()
       src_registry => registry%get_subregistry(src_pt)
+
       is_deferred = src_registry%item_is_deferred(src_pt%v_pt, _RC)
       _RETURN_IF(is_deferred)
 
@@ -169,8 +170,8 @@ contains
       dst_extensions = dst_registry%get_extensions(dst_pt%v_pt, _RC)
 
       ! Very useful for debugging:
-!#      _HERE, src_pt%v_pt
-!#      _HERE, dst_pt%v_pt
+!#      _HERE, 'src component: ', src_pt%component_name, ' :: ', src_pt%v_pt
+!#      _HERE, 'dst component: ', dst_pt%component_name, ' :: ', dst_pt%v_pt
       do i = 1, size(dst_extensions)
 
          dst_extension => dst_extensions(i)%ptr
