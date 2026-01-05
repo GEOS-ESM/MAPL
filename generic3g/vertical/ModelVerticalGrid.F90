@@ -75,7 +75,7 @@ module mapl3g_ModelVerticalGrid
    end type ModelVerticalGridFactory
 
 
-  interface ModelVerticalGrid
+   interface ModelVerticalGrid
       procedure new_ModelVerticalGrid_basic
    end interface ModelVerticalGrid
 
@@ -215,6 +215,7 @@ contains
       call aspects%insert(UNITS_ASPECT_ID, UnitsAspect(units))
       call aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, UngriddedDimsAspect(UngriddedDimS()))
       call aspects%insert(ATTRIBUTES_ASPECT_ID, AttributesAspect())
+      call goal_spec%create(_RC)
       
       new_extension => this%registry%extend(v_pt, goal_spec, _RC)
       coupler => new_extension%get_producer()
