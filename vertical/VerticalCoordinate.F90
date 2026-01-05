@@ -79,6 +79,7 @@ contains
          if (metadata%has_variable(dim_name)) then
             dim_var => metadata%get_variable(dim_name)
             is_vertical_coord_var = detect_cf_vertical_coord_var(dim_var, _RC)
+            is_vertical_coord_var = is_vertical_coord_var .or. dim_name == 'lev'
             if (is_vertical_coord_var) then
                lev_name = dim_name
                exit 
