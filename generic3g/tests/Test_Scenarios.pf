@@ -159,10 +159,9 @@ contains
       logical :: has_numsteps
 
       file_name = './scenarios/' // this%scenario_name // '/' // this%scenario_root
-      config = ESMF_HConfigCreate(filename=file_name)
+      config = ESMF_HConfigCreate(filename=file_name, _RC)
 
       call NUOPC_FieldDictionarySetup(filename='./scenarios/FieldDictionary.yml', _RC)
-      @assert_that(status, is(0))
 
       associate (outer_gc => this%outer_gc, outer_states => this%outer_states, grid => this%grid)
 

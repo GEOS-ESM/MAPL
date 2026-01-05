@@ -26,7 +26,7 @@ module mapl3g_MatchConnection
       private
       type(ConnectionPt) :: source
       type(ConnectionPt) :: destination
-      logical :: consumed = .false.
+      logical :: consumed
    contains
       procedure :: get_source
       procedure :: get_destination
@@ -47,6 +47,7 @@ contains
 
       this%source = source
       this%destination = destination
+      this%consumed = .false.
 
    end function new_MatchConnection
 
@@ -63,14 +64,14 @@ contains
    end function get_destination
 
    recursive subroutine activate(this, registry, rc)
-      class(MatchConnection), intent(in) :: this
+      class(MatchConnection), target, intent(in) :: this
       type(StateRegistry), target, intent(inout) :: registry
       integer, optional, intent(out) :: rc
 
       integer :: status
-     type(ConnectionPt) :: src_pt, dst_pt
+      type(ConnectionPt) :: src_pt, dst_pt
       type(StateRegistry), pointer :: src_registry, dst_registry
-      type(VirtualConnectionPtVector) :: src_v_pts, dst_v_pts
+      type(VirtualConnectionPtVector), target :: src_v_pts, dst_v_pts
       type(VirtualConnectionPt), pointer :: dst_pattern, src_v_pt
       type(VirtualConnectionPt) :: src_pattern, dst_v_pt
       integer :: i, j
@@ -117,7 +118,7 @@ contains
    end subroutine activate
 
    recursive subroutine connect(this, registry, rc)
-      class(MatchConnection), intent(inout) :: this
+      class(MatchConnection), target, intent(inout) :: this
       type(StateRegistry), target, intent(inout) :: registry
       integer, optional, intent(out) :: rc
 
@@ -125,7 +126,7 @@ contains
 
       type(ConnectionPt) :: src_pt, dst_pt
       type(StateRegistry), pointer :: src_registry, dst_registry
-      type(VirtualConnectionPtVector) :: src_v_pts, dst_v_pts
+      type(VirtualConnectionPtVector), target :: src_v_pts, dst_v_pts
       type(VirtualConnectionPt), pointer :: dst_pattern, src_v_pt
       type(VirtualConnectionPt) :: src_pattern, dst_v_pt
       integer :: i, j

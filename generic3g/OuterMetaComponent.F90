@@ -290,16 +290,16 @@ module mapl3g_OuterMetaComponent
 
      module recursive subroutine initialize_modify_advertised(this, importState, exportState, clock, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
-         ! optional arguments
          type(ESMF_State) :: importState
          type(ESMF_State) :: exportState
          type(ESMF_Clock) :: clock
+         ! optional arguments
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_modify_advertised
 
       module recursive subroutine initialize_realize(this, importState, exportState, clock, unusable, rc)
-         class(OuterMetaComponent), intent(inout) :: this
+         class(OuterMetaComponent), target, intent(inout) :: this
          type(ESMF_State) :: importState
          type(ESMF_State) :: exportState
          type(ESMF_Clock) :: clock
@@ -340,7 +340,7 @@ module mapl3g_OuterMetaComponent
       end subroutine initialize_user
 
       module subroutine run_custom(this, method_flag, phase_name, rc)
-         class(OuterMetaComponent), intent(inout) :: this
+         class(OuterMetaComponent), target, intent(inout) :: this
          type(ESMF_METHOD_FLAG), intent(in) :: method_flag
          character(*), intent(in) :: phase_name
          integer, optional, intent(out) :: rc
