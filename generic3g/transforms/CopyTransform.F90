@@ -6,6 +6,7 @@
 module mapl3g_CopyTransform
    use mapl3g_TransformId
    use mapl3g_ExtensionTransform
+   use mapl3g_ExtensionTransformUtils
    use mapl3g_StateItem
    use mapl_ErrorHandling
    use esmf
@@ -90,6 +91,7 @@ contains
 
       call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, fieldbundle=importBundle, _RC)
       call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, fieldbundle=exportBundle, _RC)
+      call bundle_types_valid(importBundle, exportBundle, _RC)
       call FieldBundleCopy(importBundle, exportBundle, _RC)
       _RETURN(_SUCCESS)
       

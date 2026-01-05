@@ -6,12 +6,13 @@
 
 
 module mapl3g_MaplFramework
+
    use mapl_ErrorHandling
    use mapl_KeywordEnforcerMod
    use mapl3g_VerticalGrid_API
    use mapl3g_FixedLevelsVerticalGrid
    use mapl3g_ModelVerticalGrid
-   use mapl_profiler, only: DistributedProfiler
+   use mapl_profiler, only: profiler_initialize => initialize, profiler_finalize => finalize
    use pfio_DirectoryServiceMod, only: DirectoryService
    use pfio_ClientManagerMod
    use pfio_MpiServerMod, only: MpiServer
@@ -22,6 +23,7 @@ module mapl3g_MaplFramework
    use pflogger, only: Logger
    use mpi
    use esmf
+
    implicit none
    private
 
@@ -41,7 +43,6 @@ module mapl3g_MaplFramework
       type(DirectoryService) :: directory_service
       type(MpiServer), pointer :: o_server => null()
       type(MpiServer), pointer :: i_server => null()
-      type(DistributedProfiler) :: time_profiler
    contains
       procedure :: initialize
       procedure :: initialize_esmf
@@ -219,19 +220,18 @@ contains
 #endif
 
 
-   subroutine initialize_profilers(this, unusable, rc)
+   subroutine initialize_profilers(this, rc)
       class(MaplFramework), target, intent(inout) :: this
-      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status
       integer :: world_comm
+      integer :: status
+
       call ESMF_VMGet(this%mapl_vm, mpiCommunicator=world_comm, _RC)
-!#      call initialize_profiler(comm=world_comm, enable_global_timeprof=enable_global_timeprof, &
-!#      enable_global_memprof=enable_global_memprof, _RC)
+      call profiler_initialize(comm=world_comm, enable_global_timeprof=.true., enable_global_memprof=.true., _RC)
 
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      ! _UNUSED_DUMMY(unusable)
    end subroutine initialize_profilers
 
    subroutine initialize_servers(this, unusable, is_model_pet, servers, rc)
@@ -514,6 +514,10 @@ contains
       class(MaplFramework), intent(inout) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call profiler_finalize(_RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

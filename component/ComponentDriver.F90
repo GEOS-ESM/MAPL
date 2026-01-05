@@ -33,7 +33,7 @@ module mapl3g_ComponentDriver
       recursive subroutine I_run(this, unusable, phase_idx, rc)
          use :: MaplShared, only: KeywordEnforcer
          import ComponentDriver
-         class(ComponentDriver), intent(inout) :: this
+         class(ComponentDriver), target, intent(inout) :: this
          class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
          integer, optional, intent(out) :: rc

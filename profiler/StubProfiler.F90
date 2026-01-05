@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 module MAPL_StubProfiler
    use MAPL_BaseProfiler, only: BaseProfiler
    use MAPL_DistributedProfiler
@@ -18,7 +18,6 @@ module MAPL_StubProfiler
       private
    contains
       procedure :: make_meter
-      procedure :: copy
       procedure :: start_name, start_self
       procedure :: stop_name, stop_self
       procedure :: reduce
@@ -57,14 +56,6 @@ contains
       _UNUSED_DUMMY(this)
    end function make_meter
 
-
-   subroutine copy(new, old)
-      class(StubProfiler), target, intent(inout) :: new
-      class(BaseProfiler), target, intent(in) :: old
-
-      call new%copy_profiler(old)
-
-   end subroutine copy
 
    subroutine start_self(this, unusable, rc)
       class(StubProfiler), target, intent(inout) :: this

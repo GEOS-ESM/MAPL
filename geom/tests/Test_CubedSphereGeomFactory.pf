@@ -20,7 +20,7 @@ contains
       class(GeomSpec), allocatable :: geom_spec
       type(ESMF_Geom) :: geom
 
-      hconfig = ESMF_HConfigCreate(content="{im_world: 12, nx: 1, ny: 1}", rc=status)
+      hconfig = ESMF_HConfigCreate(content="{im_world: 12, nx_face: 1, ny_face: 1}", rc=status)
       @assert_that(status, is(0))
 
       allocate(geom_spec, source=factory%make_spec(hconfig, rc=status))

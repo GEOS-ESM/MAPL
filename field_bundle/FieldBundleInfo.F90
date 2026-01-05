@@ -28,12 +28,13 @@ module mapl3g_FieldBundleInfo
 
    character(*), parameter :: KEY_FIELDBUNDLETYPE_FLAG = '/FieldBundleType_Flag'
    character(*), parameter :: KEY_ALLOCATION_STATUS = "/allocation_status"
-
+   character(*), parameter :: KEY_HAS_GEOM = "/has_geom"
 
 contains
 
    subroutine fieldbundle_get_internal(info, unusable, &
         namespace, &
+        vgrid_id, &
         fieldBundleType, &
         typekind, interpolation_weights, &
         ungridded_dims, num_levels, vert_staggerloc, num_vgrid_levels, &
@@ -41,10 +42,12 @@ contains
         allocation_status, &
         spec_handle, &
         bracket_updated, &
+        has_geom, &
         rc)
 
       type(ESMF_Info), intent(in) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: vgrid_id
       character(*), optional, intent(in) :: namespace
       type(FieldBundleType_Flag), optional, intent(out) :: fieldBundleType
       type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
@@ -58,7 +61,8 @@ contains
       character(:), optional, allocatable, intent(out) :: standard_name
       type(StateItemAllocation), optional, intent(out) :: allocation_status
       integer, optional, allocatable, intent(out) :: spec_handle(:)
-      logical, optional, intent(out) :: bracket_updated 
+      logical, optional, intent(out) :: bracket_updated
+      logical, optional, intent(out) :: has_geom
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -71,7 +75,7 @@ contains
          namespace_ = namespace
       end if
 
-      if (present(fieldBundleType)) then
+     if (present(fieldBundleType)) then
          call ESMF_InfoGetCharAlloc(info, key=namespace_//KEY_FIELDBUNDLETYPE_FLAG, value=fieldBundleType_str, _RC)
          fieldBundleType = FieldBundleType_Flag(fieldBundleType_str)
       end if
@@ -95,11 +99,17 @@ contains
          call ESMF_InfoGet(info, key=namespace_//KEY_BRACKET_UPDATED, value=bracket_updated, _RC)
       end if
 
+      if (present(has_geom)) then
+         call ESMF_InfoGet(info, key=namespace_//KEY_HAS_GEOM, value=has_geom, default=.false., _RC)
+      end if
+
       ! Field-prototype items that come from field-info
       call FieldInfoGetInternal(info, namespace = namespace_//KEY_FIELD_PROTOTYPE, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, num_vgrid_levels=num_vgrid_levels, &
-           units=units, long_name=long_name, standard_name=standard_name, spec_handle=spec_handle, _RC)
+           units=units, long_name=long_name, standard_name=standard_name, spec_handle=spec_handle, &
+           vgrid_id=vgrid_id, &
+           _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -126,20 +136,20 @@ contains
 
    subroutine fieldbundle_set_internal(info, unusable, &
         namespace, &
-        geom, &
         fieldBundleType, typekind, interpolation_weights, &
         ungridded_dims, &
         num_levels, vert_staggerloc, &
         units, standard_name, long_name, &
         allocation_status, &
+        vgrid_id, &
         spec_handle, &
         bracket_updated, &
+        has_geom, &
         rc)
 
       type(ESMF_Info), intent(inout) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: namespace
-      type(ESMF_Geom), optional, intent(in) :: geom
       type(FieldBundleType_Flag), optional, intent(in) :: fieldBundleType
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       real(ESMF_KIND_R4), optional, intent(in) :: interpolation_weights(:)
@@ -150,8 +160,10 @@ contains
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
       type(StateItemAllocation), optional, intent(in) :: allocation_status
+      integer, optional, intent(in) :: vgrid_id
       integer, optional, intent(in) :: spec_handle(:)
       logical, optional, intent(in) :: bracket_updated
+      logical, optional, intent(in) :: has_geom
       integer, optional, intent(out) :: rc
       
       integer :: status
@@ -186,10 +198,15 @@ contains
          call ESMF_InfoSet(info, key=namespace_ // KEY_BRACKET_UPDATED, value=bracket_updated, _RC)
       end if
 
+      if (present(has_geom)) then
+         call ESMF_InfoSet(info, key=namespace_ // KEY_HAS_GEOM, value=has_geom, _RC)
+      end if
+
        call FieldInfoSetInternal(info, namespace=namespace_ // KEY_FIELD_PROTOTYPE, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
            units=units, long_name=long_name, standard_name=standard_name, &
+           vgrid_id=vgrid_id, &
            spec_handle=spec_handle, _RC)
 
        _RETURN(_SUCCESS)

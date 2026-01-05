@@ -7,6 +7,7 @@ module mapl3g_ExtDataGridComp_private
    use mapl3g_stateitem
    use mapl3g_PrimaryExportVector
    use mapl3g_PrimaryExport
+   use pflogger, only: logger
    implicit none
    private
 
@@ -33,12 +34,12 @@ contains
       character(len=:), allocatable :: sub_configs(:)
       type(ESMF_HConfig) :: sub_config, export_config, temp_config
       type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
-      character(len=:), allocatable :: short_name, collection_name, str_const
+      character(len=:), allocatable :: short_name, collection_name, str_const, expression
       type(VariableSpec) :: varspec
       type(ESMF_StateItem_Flag) :: item_type
 
       if (ESMF_HConfigIsDefined(hconfig, keyString='subconfigs')) then
-         is_seq = ESMF_HConfigIsSequence(hconfig, keyString='subconfigs') 
+         is_seq = ESMF_HConfigIsSequence(hconfig, keyString='subconfigs')
          sub_configs = ESMF_HConfigAsStringSeq(hconfig, ESMF_MAXPATHLEN, keystring='subconfigs', _RC)
          do i=1,size(sub_configs)
             inquire(file=trim(sub_configs(i)), exist=file_found)
@@ -81,6 +82,22 @@ contains
             call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
          enddo
       end if
+
+      _RETURN_UNLESS(ESMF_HConfigIsDefined(hconfig, keyString='Derived'))
+      export_config = ESMF_HConfigCreateAt(hconfig, keyString='Derived', _RC)
+      hconfigIterBegin = ESMF_HConfigIterBegin(export_config)
+      hconfigIter = hconfigIterBegin
+      hconfigIterEnd = ESMF_HConfigIterEnd(export_config)
+      do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
+         short_name = ESMF_HConfigAsStringMapKey(hconfigIter, _RC)
+         temp_config = ESMF_HConfigCreateAtMapVal(hconfigIter, _RC)
+         expression = ESMF_HConfigAsString(temp_config, keyString='function', _RC)
+         varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name, &
+                   itemType=MAPL_STATEITEM_EXPRESSION, expression=expression, &
+                   units='<unknown>', _RC)
+         call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+      enddo
+
       _RETURN(_SUCCESS)
    end subroutine
 
@@ -126,7 +143,7 @@ contains
             call MAPL_FieldGet(field, allocation_status=allocation_status, _RC)
          end if
          if (allocation_status >= STATEITEM_ALLOCATION_ACTIVE) call active_list%push_back(trim(itemNameList(i)))
-      enddo 
+      enddo
 
       _RETURN(_SUCCESS)
 
@@ -147,7 +164,7 @@ contains
       i=0
       do while (iter /= exports%ftn_end())
          call iter%next()
-         export_name => iter%of() 
+         export_name => iter%of()
          i=i+1
          call lgr%info('---- %i0.5~: %a', i, export_name)
       end do
@@ -155,7 +172,7 @@ contains
    end subroutine
 
    function get_constant(hconfig, rc) result(constant_expression)
-      character(len=:), allocatable :: constant_expression 
+      character(len=:), allocatable :: constant_expression
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
@@ -164,9 +181,9 @@ contains
       integer :: status
 
       constant_expression = "0."
-      if (ESMF_HConfigIsDefined(hconfig, keyString="linear_transformation")) then 
+      if (ESMF_HConfigIsDefined(hconfig, keyString="linear_transformation")) then
          real_array = ESMF_HConfigAsR4Seq(hconfig, keyString="linear_transformation", _RC)
-         write(temp_str, '(G0)') real_array(1) 
+         write(temp_str, '(G0)') real_array(1)
          constant_expression = trim(temp_str)
       end if
       _RETURN(_SUCCESS)

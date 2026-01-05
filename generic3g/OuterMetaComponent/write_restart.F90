@@ -41,17 +41,23 @@ contains
 
       if (this%component_spec%misc%checkpoint_controls%import) then
          filename = mapl_PathJoin(subdir, driver%get_name() // '_import.nc')
+         call this%start_timer("WriteImportCheckpoint", _RC)
          call restart_handler%write(states%importState, filename, _RC)
+         call this%stop_timer("WriteImportCheckpoint", _RC)
       end if
       
       if (this%component_spec%misc%checkpoint_controls%internal) then
          filename = mapl_PathJoin(subdir, driver%get_name() // '_internal.nc')
+         call this%start_timer("WriteInternalCheckpoint", _RC)
          call restart_handler%write(states%internalState, filename, _RC)
+         call this%stop_timer("WriteInternalCheckpoint", _RC)
       end if
       
       if (this%component_spec%misc%checkpoint_controls%export) then
          filename = mapl_PathJoin(subdir, driver%get_name() // '_export.nc')
+         call this%start_timer("WriteExportCheckpoint", _RC)
          call restart_handler%write(states%exportState, filename, _RC)
+         call this%stop_timer("WriteExportCheckpoint", _RC)
       end if
 
       call this%run_custom(ESMF_METHOD_WRITERESTART, PHASE_NAME, _RC)

@@ -195,14 +195,36 @@ contains
       integer, intent(out), optional :: rc
       
       type(BasicVerticalGridSpec) :: local_spec
+      character(:), allocatable :: lev_name
       integer :: status
-      
-      ! For basic grid, just create a single-level spec as fallback
-      local_spec%num_levels = 1
-      
+
+      ! Guarantee valid return in case of error
+      local_spec%num_levels = -1
+      allocate(spec, source=local_Spec)
+
+      lev_name = find_lev_name(_RC)
+      local_spec%num_levels = file_metadata%get_dimension(lev_name)
+
       allocate(spec, source=local_spec)
-      
+
       _RETURN(_SUCCESS)
+
+   contains
+
+      function find_lev_name(rc) result(lev_name)
+         character(len=:), allocatable :: lev_name
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+
+         if (file_metadata%has_dimension('lev')) then
+            lev_name = 'lev'
+            _RETURN(_SUCCESS)
+         end if
+
+         _FAIL('no vertical dim in file')
+      end function find_lev_name
+
    end function create_spec_from_file_metadata
 
    function create_grid_from_spec(this, spec, rc) result(grid)

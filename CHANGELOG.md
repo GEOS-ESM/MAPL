@@ -1,4 +1,4 @@
-# Changelog
+# Changelog 
 
 All notable changes to this project will be documented in this file.
 
@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- Removes backward compatibility for MAPL_FargparseCLI functions. Only accepts function usage in which the result is of
+- Removes backward compatibility for `MAPL_FargparseCLI` functions. Only accepts function usage in which the result is of
   MAPL_CapOptions type.
 - Remove FLAP support.
 - Remove `BUILD_SHARED_MAPL` CMake option. MAPL3 is now always built as a shared library.
@@ -64,6 +64,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add and use character parameters for `ESMF_Field` names in ExtensionTransform subclasses
 - Extend ExtensionTransform derived types to support ESMF_KIND_R8
 - Extend ExtensionTransform derived types to support ESMF_FieldBundle objects
+- Add utility to destroy states including states, bundles, and fields nested in them
+- Add test of units coupling
 
 ### Changed
 
@@ -82,6 +84,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Change refTime to refTime_offset for several MAPL derived types
 - Change `.rc` to `.acg` in user guide and acg tutorial
 - Refactor ACG to produce MAPL3 procedures
+- Pulled destroy_bundle and destroy_fields from MAPL_StateDestroy into MAPL_FieldBundleDestroy and FieldsDestroy
+- Added checks for bundle type in ExtensionTransform subtypes
 
 ### Fixed
 
@@ -104,11 +108,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added implementation for mapl_GetPartition() with unit tests.  Replaces logic that will disappear with MAPL2
+
 ### Changed
+
+- Updated CI to use Baselibs 8.24.0
+  - This provides ESMF 9.0.0b08
+  - Update ifx tests to 2025.3 (enabled by ESMF 9.0.0b08)
 
 ### Removed
 
 ### Deprecated
+
+## [2.64.1] - 2025-12-30
+
+### Fixed
+
+- Restore workaround for binary restart reads with GNU
+  - Brings back changes from PR #1038: Added a workaround for a gfortran bug that handles end-of-file incorrectly (returns IOSTAT=5001).
+
+## [2.64.0] - 2025-12-05
+
+### Added
+
+- Added `pfaf_index` to `MAPL_Locstream`
+- Added a simple MAPL_LocstreamCreate
+
+### Changed
+
+- Enforced presence of `grid` when reading binary tile file
+
+## [2.63.1] - 2025-11-25
+
+### Changed
+
+- Combine MAPL_Grid_interior and MAPL_GridgetInterior
+  - This is needed for 1-d tile space output in netCDF4 format
 
 ## [2.63.0] - 2025-11-21
 

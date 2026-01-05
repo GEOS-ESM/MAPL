@@ -32,22 +32,26 @@ contains
       _RETURN_UNLESS(this%has_geom())
 
       driver => this%get_user_gc_driver()
+      states = driver%get_states()
       call esmf_ClockGet(driver%get_clock(), currTime=currTime, _RC)
 
       user_logger => this%get_logger()
       restart_handler = RestartHandler(this%get_geom(), currTime, user_logger)
 
-      states = driver%get_states()
       subdir = get_checkpoint_subdir(this%hconfig, currTime, _RC)
 
       if (this%component_spec%misc%restart_controls%import) then
          filename = mapl_PathJoin(subdir, driver%get_name() // '_import.nc')
+         call this%start_timer("ReadImportRestart", _RC)
          call restart_handler%read(states%importState, filename, _RC)
+         call this%stop_timer("ReadImportRestart", _RC)
       end if
       
       if (this%component_spec%misc%restart_controls%internal) then
          filename = mapl_PathJoin(subdir, driver%get_name() // '_internal.nc')
+         call this%start_timer("ReadInternalRestart", _RC)
          call restart_handler%read(states%internalState, filename, _RC)
+         call this%stop_timer("ReadInternalRestart", _RC)
       end if
       
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)

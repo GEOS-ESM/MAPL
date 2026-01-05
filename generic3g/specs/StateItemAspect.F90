@@ -42,6 +42,7 @@ module mapl3g_StateItemAspect
    use iso_fortran_env, only: INT64
    use mapl3g_AspectId
    use mapl_ErrorHandling
+   use esmf, only: esmf_Field, esmf_FieldBundle, esmf_State
 
 #define Key AspectId
 #define Key_LT(a,b) (a) < (b)
@@ -83,6 +84,10 @@ module mapl3g_StateItemAspect
       procedure, non_overridable :: set_mirror
       procedure, non_overridable :: is_time_dependent
       procedure, non_overridable :: set_time_dependent
+
+      procedure(I_update_from_payload), deferred :: update_from_payload
+      procedure(I_update_payload), deferred :: update_payload
+
    end type StateItemAspect
 
 #include "map/specification.inc"
@@ -131,11 +136,32 @@ module mapl3g_StateItemAspect
          integer, optional, intent(out) :: rc
       end subroutine I_connect_to_export
 
+      subroutine I_update_from_payload(this, field, bundle, state, rc)
+         import StateItemAspect
+         import esmf_Field, esmf_FieldBundle, esmf_State
+         class(StateItemAspect), intent(inout) :: this
+         type(esmf_Field), optional, intent(in) :: field
+         type(esmf_FieldBundle), optional, intent(in) :: bundle
+         type(esmf_State), optional, intent(in) :: state
+         integer, optional, intent(out) :: rc
+         
+      end subroutine I_update_from_payload
+
+      subroutine I_update_payload(this, field, bundle, state, rc)
+         import StateItemAspect
+         import esmf_Field, esmf_FieldBundle, esmf_State
+         class(StateItemAspect), intent(in) :: this
+         type(esmf_Field), optional, intent(inout) :: field
+         type(esmf_FieldBundle), optional, intent(inout) :: bundle
+         type(esmf_State), optional, intent(inout) :: state
+         integer, optional, intent(out) :: rc
+         
+      end subroutine I_update_payload
+
 end interface
 
 
 contains
-
 
 #include "map/procedures.inc"
 #include "map/tail.inc"

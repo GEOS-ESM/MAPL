@@ -12,6 +12,7 @@ module mapl3g_StateClassAspect
    use mapl3g_MultiState
    use mapl3g_ESMF_Utilities, only: get_substate
    ! use mapl3g_State_API, only: MAPL_StateCreate, MAPL_StateInfoSetInternal
+   use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
 
@@ -88,8 +89,9 @@ contains
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
 
-   subroutine create(this, handle, rc)
+   subroutine create(this, other_aspects, handle, rc)
       class(StateClassAspect), intent(inout) :: this
+      type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(in) :: handle(:) ! unused
       integer, optional, intent(out) :: rc
 
@@ -250,11 +252,19 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_state
 
-   function get_payload(this) result(state)
-      type(ESMF_State) :: state
+   subroutine get_payload(this, unusable, field, bundle, state, rc)
       class(StateClassAspect), intent(in) :: this
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      type(esmf_Field), optional, allocatable, intent(out) :: field
+      type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
+      type(esmf_State), optional, allocatable, intent(out) :: state
+      integer, optional, intent(out) :: rc
+
       state = this%payload
-   end function get_payload
+
+      _RETURN(_SUCCESS)
+
+   end subroutine get_payload
 
    function get_aspect_id() result(aspect_id)
       type(AspectId) :: aspect_id

@@ -1,13 +1,13 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_CubedSphereDecomposition) CubedSphereDecomposition_smod
+   use mapl_Partition
    use mapl_ErrorHandlingMod
-   use MAPL_Base
    implicit none
 
 contains
 
-   pure module function new_CubedSphereDecomposition_basic(x_distribution, y_distribution) result(decomp)
+   module function new_CubedSphereDecomposition_basic(x_distribution, y_distribution) result(decomp)
       type(CubedSphereDecomposition) :: decomp
       integer, intent(in) :: x_distribution(:)
       integer, intent(in) :: y_distribution(:)
@@ -17,7 +17,7 @@ contains
 
    end function new_CubedSphereDecomposition_basic
 
-   pure module function new_CubedSphereDecomposition_petcount(dims, unusable, petCount) result(decomp)
+   module function new_CubedSphereDecomposition_petcount(dims, unusable, petCount) result(decomp)
       use mapl_KeywordEnforcer
       type(CubedSphereDecomposition) :: decomp
       integer, intent(in) :: dims(2)
@@ -38,30 +38,27 @@ contains
       decomp = CubedSphereDecomposition(dims, topology=[nx, petCount/nx])
    end function new_CubedSphereDecomposition_petcount
 
-   pure module function new_CubedSphereDecomposition_topo(dims, unusable, topology) result(decomp)
+   module function new_CubedSphereDecomposition_topo(dims, unusable, topology) result(decomp)
       use mapl_KeywordEnforcer
       type(CubedSphereDecomposition) :: decomp
       integer, intent(in) :: dims(2)
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, intent(in) :: topology(2)
 
-      allocate(decomp%x_distribution(topology(1)))
-      allocate(decomp%y_distribution(topology(2)))
-
-      call MAPL_DecomposeDim(dims(1), decomp%x_distribution, topology(1), min_DE_extent=2)
-      call MAPL_DecomposeDim(dims(2), decomp%y_distribution, topology(2), min_DE_extent=2)
+      decomp%x_distribution = mapl_GetPartition(dims(1), k=topology(1), min_extent=2)
+      decomp%y_distribution = mapl_GetPartition(dims(2), k=topology(2), min_extent=2)
 
    end function new_CubedSphereDecomposition_topo
 
 
    ! accessors
-   pure module function get_x_distribution(decomp) result(x_distribution)
+   module function get_x_distribution(decomp) result(x_distribution)
       integer, allocatable :: x_distribution(:)
       class(CubedSphereDecomposition), intent(in) :: decomp
       x_distribution = decomp%x_distribution
    end function get_x_distribution
    
-   pure module function get_y_distribution(decomp) result(y_distribution)
+   module function get_y_distribution(decomp) result(y_distribution)
       integer, allocatable :: y_distribution(:)
       class(CubedSphereDecomposition), intent(in) :: decomp
       y_distribution = decomp%y_distribution
