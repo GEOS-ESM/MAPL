@@ -45,7 +45,8 @@ module mapl3g_GeomAspect
 
       procedure :: update_from_payload
       procedure :: update_payload
-   end type GeomAspect
+      procedure :: print_aspect
+  end type GeomAspect
 
    interface GeomAspect
       procedure new_GeomAspect
@@ -300,4 +301,16 @@ contains
       _RETURN(_SUCCESS)
    end subroutine update_payload
 
+   subroutine print_aspect(this, file, line, rc)
+      class(GeomAspect), intent(in) :: this
+      character(*), intent(in) :: file
+      integer, intent(in) :: line
+      integer, optional, intent(out) :: rc
+
+      _HERE, file, line, this%is_mirror(), allocated(this%geom)
+         
+      
+      _RETURN(_SUCCESS)
+   end subroutine print_aspect
+   
 end module mapl3g_GeomAspect
