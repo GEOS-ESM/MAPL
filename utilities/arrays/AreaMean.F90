@@ -5,7 +5,7 @@ module mapl3g_AreaMean
    use mpi
    use, intrinsic :: iso_fortran_env, only: real32, real64
    use MAPL_Constants, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
-   use MAPL_ErrorHandling, only: MAPL_Verify, MAPL_Return
+   use MAPL_ErrorHandling, only: MAPL_Verify, MAPL_Return, MAPL_Assert
 
    implicit none
    private
@@ -115,6 +115,8 @@ contains
       real(kind=real64) :: sum_local(2), sum_global(2)
       integer, parameter :: TWO = 2
       integer :: im, jm, i, j, status
+
+      _ASSERT(all(shape(q) == shape(area)), "q and area need to be of the same shape")
 
       im = size(area, 1) ! local grid dim
       jm = size(area, 2) ! local grid dim
