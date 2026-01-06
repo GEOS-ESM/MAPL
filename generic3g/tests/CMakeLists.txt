@@ -54,7 +54,7 @@ set (test_srcs
 add_pfunit_ctest(
   MAPL.generic3g.tests
   TEST_SOURCES ${test_srcs}
-  LINK_LIBRARIES MAPL.generic3g MAPL.shared MAPL.pfunit configurable_gridcomp MAPL_StatisticsGridComp
+  LINK_LIBRARIES MAPL.generic3g MAPL.shared MAPL.pfunit configurable_gridcomp MAPL.statistics
   EXTRA_INITIALIZE Initialize
   EXTRA_USE MAPL_pFUnit_Initialize
   OTHER_SOURCES MockUserGridComp.F90 accumulator_transform_test_common.F90 MockAspect.F90
