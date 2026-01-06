@@ -27,13 +27,6 @@ module mapl3g_FrequencyAspect
       procedure, nopass :: get_aspect_id
       procedure :: update_from_payload
       procedure :: update_payload
-      ! These are for testing
-      procedure :: get_timeStep
-      procedure :: timeStep_is_set
-      procedure :: get_offset
-      procedure :: offset_is_set
-      procedure :: get_accumulation_type
-      procedure :: accumulation_type_is_set
    end type FrequencyAspect
 
    interface FrequencyAspect
@@ -183,46 +176,5 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine update_payload
-
-   logical function timeStep_is_set(this)
-      class(FrequencyAspect), intent(in) :: this
-      timeStep_is_set = allocated(this%timeStep)
-   end function timeStep_is_set
-
-   type(ESMF_TimeInterval) function get_timeStep(this, rc)
-      class(FrequencyAspect), intent(in) :: this
-      integer, optional, intent(out) :: rc
-      integer :: status
-      _ASSERT(this%timeStep_is_set, 'timeStep has not been set.')
-      get_timeStep = this%timeStep
-   end function get_timeStep
-
-   logical function offset_is_set(this)
-      class(FrequencyAspect), intent(in) :: this
-      offset_is_set = allocated(this%offset)
-   end function offset_is_set
-
-   type(ESMF_TimeInterval) function get_offset(this, rc)
-      class(FrequencyAspect), intent(in) :: this
-      integer, optional, intent(out) :: rc
-      integer :: status
-      _ASSERT(this%offset_is_set, 'offset has not been set.')
-      get_offset = this%offset
-   end function get_timeStep
-
-   logical function accumulation_type_is_set(this)
-      class(FrequencyAspect), intent(in) :: this
-      accumulation_type_is_set = allocated(this%accumulation_type)
-   end function accumulation_type_is_set
-
-   function get_accumulation_type(this)
-      character(len=:), allocatable :: get_accumulation_type
-      class(FrequencyAspect), intent(in) :: this
-      if(this%accumulation_type_is_set) then
-         get_accumulation_type = this%accumulation_type
-         return
-      end if
-      get_accumulation_type = ''
-   end function get_accumulation_type
 
 end module mapl3g_FrequencyAspect
