@@ -1,5 +1,3 @@
-#include "unused_dummy.H"
-
 module Test_AreaMean
 
    use pfunit
@@ -18,11 +16,9 @@ contains
 
       x = reshape([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape(x))
       area = 2.0
-      area_mean = AreaMean(x, area, MPI_COMM_WORLD, rc=status)
+      area_mean = AreaMean(x, area, this%getMpiCommunicator(), rc=status)
       @assert_that(status, is(0))
       @assert_that(area_mean, is(3.5))
-
-      _UNUSED_DUMMY(this)
    end subroutine test_area_mean
 
 end module Test_AreaMean

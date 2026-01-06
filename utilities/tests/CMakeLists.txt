@@ -1,4 +1,4 @@
-set(MODULE_DIRECTORY "${esma_include}/MAPL.geom/tests")
+set(MODULE_DIRECTORY "${esma_include}/MAPL.utilities/tests")
 
 set (TEST_SRCS
   Test_MaxMin.pf
@@ -10,7 +10,7 @@ add_pfunit_ctest(MAPL.utilities.tests
   LINK_LIBRARIES MAPL.utilities MAPL.pfunit
   EXTRA_INITIALIZE Initialize
   EXTRA_USE MAPL_pFUnit_Initialize
-  MAX_PES 1
+  MAX_PES 2
 )
 set_target_properties(MAPL.utilities.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 set_tests_properties(MAPL.utilities.tests PROPERTIES LABELS "ESSENTIAL")
