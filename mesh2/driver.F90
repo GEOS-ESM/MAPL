@@ -26,7 +26,7 @@ program main
    type(Element), pointer :: e
    integer :: ni, nj
 
-   integer :: rc, status
+   integer :: rc, status, connCount
    integer :: counters(4)
    integer :: catch_index
 
@@ -94,11 +94,11 @@ program main
    call m%to_netcdf_0('surface_mesh.nc', _RC)
    _HERE
 
-   call system_clock(c0)
-   msh = m%make_esmf_mesh_0(_RC)
-!#   call write_to_file(msh, 'surface_types.nc', _RC)
-   call system_clock(c1)
-   _HERE, 'time to create ESMF mesh is: ', real(c1-c0)/crate
+   !call system_clock(c0)
+   !msh = m%make_esmf_mesh_tri(connCount, _RC)
+   !call write_to_file(msh, 'surface_types.nc', connCount, _RC)
+   !call system_clock(c1)
+   !_HERE, 'time to create ESMF mesh is: ', real(c1-c0)/crate
 
 !#   call system_clock(c0)
 !#   msh2 = m%make_esmf_mesh3(_RC)

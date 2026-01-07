@@ -43,11 +43,8 @@ module sf_Mesh
       procedure :: refine_north_south
       procedure :: refine_east_west
       procedure :: make_esmf_mesh_0
-      procedure :: make_esmf_mesh
-      procedure :: make_esmf_mesh2
-      procedure :: make_esmf_mesh3
+      procedure :: make_esmf_mesh_tri
       procedure :: to_netcdf_0
-      procedure :: to_netcdf
       procedure :: to_lon
       procedure :: to_lat
       procedure :: aspect_ratio
@@ -687,9 +684,10 @@ contains
       print*
    end subroutine describe_element
 
-   function make_esmf_mesh_0(this, rc) result(msh)
+   function make_esmf_mesh_0(this, connCount, rc) result(msh)
       type(ESMF_Mesh), target :: msh
       class(Mesh), intent(in) :: this
+      integer, intent(out)    :: connCount
       integer, optional, intent(out):: rc
 
       integer :: status
@@ -705,6 +703,7 @@ contains
       type(Integer64Vector), target :: p
       integer, allocatable :: elementConn(:)
       integer, allocatable :: elementIds(:)
+      integer, allocatable :: elementMask(:)
       integer, allocatable :: elementTypes(:)
       integer :: k_element, typ
 
@@ -736,11 +735,12 @@ contains
          n_conn = n_conn + np
       end do
       _HERE,'total connection :', n_conn
-
+      connCount = n_conn
       deallocate(nodeCoords, nodeIds)
 
       allocate(elementIds(n_elements))
       allocate(elementTypes(n_elements))
+      allocate(elementMask(n_elements))
       allocate(elementConn(n_conn))
 !#      elementTypes = ESMF_MESHELEMTYPE_TRI
 
@@ -750,8 +750,9 @@ contains
       kk = 0
       do k = 1, n_elements
          e => this%get_element(k)
-!#         typ = e%get_type()
-         elementIds(k) = k
+         typ = e%get_type()
+         elementIds(k)  = k
+         elementMask(k) = typ
 
          p = this%get_perimeter(e)
          np = p%size()
@@ -765,19 +766,23 @@ contains
 
       call ESMF_MeshAddElements(msh, &
            elementIds, elementTypes, elementConn, &
+           elementMask=elementMask, &
 !#           elementArea, &
 !#           elementCoords, &
 !#           elementDistgrid, &
            _RC)
       _HERE
+
       deallocate(elementConn, elementTypes, elementIds)
+
       _RETURN(_SUCCESS)
    end function make_esmf_mesh_0
 
    ! Naive triangulation?
-   function make_esmf_mesh(this, rc) result(msh)
+   function make_esmf_mesh_tri(this, connCount, rc) result(msh)
       type(ESMF_Mesh), target :: msh
       class(Mesh), intent(in) :: this
+      integer, intent(out)    :: connCount
       integer, optional, intent(out):: rc
 
       integer :: status
@@ -839,6 +844,7 @@ contains
          n_esmf_elements = n_esmf_elements + np
       end do
       _HERE,'total connection :', n_conn
+      connCount = n_conn
 
       allocate(elementIds(n_esmf_elements))
       allocate(elementTypes(n_esmf_elements))
@@ -882,197 +888,7 @@ contains
 
       deallocate(elementConn, elementTypes, elementIds, elementMask)
       _RETURN(_SUCCESS)
-   end function make_esmf_mesh
-
-    function make_esmf_mesh2(this, rc) result(msh)
-      type(ESMF_Mesh), target :: msh
-      class(Mesh), intent(in) :: this
-      integer, optional, intent(out):: rc
-
-      integer :: status
-      real(kind=REAL64), allocatable :: elementCornerCoords(:,:)
-      integer :: i, j, k, n, np
-      type(Element), pointer :: e
-      type(Vertex), pointer :: v
-      type(Integer64Vector), target :: p
-      real(kind=REAL64) :: lon, lat
-      integer :: stype
-
-      integer, parameter :: SURF_TYPES(*) = [0, 1, 190000000, 200000000]
-
-      integer :: counts_by_type(size(SURF_TYPES))
-      real(kind=REAL64) :: centroid(2)
-
-      counts_by_type = 0
-      do i = 1, this%elements%size()
-         e => this%get_element(i)
-         select case (e%pixels(1,1))
-         case (SURF_TYPES(1)) ! ocean
-            stype = 1
-         case (SURF_TYPES(2)) ! land
-            stype = 2
-         case (SURF_TYPES(3)) ! land
-            stype = 3
-         case (SURF_TYPES(4)) ! land
-            stype = 4
-         end select
-         counts_by_type(stype) = counts_by_type(stype) + 3*this%element_degree(e)
-      end do
-
-      allocate(elementCornerCoords(2,3*sum(counts_by_type)))
-
-      n = 0
-      do j = 1, 4
-         do i = 1, this%elements%size()
-            e => this%get_element(i)
-            if (e%pixels(1,1) /= SURF_TYPES(j)) cycle
-
-
-            p = this%get_perimeter(e)
-            np = p%size()
-            centroid = this%get_centroid(e)
-
-            do k = 1, p%size()
-               v => this%get_vertex(p%of(k))
-               elementCornerCoords(:,n+1) = centroid
-
-               v => this%get_vertex(p%of(1+mod(k-1,np)))
-               lon = this%to_lon(v%loc)
-               lat = this%to_lat(v%loc)
-               elementCornerCoords(:,n+2) = [lon, lat]
-
-               v => this%get_vertex(p%of(1+mod(k-1+1,np)))
-               lon = this%to_lon(v%loc)
-               lat = this%to_lat(v%loc)
-               elementCornerCoords(:,n+3) = [lon, lat]
-
-               n = n + 3
-            end do
-
-         end do
-      end do
-
-
-      _HERE, counts_by_type
-      msh = ESMF_MeshCreate(parametricDim=2, coordSys=ESMF_COORDSYS_SPH_DEG, &
-           elementTypes=counts_by_type, &
-           elementCornerCoords=elementCornerCoords, _RC)
-
-
-
-      _RETURN(_SUCCESS)
-   end function make_esmf_mesh2
-
-
-   function make_esmf_mesh3(this, rc) result(msh)
-      type(ESMF_Mesh), target :: msh
-      class(Mesh), intent(in) :: this
-      integer, optional, intent(out):: rc
-
-      integer :: status
-      integer :: n_nodes
-      integer, allocatable :: nodeIds(:)
-      real(kind=REAL64), allocatable :: nodeCoords(:)
-      integer :: i, j, k, kk, kk_last
-      integer(kind=INT64) :: k64
-      integer :: np, n_elements, n_vertices, n_esmf_elements
-      integer(kind=INT64) :: n_conn
-      type(Element), pointer :: e
-      type(Vertex), pointer :: v
-      type(Integer64Vector), target :: p
-      integer, allocatable :: elementConn(:)
-      integer, allocatable :: elementIds(:)
-      integer, allocatable :: elementTypes(:)
-      integer, parameter :: SURF_TYPES(*) = [0, 1, 190000000, 200000000]
-
-      integer :: counts_by_type(size(SURF_TYPES))
-      real(kind=REAL64) :: centroid(2)
-
-      msh = ESMF_MeshCreate(parametricDim=2, spatialDim=2, coordSys=ESMF_COORDSYS_SPH_DEG, _RC)
-
-      ! As a workaround to ESMF issue, we create an additional node at the
-      ! center of each element and perform our own triangulation.
-      n_vertices = this%vertices%size()
-      n_elements = this%elements%size()
-      n_nodes = n_vertices + n_elements
-
-      allocate(nodeIds(n_nodes))
-      allocate(nodeCoords(2*n_nodes))
-
-      do k = 1, n_vertices
-         k64 = k
-         v => this%get_vertex(k64)
-         nodeIds(k) = k
-         nodeCoords(1 + (k-1)*2) = this%to_lon(v%loc)
-         nodeCoords(2 + (k-1)*2) = this%to_lat(v%loc)
-      end do
-
-      kk = n_vertices
-      do k = 1, n_elements
-         kk = kk + 1
-         e => this%get_element(k)
-         nodeIds(kk) = kk
-         nodeCoords(1 + (kk-1)*2: 2 + (kk-1)*2) = this%get_centroid(e)
-      end do
-
-      call ESMF_MeshAddNodes(msh, nodeIds, nodeCoords, _RC)
-      deallocate(nodeCoords, nodeIds)
-
-      n_conn = 0
-      n_esmf_elements = 0
-      do k = 1, n_elements
-         e => this%get_element(k)
-         p = this%get_perimeter(e)
-         np = p%size()
-         ! triangulate
-         n_conn = n_conn + (3+1)*np  ! allow for poly break
-      end do
-      _HERE,'total connection :', n_conn
-
-!#      allocate(elementIds(n_esmf_elements))
-!#      allocate(elementTypes(n_esmf_elements))
-!#      allocate(elementConn(n_conn))
-!#      elementTypes = ESMF_MESHELEMTYPE_TRI
-
-      allocate(elementIds(4))
-      allocate(elementTypes(4))
-      allocate(elementConn(n_conn))
-!#      elementTypes = ESMF_MESHELEMTYPE_TRI
-
-      elementIds = [1,2,3,4]
-
-      kk = 0
-      do j = 1, 4 ! esmf elements
-         kk_last = kk
-         do k = 1, n_elements
-            e => this%get_element(k)
-            if (e%get_type() /= j) cycle
-            p = this%get_perimeter(e)
-            np = p%size()
-            do i = 1, np
-               elementConn(kk+1) = n_vertices + k
-               elementConn(kk+2) = p%of(1+mod(i-1,np))
-               elementConn(kk+3) = p%of(1 + mod(i-1+1,np))
-               elementConn(kk+4) = ESMF_MESH_POLYBREAK
-!#            elementArea(k) = ...
-               kk = kk + 4
-            end do
-         end do
-         kk = kk - 1 ! remove last polybreak
-         elementTypes(j) = kk - kk_last 
-      end do
-
-      call ESMF_MeshAddElements(msh, &
-           elementIds, elementTypes, elementConn(:n_conn-4), & ! ignore final POLYBREAK
-!#           elementMask, &
-!#           elementArea, &
-!#           elementCoords, &
-!#           elementDistgrid, &
-           _RC)
-
-      deallocate(elementConn, elementTypes, elementIds)
-      _RETURN(_SUCCESS)
-   end function make_esmf_mesh3
+   end function make_esmf_mesh_tri
 
    function get_centroid(this, e) result(centroid)
       real(kind=REAL64) :: centroid(2)
@@ -1251,10 +1067,12 @@ contains
 
    end function resolution
 
-   subroutine write_to_file(m, filename, rc)
+   subroutine write_to_file(m, filename, connectionCount, rc)
       use pfio
       type(ESMF_Mesh), intent(in) :: m
       character(*), intent(in) :: filename
+      ! avoid MeshGet to get the connectionCount
+      integer, intent(in)      :: connectionCount
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -1264,7 +1082,7 @@ contains
       integer :: maxNodePElement
       real(Kind=ESMF_KIND_R8), allocatable :: nodeCoords(:)
       integer, allocatable :: elementConn(:)
-      integer :: elementConnCount
+      !integer :: connectionCount
       integer, allocatable :: numElementConn(:)
       integer, allocatable :: elementMask(:)
       type(Variable) :: var
@@ -1272,20 +1090,18 @@ contains
       call formatter%create(file=filename, _RC)
 
       call ESMF_MeshGet(m, nodeCount=nodeCount, elementCount=ElementCount, _RC)
-      maxNodePElement = 3
 
       filemd = FileMetadata()
       call filemd%add_dimension('nodeCount', nodeCount, _RC)
       call filemd%add_dimension('elementCount', elementCount, _RC)
-      call filemd%add_dimension('maxNodePElement', maxNodePElement, _RC)
       call filemd%add_dimension('coordDim', 2, _RC)
+      call filemd%add_dimension('connectionCount', connectionCount, _RC)
 
-      !
       var = Variable(type=pFIO_REAL64, dimensions='coordDim,nodeCount', _RC)
       call var%add_attribute('units', Attribute('degrees'), _RC)
       call filemd%add_variable('nodeCoords', var, _RC)
 
-      var = Variable(type=pFIO_INT32, dimensions='maxNodePElement,elementCount', _RC)
+      var = Variable(type=pFIO_INT32, dimensions='connectionCount', _RC)
       call var%add_attribute('long_name', Attribute("Node Indices that define the element connectivity"), _RC)
       call var%add_attribute('_FillValue', Attribute(-1), _RC)
       call var%add_attribute('start_index', Attribute(1), _RC)
@@ -1323,10 +1139,9 @@ contains
       call formatter%put_var('nodeCoords', reshape(nodeCoords, [2, nodeCount]), _RC)
       deallocate(nodeCoords)
 
-      call ESMF_MeshGet(m, elementConnCount=elementConnCount, _RC)
-      allocate(elementConn(elementConnCount))
+      allocate(elementConn(connectionCount))
       call ESMF_MeshGet(m, elementConn=elementConn, _RC)
-      call formatter%put_var('elementConn', reshape(elementConn, [3, elementCount]), _RC)
+      call formatter%put_var('elementConn', elementConn, _RC)
       deallocate(elementConn)
 
       allocate(elementMask(elementCount))
@@ -1335,7 +1150,7 @@ contains
       deallocate(elementMask)
 
       allocate(numElementConn(elementCount))
-      numElementConn = 3
+      call ESMF_MeshGet(m, elementTypes= numElementConn, _RC)
       call formatter%put_var('numElementConn', numElementConn, _RC)
       deallocate(numElementConn)
 
@@ -1343,7 +1158,6 @@ contains
 
       block
         type(ESMF_Mesh) :: m2
-
         m2 = ESMF_MeshCreate(filename, fileFormat=ESMF_FILEFORMAT_ESMFMESH, _RC)
       end block
 
@@ -1453,8 +1267,6 @@ contains
 
       call system_clock(c0)
 
-      elementIds = [1,2,3,4]
-
       kk = 0
       do k = 1, n_elements
          e => this%get_element(k)
@@ -1481,187 +1293,13 @@ contains
 
       block
         type(ESMF_Mesh) :: m2
-
         _HERE, 'Creating a mesh?'
         m2 = ESMF_MeshCreate(filename, fileFormat=ESMF_FILEFORMAT_ESMFMESH, _RC)
-        _HERE, 'done!'
+        _HERE, 'Creating a mesh from a file,  done!'
       end block
-
 
       _RETURN(_SUCCESS)
    end subroutine to_netcdf_0
-
-
-   subroutine to_netcdf(this, filename, rc)
-      use pfio
-      class(Mesh), target, intent(in) :: this
-      character(*), intent(in) :: filename
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      integer :: n_nodes
-      integer, allocatable :: nodeIds(:)
-      real(kind=REAL64), allocatable :: nodeCoords(:,:)
-      integer :: i, j, k, kk, kk_last
-      integer(kind=INT64) :: k64
-      integer :: np, n_elements, n_vertices, n_esmf_elements
-      integer :: nodeCount
-      integer(kind=INT64) :: n_conn
-      type(Element), pointer :: e
-      type(Vertex), pointer :: v
-      type(Integer64Vector), target :: p
-      integer, allocatable :: elementConn(:)
-      integer, allocatable :: elementIds(:)
-      integer, allocatable :: elementTypes(:)
-
-      integer, parameter :: N_SURF_TYPES = 4
-      type(FileMetadata), target :: filemd
-      type(Variable) :: var
-      type(NetCDF4_FileFormatter) :: formatter
-
-      integer :: counts_by_type(N_SURF_TYPES)
-      integer(kind=INT64) :: c0, c1, crate
-
-      ! As a workaround to ESMF issue, we create an additional node at the
-      ! center of each element and perform our own triangulation.
-      n_vertices = this%vertices%size()
-      n_elements = this%elements%size()
-      n_nodes = n_vertices + n_elements
-      _HERE,'n_nodes: ', n_nodes
-
-      filemd = FileMetadata()
-      call filemd%add_dimension('nodeCount', n_Nodes, _RC)
-!#      call filemd%add_dimension('elementCount', n_elements, _RC)
-      call filemd%add_dimension('elementCount', 4, _RC)
-      call filemd%add_dimension('coordDim', 2, _RC)
-
-      n_conn = 0
-      n_esmf_elements = 0
-      do k = 1, n_elements
-         if (mod(k, 10000) == 0) then
-            _HERE, k
-         end if
-         e => this%get_element(k)
-         p = this%get_perimeter(e)
-         np = p%size()
-         ! triangulate
-         n_conn = n_conn + (3+1)*np  ! allow for poly break
-      end do
-      n_conn = n_conn - N_SURF_TYPES ! last poly of each type has an extra vertex
-      _HERE,'total connection :', n_conn
-
-      call filemd%add_dimension('connectionCount', int(n_conn), _RC)
-
-      var = Variable(type=pFIO_REAL64, dimensions='coordDim,nodeCount', _RC)
-      call var%add_attribute('units', Attribute('degrees'), _RC)
-      call filemd%add_variable('nodeCoords', var, _RC)
-
-      var = Variable(type=pFIO_INT32, dimensions='connectionCount', _RC)
-      call var%add_attribute('long_name', Attribute("Node Indices that define the element connectivity"), _RC)
-      call var%add_attribute('_FillValue', Attribute(-1), _RC)
-      call var%add_attribute('polygon_break_value', Attribute(ESMF_MESH_POLYBREAK), _RC)
-      call var%add_attribute('start_index', Attribute(1), _RC)
-      call filemd%add_variable('elementConn', var, _RC)
-
-      var = Variable(type=pFIO_INT32, dimensions='elementCount', _RC)
-      call var%add_attribute('long_name', Attribute("Number of nodes per elemennt"))
-      call filemd%add_variable('numElementConn', var, _RC)
-
-!#     var = Variable(type=???, dimensions='coordDim,elementCount', _RC)
-!#     call var%add_attribute('units', Attribute('degrees'), _RC)
-!#     call filemd%add_variable('centerCoords' var, _RC)
-
-!#     var = Variable(type=???, dimensions='elementCount')
-!#     call var%add_attribute('units', Attribute("radians^2"), _RC)
-!#     call var%add_attribute('long_name', Attribute("area weights"), _RC)
-!#     call filemd%add_variable('elementArea', var, _RC)
-
-!#     var = Variable('elementCount')
-!#     call var%add_attribute('_FillValue', Attribute(-9999), _RC)
-!#
-      call filemd%add_attribute('gridType', Attribute('unstructured'), _RC)
-      call filemd%add_attribute('version', Attribute('0.9'), _RC)
-
-      call formatter%create(file=filename, _RC)
-      call formatter%write(filemd, _RC)
-
-      call system_clock(c0, crate)
-
-      allocate(nodeIds(n_nodes))
-      allocate(nodeCoords(2,n_nodes))
-
-      allocate(elementIds(N_SURF_TYPES))
-      allocate(elementTypes(N_SURF_TYPES))
-      allocate(elementConn(n_conn+N_SURF_TYPES))
-
-      do k = 1, n_vertices
-         k64 = k
-         v => this%get_vertex(k64)
-         nodeIds(k) = k
-         nodeCoords(:,k) = [this%to_lon(v%loc), this%to_lat(v%loc)]
-      end do
-
-      kk = n_vertices
-      do k = 1, n_elements
-         kk = kk + 1
-         e => this%get_element(k)
-         nodeIds(kk) = kk
-         nodeCoords(:,kk) = this%get_centroid(e)
-      end do
-
-      _HERE, nodeCoords(:, [1,5,7])
-      call formatter%put_var('nodeCoords', nodeCoords, _RC)
-      deallocate(nodeCoords, nodeIds)
-
-      call system_clock(c1)
-      _HERE, real(c1-c0)/crate
-
-      call system_clock(c0)
-
-      elementIds = [1,2,3,4]
-
-      kk = 0
-      do j = 1, 4 ! esmf elements
-         kk_last = kk
-         do k = 1, n_elements
-            e => this%get_element(k)
-            if (e%get_type() /= j) cycle
-            p = this%get_perimeter(e)
-            np = p%size()
-            do i = 1, np
-               elementConn(kk+1) = n_vertices + k
-               elementConn(kk+2) = p%of(1+mod(i-1,np))
-               elementConn(kk+3) = p%of(1 + mod(i-1+1,np))
-               elementConn(kk+4) = ESMF_MESH_POLYBREAK
-!#            elementArea(k) = ...
-               kk = kk + 4
-            end do
-         end do
-         kk = kk - 1 ! remove last polybreak
-         elementTypes(j) = kk - kk_last 
-      end do
-
-      call formatter%put_var('elementConn', elementConn(:n_conn), _RC)
-      call formatter%put_var('numElementConn', elementTypes, _RC)
-      call system_clock(c1)
-      _HERE, real(c1-c0)/crate
-      call system_clock(c0)
-      call formatter%close(_RC)
-      call system_clock(c1)
-      _HERE, real(c1-c0)/crate
-
-      deallocate(elementConn, elementTypes, elementIds)
-
-      block
-        type(ESMF_Mesh) :: m2
-
-        m2 = ESMF_MeshCreate(filename, fileFormat=ESMF_FILEFORMAT_ESMFMESH, _RC)
-      end block
-
-
-      _RETURN(_SUCCESS)
-   end subroutine to_netcdf
 
    subroutine reorder_elements(this, rc)
      class(Mesh), target, intent(inout) :: this
