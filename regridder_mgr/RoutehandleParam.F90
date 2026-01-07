@@ -322,11 +322,8 @@ contains
          _FAIL('unsupported esmf regrid method')
       end if
 
-      _HERE
       info = esmf_InfoCreate(_RC)
       call esmf_InfoSet(info, key=KEY_REGRID_METHOD, value=regrid_method_str, _RC)
-      _HERE
-      
 
       _RETURN(_SUCCESS)
    end function make_info

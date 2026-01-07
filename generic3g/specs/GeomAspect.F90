@@ -305,14 +305,8 @@ contains
       if (allocated(this%regridder_param)) then
          regridder_param_info = this%regridder_param%make_info(_RC)
       end if
-      block
-        use esmf
-        _HERE
-      end block
       if (present(field)) then
-         _HERE
          call mapl_FieldSet(field, geom=this%geom, regridder_param_info=regridder_param_info, _RC)
-         _HERE
       else if (present(bundle)) then
          call mapl_FieldBundleSet(bundle, geom=this%geom, regridder_param_info=regridder_param_info, _RC)
       end if

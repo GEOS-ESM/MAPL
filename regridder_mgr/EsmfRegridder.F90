@@ -271,15 +271,10 @@ contains
       integer :: status
       type(esmf_Info) :: rh_info
 
-      _HERE
       info = esmf_InfoCreate(_RC)
-      _HERE
       rh_info = this%routehandle_param%make_info(_RC)
-      _HERE
       call esmf_InfoSet(info, key=KEY_ROUTEHANDLE, value=rh_info, _RC)
-      _HERE
       call esmf_InfoDestroy(rh_info, _RC)
-      _HERE
 
       call esmf_InfoPrint(info, _RC)
 
