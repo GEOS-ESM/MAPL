@@ -53,6 +53,7 @@ module sf_Mesh
       procedure :: aspect_ratio
       procedure :: get_centroid
       procedure :: resolution
+      procedure :: reorder_elements
    end type Mesh
 
 
@@ -709,8 +710,6 @@ contains
 
       msh = ESMF_MeshCreate(parametricDim=2, spatialDim=2, coordSys=ESMF_COORDSYS_SPH_DEG, _RC)
 
-      ! As a workaround to ESMF issue, we create an additional node at the
-      ! center of each element and perform our own triangulation.
       n_vertices = this%vertices%size()
       n_elements = this%elements%size()
       n_nodes = n_vertices
@@ -1384,8 +1383,6 @@ contains
       integer :: counts_by_type(N_SURF_TYPES)
       integer(kind=INT64) :: c0, c1, crate
 
-      ! As a workaround to ESMF issue, we create an additional node at the
-      ! center of each element and perform our own triangulation.
       n_vertices = this%vertices%size()
       n_elements = this%elements%size()
       n_nodes = n_vertices
@@ -1402,7 +1399,6 @@ contains
          e => this%get_element(k)
          p = this%get_perimeter(e)
          np = p%size()
-         ! triangulate
          n_conn = n_conn + np
       end do
 
@@ -1667,6 +1663,146 @@ contains
       _RETURN(_SUCCESS)
    end subroutine to_netcdf
 
+   subroutine reorder_elements(this, rc)
+     class(Mesh), target, intent(inout) :: this
+     integer, optional, intent(out) :: rc
+
+     type(Element), pointer :: e
+     type(Integer64Vector)  :: ive
+     integer :: ne
+     integer(kind=INT64) :: nv, i, j, k, node
+     integer(kind=INT64), allocatable :: nodes(:)     
+
+
+     ne = this%elements%size()
+     ! sort element accoding to its coordinate, loc(1) primary key, loc(2) secondary key
+     call quicksort(this%elements, this%vertices,  1, ne)
+     ! reorder vertices according the order of element
+     nv = this%vertices%size()
+     allocate(nodes(nv)) ! nodes(original_order) = new_order
+     nodes = -1
+     j = 1
+     do i = 1, ne
+       e=> this%elements%of(i)
+       ive = this%get_perimeter(e)
+       do k = 1, ive%size()
+         node = ive%of(k)
+         if (nodes(node) == -1) then
+           nodes(node) = j
+           j = j + 1
+         endif
+       enddo
+       e%iv_0 = nodes(e%iv_0)
+     enddo
+
+     call reorder_vertices(this%vertices, nodes)
+
+     contains
+
+        recursive subroutine quicksort(elements, vertices, low, high)
+           implicit none
+           type(ElementVector), intent(inout) :: elements
+           type(VertexVector),  intent(in)    :: vertices
+           integer, intent(in) :: low, high
+           integer :: pivot_index
+   
+           if (low < high) then
+               pivot_index = partition(elements, vertices, low, high)
+               call quicksort(elements, vertices, low, pivot_index - 1)
+               call quicksort(elements, vertices, pivot_index + 1, high)
+           end if
+
+       end subroutine quicksort
+
+       integer function partition(elements, vertices, low, high)
+         implicit none
+         type(ElementVector), intent(inout) :: elements
+         type(VertexVector),  intent(in)    :: vertices
+         integer, intent(in) :: low, high
+         type(Element) :: pivot, temp
+         type(Element), pointer :: e
+         integer :: i, j
+
+         pivot = elements%of(high)
+         i = low - 1
+
+         do j = low, high - 1
+            if (.not. compare_elements(elements%of(j), pivot, vertices)) then
+                i = i + 1
+                e => elements%of(i)
+                temp = e
+                e = elements%of(j)
+                e => elements%of(j)
+                e = temp
+            end if
+         end do
+         e =>elements%of(i + 1)
+         temp = e
+         e = elements%of(high)
+         e => elements%of(high)
+         e = temp
+         partition = i + 1
+       end function partition
+
+       logical function compare_elements(e1, e2, vertices)
+         implicit none
+         type(Element), intent(in) :: e1, e2
+         type(VertexVector),  intent(in)    :: vertices
+         type(Vertex) :: v1, v2
+         integer(kind=INT64) :: iv1, iv2
+         integer :: prime_key1, prime_key2, second_key1, second_key2
+
+         iv1 = e1%iv_0
+         iv2 = e2%iv_0
+
+         v1 = vertices%of(iv1)
+         v2 = vertices%of(iv2)
+
+         prime_key1  = v1%loc(1)
+         prime_key2  = v2%loc(1)
+
+         second_key1 = v1%loc(2)
+         second_key2 = v2%loc(2)
+
+         if (prime_key1 == prime_key2 ) then
+           compare_elements = second_key1 > second_key2
+         else
+           compare_elements = prime_key1 > prime_key2
+         endif
+
+       end function compare_elements
+
+       subroutine reorder_vertices(vertices, nodes)
+         type(VertexVector),  intent(inout):: vertices
+         integer(kind=INT64), intent(in)   :: nodes(:)
+         type(VertexVector)  :: vertices_temp
+         integer(kind=INT64), allocatable  :: nodes_reorder(:)
+         integer(kind=INT64) :: k, node, iv
+         integer :: dir
+         type(Vertex) :: vtemp
+
+         allocate(nodes_reorder(size(nodes)))
+         do node = 1, size(nodes)
+           k = nodes(node)
+           nodes_reorder(k) = node
+         enddo
+
+         do k = 1, size(nodes)
+            node = nodes_reorder(k)
+            vtemp = vertices%of(node)
+
+            do dir = 1, N_DIR
+               iv = vtemp%connections(dir)
+               if (iv /= -1) then
+                 vtemp%connections(dir) = nodes(iv)
+               endif
+            enddo
+            call vertices_temp%push_back(vtemp)
+         enddo
+         vertices = vertices_temp
+       end subroutine
+
+   end subroutine reorder_elements
 
 end module sf_Mesh
 
