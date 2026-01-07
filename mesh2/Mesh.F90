@@ -710,8 +710,6 @@ contains
 
       msh = ESMF_MeshCreate(parametricDim=2, spatialDim=2, coordSys=ESMF_COORDSYS_SPH_DEG, _RC)
 
-      ! As a workaround to ESMF issue, we create an additional node at the
-      ! center of each element and perform our own triangulation.
       n_vertices = this%vertices%size()
       n_elements = this%elements%size()
       n_nodes = n_vertices
@@ -1385,8 +1383,6 @@ contains
       integer :: counts_by_type(N_SURF_TYPES)
       integer(kind=INT64) :: c0, c1, crate
 
-      ! As a workaround to ESMF issue, we create an additional node at the
-      ! center of each element and perform our own triangulation.
       n_vertices = this%vertices%size()
       n_elements = this%elements%size()
       n_nodes = n_vertices
@@ -1403,7 +1399,6 @@ contains
          e => this%get_element(k)
          p = this%get_perimeter(e)
          np = p%size()
-         ! triangulate
          n_conn = n_conn + np
       end do
 
