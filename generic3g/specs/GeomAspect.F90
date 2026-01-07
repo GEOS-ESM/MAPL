@@ -17,7 +17,7 @@ module mapl3g_GeomAspect
    use ESMF, only: esmf_Geom
    use ESMF, only: esmf_Field, esmf_FieldBundle, esmf_State
    use ESMF, only: esmf_Info
-   implicit none
+   implicit none(type,external)
    private
 
    public :: GeomAspect

@@ -34,6 +34,7 @@ subroutine field_set(field, &
         attributes, &
         allocation_status, &
         has_deferred_aspects, &
+        regridder_param_info, &
         rc)
 
 
@@ -51,6 +52,7 @@ subroutine field_set(field, &
       type(StringVector), optional, intent(in) :: attributes
       type(StateItemAllocation), optional, intent(in) :: allocation_status
       logical, optional, intent(in) :: has_deferred_aspects
+      type(esmf_Info), optional, intent(in) :: regridder_param_info
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -84,6 +86,7 @@ subroutine field_set(field, &
            ungridded_dims=ungridded_dims, &
            allocation_status=allocation_status, &
            has_deferred_aspects=has_deferred_aspects, &
+           regridder_param_info=regridder_param_info, &
            _RC)
 
       _RETURN(_SUCCESS)

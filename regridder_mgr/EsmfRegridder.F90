@@ -15,6 +15,7 @@ module mapl3g_EsmfRegridder
 
    public :: EsmfRegridder
    public :: EsmfRegridderParam
+   public :: make_EsmfRegridderParam
 
    type, extends(RegridderParam) :: EsmfRegridderParam
       private
@@ -26,6 +27,7 @@ module mapl3g_EsmfRegridder
    contains
       procedure :: equal_to
       procedure :: get_routehandle_param
+      procedure :: make_info
    end type EsmfRegridderParam
 
    type, extends(Regridder) :: EsmfRegridder
@@ -45,6 +47,12 @@ module mapl3g_EsmfRegridder
    interface EsmfRegridder
       procedure :: new_EsmfRegridder
    end interface EsmfRegridder
+
+   interface make_EsmfRegridderParam
+      procedure make_regridder_param_from_info
+   end interface make_EsmfRegridderParam
+
+   character(*), parameter :: KEY_ROUTEHANDLE = 'EsmfRouteHandle'
    
 contains
 
@@ -254,5 +262,46 @@ contains
 
       routehandle_param = this%routehandle_param
    end function get_routehandle_param
+
+   function make_info(this, rc) result(info)
+      type(esmf_Info) :: info
+      class(EsmfRegridderParam), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(esmf_Info) :: rh_info
+
+      _HERE
+      info = esmf_InfoCreate(_RC)
+      _HERE
+      rh_info = this%routehandle_param%make_info(_RC)
+      _HERE
+      call esmf_InfoSet(info, key=KEY_ROUTEHANDLE, value=rh_info, _RC)
+      _HERE
+      call esmf_InfoDestroy(rh_info, _RC)
+      _HERE
+
+      call esmf_InfoPrint(info, _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_info
+
+   function make_regridder_param_from_info(info, rc) result(regridder_param)
+      type(EsmfRegridderParam) :: regridder_param
+      type(esmf_Info), intent(in) :: info
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(esmf_Info) :: rh_info
+      type(RouteHandleParam) :: rh_param
+
+      rh_info = esmf_InfoCreate(info, key=KEY_ROUTEHANDLE, _RC)
+      rh_param = make_RouteHandleParam(rh_info, _RC)
+      regridder_param = EsmfRegridderParam(rh_param)
+
+      call esmf_InfoDestroy(rh_info, _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_regridder_param_from_info
 
 end module mapl3g_EsmfRegridder

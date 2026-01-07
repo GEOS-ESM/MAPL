@@ -38,6 +38,7 @@ contains
         allocation_status, &
         bracket_updated, &
         has_deferred_aspects, &
+        regridder_param_info, &
         rc)
 
       type(ESMF_FieldBundle), intent(inout) :: fieldBundle
@@ -56,6 +57,7 @@ contains
       type(StateItemAllocation), optional, intent(in) :: allocation_status
       logical, optional, intent(in) :: bracket_updated
       logical, optional, intent(in) :: has_deferred_aspects
+      type(esmf_Info), optional, intent(in) :: regridder_param_info
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -110,7 +112,8 @@ contains
            bracket_updated=bracket_updated, &
            has_geom=has_geom, &
            has_deferred_aspects=has_deferred_aspects, &
-           _RC)
+           regridder_param_info=regridder_param_info, &
+          _RC)
 
       _RETURN(_SUCCESS)
    end subroutine bundle_set

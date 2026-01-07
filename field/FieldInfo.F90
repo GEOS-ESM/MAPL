@@ -60,6 +60,7 @@ module mapl3g_FieldInfo
    character(*), parameter :: KEY_VERT_DIM = "/vert_dim"
    character(*), parameter :: KEY_UNGRIDDED_DIMS = "/ungridded_dims"
    character(*), parameter :: KEY_ALLOCATION_STATUS = "/allocation_status"
+   character(*), parameter :: KEY_REGRIDDER_PARAM = "/EsmfRegridderParam"
 
    character(*), parameter :: KEY_UNDEF_VALUE = "/undef_value"
    character(*), parameter :: KEY_MISSING_VALUE = "/missing_value"
@@ -81,6 +82,7 @@ contains
         spec_handle, &
         allocation_status, &
         has_deferred_aspects, &
+        regridder_param_info, &
         rc)
       type(ESMF_Info), intent(inout) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -96,6 +98,7 @@ contains
       type(StateItemAllocation), optional, intent(in) :: allocation_status
       logical, optional, intent(in) :: has_deferred_aspects
       integer, optional, intent(in) :: spec_handle(:)
+      type(esmf_info), optional, intent(in) :: regridder_param_info
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -120,6 +123,7 @@ contains
       if (present(ungridded_dims)) then
          ungridded_info = ungridded_dims%make_info(_RC)
          call MAPL_InfoSet(info, namespace_ // KEY_UNGRIDDED_DIMS, ungridded_info, _RC)
+         call esmf_InfoDestroy(ungridded_info, _RC)
       end if
 
       if (present(units)) then
@@ -136,6 +140,12 @@ contains
 
       if (present(num_levels)) then
          call MAPL_InfoSet(info, namespace_ // KEY_NUM_LEVELS, num_levels, _RC)
+      end if
+
+      if (present(regridder_param_info)) then
+         _HERE
+         call MAPL_InfoSet(info, namespace_ // KEY_REGRIDDER_PARAM, regridder_param_info, _RC)
+         _HERE
       end if
 
       if (present(vert_staggerloc)) then
@@ -188,6 +198,7 @@ contains
         allocation_status, &
         spec_handle, &
         has_deferred_aspects, &
+        regridder_param_info, &
         rc)
       type(ESMF_Info), intent(in) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -204,11 +215,12 @@ contains
       type(StateItemAllocation), optional, intent(out) :: allocation_status
       integer, optional, allocatable, intent(out) :: spec_handle(:)
       logical, optional, intent(out) :: has_deferred_aspects
+      type(esmf_Info), optional, intent(out) :: regridder_param_info
       integer, optional, intent(out) :: rc
 
       integer :: status
       integer :: num_levels_
-      type(ESMF_Info) :: ungridded_info
+      type(esmf_Info) :: ungridded_info
       character(:), allocatable :: vert_staggerloc_str, allocation_status_str
       type(VerticalStaggerLoc) :: vert_staggerloc_
       character(:), allocatable :: namespace_ 
@@ -235,8 +247,16 @@ contains
          if (is_present) then
             ungridded_info = ESMF_InfoCreate(info, namespace_ // KEY_UNGRIDDED_DIMS, _RC)
             ungridded_dims = make_UngriddedDims(ungridded_info, _RC)
+            call esmf_InfoDestroy(ungridded_info, _RC)
          else
             ungridded_dims = UngriddedDims(is_mirror=.true.)
+         end if
+      end if
+
+      if (present(regridder_param_info)) then
+         is_present = esmf_InfoIsPresent(info, namespace_ // KEY_REGRIDDER_PARAM, _RC)
+         if (is_present) then
+            regridder_param_info = esmf_InfoCreate(info, namespace_ // KEY_REGRIDDER_PARAM, _RC)
          end if
       end if
 

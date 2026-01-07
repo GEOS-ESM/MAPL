@@ -29,6 +29,7 @@ contains
         units, standard_name, long_name, &
         allocation_status, &
         has_deferred_aspects, &
+        regridder_param_info, &
         rc)
       type(ESMF_Field), intent(in) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -45,6 +46,7 @@ contains
       character(len=:), optional, allocatable, intent(out) :: long_name
       type(StateItemAllocation), optional, intent(out) :: allocation_status
       logical, optional, intent(out) :: has_deferred_aspects
+      type(esmf_Info), optional, intent(out) :: regridder_param_info
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -85,6 +87,7 @@ contains
            vgrid_id=vgrid_id, &
            allocation_status=allocation_status, &
            has_deferred_aspects=has_deferred_aspects, &
+           regridder_param_info=regridder_param_info, &
            _RC)
 
       if (present(vgrid)) then
