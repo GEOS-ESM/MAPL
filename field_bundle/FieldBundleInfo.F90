@@ -43,6 +43,8 @@ contains
         spec_handle, &
         bracket_updated, &
         has_geom, &
+        has_deferred_aspects, &
+        regridder_param_info, &
         rc)
 
       type(ESMF_Info), intent(in) :: info
@@ -63,6 +65,8 @@ contains
       integer, optional, allocatable, intent(out) :: spec_handle(:)
       logical, optional, intent(out) :: bracket_updated
       logical, optional, intent(out) :: has_geom
+      logical, optional, intent(out) :: has_deferred_aspects
+      type(esmf_Info), optional, allocatable, intent(out) :: regridder_param_info
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -109,6 +113,8 @@ contains
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, num_vgrid_levels=num_vgrid_levels, &
            units=units, long_name=long_name, standard_name=standard_name, spec_handle=spec_handle, &
            vgrid_id=vgrid_id, &
+           has_deferred_aspects=has_deferred_aspects, &
+           regridder_param_info=regridder_param_info, &
            _RC)
 
       _RETURN(_SUCCESS)
@@ -145,6 +151,8 @@ contains
         spec_handle, &
         bracket_updated, &
         has_geom, &
+        has_deferred_aspects, &
+        regridder_param_info, &
         rc)
 
       type(ESMF_Info), intent(inout) :: info
@@ -164,6 +172,8 @@ contains
       integer, optional, intent(in) :: spec_handle(:)
       logical, optional, intent(in) :: bracket_updated
       logical, optional, intent(in) :: has_geom
+      logical, optional, intent(in) :: has_deferred_aspects
+      type(esmf_info), optional, intent(in) :: regridder_param_info
       integer, optional, intent(out) :: rc
       
       integer :: status
@@ -207,7 +217,10 @@ contains
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
            units=units, long_name=long_name, standard_name=standard_name, &
            vgrid_id=vgrid_id, &
-           spec_handle=spec_handle, _RC)
+           spec_handle=spec_handle, &
+           has_deferred_aspects=has_deferred_aspects, &
+           regridder_param_info=regridder_param_info, &
+           _RC)
 
        _RETURN(_SUCCESS)
        _UNUSED_DUMMY(unusable)

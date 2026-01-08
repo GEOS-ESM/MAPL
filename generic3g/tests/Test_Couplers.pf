@@ -21,7 +21,7 @@ module Test_Couplers
    implicit none
 
    type(ESMF_Geom) :: geom
-   class(VerticalGrid), allocatable :: vertical_grid
+   class(VerticalGrid), pointer :: vertical_grid
 
 contains
 
@@ -31,6 +31,7 @@ contains
       type(ESMF_HConfig) :: hconfig
       type(MaplGeom) :: mapl_geom
       type(GeomManager), pointer :: geom_mgr
+      type(VerticalGridManager), pointer :: vgrid_mgr
       type(BasicVerticalGridSpec) :: vspec
       type(BasicVerticalGridFactory) :: factory
       integer :: status
@@ -40,9 +41,9 @@ contains
       mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
       geom = mapl_geom%get_geom()
 
-      if(allocated(vertical_grid)) deallocate(vertical_grid)
       vspec = BasicVerticalGridSpec(num_levels=5)
-      vertical_grid = factory%create_grid_from_spec(vspec, _RC)
+      vgrid_mgr => get_vertical_grid_manager()
+      vertical_grid => vgrid_mgr%create_grid(vspec, _RC)
       _UNUSED_DUMMY(this)
       
    end subroutine setUp
@@ -76,8 +77,8 @@ contains
       character(len=:), allocatable :: units
       integer :: status
 
-      ! VerticalGrid should be allocated in @Before subroutine
-      @assertTrue(allocated(vertical_grid), 'The VerticalGrid has not been allocated.')
+      ! VerticalGrid should be associated in @Before subroutine
+      @assertTrue(associated(vertical_grid), 'The VerticalGrid has not been allocated.')
 
       registry = StateRegistry('StateRegistry')
       regptr => registry
@@ -92,7 +93,7 @@ contains
       var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, IMPORT_NAME,&
          & typekind=TYPEKIND, itemtype=ITEMTYPE, units=IMPORT_UNITS, _RC)
       import_spec = var_spec%make_StateItemSpec(regptr, component_geom=geom,&
-         & vertical_grid=vertical_grid, _RC)
+           & vertical_grid=vertical_grid, _RC)
       call import_spec%create(_RC)
 
       virtual_pt = VirtualConnectionPt(state_intent='export', short_name=EXPORT_NAME)

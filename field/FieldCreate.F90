@@ -112,6 +112,7 @@ contains
          allocate(grid_to_field_map(dim_count), source=[(idim, idim=1,dim_count)])
       end if
       bounds = make_bounds(num_levels=num_levels, ungridded_dims=ungridded_dims)
+      
       call ESMF_FieldEmptyComplete( &
            field, &
            typekind=typekind, &

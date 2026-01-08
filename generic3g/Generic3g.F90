@@ -19,5 +19,4 @@ module Generic3g
    use mapl3g_geomio
    use mapl3g_ESMF_Utilities
    use mapl3g_StateItemModify
-   use mapl3g_StateItemGetVerticalGrid
 end module Generic3g

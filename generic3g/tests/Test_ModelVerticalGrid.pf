@@ -10,6 +10,7 @@ module Test_ModelVerticalGrid
 
    use mapl_ErrorHandling
    use mapl3g_VerticalStaggerLoc
+   use mapl3g_VerticalGrid_API
    use mapl3g_ModelVerticalGrid
    use mapl3g_StateRegistry
    use mapl3g_VariableSpec
@@ -24,6 +25,7 @@ module Test_ModelVerticalGrid
    use mapl3g_MultiState
    use mapl3g_Geom_API
    use mapl3g_CouplerPhases, only: GENERIC_COUPLER_UPDATE
+   use gFTL2_StringVector
    use esmf
    ! testing framework
    use ESMF_TestMethod_mod
@@ -41,7 +43,7 @@ contains
    subroutine setup_(var_name, geom, vgrid, registry, rc)
       character(*), intent(in) :: var_name
       type(ESMF_Geom), intent(in) :: geom
-      type(ModelVerticalGrid), intent(in) :: vgrid
+      class(VerticalGrid), intent(in) :: vgrid
       type(StateRegistry), intent(inout) :: registry
       integer, optional, intent(out) :: rc
 
@@ -65,7 +67,7 @@ contains
       var_spec = make_VariableSpec(&
            short_name=var_name, &
            state_intent=ESMF_STATEINTENT_EXPORT, &
-           standard_name="air_pressure", &
+           standard_name="air_pressure " // var_name, &
            units="hPa", &
            vertical_stagger=vertical_stagger, &
            default_value=3., _RC)
@@ -84,17 +86,33 @@ contains
 
    subroutine setup(geom, vgrid, rc)
       type(ESMF_Geom), intent(out) :: geom
-      type(ModelVerticalGrid), intent(out) :: vgrid
+      class(VerticalGrid), allocatable, intent(out) :: vgrid
       integer, intent(out) :: rc
 
       integer :: status
+      type(VerticalGridManager), pointer :: vgrid_mgr
+      type(ModelVerticalGridSpec) :: vspec
+      type(StringVector) :: names, dims
 
       ! geom, registry etc.
       geom = make_geom(_RC)
       r = StateRegistry("dyn")
 
-      vgrid = ModelVerticalGrid(physical_dimension="pressure", short_name='PLE', num_levels=LM)
-      call vgrid%set_registry(r) ! MAPL_SetVerticalGrid(...)
+      vgrid_mgr => get_vertical_grid_manager()
+      names = StringVector()
+      call names%push_back("PLE")
+      call names%push_back("PL")
+      dims = StringVector()
+      call dims%push_back("pressure")
+      call dims%push_back("pressure")
+      vspec = ModelVerticalGridSpec(names, dims, num_levels=LM)
+      vgrid = vgrid_mgr%create_grid(vspec, _RC)
+
+!#      vgrid = ModelVerticalGrid(physical_dimension="pressure", short_name='PLE', num_levels=LM)
+      select type (vgrid)
+      type is (ModelVerticalGrid)
+         call vgrid%set_registry(r) ! MAPL_SetVerticalGrid(...)
+      end select
 
       call setup_("PLE", geom, vgrid, r, _RC)
       call setup_("PL", geom, vgrid, r, _RC)
@@ -130,7 +148,7 @@ contains
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_created_fields_have_num_levels(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(ModelVerticalGrid) :: vgrid
+      class(VerticalGrid), allocatable :: vgrid
       integer :: rank
       integer, allocatable :: localElementCount(:)
       type(VirtualConnectionPt) :: ple_pt
@@ -164,7 +182,7 @@ contains
    ! should force extensions.
    subroutine test_get_coordinate_field_simple(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(ModelVerticalGrid) :: vgrid
+      class(VerticalGrid), allocatable :: vgrid
       class(ComponentDriver), pointer :: coupler
       type(ESMF_Field) :: vcoord
       type(ESMF_Geom) :: geom
@@ -195,7 +213,7 @@ contains
    ! scaled by 100 (hPa = 100 Pa)
    subroutine test_get_coordinate_field_change_units_edge(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(ModelVerticalGrid) :: vgrid
+      class(VerticalGrid), allocatable :: vgrid
       type(ESMF_Field) :: vcoord
       type(ESMF_Geom) :: geom
       integer :: status

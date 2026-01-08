@@ -293,12 +293,12 @@ contains
    end function get_aspect_id
 
    function get_vertical_grid(this, rc) result(vertical_grid)
-      class(VerticalGridAspect), intent(in) :: this
-      class(VerticalGrid), allocatable :: vertical_grid
+      class(VerticalGridAspect), target, intent(in) :: this
+      class(VerticalGrid), pointer :: vertical_grid
       integer, optional, intent(out) :: rc
 
       _ASSERT(allocated(this%vertical_grid), "vertical_grid not allocated.")
-      vertical_grid = this%vertical_grid
+      vertical_grid => this%vertical_grid
 
       _RETURN(_SUCCESS)
    end function get_vertical_grid
@@ -325,18 +325,25 @@ contains
       ! Must use a pointer for get/set, but aspect uses an allocatable
       ! Future work should consider changing aspect to also be pointer.
       class(VerticalGrid), pointer :: vgrid
+      logical :: is_mirror
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
 
       if (present(field)) then
-         call mapl_FieldGet(field, vgrid=vgrid, _RC)
+         call mapl_FieldGet(field, vgrid=vgrid, vert_staggerloc=this%vertical_stagger, _RC)
       else if (present(bundle)) then
-         call mapl_FieldBundleGet(bundle, vgrid=vgrid, _RC)
+         call mapl_FieldBundleGet(bundle, vgrid=vgrid, vert_staggerloc=this%vertical_stagger, _RC)
       end if
 
-      call this%set_mirror(.not. associated(vgrid))
+      is_mirror = .not. allocated(this%vertical_stagger)
+      if (.not. is_mirror) then
+         if (this%vertical_stagger /= VERTICAL_STAGGER_NONE) then
+            is_mirror = .not. associated(vgrid)
+         end if
+      end if
+      call this%set_mirror(is_mirror)
 
-      deallocate(this%vertical_grid)
+      if (allocated(this%vertical_grid))  deallocate(this%vertical_grid)
       if (associated(vgrid)) then
          this%vertical_grid = vgrid
       end if
@@ -352,13 +359,24 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      integer :: num_vgrid_levels
+      integer, allocatable :: num_levels
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
 
+      if (allocated(this%vertical_grid)) then
+         num_vgrid_levels = this%vertical_grid%get_num_levels()
+         if (this%vertical_stagger == VERTICAL_STAGGER_EDGE) then
+            num_levels = num_vgrid_levels + 1
+         else if (this%vertical_stagger == VERTICAL_STAGGER_CENTER) then
+            num_levels = num_vgrid_levels
+         end if
+      end if
+         
       if (present(field)) then
-         call mapl_FieldSet(field, vgrid=this%vertical_grid, _RC)
+         call mapl_FieldSet(field, vgrid=this%vertical_grid, vert_staggerloc=this%vertical_stagger, num_levels=num_levels, _RC)
       else if (present(bundle)) then
-         call mapl_FieldBundleSet(bundle, vgrid=this%vertical_grid, _RC)
+         call mapl_FieldBundleSet(bundle, vgrid=this%vertical_grid, vert_staggerloc=this%vertical_stagger, num_levels=num_levels, _RC)
       end if
 
       _RETURN(_SUCCESS)
