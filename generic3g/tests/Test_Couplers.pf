@@ -2,47 +2,54 @@
 #include "unused_dummy.H"
 
 module Test_Couplers
-   !use mapl3g_StateItem, only: MAPL_STATEITEM_FIELD
+
+   use mapl3g_AttributesAspect
+   use mapl3g_BracketClassAspect
+   use mapl3g_ClassAspect
+   use mapl3g_ExpressionClassAspect
+   use mapl3g_FieldBundleClassAspect
+   use mapl3g_FieldClassAspect
+   use mapl3g_FrequencyAspect
+   use mapl3g_GeomAspect
+   use mapl3g_ServiceClassAspect
+   use mapl3g_StateClassAspect
+   use mapl3g_StateItemAspect, only: StateItemAspect
+   use mapl3g_TypekindAspect
+   use mapl3g_UngriddedDimsAspect
+   use mapl3g_UnitsAspect, only: UnitsAspect
+   use mapl3g_VectorBracketClassAspect
+   use mapl3g_VectorClassAspect
+   use mapl3g_VerticalGridAspect
+   use mapl3g_WildcardClassAspect
    use mapl3g_StateItem
    use mapl3g_VariableSpec, only: VariableSpec, make_VariableSpec
    use mapl3g_StateItemSpec, only: StateItemSpec
    use mapl3g_StateRegistry, only: StateRegistry
-   use mapl3g_UnitsAspect, only: UnitsAspect
-   use mapl3g_StateItemAspect, only: StateItemAspect
    use mapl3g_VirtualConnectionPt, only: VirtualConnectionPt
    use mapl3g_StateItemExtension, only: StateItemExtension
-   use mapl3g_AspectId, only: UNITS_ASPECT_ID
+   use mapl3g_AspectId
    use mapl3g_Geom_API
    use mapl3g_VerticalGrid_API
    use pfunit
    use ESMF_TestMethod_mod
    use esmf
-   !implicit none(type, external)
+   
    implicit none
 
-   type(ESMF_Geom) :: geom
-   class(VerticalGrid), allocatable :: vertical_grid
+   class(VerticalGrid), pointer :: vertical_grid
 
 contains
 
    @Before
    subroutine setUp(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(ESMF_HConfig) :: hconfig
-      type(MaplGeom) :: mapl_geom
-      type(GeomManager), pointer :: geom_mgr
       type(BasicVerticalGridSpec) :: vspec
-      type(BasicVerticalGridFactory) :: factory
+      type(VerticalGridManager), pointer :: vgrid_manager
       integer :: status
 
-      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}", _RC)
-      geom_mgr => get_geom_manager()
-      mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
-      geom = mapl_geom%get_geom()
-
-      if(allocated(vertical_grid)) deallocate(vertical_grid)
+      vgrid_manager => get_vertical_grid_manager(_RC)
       vspec = BasicVerticalGridSpec(num_levels=5)
-      vertical_grid = factory%create_grid_from_spec(vspec, _RC)
+      vertical_grid => vgrid_manager%create_grid(vspec, _RC)
       _UNUSED_DUMMY(this)
 
    end subroutine setUp
@@ -51,10 +58,26 @@ contains
    subroutine shutDown(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
-      call ESMF_GeomDestroy(geom)
       _UNUSED_DUMMY(this)
 
    end subroutine shutDown
+
+   subroutine make_geom(g, rc)
+      type(ESMF_Geom), intent(inout) :: g
+      integer, optional, intent(out) :: rc
+      type(ESMF_HConfig) :: hconfig
+      type(GeomManager), pointer :: geom_mgr
+      type(MaplGeom), pointer :: mapl_geom
+      integer :: status
+
+      geom_mgr => null()
+      rc = ESMF_SUCCESS-1
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}", _RC)
+      geom_mgr => get_geom_manager()
+      mapl_geom => geom_mgr%get_mapl_geom(hconfig, _RC)
+      g = mapl_geom%get_geom()
+
+   end subroutine make_geom
 
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_units(this)
@@ -73,23 +96,26 @@ contains
       type(StateItemSpec), pointer :: new_spec
       class(StateItemAspect), pointer :: aspect
       character(len=:), allocatable :: units
+      type(ESMF_Geom) :: my_geom
       integer :: status
 
-      ! VerticalGrid should be allocated in @Before subroutine
-      @assertTrue(allocated(vertical_grid), 'The VerticalGrid has not been allocated.')
+      ! VerticalGrid should be associated in @Before subroutine
+      @assertTrue(associated(vertical_grid), 'The VerticalGrid pointer is not associated.')
+
+      call make_geom(my_geom, _RC)
 
       registry = StateRegistry('StateRegistry')
 
       ! Make VariableSpec and make export/import StateItemSpec's
       var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, EXPORT_NAME,&
          & typekind=TYPEKIND, itemtype=ITEMTYPE, units=EXPORT_UNITS, _RC)
-      export_spec = var_spec%make_StateItemSpec(registry, component_geom=geom,&
+      export_spec = var_spec%make_StateItemSpec(registry, component_geom=my_geom,&
          & vertical_grid=vertical_grid, _RC)
       call export_spec%create(_RC)
 
       var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, IMPORT_NAME,&
          & typekind=TYPEKIND, itemtype=ITEMTYPE, units=IMPORT_UNITS, _RC)
-      import_spec = var_spec%make_StateItemSpec(registry, component_geom=geom,&
+      import_spec = var_spec%make_StateItemSpec(registry, component_geom=my_geom,&
          & vertical_grid=vertical_grid, _RC)
       call import_spec%create(_RC)
 
@@ -111,7 +137,7 @@ contains
 
    end subroutine test_units
 
-   @Test(type=ESMF_TestMethod, npes[1])
+   @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_typekind(this)
       class(ESMF_TestMethod), intent(inout) ::  this
       type(ESMF_StateItem_Flag), parameter :: ITEMTYPE = MAPL_STATEITEM_FIELD
@@ -127,23 +153,28 @@ contains
       type(StateItemSpec), pointer :: new_spec
       class(StateItemAspect), pointer :: aspect
       type(ESMF_TypeKind_Flag) :: typekind
+      logical :: same_typekind
       integer :: status
+      type(ESMF_Geom) :: my_geom
 
-      ! VerticalGrid should be allocated in @Before subroutine
-      @assertTrue(allocated(vertical_grid), 'The VerticalGrid has not been allocated.')
+      ! VerticalGrid should be associated in @Before subroutine
+      @assertTrue(associated(vertical_grid), 'The VerticalGrid pointer is not associated.')
+
+      call make_geom(my_geom, _RC)
 
       registry = StateRegistry('StateRegistry')
 
       ! Make VariableSpec and make export/import StateItemSpec's
       var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, EXPORT_NAME,&
-         & typekind=EXPORT_TYPEKIND, itemtype=ITEMTYPE, _RC)
-      export_spec = var_spec%make_StateItemSpec(registry, component_geom=geom,&
+         & typekind=EXPORT_TYPEKIND, itemtype=ITEMTYPE, &
+         & units="m", _RC)
+      export_spec = var_spec%make_StateItemSpec(registry, component_geom=my_geom,&
          & vertical_grid=vertical_grid, _RC)
       call export_spec%create(_RC)
 
       var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, IMPORT_NAME,&
          & typekind=IMPORT_TYPEKIND, itemtype=ITEMTYPE, _RC)
-      import_spec = var_spec%make_StateItemSpec(registry, component_geom=geom,&
+      import_spec = var_spec%make_StateItemSpec(registry, component_geom=my_geom,&
          & vertical_grid=vertical_grid, _RC)
       call import_spec%create(_RC)
 
