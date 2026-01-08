@@ -6,7 +6,7 @@ module mapl3g_VectorBasis
    use mapl_FieldPointerUtilities
    use mapl_ErrorHandlingMod
 
-   implicit none
+   implicit none(type,external)
    private
 
    public :: VectorBasis

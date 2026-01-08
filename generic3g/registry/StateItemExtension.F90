@@ -142,11 +142,13 @@ function add_consumer(this, consumer, rc) result(reference)
       type(AspectMap), pointer :: other_aspects
 
       call this%spec%activate(_RC)
+      call this%spec%update_from_payload(_RC)
 
       new_spec = this%spec
 
       aspect_ids = this%spec%get_aspect_order(goal)
       do i = 1, size(aspect_ids)
+
          src_aspect => new_spec%get_aspect(aspect_ids(i), _RC)
          _ASSERT(associated(src_aspect), 'src aspect not found')
 
@@ -158,8 +160,8 @@ function add_consumer(this, consumer, rc) result(reference)
             other_aspects => new_spec%get_aspects()
             allocate(transform, source=src_aspect%make_transform(dst_aspect, other_aspects, rc=status))
             _VERIFY(status)
-
             call new_spec%set_aspect(dst_aspect, _RC)
+
             exit
          end if
 

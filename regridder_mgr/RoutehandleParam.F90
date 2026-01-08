@@ -8,7 +8,8 @@ module mapl3g_RoutehandleParam
    private
 
    public :: RoutehandleParam
-   public :: make_routehandle
+   public :: make_RouteHandle
+   public :: make_RouteHandleParam
    public :: operator(==)
 
    ! If an argument to FieldRegridStore is optional _and_ has no default
@@ -21,7 +22,7 @@ module mapl3g_RoutehandleParam
       ! optional argument in new_ESMF_Routehandle
       integer(kind=ESMF_KIND_I4),   allocatable :: srcMaskValues(:)
       integer(kind=ESMF_KIND_I4),   allocatable  :: dstMaskValues(:)
-      type(ESMF_RegridMethod_Flag) :: regridmethod
+      type(ESMF_RegridMethod_Flag) :: regridMethod
       type(ESMF_PoleMethod_Flag) :: polemethod
       integer, allocatable :: regridPoleNPnts
       type(ESMF_LineType_Flag) :: linetype
@@ -33,12 +34,17 @@ module mapl3g_RoutehandleParam
       type(ESMF_UnmappedAction_Flag) :: unmappedaction
       logical :: ignoreDegenerate
 !#      integer :: srcTermProcessing
+   contains
+      procedure :: make_info
    end type RoutehandleParam
 
+   interface make_RouteHandleParam
+      procedure :: make_rh_param_from_info
+   end interface make_RouteHandleParam
 
-   interface make_routehandle
+   interface make_RouteHandle
       procedure :: make_routehandle_from_param
-   end interface make_routehandle
+   end interface make_RouteHandle
 
    interface operator(==)
       procedure :: equal_to
@@ -52,6 +58,11 @@ module mapl3g_RoutehandleParam
    interface RouteHandleParam
       procedure :: new_RoutehandleParam
    end interface RouteHandleParam
+
+   character(*), parameter :: BILINEAR = 'bilinear'
+   character(*), parameter :: CONSERVE = 'conserve'
+   character(*), parameter :: KEY_REGRID_METHOD = 'regrid_method'
+   
 
 contains
 
@@ -265,5 +276,56 @@ contains
 
    end function equal_to
 
+   function make_rh_param_from_info(info, rc) result(rh_param)
+      type(RouteHandleParam) :: rh_param
+      type(esmf_Info), intent(in) :: info
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: regrid_method_str
+      type(esmf_RegridMethod_Flag), allocatable :: regrid_method
+      logical :: is_present
+
+      is_present = esmf_InfoIsPresent(info, key=KEY_REGRID_METHOD, _RC)
+      if (is_present) then
+         call esmf_InfoGetCharAlloc(info, key=KEY_REGRID_METHOD, value=regrid_method_str, _RC)
+         select case(regrid_method_str)
+         case(BILINEAR)
+            regrid_method = ESMF_REGRIDMETHOD_BILINEAR
+         case (CONSERVE)
+            regrid_method = ESMF_REGRIDMETHOD_CONSERVE
+         case default
+            _FAIL('unsupported regrid method:: ' // regrid_method_str)
+         end select
+      end if
+
+      rh_param = RouteHandleParam(regridMethod=regrid_method)
+
+      _RETURN(_SUCCESS)
+   end function make_rh_param_from_info
+
+   function make_info(this, rc) result(info)
+      type(esmf_Info) :: info
+      class(RouteHandleParam), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: regrid_method_str
+      type(esmf_RegridMethod_Flag), allocatable :: regrid_method
+      logical :: is_present
+
+      if (this%regridMethod == ESMF_REGRIDMETHOD_BILINEAR) then
+         regrid_method_str = BILINEAR
+      else if (this%regridMethod == ESMF_REGRIDMETHOD_CONSERVE) then
+         regrid_method_str = CONSERVE
+      else
+         _FAIL('unsupported esmf regrid method')
+      end if
+
+      info = esmf_InfoCreate(_RC)
+      call esmf_InfoSet(info, key=KEY_REGRID_METHOD, value=regrid_method_str, _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_info
 
 end module mapl3g_RoutehandleParam

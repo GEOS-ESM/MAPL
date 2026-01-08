@@ -813,8 +813,17 @@ contains
       iter_count = 0
       do
          iter_count = iter_count + 1
-         _ASSERT(iter_count <= MAX_ITERATIONS, "StateItem extensions for v_pt did not converge.")
+          _ASSERT(iter_count <= MAX_ITERATIONS, "StateItem extensions for v_pt did not converge.")
 
+          ! Leave commented code here.   This should be migrated to use pflogger in the future.
+          ! Useful debugging point.
+          
+!#          block
+!#            type(StateItemSpec), pointer :: spec
+!#            spec => closest_extension%get_spec()
+!#            _HERE, 'extending? ', iter_count
+!#            call spec%print_spec(__FILE__,__LINE__)
+!#          end block
          tmp_extension = closest_extension%make_extension(goal_spec, _RC)
          if (.not. associated(tmp_extension%get_producer())) exit ! no further extensions needed
 

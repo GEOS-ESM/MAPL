@@ -304,7 +304,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta_
       type(ESMF_Geom), allocatable :: geom_
-      class(VerticalGrid), allocatable :: vertical_grid_
+      class(VerticalGrid), pointer :: vertical_grid_
       character(ESMF_MAXSTR) :: buffer
 
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta_, _RC)
@@ -317,8 +317,11 @@ contains
          call ESMF_GeomGet(geom_, grid=grid, _RC)
       end if
       if (present(num_levels)) then
-         vertical_grid_ = outer_meta_%get_vertical_grid()
-         num_levels = vertical_grid_%get_num_levels()
+         vertical_grid_ => outer_meta_%get_vertical_grid()
+         num_levels = 1
+         if (associated(vertical_grid_)) then
+            num_levels = vertical_grid_%get_num_levels()
+         end if
       end if
 
       if (present(name)) then
