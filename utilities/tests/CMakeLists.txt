@@ -3,6 +3,7 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.utilities/tests")
 set (TEST_SRCS
   Test_MaxMin.pf
   Test_AreaMean.pf
+  Test_MemInfoWrite.pf
 )
 
 add_pfunit_ctest(MAPL.utilities.tests
