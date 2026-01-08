@@ -66,7 +66,7 @@ contains
       logical, optional, intent(out) :: bracket_updated
       logical, optional, intent(out) :: has_geom
       logical, optional, intent(out) :: has_deferred_aspects
-      type(esmf_Info), optional, intent(out) :: regridder_param_info
+      type(esmf_Info), optional, allocatable, intent(out) :: regridder_param_info
       integer, optional, intent(out) :: rc
 
       integer :: status

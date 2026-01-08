@@ -215,7 +215,7 @@ contains
       type(StateItemAllocation), optional, intent(out) :: allocation_status
       integer, optional, allocatable, intent(out) :: spec_handle(:)
       logical, optional, intent(out) :: has_deferred_aspects
-      type(esmf_Info), optional, intent(out) :: regridder_param_info
+      type(esmf_Info), allocatable, optional, intent(out) :: regridder_param_info
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -267,6 +267,8 @@ contains
             if (present(num_levels)) then
                num_levels = num_levels_
             end if
+         else
+            num_levels = 0
          end if
       end if
 

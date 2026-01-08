@@ -46,7 +46,7 @@ contains
       character(len=:), optional, allocatable, intent(out) :: long_name
       type(StateItemAllocation), optional, intent(out) :: allocation_status
       logical, optional, intent(out) :: has_deferred_aspects
-      type(esmf_Info), optional, intent(out) :: regridder_param_info
+      type(esmf_Info), optional, allocatable,  intent(out) :: regridder_param_info
       integer, optional, intent(out) :: rc
 
       integer :: status
