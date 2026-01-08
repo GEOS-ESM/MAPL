@@ -1,5 +1,7 @@
 #include "MAPL.h"
 
+! From MAPL_MemUtils.F90
+
 module mapl3g_MemInfo
 
    use mpi
@@ -16,7 +18,7 @@ module mapl3g_MemInfo
       real :: hwm ! high water mark
       real :: rss ! resident set size
    contains
-      procedure :: read_process_mem
+      procedure :: get_process_mem
       procedure :: write_process_mem
    end type ProcessMem
 
@@ -26,7 +28,7 @@ module mapl3g_MemInfo
       real :: commit_limit
       real :: committed_as
    contains
-      procedure :: read_system_mem
+      procedure :: get_system_mem
       procedure :: write_system_mem
    end type SystemMem
 
@@ -35,13 +37,14 @@ module mapl3g_MemInfo
       type(SystemMem) :: system_mem
       class(logger_t), pointer :: logger => null()
    contains
-      procedure :: read
+      procedure :: get
       procedure :: write
    end type MemInfo
 
 contains
 
-   subroutine MemInfoWrite(logger, rc)
+   subroutine MemInfoWrite(comm, logger, rc)
+      integer, intent(in) :: comm
       class(logger_t), pointer, optional, intent(in) :: logger
       integer, optional, intent(out) :: rc
 
@@ -52,27 +55,29 @@ contains
       if (present(logger)) then
          mem_info%logger => logger
       end if
-      call mem_info%read(_RC)
+      call mem_info%get(comm, _RC)
       call mem_info%write(mem_info%logger)
 
       _RETURN(_SUCCESS)
    end subroutine MemInfoWrite
 
-   subroutine read(this, rc)
+   subroutine get(this, comm, rc)
       class(MemInfo), intent(inout) :: this
+      integer, intent(in) :: comm
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      call this%process_mem%read_process_mem(_RC)
-      call this%system_mem%read_system_mem(_RC)
+      call this%process_mem%get_process_mem(comm, _RC)
+      call this%system_mem%get_system_mem(comm, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine read
+   end subroutine get
 
    ! This routine returns the memory usage of calling process
-   subroutine read_process_mem(this, rc)
+   subroutine get_process_mem(this, comm, rc)
       class(ProcessMem), intent(inout) :: this
+      integer, intent(in) :: comm
       integer, optional, intent(out) :: rc
 
 
@@ -93,15 +98,20 @@ contains
       enddo
 10    close(unit)
 
-      this%hwm = hwm
-      this%rss = rss
+      ! Reduce
+      call MPI_AllReduce(hwm, this%hwm, 1, MPI_REAL, MPI_MAX, comm, status)
+      _VERIFY(status)
+
+      call MPI_AllReduce(rss, this%rss, 1, MPI_REAL, MPI_MAX, comm, status)
+      _VERIFY(status)
 
       _RETURN(_SUCCESS)
-   end subroutine read_process_mem
+   end subroutine get_process_mem
 
    ! This routine returns the memory usage on Linux system
-   subroutine read_system_mem(this, rc)
+   subroutine get_system_mem(this, comm, rc)
       class(SystemMem), intent(inout) :: this
+      integer, intent(in) :: comm
       integer, optional, intent(out) :: rc
 
       ! This routine returns the memory usage on Linux systems.
@@ -109,9 +119,11 @@ contains
 
       character(len=*), parameter :: system_mem_file   = '/proc/meminfo'
       character(len=32) :: line
-      integer(kind=int64) :: memtot, memfree, swaptot, swapfree
+      integer(kind=int64) :: memtot, memfree, swaptot, swapfree, commit_limit, committed_as
+      real :: local
       integer :: unit, status
 
+      ! Read local memory information
       open(newunit=unit, file=system_mem_file, form='formatted', iostat=status)
       _VERIFY(STATUS)
       do; read (unit, '(a)', end=20) line
@@ -128,19 +140,31 @@ contains
             swapfree = get_value(line, "SwapFree:")
          endif
          if (index(line, 'CommitLimit:') == 1) then  ! Resident Memory
-            this%commit_limit = get_value(line, "CommitLimit:")
+            commit_limit = get_value(line, "CommitLimit:")
          endif
          if (index(line, 'Committed_AS:') == 1) then  ! Resident Memory
-            this%committed_as = get_value(line, "Committed_AS:")
+            committed_as = get_value(line, "Committed_AS:")
          endif
       enddo
 20    close(unit)
 
-      this%mem_used = memtot - memfree
-      this%swap_used = swaptot - swapfree
+      ! Reduce
+      local = memtot - memfree
+      call MPI_AllReduce(local, this%mem_used, 1, MPI_REAL, MPI_MAX, comm, status)
+      _VERIFY(status)
+
+      local = swaptot - swapfree
+      call MPI_AllReduce(local, this%swap_used, 1, MPI_REAL, MPI_MAX, comm, status)
+      _VERIFY(status)
+
+      call MPI_AllReduce(commit_limit, this%commit_limit, 1, MPI_REAL, MPI_MAX, comm, status)
+      _VERIFY(status)
+
+      call MPI_AllReduce(committed_as, this%committed_as, 1, MPI_REAL, MPI_MAX, comm, status)
+      _VERIFY(status)
 
       _RETURN(_SUCCESS)
-   end subroutine read_system_mem
+   end subroutine get_system_mem
 
    subroutine write(this, logger)
       class(MemInfo), intent(in) :: this
@@ -154,16 +178,15 @@ contains
       class(ProcessMem), intent(in) :: this
       class(logger_t), pointer, intent(in) :: logger
 
-      call logger%warning("hwm: %f MB", this%hwm) 
-      call logger%warning("rss: %f MB", this%rss) 
+      call logger%info("HWM/RSS (MB): %es11.3 %es11.3", this%hwm, this%rss)
    end subroutine write_process_mem
 
    subroutine write_system_mem(this, logger)
       class(SystemMem), intent(in) :: this
       class(logger_t), pointer, intent(in) :: logger
 
-      call logger%warning("Mem/Swap used (MB): %es11.3 %es11.3", this%mem_used, this%swap_used)
-      call logger%warning("CommitLimit/Committed_AS (MB): %es11.3 %es11.3", this%commit_limit, this%committed_as)
+      call logger%info("Mem/Swap used (MB): %es11.3 %es11.3", this%mem_used, this%swap_used)
+      call logger%info("CommitLimit/Committed_AS (MB): %es11.3 %es11.3", this%commit_limit, this%committed_as)
    end subroutine write_system_mem
 
    function get_value(string, key, rc) result(value)

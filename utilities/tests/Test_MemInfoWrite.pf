@@ -1,20 +1,20 @@
 module Test_MemInfoWrite
 
-   use funit
+   use pfunit
    use mapl3g_MemInfo, only: MemInfoWrite
 
    implicit none
 
 contains
 
-   @test
-   subroutine test_mem_info_write()
+   @test(npes=[2])
+   subroutine test_mem_info_write(this)
+      class(MpiTestMethod), intent(inout) :: this
 
       integer :: status
 
-      call MemInfoWrite(rc=status)
+      call MemInfoWrite(this%getMpiCommunicator(), rc=status)
       @assert_that(status, is(0))
-
    end subroutine test_mem_info_write
 
 end module Test_MemInfoWrite
