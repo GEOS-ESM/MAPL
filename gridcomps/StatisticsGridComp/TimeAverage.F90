@@ -58,6 +58,7 @@ contains
 
       call mapl_FieldGet(this%f, short_name=name, _RC)
       call mapl_FieldClone(this%f, this%sum_f, _RC)
+
       call esmf_FieldSet(this%sum_f, name='sum_'//name, _RC)
 
       call esmf_FieldGet(this%f, rank=rank, _RC)
@@ -112,7 +113,7 @@ contains
          call update_r8(this, _RC)
       end if
 
-      is_ringing = esmf_AlarmIsRinging(this%alarm, _RC)
+      is_ringing = esmf_AlarmWillRingNext(this%alarm, _RC)
       _RETURN_UNLESS(is_ringing)
 
       call this%compute_result(_RC)
@@ -184,6 +185,7 @@ contains
 
       call MAPL_AssignFptr(this%f, f, _RC)
       call MAPL_AssignFptr(this%sum_f, sum_f, _RC)
+      call MAPL_AssignFptr(this%avg_f, avg_f, _RC)
 
       where (this%counts > 0)
          avg_f = sum_f / this%counts

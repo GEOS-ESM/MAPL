@@ -3,6 +3,7 @@
 module mapl3g_VirtualConnectionPt
    use mapl_KeywordEnforcer
    use esmf
+   use, intrinsic :: iso_c_binding, only: C_NULL_CHAR
    implicit none
    private
 
@@ -239,8 +240,8 @@ contains
       matches = (this%get_state_intent() == item%get_state_intent())
       if (.not. matches) return
 
-      call regcomp(regex,'^'//this%get_full_name()//'$',flags='xmi')
-      matches = regexec(regex,item%get_full_name())
+      call regcomp(regex,'^'//this%get_full_name()//'$' // C_NULL_CHAR,flags='xmi')
+      matches = regexec(regex,item%get_full_name() // C_NULL_CHAR)
 
    end function matches
 

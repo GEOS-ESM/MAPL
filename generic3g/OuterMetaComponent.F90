@@ -417,8 +417,8 @@ module mapl3g_OuterMetaComponent
       end subroutine set_vertical_grid
 
       module function get_vertical_grid(this) result(vertical_grid)
-         class(VerticalGrid), allocatable :: verticaL_grid
-         class(OuterMetaComponent), intent(inout) :: this
+         class(VerticalGrid), pointer :: verticaL_grid
+         class(OuterMetaComponent), target, intent(inout) :: this
       end function get_vertical_grid
 
       module function get_registry(this) result(registry)

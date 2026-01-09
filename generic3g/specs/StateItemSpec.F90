@@ -13,6 +13,7 @@ module mapl3g_StateItemSpec
    use mapl3g_VerticalGrid
    use mapl_ErrorHandling
    use mapl3g_Field_API
+   use mapl3g_FieldBundle_API
    use esmf
    use gftl2_stringvector
    implicit none
@@ -73,6 +74,8 @@ module mapl3g_StateItemSpec
       procedure :: add_to_state
 
       procedure :: set_geometry
+      procedure :: print_spec
+      procedure :: update_from_payload
    end type StateItemSpec
 
    type :: StateItemSpecPtr
@@ -172,9 +175,16 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      class(ClassAspect), pointer :: class_aspect
+      type(esmf_Field), allocatable :: field
+      type(esmf_FieldBundle), allocatable :: bundle
+      type(esmf_State), allocatable :: state
 
       aspect => this%aspects%at(aspect_id, _RC)
-      call aspect%update_from_payload(_RC)
+
+      class_aspect => to_ClassAspect(this%aspects, _RC)
+      call class_aspect%get_payload(field=field, bundle=bundle, state=state, _RC)
+      call aspect%update_from_payload(field=field, bundle=bundle, state=state, _RC)
 
       _RETURN(_SUCCESS)
    end function get_aspect_by_id
@@ -182,7 +192,9 @@ contains
    function get_aspects(this) result(aspects)
       type(AspectMap), pointer :: aspects
       class(StateItemSpec), target, intent(in) :: this
+
       aspects => this%aspects
+
    end function get_aspects
 
    subroutine set_aspect(this, aspect, rc)
@@ -266,6 +278,13 @@ contains
       call class_aspect%get_payload(field=field, bundle=bundle, state=state, _RC)
       call update_payload_from_aspects(this, field=field, bundle=bundle, state=state, _RC)
 
+      if (allocated(field)) then
+         call mapl_FieldSet(field, has_deferred_aspects=this%has_deferred_aspects_, _RC)
+      end if
+      if (allocated(bundle)) then
+         call mapl_FieldBundleSet(bundle, has_deferred_aspects=this%has_deferred_aspects_, _RC)
+      end if
+      
       _RETURN(_SUCCESS)
    contains
 
@@ -536,11 +555,34 @@ contains
       this%has_deferred_aspects_ = has_deferred_aspects
    end subroutine set_has_deferred_aspects
 
-   logical function has_deferred_aspects(this) result(flag)
-      class(StateItemSpec), intent(in) :: this
+   logical function has_deferred_aspects(this, rc)
+      class(StateItemSpec), target, intent(in) :: this
+      integer, optional, intent(out) :: rc
 
-      flag = this%has_deferred_aspects_
+      integer :: status
+      class(ClassAspect), pointer :: class_aspect
+      type(esmf_Field), allocatable :: field
+      type(esmf_FieldBundle), allocatable :: bundle
+      type(esmf_State), allocatable :: state
 
+      has_deferred_aspects = .false. ! default
+
+      class_aspect => to_ClassAspect(this%aspects, _RC)
+      call class_aspect%get_payload(field=field, bundle=bundle, state=state, _RC)
+
+      if (allocated(field)) then
+         call mapl_FieldGet(field, has_deferred_aspects=has_deferred_aspects, _RC)
+      end if
+
+      if (allocated(bundle)) then
+         call mapl_FieldBundleGet(bundle, has_deferred_aspects=has_deferred_aspects, _RC)
+      end if
+
+      if (allocated(state)) then
+         _FAIL('unsupported use case')
+      end if
+      
+      _RETURN(_SUCCESS)
    end function has_deferred_aspects
 
    subroutine set_allocation_status(this, allocation_status)
@@ -556,5 +598,73 @@ contains
 
       allocation_status = this%allocation_status
    end function get_allocation_status
+
+   subroutine print_spec(this, file, line, rc)
+      class(StateItemSpec), target, intent(in) :: this
+      character(*), intent(in) :: file
+      integer, intent(in) :: line
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(ClassAspect), pointer :: class_aspect
+      type(esmf_field), allocatable :: field
+      type(esmf_fieldbundle), allocatable :: bundle
+      type(esmf_info) :: info
+      
+      class_aspect => to_ClassAspect(this%aspects, _RC)
+      call class_aspect%get_payload(field=field, bundle=bundle, _RC)
+      if (allocated(field)) then
+         call esmf_infogetfromhost(field, info, _RC)
+         _HERE, file, line, 'field:'
+         call esmf_infoprint(info, _RC)
+      end if
+      if (allocated(bundle)) then
+         call esmf_infogetfromhost(bundle, info, _RC)
+         _HERE, file, line, 'bundle:'
+         call esmf_infoprint(info, _RC)
+      end if
+      _RETURN(_SUCCESS)
+   end subroutine print_spec
+
+   subroutine update_from_payload(this, rc)
+      class(StateItemSpec), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(ClassAspect), pointer :: class_aspect
+      type(AspectMapIterator) :: iter
+      class(StateItemAspect), pointer :: aspect
+      type(esmf_Field), allocatable :: field
+      type(esmf_FieldBundle), allocatable :: bundle
+      type(esmf_State), allocatable :: state
+
+      class_aspect => to_ClassAspect(this%aspects, _RC)
+      call class_aspect%get_payload(field=field, bundle=bundle, state=state, _RC)
+
+      associate(e => this%aspects%ftn_end())
+        iter = this%aspects%ftn_begin()
+        do while (iter /= e)
+           call iter%next()
+           ! Must skip "class" or it will overwrite aspects in info ...
+           if (iter%first() == CLASS_ASPECT_ID) cycle
+           aspect => iter%second()
+           call aspect%update_from_payload(field=field, bundle=bundle, state=state, _RC)
+        end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   contains
+
+      function make_handle(this) result(handle)
+         use, intrinsic :: iso_c_binding, only: c_ptr, c_loc
+         integer, allocatable :: handle(:)
+         type(StateItemSpec), target, intent(in) :: this
+         type(c_ptr) :: ptr
+
+         ptr = c_loc(this)
+         handle = transfer(ptr, [1])
+      end function make_handle
+      
+   end subroutine update_from_payload
 
 end module mapl3g_StateItemSpec
