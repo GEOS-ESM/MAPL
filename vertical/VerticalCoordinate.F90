@@ -112,10 +112,8 @@ contains
               (.not. has_pressure_units)) then
             standard_name = coord_var%get_attribute_string("standard_name")
             ! metadata combinations that imply integer levels
-            if ( ((trim(standard_name) == "level" )  .or.  &
-                  (trim(standard_name) == "levels")) .and. &
-                 ((trim(temp_units) == "1"     ) .or. &
-                  (trim(temp_units) == "level")) ) then
+            if ( any(standard_name == ["level ", "levels"])  .and. &
+                 any(tmp_units == ["1    ", "level"])) then
                vertical_coord%positive = "up"
                if (vertical_coord%levels(1) >= vertical_coord%levels(2)) then
                   vertical_coord%positive = "down"
