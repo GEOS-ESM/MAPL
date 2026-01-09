@@ -12,10 +12,12 @@ module mapl3g_GeomAspect
    use mapl3g_NullTransform
    use mapl3g_Field_API
    use mapl3g_FieldBundle_API
+   use mapl3g_EsmfRegridder
    use mapl_ErrorHandling
    use ESMF, only: esmf_Geom
    use ESMF, only: esmf_Field, esmf_FieldBundle, esmf_State
-   implicit none
+   use ESMF, only: esmf_Info
+   implicit none(type,external)
    private
 
    public :: GeomAspect
@@ -27,7 +29,7 @@ module mapl3g_GeomAspect
    end interface to_GeomAspect
 
    type, extends(StateItemAspect) :: GeomAspect
-!#      private
+      private
       type(ESMF_Geom), allocatable :: geom
       type(EsmfRegridderParam), allocatable :: regridder_param
       type(HorizontalDimsSpec) :: horizontal_dims_spec = HORIZONTAL_DIMS_GEOM ! none, geom
@@ -45,7 +47,8 @@ module mapl3g_GeomAspect
 
       procedure :: update_from_payload
       procedure :: update_payload
-   end type GeomAspect
+      procedure :: print_aspect
+  end type GeomAspect
 
    interface GeomAspect
       procedure new_GeomAspect
@@ -266,13 +269,20 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(esmf_Info), allocatable :: regridder_param_info
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
 
       if (present(field)) then
-         call mapl_FieldGet(field, geom=this%geom, _RC)
+         call mapl_FieldGet(field, geom=this%geom, regridder_param_info=regridder_param_info, _RC)
       else if (present(bundle)) then
-         call mapl_FieldBundleGet(bundle, geom=this%geom, _RC)
+         call mapl_FieldBundleGet(bundle, geom=this%geom, regridder_param_info=regridder_param_info, _RC)
+      end if
+
+      if (allocated(regridder_param_info)) then
+         this%regridder_param = make_EsmfRegridderParam(regridder_param_info, _RC)
+      else
+         if (allocated(this%regridder_param)) deallocate(this%regridder_param)
       end if
 
       call this%set_mirror(.not. allocated(this%geom))
@@ -288,16 +298,33 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(esmf_Info), allocatable :: regridder_param_info
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
 
+      if (allocated(this%regridder_param)) then
+         regridder_param_info = this%regridder_param%make_info(_RC)
+      end if
       if (present(field)) then
-         call mapl_FieldSet(field, geom=this%geom, _RC)
+         call mapl_FieldSet(field, geom=this%geom, regridder_param_info=regridder_param_info, _RC)
       else if (present(bundle)) then
-         call mapl_FieldBundleSet(bundle, geom=this%geom, _RC)
+         call mapl_FieldBundleSet(bundle, geom=this%geom, regridder_param_info=regridder_param_info, _RC)
       end if
 
       _RETURN(_SUCCESS)
    end subroutine update_payload
 
+   subroutine print_aspect(this, file, line, rc)
+      class(GeomAspect), intent(in) :: this
+      character(*), intent(in) :: file
+      integer, intent(in) :: line
+      integer, optional, intent(out) :: rc
+
+      _HERE, file, line, this%is_mirror(), allocated(this%geom)
+      _HERE, file, line, this%is_mirror(), allocated(this%regridder_param)
+         
+      
+      _RETURN(_SUCCESS)
+   end subroutine print_aspect
+   
 end module mapl3g_GeomAspect

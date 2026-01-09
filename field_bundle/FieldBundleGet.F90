@@ -37,6 +37,8 @@ contains
         units, standard_name, long_name, &
         allocation_status, &
         bracket_updated, &
+        has_deferred_aspects, &
+        regridder_param_info, &
         rc)
 
       type(ESMF_FieldBundle), intent(in) :: fieldBundle
@@ -57,13 +59,15 @@ contains
       character(:), optional, allocatable, intent(out) :: long_name
       type(StateItemAllocation), optional, intent(out) :: allocation_status
       logical, optional, intent(out) :: bracket_updated
+      logical, optional, intent(out) :: has_deferred_aspects
+      type(esmf_Info), optional, allocatable, intent(out) :: regridder_param_info
       integer, optional, intent(out) :: rc
 
       integer :: status
       integer :: fieldCount_
       type(ESMF_Info) :: bundle_info
       logical :: has_geom
-      integer, allocatable :: vgrid_id
+      integer :: vgrid_id
       type(VerticalGridManager), pointer :: vgrid_manager
 
       if (present(fieldCount) .or. present(fieldList)) then
@@ -78,10 +82,6 @@ contains
          call ESMF_FieldBundleGet(fieldBundle, fieldList=fieldList, itemOrderflag=ESMF_ITEMORDER_ADDORDER, _RC)
       end if
 
-       if (present(vgrid)) then
-         allocate(vgrid_id) ! trigger "is present"
-      end if
-
      ! Get these from FieldBundleInfo
       call ESMF_InfoGetFromHost(fieldBundle, bundle_info, _RC)
       call FieldBundleInfoGetInternal(bundle_info, &
@@ -94,11 +94,22 @@ contains
            bracket_updated=bracket_updated, &
            has_geom=has_geom, &
            vgrid_id=vgrid_id, &
+           has_deferred_aspects=has_deferred_aspects, &
+           regridder_param_info=regridder_param_info, &
            _RC)
 
       if (present(geom) .and. has_geom) then
          allocate(geom)
          call get_geom(fieldBundle, geom, rc)
+      end if
+
+      if (present(vgrid)) then
+         if (vgrid_id == VERTICAL_GRID_NOT_FOUND) then
+            vgrid => null()
+         else
+            vgrid_manager => get_vertical_grid_manager()
+            vgrid => vgrid_manager%get_grid(id=vgrid_id, _RC)
+         end if
       end if
 
       _RETURN(_SUCCESS)

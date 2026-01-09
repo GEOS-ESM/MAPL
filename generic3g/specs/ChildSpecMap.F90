@@ -3,15 +3,15 @@ module mapl3g_ChildSpecMap
 
 #define Key __CHARACTER_DEFERRED
 #define T ChildSpec
-#define Map ChildSpecMap
-#define MapIterator ChildSpecMapIterator
+#define OrderedMap ChildSpecMap
+#define OrderedMapIterator ChildSpecMapIterator
 #define Pair ChildSpecPair
 
-#include "map/template.inc"
+#include "ordered_map/template.inc"
 
 #undef Pair
-#undef MapIterator
-#undef Map
+#undef OrderedMapIterator
+#undef OrderedMap
 #undef T
 #undef Key
 

@@ -453,14 +453,14 @@ contains
       outer_meta => get_outer_meta(outer_gc, rc=status)
       @assert_that(status, is(0))
 
-      call check('child_A', 'import', 'I_A1', ESMF_FIELDSTATUS_EMPTY, rc=status)
+      call check('child_A', 'import', 'I_A1', ESMF_FIELDSTATUS_GEOMSET, rc=status)
       @assert_that(status, is(0))
       call check('child_A', 'export', 'E_A1', ESMF_FIELDSTATUS_COMPLETE, rc=status)
       @assert_that(status, is(0))
 
       call check('child_B', 'import', 'I_B1', ESMF_FIELDSTATUS_COMPLETE, rc=status)
       @assert_that(status, is(0))
-      call check('child_B', 'export', 'E_B1', ESMF_FIELDSTATUS_EMPTY, rc=status)
+      call check('child_B', 'export', 'E_B1', ESMF_FIELDSTATUS_GEOMSET, rc=status)
       @assert_that(status, is(0))
 
       if(.false.) print*,shape(this)

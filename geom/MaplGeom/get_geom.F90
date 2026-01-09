@@ -2,7 +2,6 @@
 
 submodule (mapl3g_MaplGeom) get_geom_smod
    use mapl3g_GeomSpec
-   use mapl3g_VectorBasis
    use mapl3g_GeomUtilities
    use mapl_ErrorHandlingMod
    use pfio_FileMetadataMod, only: FileMetadata

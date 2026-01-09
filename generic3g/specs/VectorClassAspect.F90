@@ -152,10 +152,10 @@ contains
 
       integer :: status
       integer :: i
-      type(FieldClassAspect) :: tmp
 
       do i = 1, NUM_COMPONENTS
          call this%component_specs(i)%create(other_aspects, _RC)
+         call update_payload(this%component_specs(i), other_aspects, _RC)
          call this%component_specs(i)%allocate(other_aspects, _RC)
          call this%component_specs(i)%add_to_bundle(this%payload, _RC)
       end do
@@ -163,6 +163,30 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine allocate
 
+   subroutine update_payload(field_aspect, other_aspects, rc)
+      type(FieldClassAspect), intent(inout) :: field_aspect
+      type(AspectMap), target, intent(in) :: other_aspects
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(AspectMapIterator) :: iter
+      class(StateItemAspect), pointer :: aspect
+      type(esmf_Field), allocatable :: field
+
+      call field_aspect%get_payload(field=field, _RC)
+      
+      associate(e => other_aspects%ftn_end())
+        iter = other_aspects%ftn_begin()
+        do while (iter /= e)
+           call iter%next()
+           aspect => iter%second()
+           call aspect%update_payload(field=field, _RC)
+        end do
+      end associate
+
+      _RETURN(_SUCCESS)
+
+   end subroutine update_payload
 
    subroutine destroy(this, rc)
       class(VectorClassAspect), intent(inout) :: this

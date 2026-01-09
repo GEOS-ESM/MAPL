@@ -1,0 +1,39 @@
+module Test_MaxMin
+
+   use pfunit
+   use mapl3g_MaxMin, only: MAPL_MaxMin => MaxMin
+
+   implicit none
+
+contains
+
+   @test(npes=[2])
+   subroutine test_max_min(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      integer, parameter :: NUM_RANKS = 2
+      integer :: rank, size, status
+      real, parameter :: MAX_VALUE = 2.0, MIN_VALUE = -1.0
+      real :: x(3, 4)
+      real :: maxmin(2)
+
+      call MPI_Comm_rank(this%getMpiCommunicator(), rank, status)
+      @assert_that(status, is(0))
+      call MPI_Comm_size(this%getMpiCommunicator(), size, status)
+      @assert_that(status, is(0))
+      @assert_that(size, is(NUM_RANKS))
+
+      call random_number(x)
+      if (rank==0) then
+         x(1, 1) = MIN_VALUE
+      else
+         x(1, 1) = MAX_VALUE
+      end if
+
+      maxmin = MAPL_MaxMin(x, this%getMpiCommunicator(), rc=status)
+      @assert_that(status, is(0))
+      @assert_that(maxmin(1), is(MAX_VALUE))
+      @assert_that(maxmin(2), is(MIN_VALUE))
+   end subroutine test_max_min
+
+end module Test_MaxMin
