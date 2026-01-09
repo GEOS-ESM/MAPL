@@ -10,6 +10,13 @@ target_link_libraries(hybrid_demo.x MAPL.profiler MPI::MPI_Fortran OpenMP::OpenM
 install(TARGETS profiler_demo.x mpi_demo.x hybrid_demo.x
         DESTINATION bin)
 
+# Detect if we are using Open MPI and add oversubscribe
+string(REPLACE " " ";" MPI_Fortran_LIBRARY_VERSION_LIST ${MPI_Fortran_LIBRARY_VERSION_STRING})
+list(GET MPI_Fortran_LIBRARY_VERSION_LIST 0 MPI_Fortran_LIBRARY_VERSION_FIRSTWORD)
+if(MPI_Fortran_LIBRARY_VERSION_FIRSTWORD MATCHES "Open")
+   list(APPEND MPIEXEC_PREFLAGS "-oversubscribe")
+endif()
+
 add_test(NAME Profiler_Demo_Basic
   COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/profiler_demo.x
   )
