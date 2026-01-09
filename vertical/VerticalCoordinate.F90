@@ -121,7 +121,7 @@ contains
                   vertical_coord%positive = "down"
                endif
             else
-               _ASSERT(.false.,'lev positive attribute not in file and no rule defined for setting it from standard_name and units')
+               _FAIL('lev positive attribute not in file and no rule defined for setting it from standard_name and units')
             endif
          endif
 
