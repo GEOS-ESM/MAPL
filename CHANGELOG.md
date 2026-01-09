@@ -66,6 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Extend ExtensionTransform derived types to support ESMF_FieldBundle objects
 - Add utility to destroy states including states, bundles, and fields nested in them
 - Add test of units coupling
+- Add test of typekind coupling
 
 ### Changed
 
