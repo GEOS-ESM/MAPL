@@ -79,6 +79,8 @@ contains
          if (metadata%has_variable(dim_name)) then
             dim_var => metadata%get_variable(dim_name)
             is_vertical_coord_var = detect_cf_vertical_coord_var(dim_var, _RC)
+            ! allow backwards-compatibility with non-cf files
+            is_vertical_coord_var = is_vertical_coord_var .or. dim_name == 'lev'
             if (is_vertical_coord_var) then
                lev_name = dim_name
                exit 
@@ -103,6 +105,24 @@ contains
             if (vertical_coord%levels(1) > vertical_coord%levels(2)) vertical_coord%positive = "up" !bmaa
             _RETURN(_SUCCESS)
          end if
+
+         ! now test if no positive attribute and does not have pressure units
+         ! for backwards compatibility with non-cf files
+         if ((.not. coord_var%is_attribute_present("positive")) .and. &
+              (.not. has_pressure_units)) then
+            standard_name = coord_var%get_attribute_string("standard_name")
+            ! metadata combinations that imply integer levels
+            if ( any(standard_name == ["level ", "levels"])  .and. &
+                 any(tmp_units == ["1    ", "level"])) then
+               vertical_coord%positive = "up"
+               if (vertical_coord%levels(1) >= vertical_coord%levels(2)) then
+                  vertical_coord%positive = "down"
+               endif
+            else
+               _FAIL('lev positive attribute not in file and no rule defined for setting it from standard_name and units')
+            endif
+         endif
+
          ! now test if this is a "fixed" height level, if has height units, then dimensioanl coordinate, but must have positive 
          has_height_units = safe_are_convertible(temp_units, 'm', _RC)
          if (has_height_units) then
