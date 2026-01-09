@@ -116,9 +116,8 @@ contains
                   (trim(standard_name) == "levels")) .and. &
                  ((trim(temp_units) == "1"     ) .or. &
                   (trim(temp_units) == "level")) ) then
-               if (vertical_coord%levels(1) < vertical_coord%levels(2)) then
-                  vertical_coord%positive = "up"
-               else
+               vertical_coord%positive = "up"
+               if (vertical_coord%levels(1) >= vertical_coord%levels(2)) then
                   vertical_coord%positive = "down"
                endif
             else
