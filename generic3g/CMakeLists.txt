@@ -7,7 +7,6 @@ set(srcs
   FieldDictionaryItem.F90
   FieldDictionaryItemMap.F90
   FieldDictionary.F90
-  StateItemGetVerticalGrid.F90
 
   GenericGrid.F90
 

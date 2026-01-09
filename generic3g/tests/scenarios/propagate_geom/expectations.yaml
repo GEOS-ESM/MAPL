@@ -5,7 +5,7 @@
 
 - component: child_A/<user>
   import:
-    I_A1: {status: empty}
+    I_A1: {status: gridset}
   export:
     E_A1: {status: complete}
     Z_A1: {status: complete}
@@ -13,7 +13,7 @@
     Z_A1: {status: complete}
 - component: child_A
   import:
-    I_A1: {status: empty}
+    I_A1: {status: gridset}
   export:
     E_A1: {status: complete}
     Z_A1: {status: complete}
@@ -22,22 +22,22 @@
   import:
     I_B1: {status: complete}
   export:
-    E_B1: {status: empty}
+    E_B1: {status: gridset}
   internal:
     Z_B1: {status: complete}
 - component: child_B
   import:
     I_B1: {status: complete}
   export:
-    E_B1: {status: empty}
+    E_B1: {status: gridset}
 - component: <user>
   import: {}
   export: {}
   internal: {}
 - component: <root>
   import:
-    I_A1(1): {status: empty}  # unsatisfied
+    I_A1(1): {status: gridset}  # unsatisfied
   export:
     child_A/E_A1: {status: complete}
     child_A/Z_A1: {status: complete} # re-export
-    child_B/E_B1: {status: empty} # re-export
+    child_B/E_B1: {status: gridset} # re-export

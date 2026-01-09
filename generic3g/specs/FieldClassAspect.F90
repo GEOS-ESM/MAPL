@@ -183,18 +183,17 @@ contains
       type(ESMF_FieldStatus_Flag) :: fstatus
 
       type(GeomAspect) :: geom_aspect
-      type(ESMF_Geom) :: geom
+      type(ESMF_Geom), allocatable :: geom
       type(HorizontalDimsSpec) :: horizontal_dims_spec
       integer :: dim_count
       integer, allocatable :: grid_to_field_map(:)
 
       type(VerticalGridAspect) :: vertical_aspect
-      class(VerticalGrid), allocatable :: vertical_grid
       type(VerticalStaggerLoc) :: vertical_stagger
       integer, allocatable :: num_vgrid_levels
       integer, allocatable :: num_field_levels
+      integer :: num_levels
 
-      type(UngriddedDimsAspect) :: ungridded_dims_aspect
       type(UngriddedDims) :: ungridded_dims
 
       type(UnitsAspect) :: units_aspect
@@ -208,10 +207,19 @@ contains
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _RETURN_IF(fstatus == ESMF_FIELDSTATUS_COMPLETE)
 
-      geom_aspect = to_GeomAspect(other_aspects, _RC)
-      geom = geom_aspect%get_geom(_RC)
-      call ESMF_FieldEmptySet(this%payload, geom, _RC)
 
+      num_levels = 0
+      call mapl_FieldGet(this%payload, &
+           geom=geom, &
+           num_levels=num_levels, &
+           vert_staggerloc=vertical_stagger, &
+           ungridded_dims=ungridded_dims, &
+           _RC)
+
+      if (num_levels > 0) then
+         num_field_levels = num_levels
+      end if
+       
       call ESMF_GeomGet(geom, dimCount=dim_count, _RC)
       allocate(grid_to_field_map(dim_count), source=0)
       horizontal_dims_spec = geom_aspect%get_horizontal_dims_spec(_RC)
@@ -220,20 +228,6 @@ contains
          grid_to_field_map = [(idim, idim=1,dim_count)]
       end if
 
-      vertical_aspect = to_VerticalGridAspect(other_aspects, _RC)
-      vertical_stagger = vertical_aspect%get_vertical_stagger()
-      if (vertical_stagger /= VERTICAL_STAGGER_NONE) then
-         vertical_grid = vertical_aspect%get_vertical_grid(_RC)
-         num_vgrid_levels = vertical_grid%get_num_levels()
-         if (vertical_stagger == VERTICAL_STAGGER_EDGE) then
-            num_field_levels = num_vgrid_levels + 1
-         else if (vertical_stagger == VERTICAL_STAGGER_CENTER) then
-            num_field_levels = num_vgrid_levels
-         end if
-      end if
-
-      ungridded_dims_aspect = to_UngriddedDimsAspect(other_aspects, _RC)
-      ungridded_dims = ungridded_dims_aspect%get_ungridded_dims()
 
       units_aspect = to_UnitsAspect(other_aspects, _RC)
       units = units_aspect%get_units(_RC)
@@ -376,7 +370,7 @@ contains
       class(StateItemAspect), intent(in) :: dst
       type(AspectMap), target, intent(in) :: other_aspects
       integer, optional, intent(out) :: rc
-      
+
       transform = NullTransform()
 
       _RETURN(_SUCCESS)
