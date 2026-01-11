@@ -40,7 +40,6 @@ contains
         ungridded_dims, num_levels, vert_staggerloc, num_vgrid_levels, &
         units, long_name, standard_name, &
         allocation_status, &
-        spec_handle, &
         bracket_updated, &
         has_geom, &
         has_deferred_aspects, &
@@ -62,7 +61,6 @@ contains
       character(:), optional, allocatable, intent(out) :: long_name
       character(:), optional, allocatable, intent(out) :: standard_name
       type(StateItemAllocation), optional, intent(out) :: allocation_status
-      integer, optional, allocatable, intent(out) :: spec_handle(:)
       logical, optional, intent(out) :: bracket_updated
       logical, optional, intent(out) :: has_geom
       logical, optional, intent(out) :: has_deferred_aspects
@@ -111,7 +109,7 @@ contains
       call FieldInfoGetInternal(info, namespace = namespace_//KEY_FIELD_PROTOTYPE, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, num_vgrid_levels=num_vgrid_levels, &
-           units=units, long_name=long_name, standard_name=standard_name, spec_handle=spec_handle, &
+           units=units, long_name=long_name, standard_name=standard_name, &
            vgrid_id=vgrid_id, &
            has_deferred_aspects=has_deferred_aspects, &
            regridder_param_info=regridder_param_info, &
@@ -148,7 +146,6 @@ contains
         units, standard_name, long_name, &
         allocation_status, &
         vgrid_id, &
-        spec_handle, &
         bracket_updated, &
         has_geom, &
         has_deferred_aspects, &
@@ -169,7 +166,6 @@ contains
       character(*), optional, intent(in) :: long_name
       type(StateItemAllocation), optional, intent(in) :: allocation_status
       integer, optional, intent(in) :: vgrid_id
-      integer, optional, intent(in) :: spec_handle(:)
       logical, optional, intent(in) :: bracket_updated
       logical, optional, intent(in) :: has_geom
       logical, optional, intent(in) :: has_deferred_aspects
@@ -217,7 +213,6 @@ contains
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
            units=units, long_name=long_name, standard_name=standard_name, &
            vgrid_id=vgrid_id, &
-           spec_handle=spec_handle, &
            has_deferred_aspects=has_deferred_aspects, &
            regridder_param_info=regridder_param_info, &
            _RC)
