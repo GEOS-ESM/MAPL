@@ -174,16 +174,14 @@ contains
       _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
-   subroutine create(this, other_aspects, handle, rc)
+   subroutine create(this, other_aspects, rc)
       class(MockAspect), intent(inout) :: this
       type(AspectMap), intent(in) :: other_aspects
-      integer, optional, intent(in) :: handle(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(handle)
    end subroutine create
 
    subroutine activate(this, rc)

@@ -66,7 +66,6 @@ module mapl3g_FieldInfo
    character(*), parameter :: KEY_MISSING_VALUE = "/missing_value"
    character(*), parameter :: KEY_FILL_VALUE = "/_FillValue"
 
-   character(*), parameter :: KEY_SPEC_HANDLE = "/spec_handle"
    character(*), parameter :: KEY_RESTART_MODE = "/restart_mode"
    character(*), parameter :: KEY_HAS_DEFERRED_ASPECTS = "/has_deferred_aspects"
 
@@ -79,7 +78,6 @@ contains
         ungridded_dims, &
         units, long_name, standard_name, &
         vgrid_id, &
-        spec_handle, &
         allocation_status, &
         has_deferred_aspects, &
         regridder_param_info, &
@@ -97,7 +95,6 @@ contains
       character(*), optional, intent(in) :: standard_name
       type(StateItemAllocation), optional, intent(in) :: allocation_status
       logical, optional, intent(in) :: has_deferred_aspects
-      integer, optional, intent(in) :: spec_handle(:)
       type(esmf_info), optional, intent(in) :: regridder_param_info
       integer, optional, intent(out) :: rc
 
@@ -178,10 +175,6 @@ contains
          call MAPL_InfoSet(info, namespace_ // KEY_HAS_DEFERRED_ASPECTS, has_deferred_aspects, _RC)
       end if
 
-      if (present(spec_handle)) then
-         call MAPL_InfoSet(info, namespace_ // KEY_SPEC_HANDLE, spec_handle, _RC)
-      end if
-
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine field_info_set_internal
@@ -195,7 +188,6 @@ contains
         long_name, standard_name, &
         ungridded_dims, &
         allocation_status, &
-        spec_handle, &
         has_deferred_aspects, &
         regridder_param_info, &
         rc)
@@ -212,7 +204,6 @@ contains
       character(:), optional, allocatable, intent(out) :: standard_name
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       type(StateItemAllocation), optional, intent(out) :: allocation_status
-      integer, optional, allocatable, intent(out) :: spec_handle(:)
       logical, optional, intent(out) :: has_deferred_aspects
       type(esmf_Info), allocatable, optional, intent(out) :: regridder_param_info
       integer, optional, intent(out) :: rc
@@ -309,10 +300,6 @@ contains
       if (present(allocation_status)) then
          call MAPL_InfoGet(info, namespace_ // KEY_ALLOCATION_STATUS, allocation_status_str, _RC)
          allocation_status = StateItemAllocation(allocation_status_str)
-      end if
-
-      if (present(spec_handle)) then
-         call MAPL_InfoGet(info, namespace_ // KEY_SPEC_HANDLE, spec_handle, _RC)
       end if
 
       if (present(has_deferred_aspects)) then
