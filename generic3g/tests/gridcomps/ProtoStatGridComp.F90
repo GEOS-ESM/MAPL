@@ -7,7 +7,6 @@ module ProtoStatGridComp
    use mapl3g_Generic
    use mapl3g_esmf_subset
    use mapl3g_VerticalStaggerLoc
-   use mapl3g_StateItemModify
    use mapl_ErrorHandling
    use esmf
    implicit none(type, external)
