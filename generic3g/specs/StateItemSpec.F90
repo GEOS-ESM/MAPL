@@ -274,7 +274,7 @@ contains
       type(esmf_State), allocatable :: state
       
       class_aspect => to_ClassAspect(this%aspects, _RC)
-      call class_aspect%create(this%aspects, make_handle(this), _RC)
+      call class_aspect%create(this%aspects, _RC)
       call class_aspect%get_payload(field=field, bundle=bundle, state=state, _RC)
       call update_payload_from_aspects(this, field=field, bundle=bundle, state=state, _RC)
 
@@ -287,16 +287,6 @@ contains
       
       _RETURN(_SUCCESS)
    contains
-
-      function make_handle(this) result(handle)
-         use, intrinsic :: iso_c_binding, only: c_ptr, c_loc
-         integer, allocatable :: handle(:)
-         type(StateItemSpec), target, intent(in) :: this
-         type(c_ptr) :: ptr
-
-         ptr = c_loc(this)
-         handle = transfer(ptr, [1])
-      end function make_handle
 
       subroutine update_payload_from_aspects(this, field, bundle, state, rc)
          class(StateItemSpec), target, intent(in) :: this

@@ -138,10 +138,9 @@ contains
    end function get_aspect_order
 
 
-   subroutine create(this, other_aspects, handle, rc)
+   subroutine create(this, other_aspects, rc)
       class(FieldClassAspect), intent(inout) :: this
       type(AspectMap), intent(in) :: other_aspects
-      integer, optional, intent(in) :: handle(:)
       integer, optional, intent(out) :: rc
 
       type(ESMF_Info) :: info
@@ -151,7 +150,6 @@ contains
       integer :: status
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
-      _RETURN_UNLESS(present(handle))
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
       call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
