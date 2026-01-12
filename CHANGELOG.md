@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added implementation for mapl_GetPartition() with unit tests.  Replaces logic that will disappear with MAPL2
+- Added backwards compatibility with non-CF dimensionless vertical coordinate in ExtData2G
 
 ### Changed
 
