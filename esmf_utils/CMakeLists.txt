@@ -8,6 +8,7 @@ set(srcs
   UngriddedDimVector.F90
   LU_Bound.F90
   ESMF_Time_Utilities.F90
+  HorizontalDimsSpec.F90
   )
 
 esma_add_library(${this}
