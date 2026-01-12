@@ -179,7 +179,6 @@ contains
       integer :: status
       type(ESMF_FieldStatus_Flag) :: fstatus
 
-      type(GeomAspect) :: geom_aspect
       type(ESMF_Geom), allocatable :: geom
       type(HorizontalDimsSpec) :: horizontal_dims_spec
       integer :: dim_count
@@ -204,10 +203,10 @@ contains
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _RETURN_IF(fstatus == ESMF_FIELDSTATUS_COMPLETE)
 
-
       num_levels = 0
       call mapl_FieldGet(this%payload, &
            geom=geom, &
+           horizontal_dims_spec=horizontal_dims_spec, &
            num_levels=num_levels, &
            vert_staggerloc=vertical_stagger, &
            ungridded_dims=ungridded_dims, &
@@ -219,12 +218,10 @@ contains
        
       call ESMF_GeomGet(geom, dimCount=dim_count, _RC)
       allocate(grid_to_field_map(dim_count), source=0)
-      horizontal_dims_spec = geom_aspect%get_horizontal_dims_spec(_RC)
       _ASSERT(horizontal_dims_spec /= HORIZONTAL_DIMS_UNKNOWN, "should be one of GEOM/NONE")
       if (horizontal_dims_spec == HORIZONTAL_DIMS_GEOM) then
          grid_to_field_map = [(idim, idim=1,dim_count)]
       end if
-
 
       units_aspect = to_UnitsAspect(other_aspects, _RC)
       units = units_aspect%get_units(_RC)
@@ -251,7 +248,6 @@ contains
 
       _RETURN(ESMF_SUCCESS)
    end subroutine allocate
-
 
    subroutine destroy(this, rc)
       class(FieldClassAspect), intent(inout) :: this
