@@ -113,7 +113,7 @@ contains
             standard_name = coord_var%get_attribute_string("standard_name")
             ! metadata combinations that imply integer levels
             if ( any(standard_name == ["level ", "levels"])  .and. &
-                 any(tmp_units == ["1    ", "level"])) then
+                 any(temp_units == ["1    ", "level"])) then
                vertical_coord%positive = "up"
                if (vertical_coord%levels(1) >= vertical_coord%levels(2)) then
                   vertical_coord%positive = "down"
