@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_FieldSet
+
    use mapl3g_VerticalGrid_API
    use mapl3g_FieldInfo
    use mapl3g_FieldDelta
@@ -8,8 +9,10 @@ module mapl3g_FieldSet
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use mapl3g_UngriddedDims
+   use mapl3g_HorizontalDimsSpec, only: HorizontalDimsSpec
    use esmf
    use gftl2_StringVector
+
    implicit none (type, external)
    private
 
@@ -23,24 +26,24 @@ contains
 
 
 subroutine field_set(field, &
-        geom, &
-        vgrid, &
-        vert_staggerloc, &
-        typekind, &
-        unusable, &
-        num_levels, &
-        units, standard_name, long_name, &
-        ungridded_dims, &
-        attributes, &
-        allocation_status, &
-        has_deferred_aspects, &
-        regridder_param_info, &
-        rc)
-
-
+     geom, &
+     horizontal_dims_spec, &
+     vgrid, &
+     vert_staggerloc, &
+     typekind, &
+     unusable, &
+     num_levels, &
+     units, standard_name, long_name, &
+     ungridded_dims, &
+     attributes, &
+     allocation_status, &
+     has_deferred_aspects, &
+     regridder_param_info, &
+     rc)
       type(ESMF_Field), intent(inout) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
+      type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
       class(VerticalGrid), optional, intent(in) :: vgrid
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       type(esmf_TypeKind_Flag), optional, intent(in) :: typekind
@@ -78,6 +81,7 @@ subroutine field_set(field, &
 
       call esmf_InfoGetFromHost(field, field_info, _RC)
       call FieldInfoSetInternal(field_info, &
+           horizontal_dims_spec=horizontal_dims_spec, &
            vgrid_id=vgrid_id, &
            vert_staggerloc=vert_staggerloc, &
            num_levels=num_levels, &
