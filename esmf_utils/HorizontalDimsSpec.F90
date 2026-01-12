@@ -1,8 +1,10 @@
 module mapl3g_HorizontalDimsSpec
+
    implicit none
    private
 
    public :: HorizontalDimsSpec
+   public :: to_HorizontalDimsSpec
    public :: operator(==)
    public :: operator(/=)
 
@@ -20,6 +22,8 @@ module mapl3g_HorizontalDimsSpec
    type :: HorizontalDimsSpec
       private
       integer :: id = -1
+   contains
+      procedure :: to_string
    end type HorizontalDimsSpec
 
    type(HorizontalDimsSpec), parameter :: HORIZONTAL_DIMS_UNKNOWN = HorizontalDimsSpec(-1)
@@ -49,5 +53,32 @@ contains
       not_equal_to = .not. (a == b)
    end function not_equal_to
    
-   
+   function to_string(this) result(string)
+      class(HorizontalDimsSpec), intent(in) :: this
+      character(len=:), allocatable :: string
+
+      select case(this%id)
+      case(0)
+         string = "HORIZONTAL_DIMS_NONE"
+      case(1)
+         string = "HORIZONTAL_DIMS_GEOM"
+      case default
+         string = "HORIZONTAL_DIMS_UNKNOWN"
+      end select
+   end function to_string
+
+   function to_HorizontalDimsSpec(string) result(horizontal_dims_spec)
+      character(len=*), intent(in) :: string
+      type(HorizontalDimsSpec) :: horizontal_dims_spec
+
+      select case(string)
+      case("HORIZONTAL_DIMS_NONE")
+         horizontal_dims_spec = HORIZONTAL_DIMS_NONE
+      case("HORIZONTAL_DIMS_GEOM")
+         horizontal_dims_spec = HORIZONTAL_DIMS_GEOM
+      case default
+         horizontal_dims_spec = HORIZONTAL_DIMS_UNKNOWN
+      end select
+   end function to_HorizontalDimsSpec
+
 end module mapl3g_HorizontalDimsSpec
