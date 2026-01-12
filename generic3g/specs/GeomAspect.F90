@@ -274,7 +274,10 @@ contains
       _RETURN_UNLESS(present(field) .or. present(bundle))
 
       if (present(field)) then
-         call mapl_FieldGet(field, geom=this%geom, regridder_param_info=regridder_param_info, _RC)
+         call mapl_FieldGet(field, &
+              geom=this%geom, &
+              regridder_param_info=regridder_param_info, &
+              horizontal_dims_spec=this%horizontal_dims_spec, _RC)
       else if (present(bundle)) then
          call mapl_FieldBundleGet(bundle, geom=this%geom, regridder_param_info=regridder_param_info, _RC)
       end if
@@ -306,7 +309,10 @@ contains
          regridder_param_info = this%regridder_param%make_info(_RC)
       end if
       if (present(field)) then
-         call mapl_FieldSet(field, geom=this%geom, regridder_param_info=regridder_param_info, _RC)
+         call mapl_FieldSet(field, &
+              geom=this%geom, &
+              horizontal_dims_spec=this%horizontal_dims_spec, &
+              regridder_param_info=regridder_param_info, _RC)
       else if (present(bundle)) then
          call mapl_FieldBundleSet(bundle, geom=this%geom, regridder_param_info=regridder_param_info, _RC)
       end if

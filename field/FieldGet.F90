@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_FieldGet
+
    use mapl3g_VerticalGrid_API
    use mapl3g_FieldInfo
    use mapl3g_StateItemAllocation
@@ -8,6 +9,7 @@ module mapl3g_FieldGet
    use mapl_ErrorHandling
    use mapl3g_UngriddedDims
    use mapl3g_VerticalGridManager
+   use mapl3g_HorizontalDimsSpec, only: HorizontalDimsSpec
    use esmf
 
    implicit none (type,external)
@@ -23,8 +25,8 @@ contains
 
    subroutine field_get(field, unusable, &
         short_name, typekind, &
-        geom, vgrid, &
-        num_levels, vert_staggerloc, num_vgrid_levels, &
+        geom, horizontal_dims_spec, &
+        vgrid, num_levels, vert_staggerloc, num_vgrid_levels, &
         ungridded_dims, &
         units, standard_name, long_name, &
         allocation_status, &
@@ -34,9 +36,10 @@ contains
       type(ESMF_Field), intent(in) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), allocatable, optional, intent(out) :: geom
-      class(VerticalGrid), pointer, optional, intent(out) :: vgrid
+      type(HorizontalDimsSpec), optional, intent(out) :: horizontal_dims_spec
       character(len=:), optional, allocatable, intent(out) :: short_name
       type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
+      class(VerticalGrid), pointer, optional, intent(out) :: vgrid
       integer, optional, intent(out) :: num_levels
       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
       integer, optional, intent(out) :: num_vgrid_levels
@@ -79,12 +82,13 @@ contains
       call ESMF_InfoGetFromHost(field, field_info, _RC)
       call FieldInfoGetInternal(field_info, &
            typekind=typekind, &
+           horizontal_dims_spec=horizontal_dims_spec, &
+           vgrid_id=vgrid_id, &
            num_levels=num_levels, &
            vert_staggerloc=vert_staggerloc, &
            num_vgrid_levels=num_vgrid_levels, &
            ungridded_dims=ungridded_dims, &
            units=units, standard_name=standard_name, long_name=long_name, &
-           vgrid_id=vgrid_id, &
            allocation_status=allocation_status, &
            has_deferred_aspects=has_deferred_aspects, &
            regridder_param_info=regridder_param_info, &
@@ -100,9 +104,7 @@ contains
       end if
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine field_get
-      
+
 end module mapl3g_FieldGet
-        
-        
-   
