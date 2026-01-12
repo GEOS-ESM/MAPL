@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_FieldInfo
+
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
    use mapl3g_esmf_info_keys, only: INFO_SHARED_NAMESPACE
    use mapl3g_esmf_info_keys, only: INFO_INTERNAL_NAMESPACE
@@ -11,10 +12,12 @@ module mapl3g_FieldInfo
    use mapl3g_VerticalStaggerLoc
    use mapl3g_StateItemAllocation
    use mapl3g_RestartModes, only: RestartMode, MAPL_RESTART_REQUIRED
+   use mapl3g_HorizontalDimsSpec, only: HorizontalDimsSpec, HORIZONTAL_DIMS_UNKNOWN, to_HorizontalDimsSpec
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
    use gftl2_StringVector
+
    implicit none(type,external)
    private
 
@@ -48,12 +51,13 @@ module mapl3g_FieldInfo
       procedure :: field_info_copy_shared
    end interface FieldInfoCopyShared
 
-   character(*), parameter :: KEY_VGRID_ID = "/vgrid_id"
    character(*), parameter :: KEY_TYPEKIND = "/typekind"
    character(*), parameter :: KEY_UNITS = "/units"
    character(*), parameter :: KEY_ATTRIBUTES = "/attributes"
    character(*), parameter :: KEY_LONG_NAME = "/long_name"
    character(*), parameter :: KEY_STANDARD_NAME = "/standard_name"
+   character(*), parameter :: KEY_HORIZONTAL_DIMS_SPEC = "/horizontal_dims_spec"
+   character(*), parameter :: KEY_VGRID_ID = "/vgrid_id"
    character(*), parameter :: KEY_NUM_LEVELS = "/num_levels"
    character(*), parameter :: KEY_NUM_VGRID_LEVELS = "/num_vgrid_levels"
    character(*), parameter :: KEY_VERT_STAGGERLOC = "/vert_staggerloc"
@@ -74,10 +78,10 @@ contains
    subroutine field_info_set_internal(info, unusable, &
         namespace, &
         typekind, &
-        num_levels, vert_staggerloc, &
+        horizontal_dims_spec, &
+        vgrid_id, num_levels, vert_staggerloc, &
         ungridded_dims, &
         units, long_name, standard_name, &
-        vgrid_id, &
         allocation_status, &
         has_deferred_aspects, &
         regridder_param_info, &
@@ -85,8 +89,9 @@ contains
       type(ESMF_Info), intent(inout) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: namespace
-      integer, optional, intent(in) :: vgrid_id
       type(esmf_typekind_Flag), optional, intent(in) :: typekind
+      type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
+      integer, optional, intent(in) :: vgrid_id
       integer, optional, intent(in) :: num_levels
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
@@ -108,13 +113,18 @@ contains
          namespace_ = namespace
       end if
 
-      if (present(vgrid_id)) then
-         call mapl_InfoSet(info, namespace_ // KEY_VGRID_ID, vgrid_id, _RC)
-      end if
-
       if (present(typekind)) then
          str = to_string(typekind)
          call MAPL_InfoSet(info, namespace_ // KEY_TYPEKIND, str, _RC)
+      end if
+
+      if (present(horizontal_dims_spec)) then
+         str = horizontal_dims_spec%to_string()
+         call MAPL_InfoSet(info, namespace_ // KEY_HORIZONTAL_DIMS_SPEC, str, _RC)
+      end if
+
+      if (present(vgrid_id)) then
+         call mapl_InfoSet(info, namespace_ // KEY_VGRID_ID, vgrid_id, _RC)
       end if
 
       if (present(ungridded_dims)) then
@@ -181,9 +191,9 @@ contains
 
    subroutine field_info_get_internal(info, unusable, &
         namespace, &
-        vgrid_id, &
         typekind, &
-        num_levels, vert_staggerloc, num_vgrid_levels, &
+        horizontal_dims_spec, &
+        vgrid_id, num_levels, vert_staggerloc, num_vgrid_levels, &
         units, &
         long_name, standard_name, &
         ungridded_dims, &
@@ -194,8 +204,9 @@ contains
       type(ESMF_Info), intent(in) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: namespace
-      integer, optional, intent(out) :: vgrid_id
       type(esmf_TypeKind_Flag), optional, intent(out) :: typekind
+      type(HorizontalDimsSpec), optional, intent(out) :: horizontal_dims_spec
+      integer, optional, intent(out) :: vgrid_id
       integer, optional, intent(out) :: num_levels
       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
       integer, optional, intent(out) :: num_vgrid_levels
@@ -213,23 +224,28 @@ contains
       type(esmf_Info) :: ungridded_info
       character(:), allocatable :: vert_staggerloc_str, allocation_status_str
       type(VerticalStaggerLoc) :: vert_staggerloc_
-      character(:), allocatable :: namespace_ 
+      character(:), allocatable :: namespace_
       character(:), allocatable :: str
       logical :: is_present
-      
+
       namespace_ = INFO_INTERNAL_NAMESPACE
       if (present(namespace)) then
          namespace_ = namespace
       end if
 
-      if (present(vgrid_id)) then
-         call esmf_InfoGet(info, key=namespace_ // KEY_VGRID_ID, &
-              value=vgrid_id, default=VERTICAL_GRID_NOT_FOUND, _RC)
-      end if
-
       if (present(typekind)) then
          call mapl_InfoGet(info, namespace_ // KEY_TYPEKIND, str, _RC)
          typekind = to_Typekind(str)
+      end if
+
+      if (present(horizontal_dims_spec)) then
+         call MAPL_InfoGet(info, namespace_ // KEY_HORIZONTAL_DIMS_SPEC, str, _RC)
+         horizontal_dims_spec = to_HorizontalDimsSpec(str)
+      end if
+
+      if (present(vgrid_id)) then
+         call esmf_InfoGet(info, key=namespace_ // KEY_VGRID_ID, &
+              value=vgrid_id, default=VERTICAL_GRID_NOT_FOUND, _RC)
       end if
 
       if (present(ungridded_dims)) then
@@ -284,7 +300,7 @@ contains
 
       if (present(units)) then ! leave unallocated unless found
          is_present = esmf_InfoIsPresent(info, key=namespace_ // KEY_UNITS, _RC)
-         if (is_present) then 
+         if (is_present) then
             call MAPL_InfoGet(info, namespace_ // KEY_UNITS, units, _RC)
          end if
       end if
@@ -310,7 +326,6 @@ contains
      _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine field_info_get_internal
-
 
    subroutine field_info_set_internal_restart_mode(info, named_alias_id, restart_mode, rc)
       type(ESMF_Info), intent(inout) :: info
@@ -354,7 +369,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine field_info_get_internal_restart_mode
-
 
    subroutine info_field_get_shared_i4(field, key, value, unusable, rc)
       type(ESMF_Field), intent(in) :: field
@@ -493,6 +507,5 @@ contains
       end select
 
    end function to_typekind
-
 
 end module mapl3g_FieldInfo
