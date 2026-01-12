@@ -87,26 +87,26 @@ program main
    _HERE,'counts: ocean: ', counters(1), 'land: ', counters(2), 'lake: ', counters(3), 'landice: ', counters(4)
 
    call ESMF_Initialize(_RC)
-   _HERE
 
-   call m%reorder_elements(_RC)
-
-   call m%to_netcdf_0('surface_mesh.nc', _RC)
-   _HERE
+   !call m%to_netcdf_quad('surface_mesh_quad.nc', _RC)
+   call m%to_netcdf_0('surface_mesh_multi_new.nc', _RC)
 
    !call system_clock(c0)
    !msh = m%make_esmf_mesh_tri(connCount, _RC)
-   !call write_to_file(msh, 'surface_types.nc', connCount, _RC)
+   !call write_to_file(msh, 'surface_mesh_tri.nc', connCount, _RC)
    !call system_clock(c1)
+
+   call m%reorder_elements(_RC)
+
+  ! call m%to_netcdf_quad('surface_mesh_quad_ordered.nc', _RC)
+   call m%to_netcdf_0('surface_mesh_multi_ordered.nc', _RC)
+
+  ! call system_clock(c0)
+  ! msh = m%make_esmf_mesh_tri(connCount, _RC)
+  ! call write_to_file(msh, 'surface_mesh_tri_ordered.nc', connCount, _RC)
+
    !_HERE, 'time to create ESMF mesh is: ', real(c1-c0)/crate
 
-!#   call system_clock(c0)
-!#   msh2 = m%make_esmf_mesh3(_RC)
-!#   call m%to_netcdf('surface_types2.nc', _RC)
-!#   call system_clock(c1)
-!#   _HERE, 'time to create ESMF mesh2 is: ', real(c1-c0)/crate
-!#
-!#
    call ESMF_Finalize(_RC)
 
 !#   call MPI_Finalize(status)

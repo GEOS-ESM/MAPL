@@ -24,6 +24,7 @@ module sf_Element
 
       integer(kind=PIXEL_KIND), pointer :: pixels(:,:) => null()
       logical :: fully_refined = .false.
+      integer :: pole = 0
    contains
       procedure :: do_refine
       procedure :: is_fully_refined
@@ -37,16 +38,21 @@ module sf_Element
 
 contains
 
-   function new_Element(pixels, iv_0, dir) result(e)
+   function new_Element(pixels, iv_0, dir, pole, fully_refined) result(e)
       type(Element) :: e
       integer(kind=PIXEL_KIND), target, intent(in) :: pixels(:,:)
       integer(kind=INT64), intent(in) :: iv_0 ! id of vertex in mesh
       integer, intent(in) :: dir ! EAST, SOUTH, WEST, NORTH
+      integer, optional, intent(in) :: pole ! -1: south; 1: north; 0: otherwise
+      logical, optional, intent(in) :: fully_refined
 
       e%pixels => pixels
       e%iv_0 = iv_0
       e%dir = dir
       e%fully_refined = .false.
+      e%pole = 0
+      if (present(pole)) e%pole = pole
+      if (present(fully_refined)) e%fully_refined = fully_refined
       
    end function new_Element
 
