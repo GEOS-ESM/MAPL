@@ -30,12 +30,10 @@ target_sources(MAPL.generic3g PRIVATE
 
   GeometrySpec.F90
 
-  HorizontalDimsSpec.F90
   GridSpec.F90
   
   StateItemSpec.F90
   StateItemSpecMap.F90
-  StateItemModify.F90
 
   ChildSpec.F90
   ChildSpecMap.F90

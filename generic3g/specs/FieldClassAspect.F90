@@ -138,10 +138,9 @@ contains
    end function get_aspect_order
 
 
-   subroutine create(this, other_aspects, handle, rc)
+   subroutine create(this, other_aspects, rc)
       class(FieldClassAspect), intent(inout) :: this
       type(AspectMap), intent(in) :: other_aspects
-      integer, optional, intent(in) :: handle(:)
       integer, optional, intent(out) :: rc
 
       type(ESMF_Info) :: info
@@ -151,10 +150,8 @@ contains
       integer :: status
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
-      _RETURN_UNLESS(present(handle))
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldInfoSetInternal(info, spec_handle=handle, _RC)
       call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(ESMF_SUCCESS)
@@ -182,7 +179,6 @@ contains
       integer :: status
       type(ESMF_FieldStatus_Flag) :: fstatus
 
-      type(GeomAspect) :: geom_aspect
       type(ESMF_Geom), allocatable :: geom
       type(HorizontalDimsSpec) :: horizontal_dims_spec
       integer :: dim_count
@@ -207,10 +203,10 @@ contains
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _RETURN_IF(fstatus == ESMF_FIELDSTATUS_COMPLETE)
 
-
       num_levels = 0
       call mapl_FieldGet(this%payload, &
            geom=geom, &
+           horizontal_dims_spec=horizontal_dims_spec, &
            num_levels=num_levels, &
            vert_staggerloc=vertical_stagger, &
            ungridded_dims=ungridded_dims, &
@@ -222,12 +218,10 @@ contains
        
       call ESMF_GeomGet(geom, dimCount=dim_count, _RC)
       allocate(grid_to_field_map(dim_count), source=0)
-      horizontal_dims_spec = geom_aspect%get_horizontal_dims_spec(_RC)
       _ASSERT(horizontal_dims_spec /= HORIZONTAL_DIMS_UNKNOWN, "should be one of GEOM/NONE")
       if (horizontal_dims_spec == HORIZONTAL_DIMS_GEOM) then
          grid_to_field_map = [(idim, idim=1,dim_count)]
       end if
-
 
       units_aspect = to_UnitsAspect(other_aspects, _RC)
       units = units_aspect%get_units(_RC)
@@ -254,7 +248,6 @@ contains
 
       _RETURN(ESMF_SUCCESS)
    end subroutine allocate
-
 
    subroutine destroy(this, rc)
       class(FieldClassAspect), intent(inout) :: this
