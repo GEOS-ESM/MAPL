@@ -1,6 +1,9 @@
 esma_set_this (OVERRIDE MAPL.utilities)
 
-set(srcs utilities.F90)
+set(srcs
+  utilities.F90
+  MemInfo.F90
+)
 
 esma_add_library(${this} SRCS ${srcs} DEPENDENCIES MAPL.shared TYPE SHARED)
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
