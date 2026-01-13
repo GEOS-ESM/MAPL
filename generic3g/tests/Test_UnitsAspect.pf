@@ -12,66 +12,13 @@ module Test_UnitsAspect
 
    character(len=*), parameter :: SRC_UNITS = "m"
    character(len=*), parameter :: DST_UNITS = "cm"
-   type(ESMF_TypeKind_Flag) :: TYPEKIND=ESMF_TYPEKIND_R4
-   type(ESMF_Grid) :: grid
+
+   interface initialize
+      procedure :: initialize_field
+      procedure :: initialize_bundle
+   end interface initialize
 
 contains
-
-   @Before
-   subroutine setUp()
-      integer :: status
-      grid=ESMF_GridCreate(countsPerDEDim1=[4, 4], countsPerDEDim2=[4, 4], _RC)
-   end subroutine setUp
-   
-   @After
-   subroutine shutDown()
-      integer :: status
-      call ESMF_GridDestroy(grid, _RC)
-   end subroutine shutDown
-
-   subroutine initialize_all(field, bundle, aspect, units, aspect_units, rc)
-      type(ESMF_Field), optional, intent(inout) :: field
-      type(ESMF_FieldBundle), optional, intent(inout) :: bundle
-      type(UnitsAspect), optional, intent(inout) :: aspect
-      character(len=*), optional, intent(in) :: units, aspect_units
-      integer, optional, intent(out) :: rc
-      integer :: status
-
-      if(present(units) .and. (present(field) .or. present(bundle))) then
-         if(present(field)) then
-            field=ESMF_FieldCreate(grid, TYPEKIND, _RC)
-            call MAPL_FieldSet(field, units=units, _RC)
-         end if
-         if(present(bundle)) then
-            bundle=ESMF_FieldBundleCreate(_RC)
-            call MAPL_FieldBundleSet(bundle, units=units, _RC)
-         end if
-      end if
-      
-      if(present(aspect) .and. (present(aspect_units))) then
-         aspect=UnitsAspect(aspect_units)
-         call aspect%set_units(aspect_units, _RC)
-      end if
-
-      _RETURN(_SUCCESS)
-   end subroutine initialize_all
-
-   subroutine destroy_all(field, bundle, rc)
-      type(ESMF_Field), optional, intent(inout) :: field
-      type(ESMF_FieldBundle), optional, intent(inout) :: bundle
-      integer, optional, intent(out) :: rc
-      integer :: status
-
-      if(present(field)) then
-         call ESMF_FieldDestroy(field, _RC)
-      end if
-
-      if(present(bundle)) then
-         call ESMF_FieldBundleDestroy(bundle, _RC)
-      end if
-
-      _RETURN(_SUCCESS)
-   end subroutine destroy_all
 
    @Test
    subroutine test_update_payload_field()
@@ -80,7 +27,8 @@ contains
       character(len=:), allocatable :: units
       integer :: status
       
-      call initialize_all(field=field, units=DST_UNITS, aspect=aspect, aspect_units=SRC_UNITS, _RC)
+      call initialize(field, DST_UNITS, _RC)
+      aspect=UnitsAspect(SRC_UNITS)
       call MAPL_FieldGet(field, units=units, _RC)
       @assertEqual(DST_UNITS, units, "Field units were not initialized correctly.")
       units=aspect%get_units(_RC)
@@ -99,7 +47,8 @@ contains
       character(len=:), allocatable :: units
       integer :: status
 
-      call initialize_all(field=field, units=SRC_UNITS, aspect=aspect, aspect_units=DST_UNITS, _RC)
+      call initialize(field, SRC_UNITS, _RC)
+      aspect=UnitsAspect(DST_UNITS)
       call MAPL_FieldGet(field, units=units, _RC)
       @assertEqual(SRC_UNITS, units, "Field units were not initialized correctly.")
       units=aspect%get_units(_RC)
@@ -118,7 +67,8 @@ contains
       character(len=:), allocatable :: units
       integer :: status
 
-      call initialize_all(bundle=bundle, units=DST_UNITS, aspect=aspect, aspect_units=SRC_UNITS, _RC)
+      call initialize(bundle, DST_UNITS, _RC)
+      aspect=UnitsAspect(SRC_UNITS)
       call MAPL_FieldBundleGet(bundle, units=units, _RC)
       @assertEqual(DST_UNITS, units, "FieldBundle units were not initialized correctly.")
       units=aspect%get_units(_RC)
@@ -137,7 +87,8 @@ contains
       character(len=:), allocatable :: units
       integer :: status
 
-      call initialize_all(bundle=bundle, units=SRC_UNITS, aspect=aspect, aspect_units=DST_UNITS, _RC)
+      call initialize(bundle, SRC_UNITS, _RC)
+      aspect=UnitsAspect(DST_UNITS)
       call MAPL_FieldBundleGet(bundle, units=units, _RC)
       @assertEqual(SRC_UNITS, units, "FieldBundle units were not initialized correctly.")
       units=aspect%get_units(_RC)
@@ -148,5 +99,71 @@ contains
       call ESMF_FieldBundleDestroy(bundle, _RC)
 
    end subroutine test_update_from_payload_bundle
+
+   @Test
+   subroutine test_mirroring_field()
+      type(ESMF_Field) :: field
+      type(UnitsAspect) :: aspect
+      character(len=:), allocatable :: units
+      integer :: status
+
+      field=ESMF_FieldEmptyCreate(_RC)
+      aspect=UnitsAspect()
+      @assertTrue(aspect%is_mirror(), 'UnitsAspect should be mirrored before.')
+      call aspect%update_payload(field, _RC)
+      call MAPL_FieldGet(field, units=units, _RC)
+      @assertFalse(allocated(units), 'units should not be allocated.')
+      call aspect%update_from_payload(field, _RC)
+      @assertTrue(aspect%is_mirror(), 'UnitsAspect should be mirrored after.')
+
+   end subroutine test_mirroring_field
+
+   @Test
+   subroutine test_allocated_units_field()
+      type(ESMF_Field) :: field
+      type(UnitsAspect) :: aspect
+      character(len=:), allocatable :: units
+      integer :: status
+
+      field=ESMF_FieldEmptyCreate(_RC)
+      aspect=UnitsAspect(SRC_UNITS)
+      @assertFalse(aspect%is_mirror(), 'UnitsAspect should not be mirrored before.')
+      call aspect%update_payload(field, _RC)
+      call MAPL_FieldGet(field, units=units, _RC)
+      @assertTrue(allocated(units), 'units should be allocated.')
+      call aspect%update_from_payload(field, _RC)
+      @assertFalse(aspect%is_mirror(), 'UnitsAspect should not be mirrored after.')
+
+   end subroutine test_allocated_units_field
+
+   subroutine initialize_field(field, units, rc)
+      type(ESMF_Field), intent(inout) :: field
+      character(len=*), optional, intent(in) :: units
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      field=ESMF_FieldEmptyCreate(_RC)
+      if(.not. present(units)) then
+         _RETURN(_SUCCESS)
+      end if
+      call MAPL_FieldSet(field, units=units, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine initialize_field
+
+   subroutine initialize_bundle(bundle, units, rc)
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      character(len=*), optional, intent(in) :: units
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      bundle=ESMF_FieldBundleCreate(_RC)
+      if(.not. present(units)) then
+         _RETURN(_SUCCESS)
+      end if
+      call MAPL_FieldBundleSet(bundle, units=units, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine initialize_bundle
 
 end module Test_UnitsAspect
