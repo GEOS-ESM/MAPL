@@ -12,6 +12,7 @@ module mapl3g_MemInfo
    implicit none
    private
 
+   public :: MemInfo
    public :: MemInfoWrite
 
    type ProcessMem
@@ -19,7 +20,6 @@ module mapl3g_MemInfo
       real :: rss ! resident set size
    contains
       procedure :: get_process_mem
-      procedure :: write_process_mem
    end type ProcessMem
 
    type SystemMem
@@ -29,7 +29,6 @@ module mapl3g_MemInfo
       real :: committed_as
    contains
       procedure :: get_system_mem
-      procedure :: write_system_mem
    end type SystemMem
 
    type MemInfo
@@ -43,9 +42,10 @@ module mapl3g_MemInfo
 
 contains
 
-   subroutine MemInfoWrite(comm, logger, rc)
+   subroutine MemInfoWrite(comm, logger, text, rc)
       integer, intent(in) :: comm
       class(logger_t), pointer, optional, intent(in) :: logger
+      character(len=*), optional, intent(in) :: text
       integer, optional, intent(out) :: rc
 
       type(MemInfo) :: mem_info
@@ -56,7 +56,7 @@ contains
          mem_info%logger => logger
       end if
       call mem_info%get(comm, _RC)
-      call mem_info%write(mem_info%logger)
+      call mem_info%write(mem_info%logger, text)
 
       _RETURN(_SUCCESS)
    end subroutine MemInfoWrite
@@ -166,28 +166,27 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_system_mem
 
-   subroutine write(this, logger)
-      class(MemInfo), intent(in) :: this
+   subroutine write(this, logger, text)
+      class(MemInfo), target, intent(in) :: this
       class(logger_t), pointer, intent(in) :: logger
+      character(len=*), optional, intent(in) :: text
 
-      call this%process_mem%write_process_mem(logger)
-      call this%system_mem%write_system_mem(logger)
+      character(len=:), allocatable :: text_
+      type(ProcessMem), pointer :: process_mem => null()
+      type(SystemMem), pointer :: system_mem => null()
+
+      text_ = ":"
+      if (present(text)) text_ = " at <" // text // ">:"
+
+      process_mem => this%process_mem
+      system_mem => this%system_mem
+
+      call logger%info("Process HWM/RSS (MB)%a: %es11.3 %es11.3", text_, process_mem%hwm, process_mem%rss)
+      call logger%info("Mem/Swap used (MB)%a: %es11.3 %es11.3", text_, system_mem%mem_used, system_mem%swap_used)
+      call logger%info( &
+           "CommitLimit/Committed_AS (MB)%a %es11.3 %es11.3", &
+           text_, system_mem%commit_limit, system_mem%committed_as)
    end subroutine write
-
-   subroutine write_process_mem(this, logger)
-      class(ProcessMem), intent(in) :: this
-      class(logger_t), pointer, intent(in) :: logger
-
-      call logger%info("HWM/RSS (MB): %es11.3 %es11.3", this%hwm, this%rss)
-   end subroutine write_process_mem
-
-   subroutine write_system_mem(this, logger)
-      class(SystemMem), intent(in) :: this
-      class(logger_t), pointer, intent(in) :: logger
-
-      call logger%info("Mem/Swap used (MB): %es11.3 %es11.3", this%mem_used, this%swap_used)
-      call logger%info("CommitLimit/Committed_AS (MB): %es11.3 %es11.3", this%commit_limit, this%committed_as)
-   end subroutine write_system_mem
 
    function get_value(string, key, rc) result(value)
       character(len=*), intent(in) :: string
