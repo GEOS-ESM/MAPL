@@ -13,10 +13,10 @@ module Test_UnitsAspect
    character(len=*), parameter :: SRC_UNITS = "m"
    character(len=*), parameter :: DST_UNITS = "cm"
 
-   interface initialize
+   interface init
       procedure :: initialize_field
       procedure :: initialize_bundle
-   end interface initialize
+   end interface init
 
 contains
 
@@ -27,7 +27,7 @@ contains
       character(len=:), allocatable :: units
       integer :: status
       
-      call initialize(field, DST_UNITS, _RC)
+      call init(field, DST_UNITS, _RC)
       aspect=UnitsAspect(SRC_UNITS)
       call MAPL_FieldGet(field, units=units, _RC)
       @assertEqual(DST_UNITS, units, "Field units were not initialized correctly.")
@@ -47,7 +47,7 @@ contains
       character(len=:), allocatable :: units
       integer :: status
 
-      call initialize(field, SRC_UNITS, _RC)
+      call init(field, SRC_UNITS, _RC)
       aspect=UnitsAspect(DST_UNITS)
       call MAPL_FieldGet(field, units=units, _RC)
       @assertEqual(SRC_UNITS, units, "Field units were not initialized correctly.")
@@ -67,7 +67,7 @@ contains
       character(len=:), allocatable :: units
       integer :: status
 
-      call initialize(bundle, DST_UNITS, _RC)
+      call init(bundle, DST_UNITS, _RC)
       aspect=UnitsAspect(SRC_UNITS)
       call MAPL_FieldBundleGet(bundle, units=units, _RC)
       @assertEqual(DST_UNITS, units, "FieldBundle units were not initialized correctly.")
@@ -87,7 +87,7 @@ contains
       character(len=:), allocatable :: units
       integer :: status
 
-      call initialize(bundle, SRC_UNITS, _RC)
+      call init(bundle, SRC_UNITS, _RC)
       aspect=UnitsAspect(DST_UNITS)
       call MAPL_FieldBundleGet(bundle, units=units, _RC)
       @assertEqual(SRC_UNITS, units, "FieldBundle units were not initialized correctly.")
@@ -103,39 +103,45 @@ contains
    @Test
    subroutine test_mirroring_field()
       type(ESMF_Field) :: field
-      type(UnitsAspect) :: aspect
+      type(UnitsAspect) :: before, after
       character(len=:), allocatable :: units
       integer :: status
 
       field=ESMF_FieldEmptyCreate(_RC)
-      aspect=UnitsAspect()
-      @assertTrue(aspect%is_mirror(), 'UnitsAspect should be mirrored before.')
-      call aspect%update_payload(field, _RC)
+      before=UnitsAspect()
+      after=UnitsAspect(SRC_UNITS)
+      
+      call before%update_payload(field, _RC)
       call MAPL_FieldGet(field, units=units, _RC)
       @assertFalse(allocated(units), 'units should not be allocated.')
-      call aspect%update_from_payload(field, _RC)
-      @assertTrue(aspect%is_mirror(), 'UnitsAspect should be mirrored after.')
+      if(allocated(units)) deallocate(units)
+
+      call after%update_from_payload(field, _RC)
+      @assertTrue(after%is_mirror(), 'UnitsAspect should be mirrored after.')
 
    end subroutine test_mirroring_field
 
    @Test
    subroutine test_allocated_units_field()
       type(ESMF_Field) :: field
-      type(UnitsAspect) :: aspect
+      type(UnitsAspect) :: before, after
       character(len=:), allocatable :: units
       integer :: status
 
       field=ESMF_FieldEmptyCreate(_RC)
-      aspect=UnitsAspect(SRC_UNITS)
-      @assertFalse(aspect%is_mirror(), 'UnitsAspect should not be mirrored before.')
-      call aspect%update_payload(field, _RC)
+      before=UnitsAspect(SRC_UNITS)
+      after=UnitsAspect()
+
+      call before%update_payload(field, _RC)
       call MAPL_FieldGet(field, units=units, _RC)
       @assertTrue(allocated(units), 'units should be allocated.')
+      @assertEqual(SRC_UNITS, units,  'The field units are not correct.')
       if(allocated(units)) deallocate(units)
-      call aspect%update_from_payload(field, _RC)
-      @assertFalse(aspect%is_mirror(), 'UnitsAspect should not be mirrored after.')
-      units = aspect%get_units(_RC)
-      @assertEqual(SRC_UNITS, units, 'The result units do not match the original units.')
+      
+      call after%update_from_payload(field, _RC)
+      @assertFalse(after%is_mirror(), 'UnitsAspect should not be mirrored after.')
+      units = after%get_units(_RC)
+      @assertEqual(SRC_UNITS, units, 'The after units do not match the before units.')
 
    end subroutine test_allocated_units_field
 
