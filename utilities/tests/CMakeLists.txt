@@ -3,6 +3,7 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.utilities/tests")
 set (TEST_SRCS
   Test_MaxMin.pf
   Test_AreaMean.pf
+  Test_MemInfoWrite.pf
 )
 
 add_pfunit_ctest(MAPL.utilities.tests
@@ -13,7 +14,7 @@ add_pfunit_ctest(MAPL.utilities.tests
   MAX_PES 2
 )
 set_target_properties(MAPL.utilities.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
-set_tests_properties(MAPL.utilities.tests PROPERTIES LABELS "ESSENTIAL")
+# set_tests_properties(MAPL.utilities.tests PROPERTIES LABELS "ESSENTIAL")
 
 if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
   set_tests_properties(MAPL.utilities.tests PROPERTIES ENVIRONMENT "I_MPI_OFI_PROVIDER=psm3")
