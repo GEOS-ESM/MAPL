@@ -196,9 +196,10 @@ contains
 
       real :: multiplier
       integer :: key_len, string_len
+      character(len=:), allocatable :: msg
 
-      _ASSERT(index(string, key) == 1, &
-           "input string <"//trim(string)//"> does not contain key <"//trim(key)//">")
+      msg = "input string <"//trim(string)//"> does not contain key <"//trim(key)//">"
+      _ASSERT(index(string, key) == 1, msg)
       key_len = len_trim(key)
       string_len = len_trim(string)
       read(string(key_len+1:string_len-2),*) value
