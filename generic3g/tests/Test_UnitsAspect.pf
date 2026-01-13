@@ -131,8 +131,11 @@ contains
       call aspect%update_payload(field, _RC)
       call MAPL_FieldGet(field, units=units, _RC)
       @assertTrue(allocated(units), 'units should be allocated.')
+      if(allocated(units)) deallocate(units)
       call aspect%update_from_payload(field, _RC)
       @assertFalse(aspect%is_mirror(), 'UnitsAspect should not be mirrored after.')
+      units = aspect%get_units(_RC)
+      @assertEqual(SRC_UNITS, units, 'The result units do not match the original units.')
 
    end subroutine test_allocated_units_field
 
