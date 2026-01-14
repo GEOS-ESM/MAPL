@@ -147,14 +147,11 @@ contains
 
    subroutine initialize_field(field, units, rc)
       type(ESMF_Field), intent(inout) :: field
-      character(len=*), optional, intent(in) :: units
-      integer, optional, intent(out) :: rc
+      character(len=*), intent(in) :: units
+      integer, intent(out) :: rc
       integer :: status
 
       field=ESMF_FieldEmptyCreate(_RC)
-      if(.not. present(units)) then
-         _RETURN(_SUCCESS)
-      end if
       call MAPL_FieldSet(field, units=units, _RC)
       _RETURN(_SUCCESS)
 
@@ -162,14 +159,11 @@ contains
 
    subroutine initialize_bundle(bundle, units, rc)
       type(ESMF_FieldBundle), intent(inout) :: bundle
-      character(len=*), optional, intent(in) :: units
-      integer, optional, intent(out) :: rc
+      character(len=*), intent(in) :: units
+      integer, intent(out) :: rc
       integer :: status
 
       bundle=ESMF_FieldBundleCreate(_RC)
-      if(.not. present(units)) then
-         _RETURN(_SUCCESS)
-      end if
       call MAPL_FieldBundleSet(bundle, units=units, _RC)
       _RETURN(_SUCCESS)
 
