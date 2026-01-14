@@ -13,95 +13,78 @@ module Test_UnitsAspect
    character(len=*), parameter :: SRC_UNITS = "m"
    character(len=*), parameter :: DST_UNITS = "cm"
 
-   interface init
-      procedure :: initialize_field
-      procedure :: initialize_bundle
-   end interface init
-
 contains
 
    @Test
-   subroutine test_update_payload_field()
+   subroutine test_update_payload_units_field()
       type(ESMF_Field) :: field
       type(UnitsAspect) :: aspect
       character(len=:), allocatable :: units
       integer :: status
       
-      call init(field, DST_UNITS, _RC)
+      field = ESMF_FieldEmptyCreate(_RC)
+      call MAPL_FieldSet(field, units=DST_UNITS, _RC)
       aspect=UnitsAspect(SRC_UNITS)
-      call MAPL_FieldGet(field, units=units, _RC)
-      @assertEqual(DST_UNITS, units, "Field units were not initialized correctly.")
-      units=aspect%get_units(_RC)
-      @assertEqual(SRC_UNITS, units, "Aspect units were not initialized correctly.")
-      call aspect%update_payload(field, _RC)
+      call aspect%update_payload(field=field, _RC)
       call MAPL_FieldGet(field, units=units, _RC)
       @assertEqual(SRC_UNITS, units, "Field units were not set correctly.")
       call ESMF_FieldDestroy(field, _RC)
 
-   end subroutine test_update_payload_field
+   end subroutine test_update_payload_units_field
 
    @Test
-   subroutine test_update_from_payload_field()
+   subroutine test_update_from_payload_units_field()
       type(ESMF_Field) :: field
       type(UnitsAspect) :: aspect
       character(len=:), allocatable :: units
       integer :: status
 
-      call init(field, SRC_UNITS, _RC)
+      field = ESMF_FieldEmptyCreate(_RC)
+      call MAPL_FieldSet(field, units=SRC_UNITS, _RC)
       aspect=UnitsAspect(DST_UNITS)
-      call MAPL_FieldGet(field, units=units, _RC)
-      @assertEqual(SRC_UNITS, units, "Field units were not initialized correctly.")
-      units=aspect%get_units(_RC)
-      @assertEqual(DST_UNITS, units, "Aspect units were not initialized correctly.")
-      call aspect%update_from_payload(field, _RC)
+      call aspect%update_from_payload(field=field, _RC)
       units=aspect%get_units(_RC)
       @assertEqual(SRC_UNITS, units, "Aspect units were not set correctly.")
       call ESMF_FieldDestroy(field, _RC)
 
-   end subroutine test_update_from_payload_field
+   end subroutine test_update_from_payload_units_field
 
    @Test
-   subroutine test_update_payload_bundle()
+   subroutine test_update_payload_units_bundle()
       type(ESMF_FieldBundle) :: bundle
       type(UnitsAspect) :: aspect
       character(len=:), allocatable :: units
       integer :: status
 
-      call init(bundle, DST_UNITS, _RC)
+      bundle = ESMF_FieldBundleCreate(_RC)
+      call MAPL_FieldBundleSet(bundle, units=DST_UNITS, _RC)
       aspect=UnitsAspect(SRC_UNITS)
-      call MAPL_FieldBundleGet(bundle, units=units, _RC)
-      @assertEqual(DST_UNITS, units, "FieldBundle units were not initialized correctly.")
-      units=aspect%get_units(_RC)
-      @assertEqual(SRC_UNITS, units, "Aspect units were not initialized correctly.")
       call aspect%update_payload(bundle=bundle, _RC)
       call MAPL_FieldBundleGet(bundle, units=units, _RC)
       @assertEqual(SRC_UNITS, units, "FieldBundle units were not set correctly.")
       call ESMF_FieldBundleDestroy(bundle, _RC)
       
-   end subroutine test_update_payload_bundle
+   end subroutine test_update_payload_units_bundle
 
    @Test
-   subroutine test_update_from_payload_bundle()
+   subroutine test_update_from_payload_units_bundle()
       type(ESMF_FieldBundle) :: bundle
       type(UnitsAspect) :: aspect
       character(len=:), allocatable :: units
       integer :: status
 
-      call init(bundle, SRC_UNITS, _RC)
+      bundle = ESMF_FieldBundleCreate(_RC)
+      call MAPL_FieldBundleSet(bundle, units=SRC_UNITS, _RC)
       aspect=UnitsAspect(DST_UNITS)
-      call MAPL_FieldBundleGet(bundle, units=units, _RC)
-      @assertEqual(SRC_UNITS, units, "FieldBundle units were not initialized correctly.")
-      units=aspect%get_units(_RC)
-      @assertEqual(DST_UNITS, units, "Aspect units were not initialized correctly.")
       call aspect%update_from_payload(bundle=bundle, _RC)
       units=aspect%get_units(_RC)
       @assertEqual(SRC_UNITS, units, "Aspect units were not set correctly.")
       call ESMF_FieldBundleDestroy(bundle, _RC)
 
-   end subroutine test_update_from_payload_bundle
+   end subroutine test_update_from_payload_units_bundle
 
    @Test
-   subroutine test_mirroring_field()
+   subroutine test_update_nounits_field()
       type(ESMF_Field) :: field
       type(UnitsAspect) :: before, after
       character(len=:), allocatable :: units
@@ -109,64 +92,112 @@ contains
 
       field=ESMF_FieldEmptyCreate(_RC)
       before=UnitsAspect()
-      after=UnitsAspect(SRC_UNITS)
+      after=UnitsAspect(DST_UNITS)
       
-      call before%update_payload(field, _RC)
+      call before%update_payload(field=field, _RC)
       call MAPL_FieldGet(field, units=units, _RC)
       @assertFalse(allocated(units), 'units should not be allocated.')
       if(allocated(units)) deallocate(units)
 
-      call after%update_from_payload(field, _RC)
+      call after%update_from_payload(field=field, _RC)
       @assertTrue(after%is_mirror(), 'UnitsAspect should be mirrored after.')
+      call ESMF_FieldDestroy(field, _RC)
 
-   end subroutine test_mirroring_field
+   end subroutine test_update_nounits_field
 
    @Test
-   subroutine test_allocated_units_field()
-      type(ESMF_Field) :: field
+   subroutine test_update_nounits_bundle()
+      type(ESMF_FieldBundle) :: bundle
       type(UnitsAspect) :: before, after
       character(len=:), allocatable :: units
       integer :: status
 
-      field=ESMF_FieldEmptyCreate(_RC)
-      before=UnitsAspect(SRC_UNITS)
-      after=UnitsAspect()
-
-      call before%update_payload(field, _RC)
-      call MAPL_FieldGet(field, units=units, _RC)
-      @assertTrue(allocated(units), 'units should be allocated.')
-      @assertEqual(SRC_UNITS, units,  'The field units are not correct.')
-      if(allocated(units)) deallocate(units)
+      bundle=ESMF_FieldBundleCreate(_RC)
+      before=UnitsAspect()
+      after=UnitsAspect(DST_UNITS)
       
-      call after%update_from_payload(field, _RC)
-      @assertFalse(after%is_mirror(), 'UnitsAspect should not be mirrored after.')
-      units = after%get_units(_RC)
-      @assertEqual(SRC_UNITS, units, 'The after units do not match the before units.')
+      call before%update_payload(bundle=bundle, _RC)
+      call MAPL_FieldBundleGet(bundle, units=units, _RC)
+      @assertFalse(allocated(units), 'units should not be allocated.')
+      if(allocated(units)) deallocate(units)
 
-   end subroutine test_allocated_units_field
+      call after%update_from_payload(bundle=bundle, _RC)
+      @assertTrue(after%is_mirror(), 'UnitsAspect should be mirrored after.')
 
-   subroutine initialize_field(field, units, rc)
-      type(ESMF_Field), intent(inout) :: field
-      character(len=*), intent(in) :: units
-      integer, intent(out) :: rc
+   end subroutine test_update_nounits_bundle
+
+   @Test
+   subroutine test_update_units_field()
+      type(ESMF_Field) :: field
+      type(UnitsAspect) :: before
+      character(len=:), allocatable :: units
       integer :: status
 
       field=ESMF_FieldEmptyCreate(_RC)
-      call MAPL_FieldSet(field, units=units, _RC)
-      _RETURN(_SUCCESS)
+      call MAPL_FieldSet(field, units=DST_UNITS, _RC)
+      before=UnitsAspect()
 
-   end subroutine initialize_field
+      call before%update_payload(field=field, _RC)
+      call MAPL_FieldGet(field, units=units, _RC)
+      @assertFalse(allocated(units), 'units should not be allocated.')
+      call ESMF_FieldDestroy(field, _RC)
 
-   subroutine initialize_bundle(bundle, units, rc)
-      type(ESMF_FieldBundle), intent(inout) :: bundle
-      character(len=*), intent(in) :: units
-      integer, intent(out) :: rc
+   end subroutine test_update_units_field
+
+   @Test
+   subroutine test_update_units_bundle()
+      type(ESMF_FieldBundle) :: bundle
+      type(UnitsAspect) :: before
+      character(len=:), allocatable :: units
       integer :: status
 
       bundle=ESMF_FieldBundleCreate(_RC)
-      call MAPL_FieldBundleSet(bundle, units=units, _RC)
-      _RETURN(_SUCCESS)
+      call MAPL_FieldBundleSet(bundle, units=DST_UNITS, _RC)
+      before=UnitsAspect()
 
-   end subroutine initialize_bundle
+      call before%update_payload(bundle=bundle, _RC)
+      call MAPL_FieldBundleGet(bundle, units=units, _RC)
+      @assertFalse(allocated(units), 'units should not be allocated.')
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+
+   end subroutine test_update_units_bundle
+
+   @Test
+   subroutine test_update_from_units_field()
+      type(ESMF_Field) :: field
+      type(UnitsAspect) :: before
+      character(len=:), allocatable :: units
+      integer :: status
+
+      field=ESMF_FieldEmptyCreate(_RC)
+      call MAPL_FieldSet(field, units=SRC_UNITS, _RC)
+      before=UnitsAspect()
+
+      call before%update_from_payload(field=field, _RC)
+      units = before%get_units(_RC)    
+      @assertTrue(allocated(units), 'units should be allocated.')
+      @assertEqual(SRC_UNITS, units, 'units do not match field units.')
+      call ESMF_FieldDestroy(field, _RC)
+
+   end subroutine test_update_from_units_field
+
+   @Test
+   subroutine test_update_from_units_bundle()
+      type(ESMF_FieldBundle) :: bundle
+      type(UnitsAspect) :: before
+      character(len=:), allocatable :: units
+      integer :: status
+
+      bundle=ESMF_FieldBundleCreate(_RC)
+      call MAPL_FieldBundleSet(bundle, units=SRC_UNITS, _RC)
+      before=UnitsAspect()
+
+      call before%update_from_payload(bundle=bundle, _RC)
+      units = before%get_units(_RC)    
+      @assertTrue(allocated(units), 'units should be allocated.')
+      @assertEqual(SRC_UNITS, units, 'units do not match field units.')
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+
+   end subroutine test_update_from_units_bundle
 
 end module Test_UnitsAspect
