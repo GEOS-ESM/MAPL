@@ -9,6 +9,7 @@ module mapl3g_UnitsAspect
    use mapl3g_NullTransform
    use mapl3g_Field_API
    use mapl3g_FieldBundle_API
+   use mapl3g_FieldRemove
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use udunits2f, only: are_convertible
@@ -230,6 +231,13 @@ contains
       integer :: status
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
+
+      if(this%is_mirror()) then
+         if (present(field)) then
+            call MAPL_FieldRemove(field, units=.True., _RC)
+         end if
+         _RETURN(_SUCCESS)
+      end if
 
       if (present(field)) then
          call mapl_FieldSet(field, units=this%units, _RC)

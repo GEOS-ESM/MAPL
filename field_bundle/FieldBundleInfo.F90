@@ -17,6 +17,7 @@ module mapl3g_FieldBundleInfo
 
    public :: FieldBundleInfoGetInternal
    public :: FieldBundleInfoSetInternal
+   public :: FieldBundleInfoRemoveInternal
 
    interface FieldBundleInfoGetInternal
       procedure fieldbundle_get_internal
@@ -25,6 +26,11 @@ module mapl3g_FieldBundleInfo
    interface FieldBundleInfoSetInternal
       procedure fieldbundle_set_internal
    end interface
+
+   interface FieldBundleInfoRemoveInternal
+      procedure fieldbundle_remove_internal
+   end interface FieldBundleInfoRemoveInternal
+
 
    character(*), parameter :: KEY_FIELDBUNDLETYPE_FLAG = '/FieldBundleType_Flag'
    character(*), parameter :: KEY_ALLOCATION_STATUS = "/allocation_status"
@@ -245,5 +251,63 @@ contains
 
              
    end subroutine fieldbundle_set_internal
+
+   subroutine fieldbundle_remove_internal(info, unusable, namespace, units, rc)
+      type(ESMF_Info), intent(inout) :: info
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(*), optional, intent(in) :: namespace
+      logical, optional, intent(in) :: units
+      integer, optional, intent(out) :: rc
+      character(len=:), allocatable :: namespace_
+      integer :: status
+      logical :: is_present
+      character(len=:), allocatable :: full_key
+
+      namespace_ = INFO_INTERNAL_NAMESPACE
+      if (present(namespace)) then
+         namespace_ = namespace
+      end if
+
+      if(present(units)) then
+         full_key = namespace_ // KEY_UNITS
+         is_present = units && ESMF_InfoIsPresent(info, full_key, _RC)
+         if(is_present) then
+            call ESMF_InfoRemove(info, keyParent=get_parent(full_key), keyChild=get_child(full_key), _RC)
+         end if
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine fieldbundle_remove_internal
+
+   function get_parent(string) result(parent)
+      character(len=:), allocatable :: parent
+      character(len=*), intent(in) :: string
+      character(len=*), parameter :: DELIMITER = '/'
+      integer :: pos
+
+      pos = index(string, DELIMITER, .TRUE.)
+      if(pos==0) then
+         parent = string
+         return
+      end if
+      parent = string(:pos-1)
+
+   end function get_parent
+
+   function get_child(string) result(child)
+      character(len=:), allocatable :: child
+      character(len=*), intent(in) :: string
+      character(len=*), parameter :: DELIMITER = '/'
+      integer, parameter :: DELLEN = len(DELIMITER)
+      integer :: pos
+
+      pos = index(string, DELIMITER, .TRUE.)
+      if(pos==0) then
+         child = string
+         return
+      end if
+      child = string(pos+DELLEN:)
+
+   end function get_child
 
 end module mapl3g_FieldBundleInfo

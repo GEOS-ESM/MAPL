@@ -16,6 +16,7 @@ set(srcs
   FieldCreate.F90
   FieldGet.F90
   FieldSet.F90
+  FieldRemove.F90
   FieldInfo.F90
   StateItemAllocation.F90
   RestartModes.F90
