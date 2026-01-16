@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed issue with `find_any_file` where ...
+- Fixed issue with `find_any_file` where bad logic caused issues with GAAS files not being read
 
 ## [2.57.0] - 2025-06-18
 
