@@ -112,9 +112,13 @@ contains
 
       integer :: status
       type(ESMF_Info) :: info
+      logical :: is_created
 
-      call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call MAPL_FieldBundleInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_ACTIVE, _RC)
+      is_created = ESMF_FieldBundleIsCreated(this%payload, _RC)
+      if (is_created) then
+         call ESMF_InfoGetFromHost(this%payload, info, _RC)
+         call MAPL_FieldBundleInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_ACTIVE, _RC)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine activate
