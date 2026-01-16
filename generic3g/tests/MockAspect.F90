@@ -117,6 +117,7 @@ contains
 
       aspect%value = value
       aspect%supports_conversion_ = supports_conversion
+      aspect%payload = ESMF_FieldEmptyCreate(name='mock_field', rc=aspect%value)
 
    end function new_MockAspect
 
@@ -277,19 +278,12 @@ contains
    end function get_aspect_id
 
    subroutine get_payload(this, unusable, field, bundle, state, rc)
-      class(MockAspect), intent(inout) :: this
+      class(MockAspect), intent(in) :: this
       class(KeywordEnforcer), optional, intent(out) :: unusable
       type(esmf_Field), optional, allocatable, intent(out) :: field
       type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
       type(esmf_State), optional, allocatable, intent(out) :: state
       integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      ! Create the field if not already created
-      if (.not. ESMF_FieldIsCreated(this%payload)) then
-         this%payload = ESMF_FieldEmptyCreate(_RC)
-      end if
 
       field = this%payload
 
