@@ -112,11 +112,14 @@ contains
       logical, intent(in) :: time_dependent
       logical, intent(in) :: supports_conversion
 
+      integer :: rc
+
       call aspect%set_mirror(mirror)
       call aspect%set_time_dependent(time_dependent)
 
       aspect%value = value
       aspect%supports_conversion_ = supports_conversion
+      aspect%payload = ESMF_FieldEmptyCreate(rc=rc)
 
    end function new_MockAspect
 
