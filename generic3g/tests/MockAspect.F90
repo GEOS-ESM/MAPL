@@ -124,6 +124,8 @@ contains
       mock_aspect = MockAspect(value, mirror_, time_dependent_, supports_conversion_, typekind, units_)
       call aspects%insert(MOCK_ASPECT_ID, mock_aspect)
 
+      call mock_spec%create()
+
 
    end function MockItemSpec
 
@@ -296,7 +298,27 @@ contains
       class(MockClassAspect), intent(in) :: this
       type(AspectMap), intent(in) :: goal_aspects
       integer, optional, intent(out) :: rc
-      aspect_ids = [MOCK_ASPECT_ID]  ! MockAspect manages units and typekind
+      
+      class(StateItemAspect), pointer :: aspect
+      integer :: value
+      
+      aspect => goal_aspects%at(MOCK_ASPECT_ID)
+      select type (aspect)
+      type is (MockAspect)
+         value = aspect%value
+      end select
+      
+      select case (value)
+      case (0)
+         allocate(aspect_ids(0))
+      case (1)
+         aspect_ids = [MOCK_ASPECT_ID]
+      case (3)
+         aspect_ids = [MOCK_ASPECT_ID]
+      case default
+         aspect_ids = [MOCK_ASPECT_ID]
+      end select
+      
    end function get_aspect_order_class
 
    subroutine create_class(this, other_aspects, rc)
