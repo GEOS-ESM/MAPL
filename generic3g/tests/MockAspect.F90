@@ -9,6 +9,7 @@ module MockAspect_mod
    use mapl3g_StateItemAspect
    use mapl3g_StateRegistry
    use mapl3g_StateItemSpec
+   use mapl3g_StateItemAllocation
    use mapl3g_ExtensionTransform
    use mapl3g_ClassAspect
    use mapl3g_NullTransform
