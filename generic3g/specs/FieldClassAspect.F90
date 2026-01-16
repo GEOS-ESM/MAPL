@@ -405,6 +405,7 @@ contains
       integer :: num_levels
       type(VerticalStaggerLoc) :: vert_staggerloc
       type(ESMF_Field) :: field_copy
+      character(len=ESMF_MAXSTR) :: field_name
 
       call ESMF_FieldBundleAdd(field_bundle, [this%payload], multiflag=.true., _RC)
 
@@ -414,7 +415,8 @@ contains
       call MAPL_FieldBundleGet(field_bundle, vgrid=vgrid, num_levels=num_levels, vert_staggerloc=vert_staggerloc, _RC)
       if (associated(vgrid) .or. num_levels > 0) then
          ! Get the field that was just added to the bundle
-         call ESMF_FieldBundleGet(field_bundle, fieldName=this%payload%ftypep%base%name, field=field_copy, _RC)
+         call ESMF_FieldGet(this%payload, name=field_name, _RC)
+         call ESMF_FieldBundleGet(field_bundle, fieldName=field_name, field=field_copy, _RC)
          call MAPL_FieldSet(field_copy, vgrid=vgrid, num_levels=num_levels, vert_staggerloc=vert_staggerloc, _RC)
       end if
 
