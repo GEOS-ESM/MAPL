@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.57.1] - 2026-01-16
+
+### Fixed
+
+- Fixed issue with `find_any_file` where ...
+
 ## [2.57.0] - 2025-06-18
 
 ### Fixed

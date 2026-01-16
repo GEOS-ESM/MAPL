@@ -173,7 +173,7 @@ contains
      character(len=:), allocatable :: filename
      class(ExtDataAbstractFileHandler), intent(inout) :: this
      type(ESMF_Time), intent(in) :: current_time
-     logical, intent(in) :: fail_on_missing 
+     logical, intent(in) :: fail_on_missing
      integer, optional, intent(out) :: rc
 
      integer :: status, i
@@ -196,16 +196,19 @@ contains
         useable_time = useable_time + this%frequency
         call fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
         inquire(file=trim(trial_file),exist=file_found)
-        if (file_found) exit
+        if (file_found) then
+           filename = trial_file
+           _RETURN(_SUCCESS)
+        end if
      enddo
 
      if (fail_on_missing) then
-        _ASSERT(file_found,"Could not find any file to open to determine metadata after multiple trials")
-        filename = trial_file
+        _ASSERT(file_found,"Could not find any file to open to determine metadata after multiple trials"//&
+                " Tried template: "//trim(this%file_template))
      else
         filename = 'NONE'
      end if
-     _RETURN(_SUCCESS) 
+     _RETURN(_SUCCESS)
 
    end function find_any_file
 
