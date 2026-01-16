@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.64.2] - 2026-01-16
+
+### Fixed
+
+- Fixed issue with `find_any_file` where bad logic caused issues with GAAS files not being read (forward port of MAPL 2.57.1 fix)
+
 ## [2.64.1] - 2025-12-30
 
 ### Fixed
