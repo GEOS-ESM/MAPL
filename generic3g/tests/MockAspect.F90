@@ -12,7 +12,7 @@ module MockAspect_mod
    use mapl3g_StateItemAllocation
    use mapl3g_ExtensionTransform
    use mapl3g_FieldInfo, only: FieldInfoSetInternal
-   use mapl3g_Field, only: MAPL_FieldSet
+   use mapl_Field_API, only: MAPL_FieldSet
    use mapl3g_ClassAspect
    use mapl3g_NullTransform
    use mapl3g_MultiState
@@ -30,6 +30,12 @@ module MockAspect_mod
    type, extends(ClassAspect) :: MockClassAspect
       type(ESMF_Field) :: payload
    contains
+      procedure :: matches => matches_class
+      procedure :: make_transform => make_transform_class
+      procedure :: connect_to_export => connect_to_export_class
+      procedure :: supports_conversion_general => supports_conversion_general_class
+      procedure :: supports_conversion_specific => supports_conversion_specific_class
+      procedure :: get_aspect_order => get_aspect_order_class
       procedure :: create => create_class
       procedure :: activate => activate_class
       procedure :: allocate => allocate_class
@@ -43,6 +49,8 @@ module MockAspect_mod
    type, extends(StateItemAspect) :: MockAspect
       integer :: value = -1
       logical :: supports_conversion_ = .false.
+      type(ESMF_Typekind_Flag) :: typekind_ = ESMF_TYPEKIND_R4
+      character(:), allocatable :: units_
    contains
       procedure :: matches
       procedure :: make_transform
@@ -113,7 +121,7 @@ contains
       mock_class_aspect = MockClassAspect(typekind, units_)
       call aspects%insert(CLASS_ASPECT_ID, mock_class_aspect)
 
-      mock_aspect = MockAspect(value, mirror_, time_dependent_, supports_conversion_)
+      mock_aspect = MockAspect(value, mirror_, time_dependent_, supports_conversion_, typekind, units_)
       call aspects%insert(MOCK_ASPECT_ID, mock_aspect)
 
 
@@ -131,18 +139,23 @@ contains
 
    end function new_MockClassAspect
 
-   function new_MockAspect(value, mirror, time_dependent, supports_conversion) result(aspect)
+   function new_MockAspect(value, mirror, time_dependent, supports_conversion, typekind, units) result(aspect)
       type(MockAspect) :: aspect
       integer, intent(in) :: value
       logical, intent(in) :: mirror
       logical, intent(in) :: time_dependent
       logical, intent(in) :: supports_conversion
+      type(ESMF_Typekind_Flag), optional, intent(in) :: typekind
+      character(*), optional, intent(in) :: units
 
       call aspect%set_mirror(mirror)
       call aspect%set_time_dependent(time_dependent)
 
       aspect%value = value
       aspect%supports_conversion_ = supports_conversion
+      
+      if (present(typekind)) aspect%typekind_ = typekind
+      if (present(units)) aspect%units_ = units
 
    end function new_MockAspect
 
@@ -203,17 +216,29 @@ contains
       _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
-   subroutine update_payload(this, field, rc)
+   subroutine update_payload(this, unusable, field, bundle, state, rc)
       class(MockAspect), intent(in) :: this
-      type(ESMF_Field), intent(inout) :: field
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      type(ESMF_Field), optional, intent(inout) :: field
+      type(ESMF_FieldBundle), optional, intent(inout) :: bundle
+      type(ESMF_State), optional, intent(inout) :: state
       integer, optional, intent(out) :: rc
-      ! MockAspect doesn't need to update payload
+      
+      integer :: status
+      
+      if (present(field)) then
+         call MAPL_FieldSet(field, typekind=this%typekind_, units=this%units_, _RC)
+      end if
+      
       _RETURN(_SUCCESS)
    end subroutine update_payload
 
-   subroutine update_from_payload(this, field, rc)
+   subroutine update_from_payload(this, unusable, field, bundle, state, rc)
       class(MockAspect), intent(inout) :: this
-      type(ESMF_Field), intent(in) :: field
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      type(ESMF_Field), optional, intent(in) :: field
+      type(ESMF_FieldBundle), optional, intent(in) :: bundle
+      type(ESMF_State), optional, intent(in) :: state
       integer, optional, intent(out) :: rc
       ! MockAspect doesn't need to update from payload
       _RETURN(_SUCCESS)
@@ -225,6 +250,51 @@ contains
    end function get_mock_aspect_id
 
    ! MockClassAspect methods
+   logical function matches_class(src, dst)
+      class(MockClassAspect), intent(in) :: src
+      class(StateItemAspect), intent(in) :: dst
+      matches_class = .true.  ! Always matches
+   end function matches_class
+
+   logical function supports_conversion_general_class(src)
+      class(MockClassAspect), intent(in) :: src
+      supports_conversion_general_class = .false.
+   end function supports_conversion_general_class
+
+   logical function supports_conversion_specific_class(src, dst)
+      class(MockClassAspect), intent(in) :: src
+      class(StateItemAspect), intent(in) :: dst
+      supports_conversion_specific_class = .false.
+   end function supports_conversion_specific_class
+
+   function make_transform_class(src, dst, other_aspects, rc) result(transform)
+      class(ExtensionTransform), allocatable :: transform
+      class(MockClassAspect), intent(in) :: src
+      class(StateItemAspect), intent(in) :: dst
+      type(AspectMap), target, intent(in) :: other_aspects
+      integer, optional, intent(out) :: rc
+      allocate(transform, source=NullTransform())
+      if (present(rc)) rc = 0
+   end function make_transform_class
+
+   subroutine connect_to_export_class(this, export, actual_pt, rc)
+      class(MockClassAspect), intent(inout) :: this
+      class(StateItemAspect), intent(in) :: export
+      type(ActualConnectionPt), intent(in) :: actual_pt
+      integer, optional, intent(out) :: rc
+      integer :: status
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(actual_pt)
+   end subroutine connect_to_export_class
+
+   function get_aspect_order_class(this, goal_aspects, rc) result(aspect_ids)
+      type(AspectId), allocatable :: aspect_ids(:)
+      class(MockClassAspect), intent(in) :: this
+      type(AspectMap), intent(in) :: goal_aspects
+      integer, optional, intent(out) :: rc
+      aspect_ids = [MOCK_ASPECT_ID]  ! MockAspect manages units and typekind
+   end function get_aspect_order_class
+
    subroutine create_class(this, other_aspects, rc)
       class(MockClassAspect), intent(inout) :: this
       type(AspectMap), intent(in) :: other_aspects
