@@ -282,12 +282,17 @@ contains
       
       class(StateItemAspect), pointer :: aspect
       integer :: value
+      integer :: status
+      
+      value = 0  ! default value
       
       aspect => goal_aspects%at(MOCK_ASPECT_ID)
-      select type (aspect)
-      type is (MockAspect)
-         value = aspect%value
-      end select
+      if (associated(aspect)) then
+         select type (aspect)
+         type is (MockAspect)
+            value = aspect%value
+         end select
+      end if
       
       select case (value)
       case (0)
@@ -300,6 +305,7 @@ contains
          aspect_ids = [TYPEKIND_ASPECT_ID, UNITS_ASPECT_ID]
       end select
       
+      _RETURN(_SUCCESS)
    end function get_aspect_order_class
 
    subroutine create_class(this, other_aspects, rc)
