@@ -12,6 +12,7 @@ module MockAspect_mod
    use mapl3g_StateItemAllocation
    use mapl3g_ExtensionTransform
    use mapl3g_FieldInfo, only: FieldInfoSetInternal
+   use mapl3g_Field, only: MAPL_FieldSet
    use mapl3g_ClassAspect
    use mapl3g_NullTransform
    use mapl3g_MultiState
@@ -99,18 +100,20 @@ contains
       mock_spec = var_spec%make_StateItemSpec(registry)
       aspects => mock_spec%get_aspects()
 
-      mock_aspect = MockAspect(value, mirror_, time_dependent_, supports_conversion_)
+      mock_aspect = MockAspect(value, mirror_, time_dependent_, supports_conversion_, typekind, units_)
       call aspects%insert(CLASS_ASPECT_ID, mock_aspect)
 
 
    end function MockItemSpec
 
-   function new_MockAspect(value, mirror, time_dependent, supports_conversion) result(aspect)
+   function new_MockAspect(value, mirror, time_dependent, supports_conversion, typekind, units) result(aspect)
       type(MockAspect) :: aspect
       integer, intent(in) :: value
       logical, intent(in) :: mirror
       logical, intent(in) :: time_dependent
       logical, intent(in) :: supports_conversion
+      type(ESMF_Typekind_Flag), optional, intent(in) :: typekind
+      character(*), optional, intent(in) :: units
 
       integer :: rc
 
@@ -120,6 +123,8 @@ contains
       aspect%value = value
       aspect%supports_conversion_ = supports_conversion
       aspect%payload = ESMF_FieldEmptyCreate(rc=rc)
+      
+      call MAPL_FieldSet(aspect%payload, typekind=typekind, units=units, rc=rc)
 
    end function new_MockAspect
 
