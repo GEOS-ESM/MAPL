@@ -24,6 +24,7 @@ module mapl3g_FieldClassAspect
    use mapl3g_ESMF_Utilities, only: get_substate
 
    use mapl3g_Field_API
+   use mapl3g_FieldBundle_API
    use mapl3g_FieldInfo, only: FieldInfoSetInternal
    use mapl3g_RestartModes, only: RestartMode
 
