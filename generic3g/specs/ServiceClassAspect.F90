@@ -298,6 +298,8 @@ contains
       type(esmf_State), optional, allocatable, intent(out) :: state
       integer, optional, intent(out) :: rc
 
+      bundle = this%payload
+
       _RETURN(_SUCCESS)
    end subroutine get_payload
  
