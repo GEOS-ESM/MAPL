@@ -34,9 +34,9 @@ contains
 
       lgr => this%get_logger()
       this_name = this%get_name() ! workaround for gfortran
-      call lgr%debug('%a run child <%a~> (phase=%a~)', this_name, child_name, phase_name, _RC)
+      call lgr%debug('%a run child <%a~> (phase=%i1~)', this_name, child_name, phase_idx, _RC)
       call child%run(phase_idx=phase_idx, _RC)
-      call lgr%debug('  ... %a completed run child <%a~> (phase=%a~)', this_name, child_name, phase_name, _RC)
+      call lgr%debug('  ... %a completed run child <%a~> (phase=%i1~)', this_name, child_name, phase_idx, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
