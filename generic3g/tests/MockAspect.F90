@@ -49,8 +49,6 @@ module MockAspect_mod
    type, extends(StateItemAspect) :: MockAspect
       integer :: value = -1
       logical :: supports_conversion_ = .false.
-      type(ESMF_Typekind_Flag) :: typekind_ = ESMF_TYPEKIND_R4
-      character(:), allocatable :: units_
    contains
       procedure :: matches
       procedure :: make_transform
@@ -121,7 +119,7 @@ contains
       mock_class_aspect = MockClassAspect(typekind, units_)
       call aspects%insert(CLASS_ASPECT_ID, mock_class_aspect)
 
-      mock_aspect = MockAspect(value, mirror_, time_dependent_, supports_conversion_, typekind, units_)
+      mock_aspect = MockAspect(value, mirror_, time_dependent_, supports_conversion_)
       call aspects%insert(MOCK_ASPECT_ID, mock_aspect)
 
       call mock_spec%create()
@@ -141,23 +139,18 @@ contains
 
    end function new_MockClassAspect
 
-   function new_MockAspect(value, mirror, time_dependent, supports_conversion, typekind, units) result(aspect)
+   function new_MockAspect(value, mirror, time_dependent, supports_conversion) result(aspect)
       type(MockAspect) :: aspect
       integer, intent(in) :: value
       logical, intent(in) :: mirror
       logical, intent(in) :: time_dependent
       logical, intent(in) :: supports_conversion
-      type(ESMF_Typekind_Flag), optional, intent(in) :: typekind
-      character(*), optional, intent(in) :: units
 
       call aspect%set_mirror(mirror)
       call aspect%set_time_dependent(time_dependent)
 
       aspect%value = value
       aspect%supports_conversion_ = supports_conversion
-      
-      if (present(typekind)) aspect%typekind_ = typekind
-      if (present(units)) aspect%units_ = units
 
    end function new_MockAspect
 
@@ -224,13 +217,7 @@ contains
       type(ESMF_FieldBundle), optional, intent(inout) :: bundle
       type(ESMF_State), optional, intent(inout) :: state
       integer, optional, intent(out) :: rc
-      
-      integer :: status
-
-      if (present(field)) then
-         call MAPL_FieldSet(field, typekind=this%typekind_, units=this%units_, _RC)
-      end if
-      
+      ! MockAspect doesn't update payload - TypekindAspect and UnitsAspect handle that
       _RETURN(_SUCCESS)
    end subroutine update_payload
 
@@ -240,13 +227,7 @@ contains
       type(ESMF_FieldBundle), optional, intent(in) :: bundle
       type(ESMF_State), optional, intent(in) :: state
       integer, optional, intent(out) :: rc
-
-      integer :: status
-      
-      if (present(field)) then
-         call mapl_FieldGet(field, units=this%units_, typekind=this%typekind_, _RC)
-      end if
-
+      ! MockAspect doesn't update from payload - TypekindAspect and UnitsAspect handle that
       _RETURN(_SUCCESS)
    end subroutine update_from_payload
 
@@ -312,11 +293,11 @@ contains
       case (0)
          allocate(aspect_ids(0))
       case (1)
-         aspect_ids = [MOCK_ASPECT_ID]
+         aspect_ids = [TYPEKIND_ASPECT_ID]
       case (3)
-         aspect_ids = [MOCK_ASPECT_ID]
+         aspect_ids = [TYPEKIND_ASPECT_ID, UNITS_ASPECT_ID]
       case default
-         aspect_ids = [MOCK_ASPECT_ID]
+         aspect_ids = [TYPEKIND_ASPECT_ID, UNITS_ASPECT_ID]
       end select
       
    end function get_aspect_order_class
