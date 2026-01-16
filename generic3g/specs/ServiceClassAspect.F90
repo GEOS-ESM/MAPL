@@ -4,6 +4,7 @@ module mapl3g_ServiceClassAspect
    use mapl3g_FieldBundle_API
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
+   use mapl3g_StateItemAllocation
    use mapl3g_ClassAspect
    use mapl3g_FieldClassAspect
    use mapl3g_StateRegistry
