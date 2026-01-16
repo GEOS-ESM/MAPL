@@ -26,6 +26,12 @@ module MockAspect_mod
    public :: MockAspect
    public :: MockClassAspect
    public :: MockItemSpec
+   public :: to_MockAspect
+
+   interface to_MockAspect
+      procedure :: to_mock_from_poly
+      procedure :: to_mock_from_map
+   end interface to_MockAspect
 
    type, extends(ClassAspect) :: MockClassAspect
       type(ESMF_Field) :: payload
@@ -153,6 +159,37 @@ contains
       aspect%supports_conversion_ = supports_conversion
 
    end function new_MockAspect
+
+   function to_mock_from_poly(aspect, rc) result(mock_aspect)
+      type(MockAspect) :: mock_aspect
+      class(StateItemAspect), intent(in) :: aspect
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      select type(aspect)
+      class is (MockAspect)
+         mock_aspect = aspect
+      class default
+         _FAIL('aspect is not MockAspect')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function to_mock_from_poly
+
+   function to_mock_from_map(map, rc) result(mock_aspect)
+      type(MockAspect) :: mock_aspect
+      type(AspectMap), target, intent(in) :: map
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(StateItemAspect), pointer :: poly
+
+      poly => map%at(MOCK_ASPECT_ID, _RC)
+      mock_aspect = to_MockAspect(poly, _RC)
+
+      _RETURN(_SUCCESS)
+   end function to_mock_from_map
 
    logical function matches(src, dst)
       class(MockAspect), intent(in) :: src
