@@ -12,7 +12,7 @@ module MockAspect_mod
    use mapl3g_StateItemAllocation
    use mapl3g_ExtensionTransform
    use mapl3g_FieldInfo, only: FieldInfoSetInternal
-   use mapl_Field_API, only: MAPL_FieldSet
+   use mapl3g_Field_API, only: mapl_FieldSet, mapl_FieldGet
    use mapl3g_ClassAspect
    use mapl3g_NullTransform
    use mapl3g_MultiState
@@ -216,16 +216,15 @@ contains
       _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
-   subroutine update_payload(this, unusable, field, bundle, state, rc)
+   subroutine update_payload(this, field, bundle, state, rc)
       class(MockAspect), intent(in) :: this
-      class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Field), optional, intent(inout) :: field
       type(ESMF_FieldBundle), optional, intent(inout) :: bundle
       type(ESMF_State), optional, intent(inout) :: state
       integer, optional, intent(out) :: rc
       
       integer :: status
-      
+
       if (present(field)) then
          call MAPL_FieldSet(field, typekind=this%typekind_, units=this%units_, _RC)
       end if
@@ -233,14 +232,19 @@ contains
       _RETURN(_SUCCESS)
    end subroutine update_payload
 
-   subroutine update_from_payload(this, unusable, field, bundle, state, rc)
+   subroutine update_from_payload(this, field, bundle, state, rc)
       class(MockAspect), intent(inout) :: this
-      class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Field), optional, intent(in) :: field
       type(ESMF_FieldBundle), optional, intent(in) :: bundle
       type(ESMF_State), optional, intent(in) :: state
       integer, optional, intent(out) :: rc
-      ! MockAspect doesn't need to update from payload
+
+      integer :: status
+      
+      if (present(field)) then
+         call mapl_FieldGet(field, units=this%units_, typekind=this%typekind_, _RC)
+      end if
+
       _RETURN(_SUCCESS)
    end subroutine update_from_payload
 
@@ -301,11 +305,9 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_Info) :: info
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
-      call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
+      call mapl_FieldSet(this%payload, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine create_class
@@ -315,10 +317,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_Info) :: info
 
-      call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_ACTIVE, _RC)
+      call mapl_FieldSet(this%payload, allocation_status=STATEITEM_ALLOCATION_ACTIVE, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine activate_class
