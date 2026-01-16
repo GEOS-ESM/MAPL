@@ -277,7 +277,7 @@ contains
    end function get_aspect_id
 
    subroutine get_payload(this, unusable, field, bundle, state, rc)
-      class(MockAspect), intent(in) :: this
+      class(MockAspect), intent(inout) :: this
       class(KeywordEnforcer), optional, intent(out) :: unusable
       type(esmf_Field), optional, allocatable, intent(out) :: field
       type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
@@ -285,13 +285,10 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_Info) :: info
 
       ! Create the field if not already created
       if (.not. ESMF_FieldIsCreated(this%payload)) then
-         call ESMF_FieldEmptyComplete(this%payload, _RC)
-         call ESMF_InfoGetFromHost(this%payload, info, _RC)
-         call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
+         this%payload = ESMF_FieldEmptyCreate(_RC)
       end if
 
       field = this%payload
