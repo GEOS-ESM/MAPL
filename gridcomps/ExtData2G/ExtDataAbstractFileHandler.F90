@@ -203,8 +203,7 @@ contains
      enddo
 
      if (fail_on_missing) then
-        _ASSERT(file_found,"Could not find any file to open to determine metadata after multiple trials"//&
-                " Tried template: "//trim(this%file_template))
+        _ASSERT(file_found,"Could not find any file to open to determine metadata after multiple trials. Tried template: "//trim(this%file_template))
      else
         filename = 'NONE'
      end if
