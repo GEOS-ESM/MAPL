@@ -401,8 +401,22 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      class(VerticalGrid), pointer :: vgrid
+      integer :: num_levels
+      type(VerticalStaggerLoc) :: vert_staggerloc
+      type(ESMF_Field) :: field_copy
 
       call ESMF_FieldBundleAdd(field_bundle, [this%payload], multiflag=.true., _RC)
+
+      ! After adding, propagate bundle's vertical grid info to the field
+      ! We need to get the field back from the bundle since we can't modify this%payload directly
+      vgrid => null()
+      call MAPL_FieldBundleGet(field_bundle, vgrid=vgrid, num_levels=num_levels, vert_staggerloc=vert_staggerloc, _RC)
+      if (associated(vgrid) .or. num_levels > 0) then
+         ! Get the field that was just added to the bundle
+         call ESMF_FieldBundleGet(field_bundle, fieldName=this%payload%ftypep%base%name, field=field_copy, _RC)
+         call MAPL_FieldSet(field_copy, vgrid=vgrid, num_levels=num_levels, vert_staggerloc=vert_staggerloc, _RC)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle

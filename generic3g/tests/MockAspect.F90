@@ -26,6 +26,7 @@ module MockAspect_mod
    type, extends(ClassAspect) :: MockAspect
       integer :: value = -1
       logical :: supports_conversion_ = .false.
+      type(ESMF_Field) :: payload
    contains
       procedure :: matches
       procedure :: make_transform
@@ -180,6 +181,11 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(ESMF_Info) :: info
+
+      this%payload = ESMF_FieldEmptyCreate(_RC)
+      call ESMF_InfoGetFromHost(this%payload, info, _RC)
+      call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine create
@@ -189,6 +195,10 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(ESMF_Info) :: info
+
+      call ESMF_InfoGetFromHost(this%payload, info, _RC)
+      call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_ACTIVE, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine activate
@@ -271,6 +281,8 @@ contains
       type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
       type(esmf_State), optional, allocatable, intent(out) :: state
       integer, optional, intent(out) :: rc
+
+      field = this%payload
 
       _RETURN(_SUCCESS)
    end subroutine get_payload
