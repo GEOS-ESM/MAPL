@@ -109,9 +109,13 @@ contains
       class(ServiceClassAspect), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      ! noop
+      integer :: status
+      type(ESMF_Info) :: info
+
+      call ESMF_InfoGetFromHost(this%payload, info, _RC)
+      call MAPL_FieldBundleInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_ACTIVE, _RC)
+
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
    end subroutine activate
 
    subroutine destroy(this, rc)
