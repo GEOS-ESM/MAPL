@@ -401,15 +401,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      class(VerticalGrid), allocatable :: vgrid
-      integer, allocatable :: num_levels
-      type(VerticalStaggerLoc), allocatable :: vert_staggerloc
-
-      ! Inherit vertical grid information from bundle
-      call MAPL_FieldBundleGet(field_bundle, vgrid=vgrid, num_levels=num_levels, vert_staggerloc=vert_staggerloc, _RC)
-      if (allocated(num_levels) .or. allocated(vert_staggerloc) .or. allocated(vgrid)) then
-         call MAPL_FieldSet(this%payload, vgrid=vgrid, num_levels=num_levels, vert_staggerloc=vert_staggerloc, _RC)
-      end if
 
       call ESMF_FieldBundleAdd(field_bundle, [this%payload], multiflag=.true., _RC)
 
