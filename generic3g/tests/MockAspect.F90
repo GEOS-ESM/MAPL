@@ -24,30 +24,39 @@ module MockAspect_mod
    private
 
    public :: MockAspect
+   public :: MockClassAspect
    public :: MockItemSpec
 
-   type, extends(ClassAspect) :: MockAspect
+   type, extends(ClassAspect) :: MockClassAspect
+      type(ESMF_Field) :: payload
+   contains
+      procedure :: create => create_class
+      procedure :: activate => activate_class
+      procedure :: allocate => allocate_class
+      procedure :: destroy => destroy_class
+      procedure :: add_to_state => add_to_state_class
+      procedure :: add_to_bundle => add_to_bundle_class
+      procedure, nopass :: get_aspect_id => get_class_aspect_id
+      procedure :: get_payload => get_payload_class
+   end type MockClassAspect
+
+   type, extends(StateItemAspect) :: MockAspect
       integer :: value = -1
       logical :: supports_conversion_ = .false.
-      type(ESMF_Field) :: payload
    contains
       procedure :: matches
       procedure :: make_transform
       procedure :: connect_to_export
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
-
-      procedure :: create
-      procedure :: activate
-      procedure :: allocate
-      procedure :: destroy
-      procedure :: add_to_state
-      procedure :: add_to_bundle
-      procedure :: get_aspect_order
-      
-      procedure, nopass :: get_aspect_id
-      procedure :: get_payload
+      procedure :: update_payload
+      procedure :: update_from_payload
+      procedure, nopass :: get_aspect_id => get_mock_aspect_id
    end type MockAspect
+
+   interface MockClassAspect
+      module procedure :: new_MockClassAspect
+   end interface MockClassAspect
 
    interface MockAspect
       procedure :: new_MockAspect
@@ -67,6 +76,7 @@ contains
       logical, optional, intent(in) :: supports_conversion
 
       type(MockAspect) :: mock_aspect
+      type(MockClassAspect) :: mock_class_aspect
 
       logical :: mirror_
       logical :: time_dependent_
@@ -100,31 +110,39 @@ contains
       mock_spec = var_spec%make_StateItemSpec(registry)
       aspects => mock_spec%get_aspects()
 
-      mock_aspect = MockAspect(value, mirror_, time_dependent_, supports_conversion_, typekind, units_)
-      call aspects%insert(CLASS_ASPECT_ID, mock_aspect)
+      mock_class_aspect = MockClassAspect(typekind, units_)
+      call aspects%insert(CLASS_ASPECT_ID, mock_class_aspect)
+
+      mock_aspect = MockAspect(value, mirror_, time_dependent_, supports_conversion_)
+      call aspects%insert(MOCK_ASPECT_ID, mock_aspect)
 
 
    end function MockItemSpec
 
-   function new_MockAspect(value, mirror, time_dependent, supports_conversion, typekind, units) result(aspect)
+   function new_MockClassAspect(typekind, units) result(aspect)
+      type(MockClassAspect) :: aspect
+      type(ESMF_Typekind_Flag), optional, intent(in) :: typekind
+      character(*), optional, intent(in) :: units
+
+      integer :: rc
+
+      aspect%payload = ESMF_FieldEmptyCreate(rc=rc)
+      call MAPL_FieldSet(aspect%payload, typekind=typekind, units=units, rc=rc)
+
+   end function new_MockClassAspect
+
+   function new_MockAspect(value, mirror, time_dependent, supports_conversion) result(aspect)
       type(MockAspect) :: aspect
       integer, intent(in) :: value
       logical, intent(in) :: mirror
       logical, intent(in) :: time_dependent
       logical, intent(in) :: supports_conversion
-      type(ESMF_Typekind_Flag), optional, intent(in) :: typekind
-      character(*), optional, intent(in) :: units
-
-      integer :: rc
 
       call aspect%set_mirror(mirror)
       call aspect%set_time_dependent(time_dependent)
 
       aspect%value = value
       aspect%supports_conversion_ = supports_conversion
-      aspect%payload = ESMF_FieldEmptyCreate(rc=rc)
-      
-      call MAPL_FieldSet(aspect%payload, typekind=typekind, units=units, rc=rc)
 
    end function new_MockAspect
 
@@ -185,8 +203,30 @@ contains
       _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
-   subroutine create(this, other_aspects, rc)
+   subroutine update_payload(this, field, rc)
+      class(MockAspect), intent(in) :: this
+      type(ESMF_Field), intent(inout) :: field
+      integer, optional, intent(out) :: rc
+      ! MockAspect doesn't need to update payload
+      _RETURN(_SUCCESS)
+   end subroutine update_payload
+
+   subroutine update_from_payload(this, field, rc)
       class(MockAspect), intent(inout) :: this
+      type(ESMF_Field), intent(in) :: field
+      integer, optional, intent(out) :: rc
+      ! MockAspect doesn't need to update from payload
+      _RETURN(_SUCCESS)
+   end subroutine update_from_payload
+
+   function get_mock_aspect_id() result(aspect_id)
+      type(AspectId) :: aspect_id
+      aspect_id = MOCK_ASPECT_ID
+   end function get_mock_aspect_id
+
+   ! MockClassAspect methods
+   subroutine create_class(this, other_aspects, rc)
+      class(MockClassAspect), intent(inout) :: this
       type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(out) :: rc
 
@@ -198,10 +238,10 @@ contains
       call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine create
+   end subroutine create_class
 
-   subroutine activate(this, rc)
-      class(MockAspect), intent(inout) :: this
+   subroutine activate_class(this, rc)
+      class(MockClassAspect), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -211,31 +251,28 @@ contains
       call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_ACTIVE, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine activate
+   end subroutine activate_class
 
    ! Tile / Grid   X  or X, Y
-   subroutine allocate(this, other_aspects, rc)
-      class(MockAspect), intent(inout) :: this
+   subroutine allocate_class(this, other_aspects, rc)
+      class(MockClassAspect), intent(inout) :: this
       type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(out) :: rc
 
-
       _RETURN(_SUCCESS)
-   end subroutine allocate
+   end subroutine allocate_class
 
-
-   subroutine destroy(this, rc)
-      class(MockAspect), intent(inout) :: this
+   subroutine destroy_class(this, rc)
+      class(MockClassAspect), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       _RETURN(_SUCCESS)
-   end subroutine destroy
+   end subroutine destroy_class
 
-
-   subroutine add_to_state(this, multi_state, actual_pt, rc)
-      class(MockAspect), intent(in) :: this
+   subroutine add_to_state_class(this, multi_state, actual_pt, rc)
+      class(MockClassAspect), intent(in) :: this
       type(MultiState), intent(inout) :: multi_state
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
@@ -249,43 +286,27 @@ contains
       call ESMF_InfoSet(info, key=actual_pt%get_full_name(), value=.true., _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine add_to_state
+   end subroutine add_to_state_class
 
-   subroutine add_to_bundle(this, field_bundle, rc)
-      class(MockAspect), intent(in) :: this
+   subroutine add_to_bundle_class(this, field_bundle, rc)
+      class(MockClassAspect), intent(in) :: this
       type(ESMF_FieldBundle), intent(inout) :: field_bundle
       integer, optional, intent(out) :: rc
 
-      _FAIL('not supported')
-   end subroutine add_to_bundle
+      integer :: status
 
- 
-   function get_aspect_order(this, goal_aspects, rc) result(aspect_ids)
-      type(AspectId), allocatable :: aspect_ids(:)
-      class(MockAspect), intent(in) :: this
-      type(AspectMap), intent(in) :: goal_aspects
-      integer, optional, intent(out) :: rc
+      call ESMF_FieldBundleAdd(field_bundle, [this%payload], multiflag=.true., _RC)
 
-      select case (this%value)
-      case (0)
-         allocate(aspect_ids(0))
-      case (1)
-         aspect_ids = [TYPEKIND_ASPECT_ID]
-      case (3)
-         aspect_ids = [TYPEKIND_ASPECT_ID, UNITS_ASPECT_ID]
-      case default
-         aspect_ids = [TYPEKIND_ASPECT_ID, UNITS_ASPECT_ID]
-      end select
+      _RETURN(_SUCCESS)
+   end subroutine add_to_bundle_class
 
-   end function get_aspect_order
-
-   function get_aspect_id() result(aspect_id)
+   function get_class_aspect_id() result(aspect_id)
       type(AspectId) :: aspect_id
       aspect_id = CLASS_ASPECT_ID
-   end function get_aspect_id
+   end function get_class_aspect_id
 
-   subroutine get_payload(this, unusable, field, bundle, state, rc)
-      class(MockAspect), intent(in) :: this
+   subroutine get_payload_class(this, unusable, field, bundle, state, rc)
+      class(MockClassAspect), intent(in) :: this
       class(KeywordEnforcer), optional, intent(out) :: unusable
       type(esmf_Field), optional, allocatable, intent(out) :: field
       type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
@@ -295,7 +316,7 @@ contains
       field = this%payload
 
       _RETURN(_SUCCESS)
-   end subroutine get_payload
+   end subroutine get_payload_class
 
 
 end module MockAspect_mod
