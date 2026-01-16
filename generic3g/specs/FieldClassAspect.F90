@@ -412,6 +412,8 @@ contains
       ! After adding, propagate bundle's vertical grid info to the field
       ! We need to get the field back from the bundle since we can't modify this%payload directly
       vgrid => null()
+      num_levels = 0
+      vert_staggerloc = VERTICAL_STAGGER_NONE
       call MAPL_FieldBundleGet(field_bundle, vgrid=vgrid, num_levels=num_levels, vert_staggerloc=vert_staggerloc, _RC)
       if (associated(vgrid) .or. num_levels > 0) then
          ! Get the field that was just added to the bundle

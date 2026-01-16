@@ -117,7 +117,6 @@ contains
 
       aspect%value = value
       aspect%supports_conversion_ = supports_conversion
-      aspect%payload = ESMF_FieldEmptyCreate(name='mock_field', rc=aspect%value)
 
    end function new_MockAspect
 
