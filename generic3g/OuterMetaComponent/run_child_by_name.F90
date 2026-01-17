@@ -21,10 +21,14 @@ contains
       integer :: phase_idx
       class(Logger), pointer :: lgr
       character(:), allocatable :: this_name
+      character(:), allocatable :: phase_name_
 
       child = this%get_child(child_name, _RC)
       child_gc = child%get_gridcomp()
       child_meta => get_outer_meta(child_gc, _RC)
+
+      phase_name_ = '<default>'
+      if (present(phase_name)) phase_name_ = phase_name
 
       phase_idx = 1
       if (present(phase_name)) then
@@ -34,9 +38,9 @@ contains
 
       lgr => this%get_logger()
       this_name = this%get_name() ! workaround for gfortran
-      call lgr%debug('%a run child <%a~> (phase=%a~)', this_name, child_name, phase_name, _RC)
+      call lgr%debug('%a run child <%a~> (phase=%a~)', this_name, child_name, phase_name_, _RC)
       call child%run(phase_idx=phase_idx, _RC)
-      call lgr%debug('  ... %a completed run child <%a~> (phase=%a~)', this_name, child_name, phase_name, _RC)
+      call lgr%debug('  ... %a completed run child <%a~> (phase=%a~)', this_name, child_name, phase_name_, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
