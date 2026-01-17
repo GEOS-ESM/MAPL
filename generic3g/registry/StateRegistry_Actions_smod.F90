@@ -18,7 +18,7 @@ submodule (mapl3g_StateRegistry) StateRegistry_Actions_smod
 
 contains
 
-   module subroutine allocate(this, rc)
+   module subroutine allocate_items(this, rc)
       class(StateRegistry), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
 
@@ -36,7 +36,7 @@ contains
       end do
 
       _RETURN(_SUCCESS)
-   end subroutine allocate
+   end subroutine allocate_items
 
    module subroutine add_to_states(this, multi_state, mode, rc)
       class(StateRegistry), target, intent(inout) :: this

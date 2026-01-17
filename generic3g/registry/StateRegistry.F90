@@ -74,7 +74,7 @@ module mapl3g_StateRegistry
       generic :: get_subregistry => get_subregistry_by_conn_pt
 
       ! Actions on specs
-      procedure :: allocate
+      procedure :: allocate_items
       procedure :: add_to_states
 
       procedure :: filter ! for MatchConnection
@@ -271,10 +271,10 @@ module mapl3g_StateRegistry
       end subroutine propagate_exports_virtual_pt
 
       ! Actions procedures
-      module subroutine allocate(this, rc)
+      module subroutine allocate_items(this, rc)
          class(StateRegistry), target, intent(inout) :: this
          integer, optional, intent(out) :: rc
-      end subroutine allocate
+      end subroutine allocate_items
 
       module subroutine add_to_states(this, multi_state, mode, rc)
          use mapl3g_MultiState
