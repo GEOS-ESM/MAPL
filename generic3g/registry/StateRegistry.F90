@@ -23,7 +23,7 @@ module mapl3g_StateRegistry
    use mapl_ErrorHandling
    use esmf, only: ESMF_Geom, ESMF_TimeInterval
 
-   implicit none
+   implicit none(type,external)
    private
 
    public :: StateRegistry

@@ -19,7 +19,7 @@ module ProtoExtDataGC
    use MAPL_FieldUtils
    use esmf, only: ESMF_StateGet, ESMF_FieldGet
 
-   implicit none (type, external)
+   implicit none(type,external)
    private
 
    public :: setservices

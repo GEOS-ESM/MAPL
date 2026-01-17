@@ -4,7 +4,7 @@ module mapl3g_ExtensionTransform
    use mapl3g_AspectId
    use mapl_ErrorHandling
    use ESMF
-   implicit none
+   implicit none(type,external)
    private
 
    public :: ExtensionTransform

@@ -7,7 +7,7 @@ module mapl3g_MaxTransform
    use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
    use MAPL_FieldPointerUtilities, only: assign_fptr
    use ESMF
-   implicit none
+   implicit none(type,external)
    private
    public :: MaxTransform
    public :: construct_MaxTransform

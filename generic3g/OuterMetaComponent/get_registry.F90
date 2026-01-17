@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl3g_OuterMetaComponent) get_registry_smod
-   implicit none
+   implicit none(type,external)
 
 contains
 

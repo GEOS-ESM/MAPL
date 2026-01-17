@@ -4,7 +4,7 @@ module mapl3g_VerticalRegridMethod
 
    use esmf, only: ESMF_MAXSTR
 
-   implicit none
+   implicit none(type,external)
    private
    
    public :: VerticalRegridMethod
