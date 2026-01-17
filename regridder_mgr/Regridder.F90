@@ -128,6 +128,11 @@ contains
       
       call create_field_vector(archetype=uv_in(1), fv=xyz_in, _RC)
       call create_field_vector(archetype=uv_out(1), fv=xyz_out, _RC)
+      
+      ! Initialize xyz_in to avoid floating point invalid operations
+      do i = 1, size(xyz_in)
+         call ESMF_FieldFill(xyz_in(i), dataFillScheme='const', const1=0.0_ESMF_KIND_R8, _RC)
+      end do
 
       geom_mgr => this%get_geom_manager()
 
