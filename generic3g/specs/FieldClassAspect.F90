@@ -24,6 +24,7 @@ module mapl3g_FieldClassAspect
    use mapl3g_ESMF_Utilities, only: get_substate
 
    use mapl3g_Field_API
+   use mapl3g_FieldBundle_API
    use mapl3g_FieldInfo, only: FieldInfoSetInternal
    use mapl3g_RestartModes, only: RestartMode
 
@@ -143,16 +144,11 @@ contains
       type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(out) :: rc
 
-      type(ESMF_Info) :: info
-      type(AspectId), allocatable :: ids(:)
-      integer :: i
-      class(StateItemAspect), pointer :: aspect
       integer :: status
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
 
-      call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
+      call mapl_FieldSet(this%payload, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC) 
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
@@ -402,7 +398,6 @@ contains
       integer :: status
 
       call ESMF_FieldBundleAdd(field_bundle, [this%payload], multiflag=.true., _RC)
-
 
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle

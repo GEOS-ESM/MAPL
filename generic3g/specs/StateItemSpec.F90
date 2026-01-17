@@ -29,7 +29,6 @@ module mapl3g_StateItemSpec
    type :: StateItemSpec
       private
 
-      type(StateItemAllocation) :: allocation_status = STATEITEM_ALLOCATION_INVALID
       type(VirtualConnectionPtVector) :: dependencies
 
       type(AspectMap) :: aspects
@@ -117,23 +116,32 @@ contains
    end function new_StateItemSpecPtr
   
 
-   pure subroutine set_allocated(this, allocated)
-      class(StateItemSpec), intent(inout) :: this
+   subroutine set_allocated(this, allocated, rc)
+      class(StateItemSpec), target, intent(inout) :: this
       logical, optional, intent(in) :: allocated
+      integer, optional, intent(out) :: rc
 
+      integer :: status
       
-      this%allocation_status =  STATEITEM_ALLOCATION_ALLOCATED
+      call this%set_allocation_status(STATEITEM_ALLOCATION_ALLOCATED, _RC)
       if (present(allocated)) then
          if (allocated) then
-            this%allocation_status = STATEITEM_ALLOCATION_ALLOCATED
+            call this%set_allocation_status(STATEITEM_ALLOCATION_ALLOCATED, _RC)
          end if
       end if
 
+      _RETURN(_SUCCESS)
    end subroutine set_allocated
 
-   pure logical function is_allocated(this)
-      class(StateItemSpec), intent(in) :: this
-      is_allocated = (this%allocation_status >= STATEITEM_ALLOCATION_ALLOCATED)
+   logical function is_allocated(this, rc)
+      class(StateItemSpec), target, intent(in) :: this
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(StateItemAllocation) :: allocation_status
+      
+      allocation_status = this%get_allocation_status(_RC)
+      is_allocated = (allocation_status >= STATEITEM_ALLOCATION_ALLOCATED)
+      _RETURN(_SUCCESS)
    end function is_allocated
 
    recursive subroutine activate(this, rc)
@@ -143,7 +151,7 @@ contains
       integer :: status
       class(ClassAspect), pointer :: class_aspect
 
-      call this%set_allocation_status(STATEITEM_ALLOCATION_ACTIVE)
+      call this%set_allocation_status(STATEITEM_ALLOCATION_ACTIVE, _RC)
 
       class_aspect => to_ClassAspect(this%aspects, _RC)
       call class_aspect%activate(_RC)
@@ -151,9 +159,15 @@ contains
       _RETURN(_SUCCESS)
    end subroutine activate
 
-   pure logical function is_active(this)
-      class(StateItemSpec), intent(in) :: this
-      is_active = (this%allocation_status >= STATEITEM_ALLOCATION_ACTIVE)
+   logical function is_active(this, rc)
+      class(StateItemSpec), target, intent(in) :: this
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(StateItemAllocation) :: allocation_status
+      
+      allocation_status = this%get_allocation_status(_RC)
+      is_active = (allocation_status >= STATEITEM_ALLOCATION_ACTIVE)
+      _RETURN(_SUCCESS)
    end function is_active
 
    function get_dependencies(this) result(dependencies)
@@ -334,18 +348,20 @@ contains
       integer :: status
       class(ClassAspect), pointer :: class_aspect
       logical, allocatable :: active, not_connected
+      type(StateItemAllocation) :: allocation_status
 
       if (this%state_intent == ESMF_STATEINTENT_IMPORT) then
          ! Allow allocation of non-connected imports to support some testing modes
-         active = (this%allocation_status >= STATEITEM_ALLOCATION_ACTIVE)
-         not_connected = (this%allocation_status < STATEITEM_ALLOCATION_CONNECTED)
+         allocation_status = this%get_allocation_status(_RC)
+         active = (allocation_status >= STATEITEM_ALLOCATION_ACTIVE)
+         not_connected = (allocation_status < STATEITEM_ALLOCATION_CONNECTED)
          _RETURN_UNLESS(active .and. not_connected)
       end if
 
       class_aspect => to_ClassAspect(this%aspects, _RC)
 
       call class_aspect%allocate(this%aspects, _RC)
-      call this%set_allocated()
+      call this%set_allocated(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine allocate
@@ -399,8 +415,8 @@ contains
 
       call import%connect_to_export(export, actual_pt, _RC)
       call export%connect_to_import(import, _RC)
-      import%allocation_status = STATEITEM_ALLOCATION_CONNECTED
-      export%allocation_status = STATEITEM_ALLOCATION_CONNECTED
+      call import%set_allocation_status(STATEITEM_ALLOCATION_CONNECTED, _RC)
+      call export%set_allocation_status(STATEITEM_ALLOCATION_CONNECTED, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine connect
@@ -514,7 +530,6 @@ contains
 
       a%state_intent = b%state_intent
       a%aspects = b%aspects
-      a%allocation_status = b%allocation_status
       a%dependencies = b%dependencies
       a%has_deferred_aspects_ = b%has_deferred_aspects_
 
@@ -575,18 +590,55 @@ contains
       _RETURN(_SUCCESS)
    end function has_deferred_aspects
 
-   subroutine set_allocation_status(this, allocation_status)
-      class(StateItemSpec), intent(inout) :: this
+   subroutine set_allocation_status(this, allocation_status, rc)
+      class(StateItemSpec), target, intent(inout) :: this
       type(StateItemAllocation), intent(in) :: allocation_status
+      integer, optional, intent(out) :: rc
 
-      this%allocation_status = allocation_status
+      integer :: status
+      class(ClassAspect), pointer :: class_aspect
+      type(esmf_Field), allocatable :: field
+      type(esmf_FieldBundle), allocatable :: bundle
+
+      class_aspect => to_ClassAspect(this%aspects, _RC)
+      call class_aspect%get_payload(field=field, bundle=bundle, _RC)
+      
+      if (allocated(field)) then
+         call MAPL_FieldSet(field, allocation_status=allocation_status, _RC)
+      end if
+      
+      if (allocated(bundle)) then
+         call MAPL_FieldBundleSet(bundle, allocation_status=allocation_status, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
    end subroutine set_allocation_status
 
-   function get_allocation_status(this) result(allocation_status)
+   function get_allocation_status(this, rc) result(allocation_status)
       type(StateItemAllocation) :: allocation_status
-      class(StateItemSpec), intent(in) :: this
+      class(StateItemSpec), target, intent(in) :: this
+      integer, optional, intent(out) :: rc
 
-      allocation_status = this%allocation_status
+      integer :: status
+      class(ClassAspect), pointer :: class_aspect
+      type(esmf_Field), allocatable :: field
+      type(esmf_FieldBundle), allocatable :: bundle
+
+      ! Default to INVALID in case we can't get it from the payload
+      allocation_status = STATEITEM_ALLOCATION_INVALID
+
+      class_aspect => to_ClassAspect(this%aspects, _RC)
+      call class_aspect%get_payload(field=field, bundle=bundle, _RC)
+      
+      if (allocated(field)) then
+         call MAPL_FieldGet(field, allocation_status=allocation_status, _RC)
+      end if
+      
+      if (allocated(bundle)) then
+         call MAPL_FieldBundleGet(bundle, allocation_status=allocation_status, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
    end function get_allocation_status
 
    subroutine print_spec(this, file, line, rc)
