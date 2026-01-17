@@ -74,7 +74,7 @@ module mapl3g_StateRegistry
       generic :: get_subregistry => get_subregistry_by_conn_pt
 
       ! Actions on specs
-      procedure :: allocate_items
+      procedure :: allocate => allocate_items
       procedure :: add_to_states
 
       procedure :: filter ! for MatchConnection

@@ -30,7 +30,7 @@ contains
       outer_states = MultiState(importState=importState, exportState=exportState)
       call this%registry%add_to_states(outer_states, mode='outer', _RC)
 
-      call this%registry%allocate_items(_RC)
+      call this%registry%allocate(_RC)
 
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
 
