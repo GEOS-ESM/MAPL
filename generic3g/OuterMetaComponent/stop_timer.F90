@@ -4,7 +4,7 @@ submodule (mapl3g_OuterMetaComponent) stop_timer_smod
 
    use mapl_ErrorHandling
 
-   implicit none
+   implicit none(type,external)
 
 contains
 

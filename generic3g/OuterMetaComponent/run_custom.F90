@@ -3,7 +3,7 @@
 submodule (mapl3g_OuterMetaComponent) run_custom_smod
    use mapl_ErrorHandling
    use esmf, only: operator(==)
-   implicit none
+   implicit none(type,external)
 
 contains
 

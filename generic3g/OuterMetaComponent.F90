@@ -22,7 +22,7 @@ module mapl3g_OuterMetaComponent
    use esmf
    use pflogger, only: Logger
 
-   implicit none
+   implicit none(type,external)
    private
 
    public :: OuterMetaComponent

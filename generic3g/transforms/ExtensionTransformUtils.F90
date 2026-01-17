@@ -4,7 +4,7 @@ module mapl3g_ExtensionTransformUtils
    use mapl3g_FieldBundle_API
    use mapl_ErrorHandling
    use esmf, only: ESMF_FieldBundle
-   implicit none(type, external)
+   implicit none(type,external)
    private
 
    public :: bundle_types_valid

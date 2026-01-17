@@ -4,7 +4,7 @@ module mapl3g_VirtualConnectionPt
    use mapl_KeywordEnforcer
    use esmf
    use, intrinsic :: iso_c_binding, only: C_NULL_CHAR
-   implicit none
+   implicit none(type,external)
    private
 
    public :: VirtualConnectionPt

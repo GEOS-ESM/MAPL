@@ -8,7 +8,7 @@ submodule (mapl3g_OuterMetaComponent) run_user_smod
    use mapl_ErrorHandling
    use pflogger, only: logger_t => logger
 
-   implicit none
+   implicit none(type,external)
 
 contains
 

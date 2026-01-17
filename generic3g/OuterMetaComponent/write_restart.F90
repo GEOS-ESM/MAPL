@@ -5,7 +5,7 @@ submodule (mapl3g_OuterMetaComponent) write_restart_smod
    use mapl3g_RestartHandler
    use mapl_OS
    use mapl_ErrorHandling
-   implicit none (type, external)
+   implicit none(type,external)
 
 contains
 
