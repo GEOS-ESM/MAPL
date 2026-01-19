@@ -1,0 +1,105 @@
+# Example ProfileReporter configuration file
+# This file demonstrates how to configure the columns displayed in profiling reports
+
+columns:
+  # Name column - shows the timer/profiler names with indentation
+  - type: name
+    width: 20
+  
+  # Number of cycles - how many times each timer was called
+  - type: num_cycles
+    name: "# cycles"
+    format: "(i8.0)"
+    width: 8
+  
+  # Separator between sections
+  - type: separator
+    char: "|"
+  
+  # Multi-column grouping for Inclusive metrics
+  - type: multi
+    name: "Inclusive"
+    separator: "="
+    columns:
+      - type: inclusive
+        name: "time"
+        format: "(f10.6)"
+        width: 10
+        separator: "-"
+      - type: percentage_inclusive
+        name: "%"
+        format: "(f6.2)"
+        width: 6
+        separator: "-"
+  
+  # Separator
+  - type: separator
+    char: "|"
+  
+  # Multi-column grouping for Exclusive metrics
+  - type: multi
+    name: "Exclusive"
+    separator: "="
+    columns:
+      - type: exclusive
+        name: "time"
+        format: "(f10.6)"
+        width: 10
+        separator: "-"
+      - type: percentage_exclusive
+        name: "%"
+        format: "(f6.2)"
+        width: 6
+        separator: "-"
+
+# Simple flat configuration example (no grouping):
+#
+# columns:
+#   - type: name
+#     width: 20
+#   - type: num_cycles
+#     name: "# cycles"
+#     format: "(i8.0)"
+#     width: 8
+#   - type: inclusive
+#     name: "T(inc)"
+#     format: "(f12.6)"
+#     width: 12
+#   - type: exclusive
+#     name: "T(exc)"
+#     format: "(f12.6)"
+#     width: 12
+#   - type: percentage_inclusive
+#     name: "%(inc)"
+#     format: "(f6.2)"
+#     width: 6
+#   - type: percentage_exclusive
+#     name: "%(exc)"
+#     format: "(f6.2)"
+#     width: 6
+#   - type: std_dev
+#     name: "std dev"
+#     format: "(f12.4)"
+#     width: 12
+#   - type: min_cycle
+#     name: "min cyc"
+#     format: "(f12.8)"
+#     width: 12
+#   - type: max_cycle
+#     name: "max cyc"
+#     format: "(f12.8)"
+#     width: 12
+#   - type: mean_cycle
+#     name: "mean cyc"
+#     format: "(f12.8)"
+#     width: 12
+
+# Minimal configuration example (just name and inclusive time):
+#
+# columns:
+#   - type: name
+#     width: 25
+#   - type: inclusive
+#     name: "Time"
+#     format: "(f10.6)"
+#     width: 10

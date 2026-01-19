@@ -53,7 +53,7 @@ set (srcs
   MAPL_Profiler.F90
   )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared GFTL::gftl-v1 GFTL::gftl-v2 PFLOGGER::pflogger MAPL.shared MPI::MPI_Fortran TYPE SHARED)
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared GFTL::gftl-v1 GFTL::gftl-v2 PFLOGGER::pflogger MAPL.shared MPI::MPI_Fortran esmf TYPE SHARED)
 target_include_directories (${this} PRIVATE ${MAPL_SOURCE_DIR}/include)
 target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 
