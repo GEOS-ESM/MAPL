@@ -9,6 +9,7 @@ submodule (mapl3g_OuterMetaComponent) finalize_smod
    use MAPL_Profiler, only: MultiColumn, NameColumn, FormattedTextColumn, PercentageColumn
    use MAPL_Profiler, only: InclusiveColumn, ExclusiveColumn, SeparatorColumn, NumCyclesColumn
    use pflogger, only: logger_t => logger, logging
+   use gFTL2_StringVector
 
    implicit none(type,external)
 
@@ -74,14 +75,15 @@ contains
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      character(:), allocatable :: report(:)
+      type(StringVector) :: report
       type(ProfileReporter) :: reporter
       type(MultiColumn) :: min_multi, mean_multi, max_multi, pe_multi, n_cyc_multi
       type(ESMF_VM) :: vm
       character(1) :: empty(0)
       class(logger_t), pointer :: logger
       character(:), allocatable :: component_name
-      integer :: index, status, localPet
+      integer :: status, localPet
+      type(StringVectorIterator) :: iter
 
       ! Use a child logger for profiling output to allow independent formatting control
       component_name = this%user_gc_driver%get_name()
@@ -134,8 +136,10 @@ contains
          report = reporter%generate_report(this%profiler)
          call logger%info('')
          call logger%info('Times for component <%a~>', this%user_gc_driver%get_name())
-         do index = 1, size(report)
-            call logger%info('%a', report(index))
+         iter = report%begin()
+         do while (iter /= report%end())
+            call logger%info('%a', iter%of())
+            call iter%next()
          end do
          call logger%info('')
       end if

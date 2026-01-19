@@ -5,6 +5,7 @@ module MAPL_ProfileReporter
    use MAPL_TextColumnVector
    use MAPL_MultiColumn
    use MAPL_BaseProfiler
+   use gFTL2_StringVector
    implicit none
    private
 
@@ -33,11 +34,10 @@ contains
 
 
    function generate_report_profiler(this, p) result(report_lines)
-      character(:), allocatable :: report_lines(:)
+      type(StringVector) :: report_lines
       class (ProfileReporter), target, intent(in) :: this
       class (BaseProfiler), target, intent(in) :: p
 
-      integer :: width, height
       integer :: i
       character(:), allocatable :: rows(:)
       character(:), allocatable :: header(:)
@@ -46,15 +46,12 @@ contains
       call this%get_header(header)
       node => p%get_root_node()
       call this%get_rows(node, rows)
-      width = this%get_width()
-      height = size(header) + size(rows)
       
-      allocate(character(len=width) :: report_lines(height))
       do i = 1, size(header)
-         report_lines(i) = header(i)
+         call report_lines%push_back(header(i))
       end do
-      do i = size(header)+1, height
-         report_lines(i) = rows(i - size(header))
+      do i = 1, size(rows)
+         call report_lines%push_back(rows(i))
       end do
 
    end function generate_report_profiler

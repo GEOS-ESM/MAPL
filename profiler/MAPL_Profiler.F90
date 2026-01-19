@@ -8,6 +8,7 @@ module mapl_Profiler
    use mapl_MeterNodeVector
    use mapl_MeterNode
    use mapl_BaseProfiler
+   use gFTL2_StringVector
 
    use mapl_AdvancedMeter
    use mapl_MpiTimerGauge
@@ -96,8 +97,9 @@ contains
       integer, optional, intent(in) :: comm
       integer, optional, intent(out) :: rc
       type (ProfileReporter) :: reporter
-      integer :: i, world_comm
-      character(:), allocatable :: report_lines(:)
+      integer :: world_comm
+      type(StringVector) :: report_lines
+      type(StringVectorIterator) :: iter
       type (MultiColumn) :: inclusive
       type (MultiColumn) :: exclusive
       integer :: npes, my_rank, ierror
@@ -138,8 +140,10 @@ contains
             report_lines = reporter%generate_report(t_p)
             lgr => logging%get_logger('MAPL.profiler')
             call lgr%info('Report on process: %i0', my_rank)
-            do i = 1, size(report_lines)
-               call lgr%info('%a', report_lines(i))
+            iter = report_lines%begin()
+            do while (iter /= report_lines%end())
+               call lgr%info('%a', iter%of())
+               call iter%next()
             end do
          end if
       end if
@@ -163,8 +167,10 @@ contains
          if (my_rank == 0) then
             report_lines = reporter%generate_report(m_p)
             lgr => logging%get_logger('MAPL.profiler')
-            do i = 1, size(report_lines)
-               call lgr%info('%a', report_lines(i))
+            iter = report_lines%begin()
+            do while (iter /= report_lines%end())
+               call lgr%info('%a', iter%of())
+               call iter%next()
             end do
          end if
       end if

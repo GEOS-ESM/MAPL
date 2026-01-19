@@ -1,6 +1,7 @@
 module test_ProfileReporter
    use funit
    use MAPL_Profiler
+   use gFTL2_StringVector
    implicit none
 
    character(1) :: empty(0)
@@ -13,7 +14,7 @@ contains
       type (TimeProfiler), target :: prof
       type (ProfileReporter), target :: reporter
 
-      character(:), allocatable :: report_lines(:)
+      type(StringVector) :: report_lines
 
       prof = TimeProfiler('top')   ! timer 1
       call prof%start()
@@ -45,19 +46,19 @@ contains
       reporter = ProfileReporter(empty)
       call reporter%add_column(NameColumn(20))
       call reporter%add_column(FormattedTextColumn('# cycles','(i8.0)', 8, NumCyclesColumn()))
-      allocate(report_lines, source=reporter%generate_report(prof))
+      report_lines = reporter%generate_report(prof)
 
-      @assertEqual(1 + 7, size(report_lines))
-      @assertEqual(20 + 1 + 8, len(report_lines(1)))
+      @assertEqual(1 + 7, report_lines%size())
+      @assertEqual(20 + 1 + 8, len(report_lines%at(1)))
 
-      @assertEqual('Name                 # cycles', report_lines(1))
-      @assertEqual('top                         1', report_lines(2))
-      @assertEqual('--timer_1                   2', report_lines(3))
-      @assertEqual('----timer_1a                2', report_lines(4))
-      @assertEqual('----timer_1b                1', report_lines(5))
-      @assertEqual('------timer_1b1             1', report_lines(6))
-      @assertEqual('--timer_2                   3', report_lines(7))
-      @assertEqual('----timer_2b                1', report_lines(8))
+      @assertEqual('Name                 # cycles', report_lines%at(1))
+      @assertEqual('top                         1', report_lines%at(2))
+      @assertEqual('--timer_1                   2', report_lines%at(3))
+      @assertEqual('----timer_1a                2', report_lines%at(4))
+      @assertEqual('----timer_1b                1', report_lines%at(5))
+      @assertEqual('------timer_1b1             1', report_lines%at(6))
+      @assertEqual('--timer_2                   3', report_lines%at(7))
+      @assertEqual('----timer_2b                1', report_lines%at(8))
 
    end subroutine test_simple_report_timer
 
@@ -66,8 +67,8 @@ contains
    subroutine test_simple_report_timer_b()
       type (TimeProfiler), target :: prof
       type (ProfileReporter) :: reporter
-      
-      character(:), allocatable :: report_lines(:)
+      character(:), allocatable :: line
+      type(StringVector) :: report_lines
 
       prof = TimeProfiler('top')   ! timer 1
       call prof%start()
@@ -103,17 +104,25 @@ contains
       call reporter%add_column(FormattedTextColumn('T(incl)','(f15.6)', 15, InclusiveColumn()))
       report_lines = reporter%generate_report(prof)
 
-      @assertEqual(1 + 7, size(report_lines))
-      @assertEqual(20 + 1 + 8 + 1 + 15, len(report_lines(1)))
+      @assertEqual(1 + 7, report_lines%size())
+      line = report_lines%at(1)
+      @assertEqual(20 + 1 + 8 + 1 + 15, len(line))
 
-      @assertEqual('Name                 # cycles', report_lines(1)(1:29))
-      @assertEqual('top                         1', report_lines(2)(1:29))
-      @assertEqual('--timer_1                   2', report_lines(3)(1:29))
-      @assertEqual('----timer_1a                2', report_lines(4)(1:29))
-      @assertEqual('----timer_1b                1', report_lines(5)(1:29))
-      @assertEqual('------timer_1b1             1', report_lines(6)(1:29))
-      @assertEqual('--timer_2                   3', report_lines(7)(1:29))
-      @assertEqual('----timer_2b                1', report_lines(8)(1:29))
+      @assertEqual('Name                 # cycles', line(1:29))
+      line = report_lines%at(2)
+      @assertEqual('top                         1', line(1:29))
+      line = report_lines%at(3)
+      @assertEqual('--timer_1                   2', line(1:29))
+      line = report_lines%at(4)
+      @assertEqual('----timer_1a                2', line(1:29))
+      line = report_lines%at(5)
+      @assertEqual('----timer_1b                1', line(1:29))
+      line = report_lines%at(6)
+      @assertEqual('------timer_1b1             1', line(1:29))
+      line = report_lines%at(7)
+      @assertEqual('--timer_2                   3', line(1:29))
+      line = report_lines%at(8)
+      @assertEqual('----timer_2b                1', line(1:29))
 
    end subroutine test_simple_report_timer_b
 
