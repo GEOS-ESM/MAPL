@@ -4,7 +4,10 @@ target_link_libraries(profiler_demo.x MAPL.profiler)
 add_executable(mpi_demo.x mpi_demo.F90)
 target_link_libraries(mpi_demo.x MAPL.profiler MPI::MPI_Fortran)
 
-install(TARGETS profiler_demo.x mpi_demo.x
+add_executable(csv_demo.x csv_demo.F90)
+target_link_libraries(csv_demo.x MAPL.profiler)
+
+install(TARGETS profiler_demo.x mpi_demo.x csv_demo.x
         DESTINATION bin)
 
 add_test(NAME Profiler_Demo_Basic

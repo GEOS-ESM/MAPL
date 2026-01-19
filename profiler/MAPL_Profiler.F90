@@ -22,6 +22,7 @@ module mapl_Profiler
    use mapl_MemoryProfiler
 
    use mapl_ProfileReporter
+   use mapl_CsvProfileReporter
    use mapl_AbstractColumn
    use mapl_SimpleColumn
    use mapl_TextColumn
@@ -29,6 +30,8 @@ module mapl_Profiler
    use mapl_FormattedTextColumn
    use mapl_MemoryTextColumn
    use mapl_NameColumn
+   use mapl_PlainNameColumn
+   use mapl_DepthColumn
    use mapl_NumCyclesColumn
    use mapl_InclusiveColumn
    use mapl_ExclusiveColumn

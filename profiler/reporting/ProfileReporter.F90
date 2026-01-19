@@ -182,6 +182,7 @@ contains
    function column_from_config(column_config, unusable, rc) result(col)
       use MAPL_TextColumn
       use MAPL_NameColumn
+      use MAPL_DepthColumn
       use MAPL_NumCyclesColumn
       use MAPL_InclusiveColumn
       use MAPL_ExclusiveColumn
@@ -235,6 +236,10 @@ contains
       case ('name')
          width = get_config_integer(column_config, 'width', 20, _RC)
          col = NameColumn(width, separator=sep)
+         
+      case ('depth')
+         format_str = get_config_string(column_config, 'format', '(i3)', _RC)
+         col = DepthColumn(format_str)
          
       case ('num_cycles')
          column_name = get_config_string(column_config, 'name', '# cycles', _RC)

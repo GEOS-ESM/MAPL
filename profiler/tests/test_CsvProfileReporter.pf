@@ -1,0 +1,132 @@
+module test_CsvProfileReporter
+   use MAPL_Profiler
+   use funit
+   use gFTL2_StringVector
+   use esmf, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
+
+contains
+
+   @test
+   subroutine test_csv_simple()
+      type(TimeProfiler), target :: prof
+      type(CsvProfileReporter) :: reporter
+      type(ESMF_HConfig) :: config
+      type(StringVector) :: csv_lines
+      character(:), allocatable :: line
+
+      ! Create a simple profiler
+      prof = TimeProfiler('top')
+      call prof%start()
+      call prof%start('timer_1')
+      call prof%stop('timer_1')
+      call prof%stop()
+      call prof%finalize()
+
+      ! Create config with columns
+      config = ESMF_HConfigCreate(content='{ &
+         &columns: [ &
+         &  {type: name, name: "Timer"}, &
+         &  {type: num_cycles, name: "Count"}, &
+         &  {type: inclusive, name: "Time_sec"} &
+         &]}')
+
+      reporter = CsvProfileReporter(config)
+      csv_lines = reporter%generate_report(prof)
+
+      ! Should have header + 2 rows (top, timer_1)
+      @assertEqual(1 + 2, csv_lines%size())
+      
+      ! Check header line
+      line = csv_lines%at(1)
+      @assertEqual('Timer,Count,Time_sec', line)
+
+      ! Check that data rows have 3 fields
+      line = csv_lines%at(2)
+      @assert_that(index(line, ',') > 0, is(.true.))
+
+      call ESMF_HConfigDestroy(config)
+
+   end subroutine test_csv_simple
+
+   @test
+   subroutine test_csv_with_nested_timers()
+      type(TimeProfiler), target :: prof
+      type(CsvProfileReporter) :: reporter
+      type(ESMF_HConfig) :: config
+      type(StringVector) :: csv_lines
+      character(:), allocatable :: line
+
+      ! Create nested timers
+      prof = TimeProfiler('top')
+      call prof%start()
+      call prof%start('level1')
+      call prof%start('level2')
+      call prof%stop('level2')
+      call prof%stop('level1')
+      call prof%stop()
+      call prof%finalize()
+
+      ! Create config
+      config = ESMF_HConfigCreate(content='{ &
+         &columns: [ &
+         &  {type: name, name: "name"}, &
+         &  {type: inclusive, name: "time"} &
+         &]}')
+
+      reporter = CsvProfileReporter(config)
+      csv_lines = reporter%generate_report(prof)
+
+      ! Should have header + 3 rows
+      @assertEqual(1 + 3, csv_lines%size())
+      
+      ! Check header
+      line = csv_lines%at(1)
+      @assertEqual('name,time', line)
+
+      call ESMF_HConfigDestroy(config)
+
+   end subroutine test_csv_with_nested_timers
+
+   @test
+   subroutine test_csv_flattens_multicolumn()
+      type(TimeProfiler), target :: prof
+      type(CsvProfileReporter) :: reporter
+      type(ESMF_HConfig) :: config
+      type(StringVector) :: csv_lines
+      character(:), allocatable :: line
+
+      ! Create a simple profiler
+      prof = TimeProfiler('top')
+      call prof%start()
+      call prof%start('timer_1')
+      call prof%stop('timer_1')
+      call prof%stop()
+      call prof%finalize()
+
+      ! Create config with multi-column (should be flattened for CSV)
+      config = ESMF_HConfigCreate(content='{ &
+         &columns: [ &
+         &  {type: name, name: "name"}, &
+         &  {type: separator, char: "|"}, &
+         &  {type: multi, name: "Timing", &
+         &   columns: [ &
+         &     {type: inclusive, name: "inc_time"}, &
+         &     {type: exclusive, name: "exc_time"} &
+         &   ]} &
+         &]}')
+
+      reporter = CsvProfileReporter(config)
+      csv_lines = reporter%generate_report(prof)
+
+      ! Should have header + 2 rows
+      @assertEqual(1 + 2, csv_lines%size())
+      
+      ! Check header - should have flattened columns (no separator, no "Timing" group)
+      line = csv_lines%at(1)
+      @assertEqual('name,inc_time,exc_time', line)
+
+      call ESMF_HConfigDestroy(config)
+
+   end subroutine test_csv_flattens_multicolumn
+
+end module test_CsvProfileReporter

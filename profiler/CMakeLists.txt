@@ -28,11 +28,14 @@ set (srcs
   StubProfiler.F90
 
   reporting/ProfileReporter.F90
+  reporting/CsvProfileReporter.F90
   reporting/AbstractColumn.F90
   reporting/SimpleColumn.F90
   reporting/TextColumn.F90
   reporting/SimpleTextColumn.F90
   reporting/NameColumn.F90
+  reporting/PlainNameColumn.F90
+  reporting/DepthColumn.F90
   reporting/FormattedTextColumn.F90
   reporting/MemoryTextColumn.F90
   reporting/SeparatorColumn.F90
