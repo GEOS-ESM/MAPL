@@ -5,7 +5,7 @@ submodule (mapl3g_OuterMetaComponent) get_child_name_smod
    use mapl3g_GriddedComponentDriverMap
    use mapl_ErrorHandling
 
-   implicit none
+   implicit none(type,external)
 
 contains
 

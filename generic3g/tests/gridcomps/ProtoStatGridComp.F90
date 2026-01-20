@@ -9,7 +9,7 @@ module ProtoStatGridComp
    use mapl3g_VerticalStaggerLoc
    use mapl_ErrorHandling
    use esmf
-   implicit none(type, external)
+   implicit none(type,external)
    private
 
    public :: setservices

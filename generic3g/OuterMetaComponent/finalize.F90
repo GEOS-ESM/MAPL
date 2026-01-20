@@ -11,7 +11,7 @@ submodule (mapl3g_OuterMetaComponent) finalize_smod
    use MAPL_Profiler, only: InclusiveColumn, ExclusiveColumn, SeparatorColumn, NumCyclesColumn
    use pflogger, only: logger_t => logger
 
-   implicit none (type, external)
+   implicit none(type,external)
 
 contains
 

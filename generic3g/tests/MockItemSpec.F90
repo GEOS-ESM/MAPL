@@ -18,7 +18,7 @@ module MockItemSpecMod
    use mapl3g_TypekindAspect
    use esmf
 
-   implicit none
+   implicit none(type,external)
    private
 
    public :: MockItemSpec

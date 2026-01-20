@@ -3,8 +3,8 @@
 
 module Test_Couplers
    use mapl3g_StateItemAspect, only: StateItemAspect
-   use mapl3g_TypekindAspect
-   use mapl3g_UnitsAspect, only: UnitsAspect
+   use mapl3g_TypekindAspect, only: TypekindAspect, to_TypekindAspect
+   use mapl3g_UnitsAspect, only: UnitsAspect, to_UnitsAspect
    use mapl3g_StateItem
    use mapl3g_VariableSpec, only: VariableSpec, make_VariableSpec
    use mapl3g_StateItemSpec, only: StateItemSpec
@@ -44,7 +44,7 @@ contains
       type(VirtualConnectionPt) :: virtual_pt
       type(StateItemExtension), pointer :: extension
       type(StateItemSpec), pointer :: new_spec
-      class(StateItemAspect), pointer :: aspect
+      type(UnitsAspect) :: aspect
       character(len=:), allocatable :: units
       type(ESMF_Geom) :: my_geom
       integer :: status
@@ -77,12 +77,9 @@ contains
       new_spec => extension%get_spec()
 
       ! Compare extension StateItemSpec units to import StateItemSpec units
-      aspect => new_spec%get_aspect(UNITS_ASPECT_ID, _RC)
-      select type(aspect)
-      type is (UnitsAspect)
-         units = aspect%get_units()
-         @assertEqual(IMPORT_UNITS, units)
-      end select
+      aspect = to_UnitsAspect(new_spec%get_aspects(), _RC)
+      units = aspect%get_units()
+      @assertEqual(IMPORT_UNITS, units)
       _UNUSED_DUMMY(this)
 
    end subroutine test_units
@@ -96,7 +93,7 @@ contains
       type(VirtualConnectionPt) :: virtual_pt
       type(StateItemExtension), pointer :: extension
       type(StateItemSpec), pointer :: new_spec
-      class(StateItemAspect), pointer :: aspect
+      type(TypekindAspect) :: aspect
       type(ESMF_TypeKind_Flag) :: typekind
       logical :: same_typekind
       integer :: status
@@ -130,13 +127,10 @@ contains
       new_spec => extension%get_spec()
 
       ! Compare extension StateItemSpec units to import StateItemSpec units
-      aspect => new_spec%get_aspect(TYPEKIND_ASPECT_ID, _RC)
-      select type(aspect)
-      type is (TypekindAspect)
-         typekind = aspect%get_typekind()
-         same_typekind = typekind == IMPORT_TYPEKIND
-         @assertTrue(same_typekind, "The typekind for the extended typekind is incorrect.")
-      end select
+      aspect = to_TypekindAspect(new_spec%get_aspects(), _RC)
+      typekind = aspect%get_typekind()
+      same_typekind = typekind == IMPORT_TYPEKIND
+      @assertTrue(same_typekind, "The typekind for the extended typekind is incorrect.")
       _UNUSED_DUMMY(this)
 
    end subroutine test_typekind

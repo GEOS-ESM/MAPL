@@ -12,7 +12,7 @@ module mapl3g_CopyTransform
    use esmf
    use MAPL_FieldUtils
    use mapl3g_FieldBundleCopy, only: FieldBundleCopy
-   implicit none
+   implicit none(type,external)
 
    private
    public :: CopyTransform

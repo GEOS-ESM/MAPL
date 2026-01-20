@@ -10,7 +10,7 @@ module mapl3g_MeanTransform
    use mapl3g_Field_API, only: MAPL_FieldGet
    use MAPL_FieldUtilities, only: FieldSet
    use ESMF
-   implicit none
+   implicit none(type,external)
    private
    public :: MeanTransform
    public :: construct_MeanTransform

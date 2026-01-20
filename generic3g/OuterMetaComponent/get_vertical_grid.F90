@@ -2,7 +2,7 @@
 
 submodule (mapl3g_OuterMetaComponent) get_vertical_grid_smod
 
-   implicit none
+   implicit none(type,external)
 
 contains
 

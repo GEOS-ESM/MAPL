@@ -9,7 +9,7 @@ submodule (mapl3g_OuterMetaComponent) SetServices_smod
    use mapl3g_GriddedComponentDriverMap
    use mapl_ErrorHandling
    use pflogger, only: logger_t => logger
-   implicit none
+   implicit none(type,external)
 
 contains
 

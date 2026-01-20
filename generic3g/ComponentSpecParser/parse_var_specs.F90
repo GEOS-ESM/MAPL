@@ -2,7 +2,7 @@
 
 submodule (mapl3g_ComponentSpecParser) parse_var_specs_smod
    use mapl3g_VerticalGrid
-   implicit none
+   implicit none(type,external)
    
 contains
 

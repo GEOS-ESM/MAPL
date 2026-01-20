@@ -58,7 +58,7 @@ module mapl3g_Generic
    use pflogger, only: logger_t => logger
    use gftl2_StringVector, only: StringVector
 
-   implicit none
+   implicit none(type,external)
    private
 
    ! These should not be needed by users

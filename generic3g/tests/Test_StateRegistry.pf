@@ -53,7 +53,7 @@ contains
       type(ExtensionFamily), pointer :: family
       type(StateItemExtension), pointer :: primary
       type(StateItemSpec), pointer :: spec
-      class(StateItemAspect), pointer :: class_aspect
+      type(MockAspect) :: aspect
 
       r = StateRegistry('A')
       x = VirtualConnectionPt(state_intent='import', short_name='x')
@@ -67,14 +67,8 @@ contains
       @assert_that(associated(primary), is(true()))
 
       spec => primary%get_spec()
-
-      class_aspect => spec%get_aspect(CLASS_ASPECT_ID)
-      select type (class_aspect)
-      type is (MockAspect)
-         @assert_that(class_aspect%value, is(1))
-      class default
-         @assert_that(1, is(0))
-      end select
+      aspect = to_MockAspect(spec%get_aspects(), _RC)
+      @assert_that(aspect%value, is(1))
 
    end subroutine test_add_primary_spec
 
@@ -92,7 +86,7 @@ contains
       type(StateItemSpec), pointer :: spec
       type(StateItemExtension), pointer :: extension
       type(StateItemExtensionPtrVector) :: extensions
-      class(StateItemAspect), pointer :: class_aspect
+      type(MockAspect) :: aspect
 
       r = StateRegistry('A')
       x = VirtualConnectionPt(state_intent='import', short_name='x')
@@ -109,14 +103,8 @@ contains
       wrapper => extensions%of(1)
       extension => wrapper%ptr
       spec => extension%get_spec()
-
-      class_aspect => spec%get_aspect(CLASS_ASPECT_ID)
-      select type (class_aspect)
-      type is (MockAspect)
-         @assert_that(class_aspect%value, is(1))
-      class default
-         @assert_that(1, is(0))
-      end select
+      aspect = to_MockAspect(spec%get_aspects(), _RC)
+      @assert_that(aspect%value, is(1))
 
       call r%add_spec(x, MockItemSpec(value=2), _RC)
       @assert_that(r%num_owned_items(), is(2))
@@ -126,14 +114,8 @@ contains
       wrapper => extensions%of(2)
       extension => wrapper%ptr
       spec => extension%get_spec()
-
-      class_aspect => spec%get_aspect(CLASS_ASPECT_ID)
-      select type (class_aspect)
-      type is (MockAspect)
-         @assert_that(class_aspect%value, is(2))
-      class default
-         @assert_that(1, is(0))
-      end select
+      aspect = to_MockAspect(spec%get_aspects(), _RC)
+      @assert_that(aspect%value, is(2))
 
    end subroutine test_add_extension_spec
 
@@ -167,7 +149,7 @@ contains
       type(StateItemExtensionPtrVector) :: extensions
       type(StateItemExtension), target :: ext_x, ext_y
       type(StateItemExtension), pointer :: ext
-      class(StateItemAspect), pointer :: class_aspect
+      type(MockAspect) :: aspect
 
       r = StateRegistry('A')
       x = VirtualConnectionPt(state_intent='import', short_name='x')
@@ -185,14 +167,8 @@ contains
       wrapper => extensions%of(1)
       ext => wrapper%ptr
       spec => ext%get_spec()
-
-      class_aspect => spec%get_aspect(CLASS_ASPECT_ID, _RC)
-      select type (class_aspect)
-      type is (MockAspect)
-         @assert_that(class_aspect%value, is(1))
-      class default
-         @assert_that(1, is(0))
-      end select
+      aspect = to_MockAspect(spec%get_aspects(), _RC)
+      @assert_that(aspect%value, is(1))
 
       allocate(spec_y, source=MockItemSpec(2))
       ext_y = StateItemExtension(spec_y)
@@ -205,14 +181,8 @@ contains
       wrapper => extensions%of(2)
       ext => wrapper%ptr
       spec => ext%get_spec()
-
-      class_aspect => spec%get_aspect(CLASS_ASPECT_ID, _RC)
-      select type (class_aspect)
-      type is (MockAspect)
-         @assert_that(class_aspect%value, is(2))
-      class default
-         @assert_that(1, is(0))
-      end select
+      aspect = to_MockAspect(spec%get_aspects(), _RC)
+      @assert_that(aspect%value, is(2))
 
    end subroutine test_link_extension_spec
 
