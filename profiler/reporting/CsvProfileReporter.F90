@@ -67,10 +67,13 @@ contains
       type(StringVector) :: padded_path, original_path
       type(StringVectorIterator) :: iter
 
+      ! Explicitly initialize max_header_depth
+      reporter%max_header_depth = 0
+      
       call populate_columns(reporter, config, _RC)
 
       ! Normalize all paths to have the same depth by left-padding with empty strings
-      if (allocated(reporter%column_paths)) then
+      if (allocated(reporter%column_paths) .and. reporter%max_header_depth > 0) then
          do i = 1, size(reporter%column_paths)
             depth_diff = reporter%max_header_depth - reporter%column_paths(i)%size()
             if (depth_diff > 0) then
@@ -109,9 +112,19 @@ contains
 
       character(:), allocatable :: temp_names(:)
       type(StringVector), allocatable :: temp_paths(:)
+      type(StringVector) :: path_copy
+      type(StringVectorIterator) :: iter
       integer :: n, i
 
       call this%columns%push_back(column)
+      
+      ! Create explicit deep copy of path
+      path_copy = StringVector()
+      iter = path%begin()
+      do while (iter /= path%end())
+         call path_copy%push_back(iter%of())
+         call iter%next()
+      end do
       
       ! Grow column_names array
       n = this%columns%size()
@@ -134,14 +147,16 @@ contains
          deallocate(this%column_paths)
          allocate(this%column_paths(n))
          this%column_paths(1:n-1) = temp_paths(:)
-         this%column_paths(n) = path
+         this%column_paths(n) = path_copy
       else
          allocate(this%column_paths(1))
-         this%column_paths(1) = path
+         this%column_paths(1) = path_copy
       end if
 
       ! Track maximum depth
-      this%max_header_depth = max(this%max_header_depth, path%size())
+      if (path_copy%size() > this%max_header_depth) then
+         this%max_header_depth = path_copy%size()
+      end if
 
    end subroutine add_column
 
@@ -193,7 +208,7 @@ contains
 
       character(:), allocatable :: column_type
       character(:), allocatable :: multi_name
-      type(StringVector) :: new_path
+      type(StringVectorIterator) :: path_iter
       integer :: i, num_nested
       type(ESMF_HConfig) :: nested_columns_config, nested_config
       class(TextColumn), allocatable :: col
@@ -207,10 +222,6 @@ contains
       if (trim(column_type) == 'multi' .or. trim(column_type) == 'group') then
          ! Get the name of this multi-column to add to path
          multi_name = get_config_string(column_config, 'name', '', _RC)
-         new_path = path
-         if (len_trim(multi_name) > 0) then
-            call new_path%push_back(trim(multi_name))
-         end if
          
          is_defined = ESMF_HConfigIsDefined(column_config, keyString='columns', _RC)
          if (is_defined) then
@@ -218,7 +229,9 @@ contains
             nested_columns_config = ESMF_HConfigCreateAt(column_config, keyString='columns', _RC)
             do i = 1, num_nested
                nested_config = ESMF_HConfigCreateAt(nested_columns_config, index=i, _RC)
-               call process_column_config(reporter, nested_config, new_path, _RC)
+               ! Pass extended path directly (workaround for gfortran recursion bug)
+               call process_column_config(reporter, nested_config, &
+                    extend_path(path, multi_name), _RC)
             end do
          end if
       else if (trim(column_type) == 'separator') then
@@ -226,15 +239,33 @@ contains
       else
          ! Regular column - create and add it with full path
          call column_from_config(column_config, col, column_name, _RC)
-         new_path = path
-         call new_path%push_back(trim(column_name))
-         call reporter%add_column(col, column_name, new_path)
+         
+         ! Add column with extended path (workaround for gfortran recursion bug)
+         call reporter%add_column(col, column_name, extend_path(path, column_name))
       end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
    end subroutine process_column_config
+
+   ! Helper function to extend a path with a new element (avoids local variables for gfortran recursion bug)
+   function extend_path(base_path, new_element) result(extended)
+      type(StringVector), intent(in) :: base_path
+      character(*), intent(in) :: new_element
+      type(StringVector) :: extended
+      type(StringVectorIterator) :: iter
+      
+      extended = StringVector()
+      iter = base_path%begin()
+      do while (iter /= base_path%end())
+         call extended%push_back(iter%of())
+         call iter%next()
+      end do
+      if (len_trim(new_element) > 0) then
+         call extended%push_back(trim(new_element))
+      end if
+   end function extend_path
 
    ! Helper to create a column from config and extract its name
    subroutine column_from_config(column_config, col, column_name, unusable, rc)
