@@ -63,9 +63,38 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status
+      integer :: status, i, j, depth_diff
+      type(StringVector) :: padded_path, original_path
+      type(StringVectorIterator) :: iter
 
       call populate_columns(reporter, config, _RC)
+
+      ! Normalize all paths to have the same depth by left-padding with empty strings
+      if (allocated(reporter%column_paths)) then
+         do i = 1, size(reporter%column_paths)
+            depth_diff = reporter%max_header_depth - reporter%column_paths(i)%size()
+            if (depth_diff > 0) then
+               ! Save original path first
+               original_path = reporter%column_paths(i)
+               
+               ! Create new vector with padding at front
+               padded_path = StringVector()
+               do j = 1, depth_diff
+                  call padded_path%push_back('')
+               end do
+               
+               ! Append original path elements
+               iter = original_path%begin()
+               do while (iter /= original_path%end())
+                  call padded_path%push_back(iter%of())
+                  call iter%next()
+               end do
+               
+               ! Replace with padded version
+               reporter%column_paths(i) = padded_path
+            end if
+         end do
+      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -193,8 +222,7 @@ contains
             end do
          end if
       else if (trim(column_type) == 'separator') then
-         ! Ignore separator columns for CSV
-         continue
+         ! Ignore separator columns for CSV (no-op)
       else
          ! Regular column - create and add it with full path
          call column_from_config(column_config, col, column_name, _RC)
@@ -356,18 +384,22 @@ contains
 
       ! Return empty if no columns configured
       if (this%columns%size() == 0) return
+      
+      ! Return empty if no header depth or paths not allocated
+      if (this%max_header_depth == 0 .or. .not. allocated(this%column_paths)) return
 
       ! Generate multi-row header
       do depth = 1, this%max_header_depth
          csv_row = ''
          do i = 1, this%columns%size()
             if (i > 1) csv_row = csv_row // ','
-            ! If this column's path has an entry at this depth, use it; otherwise empty
-            if (this%column_paths(i)%size() >= depth) then
-               iter = this%column_paths(i)%begin()
-               do j = 1, depth - 1
-                  call iter%next()
-               end do
+            ! All paths now have the same depth (normalized in constructor)
+            iter = this%column_paths(i)%begin()
+            do j = 1, depth - 1
+               call iter%next()
+            end do
+            ! Only access if iterator is valid
+            if (iter /= this%column_paths(i)%end()) then
                csv_row = csv_row // trim(iter%of())
             end if
          end do

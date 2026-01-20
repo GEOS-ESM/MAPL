@@ -118,11 +118,15 @@ contains
       reporter = CsvProfileReporter(config)
       csv_lines = reporter%generate_report(prof)
 
-      ! Should have header + 2 rows
-      @assertEqual(1 + 2, csv_lines%size())
+      ! Should have 2 header rows (due to multi-column with name "Timing") + 2 data rows
+      @assertEqual(2 + 2, csv_lines%size())
       
-      ! Check header - should have flattened columns (no separator, no "Timing" group)
+      ! Check first header row - group names
       line = csv_lines%at(1)
+      @assertEqual(',Timing,Timing', line)
+      
+      ! Check second header row - column names (should have flattened columns, no separator)
+      line = csv_lines%at(2)
       @assertEqual('name,inc_time,exc_time', line)
 
       call ESMF_HConfigDestroy(config)
