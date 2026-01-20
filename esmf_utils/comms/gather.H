@@ -1,4 +1,3 @@
-
 #ifdef NAME_
 #undef NAME_
 #endif
@@ -7,8 +6,8 @@
 #undef NAMESTR_
 #endif
 
-#define NAME_ MAPL_CommsGatherV_
-#define NAMESTR_ 'MAPL_CommsGatherV_'
+#define NAME_ CommsGatherV_
+#define NAMESTR_ 'CommsGatherV_'
 
 #include "overload.macro"
 
@@ -16,13 +15,12 @@ subroutine SUB_ (layout, sendbuf, sendcnt, recvbuf, recvcnts, displs, root, rc)
    type(ESMF_DELayout) :: layout
    TYPE_(kind=EKIND_), intent(in) :: sendbuf DIMENSIONS_
    integer, intent(in) :: sendcnt
-   TYPE_(kind=EKIND_), intent(out) :: recvbuf (:)
+   TYPE_(kind=EKIND_), intent(out) :: recvbuf(:)
    integer, intent(in) :: recvcnts(:)
    integer, intent(in) :: displs(:)
    integer, intent(in) :: root
    integer, intent(out), optional :: rc
 
-   ! character(len=ESMF_MAXSTR), parameter :: IAM='MAPL_CommsGather'
    type(ESMF_VM) :: vm
    integer :: comm, status
 
@@ -38,7 +36,7 @@ subroutine SUB_ (layout, sendbuf, sendcnt, recvbuf, recvcnts, displs, root, rc)
 #endif
 
    _RETURN(_SUCCESS)
-END SUBROUTINE SUB_
+end subroutine SUB_
 
 #undef NAME_
 #undef NAMESTR_

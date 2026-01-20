@@ -1,4 +1,3 @@
-
 #ifdef NAME_
 #undef NAME_
 #endif
@@ -22,7 +21,7 @@ subroutine SUB_(local_array, global_array, grid, mask, depe, hw, rc)
    integer, optional, intent(out) :: rc
 
    ! Local variables
-   integer                               :: status
+   integer :: status
 
    type(ESMF_DELayout) :: layout
    type(ESMF_DistGrid) :: distGrid
@@ -63,30 +62,23 @@ subroutine SUB_(local_array, global_array, grid, mask, depe, hw, rc)
       myhw = 0
    end if
 
-   call ESMF_GridGet    (GRID,   dimCount=gridRank, rc=STATUS);_VERIFY(STATUS)
-   call ESMF_GridGet    (GRID,   distGrid=distGrid, rc=STATUS);_VERIFY(STATUS)
-   call ESMF_DistGridGet(distGRID, delayout=layout, rc=STATUS);_VERIFY(STATUS)
-   call ESMF_DELayoutGet(layout, vm=vm, rc=status);_VERIFY(STATUS)
-   call ESMF_VmGet(vm, localPet=deId, petCount=nDEs, rc=status);_VERIFY(STATUS)
+   call ESMF_GridGet(GRID, dimCount=gridRank, _RC)
+   call ESMF_GridGet(GRID, distGrid=distGrid, _RC)
+   call ESMF_DistGridGet(distGRID, delayout=layout, _RC);_VERIFY(STATUS)
+   call ESMF_DELayoutGet(layout, vm=vm, _RC)
+   call ESMF_VmGet(vm, localPet=deId, petCount=nDEs, _RC)
 
-   allocate (AL(gridRank,0:nDEs-1),  stat=status)
-   _VERIFY(STATUS)
-   allocate (AU(gridRank,0:nDEs-1),  stat=status)
-   _VERIFY(STATUS)
+   allocate (AL(gridRank,0:nDEs-1), _STAT)
+   allocate (AU(gridRank,0:nDEs-1), _STAT)
 
-   call MAPL_DistGridGet(distgrid, &
-        minIndex=AL, maxIndex=AU, rc=status)
-   _VERIFY(STATUS)
+   call DistGridGet(distgrid, min_index=AL, max_index=AU, _RC)
 
-   allocate (recvcounts(nDEs), displs(0:nDEs), stat=status)
-   _VERIFY(STATUS)
+   allocate (recvcounts(nDEs), displs(0:nDEs), _STAT)
 
    if (deId == destPE) then
-      allocate(VAR(0:size(GLOBAL_ARRAY)-1), stat=status)
-      _VERIFY(STATUS)
+      allocate(VAR(0:size(GLOBAL_ARRAY)-1), _STAT)
    else
-      allocate(VAR(0), stat=status)
-      _VERIFY(STATUS)
+      allocate(VAR(0), _STAT)
    end if
 
    displs(0) = 0
@@ -123,16 +115,14 @@ subroutine SUB_(local_array, global_array, grid, mask, depe, hw, rc)
    enddo
 
    if (present(mask) .or. myHW == 0) then
-      call MAPL_CommsGatherV(layout, local_array, sendcount, &
-           var, recvcounts, displs, destPE, status)
+      call CommsGatherV(layout, local_array, sendcount, var, recvcounts, displs, destPE, status)
    else
 #if (RANK_ > 1)
-      call MAPL_CommsGatherV(layout, local_array(ibeg:iend,jbeg:jend), &
+      call CommsGatherV(layout, local_array(ibeg:iend,jbeg:jend), &
            sendcount, var, recvcounts, displs, destPE, &
            status)
 #else
-      call MAPL_CommsGatherV(layout, local_array(ibeg:iend), sendcount, &
-           var, recvcounts, displs, destPE, status)
+      call CommsGatherV(layout, local_array(ibeg:iend), sendcount, var, recvcounts, displs, destPE, status)
 #endif
    end if
    _VERIFY(STATUS)
@@ -145,8 +135,7 @@ subroutine SUB_(local_array, global_array, grid, mask, depe, hw, rc)
          JSZ = size(GLOBAL_ARRAY,2)
 #endif
 
-         allocate(KK (0:nDEs-1        ), stat=status)
-         _VERIFY(STATUS)
+         allocate(KK (0:nDEs-1        ), _STAT)
          KK = DISPLS(0:nDEs-1)
 
          do I=1,ISZ
@@ -163,8 +152,7 @@ subroutine SUB_(local_array, global_array, grid, mask, depe, hw, rc)
             KK(MASK(I)) = KK(MASK(I)) + 1
          end do
 
-         deallocate(KK, stat=status)
-         _VERIFY(STATUS)
+         deallocate(KK, _STAT)
       else
 #if (RANK_ == 1)
          global_array = var ! ALT: I am not sure if this is correct
@@ -187,14 +175,12 @@ subroutine SUB_(local_array, global_array, grid, mask, depe, hw, rc)
       end if ! if (present(mask))
    end if
 
-   deallocate(VAR, stat=status)
-   _VERIFY(STATUS)
-   deallocate(recvcounts, displs, AU, AL, stat=status)
-   _VERIFY(STATUS)
+   deallocate(VAR, _STAT)
+   deallocate(recvcounts, displs, AU, AL, _STAT)
 
-   call ESMF_VmBarrier(vm, rc=status)
-   _VERIFY(STATUS)
-   _RETURN(ESMF_SUCCESS)
+   call ESMF_VmBarrier(vm, _RC)
+
+   _RETURN(_SUCCESS)
 end subroutine SUB_
 
 #undef NAME_
