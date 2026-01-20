@@ -37,8 +37,8 @@ program main
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0 ! C90
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/2 ! C180
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/4 ! C360
-   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/8 ! C720
-!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/16 ! C1440
+!!   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/8 ! C720
+    real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/16 ! C1440
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/32 ! C2880
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/64 ! C5760
 !#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 0. ! fully resolved
@@ -88,18 +88,16 @@ program main
 
    call ESMF_Initialize(_RC)
 
-   !call m%to_netcdf_quad('surface_mesh_quad.nc', _RC)
-   call m%to_netcdf_0('surface_mesh_multi_new.nc', _RC)
+   call m%to_netcdf('surface_mesh_1440.nc', _RC)
 
    !call system_clock(c0)
-   !msh = m%make_esmf_mesh_tri(connCount, _RC)
-   !call write_to_file(msh, 'surface_mesh_tri.nc', connCount, _RC)
+   !msh = m%make_esmf_mesh(_RC)
+   !call write_to_file(msh, 'surface_mesh_to_nc4.nc', _RC)
    !call system_clock(c1)
 
    call m%reorder_elements(_RC)
 
-  ! call m%to_netcdf_quad('surface_mesh_quad_ordered.nc', _RC)
-   call m%to_netcdf_0('surface_mesh_multi_ordered.nc', _RC)
+   call m%to_netcdf('surface_mesh_1440_ordered.nc', _RC)
 
   ! call system_clock(c0)
   ! msh = m%make_esmf_mesh_tri(connCount, _RC)
