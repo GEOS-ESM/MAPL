@@ -8,7 +8,6 @@ module mapl_Profiler
    use mapl_MeterNodeVector
    use mapl_MeterNode
    use mapl_BaseProfiler
-   use gFTL2_StringVector
 
    use mapl_AdvancedMeter
    use mapl_MpiTimerGauge
@@ -95,6 +94,7 @@ contains
       use mpi
       use pflogger, only: logging
       use pflogger, only: Logger
+      use gFTL2_StringVector, only: StringVector, StringVectorIterator, operator(/=)
 
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: comm

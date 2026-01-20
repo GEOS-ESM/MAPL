@@ -27,7 +27,7 @@ module MAPL_CsvProfileReporter
    use MAPL_TextColumn
    use MAPL_TextColumnVector
    use MAPL_BaseProfiler
-   use gFTL2_StringVector
+   use gFTL2_StringVector, only: StringVector, StringVectorIterator, operator(/=)
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf, only: ESMF_HConfig
