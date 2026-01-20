@@ -7,7 +7,7 @@
 
 !INTERFACE:
 
-module MAPL_CommsMod
+module mapl3g_Comms
 
   use ESMF
   ! use MAPL_BaseMod
@@ -1532,4 +1532,4 @@ contains
 #define VARTYPE_ 3
 #include "arraygatherRcvCnt.H"
 
-end module MAPL_CommsMod
+end module Mapl3g_Comms
