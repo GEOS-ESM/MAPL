@@ -24,8 +24,8 @@ module mapl3g_Comms
   ! public MAPL_CommsBcast
   public CommsScatterV
   public CommsGatherV
-  ! public MAPL_CommsAllGather
-  ! public MAPL_CommsAllGatherV
+  public CommsAllGather
+  public CommsAllGatherV
   ! public MAPL_CommsAllReduceMin
   ! public MAPL_CommsAllReduceMax
   ! public MAPL_CommsAllReduceSum
@@ -138,10 +138,16 @@ module mapl3g_Comms
      module procedure CommsGatherV_R8_2
   end interface CommsGatherV
 
-  ! interface MAPL_CommsAllGather
-  !    module procedure MAPL_CommsAllGather_I4_1
-  !    module procedure MAPL_CommsAllGather_L4_1
-  ! end interface MAPL_CommsAllGather
+  interface CommsAllGather
+     module procedure CommsAllGather_I4_1
+     module procedure CommsAllGather_L4_1
+  end interface CommsAllGather
+
+  interface CommsAllGatherV
+     module procedure CommsAllGatherV_I4_1
+     module procedure CommsAllGatherV_R4_1
+     module procedure CommsAllGatherV_R8_1
+  end interface CommsAllGatherV
 
   ! interface MAPL_ArrayIGather
   !    module procedure MAPL_ArrayIGather_R4_2
@@ -150,12 +156,6 @@ module mapl3g_Comms
   ! interface MAPL_ArrayIScatter
   !    module procedure MAPL_ArrayIScatter_R4_2
   ! end interface MAPL_ArrayIScatter
-
-  ! interface MAPL_CommsAllGatherV
-  !    module procedure MAPL_CommsAllGatherV_I4_1
-  !    module procedure MAPL_CommsAllGatherV_R4_1
-  !    module procedure MAPL_CommsAllGatherV_R8_1
-  ! end interface MAPL_CommsAllGatherV
 
   ! interface MAPL_CommsAllReduceMin
   !    module procedure MAPL_CommsAllReduceMin_I4_0
@@ -1380,26 +1380,26 @@ contains
 #define VARTYPE_ 4
 #include "gather.H"
 
-!   ! AllGather
-! #define RANK_ 1
-! #define VARTYPE_ 1
-! #include "allgather.H"
+  ! AllGather
+#define RANK_ 1
+#define VARTYPE_ 1
+#include "allgather.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 2
-! #include "allgather.H"
+#define RANK_ 1
+#define VARTYPE_ 2
+#include "allgather.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 1
-! #include "allgatherv.H"
+#define RANK_ 1
+#define VARTYPE_ 1
+#include "allgatherv.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 3
-! #include "allgatherv.H"
+#define RANK_ 1
+#define VARTYPE_ 3
+#include "allgatherv.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 4
-! #include "allgatherv.H"
+#define RANK_ 1
+#define VARTYPE_ 4
+#include "allgatherv.H"
 
 !   ! Send
 ! #define RANK_ 0

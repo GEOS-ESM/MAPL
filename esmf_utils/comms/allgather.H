@@ -1,0 +1,44 @@
+#ifdef NAME_
+#undef NAME_
+#endif
+
+#ifdef NAMESTR_
+#undef NAMESTR_
+#endif
+
+#define NAME_ CommsAllGather_
+#define NAMESTR_ 'CommsAllGather_'
+
+#include "overload.macro"
+
+  subroutine SUB_ (vm, sendbuf, sendcnt, recvbuf, recvcnt, RC)
+    type(ESMF_VM),      intent(in   )            :: vm
+    TYPE_,              intent(IN   )            :: sendbuf DIMENSIONS_
+    integer,            intent(IN   )            :: sendcnt
+    TYPE_,              intent(INOUT)            :: recvbuf DIMENSIONS_
+    integer,            intent(IN   )            :: recvcnt
+    integer,            intent(  OUT),  optional :: RC
+
+    character(len=ESMF_MAXSTR), parameter :: IAM='CommsAllGather'
+    integer                               :: status
+    integer                               :: comm
+
+    call ESMF_VMGet(vm, mpiCommunicator=COMM, rc=status)
+    _VERIFY(STATUS)
+
+    call mpi_allgather ( sendbuf, sendcnt, MPITYPE_, &
+                         recvbuf, recvcnt, MPITYPE_, &
+                         comm, status )
+    _VERIFY(STATUS)
+
+
+    _RETURN(ESMF_SUCCESS)
+  END SUBROUTINE SUB_
+
+#undef NAME_
+#undef NAMESTR_
+
+#undef DIMENSIONS_
+#undef RANK_
+#undef RANKSTR_
+#undef VARTYPE_
