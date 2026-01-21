@@ -40,7 +40,7 @@
     if(present(dstPe)) then
       dstDE = dstPe 
     else
-      dstDE = MAPL_Root
+      dstDE = ROOT_PROCESS_ID
     end if
 
     call ESMF_VMGet(vm, localPet=deId, petCount=ndes, rc=status)

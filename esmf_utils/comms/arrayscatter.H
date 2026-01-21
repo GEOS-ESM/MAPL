@@ -60,12 +60,12 @@
 
     _ASSERT(RANK_ <= 2, 'rank must be <= 2')
 
-! Optional change of source PE. Default=MAPL_Root
+! Optional change of source PE. Default=ROOT_PROCESS_ID
 
     if(present(depe)) then
        srcPE = depe
     else
-       srcPE = MAPL_Root
+       srcPE = ROOT_PROCESS_ID
     end if
 
 ! Optional single halo width

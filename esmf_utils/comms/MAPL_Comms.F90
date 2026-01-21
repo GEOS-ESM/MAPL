@@ -21,6 +21,10 @@ module mapl3g_Comms
   implicit none
   private
 
+  public AM_I_ROOT
+  public AM_I_RANK
+  public ROOT_PROCESS_ID
+
   ! public MAPL_CommsBcast
   public CommsScatterV
   public CommsGatherV
@@ -32,12 +36,9 @@ module mapl3g_Comms
   ! public MAPL_CommsSend
   ! public MAPL_CommsRecv
   ! public MAPL_CommsSendRecv
-  ! public MAPL_AM_I_ROOT
-  ! public MAPL_AM_I_RANK
   ! public MAPL_NPES
   public ArrayGather
   public ArrayScatter
-  ! public MAPL_root
 
   ! public MAPL_CreateRequest
   ! public MAPL_CommRequest
@@ -73,16 +74,16 @@ module mapl3g_Comms
   !    integer          :: tag, s_rqst
   ! end type MAPL_CommRequest
 
-  ! interface MAPL_Am_I_Root
-  !    module procedure MAPL_Am_I_Root_Layout
-  !    module procedure MAPL_Am_I_Root_Vm
-  ! end interface MAPL_Am_I_Root
+  interface Am_I_Root
+     module procedure Am_I_Root_Layout
+     module procedure Am_I_Root_Vm
+  end interface Am_I_Root
 
-  ! interface MAPL_Am_I_Rank
-  !    module procedure MAPL_Am_I_Rank_Only
-  !    module procedure MAPL_Am_I_Rank_Layout
-  !    module procedure MAPL_Am_I_Rank_Vm
-  ! end interface MAPL_Am_I_Rank
+  interface Am_I_Rank
+     module procedure Am_I_Rank_Only
+     module procedure Am_I_Rank_Layout
+     module procedure Am_I_Rank_Vm
+  end interface Am_I_Rank
 
   ! interface MAPL_NPES
   !    module procedure MAPL_NPES_Layout
@@ -239,82 +240,93 @@ module mapl3g_Comms
      module procedure ArrayGatherRcvCnt_R4_1
   end interface ArrayGather
 
-  integer, parameter :: MAPL_root=0
-  integer, parameter :: msg_tag=11
+  integer, parameter :: ROOT_PROCESS_ID = 0
 
 contains
 
-  ! function MAPL_Am_I_Root_Vm(VM) result(R)
-  !   type (ESMF_VM), optional :: VM
-  !   logical                  :: R
+  function Am_I_Root_Vm(vm, rc) result(R)
+    type(ESMF_VM), intent(in), optional :: vm
+    integer, intent(out), optional :: rc
+    logical :: R
 
-  !   if (present(VM)) then
-  !      R = MAPL_Am_I_Rank(VM)
-  !   else
-  !      R = MAPL_Am_I_Rank()
-  !   end if
+    integer :: status
 
-  ! end function MAPL_Am_I_Root_Vm
+    if (present(vm)) then
+       R = Am_I_Rank(vm, _RC)
+    else
+       R = Am_I_Rank(_RC)
+    end if
 
-  ! function MAPL_Am_I_Root_Layout(layout) result(R)
-  !   type (ESMF_DELayout) :: layout
-  !   logical              :: R
+    _RETURN(_SUCCESS)
+  end function Am_I_Root_Vm
 
-  !   R = MAPL_Am_I_Rank(layout)
+  function Am_I_Root_Layout(layout, rc) result(R)
+    type(ESMF_DELayout), intent(in) :: layout
+    integer, intent(out), optional :: rc
+    logical :: R
 
-  ! end function MAPL_Am_I_Root_Layout
+    integer :: status
 
-  ! function MAPL_Am_I_Rank_Vm(VM, rank) result(R)
-  !   type (ESMF_VM)    :: VM
-  !   integer, optional :: rank
-  !   logical           :: R
+    R = Am_I_Rank(layout, _RC)
 
-  !   integer        :: deId
-  !   integer        :: status
-  !   integer        :: rank_
+    _RETURN(_SUCCESS)
+  end function Am_I_Root_Layout
 
-  !   rank_ = MAPL_Root
-  !   if (present(rank)) rank_ = rank
+  function Am_I_Rank_Vm(vm, rank, rc) result(R)
+    type(ESMF_VM), intent(in) :: vm
+    integer, intent(in), optional :: rank
+    integer, intent(out), optional :: rc
+    logical :: R
 
-  !   call ESMF_VMGet(VM, localPet=deId, rc=status)
-  !   R = .false.
-  !   if (deId == rank_) R = .true.
+    integer :: de_id, rank_, status
 
-  ! end function MAPL_Am_I_Rank_Vm
+    rank_ = ROOT_PROCESS_ID
+    if (present(rank)) rank_ = rank
 
-  ! function MAPL_Am_I_Rank_Layout(layout, rank) result(R)
-  !   type (ESMF_DELayout) :: layout
-  !   integer, optional    :: rank
-  !   logical              :: R
+    call ESMF_VMGet(vm, localPet=de_id, _RC)
+    R = .false.
+    if (de_id == rank_) R = .true.
 
-  !   integer       :: status
-  !   type (ESMF_VM) :: vm
+    _RETURN(_SUCCESS)
+  end function Am_I_Rank_Vm
 
-  !   call ESMF_DELayoutGet(layout, vm=vm, rc=status)
+  function Am_I_Rank_Layout(layout, rank, rc) result(R)
+    type(ESMF_DELayout), intent(in) :: layout
+    integer, intent(in), optional :: rank
+    integer, intent(out), optional :: rc
+    logical :: R
 
-  !   if (present(rank)) then
-  !      R = MAPL_Am_I_Rank(vm, rank)
-  !   else
-  !      R = MAPL_Am_I_Rank(vm)
-  !   end if
+    type(ESMF_VM) :: vm
+    integer :: status
 
-  ! end function MAPL_Am_I_Rank_Layout
+    call ESMF_DELayoutGet(layout, vm=vm, _RC)
 
-  ! function MAPL_Am_I_Rank_Only(rank) result(R)
-  !   integer, optional :: rank
-  !   logical           :: R
+    if (present(rank)) then
+       R = Am_I_Rank(vm, rank, _RC)
+    else
+       R = Am_I_Rank(vm, _RC)
+    end if
 
-  !   integer        :: status
-  !   type (ESMF_VM) :: vm
+    _RETURN(_SUCCESS)
+  end function Am_I_Rank_Layout
 
-  !   call ESMF_VMGetCurrent(vm, rc=status)
-  !   if (present(rank)) then
-  !      R = MAPL_Am_I_Rank(vm, rank)
-  !   else
-  !      R = MAPL_Am_I_Rank(vm)
-  !   end if
+  function Am_I_Rank_Only(rank, rc) result(R)
+    integer, intent(in), optional :: rank
+    integer, intent(out), optional :: rc
+    logical :: R
 
-  ! end function MAPL_Am_I_Rank_Only
+    type(ESMF_VM) :: vm
+    integer :: status
+
+    call ESMF_VMGetCurrent(vm, _RC)
+    if (present(rank)) then
+       R = Am_I_Rank(vm, rank, _RC)
+    else
+       R = Am_I_Rank(vm, _RC)
+    end if
+
+    _RETURN(_SUCCESS)
+  end function Am_I_Rank_Only
 
   ! subroutine MAPL_CreateRequest(grid, Root, request, tag, RequestType, &
   !      DstArray, PrePost, hw, rc)

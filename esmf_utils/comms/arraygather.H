@@ -53,7 +53,7 @@ subroutine SUB_(local_array, global_array, grid, mask, depe, hw, rc)
    if(present(depe)) then
       destPE = depe
    else
-      destPE = MAPL_Root
+      destPE = ROOT_PROCESS_ID
    end if
 
    if(present(hw)) then
