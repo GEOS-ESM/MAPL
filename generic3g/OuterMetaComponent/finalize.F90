@@ -5,7 +5,7 @@ submodule (mapl3g_OuterMetaComponent) finalize_smod
    use mapl3g_GriddedComponentDriverMap
    use mapl3g_GenericPhases
    use mapl_ErrorHandling
-   use MAPL_CommsMod, only: MAPL_Am_I_Root
+   use mapl3g_Utilities_Comms_API, only: MAPL_Am_I_Root
    use MAPL_Profiler, only: ProfileReporter
    use MAPL_Profiler, only: MultiColumn, NameColumn, FormattedTextColumn, PercentageColumn
    use MAPL_Profiler, only: InclusiveColumn, ExclusiveColumn, SeparatorColumn, NumCyclesColumn
