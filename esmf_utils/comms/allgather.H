@@ -6,34 +6,31 @@
 #undef NAMESTR_
 #endif
 
-#define NAME_ CommsAllGather_
-#define NAMESTR_ 'CommsAllGather_'
+#define NAME_ comms_allgather_
+#define NAMESTR_ 'comms_allgather_'
 
 #include "overload.macro"
 
-  subroutine SUB_ (vm, sendbuf, sendcnt, recvbuf, recvcnt, RC)
-    type(ESMF_VM),      intent(in   )            :: vm
-    TYPE_,              intent(IN   )            :: sendbuf DIMENSIONS_
-    integer,            intent(IN   )            :: sendcnt
-    TYPE_,              intent(INOUT)            :: recvbuf DIMENSIONS_
-    integer,            intent(IN   )            :: recvcnt
-    integer,            intent(  OUT),  optional :: RC
+subroutine SUB_ (vm, sendbuf, sendcnt, recvbuf, recvcnt, rc)
+   type(ESMF_VM), intent(in) :: vm
+   TYPE_, intent(in) :: sendbuf DIMENSIONS_
+   integer, intent(in) :: sendcnt
+   TYPE_, intent(inout) :: recvbuf DIMENSIONS_
+   integer, intent(in) :: recvcnt
+   integer, intent(out), optional :: rc
 
-    character(len=ESMF_MAXSTR), parameter :: IAM='CommsAllGather'
-    integer                               :: status
-    integer                               :: comm
+   integer :: comm, status
 
-    call ESMF_VMGet(vm, mpiCommunicator=COMM, rc=status)
-    _VERIFY(STATUS)
+   call ESMF_VMGet(vm, mpiCommunicator=comm, _RC)
 
-    call mpi_allgather ( sendbuf, sendcnt, MPITYPE_, &
-                         recvbuf, recvcnt, MPITYPE_, &
-                         comm, status )
-    _VERIFY(STATUS)
+   call mpi_allgather( &
+        sendbuf, sendcnt, MPITYPE_, &
+        recvbuf, recvcnt, MPITYPE_, &
+        comm, status)
+   _VERIFY(STATUS)
 
-
-    _RETURN(ESMF_SUCCESS)
-  END SUBROUTINE SUB_
+   _RETURN(_SUCCESS)
+end subroutine SUB_
 
 #undef NAME_
 #undef NAMESTR_

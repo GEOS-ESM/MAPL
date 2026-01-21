@@ -6,8 +6,8 @@
 #undef NAMESTR_
 #endif
 
-#define NAME_ CommsGatherV_
-#define NAMESTR_ 'CommsGatherV_'
+#define NAME_ comms_gatherv_
+#define NAMESTR_ 'comms_gatherv_'
 
 #include "overload.macro"
 

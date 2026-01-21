@@ -21,24 +21,24 @@ module mapl3g_Comms
   implicit none
   private
 
-  public Am_I_Root
-  public Am_I_Rank
+  public am_i_root
+  public am_i_rank
   public ROOT_PROCESS_ID
 
   ! public MAPL_CommsBcast
-  public CommsScatterV
-  public CommsGatherV
-  public CommsAllGather
-  public CommsAllGatherV
-  public CommsAllReduceMin
-  public CommsAllReduceMax
-  public CommsAllReduceSum
+  public comms_scatterv
+  public comms_gatherv
+  public comms_allgather
+  public comms_allgatherv
+  public comms_allreduce_min
+  public comms_allreduce_max
+  public comms_allreduce_sum
   ! public MAPL_CommsSend
   ! public MAPL_CommsRecv
   ! public MAPL_CommsSendRecv
   ! public MAPL_NPES
-  public ArrayGather
-  public ArrayScatter
+  public array_gather
+  public array_scatter
 
   ! public MAPL_CreateRequest
   ! public MAPL_CommRequest
@@ -74,16 +74,16 @@ module mapl3g_Comms
   !    integer          :: tag, s_rqst
   ! end type MAPL_CommRequest
 
-  interface Am_I_Root
-     module procedure Am_I_Root_Layout
-     module procedure Am_I_Root_Vm
-  end interface Am_I_Root
+  interface am_i_root
+     module procedure am_i_root_Layout
+     module procedure am_i_root_Vm
+  end interface am_i_root
 
-  interface Am_I_Rank
-     module procedure Am_I_Rank_Only
-     module procedure Am_I_Rank_Layout
-     module procedure Am_I_Rank_Vm
-  end interface Am_I_Rank
+  interface am_i_rank
+     module procedure am_i_rank_only
+     module procedure am_i_rank_layout
+     module procedure am_i_rank_vm
+  end interface am_i_rank
 
   ! interface MAPL_NPES
   !    module procedure MAPL_NPES_Layout
@@ -123,32 +123,32 @@ module mapl3g_Comms
   !    module procedure MAPL_BcastShared_2DR8     
   ! end interface MAPL_BcastShared
 
-  interface CommsScatterV
-     module procedure CommsScatterV_I4_1
-     module procedure CommsScatterV_R4_1
-     module procedure CommsScatterV_R4_2
-     module procedure CommsScatterV_R8_1
-     module procedure CommsScatterV_R8_2
-  end interface CommsScatterV
+  interface comms_scatterv
+     module procedure comms_scatterv_i4_1
+     module procedure comms_scatterv_r4_1
+     module procedure comms_scatterv_r4_2
+     module procedure comms_scatterv_r8_1
+     module procedure comms_scatterv_r8_2
+  end interface comms_scatterv
 
-  interface CommsGatherV
-     module procedure CommsGatherV_I4_1
-     module procedure CommsGatherV_R4_1
-     module procedure CommsGatherV_R4_2
-     module procedure CommsGatherV_R8_1
-     module procedure CommsGatherV_R8_2
-  end interface CommsGatherV
+  interface comms_gatherv
+     module procedure comms_gatherv_i4_1
+     module procedure comms_gatherv_r4_1
+     module procedure comms_gatherv_r4_2
+     module procedure comms_gatherv_r8_1
+     module procedure comms_gatherv_r8_2
+  end interface comms_gatherv
 
-  interface CommsAllGather
-     module procedure CommsAllGather_I4_1
-     module procedure CommsAllGather_L4_1
-  end interface CommsAllGather
+  interface comms_allgather
+     module procedure comms_allgather_i4_1
+     module procedure comms_allgather_l4_1
+  end interface comms_allgather
 
-  interface CommsAllGatherV
-     module procedure CommsAllGatherV_I4_1
-     module procedure CommsAllGatherV_R4_1
-     module procedure CommsAllGatherV_R8_1
-  end interface CommsAllGatherV
+  interface comms_allgatherv
+     module procedure comms_allgatherv_i4_1
+     module procedure comms_allgatherv_r4_1
+     module procedure comms_allgatherv_r8_1
+  end interface comms_allgatherv
 
   ! interface MAPL_ArrayIGather
   !    module procedure MAPL_ArrayIGather_R4_2
@@ -158,41 +158,41 @@ module mapl3g_Comms
   !    module procedure MAPL_ArrayIScatter_R4_2
   ! end interface MAPL_ArrayIScatter
 
-  interface CommsAllReduceMin
-     module procedure CommsAllReduceMin_I4_0
-     module procedure CommsAllReduceMin_R4_0
-     module procedure CommsAllReduceMin_R8_0
-     module procedure CommsAllReduceMin_I4_1
-     module procedure CommsAllReduceMin_R4_1
-     module procedure CommsAllReduceMin_R8_1
-     module procedure CommsAllReduceMin_I4_2
-     module procedure CommsAllReduceMin_R4_2
-     module procedure CommsAllReduceMin_R8_2
-  end interface CommsAllReduceMin
+  interface comms_allreduce_min
+     module procedure comms_allreduce_min_i4_0
+     module procedure comms_allreduce_min_r4_0
+     module procedure comms_allreduce_min_r8_0
+     module procedure comms_allreduce_min_i4_1
+     module procedure comms_allreduce_min_r4_1
+     module procedure comms_allreduce_min_r8_1
+     module procedure comms_allreduce_min_i4_2
+     module procedure comms_allreduce_min_r4_2
+     module procedure comms_allreduce_min_r8_2
+  end interface comms_allreduce_min
 
-  interface CommsAllReduceMax
-     module procedure CommsAllReduceMax_I4_0
-     module procedure CommsAllReduceMax_R4_0
-     module procedure CommsAllReduceMax_R8_0
-     module procedure CommsAllReduceMax_I4_1
-     module procedure CommsAllReduceMax_R4_1
-     module procedure CommsAllReduceMax_R8_1
-     module procedure CommsAllReduceMax_I4_2
-     module procedure CommsAllReduceMax_R4_2
-     module procedure CommsAllReduceMax_R8_2
-  end interface CommsAllReduceMax
+  interface comms_allreduce_max
+     module procedure comms_allreduce_max_i4_0
+     module procedure comms_allreduce_max_r4_0
+     module procedure comms_allreduce_max_r8_0
+     module procedure comms_allreduce_max_i4_1
+     module procedure comms_allreduce_max_r4_1
+     module procedure comms_allreduce_max_r8_1
+     module procedure comms_allreduce_max_i4_2
+     module procedure comms_allreduce_max_r4_2
+     module procedure comms_allreduce_max_r8_2
+  end interface comms_allreduce_max
 
-  interface CommsAllReduceSum
-     module procedure CommsAllReduceSum_I4_0
-     module procedure CommsAllReduceSum_R4_0
-     module procedure CommsAllReduceSum_R8_0
-     module procedure CommsAllReduceSum_I4_1
-     module procedure CommsAllReduceSum_R4_1
-     module procedure CommsAllReduceSum_R8_1
-     module procedure CommsAllReduceSum_I4_2
-     module procedure CommsAllReduceSum_R4_2
-     module procedure CommsAllReduceSum_R8_2
-  end interface CommsAllReduceSum
+  interface comms_allreduce_sum
+     module procedure comms_allreduce_sum_i4_0
+     module procedure comms_allreduce_sum_r4_0
+     module procedure comms_allreduce_sum_r8_0
+     module procedure comms_allreduce_sum_i4_1
+     module procedure comms_allreduce_sum_r4_1
+     module procedure comms_allreduce_sum_r8_1
+     module procedure comms_allreduce_sum_i4_2
+     module procedure comms_allreduce_sum_r4_2
+     module procedure comms_allreduce_sum_r8_2
+  end interface comms_allreduce_sum
 
   ! interface MAPL_CommsSend
   !    module procedure MAPL_CommsSend_I4_0
@@ -221,30 +221,30 @@ module mapl3g_Comms
   !    module procedure MAPL_CommsSendRecv_R8_2
   ! end interface MAPL_CommsSendRecv
 
-  interface ArrayScatter
-     module procedure ArrayScatter_R4_1
-     module procedure ArrayScatter_R8_1
-     module procedure ArrayScatter_R4_2
-     module procedure ArrayScatter_R8_2
-     module procedure ArrayScatterRcvCnt_I4_1
-     module procedure ArrayScatterRcvCnt_R4_1
-  end interface ArrayScatter
+  interface array_scatter
+     module procedure array_scatter_r4_1
+     module procedure array_scatter_r8_1
+     module procedure array_scatter_r4_2
+     module procedure array_scatter_r8_2
+     module procedure array_scatter_rcv_cnt_i4_1
+     module procedure array_scatter_rcv_cnt_r4_1
+  end interface array_scatter
 
-  interface ArrayGather
-     module procedure ArrayGather_I4_1
-     module procedure ArrayGather_R4_1
-     module procedure ArrayGather_R8_1
-     module procedure ArrayGather_R4_2
-     module procedure ArrayGather_R8_2
-     module procedure ArrayGatherRcvCnt_I4_1
-     module procedure ArrayGatherRcvCnt_R4_1
-  end interface ArrayGather
+  interface array_gather
+     module procedure array_gather_i4_1
+     module procedure array_gather_r4_1
+     module procedure array_gather_r8_1
+     module procedure array_gather_r4_2
+     module procedure array_gather_r8_2
+     module procedure array_gather_rcv_cnt_i4_1
+     module procedure array_gather_rcv_cnt_r4_1
+  end interface array_gather
 
   integer, parameter :: ROOT_PROCESS_ID = 0
 
 contains
 
-  function Am_I_Root_Vm(vm, rc) result(R)
+  function am_i_root_vm(vm, rc) result(R)
     type(ESMF_VM), intent(in), optional :: vm
     integer, intent(out), optional :: rc
     logical :: R
@@ -252,27 +252,27 @@ contains
     integer :: status
 
     if (present(vm)) then
-       R = Am_I_Rank(vm, _RC)
+       R = am_i_rank(vm, _RC)
     else
-       R = Am_I_Rank(_RC)
+       R = am_i_rank(_RC)
     end if
 
     _RETURN(_SUCCESS)
-  end function Am_I_Root_Vm
+  end function am_i_root_vm
 
-  function Am_I_Root_Layout(layout, rc) result(R)
+  function am_i_root_layout(layout, rc) result(R)
     type(ESMF_DELayout), intent(in) :: layout
     integer, intent(out), optional :: rc
     logical :: R
 
     integer :: status
 
-    R = Am_I_Rank(layout, _RC)
+    R = am_i_rank(layout, _RC)
 
     _RETURN(_SUCCESS)
-  end function Am_I_Root_Layout
+  end function am_i_root_layout
 
-  function Am_I_Rank_Vm(vm, rank, rc) result(R)
+  function am_i_rank_vm(vm, rank, rc) result(R)
     type(ESMF_VM), intent(in) :: vm
     integer, intent(in), optional :: rank
     integer, intent(out), optional :: rc
@@ -288,9 +288,9 @@ contains
     if (de_id == rank_) R = .true.
 
     _RETURN(_SUCCESS)
-  end function Am_I_Rank_Vm
+  end function am_i_rank_vm
 
-  function Am_I_Rank_Layout(layout, rank, rc) result(R)
+  function am_i_rank_layout(layout, rank, rc) result(R)
     type(ESMF_DELayout), intent(in) :: layout
     integer, intent(in), optional :: rank
     integer, intent(out), optional :: rc
@@ -302,15 +302,15 @@ contains
     call ESMF_DELayoutGet(layout, vm=vm, _RC)
 
     if (present(rank)) then
-       R = Am_I_Rank(vm, rank, _RC)
+       R = am_i_rank(vm, rank, _RC)
     else
-       R = Am_I_Rank(vm, _RC)
+       R = am_i_rank(vm, _RC)
     end if
 
     _RETURN(_SUCCESS)
-  end function Am_I_Rank_Layout
+  end function am_i_rank_layout
 
-  function Am_I_Rank_Only(rank, rc) result(R)
+  function am_i_rank_only(rank, rc) result(R)
     integer, intent(in), optional :: rank
     integer, intent(out), optional :: rc
     logical :: R
@@ -320,13 +320,13 @@ contains
 
     call ESMF_VMGetCurrent(vm, _RC)
     if (present(rank)) then
-       R = Am_I_Rank(vm, rank, _RC)
+       R = am_i_rank(vm, rank, _RC)
     else
-       R = Am_I_Rank(vm, _RC)
+       R = am_i_rank(vm, _RC)
     end if
 
     _RETURN(_SUCCESS)
-  end function Am_I_Rank_Only
+  end function am_i_rank_only
 
   ! subroutine MAPL_CreateRequest(grid, Root, request, tag, RequestType, &
   !      DstArray, PrePost, hw, rc)

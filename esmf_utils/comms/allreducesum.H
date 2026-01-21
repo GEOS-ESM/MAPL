@@ -6,8 +6,8 @@
 #undef NAMESTr_
 #endif
 
-#define NAME_ CommsAllReduceSum_
-#define NAMESTR_ 'CommsAllReduceSum_'
+#define NAME_ comms_allreduce_sum_
+#define NAMESTR_ 'comms_allreduce_sum_'
 
 #include "overload.macro"
 

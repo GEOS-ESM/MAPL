@@ -6,8 +6,8 @@
 #undef NAMESTR_
 #endif
 
-#define NAME_ ArrayGather_
-#define NAMESTR_ 'ArrayGather_'
+#define NAME_ array_gather_
+#define NAMESTR_ 'array_gather_'
 
 #include "overload.macro"
 
@@ -115,14 +115,14 @@ subroutine SUB_(local_array, global_array, grid, mask, depe, hw, rc)
    enddo
 
    if (present(mask) .or. myHW == 0) then
-      call CommsGatherV(layout, local_array, sendcount, var, recvcounts, displs, destPE, status)
+      call comms_gatherv(layout, local_array, sendcount, var, recvcounts, displs, destPE, status)
    else
 #if (RANK_ > 1)
-      call CommsGatherV(layout, local_array(ibeg:iend,jbeg:jend), &
+      call comms_gatherv(layout, local_array(ibeg:iend,jbeg:jend), &
            sendcount, var, recvcounts, displs, destPE, &
            status)
 #else
-      call CommsGatherV(layout, local_array(ibeg:iend), sendcount, var, recvcounts, displs, destPE, status)
+      call comms_gatherv(layout, local_array(ibeg:iend), sendcount, var, recvcounts, displs, destPE, status)
 #endif
    end if
    _VERIFY(STATUS)
