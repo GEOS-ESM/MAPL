@@ -105,7 +105,7 @@ module MAPL_GenericMod
 
    use pFIO
    use gFTL_StringVector
-   use gFTL2_StringVector, only: StringVector2 => StringVector, StringVectorIterator2 => StringVectorIterator
+   use gFTL2_StringVector, only: StringVector2 => StringVector, StringVectorIterator2 => StringVectorIterator, operator(/=)
    use pFIO_ClientManagerMod
    use MAPL_BaseMod
    use MAPL_IOMod
