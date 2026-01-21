@@ -1,5 +1,6 @@
 module mapl3g_Utilities_Comms_API
    use mapl3g_Comms, only: MAPL_Am_I_Root => Am_I_Root
+   use mapl3g_Comms, only: MAPL_NPES => num_pes
 
    use mapl3g_Comms, only: MAPL_CommsGatherV => comms_gatherv
    use mapl3g_Comms, only: MAPL_CommsScatterV => comms_scatterv

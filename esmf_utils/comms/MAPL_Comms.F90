@@ -36,7 +36,7 @@ module mapl3g_Comms
   ! public MAPL_CommsSend
   ! public MAPL_CommsRecv
   ! public MAPL_CommsSendRecv
-  ! public MAPL_NPES
+  public num_pes
   public array_gather
   public array_scatter
 
@@ -85,10 +85,10 @@ module mapl3g_Comms
      module procedure am_i_rank_vm
   end interface am_i_rank
 
-  ! interface MAPL_NPES
-  !    module procedure MAPL_NPES_Layout
-  !    module procedure MAPL_NPES_Vm
-  ! end interface MAPL_NPES
+  interface num_pes
+     module procedure num_pes_layout
+     module procedure num_pes_vm
+  end interface num_pes
 
   ! interface MAPL_CommsBcast
   !    module procedure MAPL_CommsBcast_STRING_0
@@ -957,31 +957,33 @@ contains
   !   _RETURN(ESMF_SUCCESS)
   ! end subroutine MAPL_RoundRobinPEList
 
-  ! function MAPL_NPES_Vm(VM) result(R)
-  !   type (ESMF_VM) :: VM
-  !   integer        :: R
+  function num_pes_vm(vm, rc) result(R)
+    type(ESMF_VM), intent(in) :: vm
+    integer, intent(out), optional :: rc
+    integer :: R
 
-  !   integer       :: petCnt
-  !   integer       :: status
+    integer :: pet_count, status
 
-  !   call ESMF_VMGet(vm, petCount=petCnt, rc=status)
-  !   R = petCnt
+    call ESMF_VMGet(vm, petCount=pet_count, _RC)
+    R = pet_count
 
-  !   return
-  ! end function MAPL_NPES_Vm
+    _RETURN(_SUCCESS)
+  end function num_pes_vm
 
-  ! function MAPL_NPES_Layout(layout) result(R)
-  !   type (ESMF_DELayout), optional :: layout
-  !   integer                        :: R
+  function num_pes_layout(layout, rc) result(R)
+    type(ESMF_DELayout), intent(in), optional :: layout
+    integer, intent(out), optional :: rc
+    
+    integer :: R
 
-  !   integer       :: status
-  !   type(ESMF_VM) :: vm
+    type(ESMF_VM) :: vm
+    integer :: status
 
-  !   call ESMF_DELayoutGet(layout, vm=vm, rc=status)
-  !   R = MAPL_NPES_Vm(vm)
+    call ESMF_DELayoutGet(layout, vm=vm, _RC)
+    R = num_pes_vm(vm)
 
-  !   return
-  ! end function MAPL_NPES_Layout
+    _RETURN(_SUCCESS)
+  end function num_pes_layout
 
   !--BCAST -----------------
 
