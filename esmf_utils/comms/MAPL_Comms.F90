@@ -21,8 +21,8 @@ module mapl3g_Comms
   implicit none
   private
 
-  public AM_I_ROOT
-  public AM_I_RANK
+  public Am_I_Root
+  public Am_I_Rank
   public ROOT_PROCESS_ID
 
   ! public MAPL_CommsBcast
@@ -30,9 +30,9 @@ module mapl3g_Comms
   public CommsGatherV
   public CommsAllGather
   public CommsAllGatherV
-  ! public MAPL_CommsAllReduceMin
-  ! public MAPL_CommsAllReduceMax
-  ! public MAPL_CommsAllReduceSum
+  public CommsAllReduceMin
+  public CommsAllReduceMax
+  public CommsAllReduceSum
   ! public MAPL_CommsSend
   ! public MAPL_CommsRecv
   ! public MAPL_CommsSendRecv
@@ -158,41 +158,41 @@ module mapl3g_Comms
   !    module procedure MAPL_ArrayIScatter_R4_2
   ! end interface MAPL_ArrayIScatter
 
-  ! interface MAPL_CommsAllReduceMin
-  !    module procedure MAPL_CommsAllReduceMin_I4_0
-  !    module procedure MAPL_CommsAllReduceMin_R4_0
-  !    module procedure MAPL_CommsAllReduceMin_R8_0
-  !    module procedure MAPL_CommsAllReduceMin_I4_1
-  !    module procedure MAPL_CommsAllReduceMin_R4_1
-  !    module procedure MAPL_CommsAllReduceMin_R8_1
-  !    module procedure MAPL_CommsAllReduceMin_I4_2
-  !    module procedure MAPL_CommsAllReduceMin_R4_2
-  !    module procedure MAPL_CommsAllReduceMin_R8_2
-  ! end interface MAPL_CommsAllReduceMin
+  interface CommsAllReduceMin
+     module procedure CommsAllReduceMin_I4_0
+     module procedure CommsAllReduceMin_R4_0
+     module procedure CommsAllReduceMin_R8_0
+     module procedure CommsAllReduceMin_I4_1
+     module procedure CommsAllReduceMin_R4_1
+     module procedure CommsAllReduceMin_R8_1
+     module procedure CommsAllReduceMin_I4_2
+     module procedure CommsAllReduceMin_R4_2
+     module procedure CommsAllReduceMin_R8_2
+  end interface CommsAllReduceMin
 
-  ! interface MAPL_CommsAllReduceMax
-  !    module procedure MAPL_CommsAllReduceMax_I4_0
-  !    module procedure MAPL_CommsAllReduceMax_R4_0
-  !    module procedure MAPL_CommsAllReduceMax_R8_0
-  !    module procedure MAPL_CommsAllReduceMax_I4_1
-  !    module procedure MAPL_CommsAllReduceMax_R4_1
-  !    module procedure MAPL_CommsAllReduceMax_R8_1
-  !    module procedure MAPL_CommsAllReduceMax_I4_2
-  !    module procedure MAPL_CommsAllReduceMax_R4_2
-  !    module procedure MAPL_CommsAllReduceMax_R8_2
-  ! end interface MAPL_CommsAllReduceMax
+  interface CommsAllReduceMax
+     module procedure CommsAllReduceMax_I4_0
+     module procedure CommsAllReduceMax_R4_0
+     module procedure CommsAllReduceMax_R8_0
+     module procedure CommsAllReduceMax_I4_1
+     module procedure CommsAllReduceMax_R4_1
+     module procedure CommsAllReduceMax_R8_1
+     module procedure CommsAllReduceMax_I4_2
+     module procedure CommsAllReduceMax_R4_2
+     module procedure CommsAllReduceMax_R8_2
+  end interface CommsAllReduceMax
 
-  ! interface MAPL_CommsAllReduceSum
-  !    module procedure MAPL_CommsAllReduceSum_I4_0
-  !    module procedure MAPL_CommsAllReduceSum_R4_0
-  !    module procedure MAPL_CommsAllReduceSum_R8_0
-  !    module procedure MAPL_CommsAllReduceSum_I4_1
-  !    module procedure MAPL_CommsAllReduceSum_R4_1
-  !    module procedure MAPL_CommsAllReduceSum_R8_1
-  !    module procedure MAPL_CommsAllReduceSum_I4_2
-  !    module procedure MAPL_CommsAllReduceSum_R4_2
-  !    module procedure MAPL_CommsAllReduceSum_R8_2
-  ! end interface MAPL_CommsAllReduceSum
+  interface CommsAllReduceSum
+     module procedure CommsAllReduceSum_I4_0
+     module procedure CommsAllReduceSum_R4_0
+     module procedure CommsAllReduceSum_R8_0
+     module procedure CommsAllReduceSum_I4_1
+     module procedure CommsAllReduceSum_R4_1
+     module procedure CommsAllReduceSum_R8_1
+     module procedure CommsAllReduceSum_I4_2
+     module procedure CommsAllReduceSum_R4_2
+     module procedure CommsAllReduceSum_R8_2
+  end interface CommsAllReduceSum
 
   ! interface MAPL_CommsSend
   !    module procedure MAPL_CommsSend_I4_0
@@ -1226,129 +1226,120 @@ contains
 ! #include "bcast.H"
 
 
-!   !--AllReduceMin -----------------
+  ! AllReduceMin
 
-!   ! Rank 0
-! #define RANK_ 0
-! #define VARTYPE_ 1
-! #include "allreducemin.H"
+#define RANK_ 0
+#define VARTYPE_ 1
+#include "allreducemin.H"
 
-! #define RANK_ 0
-! #define VARTYPE_ 3
-! #include "allreducemin.H"
+#define RANK_ 0
+#define VARTYPE_ 3
+#include "allreducemin.H"
 
-! #define RANK_ 0
-! #define VARTYPE_ 4
-! #include "allreducemin.H"
+#define RANK_ 0
+#define VARTYPE_ 4
+#include "allreducemin.H"
 
-!   ! Rank 1
-! #define RANK_ 1
-! #define VARTYPE_ 1
-! #include "allreducemin.H"
+#define RANK_ 1
+#define VARTYPE_ 1
+#include "allreducemin.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 3
-! #include "allreducemin.H"
+#define RANK_ 1
+#define VARTYPE_ 3
+#include "allreducemin.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 4
-! #include "allreducemin.H"
+#define RANK_ 1
+#define VARTYPE_ 4
+#include "allreducemin.H"
 
-!   ! Rank 2
-! #define RANK_ 2
-! #define VARTYPE_ 1
-! #include "allreducemin.H"
+#define RANK_ 2
+#define VARTYPE_ 1
+#include "allreducemin.H"
 
-! #define RANK_ 2
-! #define VARTYPE_ 3
-! #include "allreducemin.H"
+#define RANK_ 2
+#define VARTYPE_ 3
+#include "allreducemin.H"
 
-! #define RANK_ 2
-! #define VARTYPE_ 4
-! #include "allreducemin.H"
+#define RANK_ 2
+#define VARTYPE_ 4
+#include "allreducemin.H"
 
-!   !--AllReduceMax -----------------
+  ! AllReduceMax
 
-!   ! Rank 0
-! #define RANK_ 0
-! #define VARTYPE_ 1
-! #include "allreducemax.H"
+#define RANK_ 0
+#define VARTYPE_ 1
+#include "allreducemax.H"
 
-! #define RANK_ 0
-! #define VARTYPE_ 3
-! #include "allreducemax.H"
+#define RANK_ 0
+#define VARTYPE_ 3
+#include "allreducemax.H"
 
-! #define RANK_ 0
-! #define VARTYPE_ 4
-! #include "allreducemax.H"
+#define RANK_ 0
+#define VARTYPE_ 4
+#include "allreducemax.H"
 
-!   ! Rank 1
-! #define RANK_ 1
-! #define VARTYPE_ 1
-! #include "allreducemax.H"
+#define RANK_ 1
+#define VARTYPE_ 1
+#include "allreducemax.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 3
-! #include "allreducemax.H"
+#define RANK_ 1
+#define VARTYPE_ 3
+#include "allreducemax.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 4
-! #include "allreducemax.H"
+#define RANK_ 1
+#define VARTYPE_ 4
+#include "allreducemax.H"
 
-!   ! Rank 2
-! #define RANK_ 2
-! #define VARTYPE_ 1
-! #include "allreducemax.H"
+#define RANK_ 2
+#define VARTYPE_ 1
+#include "allreducemax.H"
 
-! #define RANK_ 2
-! #define VARTYPE_ 3
-! #include "allreducemax.H"
+#define RANK_ 2
+#define VARTYPE_ 3
+#include "allreducemax.H"
 
 
-! #define RANK_ 2
-! #define VARTYPE_ 4
-! #include "allreducemax.H"
+#define RANK_ 2
+#define VARTYPE_ 4
+#include "allreducemax.H"
 
-!   !--AllReduceSum -----------------
+  ! AllReduceSum
 
-!   ! Rank 0
-! #define RANK_ 0
-! #define VARTYPE_ 1
-! #include "allreducesum.H"
+#define RANK_ 0
+#define VARTYPE_ 1
+#include "allreducesum.H"
 
-! #define RANK_ 0
-! #define VARTYPE_ 3
-! #include "allreducesum.H"
+#define RANK_ 0
+#define VARTYPE_ 3
+#include "allreducesum.H"
 
-! #define RANK_ 0
-! #define VARTYPE_ 4
-! #include "allreducesum.H"
+#define RANK_ 0
+#define VARTYPE_ 4
+#include "allreducesum.H"
 
-!   ! Rank 1
-! #define RANK_ 1
-! #define VARTYPE_ 1
-! #include "allreducesum.H"
+#define RANK_ 1
+#define VARTYPE_ 1
+#include "allreducesum.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 3
-! #include "allreducesum.H"
+#define RANK_ 1
+#define VARTYPE_ 3
+#include "allreducesum.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 4
-! #include "allreducesum.H"
+#define RANK_ 1
+#define VARTYPE_ 4
+#include "allreducesum.H"
 
-!   ! Rank 2
-! #define RANK_ 2
-! #define VARTYPE_ 1
-! #include "allreducesum.H"
+#define RANK_ 2
+#define VARTYPE_ 1
+#include "allreducesum.H"
 
-! #define RANK_ 2
-! #define VARTYPE_ 3
-! #include "allreducesum.H"
+#define RANK_ 2
+#define VARTYPE_ 3
+#include "allreducesum.H"
 
-! #define RANK_ 2
-! #define VARTYPE_ 4
-! #include "allreducesum.H"
+#define RANK_ 2
+#define VARTYPE_ 4
+#include "allreducesum.H"
 
   ! Scatter
 #define RANK_ 1
