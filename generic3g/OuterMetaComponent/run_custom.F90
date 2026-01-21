@@ -8,7 +8,7 @@ submodule (mapl3g_OuterMetaComponent) run_custom_smod
 contains
 
    module subroutine run_custom(this, method_flag, phase_name, rc)
-      class(OuterMetaComponent), intent(inout) :: this
+      class(OuterMetaComponent), target, intent(inout) :: this
       type(ESMF_METHOD_FLAG), intent(in) :: method_flag
       character(*), intent(in) :: phase_name
       integer, optional, intent(out) :: rc

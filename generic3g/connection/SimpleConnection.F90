@@ -28,7 +28,7 @@ module mapl3g_SimpleConnection
       private
       type(ConnectionPt) :: source
       type(ConnectionPt) :: destination
-      logical :: consumed=.false.
+      logical :: consumed
    contains
       procedure :: get_source
       procedure :: get_destination
@@ -50,6 +50,7 @@ contains
 
       this%source = source
       this%destination = destination
+      this%consumed = .false.
 
    end function new_SimpleConnection
 
@@ -66,7 +67,7 @@ contains
    end function get_destination
 
    recursive subroutine activate(this, registry, rc)
-      class(SimpleConnection), intent(in) :: this
+      class(SimpleConnection), target, intent(in) :: this
       type(StateRegistry), target, intent(inout) :: registry
       integer, optional, intent(out) :: rc
 
@@ -111,7 +112,7 @@ contains
 
 
    recursive subroutine connect(this, registry, rc)
-      class(SimpleConnection), intent(inout) :: this
+      class(SimpleConnection), target, intent(inout) :: this
       type(StateRegistry), target, intent(inout) :: registry
       integer, optional, intent(out) :: rc
 
@@ -142,7 +143,7 @@ contains
 
 
    recursive subroutine connect_sibling(this, dst_registry, src_registry, unusable, rc)
-      class(SimpleConnection), intent(in) :: this
+      class(SimpleConnection), target, intent(in) :: this
       type(StateRegistry), target, intent(inout) :: dst_registry
       type(StateRegistry), target, intent(inout) :: src_registry
       class(KeywordEnforcer), optional, intent(in) :: unusable

@@ -32,12 +32,12 @@ contains
       _RETURN_UNLESS(this%has_geom())
 
       driver => this%get_user_gc_driver()
+      states = driver%get_states()
       call esmf_ClockGet(driver%get_clock(), currTime=currTime, _RC)
 
       user_logger => this%get_logger()
       restart_handler = RestartHandler(this%get_geom(), currTime, user_logger)
 
-      states = driver%get_states()
       subdir = get_checkpoint_subdir(this%hconfig, currTime, _RC)
 
       if (this%component_spec%misc%restart_controls%import) then

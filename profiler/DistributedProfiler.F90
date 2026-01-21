@@ -21,7 +21,6 @@ module MAPL_DistributedProfiler
    contains
       procedure :: make_meter
       procedure :: reduce
-!#      procedure :: copy
    end type DistributedProfiler
 
    interface DistributedProfiler
@@ -82,18 +81,5 @@ contains
       end do
       
    end subroutine reduce
-
-   subroutine copy(new, old)
-      class(DistributedProfiler), target, intent(inout) :: new
-      class(BaseProfiler), target, intent(in) :: old
-
-      call new%copy_profiler(old)
-      select type (old)
-      class is (DistributedProfiler)
-         new%gauge = old%gauge
-         new%comm = old%comm
-      end select
-
-   end subroutine copy
 
 end module MAPL_DistributedProfiler

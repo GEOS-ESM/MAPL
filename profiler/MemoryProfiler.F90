@@ -19,7 +19,6 @@ module MAPL_MemoryProfiler_private
       private
    contains
       procedure :: make_meter
-      procedure :: copy
    end type MemoryProfiler
 
    interface MemoryProfiler
@@ -47,16 +46,6 @@ contains
 
       _UNUSED_DUMMY(this)
    end function make_meter
-
-
-   subroutine copy(new, old)
-      class(MemoryProfiler), target, intent(inout) :: new
-      class(BaseProfiler), target, intent(in) :: old
-
-      _HERE
-!#      call new%copy_profiler(old)
-
-   end subroutine copy
 
 
 end module MAPL_MemoryProfiler_private

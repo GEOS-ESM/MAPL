@@ -23,9 +23,15 @@ It:
 
 ### 3.3 [Building complex applications: MAPL_Connect](docs/mapl_connect.md)
 
+<!--
 ### 3.4 [Doing Diagnostics: History](../../gridcomps/History/HistoryGridComp.md)
 
 ### 3.5 [Connecting Import Fields to Data on File: ExtData](../../gridcomps/ExtData2G/ExtDataGridComp.md)
+-->
+
+### 3.4 Doing Diagnostics: History (needs updating for MAPL3)
+
+### 3.5 Connecting Import Fields to Data on File: ExtData (needs updating for MAPL3)
 
 ### 3.6 [Performing Arithmetic Operations on Fields](../../base/ArthParser.md)
 

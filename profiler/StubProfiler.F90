@@ -18,7 +18,6 @@ module MAPL_StubProfiler
       private
    contains
       procedure :: make_meter
-      procedure :: copy
       procedure :: start_name, start_self
       procedure :: stop_name, stop_self
       procedure :: reduce
@@ -57,15 +56,6 @@ contains
       _UNUSED_DUMMY(this)
    end function make_meter
 
-
-   subroutine copy(new, old)
-      class(StubProfiler), target, intent(inout) :: new
-      class(BaseProfiler), target, intent(in) :: old
-
-      _HERE
-!#      call new%copy_profiler(old)
-
-   end subroutine copy
 
    subroutine start_self(this, unusable, rc)
       class(StubProfiler), target, intent(inout) :: this
