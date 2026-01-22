@@ -33,9 +33,9 @@ module mapl3g_Comms
   public comms_allreduce_min
   public comms_allreduce_max
   public comms_allreduce_sum
-  ! public MAPL_CommsSend
-  ! public MAPL_CommsRecv
-  ! public MAPL_CommsSendRecv
+  public comms_send
+  public comms_recv
+  public comms_sendrecv
   public num_pes
   public array_gather
   public array_scatter
@@ -194,32 +194,32 @@ module mapl3g_Comms
      module procedure comms_allreduce_sum_r8_2
   end interface comms_allreduce_sum
 
-  ! interface MAPL_CommsSend
-  !    module procedure MAPL_CommsSend_I4_0
-  !    module procedure MAPL_CommsSend_I4_1
-  !    module procedure MAPL_CommsSend_R4_1
-  !    module procedure MAPL_CommsSend_R4_2
-  !    module procedure MAPL_CommsSend_R8_1
-  !    module procedure MAPL_CommsSend_R8_2
-  ! end interface MAPL_CommsSend
+  interface comms_send
+     module procedure comms_send_i4_0
+     module procedure comms_send_i4_1
+     module procedure comms_send_r4_1
+     module procedure comms_send_r4_2
+     module procedure comms_send_r8_1
+     module procedure comms_send_r8_2
+  end interface comms_send
 
-  ! interface MAPL_CommsRecv
-  !    module procedure MAPL_CommsRecv_I4_0
-  !    module procedure MAPL_CommsRecv_I4_1
-  !    module procedure MAPL_CommsRecv_R4_1
-  !    module procedure MAPL_CommsRecv_R4_2
-  !    module procedure MAPL_CommsRecv_R8_1
-  !    module procedure MAPL_CommsRecv_R8_2
-  ! end interface MAPL_CommsRecv
+  interface comms_recv
+     module procedure comms_recv_i4_0
+     module procedure comms_recv_i4_1
+     module procedure comms_recv_r4_1
+     module procedure comms_recv_r4_2
+     module procedure comms_recv_r8_1
+     module procedure comms_recv_r8_2
+  end interface comms_recv
 
-  ! interface MAPL_CommsSendRecv
-  !    module procedure MAPL_CommsSendRecv_I4_0
-  !    module procedure MAPL_CommsSendRecv_R4_0
-  !    module procedure MAPL_CommsSendRecv_R4_1
-  !    module procedure MAPL_CommsSendRecv_R4_2
-  !    module procedure MAPL_CommsSendRecv_R8_1
-  !    module procedure MAPL_CommsSendRecv_R8_2
-  ! end interface MAPL_CommsSendRecv
+  interface comms_sendrecv
+     module procedure comms_sendrecv_i4_0
+     module procedure comms_sendrecv_r4_0
+     module procedure comms_sendrecv_r4_1
+     module procedure comms_sendrecv_r4_2
+     module procedure comms_sendrecv_r8_1
+     module procedure comms_sendrecv_r8_2
+  end interface comms_sendrecv
 
   interface array_scatter
      module procedure array_scatter_r4_1
@@ -241,6 +241,7 @@ module mapl3g_Comms
   end interface array_gather
 
   integer, parameter :: ROOT_PROCESS_ID = 0
+  integer, parameter :: MSG_TAG = 11
 
 contains
 
@@ -1406,80 +1407,80 @@ contains
 #define VARTYPE_ 4
 #include "allgatherv.H"
 
-!   ! Send
-! #define RANK_ 0
-! #define VARTYPE_ 1
-! #include "send.H"
+  ! Send
+#define RANK_ 0
+#define VARTYPE_ 1
+#include "send.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 1
-! #include "send.H"
+#define RANK_ 1
+#define VARTYPE_ 1
+#include "send.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 3
-! #include "send.H"
+#define RANK_ 1
+#define VARTYPE_ 3
+#include "send.H"
 
-! #define RANK_ 2
-! #define VARTYPE_ 3
-! #include "send.H"
+#define RANK_ 2
+#define VARTYPE_ 3
+#include "send.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 4
-! #include "send.H"
+#define RANK_ 1
+#define VARTYPE_ 4
+#include "send.H"
 
-! #define RANK_ 2
-! #define VARTYPE_ 4
-! #include "send.H"
+#define RANK_ 2
+#define VARTYPE_ 4
+#include "send.H"
 
-!   ! Recv
-! #define RANK_ 0
-! #define VARTYPE_ 1
-! #include "recv.H"
+  ! Recv
+#define RANK_ 0
+#define VARTYPE_ 1
+#include "recv.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 1
-! #include "recv.H"
+#define RANK_ 1
+#define VARTYPE_ 1
+#include "recv.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 3
-! #include "recv.H"
+#define RANK_ 1
+#define VARTYPE_ 3
+#include "recv.H"
 
-! #define RANK_ 2
-! #define VARTYPE_ 3
-! #include "recv.H"
+#define RANK_ 2
+#define VARTYPE_ 3
+#include "recv.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 4
-! #include "recv.H"
+#define RANK_ 1
+#define VARTYPE_ 4
+#include "recv.H"
 
-! #define RANK_ 2
-! #define VARTYPE_ 4
-! #include "recv.H"
+#define RANK_ 2
+#define VARTYPE_ 4
+#include "recv.H"
 
-!   ! SendRecv
-! #define RANK_ 0
-! #define VARTYPE_ 1
-! #include "sendrecv.H"
+  ! SendRecv
+#define RANK_ 0
+#define VARTYPE_ 1
+#include "sendrecv.H"
 
-! #define RANK_ 0
-! #define VARTYPE_ 3
-! #include "sendrecv.H"
+#define RANK_ 0
+#define VARTYPE_ 3
+#include "sendrecv.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 3
-! #include "sendrecv.H"
+#define RANK_ 1
+#define VARTYPE_ 3
+#include "sendrecv.H"
 
-! #define RANK_ 2
-! #define VARTYPE_ 3
-! #include "sendrecv.H"
+#define RANK_ 2
+#define VARTYPE_ 3
+#include "sendrecv.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 4
-! #include "sendrecv.H"
+#define RANK_ 1
+#define VARTYPE_ 4
+#include "sendrecv.H"
 
-! #define RANK_ 2
-! #define VARTYPE_ 4
-! #include "sendrecv.H"
+#define RANK_ 2
+#define VARTYPE_ 4
+#include "sendrecv.H"
 
   ! ArrayScatter
 #define RANK_ 1
