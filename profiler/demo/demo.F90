@@ -4,6 +4,7 @@ program main
    use MPI
    use MAPL_Profiler
    use MAPL_ErrorHandlingMod
+   use gFTL2_StringVector
    implicit none
 
 
@@ -13,8 +14,8 @@ program main
    type (ProfileReporter) :: reporter
    !type (ProfileReporter) :: mem_reporter
 
-   character(:), allocatable :: report_lines(:)
-   integer :: i
+   type(StringVector) :: report_lines
+   type(StringVectorIterator) :: iter
    integer :: ierror, rc, status
    character(1) :: empty(0)
 
@@ -59,8 +60,10 @@ program main
    report_lines = reporter%generate_report(lap_prof)
    write(*,'(a)')'Lap 1'
    write(*,'(a)')'====='
-   do i = 1, size(report_lines)
-      write(*,'(a)') report_lines(i)
+   iter = report_lines%begin()
+   do while (iter /= report_lines%end())
+      write(*,'(a)') iter%of()
+      call iter%next()
    end do
    write(*,'(a)')''
    call main_prof%stop('use reporter')
@@ -74,8 +77,10 @@ program main
    report_lines = reporter%generate_report(lap_prof)
    write(*,'(a)')'Lap 2'
    write(*,'(a)')'====='
-   do i = 1, size(report_lines)
-      write(*,'(a)') report_lines(i)
+   iter = report_lines%begin()
+   do while (iter /= report_lines%end())
+      write(*,'(a)') iter%of()
+      call iter%next()
    end do
    write(*,'(a)') ''
    call main_prof%stop('use reporter')
@@ -85,8 +90,10 @@ program main
    report_lines = reporter%generate_report(main_prof)
    write(*,'(a)')'Final profile'
    write(*,'(a)')'============='
-   do i = 1, size(report_lines)
-      write(*,'(a)') report_lines(i)
+   iter = report_lines%begin()
+   do while (iter /= report_lines%end())
+      write(*,'(a)') iter%of()
+      call iter%next()
    end do
    write(*,'(a)') ''
 
