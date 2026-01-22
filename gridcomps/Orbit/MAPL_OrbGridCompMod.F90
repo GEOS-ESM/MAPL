@@ -31,6 +31,7 @@
    Use MAPL_Constants
    Use MAPL_CommsMod, only: MAPL_AM_I_ROOT
    Use MAPL_ErrorHandlingMod
+   use mapl3g_generic, only: MAPL_UserCompSetInternalState, MAPL_UserCompGetInternalState
 
    IMPLICIT NONE
    PRIVATE
