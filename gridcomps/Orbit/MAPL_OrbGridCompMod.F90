@@ -5,7 +5,7 @@
 !------------------------------------------------------------------------------
 !
 #include "MAPL.h"
-#include "unused_dummy.H"
+!#include "unused_dummy.H"
 !
 !>
 !### MODULE: `MAPL_OrbGridCompMod`
@@ -27,15 +27,17 @@
    Use ESMF
    Use ESMFL_Mod
    Use MAPL_BaseMod
-   Use MAPL_GenericMod
+   !Use MAPL_GenericMod
    Use MAPL_Constants
    Use MAPL_CommsMod, only: MAPL_AM_I_ROOT
    Use MAPL_ErrorHandlingMod
-   use mapl3g_generic, only: MAPL_GridCompGet, MAPL_GridCompGetResource, MAPL_GridCompGetInternalState
+   use mapl3g_generic, only: MAPL_GridCompGet
    use mapl3g_generic, only: MAPL_UserCompSetInternalState, MAPL_UserCompGetInternalState
    use mapl3g_generic, only: MAPL_GridCompAddSpec
-   use mapl3g_VerticalStaggerLoc, only: VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER, VERTICAL_STAGGER_EDGE
-   use mapl3g_generic, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
+   use mapl3g_VerticalStaggerLoc, only: VERTICAL_STAGGER_NONE
+   use mapl3g_generic, only: MAPL_STATEITEM_FIELDBUNDLE
+   use mapl3g_generic, only: MAPL_GridCompSetEntryPoint
+   use mapl3g_Geom_API, only: MAPL_GridGet, MAPL_GridGetCoordinates
 
    IMPLICIT NONE
    PRIVATE
@@ -173,11 +175,11 @@ CONTAINS
          units="days" , &
          itemtype=MAPL_STATEITEM_FIELDBUNDLE, _RC)
 
-    call MAPL_TimerAdd (gc,name="Run"     ,_RC)
+    !call MAPL_TimerAdd (gc,name="Run"     ,_RC)
 
 !   Generic Set Services
 !   --------------------
-    call MAPL_GenericSetServices ( GC, _RC )
+    !call MAPL_GenericSetServices ( GC, _RC )
 
 !   All done
 !   --------
@@ -191,11 +193,15 @@ CONTAINS
 !
   subroutine Initialize_( GC, IMPORT, EXPORT, CLOCK, RC )
 
-    type(ESMF_GridComp), intent(inout) :: GC     !! Gridded component
-    type(ESMF_State),    intent(inout) :: IMPORT !! Import state
-    type(ESMF_State),    intent(inout) :: EXPORT !! Export state
-    type(ESMF_Clock),    intent(inout) :: CLOCK  !! The clock
-    integer, optional,   intent(  out) :: RC     !! Error code
+    type(ESMF_GridComp) :: GC     !! Gridded component
+    type(ESMF_State) :: IMPORT !! Import state
+    type(ESMF_State) :: EXPORT !! Export state
+    type(ESMF_Clock) :: CLOCK  !! The clock
+    !type(ESMF_GridComp), intent(inout) :: GC     !! Gridded component
+    !type(ESMF_State),    intent(inout) :: IMPORT !! Import state
+    !type(ESMF_State),    intent(inout) :: EXPORT !! Export state
+    !type(ESMF_Clock),    intent(inout) :: CLOCK  !! The clock
+    integer, intent(  out) :: RC     !! Error code
 
 ! ErrLog Variables
 
@@ -211,7 +217,7 @@ CONTAINS
     integer :: KND, HW, DIMS, LOCATION
     integer :: i
 !   New stuff for lat-lon grid needed if doing cube-sphere
-    type (MAPL_MetaComp),     pointer   :: MAPL_OBJ
+    !type (MAPL_MetaComp),     pointer   :: MAPL_OBJ
     character(len=ESMF_MAXSTR)    :: gridtype_default
     character(len=ESMF_MAXSTR)    :: gridtype
 !   extra things for cubed sphere
@@ -223,9 +229,9 @@ CONTAINS
 ! Get the target components name and set-up traceback handle.
 ! -----------------------------------------------------------
 
-    call MAPL_GridCompGet ( GC, name=comp_name, _RC )
+    call MAPL_GridCompGet ( GC, name=comp_name, grid=grid, _RC )
 
-    call MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK,  _RC)
+    !call MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK,  _RC)
 
      _GET_NAMED_PRIVATE_STATE(GC, Orb_State, PRIVATE_STATE, self)
 
@@ -254,8 +260,9 @@ CONTAINS
     call ESMF_InfoGet(infoh,key='GridType',value=gridtype,default=gridtype_default,_RC)
     if (gridtype=='Cubed-Sphere') then
 
-       call MAPL_GetObjectFromGC(GC,MAPL_OBJ,_RC)
-       call MAPL_Get(MAPL_OBJ, im=im, jm=jm, _RC)
+       !call MAPL_GetObjectFromGC(GC,MAPL_OBJ,_RC)
+       !call MAPL_Get(MAPL_OBJ, im=im, jm=jm, _RC)
+       call MAPL_GridGet(grid, im=im, jm=jm, _RC)
 
        allocate(EdgeLons(IM+1,JM+1),_STAT)
        allocate(EdgeLats(IM+1,JM+1),_STAT)
@@ -285,21 +292,26 @@ CONTAINS
 
 ! !INPUT PARAMETERS:
 
-   type(ESMF_Clock),  intent(inout) :: CLOCK     !! The clock
+   type(ESMF_Clock) :: CLOCK     !! The clock
+   !type(ESMF_Clock),  intent(inout) :: CLOCK     !! The clock
 
 ! !OUTPUT PARAMETERS:
 
-   type(ESMF_GridComp), intent(inout)  :: GC     !! Grid Component
-   type(ESMF_State), intent(inout) :: IMPORT     !! Import State
-   type(ESMF_State), intent(inout) :: EXPORT     !! Export State
-   integer, optional ::  rc                   !! Error return code:
+   type(ESMF_GridComp)  :: GC     !! Grid Component
+   type(ESMF_State) :: IMPORT     !! Import State
+   type(ESMF_State) :: EXPORT     !! Export State
+   !type(ESMF_GridComp), intent(inout)  :: GC     !! Grid Component
+   !type(ESMF_State), intent(inout) :: IMPORT     !! Import State
+   !type(ESMF_State), intent(inout) :: EXPORT     !! Export State
+   integer, intent(out) ::  rc                   !! Error return code:
                                                  !!  0 - all is well
                                                  !!  1 -
   ! local
-  type (MAPL_MetaComp),     pointer   :: MAPL_OBJ
-  integer                             :: IM,JM,LM
-  real, pointer, dimension(:,:)       :: LONS
-  real, pointer, dimension(:,:)       :: LATS
+  !type (MAPL_MetaComp),     pointer   :: MAPL_OBJ
+  integer                             :: IM,JM
+  real, allocatable, dimension(:,:), target :: lats, lons
+  real, pointer, dimension(:,:)  :: plats => Null(), plons => Null()
+  !real, pointer, dimension(:,:)       :: LATS
   real, pointer, dimension(:,:)       :: PTR_TMP, PTR_TMP_EX
   integer                             :: iyr,imm,idd,ihr,imn,isc
   type(ESMF_TimeInterval)             :: timeinterval
@@ -332,7 +344,7 @@ CONTAINS
 
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
-   call MAPL_GridCompGet( GC, name=comp_name, _RC )
+   call MAPL_GridCompGet( GC, name=comp_name, grid=grid, _RC )
 
 !  Extract relevant runtime information
 !  ------------------------------------
@@ -342,15 +354,19 @@ CONTAINS
       _RETURN(ESMF_SUCCESS)
    endif
 
-   call MAPL_GetObjectFromGC ( GC, MAPL_OBJ, _RC)
-   call MAPL_TimerOn(MAPL_OBJ,"Run")
-   call MAPL_Get(MAPL_OBJ,            &
-        IM                  = IM,     &
-        JM                  = JM,     &
-        LM                  = LM,     &
-        LONS     = LONS,              &
-        LATS     = LATS,              &
-        _RC )
+   !call MAPL_GetObjectFromGC ( GC, MAPL_OBJ, _RC)
+   !call MAPL_TimerOn(MAPL_OBJ,"Run")
+   call MAPL_GridGet(grid, im=im, jm=jm, _RC)
+   call MAPL_GridGetCoordinates(grid, latitudes=lats, longitudes=lons, _RC)
+   plats => lats
+   plons => lons
+   !call MAPL_Get(MAPL_OBJ,            &
+   !     IM                  = IM,     &
+   !     JM                  = JM,     &
+   !     LM                  = LM,     &
+   !     LONS     = LONS,              &
+   !     LATS     = LATS,              &
+   !     _RC )
 
 !  Figure out what type of grid we are on
 
@@ -417,7 +433,7 @@ CONTAINS
     ihalo = self%halo(k)
     jhalo = self%halo(k)
     if (gridtype == 'Lat-Lon') then
-     if (associated(PTR_TMP)) call DoMasking_ (PTR_TMP, im, jm, lons, lats, undef, &
+     if (associated(PTR_TMP)) call DoMasking_ (PTR_TMP, im, jm, plons, plats, undef, &
                               sat_name, interval_nymd, interval_nhms, deltat, swath,  &
                               ihalo, jhalo, _RC )
     else if (gridtype == 'Cubed-Sphere') then
@@ -434,7 +450,7 @@ CONTAINS
 
 !  All done
 !  --------
-   call MAPL_TimerOff(MAPL_OBJ,"Run")
+   !call MAPL_TimerOff(MAPL_OBJ,"Run")
    _RETURN(ESMF_SUCCESS)
 
    END SUBROUTINE Run_
