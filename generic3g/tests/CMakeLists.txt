@@ -14,6 +14,7 @@ set (test_srcs
   Test_ComponentSpecParser.pf
   Test_Aspects.pf
   Test_TypekindAspect.pf
+  Test_UngriddedDimsAspect.pf
   Test_BracketClassAspect.pf
   Test_ExtensionFamily.pf
 
