@@ -67,6 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add utility to destroy states including states, bundles, and fields nested in them
 - Add test of units coupling
 - Add test of typekind coupling
+- Add tests of update_payload and update_from_payload for UnitsAspect
 
 ### Changed
 

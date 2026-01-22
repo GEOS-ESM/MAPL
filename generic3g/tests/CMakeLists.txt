@@ -50,6 +50,7 @@ set (test_srcs
   Test_VectorBracketClassAspect.pf
   Test_ExtensionTransformUtils.pf
   Test_Couplers.pf
+  Test_UnitsAspect.pf
 )
 
 add_pfunit_ctest(
