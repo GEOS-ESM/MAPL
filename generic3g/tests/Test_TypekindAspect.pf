@@ -19,11 +19,8 @@ contains
       type(ESMF_Typekind_Flag), intent(in) :: tk
       integer :: status
       
-      print *, 'DEBUG: create_test_field - calling ESMF_FieldEmptyCreate'
       field = ESMF_FieldEmptyCreate(name='test_field', _RC)
-      print *, 'DEBUG: create_test_field - field created, calling MAPL_FieldSet'
       call MAPL_FieldSet(field, typekind=tk, _RC)
-      print *, 'DEBUG: create_test_field - MAPL_FieldSet completed'
    end function create_test_field
 
    ! Helper function to create a properly initialized field bundle
@@ -49,28 +46,16 @@ contains
       type(ESMF_Typekind_Flag) :: retrieved_typekind
       integer :: status
 
-      print *, 'DEBUG: Creating aspect'
-      aspect = TypekindAspect()
-      print *, 'DEBUG: Creating test field'
+      aspect = TypekindAspect(ESMF_TYPEKIND_R8)
       field = create_test_field(ESMF_TYPEKIND_R4)
-      print *, 'DEBUG: Field created, calling update_from_payload'
       
       call aspect%update_from_payload(field=field, _RC)
-      print *, 'DEBUG: update_from_payload completed'
       
-      print *, 'DEBUG: Getting typekind from aspect'
       retrieved_typekind = aspect%get_typekind()
-      print *, 'DEBUG: Retrieved typekind, value =', retrieved_typekind
-      print *, 'DEBUG: Before first assertion'
-      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_R4))
-      print *, 'DEBUG: After first assertion'
-      print *, 'DEBUG: Checking is_mirror'
-      @assert_that(aspect%is_mirror(), is(.false.))
-      print *, 'DEBUG: After second assertion'
+      @assertEqual(retrieved_typekind%dkind, ESMF_TYPEKIND_R4%dkind)
+      @assertFalse(aspect%is_mirror())
       
-      print *, 'DEBUG: Destroying field'
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
-      print *, 'DEBUG: Test completed'
    end subroutine test_update_from_payload_field_r4
 
    @test(type=ESMF_TestMethod, npes=[1])
@@ -82,14 +67,15 @@ contains
       type(ESMF_Typekind_Flag) :: retrieved_typekind
       integer :: status
 
-      aspect = TypekindAspect()
+      aspect = TypekindAspect(ESMF_TYPEKIND_R4)
+      
       field = create_test_field(ESMF_TYPEKIND_R8)
       
       call aspect%update_from_payload(field=field, _RC)
       
       retrieved_typekind = aspect%get_typekind()
-      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_R8))
-      @assert_that(aspect%is_mirror(), is(.false.))
+      @assertEqual(retrieved_typekind%dkind, ESMF_TYPEKIND_R8%dkind)
+      @assertFalse(aspect%is_mirror())
       
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
    end subroutine test_update_from_payload_field_r8
@@ -103,14 +89,15 @@ contains
       type(ESMF_Typekind_Flag) :: retrieved_typekind
       integer :: status
 
-      aspect = TypekindAspect()
+      aspect = TypekindAspect(ESMF_TYPEKIND_R4)
+      
       field = create_test_field(ESMF_TYPEKIND_I4)
       
       call aspect%update_from_payload(field=field, _RC)
       
       retrieved_typekind = aspect%get_typekind()
-      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_I4))
-      @assert_that(aspect%is_mirror(), is(.false.))
+      @assertEqual(retrieved_typekind%dkind, ESMF_TYPEKIND_I4%dkind)
+      @assertFalse(aspect%is_mirror())
       
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
    end subroutine test_update_from_payload_field_i4
@@ -124,14 +111,15 @@ contains
       type(ESMF_Typekind_Flag) :: retrieved_typekind
       integer :: status
 
-      aspect = TypekindAspect()
+      aspect = TypekindAspect(ESMF_TYPEKIND_R4)
+      
       field = create_test_field(ESMF_TYPEKIND_I8)
       
       call aspect%update_from_payload(field=field, _RC)
       
       retrieved_typekind = aspect%get_typekind()
-      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_I8))
-      @assert_that(aspect%is_mirror(), is(.false.))
+      @assertEqual(retrieved_typekind%dkind, ESMF_TYPEKIND_I8%dkind)
+      @assertFalse(aspect%is_mirror())
       
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
    end subroutine test_update_from_payload_field_i8
@@ -145,14 +133,15 @@ contains
       type(ESMF_Typekind_Flag) :: retrieved_typekind
       integer :: status
 
-      aspect = TypekindAspect()
+      aspect = TypekindAspect(ESMF_TYPEKIND_R4)
+      
       field = create_test_field(MAPL_TYPEKIND_MIRROR)
       
       call aspect%update_from_payload(field=field, _RC)
       
       retrieved_typekind = aspect%get_typekind()
-      @assert_that(retrieved_typekind, is(MAPL_TYPEKIND_MIRROR))
-      @assert_that(aspect%is_mirror(), is(.true.))
+      @assertEqual(retrieved_typekind%dkind, MAPL_TYPEKIND_MIRROR%dkind)
+      @assertTrue(aspect%is_mirror())
       
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
    end subroutine test_update_from_payload_field_mirror
@@ -169,7 +158,7 @@ contains
       ! Start with R4 typekind
       aspect = TypekindAspect(ESMF_TYPEKIND_R4)
       retrieved_typekind = aspect%get_typekind()
-      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_R4))
+      @assertEqual(retrieved_typekind%dkind, ESMF_TYPEKIND_R4%dkind)
       
       ! Create field with R8 typekind
       field = create_test_field(ESMF_TYPEKIND_R8)
@@ -178,7 +167,7 @@ contains
       call aspect%update_from_payload(field=field, _RC)
       
       retrieved_typekind = aspect%get_typekind()
-      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_R8))
+      @assertEqual(retrieved_typekind%dkind, ESMF_TYPEKIND_R8%dkind)
       
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
    end subroutine test_update_from_payload_overwrite_existing
@@ -196,14 +185,14 @@ contains
       type(ESMF_Typekind_Flag) :: retrieved_typekind
       integer :: status
 
-      aspect = TypekindAspect()
+      aspect = TypekindAspect(ESMF_TYPEKIND_R8)
       bundle = create_test_bundle(ESMF_TYPEKIND_R4)
       
       call aspect%update_from_payload(bundle=bundle, _RC)
       
       retrieved_typekind = aspect%get_typekind()
-      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_R4))
-      @assert_that(aspect%is_mirror(), is(.false.))
+      @assertEqual(retrieved_typekind%dkind, ESMF_TYPEKIND_R4%dkind)
+      @assertFalse(aspect%is_mirror())
       
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
    end subroutine test_update_from_payload_bundle_r4
@@ -217,14 +206,14 @@ contains
       type(ESMF_Typekind_Flag) :: retrieved_typekind
       integer :: status
 
-      aspect = TypekindAspect()
+      aspect = TypekindAspect(ESMF_TYPEKIND_R4)
       bundle = create_test_bundle(ESMF_TYPEKIND_R8)
       
       call aspect%update_from_payload(bundle=bundle, _RC)
       
       retrieved_typekind = aspect%get_typekind()
-      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_R8))
-      @assert_that(aspect%is_mirror(), is(.false.))
+      @assertEqual(retrieved_typekind%dkind, ESMF_TYPEKIND_R8%dkind)
+      @assertFalse(aspect%is_mirror())
       
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
    end subroutine test_update_from_payload_bundle_r8
@@ -238,14 +227,14 @@ contains
       type(ESMF_Typekind_Flag) :: retrieved_typekind
       integer :: status
 
-      aspect = TypekindAspect()
+      aspect = TypekindAspect(ESMF_TYPEKIND_R4)
       bundle = create_test_bundle(MAPL_TYPEKIND_MIRROR)
       
       call aspect%update_from_payload(bundle=bundle, _RC)
       
       retrieved_typekind = aspect%get_typekind()
-      @assert_that(retrieved_typekind, is(MAPL_TYPEKIND_MIRROR))
-      @assert_that(aspect%is_mirror(), is(.true.))
+      @assertEqual(retrieved_typekind%dkind, MAPL_TYPEKIND_MIRROR%dkind)
+      @assertTrue(aspect%is_mirror())
       
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
    end subroutine test_update_from_payload_bundle_mirror
@@ -273,7 +262,7 @@ contains
       
       ! Verify field now has R4 typekind
       call MAPL_FieldGet(field, typekind=retrieved_typekind, _RC)
-      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_R4))
+      @assertEqual(retrieved_typekind%dkind, ESMF_TYPEKIND_R4%dkind)
       
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
    end subroutine test_update_payload_field_r4
@@ -294,7 +283,7 @@ contains
       call aspect%update_payload(field=field, _RC)
       
       call MAPL_FieldGet(field, typekind=retrieved_typekind, _RC)
-      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_R8))
+      @assertEqual(retrieved_typekind%dkind, ESMF_TYPEKIND_R8%dkind)
       
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
    end subroutine test_update_payload_field_r8
@@ -315,7 +304,7 @@ contains
       call aspect%update_payload(field=field, _RC)
       
       call MAPL_FieldGet(field, typekind=retrieved_typekind, _RC)
-      @assert_that(retrieved_typekind, is(MAPL_TYPEKIND_MIRROR))
+      @assertEqual(retrieved_typekind%dkind, MAPL_TYPEKIND_MIRROR%dkind)
       
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
    end subroutine test_update_payload_field_mirror
@@ -340,7 +329,7 @@ contains
       call aspect%update_payload(bundle=bundle, _RC)
       
       call MAPL_FieldBundleGet(bundle, typekind=retrieved_typekind, _RC)
-      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_R4))
+      @assertEqual(retrieved_typekind%dkind, ESMF_TYPEKIND_R4%dkind)
       
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
    end subroutine test_update_payload_bundle_r4
@@ -361,7 +350,7 @@ contains
       call aspect%update_payload(bundle=bundle, _RC)
       
       call MAPL_FieldBundleGet(bundle, typekind=retrieved_typekind, _RC)
-      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_R8))
+      @assertEqual(retrieved_typekind%dkind, ESMF_TYPEKIND_R8%dkind)
       
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
    end subroutine test_update_payload_bundle_r8
@@ -382,7 +371,7 @@ contains
       call aspect%update_payload(bundle=bundle, _RC)
       
       call MAPL_FieldBundleGet(bundle, typekind=retrieved_typekind, _RC)
-      @assert_that(retrieved_typekind, is(MAPL_TYPEKIND_MIRROR))
+      @assertEqual(retrieved_typekind%dkind, MAPL_TYPEKIND_MIRROR%dkind)
       
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
    end subroutine test_update_payload_bundle_mirror
@@ -414,8 +403,8 @@ contains
       ! Should match original
       tk1 = aspect1%get_typekind()
       tk2 = aspect2%get_typekind()
-      @assert_that(tk2, is(tk1))
-      @assert_that(tk2, is(ESMF_TYPEKIND_R4))
+      @assertEqual(tk2%dkind, tk1%dkind)
+      @assertEqual(tk2%dkind, ESMF_TYPEKIND_R4%dkind)
       
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
    end subroutine test_roundtrip_field_r4
@@ -430,7 +419,7 @@ contains
       integer :: status
 
       aspect1 = TypekindAspect(MAPL_TYPEKIND_MIRROR)
-      @assert_that(aspect1%is_mirror(), is(.true.))
+      @assertTrue(aspect1%is_mirror())
       
       field = create_test_field(ESMF_TYPEKIND_R4)
       call aspect1%update_payload(field=field, _RC)
@@ -440,9 +429,9 @@ contains
       
       tk1 = aspect1%get_typekind()
       tk2 = aspect2%get_typekind()
-      @assert_that(tk2, is(tk1))
-      @assert_that(tk2, is(MAPL_TYPEKIND_MIRROR))
-      @assert_that(aspect2%is_mirror(), is(.true.))
+      @assertEqual(tk2%dkind, tk1%dkind)
+      @assertEqual(tk2%dkind, MAPL_TYPEKIND_MIRROR%dkind)
+      @assertTrue(aspect2%is_mirror())
       
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
    end subroutine test_roundtrip_field_mirror
@@ -456,6 +445,7 @@ contains
       ! Test that update_from_payload returns early when neither field nor bundle is present
       class(ESMF_TestMethod), intent(inout) :: this
       type(TypekindAspect) :: aspect
+      type(ESMF_Typekind_Flag) :: retrieved_typekind
       integer :: status
 
       aspect = TypekindAspect(ESMF_TYPEKIND_R4)
@@ -464,7 +454,8 @@ contains
       call aspect%update_from_payload(_RC)
       
       ! Aspect should be unchanged
-      @assert_that(aspect%get_typekind(), is(ESMF_TYPEKIND_R4))
+      retrieved_typekind = aspect%get_typekind()
+      @assertEqual(retrieved_typekind%dkind, ESMF_TYPEKIND_R4%dkind)
    end subroutine test_update_from_payload_no_field_or_bundle
 
    @test(type=ESMF_TestMethod, npes=[1])
@@ -479,8 +470,7 @@ contains
       ! Call with no field or bundle - should return successfully without error
       call aspect%update_payload(_RC)
       
-      ! Should succeed (just returns early)
-      @assert_that(status, is(0))
+      ! Should succeed without error (test passes if no error thrown)
    end subroutine test_update_payload_no_field_or_bundle
 
 end module Test_TypekindAspect
