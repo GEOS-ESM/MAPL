@@ -31,7 +31,11 @@
    Use MAPL_Constants
    Use MAPL_CommsMod, only: MAPL_AM_I_ROOT
    Use MAPL_ErrorHandlingMod
+   use mapl3g_generic, only: MAPL_GridCompGet, MAPL_GridCompGetResource, MAPL_GridCompGetInternalState
    use mapl3g_generic, only: MAPL_UserCompSetInternalState, MAPL_UserCompGetInternalState
+   use mapl3g_generic, only: MAPL_GridCompAddSpec
+   use mapl3g_VerticalStaggerLoc, only: VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER, VERTICAL_STAGGER_EDGE
+   use mapl3g_generic, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
 
    IMPLICIT NONE
    PRIVATE
@@ -60,13 +64,6 @@
 
   END TYPE Orb_State
 
-! Hook for the ESMF
-! -----------------
-!  TYPE Orb_Wrap
-!     TYPE (Orb_State), pointer :: PTR => null()
-!  END TYPE Orb_WRAP
-!
-!------------------------------------------------------------------------------
 CONTAINS
 !------------------------------------------------------------------------------
 !>
@@ -78,34 +75,28 @@ CONTAINS
     type(ESMF_GridComp), intent(INOUT) :: GC  ! gridded component
     integer, intent(out), optional     :: RC  ! return code
 
+    __Iam__('SetServices')
+
 !   Local derived type aliases
 !   --------------------------
     type (Orb_State), pointer  :: self   ! internal, that is
-!    type (Orb_wrap)            :: wrap
 
-    character(len=ESMF_MAXSTR) :: comp_name
+    character(len=:), allocatable :: comp_name
 
     integer :: i, nCols
-                            _Iam_('SetServices')
-    integer :: status
+    !integer :: status
     logical :: found
 !                              ------------
 
 !   Get my name and set-up traceback handle
 !   ---------------------------------------
-    call ESMF_GridCompGet( GC, name=comp_name, _RC )
-    Iam = TRIM(comp_name) // '::' // TRIM(Iam)
+    call MAPL_GridCompGet( GC, name=comp_name, _RC )
 
 !   Greetings
 !   ---------
     IF(MAPL_AM_I_ROOT()) THEN
          PRINT *, TRIM(Iam)//': ACTIVE'
     END IF
-
-!   Wrap internal state for storing in GC; rename legacyState
-!   -------------------------------------
-!    allocate ( self, _STAT )
-!    wrap%ptr => self
 
 !   Load private Config Attributes
 !   ------------------------------
@@ -156,27 +147,31 @@ CONTAINS
 !   Store internal state in GC
 !   --------------------------
     _SET_NAMED_PRIVATE_STATE(GC, Orb_state, PRIVATE_STATE)
-!    call ESMF_UserCompSetInternalState ( GC, 'Orb_state', wrap, STATUS )
 
 !                         ------------------
 !                         MAPL Data Services
 !
     ! in addition to bundle add each instrument as export in case we want to write out in history
+
     do i=1,self%no
-       call MAPL_AddExportSpec(GC, &
-        SHORT_NAME     = trim(self%Instrument(i)) , &
-        UNITS          = 'days' , &
-        DIMS           = MAPL_DimsHorzOnly , &
-                _RC )
+        call MAPL_GridCompAddSpec(gc, &
+             state_intent=ESMF_STATEINTENT_EXPORT, &
+             short_name=trim(self%Instrument(i)) , &
+             standard_name=trim(self%Instrument(i)) , &
+             dims="xy", &
+             vstagger=VERTICAL_STAGGER_NONE, &
+             units="days" , &
+               _RC)
     enddo
 
-    call MAPL_AddExportSpec(GC, &
-     SHORT_NAME     = 'SATORB', &
-     LONG_NAME      = 'Satellite_orbits', &
-     UNITS          = 'days' , &
-     DIMS           = MAPL_DimsHorzOnly , &
-     DATATYPE       = MAPL_BundleItem , &
-                _RC )
+    call MAPL_GridCompAddSpec(gc, &
+         state_intent=ESMF_STATEINTENT_EXPORT, &
+         short_name="SATORB", &
+         standard_name="Satellite_orbits", &
+         dims="xy", &
+         vstagger=VERTICAL_STAGGER_NONE, &
+         units="days" , &
+         itemtype=MAPL_STATEITEM_FIELDBUNDLE, _RC)
 
     call MAPL_TimerAdd (gc,name="Run"     ,_RC)
 
@@ -204,17 +199,14 @@ CONTAINS
 
 ! ErrLog Variables
 
-    character(len=ESMF_MAXSTR)              :: IAm
     integer                                 :: STATUS
-    character(len=ESMF_MAXSTR)              :: COMP_NAME
+    character(len=:), allocatable :: comp_name
 
 ! Local
-    type(ESMF_VM)                           :: VM
     type(ESMF_FIELD)                        :: FIELD
     type(ESMF_GRID)                         :: GRID
     type(ESMF_FIELDBUNDLE)                  :: BUNDLE
     type(Orb_state), pointer           :: self         ! Legacy state
-!    type(Orb_Wrap)               :: wrap
 
     integer :: KND, HW, DIMS, LOCATION
     integer :: i
@@ -231,14 +223,11 @@ CONTAINS
 ! Get the target components name and set-up traceback handle.
 ! -----------------------------------------------------------
 
-    call ESMF_GridCompGet ( GC, name=COMP_NAME, VM=VM, _RC )
-    Iam = trim(COMP_NAME)//'::Initialize_'
+    call MAPL_GridCompGet ( GC, name=comp_name, _RC )
 
     call MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK,  _RC)
 
      _GET_NAMED_PRIVATE_STATE(GC, Orb_State, PRIVATE_STATE, self)
-!    call ESMF_UserCompGetInternalState(gc, 'Orb_state', WRAP, STATUS)
-!    self => wrap%ptr
 
     if (self%no == 0) then
        _RETURN(ESMF_SUCCESS)
@@ -246,7 +235,7 @@ CONTAINS
 
     call ESMF_StateGet(EXPORT,'SATORB',BUNDLE,_RC)
 
-    call ESMF_GridCompGet ( GC, grid=GRID, _RC)
+    call MAPL_GridCompGet ( GC, grid=GRID, _RC)
 
     ! set some info about the fields we will be adding . . .
     HW=0
@@ -307,7 +296,6 @@ CONTAINS
                                                  !!  0 - all is well
                                                  !!  1 -
   ! local
-  type (ESMF_VM)                      :: VM
   type (MAPL_MetaComp),     pointer   :: MAPL_OBJ
   integer                             :: IM,JM,LM
   real, pointer, dimension(:,:)       :: LONS
@@ -330,7 +318,7 @@ CONTAINS
 
   integer                       :: k, nymd, nhms  ! date, time
 
-  character(len=ESMF_MAXSTR)    :: comp_name
+  character(len=:), allocatable :: comp_name
   character(len=ESMF_MAXSTR)    :: gridtype_default
   character(len=ESMF_MAXSTR)    :: gridtype
 
@@ -339,14 +327,12 @@ CONTAINS
   integer                       :: NORB
   integer                       :: IM_world,JM_world,counts(5),imsize
   integer                       :: status
-                                _Iam_('Run_')
 
    _UNUSED_DUMMY(IMPORT)
 
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
-   call ESMF_GridCompGet( GC, name=comp_name, VM=VM, _RC )
-   Iam = trim(comp_name) // '::Run'
+   call MAPL_GridCompGet( GC, name=comp_name, _RC )
 
 !  Extract relevant runtime information
 !  ------------------------------------
@@ -470,26 +456,20 @@ CONTAINS
 
 !                                      ---
 
-    character(len=ESMF_MAXSTR) :: comp_name
+    character(len=:), allocatable :: comp_name
 
-                                 _Iam_('extract_')
-
-!    type(Orb_Wrap)               :: wrap
     integer                       :: iyr, imm, idd, ihr, imn, isc
     integer                       :: status
 
 !   Get my name and set-up traceback handle
 !   ---------------------------------------
-    call ESMF_GridCompGet( GC, NAME=comp_name, _RC )
-    Iam = trim(COMP_NAME) // '::extract_'
+    call MAPL_GridCompGet( GC, NAME=comp_name, _RC )
 
     rc = 0
 
 !   Get my internal state
 !   ---------------------
      _GET_NAMED_PRIVATE_STATE(GC, Orb_State, PRIVATE_STATE, self)
-!    call ESMF_UserCompGetInternalState(gc, 'Orb_state', WRAP, STATUS)
-!    self => wrap%ptr
 
 !   Get the configuration
 !   ---------------------
@@ -504,7 +484,7 @@ CONTAINS
 
 !   Extract the ESMF Grid
 !   ---------------------
-    call ESMF_GridCompGet ( GC, grid=GRID, _RC)
+    call MAPL_GridCompGet ( GC, grid=GRID, _RC)
 
     _RETURN(ESMF_SUCCESS)
 
