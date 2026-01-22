@@ -1,6 +1,7 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_VectorBasis) new_GridVectorBasis_smod
+   implicit none(type,external)
 contains
 
    ! Valid only for grids.

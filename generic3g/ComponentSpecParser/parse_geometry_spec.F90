@@ -7,7 +7,7 @@ submodule (mapl3g_ComponentSpecParser) parse_geometry_spec_smod
    use mapl3g_VerticalGrid_API
    use mapl3g_ModelVerticalGrid
 
-   implicit none(external,type)
+   implicit none(type,external)
 
 contains
 

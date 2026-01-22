@@ -2,7 +2,7 @@
 
 submodule (mapl3g_OuterMetaComponent) get_name_smod
    use mapl_ErrorHandling
-   implicit none
+   implicit none(type,external)
 
 contains
 

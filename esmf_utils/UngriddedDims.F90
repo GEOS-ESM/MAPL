@@ -52,10 +52,14 @@ module mapl3g_UngriddedDims
 
 contains
 
-   function new_UngriddedDims_empty() result(spec)
+   function new_UngriddedDims_empty(is_mirror) result(spec)
       type(UngriddedDims) :: spec
+      logical, optional, intent(in) :: is_mirror
 
       spec%dim_specs = UngriddedDimVector()
+      if (present(is_mirror)) then
+         spec%is_mirror = is_mirror
+      end if
 
    end function new_UngriddedDims_empty
 

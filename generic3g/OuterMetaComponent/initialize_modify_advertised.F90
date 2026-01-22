@@ -7,7 +7,7 @@ submodule (mapl3g_OuterMetaComponent) initialize_modify_advertised_smod
    use mapl3g_ConnectionVector, only: ConnectionVectorIterator
    use mapl3g_ConnectionVector, only: operator(/=)
    use mapl_ErrorHandling
-   implicit none
+   implicit none(type,external)
 
 contains
 

@@ -5,13 +5,13 @@ submodule (mapl3g_OuterMetaComponent) finalize_smod
    use mapl3g_GriddedComponentDriverMap
    use mapl3g_GenericPhases
    use mapl_ErrorHandling
-   use MAPL_CommsMod, only: MAPL_Am_I_Root
    use MAPL_Profiler, only: ProfileReporter
    use MAPL_Profiler, only: MultiColumn, NameColumn, FormattedTextColumn, PercentageColumn
    use MAPL_Profiler, only: InclusiveColumn, ExclusiveColumn, SeparatorColumn, NumCyclesColumn
-   use pflogger, only: logger_t => logger
+   use pflogger, only: logger_t => logger, logging
+   use gFTL2_StringVector
 
-   implicit none (type, external)
+   implicit none(type,external)
 
 contains
 
@@ -75,24 +75,30 @@ contains
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      character(:), allocatable :: report(:)
+      type(StringVector) :: report
       type(ProfileReporter) :: reporter
       type(MultiColumn) :: min_multi, mean_multi, max_multi, pe_multi, n_cyc_multi
       type(ESMF_VM) :: vm
       character(1) :: empty(0)
       class(logger_t), pointer :: logger
-      integer :: index, status
+      character(:), allocatable :: component_name
+      integer :: status, localPet
+      type(StringVectorIterator) :: iter
 
-      logger => this%get_logger()
+      ! Use a child logger for profiling output to allow independent formatting control
+      component_name = this%user_gc_driver%get_name()
+      logger => logging%get_logger(component_name // '.profile')
 
       ! Generate stats _across_ processes covered by this timer
       ! Requires consistent call trees for now.
       call this%profiler%reduce()
 
+      ! Only root process needs to generate and output the report
       call ESMF_VmGetCurrent(vm, _RC)
-      if  (MAPL_AM_I_Root(vm)) then
+      call ESMF_VmGet(vm, localPet=localPet, _RC)
+      if (localPet == 0) then
          reporter = ProfileReporter(empty)
-         call reporter%add_column(NameColumn(25, separator=" "))
+      call reporter%add_column(NameColumn(25, separator=" "))
 
          min_multi = MultiColumn(['Min'], separator='=')
          call min_multi%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MIN')), separator='-'))
@@ -130,12 +136,13 @@ contains
          report = reporter%generate_report(this%profiler)
          call logger%info('')
          call logger%info('Times for component <%a~>', this%user_gc_driver%get_name())
-         do index = 1, size(report)
-            call logger%info('%a', report(index))
+         iter = report%begin()
+         do while (iter /= report%end())
+            call logger%info('%a', iter%of())
+            call iter%next()
          end do
          call logger%info('')
       end if
-
       _RETURN(ESMF_SUCCESS)
    end subroutine report_generic_profile
 

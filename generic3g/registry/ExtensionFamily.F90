@@ -13,7 +13,7 @@ module mapl3g_ExtensionFamily
    use mapl3g_StateItemExtensionPtrVector
    use mapl_ErrorHandling
    use gFTL2_StringVector
-   implicit none
+   implicit none(type,external)
    private
 
    public :: ExtensionFamily

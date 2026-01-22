@@ -74,8 +74,11 @@ module mapl3g_ModelVerticalGrid
       procedure :: create_grid_from_spec
    end type ModelVerticalGridFactory
 
+   interface ModelVerticalGridSpec
+      procedure new_ModelVerticalGridSpec
+   end interface ModelVerticalGridSpec
 
-  interface ModelVerticalGrid
+   interface ModelVerticalGrid
       procedure new_ModelVerticalGrid_basic
    end interface ModelVerticalGrid
 
@@ -92,6 +95,18 @@ module mapl3g_ModelVerticalGrid
 
 contains
 
+   function new_ModelVerticalGridSpec(names, physical_dimensions, num_levels) result(spec)
+      type(ModelVerticalGridSpec) :: spec
+      type(StringVector), intent(in) :: names
+      type(StringVector), intent(in) :: physical_dimensions
+      integer, intent(in) ::  num_levels
+
+      spec%names = names
+      spec%physical_dimensions = physical_dimensions
+      spec%num_levels = num_levels
+
+   end function new_ModelVerticalGridSpec
+
    function new_ModelVerticalGrid_basic(physical_dimension, short_name, num_levels) result(vgrid)
       type(ModelVerticalGrid) :: vgrid
       character(*), intent(in) :: physical_dimension
@@ -102,6 +117,7 @@ contains
       call vgrid%spec%names%push_back(short_name)
       call vgrid%spec%physical_dimensions%push_back(physical_dimension)
    end function new_ModelVerticalGrid_basic
+
 
    integer function get_num_levels(this) result(num_levels)
       class(ModelVerticalGrid), intent(in) :: this
@@ -215,6 +231,7 @@ contains
       call aspects%insert(UNITS_ASPECT_ID, UnitsAspect(units))
       call aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, UngriddedDimsAspect(UngriddedDimS()))
       call aspects%insert(ATTRIBUTES_ASPECT_ID, AttributesAspect())
+      call goal_spec%create(_RC)
       
       new_extension => this%registry%extend(v_pt, goal_spec, _RC)
       coupler => new_extension%get_producer()

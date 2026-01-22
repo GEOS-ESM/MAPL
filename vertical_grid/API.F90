@@ -1,5 +1,6 @@
 module mapl3g_VerticalGrid_API
    use mapl3g_VerticalGrid, only: VerticalGrid
+   use mapl3g_VerticalGrid, only: VERTICAL_GRID_NOT_FOUND
    use mapl3g_VerticalGridSpec, only: VerticalGridSpec
    use mapl3g_VerticalGridFactory, only: VerticalGridFactory
    use mapl3g_VerticalGridManager, only: VerticalGridManager
@@ -16,7 +17,7 @@ module mapl3g_VerticalGrid_API
    public :: VerticalGrid
    public :: VerticalGridSpec
    public :: VerticalGridFactory
-   
+
    ! Manager
    public :: VerticalGridManager
    public :: get_vertical_grid_manager
@@ -37,5 +38,9 @@ module mapl3g_VerticalGrid_API
    public :: BasicVerticalGrid
    public :: BasicVerticalGridSpec
    public :: BasicVerticalGridFactory
+
+   ! Parameters
+   public :: VERTICAL_GRID_NOT_FOUND
+  
    
 end module mapl3g_VerticalGrid_API

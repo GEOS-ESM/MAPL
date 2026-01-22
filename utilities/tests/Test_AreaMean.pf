@@ -1,0 +1,24 @@
+module Test_AreaMean
+
+   use pfunit
+   use mapl3g_AreaMean, only: AreaMean
+
+   implicit none
+
+contains
+
+   @test(npes=[1])
+   subroutine test_area_mean(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      real :: x(2, 3), area(2, 3), area_mean
+      integer :: status
+
+      x = reshape([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape(x))
+      area = 2.0
+      area_mean = AreaMean(x, area, this%getMpiCommunicator(), rc=status)
+      @assert_that(status, is(0))
+      @assert_that(area_mean, is(3.5))
+   end subroutine test_area_mean
+
+end module Test_AreaMean

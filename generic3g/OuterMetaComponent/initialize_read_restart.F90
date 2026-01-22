@@ -8,7 +8,7 @@ submodule (mapl3g_OuterMetaComponent) initialize_read_restart_smod
    use mapl3g_RestartHandler, only: RestartHandler
    use mapl_OS
 
-   implicit none
+   implicit none(type,external)
 
 contains
 

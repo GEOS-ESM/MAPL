@@ -383,7 +383,10 @@ contains
       integer :: status
       integer :: rank
 
+      element_count = [integer :: ] ! must allocate even under failure
       call ESMF_FieldGet(x, rank=rank, _RC)
+
+      deallocate(element_count)
       allocate(element_count(rank))
       ! ESMF has a big fat bug with multi tile grids and loal element count
       !call ESMF_FieldGet(x, localElementCount=element_count, _RC)
@@ -482,7 +485,6 @@ contains
       call ESMF_InfoGetFromHost(x, x_info, _RC)
       call ESMF_InfoGetFromHost(y, y_info, _RC)
       call ESMF_InfoUpdate(y_info, x_info, recursive=.true., _RC)
-      y_info = x_info
 
       _RETURN(_SUCCESS)
    end subroutine clone
@@ -891,8 +893,13 @@ contains
       integer(kind=ESMF_KIND_I4), pointer :: i4_1d(:),i4_2d(:,:),i4_3d(:,:,:),i4_4d(:,:,:,:)
       integer(kind=ESMF_KIND_I8), pointer :: i8_1d(:),i8_2d(:,:),i8_3d(:,:,:),i8_4d(:,:,:,:)
 
-      call ESMF_FieldGet(field,rank=rank,typekind=tk,_RC)
+      integer, parameter :: MAX_RANK = 4
 
+      local_count = [integer :: ] ! default in case of failure
+      call ESMF_FieldGet(field,rank=rank,typekind=tk,_RC)
+      _ASSERT(rank <= MAX_RANK, 'Need to extend FieldPointerUtilities for rank > 4.')
+
+      deallocate(local_count)
       if (tk == ESMF_TypeKind_R4) then
          select case(rank)
          case(1)

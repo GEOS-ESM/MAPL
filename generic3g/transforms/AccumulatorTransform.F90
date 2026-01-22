@@ -7,7 +7,7 @@ module mapl3g_AccumulatorTransform
    use MAPL_FieldPointerUtilities
    use MAPL_ExceptionHandling
    use ESMF
-   implicit none
+   implicit none(type,external)
    private
    public :: AccumulatorTransform
    public :: construct_AccumulatorTransform

@@ -88,6 +88,8 @@ module mapl3g_StateItemAspect
       procedure(I_update_from_payload), deferred :: update_from_payload
       procedure(I_update_payload), deferred :: update_payload
 
+      procedure :: print_aspect
+
    end type StateItemAspect
 
 #include "map/specification.inc"
@@ -267,6 +269,16 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(import)
    end subroutine connect_to_import
+
+   ! default
+   subroutine print_aspect(this, file, line, rc)
+      class(StateItemAspect), intent(in) :: this
+      character(*), intent(in) :: file
+      integer, intent(in) :: line
+      integer, optional, intent(out) :: rc
+
+      _RETURN(_SUCCESS)
+   end subroutine print_aspect
    
 
 #undef AspectPair

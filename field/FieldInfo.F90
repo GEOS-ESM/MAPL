@@ -1,19 +1,23 @@
 #include "MAPL.h"
 
 module mapl3g_FieldInfo
+
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
    use mapl3g_esmf_info_keys, only: INFO_SHARED_NAMESPACE
    use mapl3g_esmf_info_keys, only: INFO_INTERNAL_NAMESPACE
    use mapl3g_esmf_info_keys, only: INFO_PRIVATE_NAMESPACE
    use mapl3g_InfoUtilities
+   use mapl3g_VerticalGrid_API
    use mapl3g_UngriddedDims
    use mapl3g_VerticalStaggerLoc
    use mapl3g_StateItemAllocation
    use mapl3g_RestartModes, only: RestartMode, MAPL_RESTART_REQUIRED
+   use mapl3g_HorizontalDimsSpec, only: HorizontalDimsSpec, HORIZONTAL_DIMS_UNKNOWN, to_HorizontalDimsSpec
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
    use gftl2_StringVector
+
    implicit none(type,external)
    private
 
@@ -47,43 +51,47 @@ module mapl3g_FieldInfo
       procedure :: field_info_copy_shared
    end interface FieldInfoCopyShared
 
-   character(*), parameter :: KEY_VGRID_ID = "/vgrid_id"
    character(*), parameter :: KEY_TYPEKIND = "/typekind"
    character(*), parameter :: KEY_UNITS = "/units"
    character(*), parameter :: KEY_ATTRIBUTES = "/attributes"
    character(*), parameter :: KEY_LONG_NAME = "/long_name"
    character(*), parameter :: KEY_STANDARD_NAME = "/standard_name"
+   character(*), parameter :: KEY_HORIZONTAL_DIMS_SPEC = "/horizontal_dims_spec"
+   character(*), parameter :: KEY_VGRID_ID = "/vgrid_id"
    character(*), parameter :: KEY_NUM_LEVELS = "/num_levels"
    character(*), parameter :: KEY_NUM_VGRID_LEVELS = "/num_vgrid_levels"
    character(*), parameter :: KEY_VERT_STAGGERLOC = "/vert_staggerloc"
    character(*), parameter :: KEY_VERT_DIM = "/vert_dim"
    character(*), parameter :: KEY_UNGRIDDED_DIMS = "/ungridded_dims"
    character(*), parameter :: KEY_ALLOCATION_STATUS = "/allocation_status"
+   character(*), parameter :: KEY_REGRIDDER_PARAM = "/EsmfRegridderParam"
 
    character(*), parameter :: KEY_UNDEF_VALUE = "/undef_value"
    character(*), parameter :: KEY_MISSING_VALUE = "/missing_value"
    character(*), parameter :: KEY_FILL_VALUE = "/_FillValue"
 
-   character(*), parameter :: KEY_SPEC_HANDLE = "/spec_handle"
    character(*), parameter :: KEY_RESTART_MODE = "/restart_mode"
+   character(*), parameter :: KEY_HAS_DEFERRED_ASPECTS = "/has_deferred_aspects"
 
 contains
 
    subroutine field_info_set_internal(info, unusable, &
         namespace, &
         typekind, &
-        num_levels, vert_staggerloc, &
+        horizontal_dims_spec, &
+        vgrid_id, num_levels, vert_staggerloc, &
         ungridded_dims, &
         units, long_name, standard_name, &
         allocation_status, &
-        vgrid_id, &
-        spec_handle, &
+        has_deferred_aspects, &
+        regridder_param_info, &
         rc)
       type(ESMF_Info), intent(inout) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: namespace
-      integer, optional, intent(in) :: vgrid_id
       type(esmf_typekind_Flag), optional, intent(in) :: typekind
+      type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
+      integer, optional, intent(in) :: vgrid_id
       integer, optional, intent(in) :: num_levels
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
@@ -91,7 +99,8 @@ contains
       character(*), optional, intent(in) :: long_name
       character(*), optional, intent(in) :: standard_name
       type(StateItemAllocation), optional, intent(in) :: allocation_status
-      integer, optional, intent(in) :: spec_handle(:)
+      logical, optional, intent(in) :: has_deferred_aspects
+      type(esmf_info), optional, intent(in) :: regridder_param_info
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -104,18 +113,24 @@ contains
          namespace_ = namespace
       end if
 
-      if (present(vgrid_id)) then
-         call mapl_InfoSet(info, namespace_ // KEY_VGRID_ID, vgrid_id, _RC)
-      end if
-
       if (present(typekind)) then
          str = to_string(typekind)
          call MAPL_InfoSet(info, namespace_ // KEY_TYPEKIND, str, _RC)
       end if
 
+      if (present(horizontal_dims_spec)) then
+         str = horizontal_dims_spec%to_string()
+         call MAPL_InfoSet(info, namespace_ // KEY_HORIZONTAL_DIMS_SPEC, str, _RC)
+      end if
+
+      if (present(vgrid_id)) then
+         call mapl_InfoSet(info, namespace_ // KEY_VGRID_ID, vgrid_id, _RC)
+      end if
+
       if (present(ungridded_dims)) then
          ungridded_info = ungridded_dims%make_info(_RC)
          call MAPL_InfoSet(info, namespace_ // KEY_UNGRIDDED_DIMS, ungridded_info, _RC)
+         call esmf_InfoDestroy(ungridded_info, _RC)
       end if
 
       if (present(units)) then
@@ -134,13 +149,18 @@ contains
          call MAPL_InfoSet(info, namespace_ // KEY_NUM_LEVELS, num_levels, _RC)
       end if
 
+      if (present(regridder_param_info)) then
+         call MAPL_InfoSet(info, namespace_ // KEY_REGRIDDER_PARAM, regridder_param_info, _RC)
+         _HERE
+      end if
+
       if (present(vert_staggerloc)) then
          call MAPL_InfoSet(info, namespace_ // KEY_VERT_STAGGERLOC, vert_staggerloc%to_string(), _RC)
 
          ! Delete later - needed for transition
 
          if (present(num_levels) .and. present(vert_staggerloc)) then
-            
+
             if (vert_staggerLoc == VERTICAL_STAGGER_NONE) then
                call MAPL_InfoSet(info, namespace_ // KEY_VERT_DIM, "VERTICAL_DIM_NONE", _RC)
                call MAPL_InfoSet(info, namespace_ // KEY_NUM_VGRID_LEVELS, 0, _RC)
@@ -161,8 +181,8 @@ contains
          call MAPL_InfoSet(info, namespace_ // KEY_ALLOCATION_STATUS, allocation_status%to_string(), _RC)
       end if
 
-      if (present(spec_handle)) then
-         call MAPL_InfoSet(info, namespace_ // KEY_SPEC_HANDLE, spec_handle, _RC)
+      if (present(has_deferred_aspects)) then
+         call MAPL_InfoSet(info, namespace_ // KEY_HAS_DEFERRED_ASPECTS, has_deferred_aspects, _RC)
       end if
 
       _RETURN(_SUCCESS)
@@ -171,20 +191,22 @@ contains
 
    subroutine field_info_get_internal(info, unusable, &
         namespace, &
-        vgrid_id, &
         typekind, &
-        num_levels, vert_staggerloc, num_vgrid_levels, &
+        horizontal_dims_spec, &
+        vgrid_id, num_levels, vert_staggerloc, num_vgrid_levels, &
         units, &
         long_name, standard_name, &
         ungridded_dims, &
         allocation_status, &
-        spec_handle, &
+        has_deferred_aspects, &
+        regridder_param_info, &
         rc)
       type(ESMF_Info), intent(in) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: namespace
-      integer, optional, intent(out) :: vgrid_id
       type(esmf_TypeKind_Flag), optional, intent(out) :: typekind
+      type(HorizontalDimsSpec), optional, intent(out) :: horizontal_dims_spec
+      integer, optional, intent(out) :: vgrid_id
       integer, optional, intent(out) :: num_levels
       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
       integer, optional, intent(out) :: num_vgrid_levels
@@ -193,26 +215,22 @@ contains
       character(:), optional, allocatable, intent(out) :: standard_name
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       type(StateItemAllocation), optional, intent(out) :: allocation_status
-      integer, optional, allocatable, intent(out) :: spec_handle(:)
+      logical, optional, intent(out) :: has_deferred_aspects
+      type(esmf_Info), allocatable, optional, intent(out) :: regridder_param_info
       integer, optional, intent(out) :: rc
 
       integer :: status
       integer :: num_levels_
-      type(ESMF_Info) :: ungridded_info
+      type(esmf_Info) :: ungridded_info
       character(:), allocatable :: vert_staggerloc_str, allocation_status_str
       type(VerticalStaggerLoc) :: vert_staggerloc_
-      character(:), allocatable :: namespace_ 
+      character(:), allocatable :: namespace_
       character(:), allocatable :: str
-      logical :: key_is_present
       logical :: is_present
-      
+
       namespace_ = INFO_INTERNAL_NAMESPACE
       if (present(namespace)) then
          namespace_ = namespace
-      end if
-
-      if (present(vgrid_id)) then
-         call mapl_InfoGet(info, namespace_ // KEY_VGRID_ID, vgrid_id, _RC)
       end if
 
       if (present(typekind)) then
@@ -220,15 +238,43 @@ contains
          typekind = to_Typekind(str)
       end if
 
+      if (present(horizontal_dims_spec)) then
+         call MAPL_InfoGet(info, namespace_ // KEY_HORIZONTAL_DIMS_SPEC, str, _RC)
+         horizontal_dims_spec = to_HorizontalDimsSpec(str)
+      end if
+
+      if (present(vgrid_id)) then
+         call esmf_InfoGet(info, key=namespace_ // KEY_VGRID_ID, &
+              value=vgrid_id, default=VERTICAL_GRID_NOT_FOUND, _RC)
+      end if
+
       if (present(ungridded_dims)) then
-         ungridded_info = ESMF_InfoCreate(info, namespace_ // KEY_UNGRIDDED_DIMS, _RC)
-         ungridded_dims = make_UngriddedDims(ungridded_info, _RC)
+         is_present = esmf_InfoIsPresent(info, namespace_ // KEY_UNGRIDDED_DIMS, _RC)
+         if (is_present) then
+            ungridded_info = ESMF_InfoCreate(info, namespace_ // KEY_UNGRIDDED_DIMS, _RC)
+            ungridded_dims = make_UngriddedDims(ungridded_info, _RC)
+            call esmf_InfoDestroy(ungridded_info, _RC)
+         else
+            ungridded_dims = UngriddedDims(is_mirror=.true.)
+         end if
+      end if
+
+      if (present(regridder_param_info)) then
+         is_present = esmf_InfoIsPresent(info, namespace_ // KEY_REGRIDDER_PARAM, _RC)
+         if (is_present) then
+            regridder_param_info = esmf_InfoCreate(info, namespace_ // KEY_REGRIDDER_PARAM, _RC)
+         end if
       end if
 
       if (present(num_levels) .or. present(num_vgrid_levels)) then
-         call MAPL_InfoGet(info, namespace_ // KEY_NUM_LEVELS, num_levels_, _RC)
-         if (present(num_levels)) then
-            num_levels = num_levels_
+         is_present = esmf_InfoIsPresent(info, namespace_ // KEY_NUM_LEVELS, _RC)
+         if (is_present) then
+            call MAPL_InfoGet(info, namespace_ // KEY_NUM_LEVELS, num_levels_, _RC)
+            if (present(num_levels)) then
+               num_levels = num_levels_
+            end if
+         else
+            num_levels = 0
          end if
       end if
 
@@ -242,7 +288,7 @@ contains
 
       if (present(num_vgrid_levels)) then
          if (vert_staggerloc_ == VERTICAL_STAGGER_NONE) then
-            num_vgrid_levels = 0
+            num_vgrid_levels = 0 ! num_levels_ must not be used here
          else if (vert_staggerloc_ == VERTICAL_STAGGER_EDGE) then
             num_vgrid_levels = num_levels_ - 1
          else if (vert_staggerloc_ == VERTICAL_STAGGER_CENTER) then
@@ -252,8 +298,11 @@ contains
          end if
       end if
 
-      if (present(units)) then
-         call MAPL_InfoGet(info, namespace_ // KEY_UNITS, units, _RC)
+      if (present(units)) then ! leave unallocated unless found
+         is_present = esmf_InfoIsPresent(info, key=namespace_ // KEY_UNITS, _RC)
+         if (is_present) then
+            call MAPL_InfoGet(info, namespace_ // KEY_UNITS, units, _RC)
+         end if
       end if
 
       if (present(long_name)) then
@@ -269,14 +318,14 @@ contains
          allocation_status = StateItemAllocation(allocation_status_str)
       end if
 
-      if (present(spec_handle)) then
-         call MAPL_InfoGet(info, namespace_ // KEY_SPEC_HANDLE, spec_handle, _RC)
+      if (present(has_deferred_aspects)) then
+         call esmf_InfoGet(info, key=namespace_ // KEY_HAS_DEFERRED_ASPECTS, &
+              value=has_deferred_aspects, default=.false., _RC)
       end if
 
-      _RETURN(_SUCCESS)
+     _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine field_info_get_internal
-
 
    subroutine field_info_set_internal_restart_mode(info, named_alias_id, restart_mode, rc)
       type(ESMF_Info), intent(inout) :: info
@@ -320,7 +369,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine field_info_get_internal_restart_mode
-
 
    subroutine info_field_get_shared_i4(field, key, value, unusable, rc)
       type(ESMF_Field), intent(in) :: field
@@ -459,6 +507,5 @@ contains
       end select
 
    end function to_typekind
-
 
 end module mapl3g_FieldInfo

@@ -4,7 +4,9 @@ module mapl3g_FieldCreate
 
    use mapl3g_VerticalStaggerLoc
    use mapl3g_FieldInfo
+   use mapl3g_FieldGet
    use mapl3g_UngriddedDims
+   use mapl3g_HorizontalDimsSpec
    use mapl3g_StateItemAllocation
    use mapl3g_LU_Bound
    use mapl_KeywordEnforcer
@@ -24,12 +26,20 @@ module mapl3g_FieldCreate
    end interface MAPL_FieldCreate
 
    interface MAPL_FieldEmptyComplete
+      procedure :: field_empty_complete_from_info
       procedure :: field_empty_complete
    end interface MAPL_FieldEmptyComplete
 
    interface MAPL_FieldsAreAliased
       procedure :: fields_are_aliased
    end interface MAPL_FieldsAreAliased
+
+
+   ! internal
+   interface make_bounds
+      procedure :: make_bounds_from_field
+      procedure :: make_bounds_from_args
+   end interface make_bounds
 
 contains
 
@@ -77,6 +87,97 @@ contains
       _UNUSED_DUMMY(unusable)
    end function field_create
 
+   subroutine field_empty_complete_from_info(field, rc)
+      type(ESMF_Field), intent(inout) :: field
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(esmf_Geom) :: geom
+      integer, allocatable :: grid_to_field_map(:)
+      type(LU_Bound), allocatable :: bounds(:)
+      type(UngriddedDims) :: ungridded_dims
+      type(esmf_TypeKind_Flag) :: typekind
+      integer :: num_levels
+      type(esmf_FieldStatus_Flag) :: fstatus
+
+      call esmf_FieldGet(field, status=fstatus, _RC)
+      _ASSERT(fstatus == ESMF_FIELDSTATUS_GRIDSET, "Field must have a grid to allocate.")
+      grid_to_field_map = make_grid_to_field_map(field, _RC)
+      bounds = make_bounds(field, _RC)
+
+      call FieldGet(field, typekind=typekind, _RC)
+      call esmf_FieldEmptyComplete( &
+           field, &
+           typekind=typekind, &
+           gridToFieldMap=grid_to_field_map, &
+           ungriddedLBound=bounds%lower, &
+           ungriddedUBound=bounds%upper, &
+           _RC)
+          
+      _RETURN(_SUCCESS)
+   end subroutine field_empty_complete_from_info
+
+   function make_grid_to_field_map(field, rc) result(grid_to_field_map)
+      integer, allocatable :: grid_to_field_map(:)
+      type(ESMF_Field), intent(in) :: field
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Geom), allocatable :: geom
+      type(HorizontalDimsSpec) :: horizontal_dims_spec
+      integer :: idim, dim_count
+
+      grid_to_field_map = [integer::] ! function result must always be allocated
+
+      call FieldGet(field, geom=geom, horizontal_dims_spec=horizontal_dims_spec, _RC)
+      _ASSERT(allocated(geom), "Must specify a geom before FieldComplete.")
+      _ASSERT(horizontal_dims_spec /= HORIZONTAL_DIMS_UNKNOWN, "should be one of GEOM/NONE")
+
+      call ESMF_GeomGet(geom, dimCount=dim_count, _RC)
+      grid_to_field_map = [(0, idim=1,dim_count)]
+      if (horizontal_dims_spec == HORIZONTAL_DIMS_GEOM) then
+         grid_to_field_map = [(idim, idim=1,dim_count)]
+      end if
+
+      _RETURN(_SUCCESS)
+   end function make_grid_to_field_map
+
+   function make_bounds_from_field(field, rc) result(bounds)
+      type(LU_Bound), allocatable :: bounds(:)
+      type(ESMF_Field), intent(in) :: field
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: field_info
+      type(UngriddedDims) :: ungridded_dims
+      integer :: num_levels
+
+      bounds = [LU_Bound :: ] ! function result must always be allocated
+      call FieldGet(field, num_levels=num_levels, ungridded_dims=ungridded_dims, _RC)
+      bounds = make_bounds(num_levels=num_levels, ungridded_dims=ungridded_dims)
+
+      _RETURN(_SUCCESS)
+   end function make_bounds_from_field
+
+   function make_bounds_from_args(num_levels, ungridded_dims) result(bounds)
+      type(LU_Bound), allocatable :: bounds(:)
+      integer, optional, intent(in) :: num_levels
+      type(UngriddedDims), optional, intent(in) :: ungridded_dims
+
+      bounds = [LU_Bound :: ]
+
+      if (present(num_levels)) then
+         if (num_levels > 0) then
+            bounds = [bounds, LU_Bound(1, num_levels)]
+         end if
+      end if
+
+      if (present(ungridded_dims)) then
+         bounds = [bounds, ungridded_dims%get_bounds()]
+      end if
+
+   end function make_bounds_from_args
+
    subroutine field_empty_complete(field, &
         typekind, unusable, &
         gridToFieldMap, ungridded_dims, &
@@ -112,6 +213,7 @@ contains
          allocate(grid_to_field_map(dim_count), source=[(idim, idim=1,dim_count)])
       end if
       bounds = make_bounds(num_levels=num_levels, ungridded_dims=ungridded_dims)
+      
       call ESMF_FieldEmptyComplete( &
            field, &
            typekind=typekind, &
@@ -140,23 +242,6 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine field_empty_complete
-
-   function make_bounds(num_levels, ungridded_dims) result(bounds)
-      type(LU_Bound), allocatable :: bounds(:)
-      integer, optional, intent(in) :: num_levels
-      type(UngriddedDims), optional, intent(in) :: ungridded_dims
-
-      bounds = [LU_Bound :: ]
-
-      if (present(num_levels)) then
-         bounds = [bounds, LU_Bound(1, num_levels)]
-      end if
-
-      if (present(ungridded_dims)) then
-         bounds = [bounds, ungridded_dims%get_bounds()]
-      end if
-
-   end function make_bounds
 
    subroutine vertical_level_sanity_check(num_levels, vertical_stagger, rc)
       integer, optional, intent(in) :: num_levels

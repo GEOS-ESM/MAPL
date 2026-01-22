@@ -3,13 +3,13 @@
 
 module ProtoStatGridComp
    use mapl3g_State_API
+   use mapl3g_Field_API
    use mapl3g_Generic
    use mapl3g_esmf_subset
    use mapl3g_VerticalStaggerLoc
-   use mapl3g_StateItemModify
    use mapl_ErrorHandling
    use esmf
-   implicit none(type, external)
+   implicit none(type,external)
    private
 
    public :: setservices
@@ -62,7 +62,7 @@ contains
       _RETURN_IF(exports_ready)
       
       call esmf_StateGet(exportState, itemName='avg_T', field=field, _RC)
-      call mapl_FieldModify(field, has_deferred_aspects=.false., _RC)
+      call mapl_FieldSet(field, has_deferred_aspects = .false., _RC)
 
       exports_ready = .true.
 

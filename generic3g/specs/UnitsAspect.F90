@@ -40,6 +40,7 @@ module mapl3g_UnitsAspect
 
       procedure :: update_from_payload
       procedure :: update_payload
+      procedure :: print_aspect
    end type UnitsAspect
 
    interface UnitsAspect
@@ -207,7 +208,7 @@ contains
       integer :: status
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
-
+        
       if (present(field)) then
          call mapl_FieldGet(field, units=this%units, _RC)
       else if (present(bundle)) then
@@ -239,5 +240,18 @@ contains
       _RETURN(_SUCCESS)
    end subroutine update_payload
  
+   subroutine print_aspect(this, file, line, rc)
+      class(UnitsAspect), intent(in) :: this
+      character(*), intent(in) :: file
+      integer, intent(in) :: line
+      integer, optional, intent(out) :: rc
+
+      _HERE, file, line, this%is_mirror(), allocated(this%units)
+      if (allocated(this%units)) then
+         _HERE, file, line, '<', this%units, '>'
+      end if
+      
+      _RETURN(_SUCCESS)
+   end subroutine print_aspect
 
 end module mapl3g_UnitsAspect

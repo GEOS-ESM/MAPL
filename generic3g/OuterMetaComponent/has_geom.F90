@@ -2,7 +2,7 @@
 
 submodule (mapl3g_OuterMetaComponent) has_geom_smod
 
-   implicit none
+   implicit none(type,external)
 
 contains
 

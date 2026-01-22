@@ -8,6 +8,7 @@ module mapl3g_VerticalGrid
    private
    
    public :: VerticalGrid
+   public :: VERTICAL_GRID_NOT_FOUND
    
    type, abstract :: VerticalGrid
       private
@@ -74,7 +75,10 @@ module mapl3g_VerticalGrid
 
    end interface
 
+   integer, parameter :: VERTICAL_GRID_NOT_FOUND = -1
+
 contains
+
    function get_id(this) result(id)
       integer :: id
       class(VerticalGrid), intent(in) :: this

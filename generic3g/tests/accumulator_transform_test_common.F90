@@ -7,7 +7,7 @@ module accumulator_transform_test_common
    use esmf
    use funit
    use MAPL_FieldUtils
-   implicit none
+   implicit none(type,external)
 
    integer, parameter :: R4 = ESMF_KIND_R4
    integer, parameter :: R8 = ESMF_KIND_R8
