@@ -1,0 +1,486 @@
+#include "MAPL_TestErr.h"
+
+module Test_TypekindAspect
+   use funit
+   use mapl3g_TypekindAspect
+   use mapl3g_Field_API
+   use mapl3g_FieldBundle_API
+   use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
+   use mapl_ErrorHandling
+   use esmf
+   use ESMF_TestMethod_mod
+   implicit none
+
+contains
+
+   ! Helper function to create a properly initialized field
+   function create_test_field(tk) result(field)
+      type(ESMF_Field) :: field
+      type(ESMF_Typekind_Flag), intent(in) :: tk
+      integer :: status
+      
+      print *, 'DEBUG: create_test_field - calling ESMF_FieldEmptyCreate'
+      field = ESMF_FieldEmptyCreate(name='test_field', _RC)
+      print *, 'DEBUG: create_test_field - field created, calling MAPL_FieldSet'
+      call MAPL_FieldSet(field, typekind=tk, _RC)
+      print *, 'DEBUG: create_test_field - MAPL_FieldSet completed'
+   end function create_test_field
+
+   ! Helper function to create a properly initialized field bundle
+   function create_test_bundle(tk) result(bundle)
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Typekind_Flag), intent(in) :: tk
+      integer :: status
+      
+      bundle = ESMF_FieldBundleCreate(name='test_bundle', _RC)
+      call MAPL_FieldBundleSet(bundle, typekind=tk, _RC)
+   end function create_test_bundle
+
+   ! =============================================================================
+   ! Tests for update_from_payload with ESMF_Field
+   ! =============================================================================
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_field_r4(this)
+      ! Test updating TypekindAspect from an ESMF_Field with R4 typekind
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(TypekindAspect) :: aspect
+      type(ESMF_Field) :: field
+      type(ESMF_Typekind_Flag) :: retrieved_typekind
+      integer :: status
+
+      print *, 'DEBUG: Creating aspect'
+      aspect = TypekindAspect()
+      print *, 'DEBUG: Creating test field'
+      field = create_test_field(ESMF_TYPEKIND_R4)
+      print *, 'DEBUG: Field created, calling update_from_payload'
+      
+      call aspect%update_from_payload(field=field, _RC)
+      print *, 'DEBUG: update_from_payload completed'
+      
+      print *, 'DEBUG: Getting typekind from aspect'
+      retrieved_typekind = aspect%get_typekind()
+      print *, 'DEBUG: Retrieved typekind, value =', retrieved_typekind
+      print *, 'DEBUG: Before first assertion'
+      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_R4))
+      print *, 'DEBUG: After first assertion'
+      print *, 'DEBUG: Checking is_mirror'
+      @assert_that(aspect%is_mirror(), is(.false.))
+      print *, 'DEBUG: After second assertion'
+      
+      print *, 'DEBUG: Destroying field'
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+      print *, 'DEBUG: Test completed'
+   end subroutine test_update_from_payload_field_r4
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_field_r8(this)
+      ! Test updating TypekindAspect from an ESMF_Field with R8 typekind
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(TypekindAspect) :: aspect
+      type(ESMF_Field) :: field
+      type(ESMF_Typekind_Flag) :: retrieved_typekind
+      integer :: status
+
+      aspect = TypekindAspect()
+      field = create_test_field(ESMF_TYPEKIND_R8)
+      
+      call aspect%update_from_payload(field=field, _RC)
+      
+      retrieved_typekind = aspect%get_typekind()
+      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_R8))
+      @assert_that(aspect%is_mirror(), is(.false.))
+      
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+   end subroutine test_update_from_payload_field_r8
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_field_i4(this)
+      ! Test updating TypekindAspect from an ESMF_Field with I4 typekind
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(TypekindAspect) :: aspect
+      type(ESMF_Field) :: field
+      type(ESMF_Typekind_Flag) :: retrieved_typekind
+      integer :: status
+
+      aspect = TypekindAspect()
+      field = create_test_field(ESMF_TYPEKIND_I4)
+      
+      call aspect%update_from_payload(field=field, _RC)
+      
+      retrieved_typekind = aspect%get_typekind()
+      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_I4))
+      @assert_that(aspect%is_mirror(), is(.false.))
+      
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+   end subroutine test_update_from_payload_field_i4
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_field_i8(this)
+      ! Test updating TypekindAspect from an ESMF_Field with I8 typekind
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(TypekindAspect) :: aspect
+      type(ESMF_Field) :: field
+      type(ESMF_Typekind_Flag) :: retrieved_typekind
+      integer :: status
+
+      aspect = TypekindAspect()
+      field = create_test_field(ESMF_TYPEKIND_I8)
+      
+      call aspect%update_from_payload(field=field, _RC)
+      
+      retrieved_typekind = aspect%get_typekind()
+      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_I8))
+      @assert_that(aspect%is_mirror(), is(.false.))
+      
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+   end subroutine test_update_from_payload_field_i8
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_field_mirror(this)
+      ! Test updating TypekindAspect from an ESMF_Field with MIRROR typekind
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(TypekindAspect) :: aspect
+      type(ESMF_Field) :: field
+      type(ESMF_Typekind_Flag) :: retrieved_typekind
+      integer :: status
+
+      aspect = TypekindAspect()
+      field = create_test_field(MAPL_TYPEKIND_MIRROR)
+      
+      call aspect%update_from_payload(field=field, _RC)
+      
+      retrieved_typekind = aspect%get_typekind()
+      @assert_that(retrieved_typekind, is(MAPL_TYPEKIND_MIRROR))
+      @assert_that(aspect%is_mirror(), is(.true.))
+      
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+   end subroutine test_update_from_payload_field_mirror
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_overwrite_existing(this)
+      ! Test that update_from_payload overwrites existing typekind
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(TypekindAspect) :: aspect
+      type(ESMF_Field) :: field
+      type(ESMF_Typekind_Flag) :: retrieved_typekind
+      integer :: status
+
+      ! Start with R4 typekind
+      aspect = TypekindAspect(ESMF_TYPEKIND_R4)
+      retrieved_typekind = aspect%get_typekind()
+      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_R4))
+      
+      ! Create field with R8 typekind
+      field = create_test_field(ESMF_TYPEKIND_R8)
+      
+      ! Update should overwrite R4 with R8
+      call aspect%update_from_payload(field=field, _RC)
+      
+      retrieved_typekind = aspect%get_typekind()
+      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_R8))
+      
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+   end subroutine test_update_from_payload_overwrite_existing
+
+   ! =============================================================================
+   ! Tests for update_from_payload with ESMF_FieldBundle
+   ! =============================================================================
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_bundle_r4(this)
+      ! Test updating TypekindAspect from an ESMF_FieldBundle with R4 typekind
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(TypekindAspect) :: aspect
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Typekind_Flag) :: retrieved_typekind
+      integer :: status
+
+      aspect = TypekindAspect()
+      bundle = create_test_bundle(ESMF_TYPEKIND_R4)
+      
+      call aspect%update_from_payload(bundle=bundle, _RC)
+      
+      retrieved_typekind = aspect%get_typekind()
+      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_R4))
+      @assert_that(aspect%is_mirror(), is(.false.))
+      
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+   end subroutine test_update_from_payload_bundle_r4
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_bundle_r8(this)
+      ! Test updating TypekindAspect from an ESMF_FieldBundle with R8 typekind
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(TypekindAspect) :: aspect
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Typekind_Flag) :: retrieved_typekind
+      integer :: status
+
+      aspect = TypekindAspect()
+      bundle = create_test_bundle(ESMF_TYPEKIND_R8)
+      
+      call aspect%update_from_payload(bundle=bundle, _RC)
+      
+      retrieved_typekind = aspect%get_typekind()
+      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_R8))
+      @assert_that(aspect%is_mirror(), is(.false.))
+      
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+   end subroutine test_update_from_payload_bundle_r8
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_bundle_mirror(this)
+      ! Test updating TypekindAspect from an ESMF_FieldBundle with MIRROR typekind
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(TypekindAspect) :: aspect
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Typekind_Flag) :: retrieved_typekind
+      integer :: status
+
+      aspect = TypekindAspect()
+      bundle = create_test_bundle(MAPL_TYPEKIND_MIRROR)
+      
+      call aspect%update_from_payload(bundle=bundle, _RC)
+      
+      retrieved_typekind = aspect%get_typekind()
+      @assert_that(retrieved_typekind, is(MAPL_TYPEKIND_MIRROR))
+      @assert_that(aspect%is_mirror(), is(.true.))
+      
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+   end subroutine test_update_from_payload_bundle_mirror
+
+   ! =============================================================================
+   ! Tests for update_payload with ESMF_Field
+   ! =============================================================================
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_field_r4(this)
+      ! Test updating an ESMF_Field from TypekindAspect with R4 typekind
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(TypekindAspect) :: aspect
+      type(ESMF_Field) :: field
+      type(ESMF_Typekind_Flag) :: retrieved_typekind
+      integer :: status
+
+      aspect = TypekindAspect(ESMF_TYPEKIND_R4)
+      
+      ! Start with a different typekind
+      field = create_test_field(ESMF_TYPEKIND_R8)
+      
+      ! Update field from aspect
+      call aspect%update_payload(field=field, _RC)
+      
+      ! Verify field now has R4 typekind
+      call MAPL_FieldGet(field, typekind=retrieved_typekind, _RC)
+      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_R4))
+      
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+   end subroutine test_update_payload_field_r4
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_field_r8(this)
+      ! Test updating an ESMF_Field from TypekindAspect with R8 typekind
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(TypekindAspect) :: aspect
+      type(ESMF_Field) :: field
+      type(ESMF_Typekind_Flag) :: retrieved_typekind
+      integer :: status
+
+      aspect = TypekindAspect(ESMF_TYPEKIND_R8)
+      
+      field = create_test_field(ESMF_TYPEKIND_R4)
+      
+      call aspect%update_payload(field=field, _RC)
+      
+      call MAPL_FieldGet(field, typekind=retrieved_typekind, _RC)
+      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_R8))
+      
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+   end subroutine test_update_payload_field_r8
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_field_mirror(this)
+      ! Test updating an ESMF_Field from TypekindAspect with MIRROR typekind
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(TypekindAspect) :: aspect
+      type(ESMF_Field) :: field
+      type(ESMF_Typekind_Flag) :: retrieved_typekind
+      integer :: status
+
+      aspect = TypekindAspect(MAPL_TYPEKIND_MIRROR)
+      
+      field = create_test_field(ESMF_TYPEKIND_R4)
+      
+      call aspect%update_payload(field=field, _RC)
+      
+      call MAPL_FieldGet(field, typekind=retrieved_typekind, _RC)
+      @assert_that(retrieved_typekind, is(MAPL_TYPEKIND_MIRROR))
+      
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+   end subroutine test_update_payload_field_mirror
+
+   ! =============================================================================
+   ! Tests for update_payload with ESMF_FieldBundle
+   ! =============================================================================
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_bundle_r4(this)
+      ! Test updating an ESMF_FieldBundle from TypekindAspect with R4 typekind
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(TypekindAspect) :: aspect
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Typekind_Flag) :: retrieved_typekind
+      integer :: status
+
+      aspect = TypekindAspect(ESMF_TYPEKIND_R4)
+      
+      bundle = create_test_bundle(ESMF_TYPEKIND_R8)
+      
+      call aspect%update_payload(bundle=bundle, _RC)
+      
+      call MAPL_FieldBundleGet(bundle, typekind=retrieved_typekind, _RC)
+      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_R4))
+      
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+   end subroutine test_update_payload_bundle_r4
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_bundle_r8(this)
+      ! Test updating an ESMF_FieldBundle from TypekindAspect with R8 typekind
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(TypekindAspect) :: aspect
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Typekind_Flag) :: retrieved_typekind
+      integer :: status
+
+      aspect = TypekindAspect(ESMF_TYPEKIND_R8)
+      
+      bundle = create_test_bundle(ESMF_TYPEKIND_R4)
+      
+      call aspect%update_payload(bundle=bundle, _RC)
+      
+      call MAPL_FieldBundleGet(bundle, typekind=retrieved_typekind, _RC)
+      @assert_that(retrieved_typekind, is(ESMF_TYPEKIND_R8))
+      
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+   end subroutine test_update_payload_bundle_r8
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_bundle_mirror(this)
+      ! Test updating an ESMF_FieldBundle from TypekindAspect with MIRROR typekind
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(TypekindAspect) :: aspect
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Typekind_Flag) :: retrieved_typekind
+      integer :: status
+
+      aspect = TypekindAspect(MAPL_TYPEKIND_MIRROR)
+      
+      bundle = create_test_bundle(ESMF_TYPEKIND_R4)
+      
+      call aspect%update_payload(bundle=bundle, _RC)
+      
+      call MAPL_FieldBundleGet(bundle, typekind=retrieved_typekind, _RC)
+      @assert_that(retrieved_typekind, is(MAPL_TYPEKIND_MIRROR))
+      
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+   end subroutine test_update_payload_bundle_mirror
+
+   ! =============================================================================
+   ! Tests for round-trip: aspect -> payload -> aspect
+   ! =============================================================================
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_roundtrip_field_r4(this)
+      ! Test that aspect -> field -> aspect preserves typekind
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(TypekindAspect) :: aspect1, aspect2
+      type(ESMF_Field) :: field
+      type(ESMF_Typekind_Flag) :: tk1, tk2
+      integer :: status
+
+      ! Create aspect with R4
+      aspect1 = TypekindAspect(ESMF_TYPEKIND_R4)
+      
+      ! Create field and update from aspect
+      field = create_test_field(ESMF_TYPEKIND_R8)
+      call aspect1%update_payload(field=field, _RC)
+      
+      ! Create new aspect and update from field
+      aspect2 = TypekindAspect()
+      call aspect2%update_from_payload(field=field, _RC)
+      
+      ! Should match original
+      tk1 = aspect1%get_typekind()
+      tk2 = aspect2%get_typekind()
+      @assert_that(tk2, is(tk1))
+      @assert_that(tk2, is(ESMF_TYPEKIND_R4))
+      
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+   end subroutine test_roundtrip_field_r4
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_roundtrip_field_mirror(this)
+      ! Test that aspect -> field -> aspect preserves MIRROR typekind
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(TypekindAspect) :: aspect1, aspect2
+      type(ESMF_Field) :: field
+      type(ESMF_Typekind_Flag) :: tk1, tk2
+      integer :: status
+
+      aspect1 = TypekindAspect(MAPL_TYPEKIND_MIRROR)
+      @assert_that(aspect1%is_mirror(), is(.true.))
+      
+      field = create_test_field(ESMF_TYPEKIND_R4)
+      call aspect1%update_payload(field=field, _RC)
+      
+      aspect2 = TypekindAspect()
+      call aspect2%update_from_payload(field=field, _RC)
+      
+      tk1 = aspect1%get_typekind()
+      tk2 = aspect2%get_typekind()
+      @assert_that(tk2, is(tk1))
+      @assert_that(tk2, is(MAPL_TYPEKIND_MIRROR))
+      @assert_that(aspect2%is_mirror(), is(.true.))
+      
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+   end subroutine test_roundtrip_field_mirror
+
+   ! =============================================================================
+   ! Corner case: no field or bundle provided
+   ! =============================================================================
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_no_field_or_bundle(this)
+      ! Test that update_from_payload returns early when neither field nor bundle is present
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(TypekindAspect) :: aspect
+      integer :: status
+
+      aspect = TypekindAspect(ESMF_TYPEKIND_R4)
+      
+      ! Call with no field or bundle - should return successfully without error
+      call aspect%update_from_payload(_RC)
+      
+      ! Aspect should be unchanged
+      @assert_that(aspect%get_typekind(), is(ESMF_TYPEKIND_R4))
+   end subroutine test_update_from_payload_no_field_or_bundle
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_no_field_or_bundle(this)
+      ! Test that update_payload returns early when neither field nor bundle is present
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(TypekindAspect) :: aspect
+      integer :: status
+
+      aspect = TypekindAspect(ESMF_TYPEKIND_R8)
+      
+      ! Call with no field or bundle - should return successfully without error
+      call aspect%update_payload(_RC)
+      
+      ! Should succeed (just returns early)
+      @assert_that(status, is(0))
+   end subroutine test_update_payload_no_field_or_bundle
+
+end module Test_TypekindAspect

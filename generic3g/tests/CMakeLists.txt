@@ -13,6 +13,7 @@ set (test_srcs
   Test_ComponentSpec.pf
   Test_ComponentSpecParser.pf
   Test_Aspects.pf
+  Test_TypekindAspect.pf
   Test_BracketClassAspect.pf
   Test_ExtensionFamily.pf
 
