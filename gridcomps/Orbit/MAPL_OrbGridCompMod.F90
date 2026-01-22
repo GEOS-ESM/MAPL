@@ -4,7 +4,7 @@
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
 !
-#include "MAPL.h"
+#include "MAPL_Generic.h"
 !#include "unused_dummy.H"
 !
 !>
@@ -28,7 +28,7 @@
    Use ESMFL_Mod
    Use MAPL_BaseMod
    !Use MAPL_GenericMod
-   Use MAPL_Constants
+   !Use MAPL_Constants
    Use MAPL_CommsMod, only: MAPL_AM_I_ROOT
    Use MAPL_ErrorHandlingMod
    use mapl3g_generic, only: MAPL_GridCompGet
@@ -38,6 +38,7 @@
    use mapl3g_generic, only: MAPL_STATEITEM_FIELDBUNDLE
    use mapl3g_generic, only: MAPL_GridCompSetEntryPoint
    use mapl3g_Geom_API, only: MAPL_GridGet, MAPL_GridGetCoordinates
+   use mapl3g_State_API, only: MAPL_StateGetPointer
 
    IMPLICIT NONE
    PRIVATE
@@ -426,7 +427,7 @@ CONTAINS
 !  loop over each satellite and get it's mask
    do k=1,NORB
     call ESMFL_BundleGetPointerToData(BUNDLE,trim(self%instrument(k)),PTR_TMP,_RC)
-    call MAPL_GetPointer(EXPORT,PTR_TMP_EX,trim(self%instrument(k)),_RC)
+    call MAPL_StateGetPointer(EXPORT, itemName=trim(self%instrument(k)), farrayPtr=PTR_TMP_EX, _RC)
     sat_name=trim(self%Satellite(k))
     swath(1)=self%swath(k)
     swath(2)=self%swath(k)
