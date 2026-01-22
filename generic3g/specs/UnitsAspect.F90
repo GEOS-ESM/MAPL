@@ -10,6 +10,7 @@ module mapl3g_UnitsAspect
    use mapl3g_Field_API
    use mapl3g_FieldBundle_API
    use mapl3g_FieldRemove
+   use mapl3g_FieldBundleRemove
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use udunits2f, only: are_convertible
@@ -234,7 +235,10 @@ contains
 
       if(this%is_mirror()) then
          if (present(field)) then
-            call MAPL_FieldRemove(field, units=.True., _RC)
+            call MAPL_FieldRemove(field, units=.TRUE., _RC)
+         else if (present(bundle)) then
+            _HERE, 'bundle present'
+            call mapl_FieldBundleRemove(bundle, units=.TRUE., _RC)
          end if
          _RETURN(_SUCCESS)
       end if

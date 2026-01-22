@@ -153,10 +153,16 @@ contains
 
       bundle=ESMF_FieldBundleCreate(_RC)
       call MAPL_FieldBundleSet(bundle, units=DST_UNITS, _RC)
+      _HERE, 'Checking that units is set.'
+      call MAPL_FieldBundleGet(bundle, units=units, _RC)
+      _HERE, 'units: ', trim(units)
       before=UnitsAspect()
+      _HERE, "is_mirror: ", before%is_mirror()
 
+      if(allocated(units)) deallocate(units)
       call before%update_payload(bundle=bundle, _RC)
       call MAPL_FieldBundleGet(bundle, units=units, _RC)
+      _HERE, "allocated: ", allocated(units)
       @assertFalse(allocated(units), 'units should not be allocated.')
       call ESMF_FieldBundleDestroy(bundle, _RC)
 

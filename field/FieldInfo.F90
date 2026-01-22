@@ -139,6 +139,7 @@ contains
       end if
 
       if (present(units)) then
+         _HERE
          call MAPL_InfoSet(info, namespace_ // KEY_UNITS, units, _RC)
       end if
 
@@ -374,8 +375,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine field_info_get_internal_restart_mode
 
-   subroutine field_info_remove_internal(info, unusable, namespace,&
-         & units, rc)
+   subroutine field_info_remove_internal(info, unusable, namespace, units, rc)
       type(ESMF_Info), intent(inout) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: namespace
@@ -386,16 +386,21 @@ contains
       logical :: is_present
       character(len=:), allocatable :: full_key
 
+      _HERE, 'attempting to remove'
       namespace_ = INFO_INTERNAL_NAMESPACE
       if (present(namespace)) then
          namespace_ = namespace
       end if
 
+      _HERE, 'namespace_: ' // trim(namespace_)
       if(present(units)) then
          full_key = namespace_ // KEY_UNITS
-         is_present = units && ESMF_InfoIsPresent(info, full_key, _RC)
+         _HERE, 'full_key: ' // trim(full_key)
+         is_present = units .and. ESMF_InfoIsPresent(info, full_key, _RC)
          if(is_present) then
+            _HERE, 'units present'
             call ESMF_InfoRemove(info, keyParent=get_parent(full_key), keyChild=get_child(full_key), _RC)
+            _HERE, 'units removed'
          end if
       end if
 

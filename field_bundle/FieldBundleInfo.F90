@@ -17,7 +17,7 @@ module mapl3g_FieldBundleInfo
 
    public :: FieldBundleInfoGetInternal
    public :: FieldBundleInfoSetInternal
-   public :: FieldBundleInfoRemoveInternal
+!   public :: FieldBundleInfoRemoveInternal
 
    interface FieldBundleInfoGetInternal
       procedure fieldbundle_get_internal
@@ -27,9 +27,9 @@ module mapl3g_FieldBundleInfo
       procedure fieldbundle_set_internal
    end interface
 
-   interface FieldBundleInfoRemoveInternal
-      procedure fieldbundle_remove_internal
-   end interface FieldBundleInfoRemoveInternal
+!   interface FieldBundleInfoRemoveInternal
+!      procedure fieldbundle_remove_internal
+!   end interface FieldBundleInfoRemoveInternal
 
 
    character(*), parameter :: KEY_FIELDBUNDLETYPE_FLAG = '/FieldBundleType_Flag'
@@ -214,6 +214,7 @@ contains
          call ESMF_InfoSet(info, key=namespace_ // KEY_HAS_GEOM, value=has_geom, _RC)
       end if
 
+       _HERE
        call FieldInfoSetInternal(info, namespace=namespace_ // KEY_FIELD_PROTOTYPE, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
@@ -252,32 +253,32 @@ contains
              
    end subroutine fieldbundle_set_internal
 
-   subroutine fieldbundle_remove_internal(info, unusable, namespace, units, rc)
-      type(ESMF_Info), intent(inout) :: info
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      character(*), optional, intent(in) :: namespace
-      logical, optional, intent(in) :: units
-      integer, optional, intent(out) :: rc
-      character(len=:), allocatable :: namespace_
-      integer :: status
-      logical :: is_present
-      character(len=:), allocatable :: full_key
+!   subroutine fieldbundle_remove_internal(info, unusable, namespace, units, rc)
+!      type(ESMF_Info), intent(inout) :: info
+!      class(KeywordEnforcer), optional, intent(in) :: unusable
+!      character(*), optional, intent(in) :: namespace
+!      logical, optional, intent(in) :: units
+!      integer, optional, intent(out) :: rc
+!      character(len=:), allocatable :: namespace_
+!      integer :: status
+!      logical :: is_present
+!      character(len=:), allocatable :: full_key
 
-      namespace_ = INFO_INTERNAL_NAMESPACE
-      if (present(namespace)) then
-         namespace_ = namespace
-      end if
+!      namespace_ = INFO_INTERNAL_NAMESPACE
+!      if (present(namespace)) then
+!         namespace_ = namespace
+!      end if
 
-      if(present(units)) then
-         full_key = namespace_ // KEY_UNITS
-         is_present = units && ESMF_InfoIsPresent(info, full_key, _RC)
-         if(is_present) then
-            call ESMF_InfoRemove(info, keyParent=get_parent(full_key), keyChild=get_child(full_key), _RC)
-         end if
-      end if
+!      if(present(units)) then
+!         full_key = namespace_ // KEY_UNITS
+!         is_present = units .and. ESMF_InfoIsPresent(info, full_key, _RC)
+!         if(is_present) then
+!            call ESMF_InfoRemove(info, keyParent=get_parent(full_key), keyChild=get_child(full_key), _RC)
+!         end if
+!      end if
 
-      _RETURN(_SUCCESS)
-   end subroutine fieldbundle_remove_internal
+!      _RETURN(_SUCCESS)
+!   end subroutine fieldbundle_remove_internal
 
    function get_parent(string) result(parent)
       character(len=:), allocatable :: parent

@@ -101,6 +101,7 @@ contains
 
       ! Some things are treated as field info:
       call ESMF_InfoGetFromHost(fieldBundle, bundle_info, _RC)
+      _HERE
       call FieldBundleInfoSetInternal(bundle_info, &
            vgrid_id=vgrid_id, &
            fieldBundleType=fieldBundleType, &

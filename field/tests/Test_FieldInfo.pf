@@ -30,4 +30,23 @@ contains
 
    end subroutine test_copy_shared_field
 
+   @Test
+   subroutine test_field_info_remove_internal()
+      type(ESMF_Info) :: info
+      character(len=:), allocatable :: namespace
+      character(len=:), allocatable :: key
+      character(len=:), allocatable :: val
+      logical :: keyCheck, valCheck
+
+      key = '/mapl/internal/units'
+      val = 'furlongs'
+      call ESMF_InfoSet(info, key=key, value=val, _RC)
+      keyCheck = ESMF_InfoIsPresent(info, key=key, _RC)
+      @assertTrue(keyCheck, 'The key should be present.')
+      valCheck = ESMF_InfoIsSet(info, key=key, _RC)
+      @assertTrue(valCheck, 'The value should not be null.')
+      call FieldInfoRemoveInternal(info, key=key, _RC)
+
+
+   end subroutine test_field_info_remove_internal
 end module Test_FieldInfo
