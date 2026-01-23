@@ -25,7 +25,7 @@
 ! !USES:
 !
    Use ESMF
-   Use ESMFL_Mod
+   !Use ESMFL_Mod
    Use MAPL_BaseMod
    !Use MAPL_GenericMod
    !Use MAPL_Constants
@@ -39,6 +39,7 @@
    use mapl3g_generic, only: MAPL_GridCompSetEntryPoint
    use mapl3g_Geom_API, only: MAPL_GridGet, MAPL_GridGetCoordinates
    use mapl3g_State_API, only: MAPL_StateGetPointer
+   use mapl3g_FieldBundle_API, only: MAPL_FieldBundleGetPointer
 
    IMPLICIT NONE
    PRIVATE
@@ -426,7 +427,7 @@ CONTAINS
 
 !  loop over each satellite and get it's mask
    do k=1,NORB
-    call ESMFL_BundleGetPointerToData(BUNDLE,trim(self%instrument(k)),PTR_TMP,_RC)
+    call MAPL_FieldBundleGetPointer(BUNDLE,trim(self%instrument(k)),PTR_TMP,_RC)
     call MAPL_StateGetPointer(EXPORT, itemName=trim(self%instrument(k)), farrayPtr=PTR_TMP_EX, _RC)
     sat_name=trim(self%Satellite(k))
     swath(1)=self%swath(k)
