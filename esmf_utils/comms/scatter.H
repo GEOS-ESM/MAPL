@@ -7,8 +7,8 @@
 #undef NAMESTR_
 #endif
 
-#define NAME_ CommsScatterV_
-#define NAMESTR_ 'CommsScatterV_'
+#define NAME_ comms_scatterv_
+#define NAMESTR_ 'comms_scatterv_'
 
 #include "overload.macro"
 
@@ -22,7 +22,6 @@
     integer,            intent(IN   )            :: root
     integer         ,   intent(  OUT),  optional :: RC
 
-    character(len=ESMF_MAXSTR), parameter :: IAM='MAPL_CommsScatterV'
     integer                               :: status
     type(ESMF_VM)                         :: vm
     integer                               :: comm

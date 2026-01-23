@@ -21,23 +21,24 @@ module mapl3g_Comms
   implicit none
   private
 
+  public am_i_root
+  public am_i_rank
+  public ROOT_PROCESS_ID
+
   ! public MAPL_CommsBcast
-  public CommsScatterV
-  public CommsGatherV
-  ! public MAPL_CommsAllGather
-  ! public MAPL_CommsAllGatherV
-  ! public MAPL_CommsAllReduceMin
-  ! public MAPL_CommsAllReduceMax
-  ! public MAPL_CommsAllReduceSum
-  ! public MAPL_CommsSend
-  ! public MAPL_CommsRecv
-  ! public MAPL_CommsSendRecv
-  ! public MAPL_AM_I_ROOT
-  ! public MAPL_AM_I_RANK
-  ! public MAPL_NPES
-  public ArrayGather
-  public ArrayScatter
-  ! public MAPL_root
+  public comms_scatterv
+  public comms_gatherv
+  public comms_allgather
+  public comms_allgatherv
+  public comms_allreduce_min
+  public comms_allreduce_max
+  public comms_allreduce_sum
+  public comms_send
+  public comms_recv
+  public comms_sendrecv
+  public num_pes
+  public array_gather
+  public array_scatter
 
   ! public MAPL_CreateRequest
   ! public MAPL_CommRequest
@@ -73,21 +74,21 @@ module mapl3g_Comms
   !    integer          :: tag, s_rqst
   ! end type MAPL_CommRequest
 
-  ! interface MAPL_Am_I_Root
-  !    module procedure MAPL_Am_I_Root_Layout
-  !    module procedure MAPL_Am_I_Root_Vm
-  ! end interface MAPL_Am_I_Root
+  interface am_i_root
+     module procedure am_i_root_Layout
+     module procedure am_i_root_Vm
+  end interface am_i_root
 
-  ! interface MAPL_Am_I_Rank
-  !    module procedure MAPL_Am_I_Rank_Only
-  !    module procedure MAPL_Am_I_Rank_Layout
-  !    module procedure MAPL_Am_I_Rank_Vm
-  ! end interface MAPL_Am_I_Rank
+  interface am_i_rank
+     module procedure am_i_rank_only
+     module procedure am_i_rank_layout
+     module procedure am_i_rank_vm
+  end interface am_i_rank
 
-  ! interface MAPL_NPES
-  !    module procedure MAPL_NPES_Layout
-  !    module procedure MAPL_NPES_Vm
-  ! end interface MAPL_NPES
+  interface num_pes
+     module procedure num_pes_layout
+     module procedure num_pes_vm
+  end interface num_pes
 
   ! interface MAPL_CommsBcast
   !    module procedure MAPL_CommsBcast_STRING_0
@@ -122,26 +123,32 @@ module mapl3g_Comms
   !    module procedure MAPL_BcastShared_2DR8     
   ! end interface MAPL_BcastShared
 
-  interface CommsScatterV
-     module procedure CommsScatterV_I4_1
-     module procedure CommsScatterV_R4_1
-     module procedure CommsScatterV_R4_2
-     module procedure CommsScatterV_R8_1
-     module procedure CommsScatterV_R8_2
-  end interface CommsScatterV
+  interface comms_scatterv
+     module procedure comms_scatterv_i4_1
+     module procedure comms_scatterv_r4_1
+     module procedure comms_scatterv_r4_2
+     module procedure comms_scatterv_r8_1
+     module procedure comms_scatterv_r8_2
+  end interface comms_scatterv
 
-  interface CommsGatherV
-     module procedure CommsGatherV_I4_1
-     module procedure CommsGatherV_R4_1
-     module procedure CommsGatherV_R4_2
-     module procedure CommsGatherV_R8_1
-     module procedure CommsGatherV_R8_2
-  end interface CommsGatherV
+  interface comms_gatherv
+     module procedure comms_gatherv_i4_1
+     module procedure comms_gatherv_r4_1
+     module procedure comms_gatherv_r4_2
+     module procedure comms_gatherv_r8_1
+     module procedure comms_gatherv_r8_2
+  end interface comms_gatherv
 
-  ! interface MAPL_CommsAllGather
-  !    module procedure MAPL_CommsAllGather_I4_1
-  !    module procedure MAPL_CommsAllGather_L4_1
-  ! end interface MAPL_CommsAllGather
+  interface comms_allgather
+     module procedure comms_allgather_i4_1
+     module procedure comms_allgather_l4_1
+  end interface comms_allgather
+
+  interface comms_allgatherv
+     module procedure comms_allgatherv_i4_1
+     module procedure comms_allgatherv_r4_1
+     module procedure comms_allgatherv_r8_1
+  end interface comms_allgatherv
 
   ! interface MAPL_ArrayIGather
   !    module procedure MAPL_ArrayIGather_R4_2
@@ -151,170 +158,176 @@ module mapl3g_Comms
   !    module procedure MAPL_ArrayIScatter_R4_2
   ! end interface MAPL_ArrayIScatter
 
-  ! interface MAPL_CommsAllGatherV
-  !    module procedure MAPL_CommsAllGatherV_I4_1
-  !    module procedure MAPL_CommsAllGatherV_R4_1
-  !    module procedure MAPL_CommsAllGatherV_R8_1
-  ! end interface MAPL_CommsAllGatherV
+  interface comms_allreduce_min
+     module procedure comms_allreduce_min_i4_0
+     module procedure comms_allreduce_min_r4_0
+     module procedure comms_allreduce_min_r8_0
+     module procedure comms_allreduce_min_i4_1
+     module procedure comms_allreduce_min_r4_1
+     module procedure comms_allreduce_min_r8_1
+     module procedure comms_allreduce_min_i4_2
+     module procedure comms_allreduce_min_r4_2
+     module procedure comms_allreduce_min_r8_2
+  end interface comms_allreduce_min
 
-  ! interface MAPL_CommsAllReduceMin
-  !    module procedure MAPL_CommsAllReduceMin_I4_0
-  !    module procedure MAPL_CommsAllReduceMin_R4_0
-  !    module procedure MAPL_CommsAllReduceMin_R8_0
-  !    module procedure MAPL_CommsAllReduceMin_I4_1
-  !    module procedure MAPL_CommsAllReduceMin_R4_1
-  !    module procedure MAPL_CommsAllReduceMin_R8_1
-  !    module procedure MAPL_CommsAllReduceMin_I4_2
-  !    module procedure MAPL_CommsAllReduceMin_R4_2
-  !    module procedure MAPL_CommsAllReduceMin_R8_2
-  ! end interface MAPL_CommsAllReduceMin
+  interface comms_allreduce_max
+     module procedure comms_allreduce_max_i4_0
+     module procedure comms_allreduce_max_r4_0
+     module procedure comms_allreduce_max_r8_0
+     module procedure comms_allreduce_max_i4_1
+     module procedure comms_allreduce_max_r4_1
+     module procedure comms_allreduce_max_r8_1
+     module procedure comms_allreduce_max_i4_2
+     module procedure comms_allreduce_max_r4_2
+     module procedure comms_allreduce_max_r8_2
+  end interface comms_allreduce_max
 
-  ! interface MAPL_CommsAllReduceMax
-  !    module procedure MAPL_CommsAllReduceMax_I4_0
-  !    module procedure MAPL_CommsAllReduceMax_R4_0
-  !    module procedure MAPL_CommsAllReduceMax_R8_0
-  !    module procedure MAPL_CommsAllReduceMax_I4_1
-  !    module procedure MAPL_CommsAllReduceMax_R4_1
-  !    module procedure MAPL_CommsAllReduceMax_R8_1
-  !    module procedure MAPL_CommsAllReduceMax_I4_2
-  !    module procedure MAPL_CommsAllReduceMax_R4_2
-  !    module procedure MAPL_CommsAllReduceMax_R8_2
-  ! end interface MAPL_CommsAllReduceMax
+  interface comms_allreduce_sum
+     module procedure comms_allreduce_sum_i4_0
+     module procedure comms_allreduce_sum_r4_0
+     module procedure comms_allreduce_sum_r8_0
+     module procedure comms_allreduce_sum_i4_1
+     module procedure comms_allreduce_sum_r4_1
+     module procedure comms_allreduce_sum_r8_1
+     module procedure comms_allreduce_sum_i4_2
+     module procedure comms_allreduce_sum_r4_2
+     module procedure comms_allreduce_sum_r8_2
+  end interface comms_allreduce_sum
 
-  ! interface MAPL_CommsAllReduceSum
-  !    module procedure MAPL_CommsAllReduceSum_I4_0
-  !    module procedure MAPL_CommsAllReduceSum_R4_0
-  !    module procedure MAPL_CommsAllReduceSum_R8_0
-  !    module procedure MAPL_CommsAllReduceSum_I4_1
-  !    module procedure MAPL_CommsAllReduceSum_R4_1
-  !    module procedure MAPL_CommsAllReduceSum_R8_1
-  !    module procedure MAPL_CommsAllReduceSum_I4_2
-  !    module procedure MAPL_CommsAllReduceSum_R4_2
-  !    module procedure MAPL_CommsAllReduceSum_R8_2
-  ! end interface MAPL_CommsAllReduceSum
+  interface comms_send
+     module procedure comms_send_i4_0
+     module procedure comms_send_i4_1
+     module procedure comms_send_r4_1
+     module procedure comms_send_r4_2
+     module procedure comms_send_r8_1
+     module procedure comms_send_r8_2
+  end interface comms_send
 
-  ! interface MAPL_CommsSend
-  !    module procedure MAPL_CommsSend_I4_0
-  !    module procedure MAPL_CommsSend_I4_1
-  !    module procedure MAPL_CommsSend_R4_1
-  !    module procedure MAPL_CommsSend_R4_2
-  !    module procedure MAPL_CommsSend_R8_1
-  !    module procedure MAPL_CommsSend_R8_2
-  ! end interface MAPL_CommsSend
+  interface comms_recv
+     module procedure comms_recv_i4_0
+     module procedure comms_recv_i4_1
+     module procedure comms_recv_r4_1
+     module procedure comms_recv_r4_2
+     module procedure comms_recv_r8_1
+     module procedure comms_recv_r8_2
+  end interface comms_recv
 
-  ! interface MAPL_CommsRecv
-  !    module procedure MAPL_CommsRecv_I4_0
-  !    module procedure MAPL_CommsRecv_I4_1
-  !    module procedure MAPL_CommsRecv_R4_1
-  !    module procedure MAPL_CommsRecv_R4_2
-  !    module procedure MAPL_CommsRecv_R8_1
-  !    module procedure MAPL_CommsRecv_R8_2
-  ! end interface MAPL_CommsRecv
+  interface comms_sendrecv
+     module procedure comms_sendrecv_i4_0
+     module procedure comms_sendrecv_r4_0
+     module procedure comms_sendrecv_r4_1
+     module procedure comms_sendrecv_r4_2
+     module procedure comms_sendrecv_r8_1
+     module procedure comms_sendrecv_r8_2
+  end interface comms_sendrecv
 
-  ! interface MAPL_CommsSendRecv
-  !    module procedure MAPL_CommsSendRecv_I4_0
-  !    module procedure MAPL_CommsSendRecv_R4_0
-  !    module procedure MAPL_CommsSendRecv_R4_1
-  !    module procedure MAPL_CommsSendRecv_R4_2
-  !    module procedure MAPL_CommsSendRecv_R8_1
-  !    module procedure MAPL_CommsSendRecv_R8_2
-  ! end interface MAPL_CommsSendRecv
+  interface array_scatter
+     module procedure array_scatter_r4_1
+     module procedure array_scatter_r8_1
+     module procedure array_scatter_r4_2
+     module procedure array_scatter_r8_2
+     module procedure array_scatter_rcv_cnt_i4_1
+     module procedure array_scatter_rcv_cnt_r4_1
+  end interface array_scatter
 
-  interface ArrayScatter
-     module procedure ArrayScatter_R4_1
-     module procedure ArrayScatter_R8_1
-     module procedure ArrayScatter_R4_2
-     module procedure ArrayScatter_R8_2
-     module procedure ArrayScatterRcvCnt_I4_1
-     module procedure ArrayScatterRcvCnt_R4_1
-  end interface ArrayScatter
+  interface array_gather
+     module procedure array_gather_i4_1
+     module procedure array_gather_r4_1
+     module procedure array_gather_r8_1
+     module procedure array_gather_r4_2
+     module procedure array_gather_r8_2
+     module procedure array_gather_rcv_cnt_i4_1
+     module procedure array_gather_rcv_cnt_r4_1
+  end interface array_gather
 
-  interface ArrayGather
-     module procedure ArrayGather_I4_1
-     module procedure ArrayGather_R4_1
-     module procedure ArrayGather_R8_1
-     module procedure ArrayGather_R4_2
-     module procedure ArrayGather_R8_2
-     module procedure ArrayGatherRcvCnt_I4_1
-     module procedure ArrayGatherRcvCnt_R4_1
-  end interface ArrayGather
-
-  integer, parameter :: MAPL_root=0
-  integer, parameter :: msg_tag=11
+  integer, parameter :: ROOT_PROCESS_ID = 0
+  integer, parameter :: MSG_TAG = 11
 
 contains
 
-  ! function MAPL_Am_I_Root_Vm(VM) result(R)
-  !   type (ESMF_VM), optional :: VM
-  !   logical                  :: R
+  function am_i_root_vm(vm, rc) result(R)
+    type(ESMF_VM), intent(in), optional :: vm
+    integer, intent(out), optional :: rc
+    logical :: R
 
-  !   if (present(VM)) then
-  !      R = MAPL_Am_I_Rank(VM)
-  !   else
-  !      R = MAPL_Am_I_Rank()
-  !   end if
+    integer :: status
 
-  ! end function MAPL_Am_I_Root_Vm
+    if (present(vm)) then
+       R = am_i_rank(vm, _RC)
+    else
+       R = am_i_rank(_RC)
+    end if
 
-  ! function MAPL_Am_I_Root_Layout(layout) result(R)
-  !   type (ESMF_DELayout) :: layout
-  !   logical              :: R
+    _RETURN(_SUCCESS)
+  end function am_i_root_vm
 
-  !   R = MAPL_Am_I_Rank(layout)
+  function am_i_root_layout(layout, rc) result(R)
+    type(ESMF_DELayout), intent(in) :: layout
+    integer, intent(out), optional :: rc
+    logical :: R
 
-  ! end function MAPL_Am_I_Root_Layout
+    integer :: status
 
-  ! function MAPL_Am_I_Rank_Vm(VM, rank) result(R)
-  !   type (ESMF_VM)    :: VM
-  !   integer, optional :: rank
-  !   logical           :: R
+    R = am_i_rank(layout, _RC)
 
-  !   integer        :: deId
-  !   integer        :: status
-  !   integer        :: rank_
+    _RETURN(_SUCCESS)
+  end function am_i_root_layout
 
-  !   rank_ = MAPL_Root
-  !   if (present(rank)) rank_ = rank
+  function am_i_rank_vm(vm, rank, rc) result(R)
+    type(ESMF_VM), intent(in) :: vm
+    integer, intent(in), optional :: rank
+    integer, intent(out), optional :: rc
+    logical :: R
 
-  !   call ESMF_VMGet(VM, localPet=deId, rc=status)
-  !   R = .false.
-  !   if (deId == rank_) R = .true.
+    integer :: de_id, rank_, status
 
-  ! end function MAPL_Am_I_Rank_Vm
+    rank_ = ROOT_PROCESS_ID
+    if (present(rank)) rank_ = rank
 
-  ! function MAPL_Am_I_Rank_Layout(layout, rank) result(R)
-  !   type (ESMF_DELayout) :: layout
-  !   integer, optional    :: rank
-  !   logical              :: R
+    call ESMF_VMGet(vm, localPet=de_id, _RC)
+    R = .false.
+    if (de_id == rank_) R = .true.
 
-  !   integer       :: status
-  !   type (ESMF_VM) :: vm
+    _RETURN(_SUCCESS)
+  end function am_i_rank_vm
 
-  !   call ESMF_DELayoutGet(layout, vm=vm, rc=status)
+  function am_i_rank_layout(layout, rank, rc) result(R)
+    type(ESMF_DELayout), intent(in) :: layout
+    integer, intent(in), optional :: rank
+    integer, intent(out), optional :: rc
+    logical :: R
 
-  !   if (present(rank)) then
-  !      R = MAPL_Am_I_Rank(vm, rank)
-  !   else
-  !      R = MAPL_Am_I_Rank(vm)
-  !   end if
+    type(ESMF_VM) :: vm
+    integer :: status
 
-  ! end function MAPL_Am_I_Rank_Layout
+    call ESMF_DELayoutGet(layout, vm=vm, _RC)
 
-  ! function MAPL_Am_I_Rank_Only(rank) result(R)
-  !   integer, optional :: rank
-  !   logical           :: R
+    if (present(rank)) then
+       R = am_i_rank(vm, rank, _RC)
+    else
+       R = am_i_rank(vm, _RC)
+    end if
 
-  !   integer        :: status
-  !   type (ESMF_VM) :: vm
+    _RETURN(_SUCCESS)
+  end function am_i_rank_layout
 
-  !   call ESMF_VMGetCurrent(vm, rc=status)
-  !   if (present(rank)) then
-  !      R = MAPL_Am_I_Rank(vm, rank)
-  !   else
-  !      R = MAPL_Am_I_Rank(vm)
-  !   end if
+  function am_i_rank_only(rank, rc) result(R)
+    integer, intent(in), optional :: rank
+    integer, intent(out), optional :: rc
+    logical :: R
 
-  ! end function MAPL_Am_I_Rank_Only
+    type(ESMF_VM) :: vm
+    integer :: status
+
+    call ESMF_VMGetCurrent(vm, _RC)
+    if (present(rank)) then
+       R = am_i_rank(vm, rank, _RC)
+    else
+       R = am_i_rank(vm, _RC)
+    end if
+
+    _RETURN(_SUCCESS)
+  end function am_i_rank_only
 
   ! subroutine MAPL_CreateRequest(grid, Root, request, tag, RequestType, &
   !      DstArray, PrePost, hw, rc)
@@ -945,31 +958,33 @@ contains
   !   _RETURN(ESMF_SUCCESS)
   ! end subroutine MAPL_RoundRobinPEList
 
-  ! function MAPL_NPES_Vm(VM) result(R)
-  !   type (ESMF_VM) :: VM
-  !   integer        :: R
+  function num_pes_vm(vm, rc) result(R)
+    type(ESMF_VM), intent(in) :: vm
+    integer, intent(out), optional :: rc
+    integer :: R
 
-  !   integer       :: petCnt
-  !   integer       :: status
+    integer :: pet_count, status
 
-  !   call ESMF_VMGet(vm, petCount=petCnt, rc=status)
-  !   R = petCnt
+    call ESMF_VMGet(vm, petCount=pet_count, _RC)
+    R = pet_count
 
-  !   return
-  ! end function MAPL_NPES_Vm
+    _RETURN(_SUCCESS)
+  end function num_pes_vm
 
-  ! function MAPL_NPES_Layout(layout) result(R)
-  !   type (ESMF_DELayout), optional :: layout
-  !   integer                        :: R
+  function num_pes_layout(layout, rc) result(R)
+    type(ESMF_DELayout), intent(in), optional :: layout
+    integer, intent(out), optional :: rc
+    
+    integer :: R
 
-  !   integer       :: status
-  !   type(ESMF_VM) :: vm
+    type(ESMF_VM) :: vm
+    integer :: status
 
-  !   call ESMF_DELayoutGet(layout, vm=vm, rc=status)
-  !   R = MAPL_NPES_Vm(vm)
+    call ESMF_DELayoutGet(layout, vm=vm, _RC)
+    R = num_pes_vm(vm)
 
-  !   return
-  ! end function MAPL_NPES_Layout
+    _RETURN(_SUCCESS)
+  end function num_pes_layout
 
   !--BCAST -----------------
 
@@ -1214,129 +1229,120 @@ contains
 ! #include "bcast.H"
 
 
-!   !--AllReduceMin -----------------
+  ! AllReduceMin
 
-!   ! Rank 0
-! #define RANK_ 0
-! #define VARTYPE_ 1
-! #include "allreducemin.H"
+#define RANK_ 0
+#define VARTYPE_ 1
+#include "allreducemin.H"
 
-! #define RANK_ 0
-! #define VARTYPE_ 3
-! #include "allreducemin.H"
+#define RANK_ 0
+#define VARTYPE_ 3
+#include "allreducemin.H"
 
-! #define RANK_ 0
-! #define VARTYPE_ 4
-! #include "allreducemin.H"
+#define RANK_ 0
+#define VARTYPE_ 4
+#include "allreducemin.H"
 
-!   ! Rank 1
-! #define RANK_ 1
-! #define VARTYPE_ 1
-! #include "allreducemin.H"
+#define RANK_ 1
+#define VARTYPE_ 1
+#include "allreducemin.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 3
-! #include "allreducemin.H"
+#define RANK_ 1
+#define VARTYPE_ 3
+#include "allreducemin.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 4
-! #include "allreducemin.H"
+#define RANK_ 1
+#define VARTYPE_ 4
+#include "allreducemin.H"
 
-!   ! Rank 2
-! #define RANK_ 2
-! #define VARTYPE_ 1
-! #include "allreducemin.H"
+#define RANK_ 2
+#define VARTYPE_ 1
+#include "allreducemin.H"
 
-! #define RANK_ 2
-! #define VARTYPE_ 3
-! #include "allreducemin.H"
+#define RANK_ 2
+#define VARTYPE_ 3
+#include "allreducemin.H"
 
-! #define RANK_ 2
-! #define VARTYPE_ 4
-! #include "allreducemin.H"
+#define RANK_ 2
+#define VARTYPE_ 4
+#include "allreducemin.H"
 
-!   !--AllReduceMax -----------------
+  ! AllReduceMax
 
-!   ! Rank 0
-! #define RANK_ 0
-! #define VARTYPE_ 1
-! #include "allreducemax.H"
+#define RANK_ 0
+#define VARTYPE_ 1
+#include "allreducemax.H"
 
-! #define RANK_ 0
-! #define VARTYPE_ 3
-! #include "allreducemax.H"
+#define RANK_ 0
+#define VARTYPE_ 3
+#include "allreducemax.H"
 
-! #define RANK_ 0
-! #define VARTYPE_ 4
-! #include "allreducemax.H"
+#define RANK_ 0
+#define VARTYPE_ 4
+#include "allreducemax.H"
 
-!   ! Rank 1
-! #define RANK_ 1
-! #define VARTYPE_ 1
-! #include "allreducemax.H"
+#define RANK_ 1
+#define VARTYPE_ 1
+#include "allreducemax.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 3
-! #include "allreducemax.H"
+#define RANK_ 1
+#define VARTYPE_ 3
+#include "allreducemax.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 4
-! #include "allreducemax.H"
+#define RANK_ 1
+#define VARTYPE_ 4
+#include "allreducemax.H"
 
-!   ! Rank 2
-! #define RANK_ 2
-! #define VARTYPE_ 1
-! #include "allreducemax.H"
+#define RANK_ 2
+#define VARTYPE_ 1
+#include "allreducemax.H"
 
-! #define RANK_ 2
-! #define VARTYPE_ 3
-! #include "allreducemax.H"
+#define RANK_ 2
+#define VARTYPE_ 3
+#include "allreducemax.H"
 
 
-! #define RANK_ 2
-! #define VARTYPE_ 4
-! #include "allreducemax.H"
+#define RANK_ 2
+#define VARTYPE_ 4
+#include "allreducemax.H"
 
-!   !--AllReduceSum -----------------
+  ! AllReduceSum
 
-!   ! Rank 0
-! #define RANK_ 0
-! #define VARTYPE_ 1
-! #include "allreducesum.H"
+#define RANK_ 0
+#define VARTYPE_ 1
+#include "allreducesum.H"
 
-! #define RANK_ 0
-! #define VARTYPE_ 3
-! #include "allreducesum.H"
+#define RANK_ 0
+#define VARTYPE_ 3
+#include "allreducesum.H"
 
-! #define RANK_ 0
-! #define VARTYPE_ 4
-! #include "allreducesum.H"
+#define RANK_ 0
+#define VARTYPE_ 4
+#include "allreducesum.H"
 
-!   ! Rank 1
-! #define RANK_ 1
-! #define VARTYPE_ 1
-! #include "allreducesum.H"
+#define RANK_ 1
+#define VARTYPE_ 1
+#include "allreducesum.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 3
-! #include "allreducesum.H"
+#define RANK_ 1
+#define VARTYPE_ 3
+#include "allreducesum.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 4
-! #include "allreducesum.H"
+#define RANK_ 1
+#define VARTYPE_ 4
+#include "allreducesum.H"
 
-!   ! Rank 2
-! #define RANK_ 2
-! #define VARTYPE_ 1
-! #include "allreducesum.H"
+#define RANK_ 2
+#define VARTYPE_ 1
+#include "allreducesum.H"
 
-! #define RANK_ 2
-! #define VARTYPE_ 3
-! #include "allreducesum.H"
+#define RANK_ 2
+#define VARTYPE_ 3
+#include "allreducesum.H"
 
-! #define RANK_ 2
-! #define VARTYPE_ 4
-! #include "allreducesum.H"
+#define RANK_ 2
+#define VARTYPE_ 4
+#include "allreducesum.H"
 
   ! Scatter
 #define RANK_ 1
@@ -1380,101 +1386,101 @@ contains
 #define VARTYPE_ 4
 #include "gather.H"
 
-!   ! AllGather
-! #define RANK_ 1
-! #define VARTYPE_ 1
-! #include "allgather.H"
+  ! AllGather
+#define RANK_ 1
+#define VARTYPE_ 1
+#include "allgather.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 2
-! #include "allgather.H"
+#define RANK_ 1
+#define VARTYPE_ 2
+#include "allgather.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 1
-! #include "allgatherv.H"
+#define RANK_ 1
+#define VARTYPE_ 1
+#include "allgatherv.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 3
-! #include "allgatherv.H"
+#define RANK_ 1
+#define VARTYPE_ 3
+#include "allgatherv.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 4
-! #include "allgatherv.H"
+#define RANK_ 1
+#define VARTYPE_ 4
+#include "allgatherv.H"
 
-!   ! Send
-! #define RANK_ 0
-! #define VARTYPE_ 1
-! #include "send.H"
+  ! Send
+#define RANK_ 0
+#define VARTYPE_ 1
+#include "send.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 1
-! #include "send.H"
+#define RANK_ 1
+#define VARTYPE_ 1
+#include "send.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 3
-! #include "send.H"
+#define RANK_ 1
+#define VARTYPE_ 3
+#include "send.H"
 
-! #define RANK_ 2
-! #define VARTYPE_ 3
-! #include "send.H"
+#define RANK_ 2
+#define VARTYPE_ 3
+#include "send.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 4
-! #include "send.H"
+#define RANK_ 1
+#define VARTYPE_ 4
+#include "send.H"
 
-! #define RANK_ 2
-! #define VARTYPE_ 4
-! #include "send.H"
+#define RANK_ 2
+#define VARTYPE_ 4
+#include "send.H"
 
-!   ! Recv
-! #define RANK_ 0
-! #define VARTYPE_ 1
-! #include "recv.H"
+  ! Recv
+#define RANK_ 0
+#define VARTYPE_ 1
+#include "recv.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 1
-! #include "recv.H"
+#define RANK_ 1
+#define VARTYPE_ 1
+#include "recv.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 3
-! #include "recv.H"
+#define RANK_ 1
+#define VARTYPE_ 3
+#include "recv.H"
 
-! #define RANK_ 2
-! #define VARTYPE_ 3
-! #include "recv.H"
+#define RANK_ 2
+#define VARTYPE_ 3
+#include "recv.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 4
-! #include "recv.H"
+#define RANK_ 1
+#define VARTYPE_ 4
+#include "recv.H"
 
-! #define RANK_ 2
-! #define VARTYPE_ 4
-! #include "recv.H"
+#define RANK_ 2
+#define VARTYPE_ 4
+#include "recv.H"
 
-!   ! SendRecv
-! #define RANK_ 0
-! #define VARTYPE_ 1
-! #include "sendrecv.H"
+  ! SendRecv
+#define RANK_ 0
+#define VARTYPE_ 1
+#include "sendrecv.H"
 
-! #define RANK_ 0
-! #define VARTYPE_ 3
-! #include "sendrecv.H"
+#define RANK_ 0
+#define VARTYPE_ 3
+#include "sendrecv.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 3
-! #include "sendrecv.H"
+#define RANK_ 1
+#define VARTYPE_ 3
+#include "sendrecv.H"
 
-! #define RANK_ 2
-! #define VARTYPE_ 3
-! #include "sendrecv.H"
+#define RANK_ 2
+#define VARTYPE_ 3
+#include "sendrecv.H"
 
-! #define RANK_ 1
-! #define VARTYPE_ 4
-! #include "sendrecv.H"
+#define RANK_ 1
+#define VARTYPE_ 4
+#include "sendrecv.H"
 
-! #define RANK_ 2
-! #define VARTYPE_ 4
-! #include "sendrecv.H"
+#define RANK_ 2
+#define VARTYPE_ 4
+#include "sendrecv.H"
 
   ! ArrayScatter
 #define RANK_ 1

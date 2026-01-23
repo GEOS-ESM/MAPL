@@ -6,8 +6,8 @@
 #undef NAMESTR_
 #endif
 
-#define NAME_ ArrayScatter_
-#define NAMESTR_ 'ArrayScatter_'
+#define NAME_ array_scatter_
+#define NAMESTR_ 'array_scatter_'
 
 #include "overload.macro"
 
@@ -60,12 +60,12 @@
 
     _ASSERT(RANK_ <= 2, 'rank must be <= 2')
 
-! Optional change of source PE. Default=MAPL_Root
+! Optional change of source PE. Default=ROOT_PROCESS_ID
 
     if(present(depe)) then
        srcPE = depe
     else
-       srcPE = MAPL_Root
+       srcPE = ROOT_PROCESS_ID
     end if
 
 ! Optional single halo width
@@ -248,7 +248,7 @@
 
 ! Do the communications
 
-    call CommsScatterV(layout, var, sendcounts, displs, local_array, recvcount, srcPE, _RC)
+    call comms_scatterv(layout, var, sendcounts, displs, local_array, recvcount, srcPE, _RC)
 
 ! Clean-up
 
