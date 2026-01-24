@@ -130,8 +130,7 @@ CONTAINS
     self%CF = ESMF_ConfigCreate(_RC)
     inquire(file="MAPL_OrbGridComp.rc", exist=found)
     if (found) then
-       call ESMF_ConfigLoadFile ( self%CF,'MAPL_OrbGridComp.rc',rc=status)
-       _VERIFY(STATUS)
+       call ESMF_ConfigLoadFile ( self%CF,'MAPL_OrbGridComp.rc', _RC)
 
        call ESMF_ConfigGetAttribute(self%CF, self%verbose, Label='verbose:', default=.false. ,  _RC )
 
@@ -143,7 +142,7 @@ CONTAINS
        _ASSERT(self%no>0,'needs informative message')
        allocate(self%Instrument(self%no), self%Satellite(self%no), &
           self%Swath(self%no), self%halo(self%no), __STAT__)
-       if ( self%verbose .AND. MAPL_AM_I_ROOT() ) then
+       if ( self%verbose  .and.  MAPL_AM_I_ROOT() ) then
              write(*,*)"                                   Swath"
              write(*,*)"Instrument          Satellite       (km)        Halo Width"
              write(*,*)"---------------    -----------    ---------    -------------"
@@ -155,13 +154,13 @@ CONTAINS
           call ESMF_ConfigGetAttribute(self%CF,self%Satellite(i),_RC)
           call ESMF_ConfigGetAttribute(self%CF,self%Swath(i),_RC)
           call ESMF_ConfigGetAttribute(self%CF,self%halo(i),_RC)
-          if ( self%verbose .AND. MAPL_AM_I_ROOT() ) then
+          if ( self%verbose  .and.  MAPL_AM_I_ROOT() ) then
              write(*,'(1x,a15,4x,a11,4x,f9.1,4x,i3)') self%Instrument(i), self%Satellite(i), self%Swath(i), self%halo(i)
           end if
        end do
     else
        self%no = 0
-    endif
+    end if
 
 !                       ------------------------
 !                       ESMF Functional Services
@@ -169,10 +168,8 @@ CONTAINS
 
 !   Set the Initialize, Run, Finalize entry points
 !   ----------------------------------------------
-    call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_INITIALIZE, Initialize_, RC=STATUS)
-    _VERIFY(STATUS)
-    call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_RUN,   Run_,       RC=STATUS)
-    _VERIFY(STATUS)
+    call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_INITIALIZE, Initialize_, _RC)
+    call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_RUN,   Run_,       _RC)
 
 !   Store internal state in GC
 !   --------------------------
@@ -189,7 +186,7 @@ CONTAINS
         UNITS          = 'days' , &
         DIMS           = MAPL_DimsHorzOnly , &
                 RC = STATUS )
-    enddo
+    end do
 
     call MAPL_AddExportSpec(GC, &
      SHORT_NAME     = 'SATORB', &
@@ -256,8 +253,7 @@ CONTAINS
     _VERIFY(STATUS)
     Iam = trim(COMP_NAME)//'::Initialize_'
 
-    call MAPL_GenericInitialize ( GC, import, EXPORT, CLOCK,  RC=STATUS)
-    _VERIFY(STATUS)
+    call MAPL_GenericInitialize ( GC, import, EXPORT, CLOCK,  _RC)
 
     call ESMF_UserCompGetInternalState(gc, 'Orb_state', WRAP, STATUS)
     _VERIFY(STATUS)
@@ -265,13 +261,11 @@ CONTAINS
 
     if (self%no == 0) then
        _RETURN(ESMF_SUCCESS)
-    endif
+    end if
 
-    call ESMF_StateGet(EXPORT,'SATORB',BUNDLE,RC=STATUS)
-    _VERIFY(STATUS)
+    call ESMF_StateGet(EXPORT,'SATORB',BUNDLE, _RC)
 
-    call ESMF_GridCompGet ( GC, grid=GRID, RC=STATUS)
-    _VERIFY(STATUS)
+    call ESMF_GridCompGet ( GC, grid=GRID, _RC)
 
     ! set some info about the fields we will be adding . . .
     HW=0
@@ -279,30 +273,24 @@ CONTAINS
     LOCATION=MAPL_VLocationCenter
     KND=MAPL_R4
     do i = 1, self%no
-     field=mapl_FieldCreateEmpty(trim(self%Instrument(i)),Grid,RC=STATUS)
-     _VERIFY(STATUS)
-     call MAPL_FieldAllocCommit(field, dims=dims, location=location, typekind=knd, hw=hw, RC=STATUS)
-     _VERIFY(STATUS)
-     call MAPL_FieldBundleAdd(Bundle,Field,RC=STATUS)
-     _VERIFY(STATUS)
-    enddo
+     field=mapl_FieldCreateEmpty(trim(self%Instrument(i)),Grid, _RC)
+     call MAPL_FieldAllocCommit(field, dims=dims, location=location, typekind=knd, hw=hw, _RC)
+     call MAPL_FieldBundleAdd(Bundle,Field, _RC)
+    end do
 
     ! find out what type of grid we are on, if so
     gridtype_default='Lat-Lon'
     call ESMF_AttributeGet(Grid,'GridType',gridtype,gridtype_default)
     if (gridtype=='Cubed-Sphere') then
 
-       call MAPL_GetObjectFromGC(GC,MAPL_OBJ,rc=status)
-       _VERIFY(STATUS)
-       call MAPL_Get(MAPL_OBJ, im=im, jm=jm, rc=status)
-       _VERIFY(STATUS)
+       call MAPL_GetObjectFromGC(GC,MAPL_OBJ, _RC)
+       call MAPL_Get(MAPL_OBJ, im=im, jm=jm, _RC)
 
        allocate(EdgeLons(IM+1,JM+1),stat=status)
        _VERIFY(STATUS)
        allocate(EdgeLats(IM+1,JM+1),stat=status)
        _VERIFY(STATUS)
-       call MAPL_GridGetCorners(Grid,EdgeLons,EdgeLats,rc=status)
-       _VERIFY(STATUS)
+       call MAPL_GridGetCorners(Grid,EdgeLons,EdgeLats, _RC)
        call check_face(IM+1,JM+1,EdgeLons,EdgeLats,FACE)
        self%face=face
        allocate(self%x(IM+1,JM+1),self%y(IM+1,JM+1))
@@ -310,7 +298,7 @@ CONTAINS
        deallocate(EdgeLons)
        deallocate(EdgeLats)
 
-    endif
+    end if
 
     _RETURN(ESMF_SUCCESS)
 
@@ -355,6 +343,7 @@ CONTAINS
   integer                             :: deltat ! sub interval for satellite propagation
   real, dimension(3)                  :: swath ! satellite swath for masking routine
   real                                :: undef ! undefined for masking routine
+  real                                :: interp_width_default ! default interpolation width
   character(len=ESMF_MAXSTR)          :: sat_name     ! Satellite name
 
   type(Orb_state), pointer     :: self     ! Legacy state
@@ -388,10 +377,9 @@ CONTAINS
 
    if (self%no == 0) then
       _RETURN(ESMF_SUCCESS)
-   endif
+   end if
 
-   call MAPL_GetObjectFromGC ( GC, MAPL_OBJ, RC=STATUS)
-   _VERIFY(STATUS)
+   call MAPL_GetObjectFromGC ( GC, MAPL_OBJ, _RC)
    call MAPL_TimerOn(MAPL_OBJ,"Run")
    call MAPL_Get(MAPL_OBJ,            &
         IM                  = IM,     &
@@ -404,17 +392,14 @@ CONTAINS
 !  -----------------------------------------------------------
 ! Get coordinates using ESMF API
        ! ESMF grids store coordinates in radians as REAL64
-       call ESMF_GridGet(GRID, localDECount=localDECount, RC=STATUS)
-       _VERIFY(STATUS)
+       call ESMF_GridGet(GRID, localDECount=localDECount, _RC)
        localDE = 0  ! We only have one local DE
 
        call ESMF_GridGetCoord(GRID, coordDim=1, localDE=localDE, &
-            staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=LONS, RC=STATUS)
-       _VERIFY(STATUS)
+            staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=LONS, _RC)
 
        call ESMF_GridGetCoord(GRID, coordDim=2, localDE=localDE, &
-            staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=LATS, RC=STATUS)
-       _VERIFY(STATUS)
+            staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=LATS, _RC)
 
        ! Convert from radians to degrees (MAPL uses radians, we need degrees)
        LONS = LONS * MAPL_RADIANS_TO_DEGREES
@@ -448,27 +433,33 @@ CONTAINS
 
 !  set swath to zero for now
    swath=0.
-   call MAPL_GridGet(GRID, globalCellCountPerDim=COUNTS, RC=STATUS)
-   _VERIFY(STATUS)
+   call MAPL_GridGet(GRID, globalCellCountPerDim=COUNTS, _RC)
    IM_world = counts(1)
    JM_world = counts(2)
    if (JM_world == 6*IM_world) then
       imsize = 4*IM_World
    else
       imsize = IM_World
-   endif
-!  swatch(3) is actually the size of the length to use for interpolation
-   if( imsize.le.200       ) call ESMF_ConfigGetAttribute(self%CF,swath(3),LABEL='INTERPOLATION_WIDTH:', DEFAULT= 10.0 ,RC=STATUS)
-   if( imsize.gt.200 .and. &
-       imsize.le.400       ) call ESMF_ConfigGetAttribute(self%CF,swath(3),LABEL='INTERPOLATION_WIDTH:', DEFAULT= 5.0 ,RC=STATUS)
-   if( imsize.gt.400 .and. &
-       imsize.le.800       ) call ESMF_ConfigGetAttribute(self%CF,swath(3),LABEL='INTERPOLATION_WIDTH:', DEFAULT= 2.0 ,RC=STATUS)
-   if( imsize.gt.800 .and. &
-       imsize.le.1600      ) call ESMF_ConfigGetAttribute(self%CF,swath(3),LABEL='INTERPOLATION_WIDTH:', DEFAULT=  1.0 ,RC=STATUS)
-   if( imsize.gt.1600      ) call ESMF_ConfigGetAttribute(self%CF,swath(3),LABEL='INTERPOLATION_WIDTH:', DEFAULT=  0.5 ,RC=STATUS)
+   end if
 
-   call ESMF_ConfigDestroy( self%CF, rc=status)
-   _VERIFY(STATUS)
+!  swath(3) is actually the size of the length to use for interpolation
+!  Set default interpolation width based on grid resolution
+   select case (imsize)
+   case (:200)
+      interp_width_default = 10.0
+   case (201:400)
+      interp_width_default = 5.0
+   case (401:800)
+      interp_width_default = 2.0
+   case (801:1600)
+      interp_width_default = 1.0
+   case (1601:)
+      interp_width_default = 0.5
+   end select
+   call ESMF_ConfigGetAttribute(self%CF, swath(3), LABEL='INTERPOLATION_WIDTH:', &
+        DEFAULT=interp_width_default, RC=STATUS)
+
+   call ESMF_ConfigDestroy( self%CF, _RC)
 
 !  define undef
    undef=MAPL_UNDEF
@@ -477,18 +468,14 @@ CONTAINS
    deltat=10
 
 !  get orb bundle
-   call ESMF_StateGet(EXPORT,'SATORB',BUNDLE,RC=STATUS)
-   _VERIFY(STATUS)
-   call ESMF_FieldBundleGet(BUNDLE,fieldCOUNT=NORB,RC=STATUS)
-   _VERIFY(STATUS)
+   call ESMF_StateGet(EXPORT,'SATORB',BUNDLE, _RC)
+   call ESMF_FieldBundleGet(BUNDLE,fieldCOUNT=NORB, _RC)
    _ASSERT(NORB==self%no,'needs informative message')
 
 !  loop over each satellite and get it's mask
    do k=1,NORB
-    call ESMFL_BundleGetPointerToData(BUNDLE,trim(self%instrument(k)),PTR_TMP,RC=STATUS)
-    _VERIFY(STATUS)
-    call MAPL_GetPointer(EXPORT,PTR_TMP_EX,trim(self%instrument(k)),RC=STATUS)
-    _VERIFY(STATUS)
+    call ESMFL_BundleGetPointerToData(BUNDLE,trim(self%instrument(k)),PTR_TMP, _RC)
+    call MAPL_GetPointer(EXPORT,PTR_TMP_EX,trim(self%instrument(k)), _RC)
     sat_name=trim(self%Satellite(k))
     swath(1)=self%swath(k)
     swath(2)=self%swath(k)
@@ -502,13 +489,13 @@ CONTAINS
      if (associated(PTR_TMP)) call DoMasking_CS (PTR_TMP, im, jm, self%x, self%y, undef, &
                               sat_name, interval_nymd, interval_nhms, deltat, swath,  &
                               ihalo, jhalo, self%face, rc=status )
-    endif
+    end if
     ! if HISTORY is asking for mask to write this will be allocated
     if (associated(PTR_TMP_EX)) PTR_TMP_EX=PTR_TMP
     if (associated(PTR_TMP)) nullify(PTR_TMP)
     if (associated(PTR_TMP_EX)) nullify(PTR_TMP_EX)
 
-   enddo
+   end do
 
 !  All done
 !  --------
@@ -522,7 +509,12 @@ CONTAINS
    END SUBROUTINE Run_
 
 !.......................................................................
-
+!>
+! Extract runtime information from gridded component.
+!
+! Retrieves grid, config, time, date, and interval information from the
+! ESMF gridded component and clock for use in orbital calculations.
+!
     subroutine extract_ ( GC, CLOCK, self, GRID, CF, time, nymd, nhms, timeinterval, rc)
 
     type(ESMF_GridComp), intent(INout)  :: GC           ! Grid Comp object
@@ -580,7 +572,11 @@ CONTAINS
 
 !------------------------------------------------------------------------
 !>
-! The routine `DoMasking_` ...
+! Apply orbital masking for lat-lon grids.
+!
+! Computes satellite orbital tracks using nominal orbit calculator and
+! generates a mask indicating which grid cells are within the satellite
+! swath. Uses lat-lon coordinates for grid representation.
 !
        subroutine DoMasking_ (field, im, jm, lons, lats, undef, &
                               sat_name, nymd, nhms, dt, swath,  &
@@ -619,7 +615,7 @@ CONTAINS
 !      ---------------
        integer :: isegs, jsegs, mask(im,jm)
        real(dp)::  V_mean
-       real(dp) :: SwathWidth(2) = (/ 0.0, 0.0 /)
+       real(dp) :: SwathWidth(2) = [0.0, 0.0]
 
        integer nobs
        real(dp), pointer :: tlons(:)   => null()
@@ -629,16 +625,16 @@ CONTAINS
 
        SwathWidth(1:2) = swath(1:2) ! type conversion
 
-!      Interpoaltion parameters; swath(3) is the swath resolution, in km
+!      Interpolation parameters; swath(3) is the swath resolution, in km
 !      -----------------------------------------------------------------
        V_mean = 7.5             ! Mean sat speed in km/s; assumes a 90 minute period
                                 ! this should be a function of satellite.
-       isegs = nint((swath(1)+swath(2)) / swath(3) ) ! segments across-track
-       jsegs =  V_mean * dt / swath(3)               ! segments along-track
+       isegs = nint((swath(1) + swath(2)) / swath(3)) ! segments across-track
+       jsegs = V_mean * dt / swath(3)                 ! segments along-track
 
 !      Simple masking without swath
 !      ----------------------------
-       if ( swath(1) .eq. 0 .AND. swath(2) .eq. 0 ) then
+       if ( swath(1) == 0  .and.  swath(2) == 0 ) then
 
 !         Compute tracks
 !         --------------
@@ -685,7 +681,11 @@ CONTAINS
 
 !--------------------------------------------------------------------------------
 !>
-! The routine `DoMasking_CS` ...
+! Apply orbital masking for cubed-sphere grids.
+!
+! Computes satellite orbital tracks using nominal orbit calculator and
+! generates a mask indicating which grid cells are within the satellite
+! swath. Uses cubed-sphere (x,y) coordinates for grid representation.
 !
        subroutine DoMasking_CS (field, im, jm, x, y, undef, &
                               sat_name, nymd, nhms, dt, swath,  &
@@ -725,7 +725,7 @@ CONTAINS
 !      ---------------
        integer :: isegs, jsegs, mask(im,jm)
        real(dp)::  V_mean
-       real(dp) :: SwathWidth(2) = (/ 0.0, 0.0 /)
+       real(dp) :: SwathWidth(2) = [0.0, 0.0]
 
        integer nobs, status
        real(dp), pointer :: tlons(:)   => null()
@@ -737,16 +737,16 @@ CONTAINS
 
        SwathWidth(1:2) = swath(1:2) ! type conversion
 
-!      Interpoaltion parameters; swath(3) is the swath resolution, in km
+!      Interpolation parameters; swath(3) is the swath resolution, in km
 !      -----------------------------------------------------------------
        V_mean = 7.5             ! Mean sat speed in km/s; assumes a 90 minute period
                                 ! this should be a function of satellite.
-       isegs = nint((swath(1)+swath(2)) / swath(3) ) ! segments across-track
-       jsegs =  V_mean * dt / swath(3)               ! segments along-track
+       isegs = nint((swath(1) + swath(2)) / swath(3)) ! segments across-track
+       jsegs = V_mean * dt / swath(3)                 ! segments along-track
 
 !      Simple masking without swath
 !      ----------------------------
-       if ( swath(1) .eq. 0 .AND. swath(2) .eq. 0 ) then
+       if ( swath(1) == 0  .and.  swath(2) == 0 ) then
           mask = 0
 !         Compute tracks
 !         --------------
@@ -791,7 +791,12 @@ CONTAINS
 !      --------
      end subroutine DoMasking_CS
 
-
+!>
+! Extract 1D latitude and longitude arrays from 2D grid.
+!
+! Converts 2D lat-lon grid to 1D arrays (in degrees) by extracting the
+! first row for longitudes and first column for latitudes.
+!
       subroutine flatten_latlon(lats,lons,lats_1d,lons_1d,im,jm)
       implicit none
       integer, intent(in) :: im,jm
@@ -800,13 +805,18 @@ CONTAINS
       integer :: i
       do i =1,im
        lons_1d(i)=lons(i,1)*180./MAPL_PI
-      enddo
+      end do
       do i =1,jm
        lats_1d(i)=lats(1,i)*180./MAPL_PI
-      enddo
-      return
+      end do
       end subroutine flatten_latlon
 
+!>
+! Extract 1D coordinate arrays from cubed-sphere grid.
+!
+! Converts 2D cubed-sphere (x,y) coordinates to 1D arrays for use in
+! masking operations. Can switch between row/column extraction modes.
+!
       subroutine flatten_xy(x,y,x_1d,y_1d,im,jm,im_1d,jm_1d,switch)
       implicit none
       integer, intent(in) :: im,jm, im_1d, jm_1d
@@ -817,21 +827,26 @@ CONTAINS
       if (.not.switch) then
        do i =1,im_1d
         x_1d(i)=x(i,1)
-       enddo
+       end do
        do i =1,jm_1d
         y_1d(i)=y(1,i)
-       enddo
+       end do
       else if (switch) then
        do i =1,im_1d
         x_1d(i)=x(1,i)
-       enddo
+       end do
        do i =1,jm_1d
         y_1d(i)=y(i,1)
-       enddo
-      endif
-      return
+       end do
+      end if
       end subroutine flatten_xy
 
+!>
+! Compute cell edge coordinates from cell centers.
+!
+! Calculates edge coordinates for a 1D grid by interpolating between
+! cell centers, with special handling for first and last edges.
+!
       subroutine orb_edges_1d(ecoords,coords,idim)
       implicit NONE
       integer, intent(in) :: idim
@@ -840,9 +855,15 @@ CONTAINS
       ecoords(1)  = coords(1) - 0.5 * ( coords(2) - coords(1) )
       ecoords(2:idim) = 0.5 * ( coords(1:idim-1)+coords(2:idim) )
       ecoords(idim+1) = coords(idim) + 0.5 * (coords(idim) - coords(idim-1))
-      return
       end subroutine orb_edges_1d
 
+!>
+! Create orbital track mask for cubed-sphere grids (nadir-only).
+!
+! Determines which grid cells contain satellite nadir track points by
+! testing if orbital positions fall within cubed-sphere grid cells.
+! Used for simple nadir-only orbital masking.
+!
       subroutine orb_mask_xy(mask,im,jm,x,y,tlons,tlats,nobs,jsegs,lb,ub,face,rc)
       implicit NONE
       INTEGER, PARAMETER :: dp=SELECTED_REAL_KIND(15,307)
@@ -880,7 +901,7 @@ CONTAINS
         jm_1d = jm+1
         imp1 = im+1
         jmp1 = jm+1
-      endif
+      end if
       if (switch) then
        allocate(ex(jm+1),ey(im+1))
        im_1d = jm+1
@@ -930,18 +951,25 @@ CONTAINS
                 itmp = i
                 i = j
                 j = itmp
-             endif
+             end if
              if ( i>0 .and. j>0 .and. i<=im .and. j<=jm) then
                mask(i,j)=1
              end if
-          endif
-         endif
-       enddo
-      enddo
+          end if
+         end if
+       end do
+      end do
       deallocate(ex,ey)
 
       end subroutine orb_mask_xy
 
+!>
+! Create orbital track mask for lat-lon grids (nadir-only).
+!
+! Determines which grid cells contain satellite nadir track points by
+! testing if orbital positions fall within lat-lon grid cells.
+! Used for simple nadir-only orbital masking.
+!
       subroutine orb_mask_lonlat(mask,im,jm,lons,lats,tlons,tlats,nobs,jsegs,lb,ub)
       implicit NONE
       INTEGER, PARAMETER :: dp=SELECTED_REAL_KIND(15,307)
@@ -1003,12 +1031,19 @@ CONTAINS
            ! fill in mask for i,j (check bounds since ijsearch can return im+1 or jm+1 for edge points)
            if (i > 0 .and. i <= im .and. j > 0 .and. j <= jm) then
             mask(i,j)=1
-           endif
-         endif
-       enddo
-      enddo
+           end if
+         end if
+       end do
+      end do
       end subroutine orb_mask_lonlat
 
+!>
+! Create orbital swath mask for cubed-sphere grids.
+!
+! Determines which grid cells are within satellite swath by testing
+! grid cell corners against swath edge polygons. Handles full swath
+! width with across-track interpolation for cubed-sphere coordinates.
+!
       subroutine orb_swath_mask_xy(mask,im,jm,x,y,slons,slats,nobs,isegs,jsegs,lb,ub,face)
       implicit NONE
       INTEGER, PARAMETER :: dp=SELECTED_REAL_KIND(15,307)
@@ -1046,7 +1081,7 @@ CONTAINS
          jm_1d = jm+1
          imp1=im+1
          jmp1=jm+1
-      endif
+      end if
       if (switch) then
          allocate(ex(jm+1),ey(im+1))
          im_1d = jm+1
@@ -1080,7 +1115,7 @@ CONTAINS
              lon1 = (1.0-alpha) * (slons(1,n-1)+360.) + alpha * slons(3,n-1)
              eplonl1 = slons(1,n-1)+360.
              eplonr1 = slons(3,n-1)
-            endif
+            end if
             if (abs(slons(1,n)-slons(3,n)) < 180.) then
              lon2 = (1.0-alpha) * slons(1,n) + alpha * slons(3,n)
              eplonl2 = slons(1,n)
@@ -1093,7 +1128,7 @@ CONTAINS
              lon2 = (1.0-alpha) * (slons(1,n)+360.) + alpha * slons(3,n)
              eplonl2 = slons(1,n)+360.
              eplonr2 = slons(3,n)
-            endif
+            end if
 
             ! interpolate along great circle unless endpoints of interpolation have same lon
             associate(d2r => MAPL_DEGREES_TO_RADIANS_R8, r2d => MAPL_RADIANS_TO_DEGREES)
@@ -1110,7 +1145,7 @@ CONTAINS
               lat1 = lat1*r2d
              else
               lat1 = (1.0-alpha) * slats(1,n-1) + alpha * slats(3,n-1)
-             endif
+             end if
              if (abs(sdnom2) /= 0.) then
               sp1 = sin((lon2-eplonr2)*d2r)/sdnom2
               sp2 = sin((lon2-eplonl2)*d2r)/sdnom2
@@ -1118,7 +1153,7 @@ CONTAINS
               lat2 = lat2*r2d
              else
               lat2 = (1.0-alpha) * slats(1,n) + alpha * slats(3,n)
-             endif
+             end if
 
              do m = 1, jsegs ! along track refinement
                 beta = (m - 1.0 ) / ( jsegs - 1.0 )
@@ -1134,7 +1169,7 @@ CONTAINS
                  lon = (1.0-beta) * lon1 + beta * (lon2+360.)
                  eplon1=lon1
                  eplon2=lon2+360.
-                endif
+                end if
                 eplat1=lat1
                 eplat2=lat2
                 sdnom=sin((eplon1-eplon2)*d2r)
@@ -1146,7 +1181,7 @@ CONTAINS
                  lat = latf
                 else
                  lat = (1.0-beta) * lat1 + beta * lat2
-                endif
+                end if
                 if (lon < lb) lon=lon+360.
                 if (lon > ub) lon=lon-360.
 
@@ -1163,12 +1198,12 @@ CONTAINS
                      itmp = i
                      i = j
                      j = itmp
-                  endif
+                  end if
                   if ( i>0 .and. j>0 .and. i<=im .and. j<=jm) then
                     mask(i,j)=1
                   end if
                  end if
-                endif
+                end if
              end do ! msegs
             end associate
          end do    ! nobs
@@ -1179,6 +1214,13 @@ CONTAINS
       end subroutine orb_swath_mask_xy
 !...........................................................................................
 
+!>
+! Create orbital swath mask for lat-lon grids.
+!
+! Determines which grid cells are within satellite swath by testing
+! grid cell corners against swath edge polygons. Handles full swath
+! width with across-track interpolation for lat-lon coordinates.
+!
       subroutine orb_swath_mask_lonlat(mask,im,jm,lons,lats,slons,slats,nobs,isegs,jsegs,lb,ub)
       implicit NONE
       INTEGER, PARAMETER :: dp=SELECTED_REAL_KIND(15,307)
@@ -1237,7 +1279,7 @@ CONTAINS
              lon1 = (1.0-alpha) * (slons(1,n-1)+360.) + alpha * slons(3,n-1)
              eplonl1 = slons(1,n-1)+360.
              eplonr1 = slons(3,n-1)
-            endif
+            end if
             if (abs(slons(1,n)-slons(3,n)) < 180.) then
              lon2 = (1.0-alpha) * slons(1,n) + alpha * slons(3,n)
              eplonl2 = slons(1,n)
@@ -1250,7 +1292,7 @@ CONTAINS
              lon2 = (1.0-alpha) * (slons(1,n)+360.) + alpha * slons(3,n)
              eplonl2 = slons(1,n)+360.
              eplonr2 = slons(3,n)
-            endif
+            end if
 
             ! interpolate along great circle unless endpoints of interpolation have same lon
             associate(d2r => MAPL_DEGREES_TO_RADIANS_R8, r2d => MAPL_RADIANS_TO_DEGREES)
@@ -1267,7 +1309,7 @@ CONTAINS
               lat1 = lat1*r2d
              else
               lat1 = (1.0-alpha) * slats(1,n-1) + alpha * slats(3,n-1)
-             endif
+             end if
              if (abs(sdnom2) /= 0.) then
               sp1 = sin((lon2-eplonr2)*d2r)/sdnom2
               sp2 = sin((lon2-eplonl2)*d2r)/sdnom2
@@ -1275,7 +1317,7 @@ CONTAINS
               lat2 = lat2*r2d
              else
               lat2 = (1.0-alpha) * slats(1,n) + alpha * slats(3,n)
-             endif
+             end if
 
              do m = 1, jsegs ! along track refinement
                 beta = (m - 1.0 ) / ( jsegs - 1.0 )
@@ -1291,7 +1333,7 @@ CONTAINS
                  lon = (1.0-beta) * lon1 + beta * (lon2+360.)
                  eplon1=lon1
                  eplon2=lon2+360.
-                endif
+                end if
                 eplat1=lat1
                 eplat2=lat2
                 sdnom=sin((eplon1-eplon2)*d2r)
@@ -1303,7 +1345,7 @@ CONTAINS
                  lat = latf
                 else
                  lat = (1.0-beta) * lat1 + beta * lat2
-                endif
+                end if
                 if (lon < lb) lon=lon+360.
                 if (lon > ub) lon=lon-360.
                 inbox = pnt_in_rect(lat,lon,wcorner_lat,wcorner_lon)
@@ -1318,6 +1360,13 @@ CONTAINS
       end do       ! ksegs
       end subroutine orb_swath_mask_lonlat
 
+!>
+! Test if point is inside quadrilateral.
+!
+! Uses ray-casting algorithm to determine if point (x0,y0) lies within
+! the rectangle/quadrilateral defined by four corner points.
+! Returns 1 if inside, 0 if outside.
+!
       integer function pnt_in_rect(x0,y0,x,y)
       implicit none
       real, intent(in) :: x0,y0
@@ -1350,26 +1399,33 @@ CONTAINS
         w(j)=p0(j)-q0(j)
         v(j)=q1(j)-q0(j)
         u(j)=p1(j)-p0(j)
-       enddo
+       end do
        denom = v(1)*u(2)-v(2)*u(1)
        ! if the ray and edge are parallel they probably don't cross, should really
        ! check if they are on top of each other but probably won't happen
-       if (abs(denom).gt.tol) then
+       if (abs(denom) > tol) then
         s = (v(2)*w(1)-v(1)*w(2))/denom
         t = -(u(1)*w(2)-u(2)*w(1))/denom
         ! now test if ray intersects segment t > 0 and 0 < s < 1
         if (0. <= s .and. s <= 1. .and. t >= 0.) nintersect = nintersect + 1
         ! in future put in test if t = 0, i.e. the point is on one of the edges
-       endif
-      enddo
+       end if
+      end do
       if (mod(nintersect,2) == 1) then
 !      if (nintersect == 1) then
        pnt_in_rect = 1
       else
        pnt_in_rect = 0
-      endif
+      end if
       end function pnt_in_rect
 
+!>
+! Binary search for coordinate position in sorted array.
+!
+! Performs fast bisection search to find the index i where
+! coords(i) <= value < coords(i+1). Handles periodic boundaries
+! for longitude coordinates. Returns -1 if not found.
+!
       integer function ijsearch(coords,idim,value,periodic) ! fast bisection version
             implicit NONE
             integer, intent(in) :: idim
@@ -1379,19 +1435,19 @@ CONTAINS
             integer i, i1, i2, k
             if ( periodic ) then
                  if ( value>coords(idim) ) value = value - 360.
-            endif
-            if ( value .eq. coords(idim) ) then
+            end if
+            if ( value == coords(idim) ) then
                  ijsearch = idim
                  return
-            endif
+            end if
             ijsearch = -1
             i1 = 1
             i2 = idim
             if (coords(idim) > coords(1)) then
              do k = 1, idim  ! it should never take take long
                i = (i1 + i2) / 2
-               if ( (value .ge. coords(i)) ) then
-                  if (value .lt. coords(i+1) ) then
+               if ( (value  >=  coords(i)) ) then
+                  if (value  <  coords(i+1) ) then
                     ijsearch = i
                     exit
                   else
@@ -1399,13 +1455,13 @@ CONTAINS
                   end if
                else
                     i2 = i
-               endif
+               end if
              end do
             else
              do k = 1, idim  ! it should never take take long
                i = (i1 + i2) / 2
-               if ( (value .lt. coords(i)) ) then
-                  if (value .ge. coords(i+1) ) then
+               if ( (value  <  coords(i)) ) then
+                  if (value  >=  coords(i+1) ) then
                     ijsearch = i
                     exit
                   else
@@ -1413,12 +1469,18 @@ CONTAINS
                   end if
                else
                     i2 = i
-               endif
+               end if
              end do
-            endif
+            end if
       end function
 
-
+!>
+! Determine cubed-sphere face for grid coordinates.
+!
+! Identifies which of the six cubed-sphere faces contains the given
+! lat-lon coordinates by computing distance to each face center.
+! Verifies face consistency across the grid.
+!
       subroutine check_face(IM,JM,LONS,LATS,face)
       integer, intent(in) :: im,jm
       real(ESMF_KIND_R8), intent(in) :: LONS(IM,JM),LATS(IM,JM)
@@ -1442,42 +1504,49 @@ CONTAINS
         else
          s(1)=LARGE_DISTANCE
          s(2)=LARGE_DISTANCE
-        endif
+        end if
         if (xyz(2) /= 0.0) then
          s(3)=rsq3/xyz(2)
          s(4)=-rsq3/xyz(2)
         else
          s(3)=LARGE_DISTANCE
          s(4)=LARGE_DISTANCE
-        endif
+        end if
         if (xyz(3) /= 0.0) then
          s(5)=rsq3/xyz(3)
          s(6)=-rsq3/xyz(3)
         else
          s(5)=LARGE_DISTANCE
          s(6)=LARGE_DISTANCE
-        endif
+        end if
         do k=1,6
          if (s(k) > 0) then
           if (s(k) < smin) then
            smin = s(k)
            fmin = k
-          endif
-         endif
-        enddo
+          end if
+         end if
+        end do
         ifmin(fmin) = ifmin(fmin)+1
-       enddo
-      enddo
+       end do
+      end do
       imax = 0
       do k=1,6
        imaxt=ifmin(k)
        if (imaxt > imax) then
         imax = imaxt
         face = k
-       endif
-      enddo
+       end if
+      end do
       end subroutine check_face
 
+!>
+! Convert lat-lon coordinates to cubed-sphere (x,y) coordinates.
+!
+! Transforms spherical coordinates (lat,lon) to gnomonic projection
+! coordinates (x,y) for a specified cubed-sphere face using tangent
+! projection from the face center.
+!
       subroutine cube_xy(IM,JM,x,y,LONS,LATS,face)
       integer, intent(in) :: IM,JM
       real, intent(inout) :: x(IM,JM),y(IM,JM)
@@ -1511,11 +1580,17 @@ CONTAINS
           x(I,J) = -rsq3*sin(LON)*cos(LAT)/sin(LAT)
           y(I,J) = -rsq3*cos(LON)*cos(LAT)/sin(LAT)
         end select
-       enddo
-      enddo
+       end do
+      end do
 
       end subroutine cube_xy
 
+!>
+! Convert single lat-lon point to cubed-sphere (x,y) coordinates.
+!
+! Transforms a single spherical coordinate point (lat,lon) to gnomonic
+! projection coordinates (x,y) for a specified cubed-sphere face.
+!
       subroutine cube_xy_point(x,y,LAT,LON,face)
       real, intent(inout) :: x,y
       real, intent(in) :: LAT,LON
@@ -1548,6 +1623,13 @@ CONTAINS
 
       end subroutine cube_xy_point
 
+!>
+! Determine cubed-sphere face for a single point.
+!
+! Identifies which of the six cubed-sphere faces contains a single
+! lat-lon point by computing distance to each face center and
+! selecting the closest face.
+!
       subroutine check_face_pnt(LON,LAT,face)
       real, intent(in) :: LON,LAT
       integer, intent(inout) :: face
@@ -1572,34 +1654,41 @@ CONTAINS
       else
        s(1)=LARGE_DISTANCE
        s(2)=LARGE_DISTANCE
-      endif
+      end if
       if (xyz(2) /= 0.) then
        s(3)=rsq3/xyz(2)
        s(4)=-rsq3/xyz(2)
       else
        s(3)=LARGE_DISTANCE
        s(4)=LARGE_DISTANCE
-      endif
+      end if
       if (xyz(3) /= 0.) then
        s(5)=rsq3/xyz(3)
        s(6)=-rsq3/xyz(3)
       else
        s(5)=LARGE_DISTANCE
        s(6)=LARGE_DISTANCE
-      endif
+      end if
       do k=1,6
        if (s(k) > 0) then
         if (s(k) < smin) then
          smin = s(k)
          fmin = k
-        endif
-       endif
-      enddo
+        end if
+       end if
+      end do
       if (fmin /= 7) then
        face = fmin
-      endif
+      end if
       end subroutine check_face_pnt
 
+!>
+! Expand orbital mask by halo zones.
+!
+! Dilates the mask by adding halo cells around each masked point.
+! The halo extends ihalo cells in i-direction and jhalo cells in
+! j-direction, useful for instrument footprint representation.
+!
       subroutine orb_halo(im,jm,mask,ihalo,jhalo,rc)
          integer,           intent(in   ) :: im
          integer,           intent(in   ) :: jm
