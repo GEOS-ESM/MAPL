@@ -1,0 +1,349 @@
+!------------------------------------------------------------------------------
+! Test suite for MAPL Orbital Grid Component Helper Functions
+! Tests pure geometric and mathematical utility functions
+!------------------------------------------------------------------------------
+
+module Test_OrbHelperFunctions
+   use pFUnit
+   use MAPL_OrbGridCompMod
+   use MAPL_Constants
+   implicit none
+
+contains
+
+   !---------------------------------------------------------------------------
+   ! Tests for flatten_latlon
+   !---------------------------------------------------------------------------
+
+   @test
+   subroutine test_flatten_latlon_simple()
+      integer, parameter :: im = 4, jm = 3
+      real :: lats(im, jm), lons(im, jm)
+      real :: lats_1d(jm), lons_1d(im)
+      integer :: i, j
+
+      ! Create simple test data: constant longitude per column, constant latitude per row
+      do i = 1, im
+         do j = 1, jm
+            lons(i,j) = real(i-1) * MAPL_PI / 180.0  ! 0, 1, 2, 3 degrees in radians
+            lats(i,j) = real(j-1) * MAPL_PI / 180.0  ! 0, 1, 2 degrees in radians
+         end do
+      end do
+
+      call flatten_latlon(lats, lons, lats_1d, lons_1d, im, jm)
+
+      ! Check longitudes (first row)
+      do i = 1, im
+         @assertEqual(real(i-1), lons_1d(i), tolerance=1.0e-5)
+      end do
+
+      ! Check latitudes (first column)
+      do j = 1, jm
+         @assertEqual(real(j-1), lats_1d(j), tolerance=1.0e-5)
+      end do
+   end subroutine test_flatten_latlon_simple
+
+   !---------------------------------------------------------------------------
+   ! Tests for flatten_xy
+   !---------------------------------------------------------------------------
+
+   @test
+   subroutine test_flatten_xy_no_switch()
+      integer, parameter :: im = 3, jm = 4
+      real :: x(im, jm), y(im, jm)
+      real :: x_1d(im), y_1d(jm)
+      integer :: i, j
+
+      ! Create test data
+      do i = 1, im
+         do j = 1, jm
+            x(i,j) = real(i)
+            y(i,j) = real(j)
+         end do
+      end do
+
+      call flatten_xy(x, y, x_1d, y_1d, im, jm, im, jm, .false.)
+
+      ! Check x values (first row)
+      do i = 1, im
+         @assertEqual(real(i), x_1d(i), tolerance=1.0e-5)
+      end do
+
+      ! Check y values (first column)
+      do j = 1, jm
+         @assertEqual(real(j), y_1d(j), tolerance=1.0e-5)
+      end do
+   end subroutine test_flatten_xy_no_switch
+
+   @test
+   subroutine test_flatten_xy_with_switch()
+      integer, parameter :: im = 3, jm = 4
+      real :: x(im, jm), y(im, jm)
+      real :: x_1d(jm), y_1d(im)
+      integer :: i, j
+
+      ! Create test data
+      do i = 1, im
+         do j = 1, jm
+            x(i,j) = real(i) * 10.0 + real(j)
+            y(i,j) = real(i) + real(j) * 100.0
+         end do
+      end do
+
+      call flatten_xy(x, y, x_1d, y_1d, im, jm, jm, im, .true.)
+
+      ! With switch, x_1d comes from first column, y_1d from first row
+      do j = 1, jm
+         @assertEqual(x(1,j), x_1d(j), tolerance=1.0e-5)
+      end do
+
+      do i = 1, im
+         @assertEqual(y(i,1), y_1d(i), tolerance=1.0e-5)
+      end do
+   end subroutine test_flatten_xy_with_switch
+
+   !---------------------------------------------------------------------------
+   ! Tests for orb_edges_1d
+   !---------------------------------------------------------------------------
+
+   @test
+   subroutine test_orb_edges_1d_uniform()
+      integer, parameter :: n = 5
+      real :: coords(n), ecoords(n+1)
+      integer :: i
+
+      ! Uniform spacing: 0, 1, 2, 3, 4
+      do i = 1, n
+         coords(i) = real(i-1)
+      end do
+
+      call orb_edges_1d(ecoords, coords, n)
+
+      ! First edge should be at -0.5
+      @assertEqual(-0.5, ecoords(1), tolerance=1.0e-5)
+      
+      ! Middle edges should be at 0.5, 1.5, 2.5, 3.5
+      do i = 2, n
+         @assertEqual(real(i-1) - 0.5, ecoords(i), tolerance=1.0e-5)
+      end do
+      
+      ! Last edge should be at 4.5
+      @assertEqual(4.5, ecoords(n+1), tolerance=1.0e-5)
+   end subroutine test_orb_edges_1d_uniform
+
+   @test
+   subroutine test_orb_edges_1d_nonuniform()
+      integer, parameter :: n = 4
+      real :: coords(n), ecoords(n+1)
+
+      ! Non-uniform spacing
+      coords = [0.0, 1.0, 3.0, 6.0]
+
+      call orb_edges_1d(ecoords, coords, n)
+
+      ! First edge
+      @assertEqual(-0.5, ecoords(1), tolerance=1.0e-5)
+      
+      ! Middle edges (midpoints)
+      @assertEqual(0.5, ecoords(2), tolerance=1.0e-5)
+      @assertEqual(2.0, ecoords(3), tolerance=1.0e-5)
+      @assertEqual(4.5, ecoords(4), tolerance=1.0e-5)
+      
+      ! Last edge (extrapolated)
+      @assertEqual(7.5, ecoords(5), tolerance=1.0e-5)
+   end subroutine test_orb_edges_1d_nonuniform
+
+   !---------------------------------------------------------------------------
+   ! Tests for cube_xy_point
+   !---------------------------------------------------------------------------
+
+   @test
+   subroutine test_cube_xy_point_equator()
+      real :: x, y, lat, lon
+      integer :: face
+
+      ! Test point on equator (lat=0), lon=0
+      lat = 0.0
+      lon = 0.0
+      face = 1
+
+      call cube_xy_point(x, y, lat, lon, face)
+
+      ! For face 1 at equator, lon=0: x should be small, y should be 0
+      @assertEqual(0.0, y, tolerance=1.0e-3)
+   end subroutine test_cube_xy_point_equator
+
+   @test
+   subroutine test_cube_xy_point_pole()
+      real :: x, y, lat, lon
+      integer :: face
+
+      ! Test point near north pole
+      lat = 89.0 * MAPL_PI / 180.0
+      lon = 0.0
+      face = 5
+
+      call cube_xy_point(x, y, lat, lon, face)
+
+      ! At high latitudes, coordinates should be well-defined
+      ! Just verify it doesn't crash and produces finite values
+      @assertTrue(abs(x) < 1.0e6)
+      @assertTrue(abs(y) < 1.0e6)
+   end subroutine test_cube_xy_point_pole
+
+   !---------------------------------------------------------------------------
+   ! Tests for check_face_pnt
+   !---------------------------------------------------------------------------
+
+   @test
+   subroutine test_check_face_pnt_face1()
+      real :: lat, lon
+      integer :: face
+
+      ! Point that should be on face 1 (x > 0, |y| < x, |z| < x)
+      lat = 0.0
+      lon = 10.0 * MAPL_PI / 180.0  ! 10 degrees east
+      face = 0
+
+      call check_face_pnt(lon, lat, face)
+
+      @assertEqual(1, face)
+   end subroutine test_check_face_pnt_face1
+
+   @test
+   subroutine test_check_face_pnt_pole()
+      real :: lat, lon
+      integer :: face
+
+      ! Point near north pole should be face 5 or 6
+      lat = 80.0 * MAPL_PI / 180.0
+      lon = 0.0
+      face = 0
+
+      call check_face_pnt(lon, lat, face)
+
+      @assertTrue(face == 5 .or. face == 6)
+   end subroutine test_check_face_pnt_pole
+
+   !---------------------------------------------------------------------------
+   ! Tests for orb_halo
+   !---------------------------------------------------------------------------
+
+   @test
+   subroutine test_orb_halo_single_point()
+      integer, parameter :: im = 5, jm = 5
+      integer :: mask(im, jm)
+      integer :: ihalo(2), jhalo(2)
+      integer :: rc
+
+      ! Start with all zeros
+      mask = 0
+      
+      ! Set center point
+      mask(3,3) = 1
+      
+      ! Expand by 1 in all directions
+      ihalo = [1, 1]
+      jhalo = [1, 1]
+
+      call orb_halo(im, jm, mask, ihalo, jhalo, rc)
+
+      ! Check that 3x3 region around (3,3) is now 1
+      @assertEqual(1, mask(2,2))
+      @assertEqual(1, mask(2,3))
+      @assertEqual(1, mask(2,4))
+      @assertEqual(1, mask(3,2))
+      @assertEqual(1, mask(3,3))
+      @assertEqual(1, mask(3,4))
+      @assertEqual(1, mask(4,2))
+      @assertEqual(1, mask(4,3))
+      @assertEqual(1, mask(4,4))
+      
+      ! Corners should still be 0
+      @assertEqual(0, mask(1,1))
+      @assertEqual(0, mask(1,5))
+      @assertEqual(0, mask(5,1))
+      @assertEqual(0, mask(5,5))
+   end subroutine test_orb_halo_single_point
+
+   @test
+   subroutine test_orb_halo_asymmetric()
+      integer, parameter :: im = 6, jm = 6
+      integer :: mask(im, jm)
+      integer :: ihalo(2), jhalo(2)
+      integer :: rc
+
+      mask = 0
+      mask(3,3) = 1
+      
+      ! Asymmetric halo: 2 left, 1 right, 1 below, 2 above
+      ihalo = [2, 1]  ! i-2 to i+1
+      jhalo = [1, 2]  ! j-1 to j+2
+
+      call orb_halo(im, jm, mask, ihalo, jhalo, rc)
+
+      ! Check expanded region
+      ! i: 1 to 4 (3-2 to 3+1)
+      ! j: 2 to 5 (3-1 to 3+2)
+      @assertEqual(1, mask(1,2))
+      @assertEqual(1, mask(1,5))
+      @assertEqual(1, mask(4,2))
+      @assertEqual(1, mask(4,5))
+      
+      ! Outside region should be 0
+      @assertEqual(0, mask(1,1))
+      @assertEqual(0, mask(5,3))
+      @assertEqual(0, mask(3,6))
+   end subroutine test_orb_halo_asymmetric
+
+   @test
+   subroutine test_orb_halo_edge_clipping()
+      integer, parameter :: im = 5, jm = 5
+      integer :: mask(im, jm)
+      integer :: ihalo(2), jhalo(2)
+      integer :: rc
+
+      mask = 0
+      mask(1,1) = 1  ! Corner point
+      
+      ! Try to expand beyond boundaries
+      ihalo = [2, 2]
+      jhalo = [2, 2]
+
+      call orb_halo(im, jm, mask, ihalo, jhalo, rc)
+
+      ! Should expand but clip at boundaries
+      @assertEqual(1, mask(1,1))
+      @assertEqual(1, mask(1,2))
+      @assertEqual(1, mask(2,1))
+      @assertEqual(1, mask(3,3))
+      
+      ! Far corner should still be 0
+      @assertEqual(0, mask(5,5))
+   end subroutine test_orb_halo_edge_clipping
+
+   @test
+   subroutine test_orb_halo_no_expansion()
+      integer, parameter :: im = 4, jm = 4
+      integer :: mask(im, jm)
+      integer :: ihalo(2), jhalo(2)
+      integer :: rc
+
+      mask = 0
+      mask(2,2) = 1
+      
+      ! Zero halo - no expansion
+      ihalo = [0, 0]
+      jhalo = [0, 0]
+
+      call orb_halo(im, jm, mask, ihalo, jhalo, rc)
+
+      ! Only original point should be set
+      @assertEqual(1, mask(2,2))
+      @assertEqual(0, mask(1,2))
+      @assertEqual(0, mask(3,2))
+      @assertEqual(0, mask(2,1))
+      @assertEqual(0, mask(2,3))
+   end subroutine test_orb_halo_no_expansion
+
+end module Test_OrbHelperFunctions

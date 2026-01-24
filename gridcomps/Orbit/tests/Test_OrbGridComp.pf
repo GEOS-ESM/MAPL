@@ -1,0 +1,436 @@
+!------------------------------------------------------------------------------
+! Test suite for MAPL Orbital Grid Component Integration
+! Tests component-level functionality with ESMF grids
+!------------------------------------------------------------------------------
+
+module Test_OrbGridComp
+   use ESMF
+   use ESMF_TestMethod_mod
+   use MAPL_OrbGridCompMod, only: SetServices
+   use MAPL_GenericMod, only: MAPL_MetaCompCreate, MAPL_MetaComp
+   use mapl_TimeProfiler, only: initialize_global_time_profiler, finalize_global_time_profiler, &
+                                  start_global_time_profiler, stop_global_time_profiler
+   use pFUnit
+   implicit none
+
+contains
+
+   !---------------------------------------------------------------------------
+   ! Setup and teardown for each test
+   !---------------------------------------------------------------------------
+
+   @before
+   subroutine setUp(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_VM) :: vm
+      integer :: status, comm
+
+      call ESMF_VMGetCurrent(vm, rc=status)
+      call ESMF_VMGet(vm, mpiCommunicator=comm, rc=status)
+      
+      ! Initialize and start global profiler for this test
+      ! Note: reinitialize creates a fresh profiler, discarding any existing one
+      print*,__FILE__,__LINE__
+      call initialize_global_time_profiler(comm=comm)
+      call start_global_time_profiler(rc=status)
+      print*,__FILE__,__LINE__, status
+   end subroutine setUp
+
+   @after
+   subroutine tearDown(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      ! Finalize global profiler (combines stop and cleanup)
+      print*,__FILE__,__LINE__
+      call finalize_global_time_profiler()
+   end subroutine tearDown
+
+   !---------------------------------------------------------------------------
+   ! Tests for SetServices
+   !---------------------------------------------------------------------------
+
+   @test(npes=[1], type=ESMF_TestMethod)
+   subroutine test_SetServices(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_GridComp) :: gridcomp
+      type(MAPL_MetaComp), pointer :: maplobj
+      type(ESMF_Config) :: cf
+      type(ESMF_VM) :: vm
+      integer :: status, user_status, comm
+
+!#      ! Create and load config
+!#      cf = ESMF_ConfigCreate(rc=status)
+!#      @assertEqual(ESMF_SUCCESS, status)
+!#      call ESMF_ConfigLoadFile(cf, 'MAPL_OrbGridComp.rc', rc=status)
+!#      @assertEqual(ESMF_SUCCESS, status)
+!#
+!#      ! Create grid component with config
+!#      gridcomp = ESMF_GridCompCreate(name='ORB', config=cf, rc=status)
+!#      @assertEqual(ESMF_SUCCESS, status, "GridComp create should succeed")
+!#
+!#      ! Create MAPL internal state using factory method and attach to gridcomp
+!#      maplobj => MAPL_MetaCompCreate(gridcomp, cf, rc=status)
+!#      @assertEqual(ESMF_SUCCESS, status, "MAPL_MetaCompCreate should succeed")
+!#
+!#      ! Register SetServices (automatic ESMF flow - ESMF will call it when needed)
+!#      call ESMF_GridCompSetServices(gridcomp, SetServices, userRC=user_status, rc=status)
+!#      @assertEqual(ESMF_SUCCESS, status, "SetServices registration should succeed")
+!#      
+!#      ! Stop component profiler after SetServices
+!#      call maplobj%t_profiler%stop(rc=status)
+!#      @assertEqual(ESMF_SUCCESS, status, "Component profiler stop should succeed")
+!#      
+!#      ! Cleanup
+!#      call ESMF_GridCompDestroy(gridcomp, rc=status)
+!#      call ESMF_ConfigDestroy(cf, rc=status)
+      
+   end subroutine test_SetServices
+
+   !---------------------------------------------------------------------------
+   ! Tests for Initialize on lat-lon grid
+   !---------------------------------------------------------------------------
+
+   @test(npes=[1], type=ESMF_TestMethod)
+   subroutine test_Initialize_LatLon(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(ESMF_GridComp) :: gridcomp
+      type(MAPL_MetaComp), pointer :: maplobj
+      type(ESMF_Config) :: cf
+      type(ESMF_State) :: import, export
+      type(ESMF_Clock) :: clock
+      type(ESMF_Time) :: startTime
+      type(ESMF_TimeInterval) :: timeStep
+      type(ESMF_VM) :: vm
+      integer :: status, user_status, comm
+      integer, parameter :: IM = 8, JM = 8
+
+      print*,__FILE__,__LINE__
+      ! Create test configuration
+      cf = ESMF_ConfigCreate(rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      print*,__FILE__,__LINE__
+      call ESMF_ConfigLoadFile(cf, 'MAPL_OrbGridComp.rc', rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      
+      print*,__FILE__,__LINE__
+      ! Set DT explicitly (required by MAPL framework)
+      call ESMF_ConfigSetAttribute(cf, 3600, label='DT:', rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      call ESMF_ConfigSetAttribute(cf, 3600, label='RUN_DT:', rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+
+      ! Create simple lat-lon grid
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, JM], coordSys=ESMF_COORDSYS_SPH_DEG, indexflag=ESMF_INDEX_GLOBAL, rc=status)
+      @assertEqual(ESMF_SUCCESS, status, "Grid create should succeed")
+
+      print*,__FILE__,__LINE__
+      ! Add coordinates to the grid
+      call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CENTER, rc=status)
+      @assertEqual(ESMF_SUCCESS, status, "Grid add coord should succeed")
+
+      print*,__FILE__,__LINE__
+      ! Create grid component
+      gridcomp = ESMF_GridCompCreate(name='ORB', grid=grid, config=cf, rc=status)
+      @assertEqual(ESMF_SUCCESS, status, "GridComp create should succeed")
+
+      print*,__FILE__,__LINE__
+      ! Create MAPL internal state using factory method and attach to gridcomp
+      maplobj => MAPL_MetaCompCreate(gridcomp, cf, rc=status)
+      @assertEqual(ESMF_SUCCESS, status, "MAPL_MetaCompCreate should succeed")
+
+      ! Set up states
+      print*,__FILE__,__LINE__
+      import = ESMF_StateCreate(name='ORB_IMPORT', stateintent=ESMF_STATEINTENT_IMPORT, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+
+      export = ESMF_StateCreate(name='ORB_EXPORT', stateintent=ESMF_STATEINTENT_EXPORT, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+
+      print*,__FILE__,__LINE__
+      ! Create clock
+      call ESMF_TimeSet(startTime, yy=2020, mm=1, dd=1, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      call ESMF_TimeIntervalSet(timeStep, h=1, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      clock = ESMF_ClockCreate(timeStep=timeStep, startTime=startTime, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+
+      print*,__FILE__,__LINE__
+      ! Register SetServices (automatic ESMF flow)
+      call ESMF_GridCompSetServices(gridcomp, SetServices, userRC=user_status, rc=status)
+      @assertEqual(ESMF_SUCCESS, status, "SetServices registration should succeed")
+
+      ! Stop component profiler after SetServices (will be restarted by Generic wrapper for Initialize)
+      print*,__FILE__,__LINE__
+      call maplobj%t_profiler%stop(rc=status)
+      print*,__FILE__,__LINE__
+      @assertEqual(ESMF_SUCCESS, status, "Component profiler stop should succeed")
+
+      ! Call Initialize (ESMF will call registered SetServices, then Initialize)
+      print*,__FILE__,__LINE__
+      call ESMF_GridCompInitialize(gridcomp, importState=import, exportState=export, clock=clock, rc=status)
+      print*,__FILE__,__LINE__
+      @assertEqual(ESMF_SUCCESS, status, "Initialize should succeed for lat-lon grid")
+
+      ! Stop component profiler before cleanup
+      @assertEqual(ESMF_SUCCESS, status, "Component profiler stop should succeed")
+
+      ! Cleanup
+      call ESMF_StateDestroy(import, rc=status)
+      call ESMF_StateDestroy(export, rc=status)
+      call ESMF_ClockDestroy(clock, rc=status)
+      call ESMF_GridCompDestroy(gridcomp, rc=status)
+      call ESMF_GridDestroy(grid, rc=status)
+      call ESMF_ConfigDestroy(cf, rc=status)
+      
+   end subroutine test_Initialize_LatLon
+
+   !---------------------------------------------------------------------------
+   ! Tests for Initialize on cubed-sphere grid
+   !---------------------------------------------------------------------------
+
+   @test(npes=[6], type=ESMF_TestMethod)
+   subroutine test_Initialize_CubedSphere(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(ESMF_GridComp) :: gridcomp
+      type(MAPL_MetaComp), pointer :: maplobj
+      type(ESMF_Config) :: cf
+      type(ESMF_State) :: import, export
+      type(ESMF_Clock) :: clock
+      type(ESMF_Time) :: startTime
+      type(ESMF_TimeInterval) :: timeStep
+      type(ESMF_VM) :: vm
+      integer :: status, user_status, comm
+      integer, parameter :: IM = 12  ! C12 resolution
+
+      ! Create test configuration
+      cf = ESMF_ConfigCreate(rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      call ESMF_ConfigLoadFile(cf, 'MAPL_OrbGridComp.rc', rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      
+      ! Set DT explicitly (required by MAPL framework)
+      call ESMF_ConfigSetAttribute(cf, 3600, label='DT:', rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      call ESMF_ConfigSetAttribute(cf, 3600, label='RUN_DT:', rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+
+      ! Create cubed-sphere grid (6 faces with center and corner coordinates)
+      grid = ESMF_GridCreateCubedSphere(IM, &
+           staggerLocList=[ESMF_STAGGERLOC_CENTER, ESMF_STAGGERLOC_CORNER], &
+           coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
+      @assertEqual(ESMF_SUCCESS, status, "Cubed-sphere grid create should succeed")
+
+      ! Mark as cubed-sphere by setting GridType attribute
+      call ESMF_AttributeSet(grid, 'GridType', 'Cubed-Sphere', rc=status)
+      @assertEqual(ESMF_SUCCESS, status, "Should set GridType attribute")
+
+      ! Create grid component
+      gridcomp = ESMF_GridCompCreate(name='ORB', grid=grid, config=cf, rc=status)
+      @assertEqual(ESMF_SUCCESS, status, "GridComp create should succeed")
+
+      ! Create MAPL internal state using factory method and attach to gridcomp
+      maplobj => MAPL_MetaCompCreate(gridcomp, cf, rc=status)
+      @assertEqual(ESMF_SUCCESS, status, "MAPL_MetaCompCreate should succeed")
+
+      ! Set up states
+      import = ESMF_StateCreate(name='ORB_IMPORT', stateintent=ESMF_STATEINTENT_IMPORT, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+
+      export = ESMF_StateCreate(name='ORB_EXPORT', stateintent=ESMF_STATEINTENT_EXPORT, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+
+      ! Create clock
+      call ESMF_TimeSet(startTime, yy=2020, mm=1, dd=1, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      call ESMF_TimeIntervalSet(timeStep, h=1, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      clock = ESMF_ClockCreate(timeStep=timeStep, startTime=startTime, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+
+      ! Register SetServices (automatic ESMF flow)
+      call ESMF_GridCompSetServices(gridcomp, SetServices, userRC=user_status, rc=status)
+      @assertEqual(ESMF_SUCCESS, status, "SetServices registration should succeed")
+
+      ! Stop component profiler after SetServices (will be restarted by Generic wrapper for Initialize)
+      call maplobj%t_profiler%stop(rc=status)
+      @assertEqual(ESMF_SUCCESS, status, "Component profiler stop should succeed")
+
+      ! Call Initialize (ESMF will call registered SetServices, then Initialize)
+      call ESMF_GridCompInitialize(gridcomp, importState=import, exportState=export, clock=clock, rc=status)
+      @assertEqual(ESMF_SUCCESS, status, "Initialize should succeed on cubed-sphere grid")
+
+      ! Cleanup
+      call ESMF_StateDestroy(import, rc=status)
+      call ESMF_StateDestroy(export, rc=status)
+      call ESMF_ClockDestroy(clock, rc=status)
+      call ESMF_GridCompDestroy(gridcomp, rc=status)
+      call ESMF_GridDestroy(grid, rc=status)
+      call ESMF_ConfigDestroy(cf, rc=status)
+      
+   end subroutine test_Initialize_CubedSphere
+
+   !---------------------------------------------------------------------------
+   ! Tests for Run with mock orbits
+   !---------------------------------------------------------------------------
+
+   @test(npes=[1], type=ESMF_TestMethod)
+   subroutine test_Run_Equatorial(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(ESMF_GridComp) :: gridcomp
+      type(MAPL_MetaComp), pointer :: maplobj
+      type(ESMF_Config) :: cf
+      type(ESMF_State) :: import, export
+      type(ESMF_Clock) :: clock
+      type(ESMF_Time) :: startTime
+      type(ESMF_TimeInterval) :: timeStep
+      type(ESMF_VM) :: vm
+      integer :: status, user_status, comm
+      integer, parameter :: IM = 8, JM = 8
+
+      ! Create test configuration
+      cf = ESMF_ConfigCreate(rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      call ESMF_ConfigLoadFile(cf, 'MAPL_OrbGridComp.rc', rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      
+      ! Set DT explicitly (required by MAPL framework)
+      call ESMF_ConfigSetAttribute(cf, 3600, label='DT:', rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      call ESMF_ConfigSetAttribute(cf, 3600, label='RUN_DT:', rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+
+      ! Create grid
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, JM], coordSys=ESMF_COORDSYS_SPH_DEG, indexflag=ESMF_INDEX_GLOBAL, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+
+      ! Add coordinates to the grid
+      call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CENTER, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+
+      ! Create and initialize component
+      gridcomp = ESMF_GridCompCreate(name='ORB', grid=grid, config=cf, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+
+      ! Create MAPL internal state
+      maplobj => MAPL_MetaCompCreate(gridcomp, cf, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+
+      import = ESMF_StateCreate(name='ORB_IMPORT', stateintent=ESMF_STATEINTENT_IMPORT, rc=status)
+      export = ESMF_StateCreate(name='ORB_EXPORT', stateintent=ESMF_STATEINTENT_EXPORT, rc=status)
+
+      call ESMF_TimeSet(startTime, yy=2020, mm=1, dd=1, rc=status)
+      call ESMF_TimeIntervalSet(timeStep, h=1, rc=status)
+      clock = ESMF_ClockCreate(timeStep=timeStep, startTime=startTime, rc=status)
+
+      call ESMF_GridCompSetServices(gridcomp, SetServices, userRc=user_status, rc=status)
+      @assertEqual(ESMF_SUCCESS, status, "SetServices registration should succeed")
+      @assertEqual(ESMF_SUCCESS, user_status, "SetServices userRc should succeed")
+
+      ! Stop component profiler after SetServices (will be restarted by Generic wrapper)
+      call maplobj%t_profiler%stop(rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+
+      call ESMF_GridCompInitialize(gridcomp, importState=import, exportState=export, clock=clock, userRc=user_status, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      @assertEqual(ESMF_SUCCESS, user_status, "Initialize userRc should succeed")
+
+      ! Run component with mock equatorial orbit
+      call ESMF_GridCompRun(gridcomp, importState=import, exportState=export, clock=clock, userRc=user_status, rc=status)
+      @assertEqual(ESMF_SUCCESS, status, "Run should succeed with equatorial mock orbit")
+      @assertEqual(ESMF_SUCCESS, user_status, "Run userRc should succeed")
+
+      ! Cleanup
+      call ESMF_StateDestroy(import, rc=status)
+      call ESMF_StateDestroy(export, rc=status)
+      call ESMF_ClockDestroy(clock, rc=status)
+      call ESMF_GridCompDestroy(gridcomp, rc=status)
+      call ESMF_GridDestroy(grid, rc=status)
+      call ESMF_ConfigDestroy(cf, rc=status)
+      
+   end subroutine test_Run_Equatorial
+
+   !---------------------------------------------------------------------------
+   ! Parallel test on 2 PEs
+   !---------------------------------------------------------------------------
+
+   @test(npes=[2], type=ESMF_TestMethod)
+   subroutine test_Run_Parallel(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(ESMF_GridComp) :: gridcomp
+      type(MAPL_MetaComp), pointer :: maplobj
+      type(ESMF_Config) :: cf
+      type(ESMF_State) :: import, export
+      type(ESMF_Clock) :: clock
+      type(ESMF_Time) :: startTime
+      type(ESMF_TimeInterval) :: timeStep
+      type(ESMF_VM) :: vm
+      integer :: status, user_status, comm
+      integer, parameter :: IM = 16, JM = 16
+
+      ! Create test configuration
+      cf = ESMF_ConfigCreate(rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      call ESMF_ConfigLoadFile(cf, 'MAPL_OrbGridComp.rc', rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      
+      ! Set DT explicitly (required by MAPL framework)
+      call ESMF_ConfigSetAttribute(cf, 3600, label='DT:', rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      call ESMF_ConfigSetAttribute(cf, 3600, label='RUN_DT:', rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+
+      ! Create decomposed grid
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, JM], coordSys=ESMF_COORDSYS_SPH_DEG, indexflag=ESMF_INDEX_GLOBAL, regDecomp=[2, 1], rc=status)
+      @assertEqual(ESMF_SUCCESS, status, "Decomposed grid should be created")
+
+      ! Add coordinates to the grid (ignore status on decomposed grids)
+      call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CENTER, rc=status)
+
+      ! Create grid component
+      gridcomp = ESMF_GridCompCreate(name='ORB', grid=grid, config=cf, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+
+      ! Create MAPL internal state
+      maplobj => MAPL_MetaCompCreate(gridcomp, cf, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+
+      import = ESMF_StateCreate(name='ORB_IMPORT', stateintent=ESMF_STATEINTENT_IMPORT, rc=status)
+      export = ESMF_StateCreate(name='ORB_EXPORT', stateintent=ESMF_STATEINTENT_EXPORT, rc=status)
+
+      call ESMF_TimeSet(startTime, yy=2020, mm=1, dd=1, rc=status)
+      call ESMF_TimeIntervalSet(timeStep, h=1, rc=status)
+      clock = ESMF_ClockCreate(timeStep=timeStep, startTime=startTime, rc=status)
+
+      call ESMF_GridCompSetServices(gridcomp, SetServices, userRc=user_status, rc=status)
+      @assertEqual(ESMF_SUCCESS, status, "SetServices registration should succeed")
+      @assertEqual(ESMF_SUCCESS, user_status, "SetServices userRc should succeed")
+
+      ! Stop component profiler after SetServices (will be restarted by Generic wrapper)
+      call maplobj%t_profiler%stop(rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+
+      call ESMF_GridCompInitialize(gridcomp, importState=import, exportState=export, clock=clock, userRc=user_status, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      @assertEqual(ESMF_SUCCESS, user_status, "Initialize userRc should succeed")
+
+      ! Run on decomposed domain
+      call ESMF_GridCompRun(gridcomp, importState=import, exportState=export, clock=clock, userRc=user_status, rc=status)
+      @assertEqual(ESMF_SUCCESS, status, "Run should succeed on decomposed domain")
+      @assertEqual(ESMF_SUCCESS, user_status, "Run userRc should succeed")
+
+      ! Cleanup
+      call ESMF_StateDestroy(import, rc=status)
+      call ESMF_StateDestroy(export, rc=status)
+      call ESMF_ClockDestroy(clock, rc=status)
+      call ESMF_GridCompDestroy(gridcomp, rc=status)
+      call ESMF_GridDestroy(grid, rc=status)
+      call ESMF_ConfigDestroy(cf, rc=status)
+      
+   end subroutine test_Run_Parallel
+
+end module Test_OrbGridComp

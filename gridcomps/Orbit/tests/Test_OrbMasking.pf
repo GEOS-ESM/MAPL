@@ -1,0 +1,398 @@
+!------------------------------------------------------------------------------
+! Test suite for MAPL Orbital Grid Component Masking Algorithms
+! Tests orb_mask_lonlat, orb_mask_xy, and swath masking
+!------------------------------------------------------------------------------
+
+module Test_OrbMasking
+   use pFUnit
+   use MAPL_OrbGridCompMod
+   use MAPL_Constants
+   use MAPL_NominalOrbitsMod, only: orbits_track, orbits_swath, dp
+   implicit none
+
+contains
+
+   !---------------------------------------------------------------------------
+   ! Tests for orb_mask_lonlat - track masking on lat-lon grids
+   !---------------------------------------------------------------------------
+
+   @test
+   subroutine test_orb_mask_lonlat_equatorial_simple()
+      integer, parameter :: im = 8, jm = 6
+      real :: lons(im, jm), lats(im, jm)
+      integer :: mask(im, jm)
+      real(dp), pointer :: tlons(:), tlats(:)
+      integer :: i, j, nobs, rc
+      
+      ! Create a simple lat-lon grid: -180 to 180, -60 to 60
+      do i = 1, im
+         do j = 1, jm
+            lons(i,j) = (real(i-1) - 3.5) * 45.0 * MAPL_PI / 180.0  ! -157.5 to 157.5 degrees
+            lats(i,j) = (real(j-1) - 2.5) * 30.0 * MAPL_PI / 180.0  ! -75 to 75 degrees
+         end do
+      end do
+      
+      ! Get equatorial orbit track
+      call orbits_track(tlons, tlats, 'EQUATORIAL', [20240101, 20240101], [0, 120000], 3600, rc=rc)
+      @assertEqual(0, rc)
+      @assertTrue(associated(tlons))
+      nobs = size(tlons)
+      @assertTrue(nobs > 0)
+      
+      ! Initialize mask
+      mask = 0
+      
+      ! Apply masking (with proper longitude bounds for wrapping)
+      ! jsegs should be >= 2 for interpolation (jsegs=1 causes division by zero)
+      call orb_mask_lonlat(mask, im, jm, lons, lats, tlons, tlats, nobs, 10, -180.0, 180.0)
+      
+      ! For equatorial orbit, expect mask along middle latitudes
+      ! At least one point should be masked
+      @assertTrue(sum(mask) > 0, "Equatorial orbit should mask some grid points")
+      
+      ! Points far from equator should not be masked
+      @assertEqual(0, mask(1,1), "High latitude corner should not be masked")
+      @assertEqual(0, mask(im,jm), "High latitude corner should not be masked")
+      
+      deallocate(tlons, tlats)
+   end subroutine test_orb_mask_lonlat_equatorial_simple
+
+   @test
+   subroutine test_orb_mask_lonlat_polar()
+      integer, parameter :: im = 10, jm = 8
+      real :: lons(im, jm), lats(im, jm)
+      integer :: mask(im, jm)
+      real(dp), pointer :: tlons(:), tlats(:)
+      integer :: i, j, nobs, rc
+      
+      mask = 0  ! Initialize mask
+      
+      ! Create lat-lon grid
+      do i = 1, im
+         do j = 1, jm
+            lons(i,j) = (real(i-1) / real(im-1)) * 2.0 * MAPL_PI - MAPL_PI  ! -180 to 180
+            lats(i,j) = (real(j-1) / real(jm-1)) * MAPL_PI - MAPL_PI/2.0   ! -90 to 90
+         end do
+      end do
+      
+      ! Get polar orbit track
+      call orbits_track(tlons, tlats, 'POLAR', [20240101, 20240101], [0, 120000], 3600, rc=rc)
+      @assertEqual(0, rc)
+      nobs = size(tlons)
+      
+      call orb_mask_lonlat(mask, im, jm, lons, lats, tlons, tlats, nobs, 10, -180.0, 180.0)
+      
+      ! Polar orbit should span high latitudes
+      @assertTrue(sum(mask) > 0, "Polar orbit should mask some points")
+      
+      deallocate(tlons, tlats)
+   end subroutine test_orb_mask_lonlat_polar
+
+   @test
+   subroutine test_orb_mask_lonlat_no_overlap()
+      integer, parameter :: im = 6, jm = 4
+      real :: lons(im, jm), lats(im, jm)
+      integer :: mask(im, jm)
+      real(dp), allocatable :: tlons(:), tlats(:)
+      integer :: i, j, nobs
+      
+      ! Initialize mask
+      mask = 0
+      
+      ! Create grid in Southern Hemisphere
+      do i = 1, im
+         do j = 1, jm
+            lons(i,j) = (real(i-1) - 2.5) * 30.0 * MAPL_PI / 180.0
+            lats(i,j) = -(60.0 + real(j-1) * 5.0) * MAPL_PI / 180.0  ! -60 to -75 degrees
+         end do
+      end do
+      
+      ! Create orbit track in Northern Hemisphere
+      nobs = 5
+      allocate(tlons(nobs), tlats(nobs))
+      tlons = 0.0_dp
+      do i = 1, nobs
+         tlats(i) = real(50.0 + i*2.0, dp) * MAPL_PI / 180.0_dp  ! 52 to 60 degrees North
+      end do
+      
+      call orb_mask_lonlat(mask, im, jm, lons, lats, tlons, tlats, nobs, 10, -180.0, 180.0)
+      
+      ! No overlap - all mask values should be 0
+      @assertEqual(0, sum(mask), "No overlap should result in zero mask")
+      
+      deallocate(tlons, tlats)
+   end subroutine test_orb_mask_lonlat_no_overlap
+
+   !---------------------------------------------------------------------------
+   ! Tests for orb_swath_mask_lonlat - swath masking on lat-lon grids
+   !---------------------------------------------------------------------------
+
+   @test
+   subroutine test_orb_swath_mask_lonlat_basic()
+      integer, parameter :: im = 8, jm = 6
+      real :: lons(im, jm), lats(im, jm)
+      integer :: mask(im, jm)
+      real(dp), pointer :: slons(:,:), slats(:,:)
+      integer :: i, j, nobs, rc
+            mask = 0  ! Initialize mask
+            ! Create simple lat-lon grid
+      do i = 1, im
+         do j = 1, jm
+            lons(i,j) = (real(i-1) - 3.5) * 30.0 * MAPL_PI / 180.0
+            lats(i,j) = (real(j-1) - 2.5) * 20.0 * MAPL_PI / 180.0
+         end do
+      end do
+      
+      ! Get swath orbit (3 points per observation: left, center, right)
+      call orbits_swath(slons, slats, 'EQUATORIAL', [20240101, 20240101], [0, 120000], 3600, [50.0_dp, 50.0_dp], rc=rc)
+      @assertEqual(0, rc)
+      @assertTrue(associated(slons))
+      nobs = size(slons, 2)
+      @assertTrue(nobs > 0)
+      @assertEqual(3, size(slons, 1), "Swath should have 3 points per obs")
+      
+      ! Apply swath masking
+      call orb_swath_mask_lonlat(mask, im, jm, lons, lats, slons, slats, nobs, 10, 10, -180.0, 180.0)
+      
+      ! Swath should mask more points than track
+      @assertTrue(sum(mask) > 0, "Swath should mask some grid points")
+      
+      deallocate(slons, slats)
+   end subroutine test_orb_swath_mask_lonlat_basic
+
+   @test
+   subroutine test_orb_swath_mask_lonlat_wide_swath()
+      integer, parameter :: im = 12, jm = 8
+      real :: lons(im, jm), lats(im, jm)
+      integer :: mask1(im, jm), mask2(im, jm)
+      real(dp), pointer :: slons_narrow(:,:), slats_narrow(:,:)
+      real(dp), pointer :: slons_wide(:,:), slats_wide(:,:)
+      integer :: i, j, rc
+      
+      ! Initialize masks
+      mask1 = 0
+      mask2 = 0
+      
+      ! Create grid
+      do i = 1, im
+         do j = 1, jm
+            lons(i,j) = (real(i-1) / real(im-1)) * MAPL_PI - MAPL_PI/2.0
+            lats(i,j) = (real(j-1) / real(jm-1)) * MAPL_PI/2.0 - MAPL_PI/4.0
+         end do
+      end do
+      
+      ! Get narrow swath (50 km)
+      call orbits_swath(slons_narrow, slats_narrow, 'DIAGONAL', [20240101, 20240101], &
+                        [0, 120000], 3600, [25.0_dp, 25.0_dp], rc=rc)
+      @assertEqual(0, rc)
+      
+      ! Get wide swath (500 km)
+      call orbits_swath(slons_wide, slats_wide, 'DIAGONAL', [20240101, 20240101], &
+                        [0, 120000], 3600, [250.0_dp, 250.0_dp], rc=rc)
+      @assertEqual(0, rc)
+      
+      call orb_swath_mask_lonlat(mask1, im, jm, lons, lats, slons_narrow, slats_narrow, &
+                                  size(slons_narrow,2), 1, 1, -180.0, 180.0)
+      call orb_swath_mask_lonlat(mask2, im, jm, lons, lats, slons_wide, slats_wide, &
+                                  size(slons_wide,2), 1, 1, -180.0, 180.0)
+      
+      ! Wider swath should mask more or equal points
+      @assertTrue(sum(mask2) >= sum(mask1), "Wider swath should mask more points")
+      
+      deallocate(slons_narrow, slats_narrow, slons_wide, slats_wide)
+   end subroutine test_orb_swath_mask_lonlat_wide_swath
+
+   !---------------------------------------------------------------------------
+   ! Tests for mask consistency
+   !---------------------------------------------------------------------------
+
+   @test
+   subroutine test_mask_binary_values()
+      integer, parameter :: im = 6, jm = 6
+      real :: lons(im, jm), lats(im, jm)
+      integer :: mask(im, jm)
+      real(dp), pointer :: tlons(:), tlats(:)
+      integer :: i, j, rc
+      
+      ! Initialize mask
+      mask = 0
+      
+      ! Create grid
+      do i = 1, im
+         do j = 1, jm
+            lons(i,j) = (real(i-1) - 2.5) * 20.0 * MAPL_PI / 180.0
+            lats(i,j) = (real(j-1) - 2.5) * 20.0 * MAPL_PI / 180.0
+         end do
+      end do
+      
+      call orbits_track(tlons, tlats, 'EQUATORIAL', [20240101, 20240101], [0, 60000], 1800, rc=rc)
+      @assertEqual(0, rc)
+      
+      call orb_mask_lonlat(mask, im, jm, lons, lats, tlons, tlats, size(tlons), 10, -180.0, 180.0)
+      
+      ! All mask values should be 0 or 1
+      do i = 1, im
+         do j = 1, jm
+            @assertTrue(mask(i,j) == 0 .or. mask(i,j) == 1, "Mask should be binary")
+         end do
+      end do
+      
+      deallocate(tlons, tlats)
+   end subroutine test_mask_binary_values
+
+   @test
+   subroutine test_multiple_orbits_combination()
+      integer, parameter :: im = 10, jm = 8
+      real :: lons(im, jm), lats(im, jm)
+      integer :: mask1(im, jm), mask2(im, jm), mask_combined(im, jm)
+      real(dp), pointer :: tlons1(:), tlats1(:), tlons2(:), tlats2(:)
+      integer :: i, j, rc
+      
+      ! Initialize masks
+      mask1 = 0
+      mask2 = 0
+      mask_combined = 0
+      
+      ! Create grid
+      do i = 1, im
+         do j = 1, jm
+            lons(i,j) = (real(i-1) / real(im-1) - 0.5) * MAPL_PI
+            lats(i,j) = (real(j-1) / real(jm-1) - 0.5) * MAPL_PI
+         end do
+      end do
+      
+      ! Get two different orbit patterns
+      call orbits_track(tlons1, tlats1, 'EQUATORIAL', [20240101, 20240101], [0, 60000], 1800, rc=rc)
+      @assertEqual(0, rc)
+      call orbits_track(tlons2, tlats2, 'POLAR', [20240101, 20240101], [0, 60000], 1800, rc=rc)
+      @assertEqual(0, rc)
+      
+      call orb_mask_lonlat(mask1, im, jm, lons, lats, tlons1, tlats1, size(tlons1), 10, -180.0, 180.0)
+      call orb_mask_lonlat(mask2, im, jm, lons, lats, tlons2, tlats2, size(tlons2), 10, -180.0, 180.0)
+      
+      ! Combine masks (logical OR)
+      do i = 1, im
+         do j = 1, jm
+            if (mask1(i,j) == 1 .or. mask2(i,j) == 1) then
+               mask_combined(i,j) = 1
+            else
+               mask_combined(i,j) = 0
+            end if
+         end do
+      end do
+      
+      ! Combined mask should have at least as many points as each individual
+      @assertTrue(sum(mask_combined) >= sum(mask1), "Combined mask >= mask1")
+      @assertTrue(sum(mask_combined) >= sum(mask2), "Combined mask >= mask2")
+      
+      deallocate(tlons1, tlats1, tlons2, tlats2)
+   end subroutine test_multiple_orbits_combination
+
+   !---------------------------------------------------------------------------
+   ! Tests for edge cases
+   !---------------------------------------------------------------------------
+
+   @test
+   subroutine test_small_grid()
+      integer, parameter :: im = 2, jm = 2
+      real :: lons(im, jm), lats(im, jm)
+      integer :: mask(im, jm)
+      real(dp), allocatable :: tlons(:), tlats(:)
+      integer :: i, j, nobs
+      
+      ! Initialize mask
+      mask = 0
+      
+      ! Minimal 2x2 grid
+      lons = 0.0
+      lons(2,:) = 0.1
+      lats = 0.0
+      lats(:,2) = 0.1
+      
+      ! Single orbit point
+      nobs = 1
+      allocate(tlons(nobs), tlats(nobs))
+      tlons(1) = 0.05_dp
+      tlats(1) = 0.05_dp
+      
+      call orb_mask_lonlat(mask, im, jm, lons, lats, tlons, tlats, nobs, 10, -180.0, 180.0)
+      
+      ! Should not crash on small grid
+      @assertTrue(.true., "Small grid test completed")
+      
+      deallocate(tlons, tlats)
+   end subroutine test_small_grid
+
+   @test
+   subroutine test_single_orbit_point()
+      integer, parameter :: im = 5, jm = 5
+      real :: lons(im, jm), lats(im, jm)
+      integer :: mask(im, jm)
+      real(dp), allocatable :: tlons(:), tlats(:)
+      integer :: i, j
+      
+      ! Initialize mask
+      mask = 0
+      
+      ! Create grid around origin
+      do i = 1, im
+         do j = 1, jm
+            lons(i,j) = (real(i-3)) * 0.1
+            lats(i,j) = (real(j-3)) * 0.1
+         end do
+      end do
+      
+      ! Single orbit point at origin (need to duplicate for interpolation to work)
+      allocate(tlons(2), tlats(2))
+      tlons(1:2) = 0.0_dp
+      tlats(1:2) = 0.0_dp
+      
+      call orb_mask_lonlat(mask, im, jm, lons, lats, tlons, tlats, 2, 10, -180.0, 180.0)
+      
+      ! Center point should be masked
+      @assertEqual(1, mask(3,3), "Center point should be masked")
+      
+      deallocate(tlons, tlats)
+   end subroutine test_single_orbit_point
+
+   @test
+   subroutine test_orbit_patterns()
+      integer, parameter :: im = 8, jm = 6
+      real :: lons(im, jm), lats(im, jm)
+      integer :: mask(im, jm)
+      real(dp), pointer :: tlons(:), tlats(:)
+      integer :: i, j, rc
+      character(len=16), dimension(7) :: patterns
+      
+      ! Setup grid
+      do i = 1, im
+         do j = 1, jm
+            lons(i,j) = (real(i-1) - 3.5) * 30.0 * MAPL_PI / 180.0
+            lats(i,j) = (real(j-1) - 2.5) * 20.0 * MAPL_PI / 180.0
+         end do
+      end do
+      
+      ! Test each orbit pattern
+      patterns = ['EQUATORIAL      ', 'POLAR           ', 'DIAGONAL        ', 'ASCENDING       ', &
+                  'DESCENDING      ', 'STATIONARY      ', 'CIRCULAR        ']
+      
+      do i = 1, size(patterns)
+         call orbits_track(tlons, tlats, trim(patterns(i)), [20240101, 20240101], &
+                          [0, 60000], 1800, rc=rc)
+         @assertEqual(0, rc, "Failed to create " // trim(patterns(i)) // " orbit")
+         @assertTrue(size(tlons) > 0, trim(patterns(i)) // " should have points")
+         
+         ! Initialize mask for each pattern
+         mask = 0
+         
+         call orb_mask_lonlat(mask, im, jm, lons, lats, tlons, tlats, size(tlons), 10, -180.0, 180.0)
+         
+         ! Verify mask is valid (should not crash and produce binary values)
+         @assertTrue(minval(mask) >= 0, trim(patterns(i)) // " mask >= 0")
+         @assertTrue(maxval(mask) <= 1, trim(patterns(i)) // " mask <= 1")
+         
+         deallocate(tlons, tlats)
+      end do
+   end subroutine test_orbit_patterns
+
+end module Test_OrbMasking

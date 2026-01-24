@@ -1,0 +1,47 @@
+module Test_ProfilerLifecycle
+   use funit
+   use MAPL_TimeProfiler
+   use ESMF
+   implicit none
+
+contains
+
+   !---------------------------------------------------------------------------
+   ! Test that we can cycle through start/finalize multiple times
+   ! Demonstrates the correct lifecycle: start -> finalize (not start -> stop -> finalize)
+   !---------------------------------------------------------------------------
+
+   @test
+   subroutine test_multiple_cycles()
+      type(ESMF_VM) :: vm
+      integer :: status, comm
+      integer :: i
+      type(TimeProfiler), target :: profiler
+
+      call ESMF_VMGetCurrent(vm, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      call ESMF_VMGet(vm, mpiCommunicator=comm, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+
+      ! Create profiler once
+      profiler = TimeProfiler('TestProfiler', comm_world=comm)
+      
+      ! Cycle through start/finalize multiple times
+      do i = 1, 3
+         ! Start it
+         call profiler%start(rc=status)
+         @assertEqual(0, status, "Cycle " // trim(str(i)) // ": start should succeed")
+         
+         ! Finalize (should stop and clean up)
+         call profiler%finalize()
+      end do
+
+   contains
+      function str(n) result(s)
+         integer, intent(in) :: n
+         character(len=10) :: s
+         write(s, '(i0)') n
+      end function str
+   end subroutine test_multiple_cycles
+
+end module Test_ProfilerLifecycle
