@@ -1,0 +1,1189 @@
+!------------------------------------------------------------------------------
+! Regression tests for MAPL Orbital Masking
+! 
+! Purpose: Ensure mask computation remains unchanged during refactoring
+!
+! Strategy:
+! 1. Capture global reference masks from current implementation
+! 2. Test that refactored code produces identical masks
+! 3. Initially: fixed PE layout (capture and test use same decomposition)
+! 4. Future: layout regression (vary PE count - will likely expose bugs)
+!
+! To regenerate reference masks:
+! 1. Uncomment @test on capture_*_reference subroutines
+! 2. Rebuild and run: mpirun -np N ./OrbGridComp.tests
+! 3. Copy printed global arrays into reference data below
+! 4. Re-comment @test lines
+!------------------------------------------------------------------------------
+
+module Test_OrbMasking_Regression
+   use pFUnit
+   use ESMF_TestMethod_mod
+   use MAPL_OrbGridCompMod
+   use MAPL_Constants
+   use MAPL_NominalOrbitsMod, only: orbits_track, orbits_swath, dp
+   use ESMF
+   implicit none
+
+contains
+
+   !---------------------------------------------------------------------------
+   ! Helper: Read reference mask from file
+   !---------------------------------------------------------------------------
+   subroutine read_reference_mask(filename, im, jm, ntiles, ref_mask)
+      character(len=*), intent(in) :: filename
+      integer, intent(in) :: im, jm, ntiles
+      integer, intent(out) :: ref_mask(im, jm, ntiles)
+      integer :: unit, ios, i, j, t
+      character(len=256) :: line
+      
+      open(newunit=unit, file=filename, status='old', action='read', iostat=ios)
+      if (ios /= 0) then
+         print *, "ERROR: Cannot open reference file: ", trim(filename)
+         stop 1
+      end if
+      
+      ! Skip comment lines (starting with #)
+      do
+         read(unit, '(A)', iostat=ios) line
+         if (ios /= 0) exit
+         if (len_trim(line) == 0) cycle
+         if (line(1:1) /= '#') then
+            backspace(unit)
+            exit
+         end if
+      end do
+      
+      ! Read data for each tile
+      do t = 1, ntiles
+         do j = 1, jm
+            read(unit, *, iostat=ios) (ref_mask(i, j, t), i=1, im)
+            if (ios /= 0) then
+               print *, "ERROR: Failed to read mask data at j=", j, " tile=", t
+               stop 1
+            end if
+         end do
+      end do
+      
+      close(unit)
+   end subroutine read_reference_mask
+
+   !---------------------------------------------------------------------------
+   ! Helper: Write reference mask to file
+   !---------------------------------------------------------------------------
+   subroutine write_reference_mask(filename, im, jm, ntiles, mask, &
+                                    grid_type, orbit_type, npes)
+      character(len=*), intent(in) :: filename
+      integer, intent(in) :: im, jm, ntiles
+      integer, intent(in) :: mask(im, jm, ntiles)
+      character(len=*), intent(in) :: grid_type, orbit_type
+      integer, intent(in) :: npes
+      integer :: unit, i, j, t
+      character(len=10) :: date_str
+      
+      open(newunit=unit, file=filename, status='replace', action='write')
+      
+      ! Write metadata as comments
+      write(unit, '(A)') '# Reference mask for orbital masking regression test'
+      write(unit, '(A,A)') '# Grid type: ', trim(grid_type)
+      write(unit, '(A,I0,A,I0,A)') '# Resolution: ', im, 'x', jm, ' (IM x JM)'
+      write(unit, '(A,A)') '# Orbit: ', trim(orbit_type)
+      write(unit, '(A,I0)') '# PEs: ', npes
+      write(unit, '(A,I0)') '# Tiles: ', ntiles
+      call date_and_time(date=date_str)
+      write(unit, '(A,A4,A,A2,A,A2)') '# Captured: ', date_str(1:4), '-', &
+                                       date_str(5:6), '-', date_str(7:8)
+      write(unit, '(A)') '# Data format: mask(i,j) values in column-major order (Fortran), space-separated'
+      write(unit, '(A)') '# Each row below represents one j-index (latitude band)'
+      
+      ! Write data
+      do t = 1, ntiles
+         if (ntiles > 1) write(unit, '(A,I0)') '# Tile ', t
+         do j = 1, jm
+            write(unit, '(*(I0,:," "))') (mask(i, j, t), i=1, im)
+         end do
+      end do
+      
+      close(unit)
+      print *, "Reference mask written to: ", trim(filename)
+   end subroutine write_reference_mask
+
+   !---------------------------------------------------------------------------
+   ! Generic: Capture reference mask for any ESMF grid
+   !---------------------------------------------------------------------------
+   subroutine capture_reference_mask(grid, orbit_name, orbit_dates, orbit_times, &
+                                      orbit_dt, filename)
+      type(ESMF_Grid), intent(in) :: grid
+      character(len=*), intent(in) :: orbit_name
+      integer, intent(in) :: orbit_dates(2), orbit_times(2), orbit_dt
+      character(len=*), intent(in) :: filename
+      
+      real(ESMF_KIND_R8), pointer :: lons(:,:), lats(:,:)
+      integer(ESMF_KIND_I4), pointer :: mask(:,:)
+      real(dp), pointer :: tlons(:), tlats(:)
+      integer :: status, im, jm, ntiles
+      integer :: lb(2), ub(2)
+      character(len=32) :: grid_type
+      
+      ! Get grid properties
+      call ESMF_GridGet(grid, localDe=0, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                        exclusiveLBound=lb, exclusiveUBound=ub, rc=status)
+      if (status /= 0) return
+      
+      call ESMF_GridGet(grid, tileCount=ntiles, rc=status)
+      if (status /= 0) return
+      
+      im = ub(1) - lb(1) + 1
+      jm = ub(2) - lb(2) + 1
+      
+      ! Get coordinate and mask pointers
+      call ESMF_GridGetCoord(grid, coordDim=1, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lons, rc=status)
+      if (status /= 0) return
+      call ESMF_GridGetCoord(grid, coordDim=2, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lats, rc=status)
+      if (status /= 0) return
+      call ESMF_GridGetItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, farrayPtr=mask, rc=status)
+      if (status /= 0) return
+      
+      ! Get orbit
+      call orbits_track(tlons, tlats, orbit_name, orbit_dates, orbit_times, orbit_dt, status)
+      if (status /= 0) return
+      
+      ! Compute mask (convert R8 coords to R4)
+      mask = 0
+      call orb_mask_lonlat(mask, im, jm, real(lons, ESMF_KIND_R4), real(lats, ESMF_KIND_R4), &
+                           tlons, tlats, size(tlons), 10, -180.0, 180.0)
+      
+      ! Determine grid type
+      if (ntiles == 1) then
+         grid_type = 'lat-lon'
+      else if (ntiles == 6) then
+         grid_type = 'cubed-sphere'
+      else
+         grid_type = 'unknown'
+      end if
+      
+      ! Write reference mask
+      call write_reference_mask(filename, im, jm, ntiles, mask, &
+                                grid_type, orbit_name, 1)  ! 1 PE for now
+   end subroutine capture_reference_mask
+
+   !---------------------------------------------------------------------------
+   ! UTILITY: Capture reference for lat-lon 8x6 equatorial (1 PE)
+   !---------------------------------------------------------------------------
+   ! @test(npes=[1], type=ESMF_TestMethod)
+   subroutine capture_latlon_8x6_equatorial_1pe(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      real(ESMF_KIND_R8), pointer :: lons(:,:), lats(:,:)
+      integer :: status, i, j
+      integer, parameter :: IM = 8, JM = 6
+      
+      ! Create lat-lon grid: 8x6, -135:135 lon, -50:50 lat
+      grid = ESMF_GridCreate1PeriDim( &
+         maxIndex=[IM, JM], &
+         coordSys=ESMF_COORDSYS_SPH_DEG, &
+         indexflag=ESMF_INDEX_GLOBAL, &
+         rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CENTER, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridGetCoord(grid, coordDim=1, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lons, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetCoord(grid, coordDim=2, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lats, rc=status)
+      @assertEqual(0, status)
+      
+      do j = 1, JM
+         do i = 1, IM
+            lons(i,j) = -135.0_ESMF_KIND_R8 + (i-1) * 45.0_ESMF_KIND_R8
+            lats(i,j) = -50.0_ESMF_KIND_R8 + (j-1) * 20.0_ESMF_KIND_R8
+         end do
+      end do
+      
+      call ESMF_GridAddItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, rc=status)
+      @assertEqual(0, status)
+      
+      ! Use generic capture
+      call capture_reference_mask(grid, 'EQUATORIAL', [20240101, 20240101], &
+                                  [0, 120000], 3600, 'ref_latlon_8x6_equatorial_1pe.txt')
+      
+      call ESMF_GridDestroy(grid, rc=status)
+   end subroutine capture_latlon_8x6_equatorial_1pe
+
+   ! @test(npes=[1], type=ESMF_TestMethod)
+   subroutine capture_latlon_8x6_diagonal_1pe(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      real(ESMF_KIND_R8), pointer :: lons(:,:), lats(:,:)
+      integer :: status, i, j
+      integer, parameter :: IM = 8, JM = 6
+      
+      grid = ESMF_GridCreate1PeriDim(maxIndex=[IM, JM], &
+         regDecomp=[1,1], coordSys=ESMF_COORDSYS_SPH_DEG, &
+         indexflag=ESMF_INDEX_GLOBAL, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CENTER, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetCoord(grid, coordDim=1, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lons, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetCoord(grid, coordDim=2, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lats, rc=status)
+      @assertEqual(0, status)
+      
+      do j = 1, JM
+         do i = 1, IM
+            lons(i,j) = -135.0_ESMF_KIND_R8 + (i-1) * 45.0_ESMF_KIND_R8
+            lats(i,j) = -50.0_ESMF_KIND_R8 + (j-1) * 20.0_ESMF_KIND_R8
+         end do
+      end do
+      
+      call ESMF_GridAddItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, rc=status)
+      @assertEqual(0, status)
+      
+      call capture_reference_mask(grid, 'DIAGONAL', [20240101, 20240101], &
+                                  [0, 120000], 3600, 'ref_latlon_8x6_diagonal_1pe.txt')
+      
+      call ESMF_GridDestroy(grid, rc=status)
+   end subroutine capture_latlon_8x6_diagonal_1pe
+
+   ! @test(npes=[1], type=ESMF_TestMethod)
+   subroutine capture_latlon_12x8_equatorial_1pe(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      real(ESMF_KIND_R8), pointer :: lons(:,:), lats(:,:)
+      integer :: status, i, j
+      integer, parameter :: IM = 12, JM = 8
+      
+      grid = ESMF_GridCreate1PeriDim(maxIndex=[IM, JM], &
+         coordSys=ESMF_COORDSYS_SPH_DEG, indexflag=ESMF_INDEX_GLOBAL, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CENTER, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetCoord(grid, coordDim=1, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lons, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetCoord(grid, coordDim=2, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lats, rc=status)
+      @assertEqual(0, status)
+      
+      do j = 1, JM
+         do i = 1, IM
+            lons(i,j) = -180.0_ESMF_KIND_R8 + (i-1) * 30.0_ESMF_KIND_R8
+            lats(i,j) = -52.5_ESMF_KIND_R8 + (j-1) * 15.0_ESMF_KIND_R8
+         end do
+      end do
+      
+      call ESMF_GridAddItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, rc=status)
+      @assertEqual(0, status)
+      
+      call capture_reference_mask(grid, 'EQUATORIAL', [20240101, 20240101], &
+                                  [0, 120000], 3600, 'ref_latlon_12x8_equatorial_1pe.txt')
+      
+      call ESMF_GridDestroy(grid, rc=status)
+   end subroutine capture_latlon_12x8_equatorial_1pe
+
+   ! @test(npes=[1], type=ESMF_TestMethod)
+   subroutine capture_latlon_12x8_diagonal_1pe(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      real(ESMF_KIND_R8), pointer :: lons(:,:), lats(:,:)
+      integer :: status, i, j
+      integer, parameter :: IM = 12, JM = 8
+      
+      grid = ESMF_GridCreate1PeriDim(maxIndex=[IM, JM], &
+         coordSys=ESMF_COORDSYS_SPH_DEG, indexflag=ESMF_INDEX_GLOBAL, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CENTER, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetCoord(grid, coordDim=1, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lons, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetCoord(grid, coordDim=2, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lats, rc=status)
+      @assertEqual(0, status)
+      
+      do j = 1, JM
+         do i = 1, IM
+            lons(i,j) = -180.0_ESMF_KIND_R8 + (i-1) * 30.0_ESMF_KIND_R8
+            lats(i,j) = -52.5_ESMF_KIND_R8 + (j-1) * 15.0_ESMF_KIND_R8
+         end do
+      end do
+      
+      call ESMF_GridAddItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, rc=status)
+      @assertEqual(0, status)
+      
+      call capture_reference_mask(grid, 'DIAGONAL', [20240101, 20240101], &
+                                  [0, 120000], 3600, 'ref_latlon_12x8_diagonal_1pe.txt')
+      
+      call ESMF_GridDestroy(grid, rc=status)
+   end subroutine capture_latlon_12x8_diagonal_1pe
+
+   !---------------------------------------------------------------------------
+   ! CAPTURE: Cubed-sphere C12 equatorial orbit mask (6 PEs)
+   !---------------------------------------------------------------------------
+   ! @test(npes=[6], type=ESMF_TestMethod)
+   subroutine capture_cs_c12_equatorial_6pe(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      integer :: status
+      integer, parameter :: IM = 12  ! C12 resolution
+      
+      grid = ESMF_GridCreateCubedSphere(IM, &
+           staggerLocList=[ESMF_STAGGERLOC_CENTER], &
+           coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_AttributeSet(grid, 'GridType', 'Cubed-Sphere', rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridAddItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, rc=status)
+      @assertEqual(0, status)
+      
+      call capture_reference_mask(grid, 'EQUATORIAL', [20240101, 20240101], &
+                                  [0, 120000], 3600, 'ref_cs_c12_equatorial_6pe.txt')
+      
+      call ESMF_GridDestroy(grid, rc=status)
+   end subroutine capture_cs_c12_equatorial_6pe
+
+   !---------------------------------------------------------------------------
+   ! CAPTURE: Cubed-sphere C12 diagonal orbit mask (6 PEs)
+   !---------------------------------------------------------------------------
+   ! @test(npes=[6], type=ESMF_TestMethod)
+   subroutine capture_cs_c12_diagonal_6pe(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      integer :: status
+      integer, parameter :: IM = 12  ! C12 resolution
+      
+      grid = ESMF_GridCreateCubedSphere(IM, &
+           staggerLocList=[ESMF_STAGGERLOC_CENTER], &
+           coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_AttributeSet(grid, 'GridType', 'Cubed-Sphere', rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridAddItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, rc=status)
+      @assertEqual(0, status)
+      
+      call capture_reference_mask(grid, 'DIAGONAL', [20240101, 20240101], &
+                                  [0, 120000], 3600, 'ref_cs_c12_diagonal_6pe.txt')
+      
+      call ESMF_GridDestroy(grid, rc=status)
+   end subroutine capture_cs_c12_diagonal_6pe
+
+   !---------------------------------------------------------------------------
+   ! CAPTURE: Cubed-sphere C24 equatorial orbit mask (6 PEs)
+   !---------------------------------------------------------------------------
+   ! @test(npes=[6], type=ESMF_TestMethod)
+   subroutine capture_cs_c24_equatorial_6pe(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      integer :: status
+      integer, parameter :: IM = 24  ! C24 resolution
+      
+      grid = ESMF_GridCreateCubedSphere(IM, &
+           staggerLocList=[ESMF_STAGGERLOC_CENTER], &
+           coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_AttributeSet(grid, 'GridType', 'Cubed-Sphere', rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridAddItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, rc=status)
+      @assertEqual(0, status)
+      
+      call capture_reference_mask(grid, 'EQUATORIAL', [20240101, 20240101], &
+                                  [0, 120000], 3600, 'ref_cs_c24_equatorial_6pe.txt')
+      
+      call ESMF_GridDestroy(grid, rc=status)
+   end subroutine capture_cs_c24_equatorial_6pe
+
+   !---------------------------------------------------------------------------
+   ! CAPTURE: Cubed-sphere C24 diagonal orbit mask (6 PEs)
+   !---------------------------------------------------------------------------
+   ! @test(npes=[6], type=ESMF_TestMethod)
+   subroutine capture_cs_c24_diagonal_6pe(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      integer :: status
+      integer, parameter :: IM = 24  ! C24 resolution
+      
+      grid = ESMF_GridCreateCubedSphere(IM, &
+           staggerLocList=[ESMF_STAGGERLOC_CENTER], &
+           coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_AttributeSet(grid, 'GridType', 'Cubed-Sphere', rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridAddItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, rc=status)
+      @assertEqual(0, status)
+      
+      call capture_reference_mask(grid, 'DIAGONAL', [20240101, 20240101], &
+                                  [0, 120000], 3600, 'ref_cs_c24_diagonal_6pe.txt')
+      
+      call ESMF_GridDestroy(grid, rc=status)
+   end subroutine capture_cs_c24_diagonal_6pe
+
+   !---------------------------------------------------------------------------
+   ! TEST: Verify lat-lon equatorial mask matches reference (1 PE)
+   !---------------------------------------------------------------------------
+   @test(npes=[1], type=ESMF_TestMethod)
+   subroutine test_latlon_equatorial_1pe(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      real(ESMF_KIND_R8), pointer :: lons(:,:), lats(:,:)
+      integer(ESMF_KIND_I4), pointer :: mask(:,:)
+      real(dp), pointer :: tlons(:), tlats(:)
+      integer :: status, i, j
+      integer :: lb(2), ub(2), ntiles
+      integer, parameter :: IM_LL = 8, JM_LL = 6
+      integer :: ref_mask(IM_LL, JM_LL, 1)
+      
+      ! Read reference mask from file
+      call read_reference_mask('ref_latlon_8x6_equatorial_1pe.txt', &
+                               IM_LL, JM_LL, 1, ref_mask)
+      
+      ! Create same grid as capture
+      grid = ESMF_GridCreate1PeriDim( &
+         maxIndex=[IM_LL, JM_LL], &
+         coordSys=ESMF_COORDSYS_SPH_DEG, &
+         indexflag=ESMF_INDEX_GLOBAL, &
+         rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CENTER, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridGetCoord(grid, coordDim=1, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lons, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetCoord(grid, coordDim=2, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lats, rc=status)
+      @assertEqual(0, status)
+      
+      do j = 1, JM_LL
+         do i = 1, IM_LL
+            lons(i,j) = -135.0_ESMF_KIND_R8 + (i-1) * 45.0_ESMF_KIND_R8
+            lats(i,j) = -50.0_ESMF_KIND_R8 + (j-1) * 20.0_ESMF_KIND_R8
+         end do
+      end do
+      
+      call ESMF_GridAddItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, farrayPtr=mask, rc=status)
+      @assertEqual(0, status)
+      
+      ! Same orbit as capture
+      call orbits_track(tlons, tlats, 'EQUATORIAL', [20240101, 20240101], &
+                        [0, 120000], 3600, status)
+      @assertEqual(0, status)
+      
+      ! Compute mask with current implementation
+      mask = 0
+      call orb_mask_lonlat(mask, IM_LL, JM_LL, real(lons, ESMF_KIND_R4), real(lats, ESMF_KIND_R4), &
+                           tlons, tlats, size(tlons), 10, -180.0, 180.0)
+      
+      ! Verify layout matches capture (1 PE, full grid)
+      call ESMF_GridGet(grid, localDe=0, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                        exclusiveLBound=lb, exclusiveUBound=ub, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, lb(1))
+      @assertEqual(1, lb(2))
+      @assertEqual(IM_LL, ub(1))
+      @assertEqual(JM_LL, ub(2))
+      
+      call ESMF_GridGet(grid, tileCount=ntiles, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, ntiles)
+      
+      ! Compare with reference
+      @assertEqual(ref_mask(:,:,1), mask)
+      
+      call ESMF_GridDestroy(grid, rc=status)
+   end subroutine test_latlon_equatorial_1pe
+
+   !---------------------------------------------------------------------------
+   ! TEST: Verify lat-lon diagonal mask matches reference (1 PE)
+   !---------------------------------------------------------------------------
+   @test(npes=[1], type=ESMF_TestMethod)
+   subroutine test_latlon_8x6_diagonal_1pe(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      real(ESMF_KIND_R8), pointer :: lons(:,:), lats(:,:)
+      integer(ESMF_KIND_I4), pointer :: mask(:,:)
+      real(dp), pointer :: tlons(:), tlats(:)
+      integer :: status, i, j
+      integer, parameter :: IM = 8, JM = 6
+      integer :: ref_mask(IM, JM, 1)
+      
+      call read_reference_mask('ref_latlon_8x6_diagonal_1pe.txt', IM, JM, 1, ref_mask)
+      
+      grid = ESMF_GridCreate1PeriDim(maxIndex=[IM, JM], &
+         coordSys=ESMF_COORDSYS_SPH_DEG, indexflag=ESMF_INDEX_GLOBAL, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CENTER, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetCoord(grid, coordDim=1, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lons, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetCoord(grid, coordDim=2, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lats, rc=status)
+      @assertEqual(0, status)
+      
+      do j = 1, JM
+         do i = 1, IM
+            lons(i,j) = -135.0_ESMF_KIND_R8 + (i-1) * 45.0_ESMF_KIND_R8
+            lats(i,j) = -50.0_ESMF_KIND_R8 + (j-1) * 20.0_ESMF_KIND_R8
+         end do
+      end do
+      
+      call ESMF_GridAddItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, farrayPtr=mask, rc=status)
+      @assertEqual(0, status)
+      
+      call orbits_track(tlons, tlats, 'DIAGONAL', [20240101, 20240101], &
+                        [0, 120000], 3600, status)
+      @assertEqual(0, status)
+      
+      mask = 0
+      call orb_mask_lonlat(mask, IM, JM, real(lons, ESMF_KIND_R4), real(lats, ESMF_KIND_R4), &
+                           tlons, tlats, size(tlons), 10, -180.0, 180.0)
+      
+      @assertEqual(ref_mask(:,:,1), mask)
+      
+      call ESMF_GridDestroy(grid, rc=status)
+   end subroutine test_latlon_8x6_diagonal_1pe
+
+   !---------------------------------------------------------------------------
+   ! TEST: Verify lat-lon 12x8 equatorial mask matches reference (1 PE)
+   !---------------------------------------------------------------------------
+   @test(npes=[1], type=ESMF_TestMethod)
+   subroutine test_latlon_12x8_equatorial_1pe(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      real(ESMF_KIND_R8), pointer :: lons(:,:), lats(:,:)
+      integer(ESMF_KIND_I4), pointer :: mask(:,:)
+      real(dp), pointer :: tlons(:), tlats(:)
+      integer :: status, i, j
+      integer, parameter :: IM = 12, JM = 8
+      integer :: ref_mask(IM, JM, 1)
+      
+      call read_reference_mask('ref_latlon_12x8_equatorial_1pe.txt', IM, JM, 1, ref_mask)
+      
+      grid = ESMF_GridCreate1PeriDim(maxIndex=[IM, JM], &
+         coordSys=ESMF_COORDSYS_SPH_DEG, indexflag=ESMF_INDEX_GLOBAL, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CENTER, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetCoord(grid, coordDim=1, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lons, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetCoord(grid, coordDim=2, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lats, rc=status)
+      @assertEqual(0, status)
+      
+      do j = 1, JM
+         do i = 1, IM
+            lons(i,j) = -180.0_ESMF_KIND_R8 + (i-1) * 30.0_ESMF_KIND_R8
+            lats(i,j) = -52.5_ESMF_KIND_R8 + (j-1) * 15.0_ESMF_KIND_R8
+         end do
+      end do
+      
+      call ESMF_GridAddItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, farrayPtr=mask, rc=status)
+      @assertEqual(0, status)
+      
+      call orbits_track(tlons, tlats, 'EQUATORIAL', [20240101, 20240101], &
+                        [0, 120000], 3600, status)
+      @assertEqual(0, status)
+      
+      mask = 0
+      call orb_mask_lonlat(mask, IM, JM, real(lons, ESMF_KIND_R4), real(lats, ESMF_KIND_R4), &
+                           tlons, tlats, size(tlons), 10, -180.0, 180.0)
+      
+      @assertEqual(ref_mask(:,:,1), mask)
+      
+      call ESMF_GridDestroy(grid, rc=status)
+   end subroutine test_latlon_12x8_equatorial_1pe
+
+   !---------------------------------------------------------------------------
+   ! TEST: Verify lat-lon 12x8 diagonal mask matches reference (1 PE)
+   !---------------------------------------------------------------------------
+   @test(npes=[1], type=ESMF_TestMethod)
+   subroutine test_latlon_12x8_diagonal_1pe(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      real(ESMF_KIND_R8), pointer :: lons(:,:), lats(:,:)
+      integer(ESMF_KIND_I4), pointer :: mask(:,:)
+      real(dp), pointer :: tlons(:), tlats(:)
+      integer :: status, i, j
+      integer, parameter :: IM = 12, JM = 8
+      integer :: ref_mask(IM, JM, 1)
+      
+      call read_reference_mask('ref_latlon_12x8_diagonal_1pe.txt', IM, JM, 1, ref_mask)
+      
+      grid = ESMF_GridCreate1PeriDim(maxIndex=[IM, JM], &
+         coordSys=ESMF_COORDSYS_SPH_DEG, indexflag=ESMF_INDEX_GLOBAL, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CENTER, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetCoord(grid, coordDim=1, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lons, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetCoord(grid, coordDim=2, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lats, rc=status)
+      @assertEqual(0, status)
+      
+      do j = 1, JM
+         do i = 1, IM
+            lons(i,j) = -180.0_ESMF_KIND_R8 + (i-1) * 30.0_ESMF_KIND_R8
+            lats(i,j) = -52.5_ESMF_KIND_R8 + (j-1) * 15.0_ESMF_KIND_R8
+         end do
+      end do
+      
+      call ESMF_GridAddItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, farrayPtr=mask, rc=status)
+      @assertEqual(0, status)
+      
+      call orbits_track(tlons, tlats, 'DIAGONAL', [20240101, 20240101], &
+                        [0, 120000], 3600, status)
+      @assertEqual(0, status)
+      
+      mask = 0
+      call orb_mask_lonlat(mask, IM, JM, real(lons, ESMF_KIND_R4), real(lats, ESMF_KIND_R4), &
+                           tlons, tlats, size(tlons), 10, -180.0, 180.0)
+      
+      @assertEqual(ref_mask(:,:,1), mask)
+      
+      call ESMF_GridDestroy(grid, rc=status)
+   end subroutine test_latlon_12x8_diagonal_1pe
+
+   !---------------------------------------------------------------------------
+   ! TEST: Verify cubed-sphere C12 equatorial mask matches reference (6 PEs)
+   !---------------------------------------------------------------------------
+   @test(npes=[6], type=ESMF_TestMethod)
+   subroutine test_cs_c12_equatorial_6pe(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(ESMF_VM) :: vm
+      real(ESMF_KIND_R8), pointer :: lons(:,:), lats(:,:)
+      integer(ESMF_KIND_I4), pointer :: mask(:,:)
+      real(dp), pointer :: tlons(:), tlats(:)
+      integer :: status, lb(2), ub(2), localPet
+      integer, parameter :: IM = 12
+      integer :: ref_mask(IM, IM, 6)
+      
+      call read_reference_mask('ref_cs_c12_equatorial_6pe.txt', IM, IM, 6, ref_mask)
+      
+      grid = ESMF_GridCreateCubedSphere(IM, &
+           staggerLocList=[ESMF_STAGGERLOC_CENTER], &
+           coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_AttributeSet(grid, 'GridType', 'Cubed-Sphere', rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridAddItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridGetCoord(grid, coordDim=1, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lons, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetCoord(grid, coordDim=2, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lats, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridGetItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, farrayPtr=mask, rc=status)
+      @assertEqual(0, status)
+      
+      call orbits_track(tlons, tlats, 'EQUATORIAL', [20240101, 20240101], &
+                        [0, 120000], 3600, status)
+      @assertEqual(0, status)
+      
+      mask = 0
+      call orb_mask_lonlat(mask, IM, IM, real(lons, ESMF_KIND_R4), real(lats, ESMF_KIND_R4), &
+                           tlons, tlats, size(tlons), 10, -180.0, 180.0)
+      
+      ! Get local PE number to compare correct tile
+      call ESMF_VMGetCurrent(vm, rc=status)
+      @assertEqual(0, status)
+      call ESMF_VMGet(vm, localPet=localPet, rc=status)
+      @assertEqual(0, status)
+      
+      ! For CS with 6 PEs, each PE has one tile (localPet+1)
+      @assertEqual(ref_mask(:, :, localPet+1), mask)
+      
+      call ESMF_GridDestroy(grid, rc=status)
+   end subroutine test_cs_c12_equatorial_6pe
+
+   !---------------------------------------------------------------------------
+   ! TEST: Verify cubed-sphere C12 diagonal mask matches reference (6 PEs)
+   !---------------------------------------------------------------------------
+   @test(npes=[6], type=ESMF_TestMethod)
+   subroutine test_cs_c12_diagonal_6pe(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(ESMF_VM) :: vm
+      real(ESMF_KIND_R8), pointer :: lons(:,:), lats(:,:)
+      integer(ESMF_KIND_I4), pointer :: mask(:,:)
+      real(dp), pointer :: tlons(:), tlats(:)
+      integer :: status, lb(2), ub(2), localPet
+      integer, parameter :: IM = 12
+      integer :: ref_mask(IM, IM, 6)
+      
+      call read_reference_mask('ref_cs_c12_diagonal_6pe.txt', IM, IM, 6, ref_mask)
+      
+      grid = ESMF_GridCreateCubedSphere(IM, &
+           staggerLocList=[ESMF_STAGGERLOC_CENTER], &
+           coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_AttributeSet(grid, 'GridType', 'Cubed-Sphere', rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridAddItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridGetCoord(grid, coordDim=1, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lons, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetCoord(grid, coordDim=2, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lats, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridGetItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, farrayPtr=mask, rc=status)
+      @assertEqual(0, status)
+      
+      call orbits_track(tlons, tlats, 'DIAGONAL', [20240101, 20240101], &
+                        [0, 120000], 3600, status)
+      @assertEqual(0, status)
+      
+      mask = 0
+      call orb_mask_lonlat(mask, IM, IM, real(lons, ESMF_KIND_R4), real(lats, ESMF_KIND_R4), &
+                           tlons, tlats, size(tlons), 10, -180.0, 180.0)
+      
+      ! Get local PE number to compare correct tile
+      call ESMF_VMGetCurrent(vm, rc=status)
+      @assertEqual(0, status)
+      call ESMF_VMGet(vm, localPet=localPet, rc=status)
+      @assertEqual(0, status)
+      
+      ! For CS with 6 PEs, each PE has one tile (localPet+1)
+      @assertEqual(ref_mask(:, :, localPet+1), mask)
+      
+      call ESMF_GridDestroy(grid, rc=status)
+   end subroutine test_cs_c12_diagonal_6pe
+
+   !---------------------------------------------------------------------------
+   ! TEST: Verify cubed-sphere C24 equatorial mask matches reference (6 PEs)
+   !---------------------------------------------------------------------------
+   @test(npes=[6], type=ESMF_TestMethod)
+   subroutine test_cs_c24_equatorial_6pe(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(ESMF_VM) :: vm
+      real(ESMF_KIND_R8), pointer :: lons(:,:), lats(:,:)
+      integer(ESMF_KIND_I4), pointer :: mask(:,:)
+      real(dp), pointer :: tlons(:), tlats(:)
+      integer :: status, lb(2), ub(2), localPet
+      integer, parameter :: IM = 24
+      integer :: ref_mask(IM, IM, 6)
+      
+      call read_reference_mask('ref_cs_c24_equatorial_6pe.txt', IM, IM, 6, ref_mask)
+      
+      grid = ESMF_GridCreateCubedSphere(IM, &
+           staggerLocList=[ESMF_STAGGERLOC_CENTER], &
+           coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_AttributeSet(grid, 'GridType', 'Cubed-Sphere', rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridAddItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridGetCoord(grid, coordDim=1, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lons, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetCoord(grid, coordDim=2, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lats, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridGetItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, farrayPtr=mask, rc=status)
+      @assertEqual(0, status)
+      
+      call orbits_track(tlons, tlats, 'EQUATORIAL', [20240101, 20240101], &
+                        [0, 120000], 3600, status)
+      @assertEqual(0, status)
+      
+      mask = 0
+      call orb_mask_lonlat(mask, IM, IM, real(lons, ESMF_KIND_R4), real(lats, ESMF_KIND_R4), &
+                           tlons, tlats, size(tlons), 10, -180.0, 180.0)
+      
+      ! Get local PE number to compare correct tile
+      call ESMF_VMGetCurrent(vm, rc=status)
+      @assertEqual(0, status)
+      call ESMF_VMGet(vm, localPet=localPet, rc=status)
+      @assertEqual(0, status)
+      
+      ! For CS with 6 PEs, each PE has one tile (localPet+1)
+      @assertEqual(ref_mask(:, :, localPet+1), mask)
+      
+      call ESMF_GridDestroy(grid, rc=status)
+   end subroutine test_cs_c24_equatorial_6pe
+
+   !---------------------------------------------------------------------------
+   ! TEST: Verify cubed-sphere C24 diagonal mask matches reference (6 PEs)
+   !---------------------------------------------------------------------------
+   @test(npes=[6], type=ESMF_TestMethod)
+   subroutine test_cs_c24_diagonal_6pe(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(ESMF_VM) :: vm
+      real(ESMF_KIND_R8), pointer :: lons(:,:), lats(:,:)
+      integer(ESMF_KIND_I4), pointer :: mask(:,:)
+      real(dp), pointer :: tlons(:), tlats(:)
+      integer :: status, lb(2), ub(2), localPet
+      integer, parameter :: IM = 24
+      integer :: ref_mask(IM, IM, 6)
+      
+      call read_reference_mask('ref_cs_c24_diagonal_6pe.txt', IM, IM, 6, ref_mask)
+      
+      grid = ESMF_GridCreateCubedSphere(IM, &
+           staggerLocList=[ESMF_STAGGERLOC_CENTER], &
+           coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_AttributeSet(grid, 'GridType', 'Cubed-Sphere', rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridAddItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridGetCoord(grid, coordDim=1, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lons, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetCoord(grid, coordDim=2, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lats, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridGetItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, farrayPtr=mask, rc=status)
+      @assertEqual(0, status)
+      
+      call orbits_track(tlons, tlats, 'DIAGONAL', [20240101, 20240101], &
+                        [0, 120000], 3600, status)
+      @assertEqual(0, status)
+      
+      mask = 0
+      call orb_mask_lonlat(mask, IM, IM, real(lons, ESMF_KIND_R4), real(lats, ESMF_KIND_R4), &
+                           tlons, tlats, size(tlons), 10, -180.0, 180.0)
+      
+      ! Get local PE number to compare correct tile
+      call ESMF_VMGetCurrent(vm, rc=status)
+      @assertEqual(0, status)
+      call ESMF_VMGet(vm, localPet=localPet, rc=status)
+      @assertEqual(0, status)
+      
+      ! For CS with 6 PEs, each PE has one tile (localPet+1)
+      @assertEqual(ref_mask(:, :, localPet+1), mask)
+      
+      call ESMF_GridDestroy(grid, rc=status)
+   end subroutine test_cs_c24_diagonal_6pe
+
+   !---------------------------------------------------------------------------
+   ! TEST: Verify lat-lon 180x91 equatorial swath mask matches reference (1 PE)
+   !---------------------------------------------------------------------------
+   @test(npes=[1], type=ESMF_TestMethod)
+   subroutine test_latlon_180x91_equatorial_swath_1pe(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      real(ESMF_KIND_R8), pointer :: lons(:,:), lats(:,:)
+      integer(ESMF_KIND_I4), pointer :: mask(:,:)
+      real(dp), pointer :: slons(:,:), slats(:,:)
+      integer :: status, nobs, i, j
+      integer, parameter :: IM = 180, JM = 91
+      integer :: ref_mask(IM, JM, 1)
+      
+      call read_reference_mask('ref_latlon_180x91_equatorial_swath_1pe.txt', IM, JM, 1, ref_mask)
+      
+      grid = ESMF_GridCreate1PeriDim(maxIndex=[IM, JM], &
+           coordSys=ESMF_COORDSYS_SPH_DEG, &
+           regDecomp=[1,1], indexflag=ESMF_INDEX_GLOBAL, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CENTER, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_AttributeSet(grid, 'GridType', 'LatLon', rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridAddItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridGetCoord(grid, coordDim=1, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lons, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetCoord(grid, coordDim=2, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lats, rc=status)
+      @assertEqual(0, status)
+      
+      ! Populate coordinates: -180 to +178°, -90 to 90°
+      do j = 1, JM
+         do i = 1, IM
+            lons(i,j) = -180.0_ESMF_KIND_R8 + (i-1) * 2.0_ESMF_KIND_R8
+            lats(i,j) = -90.0_ESMF_KIND_R8 + (j-1) * 2.0_ESMF_KIND_R8
+         end do
+      end do
+      
+      call ESMF_GridGetItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, farrayPtr=mask, rc=status)
+      @assertEqual(0, status)
+      
+      call orbits_swath(slons, slats, 'EQUATORIAL', [20240101, 20240101], &
+                       [0, 120000], 3600, [500.0_dp, 500.0_dp], rc=status)
+      @assertEqual(0, status)
+      nobs = size(slons, 2)
+      
+      mask = 0
+      call orb_swath_mask_lonlat(mask, IM, JM, real(lons, ESMF_KIND_R4), real(lats, ESMF_KIND_R4), &
+                                slons, slats, nobs, 10, 10, -180.0, 180.0)
+      
+      @assertEqual(ref_mask(:, :, 1), mask)
+      
+      deallocate(slons, slats)
+      call ESMF_GridDestroy(grid, rc=status)
+   end subroutine test_latlon_180x91_equatorial_swath_1pe
+
+   !---------------------------------------------------------------------------
+   ! TEST: Verify lat-lon 180x91 diagonal swath mask matches reference (1 PE)
+   !---------------------------------------------------------------------------
+   @test(npes=[1], type=ESMF_TestMethod)
+   subroutine test_latlon_180x91_diagonal_swath_1pe(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      real(ESMF_KIND_R8), pointer :: lons(:,:), lats(:,:)
+      integer(ESMF_KIND_I4), pointer :: mask(:,:)
+      real(dp), pointer :: slons(:,:), slats(:,:)
+      integer :: status, nobs, i, j
+      integer, parameter :: IM = 180, JM = 91
+      integer :: ref_mask(IM, JM, 1)
+      
+      call read_reference_mask('ref_latlon_180x91_diagonal_swath_1pe.txt', IM, JM, 1, ref_mask)
+      
+      grid = ESMF_GridCreate1PeriDim(maxIndex=[IM, JM], &
+           coordSys=ESMF_COORDSYS_SPH_DEG, &
+           regDecomp=[1,1], indexflag=ESMF_INDEX_GLOBAL, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CENTER, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_AttributeSet(grid, 'GridType', 'LatLon', rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridAddItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridGetCoord(grid, coordDim=1, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lons, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetCoord(grid, coordDim=2, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lats, rc=status)
+      @assertEqual(0, status)
+      
+      ! Populate coordinates: -180 to +178°, -90 to 90°
+      do j = 1, JM
+         do i = 1, IM
+            lons(i,j) = -180.0_ESMF_KIND_R8 + (i-1) * 2.0_ESMF_KIND_R8
+            lats(i,j) = -90.0_ESMF_KIND_R8 + (j-1) * 2.0_ESMF_KIND_R8
+         end do
+      end do
+      
+      call ESMF_GridGetItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, farrayPtr=mask, rc=status)
+      @assertEqual(0, status)
+      
+      call orbits_swath(slons, slats, 'DIAGONAL', [20240101, 20240101], &
+                       [0, 120000], 3600, [500.0_dp, 500.0_dp], rc=status)
+      @assertEqual(0, status)
+      nobs = size(slons, 2)
+      
+      mask = 0
+      call orb_swath_mask_lonlat(mask, IM, JM, real(lons, ESMF_KIND_R4), real(lats, ESMF_KIND_R4), &
+                                slons, slats, nobs, 10, 10, -180.0, 180.0)
+      
+      @assertEqual(ref_mask(:, :, 1), mask)
+      
+      deallocate(slons, slats)
+      call ESMF_GridDestroy(grid, rc=status)
+   end subroutine test_latlon_180x91_diagonal_swath_1pe
+
+   !---------------------------------------------------------------------------
+   ! TEST: Verify cubed-sphere C48 equatorial swath mask matches reference (6 PEs)
+   !---------------------------------------------------------------------------
+   @test(npes=[6], type=ESMF_TestMethod)
+   subroutine test_cs_c48_equatorial_swath_6pe(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(ESMF_VM) :: vm
+      real(ESMF_KIND_R8), pointer :: lons(:,:), lats(:,:)
+      integer(ESMF_KIND_I4), pointer :: mask(:,:)
+      real(dp), pointer :: slons(:,:), slats(:,:)
+      integer :: status, localPet, nobs
+      integer, parameter :: IM = 48
+      integer :: ref_mask(IM, IM, 6)
+      
+      call read_reference_mask('ref_cs_c48_equatorial_swath_6pe.txt', IM, IM, 6, ref_mask)
+      
+      grid = ESMF_GridCreateCubedSphere(IM, &
+           staggerLocList=[ESMF_STAGGERLOC_CENTER], &
+           coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_AttributeSet(grid, 'GridType', 'Cubed-Sphere', rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridAddItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridGetCoord(grid, coordDim=1, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lons, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetCoord(grid, coordDim=2, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lats, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridGetItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, farrayPtr=mask, rc=status)
+      @assertEqual(0, status)
+      
+      call orbits_swath(slons, slats, 'EQUATORIAL', [20240101, 20240101], &
+                       [0, 120000], 3600, [500.0_dp, 500.0_dp], rc=status)
+      @assertEqual(0, status)
+      nobs = size(slons, 2)
+      
+      mask = 0
+      call orb_swath_mask_lonlat(mask, IM, IM, real(lons, ESMF_KIND_R4), real(lats, ESMF_KIND_R4), &
+                                slons, slats, nobs, 10, 10, -180.0, 180.0)
+      
+      ! Get local PE number to compare correct tile
+      call ESMF_VMGetCurrent(vm, rc=status)
+      @assertEqual(0, status)
+      call ESMF_VMGet(vm, localPet=localPet, rc=status)
+      @assertEqual(0, status)
+      
+      ! For CS with 6 PEs, each PE has one tile (localPet+1)
+      @assertEqual(ref_mask(:, :, localPet+1), mask)
+      
+      deallocate(slons, slats)
+      call ESMF_GridDestroy(grid, rc=status)
+   end subroutine test_cs_c48_equatorial_swath_6pe
+
+   !---------------------------------------------------------------------------
+   ! TEST: Verify cubed-sphere C48 diagonal swath mask matches reference (6 PEs)
+   !---------------------------------------------------------------------------
+   @test(npes=[6], type=ESMF_TestMethod)
+   subroutine test_cs_c48_diagonal_swath_6pe(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(ESMF_VM) :: vm
+      real(ESMF_KIND_R8), pointer :: lons(:,:), lats(:,:)
+      integer(ESMF_KIND_I4), pointer :: mask(:,:)
+      real(dp), pointer :: slons(:,:), slats(:,:)
+      integer :: status, localPet, nobs
+      integer, parameter :: IM = 48
+      integer :: ref_mask(IM, IM, 6)
+      
+      call read_reference_mask('ref_cs_c48_diagonal_swath_6pe.txt', IM, IM, 6, ref_mask)
+      
+      grid = ESMF_GridCreateCubedSphere(IM, &
+           staggerLocList=[ESMF_STAGGERLOC_CENTER], &
+           coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_AttributeSet(grid, 'GridType', 'Cubed-Sphere', rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridAddItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridGetCoord(grid, coordDim=1, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lons, rc=status)
+      @assertEqual(0, status)
+      call ESMF_GridGetCoord(grid, coordDim=2, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                             farrayPtr=lats, rc=status)
+      @assertEqual(0, status)
+      
+      call ESMF_GridGetItem(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+                            itemflag=ESMF_GRIDITEM_MASK, farrayPtr=mask, rc=status)
+      @assertEqual(0, status)
+      
+      call orbits_swath(slons, slats, 'DIAGONAL', [20240101, 20240101], &
+                       [0, 120000], 3600, [500.0_dp, 500.0_dp], rc=status)
+      @assertEqual(0, status)
+      nobs = size(slons, 2)
+      
+      mask = 0
+      call orb_swath_mask_lonlat(mask, IM, IM, real(lons, ESMF_KIND_R4), real(lats, ESMF_KIND_R4), &
+                                slons, slats, nobs, 10, 10, -180.0, 180.0)
+      
+      ! Get local PE number to compare correct tile
+      call ESMF_VMGetCurrent(vm, rc=status)
+      @assertEqual(0, status)
+      call ESMF_VMGet(vm, localPet=localPet, rc=status)
+      @assertEqual(0, status)
+      
+      ! For CS with 6 PEs, each PE has one tile (localPet+1)
+      @assertEqual(ref_mask(:, :, localPet+1), mask)
+      
+      deallocate(slons, slats)
+      call ESMF_GridDestroy(grid, rc=status)
+   end subroutine test_cs_c48_diagonal_swath_6pe
+
+end module Test_OrbMasking_Regression
