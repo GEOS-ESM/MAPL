@@ -159,6 +159,7 @@ module MAPL_GenericMod
    public MAPL_Get
    public MAPL_Set
    public MAPL_InternalStateCreate
+   public MAPL_MetaCompCreate
    public MAPL_GenericRunCouplers
 
    public MAPL_ChildAddAttribToImportSpec
@@ -3101,6 +3102,75 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine MAPL_InternalStateCreate
 
+   !=============================================================================
+!BOP
+! !IROUTINE: MAPL_MetaCompCreate - Create and initialize a MAPL_MetaComp object
+!
+! !INTERFACE:
+!
+   function MAPL_MetaCompCreate(GC, CF, RC) result(MAPLOBJ)
+!
+! !ARGUMENTS:
+      type(ESMF_GridComp), intent(INOUT) :: GC    ! Grid component
+      type(ESMF_Config), intent(IN)      :: CF    ! Config object
+      integer, optional, intent(OUT)     :: RC    ! Return code
+      type(MAPL_MetaComp), pointer       :: MAPLOBJ  ! Allocated and initialized MAPL object
+!
+! !DESCRIPTION:
+!   Factory method to create and initialize a MAPL\_MetaComp object with
+!   required configuration. This is a helper for testing that bypasses the
+!   normal AddChild mechanism.
+!
+!EOP
+!=============================================================================
+      integer :: status
+      type(ESMF_VM) :: vm
+      integer :: comm
+      character(len=ESMF_MAXSTR) :: comp_name
+
+      ! Let MAPL_InternalStateCreate allocate and initialize MAPLOBJ
+      nullify(MAPLOBJ)
+      call MAPL_InternalStateCreate(GC, MAPLOBJ, rc=status)
+      if (status /= ESMF_SUCCESS) then
+         if (present(RC)) RC = status
+         return
+      end if
+      
+      ! Store the config (private member, must be set here)
+      MAPLOBJ%cf = CF
+      
+      ! Get component name 
+      call ESMF_GridCompGet(GC, name=comp_name, rc=status)
+      if (status /= ESMF_SUCCESS) then
+         if (present(RC)) RC = status
+         return
+      end if
+      
+      ! Initialize profiler (following MAPL_AddChild pattern)
+      call ESMF_VMGetCurrent(vm, rc=status)
+      if (status /= ESMF_SUCCESS) then
+         if (present(RC)) RC = status
+         return
+      end if
+      
+      call ESMF_VMGet(vm, mpiCommunicator=comm, rc=status)
+      if (status /= ESMF_SUCCESS) then
+         if (present(RC)) RC = status
+         return
+      end if
+      
+      MAPLOBJ%t_profiler = DistributedProfiler(trim(comp_name), MpiTimerGauge(), comm=comm)
+      
+      ! Start the profiler (required for MAPL_GenericSetServices)
+      call MAPLOBJ%t_profiler%start(rc=status)
+      if (status /= ESMF_SUCCESS) then
+         if (present(RC)) RC = status
+         return
+      end if
+
+      if (present(RC)) RC = ESMF_SUCCESS
+   end function MAPL_MetaCompCreate
+
 
    !=============================================================================
    !=============================================================================
@@ -3287,6 +3357,7 @@ contains
 
       call MAPL_InternalStateGet( GC, MAPLOBJ, RC=status)
       if (status /= ESMF_SUCCESS) then
+         nullify(MAPLOBJ)  ! Ensure pointer is defined before passing to create
          call MAPL_InternalStateCreate( GC, MAPLOBJ, RC=status)
          _VERIFY(status)
       end if

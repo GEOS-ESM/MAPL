@@ -10,6 +10,7 @@ set (TEST_SRCS
   test_MeterNode.pf
   test_MeterNodeIterator.pf
   test_DistributedMeter.pf
+  Test_ProfilerLifecycle.pf
   )
 
 

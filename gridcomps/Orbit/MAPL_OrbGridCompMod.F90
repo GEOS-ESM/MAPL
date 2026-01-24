@@ -38,6 +38,25 @@
 ! !PUBLIC MEMBER FUNCTIONS:
 
    PUBLIC SetServices
+   
+! Module constants
+   real, parameter :: LARGE_DISTANCE = 1000.0  ! Sentinel value for infinite/unreachable distance
+   
+   ! Public helper functions for testing
+   PUBLIC :: flatten_latlon
+   PUBLIC :: flatten_xy
+   PUBLIC :: orb_edges_1d
+   PUBLIC :: check_face
+   PUBLIC :: cube_xy
+   PUBLIC :: cube_xy_point
+   PUBLIC :: check_face_pnt
+   PUBLIC :: orb_halo
+   
+   ! Public masking functions for testing
+   PUBLIC :: orb_mask_lonlat
+   PUBLIC :: orb_mask_xy
+   PUBLIC :: orb_swath_mask_lonlat
+   PUBLIC :: orb_swath_mask_xy
 
 ! Legacy state
 ! ------------
@@ -73,8 +92,8 @@ CONTAINS
 !
    SUBROUTINE SetServices ( GC, RC )
 
-    type(ESMF_GridComp), intent(INOUT) :: GC  ! gridded component
-    integer, intent(out), optional     :: RC  ! return code
+    type(ESMF_GridComp) :: GC  ! gridded component
+    integer, intent(out) :: RC  ! return code
 
 !   Local derived type aliases
 !   --------------------------
@@ -97,7 +116,7 @@ CONTAINS
 !   Greetings
 !   ---------
     IF(MAPL_AM_I_ROOT()) THEN
-         PRINT *, TRIM(Iam)//': ACTIVE'
+!        PRINT *, TRIM(Iam)//': ACTIVE'
     END IF
 
 !   Wrap internal state for storing in GC; rename legacyState
@@ -237,7 +256,7 @@ CONTAINS
     _VERIFY(STATUS)
     Iam = trim(COMP_NAME)//'::Initialize_'
 
-    call MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK,  RC=STATUS)
+    call MAPL_GenericInitialize ( GC, import, EXPORT, CLOCK,  RC=STATUS)
     _VERIFY(STATUS)
 
     call ESMF_UserCompGetInternalState(gc, 'Orb_state', WRAP, STATUS)
@@ -323,8 +342,11 @@ CONTAINS
   type (ESMF_VM)                      :: VM
   type (MAPL_MetaComp),     pointer   :: MAPL_OBJ
   integer                             :: IM,JM,LM
-  real, pointer, dimension(:,:)       :: LONS
-  real, pointer, dimension(:,:)       :: LATS
+  real(ESMF_KIND_R8), pointer, dimension(:,:) :: LONS => null()
+  real(ESMF_KIND_R8), pointer, dimension(:,:) :: LATS => null()
+  real, allocatable, dimension(:,:)   :: LONS_R4
+  real, allocatable, dimension(:,:)   :: LATS_R4
+  integer                             :: localDECount, localDE
   real, pointer, dimension(:,:)       :: PTR_TMP, PTR_TMP_EX
   integer                             :: iyr,imm,idd,ihr,imn,isc
   type(ESMF_TimeInterval)             :: timeinterval
@@ -375,10 +397,33 @@ CONTAINS
         IM                  = IM,     &
         JM                  = JM,     &
         LM                  = LM,     &
-        LONS     = LONS,              &
-        LATS     = LATS,              &
         RC=STATUS )
    _VERIFY(STATUS)
+
+!  Get grid coordinates using MAPL (works for all grid types)
+!  -----------------------------------------------------------
+! Get coordinates using ESMF API
+       ! ESMF grids store coordinates in radians as REAL64
+       call ESMF_GridGet(GRID, localDECount=localDECount, RC=STATUS)
+       _VERIFY(STATUS)
+       localDE = 0  ! We only have one local DE
+
+       call ESMF_GridGetCoord(GRID, coordDim=1, localDE=localDE, &
+            staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=LONS, RC=STATUS)
+       _VERIFY(STATUS)
+
+       call ESMF_GridGetCoord(GRID, coordDim=2, localDE=localDE, &
+            staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=LATS, RC=STATUS)
+       _VERIFY(STATUS)
+
+       ! Convert from radians to degrees (MAPL uses radians, we need degrees)
+       LONS = LONS * MAPL_RADIANS_TO_DEGREES
+       LATS = LATS * MAPL_RADIANS_TO_DEGREES
+
+       ! DoMasking_ expects REAL32, so convert from REAL64
+       allocate(LONS_R4(IM,JM), LATS_R4(IM,JM))
+       LONS_R4 = real(LONS, kind=kind(1.0))
+       LATS_R4 = real(LATS, kind=kind(1.0))
 
 !  Figure out what type of grid we are on
 
@@ -450,7 +495,7 @@ CONTAINS
     ihalo = self%halo(k)
     jhalo = self%halo(k)
     if (gridtype == 'Lat-Lon') then
-     if (associated(PTR_TMP)) call DoMasking_ (PTR_TMP, im, jm, lons, lats, undef, &
+     if (associated(PTR_TMP)) call DoMasking_ (PTR_TMP, im, jm, lons_r4, lats_r4, undef, &
                               sat_name, interval_nymd, interval_nhms, deltat, swath,  &
                               ihalo, jhalo, rc=status )
     else if (gridtype == 'Cubed-Sphere') then
@@ -467,6 +512,10 @@ CONTAINS
 
 !  All done
 !  --------
+   ! Clean up coordinate arrays
+   if (allocated(LONS_R4)) deallocate(LONS_R4)
+   if (allocated(LATS_R4)) deallocate(LATS_R4)
+
    call MAPL_TimerOff(MAPL_OBJ,"Run")
    _RETURN(ESMF_SUCCESS)
 
@@ -951,8 +1000,8 @@ CONTAINS
          if (inbox == 1) then
            i = ijsearch(elons,im+1,lon,.false.)
            j = ijsearch(elats,jm+1,lat,.false.)
-           ! fill in mask for i,j
-           if (i >0 .and. j > 0) then
+           ! fill in mask for i,j (check bounds since ijsearch can return im+1 or jm+1 for edge points)
+           if (i > 0 .and. i <= im .and. j > 0 .and. j <= jm) then
             mask(i,j)=1
            endif
          endif
@@ -1391,22 +1440,22 @@ CONTAINS
          s(1)=rsq3/xyz(1)
          s(2)=-rsq3/xyz(1)
         else
-         s(1)=1000.0
-         s(2)=1000.0
+         s(1)=LARGE_DISTANCE
+         s(2)=LARGE_DISTANCE
         endif
         if (xyz(2) /= 0.0) then
          s(3)=rsq3/xyz(2)
          s(4)=-rsq3/xyz(2)
         else
-         s(3)=1000.0
-         s(4)=1000.0
+         s(3)=LARGE_DISTANCE
+         s(4)=LARGE_DISTANCE
         endif
         if (xyz(3) /= 0.0) then
          s(5)=rsq3/xyz(3)
          s(6)=-rsq3/xyz(3)
         else
-         s(5)=1000.0
-         s(6)=1000.0
+         s(5)=LARGE_DISTANCE
+         s(6)=LARGE_DISTANCE
         endif
         do k=1,6
          if (s(k) > 0) then
@@ -1521,22 +1570,22 @@ CONTAINS
        s(1)=rsq3/xyz(1)
        s(2)=-rsq3/xyz(1)
       else
-       s(1)=1000.
-       s(2)=1000.
+       s(1)=LARGE_DISTANCE
+       s(2)=LARGE_DISTANCE
       endif
       if (xyz(2) /= 0.) then
        s(3)=rsq3/xyz(2)
        s(4)=-rsq3/xyz(2)
       else
-       s(3)=1000.
-       s(4)=1000.
+       s(3)=LARGE_DISTANCE
+       s(4)=LARGE_DISTANCE
       endif
       if (xyz(3) /= 0.) then
        s(5)=rsq3/xyz(3)
        s(6)=-rsq3/xyz(3)
       else
-       s(5)=1000.
-       s(6)=1000.
+       s(5)=LARGE_DISTANCE
+       s(6)=LARGE_DISTANCE
       endif
       do k=1,6
        if (s(k) > 0) then

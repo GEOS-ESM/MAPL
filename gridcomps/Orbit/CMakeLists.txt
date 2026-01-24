@@ -10,3 +10,8 @@ target_link_libraries (${this} PUBLIC GFTL::gftl GFTL_SHARED::gftl-shared ESMF::
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
+
+# Add tests subdirectory
+if (PFUNIT_FOUND)
+   add_subdirectory(tests)
+endif ()
