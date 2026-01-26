@@ -25,8 +25,6 @@ module mapl3g_StateItemExtension
    type StateItemExtension
       private
       type(StateItemSpec) :: spec
-      type(ComponentDriverVector) :: consumers ! couplers that depend on spec
-      class(ComponentDriver), pointer :: producer => null() ! coupler that computes spec
    contains
       procedure :: get_spec
 
@@ -110,11 +108,13 @@ function add_consumer(this, consumer, rc) result(reference)
       integer, optional, intent(out) :: rc
 
       integer :: status
+      class(ComponentDriver), pointer :: producer
 
       reference => this%spec%add_consumer(consumer, _RC)
-      _RETURN_UNLESS(associated(this%producer))
+      _RETURN_UNLESS(this%has_producer())
       
-      call mapl_CouplerAddConsumer(this%producer, reference, _RC)
+      producer => this%get_producer()
+      call mapl_CouplerAddConsumer(producer, reference, _RC)
 
       _RETURN(_SUCCESS)
    end function add_consumer
