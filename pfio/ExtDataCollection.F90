@@ -28,7 +28,7 @@ module pFIO_ExtDataCollectionMod
   end interface ExtDataCollection
 
 
-  integer, parameter :: MAX_FORMATTERS = 1
+  integer, parameter :: MAX_FORMATTERS = 2
 
 contains
 
