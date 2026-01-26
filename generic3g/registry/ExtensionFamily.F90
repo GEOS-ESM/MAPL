@@ -36,6 +36,8 @@ module mapl3g_ExtensionFamily
 
       procedure :: find_closest_extension
       procedure :: find_closest_spec
+      procedure :: get_primary_spec
+      procedure :: get_extension_spec
    end type ExtensionFamily
 
    interface ExtensionFamily
@@ -216,6 +218,33 @@ contains
 
       _RETURN(_SUCCESS)
    end function find_closest_spec
+
+   ! Wrapper that returns the primary spec directly
+   function get_primary_spec(this, rc) result(spec)
+      type(StateItemSpec), pointer :: spec
+      class(ExtensionFamily), target, intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      type(StateItemExtension), pointer :: primary
+      integer :: status
+
+      primary => this%get_primary(_RC)
+      spec => primary%get_spec()
+
+      _RETURN(_SUCCESS)
+   end function get_primary_spec
+
+   ! Wrapper that returns an extension spec directly by index
+   function get_extension_spec(this, i) result(spec)
+      type(StateItemSpec), pointer :: spec
+      integer, intent(in) :: i
+      class(ExtensionFamily), target, intent(in) :: this
+
+      type(StateItemExtension), pointer :: extension
+
+      extension => this%get_extension(i)
+      spec => extension%get_spec()
+   end function get_extension_spec
 
 end module mapl3g_ExtensionFamily
 
