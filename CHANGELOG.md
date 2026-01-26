@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+-- changed MAX_FORMATTERS in ExtDataCollection to 1. This minimizes the memory footprint of the netcdf layer. Hopefully it wont impact performance of ExtData
 - added formating string to the fPlogger call in FileBundleRead.F90 to avoid processing incidental '%' characters in the filename
 - replaced rc=status with _RC in MAPL_read_bundle
 - MAPL_read_bundle now logs the filename instead of the file template

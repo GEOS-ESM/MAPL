@@ -2338,8 +2338,8 @@ contains
           call ESMF_FieldBundleGet(BUNDLE, I, FIELD, _RC)
           call MAPL_FieldDestroy(FIELD, _RC)
        end do
+       call ESMF_FieldBundleDestroy(bundle, NoGarbage=NoGarbage, _RC)
     end if
-    call ESMF_FieldBundleDestroy(bundle, NoGarbage=NoGarbage, _RC)
 
     _RETURN(ESMF_SUCCESS)
 
