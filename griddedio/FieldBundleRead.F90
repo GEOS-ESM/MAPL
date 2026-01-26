@@ -185,7 +185,7 @@ module MAPL_ESMFFieldBundleRead
          call ESMF_TimeGet(time, timeString=timestring, _RC)
 
          call fill_grads_template(file_name,file_tmpl,time=time,_RC)
-         call lgr%info('%a','MAPL_read_bundle: Reading file '//trim(file_name)//' for time '//trim(timestring))
+         call lgr%info('MAPL_read_bundle: Reading file %a for time %a ', trim(file_name), trim(timestring))
 
          collection_id=i_clients%add_ext_collection(trim(file_tmpl))
 
