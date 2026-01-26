@@ -14,6 +14,9 @@ module mapl3g_StateItemSpec
    use mapl_ErrorHandling
    use mapl3g_Field_API
    use mapl3g_FieldBundle_API
+   use mapl3g_ComponentDriver
+   use mapl3g_GriddedComponentDriver
+   use mapl3g_ComponentDriverVector
    use esmf
    use gftl2_stringvector
    implicit none
@@ -34,6 +37,10 @@ module mapl3g_StateItemSpec
       type(AspectMap) :: aspects
       logical :: has_deferred_aspects_ = .false.
       type(esmf_StateIntent_Flag) :: state_intent
+
+      ! Producer/consumer tracking (merged from StateItemExtension)
+      type(ComponentDriverVector) :: consumers ! couplers that depend on this spec
+      class(ComponentDriver), pointer :: producer => null() ! coupler that computes this spec
    contains
 
       procedure :: get_aspect_order ! as string vector
@@ -71,6 +78,14 @@ module mapl3g_StateItemSpec
       procedure :: connect_to_export
       procedure :: can_connect_to
       procedure :: add_to_state
+
+      ! Producer/consumer methods (merged from StateItemExtension)
+      procedure :: has_producer
+      procedure :: get_producer
+      procedure :: set_producer
+      procedure :: has_consumers
+      procedure :: add_consumer
+      procedure :: get_consumers
 
       procedure :: set_geometry
       procedure :: print_spec
@@ -708,5 +723,60 @@ contains
       end function make_handle
       
    end subroutine update_from_payload
+
+   ! ========================================================================
+   ! Producer/consumer methods (merged from StateItemExtension)
+   ! ========================================================================
+
+   logical function has_producer(this)
+      class(StateItemSpec), target, intent(in) :: this
+      has_producer = associated(this%producer)
+   end function has_producer
+
+   function get_producer(this) result(producer)
+      class(StateItemSpec), target, intent(in) :: this
+      class(ComponentDriver), pointer :: producer
+      producer => this%producer
+   end function get_producer
+
+   subroutine set_producer(this, producer, rc)
+      class(StateItemSpec), intent(inout) :: this
+      class(ComponentDriver), pointer, intent(in) :: producer
+      integer, optional, intent(out) :: rc
+
+      _ASSERT(.not. this%has_producer(), 'cannot set producer for spec that already has one')
+      this%producer => producer
+
+      _RETURN(_SUCCESS)
+   end subroutine set_producer
+
+   logical function has_consumers(this)
+      class(StateItemSpec), target, intent(in) :: this
+      has_consumers = this%consumers%size() > 0
+   end function has_consumers
+
+   function get_consumers(this) result(consumers)
+      class(StateItemSpec), target, intent(in) :: this
+      type(ComponentDriverVector), pointer :: consumers
+      consumers => this%consumers
+   end function get_consumers
+
+   function add_consumer(this, consumer, rc) result(reference)
+      use mapl3g_GenericCoupler
+      class(ComponentDriver), pointer :: reference
+      class(StateItemSpec), target, intent(inout) :: this
+      type(GriddedComponentDriver), intent(in) :: consumer
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call this%consumers%push_back(consumer)
+      reference => this%consumers%back()
+      _RETURN_UNLESS(associated(this%producer))
+      
+      call mapl_CouplerAddConsumer(this%producer, reference, _RC)
+
+      _RETURN(_SUCCESS)
+   end function add_consumer
 
 end module mapl3g_StateItemSpec
