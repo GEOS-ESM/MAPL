@@ -35,6 +35,7 @@ module mapl3g_ExtensionFamily
       procedure :: is_deferred
 
       procedure :: find_closest_extension
+      procedure :: find_closest_spec
    end type ExtensionFamily
 
    interface ExtensionFamily
@@ -199,5 +200,22 @@ contains
       
       _RETURN(_SUCCESS)
    end function is_deferred
+
+   ! Wrapper that returns the spec directly instead of the extension
+   function find_closest_spec(family, goal_spec, rc) result(closest_spec)
+      type(StateItemSpec), pointer :: closest_spec
+      class(ExtensionFamily), intent(in) :: family
+      class(StateItemSpec), intent(in) :: goal_spec
+      integer, optional, intent(out) :: rc
+
+      type(StateItemExtension), pointer :: closest_extension
+      integer :: status
+
+      closest_extension => family%find_closest_extension(goal_spec, _RC)
+      closest_spec => closest_extension%get_spec()
+
+      _RETURN(_SUCCESS)
+   end function find_closest_spec
+
 end module mapl3g_ExtensionFamily
 
