@@ -5,7 +5,6 @@ submodule (mapl3g_OuterMetaComponent) finalize_smod
    use mapl3g_GriddedComponentDriverMap
    use mapl3g_GenericPhases
    use mapl_ErrorHandling
-   use mapl3g_Utilities_Comms_API, only: MAPL_Am_I_Root
    use MAPL_Profiler, only: ProfileReporter
    use MAPL_Profiler, only: MultiColumn, NameColumn, FormattedTextColumn, PercentageColumn
    use MAPL_Profiler, only: InclusiveColumn, ExclusiveColumn, SeparatorColumn, NumCyclesColumn
@@ -25,8 +24,6 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      type(GriddedComponentDriver), pointer :: child
-      type(GriddedComponentDriverMapIterator) :: iter
       character(*), parameter :: PHASE_NAME = 'GENERIC::FINALIZE_USER'
       integer :: status
   
@@ -43,6 +40,9 @@ contains
       ! TODO - release resources
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
       _UNUSED_DUMMY(unusable)
    end subroutine finalize
 
