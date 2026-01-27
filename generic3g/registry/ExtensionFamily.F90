@@ -98,7 +98,7 @@ contains
 
    subroutine add_extension(this, extension)
       class(ExtensionFamily), intent(inout) :: this
-      class(StateItemSpec), pointer, intent(in) :: extension
+      type(StateItemSpec), pointer, intent(in) :: extension
 
       type(StateItemSpecPtr) :: wrapper
 
@@ -116,16 +116,16 @@ contains
    function find_closest_spec(family, goal_spec, rc) result(closest_extension)
       type(StateItemSpec), pointer :: closest_extension
       class(ExtensionFamily), intent(in) :: family
-      class(StateItemSpec), intent(in) :: goal_spec
+      type(StateItemSpec), intent(in) :: goal_spec
       integer, optional, intent(out) :: rc
 
       type(StateItemSpecPtrVector) :: subgroup, new_subgroup
-      class(StateItemSpec), pointer :: archetype
+      type(StateItemSpec), pointer :: archetype
       integer :: i, j
       integer :: status
       type(StateItemSpecPtr) :: extension_ptr
       type(StateItemSpec), pointer :: primary
-      class(StateItemSpec), pointer :: spec
+      type(StateItemSpec), pointer :: spec
       logical :: match
       type(AspectId), allocatable :: aspect_ids(:)
 
