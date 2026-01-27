@@ -12,7 +12,6 @@ module mapl3g_MatchConnection
    use mapl3g_ActualPtVec_Map
    use mapl3g_ActualPtVector
    use mapl3g_StateItemSpec
-   use mapl3g_StateItemExtension
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf

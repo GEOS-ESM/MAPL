@@ -11,8 +11,6 @@ submodule (mapl3g_StateRegistry) StateRegistry_Actions_smod
    use mapl3g_MultiState
    use mapl3g_ActualConnectionPt
    use mapl3g_VirtualPtFamilyMap, only: VirtualPtFamilyMapIterator
-   use mapl3g_StateItemExtensionVector, only: StateItemExtensionVectorIterator
-   use mapl3g_StateItemExtensionPtrVector, only: StateItemExtensionPtrVectorIterator
    use esmf
    implicit none(type,external)
 
