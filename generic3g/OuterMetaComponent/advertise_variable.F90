@@ -25,7 +25,7 @@ contains
       virtual_pt = var_spec%make_virtualPt()
       call this%registry%add_primary_spec(virtual_pt, item_spec)
       
-      item_primary => this%registry%get_primary_extension(virtual_pt, _RC)
+      item_primary => this%registry%get_primary_spec(virtual_pt, _RC)
 
       call item_primary%create(_RC)
       call set_default_activation(item_primary, var_spec%state_intent, _RC)

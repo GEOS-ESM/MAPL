@@ -144,7 +144,7 @@ contains
       iter = b
       do while (iter /= e)
          variable => iter%of()
-         extension => this%registry%get_primary_extension(VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, variable), _RC)
+         extension => this%registry%get_primary_spec(VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, variable), _RC)
          spec => extension
          call spec%activate()
          call iter%next()

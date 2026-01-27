@@ -151,7 +151,7 @@ contains
       _ASSERT(i <= n, 'Physical dimension not found.')
 
       v_pt = VirtualConnectionPt(state_intent="export", short_name=short_name)
-      primary => this%registry%get_primary_extension(v_pt, _RC)
+      primary => this%registry%get_primary_spec(v_pt, _RC)
       spec => primary
 
       class_aspect => spec%get_aspect(CLASS_ASPECT_ID, _RC)

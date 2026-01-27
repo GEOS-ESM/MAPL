@@ -243,7 +243,7 @@ contains
       associate (items => this%subscriber_item_names)
         do i = 1, items%size()
            v_pt = VirtualConnectionPt(ESMF_STATEINTENT_INTERNAL, items%of(i))
-           primary => this%registry%get_primary_extension(v_pt, _RC)
+           primary => this%registry%get_primary_spec(v_pt, _RC)
            spec => primary
            aspect => spec%get_aspect(CLASS_ASPECT_ID, _RC)
            field_aspect = to_FieldClassAspect(aspect, _RC)
@@ -273,7 +273,7 @@ contains
            do i = 1, n
               v_pt = VirtualConnectionPt(ESMF_STATEINTENT_INTERNAL, item_names%of(i))
               ! Internal items are always unique and "primary" (owned by user)
-              primary => import%registry%get_primary_extension(v_pt, _RC)
+              primary => import%registry%get_primary_spec(v_pt, _RC)
               spec_ptrs(i)%ptr => primary
            end do
          end associate

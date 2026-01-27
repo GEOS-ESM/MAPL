@@ -96,7 +96,7 @@ contains
       family => r%get_extension_family(x, _RC)
       @assert_that(associated(family), is(true()))
       @assert_that(family%has_primary(), is(false()))
-      extensions = family%get_extensions()
+      extensions = family%get_specs()
       @assert_that(int(extensions%size()), is(1))
       wrapper => extensions%of(1)
       extension => wrapper%ptr
@@ -106,7 +106,7 @@ contains
       call r%add_spec(x, MockItemSpec(value=2), _RC)
       @assert_that(r%num_owned_items(), is(2))
       @assert_that(family%has_primary(), is(false()))
-      extensions = family%get_extensions()
+      extensions = family%get_specs()
       @assert_that(int(extensions%size()), is(2))
       wrapper => extensions%of(2)
       extension => wrapper%ptr
@@ -118,7 +118,7 @@ contains
    ! Linked items are in the named family but not owned
    ! by the registry.  Linked from some other registry.
    @test
-   subroutine test_link_extension()
+   subroutine test_link_spec()
       type(StateRegistry), target :: r
       type(VirtualConnectionPt) :: x
       integer :: status
@@ -129,10 +129,10 @@ contains
       call r%add_virtual_pt(x, _RC)
 
       extension = MockItemSpec(value=11)
-      call r%link_extension(x, extension, _RC)
+      call r%link_spec(x, extension, _RC)
       @assert_that(r%num_owned_items(), is(0))
 
-   end subroutine test_link_extension
+   end subroutine test_link_spec
 
    subroutine test_link_extension_spec()
       type(StateRegistry), target :: r
@@ -153,12 +153,12 @@ contains
 
       allocate(spec_x, source=MockItemSpec(value=1))
       ext_x = spec_x
-      call r%link_extension(x, ext_x, _RC)
+      call r%link_spec(x, ext_x, _RC)
       @assert_that(r%num_owned_items(), is(0))
 
       family => r%get_extension_family(x, _RC)
       @assert_that(associated(family%get_primary()), is(false()))
-      extensions = family%get_extensions()
+      extensions = family%get_specs()
       @assert_that(int(extensions%size()), is(1))
       wrapper => extensions%of(1)
       ext => wrapper%ptr
@@ -167,11 +167,11 @@ contains
 
       allocate(spec_y, source=MockItemSpec(2))
       ext_y = spec_y
-      call r%link_extension(x, ext_y)
+      call r%link_spec(x, ext_y)
       @assert_that(r%num_owned_items(), is(0))
       family => r%get_extension_family(x, _RC)
       @assert_that(associated(family%get_primary()), is(false()))
-      extensions = family%get_extensions()
+      extensions = family%get_specs()
       @assert_that(int(extensions%size()), is(2))
       wrapper => extensions%of(2)
       ext => wrapper%ptr

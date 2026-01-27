@@ -100,12 +100,12 @@ contains
                export_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, var_name)
                import_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, var_name)
                a_pt = ActualConnectionPt(export_v_pt)
-               primary => registry%get_primary_extension(export_v_pt, _RC)
+               primary => registry%get_primary_spec(export_v_pt, _RC)
                export_spec => primary
 
                s_pt = ConnectionPt('collection_1', export_v_pt)
                collection_registry => registry%get_subregistry(s_pt, _RC)
-               extensions = collection_registry%get_extensions(export_v_pt, _RC)
+               extensions = collection_registry%get_specs(export_v_pt, _RC)
                export_spec => extensions(1)%ptr
                call export_spec%activate(_RC)
                  
@@ -161,7 +161,7 @@ contains
                export_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, var_name)
                import_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, var_name)
                a_pt = ActualConnectionPt(export_v_pt)
-               primary => registry%get_primary_extension(export_v_pt, _RC)
+               primary => registry%get_primary_spec(export_v_pt, _RC)
                export_spec => primary
 
 

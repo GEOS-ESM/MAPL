@@ -43,9 +43,8 @@ module mapl3g_StateItemSpec
 
       procedure :: get_aspect_order ! as string vector
       procedure :: get_aspect_priorities ! default implementation as aid to refactoring
+      procedure :: clone_base
       procedure :: make_extension
-      procedure :: make_extension_base
-      procedure :: make_extension_with_couplers
 
 !#      procedure(I_write_formatted), deferred :: write_formatted
 !##ifndef __GFORTRAN__
@@ -269,24 +268,9 @@ contains
       order = ''
    end function get_aspect_priorities
 
-   function make_extension(this, aspect_name, aspect, rc) result(new_spec)
-      class(StateItemSpec), allocatable :: new_spec
-      class(StateItemSpec), intent(in) :: this
-      character(*), intent(in) :: aspect_name
-      class(StateItemAspect), intent(in) :: aspect
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      
-      new_spec = this
-      call new_spec%set_aspect(aspect, _RC)
-      
-      _RETURN(_SUCCESS)
-   end function make_extension
-
    ! Factory method to create a base for an extension
    ! Copies metadata and aspects but NOT producer/consumer chain
-   function make_extension_base(this, rc) result(new_spec)
+   function clone_base(this, rc) result(new_spec)
       type(StateItemSpec) :: new_spec
       class(StateItemSpec), target, intent(in) :: this
       integer, optional, intent(out) :: rc
@@ -304,12 +288,12 @@ contains
       ! This is the key difference from regular assignment
       
       _RETURN(_SUCCESS)
-   end function make_extension_base
+   end function clone_base
 
    ! Factory method to create an extension with couplers
    ! This creates a new spec that extends this one toward the goal_spec,
    ! setting up the necessary transform couplers
-   recursive function make_extension_with_couplers(this, goal_spec, rc) result(new_spec)
+   recursive function make_extension(this, goal_spec, rc) result(new_spec)
       type(StateItemSpec), target :: new_spec
       class(StateItemSpec), target, intent(inout) :: this
       type(StateItemSpec), target, intent(in) :: goal_spec
@@ -328,7 +312,7 @@ contains
       call this%activate(_RC)
       call this%update_from_payload(_RC)
 
-      new_spec = this%make_extension_base()
+      new_spec = this%clone_base()
 
       aspect_ids = this%get_aspect_order(goal_spec)
       do i = 1, size(aspect_ids)
@@ -365,7 +349,7 @@ contains
       end if
 
       _RETURN(_SUCCESS)
-   end function make_extension_with_couplers
+   end function make_extension
 
    ! Will use ESMF so cannot be PURE
    subroutine create(this, rc)

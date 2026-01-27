@@ -4,10 +4,10 @@
 ! - add_virtual_pt: Add a virtual connection point
 ! - add_family: Add an extension family
 ! - add_primary_spec: Add primary spec for a virtual point
-! - get_primary_extension: Get primary extension
+! - get_primary_spec: Get primary extension
 ! - add_extension: Add an extension to the registry
 ! - add_spec: Add a spec as an extension
-! - link_extension: Link an extension to a virtual point
+! - link_spec: Link an extension to a virtual point
 ! - get_extension_family: Get the family for a virtual point
 ! - get_extensions: Get all extensions for a virtual point
 ! - extend: Recursively extend family to match goal spec
@@ -79,7 +79,7 @@ contains
 
    end subroutine add_primary_spec
 
-   module function get_primary_extension(this, virtual_pt, rc) result(primary)
+   module function get_primary_spec(this, virtual_pt, rc) result(primary)
       type(StateItemSpec), pointer :: primary
       class(StateRegistry), target, intent(in) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
@@ -95,7 +95,7 @@ contains
 
 
       _RETURN(_SUCCESS)
-   end function get_primary_extension
+   end function get_primary_spec
 
    module function add_extension(this, virtual_pt, extension, rc) result(new_extension)
       type(StateItemSpec), pointer :: new_extension
@@ -112,7 +112,7 @@ contains
       call this%owned_items%push_back(extension)
       new_extension => this%owned_items%back()
       extension_ptr => this%owned_items%back()
-      call this%link_extension(virtual_pt, extension_ptr, _RC)
+      call this%link_spec(virtual_pt, extension_ptr, _RC)
 
       _RETURN(_SUCCESS)
    end function add_extension
@@ -130,12 +130,12 @@ contains
 
       call this%owned_items%push_back(spec)
       spec_ptr => this%owned_items%back()
-      call this%link_extension(virtual_pt, spec_ptr, _RC)
+      call this%link_spec(virtual_pt, spec_ptr, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine add_spec
 
-   module subroutine link_extension(this, virtual_pt, extension, rc)
+   module subroutine link_spec(this, virtual_pt, extension, rc)
       class(StateRegistry), target, intent(inout) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
       class(StateItemSpec), pointer, intent(in) :: extension
@@ -150,7 +150,7 @@ contains
       call family%add_extension(extension)
 
       _RETURN(_SUCCESS)
-   end subroutine link_extension
+   end subroutine link_spec
 
    module function get_extension_family(this, virtual_pt, rc) result(family)
       type(ExtensionFamily), pointer :: family
@@ -165,7 +165,7 @@ contains
       _RETURN(_SUCCESS)
    end function get_extension_family
 
-   module function get_extensions(this, virtual_pt, rc) result(extensions)
+   module function get_specs(this, virtual_pt, rc) result(extensions)
       type(StateItemSpecPtr), allocatable :: extensions(:)
       class(StateRegistry), target, intent(in) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
@@ -180,11 +180,11 @@ contains
       n = family%num_variants()
       allocate(extensions(n))
       do i = 1, n
-         extensions(i)%ptr => family%get_extension(i)
+         extensions(i)%ptr => family%get_spec(i)
       end do
 
       _RETURN(_SUCCESS)
-   end function get_extensions
+   end function get_specs
 
    ! Repeatedly extend family at v_pt until extension can directly
    ! connect to goal_spec.
@@ -207,7 +207,7 @@ contains
 
       family => registry%get_extension_family(v_pt, _RC)
 
-      closest_extension => family%find_closest_extension(goal_spec, _RC)
+      closest_extension => family%find_closest_spec(goal_spec, _RC)
       iter_count = 0
       do
          iter_count = iter_count + 1
@@ -222,7 +222,7 @@ contains
 !#            _HERE, 'extending? ', iter_count
 !#            call spec%print_spec(__FILE__,__LINE__)
 !#          end block
-         tmp_extension = closest_extension%make_extension_with_couplers(goal_spec, _RC)
+         tmp_extension = closest_extension%make_extension(goal_spec, _RC)
          if (.not. associated(tmp_extension%get_producer())) exit ! no further extensions needed
 
          ! Add permanent copy of extension to registry and retrieve a valid pointer:

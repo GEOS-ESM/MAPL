@@ -60,7 +60,7 @@ contains
            call family_iter%next()
            v_pt => family_iter%first()
            family => family_iter%second()
-           extensions => family%get_extensions()
+           extensions => family%get_specs()
 
            select case (mode)
            case ('user') ! only add if both primary and not a substate item

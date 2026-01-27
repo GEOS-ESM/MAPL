@@ -75,7 +75,7 @@ contains
 
       v_pt = VirtualConnectionPt(state_intent="export", short_name=var_name)
       call registry%add_primary_spec(v_pt, fld_spec)
-      extension => registry%get_primary_extension(v_pt, _RC)
+      extension => registry%get_primary_spec(v_pt, _RC)
       spec => extension
       call spec%activate(_RC)
 
@@ -160,7 +160,7 @@ contains
      call setup(geom, vgrid, _RC)
      call r%allocate(_RC)
       ple_pt = VirtualConnectionPt(state_intent="export", short_name="PLE")
-      extension => r%get_primary_extension(ple_pt, _RC)
+      extension => r%get_primary_spec(ple_pt, _RC)
       spec => extension
 
       multi_state = MultiState()

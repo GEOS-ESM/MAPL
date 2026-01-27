@@ -26,17 +26,15 @@ module mapl3g_ExtensionFamily
    contains
       procedure :: has_primary
       procedure :: get_primary
-      procedure :: get_extensions
-      procedure :: get_extension
+      procedure :: get_specs
+      procedure :: get_spec
       procedure :: add_extension
       procedure :: num_variants
       procedure :: merge
       procedure :: is_deferred
 
-      procedure :: find_closest_extension
       procedure :: find_closest_spec
       procedure :: get_primary_spec
-      procedure :: get_extension_spec
    end type ExtensionFamily
 
    interface ExtensionFamily
@@ -82,13 +80,13 @@ contains
       _RETURN(_SUCCESS)
    end function get_primary
 
-   function get_extensions(this) result(extensions)
+   function get_specs(this) result(extensions)
       type(StateItemSpecPtrVector), pointer :: extensions
       class(ExtensionFamily), target, intent(in) :: this
       extensions => this%specs
-   end function get_extensions
+   end function get_specs
 
-   function get_extension(this, i) result(extension)
+   function get_spec(this, i) result(extension)
       type(StateItemSpec), pointer :: extension
       integer, intent(in) :: i
       class(ExtensionFamily), target, intent(in) :: this
@@ -96,7 +94,7 @@ contains
       type(StateItemSpecPtr), pointer :: wrapper
       wrapper => this%specs%at(i)
       extension => wrapper%ptr
-   end function get_extension
+   end function get_spec
 
    subroutine add_extension(this, extension)
       class(ExtensionFamily), intent(inout) :: this
@@ -115,7 +113,7 @@ contains
    end function num_variants
 
 
-   function find_closest_extension(family, goal_spec, rc) result(closest_extension)
+   function find_closest_spec(family, goal_spec, rc) result(closest_extension)
       type(StateItemSpec), pointer :: closest_extension
       class(ExtensionFamily), intent(in) :: family
       class(StateItemSpec), intent(in) :: goal_spec
@@ -134,7 +132,7 @@ contains
       class(StateItemAspect), pointer :: src_aspect, dst_aspect
 
       closest_extension => null()
-      subgroup = family%get_extensions()
+      subgroup = family%get_specs()
       primary => family%get_primary()  ! archetype defines the rules
       archetype => primary
       ! new
@@ -165,7 +163,7 @@ contains
       closest_extension => extension_ptr%ptr
 
       _RETURN(_SUCCESS)
-   end function find_closest_extension
+   end function find_closest_spec
 
    subroutine merge(this, other)
       class(ExtensionFamily), target, intent(inout) :: this
@@ -202,20 +200,6 @@ contains
       _RETURN(_SUCCESS)
    end function is_deferred
 
-   ! Wrapper that returns the spec directly instead of the extension
-   function find_closest_spec(family, goal_spec, rc) result(closest_spec)
-      type(StateItemSpec), pointer :: closest_spec
-      class(ExtensionFamily), intent(in) :: family
-      class(StateItemSpec), intent(in) :: goal_spec
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      closest_spec => family%find_closest_extension(goal_spec, _RC)
-
-      _RETURN(_SUCCESS)
-   end function find_closest_spec
-
    ! Wrapper that returns the primary spec directly
    function get_primary_spec(this, rc) result(spec)
       type(StateItemSpec), pointer :: spec
@@ -228,15 +212,6 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_primary_spec
-
-   ! Wrapper that returns an extension spec directly by index
-   function get_extension_spec(this, i) result(spec)
-      type(StateItemSpec), pointer :: spec
-      integer, intent(in) :: i
-      class(ExtensionFamily), target, intent(in) :: this
-
-      spec => this%get_extension(i)
-   end function get_extension_spec
 
 end module mapl3g_ExtensionFamily
 

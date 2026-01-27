@@ -70,7 +70,7 @@ contains
       type(StateItemSpecPtr), pointer :: extension
       integer :: i
 
-      extensions = family%get_extensions()
+      extensions = family%get_specs()
       do i = 1, extensions%size()
          extension => extensions%of(i)
          call link(extension%ptr, _RC)
@@ -90,7 +90,7 @@ contains
          if (.not. this%has_virtual_pt(virtual_pt)) then
             call this%add_virtual_pt(virtual_pt, _RC)
          end if
-         call this%link_extension(virtual_pt, extension, _RC)
+         call this%link_spec(virtual_pt, extension, _RC)
 
          _RETURN(_SUCCESS)
       end subroutine link

@@ -34,7 +34,7 @@ contains
 
       primary => family%get_primary(_RC)
       goal_spec = MockItemSpec(2)
-      closest => family%find_closest_extension(goal_spec,_RC)
+      closest => family%find_closest_spec(goal_spec,_RC)
 
       @assert_that(associated(closest, primary), is(true()))
       
@@ -66,7 +66,7 @@ contains
       family => r%get_extension_family(v_pt, _RC)
       goal_spec = MockItemSpec(5, typekind=ESMF_TYPEKIND_R8)
 
-      closest => family%find_closest_extension(goal_spec,_RC)
+      closest => family%find_closest_spec(goal_spec,_RC)
 
       @assert_that(associated(closest, ext_1), is(true()))
       
@@ -99,11 +99,11 @@ contains
       primary => family%get_primary(_RC)
 
       goal_spec = MockItemSpec(4, typekind=R8)
-      closest => family%find_closest_extension(goal_spec,_RC)
+      closest => family%find_closest_spec(goal_spec,_RC)
       @assert_that(associated(closest, primary), is(true()))
 
       goal_spec = MockItemSpec(5, typekind=R4, units='m')
-      closest => family%find_closest_extension(goal_spec,_RC)
+      closest => family%find_closest_spec(goal_spec,_RC)
       @assert_that(associated(closest, ext_2), is(true()))
       
    end subroutine test_find_closest_name

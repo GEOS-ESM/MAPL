@@ -89,9 +89,9 @@ contains
       _ASSERT(associated(dst_registry), 'Unknown destination registry')
         
       _ASSERT(dst_registry%has_virtual_pt(dst_pt%v_pt), "connection to unknown src_pt")
-      dst_extensions = dst_registry%get_extensions(dst_pt%v_pt, _RC)
+      dst_extensions = dst_registry%get_specs(dst_pt%v_pt, _RC)
       _ASSERT(src_registry%has_virtual_pt(src_pt%v_pt), "connection to unknown src_pt")
-      src_extensions = src_registry%get_extensions(src_pt%v_pt, _RC)
+      src_extensions = src_registry%get_specs(src_pt%v_pt, _RC)
 
       do i = 1, size(dst_extensions)
          dst_extension => dst_extensions(i)%ptr
@@ -167,7 +167,7 @@ contains
       src_pt = this%get_source()
 
       dst_pt = this%get_destination()
-      dst_extensions = dst_registry%get_extensions(dst_pt%v_pt, _RC)
+      dst_extensions = dst_registry%get_specs(dst_pt%v_pt, _RC)
 
       ! Very useful for debugging:
 !#      _HERE, 'src component: ', src_pt%component_name, ' :: ', src_pt%v_pt
@@ -213,7 +213,7 @@ contains
       dependencies = spec%get_dependencies()
       do i = 1, dependencies%size()
          associate (v_pt => dependencies%of(i))
-           dep_extension => registry%get_primary_extension(v_pt, _RC)
+           dep_extension => registry%get_primary_spec(v_pt, _RC)
          end associate
          dep_spec => dep_extension
          call dep_spec%activate(_RC)
