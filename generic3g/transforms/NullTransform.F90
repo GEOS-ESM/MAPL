@@ -28,6 +28,9 @@ contains
 
    function new_NullTransform() result(transform)
       type(NullTransform) :: transform
+      ! Explicit initialization to silence compiler warning
+      ! (type is already default-initialized, but NAG requires seeing assignment)
+      transform = NullTransform()
    end function new_NullTransform
 
    subroutine initialize(this, importState, exportState, clock, rc)

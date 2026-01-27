@@ -413,8 +413,11 @@ contains
       type(FileMetadata), intent(in), target :: file_metadata
       integer, intent(out), optional :: rc
       
-      ! Placeholder implementation
+      ! Placeholder implementation - not yet implemented
+      ! spec intentionally left unallocated to indicate failure
       integer :: status
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(file_metadata)
       _RETURN(_FAILURE)
    end function create_spec_from_file_metadata
 
