@@ -107,8 +107,6 @@ contains
       real(kind=ESMF_KIND_R4), allocatable :: weights(:)
       integer :: i
       type(ESMF_Field), allocatable :: fieldList(:)
-      type(ESMF_Info) :: bundle_info
-
 
       call MAPL_FieldBundleGet(bundle_in, fieldList=fieldList, interpolation_weights=weights, _RC)
 
@@ -137,8 +135,6 @@ contains
       real(kind=ESMF_KIND_R4), allocatable :: weights(:)
       integer :: i
       type(ESMF_Field), allocatable :: fieldList(:)
-      type(ESMF_Info) :: bundle_info
-
 
       call MAPL_FieldBundleGet(bundle_in, fieldList=fieldList, interpolation_weights=weights, _RC)
 
@@ -168,8 +164,6 @@ contains
       integer :: i
       type(ESMF_Field), allocatable :: fieldList_in(:)
       type(ESMF_Field), allocatable :: fieldList_out(:)
-      type(ESMF_Info) :: bundle_info
-
 
       call MAPL_FieldBundleGet(bundle_in, fieldList=fieldList_in, interpolation_weights=weights, _RC)
       call MAPL_FieldBundleGet(bundle_out, fieldList=fieldList_out, _RC)
@@ -211,7 +205,6 @@ contains
       integer :: i
       type(ESMF_Field), allocatable :: fieldList_in(:)
       type(ESMF_Field), allocatable :: fieldList_out(:)
-      type(ESMF_Info) :: bundle_info
 
       call MAPL_FieldBundleGet(bundle_in, fieldList=fieldList_in, interpolation_weights=weights, _RC)
       call MAPL_FieldBundleGet(bundle_out, fieldList=fieldList_out, _RC)

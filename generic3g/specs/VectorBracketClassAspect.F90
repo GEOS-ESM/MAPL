@@ -249,8 +249,6 @@ contains
       class(StateItemAspect), intent(in) :: aspect
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       select type(aspect)
       class is (VectorBracketClassAspect)
          bracket_aspect = aspect
@@ -266,7 +264,6 @@ contains
       type(AspectMap), target, intent(in) :: map
       integer, optional, intent(out) :: rc
 
-      integer :: status
       class(StateItemAspect), pointer :: poly
 
       poly => map%at(CLASS_ASPECT_ID, _RC)
