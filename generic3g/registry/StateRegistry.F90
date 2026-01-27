@@ -198,7 +198,7 @@ module mapl3g_StateRegistry
       module subroutine link_spec(this, virtual_pt, extension, rc)
          class(StateRegistry), target, intent(inout) :: this
          type(VirtualConnectionPt), intent(in) :: virtual_pt
-         class(StateItemSpec), pointer, intent(in) :: extension
+         type(StateItemSpec), target, intent(in) :: extension
          integer, optional, intent(out) :: rc
       end subroutine link_spec
 

@@ -105,7 +105,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      class(StateItemSpec), pointer :: extension_ptr
+      type(StateItemSpec), pointer :: extension_ptr
 
       _ASSERT(this%has_virtual_pt(virtual_pt), "Virtual connection point does not exist in registry")
 
@@ -124,7 +124,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      class(StateItemSpec), pointer :: spec_ptr
+      type(StateItemSpec), pointer :: spec_ptr
 
       _ASSERT(this%has_virtual_pt(virtual_pt), "Virtual connection point does not exist in registry")
 
@@ -138,7 +138,7 @@ contains
    module subroutine link_spec(this, virtual_pt, extension, rc)
       class(StateRegistry), target, intent(inout) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
-      class(StateItemSpec), pointer, intent(in) :: extension
+      type(StateItemSpec), target, intent(in) :: extension
       integer, optional, intent(out) :: rc
 
       integer :: status
