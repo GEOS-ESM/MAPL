@@ -209,6 +209,7 @@ contains
       end do
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function filter_fields_
 
 end module mapl3g_RestartHandler

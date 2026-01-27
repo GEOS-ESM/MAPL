@@ -181,6 +181,8 @@ contains
          write(unit, '(a)', iostat=iostat, iomsg=iomsg)  str
          if (iostat /= 0) return
 
+         _UNUSED_DUMMY(iotype)
+         _UNUSED_DUMMY(v_list)
       end subroutine write_scalar
 
    end subroutine write_hconfig
