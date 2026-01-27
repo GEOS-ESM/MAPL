@@ -1017,7 +1017,7 @@ contains
    subroutine gridcomp_set_geometry(gridcomp, state_intent, short_name, geom, vertical_grid, rc)
       use mapl3g_VirtualConnectionPt
       use mapl3g_ExtensionFamily
-      use mapl3g_StateItemExtension
+      use mapl3g_StateItemSpec
       type(ESMF_GridComp), intent(inout) :: gridcomp
       type(Esmf_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
@@ -1029,7 +1029,7 @@ contains
       type(StateRegistry), pointer :: registry
       type(VirtualConnectionPt) :: v_pt
       type(ExtensionFamily), pointer :: family
-      type(StateItemExtension), pointer :: primary
+      class(StateItemSpec), pointer :: primary
       class(StateItemSpec), pointer :: spec
 
       call MAPL_GridCompGetRegistry(gridcomp, registry=registry, _RC)
@@ -1041,7 +1041,7 @@ contains
 
       primary => family%get_primary(_RC)
       _ASSERT(associated(primary), 'null pointer for primary')
-      spec => primary%get_spec()
+      spec => primary
       _ASSERT(associated(spec), 'null pointer for spec')
 
       call spec%set_geometry(geom=geom, vertical_grid=vertical_grid, _RC)
