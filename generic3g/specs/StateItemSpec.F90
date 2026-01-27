@@ -722,10 +722,12 @@ contains
       call class_aspect%get_payload(field=field, bundle=bundle, _RC)
       if (allocated(field)) then
          call esmf_infogetfromhost(field, info, _RC)
+         print*, file, line, 'field: '
          call esmf_infoprint(info, _RC)
       end if
       if (allocated(bundle)) then
          call esmf_infogetfromhost(bundle, info, _RC)
+         print*, file, line, 'bundle: '
          call esmf_infoprint(info, _RC)
       end if
       _RETURN(_SUCCESS)
