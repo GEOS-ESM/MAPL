@@ -130,7 +130,6 @@ contains
          character(*), intent(inout) :: iomsg
 
          type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
-         type(ESMF_HConfig) :: val_hconfig
          logical :: first
 
          iostat = 0 ! unless
