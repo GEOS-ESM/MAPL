@@ -263,6 +263,7 @@ contains
       type(AspectMap), target, intent(in) :: map
       integer, optional, intent(out) :: rc
 
+      integer :: status
       class(StateItemAspect), pointer :: poly
 
       poly => map%at(CLASS_ASPECT_ID, _RC)
