@@ -26,18 +26,7 @@ module mapl3g_ExtendTransform
       procedure :: get_transformId
    end type ExtendTransform
 
-   interface ExtendTransform
-      procedure new_ExtendTransform
-   end interface
-
 contains
-
-   function new_ExtendTransform() result(transform)
-      type(ExtendTransform) :: transform
-      ! Explicit initialization to silence compiler warning
-      ! (type is already default-initialized, but NAG requires seeing assignment)
-      transform = ExtendTransform()
-   end function new_ExtendTransform
 
    subroutine initialize(this, importState, exportState, clock, rc)
       use esmf

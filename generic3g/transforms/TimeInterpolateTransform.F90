@@ -24,18 +24,7 @@ module mapl3g_TimeInterpolateTransform
       procedure :: get_transformId
    end type TimeInterpolateTransform
 
-   interface TimeInterpolateTransform
-      module procedure :: new_TimeInterpolateTransform
-   end interface TimeInterpolateTransform
-
 contains
-
-   function new_TimeInterpolateTransform() result(transform)
-      type(TimeInterpolateTransform) :: transform
-      ! Explicit initialization to silence compiler warning
-      ! (type is already default-initialized, but NAG requires seeing assignment)
-      transform = TimeInterpolateTransform()
-   end function new_TimeInterpolateTransform
 
    subroutine initialize(this, importState, exportState, clock, rc)
       class(TimeInterpolateTransform), intent(inout) :: this

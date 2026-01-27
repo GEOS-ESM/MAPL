@@ -414,8 +414,11 @@ contains
       integer, intent(out), optional :: rc
       
       ! Placeholder implementation - not yet implemented
-      ! spec intentionally left unallocated to indicate failure
+      ! Return empty spec to satisfy Fortran requirement for defined result
       integer :: status
+      
+      spec = ModelVerticalGridSpec(names=StringVector(), physical_dimensions=StringVector(), num_levels=0)
+      
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(file_metadata)
       _RETURN(_FAILURE)
