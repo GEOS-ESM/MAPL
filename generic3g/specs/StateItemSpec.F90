@@ -17,6 +17,7 @@ module mapl3g_StateItemSpec
    use mapl3g_ComponentDriver
    use mapl3g_GriddedComponentDriver
    use mapl3g_ComponentDriverVector
+   use mapl3g_GenericCoupler
    use esmf
    use gftl2_stringvector
    implicit none
@@ -26,9 +27,6 @@ module mapl3g_StateItemSpec
    public :: StateItemSpec
    public :: new_StateItemSpec
    public :: StateItemSpecPtr
-#ifndef __GFORTRAN__
-   public :: assignment(=)
-#endif
    type :: StateItemSpec
       private
 
@@ -46,6 +44,8 @@ module mapl3g_StateItemSpec
       procedure :: get_aspect_order ! as string vector
       procedure :: get_aspect_priorities ! default implementation as aid to refactoring
       procedure :: make_extension
+      procedure :: make_extension_base
+      procedure :: make_extension_with_couplers
 
 !#      procedure(I_write_formatted), deferred :: write_formatted
 !##ifndef __GFORTRAN__
@@ -99,12 +99,6 @@ module mapl3g_StateItemSpec
    interface StateItemSpec
       procedure :: new_StateItemSpec
    end interface StateItemSpec
-
-#ifndef __GFORTRAN__
-   interface assignment(=)
-      procedure :: copy_item_spec
-   end interface assignment(=)
-#endif
 
 contains
 
@@ -236,14 +230,14 @@ contains
       type(AspectMapIterator) :: iter
       type(AspectPair), pointer :: pair
 
-
       id = aspect%get_aspect_id()
       iter = this%aspects%find(id)
       pair => iter%of()
       deallocate(pair%second)
+
       allocate(pair%second, source=aspect)
 ! Following line breaks under ifort 2021.13
-!      call this%aspects%insert(aspect%get_aspect_id(), aspect)
+      !      call this%aspects%insert(aspect%get_aspect_id(), aspect)
 
       _RETURN(_SUCCESS)
    end subroutine set_aspect
@@ -289,6 +283,89 @@ contains
       
       _RETURN(_SUCCESS)
    end function make_extension
+
+   ! Factory method to create a base for an extension
+   ! Copies metadata and aspects but NOT producer/consumer chain
+   function make_extension_base(this, rc) result(new_spec)
+      type(StateItemSpec) :: new_spec
+      class(StateItemSpec), target, intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      ! Copy basic metadata using regular assignment
+      ! This includes aspects, which will be copied by AspectMap's assignment
+      new_spec%state_intent = this%state_intent
+      new_spec%aspects = this%aspects
+      new_spec%dependencies = this%dependencies  
+      new_spec%has_deferred_aspects_ = this%has_deferred_aspects_
+      
+      ! Producer/consumers are intentionally NOT copied (left as null/empty)
+      ! This is the key difference from regular assignment
+      
+      _RETURN(_SUCCESS)
+   end function make_extension_base
+
+   ! Factory method to create an extension with couplers
+   ! This creates a new spec that extends this one toward the goal_spec,
+   ! setting up the necessary transform couplers
+   recursive function make_extension_with_couplers(this, goal_spec, rc) result(new_spec)
+      type(StateItemSpec), target :: new_spec
+      class(StateItemSpec), target, intent(inout) :: this
+      type(StateItemSpec), target, intent(in) :: goal_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: i
+      class(ExtensionTransform), allocatable :: transform
+      class(ComponentDriver), pointer :: producer
+      class(ComponentDriver), pointer :: source
+      type(ESMF_GridComp) :: coupler_gridcomp
+      type(AspectId), allocatable :: aspect_ids(:)
+      class(StateItemAspect), pointer :: src_aspect, dst_aspect
+      type(AspectMap), pointer :: other_aspects
+
+      call this%activate(_RC)
+      call this%update_from_payload(_RC)
+
+      new_spec = this%make_extension_base()
+
+      aspect_ids = this%get_aspect_order(goal_spec)
+      do i = 1, size(aspect_ids)
+
+         src_aspect => new_spec%get_aspect(aspect_ids(i), _RC)
+         _ASSERT(associated(src_aspect), 'src aspect not found')
+
+         dst_aspect => goal_spec%get_aspect(aspect_ids(i), _RC)
+         _ASSERT(associated(dst_aspect), 'dst aspect not found')
+
+         _ASSERT(src_aspect%can_connect_to(dst_aspect), 'cannot connect aspect ' // aspect_ids(i)%to_string())
+         if (src_aspect%needs_extension_for(dst_aspect)) then
+            other_aspects => new_spec%get_aspects()
+            allocate(transform, source=src_aspect%make_transform(dst_aspect, other_aspects, rc=status))
+            _VERIFY(status)
+
+            call new_spec%set_aspect(dst_aspect, _RC)
+
+            exit
+         end if
+
+      end do
+
+      if (allocated(transform)) then
+         
+         call new_spec%create(_RC)
+         call new_spec%activate(_RC)
+         source => this%get_producer()
+         coupler_gridcomp = make_coupler(transform, source, _RC)
+         producer => this%add_consumer(GriddedComponentDriver(coupler_gridcomp), _RC)
+         call new_spec%set_producer(producer, _RC)
+
+         _RETURN(_SUCCESS)
+      end if
+
+      _RETURN(_SUCCESS)
+   end function make_extension_with_couplers
 
    ! Will use ESMF so cannot be PURE
    subroutine create(this, rc)
@@ -539,17 +616,6 @@ contains
 
    end subroutine set_geometry
 
-   recursive subroutine copy_item_spec(a, b)
-      type(StateItemSpec), intent(out) :: a
-      type(StateItemSpec), intent(in) :: b
-
-      a%state_intent = b%state_intent
-      a%aspects = b%aspects
-      a%dependencies = b%dependencies
-      a%has_deferred_aspects_ = b%has_deferred_aspects_
-
-   end subroutine copy_item_spec
-
    subroutine check(this, file, line)
       class(StateItemSpec), target, intent(in) :: this
       character(*), intent(in) :: file
@@ -672,12 +738,10 @@ contains
       call class_aspect%get_payload(field=field, bundle=bundle, _RC)
       if (allocated(field)) then
          call esmf_infogetfromhost(field, info, _RC)
-         _HERE, file, line, 'field:'
          call esmf_infoprint(info, _RC)
       end if
       if (allocated(bundle)) then
          call esmf_infogetfromhost(bundle, info, _RC)
-         _HERE, file, line, 'bundle:'
          call esmf_infoprint(info, _RC)
       end if
       _RETURN(_SUCCESS)

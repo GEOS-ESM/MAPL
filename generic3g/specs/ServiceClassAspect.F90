@@ -13,7 +13,7 @@ module mapl3g_ServiceClassAspect
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualConnectionPt
    use mapl3g_ExtensionTransform
-   use mapl3g_StateItemExtension
+   use mapl3g_StateItemSpec
    use mapl3g_NullTransform
    use mapl3g_ESMF_Utilities, only: get_substate
    use mapl_KeywordEnforcer
@@ -238,13 +238,13 @@ contains
       class(StateItemAspect), pointer :: aspect
       class(StateItemSpec), pointer :: spec
       type(VirtualConnectionPt) :: v_pt
-      type(StateItemExtension), pointer :: primary
+      type(StateItemSpec), pointer :: primary
 
       associate (items => this%subscriber_item_names)
         do i = 1, items%size()
            v_pt = VirtualConnectionPt(ESMF_STATEINTENT_INTERNAL, items%of(i))
            primary => this%registry%get_primary_extension(v_pt, _RC)
-           spec => primary%get_spec()
+           spec => primary
            aspect => spec%get_aspect(CLASS_ASPECT_ID, _RC)
            field_aspect = to_FieldClassAspect(aspect, _RC)
            call field_aspect%add_to_bundle(this%payload, _RC)
@@ -263,7 +263,7 @@ contains
       integer :: i, n
       type(StateItemSpecPtr), allocatable :: spec_ptrs(:)
       type(VirtualConnectionPt) :: v_pt
-      type(StateItemExtension), pointer :: primary
+      type(StateItemSpec), pointer :: primary
 
       select type (import)
       type is (ServiceClassAspect)
@@ -274,7 +274,7 @@ contains
               v_pt = VirtualConnectionPt(ESMF_STATEINTENT_INTERNAL, item_names%of(i))
               ! Internal items are always unique and "primary" (owned by user)
               primary => import%registry%get_primary_extension(v_pt, _RC)
-              spec_ptrs(i)%ptr => primary%get_spec()
+              spec_ptrs(i)%ptr => primary
            end do
          end associate
          this%items_to_service = [this%items_to_service, spec_ptrs]

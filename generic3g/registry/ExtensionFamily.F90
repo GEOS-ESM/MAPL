@@ -7,10 +7,9 @@
 
 module mapl3g_ExtensionFamily
    use mapl3g_StateItemSpec
+   use mapl3g_StateItemSpecPtrVector
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
-   use mapl3g_StateItemExtension
-   use mapl3g_StateItemExtensionPtrVector
    use mapl_ErrorHandling
    use gFTL2_StringVector
    implicit none(type,external)
@@ -23,7 +22,7 @@ module mapl3g_ExtensionFamily
    type :: ExtensionFamily
       private
       logical :: has_primary_ = .false.
-      type(StateItemExtensionPtrVector) :: extensions
+      type(StateItemSpecPtrVector) :: specs
    contains
       procedure :: has_primary
       procedure :: get_primary
@@ -54,13 +53,13 @@ contains
 
    function new_ExtensionFamily_primary(primary) result(family)
       type(ExtensionFamily) :: family
-      type(StateItemExtension), pointer, intent(in) :: primary
+      type(StateItemSpec), pointer, intent(in) :: primary
 
-      type(StateItemExtensionPtr) :: wrapper
+      type(StateItemSpecPtr) :: wrapper
 
       family%has_primary_ = .true.
       wrapper%ptr => primary
-      call family%extensions%push_back(wrapper)
+      call family%specs%push_back(wrapper)
 
    end function new_ExtensionFamily_primary
 
@@ -70,64 +69,64 @@ contains
    end function has_primary
 
    function get_primary(this, rc) result(primary)
-      type(StateItemExtension), pointer :: primary
+      type(StateItemSpec), pointer :: primary
       class(ExtensionFamily), target, intent(in) :: this
       integer, optional, intent(out) :: rc
-      type(StateItemExtensionPtr), pointer :: wrapper
+      type(StateItemSpecPtr), pointer :: wrapper
 
       primary => null()
       _ASSERT(this%has_primary_, "No primary item spec")
-      _ASSERT(this%extensions%size() > 0, "No primary item spec")
-      wrapper => this%extensions%front()
+      _ASSERT(this%specs%size() > 0, "No primary item spec")
+      wrapper => this%specs%front()
       primary => wrapper%ptr
       _RETURN(_SUCCESS)
    end function get_primary
 
    function get_extensions(this) result(extensions)
-      type(StateItemExtensionPtrVector), pointer :: extensions
+      type(StateItemSpecPtrVector), pointer :: extensions
       class(ExtensionFamily), target, intent(in) :: this
-      extensions => this%extensions
+      extensions => this%specs
    end function get_extensions
 
    function get_extension(this, i) result(extension)
-      type(StateItemExtension), pointer :: extension
+      type(StateItemSpec), pointer :: extension
       integer, intent(in) :: i
       class(ExtensionFamily), target, intent(in) :: this
 
-      type(StateItemExtensionPtr), pointer :: wrapper
-      wrapper => this%extensions%at(i)
+      type(StateItemSpecPtr), pointer :: wrapper
+      wrapper => this%specs%at(i)
       extension => wrapper%ptr
    end function get_extension
 
    subroutine add_extension(this, extension)
       class(ExtensionFamily), intent(inout) :: this
-      type(StateItemExtension), pointer, intent(in) :: extension
+      class(StateItemSpec), pointer, intent(in) :: extension
 
-      type(StateItemExtensionPtr) :: wrapper
+      type(StateItemSpecPtr) :: wrapper
 
       wrapper%ptr => extension
-      call this%extensions%push_back(wrapper)
+      call this%specs%push_back(wrapper)
 
    end subroutine add_extension
 
    integer function num_variants(this)
       class(ExtensionFamily), intent(in) :: this
-      num_variants = this%extensions%size()
+      num_variants = this%specs%size()
    end function num_variants
 
 
    function find_closest_extension(family, goal_spec, rc) result(closest_extension)
-      type(StateItemExtension), pointer :: closest_extension
+      type(StateItemSpec), pointer :: closest_extension
       class(ExtensionFamily), intent(in) :: family
       class(StateItemSpec), intent(in) :: goal_spec
       integer, optional, intent(out) :: rc
 
-      type(StateItemExtensionPtrVector) :: subgroup, new_subgroup
+      type(StateItemSpecPtrVector) :: subgroup, new_subgroup
       class(StateItemSpec), pointer :: archetype
       integer :: i, j
       integer :: status
-      type(StateItemExtensionPtr) :: extension_ptr
-      type(StateItemExtension), pointer :: primary
+      type(StateItemSpecPtr) :: extension_ptr
+      type(StateItemSpec), pointer :: primary
       class(StateItemSpec), pointer :: spec
       logical :: match
       type(AspectId), allocatable :: aspect_ids(:)
@@ -137,7 +136,7 @@ contains
       closest_extension => null()
       subgroup = family%get_extensions()
       primary => family%get_primary()  ! archetype defines the rules
-      archetype => primary%get_spec()
+      archetype => primary
       ! new
       aspect_ids = archetype%get_aspect_order(goal_spec)
       do i = 1, size(aspect_ids)
@@ -145,10 +144,10 @@ contains
          _ASSERT(associated(dst_aspect), 'expected aspect '// aspect_ids(i)%to_string() //' is missing')
 
          ! Find subset that match current aspect
-         new_subgroup = StateItemExtensionPtrVector()
+         new_subgroup = StateItemSpecPtrVector()
          do j = 1, subgroup%size()
             extension_ptr = subgroup%of(j)
-            spec => extension_ptr%ptr%get_spec()
+            spec => extension_ptr%ptr
 
             src_aspect => spec%get_aspect(aspect_ids(i), _RC)
             _ASSERT(associated(src_aspect),'aspect '// aspect_ids(i)%to_string() // ' not found')
@@ -173,16 +172,16 @@ contains
       type(ExtensionFamily), target, intent(in) :: other
 
       integer :: i, j
-      type(StateItemExtensionPtr) :: extension, other_extension
+      type(StateItemSpecPtr) :: extension, other_extension
 
       outer: do i = 1, other%num_variants()
-         other_extension = other%extensions%of(i)
+         other_extension = other%specs%of(i)
 
          do j = 1, this%num_variants()
-            extension = this%extensions%of(j)
+            extension = this%specs%of(j)
             if (associated(extension%ptr, other_extension%ptr)) cycle outer
          end do
-         call this%extensions%push_back(other_extension)
+         call this%specs%push_back(other_extension)
          
       end do outer
       this%has_primary_ = other%has_primary_
@@ -194,11 +193,11 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(StateItemExtension), pointer :: primary
+      type(StateItemSpec), pointer :: primary
 
       is_deferred = .false.
       primary => this%get_primary(_RC)
-      is_deferred = primary%is_deferred()
+      is_deferred = primary%has_deferred_aspects()
       
       _RETURN(_SUCCESS)
    end function is_deferred
@@ -210,11 +209,9 @@ contains
       class(StateItemSpec), intent(in) :: goal_spec
       integer, optional, intent(out) :: rc
 
-      type(StateItemExtension), pointer :: closest_extension
       integer :: status
 
-      closest_extension => family%find_closest_extension(goal_spec, _RC)
-      closest_spec => closest_extension%get_spec()
+      closest_spec => family%find_closest_extension(goal_spec, _RC)
 
       _RETURN(_SUCCESS)
    end function find_closest_spec
@@ -225,11 +222,9 @@ contains
       class(ExtensionFamily), target, intent(in) :: this
       integer, optional, intent(out) :: rc
 
-      type(StateItemExtension), pointer :: primary
       integer :: status
 
-      primary => this%get_primary(_RC)
-      spec => primary%get_spec()
+      spec => this%get_primary(_RC)
 
       _RETURN(_SUCCESS)
    end function get_primary_spec
@@ -240,10 +235,7 @@ contains
       integer, intent(in) :: i
       class(ExtensionFamily), target, intent(in) :: this
 
-      type(StateItemExtension), pointer :: extension
-
-      extension => this%get_extension(i)
-      spec => extension%get_spec()
+      spec => this%get_extension(i)
    end function get_extension_spec
 
 end module mapl3g_ExtensionFamily

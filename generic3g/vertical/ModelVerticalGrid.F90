@@ -11,7 +11,7 @@ module mapl3g_ModelVerticalGrid
    use mapl3g_StateItemSpec
    use mapl3g_StateItemSpec
    use mapl3g_UngriddedDims
-   use mapl3g_StateItemExtension
+   use mapl3g_StateItemSpec
    use mapl3g_ExtensionFamily
    use mapl3g_ComponentDriver
    use mapl3g_VerticalStaggerLoc
@@ -132,7 +132,7 @@ contains
       
       character(:), allocatable :: short_name
       type(VirtualConnectionPt) :: v_pt
-      type(StateItemExtension), pointer :: primary
+      type(StateItemSpec), pointer :: primary
       type(StateItemSpec), pointer :: spec
       class(StateItemAspect), pointer :: class_aspect
       type(esmf_Field), allocatable :: field
@@ -152,7 +152,7 @@ contains
 
       v_pt = VirtualConnectionPt(state_intent="export", short_name=short_name)
       primary => this%registry%get_primary_extension(v_pt, _RC)
-      spec => primary%get_spec()
+      spec => primary
 
       class_aspect => spec%get_aspect(CLASS_ASPECT_ID, _RC)
       select type (class_aspect)
@@ -205,7 +205,7 @@ contains
       integer :: i, n
       character(:), allocatable :: short_name
       type(VirtualConnectionPt) :: v_pt
-      type(StateItemExtension), pointer :: new_extension
+      type(StateItemSpec), pointer :: new_extension
       type(StateItemSpec), pointer :: primary, new_spec
       type(StateItemSpec), target :: goal_spec
       type(AspectMap), pointer :: aspects
@@ -235,7 +235,7 @@ contains
       
       new_extension => this%registry%extend(v_pt, goal_spec, _RC)
       coupler => new_extension%get_producer()
-      new_spec => new_extension%get_spec()
+      new_spec => new_extension
 
       class_aspect => new_spec%get_aspect(CLASS_ASPECT_ID, _RC)
       select type (class_aspect)

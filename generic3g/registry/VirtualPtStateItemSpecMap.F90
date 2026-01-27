@@ -1,6 +1,6 @@
 module mapl3g_VirtualPtStateItemSpecMap
    use mapl3g_VirtualConnectionPt
-   use mapl3g_StateItemSpec
+   use mapl3g_StateItemSpec, only: StateItemSpec
 
 #define Key VirtualConnectionPt
 #define Key_LT(a,b) (a < b)

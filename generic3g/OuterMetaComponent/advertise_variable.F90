@@ -4,7 +4,6 @@ submodule (mapl3g_OuterMetaComponent) advertise_var_spec_smod
    use mapl3g_Field_API
    use mapl3g_VariableSpec
    use mapl3g_StateItemSpec
-   use mapl3g_StateItemExtension
    use mapl3g_VirtualConnectionPt
    use mapl_ErrorHandling
    implicit none(type,external)
@@ -18,8 +17,7 @@ contains
       
       integer :: status
       type(StateItemSpec), target :: item_spec
-      type(StateItemSpec), pointer :: item_spec_ptr
-      type(StateItemExtension), pointer :: item_extension
+      type(StateItemSpec), pointer :: item_primary
       type(VirtualConnectionPt) :: virtual_pt
       
       item_spec = var_spec%make_StateItemSpec(this%registry, &
@@ -27,11 +25,10 @@ contains
       virtual_pt = var_spec%make_virtualPt()
       call this%registry%add_primary_spec(virtual_pt, item_spec)
       
-      item_extension => this%registry%get_primary_extension(virtual_pt, _RC)
-      item_spec_ptr => item_extension%get_spec() 
+      item_primary => this%registry%get_primary_extension(virtual_pt, _RC)
 
-      call item_spec_ptr%create(_RC)
-      call set_default_activation(item_spec_ptr, var_spec%state_intent, _RC)
+      call item_primary%create(_RC)
+      call set_default_activation(item_primary, var_spec%state_intent, _RC)
 
       _RETURN(_SUCCESS)
 

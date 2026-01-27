@@ -31,7 +31,7 @@ module mapl3g_ExpressionClassAspect
    use mapl3g_VirtualConnectionPtVector
    use mapl3g_ActualConnectionPt
    use mapl3g_StateItemSpec
-   use mapl3g_StateItemExtension
+   use mapl3g_StateItemSpec
 
    use mapl3g_Field_API
    use mapl3g_FieldInfo
@@ -133,7 +133,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(StateItemExtension), pointer :: extension
+      type(StateItemSpec), pointer :: extension
       type(StateItemSpec), pointer :: spec
       type(StringVector) :: expression_variables
       type(StringVectorIterator) :: iter
@@ -145,7 +145,7 @@ contains
       do while (iter /= e)
          variable => iter%of()
          extension => this%registry%get_primary_extension(VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, variable), _RC)
-         spec => extension%get_spec()
+         spec => extension
          call spec%activate()
          call iter%next()
       enddo
@@ -241,7 +241,7 @@ contains
       type(MultiState) :: multi_state
       type(VirtualConnectionPt), pointer :: v_pt
       type(ActualConnectionPt) :: a_pt
-      type(StateItemExtension), pointer :: new_extension
+      type(StateItemSpec), pointer :: new_extension
       type(StateItemSpec), pointer :: new_spec
       type(StateItemSpec), target :: goal_spec
       type(AspectMap), pointer :: aspects
@@ -284,7 +284,7 @@ contains
             if (associated(coupler)) then
                call input_couplers%push_back(coupler)
             end if
-            new_spec => new_extension%get_spec()
+            new_spec => new_extension
 
             class_aspect => new_spec%get_aspect(CLASS_ASPECT_ID, _RC)
             select type(class_aspect)
