@@ -28,9 +28,7 @@ contains
       type(GriddedComponentDriver), pointer :: child
       type(GriddedComponentDriverMapIterator) :: iter
       character(*), parameter :: PHASE_NAME = 'GENERIC::FINALIZE_USER'
-      type(StringVector), pointer :: finalize_phases
-      logical :: found
-      integer :: phase_idx, status
+      integer :: status
   
       call recurse_finalize_(this, phase_idx=GENERIC_FINALIZE_USER, _RC)
 
@@ -39,10 +37,7 @@ contains
       call report_generic_profile(this, _RC)
 
       ! User gridcomp may not have any given phase; not an error condition if not found
-      finalize_phases => this%user_phases_map%at(ESMF_METHOD_FINALIZE, _RC)
-      phase_idx = get_phase_index(finalize_phases, phase_name=phase_name, found=found)
-      _RETURN_UNLESS(found)
-
+      ! run_custom handles phase lookup internally
       call this%run_custom(ESMF_METHOD_FINALIZE, PHASE_NAME, _RC)
 
       ! TODO - release resources
