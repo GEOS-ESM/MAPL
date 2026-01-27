@@ -159,8 +159,6 @@ contains
       class(FixedLevelsVerticalGrid), intent(in) :: this
       class(VerticalGrid), intent(in) :: other
 
-      type(StringVector) :: supported_dims
-
       matches = this%get_num_levels() == other%get_num_levels()
       if (.not. matches) return
 
