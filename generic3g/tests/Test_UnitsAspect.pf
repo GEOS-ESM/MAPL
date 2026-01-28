@@ -10,33 +10,36 @@ module Test_UnitsAspect
    use ESMF_TestMethod_mod
    implicit none
 
+   character(len=*), parameter :: UNITS1='s'
+   character(len=*), parameter :: UNITS2='m'
+
 contains
 
    ! Helper function to create a test field with given units
    function create_test_field(units) result(field)
       type(ESMF_Field) :: field
-      character(len=*), intent(in) :: units
+      character(len=*), optional, intent(in) :: units
       integer :: status
 
       field = ESMF_FieldEmptyCreate(name='test_field', _RC)
-      call mapl_FieldSet(field, units=units, _RC)
+      if(present(units)) then
+         call MAPL_FieldSet(field, units=units, _RC)
+      end if
 
    end function create_test_field
 
    ! Helper function to create a test field bundle with given units
    function create_test_bundle(units) result(bundle)
       type(ESMF_FieldBundle) :: bundle
-      character(len=*), intent(in) :: units
+      character(len=*), optional, intent(in) :: units
       integer :: status
 
       bundle = ESMF_FieldBundleCreate(name='test_bundle', _RC)
-      call mapl_FieldBundleSet(bundle, units=units, _RC)
+      if(present(units)) then
+         call MAPL_FieldBundleSet(bundle, units=units, _RC)
+      end if
 
    end function create_test_bundle
-
-   ! ========================================================================
-   ! Tests for update_from_payload with ESMF_Field
-   ! ========================================================================
 
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_update_from_payload_field_empty(this)
@@ -44,89 +47,15 @@ contains
       class(ESMF_TestMethod), intent(inout) :: this
       type(UnitsAspect) :: aspect
       type(ESMF_Field) :: field
-      character(len=:), allocatable :: retrieved_units
       integer :: status
 
-      aspect = UnitsAspect('kg')
-      
-      field = create_test_field('')
-      
+      aspect = UnitsAspect(UNITS1)
+      field = create_test_field()
       call aspect%update_from_payload(field=field, _RC)
-      
-      retrieved_units = aspect%get_units(_RC)
-      @assertEqual('', retrieved_units)
-      
+      @assertTrue(aspect%is_mirror(), 'aspect should be mirror.')
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+
    end subroutine test_update_from_payload_field_empty
-
-   @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_update_from_payload_field_simple(this)
-      ! Test updating UnitsAspect from an ESMF_Field with simple units
-      class(ESMF_TestMethod), intent(inout) :: this
-      type(UnitsAspect) :: aspect
-      type(ESMF_Field) :: field
-      character(len=:), allocatable :: retrieved_units
-      integer :: status
-
-      aspect = UnitsAspect()
-      
-      field = create_test_field('m')
-      
-      call aspect%update_from_payload(field=field, _RC)
-      
-      retrieved_units = aspect%get_units(_RC)
-      @assertEqual('m', retrieved_units)
-      
-      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
-   end subroutine test_update_from_payload_field_simple
-
-   @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_update_from_payload_field_compound(this)
-      ! Test updating UnitsAspect from an ESMF_Field with compound units
-      class(ESMF_TestMethod), intent(inout) :: this
-      type(UnitsAspect) :: aspect
-      type(ESMF_Field) :: field
-      character(len=:), allocatable :: retrieved_units
-      integer :: status
-
-      aspect = UnitsAspect()
-      
-      field = create_test_field('kg m-2 s-1')
-      
-      call aspect%update_from_payload(field=field, _RC)
-      
-      retrieved_units = aspect%get_units(_RC)
-      @assertEqual('kg m-2 s-1', retrieved_units)
-      
-      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
-   end subroutine test_update_from_payload_field_compound
-
-   @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_update_from_payload_overwrite_existing(this)
-      ! Test that update_from_payload overwrites existing units
-      class(ESMF_TestMethod), intent(inout) :: this
-      type(UnitsAspect) :: aspect
-      type(ESMF_Field) :: field
-      character(len=:), allocatable :: retrieved_units
-      integer :: status
-
-      aspect = UnitsAspect('K')
-      retrieved_units = aspect%get_units(_RC)
-      @assertEqual('K', retrieved_units)
-      
-      field = create_test_field('Pa')
-      
-      call aspect%update_from_payload(field=field, _RC)
-      
-      retrieved_units = aspect%get_units(_RC)
-      @assertEqual('Pa', retrieved_units)
-      
-      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
-   end subroutine test_update_from_payload_overwrite_existing
-
-   ! ========================================================================
-   ! Tests for update_from_payload with ESMF_FieldBundle
-   ! ========================================================================
 
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_update_from_payload_bundle_empty(this)
@@ -134,24 +63,37 @@ contains
       class(ESMF_TestMethod), intent(inout) :: this
       type(UnitsAspect) :: aspect
       type(ESMF_FieldBundle) :: bundle
-      character(len=:), allocatable :: retrieved_units
       integer :: status
 
-      aspect = UnitsAspect('m/s')
-      
-      bundle = create_test_bundle('')
-      
+      aspect = UnitsAspect(UNITS1)
+      bundle = create_test_bundle()
       call aspect%update_from_payload(bundle=bundle, _RC)
-      
-      retrieved_units = aspect%get_units(_RC)
-      @assertEqual('', retrieved_units)
-      
+      @assertTrue(aspect%is_mirror(), 'aspect should be mirror')
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+
    end subroutine test_update_from_payload_bundle_empty
 
    @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_update_from_payload_bundle_simple(this)
-      ! Test updating UnitsAspect from an ESMF_FieldBundle with simple units
+   subroutine test_update_from_payload_field(this)
+      ! Test updating UnitsAspect from an ESMF_Field with units
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UnitsAspect) :: aspect
+      type(ESMF_Field) :: field
+      character(len=:), allocatable :: retrieved_units
+      integer :: status
+
+      aspect = UnitsAspect()
+      field = create_test_field(UNITS1)
+      call aspect%update_from_payload(field=field, _RC)
+      retrieved_units = aspect%get_units(_RC)
+      @assertEqual(UNITS1, retrieved_units)
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+
+   end subroutine test_update_from_payload_field
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_bundle(this)
+      ! Test updating UnitsAspect from an ESMF_FieldBundle with units
       class(ESMF_TestMethod), intent(inout) :: this
       type(UnitsAspect) :: aspect
       type(ESMF_FieldBundle) :: bundle
@@ -159,44 +101,56 @@ contains
       integer :: status
 
       aspect = UnitsAspect()
-      
-      bundle = create_test_bundle('kg')
-      
+      bundle = create_test_bundle(UNITS1)
       call aspect%update_from_payload(bundle=bundle, _RC)
-      
       retrieved_units = aspect%get_units(_RC)
-      @assertEqual('kg', retrieved_units)
-      
+      @assertEqual(UNITS1, retrieved_units)
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
-   end subroutine test_update_from_payload_bundle_simple
+
+   end subroutine test_update_from_payload_bundle
 
    @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_update_from_payload_bundle_compound(this)
-      ! Test updating UnitsAspect from an ESMF_FieldBundle with compound units
+   subroutine test_update_from_payload_overwrite_existing_field(this)
+      ! Test that update_from_payload overwrites existing field units
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UnitsAspect) :: aspect
+      type(ESMF_Field) :: field
+      character(len=:), allocatable :: retrieved_units
+      integer :: status
+
+      aspect = UnitsAspect(UNITS1)
+      retrieved_units = aspect%get_units(_RC)
+      @assertEqual(UNITS1, retrieved_units)
+      field = create_test_field(UNITS2)
+      call aspect%update_from_payload(field=field, _RC)
+      retrieved_units = aspect%get_units(_RC)
+      @assertEqual(UNITS2, retrieved_units)
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+
+   end subroutine test_update_from_payload_overwrite_existing_field
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_overwrite_existing_bundle(this)
+      ! Test that update_from_payload overwrites existing bundle units
       class(ESMF_TestMethod), intent(inout) :: this
       type(UnitsAspect) :: aspect
       type(ESMF_FieldBundle) :: bundle
       character(len=:), allocatable :: retrieved_units
       integer :: status
 
-      aspect = UnitsAspect()
-      
-      bundle = create_test_bundle('W m-2')
-      
-      call aspect%update_from_payload(bundle=bundle, _RC)
-      
+      aspect = UnitsAspect(UNITS1)
       retrieved_units = aspect%get_units(_RC)
-      @assertEqual('W m-2', retrieved_units)
-      
+      @assertEqual(UNITS1, retrieved_units)
+      bundle = create_test_bundle(UNITS2)
+      call aspect%update_from_payload(bundle=bundle, _RC)
+      retrieved_units = aspect%get_units(_RC)
+      @assertEqual(UNITS2, retrieved_units)
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
-   end subroutine test_update_from_payload_bundle_compound
 
-   ! ========================================================================
-   ! Tests for update_payload with ESMF_Field
-   ! ========================================================================
+   end subroutine test_update_from_payload_overwrite_existing_bundle
 
    @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_update_payload_field_simple(this)
+   subroutine test_update_payload_field(this)
       ! Test updating ESMF_Field units from UnitsAspect
       class(ESMF_TestMethod), intent(inout) :: this
       type(UnitsAspect) :: aspect
@@ -204,45 +158,17 @@ contains
       character(len=:), allocatable :: retrieved_units
       integer :: status
 
-      aspect = UnitsAspect('m/s')
-      
-      field = create_test_field('kg')
-      
+      aspect = UnitsAspect(UNITS2)
+      field = create_test_field(UNITS1)
       call aspect%update_payload(field=field, _RC)
-      
-      call mapl_FieldGet(field, units=retrieved_units, _RC)
-      @assertEqual('m/s', retrieved_units)
-      
+      call MAPL_FieldGet(field, units=retrieved_units, _RC)
+      @assertEqual(UNITS2, retrieved_units)
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
-   end subroutine test_update_payload_field_simple
+
+   end subroutine test_update_payload_field
 
    @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_update_payload_field_compound(this)
-      ! Test updating ESMF_Field with compound units from UnitsAspect
-      class(ESMF_TestMethod), intent(inout) :: this
-      type(UnitsAspect) :: aspect
-      type(ESMF_Field) :: field
-      character(len=:), allocatable :: retrieved_units
-      integer :: status
-
-      aspect = UnitsAspect('kg m-2 s-1')
-      
-      field = create_test_field('Pa')
-      
-      call aspect%update_payload(field=field, _RC)
-      
-      call mapl_FieldGet(field, units=retrieved_units, _RC)
-      @assertEqual('kg m-2 s-1', retrieved_units)
-      
-      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
-   end subroutine test_update_payload_field_compound
-
-   ! ========================================================================
-   ! Tests for update_payload with ESMF_FieldBundle
-   ! ========================================================================
-
-   @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_update_payload_bundle_simple(this)
+   subroutine test_update_payload_bundle(this)
       ! Test updating ESMF_FieldBundle units from UnitsAspect
       class(ESMF_TestMethod), intent(inout) :: this
       type(UnitsAspect) :: aspect
@@ -250,111 +176,125 @@ contains
       character(len=:), allocatable :: retrieved_units
       integer :: status
 
-      aspect = UnitsAspect('K')
-      
-      bundle = create_test_bundle('m')
-      
+      aspect = UnitsAspect(UNITS2)
+      bundle = create_test_bundle(UNITS1)
       call aspect%update_payload(bundle=bundle, _RC)
-      
-      call mapl_FieldBundleGet(bundle, units=retrieved_units, _RC)
-      @assertEqual('K', retrieved_units)
-      
+      call MAPL_FieldBundleGet(bundle, units=retrieved_units, _RC)
+      @assertEqual(UNITS2, retrieved_units)
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
-   end subroutine test_update_payload_bundle_simple
+
+   end subroutine test_update_payload_bundle
 
    @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_update_payload_bundle_compound(this)
-      ! Test updating ESMF_FieldBundle with compound units from UnitsAspect
-      class(ESMF_TestMethod), intent(inout) :: this
-      type(UnitsAspect) :: aspect
-      type(ESMF_FieldBundle) :: bundle
-      character(len=:), allocatable :: retrieved_units
-      integer :: status
-
-      aspect = UnitsAspect('W m-2')
-      
-      bundle = create_test_bundle('kg')
-      
-      call aspect%update_payload(bundle=bundle, _RC)
-      
-      call mapl_FieldBundleGet(bundle, units=retrieved_units, _RC)
-      @assertEqual('W m-2', retrieved_units)
-      
-      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
-   end subroutine test_update_payload_bundle_compound
-
-   ! ========================================================================
-   ! Roundtrip tests
-   ! ========================================================================
-
-   @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_roundtrip_field(this)
-      ! Test roundtrip: aspect -> field -> aspect
+   subroutine test_update_payload_field_empty(this)
+      ! Test updating ESMF_Field units from UnitsAspect
       class(ESMF_TestMethod), intent(inout) :: this
       type(UnitsAspect) :: aspect
       type(ESMF_Field) :: field
       character(len=:), allocatable :: retrieved_units
       integer :: status
 
-      aspect = UnitsAspect('m/s')
-      
-      field = ESMF_FieldEmptyCreate(name='test_field', _RC)
-      
+      aspect = UnitsAspect()
+      field = create_test_field(UNITS1)
       call aspect%update_payload(field=field, _RC)
-      call aspect%update_from_payload(field=field, _RC)
-      
-      retrieved_units = aspect%get_units(_RC)
-      @assertEqual('m/s', retrieved_units)
-      
+      call MAPL_FieldGet(field, units=retrieved_units, _RC)
+      @assertFalse(allocated(retrieved_units), 'units should not be allocated.')
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+
+   end subroutine test_update_payload_field_empty
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_bundle_empty(this)
+      ! Test updating ESMF_FieldBundle units from UnitsAspect
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UnitsAspect) :: aspect
+      type(ESMF_FieldBundle) :: bundle
+      character(len=:), allocatable :: retrieved_units
+      integer :: status
+
+      aspect = UnitsAspect()
+      bundle = create_test_bundle(UNITS1)
+      call aspect%update_payload(bundle=bundle, _RC)
+      call MAPL_FieldBundleGet(bundle, units=retrieved_units, _RC)
+      @assertFalse(allocated(retrieved_units), 'units should not be allocated. ' // retrieved_units)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+
+   end subroutine test_update_payload_bundle_empty
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_roundtrip_field(this)
+      ! Test roundtrip: aspect -> field -> aspect
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UnitsAspect) :: aspect1, aspect2
+      type(ESMF_Field) :: field
+      character(len=:), allocatable :: retrieved_units
+      integer :: status
+
+      aspect1 = UnitsAspect(UNITS2)
+      aspect2 = UnitsAspect(UNITS1)
+      field = ESMF_FieldEmptyCreate(name='test_field', _RC)
+      call aspect1%update_payload(field=field, _RC)
+      call aspect2%update_from_payload(field=field, _RC)
+      retrieved_units = aspect2%get_units(_RC)
+      @assertEqual(UNITS2, retrieved_units)
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+
    end subroutine test_roundtrip_field
 
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_roundtrip_bundle(this)
       ! Test roundtrip: aspect -> bundle -> aspect
       class(ESMF_TestMethod), intent(inout) :: this
-      type(UnitsAspect) :: aspect
+      type(UnitsAspect) :: aspect1, aspect2
       type(ESMF_FieldBundle) :: bundle
       character(len=:), allocatable :: retrieved_units
       integer :: status
 
-      aspect = UnitsAspect('Pa')
-      
+      aspect1 = UnitsAspect(UNITS2)
+      aspect2 = UnitsAspect(UNITS1)
       bundle = ESMF_FieldBundleCreate(name='test_bundle', _RC)
-      
-      call aspect%update_payload(bundle=bundle, _RC)
-      call aspect%update_from_payload(bundle=bundle, _RC)
-      
-      retrieved_units = aspect%get_units(_RC)
-      @assertEqual('Pa', retrieved_units)
-      
+      call aspect1%update_payload(bundle=bundle, _RC)
+      call aspect2%update_from_payload(bundle=bundle, _RC)
+      retrieved_units = aspect2%get_units(_RC)
+      @assertEqual(UNITS2, retrieved_units)
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+
    end subroutine test_roundtrip_bundle
 
-   ! ========================================================================
-   ! Edge case tests
-   ! ========================================================================
-
    @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_empty_units_roundtrip(this)
+   subroutine test_empty_units_roundtrip_field(this)
       ! Test that empty units work correctly in roundtrip
       class(ESMF_TestMethod), intent(inout) :: this
-      type(UnitsAspect) :: aspect
+      type(UnitsAspect) :: aspect1, aspect2
       type(ESMF_Field) :: field
-      character(len=:), allocatable :: retrieved_units
       integer :: status
 
-      aspect = UnitsAspect('')
-      
+      aspect1 = UnitsAspect()
+      aspect2 = UnitsAspect(UNITS1)
       field = ESMF_FieldEmptyCreate(name='test_field', _RC)
-      
-      call aspect%update_payload(field=field, _RC)
-      call aspect%update_from_payload(field=field, _RC)
-      
-      retrieved_units = aspect%get_units(_RC)
-      @assertEqual('', retrieved_units)
-      
+      call aspect1%update_payload(field=field, _RC)
+      call aspect2%update_from_payload(field=field, _RC)
+      @assertTrue(aspect2%is_mirror(), 'aspect2 should be mirror.')
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
-   end subroutine test_empty_units_roundtrip
+
+   end subroutine test_empty_units_roundtrip_field
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_empty_units_roundtrip_bundle(this)
+      ! Test that empty units work correctly in roundtrip
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UnitsAspect) :: aspect1, aspect2
+      type(ESMF_Field) :: field
+      integer :: status
+
+      aspect1 = UnitsAspect()
+      aspect2 = UnitsAspect(UNITS1)
+      field = ESMF_FieldEmptyCreate(name='test_field', _RC)
+      call aspect1%update_payload(field=field, _RC)
+      call aspect2%update_from_payload(field=field, _RC)
+      @assertTrue(aspect2%is_mirror(), 'aspect2 should be mirror.')
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+
+   end subroutine test_empty_units_roundtrip_bundle
 
 end module Test_UnitsAspect

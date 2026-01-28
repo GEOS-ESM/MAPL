@@ -26,6 +26,7 @@ module mapl3g_FieldInfo
    public :: FieldInfoSetInternal
    public :: FieldInfoGetInternal
    public :: FieldInfoCopyShared
+   public :: FieldInfoRemoveInternal
 
    interface FieldInfoSetShared
       procedure info_field_set_shared_i4
@@ -51,6 +52,10 @@ module mapl3g_FieldInfo
       procedure :: field_info_copy_shared
    end interface FieldInfoCopyShared
 
+   interface FieldInfoRemoveInternal
+      procedure :: field_info_remove_internal
+   end interface FieldInfoRemoveInternal
+
    character(*), parameter :: KEY_TYPEKIND = "/typekind"
    character(*), parameter :: KEY_UNITS = "/units"
    character(*), parameter :: KEY_ATTRIBUTES = "/attributes"
@@ -72,6 +77,7 @@ module mapl3g_FieldInfo
 
    character(*), parameter :: KEY_RESTART_MODE = "/restart_mode"
    character(*), parameter :: KEY_HAS_DEFERRED_ASPECTS = "/has_deferred_aspects"
+   character(len=*), parameter :: DELIMITER = '/'
 
 contains
 
@@ -107,6 +113,7 @@ contains
       type(ESMF_Info) :: ungridded_info
       character(:), allocatable :: namespace_
       character(:), allocatable :: str
+      logical :: isPresent
 
       namespace_ = INFO_INTERNAL_NAMESPACE
       if (present(namespace)) then
@@ -370,6 +377,34 @@ contains
       _RETURN(_SUCCESS)
    end subroutine field_info_get_internal_restart_mode
 
+   subroutine field_info_remove_internal(info, unusable, namespace, units, rc)
+      type(ESMF_Info), intent(inout) :: info
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(*), optional, intent(in) :: namespace
+      logical, optional, intent(in) :: units
+      integer, optional, intent(out) :: rc
+      integer :: status
+      logical :: isPresent
+      character(len=:), allocatable :: namespace_
+      character(len=:), allocatable :: full_key
+
+      namespace_ = INFO_INTERNAL_NAMESPACE
+      if (present(namespace)) then
+         namespace_ = namespace
+      end if
+
+      if(present(units)) then
+         full_key = namespace_ // KEY_UNITS
+         isPresent = units .and. ESMF_InfoIsPresent(info, key=full_key, _RC)
+         if(isPresent) then
+            call ESMF_InfoRemove(info, keyParent=get_parent(full_key), keyChild=get_child(full_key), _RC)
+         end if
+      end if
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine field_info_remove_internal 
+
    subroutine info_field_get_shared_i4(field, key, value, unusable, rc)
       type(ESMF_Field), intent(in) :: field
       character(*), intent(in) :: key
@@ -455,11 +490,11 @@ contains
       character(*), intent(in) :: key
       character(len(namespace)+len(key)+1) :: full_key
 
-      if (key(1:1) == '/') then
+      if (key(1:1) == DELIMITER) then
          full_key = namespace // key
          return
       end if
-      full_key = namespace // '/' //key
+      full_key = namespace // DELIMITER //key
 
    end function concat
 
@@ -507,5 +542,29 @@ contains
       end select
 
    end function to_typekind
+
+   function get_parent(full_key) result(parent)
+      character(len=:), allocatable :: parent
+      character(len=*), intent(in) :: full_key
+      integer :: i
+
+      parent = trim(full_key)
+      i = index(parent, DELIMITER, .TRUE.)
+      if(i>1) parent = parent(:i-1)
+
+   end function get_parent
+
+   function get_child(full_key) result(child)
+      character(len=:), allocatable :: child
+      character(len=*), intent(in) :: full_key
+      character(len=:), allocatable :: s
+      integer :: i
+
+      child = ''
+      s = trim(full_key)
+      i = index(s, DELIMITER, .TRUE.)
+      if(i>1) child = s(i+len(DELIMITER):)
+
+   end function get_child
 
 end module mapl3g_FieldInfo

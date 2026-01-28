@@ -9,6 +9,8 @@ module mapl3g_UnitsAspect
    use mapl3g_NullTransform
    use mapl3g_Field_API
    use mapl3g_FieldBundle_API
+   use mapl3g_FieldInfo, only: FieldInfoRemoveInternal
+   use mapl3g_FieldInfo, only: FieldInfoGetInternal !wdb fixme deleteme 
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use udunits2f, only: are_convertible
@@ -228,8 +230,35 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(ESMF_Info) :: info
+      type(ESMF_Info) :: info1 !wdb fixme deleteme 
+      character(len=:), allocatable :: units_ !wdb fixme deleteme 
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
+
+      if(this%is_mirror()) then
+         if(present(field)) then
+            call ESMF_InfoGetFromHost(field, info, _RC)
+            call FieldInfoRemoveInternal(info, units=.TRUE., _RC)
+         else
+            _HERE, 'Bundle Mirror. Get Info'
+            call ESMF_InfoGetFromHost(bundle, info, _RC)
+            call FieldInfoRemoveInternal(info, units=.TRUE., _RC)
+            !wdb fixme deleteme 
+            call ESMF_InfoGetFromHost(bundle, info1, _RC)
+            call FieldInfoGetInternal(info1, units=units_, _RC)
+            if(allocated(units_)) then
+               _HERE, 'units_ allocated'
+               _HERE, 'units_ == "' // units_ // '"'
+            else
+               _HERE, 'units_ not allocated'
+            end if
+            !wdb fixme deleteme END
+
+            _HERE, 'Got Info'
+         end if
+         _RETURN(_SUCCESS)
+      end if
 
       if (present(field)) then
          call mapl_FieldSet(field, units=this%units, _RC)
