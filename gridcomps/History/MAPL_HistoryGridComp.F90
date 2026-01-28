@@ -2641,6 +2641,37 @@ ENDDO PARSER
        call ESMF_ConfigDestroy(cfg, _RC)
    end do
 
+
+   ! Sanity check for averaged collection
+   block
+     integer :: ncpls
+     logical :: alarmsAgree
+     logical :: errorsFound
+     type(ESMF_Alarm), allocatable :: cplAlarms(:)
+     
+     if( MAPL_AM_I_ROOT() ) then
+        errorsFound = .false.
+        do n=1, nlist
+           if (list(n)%disabled) cycle
+           if (IntState%average(n)) then
+              ncpls = size(IntState%srcs(n)%spec)
+              allocate(cplAlarms(ncpls))
+              call MAPL_CplGetAlarms(IntState%ccs(n), cplAlarms, _RC) 
+              ! assert that his_alarm and coupler's alarms agree
+              alarmsAgree = checkAlarms(list(n)%his_alarm, cplAlarms, _RC)
+              deallocate(cplAlarms)
+              if (.not. alarmsAgree) then
+                 errorsFound = .true.
+                 print *, 'ERROR: History and Averaging coupler alarms disagree.' // &
+                      'Check REF_TIME for '//trim(list(n)%collection)
+              end if
+           end if
+        end do
+
+        _ASSERT(.not.errorsFound, "Errors in collections REF_TIME. For details, see above.")
+     end if
+   end block
+
 ! Echo History List Data Structure
 ! --------------------------------
 
@@ -2763,6 +2794,33 @@ ENDDO PARSER
     _RETURN(ESMF_SUCCESS)
 
   contains
+
+    function checkAlarms(alarm, cplalarms, rc) result(agree)
+      logical :: agree
+      type(ESMF_Alarm), intent(IN) :: alarm
+      type(ESMF_Alarm), intent(IN) :: cplalarms(:)
+      integer, optional, intent(OUT) :: rc
+
+      integer :: status
+      integer :: i, n  
+      type(ESMF_Time) :: ringTime, rt
+      type(ESMF_TimeInterval) :: ringInterval, ri
+      
+      n = size(cplalarms)
+      agree = .false.
+
+      call ESMF_AlarmGet(alarm, ringTime=ringTime, ringInterval=ringInterval, _RC)
+      call ESMF_AlarmGet(alarm, ringTime=ringTime, ringInterval=ringInterval, _RC)
+      do i = 1, n
+         call ESMF_AlarmGet(cplalarms(i), ringTime=rt, ringInterval=ri, _RC)
+         if (ringTime /= rt .or. ringInterval /= ri) then
+            _RETURN(ESMF_SUCCESS)
+         end if
+      end do
+      agree = .true.
+
+      _RETURN(ESMF_SUCCESS)
+    end function checkAlarms
 
     subroutine wildCardExpand(rc)
       integer, optional, intent(out) :: rc
@@ -3442,7 +3500,6 @@ ENDDO PARSER
        enddo
 
        end subroutine parse_fields
-
 
  end subroutine Initialize
 
