@@ -2653,7 +2653,7 @@ ENDDO PARSER
         errorsFound = .false.
         do n=1, nlist
            if (list(n)%disabled) cycle
-           if (IntState%average(n)) then
+           if (.not. IntState%average(n)) cycle
               ncpls = size(IntState%srcs(n)%spec)
               allocate(cplAlarms(ncpls))
               call MAPL_CplGetAlarms(IntState%ccs(n), cplAlarms, _RC) 
