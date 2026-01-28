@@ -24,6 +24,7 @@ module mapl3g_FieldClassAspect
    use mapl3g_ESMF_Utilities, only: get_substate
 
    use mapl3g_Field_API
+   use mapl3g_FieldBundle_API
    use mapl3g_FieldInfo, only: FieldInfoSetInternal
    use mapl3g_RestartModes, only: RestartMode
 
@@ -138,24 +139,16 @@ contains
    end function get_aspect_order
 
 
-   subroutine create(this, other_aspects, handle, rc)
+   subroutine create(this, other_aspects, rc)
       class(FieldClassAspect), intent(inout) :: this
       type(AspectMap), intent(in) :: other_aspects
-      integer, optional, intent(in) :: handle(:)
       integer, optional, intent(out) :: rc
 
-      type(ESMF_Info) :: info
-      type(AspectId), allocatable :: ids(:)
-      integer :: i
-      class(StateItemAspect), pointer :: aspect
       integer :: status
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
-      _RETURN_UNLESS(present(handle))
 
-      call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldInfoSetInternal(info, spec_handle=handle, _RC)
-      call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
+      call mapl_FieldSet(this%payload, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC) 
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
@@ -182,7 +175,6 @@ contains
       integer :: status
       type(ESMF_FieldStatus_Flag) :: fstatus
 
-      type(GeomAspect) :: geom_aspect
       type(ESMF_Geom), allocatable :: geom
       type(HorizontalDimsSpec) :: horizontal_dims_spec
       integer :: dim_count
@@ -207,46 +199,12 @@ contains
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _RETURN_IF(fstatus == ESMF_FIELDSTATUS_COMPLETE)
 
-
-      num_levels = 0
-      call mapl_FieldGet(this%payload, &
-           geom=geom, &
-           num_levels=num_levels, &
-           vert_staggerloc=vertical_stagger, &
-           ungridded_dims=ungridded_dims, &
-           _RC)
-
-      if (num_levels > 0) then
-         num_field_levels = num_levels
-      end if
-       
-      call ESMF_GeomGet(geom, dimCount=dim_count, _RC)
-      allocate(grid_to_field_map(dim_count), source=0)
-      horizontal_dims_spec = geom_aspect%get_horizontal_dims_spec(_RC)
-      _ASSERT(horizontal_dims_spec /= HORIZONTAL_DIMS_UNKNOWN, "should be one of GEOM/NONE")
-      if (horizontal_dims_spec == HORIZONTAL_DIMS_GEOM) then
-         grid_to_field_map = [(idim, idim=1,dim_count)]
-      end if
-
-
-      units_aspect = to_UnitsAspect(other_aspects, _RC)
-      units = units_aspect%get_units(_RC)
-
-      typekind_aspect = to_TypekindAspect(other_aspects, _RC)
-      typekind = typekind_aspect%get_typekind()
-
-      call MAPL_FieldEmptyComplete(this%payload, &
-           typekind=typekind, &
-           gridToFieldMap=grid_to_field_map, &
-           ungridded_dims=ungridded_dims, &
-           num_levels=num_field_levels, &
-           vert_staggerLoc=vertical_stagger, &
-           units=units, &
+      call mapl_FieldSet(this%payload, &
            standard_name=this%standard_name, &
            long_name=this%long_name, &
            _RC)
-      call ESMF_FieldGet(this%payload, status=fstatus, _RC)
-      _ASSERT(fstatus == ESMF_FIELDSTATUS_COMPLETE, 'ESMF field status problem.')
+
+      call mapl_FieldEmptyComplete(this%payload, _RC)
 
       if (allocated(this%default_value)) then
          call FieldSet(this%payload, this%default_value, _RC)
@@ -254,7 +212,6 @@ contains
 
       _RETURN(ESMF_SUCCESS)
    end subroutine allocate
-
 
    subroutine destroy(this, rc)
       class(FieldClassAspect), intent(inout) :: this
@@ -441,7 +398,6 @@ contains
       integer :: status
 
       call ESMF_FieldBundleAdd(field_bundle, [this%payload], multiflag=.true., _RC)
-
 
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle

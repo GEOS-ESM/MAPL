@@ -10,16 +10,16 @@ module mapl3g_SimpleConnection
    use mapl3g_ActualConnectionPt
    use mapl3g_ActualPtVec_Map
    use mapl3g_GriddedComponentDriver
-   use mapl3g_StateItemExtension
-   use mapl3g_StateItemExtensionVector
-   use mapl3g_StateItemExtensionPtrVector
+   use mapl3g_StateItemSpec
+   use mapl3g_StateItemSpecVector
+   use mapl3g_StateItemSpecPtrVector
    use mapl3g_MultiState
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use gFTL2_StringVector, only: StringVector
    use esmf
 
-   implicit none
+   implicit none(type,external)
    private
 
    public :: SimpleConnection
@@ -73,8 +73,8 @@ contains
 
       type(StateRegistry), pointer :: src_registry, dst_registry
       type(ConnectionPt) :: src_pt, dst_pt
-      type(StateItemExtensionPtr), target, allocatable :: src_extensions(:), dst_extensions(:)
-      type(StateItemExtension), pointer :: src_extension, dst_extension
+      type(StateItemSpecPtr), target, allocatable :: src_extensions(:), dst_extensions(:)
+      type(StateItemSpec), pointer :: src_extension, dst_extension
       type(StateItemSpec), pointer :: spec
       integer :: i
       integer :: status
@@ -89,20 +89,20 @@ contains
       _ASSERT(associated(dst_registry), 'Unknown destination registry')
         
       _ASSERT(dst_registry%has_virtual_pt(dst_pt%v_pt), "connection to unknown src_pt")
-      dst_extensions = dst_registry%get_extensions(dst_pt%v_pt, _RC)
+      dst_extensions = dst_registry%get_specs(dst_pt%v_pt, _RC)
       _ASSERT(src_registry%has_virtual_pt(src_pt%v_pt), "connection to unknown src_pt")
-      src_extensions = src_registry%get_extensions(src_pt%v_pt, _RC)
+      src_extensions = src_registry%get_specs(src_pt%v_pt, _RC)
 
       do i = 1, size(dst_extensions)
          dst_extension => dst_extensions(i)%ptr
-         spec => dst_extension%get_spec()
+         spec => dst_extension
 !#         _ASSERT(.not. spec%is_active(), 'Imports can only be activated by one connection.')
          call spec%activate(_RC)
       end do
 
       do i = 1, size(src_extensions)
          src_extension => src_extensions(i)%ptr
-         spec => src_extension%get_spec()
+         spec => src_extension
          call spec%activate(_RC)
          call activate_dependencies(src_extension, src_registry, _RC)
       end do
@@ -151,14 +151,14 @@ contains
       integer, optional, intent(out) :: rc
 
 
-      type(StateItemExtensionPtr), target, allocatable :: dst_extensions(:)
-      type(StateItemExtension), pointer :: dst_extension
+      type(StateItemSpecPtr), target, allocatable :: dst_extensions(:)
+      type(StateItemSpec), pointer :: dst_extension
       type(StateItemSpec), pointer :: dst_spec
       integer :: i
       integer :: status
       type(ConnectionPt) :: src_pt, dst_pt
-      type(StateItemExtension), pointer :: last_extension
-      type(StateItemExtension), pointer :: new_extension
+      type(StateItemSpec), pointer :: last_extension
+      type(StateItemSpec), pointer :: new_extension
       type(StateItemSpec), pointer :: new_spec
       type(ActualConnectionPt) :: effective_pt
       type(ActualConnectionPt) :: a_pt
@@ -167,7 +167,7 @@ contains
       src_pt = this%get_source()
 
       dst_pt = this%get_destination()
-      dst_extensions = dst_registry%get_extensions(dst_pt%v_pt, _RC)
+      dst_extensions = dst_registry%get_specs(dst_pt%v_pt, _RC)
 
       ! Very useful for debugging:
 !#      _HERE, 'src component: ', src_pt%component_name, ' :: ', src_pt%v_pt
@@ -175,14 +175,14 @@ contains
       do i = 1, size(dst_extensions)
 
          dst_extension => dst_extensions(i)%ptr
-         dst_spec => dst_extension%get_spec()
+         dst_spec => dst_extension
 
          new_extension => src_registry%extend(src_pt%v_pt, dst_spec, _RC)
          ! In the case of wildcard specs, we need to pass an actual_pt to
          ! the dst_spec to support multiple matches.  A bit of a kludge.
          effective_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
               src_pt%v_pt%get_comp_name()//'/'//src_pt%v_pt%get_esmf_name()))
-         new_spec => new_extension%get_spec()
+         new_spec => new_extension
 
          call dst_spec%connect(new_spec, effective_pt, _RC)
          if (new_extension%has_producer()) then
@@ -198,24 +198,24 @@ contains
    ! other exports to be computed even when no external connection is made to those
    ! exports.
    subroutine activate_dependencies(extension, registry, rc)
-      type(StateItemExtension), target, intent(in) :: extension
+      type(StateItemSpec), target, intent(in) :: extension
       type(StateRegistry), target, intent(in) :: registry
       integer, optional, intent(out) :: rc
 
       integer :: status
       integer :: i
       type(VirtualConnectionPtVector) :: dependencies
-      class(StateItemExtension), pointer :: dep_extension
+      class(StateItemSpec), pointer :: dep_extension
       type(StateItemSpec), pointer :: spec
       type(StateItemSpec), pointer :: dep_spec
 
-      spec => extension%get_spec()
+      spec => extension
       dependencies = spec%get_dependencies()
       do i = 1, dependencies%size()
          associate (v_pt => dependencies%of(i))
-           dep_extension => registry%get_primary_extension(v_pt, _RC)
+           dep_extension => registry%get_primary_spec(v_pt, _RC)
          end associate
-         dep_spec => dep_extension%get_spec()
+         dep_spec => dep_extension
          call dep_spec%activate(_RC)
       end do
 

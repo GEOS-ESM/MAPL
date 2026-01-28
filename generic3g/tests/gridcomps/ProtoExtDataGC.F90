@@ -13,13 +13,12 @@ module ProtoExtDataGC
    use mapl3g_ActualConnectionPt
    use mapl3g_ConnectionPt
    use mapl3g_SimpleConnection
-   use mapl3g_StateItemSpec
-   use mapl3g_StateItemExtension
+   use mapl3g_StateItemSpec, only: StateItemSpec, StateItemSpecPtr
    use mapl3g_ESMF_Subset
    use MAPL_FieldUtils
    use esmf, only: ESMF_StateGet, ESMF_FieldGet
 
-   implicit none (type, external)
+   implicit none(type,external)
    private
 
    public :: setservices
@@ -78,8 +77,8 @@ contains
       type(ESMF_HConfig) :: hconfig, states_spec, state_spec, mapl_config
       type(ESMF_HConfigIter) :: iter,e,b
       character(:), allocatable :: var_name
-      type(StateItemExtension), pointer :: primary
-      type(StateItemExtensionPtr), target, allocatable :: extensions(:)
+      class(StateItemSpec), pointer :: primary
+      type(StateItemSpecPtr), target, allocatable :: extensions(:)
 
       call MAPL_GridCompGet(gc, hconfig=hconfig, _RC)
       call MAPL_GridCompGetRegistry(gc, registry, _RC)
@@ -101,13 +100,13 @@ contains
                export_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, var_name)
                import_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, var_name)
                a_pt = ActualConnectionPt(export_v_pt)
-               primary => registry%get_primary_extension(export_v_pt, _RC)
-               export_spec => primary%get_spec()
+               primary => registry%get_primary_spec(export_v_pt, _RC)
+               export_spec => primary
 
                s_pt = ConnectionPt('collection_1', export_v_pt)
                collection_registry => registry%get_subregistry(s_pt, _RC)
-               extensions = collection_registry%get_extensions(export_v_pt, _RC)
-               export_spec => extensions(1)%ptr%get_spec()
+               extensions = collection_registry%get_specs(export_v_pt, _RC)
+               export_spec => extensions(1)%ptr
                call export_spec%activate(_RC)
                  
             end do
@@ -140,7 +139,7 @@ contains
       type(ESMF_HConfig) :: hconfig, states_spec, state_spec, mapl_config
       type(ESMF_HConfigIter) :: iter,e,b
       character(:), allocatable :: var_name
-      type(StateItemExtension), pointer :: primary
+      class(StateItemSpec), pointer :: primary
 
       call MAPL_GridCompGet(gc, hconfig=hconfig, _RC)
       call MAPL_GridCompGetRegistry(gc, registry, _RC)
@@ -162,8 +161,8 @@ contains
                export_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, var_name)
                import_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, var_name)
                a_pt = ActualConnectionPt(export_v_pt)
-               primary => registry%get_primary_extension(export_v_pt, _RC)
-               export_spec => primary%get_spec()
+               primary => registry%get_primary_spec(export_v_pt, _RC)
+               export_spec => primary
 
 
                allocate(import_spec, source=export_spec)

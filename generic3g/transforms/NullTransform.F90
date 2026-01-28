@@ -8,7 +8,7 @@ module mapl3g_NullTransform
    use mapl3g_TransformId
    use mapl3g_ExtensionTransform
    use mapl_ErrorHandling
-   implicit none
+   implicit none(type,external)
    private
 
    public :: NullTransform

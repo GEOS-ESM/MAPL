@@ -16,9 +16,11 @@ target_sources(MAPL.generic3g PRIVATE
 
   AbstractRegistry.F90
   StateRegistry.F90
-  StateItemExtension.F90
-  StateItemExtensionVector.F90
-  StateItemExtensionPtrVector.F90
+  StateRegistry_Lifecycle_smod.F90
+  StateRegistry_Hierarchy_smod.F90
+  StateRegistry_Extensions_smod.F90
+  StateRegistry_Propagation_smod.F90
+  StateRegistry_Actions_smod.F90
   ExtensionFamily.F90
   VirtualPtFamilyMap.F90
 )

@@ -7,7 +7,7 @@ module mapl3g_VerticalLinearMap
    use mapl3g_CSR_SparseMatrix, only: add_row
    use, intrinsic :: iso_fortran_env, only: REAL32
 
-   implicit none
+   implicit none(type,external)
    private
 
    public :: compute_linear_map

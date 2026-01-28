@@ -4,6 +4,7 @@ module mapl3g_ServiceClassAspect
    use mapl3g_FieldBundle_API
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
+   use mapl3g_StateItemAllocation
    use mapl3g_ClassAspect
    use mapl3g_FieldClassAspect
    use mapl3g_StateRegistry
@@ -12,7 +13,7 @@ module mapl3g_ServiceClassAspect
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualConnectionPt
    use mapl3g_ExtensionTransform
-   use mapl3g_StateItemExtension
+   use mapl3g_StateItemSpec
    use mapl3g_NullTransform
    use mapl3g_ESMF_Utilities, only: get_substate
    use mapl_KeywordEnforcer
@@ -93,10 +94,9 @@ contains
    end function supports_conversion_specific
 
 
-   subroutine create(this, other_aspects, handle, rc)
+   subroutine create(this, other_aspects, rc)
       class(ServiceClassAspect), intent(inout) :: this
       type(AspectMap), intent(in) :: other_aspects
-      integer, optional, intent(in) :: handle(:) ! not used here
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -104,16 +104,23 @@ contains
       this%payload = ESMF_FieldBundleCreate(_RC)
 
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(handle)
    end subroutine create
 
    subroutine activate(this, rc)
       class(ServiceClassAspect), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      ! noop
+      integer :: status
+      type(ESMF_Info) :: info
+      logical :: is_created
+
+      is_created = ESMF_FieldBundleIsCreated(this%payload, _RC)
+      if (is_created) then
+         call ESMF_InfoGetFromHost(this%payload, info, _RC)
+         call MAPL_FieldBundleInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_ACTIVE, _RC)
+      end if
+
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
    end subroutine activate
 
    subroutine destroy(this, rc)
@@ -231,13 +238,13 @@ contains
       class(StateItemAspect), pointer :: aspect
       class(StateItemSpec), pointer :: spec
       type(VirtualConnectionPt) :: v_pt
-      type(StateItemExtension), pointer :: primary
+      type(StateItemSpec), pointer :: primary
 
       associate (items => this%subscriber_item_names)
         do i = 1, items%size()
            v_pt = VirtualConnectionPt(ESMF_STATEINTENT_INTERNAL, items%of(i))
-           primary => this%registry%get_primary_extension(v_pt, _RC)
-           spec => primary%get_spec()
+           primary => this%registry%get_primary_spec(v_pt, _RC)
+           spec => primary
            aspect => spec%get_aspect(CLASS_ASPECT_ID, _RC)
            field_aspect = to_FieldClassAspect(aspect, _RC)
            call field_aspect%add_to_bundle(this%payload, _RC)
@@ -256,7 +263,7 @@ contains
       integer :: i, n
       type(StateItemSpecPtr), allocatable :: spec_ptrs(:)
       type(VirtualConnectionPt) :: v_pt
-      type(StateItemExtension), pointer :: primary
+      type(StateItemSpec), pointer :: primary
 
       select type (import)
       type is (ServiceClassAspect)
@@ -266,8 +273,8 @@ contains
            do i = 1, n
               v_pt = VirtualConnectionPt(ESMF_STATEINTENT_INTERNAL, item_names%of(i))
               ! Internal items are always unique and "primary" (owned by user)
-              primary => import%registry%get_primary_extension(v_pt, _RC)
-              spec_ptrs(i)%ptr => primary%get_spec()
+              primary => import%registry%get_primary_spec(v_pt, _RC)
+              spec_ptrs(i)%ptr => primary
            end do
          end associate
          this%items_to_service = [this%items_to_service, spec_ptrs]
@@ -299,6 +306,8 @@ contains
       type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
       type(esmf_State), optional, allocatable, intent(out) :: state
       integer, optional, intent(out) :: rc
+
+      bundle = this%payload
 
       _RETURN(_SUCCESS)
    end subroutine get_payload

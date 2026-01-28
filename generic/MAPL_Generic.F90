@@ -105,6 +105,7 @@ module MAPL_GenericMod
 
    use pFIO
    use gFTL_StringVector
+   use gFTL2_StringVector, only: StringVector2 => StringVector, StringVectorIterator2 => StringVectorIterator, operator(/=)
    use pFIO_ClientManagerMod
    use MAPL_BaseMod
    use MAPL_IOMod
@@ -2488,7 +2489,8 @@ contains
 
       subroutine report_generic_profile( rc )
          integer, optional,   intent(  out) :: RC     ! Error code:
-         character(:), allocatable :: report(:)
+         type(StringVector2) :: report
+         type(StringVectorIterator2) :: iter
          type (ProfileReporter) :: reporter
          type (MultiColumn) :: min_multi, mean_multi, max_multi, pe_multi, n_cyc_multi
          type (ESMF_VM) :: vm
@@ -2544,8 +2546,10 @@ contains
             report = reporter%generate_report(state%t_profiler)
             call lgr%info('')
             call lgr%info('Times for component <%a~>', trim(comp_name))
-            do i = 1, size(report)
-               call lgr%info('%a', report(i))
+            iter = report%begin()
+            do while (iter /= report%end())
+               call lgr%info('%a', iter%of())
+               call iter%next()
             end do
             call lgr%info('')
          end if

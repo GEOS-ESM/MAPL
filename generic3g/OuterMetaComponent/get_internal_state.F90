@@ -2,7 +2,7 @@
 
 submodule (mapl3g_OuterMetaComponent) get_internal_state_smod
    use mapl3g_Multistate
-   implicit none
+   implicit none(type,external)
 
 contains
 

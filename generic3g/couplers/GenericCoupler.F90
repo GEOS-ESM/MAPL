@@ -11,7 +11,7 @@ module mapl3g_GenericCoupler
    use mapl_ErrorHandlingMod
    use esmf
 
-   implicit none
+   implicit none(type,external)
    private
 
    public :: setServices

@@ -17,7 +17,6 @@ module Test_ModelVerticalGrid
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualConnectionPt
    use mapl3g_StateItemSpec
-   use mapl3g_StateItemExtension
    use mapl3g_ComponentDriver
    use mapl3g_ComponentDriver
    use mapl3g_ComponentDriverVector
@@ -51,7 +50,7 @@ contains
       type(VariableSpec) :: var_spec
       type(StateItemSpec) :: fld_spec
       type(VirtualConnectionPt) :: v_pt
-      type(StateItemExtension), pointer :: extension
+      class(StateItemSpec), pointer :: extension
       type(StateItemSpec), pointer :: spec
       integer :: status
 
@@ -76,10 +75,9 @@ contains
 
       v_pt = VirtualConnectionPt(state_intent="export", short_name=var_name)
       call registry%add_primary_spec(v_pt, fld_spec)
-      extension => registry%get_primary_extension(v_pt, _RC)
-      spec => extension%get_spec()
+      extension => registry%get_primary_spec(v_pt, _RC)
+      spec => extension
       call spec%activate(_RC)
-      call spec%create(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine setup_
@@ -154,7 +152,7 @@ contains
       type(VirtualConnectionPt) :: ple_pt
       type(StateItemSpec), pointer :: spec
       type(MultiState) :: multi_state
-      type(StateItemExtension), pointer :: extension
+      class(StateItemSpec), pointer :: extension
       type(ESMF_Field) :: ple
       type(ESMF_Geom) :: geom
       integer :: rc, status
@@ -162,8 +160,8 @@ contains
      call setup(geom, vgrid, _RC)
      call r%allocate(_RC)
       ple_pt = VirtualConnectionPt(state_intent="export", short_name="PLE")
-      extension => r%get_primary_extension(ple_pt, _RC)
-      spec => extension%get_spec()
+      extension => r%get_primary_spec(ple_pt, _RC)
+      spec => extension
 
       multi_state = MultiState()
       call spec%add_to_state(multi_state, ActualConnectionPt(ple_pt), _RC)

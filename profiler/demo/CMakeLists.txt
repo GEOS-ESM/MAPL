@@ -7,7 +7,10 @@ target_link_libraries(mpi_demo.x MAPL.profiler MPI::MPI_Fortran OpenMP::OpenMP_F
 add_executable(hybrid_demo.x hybrid_demo.F90)
 target_link_libraries(hybrid_demo.x MAPL.profiler MPI::MPI_Fortran OpenMP::OpenMP_Fortran)
 
-install(TARGETS profiler_demo.x mpi_demo.x hybrid_demo.x
+add_executable(csv_demo.x csv_demo.F90)
+target_link_libraries(csv_demo.x MAPL.profiler)
+
+install(TARGETS profiler_demo.x mpi_demo.x csv_demo.x hybrid_demo.x
         DESTINATION bin)
 
 # Detect if we are using Open MPI and add oversubscribe

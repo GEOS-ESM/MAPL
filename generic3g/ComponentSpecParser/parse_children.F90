@@ -1,6 +1,8 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_ComponentSpecParser) parse_children_smod
+
+   implicit none(type,external)
    
 contains
 

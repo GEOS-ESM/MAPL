@@ -91,6 +91,14 @@ contains
       if (present(vgrid)) then
          vgrid_id = vgrid%get_id() ! allocate so "present" below
       end if
+
+      ! Propagate vertical grid information to fields in bundle
+      if (present(num_levels) .or. present(vert_staggerloc) .or. present(vgrid)) then
+         call FieldBundleGet(fieldBundle, fieldList=fieldList, _RC)
+         do i = 1, size(fieldList)
+            call MAPL_FieldSet(fieldList(i), vgrid=vgrid, num_levels=num_levels, vert_staggerloc=vert_staggerloc, _RC)
+         end do
+      end if
       
       ! Note it is important that the next line ALLOCATEs has_geom we
       ! don't want to set it either way in info if geom is not

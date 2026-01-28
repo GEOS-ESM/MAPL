@@ -5,7 +5,7 @@
 module mapl3g_CSR_SparseMatrix
    use mapl_KeywordEnforcer
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
-   implicit none (type, external)
+   implicit none(type,external)
    private
 
 #define IDENTITY(x) x
