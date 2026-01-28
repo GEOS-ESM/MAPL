@@ -96,6 +96,7 @@ contains
       
       units = "<unknown>"
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function get_units
 
    logical function matches(this, other)
@@ -125,6 +126,7 @@ contains
       is_supported = same_type_as(spec, basic_spec)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function supports_spec
 
    function supports_file_metadata(this, file_metadata, rc) result(is_supported)
@@ -136,6 +138,7 @@ contains
       ! Basic grid can work with any file metadata as a fallback
       is_supported = .true.
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function supports_file_metadata
 
    function supports_config(this, config, rc) result(is_supported)
@@ -162,6 +165,7 @@ contains
       is_supported = has_num_levels
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function supports_config
 
    function create_spec_from_config(this, config, rc) result(spec)
@@ -186,6 +190,7 @@ contains
       allocate(spec, source=local_spec)
       
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function create_spec_from_config
 
    function create_spec_from_file_metadata(this, file_metadata, rc) result(spec)
@@ -208,6 +213,7 @@ contains
       allocate(spec, source=local_spec)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
 
    contains
 
@@ -220,6 +226,7 @@ contains
          if (file_metadata%has_dimension('lev')) then
             lev_name = 'lev'
             _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
          end if
 
          _FAIL('no vertical dim in file')
@@ -245,6 +252,7 @@ contains
       end select
       
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function create_grid_from_spec
 
 end module mapl3g_BasicVerticalGrid

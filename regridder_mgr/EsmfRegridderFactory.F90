@@ -43,6 +43,7 @@ contains
       type(EsmfRegridderParam) :: reference
 
       supports = same_type_as(param, reference)
+      _UNUSED_DUMMY(this)
       
    end function supports
 

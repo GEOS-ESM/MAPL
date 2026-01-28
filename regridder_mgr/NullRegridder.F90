@@ -31,6 +31,7 @@ contains
       integer, optional, intent(out) :: rc
 
       _FAIL('Null regridder')
+      _UNUSED_DUMMY(this)
    end subroutine regrid_field
 
 end module mapl3g_NullRegridder

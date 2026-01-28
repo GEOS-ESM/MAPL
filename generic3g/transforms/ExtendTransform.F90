@@ -26,15 +26,7 @@ module mapl3g_ExtendTransform
       procedure :: get_transformId
    end type ExtendTransform
 
-   interface ExtendTransform
-      procedure new_ExtendTransform
-   end interface
-
 contains
-
-   function new_ExtendTransform() result(transform)
-      type(ExtendTransform) :: transform
-   end function new_ExtendTransform
 
    subroutine initialize(this, importState, exportState, clock, rc)
       use esmf

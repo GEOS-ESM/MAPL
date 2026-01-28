@@ -14,6 +14,10 @@ module mapl3g_StateItemSpec
    use mapl_ErrorHandling
    use mapl3g_Field_API
    use mapl3g_FieldBundle_API
+   use mapl3g_ComponentDriver
+   use mapl3g_GriddedComponentDriver
+   use mapl3g_ComponentDriverVector
+   use mapl3g_GenericCoupler
    use esmf
    use gftl2_stringvector
    implicit none
@@ -23,9 +27,6 @@ module mapl3g_StateItemSpec
    public :: StateItemSpec
    public :: new_StateItemSpec
    public :: StateItemSpecPtr
-#ifndef __GFORTRAN__
-   public :: assignment(=)
-#endif
    type :: StateItemSpec
       private
 
@@ -34,10 +35,15 @@ module mapl3g_StateItemSpec
       type(AspectMap) :: aspects
       logical :: has_deferred_aspects_ = .false.
       type(esmf_StateIntent_Flag) :: state_intent
+
+      ! Producer/consumer tracking (merged from StateItemExtension)
+      type(ComponentDriverVector) :: consumers ! couplers that depend on this spec
+      class(ComponentDriver), pointer :: producer => null() ! coupler that computes this spec
    contains
 
       procedure :: get_aspect_order ! as string vector
       procedure :: get_aspect_priorities ! default implementation as aid to refactoring
+      procedure :: clone_base
       procedure :: make_extension
 
 !#      procedure(I_write_formatted), deferred :: write_formatted
@@ -72,6 +78,14 @@ module mapl3g_StateItemSpec
       procedure :: can_connect_to
       procedure :: add_to_state
 
+      ! Producer/consumer methods (merged from StateItemExtension)
+      procedure :: has_producer
+      procedure :: get_producer
+      procedure :: set_producer
+      procedure :: has_consumers
+      procedure :: add_consumer
+      procedure :: get_consumers
+
       procedure :: set_geometry
       procedure :: print_spec
       procedure :: update_from_payload
@@ -84,12 +98,6 @@ module mapl3g_StateItemSpec
    interface StateItemSpec
       procedure :: new_StateItemSpec
    end interface StateItemSpec
-
-#ifndef __GFORTRAN__
-   interface assignment(=)
-      procedure :: copy_item_spec
-   end interface assignment(=)
-#endif
 
 contains
 
@@ -221,14 +229,14 @@ contains
       type(AspectMapIterator) :: iter
       type(AspectPair), pointer :: pair
 
-
       id = aspect%get_aspect_id()
       iter = this%aspects%find(id)
       pair => iter%of()
       deallocate(pair%second)
+
       allocate(pair%second, source=aspect)
 ! Following line breaks under ifort 2021.13
-!      call this%aspects%insert(aspect%get_aspect_id(), aspect)
+      !      call this%aspects%insert(aspect%get_aspect_id(), aspect)
 
       _RETURN(_SUCCESS)
    end subroutine set_aspect
@@ -260,18 +268,86 @@ contains
       order = ''
    end function get_aspect_priorities
 
-   function make_extension(this, aspect_name, aspect, rc) result(new_spec)
-      class(StateItemSpec), allocatable :: new_spec
-      class(StateItemSpec), intent(in) :: this
-      character(*), intent(in) :: aspect_name
-      class(StateItemAspect), intent(in) :: aspect
+   ! Factory method to create a base for an extension
+   ! Copies metadata and aspects but NOT producer/consumer chain
+   function clone_base(this, rc) result(new_spec)
+      type(StateItemSpec) :: new_spec
+      class(StateItemSpec), target, intent(in) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
+
+      ! Copy basic metadata using regular assignment
+      ! This includes aspects, which will be copied by AspectMap's assignment
+      new_spec%state_intent = this%state_intent
+      new_spec%aspects = this%aspects
+      new_spec%dependencies = this%dependencies  
+      new_spec%has_deferred_aspects_ = this%has_deferred_aspects_
       
-      new_spec = this
-      call new_spec%set_aspect(aspect, _RC)
+      ! Producer/consumers are intentionally NOT copied (left as null/empty)
+      ! This is the key difference from regular assignment
       
+      _RETURN(_SUCCESS)
+   end function clone_base
+
+   ! Factory method to create an extension with couplers
+   ! This creates a new spec that extends this one toward the goal_spec,
+   ! setting up the necessary transform couplers
+   recursive function make_extension(this, goal_spec, rc) result(new_spec)
+      type(StateItemSpec), target :: new_spec
+      class(StateItemSpec), target, intent(inout) :: this
+      type(StateItemSpec), target, intent(in) :: goal_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: i
+      class(ExtensionTransform), allocatable :: transform
+      class(ComponentDriver), pointer :: producer
+      class(ComponentDriver), pointer :: source
+      type(ESMF_GridComp) :: coupler_gridcomp
+      type(AspectId), allocatable :: aspect_ids(:)
+      class(StateItemAspect), pointer :: src_aspect, dst_aspect
+      type(AspectMap), pointer :: other_aspects
+
+      call this%activate(_RC)
+      call this%update_from_payload(_RC)
+
+      new_spec = this%clone_base()
+
+      aspect_ids = this%get_aspect_order(goal_spec)
+      do i = 1, size(aspect_ids)
+
+         src_aspect => new_spec%get_aspect(aspect_ids(i), _RC)
+         _ASSERT(associated(src_aspect), 'src aspect not found')
+
+         dst_aspect => goal_spec%get_aspect(aspect_ids(i), _RC)
+         _ASSERT(associated(dst_aspect), 'dst aspect not found')
+
+         _ASSERT(src_aspect%can_connect_to(dst_aspect), 'cannot connect aspect ' // aspect_ids(i)%to_string())
+         if (src_aspect%needs_extension_for(dst_aspect)) then
+            other_aspects => new_spec%get_aspects()
+            allocate(transform, source=src_aspect%make_transform(dst_aspect, other_aspects, rc=status))
+            _VERIFY(status)
+
+            call new_spec%set_aspect(dst_aspect, _RC)
+
+            exit
+         end if
+
+      end do
+
+      if (allocated(transform)) then
+         
+         call new_spec%create(_RC)
+         call new_spec%activate(_RC)
+         source => this%get_producer()
+         coupler_gridcomp = make_coupler(transform, source, _RC)
+         producer => this%add_consumer(GriddedComponentDriver(coupler_gridcomp), _RC)
+         call new_spec%set_producer(producer, _RC)
+
+         _RETURN(_SUCCESS)
+      end if
+
       _RETURN(_SUCCESS)
    end function make_extension
 
@@ -524,17 +600,6 @@ contains
 
    end subroutine set_geometry
 
-   recursive subroutine copy_item_spec(a, b)
-      type(StateItemSpec), intent(out) :: a
-      type(StateItemSpec), intent(in) :: b
-
-      a%state_intent = b%state_intent
-      a%aspects = b%aspects
-      a%dependencies = b%dependencies
-      a%has_deferred_aspects_ = b%has_deferred_aspects_
-
-   end subroutine copy_item_spec
-
    subroutine check(this, file, line)
       class(StateItemSpec), target, intent(in) :: this
       character(*), intent(in) :: file
@@ -657,12 +722,12 @@ contains
       call class_aspect%get_payload(field=field, bundle=bundle, _RC)
       if (allocated(field)) then
          call esmf_infogetfromhost(field, info, _RC)
-         _HERE, file, line, 'field:'
+         print*, __FILE__, __LINE__, file, line, 'field: '
          call esmf_infoprint(info, _RC)
       end if
       if (allocated(bundle)) then
          call esmf_infogetfromhost(bundle, info, _RC)
-         _HERE, file, line, 'bundle:'
+         print*, __FILE__,__LINE__, file, line, 'bundle: '
          call esmf_infoprint(info, _RC)
       end if
       _RETURN(_SUCCESS)
@@ -708,5 +773,60 @@ contains
       end function make_handle
       
    end subroutine update_from_payload
+
+   ! ========================================================================
+   ! Producer/consumer methods (merged from StateItemExtension)
+   ! ========================================================================
+
+   logical function has_producer(this)
+      class(StateItemSpec), target, intent(in) :: this
+      has_producer = associated(this%producer)
+   end function has_producer
+
+   function get_producer(this) result(producer)
+      class(StateItemSpec), target, intent(in) :: this
+      class(ComponentDriver), pointer :: producer
+      producer => this%producer
+   end function get_producer
+
+   subroutine set_producer(this, producer, rc)
+      class(StateItemSpec), intent(inout) :: this
+      class(ComponentDriver), pointer, intent(in) :: producer
+      integer, optional, intent(out) :: rc
+
+      _ASSERT(.not. this%has_producer(), 'cannot set producer for spec that already has one')
+      this%producer => producer
+
+      _RETURN(_SUCCESS)
+   end subroutine set_producer
+
+   logical function has_consumers(this)
+      class(StateItemSpec), target, intent(in) :: this
+      has_consumers = this%consumers%size() > 0
+   end function has_consumers
+
+   function get_consumers(this) result(consumers)
+      class(StateItemSpec), target, intent(in) :: this
+      type(ComponentDriverVector), pointer :: consumers
+      consumers => this%consumers
+   end function get_consumers
+
+   function add_consumer(this, consumer, rc) result(reference)
+      use mapl3g_GenericCoupler
+      class(ComponentDriver), pointer :: reference
+      class(StateItemSpec), target, intent(inout) :: this
+      type(GriddedComponentDriver), intent(in) :: consumer
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call this%consumers%push_back(consumer)
+      reference => this%consumers%back()
+      _RETURN_UNLESS(associated(this%producer))
+      
+      call mapl_CouplerAddConsumer(this%producer, reference, _RC)
+
+      _RETURN(_SUCCESS)
+   end function add_consumer
 
 end module mapl3g_StateItemSpec

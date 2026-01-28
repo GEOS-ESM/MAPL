@@ -94,6 +94,7 @@ subroutine field_set(field, &
            _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine field_set
 
 end module mapl3g_FieldSet

@@ -52,11 +52,10 @@ module mapl3g_Generic
    use esmf, only: ESMF_StateIntent_Flag, ESMF_STATEINTENT_INTERNAL
    use esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
    use esmf, only: ESMF_MAXSTR
-   use esmf, only: ESMF_Time, ESMF_TimeInterval, ESMF_TimeIntervalGet, ESMF_Clock, ESMF_ClockGet
-   use esmf, only: ESMF_State, ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, ESMF_TypeKind_Flag
+   use esmf, only: ESMF_TimeInterval, ESMF_TimeIntervalGet, ESMF_Clock, ESMF_ClockGet
+   use esmf, only: ESMF_State, ESMF_StateItem_Flag, ESMF_TypeKind_Flag
    use esmf, only: operator(==)
    use pflogger, only: logger_t => logger
-   use gftl2_StringVector, only: StringVector
 
    implicit none(type,external)
    private
@@ -1017,7 +1016,7 @@ contains
    subroutine gridcomp_set_geometry(gridcomp, state_intent, short_name, geom, vertical_grid, rc)
       use mapl3g_VirtualConnectionPt
       use mapl3g_ExtensionFamily
-      use mapl3g_StateItemExtension
+      use mapl3g_StateItemSpec
       type(ESMF_GridComp), intent(inout) :: gridcomp
       type(Esmf_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
@@ -1029,7 +1028,7 @@ contains
       type(StateRegistry), pointer :: registry
       type(VirtualConnectionPt) :: v_pt
       type(ExtensionFamily), pointer :: family
-      type(StateItemExtension), pointer :: primary
+      class(StateItemSpec), pointer :: primary
       class(StateItemSpec), pointer :: spec
 
       call MAPL_GridCompGetRegistry(gridcomp, registry=registry, _RC)
@@ -1041,7 +1040,7 @@ contains
 
       primary => family%get_primary(_RC)
       _ASSERT(associated(primary), 'null pointer for primary')
-      spec => primary%get_spec()
+      spec => primary
       _ASSERT(associated(spec), 'null pointer for spec')
 
       call spec%set_geometry(geom=geom, vertical_grid=vertical_grid, _RC)

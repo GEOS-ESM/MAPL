@@ -4,10 +4,10 @@
 ! - add_virtual_pt: Add a virtual connection point
 ! - add_family: Add an extension family
 ! - add_primary_spec: Add primary spec for a virtual point
-! - get_primary_extension: Get primary extension
+! - get_primary_spec: Get primary extension
 ! - add_extension: Add an extension to the registry
 ! - add_spec: Add a spec as an extension
-! - link_extension: Link an extension to a virtual point
+! - link_spec: Link an extension to a virtual point
 ! - get_extension_family: Get the family for a virtual point
 ! - get_extensions: Get all extensions for a virtual point
 ! - extend: Recursively extend family to match goal spec
@@ -69,11 +69,9 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(StateItemExtension) :: extension
       type(ExtensionFamily) :: family
 
-      extension = StateItemExtension(spec)
-      call this%owned_items%push_back(extension)
+      call this%owned_items%push_back(spec)
       family = ExtensionFamily(this%owned_items%back())
       call this%add_family(virtual_pt, family, _RC)
       
@@ -81,8 +79,8 @@ contains
 
    end subroutine add_primary_spec
 
-   module function get_primary_extension(this, virtual_pt, rc) result(primary)
-      type(StateItemExtension), pointer :: primary
+   module function get_primary_spec(this, virtual_pt, rc) result(primary)
+      type(StateItemSpec), pointer :: primary
       class(StateRegistry), target, intent(in) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
       integer, optional, intent(out) :: rc
@@ -97,22 +95,24 @@ contains
 
 
       _RETURN(_SUCCESS)
-   end function get_primary_extension
+   end function get_primary_spec
 
    module function add_extension(this, virtual_pt, extension, rc) result(new_extension)
-      type(StateItemExtension), pointer :: new_extension
+      type(StateItemSpec), pointer :: new_extension
       class(StateRegistry), target, intent(inout) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
-      type(StateItemExtension), intent(in) :: extension
+      type(StateItemSpec), intent(in) :: extension
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(StateItemSpec), pointer :: extension_ptr
 
       _ASSERT(this%has_virtual_pt(virtual_pt), "Virtual connection point does not exist in registry")
 
       call this%owned_items%push_back(extension)
       new_extension => this%owned_items%back()
-      call this%link_extension(virtual_pt, this%owned_items%back(), _RC)
+      extension_ptr => this%owned_items%back()
+      call this%link_spec(virtual_pt, extension_ptr, _RC)
 
       _RETURN(_SUCCESS)
    end function add_extension
@@ -124,21 +124,21 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(StateItemExtension) :: extension
+      type(StateItemSpec), pointer :: spec_ptr
 
       _ASSERT(this%has_virtual_pt(virtual_pt), "Virtual connection point does not exist in registry")
 
-      extension = StateItemExtension(spec)
-      call this%owned_items%push_back(extension)
-      call this%link_extension(virtual_pt, this%owned_items%back(), _RC)
+      call this%owned_items%push_back(spec)
+      spec_ptr => this%owned_items%back()
+      call this%link_spec(virtual_pt, spec_ptr, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine add_spec
 
-   module subroutine link_extension(this, virtual_pt, extension, rc)
+   module subroutine link_spec(this, virtual_pt, extension, rc)
       class(StateRegistry), target, intent(inout) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
-      type(StateItemExtension), pointer, intent(in) :: extension
+      type(StateItemSpec), target, intent(in) :: extension
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -150,7 +150,7 @@ contains
       call family%add_extension(extension)
 
       _RETURN(_SUCCESS)
-   end subroutine link_extension
+   end subroutine link_spec
 
    module function get_extension_family(this, virtual_pt, rc) result(family)
       type(ExtensionFamily), pointer :: family
@@ -165,8 +165,8 @@ contains
       _RETURN(_SUCCESS)
    end function get_extension_family
 
-   module function get_extensions(this, virtual_pt, rc) result(extensions)
-      type(StateItemExtensionPtr), allocatable :: extensions(:)
+   module function get_specs(this, virtual_pt, rc) result(extensions)
+      type(StateItemSpecPtr), allocatable :: extensions(:)
       class(StateRegistry), target, intent(in) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
       integer, optional, intent(out) :: rc
@@ -180,23 +180,23 @@ contains
       n = family%num_variants()
       allocate(extensions(n))
       do i = 1, n
-         extensions(i)%ptr => family%get_extension(i)
+         extensions(i)%ptr => family%get_spec(i)
       end do
 
       _RETURN(_SUCCESS)
-   end function get_extensions
+   end function get_specs
 
    ! Repeatedly extend family at v_pt until extension can directly
    ! connect to goal_spec.
    recursive module function extend(registry, v_pt, goal_spec, rc) result(extension)
-      type(StateItemExtension), pointer :: extension
+      type(StateItemSpec), pointer :: extension
       class(StateRegistry), target, intent(inout) :: registry
       type(VirtualConnectionPt), intent(in) :: v_pt
       type(StateItemSpec), intent(in) :: goal_spec
       integer, optional, intent(out) :: rc
 
-      type(StateItemExtension), pointer :: closest_extension, new_extension
-      type(StateItemExtension) :: tmp_extension
+      type(StateItemSpec), pointer :: closest_extension, new_extension, last_spec, new_spec
+      type(StateItemSpec) :: tmp_extension
       type(ExtensionFamily), pointer :: family
       class(ComponentDriver), pointer :: producer
       integer :: iter_count
@@ -204,11 +204,10 @@ contains
       integer :: status
       type(MultiState) :: coupler_states
       type(ActualConnectionPt) :: a_pt
-      type(StateItemSpec), pointer :: last_spec, new_spec
 
       family => registry%get_extension_family(v_pt, _RC)
 
-      closest_extension => family%find_closest_extension(goal_spec, _RC)
+      closest_extension => family%find_closest_spec(goal_spec, _RC)
       iter_count = 0
       do
          iter_count = iter_count + 1
@@ -219,7 +218,7 @@ contains
           
 !#          block
 !#            type(StateItemSpec), pointer :: spec
-!#            spec => closest_extension%get_spec()
+!#            spec => closest_extension
 !#            _HERE, 'extending? ', iter_count
 !#            call spec%print_spec(__FILE__,__LINE__)
 !#          end block
@@ -232,11 +231,11 @@ contains
 
          coupler_states = producer%get_states()
          a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='import', short_name='import[1]'))
-         last_spec => closest_extension%get_spec()
+         last_spec => closest_extension
          call last_spec%activate(_RC)
          call last_spec%add_to_state(coupler_states, a_pt, _RC)
          a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='export', short_name='export[1]'))
-         new_spec => new_extension%get_spec()
+         new_spec => new_extension
          call new_spec%add_to_state(coupler_states, a_pt, _RC)
 
          closest_extension => new_extension

@@ -249,8 +249,6 @@ contains
       class(StateItemAspect), intent(in) :: aspect
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       select type(aspect)
       class is (VectorBracketClassAspect)
          bracket_aspect = aspect

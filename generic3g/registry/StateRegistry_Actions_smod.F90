@@ -11,8 +11,6 @@ submodule (mapl3g_StateRegistry) StateRegistry_Actions_smod
    use mapl3g_MultiState
    use mapl3g_ActualConnectionPt
    use mapl3g_VirtualPtFamilyMap, only: VirtualPtFamilyMapIterator
-   use mapl3g_StateItemExtensionVector, only: StateItemExtensionVectorIterator
-   use mapl3g_StateItemExtensionPtrVector, only: StateItemExtensionPtrVectorIterator
    use esmf
    implicit none(type,external)
 
@@ -23,13 +21,11 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(StateItemExtension), pointer :: extension
-      integer :: i
       type(StateItemSpec), pointer :: item_spec
+      integer :: i
 
       do i = 1, this%owned_items%size()
-         extension => this%owned_items%of(i)
-         item_spec => extension%get_spec()
+         item_spec => this%owned_items%of(i)
          if (item_spec%is_active()) then
             call item_spec%allocate(_RC)
          end if
@@ -49,10 +45,10 @@ contains
       type(VirtualConnectionPt), pointer :: v_pt
       type(ActualConnectionPt) :: a_pt
       type(ExtensionFamily), pointer :: family
-      type(StateItemExtensionPtrVector), pointer :: extensions
-      type(StateItemExtensionPtr), pointer :: extension
-      type(StateItemExtension), pointer :: primary
-      type(StateItemExtensionPtrVectorIterator) :: ext_iter
+      type(StateItemSpecPtrVector), pointer :: extensions
+      type(StateItemSpecPtr), pointer :: extension
+      type(StateItemSpec), pointer :: primary
+      type(StateItemSpecPtrVectorIterator) :: ext_iter
       type(StateItemSpec), pointer :: spec
       integer :: i, label
 
@@ -64,7 +60,7 @@ contains
            call family_iter%next()
            v_pt => family_iter%first()
            family => family_iter%second()
-           extensions => family%get_extensions()
+           extensions => family%get_specs()
 
            select case (mode)
            case ('user') ! only add if both primary and not a substate item
@@ -72,7 +68,7 @@ contains
               if (.not. family%has_primary()) cycle
               primary => family%get_primary(_RC)
               a_pt = ActualConnectionPt(v_pt)
-              spec => primary%get_spec()
+              spec => primary
               call spec%add_to_state(multi_state, a_pt, _RC)
            case ('outer')
               associate (ext_e => extensions%ftn_end())
@@ -83,7 +79,7 @@ contains
                    i = i + 1
 
                    extension => ext_iter%of()
-                   spec => extension%ptr%get_spec()
+                   spec => extension%ptr
 
                    label = i
                    if (family%has_primary()) label = i-1
@@ -138,8 +134,8 @@ contains
       type(ComponentDriverPtrVector) :: export_couplers
       class(StateRegistry), target, intent(in) :: this
 
-      type(StateItemExtension), pointer :: extension
-      type(StateItemExtensionVectorIterator) :: iter
+      type(StateItemSpec), pointer :: spec
+      type(StateItemSpecVectorIterator) :: iter
       type(ComponentDriverVector), pointer :: consumers
       type(ComponentDriverPtr) :: wrapper
       integer :: i
@@ -148,10 +144,10 @@ contains
         iter = this%owned_items%ftn_begin()
         do while (iter /= e)
            call iter%next()
-           extension => iter%of()
+           spec => iter%of()
 
-           if (extension%has_producer()) cycle
-           consumers => extension%get_consumers()
+           if (spec%has_producer()) cycle
+           consumers => spec%get_consumers()
            do i = 1, consumers%size()
               wrapper%ptr => consumers%of(i) ! copy ptr
               call export_couplers%push_back(wrapper)
@@ -180,7 +176,7 @@ contains
       type(ExtensionFamily), pointer :: family
       type(VirtualConnectionPt), pointer :: v_pt
       type(ComponentDriverPtr) :: wrapper
-      type(StateItemExtension), pointer :: primary
+      type(StateItemSpec), pointer :: primary
 
       associate (e => this%family_map%ftn_end())
         family_iter = this%family_map%ftn_begin()

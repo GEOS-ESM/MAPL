@@ -176,22 +176,17 @@ contains
       type(ESMF_FieldStatus_Flag) :: fstatus
 
       type(ESMF_Geom), allocatable :: geom
-      type(HorizontalDimsSpec) :: horizontal_dims_spec
       integer :: dim_count
       integer, allocatable :: grid_to_field_map(:)
 
-      type(VerticalGridAspect) :: vertical_aspect
-      type(VerticalStaggerLoc) :: vertical_stagger
       integer, allocatable :: num_vgrid_levels
       integer, allocatable :: num_field_levels
       integer :: num_levels
 
       type(UngriddedDims) :: ungridded_dims
 
-      type(UnitsAspect) :: units_aspect
       character(:), allocatable :: units
 
-      type(TypekindAspect) :: typekind_aspect
       type(ESMF_TypeKind_Flag) :: typekind
 
       integer :: idim

@@ -94,7 +94,6 @@ contains
 
          type(VirtualPtFamilyMapIterator) :: virtual_iter
          type(ExtensionFamily), pointer :: family
-         type(StateItemExtension), pointer :: extension
          type(StateItemSpec), pointer :: spec
          logical :: is_active
 
@@ -108,8 +107,7 @@ contains
                 family => virtual_iter%second()
                 is_active = .false.
                 if (family%has_primary()) then
-                   extension => family%get_primary()
-                   spec => extension%get_spec()
+                   spec => family%get_primary()
                    is_active = spec%is_active()
                 end if
                 write(unit,*,iostat=iostat,iomsg=iomsg)'        ',virtual_pt,  &

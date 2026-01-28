@@ -113,6 +113,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added backwards compatibility with non-CF dimensionless vertical coordinate in ExtData2G
 
 ### Changed
+- added formating string to the fPlogger call in FileBundleRead.F90 to avoid processing incidental '%' characters in the filename
+- replaced rc=status with _RC in MAPL_read_bundle
+- MAPL_read_bundle now logs the filename instead of the file template
+- added optional argument "NoGarbage" to MAPL_BundleDestroy
 
 - Updated CI to use Baselibs 8.24.0
   - This provides ESMF 9.0.0b08

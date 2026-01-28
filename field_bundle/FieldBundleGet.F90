@@ -136,6 +136,7 @@ contains
          _FAIL('unsupported geomtype; needs simple extension')
 
          _RETURN(_SUCCESS)
+         _UNUSED_DUMMY(unusable)
 
       end subroutine get_geom
 

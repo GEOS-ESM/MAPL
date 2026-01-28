@@ -63,6 +63,7 @@ add_pfunit_ctest(
 )
 set_target_properties(MAPL.generic3g.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 set_tests_properties(MAPL.generic3g.tests PROPERTIES LABELS "ESSENTIAL")
+add_dependencies(MAPL.generic3g.tests proto_extdata_gc proto_stat_gc)
 
 if (APPLE)
   set(LD_PATH "DYLD_LIBRARY_PATH")

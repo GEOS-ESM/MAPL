@@ -397,6 +397,7 @@ contains
          new_array = new_array .or. (this%num_levels /= current_num_levels)
 
          _RETURN(_SUCCESS)
+         _UNUSED_DUMMY(unusable)
       end subroutine select_ungriddedUbound
       
    end subroutine reallocate_field
