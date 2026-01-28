@@ -36,6 +36,7 @@ subroutine SUB_ (state, farrayPtr, itemName, unusable, isPresent, rc)
    end if
 
    _RETURN(ESMF_SUCCESS)
+   _UNUSED_DUMMY(unusable)
 end subroutine SUB_
 
 

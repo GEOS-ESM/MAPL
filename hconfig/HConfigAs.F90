@@ -68,6 +68,7 @@ contains
       end select
       
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
     end function as_stateintent
 
    function iter_as_stateintent(hconfig_iter, unusable, keystring, index, rc) result(intent)
@@ -96,6 +97,7 @@ contains
       end select
       
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function iter_as_stateintent
 
    function as_itemtype(hconfig, unusable, keystring, index, rc) result(itemtype)
@@ -124,6 +126,7 @@ contains
       end select
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function as_itemtype
 
 function iter_as_itemtype(hconfig_iter, unusable, keystring, index, rc) result(itemtype)
@@ -152,6 +155,7 @@ function iter_as_itemtype(hconfig_iter, unusable, keystring, index, rc) result(i
       end select
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function iter_as_itemtype
 
    
@@ -170,6 +174,7 @@ function iter_as_itemtype(hconfig_iter, unusable, keystring, index, rc) result(i
       call esmf_TimeSet(time, str, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function as_time
 
    function iter_as_time(hconfig_iter, unusable, keystring, index, rc) result(time)
@@ -187,6 +192,7 @@ function iter_as_itemtype(hconfig_iter, unusable, keystring, index, rc) result(i
       call esmf_TimeSet(time, str, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function iter_as_time
 
    function as_timeinterval(hconfig, unusable, keystring, index, rc) result(interval)
@@ -204,6 +210,7 @@ function iter_as_itemtype(hconfig_iter, unusable, keystring, index, rc) result(i
       call esmf_TimeIntervalSet(interval, str, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function as_timeinterval
 
    function iter_as_timeinterval(hconfig_iter, unusable, keystring, index, rc) result(interval)
@@ -221,6 +228,7 @@ function iter_as_itemtype(hconfig_iter, unusable, keystring, index, rc) result(i
       call esmf_TimeIntervalSet(interval, str, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function iter_as_timeinterval
 
    function as_stringvector(hconfig, unusable, keystring, index, rc) result(vector)
@@ -247,6 +255,7 @@ function iter_as_itemtype(hconfig_iter, unusable, keystring, index, rc) result(i
       call esmf_HConfigDestroy(subconfig, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function as_stringvector
 
    function iter_as_stringvector(hconfig_iter, unusable, keystring, index, rc) result(vector)
@@ -273,6 +282,7 @@ function iter_as_itemtype(hconfig_iter, unusable, keystring, index, rc) result(i
       call esmf_HConfigDestroy(subconfig, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function iter_as_stringvector
 
 end module mapl3g_HConfigAs
