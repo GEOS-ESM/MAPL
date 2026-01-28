@@ -380,11 +380,10 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_Field) :: f_in, f_out
 
 !#      _RETURN_UNLESS(this%import_is_time_varying())
-      call ESMF_StateGet(importState, itemName=IMPORT_NAME, field=f_in, _RC)
-      call ESMF_StateGet(exportState, itemName=EXPORT_NAME, field=f_out, _RC)
+!      call ESMF_StateGet(importState, itemName=IMPORT_NAME, field=f_in, _RC)
+!      call ESMF_StateGet(exportState, itemName=EXPORT_NAME, field=f_out, _RC)
 
 !#      call FieldUpdate(f_out, from=f_in, ignore=this%transform%get_ignore(), _RC)
       
@@ -448,6 +447,7 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(exportState)
       _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(clock)
    end subroutine clock_advance
       
    subroutine add_consumer(this, consumer)

@@ -63,6 +63,9 @@ contains
       call this%run_custom(ESMF_METHOD_WRITERESTART, PHASE_NAME, _RC)
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
       _UNUSED_DUMMY(unusable)
    end subroutine write_restart
 

@@ -43,7 +43,6 @@ contains
       type(ESMF_Geom), intent(in) :: dst_geom
       type(EsmfRegridderParam), intent(in) :: dst_param
 
-      type(RegridderSpec) :: spec
       type(RegridderManager), pointer :: regridder_manager
 
       transform%src_geom = src_geom

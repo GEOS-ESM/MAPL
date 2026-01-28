@@ -5,7 +5,6 @@ submodule (mapl3g_OuterMetaComponent) finalize_smod
    use mapl3g_GriddedComponentDriverMap
    use mapl3g_GenericPhases
    use mapl_ErrorHandling
-   use mapl3g_Utilities_Comms_API, only: MAPL_Am_I_Root
    use MAPL_Profiler, only: ProfileReporter
    use MAPL_Profiler, only: MultiColumn, NameColumn, FormattedTextColumn, PercentageColumn
    use MAPL_Profiler, only: InclusiveColumn, ExclusiveColumn, SeparatorColumn, NumCyclesColumn
@@ -25,12 +24,8 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      type(GriddedComponentDriver), pointer :: child
-      type(GriddedComponentDriverMapIterator) :: iter
       character(*), parameter :: PHASE_NAME = 'GENERIC::FINALIZE_USER'
-      type(StringVector), pointer :: finalize_phases
-      logical :: found
-      integer :: phase_idx, status
+      integer :: status
   
       call recurse_finalize_(this, phase_idx=GENERIC_FINALIZE_USER, _RC)
 
@@ -39,15 +34,15 @@ contains
       call report_generic_profile(this, _RC)
 
       ! User gridcomp may not have any given phase; not an error condition if not found
-      finalize_phases => this%user_phases_map%at(ESMF_METHOD_FINALIZE, _RC)
-      phase_idx = get_phase_index(finalize_phases, phase_name=phase_name, found=found)
-      _RETURN_UNLESS(found)
-
+      ! run_custom handles phase lookup internally
       call this%run_custom(ESMF_METHOD_FINALIZE, PHASE_NAME, _RC)
 
       ! TODO - release resources
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
       _UNUSED_DUMMY(unusable)
    end subroutine finalize
 

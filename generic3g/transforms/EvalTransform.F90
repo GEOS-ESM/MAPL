@@ -121,7 +121,6 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         type(ComponentDriverVectorIterator) :: iter
          class(ComponentDriver), pointer :: coupler
          
          associate (e => this%input_couplers%ftn_end())

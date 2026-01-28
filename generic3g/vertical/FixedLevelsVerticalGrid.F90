@@ -159,8 +159,6 @@ contains
       class(FixedLevelsVerticalGrid), intent(in) :: this
       class(VerticalGrid), intent(in) :: other
 
-      type(StringVector) :: supported_dims
-
       matches = this%get_num_levels() == other%get_num_levels()
       if (.not. matches) return
 
@@ -273,8 +271,14 @@ contains
       type(FileMetadata), intent(in), target :: file_metadata
       integer, intent(out), optional :: rc
       
-      ! Placeholder implementation
+      ! Placeholder implementation - not yet implemented
+      ! Return empty spec to satisfy Fortran requirement for defined result
       integer :: status
+      
+      spec = FixedLevelsVerticalGridSpec()
+      
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(file_metadata)
       _RETURN(_FAILURE)
    end function create_spec_from_file_metadata
 

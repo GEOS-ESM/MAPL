@@ -413,8 +413,14 @@ contains
       type(FileMetadata), intent(in), target :: file_metadata
       integer, intent(out), optional :: rc
       
-      ! Placeholder implementation
+      ! Placeholder implementation - not yet implemented
+      ! Return empty spec to satisfy Fortran requirement for defined result
       integer :: status
+      
+      spec = ModelVerticalGridSpec(names=StringVector(), physical_dimensions=StringVector(), num_levels=0)
+      
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(file_metadata)
       _RETURN(_FAILURE)
    end function create_spec_from_file_metadata
 
