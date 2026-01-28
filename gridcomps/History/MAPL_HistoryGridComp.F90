@@ -2654,17 +2654,16 @@ ENDDO PARSER
         do n=1, nlist
            if (list(n)%disabled) cycle
            if (.not. IntState%average(n)) cycle
-              ncpls = size(IntState%srcs(n)%spec)
-              allocate(cplAlarms(ncpls))
-              call MAPL_CplGetAlarms(IntState%ccs(n), cplAlarms, _RC) 
-              ! assert that his_alarm and coupler's alarms agree
-              alarmsAgree = checkAlarms(list(n)%his_alarm, cplAlarms, _RC)
-              deallocate(cplAlarms)
-              if (.not. alarmsAgree) then
-                 errorsFound = .true.
-                 print *, 'ERROR: History and Averaging coupler alarms disagree.' // &
-                      'Check REF_TIME for '//trim(list(n)%collection)
-              end if
+           ncpls = size(IntState%srcs(n)%spec)
+           allocate(cplAlarms(ncpls))
+           call MAPL_CplGetAlarms(IntState%ccs(n), cplAlarms, _RC) 
+           ! assert that his_alarm and coupler's alarms agree
+           alarmsAgree = checkAlarms(list(n)%his_alarm, cplAlarms, _RC)
+           deallocate(cplAlarms)
+           if (.not. alarmsAgree) then
+              errorsFound = .true.
+              print *, 'ERROR: History and Averaging coupler alarms disagree.' // &
+                   'Check REF_TIME for '//trim(list(n)%collection)
            end if
         end do
 
