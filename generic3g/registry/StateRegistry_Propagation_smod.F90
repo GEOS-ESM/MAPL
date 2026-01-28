@@ -66,11 +66,11 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(StateItemExtensionPtrVector) :: extensions
-      type(StateItemExtensionPtr), pointer :: extension
+      type(StateItemSpecPtrVector) :: extensions
+      type(StateItemSpecPtr), pointer :: extension
       integer :: i
 
-      extensions = family%get_extensions()
+      extensions = family%get_specs()
       do i = 1, extensions%size()
          extension => extensions%of(i)
          call link(extension%ptr, _RC)
@@ -80,19 +80,17 @@ contains
    contains
 
       subroutine link(extension, rc)
-         type(StateItemExtension), target :: extension
+         class(StateItemSpec), pointer :: extension
          integer, optional, intent(out) :: rc
 
          integer :: status
-         type(StateItemSpec), pointer :: spec
          
-         spec => extension%get_spec()
-         _RETURN_IF(spec%is_active())
+         _RETURN_IF(extension%is_active())
 
          if (.not. this%has_virtual_pt(virtual_pt)) then
             call this%add_virtual_pt(virtual_pt, _RC)
          end if
-         call this%link_extension(virtual_pt, extension, _RC)
+         call this%link_spec(virtual_pt, extension, _RC)
 
          _RETURN(_SUCCESS)
       end subroutine link

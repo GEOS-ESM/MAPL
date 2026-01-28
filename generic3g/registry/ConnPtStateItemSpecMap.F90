@@ -1,6 +1,6 @@
 module mapl3g_ConnPtStateItemSpecMap
    use mapl3g_ConnectionPt
-   use mapl3g_StateItemSpec
+   use mapl3g_StateItemSpec, only: StateItemSpec
 
 #define Key ConnectionPt
 #define Key_LT(a,b) (a < b)
