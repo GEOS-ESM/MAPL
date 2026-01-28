@@ -7,6 +7,7 @@ program  time_ave
    use MAPL
    use MAPL_FileMetadataUtilsMod
    use gFTL_StringVector
+   use gFTL2_StringVector
    use MPI
    use, intrinsic :: iso_fortran_env, only: int32, int64, int16, real32, real64
    use ieee_arithmetic, only: isnan => ieee_is_nan
@@ -1730,10 +1731,13 @@ contains
    end subroutine usage
 
     subroutine generate_report()
+         use gFTL2_StringVector
 
-         character(:), allocatable :: report_lines(:)
+         type(StringVector) :: report_lines
+         type(StringVectorIterator) :: iter
          integer :: i
          character(1) :: empty(0)
+         character(:), allocatable :: line
 
          reporter = ProfileReporter(empty)
          call reporter%add_column(NameColumn(20))
@@ -1745,12 +1749,15 @@ contains
          call reporter%add_column(FormattedTextColumn(' Min Excl)','(f12.2)', 12, ExclusiveColumn('MIN')))
          call reporter%add_column(FormattedTextColumn('Max PE)','(1x,i5.5,1x)', 7, ExclusiveColumn('MAX_PE')))
          call reporter%add_column(FormattedTextColumn('Min PE)','(1x,i5.5,1x)', 7, ExclusiveColumn('MIN_PE')))
-        report_lines = reporter%generate_report(t_prof)
+         report_lines = reporter%generate_report(t_prof)
          if (mapl_am_I_root()) then
             write(*,'(a)')'Final profile'
             write(*,'(a)')'============='
-            do i = 1, size(report_lines)
-               write(*,'(a)') report_lines(i)
+            iter = report_lines%begin()
+            do while (iter /= report_lines%end())
+               line = iter%of()
+               write(*,'(a)') line
+               call iter%next()
             end do
             write(*,'(a)') ''
          end if

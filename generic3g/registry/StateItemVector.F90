@@ -1,5 +1,5 @@
 module mapl3g_StateItemVector
-   use mapl3g_StateItemSpec
+   use mapl3g_StateItemSpec, only: StateItemSpec
   
 #define T StateItemSpec
 #define T_polymorphic

@@ -13,7 +13,6 @@ submodule (mapl3g_OuterMetaComponent) initialize_advertise_smod
    use mapl3g_VariableSpecVector, only: operator(/=)
    use mapl3g_StateItemSpec
    use mapl3g_Multistate
-   use mapl3g_stateItemExtension
    use mapl_ErrorHandling
    implicit none (type, external)
 

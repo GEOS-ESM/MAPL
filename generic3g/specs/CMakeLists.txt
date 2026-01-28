@@ -33,6 +33,8 @@ target_sources(MAPL.generic3g PRIVATE
   GridSpec.F90
   
   StateItemSpec.F90
+  StateItemSpecVector.F90
+  StateItemSpecPtrVector.F90
   StateItemSpecMap.F90
 
   ChildSpec.F90

@@ -1,4 +1,3 @@
-
 #ifdef NAME_
 #undef NAME_
 #endif
@@ -7,8 +6,8 @@
 #undef NAMESTR_
 #endif
 
-#define NAME_ ArrayScatterRcvCnt_
-#define NAMESTR_ ArrayScatterRcvCnt_
+#define NAME_ array_scatter_rcv_cnt_
+#define NAMESTR_ array_scatter_rcv_cnt_
 
 #include "overload.macro"
 
@@ -40,7 +39,7 @@
     if(present(srcPe)) then
       srcDE = srcPe 
     else
-      srcDE = MAPL_Root
+      srcDE = ROOT_PROCESS_ID
     end if
 
     call ESMF_VMGet(vm, localPet=deId, petCount=ndes, rc=status)

@@ -10,7 +10,6 @@ module Test_Couplers
    use mapl3g_StateItemSpec, only: StateItemSpec
    use mapl3g_StateRegistry, only: StateRegistry
    use mapl3g_VirtualConnectionPt, only: VirtualConnectionPt
-   use mapl3g_StateItemExtension, only: StateItemExtension
    use mapl3g_AspectId
    use mapl3g_Geom_API
    use mapl3g_VerticalGrid_API
@@ -42,7 +41,7 @@ contains
       type(VariableSpec) :: var_spec
       type(StateItemSpec) :: export_spec, import_spec
       type(VirtualConnectionPt) :: virtual_pt
-      type(StateItemExtension), pointer :: extension
+      class(StateItemSpec), pointer :: extension
       type(StateItemSpec), pointer :: new_spec
       type(UnitsAspect) :: aspect
       character(len=:), allocatable :: units
@@ -74,7 +73,7 @@ contains
 
       ! Extend to import StateItemSpec
       extension => registry%extend(virtual_pt, import_spec, _RC)
-      new_spec => extension%get_spec()
+      new_spec => extension
 
       ! Compare extension StateItemSpec units to import StateItemSpec units
       aspect = to_UnitsAspect(new_spec%get_aspects(), _RC)
@@ -91,7 +90,7 @@ contains
       type(VariableSpec) :: var_spec
       type(StateItemSpec) :: export_spec, import_spec
       type(VirtualConnectionPt) :: virtual_pt
-      type(StateItemExtension), pointer :: extension
+      class(StateItemSpec), pointer :: extension
       type(StateItemSpec), pointer :: new_spec
       type(TypekindAspect) :: aspect
       type(ESMF_TypeKind_Flag) :: typekind
@@ -124,7 +123,7 @@ contains
 
       ! Extend to import StateItemSpec
       extension => registry%extend(virtual_pt, import_spec, _RC)
-      new_spec => extension%get_spec()
+      new_spec => extension
 
       ! Compare extension StateItemSpec units to import StateItemSpec units
       aspect = to_TypekindAspect(new_spec%get_aspects(), _RC)

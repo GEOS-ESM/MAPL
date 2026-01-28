@@ -8,13 +8,12 @@ module mapl3g_StateRegistry
    use mapl3g_VirtualConnectionPt
    use mapl3g_VirtualConnectionPtVector
    use mapl3g_ConnectionPt
-   use mapl3g_StateItemExtension
-   use mapl3g_StateItemExtensionVector
-   use mapl3g_StateItemExtensionPtrVector
+   use mapl3g_StateItemSpec
+   use mapl3g_StateItemSpecVector
+   use mapl3g_StateItemSpecPtrVector
    use mapl3g_ExtensionFamily
    use mapl3g_VirtualPtFamilyMap
    use mapl3g_StateItemVector
-   use mapl3g_StateItemSpec
    use mapl3g_ComponentDriver
    use mapl3g_ComponentDriverVector
    use mapl3g_ComponentDriverPtrVector
@@ -31,7 +30,7 @@ module mapl3g_StateRegistry
    type, extends(AbstractRegistry) :: StateRegistry
       private
       character(:), allocatable :: name
-      type(StateItemExtensionVector) :: owned_items ! specs and couplers
+      type(StateItemSpecVector) :: owned_items ! specs and couplers
       type(RegistryPtrMap) :: subregistries
 
       type(VirtualPtFamilyMap) :: family_map
@@ -41,7 +40,7 @@ module mapl3g_StateRegistry
       procedure :: add_subregistry
       procedure :: add_virtual_pt
       procedure :: add_primary_spec
-      procedure :: link_extension
+      procedure :: link_spec
       procedure :: add_extension
       procedure :: add_spec
       procedure :: add_family
@@ -64,8 +63,8 @@ module mapl3g_StateRegistry
       procedure :: has_virtual_pt
       procedure :: num_owned_items
       procedure :: get_extension_family
-      procedure :: get_extensions
-      procedure :: get_primary_extension
+      procedure :: get_specs
+      procedure :: get_primary_spec
 
       procedure :: has_subregistry
       procedure :: get_subregistry_by_name
@@ -174,18 +173,18 @@ module mapl3g_StateRegistry
          integer, optional, intent(out) :: rc
       end subroutine add_primary_spec
 
-      module function get_primary_extension(this, virtual_pt, rc) result(primary)
-         type(StateItemExtension), pointer :: primary
+      module function get_primary_spec(this, virtual_pt, rc) result(primary)
+         type(StateItemSpec), pointer :: primary
          class(StateRegistry), target, intent(in) :: this
          type(VirtualConnectionPt), intent(in) :: virtual_pt
          integer, optional, intent(out) :: rc
-      end function get_primary_extension
+      end function get_primary_spec
 
       module function add_extension(this, virtual_pt, extension, rc) result(new_extension)
-         type(StateItemExtension), pointer :: new_extension
+         type(StateItemSpec), pointer :: new_extension
          class(StateRegistry), target, intent(inout) :: this
          type(VirtualConnectionPt), intent(in) :: virtual_pt
-         type(StateItemExtension), intent(in) :: extension
+         type(StateItemSpec), intent(in) :: extension
          integer, optional, intent(out) :: rc
       end function add_extension
 
@@ -196,12 +195,12 @@ module mapl3g_StateRegistry
          integer, optional, intent(out) :: rc
       end subroutine add_spec
 
-      module subroutine link_extension(this, virtual_pt, extension, rc)
+      module subroutine link_spec(this, virtual_pt, extension, rc)
          class(StateRegistry), target, intent(inout) :: this
          type(VirtualConnectionPt), intent(in) :: virtual_pt
-         type(StateItemExtension), pointer, intent(in) :: extension
+         type(StateItemSpec), target, intent(in) :: extension
          integer, optional, intent(out) :: rc
-      end subroutine link_extension
+      end subroutine link_spec
 
       module function get_extension_family(this, virtual_pt, rc) result(family)
          type(ExtensionFamily), pointer :: family
@@ -210,15 +209,15 @@ module mapl3g_StateRegistry
          integer, optional, intent(out) :: rc
       end function get_extension_family
 
-      module function get_extensions(this, virtual_pt, rc) result(extensions)
-         type(StateItemExtensionPtr), allocatable :: extensions(:)
+      module function get_specs(this, virtual_pt, rc) result(extensions)
+         type(StateItemSpecPtr), allocatable :: extensions(:)
          class(StateRegistry), target, intent(in) :: this
          type(VirtualConnectionPt), intent(in) :: virtual_pt
          integer, optional, intent(out) :: rc
-      end function get_extensions
+      end function get_specs
 
       recursive module function extend(registry, v_pt, goal_spec, rc) result(extension)
-         type(StateItemExtension), pointer :: extension
+         type(StateItemSpec), pointer :: extension
          class(StateRegistry), target, intent(inout) :: registry
          type(VirtualConnectionPt), intent(in) :: v_pt
          type(StateItemSpec), intent(in) :: goal_spec

@@ -7,8 +7,8 @@
 #undef NAMESTR_
 #endif
 
-#define NAME_ ArrayGatherRcvCnt_
-#define NAMESTR_ 'ArrayGatherRcvCnt_'
+#define NAME_ array_gather_rcv_cnt_
+#define NAMESTR_ 'array_gather_rcv_cnt_'
 
 #include "overload.macro"
 
@@ -40,7 +40,7 @@
     if(present(dstPe)) then
       dstDE = dstPe 
     else
-      dstDE = MAPL_Root
+      dstDE = ROOT_PROCESS_ID
     end if
 
     call ESMF_VMGet(vm, localPet=deId, petCount=ndes, rc=status)
