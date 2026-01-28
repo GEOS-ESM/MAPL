@@ -4,7 +4,6 @@ submodule (mapl3g_OuterMetaComponent) initialize_set_clock_smod
    use mapl3g_GenericPhases, only: GENERIC_INIT_SET_CLOCK
    use mapl3g_ComponentDriver
    use mapl3g_GriddedComponentDriverMap
-   use mapl3g_CouplerPhases, only: GENERIC_COUPLER_INVALIDATE, GENERIC_COUPLER_UPDATE
    use mapl3g_ESMF_Time_Utilities
    use mapl_ErrorHandling
    use mapl3g_HConfig_API
@@ -146,7 +145,6 @@ contains
          type(ESMF_TimeInterval), intent(in) :: user_timeStep
          integer, optional, intent(out) :: rc
 
-         integer :: status
          type(ESMF_Time) :: temp_time
 
          temp_time = user_clockTime

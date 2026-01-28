@@ -16,7 +16,6 @@ contains
       character(len=:), allocatable :: name
 
       type(GriddedComponentDriverMapIterator) :: iter
-      integer :: i
 
       _ASSERT(index > 0, "index should be >= 1")
       _ASSERT(index <= this%get_num_children(), "index should be <= num_children")

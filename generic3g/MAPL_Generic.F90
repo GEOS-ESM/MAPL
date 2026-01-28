@@ -52,11 +52,10 @@ module mapl3g_Generic
    use esmf, only: ESMF_StateIntent_Flag, ESMF_STATEINTENT_INTERNAL
    use esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
    use esmf, only: ESMF_MAXSTR
-   use esmf, only: ESMF_Time, ESMF_TimeInterval, ESMF_TimeIntervalGet, ESMF_Clock, ESMF_ClockGet
-   use esmf, only: ESMF_State, ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, ESMF_TypeKind_Flag
+   use esmf, only: ESMF_TimeInterval, ESMF_TimeIntervalGet, ESMF_Clock, ESMF_ClockGet
+   use esmf, only: ESMF_State, ESMF_StateItem_Flag, ESMF_TypeKind_Flag
    use esmf, only: operator(==)
    use pflogger, only: logger_t => logger
-   use gftl2_StringVector, only: StringVector
 
    implicit none(type,external)
    private

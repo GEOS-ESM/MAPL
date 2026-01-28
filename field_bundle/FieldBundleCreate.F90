@@ -42,6 +42,7 @@ contains
       call FieldBundleSet(bundle, fieldBundleType=fieldBundleType_, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function create_bundle_empty
 
 
@@ -79,6 +80,7 @@ contains
       deallocate(item_name, item_type, _STAT)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function create_bundle_from_state
 
    function create_bundle_from_field_list(fieldList, unusable, name, fieldBundleType, rc) result(bundle)
@@ -94,6 +96,7 @@ contains
       call ESMF_FieldBundleAdd(bundle, fieldList=fieldList, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function create_bundle_from_field_list
 
    logical function bundles_are_aliased(bundle1, bundle2, rc) result(are_aliased)

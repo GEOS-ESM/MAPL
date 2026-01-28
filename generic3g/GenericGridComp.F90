@@ -208,6 +208,8 @@ contains
       end select
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
    end subroutine run
 
 
@@ -224,6 +226,8 @@ contains
       outer_meta => get_outer_meta(gridcomp, _RC)
       call outer_meta%finalize(importState, exportState, clock, _RC)
 
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
       _RETURN(ESMF_SUCCESS)
    end subroutine finalize
 

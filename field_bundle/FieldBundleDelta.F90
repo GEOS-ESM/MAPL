@@ -289,6 +289,7 @@ contains
          end do
 
          _RETURN(_SUCCESS)
+         _UNUSED_DUMMY(unusable)
       end subroutine destroy_fields
       
    end subroutine reallocate_bundle
