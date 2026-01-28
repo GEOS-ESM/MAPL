@@ -4,7 +4,7 @@ set (test_srcs
   Test_InfoUtilities.pf
   Test_Ungridded.pf
   Test_ESMF_Time_Utilities.pf
-  Test_MAPL_Comms.pf
+  Test_Comms.pf
   )
 
 add_pfunit_ctest(MAPL.esmf_utils.tests
