@@ -1,0 +1,86 @@
+module Test_Partition
+   use mapl_Partition
+   use funit
+   implicit none (type,external)
+
+contains
+
+   @test
+   ! 4 things distributed on one DE
+   subroutine test_trivial_partition()
+      integer, allocatable :: partition(:)
+
+      partition = mapl_GetPartition(4, 1)
+
+      @assertEqual([4], partition)
+
+   end subroutine test_trivial_partition
+
+   @test
+   ! 5 things distributed on 2 DEs
+   ! Extras go on earlier processes
+   subroutine test_uneven_partition()
+      integer, allocatable :: partition(:)
+
+      partition = mapl_GetPartition(5, k=2)
+      @assertEqual([3,2], partition)
+   end subroutine test_uneven_partition
+
+   @test
+   subroutine test_min_extent()
+      integer, allocatable :: partition(:)
+
+      partition = mapl_GetPartition(5, k=3, min_extent=2)
+      @assertEqual([3,2,0], partition)
+      
+   end subroutine test_min_extent
+
+
+   @test
+   subroutine test_symmetric_even_even()
+      integer, allocatable :: partition(:)
+
+      partition = mapl_GetPartition(6, k=4, symmetric=.true.)
+
+      @assertEqual([2,1,1,2], partition)
+      
+   end subroutine test_symmetric_even_even
+
+
+   @test
+   subroutine test_symmetric_even_odd()
+      integer, allocatable :: partition(:)
+
+      partition = mapl_GetPartition(8, k=3, symmetric=.true.)
+      @assertEqual([3,2,3], partition)
+      
+   end subroutine test_symmetric_even_odd
+
+
+   @test
+   subroutine test_symmetric_odd_odd()
+      integer, allocatable :: partition(:)
+
+      partition = mapl_GetPartition(7, k=3, symmetric=.true.)
+      @assertEqual([2,3,2], partition)
+      
+   end subroutine test_symmetric_odd_odd
+
+   @test
+   ! This case does not quite work, so must fudge symmetry
+   subroutine test_symmetric_odd_even()
+      integer, allocatable :: partition(:)
+
+      partition = mapl_GetPartition(7, k=4, symmetric=.true.)
+      @assertEqual([2,2,1,2], partition)
+      
+   end subroutine test_symmetric_odd_even
+
+   @test
+   subroutine test_problematic_middle_extent()
+      integer, allocatable :: partition(:)
+      partition = mapl_GetPartition(9, 5, symmetric=.true., min_extent=2)
+      @assertEqual([3,0,3,0,3], partition)
+
+   end subroutine test_problematic_middle_extent
+end module Test_Partition
