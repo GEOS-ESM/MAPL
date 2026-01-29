@@ -58,7 +58,6 @@ contains
          integer :: status
          type(ChildSpecMapIterator) :: iter
          type(ChildSpec), pointer :: child_spec
-         type(ESMF_HConfig), allocatable :: child_hconfig
          character(:), allocatable :: child_name
 
          associate ( e => this%component_spec%children%ftn_end() )

@@ -691,6 +691,7 @@ contains
       call UDUNITS_Initialize(_RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end subroutine initialize_udunits
 
 end module mapl3g_MaplFramework
