@@ -111,6 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added implementation for mapl_GetPartition() with unit tests.  Replaces logic that will disappear with MAPL2
 - Added backwards compatibility with non-CF dimensionless vertical coordinate in ExtData2G
+- Added logic in History to check for consistent History and averaging coupler alarms
 
 ### Changed
 - added formating string to the fPlogger call in FileBundleRead.F90 to avoid processing incidental '%' characters in the filename
