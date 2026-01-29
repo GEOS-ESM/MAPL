@@ -10,6 +10,7 @@ module Test_Scenarios
    use mapl3g_GenericGridComp, generic_setservices => setservices
    use mapl3g_UserSetServices
    use mapl3g_ESMF_Utilities
+   use mapl3g_Geom_API, only: mapl_GeomGet
    use esmf
    use nuopc
    ! testing framework
@@ -102,6 +103,7 @@ contains
       params = [params, add_params('status', check_field_status)]
       params = [params, add_params('typekind', check_field_typekind)]
       params = [params, add_params('rank', check_field_rank)]
+      params = [params, add_params('geom_name', check_field_geom_name)]
       params = [params, add_params('value', check_field_value)]
       params = [params, add_params('vertical_profile', check_field_vertical_profile)]
 
@@ -125,6 +127,7 @@ contains
               ScenarioDescription('3d_specs',                'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('ungridded_dims',          'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('service_service',         'parent.yaml',      check_name, check_stateitem), &
+              ScenarioDescription('service_with_geom',       'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('export_dependency',       'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('regrid',                  'cap.yaml',         check_name, check_stateitem), &
               ScenarioDescription('vector_1',                'parent.yaml',      check_name, check_stateitem), &
@@ -778,6 +781,44 @@ contains
 
       rc = 0
    end subroutine check_field_rank
+
+   subroutine check_field_geom_name(expectations, state, short_name, description, rc)
+      type(ESMF_HConfig), intent(in) :: expectations
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: short_name
+      character(*), intent(in) :: description
+      integer, intent(out) :: rc
+
+      type(ESMF_Field) :: field
+      type(ESMF_Geom) :: geom
+      character(:), allocatable :: expected_geom_name
+      character(:), allocatable :: geom_name
+      integer :: status
+      type(ESMF_StateItem_Flag) :: itemtype
+      character(len=:), allocatable :: msg
+
+      msg = description
+
+      if (.not. ESMF_HConfigIsDefined(expectations,keyString='geom_name')) then
+         rc = 0
+         return
+      end if
+
+      call ESMF_StateGet(state, short_name, itemtype=itemtype)
+      if (itemtype /= ESMF_STATEITEM_FIELD) then ! that's ok
+         rc = 0
+         return
+      end if
+
+      call ESMF_StateGet(state, short_name, field, _RC)
+      call ESMF_FieldGet(field, geom=geom, _RC)
+      call mapl_GeomGet(geom, name=geom_name, _RC)
+
+      expected_geom_name = ESMF_HConfigAsString(expectations,keyString='geom_name',_RC)
+      @assert_that(msg // ' :: geom_name', geom_name, is(expected_geom_name))
+
+      rc = 0
+   end subroutine check_field_geom_name
 
    subroutine check_fieldCount(expectations, state, short_name, description, rc)
       type(ESMF_HConfig), intent(in) :: expectations

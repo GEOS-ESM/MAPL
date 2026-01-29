@@ -84,13 +84,14 @@ set_tests_properties(MAPL.generic3g.tests PROPERTIES ENVIRONMENT "${TEST_ENV}")
 
 add_dependencies(build-tests MAPL.generic3g.tests)
 
-# Copy scenarios directory to build directory whenever scenario files change
-file(GLOB_RECURSE SCENARIO_FILES ${CMAKE_CURRENT_SOURCE_DIR}/scenarios/*)
+# Copy scenarios directory to build directory at build time
+# Using COMMAND_EXPAND_LISTS and VERBATIM for robustness
 add_custom_target(copy_scenarios ALL
   COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_CURRENT_SOURCE_DIR}/scenarios
     ${CMAKE_CURRENT_BINARY_DIR}/scenarios
-  DEPENDS ${SCENARIO_FILES}
-  COMMENT "Copying updated scenarios directory to build directory"
+  COMMENT "Copying scenarios directory to build directory"
+  VERBATIM
 )
 add_dependencies(MAPL.generic3g.tests copy_scenarios)
+

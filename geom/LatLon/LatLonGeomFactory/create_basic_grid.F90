@@ -17,10 +17,11 @@ submodule (mapl3g_LatLonGeomFactory) create_basic_grid_smod
 
 contains
 
-   module function create_basic_grid(spec, unusable, rc) result(grid)
+   module function create_basic_grid(spec, unusable, name, rc) result(grid)
       type(ESMF_Grid) :: grid
       type(LatLonGeomSpec), intent(in) :: spec
       class(KE), optional, intent(in) :: unusable
+      character(len=*), optional, intent(in) :: name
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -42,6 +43,7 @@ contains
               & coordDep1=[1,2], &
               & coordDep2=[1,2], &
               & coordSys=ESMF_COORDSYS_SPH_RAD, &
+              & name=name, &
               & _RC)
        else
          grid = ESMF_GridCreateNoPeriDim( &
@@ -53,6 +55,7 @@ contains
               & coordDep1=[1,2], &
               & coordDep2=[1,2], &
               & coordSys=ESMF_COORDSYS_SPH_RAD, &
+              & name=name, &
               & _RC)
       end if
 
