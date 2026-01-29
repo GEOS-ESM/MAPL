@@ -377,11 +377,12 @@ contains
       _RETURN(_SUCCESS)
    end subroutine field_info_get_internal_restart_mode
 
-   subroutine field_info_remove_internal(info, unusable, namespace, units, rc)
+   subroutine field_info_remove_internal(info, unusable, namespace,&
+         & units, standard_name, long_name, rc)
       type(ESMF_Info), intent(inout) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: namespace
-      logical, optional, intent(in) :: units
+      logical, optional, intent(in) :: units, standard_name, long_name
       integer, optional, intent(out) :: rc
       integer :: status
       logical :: isPresent
@@ -393,9 +394,11 @@ contains
          namespace_ = namespace
       end if
 
-      if(present(units)) then
+      isPresent=present(units)
+      if(isPresent) isPresent=units
+      if(isPresent) then
          full_key = namespace_ // KEY_UNITS
-         isPresent = units .and. ESMF_InfoIsPresent(info, key=full_key, _RC)
+         isPresent = ESMF_InfoIsPresent(info, key=full_key, _RC)
          if(isPresent) then
             call ESMF_InfoRemove(info, keyParent=get_parent(full_key), keyChild=get_child(full_key), _RC)
          end if

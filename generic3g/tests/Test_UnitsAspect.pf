@@ -216,7 +216,7 @@ contains
       bundle = create_test_bundle(UNITS1)
       call aspect%update_payload(bundle=bundle, _RC)
       call MAPL_FieldBundleGet(bundle, units=retrieved_units, _RC)
-      @assertFalse(allocated(retrieved_units), 'units should not be allocated. ' // retrieved_units)
+      @assertFalse(allocated(retrieved_units), 'units should not be allocated.')
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
 
    end subroutine test_update_payload_bundle_empty
