@@ -18,21 +18,56 @@ contains
       integer :: status
       type(GeomManager), target :: geom_manager
       type(MaplGeom), pointer :: mapl_geom
+      type(ESMF_Geom) :: geom
+      type(ESMF_LocStream) :: locstream
+      type(ESMF_GeomType_Flag) :: geomtype
+      real(kind=ESMF_KIND_R8), pointer :: lons(:) => null(), lats(:) => null()
 
       ! Minimal LocStream configuration with explicit coordinates
       hconfig = ESMF_HConfigCreate(content="{class: locstream, lon: [0.0, 1.0, 2.0], lat: [10.0, 20.0, 30.0]}", rc=status)
       @assert_that(status, is(0))
 
       geom_manager = GeomManager()
-      _HERE
       mapl_geom => geom_manager%get_mapl_geom(hconfig, rc=status)
-      _HERE
       @assert_that(status, is(0))
 
-      _HERE
       call ESMF_HConfigDestroy(hconfig, rc=status)
-      _HERE
       @assert_that(status, is(0))
+
+      ! Inspect the created geom/locstream to verify contents
+      geom = mapl_geom%get_geom()
+      call ESMF_GeomGet(geom, geomtype=geomtype, rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(geomtype == ESMF_GEOMTYPE_LOCSTREAM)
+
+      call ESMF_GeomGet(geom, locstream=locstream, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_LocStreamGetKey(locstream, keyName='ESMF:Lon', farray=lons, rc=status)
+      @assert_that(status, is(0))
+      call ESMF_LocStreamGetKey(locstream, keyName='ESMF:Lat', farray=lats, rc=status)
+      @assert_that(status, is(0))
+
+      @assert_that(size(lons), is(3))
+      @assert_that(size(lats), is(3))
+
+      ! Values should be the input degrees converted to radians
+      ! within a small tolerance.
+      block
+         real(kind=ESMF_KIND_R8) :: tol
+         real(kind=ESMF_KIND_R8), dimension(3) :: lon_deg, lat_deg
+         real(kind=ESMF_KIND_R8), dimension(3) :: lon_exp, lat_exp
+
+         tol = 1.0e-12_ESMF_KIND_R8
+         lon_deg = [0.0_ESMF_KIND_R8, 1.0_ESMF_KIND_R8, 2.0_ESMF_KIND_R8]
+         lat_deg = [10.0_ESMF_KIND_R8, 20.0_ESMF_KIND_R8, 30.0_ESMF_KIND_R8]
+
+         lon_exp = lon_deg * (acos(-1.0_ESMF_KIND_R8) / 180.0_ESMF_KIND_R8)
+         lat_exp = lat_deg * (acos(-1.0_ESMF_KIND_R8) / 180.0_ESMF_KIND_R8)
+
+         @assertTrue(all(abs(lons - lon_exp) < tol))
+         @assertTrue(all(abs(lats - lat_exp) < tol))
+      end block
 
    end subroutine test_make_locstream_from_hconfig
 

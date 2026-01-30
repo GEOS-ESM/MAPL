@@ -4,7 +4,7 @@ module mapl3g_LocStreamGeomFactory
    use mapl3g_GeomSpec
    use mapl3g_GeomFactory
    use mapl3g_LocStreamGeomSpec
-   use mapl3g_CoordinateAxis, only: get_dim_name
+   use mapl3g_CoordinateAxis, only: get_dim_name, get_coordinates
    use mapl_ErrorHandlingMod
    use mapl_StringUtilities, only: to_lower
    use mapl3g_get_hconfig, only: get_hconfig
@@ -13,8 +13,8 @@ module mapl3g_LocStreamGeomFactory
    use gftl2_StringVector, only: StringVector
    use mapl3g_StringDictionary, only: StringDictionary
    use mapl_KeywordEnforcerMod, only: KeywordEnforcer
+   use MAPL_Constants, only: MAPL_PI_R8
    use esmf
-   use iso_fortran_env, only: REAL64
    implicit none
    private
 
@@ -60,6 +60,14 @@ contains
       allocate(LocStreamGeomSpec :: geom_spec)
       geom_spec = LocStreamGeomSpec(npoints)
 
+      ! Store coordinate values (in degrees) so that the
+      ! LocStream can be created with the correct content
+      ! later in make_geom.
+      select type (ls_spec => geom_spec)
+      type is (LocStreamGeomSpec)
+         call ls_spec%set_coordinates(lon, lat)
+      end select
+
       _RETURN(_SUCCESS)
    end function make_geom_spec_from_hconfig
 
@@ -73,6 +81,7 @@ contains
 
       character(:), allocatable :: dim_name
       integer :: npoints
+      real(kind=ESMF_KIND_R8), allocatable :: lon(:), lat(:)
 
       ! For LocStream metadata we expect latitude and longitude
       ! coordinate variables with units of degrees_north and
@@ -90,8 +99,21 @@ contains
 
       npoints = file_metadata%get_dimension(dim_name, _RC)
 
+      lon = get_coordinates(file_metadata, dim_name, _RC)
+      lat = get_coordinates(file_metadata, dim_name, _RC)
+      _ASSERT(size(lon) == npoints, 'LocStream metadata longitude size mismatch with dimension')
+      _ASSERT(size(lat) == npoints, 'LocStream metadata latitude size mismatch with dimension')
+
       allocate(LocStreamGeomSpec :: geom_spec)
       geom_spec = LocStreamGeomSpec(npoints)
+
+      ! Persist coordinate values (degrees) in the spec so
+      ! they can be converted to radians when constructing
+      ! the ESMF_LocStream.
+      select type (ls_spec => geom_spec)
+      type is (LocStreamGeomSpec)
+         call ls_spec%set_coordinates(lon, lat)
+      end select
 
       _RETURN(_SUCCESS)
    end function make_geom_spec_from_metadata
@@ -160,7 +182,8 @@ contains
       integer :: status
       integer :: local_count
       type(ESMF_LocStream) :: locstream
-      real(kind=REAL64), allocatable :: tlons(:), tlats(:)
+      real(kind=ESMF_KIND_R8), allocatable :: tlons(:), tlats(:)
+      real(kind=ESMF_KIND_R8), pointer :: lons_deg(:) => null(), lats_deg(:) => null()
 
       select type (geom_spec)
       type is (LocStreamGeomSpec)
@@ -171,8 +194,14 @@ contains
          allocate(tlats(local_count), stat=status)
          _VERIFY(status)
 
-         tlons = 0.0_REAL64
-         tlats = 0.0_REAL64
+         call geom_spec%get_coordinates(lons_deg, lats_deg)
+         _ASSERT(associated(lons_deg) .and. associated(lats_deg), 'LocStreamGeomSpec missing coordinates')
+         _ASSERT(size(lons_deg) == local_count .and. size(lats_deg) == local_count, &
+              'LocStreamGeomSpec coordinate size mismatch')
+
+         ! Convert from degrees to radians for the LocStream
+         tlons = lons_deg * MAPL_PI_R8 / 180.0_ESMF_KIND_R8
+         tlats = lats_deg * MAPL_PI_R8 / 180.0_ESMF_KIND_R8
 
          locstream = ESMF_LocStreamCreate(localCount=local_count, coordSys=ESMF_COORDSYS_SPH_RAD, _RC)
          call ESMF_LocStreamAddKey(locstream, keyName="ESMF:Lat", farray=tlats, datacopyflag=ESMF_DATACOPY_VALUE, &
