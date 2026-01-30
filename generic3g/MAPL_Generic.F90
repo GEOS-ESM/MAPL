@@ -1056,13 +1056,14 @@ contains
       type(ESMF_HConfig) :: hconfig
       type(OuterMetaComponent), pointer :: outer_meta
       type(StateRegistry), pointer :: registry
+      character(:), allocatable :: component_name
       integer :: status
 
-      call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
+      call MAPL_GridCompGet(gridcomp, hconfig=hconfig, name=component_name, _RC)
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
       call MAPL_GridCompGetRegistry(gridcomp, registry=registry, _RC)
-      component_spec%geometry_spec = parse_geometry_spec(hconfig, registry, _RC)
+      component_spec%geometry_spec = parse_geometry_spec(hconfig, registry, component_name, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine gridcomp_set_geometry_from_hconfig

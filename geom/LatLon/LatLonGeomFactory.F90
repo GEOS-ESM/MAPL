@@ -46,11 +46,12 @@ module mapl3g_LatLonGeomFactory
       end function make_geom
 
 
-      module function create_basic_grid(spec, unusable, rc) result(grid)
+      module function create_basic_grid(spec, unusable, name, rc) result(grid)
          use mapl_KeywordEnforcer
          type(ESMF_Grid) :: grid
          type(LatLonGeomSpec), intent(in) :: spec
          class(KeywordEnforcer), optional, intent(in) :: unusable
+         character(len=*), optional, intent(in) :: name
          integer, optional, intent(out) :: rc
       end function create_basic_grid
 

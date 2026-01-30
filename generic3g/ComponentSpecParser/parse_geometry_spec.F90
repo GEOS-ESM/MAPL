@@ -13,10 +13,11 @@ contains
 
    ! Geom subcfg is passed raw to the GeomManager layer.  So little
    ! processing is needed here.
-   module function parse_geometry_spec(mapl_cfg, registry, rc) result(geometry_spec)
+   module function parse_geometry_spec(mapl_cfg, registry, component_name, rc) result(geometry_spec)
       type(GeometrySpec) :: geometry_spec
       type(ESMF_HConfig), intent(in) :: mapl_cfg
       type(StateRegistry), target, intent(in) :: registry
+      character(*), intent(in) :: component_name
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -89,6 +90,7 @@ contains
          geom_mgr => get_geom_manager()
          allocate(geom_spec, source=geom_mgr%make_geom_spec(esmf_geom_cfg, rc=status))
          _VERIFY(status)
+         call geom_spec%set_name(component_name)
          call ESMF_HConfigDestroy(geometry_cfg, _RC)
       end if
 
