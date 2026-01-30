@@ -24,7 +24,11 @@
 ! !USES:
 !
    Use ESMF
-   Use MAPL_BaseMod
+   Use MAPL_BaseMod, only: MAPL_PI,MAPL_DEGREES_TO_RADIANS_R8, &
+       MAPL_RADIANS_TO_DEGREES, MAPL_UNDEF, MAPL_DimsHorzOnly, &
+       MAPL_R4, MAPL_VLocationCenter, MAPL_FieldCreateEmpty, &
+       MAPL_GridGetCorners, MAPL_FieldAllocCommit, MAPL_FieldBundleAdd, &
+       MAPL_PackTime
    Use MAPL_CommsMod, only: MAPL_AM_I_ROOT
    Use MAPL_ErrorHandlingMod
    use mapl3g_generic, only: MAPL_GridCompGet
@@ -47,6 +51,13 @@
 
 ! Legacy state
 ! ------------
+    ! Define a type to hold variable-length strings
+    type :: string_type
+        character(len=:), allocatable :: str
+    end type string_type
+    
+    type(string_type), allocatable :: string_array(:)
+
   character(*), parameter :: PRIVATE_STATE = "StateOrb"
   TYPE Orb_State
      PRIVATE
@@ -54,8 +65,8 @@
      !type (ESMF_Config)         :: CF           ! Private Config
 
      integer                             :: no  ! Number of masks
-     character(len=ESMF_MAXSTR), pointer :: Instrument(:)
-     character(len=ESMF_MAXSTR), pointer :: Satellite(:)
+     type(string_type), allocatable :: Instrument(:)
+     type(string_type), allocatable :: Satellite(:)
      real, pointer                       :: Swath(:)
      integer, pointer                    :: halo(:)
 
@@ -115,19 +126,15 @@ CONTAINS
     end if
     do i = 1, self%no
        write(temp_key,'(A,I0)') 'INSTRUMENT', i
-       call MAPL_GridCompGetResource(gc,trim(temp_key), temp_val, _RC)
-       self%Instrument(i) = temp_val
-       deallocate(temp_val, _STAT)
+       call MAPL_GridCompGetResource(gc,trim(temp_key), self%Instrument(i)%str, _RC)
        write(temp_key,'(A,I0)') 'SATELLITE', i
-       call MAPL_GridCompGetResource(gc,trim(temp_key), temp_val,_RC)
-       self%Satellite(i) = temp_val
-       deallocate(temp_val, _STAT)
+       call MAPL_GridCompGetResource(gc,trim(temp_key), self%Satellite(i)%str,_RC)
        write(temp_key,'(A,I0)') 'SWATH', i
        call MAPL_GridCompGetResource(gc,trim(temp_key), self%Swath(i),_RC)
        write(temp_key,'(A,I0)') 'HALO', i
        call MAPL_GridCompGetResource(gc,trim(temp_key), self%halo(i),_RC)
        if ( self%verbose ) then
-          write(*,'(1x,a15,4x,a11,4x,f9.1,4x,i3)') self%Instrument(i), self%Satellite(i), self%Swath(i), self%halo(i)
+          write(*,'(1x,a15,4x,a11,4x,f9.1,4x,i3)') self%Instrument(i)%str, self%Satellite(i)%str, self%Swath(i), self%halo(i)
        end if
     end do
 
@@ -148,8 +155,8 @@ CONTAINS
     do i=1,self%no
         call MAPL_GridCompAddSpec(gc, &
              state_intent=ESMF_STATEINTENT_EXPORT, &
-             short_name=trim(self%Instrument(i)) , &
-             standard_name=trim(self%Instrument(i)) , &
+             short_name=trim(self%Instrument(i)%str) , &
+             standard_name=trim(self%Instrument(i)%str) , &
              dims="xy", &
              vstagger=VERTICAL_STAGGER_NONE, &
              units="days" , &
@@ -224,7 +231,7 @@ CONTAINS
     LOCATION=MAPL_VLocationCenter
     KND=MAPL_R4
     do i = 1, self%no
-     field=mapl_FieldCreateEmpty(trim(self%Instrument(i)),Grid,_RC)
+     field=mapl_FieldCreateEmpty(trim(self%Instrument(i)%str),Grid,_RC)
      call MAPL_FieldAllocCommit(field, dims=dims, location=location, typekind=knd, hw=hw, _RC)
      call MAPL_FieldBundleAdd(Bundle,Field,_RC)
     enddo
@@ -303,7 +310,8 @@ CONTAINS
   type(ESMF_FieldBundle)        :: BUNDLE
   type(ESMF_Info)               :: infoh
   integer                       :: NORB
-  integer                       :: IM_world,JM_world,counts(5),imsize
+  integer                       :: IM_world,JM_world,imsize
+  integer, allocatable, dimension(:) :: counts
   integer                       :: status
 
    _UNUSED_DUMMY(IMPORT)
@@ -382,9 +390,9 @@ CONTAINS
 
 !  loop over each satellite and get it's mask
    do k=1,NORB
-    call MAPL_FieldBundleGetPointer(BUNDLE,trim(self%instrument(k)),PTR_TMP,_RC)
-    call MAPL_StateGetPointer(EXPORT, itemName=trim(self%instrument(k)), farrayPtr=PTR_TMP_EX, _RC)
-    sat_name=trim(self%Satellite(k))
+    call MAPL_FieldBundleGetPointer(BUNDLE,trim(self%instrument(k)%str),PTR_TMP,_RC)
+    call MAPL_StateGetPointer(EXPORT, itemName=trim(self%instrument(k)%str), farrayPtr=PTR_TMP_EX, _RC)
+    sat_name=trim(self%Satellite(k)%str)
     swath(1)=self%swath(k)
     swath(2)=self%swath(k)
     ihalo = self%halo(k)
