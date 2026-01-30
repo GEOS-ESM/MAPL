@@ -3,6 +3,7 @@
 
 module Test_CubedSphereGeomFactory
    use pfunit
+   use esmf_TestMethod_mod ! mapl
    use mapl3g_GeomSpec
    use mapl3g_CubedSphereGeomFactory
    use esmf
@@ -10,9 +11,9 @@ module Test_CubedSphereGeomFactory
 
 contains
 
-   @test(npes=[6])
+   @test(type=ESMF_TestMethod, npes=[6])
    subroutine test_make_from_hconfig(this)
-      class(MpiTestMethod), intent(inout) :: this
+      class(ESMF_TestMethod), intent(inout) :: this
 
       type(ESMF_HConfig) :: hconfig
       integer :: status

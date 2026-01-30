@@ -9,12 +9,14 @@ contains
    module function new_GeomManager() result(mgr)
       use mapl3g_LatLonGeomFactory
       use mapl3g_CubedSphereGeomFactory
+      use mapl3g_LocStreamGeomFactory
 !#      use mapl_CubedSphereGeomFactory
       type(GeomManager) :: mgr
 
       ! Load default factories
       type(LatLonGeomFactory) :: latlon_factory
       type(CubedSphereGeomFactory) :: cs_factory
+      type(LocStreamGeomFactory) :: locstream_factory
 !#      type(FakeCubedSphereGeomFactory) :: fake_cs_factory 
 !#      type(TripolarGeomFactory) :: tripolar_factory
 !#      type(CustomGeomFactory) :: custom_geom_factory
@@ -33,6 +35,7 @@ contains
 
       call mgr%add_factory(latlon_factory)
       call mgr%add_factory(cs_factory)
+   call mgr%add_factory(locstream_factory)
 
    end function new_GeomManager
 
