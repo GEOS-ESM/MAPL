@@ -4,6 +4,7 @@ module mapl3g_LocStreamGeomFactory
    use mapl3g_GeomSpec
    use mapl3g_GeomFactory
    use mapl3g_LocStreamGeomSpec
+   use mapl3g_CoordinateAxis, only: get_dim_name
    use mapl_ErrorHandlingMod
    use mapl_StringUtilities, only: to_lower
    use mapl3g_get_hconfig, only: get_hconfig
@@ -70,11 +71,27 @@ contains
 
       integer :: status
 
-      ! Metadata-driven LocStream specs are not yet supported.
-      ! Return a trivial spec for now and rely on supports_metadata
-      ! being false so this factory is not selected.
+      character(:), allocatable :: dim_name
+      integer :: npoints
+
+      ! For LocStream metadata we expect latitude and longitude
+      ! coordinate variables with units of degrees_north and
+      ! degrees_east that share a single dimension, e.g. "loc".
+
+      dim_name = get_dim_name(file_metadata, units='degrees_east', _RC)
+      _ASSERT(dim_name /= '', 'LocStream metadata missing longitude coordinates')
+
+      block
+         character(:), allocatable :: lat_dim
+         lat_dim = get_dim_name(file_metadata, units='degrees_north', _RC)
+         _ASSERT(lat_dim /= '', 'LocStream metadata missing latitude coordinates')
+         _ASSERT(lat_dim == dim_name, 'Lat/Lon coordinates must share a single dimension for LocStream')
+      end block
+
+      npoints = file_metadata%get_dimension(dim_name, _RC)
+
       allocate(LocStreamGeomSpec :: geom_spec)
-      geom_spec = LocStreamGeomSpec(0)
+      geom_spec = LocStreamGeomSpec(npoints)
 
       _RETURN(_SUCCESS)
    end function make_geom_spec_from_metadata
@@ -119,9 +136,18 @@ contains
 
       integer :: status
 
-      ! Metadata-based LocStream detection is not implemented yet.
-      _UNUSED_DUMMY(file_metadata)
-      supports = .false.
+      character(:), allocatable :: lon_dim, lat_dim
+
+      ! Identify LocStream-style metadata: both latitude and
+      ! longitude coordinates exist and share a single dimension
+      ! (typically something like "loc"). This pattern is
+      ! distinct from regular LatLon grids which use separate
+      ! latitude and longitude dimensions.
+
+      lon_dim = get_dim_name(file_metadata, units='degrees_east', _RC)
+      lat_dim = get_dim_name(file_metadata, units='degrees_north', _RC)
+
+      supports = (lon_dim /= '' .and. lat_dim /= '' .and. lon_dim == lat_dim)
 
       _RETURN(_SUCCESS)
    end function supports_metadata
@@ -136,10 +162,8 @@ contains
       type(ESMF_LocStream) :: locstream
       real(kind=REAL64), allocatable :: tlons(:), tlats(:)
 
-      _HERE
       select type (geom_spec)
       type is (LocStreamGeomSpec)
-         _HERE
          local_count = geom_spec%get_npoints()
 
          allocate(tlons(local_count), stat=status)
@@ -150,16 +174,12 @@ contains
          tlons = 0.0_REAL64
          tlats = 0.0_REAL64
 
-         _HERE
          locstream = ESMF_LocStreamCreate(localCount=local_count, coordSys=ESMF_COORDSYS_SPH_RAD, _RC)
-         _HERE
          call ESMF_LocStreamAddKey(locstream, keyName="ESMF:Lat", farray=tlats, datacopyflag=ESMF_DATACOPY_VALUE, &
               keyUnits="Radians", keyLongName="Latitude", _RC)
-         _HERE
          call ESMF_LocStreamAddKey(locstream, keyName="ESMF:Lon", farray=tlons, datacopyflag=ESMF_DATACOPY_VALUE, &
               keyUnits="Radians", keyLongName="Longitude", _RC)
 
-         _HERE
          geom = ESMF_GeomCreate(locstream, _RC)
       class default
          _FAIL("geom_spec type not supported")
