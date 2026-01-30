@@ -194,10 +194,10 @@ contains
          allocate(tlats(local_count), stat=status)
          _VERIFY(status)
 
-         call geom_spec%get_coordinates(lons_deg, lats_deg)
-         _ASSERT(associated(lons_deg) .and. associated(lats_deg), 'LocStreamGeomSpec missing coordinates')
-         _ASSERT(size(lons_deg) == local_count .and. size(lats_deg) == local_count, &
-              'LocStreamGeomSpec coordinate size mismatch')
+             call geom_spec%get_coordinates(lons_deg, lats_deg)
+             _ASSERT(associated(lons_deg) .and. associated(lats_deg), 'LocStreamGeomSpec missing coordinates')
+             _ASSERT(size(lons_deg) == local_count, 'LocStreamGeomSpec coordinate size mismatch')
+             _ASSERT(size(lats_deg) == local_count, 'LocStreamGeomSpec coordinate size mismatch')
 
          ! Convert from degrees to radians for the LocStream
          tlons = lons_deg * MAPL_PI_R8 / 180.0_ESMF_KIND_R8

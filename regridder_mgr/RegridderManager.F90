@@ -121,8 +121,7 @@ contains
       ! they can test for it; otherwise raise a MAPL assertion with a
       ! meaningful message.
       call ESMF_GeomGet(spec%get_geom_in(), geomtype=geomtype_in, _RC)
-      _ASSERT(.not. (geomtype_in == ESMF_GEOMTYPE_LOCSTREAM), &
-            'LocStream geometries are only supported as regrid destinations.')
+      _ASSERT(.not.(geomtype_in == ESMF_GEOMTYPE_LOCSTREAM), 'LocStream geometries are only supported as regrid destinations.')
 
       associate (b => this%specs%begin(), e => this%specs%end())
         associate (iter => find(b, e, spec))
