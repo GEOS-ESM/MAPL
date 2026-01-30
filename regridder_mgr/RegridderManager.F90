@@ -11,6 +11,7 @@ module mapl3g_RegridderManager
    use mapl3g_RegridderVector
    use mapl3g_EsmfRegridderFactory
 
+   use ESMF, only: ESMF_GeomGet, ESMF_GeomType_Flag, ESMF_GEOMTYPE_LOCSTREAM
    use mapl_ErrorHandlingMod
    implicit none
    private
@@ -111,6 +112,17 @@ contains
 
       integer :: status
       class(Regridder), allocatable :: tmp_regridder
+      type(ESMF_GeomType_Flag) :: geomtype_in
+
+      regriddr => null() ! default in case of failure
+      
+      ! Disallow LocStream geometries as regrid sources. If the caller
+      ! provides an "rc" argument, return a clean non-zero status so
+      ! they can test for it; otherwise raise a MAPL assertion with a
+      ! meaningful message.
+      call ESMF_GeomGet(spec%get_geom_in(), geomtype=geomtype_in, _RC)
+      _ASSERT(.not. (geomtype_in == ESMF_GEOMTYPE_LOCSTREAM), &
+            'LocStream geometries are only supported as regrid destinations.')
 
       associate (b => this%specs%begin(), e => this%specs%end())
         associate (iter => find(b, e, spec))

@@ -314,8 +314,78 @@ contains
       ! Errors are much smaller at realistic resolutions.
       @assert_that(u2, every_item(is(near(2._ESMF_KIND_R4, 1.e-1))))
       @assert_that(v2, every_item(is(near(2._ESMF_KIND_R4, 1.e-1))))
-
    end subroutine test_regrid_2d_vector
+
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Verify that LocStream geometries can be used as regrid
+   ! destinations and that a simple constant field regrids without
+   ! error.
+   subroutine test_locstream_as_destination(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomManager), target :: geom_mgr
+      type(RegridderManager), target :: regridder_mgr
+      type(RegridderSpec) :: spec
+      integer :: status
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom_grid, geom_loc
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Field) :: f_grid, f_loc
+      real(kind=ESMF_KIND_R4), pointer :: x_loc(:)
+
+      geom_mgr = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+
+      ! Source: simple latlon grid
+      geom_grid = make_geom(geom_mgr, _RC)
+
+      ! Destination: LocStream defined via HConfig
+      hconfig = ESMF_HConfigCreate(content="{class: locstream, lon: [0, 1, 2], lat: [10, 20, 30]}", _RC)
+      geom_loc = make_geom(geom_mgr, hconfig, _RC)
+
+      spec = RegridderSpec(EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_NEAREST_STOD), geom_grid, geom_loc)
+      my_regridder => regridder_mgr%get_regridder(spec, _RC)
+
+      ! Constant source field on grid and empty destination on locstream
+      f_grid = make_field(geom_grid, 'src', value=3._ESMF_KIND_R4, _RC)
+      f_loc  = ESMF_FieldCreate(geom_loc, typekind=ESMF_TYPEKIND_R4, gridToFieldMap=[1], _RC)
+
+      call my_regridder%regrid(f_grid, f_loc, _RC)
+
+      call ESMF_FieldGet(f_loc, farrayptr=x_loc, _RC)
+      @assert_that(x_loc, every_item(is(near(3._ESMF_KIND_R4, 1.e-6))))
+
+   end subroutine test_locstream_as_destination
+
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Verify that LocStream geometries are not allowed as regrid
+   ! sources (they are destination-only).
+   subroutine test_locstream_not_source(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomManager), target :: geom_mgr
+      type(RegridderManager), target :: regridder_mgr
+      type(RegridderSpec) :: spec
+      integer :: status
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom_grid, geom_loc
+      type(ESMF_HConfig) :: hconfig
+
+      geom_mgr = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+
+      ! Grid and LocStream geoms
+      geom_grid = make_geom(geom_mgr, _RC)
+      hconfig = ESMF_HConfigCreate(content="{class: locstream, lon: [0, 1, 2], lat: [10, 20, 30]}", _RC)
+      geom_loc = make_geom(geom_mgr, hconfig, _RC)
+
+      ! Attempt to use LocStream as source
+      spec = RegridderSpec(EsmfRegridderParam(), geom_loc, geom_grid)
+      nullify(my_regridder)
+      my_regridder => regridder_mgr%get_regridder(spec, rc=status)
+      @assertExceptionRaised('LocStream geometries are only supported as regrid destinations.')
+
+   end subroutine test_locstream_not_source
 
 
    @test(type=ESMF_TestMethod, npes=[1])
