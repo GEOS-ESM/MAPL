@@ -551,7 +551,7 @@ contains
       character(len=*), intent(in) :: full_key
       integer :: i
 
-      parent = trim(full_key)
+      parent = full_key
       i = index(parent, DELIMITER, .TRUE.)
       if(i>1) parent = parent(:i-1)
 
@@ -560,13 +560,11 @@ contains
    function get_child(full_key) result(child)
       character(len=:), allocatable :: child
       character(len=*), intent(in) :: full_key
-      character(len=:), allocatable :: s
       integer :: i
 
       child = ''
-      s = trim(full_key)
-      i = index(s, DELIMITER, .TRUE.)
-      if(i>1) child = s(i+len(DELIMITER):)
+      i = index(full_key, DELIMITER, .TRUE.)
+      if(i>1) child = full_key(i+len(DELIMITER):)
 
    end function get_child
 
