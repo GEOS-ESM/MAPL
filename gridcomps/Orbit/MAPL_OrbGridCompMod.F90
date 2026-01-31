@@ -368,14 +368,20 @@ CONTAINS
       imsize = IM_World
    endif
 !  swatch(3) is actually the size of the length to use for interpolation
-   if( imsize.le.200       ) call MAPL_GridCompGetResource(gc, "INTERPOLATION_WIDTH", swath(3), default=10.0, _RC)
-   if( imsize.gt.200 .and. &
-       imsize.le.400       ) call MAPL_GridCompGetResource(gc, "INTERPOLATION_WIDTH", swath(3), default=5.0, _RC)
-   if( imsize.gt.400 .and. &
-       imsize.le.800       ) call MAPL_GridCompGetResource(gc, "INTERPOLATION_WIDTH", swath(3), default=2.0, _RC)
-   if( imsize.gt.800 .and. &
-       imsize.le.1600      ) call MAPL_GridCompGetResource(gc, "INTERPOLATION_WIDTH", swath(3), default=1.0, _RC)
-   if( imsize.gt.1600      ) call MAPL_GridCompGetResource(gc, "INTERPOLATION_WIDTH", swath(3), default=0.5, _RC)
+   select case (imsize)
+      case (:200)
+         call MAPL_GridCompGetResource(gc, "INTERPOLATION_WIDTH", swath(3), default=10.0, _RC)
+      case (201:400)
+         call MAPL_GridCompGetResource(gc, "INTERPOLATION_WIDTH", swath(3), default=5.0, _RC)
+      case (401:800)
+         call MAPL_GridCompGetResource(gc, "INTERPOLATION_WIDTH", swath(3), default=2.0, _RC)
+      case (801:1600)
+         call MAPL_GridCompGetResource(gc, "INTERPOLATION_WIDTH", swath(3), default=1.0, _RC)
+      case (1601:)
+         call MAPL_GridCompGetResource(gc, "INTERPOLATION_WIDTH", swath(3), default=0.5, _RC)
+      case default
+         _FAIL('imsize is out of supported range')
+   end select
 
 !  define undef
    undef=MAPL_UNDEF
