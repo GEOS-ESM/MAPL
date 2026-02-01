@@ -10,6 +10,9 @@ module mapl3g_LocStreamGeomFactory
    use mapl3g_get_hconfig, only: get_hconfig
    use mapl3g_hconfig_params, only: HConfigParams
    use pfio_FileMetadataMod, only: FileMetadata
+   use pFIO_VariableMod,      only: Variable
+   use pFIO_AttributeMod,     only: Attribute
+   use pFIO_StringVariableMapMod
    use gftl2_StringVector, only: StringVector
    use mapl3g_StringDictionary, only: StringDictionary
    use mapl_KeywordEnforcerMod, only: KeywordEnforcer
@@ -36,6 +39,52 @@ module mapl3g_LocStreamGeomFactory
 
 contains
 
+   function find_coord_var_name(file_metadata, dim_name, units, rc) result(var_name)
+      character(:), allocatable :: var_name
+      type(FileMetadata), intent(in) :: file_metadata
+      character(*), intent(in) :: dim_name
+      character(*), intent(in) :: units
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(StringVariableMap), pointer :: vars
+      type(StringVariableMapIterator) :: iter
+      type(Variable), pointer :: var
+      type(StringVector), pointer :: dims
+      type(Attribute), pointer :: attr
+      character(:), allocatable :: units_lower, units_found
+      logical :: has_units
+
+      var_name = ''
+      units_lower = ESMF_UtilStringLowerCase(units, _RC)
+
+      vars => file_metadata%get_variables(_RC)
+      associate (e => vars%ftn_end())
+         iter = vars%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var => iter%second()
+
+            has_units = var%is_attribute_present('units', _RC)
+            if (.not. has_units) cycle
+
+            attr => var%get_attribute('units', _RC)
+            units_found = attr%get_string(_RC)
+            units_found = ESMF_UtilStringLowerCase(units_found, _RC)
+            if (units_found /= units_lower) cycle
+
+            dims => var%get_dimensions()
+            if (dims%size() /= 1) cycle
+            if (trim(dims%of(1)) /= trim(dim_name)) cycle
+
+            _ASSERT(var_name == '', 'Multiple coordinate variables with units '//units//' for dimension '//dim_name)
+            var_name = iter%first()
+         end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end function find_coord_var_name
+
    function make_geom_spec_from_hconfig(this, hconfig, rc) result(geom_spec)
       class(GeomSpec), allocatable :: geom_spec
       class(LocStreamGeomFactory), intent(in) :: this
@@ -46,6 +95,8 @@ contains
       real(kind=ESMF_KIND_R8), allocatable :: lon(:), lat(:)
       integer :: npoints
       type(HConfigParams) :: params
+
+      _UNUSED_DUMMY(this)
 
       ! Test-oriented path: accept explicit lon/lat coordinate
       ! arrays from hconfig. These are expected to be in degrees.
@@ -78,10 +129,12 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-
-      character(:), allocatable :: dim_name
+      character(:), allocatable :: dim_name, lat_dim
+      character(:), allocatable :: lon_var_name, lat_var_name
       integer :: npoints
       real(kind=ESMF_KIND_R8), allocatable :: lon(:), lat(:)
+
+      _UNUSED_DUMMY(this)
 
       ! For LocStream metadata we expect latitude and longitude
       ! coordinate variables with units of degrees_north and
@@ -90,17 +143,23 @@ contains
       dim_name = get_dim_name(file_metadata, units='degrees_east', _RC)
       _ASSERT(dim_name /= '', 'LocStream metadata missing longitude coordinates')
 
-      block
-         character(:), allocatable :: lat_dim
-         lat_dim = get_dim_name(file_metadata, units='degrees_north', _RC)
-         _ASSERT(lat_dim /= '', 'LocStream metadata missing latitude coordinates')
-         _ASSERT(lat_dim == dim_name, 'Lat/Lon coordinates must share a single dimension for LocStream')
-      end block
+      lat_dim = get_dim_name(file_metadata, units='degrees_north', _RC)
+      _ASSERT(lat_dim /= '', 'LocStream metadata missing latitude coordinates')
+      _ASSERT(lat_dim == dim_name, 'Lat/Lon coordinates must share a single dimension for LocStream')
+
+      ! Identify the specific longitude and latitude coordinate
+      ! variable names associated with this shared dimension.
+      lon_var_name = find_coord_var_name(file_metadata, dim_name, 'degrees_east', _RC)
+      _ASSERT(lon_var_name /= '', 'LocStream metadata missing longitude coordinate variable for dimension '//dim_name)
+
+      lat_var_name = find_coord_var_name(file_metadata, dim_name, 'degrees_north', _RC)
+      _ASSERT(lat_var_name /= '', 'LocStream metadata missing latitude coordinate variable for dimension '//dim_name)
 
       npoints = file_metadata%get_dimension(dim_name, _RC)
 
-      lon = get_coordinates(file_metadata, dim_name, _RC)
-      lat = get_coordinates(file_metadata, dim_name, _RC)
+      lon = get_coordinates(file_metadata, lon_var_name, _RC)
+      lat = get_coordinates(file_metadata, lat_var_name, _RC)
+
       _ASSERT(size(lon) == npoints, 'LocStream metadata longitude size mismatch with dimension')
       _ASSERT(size(lat) == npoints, 'LocStream metadata latitude size mismatch with dimension')
 
@@ -124,6 +183,8 @@ contains
 
       type(LocStreamGeomSpec) :: reference
 
+      _UNUSED_DUMMY(this)
+
       supports = same_type_as(geom_spec, reference)
 
    end function supports_spec
@@ -138,6 +199,8 @@ contains
 
       ! Minimal implementation for now: honor class: locstream (case-insensitive)
       character(len=:), allocatable :: class_name
+
+      _UNUSED_DUMMY(this)
 
       params = HConfigParams(hconfig, "class")
       call get_hconfig(class_name, params, _RC)
@@ -166,6 +229,8 @@ contains
       ! distinct from regular LatLon grids which use separate
       ! latitude and longitude dimensions.
 
+      _UNUSED_DUMMY(this)
+
       lon_dim = get_dim_name(file_metadata, units='degrees_east', _RC)
       lat_dim = get_dim_name(file_metadata, units='degrees_north', _RC)
 
@@ -185,14 +250,14 @@ contains
       real(kind=ESMF_KIND_R8), allocatable :: tlons(:), tlats(:)
       real(kind=ESMF_KIND_R8), pointer :: lons_deg(:) => null(), lats_deg(:) => null()
 
+      _UNUSED_DUMMY(this)
+
       select type (geom_spec)
       type is (LocStreamGeomSpec)
          local_count = geom_spec%get_npoints()
 
-         allocate(tlons(local_count), stat=status)
-         _VERIFY(status)
-         allocate(tlats(local_count), stat=status)
-         _VERIFY(status)
+         allocate(tlons(local_count))
+         allocate(tlats(local_count))
 
              call geom_spec%get_coordinates(lons_deg, lats_deg)
              _ASSERT(associated(lons_deg) .and. associated(lats_deg), 'LocStreamGeomSpec missing coordinates')
@@ -225,10 +290,9 @@ contains
       type(FileMetadata) :: file_metadata
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       ! LocStream-specific file metadata generation can be added later.
       file_metadata = FileMetadata()
+      _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(geom_spec)
       _UNUSED_DUMMY(unusable)
       _UNUSED_DUMMY(chunksizes)
@@ -242,7 +306,8 @@ contains
       type(StringVector) :: gridded_dims
       integer, optional, intent(out) :: rc
 
-      integer :: status
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(geom_spec)
 
       call gridded_dims%push_back("loc")
 
@@ -255,7 +320,8 @@ contains
       type(StringDictionary) :: variable_attributes
       integer, optional, intent(out) :: rc
 
-      integer :: status
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(geom_spec)
 
       variable_attributes = StringDictionary()
 
