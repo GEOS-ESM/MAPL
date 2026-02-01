@@ -9,10 +9,12 @@ module mapl3g_LocStreamGeomFactory
    use mapl_StringUtilities, only: to_lower
    use mapl3g_get_hconfig, only: get_hconfig
    use mapl3g_hconfig_params, only: HConfigParams
-   use pfio_FileMetadataMod, only: FileMetadata
-   use pFIO_VariableMod,      only: Variable
-   use pFIO_AttributeMod,     only: Attribute
+   use pfio_FileMetadataMod,   only: FileMetadata
+   use pFIO_VariableMod,       only: Variable
+   use pFIO_AttributeMod,      only: Attribute
    use pFIO_StringVariableMapMod
+   use pFIO_NetCDF4_FileFormatterMod, only: NetCDF4_FileFormatter
+   use pFIO_ConstantsMod,      only: pFIO_READ
    use gftl2_StringVector, only: StringVector
    use mapl3g_StringDictionary, only: StringDictionary
    use mapl_KeywordEnforcerMod, only: KeywordEnforcer
@@ -96,10 +98,46 @@ contains
       integer :: npoints
       type(HConfigParams) :: params
 
+      logical :: has_lon, has_lat, has_file
+      character(len=:), allocatable :: filename
+      type(NetCDF4_FileFormatter) :: file_formatter
+      type(FileMetadata) :: metadata
+
       _UNUSED_DUMMY(this)
 
-      ! Test-oriented path: accept explicit lon/lat coordinate
-      ! arrays from hconfig. These are expected to be in degrees.
+      ! Two mutually exclusive configuration paths are supported:
+      ! 1) Explicit lon/lat arrays in the hconfig (test-oriented path).
+      ! 2) A "file" entry pointing to a NetCDF file from which
+      !    locstream coordinates are read via FileMetadata.
+
+      has_lon  = ESMF_HConfigIsDefined(hconfig, keyString='lon',  _RC)
+      has_lat  = ESMF_HConfigIsDefined(hconfig, keyString='lat',  _RC)
+      has_file = ESMF_HConfigIsDefined(hconfig, keyString='file', _RC)
+
+      if (has_file) then
+         ! When a file is specified, explicit lon/lat arrays must
+         ! not also be present in the same hconfig.
+         _ASSERT(.not.(has_lon .or. has_lat), &
+                 'LocStream hconfig may specify either lon/lat or file, but not both')
+
+         filename = ESMF_HConfigAsString(hconfig, keyString='file', _RC)
+
+         call file_formatter%open(filename, pFIO_READ, _RC)
+         metadata = file_formatter%read(_RC)
+         call file_formatter%close(_RC)
+
+         ! Reuse the existing metadata-based path to build the
+         ! LocStreamGeomSpec from the file's coordinates.
+         geom_spec = this%make_geom_spec_from_metadata(metadata, _RC)
+
+         _RETURN(_SUCCESS)
+      end if
+
+      ! No file: fall back to explicit coordinate arrays, which
+      ! must provide both lon and lat.
+      _ASSERT(has_lon .and. has_lat, &
+              'LocStream hconfig must provide lon/lat arrays or a file')
+
       params = HConfigParams(hconfig, "lon")
       call get_hconfig(lon, params, _RC)
       params = HConfigParams(hconfig, "lat")
@@ -200,15 +238,44 @@ contains
       ! Minimal implementation for now: honor class: locstream (case-insensitive)
       character(len=:), allocatable :: class_name
 
+      logical :: has_lon, has_lat, has_file
+
       _UNUSED_DUMMY(this)
 
+      ! Mandatory entry: "class: locstream" (case-insensitive)
       params = HConfigParams(hconfig, "class")
       call get_hconfig(class_name, params, _RC)
-      if (allocated(class_name)) then
-         class_name = to_lower(class_name)
-         supports = trim(class_name) == "locstream"
-      else
+      if (.not. allocated(class_name)) then
          supports = .false.
+         _RETURN(_SUCCESS)
+      end if
+
+      class_name = to_lower(class_name)
+      supports = trim(class_name) == "locstream"
+      _RETURN_UNLESS(supports)
+
+      ! Schema: exactly one of the following must be chosen:
+      ! 1) Explicit lon/lat arrays
+      ! 2) A "file" entry
+      has_lon  = ESMF_HConfigIsDefined(hconfig, keyString='lon',  _RC)
+      has_lat  = ESMF_HConfigIsDefined(hconfig, keyString='lat',  _RC)
+      has_file = ESMF_HConfigIsDefined(hconfig, keyString='file', _RC)
+
+      if (has_file) then
+         ! File-based LocStream: explicit lon/lat arrays in the
+         ! same configuration are considered an error and must
+         ! trigger an exception rather than being silently
+         ! rejected.
+         if (has_lon .or. has_lat) then
+            supports = .false.
+            _FAIL("LocStream hconfig may specify either lon/lat or file, but not both")
+         else
+            supports = .true.
+         end if
+      else
+         ! Explicit-coordinate LocStream: both lon and lat must
+         ! be present.
+         supports = has_lon .and. has_lat
       end if
 
       _RETURN(_SUCCESS)

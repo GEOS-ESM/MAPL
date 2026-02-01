@@ -5,6 +5,7 @@ module Test_LocStreamGeomFactory
    use pfunit
    use esmf_TestMethod_mod ! mapl
    use mapl3g_Geom_API
+   use mapl3g_LocStreamGeomFactory, only: LocStreamGeomFactory
    use esmf
    implicit none
 
@@ -22,6 +23,8 @@ contains
       type(ESMF_LocStream) :: locstream
       type(ESMF_GeomType_Flag) :: geomtype
       real(kind=ESMF_KIND_R8), pointer :: lons(:) => null(), lats(:) => null()
+
+      _UNUSED_DUMMY(this)
 
       ! Minimal LocStream configuration with explicit coordinates
       hconfig = ESMF_HConfigCreate(content="{class: locstream, lon: [0.0, 1.0, 2.0], lat: [10.0, 20.0, 30.0]}", rc=status)
@@ -70,5 +73,29 @@ contains
       end block
 
    end subroutine test_make_locstream_from_hconfig
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_locstream_hconfig_supports_file_schema(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+      type(LocStreamGeomFactory) :: factory
+      logical :: supports
+
+      _UNUSED_DUMMY(this)
+
+      ! HConfig that uses the file-based LocStream description.
+      hconfig = ESMF_HConfigCreate(content="{class: locstream, file: 'dummy.nc'}", rc=status)
+      @assert_that(status, is(0))
+
+      supports = factory%supports_hconfig(hconfig, rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(supports)
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+   end subroutine test_locstream_hconfig_supports_file_schema
 
 end module Test_LocStreamGeomFactory
