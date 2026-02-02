@@ -43,7 +43,7 @@ contains
 
    function find_coord_var_name(file_metadata, dim_name, units, rc) result(var_name)
       character(:), allocatable :: var_name
-      type(FileMetadata), intent(in) :: file_metadata
+      type(FileMetadata), target, intent(in) :: file_metadata
       character(*), intent(in) :: dim_name
       character(*), intent(in) :: units
       integer, optional, intent(out) :: rc
