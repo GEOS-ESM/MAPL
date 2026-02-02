@@ -9,12 +9,13 @@ contains
    ! A component is not required to have var_specs.   E.g, in theory GCM gridcomp will not
    ! have var specs in MAPL3, as it does not really have a preferred geom on which to declare
    ! imports and exports.
-   module function parse_var_specs(hconfig, timeStep, offset, registry, rc) result(var_specs)
+   module function parse_var_specs(hconfig, timeStep, offset, registry, component_name, rc) result(var_specs)
       type(VariableSpecVector) :: var_specs
       type(ESMF_HConfig), intent(in) :: hconfig
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
       type(ESMF_TimeInterval), optional, intent(in) :: offset
       type(StateRegistry), target, intent(in) :: registry
+      character(*), intent(in) :: component_name
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -26,21 +27,22 @@ contains
 
       subcfg = ESMF_HConfigCreateAt(hconfig,keyString=COMPONENT_STATES_SECTION, _RC)
 
-      call parse_state_specs(var_specs, subcfg, COMPONENT_INTERNAL_STATE_SECTION,  timeStep, offset, _RC)
-      call parse_state_specs(var_specs, subcfg, COMPONENT_EXPORT_STATE_SECTION, timeStep, offset, _RC)
-      call parse_state_specs(var_specs, subcfg, COMPONENT_IMPORT_STATE_SECTION, timeStep, offset, _RC)
+      call parse_state_specs(var_specs, subcfg, COMPONENT_INTERNAL_STATE_SECTION,  timeStep, offset, component_name, _RC)
+      call parse_state_specs(var_specs, subcfg, COMPONENT_EXPORT_STATE_SECTION, timeStep, offset, component_name, _RC)
+      call parse_state_specs(var_specs, subcfg, COMPONENT_IMPORT_STATE_SECTION, timeStep, offset, component_name, _RC)
 
       call ESMF_HConfigDestroy(subcfg, _RC)
 
       _RETURN(_SUCCESS)
    contains
 
-      subroutine parse_state_specs(var_specs, hconfig, state_intent, timeStep, offset, rc)
+      subroutine parse_state_specs(var_specs, hconfig, state_intent, timeStep, offset, component_name, rc)
          type(VariableSpecVector), intent(inout) :: var_specs
          type(ESMF_HConfig), target, intent(in) :: hconfig
          character(*), intent(in) :: state_intent
          type(ESMF_TimeInterval), optional, intent(in) :: timeStep
          type(ESMF_TimeInterval), optional, intent(in) :: offset
+         character(*), intent(in) :: component_name
          integer, optional, intent(out) :: rc
 
          type(VariableSpec) :: var_spec
@@ -122,7 +124,7 @@ contains
 
             dependencies = to_dependencies(attributes, _RC)
 
-            geometry_spec = parse_geometry_spec(attributes, registry, _RC)
+            geometry_spec = parse_geometry_spec(attributes, registry, component_name//"::"//short_name, _RC)
             if (allocated(geometry_spec%geom_spec)) then
                geom_mgr => get_geom_manager()
                mapl_geom => geom_mgr%get_mapl_geom(geometry_spec%geom_spec, _RC)
