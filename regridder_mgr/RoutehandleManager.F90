@@ -75,19 +75,19 @@ contains
    end function get_routehandle
 
 
-   subroutine add_routehandle(this, spec, rc)
-      class(RoutehandleManager), target, intent(inout) :: this
-      type(RoutehandleSpec), intent(in) :: spec
-      integer, optional, intent(out) :: rc
+      subroutine add_routehandle(this, spec, rc)
+        class(RoutehandleManager), target, intent(inout) :: this
+        type(RoutehandleSpec), intent(in) :: spec
+        integer, optional, intent(out) :: rc
 
-      type(ESMF_Routehandle) :: routehandle
-      integer :: status
+        type(ESMF_Routehandle) :: routehandle
+        integer :: status
 
-      associate (b => this%specs%begin(), e => this%specs%end())
-          _ASSERT(find(b, e, spec) == e, "Spec already exists in registry.")
-      end associate
+        associate (b => this%specs%begin(), e => this%specs%end())
+           _ASSERT(find(b, e, spec) == e, "Spec already exists in registry.")
+        end associate
 
-      routehandle = make_routehandle(spec, _RC)
+        routehandle = make_routehandle(spec, _RC)
 
       call this%specs%push_back(spec)
       call this%routehandles%push_back(routehandle)
