@@ -140,9 +140,7 @@ contains
       call comms_allreduce_sum(vm, sendbuf=sendbuf, recvbuf=recvbuf, cnt=n_elements, rc=status)
 
       ! Each element should sum to petCount
-      do i = 1, n_elements
-         @assertEqual(recvbuf(i), real(petCount))
-      end do
+      @assertEqual(real(petCount), recvbuf)
 
       deallocate(sendbuf, recvbuf)
 
@@ -174,11 +172,7 @@ contains
       call comms_allreduce_sum(vm, sendbuf=sendbuf, recvbuf=recvbuf, cnt=m_total*n_total, rc=status)
 
       ! All elements should sum to petCount
-      do j = 1, n_total
-         do i = 1, m_total
-            @assertEqual(recvbuf(i,j), petCount)
-         end do
-      end do
+      @assertEqual(petCount, recvbuf)
 
       deallocate(sendbuf, recvbuf)
 
@@ -238,9 +232,7 @@ contains
 
       ! Maximum should be (petCount-1) * 2.0 + 1.0
       expected_max = real(petCount - 1) * 2.0 + 1.0
-      do i = 1, n_elements
-         @assertEqual(recvbuf(i), expected_max)
-      end do
+      @assertEqual(expected_max, recvbuf)
 
       deallocate(sendbuf, recvbuf)
 
@@ -274,11 +266,7 @@ contains
 
       ! Maximum should be (petCount-1) * 2.5
       expected_max = real(petCount - 1, kind=real64) * 2.5d0
-      do j = 1, n_total
-         do i = 1, m_total
-            @assertEqual(recvbuf(i,j), expected_max)
-         end do
-      end do
+      @assertEqual(expected_max, recvbuf)
 
       deallocate(sendbuf, recvbuf)
 
@@ -370,11 +358,7 @@ contains
       call comms_allreduce_min(vm, sendbuf=sendbuf, recvbuf=recvbuf, cnt=m_total*n_total, rc=status)
 
       ! Minimum should be 0 (rank 0)
-      do j = 1, n_total
-         do i = 1, m_total
-            @assertEqual(recvbuf(i,j), 0)
-         end do
-      end do
+      @assertEqual(0, recvbuf)
 
       deallocate(sendbuf, recvbuf)
 
@@ -405,9 +389,7 @@ contains
       call comms_allreduce_min(vm, sendbuf=sendbuf, recvbuf=recvbuf, cnt=n_elements, rc=status)
 
       ! Minimum should be 0 (rank 0 sends 0)
-      do i = 1, n_elements
-         @assertEqual(recvbuf(i), 0.0d0)
-      end do
+      @assertEqual(0.0d0, recvbuf)
 
       deallocate(sendbuf, recvbuf)
 
@@ -438,9 +420,7 @@ contains
       call comms_allreduce_sum(vm, sendbuf=sendbuf, recvbuf=recvbuf, cnt=n_elements, rc=status)
 
       ! Each element should sum to petCount
-      do i = 1, n_elements
-         @assertEqual(recvbuf(i), real(petCount, kind=real64))
-      end do
+      @assertEqual(real(petCount, kind=real64), recvbuf)
 
       deallocate(sendbuf, recvbuf)
 
@@ -472,11 +452,7 @@ contains
       call comms_allreduce_sum(vm, sendbuf=sendbuf, recvbuf=recvbuf, cnt=m_total*n_total, rc=status)
 
       ! All elements should sum to petCount
-      do j = 1, n_total
-         do i = 1, m_total
-            @assertEqual(recvbuf(i,j), real(petCount, kind=real64))
-         end do
-      end do
+      @assertEqual(real(petCount, kind=real64), recvbuf)
 
       deallocate(sendbuf, recvbuf)
 
@@ -510,11 +486,7 @@ contains
 
       ! Maximum should be (petCount-1) * 5
       expected_max = (petCount - 1) * 5
-      do j = 1, n_total
-         do i = 1, m_total
-            @assertEqual(recvbuf(i,j), expected_max)
-         end do
-      end do
+      @assertEqual(expected_max, recvbuf)
 
       deallocate(sendbuf, recvbuf)
 
@@ -547,9 +519,7 @@ contains
 
       ! Maximum should be (petCount-1) * 7
       expected_max = (petCount - 1) * 7
-      do i = 1, n_elements
-         @assertEqual(recvbuf(i), expected_max)
-      end do
+      @assertEqual(expected_max, recvbuf)
 
       deallocate(sendbuf, recvbuf)
 
