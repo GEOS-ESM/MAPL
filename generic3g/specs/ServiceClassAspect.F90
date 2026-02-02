@@ -20,6 +20,7 @@ module mapl3g_ServiceClassAspect
    use mapl_ErrorHandling
    use gftl2_StringVector
    use esmf
+   use mapl3g_FieldBundleType_Flag
    implicit none
    private
 
@@ -101,7 +102,7 @@ contains
 
       integer :: status
 
-      this%payload = ESMF_FieldBundleCreate(_RC)
+      this%payload = MAPL_FieldBundleCreate(fieldBundleType=FIELDBUNDLETYPE_SERVICE, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine create
@@ -291,7 +292,7 @@ contains
       type(AspectMap), intent(in) :: goal_aspects
       integer, optional, intent(out) :: rc
 
-      aspect_ids = [CLASS_ASPECT_ID]
+      aspect_ids = [CLASS_ASPECT_ID, GEOM_ASPECT_ID]
 
       _RETURN(_SUCCESS)
       
