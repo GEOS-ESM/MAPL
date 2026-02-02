@@ -117,8 +117,7 @@ contains
       if (has_file) then
          ! When a file is specified, explicit lon/lat arrays must
          ! not also be present in the same hconfig.
-         _ASSERT(.not.(has_lon .or. has_lat), &
-                 'LocStream hconfig may specify either lon/lat or file, but not both')
+         _ASSERT(.not.(has_lon .or. has_lat), 'LocStream hconfig may specify either lon/lat or file, but not both')
 
          filename = ESMF_HConfigAsString(hconfig, keyString='file', _RC)
 
@@ -135,8 +134,7 @@ contains
 
       ! No file: fall back to explicit coordinate arrays, which
       ! must provide both lon and lat.
-      _ASSERT(has_lon .and. has_lat, &
-              'LocStream hconfig must provide lon/lat arrays or a file')
+      _ASSERT(has_lon .and. has_lat, 'LocStream hconfig must provide lon/lat arrays or a file')
 
       params = HConfigParams(hconfig, "lon")
       call get_hconfig(lon, params, _RC)
