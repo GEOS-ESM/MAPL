@@ -55,7 +55,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      
+
       routehandle = make_routehandle(spec%geom_in, spec%geom_out, spec%rh_param, _RC)
       
       _RETURN(_SUCCESS)

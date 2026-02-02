@@ -1,0 +1,103 @@
+! Tests for LocStream geom creation from PFIO FileMetadata
+
+#define I_AM_PFUNIT
+#include "MAPL_ErrLog.h"
+
+module Test_LocStreamGeomFactory_Metadata
+   use pfunit
+   use esmf_TestMethod_mod ! mapl
+   use mapl3g_Geom_API
+   use pFIO_FileMetadataMod
+   use pFIO_VariableMod
+   use pFIO_CoordinateVariableMod
+   use pFIO_ConstantsMod
+   use iso_fortran_env, only: REAL64
+   use esmf
+   implicit none
+
+contains
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_make_locstream_from_metadata(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(FileMetadata) :: metadata
+      type(GeomManager), target :: geom_manager
+      type(MaplGeom), pointer :: mapl_geom
+
+      type(Variable) :: lon_var, lat_var
+      type(CoordinateVariable) :: lon_coord, lat_coord
+
+      real(kind=REAL64), dimension(3) :: lon_values = [0.0_REAL64, 1.0_REAL64, 2.0_REAL64]
+      real(kind=REAL64), dimension(3) :: lat_values = [10.0_REAL64, 20.0_REAL64, 30.0_REAL64]
+
+      type(ESMF_Geom) :: geom
+      type(ESMF_LocStream) :: locstream
+      type(ESMF_GeomType_Flag) :: geomtype
+      real(kind=REAL64), pointer :: lons(:) => null(), lats(:) => null()
+
+      integer :: status
+
+   _UNUSED_DUMMY(this)
+
+      ! Single "loc" dimension shared by lon/lat coordinate variables.
+      metadata = FileMetadata()
+      call metadata%add_dimension('loc', 3, rc=status)
+      @assertEqual(0, status)
+
+      lon_var = Variable(type=pFIO_REAL64, dimensions='loc', rc=status)
+      @assertEqual(0, status)
+      call lon_var%add_attribute('units', 'degrees_east', rc=status)
+      @assertEqual(0, status)
+      lon_coord = CoordinateVariable(lon_var, lon_values, rc=status)
+      @assertEqual(0, status)
+      call metadata%add_variable('lon', lon_coord, rc=status)
+      @assertEqual(0, status)
+
+      lat_var = Variable(type=pFIO_REAL64, dimensions='loc', rc=status)
+      @assertEqual(0, status)
+      call lat_var%add_attribute('units', 'degrees_north', rc=status)
+      @assertEqual(0, status)
+      lat_coord = CoordinateVariable(lat_var, lat_values, rc=status)
+      @assertEqual(0, status)
+      call metadata%add_variable('lat', lat_coord, rc=status)
+      @assertEqual(0, status)
+
+      geom_manager = GeomManager()
+
+      mapl_geom => geom_manager%get_mapl_geom_from_metadata(metadata, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(associated(mapl_geom))
+
+      ! Inspect the created geom/locstream to verify contents
+      geom = mapl_geom%get_geom()
+      call ESMF_GeomGet(geom, geomtype=geomtype, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(geomtype == ESMF_GEOMTYPE_LOCSTREAM)
+
+      call ESMF_GeomGet(geom, locstream=locstream, rc=status)
+      @assertEqual(0, status)
+
+      call ESMF_LocStreamGetKey(locstream, keyName='ESMF:Lon', farray=lons, rc=status)
+      @assertEqual(0, status)
+      call ESMF_LocStreamGetKey(locstream, keyName='ESMF:Lat', farray=lats, rc=status)
+      @assertEqual(0, status)
+
+      @assertEqual(3, size(lons))
+      @assertEqual(3, size(lats))
+
+      block
+         real(kind=REAL64) :: tol
+         real(kind=REAL64), dimension(3) :: lon_exp, lat_exp
+
+         tol = 1.0e-12_REAL64
+         lon_exp = lon_values * (acos(-1.0_REAL64) / 180.0_REAL64)
+         lat_exp = lat_values * (acos(-1.0_REAL64) / 180.0_REAL64)
+
+         @assertTrue(all(abs(lons - lon_exp) < tol))
+         @assertTrue(all(abs(lats - lat_exp) < tol))
+      end block
+
+   end subroutine test_make_locstream_from_metadata
+
+end module Test_LocStreamGeomFactory_Metadata
