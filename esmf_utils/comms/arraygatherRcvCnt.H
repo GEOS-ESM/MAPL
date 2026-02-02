@@ -1,4 +1,3 @@
-
 #ifdef NAME_
 #undef NAME_
 #endif
@@ -12,64 +11,45 @@
 
 #include "overload.macro"
 
-  subroutine SUB_(local_array, global_array, recvCounts, vm, dstPe, rc)
-    TYPE_(kind=EKIND_), intent(IN   )            :: local_array DIMENSIONS_
-    TYPE_(kind=EKIND_), intent(  OUT)            :: global_array DIMENSIONS_
-    integer                                      :: recvcounts(:)
-    type(ESMF_VM)                                :: vm
-    integer, optional,  intent(IN   )            :: dstPe
-    integer, optional, intent(OUT)               :: rc
-    
-! Local variables
+subroutine SUB_(local_array, global_array, recv_counts, vm, dst_pe, rc)
+   TYPE_(kind=EKIND_), intent(in) :: local_array DIMENSIONS_
+   TYPE_(kind=EKIND_), intent(out) :: global_array DIMENSIONS_
+   integer :: recv_counts(:)
+   type(ESMF_VM) :: vm
+   integer, optional, intent(in) :: dst_pe
+   integer, optional, intent(out) :: rc
 
-    integer                               :: status
+   ! Local variables
+   integer, allocatable :: displs(:)
+   integer :: num_des, send_count, i
+   integer :: de_id ! index of my PE
+   integer :: dst_de
+   integer :: status
 
-    integer, allocatable, dimension(:)    :: displs
-    integer                               :: nDEs
-    integer                               :: sendcount
-    
-    integer                               :: I
-    integer                               :: IM1 ! 'I minus 1'
-    integer                               :: deId ! index of my PE
-    integer                               :: dstDE
-    
-! This version works only for 1D arrays! 
+   ! This version works only for 1D arrays!
+   _ASSERT(RANK_ == 1, 'only rank 1 is supported')
 
-    _ASSERT(RANK_ == 1, 'only rank 1 is supported')
+   dst_de = ROOT_PROCESS_ID
+   if(present(dst_pe)) dst_de = dst_pe
 
-    if(present(dstPe)) then
-      dstDE = dstPe 
-    else
-      dstDE = ROOT_PROCESS_ID
-    end if
+   call ESMF_VMGet(vm, localPet=de_id, petCount=num_des, _RC)
+   _ASSERT(size(recv_counts) == num_des, 'recv_counts must match num_des')
+   allocate(displs(0:num_des), _STAT)
 
-    call ESMF_VMGet(vm, localPet=deId, petCount=ndes, rc=status)
-    _VERIFY(STATUS)
+   displs(0) = 0
+   do i = 1, num_des
+      displs(i) = displs(i-1) + recv_counts(i)
+   enddo
 
+   ! Count I will send
+   send_count = recv_counts(de_id+1)
 
-    _ASSERT(size(recvCounts) == nDEs, 'recvcounts must match nDEs')
+   call ESMF_VMGatherV(vm, local_array, send_count, global_array, recv_counts, displs, dst_de, _RC)
 
-    allocate (displs(0:nDEs), stat=status)
-    _VERIFY(STATUS)
+   deallocate(displs, _STAT)
 
-    displs(0) = 0
-    do I = 1,nDEs
-       IM1 = I - 1
-       displs(I) = displs(IM1) + recvcounts(I)
-    enddo
-
-    ! Count I will send
-    sendcount = recvcounts(deId+1)
-
-    call ESMF_VMGatherV(vm, local_array, sendcount, &
-                        global_array, recvcounts, displs, dstDE, rc=status)
-    _VERIFY(STATUS)
-
-    deallocate(displs, stat=status)
-    _VERIFY(STATUS)
-
-    _RETURN(ESMF_SUCCESS)
-  end subroutine SUB_
+   _RETURN(_SUCCESS)
+end subroutine SUB_
 
 #undef NAME_
 #undef NAMESTR_

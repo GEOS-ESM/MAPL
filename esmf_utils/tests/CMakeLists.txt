@@ -4,16 +4,17 @@ set (test_srcs
   Test_InfoUtilities.pf
   Test_Ungridded.pf
   Test_ESMF_Time_Utilities.pf
+  Test_Comms.pf
   )
 
 add_pfunit_ctest(MAPL.esmf_utils.tests
-                TEST_SOURCES ${test_srcs}
-                LINK_LIBRARIES MAPL.esmf_utils MAPL.pfunit
-                EXTRA_INITIALIZE Initialize
-                EXTRA_USE MAPL_pFUnit_Initialize
-                WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                MAX_PES 1
-                )
+  TEST_SOURCES ${test_srcs}
+  LINK_LIBRARIES MAPL.esmf_utils MAPL.pfunit
+  EXTRA_INITIALIZE Initialize
+  EXTRA_USE MAPL_pFUnit_Initialize
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  MAX_PES 8
+  )
 set_target_properties(MAPL.esmf_utils.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 set_tests_properties(MAPL.esmf_utils.tests PROPERTIES LABELS "ESSENTIAL")
 

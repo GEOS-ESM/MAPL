@@ -1,0 +1,528 @@
+module Test_Comms
+
+   use pfunit
+   use ESMF_TestCase_mod
+   use ESMF_TestMethod_mod
+   use ESMF
+   use mapl3g_Comms
+   use, intrinsic :: iso_fortran_env, only: real64
+
+   implicit none
+
+contains
+
+   ! Test am_i_root function
+   @test(npes=[1,2,4],type=ESMF_TestMethod)
+   subroutine test_am_i_root_vm(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+      
+      type (ESMF_VM) :: vm
+      logical :: is_root
+      integer :: localPet, petCount
+      integer :: status
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount)
+
+      is_root = am_i_root(vm, rc=status)
+
+      ! Only rank 0 should be root
+      if (localPet == ROOT_PROCESS_ID) then
+         @assertTrue(is_root)
+      else
+         @assertFalse(is_root)
+      end if
+
+   end subroutine test_am_i_root_vm
+
+   ! Test am_i_rank function with specific rank
+   @test(npes=[1,2,4],type=ESMF_TestMethod)
+   subroutine test_am_i_rank_specific(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+
+      type (ESMF_VM) :: vm
+      logical :: is_rank_zero, is_rank_one
+      integer :: localPet, petCount
+      integer :: status
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount)
+
+      is_rank_zero = am_i_rank(vm, rank=0, rc=status)
+      is_rank_one = am_i_rank(vm, rank=1, rc=status)
+
+      ! Check rank 0
+      if (localPet == 0) then
+         @assertTrue(is_rank_zero)
+         if (petCount > 1) then
+            @assertFalse(is_rank_one)
+         end if
+      else
+         @assertFalse(is_rank_zero)
+      end if
+
+      ! Check rank 1 only if it exists
+      if (petCount > 1) then
+         if (localPet == 1) then
+            @assertTrue(is_rank_one)
+         else
+            @assertFalse(is_rank_one)
+         end if
+      end if
+
+   end subroutine test_am_i_rank_specific
+
+   ! Test num_pes function
+   @test(npes=[1,2,4],type=ESMF_TestMethod)
+   subroutine test_num_pes_vm(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+
+      type (ESMF_VM) :: vm
+      integer :: npes, petCount
+      integer :: status
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, petCount=petCount)
+
+      npes = num_pes(vm, rc=status)
+
+      @assertEqual(npes, petCount)
+
+   end subroutine test_num_pes_vm
+
+   ! Test comms_allreduce_sum for scalar integer
+   @test(npes=[1,2,4],type=ESMF_TestMethod)
+   subroutine test_comms_allreduce_sum_i4_scalar(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+
+      type (ESMF_VM) :: vm
+      integer :: sendbuf, recvbuf
+      integer :: petCount
+      integer :: status
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, petCount=petCount)
+
+      ! Each rank sends 1
+      sendbuf = 1
+      recvbuf = -999
+
+      ! Sum all values
+      call comms_allreduce_sum(vm, sendbuf=sendbuf, recvbuf=recvbuf, cnt=1, rc=status)
+
+      ! Sum should be petCount
+      @assertEqual(recvbuf, petCount)
+
+   end subroutine test_comms_allreduce_sum_i4_scalar
+
+   ! Test comms_allreduce_sum for 1D real array
+   @test(npes=[1,2,4],type=ESMF_TestMethod)
+   subroutine test_comms_allreduce_sum_r4_1d(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+
+      type (ESMF_VM) :: vm
+      real, allocatable :: sendbuf(:), recvbuf(:)
+      integer :: i, n_elements, petCount
+      integer :: status
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, petCount=petCount)
+
+      n_elements = 5
+      allocate(sendbuf(n_elements))
+      allocate(recvbuf(n_elements))
+
+      ! Each rank sends array of ones
+      sendbuf = 1.0
+      recvbuf = -999.0
+
+      ! Sum all values
+      call comms_allreduce_sum(vm, sendbuf=sendbuf, recvbuf=recvbuf, cnt=n_elements, rc=status)
+
+      ! Each element should sum to petCount
+      @assertEqual(real(petCount), recvbuf)
+
+      deallocate(sendbuf, recvbuf)
+
+   end subroutine test_comms_allreduce_sum_r4_1d
+
+   ! Test comms_allreduce_sum for 2D integer array
+   @test(npes=[1,2,4],type=ESMF_TestMethod)
+   subroutine test_comms_allreduce_sum_i4_2d(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+
+      type (ESMF_VM) :: vm
+      integer, allocatable :: sendbuf(:,:), recvbuf(:,:)
+      integer :: i, j, m_total, n_total, petCount
+      integer :: status
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, petCount=petCount)
+
+      m_total = 4
+      n_total = 3
+      allocate(sendbuf(m_total, n_total))
+      allocate(recvbuf(m_total, n_total))
+
+      ! Each rank sends ones
+      sendbuf = 1
+      recvbuf = -999
+
+      ! Sum all values
+      call comms_allreduce_sum(vm, sendbuf=sendbuf, recvbuf=recvbuf, cnt=m_total*n_total, rc=status)
+
+      ! All elements should sum to petCount
+      @assertEqual(petCount, recvbuf)
+
+      deallocate(sendbuf, recvbuf)
+
+   end subroutine test_comms_allreduce_sum_i4_2d
+
+   ! Test comms_allreduce_max for scalar real
+   @test(npes=[1,2,4],type=ESMF_TestMethod)
+   subroutine test_comms_allreduce_max_r8_scalar(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+
+      type (ESMF_VM) :: vm
+      real(kind=real64) :: sendbuf, recvbuf
+      integer :: localPet, petCount
+      real(kind=real64) :: expected_max
+      integer :: status
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount)
+
+      ! Each rank sends its rank as a float
+      sendbuf = real(localPet, kind=real64) * 1.5d0
+      recvbuf = -999.0d0
+
+      ! Get maximum
+      call comms_allreduce_max(vm, sendbuf=sendbuf, recvbuf=recvbuf, cnt=1, rc=status)
+
+      ! Maximum should be (petCount-1) * 1.5
+      expected_max = real(petCount - 1, kind=real64) * 1.5d0
+      @assertEqual(recvbuf, expected_max)
+
+   end subroutine test_comms_allreduce_max_r8_scalar
+
+   ! Test comms_allreduce_max for 1D real array
+   @test(npes=[1,2,4],type=ESMF_TestMethod)
+   subroutine test_comms_allreduce_max_r4_1d(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+
+      type (ESMF_VM) :: vm
+      real, allocatable :: sendbuf(:), recvbuf(:)
+      integer :: i, n_elements, localPet, petCount
+      real :: expected_max
+      integer :: status
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount)
+
+      n_elements = 4
+      allocate(sendbuf(n_elements))
+      allocate(recvbuf(n_elements))
+
+      ! Each rank sends different values
+      sendbuf = real(localPet) * 2.0 + 1.0
+      recvbuf = -999.0
+
+      ! Get maximum
+      call comms_allreduce_max(vm, sendbuf=sendbuf, recvbuf=recvbuf, cnt=n_elements, rc=status)
+
+      ! Maximum should be (petCount-1) * 2.0 + 1.0
+      expected_max = real(petCount - 1) * 2.0 + 1.0
+      @assertEqual(expected_max, recvbuf)
+
+      deallocate(sendbuf, recvbuf)
+
+   end subroutine test_comms_allreduce_max_r4_1d
+
+   ! Test comms_allreduce_max for 2D real array
+   @test(npes=[1,2,4],type=ESMF_TestMethod)
+   subroutine test_comms_allreduce_max_r8_2d(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+
+      type (ESMF_VM) :: vm
+      real(kind=real64), allocatable :: sendbuf(:,:), recvbuf(:,:)
+      integer :: i, j, m_total, n_total, localPet, petCount
+      real(kind=real64) :: expected_max
+      integer :: status
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount)
+
+      m_total = 3
+      n_total = 2
+      allocate(sendbuf(m_total, n_total))
+      allocate(recvbuf(m_total, n_total))
+
+      ! Each rank sends different values
+      sendbuf = real(localPet, kind=real64) * 2.5d0
+      recvbuf = -999.0d0
+
+      ! Get maximum
+      call comms_allreduce_max(vm, sendbuf=sendbuf, recvbuf=recvbuf, cnt=m_total*n_total, rc=status)
+
+      ! Maximum should be (petCount-1) * 2.5
+      expected_max = real(petCount - 1, kind=real64) * 2.5d0
+      @assertEqual(expected_max, recvbuf)
+
+      deallocate(sendbuf, recvbuf)
+
+   end subroutine test_comms_allreduce_max_r8_2d
+
+   ! Test comms_allreduce_min for scalar integer
+   @test(npes=[1,2,4],type=ESMF_TestMethod)
+   subroutine test_comms_allreduce_min_i4_scalar(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+
+      type (ESMF_VM) :: vm
+      integer :: sendbuf, recvbuf
+      integer :: localPet, petCount
+      integer :: status
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount)
+
+      ! Each rank sends its rank
+      sendbuf = localPet * 10
+      recvbuf = 999999
+
+      ! Get minimum
+      call comms_allreduce_min(vm, sendbuf=sendbuf, recvbuf=recvbuf, cnt=1, rc=status)
+
+      ! Minimum should be 0 (rank 0)
+      @assertEqual(recvbuf, 0)
+
+   end subroutine test_comms_allreduce_min_i4_scalar
+
+   ! Test comms_allreduce_min for 1D real array
+   @test(npes=[1,2,4],type=ESMF_TestMethod)
+   subroutine test_comms_allreduce_min_r4_1d(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+
+      type (ESMF_VM) :: vm
+      real, allocatable :: sendbuf(:), recvbuf(:)
+      integer :: i, n_elements, localPet, petCount
+      integer :: status
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount)
+
+      n_elements = 3
+      allocate(sendbuf(n_elements))
+      allocate(recvbuf(n_elements))
+
+      ! Each rank sends its rank + offset for each element
+      sendbuf(1) = real(localPet) + 10.0
+      sendbuf(2) = real(localPet) + 20.0
+      sendbuf(3) = real(localPet) + 30.0
+      recvbuf = 999999.0
+
+      ! Get minimum
+      call comms_allreduce_min(vm, sendbuf=sendbuf, recvbuf=recvbuf, cnt=n_elements, rc=status)
+
+      ! All minimums should correspond to rank 0
+      @assertEqual(recvbuf(1), 10.0)
+      @assertEqual(recvbuf(2), 20.0)
+      @assertEqual(recvbuf(3), 30.0)
+
+      deallocate(sendbuf, recvbuf)
+
+   end subroutine test_comms_allreduce_min_r4_1d
+
+   ! Test comms_allreduce_min for 2D integer array
+   @test(npes=[1,2,4],type=ESMF_TestMethod)
+   subroutine test_comms_allreduce_min_i4_2d(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+
+      type (ESMF_VM) :: vm
+      integer, allocatable :: sendbuf(:,:), recvbuf(:,:)
+      integer :: i, j, m_total, n_total, localPet
+      integer :: status
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, localPet=localPet)
+
+      m_total = 3
+      n_total = 2
+      allocate(sendbuf(m_total, n_total))
+      allocate(recvbuf(m_total, n_total))
+
+      ! Each rank sends its rank
+      sendbuf = localPet * 100
+      recvbuf = 999999
+
+      ! Get minimum
+      call comms_allreduce_min(vm, sendbuf=sendbuf, recvbuf=recvbuf, cnt=m_total*n_total, rc=status)
+
+      ! Minimum should be 0 (rank 0)
+      @assertEqual(0, recvbuf)
+
+      deallocate(sendbuf, recvbuf)
+
+   end subroutine test_comms_allreduce_min_i4_2d
+
+   ! Test comms_allreduce_min for double precision 1D array
+   @test(npes=[1,2,4],type=ESMF_TestMethod)
+   subroutine test_comms_allreduce_min_r8_1d(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+
+      type (ESMF_VM) :: vm
+      real(kind=real64), allocatable :: sendbuf(:), recvbuf(:)
+      integer :: i, n_elements, localPet
+      integer :: status
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, localPet=localPet)
+
+      n_elements = 4
+      allocate(sendbuf(n_elements))
+      allocate(recvbuf(n_elements))
+
+      ! Each rank sends its rank as double precision
+      sendbuf = real(localPet, kind=real64) * 3.14159d0
+      recvbuf = 999999.0d0
+
+      ! Get minimum
+      call comms_allreduce_min(vm, sendbuf=sendbuf, recvbuf=recvbuf, cnt=n_elements, rc=status)
+
+      ! Minimum should be 0 (rank 0 sends 0)
+      @assertEqual(0.0d0, recvbuf)
+
+      deallocate(sendbuf, recvbuf)
+
+   end subroutine test_comms_allreduce_min_r8_1d
+
+   ! Test comms_allreduce_sum for double precision 1D array
+   @test(npes=[1,2,4],type=ESMF_TestMethod)
+   subroutine test_comms_allreduce_sum_r8_1d(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+
+      type (ESMF_VM) :: vm
+      real(kind=real64), allocatable :: sendbuf(:), recvbuf(:)
+      integer :: i, n_elements, petCount
+      integer :: status
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, petCount=petCount)
+
+      n_elements = 6
+      allocate(sendbuf(n_elements))
+      allocate(recvbuf(n_elements))
+
+      ! Each rank sends array of ones (double precision)
+      sendbuf = 1.0d0
+      recvbuf = -999.0d0
+
+      ! Sum all values
+      call comms_allreduce_sum(vm, sendbuf=sendbuf, recvbuf=recvbuf, cnt=n_elements, rc=status)
+
+      ! Each element should sum to petCount
+      @assertEqual(real(petCount, kind=real64), recvbuf)
+
+      deallocate(sendbuf, recvbuf)
+
+   end subroutine test_comms_allreduce_sum_r8_1d
+
+   ! Test comms_allreduce_sum for 2D double precision array
+   @test(npes=[1,2,4],type=ESMF_TestMethod)
+   subroutine test_comms_allreduce_sum_r8_2d(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+
+      type (ESMF_VM) :: vm
+      real(kind=real64), allocatable :: sendbuf(:,:), recvbuf(:,:)
+      integer :: i, j, m_total, n_total, petCount
+      integer :: status
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, petCount=petCount)
+
+      m_total = 3
+      n_total = 4
+      allocate(sendbuf(m_total, n_total))
+      allocate(recvbuf(m_total, n_total))
+
+      ! Each rank sends ones (double precision)
+      sendbuf = 1.0d0
+      recvbuf = -999.0d0
+
+      ! Sum all values
+      call comms_allreduce_sum(vm, sendbuf=sendbuf, recvbuf=recvbuf, cnt=m_total*n_total, rc=status)
+
+      ! All elements should sum to petCount
+      @assertEqual(real(petCount, kind=real64), recvbuf)
+
+      deallocate(sendbuf, recvbuf)
+
+   end subroutine test_comms_allreduce_sum_r8_2d
+
+   ! Test comms_allreduce_max for 2D integer array
+   @test(npes=[1,2,4],type=ESMF_TestMethod)
+   subroutine test_comms_allreduce_max_i4_2d(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+
+      type (ESMF_VM) :: vm
+      integer, allocatable :: sendbuf(:,:), recvbuf(:,:)
+      integer :: i, j, m_total, n_total, localPet, petCount
+      integer :: expected_max
+      integer :: status
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount)
+
+      m_total = 4
+      n_total = 3
+      allocate(sendbuf(m_total, n_total))
+      allocate(recvbuf(m_total, n_total))
+
+      ! Each rank sends its rank
+      sendbuf = localPet * 5
+      recvbuf = -999
+
+      ! Get maximum
+      call comms_allreduce_max(vm, sendbuf=sendbuf, recvbuf=recvbuf, cnt=m_total*n_total, rc=status)
+
+      ! Maximum should be (petCount-1) * 5
+      expected_max = (petCount - 1) * 5
+      @assertEqual(expected_max, recvbuf)
+
+      deallocate(sendbuf, recvbuf)
+
+   end subroutine test_comms_allreduce_max_i4_2d
+
+   ! Test comms_allreduce_max for 1D integer array
+   @test(npes=[1,2,4],type=ESMF_TestMethod)
+   subroutine test_comms_allreduce_max_i4_1d(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+
+      type (ESMF_VM) :: vm
+      integer, allocatable :: sendbuf(:), recvbuf(:)
+      integer :: i, n_elements, localPet, petCount
+      integer :: expected_max
+      integer :: status
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount)
+
+      n_elements = 5
+      allocate(sendbuf(n_elements))
+      allocate(recvbuf(n_elements))
+
+      ! Each rank sends its rank
+      sendbuf = localPet * 7
+      recvbuf = -999
+
+      ! Get maximum
+      call comms_allreduce_max(vm, sendbuf=sendbuf, recvbuf=recvbuf, cnt=n_elements, rc=status)
+
+      ! Maximum should be (petCount-1) * 7
+      expected_max = (petCount - 1) * 7
+      @assertEqual(expected_max, recvbuf)
+
+      deallocate(sendbuf, recvbuf)
+
+   end subroutine test_comms_allreduce_max_i4_1d
+
+ end module Test_Comms
