@@ -1,11 +1,11 @@
 #include "MAPL_ErrLog.h"
 
-submodule (mapl3g_ComponentSpecParser) parse_component_spec_smod
+submodule (mapl3g_ComponentSpecParser) make_ComponentSpec_smod
    implicit none(type,external)
 
 contains
 
-   module function parse_component_spec(hconfig, registry, component_name, timeStep, offset, rc) result(spec)
+   module function make_ComponentSpec(hconfig, registry, component_name, timeStep, offset, rc) result(spec)
       type(ComponentSpec) :: spec
       type(ESMF_HConfig), target, intent(inout) :: hconfig
       type(StateRegistry), target, intent(in) :: registry
@@ -14,6 +14,7 @@ contains
       type(ESMF_TimeInterval), optional, intent(in) :: offset
       integer, optional, intent(out) :: rc
 
+      type(ComponentSpecParserContext) :: context
       integer :: status
       logical :: has_mapl_section
       type(ESMF_HConfig) :: mapl_cfg
@@ -22,8 +23,10 @@ contains
       _RETURN_UNLESS(has_mapl_section)
       mapl_cfg = ESMF_HConfigCreateAt(hconfig, keyString=MAPL_SECTION, _RC)
 
-      spec%geometry_spec = parse_geometry_spec(mapl_cfg, registry, component_name, _RC)
-      spec%var_specs = parse_var_specs(mapl_cfg, timeStep, offset, registry, component_name, _RC)
+      context = build_ComponentSpecParserContext(mapl_cfg, registry, component_name, timeStep, offset)
+
+      spec%geometry_spec = parse_geometry_spec_from_context(context, _RC)
+         spec%var_specs     = parse_var_specs(context, _RC)
       spec%connections = parse_connections(mapl_cfg, _RC)
       spec%children = parse_children(mapl_cfg, _RC)
 
@@ -32,7 +35,7 @@ contains
       call ESMF_HConfigDestroy(mapl_cfg, _RC)
 
       _RETURN(_SUCCESS)
-   end function parse_component_spec
+   end function make_ComponentSpec
 
    ! TODO - we may want a `misc` section in the mapl section, but
    ! should wait to see what else goes there.  Or maybe a `test`
@@ -102,5 +105,5 @@ contains
       _RETURN(_SUCCESS)
    end subroutine parse_item
 
-end submodule parse_component_spec_smod
+end submodule make_ComponentSpec_smod
 

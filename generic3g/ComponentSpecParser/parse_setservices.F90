@@ -7,19 +7,19 @@ submodule (mapl3g_ComponentSpecParser) parse_setservices_smod
 contains
 
    
-   module function parse_setservices(config, rc) result(user_ss)
+   module function parse_setservices(hconfig, rc) result(user_ss)
       type(DSOSetServices) :: user_ss
-      type(ESMF_HConfig), target, intent(in) :: config
+      type(ESMF_HConfig), target, intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
       character(:), allocatable :: sharedObj, userRoutine
       integer :: status
 
-      sharedObj = ESMF_HConfigAsString(config,keyString='sharedObj',rc=status)
+      sharedObj = ESMF_HConfigAsString(hconfig,keyString='sharedObj',rc=status)
       _ASSERT(status == 0, 'setServices spec does not specify sharedObj')
 
-      if (ESMF_HConfigIsDefined(config,keyString='userRoutine')) then
-         userRoutine = ESMF_HConfigAsString(config,keyString='userRoutine',_RC)
+      if (ESMF_HConfigIsDefined(hconfig,keyString='userRoutine')) then
+         userRoutine = ESMF_HConfigAsString(hconfig,keyString='userRoutine',_RC)
       else
          userRoutine = 'setservices_'
       end if

@@ -32,7 +32,7 @@ module mapl3g_ComponentSpecParser
    private
 
    public :: MAPL_SECTION
-   public :: parse_component_spec
+   public :: make_ComponentSpec
 
    ! The following interfaces are public only for testing purposes.
    public :: parse_children
@@ -75,10 +75,18 @@ module mapl3g_ComponentSpecParser
    character(*), parameter :: KEY_RUN_TIME_OFFSET = 'run_time_offset'
    character(*), parameter :: KEY_VECTOR_COMPONENT_NAMES = 'vector_component_names'
 
+   type :: ComponentSpecParserContext
+      type(ESMF_HConfig) :: mapl_cfg
+      type(StateRegistry), pointer :: registry => null()
+      character(len=:), allocatable :: component_name
+      type(ESMF_TimeInterval), allocatable :: timeStep
+      type(ESMF_TimeInterval), allocatable :: offset
+   end type ComponentSpecParserContext
+
    !>
    ! Submodule declarations
    INTERFACE
-      module function parse_component_spec(hconfig, registry, component_name, timeStep, offset, rc) result(spec)
+      module function make_ComponentSpec(hconfig, registry, component_name, timeStep, offset, rc) result(spec)
          type(ComponentSpec) :: spec
          type(ESMF_HConfig), target, intent(inout) :: hconfig
          type(StateRegistry), target, intent(in) :: registry
@@ -86,7 +94,7 @@ module mapl3g_ComponentSpecParser
          type(ESMF_TimeInterval), optional, intent(in) :: timeStep
          type(ESMF_TimeInterval), optional, intent(in) :: offset
          integer, optional, intent(out) :: rc
-      end function parse_component_spec
+      end function make_ComponentSpec
 
       module function parse_geometry_spec(mapl_cfg, registry, component_name, rc) result(geometry_spec)
          type(GeometrySpec) :: geometry_spec
@@ -96,13 +104,9 @@ module mapl3g_ComponentSpecParser
          integer, optional, intent(out) :: rc
       end function parse_geometry_spec
 
-      module function parse_var_specs(hconfig, timeStep, offset, registry, component_name, rc) result(var_specs)
+      module function parse_var_specs(context, rc) result(var_specs)
          type(VariableSpecVector) :: var_specs
-         type(ESMF_HConfig), intent(in) :: hconfig
-         type(ESMF_TimeInterval), optional, intent(in) :: timeStep
-         type(ESMF_TimeInterval), optional, intent(in) :: offset
-         type(StateRegistry), target, intent(in) :: registry
-         character(*), intent(in) :: component_name
+         type(ComponentSpecParserContext), intent(in) :: context
          integer, optional, intent(out) :: rc
       end function parse_var_specs
 
@@ -112,9 +116,9 @@ module mapl3g_ComponentSpecParser
          integer, optional, intent(out) :: rc
       end function parse_connections
 
-      module function parse_setservices(config, rc) result(user_ss)
+      module function parse_setservices(hconfig, rc) result(user_ss)
          type(DSOSetServices) :: user_ss
-         type(ESMF_HConfig), target, intent(in) :: config
+         type(ESMF_HConfig), target, intent(in) :: hconfig
          integer, optional, intent(out) :: rc
       end function parse_setservices
 
@@ -144,5 +148,38 @@ module mapl3g_ComponentSpecParser
       end function to_itemtype
 
    END INTERFACE
+
+contains
+
+   function build_ComponentSpecParserContext(mapl_cfg, registry, component_name, timeStep, offset) result(context)
+      type(ComponentSpecParserContext) :: context
+      type(ESMF_HConfig), intent(in) :: mapl_cfg
+      type(StateRegistry), target, intent(in) :: registry
+      character(*), intent(in) :: component_name
+      type(ESMF_TimeInterval), optional, intent(in) :: timeStep
+      type(ESMF_TimeInterval), optional, intent(in) :: offset
+
+      context%mapl_cfg = mapl_cfg
+      context%registry => registry
+      context%component_name = component_name
+
+      if (present(timeStep)) then
+         context%timeStep = timeStep
+      end if
+
+      if (present(offset)) then
+         context%offset = offset
+      end if
+
+   end function build_ComponentSpecParserContext
+
+   function parse_geometry_spec_from_context(context, rc) result(geometry_spec)
+      type(GeometrySpec) :: geometry_spec
+      type(ComponentSpecParserContext), intent(in) :: context
+      integer, optional, intent(out) :: rc
+
+      geometry_spec = parse_geometry_spec(context%mapl_cfg, context%registry, context%component_name, rc)
+
+   end function parse_geometry_spec_from_context
 
 end module mapl3g_ComponentSpecParser

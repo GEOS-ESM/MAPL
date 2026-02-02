@@ -36,7 +36,7 @@ contains
       class(logger_t), pointer :: logger
 
       ! Note that Parent component should set timestep and offset in outer meta before calling SetServices.
-      this%component_spec = parse_component_spec(this%hconfig, this%registry, this%user_gc_driver%get_name(), this%user_timeStep, this%user_offset, _RC)
+      this%component_spec = make_ComponentSpec(this%hconfig, this%registry, this%user_gc_driver%get_name(), this%user_timeStep, this%user_offset, _RC)
 
       user_gridcomp = this%user_gc_driver%get_gridcomp()
       call attach_inner_meta(user_gridcomp, this%self_gridcomp, _RC)

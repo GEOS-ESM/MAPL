@@ -9,74 +9,43 @@ contains
    ! A component is not required to have var_specs.   E.g, in theory GCM gridcomp will not
    ! have var specs in MAPL3, as it does not really have a preferred geom on which to declare
    ! imports and exports.
-   module function parse_var_specs(hconfig, timeStep, offset, registry, component_name, rc) result(var_specs)
+   module function parse_var_specs(context, rc) result(var_specs)
       type(VariableSpecVector) :: var_specs
-      type(ESMF_HConfig), intent(in) :: hconfig
-      type(ESMF_TimeInterval), optional, intent(in) :: timeStep
-      type(ESMF_TimeInterval), optional, intent(in) :: offset
-      type(StateRegistry), target, intent(in) :: registry
-      character(*), intent(in) :: component_name
+      type(ComponentSpecParserContext), intent(in) :: context
       integer, optional, intent(out) :: rc
 
       integer :: status
       logical :: has_states_section
       type(ESMF_HConfig) :: subcfg
 
-      has_states_section = ESMF_HConfigIsDefined(hconfig,keyString=COMPONENT_STATES_SECTION, _RC)
+      has_states_section = ESMF_HConfigIsDefined(context%mapl_cfg,keyString=COMPONENT_STATES_SECTION, _RC)
       _RETURN_UNLESS(has_states_section)
 
-      subcfg = ESMF_HConfigCreateAt(hconfig,keyString=COMPONENT_STATES_SECTION, _RC)
+      subcfg = ESMF_HConfigCreateAt(context%mapl_cfg,keyString=COMPONENT_STATES_SECTION, _RC)
 
-      call parse_state_specs(var_specs, subcfg, COMPONENT_INTERNAL_STATE_SECTION,  timeStep, offset, component_name, _RC)
-      call parse_state_specs(var_specs, subcfg, COMPONENT_EXPORT_STATE_SECTION, timeStep, offset, component_name, _RC)
-      call parse_state_specs(var_specs, subcfg, COMPONENT_IMPORT_STATE_SECTION, timeStep, offset, component_name, _RC)
+      call parse_state_specs(var_specs, subcfg, COMPONENT_INTERNAL_STATE_SECTION,  context%component_name, _RC)
+      call parse_state_specs(var_specs, subcfg, COMPONENT_EXPORT_STATE_SECTION,    context%component_name, _RC)
+      call parse_state_specs(var_specs, subcfg, COMPONENT_IMPORT_STATE_SECTION,   context%component_name, _RC)
 
       call ESMF_HConfigDestroy(subcfg, _RC)
 
       _RETURN(_SUCCESS)
    contains
 
-      subroutine parse_state_specs(var_specs, hconfig, state_intent, timeStep, offset, component_name, rc)
+      subroutine parse_state_specs(var_specs, hconfig, state_intent, component_name, rc)
          type(VariableSpecVector), intent(inout) :: var_specs
          type(ESMF_HConfig), target, intent(in) :: hconfig
          character(*), intent(in) :: state_intent
-         type(ESMF_TimeInterval), optional, intent(in) :: timeStep
-         type(ESMF_TimeInterval), optional, intent(in) :: offset
          character(*), intent(in) :: component_name
          integer, optional, intent(out) :: rc
 
          type(VariableSpec) :: var_spec
          type(ESMF_HConfigIter) :: iter,e,b
          character(:), allocatable :: name
-         character(:), allocatable :: short_name
          type(ESMF_HConfig) :: attributes
-         type(ESMF_TypeKind_Flag) :: typekind
-         real, allocatable :: default_value
-         type(VerticalStaggerLoc) :: vertical_stagger
-         type(UngriddedDims) :: ungridded_dims
-         character(:), allocatable :: standard_name
-         character(:), allocatable :: units
-         character(:), allocatable :: expression
-         character(len=:), allocatable :: accumulation_type
-         type(ESMF_StateItem_Flag) :: itemtype
-         type(ESMF_StateIntent_Flag) :: esmf_state_intent
-
-         type(StringVector) :: service_items
          integer :: status
          logical :: has_state
-         logical :: has_standard_name
-         logical :: has_units
-         logical :: has_expression
-         logical :: has_accumulation_type
          type(ESMF_HConfig) :: subcfg
-         type(StringVector) :: dependencies
-         type(StringVector) :: vector_component_names
-
-         type(GeometrySpec) :: geometry_spec
-         type(MaplGeom), pointer :: mapl_geom
-         type(GeomManager), pointer :: geom_mgr
-         type(ESMF_Geom), allocatable :: geom
-         class(VerticalGrid), allocatable :: vertical_grid
 
          has_state = ESMF_HConfigIsDefined(hconfig,keyString=state_intent, _RC)
          _RETURN_UNLESS(has_state)
@@ -89,74 +58,7 @@ contains
          do while (ESMF_HConfigIterLoop(iter,b,e))
             name = ESMF_HConfigAsStringMapKey(iter, _RC)
             attributes = ESMF_HConfigCreateAtMapVal(iter,_RC)
-
-            short_name = name
-
-            typekind = to_typekind(attributes, _RC)
-            call val_to_float(default_value, attributes, KEY_DEFAULT_VALUE, _RC)
-            vertical_stagger = to_VerticalStaggerLoc(attributes,_RC)
-            ungridded_dims = to_UngriddedDims(attributes, _RC)
-
-            has_standard_name = ESMF_HConfigIsDefined(attributes,keyString='standard_name', _RC)
-            if (has_standard_name) then
-               standard_name = ESMF_HConfigAsString(attributes,keyString='standard_name', _RC)
-            end if
-
-            has_units = ESMF_HConfigIsDefined(attributes,keyString='units', _RC)
-            if (has_units) then
-               units = ESMF_HConfigAsString(attributes,keyString='units', _RC)
-            end if
-
-            has_expression = ESMF_HConfigIsDefined(attributes,keyString='expression', _RC)
-            if (has_expression) then
-               expression = ESMF_HConfigAsString(attributes,keyString='expression', _RC)
-            end if
-
-            has_accumulation_type = ESMF_HConfigIsDefined(attributes, keyString=KEY_ACCUMULATION_TYPE, _RC)
-            if(has_accumulation_type) then
-               accumulation_type = ESMF_HConfigAsString(attributes, keyString=KEY_ACCUMULATION_TYPE, _RC)
-            end if
-
-            vector_component_names = get_vector_component_names(attributes, _RC)
-
-            itemtype = to_itemtype(attributes, _RC)
-            call to_service_items(service_items, attributes, _RC)
-
-            dependencies = to_dependencies(attributes, _RC)
-
-            geometry_spec = parse_geometry_spec(attributes, registry, component_name//"::"//short_name, _RC)
-            if (allocated(geometry_spec%geom_spec)) then
-               geom_mgr => get_geom_manager()
-               mapl_geom => geom_mgr%get_mapl_geom(geometry_spec%geom_spec, _RC)
-               geom = mapl_geom%get_geom()
-            end if
-            if (allocated(geometry_spec%vertical_grid)) then
-               vertical_grid = geometry_spec%vertical_grid
-            end if
-
-
-            esmf_state_intent = to_esmf_state_intent(state_intent)
-            var_spec = make_VariableSpec(esmf_state_intent, short_name=short_name, &
-                 units=units, &
-                 itemtype=itemtype, &
-                 typekind=typekind, &
-                 vertical_stagger=vertical_stagger, &
-                 ungridded_dims=ungridded_dims, &
-                 default_value=default_value, &
-                 service_items=service_items, &
-                 standard_name=standard_name, &
-                 dependencies=dependencies, &
-                 expression=expression, &
-                 geom=geom, &
-                 vertical_grid=vertical_grid, &
-                 accumulation_type=accumulation_type, &
-                 timeStep=timeStep, &
-                 vector_component_names=vector_component_names, &
-                 offset=offset, _RC)
-
-            if (allocated(units)) deallocate(units)
-            if (allocated(standard_name)) deallocate(standard_name)
-            if (allocated(accumulation_type)) deallocate(accumulation_type)
+            var_spec = make_var_spec_from_attributes(attributes, name, state_intent, component_name, _RC)
             call var_specs%push_back(var_spec)
 
             call ESMF_HConfigDestroy(attributes, _RC)
@@ -167,6 +69,92 @@ contains
 
          _RETURN(_SUCCESS)
       end subroutine parse_state_specs
+
+      function make_var_spec_from_attributes(attributes, name, state_intent, component_name, rc) result(var_spec)
+         type(VariableSpec) :: var_spec
+         type(ESMF_HConfig), intent(in) :: attributes
+         character(*), intent(in) :: name
+         character(*), intent(in) :: state_intent
+         character(*), intent(in) :: component_name
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         character(:), allocatable :: short_name
+         type(ESMF_TypeKind_Flag) :: typekind
+         real, allocatable :: default_value
+         type(VerticalStaggerLoc) :: vertical_stagger
+         type(UngriddedDims) :: ungridded_dims
+         character(:), allocatable :: standard_name
+         character(:), allocatable :: units
+         character(:), allocatable :: expression
+         character(len=:), allocatable :: accumulation_type
+         type(ESMF_StateItem_Flag) :: itemtype
+         type(ESMF_StateIntent_Flag) :: esmf_state_intent
+
+         type(StringVector) :: service_items
+         type(StringVector) :: dependencies
+         type(StringVector) :: vector_component_names
+
+         type(GeometrySpec) :: geometry_spec
+         type(MaplGeom), pointer :: mapl_geom
+         type(GeomManager), pointer :: geom_mgr
+         type(ESMF_Geom), allocatable :: geom
+         class(VerticalGrid), allocatable :: vertical_grid
+
+         short_name = name
+
+         typekind = to_typekind(attributes, _RC)
+         call val_to_float(default_value, attributes, KEY_DEFAULT_VALUE, _RC)
+         vertical_stagger = to_VerticalStaggerLoc(attributes,_RC)
+         ungridded_dims = to_UngriddedDims(attributes, _RC)
+
+         call get_optional_string(standard_name,       attributes, 'standard_name',        _RC)
+         call get_optional_string(units,               attributes, 'units',                _RC)
+         call get_optional_string(expression,          attributes, 'expression',           _RC)
+         call get_optional_string(accumulation_type,   attributes, KEY_ACCUMULATION_TYPE, _RC)
+
+         vector_component_names = get_vector_component_names(attributes, _RC)
+
+         itemtype = to_itemtype(attributes, _RC)
+         call to_service_items(service_items, attributes, _RC)
+
+         dependencies = to_dependencies(attributes, _RC)
+
+         geometry_spec = parse_geometry_spec(attributes, context%registry, component_name//"::"//short_name, _RC)
+         if (allocated(geometry_spec%geom_spec)) then
+            geom_mgr => get_geom_manager()
+            mapl_geom => geom_mgr%get_mapl_geom(geometry_spec%geom_spec, _RC)
+            geom = mapl_geom%get_geom()
+         end if
+         if (allocated(geometry_spec%vertical_grid)) then
+            vertical_grid = geometry_spec%vertical_grid
+         end if
+
+         esmf_state_intent = to_esmf_state_intent(state_intent)
+         var_spec = make_VariableSpec(esmf_state_intent, short_name=short_name, &
+            units=units, &
+            itemtype=itemtype, &
+            typekind=typekind, &
+            vertical_stagger=vertical_stagger, &
+            ungridded_dims=ungridded_dims, &
+            default_value=default_value, &
+            service_items=service_items, &
+            standard_name=standard_name, &
+            dependencies=dependencies, &
+            expression=expression, &
+            geom=geom, &
+            vertical_grid=vertical_grid, &
+            accumulation_type=accumulation_type, &
+            timeStep=context%timeStep, &
+            vector_component_names=vector_component_names, &
+            offset=context%offset, _RC)
+
+         if (allocated(units)) deallocate(units)
+         if (allocated(standard_name)) deallocate(standard_name)
+         if (allocated(accumulation_type)) deallocate(accumulation_type)
+
+         _RETURN(_SUCCESS)
+      end function make_var_spec_from_attributes
 
       subroutine val_to_float(x, attributes, key, rc)
          real, allocatable, intent(out) :: x
@@ -185,6 +173,23 @@ contains
 
          _RETURN(_SUCCESS)
       end subroutine val_to_float
+
+      subroutine get_optional_string(value, attributes, key, rc)
+         character(:), allocatable, intent(out) :: value
+         type(ESMF_HConfig), intent(in) :: attributes
+         character(*), intent(in) :: key
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         logical :: has_value
+
+         has_value = ESMF_HConfigIsDefined(attributes, keyString=key, _RC)
+         _RETURN_UNLESS(has_value)
+
+         value = ESMF_HConfigAsString(attributes, keyString=key, _RC)
+
+         _RETURN(_SUCCESS)
+      end subroutine get_optional_string
 
       function to_typekind(attributes, rc) result(typekind)
          use :: mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR

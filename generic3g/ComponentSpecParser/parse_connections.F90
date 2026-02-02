@@ -33,9 +33,9 @@ contains
 
    contains
 
-      function parse_connection(config, rc) result(conn)
+      function parse_connection(hconfig, rc) result(conn)
          class(Connection), allocatable :: conn
-         type(ESMF_HConfig), optional, intent(in) :: config
+         type(ESMF_HConfig), optional, intent(in) :: hconfig
          integer, optional, intent(out) :: rc
 
          integer :: status
@@ -43,9 +43,9 @@ contains
          character(:), allocatable :: src_comp, dst_comp
          character(:), allocatable :: src_intent, dst_intent
 
-         call get_comps(config, src_comp, dst_comp, _RC)
+         call get_comps(hconfig, src_comp, dst_comp, _RC)
 
-         if (ESMF_HConfigIsDefined(config,keyString='all_unsatisfied')) then
+         if (ESMF_HConfigIsDefined(hconfig,keyString='all_unsatisfied')) then
             conn = MatchConnection( &
                  ConnectionPt(src_comp, VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
                  ConnectionPt(dst_comp, VirtualConnectionPt(state_intent='import', short_name='^.*$'))  &
@@ -53,8 +53,8 @@ contains
             _RETURN(_SUCCESS)
          end if
             
-         call get_names(config, src_name, dst_name, _RC)
-         call get_intents(config, src_intent, dst_intent, _RC)
+         call get_names(hconfig, src_name, dst_name, _RC)
+         call get_intents(hconfig, src_intent, dst_intent, _RC)
 
          associate ( &
               src_pt => VirtualConnectionPt(state_intent=src_intent, short_name=src_name), &
@@ -75,8 +75,8 @@ contains
          _RETURN(_SUCCESS)
       end function parse_connection
 
-      subroutine get_names(config, src_name, dst_name, rc)
-         type(ESMF_HConfig), intent(in) :: config
+      subroutine get_names(hconfig, src_name, dst_name, rc)
+         type(ESMF_HConfig), intent(in) :: hconfig
          character(:), allocatable :: src_name
          character(:), allocatable :: dst_name
          integer, optional, intent(out) :: rc
@@ -84,41 +84,41 @@ contains
          integer :: status
 
          associate (provides_names => &
-              ESMF_HConfigIsDefined(config,keyString='name') .or. &
-              (ESMF_HConfigIsDefined(config,keyString='src_name') .and. ESMF_HConfigIsDefined(config,keyString='dst_name')) &
+              ESMF_HConfigIsDefined(hconfig,keyString='name') .or. &
+              (ESMF_HConfigIsDefined(hconfig,keyString='src_name') .and. ESMF_HConfigIsDefined(hconfig,keyString='dst_name')) &
               )
            _ASSERT(provides_names, "Must specify 'name' or 'src_name' .and. 'dst_name' in connection.")
          end associate
 
-         if (ESMF_HConfigIsDefined(Config,keystring='name')) then ! replicate for src and dst
-            src_name = ESMF_HConfigAsString(config,keyString='name',_RC)
+         if (ESMF_HConfigIsDefined(hconfig,keystring='name')) then ! replicate for src and dst
+            src_name = ESMF_HConfigAsString(hconfig,keyString='name',_RC)
             dst_name = src_name
             _RETURN(_SUCCESS)
          end if
 
-         src_name = ESMF_HConfigAsString(config,keyString='src_name',_RC)
-         dst_name = ESMF_HConfigAsString(config,keyString='dst_name',_RC)
+         src_name = ESMF_HConfigAsString(hconfig,keyString='src_name',_RC)
+         dst_name = ESMF_HConfigAsString(hconfig,keyString='dst_name',_RC)
 
          _RETURN(_SUCCESS)
       end subroutine get_names
 
-      subroutine get_comps(config, src_comp, dst_comp, rc)
-         type(ESMF_HConfig), intent(in) :: config
+      subroutine get_comps(hconfig, src_comp, dst_comp, rc)
+         type(ESMF_HConfig), intent(in) :: hconfig
          character(:), allocatable :: src_comp
          character(:), allocatable :: dst_comp
          integer, optional, intent(out) :: rc
 
          integer :: status
          
-         _ASSERT(ESMF_HConfigIsDefined(config,keyString='src_comp'), 'Connection must specify a src component')
-         _ASSERT(ESMF_HConfigIsDefined(config,keyString='dst_comp'), 'Connection must specify a dst component')
-         src_comp = ESMF_HConfigAsString(config,keyString='src_comp',_RC)
-         dst_comp = ESMF_HConfigAsString(config,keyString='dst_comp',_RC)
+         _ASSERT(ESMF_HConfigIsDefined(hconfig,keyString='src_comp'), 'Connection must specify a src component')
+         _ASSERT(ESMF_HConfigIsDefined(hconfig,keyString='dst_comp'), 'Connection must specify a dst component')
+         src_comp = ESMF_HConfigAsString(hconfig,keyString='src_comp',_RC)
+         dst_comp = ESMF_HConfigAsString(hconfig,keyString='dst_comp',_RC)
          _RETURN(_SUCCESS)
       end subroutine get_comps
 
-      subroutine get_intents(config, src_intent, dst_intent, rc)
-         type(ESMF_HConfig), intent(in) :: config
+      subroutine get_intents(hconfig, src_intent, dst_intent, rc)
+         type(ESMF_HConfig), intent(in) :: hconfig
          character(:), allocatable :: src_intent
          character(:), allocatable :: dst_intent
          integer, optional, intent(out) :: rc
@@ -129,11 +129,11 @@ contains
          src_intent = 'export'
          dst_intent = 'import'
 
-         if (ESMF_HConfigIsDefined(config,keyString='src_intent')) then
-            src_intent = ESMF_HConfigAsString(config,keyString='src_intent',_RC)
+         if (ESMF_HConfigIsDefined(hconfig,keyString='src_intent')) then
+            src_intent = ESMF_HConfigAsString(hconfig,keyString='src_intent',_RC)
          end if
-         if (ESMF_HConfigIsDefined(config,keyString='dst_intent')) then
-            dst_intent = ESMF_HConfigAsString(config,keyString='dst_intent',_RC)
+         if (ESMF_HConfigIsDefined(hconfig,keyString='dst_intent')) then
+            dst_intent = ESMF_HConfigAsString(hconfig,keyString='dst_intent',_RC)
          end if
 
          _RETURN(_SUCCESS)
