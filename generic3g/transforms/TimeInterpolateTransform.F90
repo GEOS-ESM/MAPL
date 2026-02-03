@@ -36,6 +36,10 @@ contains
       ! noop
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
    end subroutine initialize
 
    subroutine update(this, importState, exportState, clock, rc)
@@ -94,6 +98,7 @@ contains
       _FAIL('unexpected typekind')
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(clock)
    end subroutine update
 
@@ -240,6 +245,7 @@ contains
       class(TimeInterpolateTransform), intent(in) :: this
 
       id = TIME_INTERP_TRANSFORM_ID
+      _UNUSED_DUMMY(this)
    end function get_transformId
 
 end module mapl3g_TimeInterpolateTransform

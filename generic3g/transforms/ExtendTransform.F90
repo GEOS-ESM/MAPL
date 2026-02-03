@@ -63,6 +63,8 @@ contains
       class(ExtendTransform), intent(in) :: this
 
       id = EXTEND_TRANSFORM_ID
+
+      _UNUSED_DUMMY(this)
    end function get_transformId
 
 end module mapl3g_ExtendTransform

@@ -142,6 +142,7 @@ contains
       class(EvalTransform), intent(in) :: this
 
       id = EVAL_TRANSFORM_ID
+      _UNUSED_DUMMY(this)
    end function get_transformId
 
 end module mapl3g_EvalTransform
