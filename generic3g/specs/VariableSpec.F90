@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_VariableSpec
+
    use mapl3g_StateItemSpec
    use mapl3g_StateItemAspect
    use mapl3g_GeomAspect
@@ -215,7 +216,6 @@ contains
 
 !#      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
 !#      type(EsmfRegridderParam) :: regrid_param_
-      integer :: status
 
       var_spec%short_name = short_name
       var_spec%state_intent = state_intent
@@ -257,7 +257,6 @@ contains
       character(:), allocatable, intent(out) :: name_2
       integer, optional, intent(out) :: rc
 
-      integer :: status
       integer :: idx_open, idx_close, idx_comma
 
       idx_open = index(encoded_name, '(')
@@ -274,7 +273,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine split_name
-
 
    function make_virtualPt(this) result(v_pt)
       type(VirtualConnectionPt) :: v_pt
@@ -355,7 +353,6 @@ contains
       _RETURN(_SUCCESS)
    end function get_regrid_method_from_field_dict_
 
-
    subroutine add_item(aspects, aspect, rc)
       class(AspectMap), intent(inout) :: aspects
       class(StateItemAspect), intent(in) :: aspect
@@ -385,7 +382,6 @@ contains
 
    end subroutine add_item
 
-
    function make_StateitemSpec(this, registry, component_geom, vertical_grid, unusable, timestep, offset, rc) result(spec)
       type(StateItemSpec) :: spec
       class(VariableSpec), intent(in) :: this
@@ -406,8 +402,8 @@ contains
       spec = new_StateItemSpec(this%state_intent, aspects, dependencies=dependencies, has_deferred_aspects=this%has_deferred_aspects)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function make_StateitemSpec
-
 
    function make_aspects(this, registry, component_geom, vertical_grid, unusable, timestep, offset, rc) result(aspects)
       type(AspectMap) :: aspects
@@ -449,6 +445,7 @@ contains
       call aspects%insert(CLASS_ASPECT_ID, aspect)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function make_aspects
 
    function make_UnitsAspect(this, rc) result(aspect)
@@ -536,6 +533,7 @@ contains
            typekind=this%typekind)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(time_dependent)
    end function make_VerticalGridAspect
 
    function make_FrequencyAspect(this, timestep, offset, rc) result(aspect)
@@ -607,6 +605,7 @@ contains
    end function make_ClassAspect
 
    subroutine verify_variable_spec(spec, rc)
+
       class(VariableSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
       integer :: status
@@ -622,7 +621,6 @@ contains
       call verify_regrid(spec%regrid_param, spec%regrid_method, _RC)
       call verify_deferred_items_have_export_intent(spec%has_deferred_aspects, spec%state_intent, _RC)
       
-
       _RETURN(_SUCCESS)
 
    contains

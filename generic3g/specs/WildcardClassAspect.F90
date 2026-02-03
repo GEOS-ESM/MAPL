@@ -48,6 +48,7 @@ contains
 
    function new_WildcardClassAspect() result(wildcard_aspect)
       type(WildcardClassAspect) :: wildcard_aspect
+      _UNUSED_DUMMY(wildcard_aspect)
    end function new_WildcardClassAspect
 
 
@@ -58,6 +59,8 @@ contains
 
       matches = .false.
 
+      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
    end function matches
 
    ! Wildcard not permitted as an export.
@@ -70,6 +73,9 @@ contains
       
       transform = NullTransform()
 
+      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
+      _UNUSED_DUMMY(other_aspects)
       _RETURN(_SUCCESS)
    end function make_transform
 
@@ -96,10 +102,6 @@ contains
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
-      class(StateItemSpec), pointer :: spec
-      class(StateItemAspect), pointer :: import_class_aspect
-      integer :: status
-
       ! Do not record duplicates (arises in multiple passes of
       ! advertise_modify()
       _RETURN_IF(this%matched_items%count(actual_pt) > 0)
@@ -117,6 +119,7 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(other_aspects)
    end subroutine create
 
    ! No-op
@@ -146,6 +149,7 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(other_aspects)
    end subroutine allocate
 
    subroutine add_to_state(this, multi_state, actual_pt, rc)
@@ -207,6 +211,8 @@ contains
    logical function supports_conversion_general(src)
       class(WildcardClassAspect), intent(in) :: src
       supports_conversion_general = .false.
+
+      _UNUSED_DUMMY(src)
    end function supports_conversion_general
 
    logical function supports_conversion_specific(src, dst)
@@ -215,6 +221,7 @@ contains
 
       supports_conversion_specific = .false.
 
+      _UNUSED_DUMMY(src)
       _UNUSED_DUMMY(dst)
    end function supports_conversion_specific
 
@@ -242,6 +249,11 @@ contains
       integer, optional, intent(out) :: rc
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(field)
+      _UNUSED_DUMMY(bundle)
+      _UNUSED_DUMMY(state)
    end subroutine get_payload
 
 end module mapl3g_WildcardClassAspect

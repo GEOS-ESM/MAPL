@@ -224,7 +224,6 @@ contains
       class(StateItemAspect), intent(in) :: aspect
       integer, optional, intent(out) :: rc
 
-      integer :: status
       type(AspectId) :: id
       type(AspectMapIterator) :: iter
       type(AspectPair), pointer :: pair
@@ -266,6 +265,9 @@ contains
       class(StateItemSpec), intent(in) :: dst_spec
 
       order = ''
+
+      _UNUSED_DUMMY(src_spec)
+      _UNUSED_DUMMY(dst_spec)
    end function get_aspect_priorities
 
    ! Factory method to create a base for an extension
@@ -274,8 +276,6 @@ contains
       type(StateItemSpec) :: new_spec
       class(StateItemSpec), target, intent(in) :: this
       integer, optional, intent(out) :: rc
-
-      integer :: status
 
       ! Copy basic metadata using regular assignment
       ! This includes aspects, which will be copied by AspectMap's assignment
@@ -358,7 +358,6 @@ contains
 
       integer :: status
       class(ClassAspect), pointer :: class_aspect
-      integer, allocatable :: handle(:)
       type(esmf_Field), allocatable :: field
       type(esmf_FieldBundle), allocatable :: bundle
       type(esmf_State), allocatable :: state
@@ -616,6 +615,8 @@ contains
         end do
       end associate
       
+      _UNUSED_DUMMY(file)
+      _UNUSED_DUMMY(line)
    end subroutine check
 
    subroutine set_has_deferred_aspects(this, has_deferred_aspects)

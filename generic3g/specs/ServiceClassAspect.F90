@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_ServiceClassAspect
+
    use mapl3g_FieldBundle_API
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
@@ -21,7 +22,8 @@ module mapl3g_ServiceClassAspect
    use gftl2_StringVector
    use esmf
    use mapl3g_FieldBundleType_Flag
-   implicit none
+
+   implicit none(type,external)
    private
 
    public :: ServiceClassAspect
@@ -105,6 +107,7 @@ contains
       this%payload = MAPL_FieldBundleCreate(fieldBundleType=FIELDBUNDLETYPE_SERVICE, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(other_aspects)
    end subroutine create
 
    subroutine activate(this, rc)
@@ -156,6 +159,7 @@ contains
       end associate
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(other_aspects)
    end subroutine allocate
 
    subroutine add_to_state(this, multi_state, actual_pt, rc)
@@ -209,6 +213,7 @@ contains
          matches = .true.
       end select
 
+      _UNUSED_DUMMY(src)
    end function matches
 
    function make_transform(src, dst, other_aspects, rc) result(transform)
@@ -221,8 +226,10 @@ contains
       transform = NullTransform()
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
+      _UNUSED_DUMMY(other_aspects)
    end function make_transform
-
 
    ! Eventually this ServiceClassAspect should be split into multiple
    ! classes.  We cheat a bit here to get only the right subset of
@@ -253,6 +260,8 @@ contains
       end associate
       
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(export)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
    subroutine connect_to_import(this, import, rc)
@@ -311,6 +320,9 @@ contains
       bundle = this%payload
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(field)
+      _UNUSED_DUMMY(state)
    end subroutine get_payload
  
 end module mapl3g_ServiceClassAspect

@@ -40,7 +40,6 @@ contains
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
       type(ESMF_TimeInterval), optional, intent(in) :: offset
       character(len=*), optional, intent(in) :: accumulation_type
-      integer :: status
 
       call aspect%set_mirror(.FALSE.)
       call aspect%set_time_dependent(.FALSE.)
@@ -91,7 +90,7 @@ contains
       class(StateItemAspect), intent(in)  :: dst
       type(AspectMap), target, intent(in)  :: other_aspects
       integer, optional, intent(out) :: rc
-      integer :: status
+
       character(len=:), allocatable :: accumulation_type
 
       select type(dst)
@@ -158,9 +157,11 @@ contains
       type(esmf_State), optional, intent(in) :: state
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(field)
+      _UNUSED_DUMMY(bundle)
+      _UNUSED_DUMMY(state)
    end subroutine update_from_payload
 
    subroutine update_payload(this, field, bundle, state, rc)
@@ -170,11 +171,13 @@ contains
       type(esmf_State), optional, intent(inout) :: state
       integer, optional, intent(out) :: rc
 
-       integer :: status
-
       ! no-op; see above
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(field)
+      _UNUSED_DUMMY(bundle)
+      _UNUSED_DUMMY(state)
    end subroutine update_payload
 
 end module mapl3g_FrequencyAspect
