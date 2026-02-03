@@ -8,8 +8,9 @@ module mapl3g_FixedLevelsVerticalGrid
    use mapl3g_ComponentDriver
    use mapl3g_FieldCondensedArray, only: assign_fptr_condensed_array
    use pfio
-   use esmf, only: esmf_HConfig, esmf_Field, esmf_Geom, esmf_TypeKind_Flag
-   use esmf
+   use esmf, only: esmf_HConfig, esmf_HConfigIsDefined, esmf_HConfigAsString, esmf_HConfigAsR4Seq
+   use esmf, only: esmf_Field, esmf_Geom, esmf_TypeKind_Flag
+   use esmf, only: ESMF_KIND_R4, ESMF_TYPEKIND_R4
    use mapl3g_VerticalStaggerLoc
    use gftl2_StringVector, only: StringVector
    use mapl_ErrorHandling
@@ -100,7 +101,6 @@ contains
       character(len=*), intent(in) :: physical_dimension
       integer, optional, intent(out) :: rc
 
-      integer :: status
       _ASSERT(physical_dimension == this%get_physical_dimension(), 'Unsupported physical dimension: '//physical_dimension)
       units = this%spec%units
 
@@ -136,16 +136,17 @@ contains
            vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            _RC)
 
-
       ! Copy the 1D array, levels(:), to each point of the horz grid
       call assign_fptr_condensed_array(field, farray3d, _RC)
       shape_ = shape(farray3d)
       do concurrent (horz=1:shape_(1), ungrd=1:shape_(3))
          farray3d(horz, :, ungrd) = this%spec%levels(:)
       end do
-
       
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(physical_dimension)
+      _UNUSED_DUMMY(units)
+      _UNUSED_DUMMY(typekind)
    end function get_coordinate_field
 
    function get_supported_physical_dimensions(this) result(dimensions)
@@ -178,6 +179,7 @@ contains
       class(FixedLevelsVerticalGridFactory), intent(in) :: this
       
       name = "FixedLevelsVerticalGrid"
+      _UNUSED_DUMMY(this)
    end function get_name
 
    function supports_spec(this, spec, rc) result(is_supported)
@@ -186,12 +188,12 @@ contains
       class(VerticalGridSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
 
-      integer :: status
       type(FixedLevelsVerticalGridSpec) :: fixed_spec
 
       is_supported = same_type_as(spec, fixed_spec)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function supports_spec
 
    function supports_file_metadata(this, file_metadata, rc) result(is_supported)
@@ -202,7 +204,9 @@ contains
       
       ! Implementation would check if file_metadata contains required information
       is_supported = .false.  ! Placeholder
+
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function supports_file_metadata
 
    function supports_config(this, config, rc) result(is_supported)
@@ -230,6 +234,7 @@ contains
       is_supported = has_levels .and. has_physical_dimension
            
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function supports_config
 
    function create_spec_from_config(this, config, rc) result(spec)
@@ -273,7 +278,6 @@ contains
       
       ! Placeholder implementation - not yet implemented
       ! Return empty spec to satisfy Fortran requirement for defined result
-      integer :: status
       
       spec = FixedLevelsVerticalGridSpec()
       
@@ -289,7 +293,6 @@ contains
       integer, intent(out), optional :: rc
       
       type(FixedLevelsVerticalGrid) :: local_grid
-      integer :: status
       
       select type (spec)
       type is (FixedLevelsVerticalGridSpec)
@@ -300,6 +303,7 @@ contains
       end select
       
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function create_grid_from_spec
 
    ! Helper function to get default units for a physical dimension
