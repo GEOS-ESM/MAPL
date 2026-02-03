@@ -3,6 +3,7 @@
 
 module Test_LatLonGeomFactory
    use pfunit
+   use esmf_TestMethod_mod ! mapl
    use mapl3g_GeomSpec
    use mapl3g_LatLonGeomFactory
    use esmf
@@ -10,8 +11,9 @@ module Test_LatLonGeomFactory
 
 contains
 
-   @test
-   subroutine test_make_from_hconfig()
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_make_from_hconfig(this)
+      class(ESMF_TestMethod), intent(inout) :: this
 
       type(ESMF_HConfig) :: hconfig
       integer :: status

@@ -14,6 +14,7 @@ set(srcs
 
   GeomManager.F90
 
+  GeomGet.F90
   GridGet.F90
 
   # gFTL containers
@@ -36,6 +37,7 @@ add_subdirectory(LatLon)
 add_subdirectory(GeomManager)
 add_subdirectory(VectorBasis)
 add_subdirectory(CubedSphere)
+add_subdirectory(LocStream)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)

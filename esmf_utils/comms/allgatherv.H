@@ -28,7 +28,7 @@ subroutine SUB_ (layout, sendbuf, sendcnt, recvbuf, recvcnts, displs, rc)
    call mpi_allgatherv( &
         sendbuf, sendcnt,  MPITYPE_, &
         recvbuf, recvcnts, displs, MPITYPE_, &
-        comm, status )
+        comm, status)
    _VERIFY(STATUS)
 
    _RETURN(_SUCCESS)

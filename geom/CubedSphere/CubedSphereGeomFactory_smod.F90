@@ -117,18 +117,21 @@ contains
 
       integer :: status
       type(ESMF_Grid) :: grid
+      character(:), allocatable :: name
 
-      grid = create_basic_grid(spec, _RC)
+      if (spec%has_name()) name = spec%get_name()
+      grid = create_basic_grid(spec, name=name, _RC)
       geom = ESMF_GeomCreate(grid=grid, _RC)
 
       _RETURN(_SUCCESS)
    end function typesafe_make_geom
 
 
-   module function create_basic_grid(spec, unusable, rc) result(grid)
+   module function create_basic_grid(spec, unusable, name, rc) result(grid)
       type(ESMF_Grid) :: grid
       type(CubedSphereGeomSpec), intent(in) :: spec
       class(KE), optional, intent(in) :: unusable
+      character(len=*), optional, intent(in) :: name
       integer, optional, intent(out) :: rc
 
       integer :: status, im_world, ntiles, i
@@ -155,12 +158,14 @@ contains
       if (not_stretched) then
          grid = ESMF_GridCreateCubedSPhere(im_world,countsPerDEDim1PTile=ims, &
             countsPerDEDim2PTile=jms, &
-            staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, _RC)
+            staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, &
+            name=name, _RC)
       else
          grid = ESMF_GridCreateCubedSPhere(im_world,countsPerDEDim1PTile=ims, &
             countsPerDEDim2PTile=jms,  &
             staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, &
-            transformArgs=schmidt_parameters, _RC)
+            transformArgs=schmidt_parameters, &
+            name=name, _RC)
       end if
       
       _RETURN(_SUCCESS)
