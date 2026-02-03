@@ -17,7 +17,6 @@ module mapl3g_FieldBundleInfo
 
    public :: FieldBundleInfoGetInternal
    public :: FieldBundleInfoSetInternal
-   public :: FieldBundleInfoRemoveInternal
 
    interface FieldBundleInfoGetInternal
       procedure fieldbundle_get_internal
@@ -26,10 +25,6 @@ module mapl3g_FieldBundleInfo
    interface FieldBundleInfoSetInternal
       procedure fieldbundle_set_internal
    end interface
-
-   interface FieldBundleInfoRemoveInternal
-      procedure :: fieldbundle_remove_internal
-   end interface FieldBundleInfoRemoveInternal
 
    character(*), parameter :: KEY_FIELDBUNDLETYPE_FLAG = '/FieldBundleType_Flag'
    character(*), parameter :: KEY_ALLOCATION_STATUS = "/allocation_status"
@@ -197,27 +192,5 @@ contains
        _UNUSED_DUMMY(unusable)
 
    end subroutine fieldbundle_set_internal
-
-   subroutine fieldbundle_remove_internal(info, unusable, namespace,&
-         & units, standard_name, long_name, rc)
-      type(ESMF_Info), intent(inout) :: info
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      character(*), optional, intent(in) :: namespace
-      logical, optional, intent(in) :: units, standard_name, long_name
-      integer, optional, intent(out) :: rc
-      integer :: status
-      character(:), allocatable :: namespace_
-
-      namespace_ = INFO_INTERNAL_NAMESPACE
-      if (present(namespace)) then
-         namespace_ = namespace
-      end if
-
-      call FieldInfoRemoveInternal(info, namespace=namespace_//KEY_FIELD_PROTOTYPE,&
-         & units=units, standard_name=standard_name, long_name=long_name, _RC)
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine fieldbundle_remove_internal
 
 end module mapl3g_FieldBundleInfo

@@ -1,4 +1,5 @@
 #include "MAPL_TestErr.h"
+#include "unused_dummy.H"
 
 module Test_UnitsAspect
    use funit
@@ -6,6 +7,7 @@ module Test_UnitsAspect
    use mapl3g_Field_API
    use mapl3g_FieldBundle_API
    use mapl_ErrorHandling
+   use mapl3g_esmf_info_keys, only: KEY_UNSET
    use esmf
    use ESMF_TestMethod_mod
    implicit none
@@ -54,6 +56,7 @@ contains
       call aspect%update_from_payload(field=field, _RC)
       @assertTrue(aspect%is_mirror(), 'aspect should be mirror.')
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
 
    end subroutine test_update_from_payload_field_empty
 
@@ -70,6 +73,7 @@ contains
       call aspect%update_from_payload(bundle=bundle, _RC)
       @assertTrue(aspect%is_mirror(), 'aspect should be mirror')
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
 
    end subroutine test_update_from_payload_bundle_empty
 
@@ -88,6 +92,7 @@ contains
       retrieved_units = aspect%get_units(_RC)
       @assertEqual(UNITS1, retrieved_units)
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
 
    end subroutine test_update_from_payload_field
 
@@ -106,6 +111,7 @@ contains
       retrieved_units = aspect%get_units(_RC)
       @assertEqual(UNITS1, retrieved_units)
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
 
    end subroutine test_update_from_payload_bundle
 
@@ -126,6 +132,7 @@ contains
       retrieved_units = aspect%get_units(_RC)
       @assertEqual(UNITS2, retrieved_units)
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
 
    end subroutine test_update_from_payload_overwrite_existing_field
 
@@ -146,6 +153,7 @@ contains
       retrieved_units = aspect%get_units(_RC)
       @assertEqual(UNITS2, retrieved_units)
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
 
    end subroutine test_update_from_payload_overwrite_existing_bundle
 
@@ -164,6 +172,7 @@ contains
       call MAPL_FieldGet(field, units=retrieved_units, _RC)
       @assertEqual(UNITS2, retrieved_units)
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
 
    end subroutine test_update_payload_field
 
@@ -182,6 +191,7 @@ contains
       call MAPL_FieldBundleGet(bundle, units=retrieved_units, _RC)
       @assertEqual(UNITS2, retrieved_units)
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
 
    end subroutine test_update_payload_bundle
 
@@ -195,11 +205,13 @@ contains
       integer :: status
 
       aspect = UnitsAspect()
+      @assertTrue(aspect%is_mirror(), 'Aspect should be mirror.')
       field = create_test_field(UNITS1)
       call aspect%update_payload(field=field, _RC)
       call MAPL_FieldGet(field, units=retrieved_units, _RC)
-      @assertFalse(allocated(retrieved_units), 'units should not be allocated.')
+      @assertEqual(KEY_UNSET, retrieved_units, 'units should not be set.')
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
 
    end subroutine test_update_payload_field_empty
 
@@ -216,8 +228,9 @@ contains
       bundle = create_test_bundle(UNITS1)
       call aspect%update_payload(bundle=bundle, _RC)
       call MAPL_FieldBundleGet(bundle, units=retrieved_units, _RC)
-      @assertFalse(allocated(retrieved_units), 'units should not be allocated.')
+      @assertEqual(KEY_UNSET, retrieved_units, 'units should not be set.')
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
 
    end subroutine test_update_payload_bundle_empty
 
@@ -232,12 +245,13 @@ contains
 
       aspect1 = UnitsAspect(UNITS2)
       aspect2 = UnitsAspect(UNITS1)
-      field = ESMF_FieldEmptyCreate(name='test_field', _RC)
+      field = create_test_field()
       call aspect1%update_payload(field=field, _RC)
       call aspect2%update_from_payload(field=field, _RC)
       retrieved_units = aspect2%get_units(_RC)
       @assertEqual(UNITS2, retrieved_units)
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
 
    end subroutine test_roundtrip_field
 
@@ -252,12 +266,13 @@ contains
 
       aspect1 = UnitsAspect(UNITS2)
       aspect2 = UnitsAspect(UNITS1)
-      bundle = ESMF_FieldBundleCreate(name='test_bundle', _RC)
+      bundle = create_test_bundle()
       call aspect1%update_payload(bundle=bundle, _RC)
       call aspect2%update_from_payload(bundle=bundle, _RC)
       retrieved_units = aspect2%get_units(_RC)
       @assertEqual(UNITS2, retrieved_units)
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
 
    end subroutine test_roundtrip_bundle
 
@@ -271,11 +286,12 @@ contains
 
       aspect1 = UnitsAspect()
       aspect2 = UnitsAspect(UNITS1)
-      field = ESMF_FieldEmptyCreate(name='test_field', _RC)
+      field = create_test_field()
       call aspect1%update_payload(field=field, _RC)
       call aspect2%update_from_payload(field=field, _RC)
       @assertTrue(aspect2%is_mirror(), 'aspect2 should be mirror.')
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
 
    end subroutine test_empty_units_roundtrip_field
 
@@ -284,16 +300,18 @@ contains
       ! Test that empty units work correctly in roundtrip
       class(ESMF_TestMethod), intent(inout) :: this
       type(UnitsAspect) :: aspect1, aspect2
-      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
       integer :: status
 
       aspect1 = UnitsAspect()
       aspect2 = UnitsAspect(UNITS1)
-      field = ESMF_FieldEmptyCreate(name='test_field', _RC)
-      call aspect1%update_payload(field=field, _RC)
-      call aspect2%update_from_payload(field=field, _RC)
+
+      bundle = create_test_bundle()
+      call aspect1%update_payload(bundle=bundle, _RC)
+      call aspect2%update_from_payload(bundle=bundle, _RC)
       @assertTrue(aspect2%is_mirror(), 'aspect2 should be mirror.')
-      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
 
    end subroutine test_empty_units_roundtrip_bundle
 

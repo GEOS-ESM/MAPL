@@ -5,7 +5,6 @@ set(srcs
   FieldBundleType_Flag.F90
   FieldBundleGet.F90
   FieldBundleSet.F90
-  FieldBundleRemove.F90
   FieldBundleInfo.F90
   FieldBundleDelta.F90
   FieldBundleCreate.F90
