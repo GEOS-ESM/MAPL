@@ -91,21 +91,12 @@ CONTAINS
 !   --------------------------
     type (Orb_State), pointer  :: self   ! internal, that is
 
-    character(len=:), allocatable :: comp_name
-
     integer :: i, nCols
     integer :: status
     logical :: found
     character(len=ESMF_MAXSTR) :: temp_key
     character(len=:), allocatable :: temp_val
 !                              ------------
-
-!   Get my name and set-up traceback handle
-!   ---------------------------------------
-    call MAPL_GridCompGet( GC, name=comp_name, _RC )
-
-!   Greetings
-!   ---------
 
 !   Store internal state in GC
 !   --------------------------
@@ -193,7 +184,6 @@ CONTAINS
 ! ErrLog Variables
 
     integer                                 :: STATUS
-    character(len=:), allocatable :: comp_name
 
 ! Local
     type(ESMF_FIELD)                        :: FIELD
@@ -215,7 +205,7 @@ CONTAINS
 ! Get the target components name and set-up traceback handle.
 ! -----------------------------------------------------------
 
-    call MAPL_GridCompGet ( GC, name=comp_name, grid=grid, _RC )
+    call MAPL_GridCompGet ( GC, grid=grid, _RC )
 
     _GET_NAMED_PRIVATE_STATE(GC, Orb_State, PRIVATE_STATE, self)
 
@@ -303,7 +293,6 @@ CONTAINS
 
   integer                       :: k, nymd, nhms  ! date, time
 
-  character(len=:), allocatable :: comp_name
   character(len=ESMF_MAXSTR)    :: gridtype_default
   character(len=ESMF_MAXSTR)    :: gridtype
 
@@ -318,7 +307,7 @@ CONTAINS
 
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
-   call MAPL_GridCompGet( GC, name=comp_name, grid=grid, _RC )
+   call MAPL_GridCompGet( GC, grid=grid, _RC )
 
 !   Get my internal state
 !   ---------------------
@@ -439,15 +428,8 @@ CONTAINS
     integer, intent(out), optional      :: rc
 
 !                                      ---
-
-    character(len=:), allocatable :: comp_name
-
     integer                       :: iyr, imm, idd, ihr, imn, isc
     integer                       :: status
-
-!   Get my name and set-up traceback handle
-!   ---------------------------------------
-    call MAPL_GridCompGet( GC, NAME=comp_name, _RC )
 
     rc = 0
 
@@ -621,8 +603,6 @@ CONTAINS
        real(dp), pointer :: slons(:,:) => null()
        real(dp), pointer :: slats(:,:) => null()
 
-!       character(len=12)       :: Iam="DoMasking_CS"
-
        SwathWidth(1:2) = swath(1:2) ! type conversion
 
 !      Interpoaltion parameters; swath(3) is the swath resolution, in km
@@ -752,7 +732,6 @@ CONTAINS
       logical switch
       real :: wcorner_x(4),wcorner_y(4) ! corners of world for this proc
       real :: lat,lon
-!          _Iam_('orb_mask_xy')
 
       if (present(rc)) then
          rc = ESMF_SUCCESS
@@ -1442,8 +1421,6 @@ CONTAINS
       integer :: k
       real :: s(6),smin, xyz(3), rsq3
       integer :: fmin
-      !character(len=ESMF_MAXSTR) :: Iam
-      !Iam = 'check_face_pnt'
 
       rsq3=1.0/sqrt(3.)
       smin = 30.0
@@ -1495,11 +1472,9 @@ CONTAINS
          integer,           intent(in   ) :: jhalo(2)
          integer, optional, intent(out  ) :: rc
 
-         !character(len=ESMF_MAXSTR) :: Iam
          integer :: i, j, is, js
          integer :: tmask(im,jm)
 
-         !Iam = "orb_halo"
          tmask = 0
          do i = 1, im
             do j = 1, jm
