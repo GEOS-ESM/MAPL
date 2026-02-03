@@ -68,6 +68,7 @@ contains
    logical function runs_invalidate(this)
       class(ExtensionTransform), intent(in) :: this
       runs_invalidate = .FALSE.
+      _UNUSED_DUMMY(this)
    end function runs_invalidate
 
 end module mapl3g_ExtensionTransform
