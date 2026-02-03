@@ -119,6 +119,7 @@ contains
            ]
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
 
@@ -137,6 +138,7 @@ contains
       call MAPL_FieldBundleSet(this%payload, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(other_aspects)
    end subroutine create
 
    subroutine activate(this, rc)
@@ -286,6 +288,9 @@ contains
       transform = TimeInterpolateTransform()
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
+      _UNUSED_DUMMY(other_aspects)
    end function make_transform
 
    ! Should only connect to FieldClassAspect and
@@ -296,11 +301,16 @@ contains
 
       matches = .false.
 
+      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
    end function matches
 
    logical function supports_conversion_general(src)
       class(VectorBracketClassAspect), intent(in) :: src
+
       supports_conversion_general = .true.
+
+      _UNUSED_DUMMY(src)
    end function supports_conversion_general
 
    ! Only can convert if import is VectorClassAspect.
@@ -314,7 +324,7 @@ contains
          supports_conversion_specific = .true.
       end select
 
-      _UNUSED_DUMMY(dst)
+      _UNUSED_DUMMY(src)
    end function supports_conversion_specific
 
    subroutine add_to_state(this, multi_state, actual_pt, rc)
@@ -362,7 +372,10 @@ contains
       bundle = this%payload
 
       _RETURN(_SUCCESS)
-
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(field)
+      _UNUSED_DUMMY(state)
    end subroutine get_payload
 
 end module mapl3g_VectorBracketClassAspect

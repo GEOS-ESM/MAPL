@@ -278,6 +278,9 @@ contains
       integer, optional, intent(out) :: rc
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(file)
+      _UNUSED_DUMMY(line)
    end subroutine print_aspect
    
 
