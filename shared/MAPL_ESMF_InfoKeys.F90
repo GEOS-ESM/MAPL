@@ -29,7 +29,7 @@ module mapl3g_esmf_info_keys
    public :: make_dim_key
    public :: KEY_VERT_STAGGERLOC
    public :: KEY_BRACKET_UPDATED
-   public :: KEY_UNSET
+   public :: KEY_MIRROR
    private
 
    ! FieldSpec info keys
@@ -75,8 +75,8 @@ module mapl3g_esmf_info_keys
    character(len=*), parameter :: KEY_INTERPOLATION_WEIGHTS = '/interpolation_weights'
    character(len=*), parameter :: KEY_FIELDBUNDLETYPE = '/fieldBundleType'
 
-   ! Key not present or value is NULL
-   character(len=*), parameter :: KEY_UNSET = '/$UNSET$'
+   ! Aspect mirror key
+   character(len=*), parameter :: KEY_MIRROR = '/$MIRROR$'
 
 contains
 

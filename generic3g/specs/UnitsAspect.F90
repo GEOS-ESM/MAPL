@@ -13,7 +13,7 @@ module mapl3g_UnitsAspect
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use udunits2f, only: are_convertible
-   use mapl3g_esmf_info_keys, only: KEY_UNSET
+   use mapl3g_esmf_info_keys, only: KEY_MIRROR
    use esmf
 
    implicit none
@@ -216,7 +216,7 @@ contains
       end if
 
       mirror = .not. allocated(this%units)
-      if(.not. mirror) mirror = this%units == KEY_UNSET
+      if(.not. mirror) mirror = this%units == KEY_MIRROR
       call this%set_mirror(mirror)
 
       _RETURN(_SUCCESS)
@@ -236,7 +236,7 @@ contains
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
 
-      units = KEY_UNSET
+      units = KEY_MIRROR
       if(.not. this%is_mirror()) units = this%units
 
       if (present(field)) then
