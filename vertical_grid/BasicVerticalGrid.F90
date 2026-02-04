@@ -75,7 +75,11 @@ contains
       class(ComponentDriver), pointer, intent(out) :: coupler
       integer, intent(out), optional :: rc
 
+      integer :: status
+
       coupler => null()
+      field = ESMF_FieldEmptyCreate(_RC)
+
       _FAIL('BasicVerticalGrid should have been connected to a different subclass before this is called.')
 
       _UNUSED_DUMMY(this)
