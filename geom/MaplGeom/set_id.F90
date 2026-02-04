@@ -11,17 +11,16 @@ submodule (mapl3g_MaplGeom) set_id_smod
    use ESMF, only: ESMF_InfoSet
 
 contains
-   
+
    module subroutine set_id(this, id, rc)
       class(MaplGeom), intent(inout) :: this
       integer, intent(in) :: id
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_Info) :: infoh
 
       call MAPL_GeomSetId(this%geom, id, _RC)
-      
+
       _RETURN(_SUCCESS)
    end subroutine set_id
 
