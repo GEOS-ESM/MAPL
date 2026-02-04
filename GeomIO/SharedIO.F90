@@ -74,7 +74,6 @@ contains
       integer, intent(out), optional :: rc
 
       integer :: status, i
-      type(ESMF_Field) :: field
       type(ESMF_Field), allocatable :: fieldList(:)
 
       call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
@@ -158,7 +157,6 @@ contains
       type(MAPLGeom), pointer :: mapl_geom
       type(StringVector) :: grid_variables
       type(ESMF_Geom) :: esmfgeom
-      type(ESMF_Info) :: field_info
       character(len=:), allocatable :: vert_dim_name, ungridded_names
       logical :: vert_only
       integer :: grid_to_field_map(2), status
@@ -242,9 +240,7 @@ contains
       character(len=:), allocatable :: dim_name
       type(VerticalStaggerLoc) :: vertical_stagger
       type(ESMF_Field), allocatable :: fieldList(:)
-      integer :: i, j, num_field_levels, status
-      type(Variable) :: level_var
-      real(kind=REAL64), allocatable :: temp_coords(:)
+      integer :: i, num_field_levels, status
       logical :: lev_added, edge_added
 
       call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
@@ -314,7 +310,6 @@ contains
       type(UngriddedDims) :: field_ungridded_dims
       type(UngriddedDim) :: u
       integer :: ifield, jdim
-      type(ESMF_Field) :: field
       type(ESMF_Field), allocatable :: fieldList(:)
       type(StringSet) :: dim_names
       character(:), allocatable :: dim_name
