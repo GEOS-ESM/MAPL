@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_TypekindAspect
+
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
@@ -12,6 +13,7 @@ module mapl3g_TypekindAspect
    use mapl_ErrorHandling
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
    use esmf
+
    implicit none(type,external)
    private
 
@@ -62,13 +64,20 @@ contains
 
    logical function supports_conversion_general(src)
       class(TypekindAspect), intent(in) :: src
+
       supports_conversion_general = .true.
+
+      _UNUSED_DUMMY(src)
    end function supports_conversion_general
 
    logical function supports_conversion_specific(src, dst)
       class(TypekindAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
+
       supports_conversion_specific = .true.
+
+      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
    end function supports_conversion_specific
 
    logical function matches(src, dst)
@@ -144,8 +153,6 @@ contains
       class(StateItemAspect), intent(in) :: aspect
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       select type(aspect)
       class is (TypekindAspect)
          typekind_aspect = aspect
@@ -169,7 +176,7 @@ contains
 
       _RETURN(_SUCCESS)
    end function to_typekind_from_map
-   
+
    subroutine update_from_payload(this, field, bundle, state, rc)
       class(TypekindAspect), intent(inout) :: this
       type(esmf_Field), optional, intent(in) :: field
@@ -189,6 +196,7 @@ contains
       call this%set_mirror(this%typekind == MAPL_TYPEKIND_MIRROR)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(state)
    end subroutine update_from_payload
 
    subroutine update_payload(this, field, bundle, state, rc)
@@ -209,6 +217,7 @@ contains
       end if
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(state)
    end subroutine update_payload
- 
+
 end module mapl3g_TypekindAspect

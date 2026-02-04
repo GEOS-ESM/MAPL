@@ -98,7 +98,7 @@ contains
    subroutine verify_short_name(v, rc)
       character(len=*), intent(in) :: v
       integer, optional, intent(out) :: rc
-      integer :: status
+
       character(len=*), parameter :: M='short_name must begin with a letter and include alphanumeric characters or _ only.'
 
       _ASSERT(valid_identifier(v), M)
@@ -109,7 +109,7 @@ contains
    subroutine verify_state_intent(v, rc)
       type(ESMF_StateIntent_Flag), intent(in) :: v
       integer, optional, intent(out) :: rc
-      integer :: status
+
       character(len=*), parameter :: M='The state intent is not an allowed flag value.'
 
       _ASSERT(valid_state_intent(v), M)
@@ -121,7 +121,7 @@ contains
       type(EsmfRegridderParam), optional, intent(in) :: p
       type(ESMF_RegridMethod_Flag), optional, intent(in) :: f
       integer, optional, intent(out) :: rc
-      integer :: status
+
       character(len=*), parameter :: M='regrid_param and regrid_method are mutually exclusive.'
       
       _ASSERT(valid_regrid_member(p, f), M)

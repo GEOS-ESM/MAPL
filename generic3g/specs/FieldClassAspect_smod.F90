@@ -18,6 +18,8 @@ contains
       class is (WildcardClassAspect)
          matches = .true.
       end select
+
+      _UNUSED_DUMMY(src)
    end function matches_a
 
 end submodule FieldClassAspect_smod

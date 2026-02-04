@@ -112,6 +112,8 @@ contains
       class is (VectorClassAspect)
          matches = .true.
       end select
+
+      _UNUSED_DUMMY(src)
    end function matches
 
    subroutine create(this, other_aspects, rc)
@@ -128,6 +130,7 @@ contains
       call MAPL_FieldBundleSet(this%payload, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(other_aspects)
    end subroutine create
 
    subroutine activate(this, rc)
@@ -205,7 +208,6 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine destroy
 
-
    ! No-op
    subroutine connect_to_import(this, import, rc)
       class(VectorClassAspect), intent(inout) :: this
@@ -213,6 +215,8 @@ contains
       integer, optional, intent(out) :: rc
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(import)
    end subroutine connect_to_import
 
    subroutine connect_to_export(this, export, actual_pt, rc)
@@ -249,7 +253,6 @@ contains
            _HERE, 'WARNING: mismatched default values for ', actual_pt
            _HERE, '    src = ', src, '; dst = ',dst, ' (src value wins)'
         end if
-
       end subroutine mirror
       
    end subroutine connect_to_export
@@ -293,11 +296,17 @@ contains
       transform = NullTransform()
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
+      _UNUSED_DUMMY(other_aspects)
    end function make_transform
 
    logical function supports_conversion_general(src)
       class(VectorClassAspect), intent(in) :: src
+
       supports_conversion_general = .false.
+
+      _UNUSED_DUMMY(src)
    end function supports_conversion_general
 
    logical function supports_conversion_specific(src, dst)
@@ -306,6 +315,7 @@ contains
 
       supports_conversion_specific = .false.
 
+      _UNUSED_DUMMY(src)
       _UNUSED_DUMMY(dst)
    end function supports_conversion_specific
 
@@ -346,7 +356,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_state
 
-
    subroutine get_payload(this, unusable, field, bundle, state, rc)
       class(VectorClassAspect), intent(in) :: this
       class(KeywordEnforcer), optional, intent(out) :: unusable
@@ -358,7 +367,9 @@ contains
       bundle = this%payload
 
       _RETURN(_SUCCESS)
-
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(field)
+      _UNUSED_DUMMY(state)
    end subroutine get_payload
    
    function get_aspect_id() result(aspect_id)

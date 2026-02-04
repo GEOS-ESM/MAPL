@@ -28,6 +28,7 @@ module mapl3g_ModelVerticalGrid
    use pfio
    use esmf
    use gftl2_StringVector, only: StringVector
+
    implicit none(type,external)
    private
 
@@ -206,7 +207,7 @@ contains
       character(:), allocatable :: short_name
       type(VirtualConnectionPt) :: v_pt
       type(StateItemSpec), pointer :: new_extension
-      type(StateItemSpec), pointer :: primary, new_spec
+      type(StateItemSpec), pointer :: new_spec
       type(StateItemSpec), target :: goal_spec
       type(AspectMap), pointer :: aspects
       class(StateItemAspect), pointer :: class_aspect
@@ -268,8 +269,12 @@ contains
 !#      end if
 !#      write(unit, "(a)") ")"
 
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(unit)
       _UNUSED_DUMMY(iotype)
       _UNUSED_DUMMY(v_list)
+      _UNUSED_DUMMY(iostat)
+      _UNUSED_DUMMY(iomsg)
    end subroutine write_formatted
 
 
@@ -278,7 +283,6 @@ contains
       class(ModelVerticalGrid), target, intent(in) :: this
 
       dimensions = this%spec%physical_dimensions
-
    end function get_supported_physical_dimensions
 
    ! Factory methods
@@ -287,7 +291,6 @@ contains
       type(ModelVerticalGridSpec), intent(in) :: spec
 
       this%spec = spec
-
    end subroutine initialize
 
    logical function matches(this, other)
@@ -304,7 +307,6 @@ contains
       class default
          matches = .false.
       end select
-
    end function matches
 
    function get_name(this) result(name)
@@ -312,6 +314,8 @@ contains
       class(ModelVerticalGridFactory), intent(in) :: this
       
       name = "ModelVerticalGrid"
+
+      _UNUSED_DUMMY(this)
    end function get_name
 
    function supports_spec(this, spec, rc) result(is_supported)
@@ -320,12 +324,12 @@ contains
       class(VerticalGridSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
 
-      integer :: status
       type(ModelVerticalGridSpec) :: fixed_spec
 
       is_supported = same_type_as(spec, fixed_spec)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function supports_spec
 
    function supports_file_metadata(this, file_metadata, rc) result(is_supported)
@@ -336,7 +340,10 @@ contains
       
       ! Implementation would check if file_metadata contains required information
       is_supported = .false.  ! Placeholder
+
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(file_metadata)
    end function supports_file_metadata
 
    function supports_config(this, config, rc) result(is_supported)
@@ -369,6 +376,7 @@ contains
       is_supported = .true.
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function supports_config
 
    function create_spec_from_config(this, config, rc) result(spec)
@@ -405,6 +413,7 @@ contains
       end select
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function create_spec_from_config
 
    function create_spec_from_file_metadata(this, file_metadata, rc) result(spec)
@@ -415,8 +424,6 @@ contains
       
       ! Placeholder implementation - not yet implemented
       ! Return empty spec to satisfy Fortran requirement for defined result
-      integer :: status
-      
       spec = ModelVerticalGridSpec(names=StringVector(), physical_dimensions=StringVector(), num_levels=0)
       
       _UNUSED_DUMMY(this)
@@ -431,7 +438,6 @@ contains
       integer, intent(out), optional :: rc
       
       type(ModelVerticalGrid) :: local_grid
-      integer :: status
       
       select type (spec)
       type is (ModelVerticalGridSpec)
@@ -440,7 +446,9 @@ contains
       class default
          _RETURN(_FAILURE)
       end select
+
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function create_grid_from_spec
 
    ! Helper function to get default units for a physical dimension

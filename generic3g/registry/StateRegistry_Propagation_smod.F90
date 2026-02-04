@@ -144,7 +144,6 @@ contains
       type(VirtualPtFamilyMapIterator), intent(in) :: iter
       integer, optional, intent(out) :: rc
 
-      integer :: status
       type(VirtualConnectionPt), pointer :: virtual_pt
       type(VirtualConnectionPt) :: new_virtual_pt
       type(ExtensionFamily), pointer :: family

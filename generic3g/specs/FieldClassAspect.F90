@@ -44,7 +44,7 @@ module mapl3g_FieldClassAspect
       procedure :: to_fieldclassaspect_from_poly
       procedure :: to_fieldclassaspect_from_map
    end interface to_FieldClassAspect
-   
+
    type, extends(ClassAspect) :: FieldClassAspect
       private
       logical :: is_created = .false.
@@ -135,6 +135,7 @@ contains
            ]
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
 
@@ -148,9 +149,10 @@ contains
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
 
-      call mapl_FieldSet(this%payload, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC) 
+      call mapl_FieldSet(this%payload, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(other_aspects)
    end subroutine create
 
    subroutine activate(this, rc)
@@ -175,22 +177,6 @@ contains
       integer :: status
       type(ESMF_FieldStatus_Flag) :: fstatus
 
-      type(ESMF_Geom), allocatable :: geom
-      integer :: dim_count
-      integer, allocatable :: grid_to_field_map(:)
-
-      integer, allocatable :: num_vgrid_levels
-      integer, allocatable :: num_field_levels
-      integer :: num_levels
-
-      type(UngriddedDims) :: ungridded_dims
-
-      character(:), allocatable :: units
-
-      type(ESMF_TypeKind_Flag) :: typekind
-
-      integer :: idim
-
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _RETURN_IF(fstatus == ESMF_FIELDSTATUS_COMPLETE)
 
@@ -206,6 +192,7 @@ contains
       end if
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(other_aspects)
    end subroutine allocate
 
    subroutine destroy(this, rc)
@@ -284,7 +271,7 @@ contains
         end if
 
       end subroutine mirror
-      
+
    end subroutine connect_to_export
 
    function to_fieldclassaspect_from_poly(aspect, rc) result(field_aspect)
@@ -326,11 +313,17 @@ contains
       transform = NullTransform()
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
+      _UNUSED_DUMMY(other_aspects)
    end function make_transform
 
    logical function supports_conversion_general(src)
       class(FieldClassAspect), intent(in) :: src
+
       supports_conversion_general = .false.
+
+      _UNUSED_DUMMY(src)
    end function supports_conversion_general
 
    logical function supports_conversion_specific(src, dst)
@@ -339,6 +332,7 @@ contains
 
       supports_conversion_specific = .false.
 
+      _UNUSED_DUMMY(src)
       _UNUSED_DUMMY(dst)
    end function supports_conversion_specific
 
@@ -355,7 +349,7 @@ contains
       logical :: is_alias
       character(:), allocatable :: full_name, inner_name, intent
       integer :: idx, alias_id, status
-      
+
       intent = actual_pt%get_state_intent()
       call multi_state%get_state(state, intent, _RC)
 
@@ -408,10 +402,12 @@ contains
       field = this%payload
 
       _RETURN(_SUCCESS)
-
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(bundle)
+      _UNUSED_DUMMY(state)
    end subroutine get_payload
 
-   
+
    function get_aspect_id() result(aspect_id)
       type(AspectId) :: aspect_id
       aspect_id = CLASS_ASPECT_ID
