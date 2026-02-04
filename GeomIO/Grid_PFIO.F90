@@ -2,7 +2,7 @@
 
 module mapl3g_GridPFIO
 
-   use, intrinsic :: iso_c_binding, only: c_ptr
+   use, intrinsic :: iso_c_binding, only: c_ptr, c_loc
 
    use mapl_ErrorHandling
    use mapl3g_GeomPFIO
@@ -12,7 +12,6 @@ module mapl3g_GridPFIO
    use MAPL_BaseMod
    use MAPL_FieldPointerUtilities
    use mapl3g_pFIOServerBounds, only: pFIOServerBounds, PFIO_BOUNDS_WRITE, PFIO_BOUNDS_READ
-   use, intrinsic :: iso_c_binding, only: c_loc
 
    implicit none
    private
@@ -44,12 +43,11 @@ contains
       integer, allocatable :: element_count(:)
       type(pFIOServerBounds) :: server_bounds
       type(ESMF_TypeKind_Flag) :: tk
-      type(c_ptr) :: address
       type(ArrayReference) :: ref
       real(ESMF_Kind_R8), pointer :: coords(:,:)
 
       file_metadata = this%get_file_metadata()
-      has_ll = file_metadata%has_variable('lons') .and. file_metadata%has_variable('lats') 
+      has_ll = file_metadata%has_variable('lons') .and. file_metadata%has_variable('lats')
       if (has_ll) then
          collection_id = this%get_collection_id()
          EsmfGeom = this%get_esmf_geom()
@@ -81,7 +79,7 @@ contains
          call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
       end if
 
-      has_ll = file_metadata%has_variable('corner_lons') .and. file_metadata%has_variable('corner_lats') 
+      has_ll = file_metadata%has_variable('corner_lons') .and. file_metadata%has_variable('corner_lats')
       if (has_ll) then
          collection_id = this%get_collection_id()
          EsmfGeom = this%get_esmf_geom()
