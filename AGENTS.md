@@ -18,11 +18,12 @@ cmake --build gfortran
 
 ### Remote Linux (bucy) - Intel Fortran
 NOTE: Building on bucy requires SSH with PIV card authentication (badge + PIN)
+
+**IMPORTANT**: Commands must load modules in the same shell session. Use:
 ```
-ssh bucy
-module load ifx-stack
-cmake -B intel -DCMAKE_BUILD_TYPE=Debug
-cmake --build intel
+ssh bucy "cd ~/swdev/VS/MAPL && source /etc/profile.d/modules.sh && module load ifx-stack && cmake -B intel -DCMAKE_BUILD_TYPE=Debug"
+ssh bucy "cd ~/swdev/VS/MAPL && source /etc/profile.d/modules.sh && module load ifx-stack && cmake --build intel -j 6"
+ssh bucy "cd ~/swdev/VS/MAPL/intel && source /etc/profile.d/modules.sh && module load ifx-stack && ctest --output-on-failure"
 ```
 
 ## Build Directory Convention
@@ -85,6 +86,37 @@ When switching between compilers:
 3. Verify with module list before building
 
 ## Remote Building on bucy
-Remember: SSH to bucy requires physical badge in card reader plus PIN entry. Plan accordingly for:
-* Cannot automate Intel builds without being physically present
-* Consider this when prioritizing which compiler to test with
+
+### SSH ControlMaster Setup (Avoid Repeated PIN Entry)
+Add to `~/.ssh/config`:
+```
+Host bucy bucy.gsfc.nasa.gov
+    ControlMaster auto
+    ControlPath ~/.ssh/cm-%r@%h:%p
+    ControlPersist 8h
+```
+
+Establish master connection once (requires PIN):
+```
+ssh -fN bucy
+```
+All subsequent ssh commands will reuse this connection for 8 hours without asking for PIN.
+
+### Syncing Code to bucy
+Sync uncommitted changes from macOS to bucy:
+```
+rsync -avz --exclude='.git' --exclude='build' --exclude='nag' --exclude='gfortran' --exclude='intel' --exclude='.venv' \
+  ~/swdev/VS/MAPL/ bucy:~/swdev/VS/MAPL/
+```
+
+**CRITICAL**: Ensure you're on the same git branch on both systems before syncing to avoid corruption!
+Check branches:
+```
+git branch --show-current  # on macOS
+ssh bucy "cd ~/swdev/VS/MAPL && git branch --show-current"  # on bucy
+```
+
+### Limitations
+* SSH requires physical badge in card reader plus PIN entry (but ControlMaster reduces to once per 8 hours)
+* Manual branch synchronization needed when using rsync
+* Consider committing and pushing to GitHub for safer synchronization if working on different branches
