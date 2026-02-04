@@ -1,5 +1,7 @@
 #include "MAPL.h"
+
 module mapl3g_BasicVerticalGrid
+
    use mapl3g_VerticalGrid, only: VerticalGrid
    use mapl3g_VerticalGridSpec, only: VerticalGridSpec
    use mapl3g_VerticalGridFactory, only: VerticalGridFactory
@@ -9,18 +11,19 @@ module mapl3g_BasicVerticalGrid
    use mapl3g_VerticalStaggerLoc, only: VerticalStaggerLoc
    use gftl2_StringVector, only: StringVector
    use mapl_ErrorHandling
+
    implicit none(type,external)
    private
-   
+
    public :: BasicVerticalGrid
    public :: BasicVerticalGridSpec
    public :: BasicVerticalGridFactory
-   
+
    ! Spec type
    type, extends(VerticalGridSpec) :: BasicVerticalGridSpec
       integer :: num_levels
    end type BasicVerticalGridSpec
-   
+
    ! Grid type
    type, extends(VerticalGrid) :: BasicVerticalGrid
       private
@@ -33,7 +36,7 @@ module mapl3g_BasicVerticalGrid
       procedure :: get_units
       procedure :: matches
    end type BasicVerticalGrid
-   
+
    ! Factory type
    type, extends(VerticalGridFactory) :: BasicVerticalGridFactory
    contains
@@ -51,14 +54,14 @@ contains
    subroutine initialize(this, spec)
       class(BasicVerticalGrid), intent(inout) :: this
       type(BasicVerticalGridSpec), intent(in) :: spec
-      
+
       this%spec = spec
    end subroutine initialize
 
    function get_num_levels(this) result(num_levels)
       integer :: num_levels
       class(BasicVerticalGrid), intent(in) :: this
-      
+
       num_levels = this%spec%num_levels
    end function get_num_levels
 
@@ -75,15 +78,22 @@ contains
       integer :: status
 
       coupler => null()
+      field = ESMF_FieldEmptyCreate(_RC)
+
       _FAIL('BasicVerticalGrid should have been connected to a different subclass before this is called.')
 
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(geom)
+      _UNUSED_DUMMY(physical_dimension)
+      _UNUSED_DUMMY(units)
+      _UNUSED_DUMMY(typekind)
    end function get_coordinate_field
 
    ! New method: get supported physical dimensions
    function get_supported_physical_dimensions(this) result(dimensions)
       type(StringVector) :: dimensions
       class(BasicVerticalGrid), target, intent(in) :: this
-      
+
       call dimensions%push_back("<unknown>")
    end function get_supported_physical_dimensions
 
@@ -93,10 +103,12 @@ contains
       class(BasicVerticalGrid), intent(in) :: this
       character(len=*), intent(in) :: physical_dimension
       integer, optional, intent(out) :: rc
-      
+
       units = "<unknown>"
       _RETURN(_SUCCESS)
+
       _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(physical_dimension)
    end function get_units
 
    logical function matches(this, other)
@@ -110,8 +122,10 @@ contains
    function get_name(this) result(name)
       character(len=:), allocatable :: name
       class(BasicVerticalGridFactory), intent(in) :: this
-      
+
       name = "BasicVerticalGrid"
+
+      _UNUSED_DUMMY(this)
    end function get_name
 
    function supports_spec(this, spec, rc) result(is_supported)
@@ -120,7 +134,6 @@ contains
       class(VerticalGridSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
 
-      integer :: status
       type(BasicVerticalGridSpec) :: basic_spec
 
       is_supported = same_type_as(spec, basic_spec)
@@ -134,7 +147,7 @@ contains
       class(BasicVerticalGridFactory), intent(in) :: this
       type(FileMetadata), intent(in), target :: file_metadata
       integer, optional, intent(out) :: rc
-      
+
       ! Basic grid can work with any file metadata as a fallback
       is_supported = .true.
       _RETURN(_SUCCESS)
@@ -173,22 +186,22 @@ contains
       class(BasicVerticalGridFactory), intent(in) :: this
       type(esmf_HConfig), intent(in), target :: config
       integer, intent(out), optional :: rc
-      
+
       type(BasicVerticalGridSpec) :: local_spec
       integer :: status
-      
+
       ! Get number of levels if specified, otherwise use default
       if (esmf_HConfigIsDefined(config, keyString="num_levels")) then
          local_spec%num_levels = esmf_HConfigAsI4(config, keyString="num_levels", _RC)
       else
          local_spec%num_levels = 1  ! Default for basic grid
       end if
-      
+
       _ASSERT(local_spec%num_levels > 0, 'Number of levels must be positive')
-      
+
       ! Use polymorphic allocation
       allocate(spec, source=local_spec)
-      
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
    end function create_spec_from_config
@@ -198,7 +211,7 @@ contains
       class(BasicVerticalGridFactory), intent(in) :: this
       type(FileMetadata), intent(in), target :: file_metadata
       integer, intent(out), optional :: rc
-      
+
       type(BasicVerticalGridSpec) :: local_spec
       character(:), allocatable :: lev_name
       integer :: status
@@ -239,10 +252,9 @@ contains
       class(BasicVerticalGridFactory), intent(in) :: this
       class(VerticalGridSpec), intent(in) :: spec
       integer, intent(out), optional :: rc
-      
+
       type(BasicVerticalGrid) :: local_grid
-      integer :: status
-      
+
       select type (spec)
       type is (BasicVerticalGridSpec)
          call local_grid%initialize(spec)
@@ -250,7 +262,7 @@ contains
       class default
          _RETURN(_FAILURE)
       end select
-      
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
    end function create_grid_from_spec

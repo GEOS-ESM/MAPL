@@ -92,12 +92,9 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(esmf_Geom) :: geom
       integer, allocatable :: grid_to_field_map(:)
       type(LU_Bound), allocatable :: bounds(:)
-      type(UngriddedDims) :: ungridded_dims
       type(esmf_TypeKind_Flag) :: typekind
-      integer :: num_levels
       type(esmf_FieldStatus_Flag) :: fstatus
 
       call esmf_FieldGet(field, status=fstatus, _RC)
@@ -113,7 +110,7 @@ contains
            ungriddedLBound=bounds%lower, &
            ungriddedUBound=bounds%upper, &
            _RC)
-          
+
       _RETURN(_SUCCESS)
    end subroutine field_empty_complete_from_info
 
@@ -148,7 +145,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_Info) :: field_info
       type(UngriddedDims) :: ungridded_dims
       integer :: num_levels
 
@@ -213,7 +209,7 @@ contains
          allocate(grid_to_field_map(dim_count), source=[(idim, idim=1,dim_count)])
       end if
       bounds = make_bounds(num_levels=num_levels, ungridded_dims=ungridded_dims)
-      
+
       call ESMF_FieldEmptyComplete( &
            field, &
            typekind=typekind, &
@@ -270,7 +266,7 @@ contains
       _ASSERT(is_created, 'invalid field detected')
 
       are_aliased = associated(field1%ftypep, field2%ftypep)
-      
+
       _RETURN(_SUCCESS)
    end function fields_are_aliased
 
