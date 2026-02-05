@@ -1,13 +1,15 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_LatLonGeomSpec) supports_metadata_smod
+
    use mapl3g_CoordinateAxis
    use mapl3g_GeomSpec
    use pfio
    use mapl_ErrorHandling
    use esmf
+
    implicit none (type, external)
-   
+
 contains
 
    logical module function supports_metadata_(this, file_metadata, rc) result(supports)
@@ -44,6 +46,7 @@ contains
       supports = (lon_dim /= '' .and. lat_dim /= '' .and. lon_dim /= lat_dim)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function supports_metadata_
 
 end submodule supports_metadata_smod
