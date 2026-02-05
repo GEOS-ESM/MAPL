@@ -12,13 +12,11 @@ subroutine SUB_ (state, farrayPtr, itemName, unusable, isPresent, rc)
    logical, optional,intent(out) :: isPresent
    integer, optional,intent(out) :: rc
 
-   type (ESMF_FieldBundle) :: bundle
    type (ESMF_Field) :: field
    type(ESMF_FieldStatus_Flag) :: field_status
    type(ESMF_StateItem_Flag) :: item_type
 
    integer :: status
-   logical :: isPresent_
 
    nullify(farrayPtr)
    if (present(isPresent)) isPresent = .false.
@@ -38,6 +36,5 @@ subroutine SUB_ (state, farrayPtr, itemName, unusable, isPresent, rc)
    _RETURN(ESMF_SUCCESS)
    _UNUSED_DUMMY(unusable)
 end subroutine SUB_
-
 
 #include "undef.macro"
