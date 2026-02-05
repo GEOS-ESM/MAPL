@@ -1,0 +1,318 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_UnitsAspect
+   use funit
+   use mapl3g_UnitsAspect
+   use mapl3g_Field_API
+   use mapl3g_FieldBundle_API
+   use mapl_ErrorHandling
+   use mapl3g_esmf_info_keys, only: KEY_MIRROR
+   use esmf
+   use ESMF_TestMethod_mod
+   implicit none
+
+   character(len=*), parameter :: UNITS1='s'
+   character(len=*), parameter :: UNITS2='m'
+
+contains
+
+   ! Helper function to create a test field with given units
+   function create_test_field(units) result(field)
+      type(ESMF_Field) :: field
+      character(len=*), optional, intent(in) :: units
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='test_field', _RC)
+      if(present(units)) then
+         call MAPL_FieldSet(field, units=units, _RC)
+      end if
+
+   end function create_test_field
+
+   ! Helper function to create a test field bundle with given units
+   function create_test_bundle(units) result(bundle)
+      type(ESMF_FieldBundle) :: bundle
+      character(len=*), optional, intent(in) :: units
+      integer :: status
+
+      bundle = ESMF_FieldBundleCreate(name='test_bundle', _RC)
+      if(present(units)) then
+         call MAPL_FieldBundleSet(bundle, units=units, _RC)
+      end if
+
+   end function create_test_bundle
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_field_empty(this)
+      ! Test updating UnitsAspect from an ESMF_Field with empty units
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UnitsAspect) :: aspect
+      type(ESMF_Field) :: field
+      integer :: status
+
+      aspect = UnitsAspect(UNITS1)
+      field = create_test_field()
+      call aspect%update_from_payload(field=field, _RC)
+      @assertTrue(aspect%is_mirror(), 'aspect should be mirror.')
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_from_payload_field_empty
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_bundle_empty(this)
+      ! Test updating UnitsAspect from an ESMF_FieldBundle with empty units
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UnitsAspect) :: aspect
+      type(ESMF_FieldBundle) :: bundle
+      integer :: status
+
+      aspect = UnitsAspect(UNITS1)
+      bundle = create_test_bundle()
+      call aspect%update_from_payload(bundle=bundle, _RC)
+      @assertTrue(aspect%is_mirror(), 'aspect should be mirror')
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_from_payload_bundle_empty
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_field(this)
+      ! Test updating UnitsAspect from an ESMF_Field with units
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UnitsAspect) :: aspect
+      type(ESMF_Field) :: field
+      character(len=:), allocatable :: retrieved_units
+      integer :: status
+
+      aspect = UnitsAspect()
+      field = create_test_field(UNITS1)
+      call aspect%update_from_payload(field=field, _RC)
+      retrieved_units = aspect%get_units(_RC)
+      @assertEqual(UNITS1, retrieved_units)
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_from_payload_field
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_bundle(this)
+      ! Test updating UnitsAspect from an ESMF_FieldBundle with units
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UnitsAspect) :: aspect
+      type(ESMF_FieldBundle) :: bundle
+      character(len=:), allocatable :: retrieved_units
+      integer :: status
+
+      aspect = UnitsAspect()
+      bundle = create_test_bundle(UNITS1)
+      call aspect%update_from_payload(bundle=bundle, _RC)
+      retrieved_units = aspect%get_units(_RC)
+      @assertEqual(UNITS1, retrieved_units)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_from_payload_bundle
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_overwrite_existing_field(this)
+      ! Test that update_from_payload overwrites existing field units
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UnitsAspect) :: aspect
+      type(ESMF_Field) :: field
+      character(len=:), allocatable :: retrieved_units
+      integer :: status
+
+      aspect = UnitsAspect(UNITS1)
+      retrieved_units = aspect%get_units(_RC)
+      @assertEqual(UNITS1, retrieved_units)
+      field = create_test_field(UNITS2)
+      call aspect%update_from_payload(field=field, _RC)
+      retrieved_units = aspect%get_units(_RC)
+      @assertEqual(UNITS2, retrieved_units)
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_from_payload_overwrite_existing_field
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_overwrite_existing_bundle(this)
+      ! Test that update_from_payload overwrites existing bundle units
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UnitsAspect) :: aspect
+      type(ESMF_FieldBundle) :: bundle
+      character(len=:), allocatable :: retrieved_units
+      integer :: status
+
+      aspect = UnitsAspect(UNITS1)
+      retrieved_units = aspect%get_units(_RC)
+      @assertEqual(UNITS1, retrieved_units)
+      bundle = create_test_bundle(UNITS2)
+      call aspect%update_from_payload(bundle=bundle, _RC)
+      retrieved_units = aspect%get_units(_RC)
+      @assertEqual(UNITS2, retrieved_units)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_from_payload_overwrite_existing_bundle
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_field(this)
+      ! Test updating ESMF_Field units from UnitsAspect
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UnitsAspect) :: aspect
+      type(ESMF_Field) :: field
+      character(len=:), allocatable :: retrieved_units
+      integer :: status
+
+      aspect = UnitsAspect(UNITS2)
+      field = create_test_field(UNITS1)
+      call aspect%update_payload(field=field, _RC)
+      call MAPL_FieldGet(field, units=retrieved_units, _RC)
+      @assertEqual(UNITS2, retrieved_units)
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_payload_field
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_bundle(this)
+      ! Test updating ESMF_FieldBundle units from UnitsAspect
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UnitsAspect) :: aspect
+      type(ESMF_FieldBundle) :: bundle
+      character(len=:), allocatable :: retrieved_units
+      integer :: status
+
+      aspect = UnitsAspect(UNITS2)
+      bundle = create_test_bundle(UNITS1)
+      call aspect%update_payload(bundle=bundle, _RC)
+      call MAPL_FieldBundleGet(bundle, units=retrieved_units, _RC)
+      @assertEqual(UNITS2, retrieved_units)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_payload_bundle
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_field_empty(this)
+      ! Test updating ESMF_Field units from UnitsAspect
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UnitsAspect) :: aspect
+      type(ESMF_Field) :: field
+      character(len=:), allocatable :: retrieved_units
+      integer :: status
+
+      aspect = UnitsAspect()
+      @assertTrue(aspect%is_mirror(), 'Aspect should be mirror.')
+      field = create_test_field(UNITS1)
+      call aspect%update_payload(field=field, _RC)
+      call MAPL_FieldGet(field, units=retrieved_units, _RC)
+      @assertEqual(KEY_MIRROR, retrieved_units, 'units should not be set.')
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_payload_field_empty
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_bundle_empty(this)
+      ! Test updating ESMF_FieldBundle units from UnitsAspect
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UnitsAspect) :: aspect
+      type(ESMF_FieldBundle) :: bundle
+      character(len=:), allocatable :: retrieved_units
+      integer :: status
+
+      aspect = UnitsAspect()
+      bundle = create_test_bundle(UNITS1)
+      call aspect%update_payload(bundle=bundle, _RC)
+      call MAPL_FieldBundleGet(bundle, units=retrieved_units, _RC)
+      @assertEqual(KEY_MIRROR, retrieved_units, 'units should not be set.')
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_payload_bundle_empty
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_roundtrip_field(this)
+      ! Test roundtrip: aspect -> field -> aspect
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UnitsAspect) :: aspect1, aspect2
+      type(ESMF_Field) :: field
+      character(len=:), allocatable :: retrieved_units
+      integer :: status
+
+      aspect1 = UnitsAspect(UNITS2)
+      aspect2 = UnitsAspect(UNITS1)
+      field = create_test_field()
+      call aspect1%update_payload(field=field, _RC)
+      call aspect2%update_from_payload(field=field, _RC)
+      retrieved_units = aspect2%get_units(_RC)
+      @assertEqual(UNITS2, retrieved_units)
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_roundtrip_field
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_roundtrip_bundle(this)
+      ! Test roundtrip: aspect -> bundle -> aspect
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UnitsAspect) :: aspect1, aspect2
+      type(ESMF_FieldBundle) :: bundle
+      character(len=:), allocatable :: retrieved_units
+      integer :: status
+
+      aspect1 = UnitsAspect(UNITS2)
+      aspect2 = UnitsAspect(UNITS1)
+      bundle = create_test_bundle()
+      call aspect1%update_payload(bundle=bundle, _RC)
+      call aspect2%update_from_payload(bundle=bundle, _RC)
+      retrieved_units = aspect2%get_units(_RC)
+      @assertEqual(UNITS2, retrieved_units)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_roundtrip_bundle
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_empty_units_roundtrip_field(this)
+      ! Test that empty units work correctly in roundtrip
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UnitsAspect) :: aspect1, aspect2
+      type(ESMF_Field) :: field
+      integer :: status
+
+      aspect1 = UnitsAspect()
+      aspect2 = UnitsAspect(UNITS1)
+      field = create_test_field()
+      call aspect1%update_payload(field=field, _RC)
+      call aspect2%update_from_payload(field=field, _RC)
+      @assertTrue(aspect2%is_mirror(), 'aspect2 should be mirror.')
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_empty_units_roundtrip_field
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_empty_units_roundtrip_bundle(this)
+      ! Test that empty units work correctly in roundtrip
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UnitsAspect) :: aspect1, aspect2
+      type(ESMF_FieldBundle) :: bundle
+      integer :: status
+
+      aspect1 = UnitsAspect()
+      aspect2 = UnitsAspect(UNITS1)
+
+      bundle = create_test_bundle()
+      call aspect1%update_payload(bundle=bundle, _RC)
+      call aspect2%update_from_payload(bundle=bundle, _RC)
+      @assertTrue(aspect2%is_mirror(), 'aspect2 should be mirror.')
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_empty_units_roundtrip_bundle
+
+end module Test_UnitsAspect

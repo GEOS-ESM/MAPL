@@ -13,6 +13,7 @@ module mapl3g_UnitsAspect
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use udunits2f, only: are_convertible
+   use mapl3g_esmf_info_keys, only: KEY_MIRROR
    use esmf
 
    implicit none
@@ -204,6 +205,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      logical :: mirror
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
 
@@ -213,7 +215,9 @@ contains
          call mapl_FieldBundleGet(bundle, units=this%units, _RC)
       end if
 
-      call this%set_mirror(.not. allocated(this%units))
+      mirror = .not. allocated(this%units)
+      if(.not. mirror) mirror = this%units == KEY_MIRROR
+      call this%set_mirror(mirror)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(state)
@@ -225,15 +229,20 @@ contains
       type(esmf_FieldBundle), optional, intent(inout) :: bundle
       type(esmf_State), optional, intent(inout) :: state
       integer, optional, intent(out) :: rc
+      character(len=:), allocatable :: units
 
       integer :: status
+      type(ESMF_Info) :: info
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
 
+      units = KEY_MIRROR
+      if(.not. this%is_mirror()) units = this%units
+
       if (present(field)) then
-         call mapl_FieldSet(field, units=this%units, _RC)
+         call mapl_FieldSet(field, units=units, _RC)
       else if (present(bundle)) then
-         call mapl_FieldBundleSet(bundle, units=this%units, _RC)
+         call mapl_FieldBundleSet(bundle, units=units, _RC)
       end if
 
       _RETURN(_SUCCESS)
