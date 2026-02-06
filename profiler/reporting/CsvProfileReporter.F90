@@ -21,7 +21,9 @@
 !!
 !! Note: The 'width' parameter is ignored for CSV output. The 'format' parameter
 !! controls numeric precision and output format.
+
 module MAPL_CsvProfileReporter
+
    use MAPL_AbstractMeterNode
    use MAPL_AbstractColumn
    use MAPL_TextColumn
@@ -34,6 +36,7 @@ module MAPL_CsvProfileReporter
    use esmf, only: ESMF_HConfigAsString, ESMF_HConfigAsI4
    use esmf, only: ESMF_HConfigIsDefined, ESMF_HConfigIsSequence, ESMF_HConfigGetSize
    use esmf, only: ESMF_HConfigCreateAt
+
    implicit none
    private
 
@@ -69,7 +72,7 @@ contains
 
       ! Explicitly initialize max_header_depth
       reporter%max_header_depth = 0
-      
+
       call populate_columns(reporter, config, _RC)
 
       ! Normalize all paths to have the same depth by left-padding with empty strings
@@ -79,20 +82,20 @@ contains
             if (depth_diff > 0) then
                ! Save original path first
                original_path = reporter%column_paths(i)
-               
+
                ! Create new vector with padding at front
                padded_path = StringVector()
                do j = 1, depth_diff
                   call padded_path%push_back('')
                end do
-               
+
                ! Append original path elements
                iter = original_path%begin()
                do while (iter /= original_path%end())
                   call padded_path%push_back(iter%of())
                   call iter%next()
                end do
-               
+
                ! Replace with padded version
                reporter%column_paths(i) = padded_path
             end if
@@ -101,7 +104,6 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-
    end function new_CsvProfileReporter
 
    subroutine add_column(this, column, column_name, path)
@@ -114,10 +116,10 @@ contains
       type(StringVector), allocatable :: temp_paths(:)
       type(StringVector) :: path_copy
       type(StringVectorIterator) :: iter
-      integer :: n, i
+      integer :: n
 
       call this%columns%push_back(column)
-      
+
       ! Create explicit deep copy of path
       path_copy = StringVector()
       iter = path%begin()
@@ -125,7 +127,7 @@ contains
          call path_copy%push_back(iter%of())
          call iter%next()
       end do
-      
+
       ! Grow column_names array
       n = this%columns%size()
       if (allocated(this%column_names)) then
@@ -157,7 +159,6 @@ contains
       if (path_copy%size() > this%max_header_depth) then
          this%max_header_depth = path_copy%size()
       end if
-
    end subroutine add_column
 
    ! Helper to populate columns from config
@@ -172,8 +173,6 @@ contains
       integer :: status
       type(ESMF_HConfig) :: columns_config
       type(ESMF_HConfig) :: column_config
-      class(TextColumn), allocatable :: col
-      character(:), allocatable :: column_name
       logical :: is_defined, is_sequence
 
       ! Check if columns are configured
@@ -195,7 +194,6 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-
    end subroutine populate_columns
 
    ! Helper to process a column config (handles flattening of multi/group)
@@ -208,7 +206,6 @@ contains
 
       character(:), allocatable :: column_type
       character(:), allocatable :: multi_name
-      type(StringVectorIterator) :: path_iter
       integer :: i, num_nested
       type(ESMF_HConfig) :: nested_columns_config, nested_config
       class(TextColumn), allocatable :: col
@@ -222,7 +219,7 @@ contains
       if (trim(column_type) == 'multi' .or. trim(column_type) == 'group') then
          ! Get the name of this multi-column to add to path
          multi_name = get_config_string(column_config, 'name', '', _RC)
-         
+
          is_defined = ESMF_HConfigIsDefined(column_config, keyString='columns', _RC)
          if (is_defined) then
             num_nested = ESMF_HConfigGetSize(column_config, keyString='columns', _RC)
@@ -239,14 +236,13 @@ contains
       else
          ! Regular column - create and add it with full path
          call column_from_config(column_config, col, column_name, _RC)
-         
+
          ! Add column with extended path (workaround for gfortran recursion bug)
          call reporter%add_column(col, column_name, extend_path(path, column_name))
       end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-
    end subroutine process_column_config
 
    ! Helper function to extend a path with a new element (avoids local variables for gfortran recursion bug)
@@ -255,7 +251,7 @@ contains
       character(*), intent(in) :: new_element
       type(StringVector) :: extended
       type(StringVectorIterator) :: iter
-      
+
       extended = StringVector()
       iter = base_path%begin()
       do while (iter /= base_path%end())
@@ -291,62 +287,62 @@ contains
       integer :: status
 
       column_type = ESMF_HConfigAsString(column_config, keyString='type', _RC)
-      
+
       select case (trim(column_type))
       case ('name')
          column_name = get_config_string(column_config, 'name', 'Name', _RC)
          col = PlainNameColumn(20)  ! Plain name without indent markers
-         
+
       case ('depth')
          column_name = get_config_string(column_config, 'name', 'Depth', _RC)
          format_str = get_config_string(column_config, 'format', '(i3)', _RC)
          col = DepthColumn(format_str)
-         
+
       case ('num_cycles')
          column_name = get_config_string(column_config, 'name', 'cycles', _RC)
          format_str = get_config_string(column_config, 'format', '(i8)', _RC)
          col = FormattedTextColumn('', format_str, 10, NumCyclesColumn())
-         
+
       case ('inclusive')
          column_name = get_config_string(column_config, 'name', 'inclusive', _RC)
          format_str = get_config_string(column_config, 'format', '(f12.6)', _RC)
          col = FormattedTextColumn('', format_str, 12, InclusiveColumn())
-         
+
       case ('exclusive')
          column_name = get_config_string(column_config, 'name', 'exclusive', _RC)
          format_str = get_config_string(column_config, 'format', '(f12.6)', _RC)
          col = FormattedTextColumn('', format_str, 12, ExclusiveColumn())
-         
+
       case ('std_dev')
          column_name = get_config_string(column_config, 'name', 'std_dev', _RC)
          format_str = get_config_string(column_config, 'format', '(f12.8)', _RC)
          col = FormattedTextColumn('', format_str, 12, StdDevColumn())
-         
+
       case ('min_cycle')
          column_name = get_config_string(column_config, 'name', 'min_cycle', _RC)
          format_str = get_config_string(column_config, 'format', '(f12.8)', _RC)
          col = FormattedTextColumn('', format_str, 12, MinCycleColumn())
-         
+
       case ('max_cycle')
          column_name = get_config_string(column_config, 'name', 'max_cycle', _RC)
          format_str = get_config_string(column_config, 'format', '(f12.8)', _RC)
          col = FormattedTextColumn('', format_str, 12, MaxCycleColumn())
-         
+
       case ('mean_cycle')
          column_name = get_config_string(column_config, 'name', 'mean_cycle', _RC)
          format_str = get_config_string(column_config, 'format', '(f12.8)', _RC)
          col = FormattedTextColumn('', format_str, 12, MeanCycleColumn())
-         
+
       case ('percentage_inclusive')
          column_name = get_config_string(column_config, 'name', 'pct_inclusive', _RC)
          format_str = get_config_string(column_config, 'format', '(f6.2)', _RC)
          col = FormattedTextColumn('', format_str, 6, PercentageColumn(InclusiveColumn()))
-         
+
       case ('percentage_exclusive')
          column_name = get_config_string(column_config, 'name', 'pct_exclusive', _RC)
          format_str = get_config_string(column_config, 'format', '(f6.2)', _RC)
          col = FormattedTextColumn('', format_str, 6, PercentageColumn(ExclusiveColumn()))
-         
+
       case default
          _FAIL('Unknown column type for CSV: ' // trim(column_type))
       end select
@@ -415,7 +411,7 @@ contains
 
       ! Return empty if no columns configured
       if (this%columns%size() == 0) return
-      
+
       ! Return empty if no header depth or paths not allocated
       if (this%max_header_depth == 0 .or. .not. allocated(this%column_paths)) return
 
@@ -439,12 +435,12 @@ contains
 
       ! Get the root node
       node => p%get_root_node()
-      
+
       ! Get rows from first column to determine number of rows
       col => this%columns%at(1)
       call col%get_rows(node, row_data)
       num_rows = size(row_data)
-      
+
       ! Data rows
       do i = 1, num_rows
          csv_row = ''
@@ -452,13 +448,13 @@ contains
             col => this%columns%at(j)
             call col%get_rows(node, row_data)
             cell_value = trim(adjustl(row_data(i)))
-            
+
             ! CSV escaping: quote if contains comma or quote
             if (index(cell_value, ',') > 0 .or. index(cell_value, '"') > 0) then
                ! Escape quotes by doubling them
                cell_value = quote_and_escape(cell_value)
             end if
-            
+
             if (j > 1) csv_row = csv_row // ','
             csv_row = csv_row // cell_value
          end do
@@ -472,7 +468,7 @@ contains
       character(*), intent(in) :: str
       character(:), allocatable :: escaped
       integer :: i, n
-      
+
       n = len_trim(str)
       escaped = '"'
       do i = 1, n

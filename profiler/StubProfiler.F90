@@ -1,5 +1,7 @@
 #include "MAPL.h"
+
 module MAPL_StubProfiler
+
    use MAPL_BaseProfiler, only: BaseProfiler
    use MAPL_DistributedProfiler
    use mapl_KeywordEnforcerMod
@@ -9,11 +11,12 @@ module MAPL_StubProfiler
    use MAPL_AbstractMeterNode
    use MAPL_MeterNode
    use mapl_ErrorHandlingMod
+
    implicit none
    private
 
    public :: StubProfiler
-   
+
    type, extends(DistributedProfiler) :: StubProfiler
       private
    contains
@@ -35,17 +38,15 @@ module MAPL_StubProfiler
    end interface StubProfiler
 
    type(StubNode), target, save :: STUB_NODE
-contains
 
+contains
 
    function new_StubProfiler(name) result(prof)
       type(StubProfiler), target :: prof
       character(*), intent(in) :: name
 
       call prof%set_node(MeterNode(name, AdvancedMeter(NullGauge())))
-
    end function new_StubProfiler
-
 
    function make_meter(this) result(meter)
       class(AbstractMeter), allocatable :: meter
@@ -55,7 +56,6 @@ contains
 
       _UNUSED_DUMMY(this)
    end function make_meter
-
 
    subroutine start_self(this, unusable, rc)
       class(StubProfiler), target, intent(inout) :: this
@@ -67,18 +67,15 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine start_self
 
-
    subroutine start_name(this, name, rc)
       class(StubProfiler), target, intent(inout) :: this
       character(*), intent(in) :: name
       integer, optional, intent(out) :: rc
 
-
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(name)
    end subroutine start_name
-
 
    subroutine stop_self(this, rc)
       class(StubProfiler), intent(inout) :: this
@@ -88,18 +85,16 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine stop_self
 
-
    subroutine stop_name(this, name, rc)
       class(StubProfiler), intent(inout) :: this
       character(*), intent(in) :: name
       integer, optional, intent(out) :: rc
 
-
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(name)
    end subroutine stop_name
-   
+
    subroutine reduce(this)
       class(StubProfiler), target, intent(inout) :: this
 
@@ -109,13 +104,14 @@ contains
    function get_root_node(this) result(root_node)
       class(AbstractMeterNode), pointer :: root_node
       class(StubProfiler), target, intent(in) :: this
-      
+
       root_node => STUB_NODE
    end function get_root_node
 
    integer function get_num_meters(this) result(num_meters)
       class(StubProfiler), intent(in) :: this
       num_meters = 0
+      _UNUSED_DUMMY(this)
    end function get_num_meters
 
    integer function get_num_nodes(this) result(num_nodes)
@@ -123,5 +119,5 @@ contains
       num_nodes = 0
       _UNUSED_DUMMY(this)
    end function get_num_nodes
-   
+
 end module MAPL_StubProfiler

@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_ExtDataGridComp
+
    use generic3g
    use mapl_ErrorHandling
    use esmf
@@ -34,8 +35,8 @@ module mapl3g_ExtDataGridComp
       logical :: has_run_mod_advert = .false.
       type(StringVector) :: active_items
       type(StringIntegerMap) :: last_item
-      contains
-         procedure :: get_item_index
+   contains
+      procedure :: get_item_index
    end type ExtDataGridComp
 
 contains
@@ -80,7 +81,6 @@ contains
       type(PrimaryExport) :: primary_export
       type(PrimaryExport), pointer :: primary_export_ptr
       class(logger), pointer :: lgr
-      integer, pointer :: last_index
       type(ESMF_TimeInterval) :: time_step
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
@@ -123,6 +123,7 @@ contains
       extdata_gridcomp%has_run_mod_advert = .true.
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(importState)
    end subroutine modify_advertise
 
    subroutine run(gridcomp, importState, exportState, clock, rc)
@@ -177,9 +178,10 @@ contains
       call handle_fractional_regrid(extdata_gridcomp, current_time, exportState, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(importState)
    end subroutine run
 
-  subroutine handle_fractional_regrid(extdata_internal, current_time, export_state, rc)
+   subroutine handle_fractional_regrid(extdata_internal, current_time, export_state, rc)
       type(ExtDataGridComp), intent(in) :: extdata_internal
       type(ESMF_Time), intent(in) :: current_time
       type(ESMF_State), intent(inout) :: export_state
@@ -205,51 +207,53 @@ contains
          call ESMF_StateGet(export_state, export_name, bundle, _RC)
          call export_item%set_fraction_values_to_zero(bundle, _RC)
       enddo
+
       _RETURN(_SUCCESS)
-  end subroutine handle_fractional_regrid
+   end subroutine handle_fractional_regrid
 
-  function get_item_index(this,base_name,current_time,rc) result(item_index)
-     integer :: item_index
-     class(ExtDataGridComp), intent(in) :: this
-     type(ESMF_Time) :: current_time
-     character(len=*),intent(in) :: base_name
-     integer, optional, intent(out) :: rc
+   function get_item_index(this,base_name,current_time,rc) result(item_index)
+      integer :: item_index
+      class(ExtDataGridComp), intent(in) :: this
+      type(ESMF_Time) :: current_time
+      character(len=*),intent(in) :: base_name
+      integer, optional, intent(out) :: rc
 
-     character(len=:), allocatable :: export_name
-     integer :: i
-     integer, pointer :: num_rules,i_start
-     logical :: found
-     type(PrimaryExport), pointer :: item
+      character(len=:), allocatable :: export_name
+      integer :: i
+      integer, pointer :: num_rules,i_start
+      logical :: found
+      type(PrimaryExport), pointer :: item
 
-     found = .false.
-     do i=1,this%export_vector%size()
-        item => this%export_vector%at(i)
-        export_name = item%get_export_var_name()
-        if (export_name == base_name) then
-           found = .true.
-           i_start => this%export_id_start%at(i)
-           num_rules => this%rules_per_export%at(i)
-           exit
-        end if
-     enddo
-     _ASSERT(found,"ExtData no item with basename '"//TRIM(base_name)//"' found")
+      found = .false.
+      do i=1,this%export_vector%size()
+         item => this%export_vector%at(i)
+         export_name = item%get_export_var_name()
+         if (export_name == base_name) then
+            found = .true.
+            i_start => this%export_id_start%at(i)
+            num_rules => this%rules_per_export%at(i)
+            exit
+         end if
+      enddo
+      _ASSERT(found,"ExtData no item with basename '"//TRIM(base_name)//"' found")
 
-     item_index = -1
-     if (num_rules == 1) then
-        item_index = i_start
-     else if (num_rules > 1) then
-        do i=1,num_rules
-           item => this%export_vector%at(i_start+i-1)
-           if (current_time >= item%start_and_end(1) .and. &
-               current_time <  item%start_and_end(2)) then
-              item_index = i_start + i -1
-              exit
-           endif
-        enddo
-     end if
-     _ASSERT(item_index/=-1,"ExtData did not find item index for basename "//TRIM(base_name))
-     _RETURN(_SUCCESS)
-  end function get_item_index
+      item_index = -1
+      if (num_rules == 1) then
+         item_index = i_start
+      else if (num_rules > 1) then
+         do i=1,num_rules
+            item => this%export_vector%at(i_start+i-1)
+            if (current_time >= item%start_and_end(1) .and. &
+                 current_time <  item%start_and_end(2)) then
+               item_index = i_start + i -1
+               exit
+            endif
+         enddo
+      end if
+
+      _ASSERT(item_index/=-1,"ExtData did not find item index for basename "//TRIM(base_name))
+      _RETURN(_SUCCESS)
+   end function get_item_index
 
 end module mapl3g_ExtDataGridComp
 
@@ -263,7 +267,6 @@ subroutine setServices(gridcomp,rc)
    integer :: status
 
    call ExtData_setServices(gridcomp,_RC)
+
    _RETURN(_SUCCESS)
-
-end subroutine
-
+end subroutine setServices
