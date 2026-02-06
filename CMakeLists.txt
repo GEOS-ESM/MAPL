@@ -236,6 +236,7 @@ if (BUILD_WITH_FARGPARSE)
    add_subdirectory (docs)
    add_subdirectory (benchmarks)
 endif()
+add_subdirectory (python_bridge)
 
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)
