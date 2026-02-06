@@ -278,7 +278,7 @@ int hash1(int key)
   key = key ^ (key >> 12);
   key = key + (key << 2);
   key = key ^ (key >> 4);
-  key = key * 2057; // key = (key + (key << 3)) + (key << 11);
+  key = (int)(((long long)key * 2057LL) % 2147483647LL); // Prevent overflow with long long
   key = key ^ (key >> 16);
   return key;
 }

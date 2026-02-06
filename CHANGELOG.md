@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Bugfix for hash keys.  At high resolution, makebc's could result in
+  integer overflow.
 - Introduced AGENTS.md to assist in using copilot for MAPL development
+
 
 ### Fixed
 
