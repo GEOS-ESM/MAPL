@@ -9,6 +9,7 @@ set (TEST_SRCS
   Test_LatLonGeomFactory.pf
   Test_CubedSphereGeomFactory.pf
   Test_GridGet.pf
+  Test_LocStreamDecomposition.pf
   Test_LocStreamGeomFactory.pf
   Test_LocStreamGeomFactory_Metadata.pf
 )
