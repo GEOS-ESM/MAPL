@@ -9,12 +9,12 @@ module MAPL_PythonBridge
     !
     ! -----------------------------
     
-    use GEOS_PythonBridge_PyInterfaceMod
     use ESMF
     use MAPL_BaseMod
     use MAPL_GenericMod
     use MaplShared
 #ifdef PYTHONBRIDGE_INTEGRATION
+    use GEOS_PythonBridge_PyInterfaceMod
     use ieee_exceptions, only: ieee_get_halting_mode, ieee_set_halting_mode, ieee_all
     use iso_c_binding, only: c_loc, C_NULL_CHAR
 #endif
@@ -69,7 +69,6 @@ contains
 
         character(len=*),    intent(in)            :: PYPKG_NAME
     
-        print *, "f90IS", c_loc(IMPORT)
 #ifdef PYTHONBRIDGE_INTEGRATION
         PYGEOSBRIDGE_NAME_BUFFER = PYPKG_NAME // C_NULL_CHAR
         call pyGEOSBridge_C_init( c_loc(PYGEOSBRIDGE_NAME_BUFFER), c_loc(GC), c_loc(IMPORT), c_loc(EXPORT) )
@@ -88,7 +87,6 @@ contains
 
         character(len=*),    intent(in)            :: PYPKG_NAME
     
-        print *, "f90IS", c_loc(IMPORT)
 #ifdef PYTHONBRIDGE_INTEGRATION
         PYGEOSBRIDGE_NAME_BUFFER = PYPKG_NAME // C_NULL_CHAR
         call pyGEOSBridge_C_run( c_loc(PYGEOSBRIDGE_NAME_BUFFER), c_loc(GC), c_loc(IMPORT), c_loc(EXPORT) )
@@ -107,7 +105,6 @@ contains
 
         character(len=*),    intent(in)            :: PYPKG_NAME
     
-        print *, "f90IS", c_loc(IMPORT)
 #ifdef PYTHONBRIDGE_INTEGRATION
         PYGEOSBRIDGE_NAME_BUFFER = PYPKG_NAME // C_NULL_CHAR
         call pyGEOSBridge_C_finalize( c_loc(PYGEOSBRIDGE_NAME_BUFFER), c_loc(GC), c_loc(IMPORT), c_loc(EXPORT) )

@@ -20,7 +20,6 @@ def get_fpy_converter() -> FortranPythonConversion:
 
 
 def global_initialize(IM, JM, LM):
-    print(f"global_initialize: Initialize -> {IM}x{JM}x{LM}")
     global FPY_CONVERTER
     FPY_CONVERTER = FortranPythonConversion(IM, JM, LM, np)
 
@@ -30,7 +29,6 @@ def global_initialize(IM, JM, LM):
 
 def _get_code_object_from_package_name(c_package_name: FFI.CData) -> GEOSInterfaceCode:
     package_name = FFI.string(c_package_name).decode("utf-8").rstrip()
-    print(f"Retrieving package {package_name}")
 
     try:
         user_module = importlib.import_module(package_name)

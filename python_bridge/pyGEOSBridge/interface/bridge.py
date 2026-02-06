@@ -14,7 +14,6 @@ import traceback
 
 @ffi.def_extern()
 def MAPL_PythonBridge_Py_global_initialize(IM, JM, LM) -> int:
-    print("Init bridge, Py side", IM, JM, LM)
     try:
         pyGEOSBridge.global_initialize(IM, JM, LM)
     except Exception as err:

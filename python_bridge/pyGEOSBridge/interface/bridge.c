@@ -4,7 +4,6 @@
 
 void MAPL_PythonBridge_C_global_initialize(int im, int jm, int lm)
 {
-    printf("Init bridge, C side %d %d %d\n", im, jm, lm);
     int return_code = MAPL_PythonBridge_Py_global_initialize(im, jm, lm);
     if (return_code < 0)
     {
