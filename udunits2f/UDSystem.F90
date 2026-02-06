@@ -1,12 +1,14 @@
 #include "error_handling.h"
 
 module ud2f_UDSystem
+
    use ud2f_CptrWrapper
    use ud2f_interfaces
    use ud2f_encoding
    use ud2f_status_codes
    use iso_c_binding, only: c_ptr, c_associated, c_null_ptr, c_null_char
    use iso_c_binding, only: c_char, c_int, c_float, c_double, c_loc
+
    implicit none
    private
 
@@ -99,7 +101,6 @@ contains
       integer(ut_status) :: utstatus
 
       success = (utstatus == UT_SUCCESS)
-
    end function success
 
    function construct_system(path, encoding) result(instance)
@@ -111,16 +112,15 @@ contains
 
       ! Read in unit system from path
       call read_xml(path, utsystem, status)
-      
+
       if(success(status)) then
          call instance%set_cptr(utsystem)
          if(present(encoding)) instance%encoding = encoding
          return
       end if
-         
+
       ! Free memory in the case of failure
       if(c_associated(utsystem)) call ut_free_system(utsystem)
-
    end function construct_system
 
    function construct_unit(identifier) result(instance)
@@ -141,7 +141,6 @@ contains
          ! Free memory in the case of failure
          if(c_associated(utunit1)) call ut_free(utunit1)
       end if
-
    end function construct_unit
 
    function construct_converter(from_unit, to_unit) result(conv)
@@ -149,7 +148,6 @@ contains
       type(UDUnit), intent(in) :: from_unit
       type(UDUnit), intent(in) :: to_unit
       type(c_ptr) :: cvconverter1
-      logical :: convertible
 
       ! Must supply units that are initialized and convertible
       if(from_unit%is_free() .or. to_unit%is_free()) return
@@ -163,7 +161,6 @@ contains
          ! Free memory in the case of failure
          if(c_associated(cvconverter1)) call cv_free(cvconverter1)
       end if
-
    end function construct_converter
 
    ! Get Converter object based on unit names or symbols
@@ -171,7 +168,6 @@ contains
       type(Converter),intent(inout) :: conv
       character(len=*), intent(in) :: from, to
       integer(ut_status), optional, intent(out) :: rc
-      integer(ut_status) :: status
 
       conv = get_converter_function(from, to)
       _ASSERT(.not. conv%is_free(), UTF_CONVERTER_NOT_INITIALIZED)
@@ -203,7 +199,6 @@ contains
       ! Units are no longer needed
       call from_unit%free()
       call to_unit%free()
-
    end function get_converter_function
 
    function convert_float_0d(this, from) result(to)
@@ -305,7 +300,6 @@ contains
          utsystem = ut_read_xml_cptr(c_null_ptr)
       end if
       status = ut_get_status()
-
    end subroutine read_xml
 
    ! Initialize unit system instance
@@ -330,7 +324,6 @@ contains
       end if
       _ASSERT(.not. SYSTEM_INSTANCE%is_free(), UTF_NOT_INITIALIZED)
       _RETURN(UT_SUCCESS)
-
    end subroutine initialize
 
    subroutine initialize_system(system, path, encoding, rc)
@@ -338,8 +331,6 @@ contains
       character(len=*), optional, intent(in) :: path
       integer(ut_encoding), optional, intent(in) :: encoding
       integer, optional, intent(out) :: rc
-      integer :: status
-      type(c_ptr) :: utsystem
 
       ! A system can be initialized only once.
       _ASSERT(system%is_free(), UTF_DUPLICATE_INITIALIZATION)
@@ -350,18 +341,15 @@ contains
 
    ! Is the instance of the unit system initialized?
    logical function instance_is_uninitialized()
-      
       instance_is_uninitialized = SYSTEM_INSTANCE%is_free()
-      
    end function instance_is_uninitialized
 
    ! Free memory for unit system
    subroutine free_ut_system(this)
       class(UDSystem), intent(in) :: this
-        
+
       if(this%is_free()) return
       call ut_free_system(this%get_cptr())
-
    end subroutine free_ut_system
 
    ! Free memory for unit
@@ -370,25 +358,20 @@ contains
 
       if(this%is_free()) return
       call ut_free(this%get_cptr())
-
    end subroutine free_ut_unit
 
    ! Free memory for converter
    subroutine free_cv_converter(this)
       class(Converter), intent(in) :: this
-      type(c_ptr) :: cvconverter1 
 
       if(this%is_free()) return
       call cv_free(this%get_cptr())
-
    end subroutine free_cv_converter
 
    ! Free memory for unit system instance
    subroutine finalize()
-
       if(SYSTEM_INSTANCE%is_free()) return
       call SYSTEM_INSTANCE%free()
-
    end subroutine finalize
 
    ! Check if units are convertible
@@ -398,7 +381,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       integer(c_int), parameter :: ZERO = 0_c_int
-      
+
       convertible = (ut_are_convertible(unit1%get_cptr(), unit2%get_cptr())  /= ZERO)
       status = ut_get_status()
       _ASSERT(success(status), status)
@@ -428,7 +411,6 @@ contains
       character(kind=c_char, len=:), allocatable :: cs
 
       cs = adjustl(trim(s)) // c_null_char
-
    end function cstring
 
    ! Set udunits2 error handler to ut_ignore which does nothing
