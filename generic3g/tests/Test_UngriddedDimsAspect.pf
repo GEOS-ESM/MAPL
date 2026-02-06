@@ -14,47 +14,34 @@ module Test_UngriddedDimsAspect
 
 contains
 
+   !wdb fixme deleteme Check UngriddedDims equality.
+   !wdb fixme deleteme Check for redundant tests.
+   !wdb fixme deleteme Organize tests in logical order.
    ! Helper function to create a test field with given ungridded_dims
    function create_test_field(ungridded_dims) result(field)
       type(ESMF_Field) :: field
-      type(UngriddedDims), intent(in) :: ungridded_dims
+      type(UngriddedDims), optional, intent(in) :: ungridded_dims
       integer :: status
 
       field = ESMF_FieldEmptyCreate(name='test_field', _RC)
-      call mapl_FieldSet(field, ungridded_dims=ungridded_dims, _RC)
+      if(present(ungridded_dims)) then
+         call mapl_FieldSet(field, ungridded_dims=ungridded_dims, _RC)
+      end if
 
    end function create_test_field
-
-   ! Helper function to create a test field without ungridded_dims (mirror case)
-   function create_test_field_mirror() result(field)
-      type(ESMF_Field) :: field
-      integer :: status
-
-      field = ESMF_FieldEmptyCreate(name='test_field', _RC)
-      ! Do NOT call mapl_FieldSet - no ungridded_dims entry means mirror
-
-   end function create_test_field_mirror
 
    ! Helper function to create a test field bundle with given ungridded_dims
    function create_test_bundle(ungridded_dims) result(bundle)
       type(ESMF_FieldBundle) :: bundle
-      type(UngriddedDims), intent(in) :: ungridded_dims
+      type(UngriddedDims), optional, intent(in) :: ungridded_dims
       integer :: status
 
       bundle = ESMF_FieldBundleCreate(name='test_bundle', _RC)
-      call mapl_FieldBundleSet(bundle, ungridded_dims=ungridded_dims, _RC)
+      if(present(ungridded_dims)) then
+         call mapl_FieldBundleSet(bundle, ungridded_dims=ungridded_dims, _RC)
+      end if
 
    end function create_test_bundle
-
-   ! Helper function to create a test bundle without ungridded_dims (mirror case)
-   function create_test_bundle_mirror() result(bundle)
-      type(ESMF_FieldBundle) :: bundle
-      integer :: status
-
-      bundle = ESMF_FieldBundleCreate(name='test_bundle', _RC)
-      ! Do NOT call mapl_FieldBundleSet - no ungridded_dims entry means mirror
-
-   end function create_test_bundle_mirror
 
    ! ========================================================================
    ! Tests for update_from_payload with ESMF_Field
@@ -101,6 +88,7 @@ contains
       
       retrieved_dims = aspect%get_ungridded_dims(_RC)
       @assertEqual(1, retrieved_dims%get_num_ungridded())
+      ! Add check on UngriddedDims values
       @assertFalse(aspect%is_mirror())
       
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
@@ -124,6 +112,7 @@ contains
       
       retrieved_dims = aspect%get_ungridded_dims(_RC)
       @assertEqual(3, retrieved_dims%get_num_ungridded())
+      ! Add check on UngriddedDims values
       @assertFalse(aspect%is_mirror())
       
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
@@ -146,7 +135,8 @@ contains
       @assertFalse(aspect%is_mirror())
       
       ! Create field without ungridded_dims (mirror representation)
-      field = create_test_field_mirror()
+!      field = create_test_field_mirror() !wdb fixme deleteme 
+      field = create_test_field()
       
       call aspect%update_from_payload(field=field, _RC)
       
@@ -175,6 +165,7 @@ contains
       call aspect%update_from_payload(field=field, _RC)
       
       retrieved_dims = aspect%get_ungridded_dims(_RC)
+      ! Add check on UngriddedDims values
       @assertEqual(2, retrieved_dims%get_num_ungridded())
       
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
@@ -225,6 +216,7 @@ contains
       
       retrieved_dims = aspect%get_ungridded_dims(_RC)
       @assertEqual(1, retrieved_dims%get_num_ungridded())
+      ! Add check on UngriddedDims values
       @assertFalse(aspect%is_mirror())
       
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
@@ -248,6 +240,7 @@ contains
       
       retrieved_dims = aspect%get_ungridded_dims(_RC)
       @assertEqual(3, retrieved_dims%get_num_ungridded())
+      ! Add check on UngriddedDims values
       @assertFalse(aspect%is_mirror())
       
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
@@ -270,7 +263,8 @@ contains
       @assertFalse(aspect%is_mirror())
       
       ! Create bundle without ungridded_dims (mirror representation)
-      bundle = create_test_bundle_mirror()
+!      bundle = create_test_bundle_mirror() !wdb fixme deleteme 
+      bundle = create_test_bundle()
       
       call aspect%update_from_payload(bundle=bundle, _RC)
       
