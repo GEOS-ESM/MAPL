@@ -1,5 +1,7 @@
 #include "MAPL.h"
+
 module mapl3g_GeomAspect
+
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_HorizontalDimsSpec
@@ -17,6 +19,7 @@ module mapl3g_GeomAspect
    use ESMF, only: esmf_Geom
    use ESMF, only: esmf_Field, esmf_FieldBundle, esmf_State
    use ESMF, only: esmf_Info
+
    implicit none(type,external)
    private
 
@@ -88,7 +91,10 @@ contains
    ! the relevant regridder.
    logical function supports_conversion_general(src)
       class(GeomAspect), intent(in) :: src
+
       supports_conversion_general = .true.
+
+      _UNUSED_DUMMY(src)
    end function supports_conversion_general
 
    logical function supports_conversion_specific(src, dst)
@@ -166,7 +172,7 @@ contains
          regridder_param = src_aspect%regridder_param
       else
          regridder_param = EsmfRegridderParam() ! default
-      end if 
+      end if
       _RETURN(_SUCCESS)
    end function get_regridder_param
 
@@ -176,7 +182,7 @@ contains
 
       this%geom = geom
       call this%set_mirror(.false.)
-      
+
    end subroutine set_geom
 
    subroutine set_regridder_param(this, regridder_param)
@@ -184,7 +190,7 @@ contains
       type(EsmfRegridderParam) :: regridder_param
 
       this%regridder_param = regridder_param
-      
+
    end subroutine set_regridder_param
 
    function get_geom(this, rc) result(geom)
@@ -229,8 +235,6 @@ contains
       class(StateItemAspect), intent(in) :: aspect
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       select type(aspect)
       class is (GeomAspect)
          geom_aspect = aspect
@@ -254,7 +258,7 @@ contains
 
       _RETURN(_SUCCESS)
    end function to_geom_from_map
-   
+
 
    function get_aspect_id() result(aspect_id)
       type(AspectId) :: aspect_id
@@ -291,6 +295,7 @@ contains
       call this%set_mirror(.not. allocated(this%geom))
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(state)
    end subroutine update_from_payload
 
    subroutine update_payload(this, field, bundle, state, rc)
@@ -318,6 +323,7 @@ contains
       end if
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(state)
    end subroutine update_payload
 
    subroutine print_aspect(this, file, line, rc)
@@ -328,9 +334,9 @@ contains
 
       _HERE, file, line, this%is_mirror(), allocated(this%geom)
       _HERE, file, line, this%is_mirror(), allocated(this%regridder_param)
-         
-      
+
+
       _RETURN(_SUCCESS)
    end subroutine print_aspect
-   
+
 end module mapl3g_GeomAspect

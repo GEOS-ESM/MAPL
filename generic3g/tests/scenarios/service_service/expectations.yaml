@@ -3,7 +3,7 @@
 #   - list the fields expected in each import/export/internal states
 #   - annotate whether field is "complete"
 
-- component: child_A/<user>
+- component: subscriber_A/<user>
   import:
     S:
       class: bundle
@@ -16,7 +16,7 @@
     Z_A1: {status: complete}
     Z_A2: {status: complete}
 
-- component: child_A
+- component: subscriber_A
   import:
     S:
       class: bundle
@@ -26,7 +26,7 @@
       class: bundle
       fieldcount: 2
 
-- component: child_C/<user>
+- component: subscriber_B/<user>
   import:
     S1:
       class: bundle
@@ -38,7 +38,7 @@
   internal:
     W: {status: complete}
 
-- component: child_C
+- component: subscriber_B
   import:
     S1:
       class: bundle
@@ -48,7 +48,7 @@
       class: bundle
       fieldcount: 1
 
-- component: child_B/<user>
+- component: provider/<user>
   import:
     S:
       class: bundle
@@ -58,7 +58,7 @@
       class: bundle
       fieldcount: 3
 
-- component: child_B
+- component: provider
   import:
     S:
       class: bundle
@@ -76,6 +76,6 @@
 - component: <root>
   import: {}
   export:
-    "child_B/S":
+    "provider/S":
       class: bundle
       fieldcount: 3

@@ -2,8 +2,10 @@
 ! attributes across couplers as well as to provide guidance to the
 ! containt Action objects on when to recompute internal items.
 
-#include "MAPL_Exceptions.h"
+#include "MAPL.h"
+
 module mapl3g_FieldDelta
+
    use mapl3g_FieldInfo
    use mapl3g_FieldGet
    use mapl3g_VerticalStaggerLoc
@@ -27,9 +29,6 @@ module mapl3g_FieldDelta
       ! info attributes
       integer, allocatable :: num_levels
       character(:), allocatable :: units
-
-!#      logical :: geom_coords_changed = .false.
-!#      logical :: vgrid_coords_changed = .false.
    contains
       procedure :: initialize_field_delta
       procedure :: initialize_field_delta_degenerate
@@ -41,11 +40,9 @@ module mapl3g_FieldDelta
       procedure :: reallocate_fields
    end type FieldDelta
 
-
    interface FieldDelta
       procedure new_FieldDelta
    end interface FieldDelta
-
 
 contains
 
@@ -75,9 +72,9 @@ contains
 
    end function new_FieldDelta
 
-
    ! delta = f_b - f_a
-   subroutine initialize_field_delta(this, f_a, f_b, rc) 
+   subroutine initialize_field_delta(this, f_a, f_b, rc)
+
       class(FieldDelta), intent(out) :: this
       type(ESMF_Field), intent(in) :: f_a
       type(ESMF_Field), intent(in) :: f_b
@@ -91,7 +88,6 @@ contains
       call compute_units_delta(this%units, f_a, f_b, _RC)
 
       _RETURN(_SUCCESS)
-
 
    contains
 
@@ -112,7 +108,6 @@ contains
           end if
 
          _RETURN(_SUCCESS)
-
       end subroutine compute_geom_delta
 
       subroutine compute_typekind_delta(typekind, f_a, f_b, rc)
@@ -132,7 +127,6 @@ contains
          end if
 
          _RETURN(_SUCCESS)
-
       end subroutine compute_typekind_delta
 
       subroutine compute_num_levels_delta(num_levels, f_a, f_b, rc)
@@ -152,7 +146,6 @@ contains
           end if
 
          _RETURN(_SUCCESS)
-
       end subroutine compute_num_levels_delta
 
       subroutine compute_units_delta(units, f_a, f_b, rc)
@@ -173,7 +166,6 @@ contains
          end if
 
          _RETURN(_SUCCESS)
-
       end subroutine compute_units_delta
 
    end subroutine initialize_field_delta
@@ -197,10 +189,8 @@ contains
       _RETURN(_SUCCESS)
    end subroutine initialize_field_delta_degenerate
 
-   
-
-
    subroutine update_field(this, field, ignore, rc)
+
       class(FieldDelta), intent(in) :: this
       type(ESMF_Field), intent(inout) :: field
       character(*), intent(in), optional :: ignore
@@ -218,6 +208,7 @@ contains
       call update_units(this%units, field, ignore=ignore_, _RC)
 
       _RETURN(_SUCCESS)
+
    contains
 
       subroutine update_num_levels(num_levels, field, ignore, rc)
@@ -275,6 +266,7 @@ contains
    end subroutine update_fields
 
    subroutine reallocate_field(this, field, ignore, unusable, rc)
+
       class(FieldDelta), intent(in) :: this
       type(ESMF_Field), intent(inout) :: field
       character(*), optional, intent(in) :: ignore
@@ -285,10 +277,10 @@ contains
 
       type(ESMF_Geom) :: current_geom, geom
       type(ESMF_TypeKind_Flag) :: current_typekind, typekind
-      
-      integer :: i, rank
+
+      integer :: i
       integer, allocatable :: ungriddedLBound(:), ungriddedUBound(:)
-      integer, allocatable :: localElementCount(:), current_ungriddedUBound(:)
+      integer, allocatable :: localElementCount(:)
       character(:), allocatable :: ignore_
       logical :: new_array
       type(ESMF_FieldStatus_Flag) :: field_status
@@ -296,7 +288,6 @@ contains
       new_array = .false.
       ignore_ = ''
       if (present(ignore)) ignore_ = ignore
-
 
       call ESMF_FieldGet(field, status=field_status, _RC)
       _ASSERT(field_status == ESMF_FIELDSTATUS_COMPLETE, 'field must at least have a geom.')
@@ -330,7 +321,7 @@ contains
          type(ESMF_Geom), optional, intent(in) :: new_geom
          character(*), intent(in) :: ignore
          logical, intent(inout) :: new_array
-         
+
          geom = current_geom
 
          if (ignore == 'geom') return
@@ -338,7 +329,6 @@ contains
 
          new_array = new_array .or. (new_geom /= current_geom)
          geom = new_geom
-
       end subroutine select_geom
 
       subroutine select_typekind(typekind, current_typekind, new_typekind, ignore, new_array)
@@ -347,7 +337,7 @@ contains
          type(ESMF_TypeKind_Flag), optional, intent(in) :: new_typekind
          character(*), intent(in) :: ignore
          logical, intent(inout) :: new_array
-         
+
          typekind = current_typekind
 
          if (ignore == 'typekind') return
@@ -355,7 +345,6 @@ contains
 
          new_array = new_array .or. (new_typekind /= current_typekind)
          typekind = new_typekind
-
       end subroutine select_typekind
 
       subroutine select_ungriddedUbound(ungriddedUbound, field, new_num_levels, ignore, new_array, rc)
@@ -397,10 +386,10 @@ contains
          new_array = new_array .or. (this%num_levels /= current_num_levels)
 
          _RETURN(_SUCCESS)
+         _UNUSED_DUMMY(unusable)
       end subroutine select_ungriddedUbound
-      
-   end subroutine reallocate_field
 
+   end subroutine reallocate_field
 
    subroutine reallocate_fields(this, fieldList, ignore, rc)
       class(FieldDelta), intent(in) :: this

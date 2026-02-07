@@ -24,22 +24,21 @@ module mapl3g_FieldSet
 
 contains
 
-
-subroutine field_set(field, &
-     geom, &
-     horizontal_dims_spec, &
-     vgrid, &
-     vert_staggerloc, &
-     typekind, &
-     unusable, &
-     num_levels, &
-     units, standard_name, long_name, &
-     ungridded_dims, &
-     attributes, &
-     allocation_status, &
-     has_deferred_aspects, &
-     regridder_param_info, &
-     rc)
+   subroutine field_set(field, &
+        geom, &
+        horizontal_dims_spec, &
+        vgrid, &
+        vert_staggerloc, &
+        typekind, &
+        unusable, &
+        num_levels, &
+        units, standard_name, long_name, &
+        ungridded_dims, &
+        attributes, &
+        allocation_status, &
+        has_deferred_aspects, &
+        regridder_param_info, &
+        rc)
       type(ESMF_Field), intent(inout) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
@@ -94,6 +93,8 @@ subroutine field_set(field, &
            _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(attributes)
    end subroutine field_set
 
 end module mapl3g_FieldSet

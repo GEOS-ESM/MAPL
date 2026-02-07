@@ -20,15 +20,7 @@ module mapl3g_NullTransform
       procedure :: get_transformId
    end type NullTransform
 
-   interface NullTransform
-      procedure new_NullTransform
-   end interface
-
 contains
-
-   function new_NullTransform() result(transform)
-      type(NullTransform) :: transform
-   end function new_NullTransform
 
    subroutine initialize(this, importState, exportState, clock, rc)
       use esmf
@@ -63,6 +55,8 @@ contains
       class(NullTransform), intent(in) :: this
 
       id = NULL_TRANSFORM_ID
+
+      _UNUSED_DUMMY(this)
    end function get_transformId
 
 end module mapl3g_NullTransform

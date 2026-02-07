@@ -1,6 +1,7 @@
 #include "MAPL_ErrLog.h"
 
 module mapl3g_LatLonGeomFactory
+
    use mapl3g_GeomSpec
    use mapl3g_GeomFactory
    use mapl3g_LatLonGeomSpec
@@ -11,6 +12,7 @@ module mapl3g_LatLonGeomFactory
    use pfio
    use esmf
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
+
    implicit none
    private
 
@@ -29,10 +31,8 @@ module mapl3g_LatLonGeomFactory
       procedure :: make_file_metadata
       procedure :: make_gridded_dims
       procedure :: make_variable_attributes
-
       ! Helper methods
    end type LatLonGeomFactory
-
 
    interface
 
@@ -45,15 +45,14 @@ module mapl3g_LatLonGeomFactory
          integer, optional, intent(out) :: rc
       end function make_geom
 
-
-      module function create_basic_grid(spec, unusable, rc) result(grid)
+      module function create_basic_grid(spec, unusable, name, rc) result(grid)
          use mapl_KeywordEnforcer
          type(ESMF_Grid) :: grid
          type(LatLonGeomSpec), intent(in) :: spec
          class(KeywordEnforcer), optional, intent(in) :: unusable
+         character(len=*), optional, intent(in) :: name
          integer, optional, intent(out) :: rc
       end function create_basic_grid
-
 
       module subroutine fill_coordinates(spec, grid, unusable, rc)
          type(LatLonGeomSpec), intent(in) :: spec
@@ -102,7 +101,7 @@ module mapl3g_LatLonGeomFactory
 
    end interface
 
-   CONTAINS
+contains
 
    function make_geom_spec_from_hconfig(this, hconfig, rc) result(geom_spec)
       class(GeomSpec), allocatable :: geom_spec
@@ -115,6 +114,7 @@ module mapl3g_LatLonGeomFactory
       geom_spec = make_LatLonGeomSpec(hconfig, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function make_geom_spec_from_hconfig
 
    function make_geom_spec_from_metadata(this, file_metadata, rc) result(geom_spec)
@@ -128,6 +128,7 @@ module mapl3g_LatLonGeomFactory
       geom_spec = make_LatLonGeomSpec(file_metadata, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function make_geom_spec_from_metadata
 
    logical function supports_hconfig(this, hconfig, rc) result(supports)
@@ -141,6 +142,7 @@ module mapl3g_LatLonGeomFactory
       supports = spec%supports(hconfig, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function supports_hconfig
 
    logical function supports_metadata(this, file_metadata, rc) result(supports)
@@ -154,6 +156,7 @@ module mapl3g_LatLonGeomFactory
       supports = spec%supports(file_metadata, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function supports_metadata
 
    logical function supports_spec(this, geom_spec) result(supports)
@@ -164,6 +167,7 @@ module mapl3g_LatLonGeomFactory
 
       supports = same_type_as(geom_spec, reference)
 
+      _UNUSED_DUMMY(this)
    end function supports_spec
 
 end module mapl3g_LatLonGeomFactory

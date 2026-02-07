@@ -515,6 +515,7 @@ contains
          this%component_spec%misc%restart_controls = restart_controls
       end if
 
+      _UNUSED_DUMMY(unusable)
    end subroutine set_misc
 
 end module mapl3g_OuterMetaComponent

@@ -1,10 +1,12 @@
 #include "MAPL.h"
 
 module mapl_FieldBLAS
+
    use ESMF
    use MAPL_ExceptionHandling
    use mapl3g_FieldCondensedArray
    use MAPL_FieldPointerUtilities
+
    implicit none
    private
 
@@ -167,15 +169,13 @@ contains
       integer, optional, intent(out) :: rc
 
       logical :: conformable
-      integer :: dimcount
       integer(kind=ESMF_KIND_I8) :: n_horz, n_vert, n_ungridded
-      integer(kind=ESMF_KIND_I8) :: fp_shape(2)
       real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:), y_ptr(:,:) ! horz x (vert * ungridded)
       real(kind=ESMF_KIND_R8), pointer :: A_ptr(:) ! horz        ! horz
       real(kind=ESMF_KIND_R4), pointer :: tmp(:,:,:)
       integer :: ix, jy, kv
       integer :: condensed_shp(3)
-      
+
       integer :: status
 
       select case (trans)

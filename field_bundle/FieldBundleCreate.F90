@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_FieldBundleCreate
+
    use mapl3g_FieldBundleType_Flag
    use mapl3g_FieldBundleSet
    use mapl_ErrorHandling
@@ -8,7 +9,6 @@ module mapl3g_FieldBundleCreate
    use esmf
 
    implicit none(type,external)
-
    private
 
    public :: FieldBundleCreate
@@ -42,8 +42,8 @@ contains
       call FieldBundleSet(bundle, fieldBundleType=fieldBundleType_, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function create_bundle_empty
-
 
    function create_bundle_from_state(state, unusable, name, fieldBundleType, rc) result(bundle)
       type(ESMF_FieldBundle) :: bundle ! result
@@ -57,7 +57,6 @@ contains
       type (ESMF_StateItem_Flag), allocatable  :: item_type(:)
       type(ESMF_Field) :: field
       type(ESMF_FieldStatus_Flag) :: field_status
-      type(FieldBundleType_Flag) :: fieldbundletype_
       integer :: item_count, idx, status
 
       ! bundle to pack fields in
@@ -79,6 +78,7 @@ contains
       deallocate(item_name, item_type, _STAT)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function create_bundle_from_state
 
    function create_bundle_from_field_list(fieldList, unusable, name, fieldBundleType, rc) result(bundle)
@@ -94,6 +94,7 @@ contains
       call ESMF_FieldBundleAdd(bundle, fieldList=fieldList, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function create_bundle_from_field_list
 
    logical function bundles_are_aliased(bundle1, bundle2, rc) result(are_aliased)
@@ -110,7 +111,7 @@ contains
       _ASSERT(is_created, 'invalid field bundle detected')
 
       are_aliased = associated(bundle1%this, bundle2%this)
-      
+
       _RETURN(_SUCCESS)
    end function bundles_are_aliased
 

@@ -230,6 +230,7 @@ contains
    logical function runs_invalidate(this)
       class(AccumulatorTransform), intent(in) :: this
       runs_invalidate = .TRUE.
+      _UNUSED_DUMMY(this)
    end function runs_invalidate
       
    function get_transformId(this) result(id)
@@ -237,6 +238,7 @@ contains
       class(AccumulatorTransform), intent(in) :: this
 
       id = FREQUENCY_TRANSFORM_ID
+      _UNUSED_DUMMY(this)
    end function get_transformId
 
 end module mapl3g_AccumulatorTransform

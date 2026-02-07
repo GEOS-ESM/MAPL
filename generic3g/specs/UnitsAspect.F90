@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_UnitsAspect
+
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
@@ -12,7 +13,9 @@ module mapl3g_UnitsAspect
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use udunits2f, only: are_convertible
+   use mapl3g_esmf_info_keys, only: KEY_MIRROR
    use esmf
+
    implicit none
    private
 
@@ -65,7 +68,10 @@ contains
 
    logical function supports_conversion_general(src)
       class(UnitsAspect), intent(in) :: src
+
       supports_conversion_general = .true.
+
+      _UNUSED_DUMMY(src)
    end function supports_conversion_general
 
    logical function supports_conversion_specific(src, dst)
@@ -78,7 +84,7 @@ contains
       class is (UnitsAspect)
          supports_conversion_specific = .true.
          if (src%units == dst%units) return ! allow silly units so long as they are the same
-         if (src%units == "<unknown>" .or. dst%units == "<unknown>") return 
+         if (src%units == "<unknown>" .or. dst%units == "<unknown>") return
          supports_conversion_specific = are_convertible(src%units, dst%units, rc=ignore)
       class default
          supports_conversion_specific = .false.
@@ -108,8 +114,6 @@ contains
       type(AspectMap), target, intent(in)  :: other_aspects
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       select type (dst)
       class is (UnitsAspect)
          allocate(transform, source=ConvertUnitsTransform(src%units, dst%units))
@@ -132,7 +136,7 @@ contains
 
       export_ = to_UnitsAspect(export, _RC)
       this%units = export_%units
-      
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
@@ -141,8 +145,6 @@ contains
       type(UnitsAspect) :: units_aspect
       class(StateItemAspect), intent(in) :: aspect
       integer, optional, intent(out) :: rc
-
-      integer :: status
 
       select type(aspect)
       class is (UnitsAspect)
@@ -178,8 +180,6 @@ contains
       class(UnitsAspect), intent(in) :: this
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       units = '<unknown>'
       _ASSERT(allocated(this%units), 'UnitsAspect has no units')
       units = this%units
@@ -192,7 +192,6 @@ contains
       character(*), intent(in) :: units
       integer, optional, intent(out) :: rc
 
-      integer :: status
       this%units = units
 
       _RETURN(_SUCCESS)
@@ -206,18 +205,22 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      logical :: mirror
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
-        
+
       if (present(field)) then
          call mapl_FieldGet(field, units=this%units, _RC)
       else if (present(bundle)) then
          call mapl_FieldBundleGet(bundle, units=this%units, _RC)
       end if
 
-      call this%set_mirror(.not. allocated(this%units))
+      mirror = .not. allocated(this%units)
+      if(.not. mirror) mirror = this%units == KEY_MIRROR
+      call this%set_mirror(mirror)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(state)
    end subroutine update_from_payload
 
    subroutine update_payload(this, field, bundle, state, rc)
@@ -226,20 +229,26 @@ contains
       type(esmf_FieldBundle), optional, intent(inout) :: bundle
       type(esmf_State), optional, intent(inout) :: state
       integer, optional, intent(out) :: rc
+      character(len=:), allocatable :: units
 
       integer :: status
+      type(ESMF_Info) :: info
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
 
+      units = KEY_MIRROR
+      if(.not. this%is_mirror()) units = this%units
+
       if (present(field)) then
-         call mapl_FieldSet(field, units=this%units, _RC)
+         call mapl_FieldSet(field, units=units, _RC)
       else if (present(bundle)) then
-         call mapl_FieldBundleSet(bundle, units=this%units, _RC)
+         call mapl_FieldBundleSet(bundle, units=units, _RC)
       end if
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(state)
    end subroutine update_payload
- 
+
    subroutine print_aspect(this, file, line, rc)
       class(UnitsAspect), intent(in) :: this
       character(*), intent(in) :: file
@@ -250,7 +259,7 @@ contains
       if (allocated(this%units)) then
          _HERE, file, line, '<', this%units, '>'
       end if
-      
+
       _RETURN(_SUCCESS)
    end subroutine print_aspect
 

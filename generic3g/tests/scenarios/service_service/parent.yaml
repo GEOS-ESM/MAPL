@@ -12,17 +12,17 @@ mapl:
       num_levels: 5
 
   children:
-    child_A:
+    subscriber_A:
       sharedObj: libconfigurable_gridcomp
       setServices: setservices_
-      config_file: scenarios/service_service/child_A.yaml
-    child_C:
+      config_file: scenarios/service_service/subscriber_A.yaml
+    subscriber_B:
       sharedObj: libconfigurable_gridcomp
       setServices: setservices_
-      config_file: scenarios/service_service/child_C.yaml
-    child_B:
+      config_file: scenarios/service_service/subscriber_B.yaml
+    provider:
       dso: libconfigurable_gridcomp
-      config_file: scenarios/service_service/child_B.yaml
+      config_file: scenarios/service_service/provider.yaml
 
   states: {}
 
@@ -30,10 +30,10 @@ mapl:
   connections:
     - src_name: S
       dst_name: S
-      src_comp: child_B
-      dst_comp: child_A
+      src_comp: provider
+      dst_comp: subscriber_A
 
     - src_name: S
       dst_name: S1
-      src_comp: child_B
-      dst_comp: child_C
+      src_comp: provider
+      dst_comp: subscriber_B

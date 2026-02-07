@@ -23,7 +23,6 @@ module mapl3g_ESMF_Interfaces
 
    interface MAPL_UserCompGetInternalState
       subroutine ESMF_UserCompGetInternalState(gridcomp, name, wrapper, status)
-         use ESMF, only: ESMF_GridComp
          type(*) :: gridcomp
          character(*), optional :: name
          type(*) :: wrapper
@@ -33,7 +32,6 @@ module mapl3g_ESMF_Interfaces
 
    interface MAPL_UserCompSetInternalState
       subroutine ESMF_UserCompSetInternalState(gridcomp, name, wrapper, status)
-         use ESMF, only: ESMF_GridComp
          type(*) :: gridcomp
          character(*), optional :: name
          type(*) :: wrapper

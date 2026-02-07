@@ -1,9 +1,12 @@
 #include "unused_dummy.H"
 #include "MAPL.h"
+
 module mapl3g_ESMF_Time_Utilities
+
    use esmf, I4 => ESMF_KIND_I4
    use mapl_ErrorHandling
    use MAPL_KeywordEnforcerMod
+
    implicit none (type, external)
    private
 
@@ -46,7 +49,7 @@ contains
    end function construct_augmented_interval
 
    ! The intervals and offset are compatible if the second interval evenly divides the first interval and
-   ! the offset (if present). To check this, intervals must be comparable. The second interval cannot be 
+   ! the offset (if present). To check this, intervals must be comparable. The second interval cannot be
    ! all zero. Either, the first interval is all zero, both have years and/or months only, or both have
    ! day, second, and/or nanosecond only. This is because the ESMF_TimeInterval mod operation returns
    ! results that cannot be used to compare the intervals that are a mix of (years, months) & (days,
@@ -62,7 +65,7 @@ contains
       type(AugmentedInterval), allocatable :: a1, a2
 
       _UNUSED_DUMMY(unusable)
-      
+
       a1 = AugmentedInterval(interval1)
       a2 = AugmentedInterval(interval2)
       compatible = a1%valid .and. a2%valid
@@ -75,8 +78,8 @@ contains
       _RETURN_IF(a1%interval == a2%interval)
 
       call intervals_are_compatible(a1, a2, compatible, _RC)
-      _RETURN(_SUCCESS)
 
+      _RETURN(_SUCCESS)
    end subroutine check_compatibility
 
    subroutine intervals_are_compatible(aug1, aug2, compatible, rc)
@@ -102,22 +105,22 @@ contains
       augmod = AugmentedInterval(mod(aug1%interval, aug2%interval))
       _ASSERT(augmod%valid, 'Unable to perform modulo operation')
       compatible = augmod%all_zero
-      _RETURN(_SUCCESS)
 
+      _RETURN(_SUCCESS)
    end subroutine intervals_are_compatible
-   
+
    subroutine interval_is_all_zero(interval, all_zero, rc)
       type(ESMF_TimeInterval), intent(in) :: interval
       logical, intent(out) :: all_zero
       integer, optional, intent(out) :: rc
-      integer :: status
+
       type(AugmentedInterval) :: aug
 
       aug=AugmentedInterval(interval)
       _ASSERT(aug%valid, 'Unable to determine values for time interval')
       all_zero = aug%all_zero
-      _RETURN(_SUCCESS)
 
+      _RETURN(_SUCCESS)
    end subroutine interval_is_all_zero
 
 end module mapl3g_ESMF_Time_Utilities

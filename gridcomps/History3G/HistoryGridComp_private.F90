@@ -1,8 +1,11 @@
 #include "MAPL.h"
+
 module mapl3g_HistoryGridComp_private
+
    use mapl_ErrorHandlingMod
    use mapl_keywordenforcermod
    use esmf
+
    implicit none
    private
 
@@ -20,7 +23,6 @@ contains
       character(len=*), intent(in) :: collection_name
       integer, optional, intent(out) :: rc
 
-      integer :: status
       integer :: i
       character(*), parameter :: ESCAPE = '\'
 
@@ -60,19 +62,19 @@ contains
       type(ESMF_HConfig), intent(in) :: hconfig
       character(*), intent(in) :: keystring
       integer, optional, intent(out) :: rc
-      
+
       integer :: status
       logical :: has_key
       logical :: is_map
-      
+
       has_key = ESMF_HConfigIsDefined(hconfig, keyString=keyString, _RC)
       _ASSERT(has_key, 'Hconfig is expected to have '//keyString//' but does not.')
 
       is_map = ESMF_HConfigIsMap(hconfig, keyString=keyString, _RC)
       _ASSERT(is_map, 'HConfig expected a YAML mapping for '//keyString//'but does not.')
-      
+
       subconfig = ESMF_HConfigCreateAt(hconfig, keyString=keystring, _RC)
-      
+
       _RETURN(_SUCCESS)
    end function get_subconfig
 

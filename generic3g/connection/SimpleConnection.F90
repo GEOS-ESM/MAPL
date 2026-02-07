@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_SimpleConnection
+
    use mapl3g_StateItemSpec
    use mapl3g_Connection
    use mapl3g_ConnectionPt
@@ -84,10 +85,10 @@ contains
 
       dst_registry => registry%get_subregistry(dst_pt)
       src_registry => registry%get_subregistry(src_pt)
-        
+
       _ASSERT(associated(src_registry), 'Unknown source registry')
       _ASSERT(associated(dst_registry), 'Unknown destination registry')
-        
+
       _ASSERT(dst_registry%has_virtual_pt(dst_pt%v_pt), "connection to unknown src_pt")
       dst_extensions = dst_registry%get_specs(dst_pt%v_pt, _RC)
       _ASSERT(src_registry%has_virtual_pt(src_pt%v_pt), "connection to unknown src_pt")
@@ -106,7 +107,7 @@ contains
          call spec%activate(_RC)
          call activate_dependencies(src_extension, src_registry, _RC)
       end do
-        
+
       _RETURN(_SUCCESS)
    end subroutine activate
 
@@ -131,14 +132,14 @@ contains
 
       dst_pt = this%get_destination()
       dst_registry => registry%get_subregistry(dst_pt)
-        
+
       _ASSERT(associated(src_registry), 'Unknown source registry')
       _ASSERT(associated(dst_registry), 'Unknown destination registry')
 
       call this%connect_sibling(dst_registry, src_registry, _RC)
 
       this%consumed = .true.
-        
+
       _RETURN(_SUCCESS)
    end subroutine connect
 
@@ -150,19 +151,15 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-
       type(StateItemSpecPtr), target, allocatable :: dst_extensions(:)
       type(StateItemSpec), pointer :: dst_extension
       type(StateItemSpec), pointer :: dst_spec
       integer :: i
       integer :: status
       type(ConnectionPt) :: src_pt, dst_pt
-      type(StateItemSpec), pointer :: last_extension
       type(StateItemSpec), pointer :: new_extension
       type(StateItemSpec), pointer :: new_spec
       type(ActualConnectionPt) :: effective_pt
-      type(ActualConnectionPt) :: a_pt
-      type(MultiState) :: coupler_states
 
       src_pt = this%get_source()
 

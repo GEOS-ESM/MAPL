@@ -24,15 +24,7 @@ module mapl3g_TimeInterpolateTransform
       procedure :: get_transformId
    end type TimeInterpolateTransform
 
-   interface TimeInterpolateTransform
-      module procedure :: new_TimeInterpolateTransform
-   end interface TimeInterpolateTransform
-
 contains
-
-   function new_TimeInterpolateTransform() result(transform)
-      type(TimeInterpolateTransform) :: transform
-   end function new_TimeInterpolateTransform
 
    subroutine initialize(this, importState, exportState, clock, rc)
       class(TimeInterpolateTransform), intent(inout) :: this
@@ -44,6 +36,10 @@ contains
       ! noop
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
    end subroutine initialize
 
    subroutine update(this, importState, exportState, clock, rc)
@@ -102,6 +98,7 @@ contains
       _FAIL('unexpected typekind')
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(clock)
    end subroutine update
 
@@ -115,8 +112,6 @@ contains
       real(kind=ESMF_KIND_R4), allocatable :: weights(:)
       integer :: i
       type(ESMF_Field), allocatable :: fieldList(:)
-      type(ESMF_Info) :: bundle_info
-
 
       call MAPL_FieldBundleGet(bundle_in, fieldList=fieldList, interpolation_weights=weights, _RC)
 
@@ -145,8 +140,6 @@ contains
       real(kind=ESMF_KIND_R4), allocatable :: weights(:)
       integer :: i
       type(ESMF_Field), allocatable :: fieldList(:)
-      type(ESMF_Info) :: bundle_info
-
 
       call MAPL_FieldBundleGet(bundle_in, fieldList=fieldList, interpolation_weights=weights, _RC)
 
@@ -176,8 +169,6 @@ contains
       integer :: i
       type(ESMF_Field), allocatable :: fieldList_in(:)
       type(ESMF_Field), allocatable :: fieldList_out(:)
-      type(ESMF_Info) :: bundle_info
-
 
       call MAPL_FieldBundleGet(bundle_in, fieldList=fieldList_in, interpolation_weights=weights, _RC)
       call MAPL_FieldBundleGet(bundle_out, fieldList=fieldList_out, _RC)
@@ -219,7 +210,6 @@ contains
       integer :: i
       type(ESMF_Field), allocatable :: fieldList_in(:)
       type(ESMF_Field), allocatable :: fieldList_out(:)
-      type(ESMF_Info) :: bundle_info
 
       call MAPL_FieldBundleGet(bundle_in, fieldList=fieldList_in, interpolation_weights=weights, _RC)
       call MAPL_FieldBundleGet(bundle_out, fieldList=fieldList_out, _RC)
@@ -255,6 +245,7 @@ contains
       class(TimeInterpolateTransform), intent(in) :: this
 
       id = TIME_INTERP_TRANSFORM_ID
+      _UNUSED_DUMMY(this)
    end function get_transformId
 
 end module mapl3g_TimeInterpolateTransform

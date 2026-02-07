@@ -121,7 +121,6 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         type(ComponentDriverVectorIterator) :: iter
          class(ComponentDriver), pointer :: coupler
          
          associate (e => this%input_couplers%ftn_end())
@@ -143,6 +142,7 @@ contains
       class(EvalTransform), intent(in) :: this
 
       id = EVAL_TRANSFORM_ID
+      _UNUSED_DUMMY(this)
    end function get_transformId
 
 end module mapl3g_EvalTransform

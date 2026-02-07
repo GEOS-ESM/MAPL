@@ -72,6 +72,7 @@ module mapl3g_FieldInfo
 
    character(*), parameter :: KEY_RESTART_MODE = "/restart_mode"
    character(*), parameter :: KEY_HAS_DEFERRED_ASPECTS = "/has_deferred_aspects"
+   character(len=*), parameter :: DELIMITER = '/'
 
 contains
 
@@ -107,6 +108,7 @@ contains
       type(ESMF_Info) :: ungridded_info
       character(:), allocatable :: namespace_
       character(:), allocatable :: str
+      logical :: isPresent
 
       namespace_ = INFO_INTERNAL_NAMESPACE
       if (present(namespace)) then
@@ -455,11 +457,11 @@ contains
       character(*), intent(in) :: key
       character(len(namespace)+len(key)+1) :: full_key
 
-      if (key(1:1) == '/') then
+      if (key(1:1) == DELIMITER) then
          full_key = namespace // key
          return
       end if
-      full_key = namespace // '/' //key
+      full_key = namespace // DELIMITER //key
 
    end function concat
 

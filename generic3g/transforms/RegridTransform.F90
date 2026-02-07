@@ -43,9 +43,6 @@ contains
       type(ESMF_Geom), intent(in) :: dst_geom
       type(EsmfRegridderParam), intent(in) :: dst_param
 
-      type(RegridderSpec) :: spec
-      type(RegridderManager), pointer :: regridder_manager
-
       transform%src_geom = src_geom
       transform%dst_geom = dst_geom
       transform%dst_param = dst_param
@@ -198,6 +195,8 @@ contains
       class(ScalarRegridTransform), intent(in) :: this
 
       id = GEOM_TRANSFORM_ID
+
+      _UNUSED_DUMMY(this)
    end function get_transformId
 
 end module mapl3g_RegridTransform

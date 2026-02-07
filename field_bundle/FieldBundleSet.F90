@@ -124,6 +124,7 @@ contains
           _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine bundle_set
 
    subroutine bundle_reset(fieldBundle, status)

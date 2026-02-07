@@ -1,5 +1,7 @@
 #include "MAPL_ErrLog.h"
+
 submodule (mapl3g_LatLonGeomFactory) make_gridded_dims_smod
+
    use mapl3g_GeomSpec
    use mapl3g_LonAxis
    use mapl3g_LatAxis
@@ -12,8 +14,8 @@ submodule (mapl3g_LatLonGeomFactory) make_gridded_dims_smod
    use gFTL2_StringVector
    use esmf
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
-   implicit none (type, external)
 
+   implicit none (type, external)
 
 contains
 
@@ -33,6 +35,7 @@ contains
       end select
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function make_gridded_dims
 
 

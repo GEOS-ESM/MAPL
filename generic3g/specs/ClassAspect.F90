@@ -107,8 +107,6 @@ contains
       class(StateItemAspect), pointer, intent(in) :: aspect
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       select type(aspect)
       class is (ClassAspect)
          class_aspect => aspect
@@ -153,6 +151,10 @@ contains
       integer, optional, intent(out) :: rc
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(field)
+      _UNUSED_DUMMY(bundle)
+      _UNUSED_DUMMY(state)
    end subroutine update_from_payload
 
    subroutine update_payload(this, field, bundle, state, rc)
@@ -163,6 +165,10 @@ contains
       integer, optional, intent(out) :: rc
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(field)
+      _UNUSED_DUMMY(bundle)
+      _UNUSED_DUMMY(state)
    end subroutine update_payload
 
 end module mapl3g_ClassAspect

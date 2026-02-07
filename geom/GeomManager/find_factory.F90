@@ -10,9 +10,9 @@ submodule (mapl3g_GeomManager) find_factory_smod
 !         class(GeomFactory), intent(in) :: factory
 !      end function I_FactoryPredicate
 !   end interface
-      
+
 contains
-   
+
    ! If factory not found, return a null pointer _and_ a nonzero rc.
    module function find_factory(factories, predicate, rc) result(factory)
       class(GeomFactory), pointer :: factory
@@ -20,7 +20,6 @@ contains
       procedure(I_FactoryPredicate) :: predicate
       integer, optional, intent(out) :: rc
 
-      integer :: status
       type(GeomFactoryVectorIterator) :: iter
 
       factory => null()

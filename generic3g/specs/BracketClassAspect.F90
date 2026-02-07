@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_BracketClassAspect
+
    use mapl3g_Field_API
    use mapl3g_FieldBundle_API
    use mapl3g_ActualConnectionPt
@@ -32,6 +33,7 @@ module mapl3g_BracketClassAspect
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use esmf
+
    implicit none(type,external)
    private
 
@@ -42,7 +44,7 @@ module mapl3g_BracketClassAspect
       procedure :: to_BracketClassAspect_from_poly
       procedure :: to_BracketClassAspect_from_map
    end interface to_BracketClassAspect
-   
+
    type, extends(ClassAspect) :: BracketClassAspect
       private
       type(ESMF_FieldBundle) :: payload
@@ -67,7 +69,7 @@ module mapl3g_BracketClassAspect
       procedure :: add_to_state
 
       procedure :: get_payload
-      
+
    end type BracketClassAspect
 
    interface BracketClassAspect
@@ -90,7 +92,7 @@ contains
       if (present(long_name)) then
          aspect%long_name = long_name
       end if
-      
+
    end function new_BracketClassAspect
 
    function get_aspect_order(this, goal_aspects, rc) result(aspect_ids)
@@ -118,6 +120,7 @@ contains
            ]
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
 
@@ -135,6 +138,7 @@ contains
       call FieldBundleInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, bracket_updated=.true.,  _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(other_aspects)
    end subroutine create
 
    subroutine activate(this, rc)
@@ -196,7 +200,7 @@ contains
       type(esmf_Field), allocatable :: field
 
       call field_aspect%get_payload(field=field, _RC)
-      
+
       associate(e => other_aspects%ftn_end())
         iter = other_aspects%ftn_begin()
         do while (iter /= e)
@@ -241,14 +245,12 @@ contains
       _UNUSED_DUMMY(export)
       _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
-   
+
 
    function to_BracketClassAspect_from_poly(aspect, rc) result(bracket_aspect)
       type(BracketClassAspect) :: bracket_aspect
       class(StateItemAspect), intent(in) :: aspect
       integer, optional, intent(out) :: rc
-
-      integer :: status
 
       select type(aspect)
       class is (BracketClassAspect)
@@ -273,7 +275,7 @@ contains
 
       _RETURN(_SUCCESS)
    end function to_BracketClassAspect_from_map
-   
+
 
    function make_transform(src, dst, other_aspects, rc) result(transform)
       class(ExtensionTransform), allocatable :: transform
@@ -287,6 +289,9 @@ contains
       transform = TimeInterpolateTransform()
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
+      _UNUSED_DUMMY(other_aspects)
    end function make_transform
 
    ! Should only connect to FieldClassAspect and
@@ -297,11 +302,16 @@ contains
 
       matches = .false.
 
+      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
    end function matches
 
    logical function supports_conversion_general(src)
       class(BracketClassAspect), intent(in) :: src
+
       supports_conversion_general = .true.
+
+      _UNUSED_DUMMY(src)
    end function supports_conversion_general
 
    ! Only can convert if import is FieldClassAspect.
@@ -315,7 +325,7 @@ contains
          supports_conversion_specific = .true.
       end select
 
-      _UNUSED_DUMMY(dst)
+      _UNUSED_DUMMY(src)
    end function supports_conversion_specific
 
    subroutine add_to_state(this, multi_state, actual_pt, rc)
@@ -363,7 +373,10 @@ contains
       bundle = this%payload
 
       _RETURN(_SUCCESS)
-
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(field)
+      _UNUSED_DUMMY(state)
    end subroutine get_payload
 
 end module mapl3g_BracketClassAspect

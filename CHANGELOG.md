@@ -67,6 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add utility to destroy states including states, bundles, and fields nested in them
 - Add test of units coupling
 - Add test of typekind coupling
+- Add tests of update_payload and update_from_payload for UnitsAspect
 
 ### Changed
 
@@ -105,26 +106,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Introduced AGENTS.md to assist in using copilot for MAPL development
+
 ### Fixed
 
 ### Added
 
-- Added implementation for mapl_GetPartition() with unit tests.  Replaces logic that will disappear with MAPL2
-- Added backwards compatibility with non-CF dimensionless vertical coordinate in ExtData2G
-
 ### Changed
-- added formating string to the fPlogger call in FileBundleRead.F90 to avoid processing incidental '%' characters in the filename
-- replaced rc=status with _RC in MAPL_read_bundle
-- MAPL_read_bundle now logs the filename instead of the file template
-- added optional argument "NoGarbage" to MAPL_BundleDestroy
-
-- Updated CI to use Baselibs 8.24.0
-  - This provides ESMF 9.0.0b08
-  - Update ifx tests to 2025.3 (enabled by ESMF 9.0.0b08)
 
 ### Removed
 
 ### Deprecated
+
+## [2.65.0] - 2026-01-29
+
+### Added
+
+- Added implementation for `mapl_GetPartition()` with unit tests.  Replaces logic that will disappear with MAPL2
+- Added backwards compatibility with non-CF dimensionless vertical coordinate in ExtData2G
+- Added logic in History to check for consistent History and averaging coupler alarms
+
+### Changed
+
+- added formating string to the pFlogger call in `FileBundleRead.F90` to avoid processing incidental '%' characters in the filename
+- replaced `rc=status` with `_RC` in `MAPL_read_bundle`
+- `MAPL_read_bundle` now logs the filename instead of the file template
+- added optional argument "NoGarbage" to `MAPL_BundleDestroy`
+- Updated CI to use Baselibs 8.24.0
+  - This provides ESMF 9.0.0b08
+  - Update ifx tests to 2025.3 (enabled by ESMF 9.0.0b08)
 
 ## [2.64.2] - 2026-01-16
 

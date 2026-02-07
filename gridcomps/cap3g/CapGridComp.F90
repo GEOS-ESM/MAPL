@@ -1,7 +1,10 @@
 #include "MAPL.h"
+
 module mapl3g_CapGridComp
+
    use :: generic3g
-   use :: mapl_ErrorHandling 
+   use :: mapl_ErrorHandling
+
    implicit none
 
    private
@@ -17,16 +20,15 @@ module mapl3g_CapGridComp
    end type CapGridComp
 
    character(*), parameter :: PRIVATE_STATE = 'CapGridComp'
-    
+
 contains
-   
+
    subroutine setServices(gridcomp, rc)
       type(ESMF_GridComp) :: gridcomp
       integer, intent(out) :: rc
 
       integer :: status
       type(CapGridComp), pointer :: cap
-      character(:), allocatable :: extdata, history
 
       ! Set entry points
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name='GENERIC::INIT_USER', _RC)
@@ -45,7 +47,7 @@ contains
       call MAPL_GridCompGetResource(gridcomp, keystring='root_name', value=cap%root_name, _RC)
       call MAPL_GridCompGetResource(gridcomp, keystring='history_name', value=cap%history_name, default='HIST', _RC)
 
-      if (cap%run_extdata) then 
+      if (cap%run_extdata) then
          call MAPL_GridCompConnectAll(gridcomp, src_comp=cap%extdata_name, dst_comp=cap%root_name, _RC)
       end if
       if (cap%run_history) then
@@ -59,23 +61,25 @@ contains
       type(ESMF_GridComp)   :: gridcomp
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
-      type(ESMF_Clock)      :: clock      
+      type(ESMF_Clock)      :: clock
       integer, intent(out)  :: rc
 
       integer :: status
       type(CapGridComp), pointer :: cap
 
-  _GET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, PRIVATE_STATE, cap)
+      _GET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, PRIVATE_STATE, cap)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
    end subroutine init
-
 
    subroutine run(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp)   :: gridcomp
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
-      type(ESMF_Clock)      :: clock      
+      type(ESMF_Clock)      :: clock
       integer, intent(out)  :: rc
 
       integer :: status
@@ -92,6 +96,9 @@ contains
       end if
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
    end subroutine run
 
 end module mapl3g_CapGridComp

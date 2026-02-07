@@ -92,7 +92,7 @@ contains
       integer :: status
       type(esmf_HConfig) :: hconfig
       logical :: has_run_section
-      type(esmf_HConfig) :: run_cfg, field_cfg
+      type(esmf_HConfig) :: run_cfg
       type(ESMF_HConfigIter) :: iter, e, b
       integer(kind=ESMF_KIND_I8) :: advanceCount
       integer, allocatable :: value
@@ -101,7 +101,6 @@ contains
       type(esmf_Field) :: field
       character(:), allocatable :: field_name
       type(esmf_TypeKind_Flag) :: typekind
-    
 
       call mapl_GridCompGet(gridcomp, hconfig=hconfig, _RC)
 
@@ -128,7 +127,7 @@ contains
          end do
          call esmf_HConfigDestroy(run_cfg, _RC)
       endif
-          
+
       call MAPL_GridcompRunChildren(gridcomp, phase_name="run", _RC)
 
       _RETURN(_SUCCESS)
