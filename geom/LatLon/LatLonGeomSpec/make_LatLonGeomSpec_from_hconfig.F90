@@ -6,7 +6,7 @@ submodule (mapl3g_LatLonGeomSpec) make_LatLonGeomSpec_from_hconfig_smod
    use mapl_ErrorHandling
    use esmf
    implicit none (type, external)
-   
+
 contains
 
    ! HConfig section
@@ -15,7 +15,6 @@ contains
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
-      logical :: is_regional
       integer :: status
 
       spec%lon_axis = make_LonAxis(hconfig, _RC)

@@ -1,7 +1,8 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_MaplGeom) get_basis_smod
-   use mapl3g_GeomSpec
+
+use mapl3g_GeomSpec
    use mapl3g_VectorBasis
    use mapl3g_GeomUtilities
    use mapl_ErrorHandlingMod
@@ -9,6 +10,7 @@ submodule (mapl3g_MaplGeom) get_basis_smod
    use ESMF, only: ESMF_Info
    use ESMF, only: ESMF_InfoGetFromHost
    use ESMF, only: ESMF_InfoSet
+
    implicit none(type,external)
 
 contains
@@ -22,7 +24,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(VectorBasis), pointer :: tmp
 
       select case (mode)
 
@@ -47,6 +48,5 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_basis
-
 
 end submodule get_basis_smod

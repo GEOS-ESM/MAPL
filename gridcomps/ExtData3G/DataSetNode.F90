@@ -1,6 +1,7 @@
-#include "MAPL_Exceptions.h"
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
+
 module mapl3g_DataSetNode
+
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
@@ -9,6 +10,7 @@ module mapl3g_DataSetNode
    use mapl3g_geomio
    use mapl3g_ExtDataUtilities
    use pFlogger, only: logger
+
    implicit none
    private
 
@@ -16,12 +18,12 @@ module mapl3g_DataSetNode
    public :: NODE_LEFT
    public :: NODE_RIGHT
    public :: NODE_UNKNOWN
- 
+
    enum, bind(c)
       enumerator :: NODE_LEFT
       enumerator :: NODE_RIGHT
       enumerator :: NODE_UNKNOWN
-   end enum      
+   end enum
 
    type :: DataSetNode
       integer :: node_side
@@ -29,7 +31,7 @@ module mapl3g_DataSetNode
       logical :: enabled = .false.
       type(ESMF_Time) :: interp_time
       character(len=:), allocatable :: file
-      integer :: time_index 
+      integer :: time_index
       contains
          procedure :: set_interp_time
          procedure :: set_time_index
@@ -71,7 +73,7 @@ contains
       node%time_index = time_index
       node%enabled = enabled
       node%update = update
-      
+
    end function new_DataSetNode
 
    subroutine set_interp_time(this, interp_time)
@@ -101,13 +103,13 @@ contains
    subroutine set_enabled(this, enabled)
       class(DataSetNode), intent(inout) :: this
       logical, intent(in) :: enabled
-      this%enabled = enabled 
+      this%enabled = enabled
    end subroutine
 
    subroutine set_update(this, update)
       class(DataSetNode), intent(inout) :: this
       logical, intent(in) :: update
-      this%update = update 
+      this%update = update
    end subroutine
 
    function get_interp_time(this) result(interp_time)
@@ -159,7 +161,6 @@ contains
       type(ESMF_Time), intent(in) :: current_time
       integer, intent(out), optional :: rc
 
-      integer :: status
       if (.not.allocated(this%file)) then
          node_is_valid = .false.
          _RETURN(_SUCCESS)
@@ -179,7 +180,7 @@ contains
    subroutine invalidate(this)
       class(DataSetNode), intent(inout) :: this
       if (allocated(this%file)) then
-         deallocate(this%file) 
+         deallocate(this%file)
       end if
       this%enabled = .false.
       this%update = .false.
@@ -237,7 +238,7 @@ contains
       class(DataSetNode), intent(inout) :: this
       is_allocated = allocated(this%file)
    end function
- 
+
    subroutine write_node(this, lgr)
       class(DataSetNode), intent(inout) :: this
       class(logger), intent(in), pointer :: lgr

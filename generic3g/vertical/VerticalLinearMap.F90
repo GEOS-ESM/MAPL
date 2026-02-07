@@ -38,7 +38,7 @@ contains
       integer, optional, intent(out) :: rc
 
       real(REAL32) :: val, weight(2)
-      integer :: ndx, status
+      integer :: ndx
       type(IndexValuePair) :: pair(2)
 
 #ifndef NDEBUG

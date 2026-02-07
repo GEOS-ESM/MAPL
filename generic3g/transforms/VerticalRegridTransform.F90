@@ -220,7 +220,6 @@ contains
       type(VerticalStaggerLoc), intent(in) :: field_stagger
       integer, optional, intent(out)  :: rc
 
-      integer :: status
       integer :: n
 
       if (grid_stagger == field_stagger) then
@@ -268,6 +267,8 @@ contains
       class(VerticalRegridTransform), intent(in) :: this
 
       id = VERTICAL_GRID_TRANSFORM_ID
+
+      _UNUSED_DUMMY(this)
    end function get_transformId
 
 end module mapl3g_VerticalRegridTransform

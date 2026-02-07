@@ -55,6 +55,8 @@ contains
       class(NullTransform), intent(in) :: this
 
       id = NULL_TRANSFORM_ID
+
+      _UNUSED_DUMMY(this)
    end function get_transformId
 
 end module mapl3g_NullTransform

@@ -146,17 +146,17 @@ contains
    logical function grid_has_DE(grid,rc) result(has_DE)
       type(ESMF_Grid), intent(in) :: grid
       integer, intent(out), optional :: rc
-      
+
       integer :: status
       type(ESMF_DistGrid) :: distGrid
       type(ESMF_DeLayout) :: layout
       integer :: localDECount
-      
+
       call ESMF_GridGet    (GRID, distGrid=distGrid, _RC)
       call ESMF_DistGridGet(distGRID, delayout=layout, _RC)
       call ESMF_DELayoutGet(layout, localDeCount=localDeCount,_RC)
       has_DE = (localDECount /=0)
-      
+
       _RETURN(_SUCCESS)
    end function grid_has_DE
 

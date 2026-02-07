@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 submodule(mapl3g_GriddedComponentDriver) run_export_couplers_smod
+
    use mapl3g_CouplerPhases
    use mapl_ErrorHandling
    implicit none(type,external)
@@ -28,6 +29,7 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(phase_idx)
    end subroutine run_export_couplers
 
 end submodule run_export_couplers_smod

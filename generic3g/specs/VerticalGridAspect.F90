@@ -79,24 +79,29 @@ contains
          aspect%regrid_method = regrid_method
       end if
 
-     aspect%vertical_stagger = VERTICAL_STAGGER_CENTER
-     if (present(vertical_stagger)) then
+      aspect%vertical_stagger = VERTICAL_STAGGER_CENTER
+      if (present(vertical_stagger)) then
          aspect%vertical_stagger = vertical_stagger
       end if
     
       call aspect%set_time_dependent(time_dependent)
+
+      _UNUSED_DUMMY(geom)
+      _UNUSED_DUMMY(typekind)
    end function new_VerticalGridAspect_specific
 
    function new_VerticalGridAspect_mirror() result(aspect)
       type(VerticalGridAspect) :: aspect
 
       call aspect%set_mirror(.true.)
-
    end function new_VerticalGridAspect_mirror
 
    logical function supports_conversion_general(src)
       class(VerticalGridAspect), intent(in) :: src
+
       supports_conversion_general = .true.
+
+      _UNUSED_DUMMY(src)
    end function supports_conversion_general
 
 
@@ -162,7 +167,6 @@ contains
       class(VerticalGridAspect), intent(in) :: dst
       integer, optional, intent(out) :: rc
 
-      integer :: status
       type(StringVector) :: vec_in
       type(StringVector) :: vec_out
       integer :: i
@@ -349,6 +353,7 @@ contains
       end if
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(state)
    end subroutine update_from_payload
 
    subroutine update_payload(this, field, bundle, state, rc)
@@ -380,6 +385,7 @@ contains
       end if
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(state)
    end subroutine update_payload
 
 end module mapl3g_VerticalGridAspect

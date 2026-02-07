@@ -68,7 +68,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(:), allocatable :: typekind_str
       character(:), allocatable :: fieldBundleType_str, allocation_status_str
       character(:), allocatable :: namespace_
 
@@ -86,12 +85,6 @@ contains
          call ESMF_InfoGetAlloc(info, key=namespace_//KEY_INTERPOLATION_WEIGHTS, values=interpolation_weights, _RC)
       end if
 
-      ! Fields have a type-kind, but FieldBundle's do not, so we need to store typekind here
-      if (present(typekind)) then
-         call MAPL_InfoGet(info, key=namespace_//KEY_TYPEKIND, value=typekind_str, _RC)
-         typekind = to_TypeKind(typekind_str)
-      end if
-
       if (present(allocation_status)) then
          call MAPL_InfoGet(info, key=namespace_//KEY_ALLOCATION_STATUS, value=allocation_status_str, _RC)
          allocation_status = StateItemAllocation(allocation_status_str)
@@ -105,8 +98,9 @@ contains
          call ESMF_InfoGet(info, key=namespace_//KEY_HAS_GEOM, value=has_geom, default=.false., _RC)
       end if
 
-      ! Field-prototype items that come from field-info
+      ! Field-prototype items that come from field-info (including typekind)
       call FieldInfoGetInternal(info, namespace = namespace_//KEY_FIELD_PROTOTYPE, &
+           typekind=typekind, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, num_vgrid_levels=num_vgrid_levels, &
            units=units, long_name=long_name, standard_name=standard_name, &
@@ -118,25 +112,7 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
-   contains
-
-      function to_TypeKind(typekind_str) result(typekind)
-          type(ESMF_TypeKind_Flag) :: typekind
-          character(*), intent(in) :: typekind_str
-          
-          select case (typekind_str)
-          case ('R8')
-             typekind = ESMF_TYPEKIND_R8
-          case ('R4')
-             typekind = ESMF_TYPEKIND_R4
-          case default
-             typekind = ESMF_NOKIND
-          end select
-
-       end function to_TypeKind
-
    end subroutine fieldbundle_get_internal
-
 
    subroutine fieldbundle_set_internal(info, unusable, &
         namespace, &
@@ -173,18 +149,12 @@ contains
       integer, optional, intent(out) :: rc
       
       integer :: status
-      character(:), allocatable :: typekind_str
       character(:), allocatable :: fieldBundleType_str
       character(:), allocatable :: namespace_
 
       namespace_ = INFO_INTERNAL_NAMESPACE
       if (present(namespace)) then
          namespace_ = namespace
-      end if
-
-      if (present(typekind)) then
-         typekind_str = to_string(typekind)
-         call ESMF_InfoSet(info, key=namespace_ // KEY_TYPEKIND, value=typekind_str, _RC)
       end if
 
       if (present(allocation_status)) then
@@ -209,6 +179,7 @@ contains
       end if
 
        call FieldInfoSetInternal(info, namespace=namespace_ // KEY_FIELD_PROTOTYPE, &
+           typekind=typekind, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
            units=units, long_name=long_name, standard_name=standard_name, &
@@ -220,30 +191,6 @@ contains
        _RETURN(_SUCCESS)
        _UNUSED_DUMMY(unusable)
 
-   contains
-
-      function to_string(typekind)
-         type(ESMF_TypeKind_Flag), intent(in) :: typekind
-         character(:), allocatable :: to_string
-
-         if (typekind == ESMF_TYPEKIND_R8) then
-            to_string = 'R8'
-         elseif (typekind == ESMF_TYPEKIND_R4) then
-            to_string = 'R4'
-         elseif (typekind == ESMF_TYPEKIND_I8) then
-            to_string = 'I8'
-         elseif (typekind == ESMF_TYPEKIND_I4) then
-            to_string = 'I4'
-         elseif (typekind == ESMF_TYPEKIND_LOGICAL) then
-            to_string = 'LOGICAL'
-         elseif (typekind == ESMF_TYPEKIND_CHARACTER) then
-            to_string = 'CHARACTER'
-         else
-            to_string = 'NOKIND'
-         end if
-      end function to_string
-
-             
    end subroutine fieldbundle_set_internal
 
 end module mapl3g_FieldBundleInfo

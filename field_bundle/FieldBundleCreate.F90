@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_FieldBundleCreate
+
    use mapl3g_FieldBundleType_Flag
    use mapl3g_FieldBundleSet
    use mapl_ErrorHandling
@@ -8,7 +9,6 @@ module mapl3g_FieldBundleCreate
    use esmf
 
    implicit none(type,external)
-
    private
 
    public :: FieldBundleCreate
@@ -45,7 +45,6 @@ contains
       _UNUSED_DUMMY(unusable)
    end function create_bundle_empty
 
-
    function create_bundle_from_state(state, unusable, name, fieldBundleType, rc) result(bundle)
       type(ESMF_FieldBundle) :: bundle ! result
       type(ESMF_State), intent(in) :: state
@@ -58,7 +57,6 @@ contains
       type (ESMF_StateItem_Flag), allocatable  :: item_type(:)
       type(ESMF_Field) :: field
       type(ESMF_FieldStatus_Flag) :: field_status
-      type(FieldBundleType_Flag) :: fieldbundletype_
       integer :: item_count, idx, status
 
       ! bundle to pack fields in
@@ -113,7 +111,7 @@ contains
       _ASSERT(is_created, 'invalid field bundle detected')
 
       are_aliased = associated(bundle1%this, bundle2%this)
-      
+
       _RETURN(_SUCCESS)
    end function bundles_are_aliased
 
