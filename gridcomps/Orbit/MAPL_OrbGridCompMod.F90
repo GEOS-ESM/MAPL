@@ -24,11 +24,14 @@
 ! !USES:
 !
    Use ESMF
-   Use MAPL_BaseMod, only: MAPL_PI,MAPL_DEGREES_TO_RADIANS_R8, &
-       MAPL_RADIANS_TO_DEGREES, MAPL_UNDEF, MAPL_DimsHorzOnly, &
-       MAPL_R4, MAPL_VLocationCenter, MAPL_FieldCreateEmpty, &
-       MAPL_GridGetCorners, MAPL_FieldAllocCommit, MAPL_FieldBundleAdd, &
-       MAPL_PackTime
+   Use MAPL_BaseMod, only: MAPL_FieldCreateEmpty, MAPL_GridGetCorners, MAPL_FieldAllocCommit
+   use MAPL_MathConstantsMod, only: MAPL_PI, MAPL_DEGREES_TO_RADIANS_R8, &
+       MAPL_RADIANS_TO_DEGREES
+   use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL, MAPL_R4, MAPL_DimsHorzOnly, &
+       MAPL_VLocationCenter
+   use MAPL_ISO8601_DateTime, only: convert_ISO8601_to_integer_date, &
+       convert_ISO8601_to_integer_time
+   use mapl3g_FieldBundle_API, only: MAPL_FieldBundleAdd
    Use MAPL_CommsMod, only: MAPL_AM_I_ROOT
    Use MAPL_ErrorHandlingMod
    use mapl3g_generic, only: MAPL_GridCompGet
@@ -223,7 +226,7 @@ CONTAINS
     do i = 1, self%no
      field=mapl_FieldCreateEmpty(trim(self%Instrument(i)%str),Grid,_RC)
      call MAPL_FieldAllocCommit(field, dims=dims, location=location, typekind=knd, hw=hw, _RC)
-     call MAPL_FieldBundleAdd(Bundle,Field,_RC)
+     call MAPL_FieldBundleAdd(Bundle,[Field],_RC)
     enddo
 
     ! find out what type of grid we are on, if so
@@ -302,6 +305,7 @@ CONTAINS
   integer                       :: IM_world,JM_world,imsize
   integer, allocatable, dimension(:) :: counts
   integer                       :: status
+  character(len=ESMF_MAXSTR)    :: date_str, time_str
 
    _UNUSED_DUMMY(IMPORT)
 
@@ -335,14 +339,18 @@ CONTAINS
 !   IntervalTime=time-timeinterval
    IntervalTime=time
    call ESMF_TimeGet(IntervalTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,_RC)
-   call MAPL_PackTime(nymd,iyr,imm,idd)
-   call MAPL_PackTime(nhms,ihr,imn,isc)
+   write(date_str, '(i4.4,a,i2.2,a,i2.2)') iyr, '_', imm, '_', idd
+   nymd = convert_ISO8601_to_integer_date(trim(date_str), _RC)
+   write(time_str, '(i2.2,a,i2.2,a,i2.2)') ihr, '_', imn, '_', isc
+   nhms = convert_ISO8601_to_integer_time(trim(time_str), _RC)
    interval_nymd(1)=nymd
    interval_nhms(1)=nhms
    IntervalTime=time+timeinterval
    call ESMF_TimeGet(IntervalTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,_RC)
-   call MAPL_PackTime(nymd,iyr,imm,idd)
-   call MAPL_PackTime(nhms,ihr,imn,isc)
+   write(date_str, '(i4.4,a,i2.2,a,i2.2)') iyr, '_', imm, '_', idd
+   nymd = convert_ISO8601_to_integer_date(trim(date_str), _RC)
+   write(time_str, '(i2.2,a,i2.2,a,i2.2)') ihr, '_', imn, '_', isc
+   nhms = convert_ISO8601_to_integer_time(trim(time_str), _RC)
    interval_nymd(2)=nymd
    interval_nhms(2)=nhms
 
@@ -373,7 +381,7 @@ CONTAINS
    end select
 
 !  define undef
-   undef=MAPL_UNDEF
+   undef=MAPL_UNDEFINED_REAL
 
 !  set deltat in seconds
    deltat=10
@@ -430,6 +438,7 @@ CONTAINS
 !                                      ---
     integer                       :: iyr, imm, idd, ihr, imn, isc
     integer                       :: status
+    character(len=ESMF_MAXSTR)    :: date_str, time_str
 
     rc = 0
 
@@ -437,8 +446,10 @@ CONTAINS
 !   ------------------------------------------
     call ESMF_ClockGet(CLOCK,currTIME=TIME,timeStep=TimeInterval,_RC)
     call ESMF_TimeGet(TIME ,yy=iyr, mm=imm, dd=idd, h=ihr, m=imn, s=isc, _RC)
-    call MAPL_PackTime(nymd,iyr,imm,idd)
-    call MAPL_PackTime(nhms,ihr,imn,isc)
+    write(date_str, '(i4.4,a,i2.2,a,i2.2)') iyr, '_', imm, '_', idd
+    nymd = convert_ISO8601_to_integer_date(trim(date_str), _RC)
+    write(time_str, '(i2.2,a,i2.2,a,i2.2)') ihr, '_', imn, '_', isc
+    nhms = convert_ISO8601_to_integer_time(trim(time_str), _RC)
 
 !   Extract the ESMF Grid
 !   ---------------------
