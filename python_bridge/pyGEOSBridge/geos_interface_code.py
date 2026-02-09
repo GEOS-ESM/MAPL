@@ -2,6 +2,8 @@ import abc
 
 
 class GEOSInterfaceCode(abc.ABC):
+    """Abstract class for user code to derive from"""
+
     def __init__(self, name: str) -> None:
         self.name = name
 

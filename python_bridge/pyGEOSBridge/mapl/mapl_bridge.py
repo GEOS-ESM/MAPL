@@ -10,6 +10,13 @@ ESMF_MAXSTR = 256
 
 
 class MAPLBridge:
+    """Pure C bridge to Fortran forwarded MAPL API. See `backward_bridge_to_MAPL.F90`
+    for Fortran exposure.
+
+    This should remain as close to the metal as possible. User-facing API to be (re)define
+    int `maplpy`
+    """
+
     def __init__(self, ffi: cffi.FFI) -> None:
         # We leverage an environment variable to know where to look for the bridge
         # library

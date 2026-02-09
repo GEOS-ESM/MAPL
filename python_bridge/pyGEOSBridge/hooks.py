@@ -10,6 +10,7 @@ from pyGEOSBridge.mapl import set_MAPLPy
 
 
 def global_initialize(IM, JM, LM):
+    """Initialize the global MAPLPy object"""
     from pyGEOSBridge.mapl.mapl_bridge import MAPL_BRIDGE  # Spin the MAPL backbridge
 
     fpy_converter = get_fortran_python_converter(IM, JM, LM)
@@ -20,6 +21,12 @@ def global_initialize(IM, JM, LM):
 
 
 def _get_code_object_from_package_name(c_package_name: FFI.CData) -> GEOSInterfaceCode:
+    """Dynamically load the user module and return the `CODE` variable.
+
+    Args:
+        c_package_name: Package name in the python format, e.g. `mypackage.module` which
+            _must_ contain a global `CODE` object
+    """
     package_name = FFI.string(c_package_name).decode("utf-8").rstrip()
 
     try:
@@ -39,15 +46,18 @@ def _get_code_object_from_package_name(c_package_name: FFI.CData) -> GEOSInterfa
 
 
 def named_init(c_package_name: FFI.CData, grid_comp, import_state, export_state):
+    """Python hook for Fortran's `gc_init`."""
     CODE = _get_code_object_from_package_name(c_package_name)
     CODE.init(grid_comp, import_state, export_state)
 
 
 def named_run(c_package_name: FFI.CData, grid_comp, import_state, export_state):
+    """Python hook for Fortran's `gc_run`."""
     CODE = _get_code_object_from_package_name(c_package_name)
     CODE.run(grid_comp, import_state, export_state)
 
 
 def named_finalize(c_package_name: FFI.CData, grid_comp, import_state, export_state):
+    """Python hook for Fortran's `gc_finalize`."""
     CODE = _get_code_object_from_package_name(c_package_name)
     CODE.finalize(grid_comp, import_state, export_state)

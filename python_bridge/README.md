@@ -33,6 +33,15 @@ class MyInterfacingCode(GEOSInterfaceCode):
     def run(self, grid_comp, import_state, export_state) -> None:
         print("Now running MyInterfacingCode.run")
 
+        # Grab the system-wide MAPL API accessor
+        MAPLPy = get_MAPLPy()
+
+        # Retrieve T like you would in Fortran
+        # - for implementation reason, you have to give the dimensions. The API
+        #   give a shortcut to the grid dimensions in `MAPLPy.grid_dims`
+        # - if the pointer is "not associated" it will be returned as a None value
+        T = MAPLPy.get_pointer("T", state=import_state, dtype=np.float32, dims=MAPLPy.grid_dims)
+
     def finalize(self, grid_comp, import_state, export_state) -> None:
         print("Now running MyInterfacingCode.finalize")
 
