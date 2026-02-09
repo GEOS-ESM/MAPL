@@ -1,11 +1,14 @@
 #define I_AM_MAIN
 #include "MAPL_ErrLog.h"
+
 program main
+
    use mapl_Profiler
    use MAPL_ErrorHandlingMod
    use MPI
-   implicit none
+   use gFTL2_StringVector
 
+   implicit none
 
 !   type (MemoryProfiler), target :: mem_prof
    type (DistributedProfiler), target :: main_prof
@@ -13,9 +16,9 @@ program main
    type (ProfileReporter) :: reporter, main_reporter
 !   type (ProfileReporter) :: mem_reporter
 
-   character(:), allocatable :: report_lines(:)
-   integer :: i
-   integer :: rank, ierror, rc, status
+   type(StringVector) :: report_lines
+   type(StringVectorIterator) :: iter
+   integer :: rank, ierror
    character(1) :: empty(0)
 
 !!$   mem_prof = MemoryProfiler('TOTAL')
@@ -63,21 +66,21 @@ program main
 
    call main_prof%stop('init reporter')
 
-
 !   call mem_prof%start('lap')
    call do_lap(lap_prof) ! lap 1
    call lap_prof%stop()
    call main_prof%accumulate(lap_prof)
 !   call mem_prof%stop('lap')
 
-
    call main_prof%start('use reporter')
    if (rank == 0) then
       report_lines = reporter%generate_report(lap_prof)
       write(*,'(a)')'Lap 1'
       write(*,'(a)')'====='
-      do i = 1, size(report_lines)
-         write(*,'(a)') report_lines(i)
+      iter = report_lines%begin()
+      do while (iter /= report_lines%end())
+         write(*,'(a)') iter%of()
+         call iter%next()
       end do
       write(*,'(a)')''
    end if
@@ -94,8 +97,10 @@ program main
       report_lines = reporter%generate_report(lap_prof)
       write(*,'(a)')'Lap 2'
       write(*,'(a)')'====='
-      do i = 1, size(report_lines)
-         write(*,'(a)') report_lines(i)
+      iter = report_lines%begin()
+      do while (iter /= report_lines%end())
+         write(*,'(a)') iter%of()
+         call iter%next()
       end do
       write(*,'(a)') ''
    end if
@@ -109,8 +114,10 @@ program main
    if (rank == 0) then
       write(*,'(a)')'Final profile(0)'
       write(*,'(a)')'============='
-      do i = 1, size(report_lines)
-         write(*,'(a)') report_lines(i)
+      iter = report_lines%begin()
+      do while (iter /= report_lines%end())
+         write(*,'(a)') iter%of()
+         call iter%next()
       end do
       write(*,'(a)') ''
    end if
@@ -119,8 +126,10 @@ program main
    if (rank == 1) then
       write(*,'(a)')'Final profile (1)'
       write(*,'(a)')'================'
-      do i = 1, size(report_lines)
-         write(*,'(a)') report_lines(i)
+      iter = report_lines%begin()
+      do while (iter /= report_lines%end())
+         write(*,'(a)') iter%of()
+         call iter%next()
       end do
       write(*,'(a)') ''
    end if
@@ -131,8 +140,10 @@ program main
    if (rank == 0) then
       write(*,'(a)')'Parallel profile'
       write(*,'(a)')'================'
-      do i = 1, size(report_lines)
-         write(*,'(a)') report_lines(i)
+      iter = report_lines%begin()
+      do while (iter /= report_lines%end())
+         write(*,'(a)') iter%of()
+         call iter%next()
       end do
       write(*,'(a)') ''
    end if
