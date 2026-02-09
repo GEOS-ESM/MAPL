@@ -3,25 +3,17 @@ import sys
 from pyGEOSBridge import GEOSInterfaceCode
 
 from pyGEOSBridge.types import FFI
-from pyGEOSBridge.memory_ingest import FortranPythonConversion
-
-import numpy as np
+from pyGEOSBridge.memory import get_fortran_python_converter
+from pyGEOSBridge.mapl import set_MAPLPy
 
 # - - - DSL Grid Comp Interfacing - - - #
 
-FPY_CONVERTER: FortranPythonConversion | None = None
-
-
-def get_fpy_converter() -> FortranPythonConversion:
-    global FPY_CONVERTER
-    if FPY_CONVERTER is None:
-        raise ValueError("Fortran<>Python converter is None - Initialization failed.")
-    return FPY_CONVERTER
-
 
 def global_initialize(IM, JM, LM):
-    global FPY_CONVERTER
-    FPY_CONVERTER = FortranPythonConversion(IM, JM, LM, np)
+    from pyGEOSBridge.mapl.mapl_bridge import MAPL_BRIDGE  # Spin the MAPL backbridge
+
+    fpy_converter = get_fortran_python_converter(IM, JM, LM)
+    set_MAPLPy(MAPL_BRIDGE, fpy_converter)
 
 
 # - - - DSL Grid Comp Interfacing - - - #

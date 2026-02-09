@@ -188,4 +188,4 @@ class MAPLBridge:
         )
 
 
-MAPL = MAPLBridge(FFI)
+MAPL_BRIDGE = MAPLBridge(FFI)

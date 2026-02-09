@@ -45,7 +45,7 @@ def _compute_fortran_strides(shape: Tuple[int, ...], dtype: npt.DTypeLike) -> tu
     return np.concatenate(([1], cshp[:-1])) * np.dtype(dtype).itemsize
 
 
-class FortranPythonConversion:
+class FortranPythonConverter:
     """
     Convert Fortran arrays to NumPy and vice-versa.
 
@@ -202,3 +202,7 @@ class FortranPythonConversion:
             return self._ffi.cast("bool*", void_ptr)
 
         raise NotImplementedError(f"Cannot cast void* to C-equivalent of {dtype}")
+
+
+def get_fortran_python_converter(im: int, jm: int, lm: int) -> FortranPythonConverter:
+    return FortranPythonConverter(im, jm, lm, np)

@@ -1,7 +1,7 @@
 from .geos_interface_code import GEOSInterfaceCode  # isort: skip
 from .hooks import global_initialize
-from .hooks import named_init, named_run, named_finalize, get_fpy_converter
-from .mapl import MAPL
+from .hooks import named_init, named_run, named_finalize
+from .mapl import get_MAPLPy
 
 __all__ = [
     "global_initialize",
@@ -13,5 +13,5 @@ __all__ = [
     #
     "GEOSInterfaceCode",
     #
-    "MAPL",
+    "get_MAPLPy",
 ]
