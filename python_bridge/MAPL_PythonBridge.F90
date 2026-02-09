@@ -15,7 +15,7 @@ module MAPL_PythonBridge
     use MaplShared
 #ifdef PYTHONBRIDGE_INTEGRATION
     use GEOS_PythonBridge_PyInterfaceMod
-    use ieee_exceptions, only: ieee_get_halting_mode, ieee_set_halting_mode, ieee_all
+    use ieee_exceptions, only: ieee_get_halting_mode, ieee_set_halting_mode, ieee_overflow, ieee_support_halting
     use iso_c_binding, only: c_loc, C_NULL_CHAR
 #endif
     implicit none
@@ -29,7 +29,7 @@ contains
     subroutine initialize_python_bridge ( IM, JM, LM )
         ! -----------------------------
         ! Initialize the underlying python tools with a grid size.
-        ! It will spin a central CFFI-powered interpreter
+        ! It will spin a central CFFI-handled python interpreter
         ! It also gives us a hook to do pre-load of common packages (numpy, tf, etc.)
         !
         ! TODO | Dev Note : this works for a single GRID. A much powerful system
@@ -44,15 +44,22 @@ contains
 
 #ifdef PYTHONBRIDGE_INTEGRATION
         logical                    :: halting_mode(5)
+        logical                    :: set_halting_allowed
 
         ! Spin the interface - we have to deactivate the ieee error
         ! to be able to load numpy, scipy and other numpy packages
-        ! that generate NaN as an init mechanism to generate true NaN
-        call ieee_get_halting_mode(ieee_all, halting_mode)
-        call ieee_set_halting_mode(ieee_all, .false.)
-        VERIFY_(STATUS)
+        ! that generate an overflow during init
+
+        set_halting_allowed = ieee_support_halting(ieee_overflow)
+
+        if (set_halting_allowed) then
+            call ieee_get_halting_mode(ieee_overflow, halting_mode)
+            call ieee_set_halting_mode(ieee_overflow, .false.)
+        endif
         call MAPL_PythonBridge_C_global_initialize(IM, JM, LM)
-        call ieee_set_halting_mode(ieee_all, halting_mode)
+        if (set_halting_allowed) then
+            call ieee_set_halting_mode(ieee_overflow, halting_mode)
+        endif
 #endif
 
     end subroutine initialize_python_bridge
