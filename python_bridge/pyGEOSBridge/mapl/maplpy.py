@@ -1,8 +1,9 @@
 from pyGEOSBridge.mapl.mapl_bridge import MAPLBridge
 from pyGEOSBridge.memory.fortran_python_converter import FortranPythonConverter
-from pyGEOSBridge.types import MAPLState
+from pyGEOSBridge.types import CVoidPointer
 
 import numpy as np
+import numpy.typing as npt
 from typing import Tuple
 
 
@@ -16,8 +17,8 @@ class MAPLPyAPI:
     def get_pointer(
         self,
         name: str,
-        state: MAPLState,
-        dtype: np.dtype = np.float32,
+        state: CVoidPointer,
+        dtype: npt.DTypeLike = np.float32,
         dims: Tuple[int, ...] | None = None,
         alloc: bool = False,
     ) -> np.ndarray | None:
@@ -30,23 +31,23 @@ class MAPLPyAPI:
             - dims: dimensions of buffer, `None` will default to the full 3D grid
             - alloc: equivalent of MAPL alloc on the Fortran side
         """
+        if dims is None:
+            dims = self.grid_dims
         if len(dims) == 3:
             is_associated = self._mapl_bridge.associated_3d(name=name, state=state, alloc=alloc)
-            if is_associated:
+            if not is_associated:
                 return None
             voir_ptr = self._mapl_bridge.MAPL_GetPointer_3D(name=name, state=state, alloc=alloc)
         elif len(dims) == 2:
             is_associated = self._mapl_bridge.associated_2d(name=name, state=state, alloc=alloc)
-            if is_associated:
+            if not is_associated:
                 return None
-            voir_ptr = self._mapl_bridge.MAPL_GetPointer_2D(name=name, state=state)
+            voir_ptr = self._mapl_bridge.MAPL_GetPointer_2D(name=name, state=state, alloc=alloc)
         else:
             raise TypeError(
                 f"[MAPLPy] Fields of {len(dims)} dimensions are not yet supported. Contact the team."
             )
         casted_ptr = self._fpy_converter.cast(dtype, voir_ptr)
-        if dims is not None:
-            dims = self.grid_dims
         array = self._fpy_converter.fortran_to_python(casted_ptr, dims)
 
         return array
