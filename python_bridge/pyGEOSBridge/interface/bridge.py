@@ -23,9 +23,9 @@ def MAPL_PythonBridge_Py_global_initialize(IM, JM, LM) -> int:
     return 0
 
 @ffi.def_extern()
-def pyGEOSBridge_Py_init(name, grid_comp, import_state, export_state) -> int:
+def pyGEOSBridge_Py_init(name, mapl_state, import_state, export_state) -> int:
     try:
-        pyGEOSBridge.named_init(name, grid_comp, import_state, export_state)
+        pyGEOSBridge.named_init(name, mapl_state, import_state, export_state)
     except Exception as err:
         print("Error in Python:")
         print(traceback.format_exc())
@@ -33,9 +33,9 @@ def pyGEOSBridge_Py_init(name, grid_comp, import_state, export_state) -> int:
     return 0
 
 @ffi.def_extern()
-def pyGEOSBridge_Py_run(name, grid_comp, import_state, export_state) -> int:
+def pyGEOSBridge_Py_run(name, mapl_state, import_state, export_state) -> int:
     try:
-        pyGEOSBridge.named_run(name, grid_comp, import_state, export_state)
+        pyGEOSBridge.named_run(name, mapl_state, import_state, export_state)
     except Exception as err:
         print("Error in Python:")
         print(traceback.format_exc())
@@ -43,9 +43,9 @@ def pyGEOSBridge_Py_run(name, grid_comp, import_state, export_state) -> int:
     return 0
 
 @ffi.def_extern()
-def pyGEOSBridge_Py_finalize(name, grid_comp, import_state, export_state) -> int:
+def pyGEOSBridge_Py_finalize(name, mapl_state, import_state, export_state) -> int:
     try:
-        pyGEOSBridge.named_finalize(name, grid_comp, import_state, export_state)
+        pyGEOSBridge.named_finalize(name, mapl_state, import_state, export_state)
     except Exception as err:
         print("Error in Python:")
         print(traceback.format_exc())

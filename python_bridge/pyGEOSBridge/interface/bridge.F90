@@ -27,22 +27,22 @@ module GEOS_PythonBridge_PyInterfaceMod
 
         ! - - - Generic Interfacing keyed by name - - - !
 
-        subroutine pyGEOSBridge_C_init(NAME, GRID_COMP, IMPORT, EXPORT) bind(c, name='pyGEOSBridge_C_init')
+        subroutine pyGEOSBridge_C_init(NAME, MAPL_STATE, IMPORT, EXPORT) bind(c, name='pyGEOSBridge_C_init')
             import c_ptr
             implicit none
-            type(c_ptr), intent(in), value :: NAME, GRID_COMP, IMPORT, EXPORT
+            type(c_ptr), intent(in), value :: NAME, MAPL_STATE, IMPORT, EXPORT
         end subroutine pyGEOSBridge_C_init
 
-        subroutine pyGEOSBridge_C_run(NAME, GRID_COMP, IMPORT, EXPORT) bind(c, name='pyGEOSBridge_C_run')
+        subroutine pyGEOSBridge_C_run(NAME, MAPL_STATE, IMPORT, EXPORT) bind(c, name='pyGEOSBridge_C_run')
             import c_ptr
             implicit none
-            type(c_ptr), intent(in), value :: NAME, GRID_COMP, IMPORT, EXPORT
+            type(c_ptr), intent(in), value :: NAME, MAPL_STATE, IMPORT, EXPORT
         end subroutine pyGEOSBridge_C_run
 
-        subroutine pyGEOSBridge_C_finalize(NAME, GRID_COMP, IMPORT, EXPORT) bind(c, name='pyGEOSBridge_C_finalize')
+        subroutine pyGEOSBridge_C_finalize(NAME, MAPL_STATE, IMPORT, EXPORT) bind(c, name='pyGEOSBridge_C_finalize')
             import c_ptr
             implicit none
-            type(c_ptr), intent(in), value :: NAME, GRID_COMP, IMPORT, EXPORT
+            type(c_ptr), intent(in), value :: NAME, MAPL_STATE, IMPORT, EXPORT
         end subroutine pyGEOSBridge_C_finalize
 
     end interface

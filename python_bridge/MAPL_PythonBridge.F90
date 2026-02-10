@@ -23,6 +23,8 @@ module MAPL_PythonBridge
 
     public initialize_python_bridge
     public MAPL_pybridge_gcrun
+    public MAPL_pybridge_gcinit
+    public MAPL_pybridge_gcfinalize
 
 contains
 
@@ -64,13 +66,13 @@ contains
 
     end subroutine initialize_python_bridge
 
-    subroutine MAPL_pybridge_gcinit(PYPKG_NAME, GC, IMPORT, EXPORT)
+    subroutine MAPL_pybridge_gcinit(PYPKG_NAME, MAPL, IMPORT, EXPORT)
         ! -----------------------------
         ! Call the python integration by marhshalling Fortran object/memory
         ! into C compatible memory
         ! Will trigger the `GEOSInterfaceCode.init` python function on the user code
         ! -----------------------------
-        type(ESMF_GridComp), intent(inout), TARGET :: GC     ! Gridded component 
+        type(MAPL_MetaComp), intent(inout), TARGET :: MAPL   ! MAPL state
         type(ESMF_State),    intent(inout), TARGET :: IMPORT ! Import state
         type(ESMF_State),    intent(inout), TARGET :: EXPORT ! Export state
 
@@ -78,17 +80,17 @@ contains
     
 #ifdef PYTHONBRIDGE_INTEGRATION
         PYGEOSBRIDGE_NAME_BUFFER = PYPKG_NAME // C_NULL_CHAR
-        call pyGEOSBridge_C_init( c_loc(PYGEOSBRIDGE_NAME_BUFFER), c_loc(GC), c_loc(IMPORT), c_loc(EXPORT) )
+        call pyGEOSBridge_C_init( c_loc(PYGEOSBRIDGE_NAME_BUFFER), c_loc(MAPL), c_loc(IMPORT), c_loc(EXPORT) )
 #endif
     end subroutine
 
-    subroutine MAPL_pybridge_gcrun(PYPKG_NAME, GC, IMPORT, EXPORT)
+    subroutine MAPL_pybridge_gcrun(PYPKG_NAME, MAPL, IMPORT, EXPORT)
         ! -----------------------------
         ! Call the python integration by marhshalling Fortran object/memory
         ! into C compatible memory
         ! Will trigger the `GEOSInterfaceCode.run` python function on the user code
         ! -----------------------------
-        type(ESMF_GridComp), intent(inout), TARGET :: GC     ! Gridded component 
+        type(MAPL_MetaComp), intent(inout), TARGET  :: MAPL   ! MAPL state
         type(ESMF_State),    intent(inout), TARGET :: IMPORT ! Import state
         type(ESMF_State),    intent(inout), TARGET :: EXPORT ! Export state
 
@@ -96,17 +98,17 @@ contains
     
 #ifdef PYTHONBRIDGE_INTEGRATION
         PYGEOSBRIDGE_NAME_BUFFER = PYPKG_NAME // C_NULL_CHAR
-        call pyGEOSBridge_C_run( c_loc(PYGEOSBRIDGE_NAME_BUFFER), c_loc(GC), c_loc(IMPORT), c_loc(EXPORT) )
+        call pyGEOSBridge_C_run( c_loc(PYGEOSBRIDGE_NAME_BUFFER), c_loc(MAPL), c_loc(IMPORT), c_loc(EXPORT) )
 #endif
     end subroutine
 
-    subroutine MAPL_pybridge_gcfinalize(PYPKG_NAME, GC, IMPORT, EXPORT)
+    subroutine MAPL_pybridge_gcfinalize(PYPKG_NAME, MAPL, IMPORT, EXPORT)
         ! -----------------------------
         ! Call the python integration by marhshalling Fortran object/memory
         ! into C compatible memory.
         ! Will trigger the `GEOSInterfaceCode.finalize` python function on the user code
         ! -----------------------------
-        type(ESMF_GridComp), intent(inout), TARGET :: GC     ! Gridded component 
+        type(MAPL_MetaComp), intent(inout), TARGET  :: MAPL   ! MAPL state
         type(ESMF_State),    intent(inout), TARGET :: IMPORT ! Import state
         type(ESMF_State),    intent(inout), TARGET :: EXPORT ! Export state
 
@@ -114,7 +116,7 @@ contains
     
 #ifdef PYTHONBRIDGE_INTEGRATION
         PYGEOSBRIDGE_NAME_BUFFER = PYPKG_NAME // C_NULL_CHAR
-        call pyGEOSBridge_C_finalize( c_loc(PYGEOSBRIDGE_NAME_BUFFER), c_loc(GC), c_loc(IMPORT), c_loc(EXPORT) )
+        call pyGEOSBridge_C_finalize( c_loc(PYGEOSBRIDGE_NAME_BUFFER), c_loc(MAPL), c_loc(IMPORT), c_loc(EXPORT) )
 #endif
     end subroutine
 end MODULE MAPL_PythonBridge
