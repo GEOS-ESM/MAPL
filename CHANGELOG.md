@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Introduced AGENTS.md to assist in using copilot for MAPL development
+- Added `.rgignore` to have ripgrep ignore common build directories
 
 ### Changed
 
