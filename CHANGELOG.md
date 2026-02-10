@@ -28,10 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Support for Athena/Turin/TOSS5 at NAS
       - Update `build.csh` to support Athena/Turin/TOSS5 at NAS
         - Also remove Haswell
-  - `ESMA_cmake` v3.71.0
+  - `ESMA_cmake` v3.72.0
     - Add `USES_TERMINAL` to our `tests` target to ensure output is shown as tests run with Ninja
     - Updates for f2py and f2py3 for running on macOS with Spack
     - Add Athena frontend nodes for NAS detection
+    - Remove `ctest` pre-test build
 
 ### Removed
 
