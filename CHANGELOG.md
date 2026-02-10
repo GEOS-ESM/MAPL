@@ -106,13 +106,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Introduced AGENTS.md to assist in using copilot for MAPL development
-
 ### Fixed
 
 ### Added
 
+- Introduced AGENTS.md to assist in using copilot for MAPL development
+- Added `.rgignore` to have ripgrep ignore common build directories
+
 ### Changed
+
+- Update `components.yaml`
+  - `ESMA_env` v5.17.0
+    - Update to Baselibs 8.24.0
+      - ESMF v9.0.0b08
+      - GFE v1.22.0
+        - pFUnit v4.15.0
+      - curl 8.17.0
+      - NCO 5.3.6
+      - CDO 2.5.4
+      - Various updates for Athena/Turin/TOSS5 at NAS
+    - Support for Athena/Turin/TOSS5 at NAS
+      - Update `build.csh` to support Athena/Turin/TOSS5 at NAS
+        - Also remove Haswell
+  - `ESMA_cmake` v3.72.0
+    - Add `USES_TERMINAL` to our `tests` target to ensure output is shown as tests run with Ninja
+    - Updates for f2py and f2py3 for running on macOS with Spack
+    - Add Athena frontend nodes for NAS detection
+    - Remove `ctest` pre-test build
 
 ### Removed
 
