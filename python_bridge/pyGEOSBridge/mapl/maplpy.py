@@ -4,7 +4,7 @@ from pyGEOSBridge.types import CVoidPointer
 
 import numpy as np
 import numpy.typing as npt
-from typing import Tuple
+from typing import Any, Tuple
 
 
 class MAPLPyAPI:
@@ -25,11 +25,11 @@ class MAPLPyAPI:
         """Equivalent of Fortran's `MAPL_GetPointer`
 
         Args:
-            - name: string describing the pointer in the state
-            - state: MAPL state
-            - dtype: data type of pointer (default to `np.float32`)
-            - dims: dimensions of buffer, `None` will default to the full 3D grid
-            - alloc: equivalent of MAPL alloc on the Fortran side
+            name: string describing the pointer in the state
+            state: MAPL or ESMF state - expressed as C void*
+            dtype: data type of pointer (default to `np.float32`)
+            dims: dimensions of buffer, `None` will default to the full 3D grid
+            alloc: equivalent of MAPL alloc on the Fortran side
         """
         if dims is None:
             dims = self.grid_dims
@@ -51,6 +51,17 @@ class MAPLPyAPI:
         array = self._fpy_converter.fortran_to_python(casted_ptr, dims)
 
         return array
+
+    def get_resource(self, name: str, state: CVoidPointer, default: npt.DTypeLike | bool) -> Any:
+        """Equivalent to MAPL_GetResource
+
+        Args:
+            name: string describing the pointer in the state
+            state: MAPL or ESMF state - expressed as C void*
+            dtype: expected data type of resource
+            default: default value if resource does not exist on the state
+        """
+        return self._mapl_bridge.MAPL_GetResource(state=state, name=name, default=default)
 
     @property
     def grid_dims(self) -> Tuple[int, int, int]:

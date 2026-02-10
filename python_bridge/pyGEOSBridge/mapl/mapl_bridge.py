@@ -1,6 +1,6 @@
 import cffi
 import os
-from pyGEOSBridge.types import MAPLState, CVoidPointer, FFI
+from pyGEOSBridge.types import CVoidPointer, FFI
 from typing import Any
 import numpy as np
 import numpy.typing as npt
@@ -111,39 +111,39 @@ class MAPLBridge:
     def __del__(self):
         self.ffi.dlclose(self.mapl_c_bridge)
 
-    def ESMF_AttributeGet(self, state: MAPLState, name: str) -> Any:
+    def ESMF_AttributeGet(self, state: CVoidPointer, name: str) -> Any:
         # TODO: depending on value type, redirect to correct bridge function
         return self.mapl_c_bridge.MAPLPy_ESMF_AttributeGet_1D_int(  # type: ignore
             state, self.ffi.new("char[]", name.encode()), len(name)
         )
 
-    def ESMF_MethodExecute(self, state: MAPLState, label: str) -> Any:
+    def ESMF_MethodExecute(self, state: CVoidPointer, label: str) -> Any:
         self.mapl_c_bridge.MAPLPy_ESMF_MethodExecute(  # type: ignore
             state, self.ffi.new("char[]", label.encode()), len(label)
         )
 
     def MAPL_GetPointer_via_ESMFAttr(
         self,
-        state: MAPLState,
+        state: CVoidPointer,
         name: str,
     ) -> CVoidPointer:
         return self.mapl_c_bridge.MAPLpy_GetPointer_via_ESMFAttr(  # type: ignore
             state, self.ffi.new("char[]", name.encode()), len(name)
         )
 
-    def MAPL_GetPointer_2D(self, state: MAPLState, name: str, alloc: bool = False) -> CVoidPointer:
+    def MAPL_GetPointer_2D(self, state: CVoidPointer, name: str, alloc: bool = False) -> CVoidPointer:
         return self.mapl_c_bridge.MAPLpy_GetPointer_2D(  # type: ignore
             state, self.ffi.new("char[]", name.encode()), len(name), alloc
         )
 
-    def MAPL_GetPointer_3D(self, state: MAPLState, name: str, alloc: bool = False) -> CVoidPointer:
+    def MAPL_GetPointer_3D(self, state: CVoidPointer, name: str, alloc: bool = False) -> CVoidPointer:
         return self.mapl_c_bridge.MAPLpy_GetPointer_3D(  # type: ignore
             state, self.ffi.new("char[]", name.encode()), len(name), alloc
         )
 
     def MAPL_GetResource(
         self,
-        state: MAPLState,
+        state: CVoidPointer,
         name: str,
         default: npt.DTypeLike | bool,
     ) -> Any:
@@ -170,15 +170,15 @@ class MAPLBridge:
             )
         raise NotImplementedError(f"MAPL_GetResource for type {dtype} not implemented.")
 
-    def ESMF_TimeIntervalGet(self, time_state: MAPLState) -> np.float64:
+    def ESMF_TimeIntervalGet(self, time_state: CVoidPointer) -> np.float64:
         return self.mapl_c_bridge.MAPLpy_ESMF_TimeIntervalGet(time_state)  # type: ignore
 
-    def ESMF_GridCompGetName(self, state: MAPLState) -> str:
+    def ESMF_GridCompGetName(self, state: CVoidPointer) -> str:
         cdata_string = self.mapl_c_bridge.MAPLpy_ESMF_GridCompGetName(state)
         byte_string = self.ffi.string(cdata_string)
         return byte_string.decode("utf-8").rstrip()
 
-    def associated_2d(self, state: MAPLState, name: str, alloc: bool = False) -> bool:
+    def associated_2d(self, state: CVoidPointer, name: str, alloc: bool = False) -> bool:
         return self.mapl_c_bridge.MAPLpy_GetPointer_2D_associated(  # type: ignore
             state,
             self.ffi.new("char[]", name.encode()),
@@ -186,7 +186,7 @@ class MAPLBridge:
             alloc,
         )
 
-    def associated_3d(self, state: MAPLState, name: str, alloc: bool = False) -> bool:
+    def associated_3d(self, state: CVoidPointer, name: str, alloc: bool = False) -> bool:
         return self.mapl_c_bridge.MAPLpy_GetPointer_3D_associated(  # type: ignore
             state,
             self.ffi.new("char[]", name.encode()),
