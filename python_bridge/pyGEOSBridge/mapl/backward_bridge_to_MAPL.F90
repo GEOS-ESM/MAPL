@@ -390,4 +390,100 @@ module C_BRIDGE_TO_MAPL
 
     end function MAPLpy_ESMF_GridCompGetName
 
+    function MAPLPy_MAPL_GetIM(c_mapl_state) result(result) bind(c, name="MAPLPy_MAPL_GetIM")
+        ! Read in STATE
+        type(c_ptr), intent(in), value :: c_mapl_state
+        type(MAPL_MetaComp), pointer :: state
+
+        ! Results
+        integer(C_INT32_T) :: result
+        integer(kind=4) :: local_r
+
+        ! Make pointer & string fortran from C
+        call c_f_pointer(c_mapl_state, state)              
+
+        call MAPL_Get(state, IM=local_r, RC=STATUS)
+        print*, "MAPL_GetIM", result
+
+        VERIFY_(STATUS)
+        result = local_r
+    
+    end function
+
+    function MAPLPy_MAPL_GetJM(c_mapl_state) result(result) bind(c, name="MAPLPy_MAPL_GetJM")
+        ! Read in STATE
+        type(c_ptr), intent(in), value :: c_mapl_state
+        type(MAPL_MetaComp), pointer :: state
+
+        ! Results
+        integer(C_INT32_T) :: result
+        integer(kind=4) :: local_r
+
+        ! Make pointer & string fortran from C
+        call c_f_pointer(c_mapl_state, state)              
+
+        call MAPL_Get(state, JM=local_r, RC=STATUS)
+
+        VERIFY_(STATUS)
+        result = local_r
+    
+    end function
+
+    function MAPLPy_MAPL_GetLM(c_mapl_state) result(result) bind(c, name="MAPLPy_MAPL_GetLM")
+        ! Read in STATE
+        type(c_ptr), intent(in), value :: c_mapl_state
+        type(MAPL_MetaComp), pointer :: state
+
+        ! Results
+        integer(C_INT32_T) :: result
+        integer(kind=4) :: local_r
+
+        ! Make pointer & string fortran from C
+        call c_f_pointer(c_mapl_state, state)              
+
+        call MAPL_Get(state, LM=local_r, RC=STATUS)
+
+        VERIFY_(STATUS)
+        result = local_r
+    
+    end function
+
+    function MAPLPy_MAPL_GetNX(c_mapl_state) result(result) bind(c, name="MAPLPy_MAPL_GetNX")
+        ! Read in STATE
+        type(c_ptr), intent(in), value :: c_mapl_state
+        type(MAPL_MetaComp), pointer :: state
+
+        ! Results
+        integer(C_INT32_T) :: result
+        integer(kind=4) :: local_r
+
+        ! Make pointer & string fortran from C
+        call c_f_pointer(c_mapl_state, state)              
+
+        call MAPL_Get(state, NX=local_r, RC=STATUS)
+
+        VERIFY_(STATUS)
+        result = local_r
+    
+    end function
+
+    function MAPLPy_MAPL_GetNY(c_mapl_state) result(result) bind(c, name="MAPLPy_MAPL_GetNY")
+        ! Read in STATE
+        type(c_ptr), intent(in), value :: c_mapl_state
+        type(MAPL_MetaComp), pointer :: state
+
+        ! Results
+        integer(C_INT32_T) :: result
+        integer(kind=4) :: local_r
+
+        ! Make pointer & string fortran from C
+        call c_f_pointer(c_mapl_state, state)              
+
+        call MAPL_Get(state, NY=local_r, RC=STATUS)
+
+        VERIFY_(STATUS)
+        result = local_r
+    
+    end function
+
 end module C_BRIDGE_TO_MAPL

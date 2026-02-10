@@ -92,6 +92,13 @@ class MAPLBridge:
             ");"
         )
 
+        # MAPLPy_MAPL_X
+        self.ffi.cdef("int MAPLPy_MAPL_GetIM(void* esmf_state_c_ptr);")
+        self.ffi.cdef("int MAPLPy_MAPL_GetJM(void* esmf_state_c_ptr);")
+        self.ffi.cdef("int MAPLPy_MAPL_GetLM(void* esmf_state_c_ptr);")
+        self.ffi.cdef("int MAPLPy_MAPL_GetNX(void* esmf_state_c_ptr);")
+        self.ffi.cdef("int MAPLPy_MAPL_GetNY(void* esmf_state_c_ptr);")
+
         self.ffi.cdef("void* MAPLpy_ESMF_TimeIntervalGet(void* esmf_time_state_c_ptr);")
 
         self.ffi.cdef(
@@ -169,6 +176,21 @@ class MAPLBridge:
                 state, self.ffi.new("char[]", name.encode()), len(name), default
             )
         raise NotImplementedError(f"MAPL_GetResource for type {dtype} not implemented.")
+
+    def MAPL_GetIM(self, state: CVoidPointer) -> int:
+        return self.mapl_c_bridge.MAPLPy_MAPL_GetIM(state)
+
+    def MAPL_GetJM(self, state: CVoidPointer) -> int:
+        return self.mapl_c_bridge.MAPLPy_MAPL_GetJM(state)
+
+    def MAPL_GetLM(self, state: CVoidPointer) -> int:
+        return self.mapl_c_bridge.MAPLPy_MAPL_GetLM(state)
+
+    def MAPL_GetNX(self, state: CVoidPointer) -> int:
+        return self.mapl_c_bridge.MAPLPy_MAPL_GetNX(state)
+
+    def MAPL_GetNY(self, state: CVoidPointer) -> int:
+        return self.mapl_c_bridge.MAPLPy_MAPL_GetNY(state)
 
     def ESMF_TimeIntervalGet(self, time_state: CVoidPointer) -> np.float64:
         return self.mapl_c_bridge.MAPLpy_ESMF_TimeIntervalGet(time_state)  # type: ignore

@@ -1,3 +1,4 @@
+import dataclasses
 from pyGEOSBridge.mapl.mapl_bridge import MAPLBridge
 from pyGEOSBridge.memory.fortran_python_converter import FortranPythonConverter
 from pyGEOSBridge.types import CVoidPointer
@@ -5,6 +6,15 @@ from pyGEOSBridge.types import CVoidPointer
 import numpy as np
 import numpy.typing as npt
 from typing import Any, Tuple
+
+
+@dataclasses.dataclass(frozen=True)
+class MAPLGridInfo:
+    im: int = 0
+    jm: int = 0
+    lm: int = 0
+    nx: int = 0
+    ny: int = 0
 
 
 class MAPLPyAPI:
@@ -62,6 +72,17 @@ class MAPLPyAPI:
             default: default value if resource does not exist on the state
         """
         return self._mapl_bridge.MAPL_GetResource(state=state, name=name, default=default)
+
+    def get_grid_infos(self, mapl_state: CVoidPointer) -> MAPLGridInfo:
+        """Retrieve basic grid information"""
+
+        return MAPLGridInfo(
+            self._mapl_bridge.MAPL_GetIM(mapl_state),
+            self._mapl_bridge.MAPL_GetJM(mapl_state),
+            self._mapl_bridge.MAPL_GetLM(mapl_state),
+            self._mapl_bridge.MAPL_GetNX(mapl_state),
+            self._mapl_bridge.MAPL_GetNY(mapl_state),
+        )
 
     @property
     def grid_dims(self) -> Tuple[int, int, int]:
