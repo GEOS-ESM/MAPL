@@ -24,10 +24,14 @@ void QSswap(long long a[], int b[], int i, int j, int m, int n)
      l=a[i]; a[i]=a[j]; a[j]=l;
 
      if     (n>0) {
-       for(k=0;k< n;k++) {s=b[n*i+k]; b[n*i+k]=b[n*j+k]; b[n*j+k]=s;}
+       long long ni, nik, nj, njk;
+       ni = (long long)n*i;
+       nj = (long long)n*j;
+       for(k=0;k< n;k++) {nik=ni+k;njk=nj+k;s=b[nik]; b[nik]=b[njk]; b[njk]=s;}
      }
      else if(n<0) {
-       for(k=0;k<-n;k++) {s=b[i+m*k]; b[i+m*k]=b[j+m*k]; b[j+m*k]=s;}
+       long long mk, imk, jmk;
+       for(k=0;k<-n;k++) {mk=m*l;imk=i+mk;jmk=j+mk;s=b[imk]; b[imk]=b[jmk]; b[jmk]=s;}
      }
 
    }
