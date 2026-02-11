@@ -7,6 +7,7 @@ module mapl3g_FieldBundleGet
    use mapl3g_Field_API
    use mapl3g_UngriddedDims
    use mapl3g_FieldBundleType_Flag
+   use mapl3g_VectorBasisKind
    use mapl3g_FieldBundleInfo
    use mapl3g_InfoUtilities
    use mapl3g_LU_Bound
@@ -39,6 +40,7 @@ contains
         bracket_updated, &
         has_deferred_aspects, &
         regridder_param_info, &
+        vector_basis_kind, &
         rc)
 
       type(ESMF_FieldBundle), intent(in) :: fieldBundle
@@ -61,6 +63,7 @@ contains
       logical, optional, intent(out) :: bracket_updated
       logical, optional, intent(out) :: has_deferred_aspects
       type(esmf_Info), optional, allocatable, intent(out) :: regridder_param_info
+      type(VectorBasisKind), optional, intent(out) :: vector_basis_kind
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -96,6 +99,7 @@ contains
            vgrid_id=vgrid_id, &
            has_deferred_aspects=has_deferred_aspects, &
            regridder_param_info=regridder_param_info, &
+           vector_basis_kind=vector_basis_kind, &
            _RC)
 
       if (present(geom) .and. has_geom) then

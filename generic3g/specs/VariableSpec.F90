@@ -26,6 +26,7 @@ module mapl3g_VariableSpec
    use mapl3g_TypekindAspect
    use mapl3g_UngriddedDims
    use mapl3g_VerticalStaggerLoc
+   use mapl3g_VectorBasisKind
    use mapl3g_HorizontalDimsSpec
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualConnectionPt
@@ -75,10 +76,8 @@ module mapl3g_VariableSpec
       ! Vector
       !---------------------
       type(StringVector) :: vector_component_names ! default empty
+      type(VectorBasisKind), allocatable :: vector_basis_kind
       real(kind=ESMF_KIND_R4), allocatable :: default_value
-      ! Todo: implement these
-      ! type(VectorOrientation_Flag), allocatable :: vectororientation
-      ! type(ArakawaStagger_Flag), allocatable :: arakawa_stagger
       !---------------------
       ! Bracket
       !---------------------
@@ -181,6 +180,7 @@ contains
         timeStep, &
         offset, &
         vector_component_names, &
+        vector_basis_kind, &
         has_deferred_aspects, &
         restart_mode, &
         rc) result(var_spec)
@@ -210,12 +210,14 @@ contains
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
       type(ESMF_TimeInterval), optional, intent(in) :: offset
       type(StringVector), optional, intent(in) :: vector_component_names
+      character(*), optional, intent(in) :: vector_basis_kind
       logical, optional, intent(in) :: has_deferred_aspects
       type(RestartMode), optional, intent(in) :: restart_mode
       integer, optional, intent(out) :: rc
 
 !#      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
 !#      type(EsmfRegridderParam) :: regrid_param_
+      logical :: is_vector
 
       var_spec%short_name = short_name
       var_spec%state_intent = state_intent
@@ -246,6 +248,39 @@ contains
       _SET_OPTIONAL(vector_component_names)
       _SET_OPTIONAL(has_deferred_aspects)
       _SET_OPTIONAL(restart_mode)
+
+      ! Handle vector_basis_kind with validation
+      if (present(vector_basis_kind)) then
+         ! Check if this is a vector by looking at vector_component_names or standard_name tuple format
+         is_vector = .false.
+         
+         ! Check if vector_component_names are provided
+         if (var_spec%vector_component_names%size() > 0) then
+            is_vector = .true.
+         end if
+         
+         ! Check if standard_name has tuple format (name1,name2)
+         if (allocated(var_spec%standard_name)) then
+            if (index(var_spec%standard_name, '(') > 0 .and. &
+                index(var_spec%standard_name, ')') > 0) then
+               is_vector = .true.
+            end if
+         end if
+         
+         if (.not. is_vector) then
+            _FAIL('vector_basis_kind can only be specified for vectors')
+         end if
+         var_spec%vector_basis_kind = VectorBasisKind(vector_basis_kind)
+      else if (var_spec%vector_component_names%size() > 0) then
+         ! Default to NS for vectors
+         var_spec%vector_basis_kind = VECTOR_BASIS_KIND_NS
+      else if (allocated(var_spec%standard_name)) then
+         ! Check if standard_name has tuple format - also a vector, default to NS
+         if (index(var_spec%standard_name, '(') > 0 .and. &
+             index(var_spec%standard_name, ')') > 0) then
+            var_spec%vector_basis_kind = VECTOR_BASIS_KIND_NS
+         end if
+      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -583,7 +618,8 @@ contains
               [ &
               FieldClassAspect(standard_name=std_name_1, default_value=this%default_value), &
               FieldClassAspect(standard_name=std_name_2, default_value=this%default_value) &
-              ])
+              ], &
+              this%vector_basis_kind)
       case (MAPL_STATEITEM_BRACKET%ot)
          aspect = BracketClassAspect(this%bracket_size, this%standard_name)
       case (MAPL_STATEITEM_VECTOR_BRACKET%ot)

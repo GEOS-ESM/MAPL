@@ -8,6 +8,7 @@ module mapl3g_FieldBundleInfo
    use mapl3g_FieldInfo
    use mapl3g_UngriddedDims
    use mapl3g_FieldBundleType_Flag
+   use mapl3g_VectorBasisKind
    use mapl3g_VerticalGrid_API
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
@@ -44,6 +45,7 @@ contains
         has_geom, &
         has_deferred_aspects, &
         regridder_param_info, &
+        vector_basis_kind, &
         rc)
 
       type(ESMF_Info), intent(in) :: info
@@ -65,10 +67,12 @@ contains
       logical, optional, intent(out) :: has_geom
       logical, optional, intent(out) :: has_deferred_aspects
       type(esmf_Info), optional, allocatable, intent(out) :: regridder_param_info
+      type(VectorBasisKind), optional, intent(out) :: vector_basis_kind
       integer, optional, intent(out) :: rc
 
       integer :: status
       character(:), allocatable :: fieldBundleType_str, allocation_status_str
+      character(:), allocatable :: basis_kind_str
       character(:), allocatable :: namespace_
 
       namespace_ = INFO_INTERNAL_NAMESPACE
@@ -96,6 +100,11 @@ contains
 
       if (present(has_geom)) then
          call ESMF_InfoGet(info, key=namespace_//KEY_HAS_GEOM, value=has_geom, default=.false., _RC)
+      end if
+
+      if (present(vector_basis_kind)) then
+         call MAPL_InfoGet(info, key=namespace_//KEY_VECTOR_BASIS_KIND, value=basis_kind_str, _RC)
+         vector_basis_kind = VectorBasisKind(basis_kind_str)
       end if
 
       ! Field-prototype items that come from field-info (including typekind)
@@ -126,6 +135,7 @@ contains
         has_geom, &
         has_deferred_aspects, &
         regridder_param_info, &
+        vector_basis_kind, &
         rc)
 
       type(ESMF_Info), intent(inout) :: info
@@ -146,6 +156,7 @@ contains
       logical, optional, intent(in) :: has_geom
       logical, optional, intent(in) :: has_deferred_aspects
       type(esmf_info), optional, intent(in) :: regridder_param_info
+      type(VectorBasisKind), optional, intent(in) :: vector_basis_kind
       integer, optional, intent(out) :: rc
       
       integer :: status
@@ -176,6 +187,11 @@ contains
 
       if (present(has_geom)) then
          call ESMF_InfoSet(info, key=namespace_ // KEY_HAS_GEOM, value=has_geom, _RC)
+      end if
+
+      if (present(vector_basis_kind)) then
+         call ESMF_InfoSet(info, key=namespace_ // KEY_VECTOR_BASIS_KIND, &
+                           value=vector_basis_kind%to_string(), _RC)
       end if
 
        call FieldInfoSetInternal(info, namespace=namespace_ // KEY_FIELD_PROTOTYPE, &

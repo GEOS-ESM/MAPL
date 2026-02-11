@@ -13,6 +13,7 @@ module mapl3g_VectorClassAspect
    use mapl3g_UnitsAspect
    use mapl3g_TypekindAspect
    use mapl3g_UngriddedDimsAspect
+   use mapl3g_VectorBasisKind
    use mapl3g_FieldBundleInfo, only: FieldBundleInfoSetInternal
 
    use mapl3g_VerticalGrid
@@ -49,6 +50,7 @@ module mapl3g_VectorClassAspect
       type(ESMF_FieldBundle) :: payload
       type(StringVector) :: short_names
       type(FieldClassAspect) :: component_specs(2)
+      type(VectorBasisKind) :: basis_kind
    contains
       procedure :: get_aspect_order
       procedure :: supports_conversion_general
@@ -75,13 +77,15 @@ module mapl3g_VectorClassAspect
 
 contains
 
-   function new_VectorClassAspect_basic(short_names, component_specs) result(aspect)
+   function new_VectorClassAspect_basic(short_names, component_specs, basis_kind) result(aspect)
       type(VectorClassAspect) :: aspect
       type(StringVector), intent(in) :: short_names
       type(FieldClassAspect), intent(in) :: component_specs(2)
+      type(VectorBasisKind), intent(in) :: basis_kind
 
       aspect%short_names = short_names
       aspect%component_specs = component_specs
+      aspect%basis_kind = basis_kind
       
    end function new_VectorClassAspect_basic
 
@@ -127,7 +131,10 @@ contains
       this%payload = MAPL_FieldBundleCreate(fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
       
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call MAPL_FieldBundleSet(this%payload, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
+      call MAPL_FieldBundleSet(this%payload, &
+                               allocation_status=STATEITEM_ALLOCATION_CREATED, &
+                               vector_basis_kind=this%basis_kind, &
+                               _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(other_aspects)
