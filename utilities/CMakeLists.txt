@@ -3,6 +3,7 @@ esma_set_this (OVERRIDE MAPL.utilities)
 set(srcs
   utilities.F90
   MemInfo.F90
+  TimeUtilities.F90
 )
 
 esma_add_library(${this} SRCS ${srcs} DEPENDENCIES MAPL.shared TYPE SHARED)
