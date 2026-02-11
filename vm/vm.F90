@@ -1,10 +1,13 @@
 #include "MAPL.h"
+
 module mapl3g_vm
+
    use mapl_ErrorHandling
    use esmf, only: esmf_VM
    use esmf, only: esmf_VMGetCurrent
    use esmf, only: esmf_VMGet
    use esmf, only: esmf_VMBarrier
+
    implicit none(type,external)
    private
 
@@ -30,7 +33,6 @@ contains
       type (esmf_VM), optional :: vm
 
       am_i_root = am_i_pet(vm, pet=0)
-
    end function am_I_root
 
    logical function am_i_pet(vm, pet, rc)
@@ -50,7 +52,9 @@ contains
       call esmf_VMGet(vm_, localPet=localPet, _RC)
 
       am_i_pet = (localPet == pet_)
+
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(vm)
    end function am_i_pet
 
    subroutine barrier(vm, rc)
@@ -64,6 +68,7 @@ contains
       call esmf_VMBarrier(vm_, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(vm)
    end subroutine barrier
 
    function current_vm(vm, rc)
