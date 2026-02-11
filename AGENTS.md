@@ -64,6 +64,11 @@ Combine flags
 ```
 mpirun -np 1 ./MAPL.generic3g.tests -d -f GridComp
 ```
+## Platform-Specific Tests
+Some tests only run on specific platforms:
+### Test_MemInfoWrite (Linux only)
+This test requires `/proc/self/status` which only exists on Linux. The test is automatically excluded on macOS and other non-Linux platforms via CMake configuration in `utilities/tests/CMakeLists.txt`.
+
 ## Common Issues
 ### CMake fails because it could not find a compiler
 Forgot to use `module load ...`
