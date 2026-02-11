@@ -30,18 +30,39 @@ ssh bucy "cd ~/swdev/VS/MAPL/intel && source /etc/profile.d/modules.sh && module
 Use separate build directories per compiler: ./nag, ./gfortran, ./intel
 Never mix compilers in the same build directory
 
+## Build Times
+**Measured build times** (from scratch on M2 Max, -j 8):
+- NAG configuration: ~11 seconds
+- NAG build: ~81 seconds (1m 21s)
+- gfortran configuration: ~15 seconds
+- gfortran build: ~403 seconds (6m 43s)
+- Intel (bucy): not yet measured
+
+**Incremental builds** (after code changes):
+- Most changes: < 3 minutes
+- Changes to generic3g only: < 1 minute using fast workflow
+
+**Recommended timeouts for automation** (measured time + 25% padding):
+- NAG full build: 120 seconds (2 min)
+- gfortran full build: 540 seconds (9 min)
+- Incremental builds: 180 seconds (3 min)
+
 ## Generic3g Development Workflow
 Problem: Running ctest is too slow
 Running ctest at the top level rebuilds everything. For generic3g work, use this faster workflow:
 
 ### Fast Build and Test (generic3g only)
 ```
-cd generic3g/tests
+cd $BUILD/generic3g/tests
 make
-export DYLD_LIBRARY_PATH=$BUILD/generic3g/tests/gridcomps:$DYLD_LIBRARY_PATH
+export DYLD_LIBRARY_PATH=$PWD/gridcomps:$DYLD_LIBRARY_PATH
 mpirun -np 1 ./MAPL.generic3g.tests
 ```
-**IMPORTANT**: The DYLD_LIBRARY_PATH must include $BUILD/generic3g/tests/gridcomps or tests will fail to load libraries. This path also contains NAG compiler license information.
+**IMPORTANT**: 
+- You MUST run mpirun from within the $BUILD/generic3g/tests directory, not from the top-level build directory
+- The DYLD_LIBRARY_PATH must include $BUILD/generic3g/tests/gridcomps or tests will fail to load libraries
+- This path also contains NAG compiler license information
+- Use $PWD/gridcomps when already in the tests directory
 
 ## Test Debugging Options
 When running ./MAPL.generic3g.tests, use these flags AFTER the executable name:
@@ -81,7 +102,7 @@ Use -d flag to see diagnostic output showing which test started but did not fini
 ### Want to run just one test but pattern matching is not working
 Do not use wildcards or regex. Just use plain substring: -f MyTestName
 ### Full ctest is too slow during generic3g development
-Use the fast workflow: `cd $BUILD/generic3g/tests && make && mpirun -np 1 ./MAPL.generic3g.tests`
+Use the fast workflow (MUST run from within the tests directory): `cd $BUILD/generic3g/tests && make && export DYLD_LIBRARY_PATH=$PWD/gridcomps:$DYLD_LIBRARY_PATH && mpirun -np 1 ./MAPL.generic3g.tests`
 
 ## Switching Compilers
 
