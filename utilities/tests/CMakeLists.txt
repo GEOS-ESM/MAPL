@@ -3,8 +3,12 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.utilities/tests")
 set (TEST_SRCS
   Test_MaxMin.pf
   Test_AreaMean.pf
-  Test_MemInfoWrite.pf
 )
+
+# Test_MemInfoWrite only works on Linux (requires /proc/self/status)
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  list(APPEND TEST_SRCS Test_MemInfoWrite.pf)
+endif()
 
 add_pfunit_ctest(MAPL.utilities.tests
   TEST_SOURCES ${TEST_SRCS}
