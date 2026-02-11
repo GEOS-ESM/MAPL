@@ -4,6 +4,7 @@ module mapl3g_FieldBundleCreate
 
    use mapl3g_FieldBundleType_Flag
    use mapl3g_FieldBundleSet
+   use mapl3g_VectorBasisKind
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use esmf
@@ -40,6 +41,11 @@ contains
       fieldBundleType_ = FIELDBUNDLETYPE_BASIC
       if (present(fieldBundleType)) fieldBundleType_ = fieldBundleType
       call FieldBundleSet(bundle, fieldBundleType=fieldBundleType_, _RC)
+      
+      ! Set default vector basis kind for vector bundles
+      if (fieldBundleType_ == FIELDBUNDLETYPE_VECTOR) then
+         call FieldBundleSet(bundle, vector_basis_kind=VECTOR_BASIS_KIND_NS, _RC)
+      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
