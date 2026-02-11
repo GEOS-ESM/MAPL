@@ -31,7 +31,7 @@ void QSswap(long long a[], int b[], int i, int j, int m, int n)
      }
      else if(n<0) {
        long long mk, imk, jmk;
-       for(k=0;k<-n;k++) {mk=(long long)m*l;imk=i+mk;jmk=j+mk;s=b[imk]; b[imk]=b[jmk]; b[jmk]=s;}
+       for(k=0;k<-n;k++) {mk=(long long)m*k;imk=i+mk;jmk=j+mk;s=b[imk]; b[imk]=b[jmk]; b[jmk]=s;}
      }
 
    }
