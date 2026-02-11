@@ -1,5 +1,5 @@
 ! Public interface (package) to MAPL3
-module mapl3g_utilities
+module mapl3g_Utilities
 
    use mapl3g_MaxMin, only: MAPL_MaxMin => MaxMin
    use mapl3g_AreaMean, only: MAPL_AreaMean => AreaMean
@@ -10,4 +10,4 @@ module mapl3g_utilities
    ! the other layers.  When the dust settles and such micro
    ! management become feasible, this can be reconsidered.
 
-end module mapl3g_utilities
+end module mapl3g_Utilities
