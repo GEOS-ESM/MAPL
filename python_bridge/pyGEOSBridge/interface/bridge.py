@@ -43,6 +43,16 @@ def pyGEOSBridge_Py_run(name, mapl_state, import_state, export_state) -> int:
     return 0
 
 @ffi.def_extern()
+def pyGEOSBridge_Py_run_with_internal(name, mapl_state, import_state, export_state, internal_state) -> int:
+    try:
+        pyGEOSBridge.named_run_with_internal(name, mapl_state, import_state, export_state, internal_state)
+    except Exception as err:
+        print("Error in Python:")
+        print(traceback.format_exc())
+        return -1
+    return 0
+
+@ffi.def_extern()
 def pyGEOSBridge_Py_finalize(name, mapl_state, import_state, export_state) -> int:
     try:
         pyGEOSBridge.named_finalize(name, mapl_state, import_state, export_state)

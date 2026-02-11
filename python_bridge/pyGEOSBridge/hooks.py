@@ -70,6 +70,18 @@ def named_run(
     CODE.run(mapl_state, import_state, export_state)
 
 
+def named_run_with_internal(
+    c_package_name: FFI.CData,
+    mapl_state: CVoidPointer,
+    import_state: CVoidPointer,
+    export_state: CVoidPointer,
+    internal_state: CVoidPointer,
+):
+    """Python hook for Fortran's `gc_run`."""
+    CODE = _get_code_object_from_package_name(c_package_name)
+    CODE.run_with_internal(mapl_state, import_state, export_state, internal_state)
+
+
 def named_finalize(
     c_package_name: FFI.CData,
     mapl_state: CVoidPointer,

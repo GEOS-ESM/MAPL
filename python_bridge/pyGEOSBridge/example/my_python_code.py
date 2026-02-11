@@ -21,6 +21,9 @@ class MyInterfacingCode(GEOSInterfaceCode):
 
         print(f"Now running MyInterfacingCode.run: T before {t_before}, after {T[0, 0, :]}")
 
+    def run_with_internal(self, grid_comp, import_state, export_state, internal_state) -> None:
+        print("Now running MyInterfacingCode.run_with_internal")
+
     def finalize(self, grid_comp, import_state, export_state) -> None:
         print("Now running MyInterfacingCode.finalize")
 

@@ -11,6 +11,7 @@ module GEOS_PythonBridge_PyInterfaceMod
     
     public :: pyGEOSBridge_C_init
     public :: pyGEOSBridge_C_run
+    public :: pyGEOSBridge_C_run_with_internal
     public :: pyGEOSBridge_C_finalize
 
     public :: PYGEOSBRIDGE_NAME_BUFFER
@@ -38,6 +39,12 @@ module GEOS_PythonBridge_PyInterfaceMod
             implicit none
             type(c_ptr), intent(in), value :: NAME, MAPL_STATE, IMPORT, EXPORT
         end subroutine pyGEOSBridge_C_run
+
+        subroutine pyGEOSBridge_C_run_with_internal(NAME, MAPL_STATE, IMPORT, EXPORT, INTERNAL) bind(c, name='pyGEOSBridge_C_run_with_internal')
+            import c_ptr
+            implicit none
+            type(c_ptr), intent(in), value :: NAME, MAPL_STATE, IMPORT, EXPORT, INTERNAL
+        end subroutine pyGEOSBridge_C_run_with_internal
 
         subroutine pyGEOSBridge_C_finalize(NAME, MAPL_STATE, IMPORT, EXPORT) bind(c, name='pyGEOSBridge_C_finalize')
             import c_ptr

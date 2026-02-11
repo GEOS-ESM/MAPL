@@ -23,6 +23,7 @@ module MAPL_PythonBridge
 
     public initialize_python_bridge
     public MAPL_pybridge_gcrun
+    public MAPL_pybridge_gcrun_with_internal
     public MAPL_pybridge_gcinit
     public MAPL_pybridge_gcfinalize
 
@@ -99,6 +100,25 @@ contains
 #ifdef PYTHONBRIDGE_INTEGRATION
         PYGEOSBRIDGE_NAME_BUFFER = PYPKG_NAME // C_NULL_CHAR
         call pyGEOSBridge_C_run( c_loc(PYGEOSBRIDGE_NAME_BUFFER), c_loc(MAPL), c_loc(IMPORT), c_loc(EXPORT) )
+#endif
+    end subroutine
+
+    subroutine MAPL_pybridge_gcrun_with_internal(PYPKG_NAME, MAPL, IMPORT, EXPORT, INTERNAL)
+        ! -----------------------------
+        ! Call the python integration by marhshalling Fortran object/memory
+        ! into C compatible memory. Variation of `gcrun` with an INTERNAL state
+        ! Will trigger the `GEOSInterfaceCode.run_with_internal` python function on the user code
+        ! -----------------------------
+        type(MAPL_MetaComp), intent(inout), TARGET  :: MAPL   ! MAPL state
+        type(ESMF_State),    intent(inout), TARGET :: IMPORT ! Import state
+        type(ESMF_State),    intent(inout), TARGET :: EXPORT ! Export state
+        type(ESMF_State),    intent(inout), TARGET :: INTERNAL ! Internal state
+
+        character(len=*),    intent(in)            :: PYPKG_NAME
+    
+#ifdef PYTHONBRIDGE_INTEGRATION
+        PYGEOSBRIDGE_NAME_BUFFER = PYPKG_NAME // C_NULL_CHAR
+        call pyGEOSBridge_C_run_with_internal( c_loc(PYGEOSBRIDGE_NAME_BUFFER), c_loc(MAPL), c_loc(IMPORT), c_loc(EXPORT), c_loc(INTERNAL) )
 #endif
     end subroutine
 

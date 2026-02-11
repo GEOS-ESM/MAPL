@@ -37,6 +37,20 @@ void pyGEOSBridge_C_run(
     }
 }
 
+void pyGEOSBridge_C_run_with_internal(
+    char *name,
+    void *mapl,
+    void *import_state,
+    void *export_state,
+    void *internal_state)
+{
+    int return_code = pyGEOSBridge_Py_run_with_internal(name, mapl, import_state, export_state, internal_state);
+    if (return_code < 0)
+    {
+        exit(return_code);
+    }
+}
+
 void pyGEOSBridge_C_finalize(
     char *name,
     void *mapl,
