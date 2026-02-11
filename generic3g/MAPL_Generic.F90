@@ -97,7 +97,8 @@ module mapl3g_Generic
    public :: MAPL_GridCompSetVerticalGrid
 
    ! Connections
-   public :: MAPL_GridCompAddConnectivity
+   public :: MAPL_GridCompAddConnection
+   public :: MAPL_GridCompAddConnectivity  ! Legacy name - temporary backward compatibility
    public :: MAPL_GridCompReexport
    public :: MAPL_GridCompConnectAll
 
@@ -201,8 +202,13 @@ module mapl3g_Generic
       procedure :: gridcomp_is_user
    end interface MAPL_GridCompIsUser
 
+   interface MAPL_GridCompAddConnection
+      procedure :: gridcomp_add_simple_connection
+   end interface MAPL_GridCompAddConnection
+
+   ! Legacy interface - temporary backward compatibility
    interface MAPL_GridCompAddConnectivity
-      procedure :: gridcomp_add_simple_connectivity
+      procedure :: gridcomp_add_simple_connection
    end interface MAPL_GridCompAddConnectivity
 
    interface MAPL_GridCompReexport
@@ -1070,7 +1076,7 @@ contains
 
    ! Use "<SELF>" to indicate connection to gridcomp.
    ! src_name and dst_name can be comma-delimited strings for multiple connection
-   subroutine gridcomp_add_simple_connectivity(gridcomp, unusable, src_comp, src_names, dst_comp, dst_names, rc)
+   subroutine gridcomp_add_simple_connection(gridcomp, unusable, src_comp, src_names, dst_comp, dst_names, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), intent(in) :: src_comp
@@ -1085,11 +1091,11 @@ contains
 
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
-      call component_spec%add_connectivity(src_comp=src_comp, src_names=src_names, dst_comp=dst_comp, dst_names=dst_names, _RC)
+      call component_spec%add_connection(src_comp=src_comp, src_names=src_names, dst_comp=dst_comp, dst_names=dst_names, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end subroutine gridcomp_add_simple_connectivity
+   end subroutine gridcomp_add_simple_connection
 
    subroutine gridcomp_reexport(gridcomp, unusable, src_comp, src_name, src_intent, new_name, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
