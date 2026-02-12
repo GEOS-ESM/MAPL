@@ -601,7 +601,7 @@ contains
                basis_kind)
       case (MAPL_STATEITEM_BRACKET%ot)
          aspect = BracketClassAspect(this%bracket_size, this%standard_name)
-      case (MAPL_STATEITEM_VECTOR_BRACKET%ot)
+      case (MAPL_STATEITEM_VECTORBRACKET%ot)
          if (allocated(this%vector_basis_kind)) then
             aspect = VectorBracketClassAspect(this%bracket_size, this%standard_name, vector_basis_kind=this%vector_basis_kind)
          else

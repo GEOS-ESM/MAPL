@@ -45,7 +45,7 @@ contains
       case ('bracket')
          itemtype = MAPL_STATEITEM_BRACKET
       case ('vector_bracket')
-         itemtype = MAPL_STATEITEM_VECTOR_BRACKET
+         itemtype = MAPL_STATEITEM_VECTORBRACKET
       case default
          _FAIL('unknown subclass for state item: '//subclass)
       end select
