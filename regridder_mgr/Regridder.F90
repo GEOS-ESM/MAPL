@@ -64,18 +64,27 @@ contains
       else if (bundleType_in == FIELDBUNDLETYPE_VECTOR_BRACKET) then
          call MAPL_FieldBundleGet(fb_in, fieldList=field_list_in, _RC)
          call MAPL_FieldBundleGet(fb_out, fieldList=field_list_out, _RC)
+         _ASSERT(mod(size(field_list_in), 2) == 0, 'VectorBracket must contain an even number of fields')
+         _ASSERT(mod(size(field_list_out), 2) == 0, 'VectorBracket must contain an even number of fields')
 
-         tb_in = ESMF_FieldBundleCreate(fieldList=field_list_in(1:2), _RC)
-         tb_out = ESMF_FieldBundleCreate(fieldList=field_list_out(1:2), _RC)
-         call this%regrid_vector(tb_in, tb_out, _RC)
-         call ESMF_FieldBundleDestroy(tb_in, noGarbage=.true., _RC)
-         call ESMF_FieldBundleDestroy(tb_out, noGarbage=.true., _RC)
+         ! Get vector_basis_kind from parent bundle
+         block
+            type(VectorBasisKind) :: basis_kind
+            integer :: i, n_pairs
+            call MAPL_FieldBundleGet(fb_in, vector_basis_kind=basis_kind, _RC)
 
-         tb_in = ESMF_FieldBundleCreate(fieldList=field_list_in(3:4), _RC)
-         tb_out = ESMF_FieldBundleCreate(fieldList=field_list_out(3:4), _RC)
-         call this%regrid_vector(tb_in, tb_out, _RC)
-         call ESMF_FieldBundleDestroy(tb_in, noGarbage=.true., _RC)
-         call ESMF_FieldBundleDestroy(tb_out, noGarbage=.true., _RC)
+            n_pairs = size(field_list_in) / 2
+            ! Loop over all vector pairs
+            do i = 1, n_pairs
+               tb_in = ESMF_FieldBundleCreate(fieldList=field_list_in(2*i-1:2*i), _RC)
+               tb_out = ESMF_FieldBundleCreate(fieldList=field_list_out(2*i-1:2*i), _RC)
+               call MAPL_FieldBundleSet(tb_in, vector_basis_kind=basis_kind, _RC)
+               call MAPL_FieldBundleSet(tb_out, vector_basis_kind=basis_kind, _RC)
+               call this%regrid_vector(tb_in, tb_out, _RC)
+               call ESMF_FieldBundleDestroy(tb_in, noGarbage=.true., _RC)
+               call ESMF_FieldBundleDestroy(tb_out, noGarbage=.true., _RC)
+            end do
+         end block
 
          _RETURN(_SUCCESS)
       end if

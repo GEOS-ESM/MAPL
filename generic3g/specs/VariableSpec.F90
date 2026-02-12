@@ -248,16 +248,10 @@ contains
       _SET_OPTIONAL(has_deferred_aspects)
       _SET_OPTIONAL(restart_mode)
 
-       ! Handle vector_basis_kind with validation
+       var_spec%vector_basis_kind = VECTOR_BASIS_KIND_NS
        if (present(vector_basis_kind)) then
-          ! Check if this is a vector by looking at itemType
-          if (var_spec%itemType /= MAPL_STATEITEM_VECTOR) then
-             _FAIL('vector_basis_kind can only be specified for vectors')
-          end if
+          _ASSERT(any(var_spec%itemType == [MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET]), 'vector_basis_kind can only be specified for vectors')
           var_spec%vector_basis_kind = VectorBasisKind(vector_basis_kind)
-       else if (var_spec%itemType == MAPL_STATEITEM_VECTOR) then
-          ! Default to NS for vectors
-          var_spec%vector_basis_kind = VECTOR_BASIS_KIND_NS
        end if
 
       _RETURN(_SUCCESS)
@@ -593,7 +587,7 @@ contains
           else
              vector_component_names = this%vector_component_names
           end if
-          ! Use NS basis as default if not specified
+
           if (allocated(this%vector_basis_kind)) then
              basis_kind = this%vector_basis_kind
           else
@@ -607,8 +601,12 @@ contains
                basis_kind)
       case (MAPL_STATEITEM_BRACKET%ot)
          aspect = BracketClassAspect(this%bracket_size, this%standard_name)
-      case (MAPL_STATEITEM_VECTOR_BRACKET%ot)
-         aspect = VectorBracketClassAspect(this%bracket_size, this%standard_name)
+      case (MAPL_STATEITEM_VECTORBRACKET%ot)
+         if (allocated(this%vector_basis_kind)) then
+            aspect = VectorBracketClassAspect(this%bracket_size, this%standard_name, vector_basis_kind=this%vector_basis_kind)
+         else
+            aspect = VectorBracketClassAspect(this%bracket_size, this%standard_name)
+         end if
       case (MAPL_STATEITEM_WILDCARD%ot)
          allocate(aspect,source=WildcardClassAspect())
       case (MAPL_STATEITEM_SERVICE%ot)
