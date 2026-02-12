@@ -4,6 +4,7 @@ module mapl3g_Regridder
    use esmf
    use mapl_FieldUtils
    use mapl3g_FieldBundle_API
+   use mapl3g_VectorBasisKind
    use mapl_ErrorHandlingMod
    use mapl3g_Geom_API
    use mapl3g_RegridderSpec
@@ -119,6 +120,7 @@ contains
       type(VectorBasis), pointer :: basis
       type(GeomManager), pointer :: geom_mgr
       type(ESMF_Geom) :: geom_in, geom_out
+      type(VectorBasisKind) :: basis_kind
 
       call MAPL_FieldBundleGet(fb_in, fieldList=uv_in, _RC)
       call MAPL_FieldBundleGet(fb_out, fieldList=uv_out, _RC)
@@ -136,10 +138,12 @@ contains
 
       geom_mgr => this%get_geom_manager()
 
+      ! Get basis kind from input bundle and get corresponding basis
+      call MAPL_FieldBundleGet(fb_in, vector_basis_kind=basis_kind, _RC)
       call ESMF_FieldGet(uv_in(1), geom=geom_in, _RC)
       id_in = MAPL_GeomGetId(geom_in, _RC)
       mapl_geom => geom_mgr%get_mapl_geom(id_in, _RC)
-      basis => mapl_geom%get_basis('NS', _RC)
+      basis => mapl_geom%get_basis(basis_kind, _RC)
 
       call FieldGEMV('N', 1., basis%elements, uv_in, 0., xyz_in, _RC)
 
@@ -148,10 +152,12 @@ contains
          call this%regrid(xyz_in(i), xyz_out(i), _RC)
       end do
 
+      ! Get basis kind from output bundle and get corresponding basis
+      call MAPL_FieldBundleGet(fb_out, vector_basis_kind=basis_kind, _RC)
       call ESMF_FieldGet(uv_out(1), geom=geom_out, _RC)
       id_out = MAPL_GeomGetId(geom_out, _RC)
       mapl_geom => geom_mgr%get_mapl_geom(id_out, _RC)
-      basis => mapl_geom%get_basis('NS', _RC)
+      basis => mapl_geom%get_basis(basis_kind, _RC)
       call FieldGEMV('T', 1., basis%elements, xyz_out, 0., uv_out, _RC)
 
       call destroy_field_vector(xyz_in, _RC)

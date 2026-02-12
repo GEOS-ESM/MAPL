@@ -4,6 +4,7 @@ submodule (mapl3g_MaplGeom) get_basis_smod
 
 use mapl3g_GeomSpec
    use mapl3g_VectorBasis
+   use mapl3g_VectorBasisKind
    use mapl3g_GeomUtilities
    use mapl_ErrorHandlingMod
    use pfio_FileMetadataMod, only: FileMetadata
@@ -17,36 +18,38 @@ contains
 
    ! Supports lazy initialization as vector regridding is relatively
    ! rare.
-   recursive module function get_basis(this, mode, rc) result(basis)
+   recursive module function get_basis(this, basis_kind, rc) result(basis)
       type(VectorBasis), pointer :: basis
       class(MaplGeom), target, intent(inout) :: this
-      character(len=*), optional, intent(in) :: mode
+      type(VectorBasisKind), optional, intent(in) :: basis_kind
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      select case (mode)
-
-      case ('NS') ! Inverse is transpose, so no neeed for separate case
-         if (.not. allocated(this%bases%ns_basis)) then
-            allocate(this%bases%ns_basis)
-            this%bases%ns_basis = NS_VectorBasis(this%geom, _RC)
+      if (basis_kind == VECTOR_BASIS_KIND_NS) then
+         if (allocated(this%bases%ns_basis)) then
+            basis => this%bases%ns_basis
+            _RETURN(_SUCCESS)
          end if
+         allocate(this%bases%ns_basis)
+         this%bases%ns_basis = NS_VectorBasis(this%geom, _RC)
          basis => this%bases%ns_basis
+         _RETURN(_SUCCESS)
+      end if
 
-      case ('grid')
-          if (.not. allocated(this%bases%grid_basis)) then
-             allocate(this%bases%grid_basis)
-             this%bases%grid_basis = GridVectorBasis(this%geom, _RC)
-          end if
-          basis => this%bases%grid_basis
+      if (basis_kind == VECTOR_BASIS_KIND_GRID) then
+         if (allocated(this%bases%grid_basis)) then
+            basis => this%bases%grid_basis
+            _RETURN(_SUCCESS)
+         end if
+         allocate(this%bases%grid_basis)
+         this%bases%grid_basis = GridVectorBasis(this%geom, _RC)
+         basis => this%bases%grid_basis
+         _RETURN(_SUCCESS)
+      end if
 
-      case default
-         basis => null()
-         _FAIL('Unsupported mode for get_bases().')
-      end select
-
-      _RETURN(_SUCCESS)
+      basis => null()
+      _FAIL('Unsupported basis kind: ' // basis_kind%to_string())
    end function get_basis
 
 end submodule get_basis_smod

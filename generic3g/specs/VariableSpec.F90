@@ -26,6 +26,7 @@ module mapl3g_VariableSpec
    use mapl3g_TypekindAspect
    use mapl3g_UngriddedDims
    use mapl3g_VerticalStaggerLoc
+   use mapl3g_VectorBasisKind
    use mapl3g_HorizontalDimsSpec
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualConnectionPt
@@ -75,10 +76,8 @@ module mapl3g_VariableSpec
       ! Vector
       !---------------------
       type(StringVector) :: vector_component_names ! default empty
+      type(VectorBasisKind), allocatable :: vector_basis_kind
       real(kind=ESMF_KIND_R4), allocatable :: default_value
-      ! Todo: implement these
-      ! type(VectorOrientation_Flag), allocatable :: vectororientation
-      ! type(ArakawaStagger_Flag), allocatable :: arakawa_stagger
       !---------------------
       ! Bracket
       !---------------------
@@ -181,6 +180,7 @@ contains
         timeStep, &
         offset, &
         vector_component_names, &
+        vector_basis_kind, &
         has_deferred_aspects, &
         restart_mode, &
         rc) result(var_spec)
@@ -210,6 +210,7 @@ contains
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
       type(ESMF_TimeInterval), optional, intent(in) :: offset
       type(StringVector), optional, intent(in) :: vector_component_names
+      character(*), optional, intent(in) :: vector_basis_kind
       logical, optional, intent(in) :: has_deferred_aspects
       type(RestartMode), optional, intent(in) :: restart_mode
       integer, optional, intent(out) :: rc
@@ -217,7 +218,7 @@ contains
 !#      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
 !#      type(EsmfRegridderParam) :: regrid_param_
 
-      var_spec%short_name = short_name
+       var_spec%short_name = short_name
       var_spec%state_intent = state_intent
 
 #if defined(_SET_OPTIONAL)
@@ -246,6 +247,18 @@ contains
       _SET_OPTIONAL(vector_component_names)
       _SET_OPTIONAL(has_deferred_aspects)
       _SET_OPTIONAL(restart_mode)
+
+       ! Handle vector_basis_kind with validation
+       if (present(vector_basis_kind)) then
+          ! Check if this is a vector by looking at itemType
+          if (var_spec%itemType /= MAPL_STATEITEM_VECTOR) then
+             _FAIL('vector_basis_kind can only be specified for vectors')
+          end if
+          var_spec%vector_basis_kind = VectorBasisKind(vector_basis_kind)
+       else if (var_spec%itemType == MAPL_STATEITEM_VECTOR) then
+          ! Default to NS for vectors
+          var_spec%vector_basis_kind = VECTOR_BASIS_KIND_NS
+       end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -553,9 +566,10 @@ contains
       type(StateRegistry), pointer, optional, intent(in) :: registry
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      character(:), allocatable :: std_name_1, std_name_2
-      type(StringVector) :: vector_component_names
+       integer :: status
+       character(:), allocatable :: std_name_1, std_name_2
+       type(StringVector) :: vector_component_names
+       type(VectorBasisKind) :: basis_kind
 
       select case (this%itemType%ot)
       case (MAPL_STATEITEM_FIELD%ot)
@@ -567,23 +581,30 @@ contains
          aspect = FieldBundleClassAspect(standard_name=this%standard_name)
       case (MAPL_STATEITEM_STATE%ot)
          aspect = StateClassAspect(state_intent=this%state_intent, standard_name=this%standard_name)
-      case (MAPL_STATEITEM_VECTOR%ot)
-         std_name_1 = 'unknown'
-         std_name_2 = 'unknown'
-         if (allocated(this%standard_name)) then
-            call split_name(this%standard_name, std_name_1, std_name_2, _RC)
-         end if
-         if (this%vector_component_names%size() == 0) then
-            call vector_component_names%push_back('unknown')
-            call vector_component_names%push_back('unknown')
-         else
-            vector_component_names = this%vector_component_names
-         end if
-         aspect = VectorClassAspect(this%vector_component_names, &
-              [ &
-              FieldClassAspect(standard_name=std_name_1, default_value=this%default_value), &
-              FieldClassAspect(standard_name=std_name_2, default_value=this%default_value) &
-              ])
+       case (MAPL_STATEITEM_VECTOR%ot)
+          std_name_1 = 'unknown'
+          std_name_2 = 'unknown'
+          if (allocated(this%standard_name)) then
+             call split_name(this%standard_name, std_name_1, std_name_2, _RC)
+          end if
+          if (this%vector_component_names%size() == 0) then
+             call vector_component_names%push_back('unknown')
+             call vector_component_names%push_back('unknown')
+          else
+             vector_component_names = this%vector_component_names
+          end if
+          ! Use NS basis as default if not specified
+          if (allocated(this%vector_basis_kind)) then
+             basis_kind = this%vector_basis_kind
+          else
+             basis_kind = VECTOR_BASIS_KIND_NS
+          end if
+          aspect = VectorClassAspect(this%vector_component_names, &
+               [ &
+               FieldClassAspect(standard_name=std_name_1, default_value=this%default_value), &
+               FieldClassAspect(standard_name=std_name_2, default_value=this%default_value) &
+               ], &
+               basis_kind)
       case (MAPL_STATEITEM_BRACKET%ot)
          aspect = BracketClassAspect(this%bracket_size, this%standard_name)
       case (MAPL_STATEITEM_VECTOR_BRACKET%ot)
@@ -629,8 +650,6 @@ contains
          logical, intent(in) :: has_deferred_aspects
          type(esmf_StateIntent_Flag), intent(in) :: state_intent
          integer, optional, intent(out) :: rc
-
-         integer :: status
 
          _RETURN_UNLESS(has_deferred_aspects)
 

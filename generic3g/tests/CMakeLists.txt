@@ -49,6 +49,7 @@ set (test_srcs
   Test_ConvertUnitsTransform.pf
   Test_CopyTransform.pf
   Test_VectorBracketClassAspect.pf
+  Test_VectorBasisKind.pf
   Test_ExtensionTransformUtils.pf
   Test_Couplers.pf
   Test_UnitsAspect.pf

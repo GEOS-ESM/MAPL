@@ -98,10 +98,11 @@ module mapl3g_MaplGeom
          class(MaplGeom), intent(in) :: this
       end function get_variable_attributes
 
-      recursive module function get_basis(this, mode, rc) result(basis)
+      recursive module function get_basis(this, basis_kind, rc) result(basis)
+         use mapl3g_VectorBasisKind
          type(VectorBasis), pointer :: basis
          class(MaplGeom), target, intent(inout) :: this
-         character(len=*), optional, intent(in) :: mode
+         type(VectorBasisKind), optional, intent(in) :: basis_kind
          integer, optional, intent(out) :: rc
       end function get_basis
 
