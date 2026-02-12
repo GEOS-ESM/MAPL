@@ -202,6 +202,7 @@ Before creating PR:
 - [ ] Error handling is complete (see `mapl-error-handling` skill)
 - [ ] Tests added/updated as appropriate
 - [ ] Documentation updated if needed
+- [ ] **CHANGELOG.md updated** (required for PRs to `develop` branch)
 - [ ] Have permission to push
 
 ### Create PR via GitHub CLI
@@ -255,6 +256,129 @@ Fix memory leak in GridComp initialization
 Refactor VerticalRegridder for performance
 Update ExtData documentation
 ```
+
+## Updating CHANGELOG.md
+
+**CRITICAL:** All PRs to the `develop` branch MUST include a CHANGELOG.md entry.
+
+### CHANGELOG Format
+
+MAPL follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format with these sections:
+
+- **Added** - New features
+- **Changed** - Changes to existing functionality
+- **Deprecated** - Soon-to-be removed features
+- **Removed** - Removed features
+- **Fixed** - Bug fixes
+- **Security** - Security fixes
+
+### Where to Add Entry
+
+Add your change under the `[Unreleased]` section in the appropriate category:
+
+```markdown
+## [Unreleased]
+
+### Fixed
+- Your bug fix here
+
+### Added
+
+- Your new feature here
+- Another feature
+
+### Changed
+
+- Your change here
+```
+
+### CHANGELOG Entry Guidelines
+
+**Good entries:**
+```markdown
+### Added
+- Added rotated vector support to regridding framework
+- Added MAPL_GetPartition() implementation with unit tests
+
+### Fixed
+- Fixed memory leak in GridComp initialization
+- Fixed 32-bit integer overflow in QSsort
+
+### Changed
+- Update components.yaml
+  - ESMA_env v5.17.0
+    - Update to Baselibs 8.24.0
+```
+
+**Bad entries:**
+```markdown
+### Added
+- Updated code (too vague)
+- Bug fix (which bug? belongs in Fixed)
+- Made changes (what changes?)
+```
+
+### Entry Format
+
+**Simple changes:**
+```markdown
+- Added support for rotated vectors in regridding
+```
+
+**Complex changes with details:**
+```markdown
+- Update `components.yaml`
+  - `ESMA_env` v5.17.0
+    - Update to Baselibs 8.24.0
+      - ESMF v9.0.0b08
+      - GFE v1.22.0
+```
+
+**Multiple related changes:**
+```markdown
+- Added implementation for `mapl_GetPartition()` with unit tests
+- Added backwards compatibility with non-CF dimensionless vertical coordinate in ExtData2G
+- Added logic in History to check for consistent History and averaging coupler alarms
+```
+
+### When to Update CHANGELOG
+
+**Update CHANGELOG when:**
+- Adding new functionality
+- Fixing bugs
+- Changing existing behavior
+- Removing features
+- Updating dependencies (like components.yaml)
+
+**Don't update CHANGELOG for:**
+- Documentation-only changes (unless significant)
+- Internal refactoring with no user-visible changes
+- CI/build configuration (unless it affects developers)
+- Whitespace/formatting fixes
+
+### CHANGELOG Update Workflow
+
+```bash
+# 1. Make your code changes
+git add src/MyFile.F90
+
+# 2. Update CHANGELOG.md
+# Edit CHANGELOG.md under [Unreleased] section
+vi CHANGELOG.md
+
+# 3. Commit together
+git add CHANGELOG.md
+git commit -m "Add rotated vector support to regridding
+
+Implements support for vector fields in rotated coordinate systems.
+Required for regional climate models using rotated pole grids."
+
+# 4. Push and create PR
+git push -u origin feature/#1234-rotated-vectors
+gh pr create --base develop
+```
+
+**IMPORTANT:** Include CHANGELOG changes in the same commit as your code changes, or in a dedicated CHANGELOG commit if your PR has multiple commits.
 
 ## Code Review Process
 
