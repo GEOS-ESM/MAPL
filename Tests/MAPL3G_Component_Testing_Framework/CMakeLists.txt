@@ -7,7 +7,7 @@ endif()
 
 file(STRINGS "test_cases/cases.txt" TEST_CASES)
 
-message(STATUS "Proessing ${TEST_CASES}")
+message(STATUS "Processing ${TEST_CASES}")
 
 # Parse test case descriptions from test_case_descriptions.md
 file(STRINGS "${CMAKE_CURRENT_LIST_DIR}/test_case_descriptions.md" DESC_LINES)
