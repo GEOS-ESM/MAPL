@@ -16,6 +16,7 @@ module mapl3g_VectorBracketClassAspect
    use mapl3g_TypekindAspect
    use mapl3g_UngriddedDimsAspect
    use mapl3g_FieldBundleInfo, only: FieldBundleInfoSetInternal
+   use mapl3g_VectorBasisKind
 
    use mapl3g_VerticalGrid
    use mapl3g_VerticalStaggerLoc
@@ -49,9 +50,10 @@ module mapl3g_VectorBracketClassAspect
       type(ESMF_FieldBundle) :: payload
       type(FieldClassAspect), allocatable :: field_aspect ! reference
 
-      integer :: bracket_size   ! allocate only if not time dependent
-      character(:), allocatable :: standard_name
-      character(:), allocatable :: long_name
+       integer :: bracket_size   ! allocate only if not time dependent
+       character(:), allocatable :: standard_name
+       character(:), allocatable :: long_name
+       type(VectorBasisKind) :: vector_basis_kind
 
    contains
       procedure :: get_aspect_order
@@ -77,20 +79,26 @@ module mapl3g_VectorBracketClassAspect
 
 contains
 
-   function new_VectorBracketClassAspect(bracket_size, standard_name, long_name) result(aspect)
+   function new_VectorBracketClassAspect(bracket_size, standard_name, long_name, vector_basis_kind) result(aspect)
       type(VectorBracketClassAspect) :: aspect
       integer, intent(in) :: bracket_size
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
+      type(VectorBasisKind), optional, intent(in) :: vector_basis_kind
 
-      aspect%field_aspect = FieldClassAspect(standard_name, long_name)
-      aspect%bracket_size = bracket_size
-      if (present(standard_name)) then
-         aspect%standard_name = standard_name
-      end if
-      if (present(long_name)) then
-         aspect%long_name = long_name
-      end if
+       aspect%field_aspect = FieldClassAspect(standard_name, long_name)
+       aspect%bracket_size = bracket_size
+       if (present(standard_name)) then
+          aspect%standard_name = standard_name
+       end if
+       if (present(long_name)) then
+          aspect%long_name = long_name
+       end if
+       
+       aspect%vector_basis_kind = VECTOR_BASIS_KIND_NS
+       if (present(vector_basis_kind)) then
+          aspect%vector_basis_kind = vector_basis_kind
+       end if
       
    end function new_VectorBracketClassAspect
 
@@ -135,7 +143,10 @@ contains
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
       call FieldBundleInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, bracket_updated=.true.,  _RC)
-      call MAPL_FieldBundleSet(this%payload, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
+      call MAPL_FieldBundleSet(this%payload, &
+                               allocation_status=STATEITEM_ALLOCATION_CREATED, &
+                               vector_basis_kind=this%vector_basis_kind, &
+                               _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(other_aspects)
