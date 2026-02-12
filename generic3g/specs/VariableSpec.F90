@@ -587,6 +587,7 @@ contains
           else
              vector_component_names = this%vector_component_names
           end if
+
           if (allocated(this%vector_basis_kind)) then
              basis_kind = this%vector_basis_kind
           else
