@@ -22,11 +22,12 @@ contains
       inverse_ = .false.
       if (present(inverse)) inverse_ = inverse
 
-      call ESMF_GeomGet(geom, geomtype=geomtype, _RC)
-      _ASSERT(geomtype == ESMF_GEOMTYPE_GRID, 'GridVectorBasis is only valid for ESMF_Grid geoms.')
-      call ESMF_GeomGet(geom, grid=grid, _RC)
+       call ESMF_GeomGet(geom, geomtype=geomtype, _RC)
+       _ASSERT(geomtype == ESMF_GEOMTYPE_GRID, 'GridVectorBasis is only valid for ESMF_Grid geoms.')
+       call ESMF_GeomGet(geom, grid=grid, _RC)
 
-      call create_fields(basis%elements, geom, _RC)
+       allocate(basis%elements(NI,NJ))
+       call create_fields(basis%elements, geom, _RC)
 
       call GridGetCoords(grid, centers, _RC)
       call GridGetCorners(grid, corners, _RC)
@@ -57,8 +58,8 @@ contains
             end do
          end do
 
-         do concurrent (i=1:im, j=1:jm)
-            associate (local_basis => fill_element(centers(i,j,:), corners(i:i+1,j+j+1,:), inverse) )
+      do concurrent (i=1:im, j=1:jm)
+         associate (local_basis => fill_element(centers(i,j,:), corners(i:i+1,j:j+1,:), inverse) )
               
               do k2 = 1, NJ
                  do k1 = 1, NI

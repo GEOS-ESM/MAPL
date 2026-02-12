@@ -127,7 +127,7 @@ contains
 
          if (has_bundle_type) then
             if (bundle_type /= FIELDBUNDLETYPE_VECTOR .and. &
-                bundle_type /= FIELDBUNDLETYPE_VECTOR_BRACKET) then
+                bundle_type /= FIELDBUNDLETYPE_VECTORBRACKET) then
                _FAIL('vector_basis_kind can only be set for vector field bundles')
             end if
          end if

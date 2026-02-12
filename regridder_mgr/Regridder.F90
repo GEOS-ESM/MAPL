@@ -61,7 +61,7 @@ contains
       if (bundleType_in == FIELDBUNDLETYPE_VECTOR) then
          call this%regrid_vector(fb_in, fb_out, _RC)
          _RETURN(_SUCCESS)
-      else if (bundleType_in == FIELDBUNDLETYPE_VECTOR_BRACKET) then
+      else if (bundleType_in == FIELDBUNDLETYPE_VECTORBRACKET) then
          call MAPL_FieldBundleGet(fb_in, fieldList=field_list_in, _RC)
          call MAPL_FieldBundleGet(fb_out, fieldList=field_list_out, _RC)
          _ASSERT(mod(size(field_list_in), 2) == 0, 'VectorBracket must contain an even number of fields')
@@ -76,8 +76,8 @@ contains
             n_pairs = size(field_list_in) / 2
             ! Loop over all vector pairs
             do i = 1, n_pairs
-               tb_in = ESMF_FieldBundleCreate(fieldList=field_list_in(2*i-1:2*i), _RC)
-               tb_out = ESMF_FieldBundleCreate(fieldList=field_list_out(2*i-1:2*i), _RC)
+               tb_in = MAPL_FieldBundleCreate(fieldList=field_list_in(2*i-1:2*i), fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
+               tb_out = MAPL_FieldBundleCreate(fieldList=field_list_out(2*i-1:2*i), fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
                call MAPL_FieldBundleSet(tb_in, vector_basis_kind=basis_kind, _RC)
                call MAPL_FieldBundleSet(tb_out, vector_basis_kind=basis_kind, _RC)
                call this%regrid_vector(tb_in, tb_out, _RC)
