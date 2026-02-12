@@ -12,7 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Introduced AGENTS.md to assist in using copilot for MAPL development
+- Added 9 modular OpenCode agent skills for MAPL development workflows (replaces AGENTS.md)
+  - mapl-setup: First-time environment configuration
+  - mapl-build: Building with NAG, gfortran, Intel compilers
+  - mapl-testing: Running and debugging tests with pFUnit
+  - fortran-style: MAPL Fortran coding standards
+  - mapl-error-handling: Error handling macros and best practices
+  - github-workflow: Git/GitHub conventions and PR process
+  - remote-build: Building on bucy with Intel compiler
+  - pfunit-troubleshooting: Debug pFUnit test failures
+  - compiler-switching: Switch between compilers safely
 - Added `.rgignore` to have ripgrep ignore common build directories
 
 ### Changed
