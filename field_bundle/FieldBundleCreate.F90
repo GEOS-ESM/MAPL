@@ -43,7 +43,8 @@ contains
       call FieldBundleSet(bundle, fieldBundleType=fieldBundleType_, _RC)
       
       ! Set default vector basis kind for vector bundles
-      if (fieldBundleType_ == FIELDBUNDLETYPE_VECTOR) then
+      if (fieldBundleType_ == FIELDBUNDLETYPE_VECTOR .or. &
+          fieldBundleType_ == FIELDBUNDLETYPE_VECTORBRACKET) then
          call FieldBundleSet(bundle, vector_basis_kind=VECTOR_BASIS_KIND_NS, _RC)
       end if
 
