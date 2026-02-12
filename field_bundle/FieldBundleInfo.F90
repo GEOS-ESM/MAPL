@@ -103,8 +103,12 @@ contains
       end if
 
       if (present(vector_basis_kind)) then
-         call MAPL_InfoGet(info, key=namespace_//KEY_VECTOR_BASIS_KIND, value=basis_kind_str, _RC)
-         vector_basis_kind = VectorBasisKind(basis_kind_str)
+         if (ESMF_InfoIsPresent(info, key=namespace_//KEY_VECTOR_BASIS_KIND)) then
+            call MAPL_InfoGet(info, key=namespace_//KEY_VECTOR_BASIS_KIND, value=basis_kind_str, _RC)
+            vector_basis_kind = VectorBasisKind(basis_kind_str)
+         else
+            vector_basis_kind = VECTOR_BASIS_KIND_NS  ! Default
+         end if
       end if
 
       ! Field-prototype items that come from field-info (including typekind)
