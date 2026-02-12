@@ -217,9 +217,8 @@ contains
 
 !#      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
 !#      type(EsmfRegridderParam) :: regrid_param_
-      logical :: is_vector
 
-      var_spec%short_name = short_name
+       var_spec%short_name = short_name
       var_spec%state_intent = state_intent
 
 #if defined(_SET_OPTIONAL)
@@ -249,38 +248,17 @@ contains
       _SET_OPTIONAL(has_deferred_aspects)
       _SET_OPTIONAL(restart_mode)
 
-      ! Handle vector_basis_kind with validation
-      if (present(vector_basis_kind)) then
-         ! Check if this is a vector by looking at vector_component_names or standard_name tuple format
-         is_vector = .false.
-         
-         ! Check if vector_component_names are provided
-         if (var_spec%vector_component_names%size() > 0) then
-            is_vector = .true.
-         end if
-         
-         ! Check if standard_name has tuple format (name1,name2)
-         if (allocated(var_spec%standard_name)) then
-            if (index(var_spec%standard_name, '(') > 0 .and. &
-                index(var_spec%standard_name, ')') > 0) then
-               is_vector = .true.
-            end if
-         end if
-         
-         if (.not. is_vector) then
-            _FAIL('vector_basis_kind can only be specified for vectors')
-         end if
-         var_spec%vector_basis_kind = VectorBasisKind(vector_basis_kind)
-      else if (var_spec%vector_component_names%size() > 0) then
-         ! Default to NS for vectors
-         var_spec%vector_basis_kind = VECTOR_BASIS_KIND_NS
-      else if (allocated(var_spec%standard_name)) then
-         ! Check if standard_name has tuple format - also a vector, default to NS
-         if (index(var_spec%standard_name, '(') > 0 .and. &
-             index(var_spec%standard_name, ')') > 0) then
-            var_spec%vector_basis_kind = VECTOR_BASIS_KIND_NS
-         end if
-      end if
+       ! Handle vector_basis_kind with validation
+       if (present(vector_basis_kind)) then
+          ! Check if this is a vector by looking at itemType
+          if (var_spec%itemType /= MAPL_STATEITEM_VECTOR) then
+             _FAIL('vector_basis_kind can only be specified for vectors')
+          end if
+          var_spec%vector_basis_kind = VectorBasisKind(vector_basis_kind)
+       else if (var_spec%itemType == MAPL_STATEITEM_VECTOR) then
+          ! Default to NS for vectors
+          var_spec%vector_basis_kind = VECTOR_BASIS_KIND_NS
+       end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
