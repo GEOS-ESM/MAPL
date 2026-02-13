@@ -8,7 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- guarded against 32-bit integer overflow in QSswap
+
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.66.0] - 2026-02-13
+
+### Fixed
+
+- Guarded against 32-bit integer overflow in QSswap
 
 ### Added
 
@@ -44,10 +57,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Updates for f2py and f2py3 for running on macOS with Spack
     - Add Athena frontend nodes for NAS detection
     - Remove `ctest` pre-test build
-
-### Removed
-
-### Deprecated
 
 ## [2.65.0] - 2026-01-29
 
