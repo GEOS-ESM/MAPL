@@ -649,9 +649,9 @@ contains
          call mapl_FieldBundleGet(bundle, has_deferred_aspects=has_deferred_aspects, _RC)
       end if
 
-      if (allocated(state)) then
-         _FAIL('unsupported use case')
-      end if
+      ! if (allocated(state)) then
+      !    _FAIL('unsupported use case')
+      ! end if
       
       _RETURN(_SUCCESS)
    end function has_deferred_aspects
@@ -665,9 +665,10 @@ contains
       class(ClassAspect), pointer :: class_aspect
       type(esmf_Field), allocatable :: field
       type(esmf_FieldBundle), allocatable :: bundle
+      type(esmf_State), allocatable :: state
 
       class_aspect => to_ClassAspect(this%aspects, _RC)
-      call class_aspect%get_payload(field=field, bundle=bundle, _RC)
+      call class_aspect%get_payload(field=field, bundle=bundle, state=state, _RC)
       
       if (allocated(field)) then
          call MAPL_FieldSet(field, allocation_status=allocation_status, _RC)
@@ -689,12 +690,13 @@ contains
       class(ClassAspect), pointer :: class_aspect
       type(esmf_Field), allocatable :: field
       type(esmf_FieldBundle), allocatable :: bundle
+      type(esmf_State), allocatable :: state
 
       ! Default to INVALID in case we can't get it from the payload
       allocation_status = STATEITEM_ALLOCATION_INVALID
 
       class_aspect => to_ClassAspect(this%aspects, _RC)
-      call class_aspect%get_payload(field=field, bundle=bundle, _RC)
+      call class_aspect%get_payload(field=field, bundle=bundle, state=state, _RC)
       
       if (allocated(field)) then
          call MAPL_FieldGet(field, allocation_status=allocation_status, _RC)
