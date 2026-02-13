@@ -1,11 +1,14 @@
 #include "MAPL.h"
+
 module mapl3g_HConfigUtilities
+
    use esmf, only: ESMF_HConfig, ESMF_HConfigIter, ESMF_HConfigIterBegin
    use esmf, only: ESMF_HConfigIterEnd, ESMF_HConfigIterLoop
    use esmf, only: ESMF_HConfigCreate, ESMF_HConfigIsMap, ESMF_HConfigAsStringMapKey
-   use esmf, only: ESMF_HConfigIsDefined, ESMF_HConfigCreateAtMapVal, ESMF_HConfigSet
-   use esmf, only: ESMF_HConfigFileSave, ESMF_HConfigFileLoad
+   use esmf, only: ESMF_HConfigIsDefined, ESMF_HConfigCreateAtMapVal, ESMF_HConfigAdd
+   use esmf, only: ESMF_HConfigLog
    use mapl_ErrorHandling
+
    implicit none(type,external)
    private
 
@@ -53,7 +56,7 @@ contains
          if (duplicate_key) cycle
 
          val = ESMF_HConfigCreateAtMapVal(iter, _RC)
-         call ESMF_HConfigSet(child_hconfig, keystring=key, content=val, _RC)
+         call ESMF_HConfigAdd(total_hconfig, content=val, addKeyString=key, _RC)
       end do
 
       _RETURN(_SUCCESS)
