@@ -56,6 +56,7 @@ contains
       type(BasicVerticalGridSpec), intent(in) :: spec
 
       this%spec = spec
+      ! Default coordinate direction is already set to VCOORD_DIRECTION_DOWN in VerticalGrid
    end subroutine initialize
 
    function get_num_levels(this) result(num_levels)
