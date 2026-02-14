@@ -9,6 +9,8 @@ module mapl3g_VerticalGridAspect
    use mapl3g_ExtensionTransform
    use mapl3g_ExtendTransform
    use mapl3g_VerticalGrid
+   use mapl3g_VerticalCoordinateDirection
+   use mapl3g_VerticalAlignment
    use mapl3g_NullTransform
    use mapl3g_VerticalRegridTransform
    use mapl3g_GeomAspect
@@ -36,6 +38,7 @@ module mapl3g_VerticalGridAspect
       class(VerticalGrid), allocatable :: vertical_grid
       type(VerticalRegridMethod) :: regrid_method = VERTICAL_REGRID_LINEAR
       type(VerticalStaggerLoc), allocatable :: vertical_stagger
+      type(VerticalAlignment) :: vertical_alignment = VALIGN_WITH_GRID
    contains
       procedure :: matches
       procedure :: make_transform
@@ -48,6 +51,9 @@ module mapl3g_VerticalGridAspect
       procedure :: get_vertical_grid
       procedure :: get_vertical_stagger
       procedure :: set_vertical_stagger
+      procedure :: get_vertical_alignment
+      procedure :: set_vertical_alignment
+      procedure :: get_resolved_alignment
 
       procedure :: update_from_payload
       procedure :: update_payload
@@ -60,11 +66,12 @@ module mapl3g_VerticalGridAspect
 
 contains
 
-   function new_VerticalGridAspect_specific(vertical_grid, regrid_method, vertical_stagger, geom, typekind, time_dependent) result(aspect)
+   function new_VerticalGridAspect_specific(vertical_grid, regrid_method, vertical_stagger, vertical_alignment, geom, typekind, time_dependent) result(aspect)
       type(VerticalGridAspect) :: aspect
       class(VerticalGrid), optional, intent(in) :: vertical_grid
       type(VerticalRegridMethod), optional, intent(in) :: regrid_method
       type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
+      type(VerticalAlignment), optional, intent(in) :: vertical_alignment
       type(ESMF_Geom), optional, intent(in) :: geom
       type(ESMF_Typekind_Flag), optional, intent(in) :: typekind
       logical, optional, intent(in) :: time_dependent
@@ -82,6 +89,11 @@ contains
       aspect%vertical_stagger = VERTICAL_STAGGER_CENTER
       if (present(vertical_stagger)) then
          aspect%vertical_stagger = vertical_stagger
+      end if
+      
+      ! Default vertical_alignment is already set to VALIGN_WITH_GRID
+      if (present(vertical_alignment)) then
+         aspect%vertical_alignment = vertical_alignment
       end if
     
       call aspect%set_time_dependent(time_dependent)
@@ -317,6 +329,39 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_vertical_stagger
+
+   function get_vertical_alignment(this, rc) result(vertical_alignment)
+      class(VerticalGridAspect), intent(in) :: this
+      type(VerticalAlignment) :: vertical_alignment
+      integer, optional, intent(out) :: rc
+
+      vertical_alignment = this%vertical_alignment
+
+      _RETURN(_SUCCESS)
+   end function get_vertical_alignment
+
+   subroutine set_vertical_alignment(this, vertical_alignment)
+      class(VerticalGridAspect), intent(inout) :: this
+      type(VerticalAlignment), intent(in) :: vertical_alignment
+
+      this%vertical_alignment = vertical_alignment
+   end subroutine set_vertical_alignment
+
+   function get_resolved_alignment(this, rc) result(direction)
+      class(VerticalGridAspect), intent(in) :: this
+      type(VerticalCoordinateDirection) :: direction
+      integer, optional, intent(out) :: rc
+      
+      type(VerticalCoordinateDirection) :: grid_direction
+      integer :: status
+      
+      _ASSERT(allocated(this%vertical_grid), "vertical_grid must be allocated to resolve alignment")
+      
+      grid_direction = this%vertical_grid%get_coordinate_direction()
+      direction = this%vertical_alignment%resolve(grid_direction)
+
+      _RETURN(_SUCCESS)
+   end function get_resolved_alignment
 
    subroutine update_from_payload(this, field, bundle, state, rc)
       class(VerticalGridAspect), intent(inout) :: this

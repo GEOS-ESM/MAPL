@@ -2,6 +2,7 @@
 module mapl3g_VerticalGrid
    use esmf, only: esmf_Field, esmf_Geom, esmf_TypeKind_Flag, ESMF_TYPEKIND_R4
    use mapl3g_VerticalStaggerLoc, only: VerticalStaggerLoc
+   use mapl3g_VerticalCoordinateDirection
    use gftl2_StringVector, only: StringVector
    use mapl_ErrorHandling
    implicit none(type,external)
@@ -13,9 +14,12 @@ module mapl3g_VerticalGrid
    type, abstract :: VerticalGrid
       private
       integer :: id = -1
+      type(VerticalCoordinateDirection) :: coordinate_direction = VCOORD_DIRECTION_DOWN
    contains
       procedure :: get_id
       procedure :: set_id
+      procedure :: get_coordinate_direction
+      procedure :: set_coordinate_direction
       procedure(I_get_coordinate_field), deferred :: get_coordinate_field
       procedure(I_get_supported_physical_dimensions), deferred :: get_supported_physical_dimensions
       procedure(I_get_units), deferred :: get_units
@@ -90,5 +94,19 @@ contains
       integer, intent(in) :: id
       this%id = id
    end subroutine set_id
+
+   function get_coordinate_direction(this) result(coordinate_direction)
+      type(VerticalCoordinateDirection) :: coordinate_direction
+      class(VerticalGrid), intent(in) :: this
+      
+      coordinate_direction = this%coordinate_direction
+   end function get_coordinate_direction
+
+   subroutine set_coordinate_direction(this, coordinate_direction)
+      class(VerticalGrid), intent(inout) :: this
+      type(VerticalCoordinateDirection), intent(in) :: coordinate_direction
+      
+      this%coordinate_direction = coordinate_direction
+   end subroutine set_coordinate_direction
 end module mapl3g_VerticalGrid
 
