@@ -385,6 +385,33 @@ cd gfortran && ctest --output-on-failure
 ### Intel on bucy (remote)
 See `remote-build` skill for complete workflow.
 
+## CRITICAL: Module Persistence for AI Agents
+
+⚠️ **WARNING FOR AI AGENTS:** Module commands do NOT persist across separate bash tool invocations for ANY compiler (NAG, GFortran, Intel).
+
+Each bash tool call runs in a fresh shell. This means:
+
+```bash
+# WRONG - modules loaded in first call are lost in second call
+bash: module load nag mpi baselibs
+bash: cmake --build nag  # ERROR: modules not loaded!
+
+# CORRECT - chain commands in single bash call
+bash: module load nag mpi baselibs && cmake --build nag
+```
+
+**Impact:**
+- Affects ALL compilers: NAG, GFortran, Intel (local and remote)
+- Modules must be loaded in SAME bash invocation as the command that needs them
+- Use `&&` to chain: `module load ... && cmake --build ...`
+- This is NOT a compiler-specific issue - it's how the bash tool works
+
+**When to ask user to run builds:**
+- Generally prefer asking user to run builds rather than doing it yourself
+- Only run builds directly if explicitly requested AND you chain module load with build command
+- User's interactive shell maintains module state between commands
+- AI tool invocations do not maintain state
+
 ## Summary Checklist
 
 - [ ] Know which branch to base work on (develop vs release/MAPL-v3)
