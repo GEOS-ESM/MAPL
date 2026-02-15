@@ -1,0 +1,61 @@
+#ifdef IDENTITY_
+#  undef IDENTITY_
+#endif
+
+#define IDENTITY_(x)x
+
+#ifdef SUB_
+#  undef SUB_
+#endif
+#ifdef SUB__
+#  undef SUB__
+#endif
+#ifdef SUB___
+#  undef SUB___
+#endif
+
+#define SUB_ SUB__(NAME_,TYPEKIND_,RANK_)
+#define SUB__(N,A,B) SUB___(N,A,B)
+#define SUB___(N,A,B) IDENTITY_(N)IDENTITY_(_)IDENTITY_(A)IDENTITY_(_)IDENTITY_(B)D
+
+#ifdef EKIND_
+#  undef EKIND_
+#endif
+#ifdef EKIND__
+#  undef EKIND__
+#endif
+#ifdef EKIND___
+#  undef EKIND___
+#endif
+
+
+#define EKIND_ EKIND__(TYPEKIND_)  
+#define EKIND__(A) EKIND___(A)
+#define EKIND___(A) IDENTITY_(ESMF_KIND_)IDENTITY_(A)
+
+
+#ifdef DIMENSIONS_
+#  undef DIMENSIONS_
+#endif
+
+
+#if (RANK_ == 0)
+#  define DIMENSIONS_
+#endif
+
+#if (RANK_ == 1)
+#  define DIMENSIONS_ (:)
+#endif
+
+#if (RANK_ == 2)
+#  define DIMENSIONS_ (:,:)
+#endif
+
+#if (RANK_ == 3)
+#  define DIMENSIONS_ (:,:,:)
+#endif
+
+#if (RANK_ == 4)
+#  define DIMENSIONS_ (:,:,:,:)
+#endif
+

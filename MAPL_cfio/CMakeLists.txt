@@ -30,7 +30,7 @@ set (lib MAPL_cfio_${precision})
 esma_add_library (${lib}
   SRCS ${srcs}
   DEPENDENCIES ESMF::ESMF NetCDF::NetCDF_Fortran
-  TYPE ${MAPL_LIBRARY_TYPE}
+  TYPE SHARED
   )
 
 if (precision MATCHES "r8")

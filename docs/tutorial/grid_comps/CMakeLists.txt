@@ -1,7 +1,0 @@
-add_subdirectory (hello_world_gridcomp)
-add_subdirectory (parent_with_no_children)
-add_subdirectory (leaf_comp_a)
-add_subdirectory (leaf_comp_b)
-add_subdirectory (parent_with_one_child)
-add_subdirectory (parent_with_two_children)
-add_subdirectory (automatic_code_generator_example)

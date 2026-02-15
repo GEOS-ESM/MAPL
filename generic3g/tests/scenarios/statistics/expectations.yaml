@@ -1,0 +1,61 @@
+# For each component:
+#   - provide a path to the outer/user componen in the hierarchy
+#   - list the fields expected in each import/export/internal states
+#   - annotate whether field is "complete"
+
+- component: root/A/<user>
+  export:
+    T: {status: complete}
+
+- component: root/A
+  export:
+    T: {status: complete}
+
+- component: root/<user>
+  export: {}
+
+- component: root
+  export:
+    A/T: {status: complete}
+
+- component: history/collection_1/<user>
+  import:
+    A/T: {status: complete}
+    avg_T: {status: complete}
+
+- component: history/collection_1
+  import:
+    A/T: {status: complete}
+    avg_T: {status: complete}
+
+- component: history/STAT/<user>
+  import:
+    A/T: {status: complete}
+  export:
+    avg_T: {status: complete}
+
+- component: history/STAT
+  import:
+    A/T: {status: complete}
+  export:
+    avg_T: {status: complete}
+
+- component: history/<user>
+  import: {}
+
+- component: history
+  import:
+    A/T(1): {status: complete}
+  export:
+    STAT/avg_T: {status: complete}
+
+- component: <user>
+  import: {}
+  export: {}
+  internal: {}
+
+- component: <root>
+  import: {}
+  export:
+    A/T: {status: complete}
+    STAT/avg_T: {status: complete}

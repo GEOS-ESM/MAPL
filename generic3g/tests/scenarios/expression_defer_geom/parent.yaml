@@ -1,0 +1,24 @@
+mapl:
+
+  children:
+    A:
+      sharedObj: libconfigurable_gridcomp
+      config_file: scenarios/expression_defer_geom/A.yaml
+    B:
+      dso: libconfigurable_gridcomp
+      config_file: scenarios/expression_defer_geom/B.yaml
+    C:
+      dso: libconfigurable_gridcomp
+      config_file: scenarios/expression_defer_geom/C.yaml
+
+  states: {}
+
+  connections:
+    - src_comp: A
+      src_name: expr
+      dst_comp: B
+      dst_name: I
+    - src_comp: A
+      src_name: expr
+      dst_comp: C
+      dst_name: I

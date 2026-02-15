@@ -28,7 +28,7 @@ module ESMF_CFIOCollectionMod
      type (ESMF_CFIO), pointer :: formatter => null()
      type (FileMetadata), pointer :: file => null()
   contains
-    procedure :: find
+    procedure :: find => find_
     procedure :: unfind
   end type CFIOCollection
 
@@ -52,7 +52,7 @@ contains
 
 
 
-  function find(this, file_name, rc) result(formatter)
+  function find_(this, file_name, rc) result(formatter)
     type (ESMF_CFIO), pointer :: formatter
     class (CFIOCollection), target, intent(inout) :: this
     character(len=*), intent(in) :: file_name
@@ -128,7 +128,7 @@ contains
 
     _RETURN(_SUCCESS)
 
-  end function find
+  end function find_
 
   subroutine unfind(this)
     class (CFIOCollection), intent(inout) :: this

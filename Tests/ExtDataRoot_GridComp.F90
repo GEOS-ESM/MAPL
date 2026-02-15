@@ -3,7 +3,7 @@
 !     NASA/GSFC, Global Modeling and Assimilation Office, Code 610.1     !
 !-------------------------------------------------------------------------
 !
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 MODULE ExtDataUtRoot_GridCompMod
       use ESMF
@@ -12,7 +12,7 @@ MODULE ExtDataUtRoot_GridCompMod
       use VarspecDescriptionMod
       use VarspecDescriptionVectorMod
       use netcdf
-      use gFTL_StringStringMap
+      use gFTL2_StringStringMap
       use MAPL_StateUtils
       !use m_set_eta, only: set_eta
       use, intrinsic :: iso_fortran_env, only: REAL64
@@ -230,8 +230,8 @@ MODULE ExtDataUtRoot_GridCompMod
 
          _RETURN(ESMF_SUCCESS)
       contains
- 
-           
+
+
             subroutine set_locstream(rc)
 
             integer, optional, intent(out) :: rc
@@ -347,7 +347,7 @@ MODULE ExtDataUtRoot_GridCompMod
 
       integer :: status
 
-      type(VarspecDescriptionVector) :: VarspecVec
+      type(VarspecDescriptionVector), target :: VarspecVec
       type(VarspecDescriptionVectorIterator) :: Iter
       type(VarspecDescription) :: VarspecDescr
       type(VarspecDescription), pointer :: VarspecPtr
@@ -665,8 +665,8 @@ MODULE ExtDataUtRoot_GridCompMod
 
       _RETURN(ESMF_SUCCESS)
 
-      contains 
-     
+      contains
+
       subroutine fill_ple(ple_ptr, cf, rc)
          real, pointer, intent(in) :: ple_ptr(:,:,:)
          type(ESMF_Config), intent(inout) :: cf
@@ -693,23 +693,23 @@ MODULE ExtDataUtRoot_GridCompMod
          else
             _RETURN(_SUCCESS)
          end if
-        
-         allocate(ps(size(ple_ptr,1),size(ple_ptr,2))) 
+
+         allocate(ps(size(ple_ptr,1),size(ple_ptr,2)))
          call fs%open(trim(ps_file),pFIO_READ,_RC)
          call fs%get_var("PS",ps, _RC)
 
          hconfig = ESMF_HConfigCreate(filename=trim(akbk_file), _RC)
          km = size(ple_ptr,3) - 1
          write(km_str,'(i3.3)') km
-         akbk = ESMF_HConfigCreateAt(hconfig, keyString='L'//trim(km_str), _RC) 
+         akbk = ESMF_HConfigCreateAt(hconfig, keyString='L'//trim(km_str), _RC)
          ak = ESMF_HConfigAsR4Seq(akbk, keyString='ak', _RC)
          bk = ESMF_HConfigAsR4Seq(akbk, keyString='bk', _RC)
-  
+
          do i=1,km+1
             !ple_ptr(:,:,i-1) = ak(i)+ps_val*bk(i)
             ple_ptr(:,:,i-1) = ak(i)+ps(:,:)*bk(i)
          enddo
-          
+
          _RETURN(_SUCCESS)
       end subroutine fill_ple
 
@@ -788,7 +788,7 @@ MODULE ExtDataUtRoot_GridCompMod
                 foundDiff(i) = .true.
             end if
             if (foundDiff(i)) then
-               _FAIL('found difference when compare state')
+               _FAIL('found difference when compare state for field: [' // trim(namelist(i))//']')
             end if
          enddo
 

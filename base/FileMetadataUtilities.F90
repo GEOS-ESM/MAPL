@@ -4,15 +4,20 @@ module MAPL_FileMetadataUtilsMod
    use pFIO
    use MAPL_GridManagerMod
    use MAPL_AbstractGridFactoryMod
+   use Mapl_keywordenforcermod
+   use gFTL2_StringIntegerMap
    use ESMF
    use MAPL_ExceptionHandling
    use, intrinsic :: iso_fortran_env, only: REAL64,REAL32,INT64,INT32
-   
-   public :: FileMetadataUtils
-   type, extends(Filemetadata) :: FileMetadataUtils
+   implicit none
 
    private
-      character(len=:), allocatable :: filename 
+
+   public :: FileMetadataUtils
+   type :: FileMetadataUtils
+      private
+      type(FileMetadata), public :: metadata
+      character(len=:), allocatable :: filename
    contains
       procedure :: create
       procedure :: get_coordinate_info
@@ -29,6 +34,19 @@ module MAPL_FileMetadataUtilsMod
       procedure :: get_var_attr_int32
       procedure :: get_var_attr_int64
       procedure :: get_var_attr_string
+
+      procedure :: get_variable
+      procedure :: has_variable
+      procedure :: get_coordinate_variable
+      procedure :: get_variables
+      procedure :: get_dimension
+      procedure :: get_dimensions
+
+      procedure :: get_source_file
+
+      procedure :: write_formatted
+      generic :: write(formatted) => write_formatted
+
    end type FileMetadataUtils
 
    interface FileMetadataUtils
@@ -41,16 +59,16 @@ module MAPL_FileMetadataUtilsMod
       type (FileMetadataUtils) :: metadata_utils
       type (FileMetadata), intent(in) :: metadata
       character(len=*), intent(in) :: fName
-      metadata_utils%Filemetadata = metadata
+      metadata_utils%metadata = metadata
       metadata_utils%filename = fName
-      
+
    end function new_FilemetadataUtils
 
    subroutine create(this,metadata,fname)
       class(FileMetadataUtils), intent(inout) :: this
       type (FileMetadata), intent(in) :: metadata
       character(len=*), intent(in) :: fName
-      this%Filemetadata = metadata
+      this%metadata = metadata
       this%filename = fName
    end subroutine create
 
@@ -79,7 +97,7 @@ module MAPL_FileMetadataUtilsMod
       class(FileMetadataUtils), intent(inout) :: this
       character(len=*), intent(in) :: var_name
       integer, optional, intent(out) :: rc
-     
+
       integer :: status
       character(:), allocatable :: fname
       type(Variable), pointer :: var
@@ -97,7 +115,7 @@ module MAPL_FileMetadataUtilsMod
       character(len=*), intent(in) :: var_name
       character(len=*), intent(in) :: attr_name
       integer, optional, intent(out) :: rc
-     
+
       integer :: status
       character(:), allocatable :: fname
       type(Variable), pointer :: var
@@ -212,11 +230,11 @@ module MAPL_FileMetadataUtilsMod
    subroutine get_time_info(this,startTime,startyear,startmonth,startday,starthour,startmin,startsec,units,timeVector,rc)
       class (FileMetadataUtils), intent(inout) :: this
       type(ESMF_Time), optional, intent(inout) :: startTime
-      integer,optional,intent(out) ::        startYear 
+      integer,optional,intent(out) ::        startYear
       integer,optional,intent(out) ::        startMonth
-      integer,optional,intent(out) ::        startDay 
+      integer,optional,intent(out) ::        startDay
       integer,optional,intent(out) ::        startHour
-      integer,optional,intent(out) ::        startMin 
+      integer,optional,intent(out) ::        startMin
       integer,optional,intent(out) ::        startSec
       type(ESMF_Time), allocatable, optional :: timeVector(:)
       type(ESMF_Time), allocatable :: tVec(:)
@@ -385,19 +403,18 @@ module MAPL_FileMetadataUtilsMod
       _RETURN(_SUCCESS)
 
    end subroutine get_time_info
- 
-   function is_var_present(this,var_name,rc) result(isPresent)
+
+   function is_var_present(this,var_name, rc) result(isPresent)
       class (FileMetadataUtils), intent(inout) :: this
       character(len=*), intent(in) :: var_name
       integer, optional, intent(out) :: rc
 
       logical :: isPresent
-      class(Variable), pointer :: var
+
+      isPresent = this%metadata%has_variable(var_name)
+
+      _RETURN(_SUCCESS)
       _UNUSED_DUMMY(rc)
-
-      var => this%get_variable(var_name)
-      isPresent = associated(var)
-
    end function is_var_present
 
    function get_variable_attribute(this,var_name,attr_name,rc) result(units)
@@ -406,16 +423,15 @@ module MAPL_FileMetadataUtilsMod
       character(len=*), intent(in) :: attr_name
       integer, optional, intent(out) :: rc
       character(:), allocatable :: fname
-      character(len=:), pointer :: units 
+      character(len=:), pointer :: units
       type(Attribute), pointer :: attr => null()
       class(Variable), pointer :: var => null()
       class(*), pointer :: vunits
       logical :: isPresent
       integer :: status
-    
+
       fname = this%get_file_name(_RC)
-      var => this%get_variable(var_name,rc=status)
-      _VERIFY(status)
+      var => this%get_variable(var_name,_RC)
       isPresent = var%is_attribute_present(trim(attr_name))
       if (isPresent) then
          attr => var%get_attribute(trim(attr_name))
@@ -451,11 +467,11 @@ module MAPL_FileMetadataUtilsMod
       character(len=:), pointer :: vdim
       class(*), pointer :: coordUnitPtr
       class(*), pointer :: ptr(:)
- 
+
       fname = this%get_file_name(_RC)
       var => this%get_coordinate_variable(trim(coordinate_name),rc=status)
       _VERIFY(status)
-   
+
       if (present(coordSize)) then
          vdim => var%get_ith_dimension(1)
          coordSize = this%get_dimension(vdim,rc=status)
@@ -470,7 +486,7 @@ module MAPL_FileMetadataUtilsMod
          class default
             _FAIL(trim(coordinate_name)//' units must be string in '//fname)
          end select
-      end if 
+      end if
 
       if (present(long_name)) then
          if (this%var_has_attr(coordinate_name,"long_name")) then
@@ -485,7 +501,7 @@ module MAPL_FileMetadataUtilsMod
          else
              long_name = 'not found'
          endif
-      end if 
+      end if
 
       if (present(standard_name)) then
          if (this%var_has_attr(coordinate_name,"standard_name")) then
@@ -500,7 +516,7 @@ module MAPL_FileMetadataUtilsMod
          else
              standard_name = 'not found'
          endif
-      end if 
+      end if
 
       if (present(coordinate_attr)) then
          if (this%var_has_attr(coordinate_name,"coordinate")) then
@@ -515,7 +531,7 @@ module MAPL_FileMetadataUtilsMod
          else
              coordinate_attr = 'not found'
          endif
-      end if 
+      end if
 
       if (present(coords)) then
          ptr => var%get_coordinate_data()
@@ -547,11 +563,13 @@ module MAPL_FileMetadataUtilsMod
       type (StringVariableMap), pointer :: vars
       type (StringVariableMapIterator) :: var_iter
       character(len=:), pointer :: var_name
-      
+
       vars => this%get_variables()
-      var_iter = vars%begin()
-      do while(var_iter /=vars%end())
-         var_name => var_iter%key()
+      var_iter = vars%ftn_begin()
+      do while(var_iter /=vars%ftn_end())
+         call var_iter%next()
+
+         var_name => var_iter%first()
          var => this%get_coordinate_variable(trim(var_name))
          if (associated(var)) then
             if (index(var_name,'lev') .ne. 0 .or. index(var_name,'height') .ne. 0) then
@@ -568,7 +586,6 @@ module MAPL_FileMetadataUtilsMod
                end if
             end if
          end if
-         call var_iter%next()
       enddo
       lev_name=''
       _RETURN(_SUCCESS)
@@ -586,8 +603,106 @@ module MAPL_FileMetadataUtilsMod
       _RETURN(_SUCCESS)
    end function get_file_name
 
+   function get_variable(this, var_name, unusable, rc) result(var)
+      class (Variable), pointer :: var
+      class (FileMetadataUtils), target, intent(in) :: this
+      character(len=*), intent(in) :: var_name
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      var => this%metadata%get_variable(var_name, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end function get_variable
+
+   logical function has_variable(this, var_name, unusable, rc) result(has)
+      class (FileMetadataUtils), target, intent(in) :: this
+      character(len=*), intent(in) :: var_name
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+      class (Variable), pointer :: var
+
+      integer :: status
+
+      has = this%metadata%has_variable(var_name, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end function has_variable
+
+   function get_variables(this, rc ) result(variables)
+      type (StringVariableMap), pointer :: variables
+      class(FileMetadataUtils), target, intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      variables => this%metadata%get_variables(_RC)
+      _RETURN(_SUCCESS)
+   end function get_variables
+
+   subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
+      class(FileMetadataUtils), intent(in) :: this
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      call this%metadata%write_formatted(unit, iotype, v_list, iostat, iomsg)
+
+   end subroutine write_formatted
+
+   function get_coordinate_variable(this, var_name, unusable, rc) result(var)
+      class (CoordinateVariable), pointer :: var
+      class (FileMetadataUtils), target, intent(in) :: this
+      character(len=*), intent(in) :: var_name
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      var => this%metadata%get_coordinate_variable(var_name, _RC)
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end function get_coordinate_variable
+
+   function get_dimensions(this) result(dimensions)
+      type (StringIntegerMap), pointer :: dimensions
+      class (FileMetadataUtils), target, intent(in) :: this
+
+      dimensions => this%metadata%get_dimensions()
+
+   end function get_dimensions
+
+   integer function get_dimension(this, dim_name, unusable, rc) result(extent)
+      class (FileMetadataUtils), target, intent(in) :: this
+      character(len=*), intent(in) :: dim_name
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      extent = this%metadata%get_dimension(dim_name, _RC)
+      _RETURN(_SUCCESS)
+   end function get_dimension
+
+   function get_source_file(this,rc) result(source_file)
+      character(len=:), allocatable :: source_file
+      class (FileMetadataUtils), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      source_file=this%metadata%get_source_file(_RC)
+      _RETURN(_SUCCESS)
+   end function
+
 end module MAPL_FileMetadataUtilsMod
 
 
-      
- 
+
+

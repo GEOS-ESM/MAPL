@@ -1,7 +1,8 @@
 #include "MAPL_ErrLog.h"
+
 module MAPL_ApplicationSupport
  use MPI
- use MAPL_ExceptionHandling
+ use mapl_ErrorHandlingMod
  use MAPL_KeywordEnforcerMod
  use pflogger, only: logging
  use pflogger, only: Logger
@@ -16,16 +17,20 @@ module MAPL_ApplicationSupport
 
  contains
 
-   subroutine MAPL_Initialize(unusable,comm,logging_config,rc)
+   subroutine MAPL_Initialize(unusable,comm,logging_config,enable_global_timeprof, enable_global_memprof, rc)
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: comm
       character(len=*), optional,intent(in) :: logging_config
+      logical, optional, intent(in) :: enable_global_timeprof
+      logical, optional, intent(in) :: enable_global_memprof
       integer, optional, intent(out) :: rc
 
       character(:), allocatable :: logging_configuration_file
       integer :: comm_world,status
 
       _UNUSED_DUMMY(unusable)
+
+      call initialize_profiler(comm=comm_world, enable_global_timeprof=enable_global_timeprof, enable_global_memprof=enable_global_memprof, _RC)
 
       if (present(logging_config)) then
          logging_configuration_file=logging_config
@@ -37,16 +42,13 @@ module MAPL_ApplicationSupport
       else
          comm_world=MPI_COMM_WORLD
       end if
-#ifdef BUILD_WITH_PFLOGGER
-      call initialize_pflogger(comm=comm_world,logging_config=logging_configuration_file,rc=status)
-      _VERIFY(status)
-#endif
-      call initialize_profiler(comm=comm_world)
-      call start_global_time_profiler(rc=status)
-      _VERIFY(status)
-      call initialize_udunits(_RC)
-      _RETURN(_SUCCESS)
 
+#ifdef BUILD_WITH_PFLOGGER
+      call initialize_pflogger(comm=comm_world,logging_config=logging_configuration_file, _RC)
+#endif
+      call initialize_udunits(_RC)
+
+      _RETURN(_SUCCESS)
    end subroutine MAPL_Initialize
 
    subroutine MAPL_Finalize(unusable,comm,rc)
@@ -64,13 +66,12 @@ module MAPL_ApplicationSupport
       else
          comm_world=MPI_COMM_WORLD
       end if
-      call stop_global_time_profiler(rc=status)
-      _VERIFY(status)
-      call report_global_profiler(comm=comm_world)
-      call finalize_profiler()
-      call finalize_pflogger()
-      _RETURN(_SUCCESS)
 
+      call finalize_profiler(_RC)
+      call finalize_pflogger()
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine MAPL_Finalize
 
    subroutine finalize_pflogger()
@@ -152,60 +153,5 @@ module MAPL_ApplicationSupport
 
    end subroutine initialize_pflogger
 #endif
-
-   subroutine report_global_profiler(unusable,comm,rc)
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(in) :: comm
-      integer, optional, intent(out) :: rc
-      type (ProfileReporter) :: reporter
-      integer :: i, world_comm
-      character(:), allocatable :: report_lines(:)
-      type (MultiColumn) :: inclusive
-      type (MultiColumn) :: exclusive
-      integer :: npes, my_rank, ierror
-      character(1) :: empty(0)
-      class (BaseProfiler), pointer :: t_p
-      type(Logger), pointer :: lgr
-
-      _UNUSED_DUMMY(unusable)
-      if (present(comm)) then
-         world_comm = comm
-      else
-         world_comm=MPI_COMM_WORLD
-      end if
-      t_p => get_global_time_profiler()
-
-      reporter = ProfileReporter(empty)
-      call reporter%add_column(NameColumn(50, separator= " "))
-      call reporter%add_column(FormattedTextColumn('#-cycles','(i8.0)', 8, NumCyclesColumn(),separator='-'))
-
-      inclusive = MultiColumn(['Inclusive'], separator='=')
-      call inclusive%add_column(FormattedTextColumn(' T (sec) ','(f9.3)', 9, InclusiveColumn(), separator='-'))
-      call inclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(InclusiveColumn(),'MAX'),separator='-'))
-      call reporter%add_column(inclusive)
-
-      exclusive = MultiColumn(['Exclusive'], separator='=')
-      call exclusive%add_column(FormattedTextColumn(' T (sec) ','(f9.3)', 9, ExclusiveColumn(), separator='-'))
-      call exclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(ExclusiveColumn()), separator='-'))
-      call reporter%add_column(exclusive)
-
-      call MPI_Comm_size(world_comm, npes, ierror)
-      _VERIFY(ierror)
-      call MPI_Comm_Rank(world_comm, my_rank, ierror)
-      _VERIFY(ierror)
-
-      if (my_rank == 0) then
-         report_lines = reporter%generate_report(t_p)
-         lgr => logging%get_logger('MAPL.profiler')
-         call lgr%info('Report on process: %i0', my_rank)
-         do i = 1, size(report_lines)
-            call lgr%info('%a', report_lines(i))
-         end do
-      end if
-      call MPI_Barrier(world_comm, ierror)
-      _VERIFY(ierror)
-
-      _RETURN(_SUCCESS)
-   end subroutine report_global_profiler
 
 end module MAPL_ApplicationSupport

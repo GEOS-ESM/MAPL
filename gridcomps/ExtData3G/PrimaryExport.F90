@@ -1,0 +1,342 @@
+#include "MAPL_ErrLog.h"
+module mapl3g_PrimaryExport
+   use ESMF
+   use MAPL_ExceptionHandling
+   use mapl3g_AbstractDataSetFileSelector
+   use mapl3g_NonClimDataSetFileSelector
+   use mapl3g_ClimDataSetFileSelector
+   use mapl3g_Geom_API
+   use mapl3g_VerticalGrid_API
+   use MAPL_FileMetadataUtilsMod
+   use generic3g
+   use mapl3g_DataSetBracket
+   use mapl3g_DataSetNode
+   use mapl3g_ExtDataReader
+   use gftl2_StringStringMap
+   use gftl2_IntegerVector
+   use gftl2_StringVector
+   use mapl3g_ExtDataRule
+   use mapl3g_ExtDataCollection
+   use mapl3g_ExtDataSample
+   use pfio, only: i_clients
+   use VerticalCoordinateMod
+   use mapl3g_FieldBundleSet
+   use mapl3g_FieldBundleGet
+   use mapl3g_EsmfRegridder, only: EsmfRegridderParam
+   use mapl3g_RegridderMethods
+   implicit none
+   private
+
+   public PrimaryExport
+
+   type :: PrimaryExport
+      character(len=:),  allocatable :: export_var
+      type(StringVector) :: file_vars
+      integer :: client_collection_id
+      class(AbstractDataSetFileSelector), allocatable :: file_selector
+      type(DataSetBracket) :: bracket
+      logical :: is_constant = .false.
+      type(VerticalCoordinate) :: vcoord
+      type(ESMF_Time), allocatable :: start_and_end(:)
+      real :: linear_trans(2) ! offset, scaling
+      character(len=:), allocatable :: regridding_method
+      integer :: fraction_value
+
+      contains
+         procedure :: get_file_selector
+         procedure :: complete_export_spec
+         procedure :: update_export_spec
+         !procedure :: get_file_var_name
+         procedure :: get_export_var_name
+         procedure :: get_bracket
+         procedure :: update_my_bracket
+         procedure :: append_state_to_reader
+         procedure :: set_fraction_values_to_zero
+   end type
+
+   interface PrimaryExport
+      module procedure new_PrimaryExport
+   end interface PrimaryExport
+
+   contains
+
+   function new_PrimaryExport(export_var, rule, collection, sample, time_range, time_step,  rc) result(primary_export)
+      type(PrimaryExport) :: primary_export
+      character(len=*), intent(in) :: export_var
+      type(ExtDataRule), pointer, intent(in) :: rule
+      type(ExtDataCollection), pointer, intent(in) :: collection
+      type(ExtDataSample), pointer, intent(in) :: sample
+      type(ESMF_Time), intent(in) :: time_range(:)
+      type(ESMF_TimeInterval), intent(in) :: time_step
+      integer, optional, intent(out) :: rc
+
+      type(NonClimDataSetFileSelector) :: non_clim_file_selector
+      type(ClimDataSetFileSelector) :: clim_file_selector
+      type(DataSetNode) :: left_node, right_node
+      character(len=:), allocatable :: file_template
+      integer :: status, semi_pos
+
+      primary_export%export_var = export_var
+      primary_export%is_constant = .not.associated(collection)
+      if (associated(collection)) then
+         if (sample%extrap_outside == 'clim') then
+            clim_file_selector = ClimDataSetFileSelector(collection%file_template, collection%valid_range, collection%frequency, ref_time=collection%reff_time, timeStep=time_step)
+            allocate(primary_export%file_selector, source=clim_file_selector, _STAT)
+         else
+            non_clim_file_selector = NonClimDataSetFileSelector(collection%file_template, collection%frequency, ref_time=collection%reff_time, persist_closest = (sample%extrap_outside == "persist_closest"), timeStep=time_step )
+            allocate(primary_export%file_selector, source=non_clim_file_selector, _STAT)
+         end if
+         primary_export%file_vars = rule%file_vars
+         primary_export%linear_trans = rule%linear_trans
+         if (index(rule%regrid_method, 'FRACTION') > 0) then
+            semi_pos = index(rule%regrid_method, ';')
+            _ASSERT(semi_pos > 0, "Specified fractional regridding but did not specify fraction value")
+            read(rule%regrid_method(semi_pos+1:),*)primary_export%fraction_value
+            primary_Export%regridding_method = 'FRACTION'
+         else
+            primary_export%regridding_method = rule%regrid_method
+         end if
+         call left_node%set_node_side(NODE_LEFT)
+         call right_node%set_node_side(NODE_RIGHT)
+         call primary_export%bracket%set_node(NODE_LEFT, left_node)
+         call primary_export%bracket%set_node(NODE_RIGHT, right_node)
+         call primary_export%file_selector%get_file_template(file_template)
+         primary_export%client_collection_id = i_clients%add_data_collection(file_template, _RC)
+         call primary_export%bracket%set_parameters(time_interpolation=sample%time_interpolation)
+         allocate(primary_export%start_and_end, source=time_range)
+      end if
+      _RETURN(_SUCCESS)
+
+   end function new_PrimaryExport
+
+   function get_file_selector(this) result(file_selector)
+      class(AbstractDataSetFileSelector), allocatable :: file_selector
+      class(PrimaryExport), intent(in) :: this
+      file_selector = this%file_selector
+   end function get_file_selector
+
+   function get_bracket(this) result(bracket)
+      type(DataSetBracket) :: bracket
+      class(PrimaryExport), intent(in) :: this
+      bracket = this%bracket
+   end function get_bracket
+
+   function get_export_var_name(this) result(varname)
+      character(len=:), allocatable :: varname
+      class(PrimaryExport), intent(in) :: this
+      varname = this%export_var
+   end function get_export_var_name
+
+   subroutine complete_export_spec(this, item_name, exportState, rc)
+      class(PrimaryExport), intent(inout) :: this
+      character(len=*), intent(in) :: item_name
+      type(ESMF_State), intent(inout) :: exportState
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      type(FileMetaDataUtils), pointer :: metadata
+      type(MAPLGeom) :: geom
+      type(ESMF_Geom) :: esmfgeom
+      type(ESMF_FieldBundle) :: bundle
+      type(GeomManager), pointer :: geom_mgr
+      type(EsmfRegridderParam) :: regridder_param
+      type(esmf_Info) :: regridder_param_info
+      class(VerticalGrid), pointer :: vertical_grid
+      type(VerticalGridManager), pointer :: vgrid_manager
+      character(len=:), pointer :: variable_name
+
+      if (this%is_constant) then
+         _RETURN(_SUCCESS)
+      end if
+
+      vgrid_manager => get_vertical_grid_manager()
+
+      metadata => this%file_selector%get_dataset_metadata(_RC)
+      geom_mgr => get_geom_manager()
+      geom = geom_mgr%get_mapl_geom_from_metadata(metadata%metadata, _RC)
+      esmfgeom = geom%get_geom()
+
+      variable_name => this%file_vars%of(1)
+      this%vcoord = verticalCoordinate(metadata, variable_name, _RC)
+      regridder_param = generate_esmf_regrid_param(regrid_method_string_to_int(this%regridding_method), &
+         ESMF_TYPEKIND_R4, _RC)
+      regridder_param_info = regridder_param%make_info(_RC)
+
+      call ESMF_StateGet(exportState, item_name, bundle, _RC)
+      if (this%vcoord%vertical_type == NO_COORD) then
+         call mapl_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
+                 vert_staggerloc=VERTICAL_STAGGER_NONE, regridder_param_info=regridder_param_info, _RC)
+      else if (this%vcoord%vertical_type == SIMPLE_COORD) then
+         vertical_grid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
+         call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', &
+                 typekind=ESMF_TYPEKIND_R4, vgrid=vertical_grid, &
+                 vert_staggerloc=VERTICAL_STAGGER_CENTER, regridder_param_info=regridder_param_info, _RC)
+      else
+         _FAIL("unsupported vertical coordinate for item "//trim(this%export_var))
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine complete_export_spec
+
+   subroutine update_export_spec(this, item_name, exportState, rc)
+      class(PrimaryExport), intent(inout) :: this
+      character(len=*), intent(in) :: item_name
+      type(ESMF_State), intent(inout) :: exportState
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      type(FileMetaDataUtils), pointer :: metadata
+      type(MAPLGeom) :: geom
+      type(ESMF_Geom) :: esmfgeom
+      type(ESMF_FieldBundle) :: bundle
+      type(GeomManager), pointer :: geom_mgr
+      type(VerticalGridManager), pointer :: vgrid_manager
+      class(VerticalGrid), pointer :: vertical_grid
+      character(len=:), pointer :: variable_name
+
+      if (this%is_constant) then
+         _RETURN(_SUCCESS)
+      end if
+
+      vgrid_manager => get_vertical_grid_manager()
+      metadata => this%file_selector%get_dataset_metadata(_RC)
+      geom_mgr => get_geom_manager()
+      geom = geom_mgr%get_mapl_geom_from_metadata(metadata%metadata, _RC)
+      esmfgeom = geom%get_geom()
+
+      variable_name => this%file_vars%of(1)
+      this%vcoord = verticalCoordinate(metadata, variable_name, _RC)
+
+      call ESMF_StateGet(exportState, item_name, bundle, _RC)
+      if (this%vcoord%vertical_type == NO_COORD) then
+         call FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
+                 vert_staggerloc=VERTICAL_STAGGER_NONE,  _RC)
+      else if (this%vcoord%vertical_type == SIMPLE_COORD) then
+         vertical_grid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
+         call FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', &
+                 typekind=ESMF_TYPEKIND_R4, num_levels=this%vcoord%num_levels, &
+                 vert_staggerloc=VERTICAL_STAGGER_CENTER,  _RC)
+      else
+         _FAIL("unsupported vertical coordinate for item "//trim(this%export_var))
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine update_export_spec
+
+   subroutine update_my_bracket(this, bundle, current_time, weights, rc)
+      class(PrimaryExport), intent(inout) :: this
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      type(ESMF_Time), intent(in) :: current_time
+      real, allocatable, intent(out) :: weights(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      real :: local_weights(2)
+
+      call this%file_selector%update_file_bracket(bundle, current_time, this%bracket, _RC)
+      local_weights = this%bracket%compute_bracket_weights(current_time, _RC)
+
+      if (this%file_vars%size() == 1) then
+         allocate(weights(3),_STAT)
+         weights = [0.0, local_weights(1), local_weights(2)]
+         ! apply optional linear transformation
+         weights(1) = this%linear_trans(1)
+         weights(2:3) = weights(2:3)*this%linear_trans(2)
+      else if (this%file_vars%size() == 2) then
+         allocate(weights(5),_STAT)
+         weights = 0.0
+         weights(2) = local_weights(1)
+         weights(4) = local_weights(2)
+         weights(3) = local_weights(1)
+         weights(5) = local_weights(2)
+         ! apply optional linear transformation
+         weights(1) = this%linear_trans(1)
+         weights(2:5) = weights(2:5)*this%linear_trans(2)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine update_my_bracket
+
+   subroutine append_state_to_reader(this, export_state, reader, lgr, rc)
+      class(PrimaryExport), intent(inout) :: this
+      type(ESMF_State), intent(inout) :: export_state
+      type(ExtDataReader), intent(inout) :: reader
+      class(logger), intent(in), pointer :: lgr
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_FieldBundle) :: bundle
+      integer :: status
+      type(DataSetNode) :: node
+      logical :: update_file
+      type(ESMF_Field), allocatable :: field_list(:)
+      character(len=:), allocatable :: filename
+      integer :: time_index,i,list_start
+      character(len=:), pointer :: variable_name
+
+      list_start=1
+      if (this%file_vars%size() == 2) list_start = 2
+      node = this%bracket%get_left_node()
+      update_file = node%get_update()
+      if (update_file) then
+         call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
+         call MAPL_FieldBundleSet(bundle, bracket_updated=.true., _RC)
+         call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
+         time_index = node%get_time_index()
+         call node%get_file(filename)
+         call lgr%info("updating %a", this%export_var)
+         call node%write_node(lgr) !  bmaa
+         do i=1,this%file_vars%size()
+            variable_name => this%file_vars%at(i)
+            call reader%add_item(field_list(i), variable_name, filename, time_index, this%client_collection_id, _RC)
+         enddo
+      end if
+      node = this%bracket%get_right_node()
+      update_file = node%get_update()
+      if (update_file) then
+         call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
+         call MAPL_FieldBundleSet(bundle, bracket_updated=.true., _RC)
+         call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
+         time_index = node%get_time_index()
+         call lgr%info("updating %a", this%export_var)
+         call node%write_node(lgr) !  bmaa
+         call node%get_file(filename)
+         do i=1,this%file_vars%size()
+            variable_name => this%file_vars%at(i)
+            call reader%add_item(field_list(list_start+i), variable_name, filename, time_index, this%client_collection_id, _RC)
+         enddo
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine append_state_to_reader
+
+   subroutine set_fraction_values_to_zero(this, bundle, rc)
+      class(PrimaryExport), intent(inout) :: this
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Field), allocatable :: field_list(:)
+      integer :: status, i
+      type(ESMF_TypeKind_Flag) :: tk
+      real(ESMF_KIND_R4), pointer :: ptr_r4(:)
+      real(ESMF_KIND_R8), pointer :: ptr_r8(:)
+
+      call FieldBundleGet(bundle, fieldList=field_list, _RC)
+      do i=1,size(field_list)
+         call ESMF_FieldGet(field_list(i), typekind=tk, _RC)
+         if (tk == ESMF_TYPEKIND_R4) then
+            call assign_fptr(field_list(i), ptr_r4, _RC)
+            ptr_r4 = ptr_r4 - real(this%fraction_value, kind=ESMF_KIND_R4)
+         else if (tk == ESMF_TYPEKIND_R8) then
+            call assign_fptr(field_list(i), ptr_r8, _RC)
+            ptr_r8 = ptr_r8 - real(this%fraction_value, kind=ESMF_KIND_R8)
+         else
+            _FAIL('Unsupported typekind')
+         end if
+      enddo
+      _RETURN(_SUCCESS)
+
+   end subroutine set_fraction_values_to_zero
+
+end module mapl3g_PrimaryExport

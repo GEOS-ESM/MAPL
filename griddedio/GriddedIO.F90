@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module MAPL_GriddedIOMod
   use ESMF
@@ -19,8 +19,8 @@ module MAPL_GriddedIOMod
   use pFIO_ClientManagerMod
   use MAPL_DataCollectionMod
   use MAPL_DataCollectionManagerMod
-  use gFTL_StringVector
-  use gFTL_StringStringMap
+  use gFTL2_StringVector
+  use gFTL2_StringStringMap
   use MAPL_FileMetadataUtilsMod
   use MAPL_DownbitMod
   use, intrinsic :: ISO_C_BINDING
@@ -30,9 +30,10 @@ module MAPL_GriddedIOMod
   implicit none
 
   private
+  public :: MAPL_GriddedIO
 
-  type, public :: MAPL_GriddedIO
-     type(FileMetaData), allocatable :: metadata
+  type :: MAPL_GriddedIO
+     type(FileMetaData) :: metadata
      type(fileMetadataUtils), pointer :: current_file_metadata
      integer :: write_collection_id
      integer :: read_collection_id
@@ -109,6 +110,7 @@ module MAPL_GriddedIOMod
         if (present(metadata_collection_id)) GriddedIO%metadata_collection_id=metadata_collection_id
         if (present(items)) GriddedIO%items=items
         if (present(fraction)) GriddedIO%fraction=fraction
+
         _RETURN(ESMF_SUCCESS)
      end function new_MAPL_GriddedIO
 
@@ -135,27 +137,19 @@ module MAPL_GriddedIOMod
         integer :: status
         character(len=ESMF_MAXSTR) :: Gridname
 
-        if ( allocated (this%metadata) ) deallocate(this%metadata)
-        allocate(this%metadata)
-
         call MAPL_FieldBundleDestroy(this%output_bundle, _RC)
 
         this%items = items
         this%input_bundle = bundle
-        this%output_bundle = ESMF_FieldBundleCreate(rc=status)
-        _VERIFY(status)
+        this%output_bundle = ESMF_FieldBundleCreate(_RC)
         this%timeInfo = timeInfo
-        call ESMF_FieldBundleGet(this%input_bundle,grid=input_grid,rc=status)
-        _VERIFY(status)
+        call ESMF_FieldBundleGet(this%input_bundle,grid=input_grid,_RC)
         if (present(ogrid)) then
            this%output_grid=ogrid
         else
-           call ESMF_FieldBundleGet(this%input_bundle,grid=this%output_grid,rc=status)
-           _VERIFY(status)
+           call ESMF_FieldBundleGet(this%input_bundle,grid=this%output_grid,_RC)
         end if
-
-        this%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%output_grid,this%regrid_method,hints=this%regrid_hints,rc=status)
-        _VERIFY(status)
+        this%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%output_grid,this%regrid_method,hints=this%regrid_hints,_RC)
 
 
         ! We get the regrid_method here because in the case of Identity, we set it to
@@ -164,35 +158,38 @@ module MAPL_GriddedIOMod
         ! the regridder object.
         this%regrid_method = this%regrid_handle%get_regrid_method()
 
-        call ESMF_FieldBundleSet(this%output_bundle,grid=this%output_grid,rc=status)
-        _VERIFY(status)
-        factory => get_factory(this%output_grid,rc=status)
-        _VERIFY(status)
+        call ESMF_FieldBundleSet(this%output_bundle,grid=this%output_grid,_RC)
+        factory => get_factory(this%output_grid,_RC)
         call factory%append_metadata(this%metadata)
-        coord_var => this%metadata%get_variable('lons')
-        if (associated(coord_var)) call coord_var%set_deflation(this%deflateLevel)
-        coord_var => this%metadata%get_variable('lats')
-        if (associated(coord_var)) call coord_var%set_deflation(this%deflateLevel)
-        coord_var => this%metadata%get_variable('corner_lons')
-        if (associated(coord_var)) call coord_var%set_deflation(this%deflateLevel)
-        coord_var => this%metadata%get_variable('corner_lats')
-        if (associated(coord_var)) call coord_var%set_deflation(this%deflateLevel)
+
+        if (this%metadata%has_variable('lons')) then
+           coord_var => this%metadata%get_variable('lons',_RC)
+           call coord_var%set_deflation(this%deflateLevel)
+        end if
+        if (this%metadata%has_variable('lats')) then
+           coord_var => this%metadata%get_variable('lats',_RC)
+           call coord_var%set_deflation(this%deflateLevel)
+        end if
+        if (this%metadata%has_variable('corner_lons')) then
+           coord_var => this%metadata%get_variable('corner_lons',_RC)
+           call coord_var%set_deflation(this%deflateLevel)
+        end if
+        if (this%metadata%has_variable('corner_lats')) then
+           coord_var => this%metadata%get_variable('corner_lats',_RC)
+           call coord_var%set_deflation(this%deflateLevel)
+        end if
 
 
         if (present(vdata)) then
            this%vdata=vdata
         else
-           this%vdata=VerticalData(rc=status)
-           _VERIFY(status)
+           this%vdata=VerticalData(_RC)
         end if
-        call this%vdata%append_vertical_metadata(this%metadata,this%input_bundle,rc=status)
-        _VERIFY(status)
+        call this%vdata%append_vertical_metadata(this%metadata,this%input_bundle,_RC)
         this%doVertRegrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
-        if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%input_bundle,rc=status)
-        _VERIFY(status)
+        if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%input_bundle,_RC)
 
-        call this%timeInfo%add_time_to_metadata(this%metadata,rc=status)
-        _VERIFY(status)
+        call this%timeInfo%add_time_to_metadata(this%metadata,_RC)
 
         if (.not.allocated(this%chunking)) then
            call this%set_default_chunking(rc=status)
@@ -201,8 +198,7 @@ module MAPL_GriddedIOMod
            call this%check_chunking(this%vdata%lm,_RC)
         end if
 
-        order = this%metadata%get_order(rc=status)
-        _VERIFY(status)
+       order = this%metadata%get_order(_RC)
         metadataVarsSize = order%size()
 
         ! If quantize algorithm is set, create a quantization_info variable
@@ -214,27 +210,23 @@ module MAPL_GriddedIOMod
         do while (iter /= this%items%end())
            item => iter%get()
            if (item%itemType == ItemTypeScalar) then
-              call this%CreateVariable(item%xname,rc=status)
-              _VERIFY(status)
+              call this%CreateVariable(item%xname,_RC)
            else if (item%itemType == ItemTypeVector) then
-              call this%CreateVariable(item%xname,rc=status)
-              _VERIFY(status)
-              call this%CreateVariable(item%yname,rc=status)
-              _VERIFY(status)
+              call this%CreateVariable(item%xname,_RC)
+              call this%CreateVariable(item%yname,_RC)
            end if
            call iter%next()
         enddo
 
         if (this%itemOrderAlphabetical) then
-           call this%alphabatize_variables(metadataVarsSize,rc=status)
-           _VERIFY(status)
+           call this%alphabatize_variables(metadataVarsSize,_RC)
         end if
 
         if (present(global_attributes)) then
            s_iter = global_attributes%begin()
            do while(s_iter /= global_attributes%end())
-              attr_name => s_iter%key()
-              attr_val => s_iter%value()
+              attr_name => s_iter%first()
+              attr_val => s_iter%second()
               call this%metadata%add_attribute(attr_name,attr_val,_RC)
               call s_iter%next()
            enddo
@@ -374,6 +366,7 @@ module MAPL_GriddedIOMod
         character(len=:), allocatable :: grid_dims
         character(len=:), allocatable :: vdims
         type(Variable) :: v
+        type(ESMF_Info) :: infoh
 
         call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,rc=status)
         _VERIFY(status)
@@ -384,18 +377,19 @@ module MAPL_GriddedIOMod
         _VERIFY(status)
         call ESMF_FieldGet(field,name=varName,rc=status)
         _VERIFY(status)
-        call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=isPresent,rc=status)
+        call ESMF_InfoGetFromHost(field,infoh,rc=status)
+        isPresent = ESMF_InfoIsPresent(infoh,"LONG_NAME",rc=status)
         _VERIFY(status)
         if ( isPresent ) then
-           call ESMF_AttributeGet  (FIELD, NAME="LONG_NAME",VALUE=LongName, RC=STATUS)
+           call ESMF_InfoGet(infoh,'LONG_NAME',LongName,RC=STATUS)
            _VERIFY(STATUS)
         else
            LongName = varName
         endif
-        call ESMF_AttributeGet(field,name="UNITS",isPresent=isPresent,rc=status)
+        isPresent = ESMF_InfoIsPresent(infoh,"UNITS",rc=status)
         _VERIFY(status)
         if ( isPresent ) then
-           call ESMF_AttributeGet  (FIELD, NAME="UNITS",VALUE=units, RC=STATUS)
+           call ESMF_InfoGet(infoh,'UNITS',units,RC=STATUS)
            _VERIFY(STATUS)
         else
            units = 'unknown'
@@ -618,14 +612,15 @@ module MAPL_GriddedIOMod
         have_time = this%timeInfo%am_i_initialized()
 
         if (have_time) then
-           this%times = this%timeInfo%compute_time_vector(this%metadata,rc=status)
-           _VERIFY(status)
-           ref = ArrayReference(this%times)
+           this%times = this%timeInfo%compute_time_vector(this%metadata, _RC)
+           associate (times => this%times)
+              ref = ArrayReference(times)
+           end associate
            call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
 
            tindex = size(this%times)
            if (tindex==1) then
-              call this%stage2DLatLon(filename,oClients=oClients,_RC)
+              call this%stage2DLatLon(filename,oClients=oClients, _RC)
            end if
         else
            tindex = -1
@@ -633,24 +628,19 @@ module MAPL_GriddedIOMod
         end if
 
         if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-           call this%vdata%setup_eta_to_pressure(regrid_handle=this%regrid_handle,output_grid=this%output_grid,rc=status)
-           _VERIFY(status)
+           call this%vdata%setup_eta_to_pressure(regrid_handle=this%regrid_handle,output_grid=this%output_grid, _RC)
         end if
 
         iter = this%items%begin()
         do while (iter /= this%items%end())
            item => iter%get()
            if (item%itemType == ItemTypeScalar) then
-              call this%RegridScalar(item%xname,rc=status)
-              _VERIFY(status)
-              call ESMF_FieldBundleGet(this%output_bundle,item%xname,field=outField,rc=status)
-              _VERIFY(status)
+              call this%RegridScalar(item%xname, _RC)
+              call ESMF_FieldBundleGet(this%output_bundle,item%xname,field=outField, _RC)
               if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV .and. (this%vdata%extrap_below_surf .eqv. .false.)) then
-                 call this%vdata%correct_topo(outField,rc=status)
-                 _VERIFY(status)
+                 call this%vdata%correct_topo(outField, _RC)
               end if
-              call this%stageData(outField,filename,tIndex, oClients=oClients,rc=status)
-              _VERIFY(status)
+              call this%stageData(outField,filename,tIndex, oClients=oClients, _RC)
            else if (item%itemType == ItemTypeVector) then
               call this%RegridVector(item%xname,item%yname,rc=status)
               _VERIFY(status)
@@ -668,8 +658,7 @@ module MAPL_GriddedIOMod
                  call this%vdata%correct_topo(outField,rc=status)
                  _VERIFY(status)
               end if
-              call this%stageData(outField,filename,tIndex,oClients=oClients,rc=status)
-              _VERIFY(status)
+              call this%stageData(outField,filename,tIndex,oClients=oClients, _RC)
            end if
            call iter%next()
         enddo
@@ -693,15 +682,18 @@ module MAPL_GriddedIOMod
         type(ESMF_Grid) :: gridIn,gridOut
         logical :: hasDE_in, hasDE_out, isPresent
         character(len=ESMF_MAXSTR) :: long_name
+        type(ESMF_Info) :: infoh
 
         ptr3d => null()
 
         call ESMF_FieldBundleGet(this%output_bundle,itemName,field=outField,rc=status)
         _VERIFY(status)
         long_name = 'unknown'
-        call ESMF_AttributeGet(outField, name="LONG_NAME", isPresent=isPresent, _RC)
+
+        call ESMF_InfoGetFromHost(outField,infoh,_RC)
+        isPresent = ESMF_InfoIsPresent(infoh,"LONG_NAME",_RC)
         if ( isPresent ) then
-           call ESMF_AttributeGet(outField, name="LONG_NAME",value=long_name, _RC)
+           call ESMF_InfoGet(infoh,'LONG_NAME',long_name,_RC)
         endif
         call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
         _VERIFY(status)
@@ -817,21 +809,24 @@ module MAPL_GriddedIOMod
         type(ESMF_Grid) :: gridIn, gridOut
         logical :: hasDE_in, hasDE_out, isPresent
         character(len=ESMF_MAXSTR) :: long_name_x, long_name_y
+        type(ESMF_Info) :: infoh
 
         call ESMF_FieldBundleGet(this%output_bundle,xName,field=xoutField,rc=status)
         _VERIFY(status)
         long_name_x = 'unknown'
-        call ESMF_AttributeGet(xoutField, name="LONG_NAME", isPresent=isPresent, _RC)
+        call ESMF_InfoGetFromHost(xoutField,infoh,_RC)
+        isPresent = ESMF_InfoIsPresent(infoh,"LONG_NAME",_RC)
         if ( isPresent ) then
-           call ESMF_AttributeGet(xoutField, name="LONG_NAME",value=long_name_x, _RC)
+           call ESMF_InfoGet(infoh,'LONG_NAME',long_name_x,_RC)
         endif
 
         call ESMF_FieldBundleGet(this%output_bundle,yName,field=youtField,rc=status)
         _VERIFY(status)
         long_name_y = 'unknown'
-        call ESMF_AttributeGet(youtField, name="LONG_NAME", isPresent=isPresent, _RC)
+        call ESMF_InfoGetFromHost(youtField,infoh,_RC)
+        isPresent = ESMF_InfoIsPresent(infoh,"LONG_NAME",_RC)
         if ( isPresent ) then
-           call ESMF_AttributeGet(youtField, name="LONG_NAME",value=long_name_y, _RC)
+           call ESMF_InfoGet(infoh,'LONG_NAME',long_name_y,_RC)
         endif
 
         call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
@@ -989,12 +984,8 @@ module MAPL_GriddedIOMod
      class (AbstractGridFactory), pointer :: factory
      integer, allocatable :: localStart(:),globalStart(:),globalCount(:)
      logical :: hasll
-     class(Variable), pointer :: var_lat,var_lon
 
-     var_lon => this%metadata%get_variable('lons')
-     var_lat => this%metadata%get_variable('lats')
-
-     hasll = associated(var_lon) .and. associated(var_lat)
+     hasll = this%metadata%has_variable('lons') .and. this%metadata%has_variable('lats')
      if (hasll) then
         factory => get_factory(this%output_grid,rc=status)
         _VERIFY(status)
@@ -1006,27 +997,28 @@ module MAPL_GriddedIOMod
         farrayPtr=ptr2d, rc=status)
         _VERIFY(STATUS)
         this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
-
-        ref = ArrayReference(this%lons)
+        associate (lons => this%lons)
+          ref = ArrayReference(lons)
+        end associate
         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
-
         call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
         staggerloc=ESMF_STAGGERLOC_CENTER, &
         farrayPtr=ptr2d, rc=status)
         _VERIFY(STATUS)
         if (.not.allocated(this%lats)) allocate(this%lats(size(ptr2d,1),size(ptr2d,2)))
         this%lats=ptr2d*MAPL_RADIANS_TO_DEGREES
-        ref = ArrayReference(this%lats)
+        associate (lats => this%lats)
+          ref = ArrayReference(lats)
+        end associate
+
          call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lats', &
               ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
         deallocate(LocalStart,GlobalStart,GlobalCount)
      end if
 
-     var_lon => this%metadata%get_variable('corner_lons')
-     var_lat => this%metadata%get_variable('corner_lats')
 
-     hasll = associated(var_lon) .and. associated(var_lat)
+     hasll = this%metadata%has_variable('corner_lons') .and. this%metadata%has_variable('corner_lats')
      if (hasll) then
         factory => get_factory(this%output_grid,rc=status)
         _VERIFY(status)
@@ -1038,7 +1030,9 @@ module MAPL_GriddedIOMod
         farrayPtr=ptr2d, rc=status)
         _VERIFY(STATUS)
         this%corner_lons=ptr2d*MAPL_RADIANS_TO_DEGREES
-        ref = ArrayReference(this%corner_lons)
+        associate (corner_lons => this%corner_lons)
+          ref = ArrayReference(corner_lons)
+        end associate
          call oClients%collective_stage_data(this%write_collection_id,trim(filename),'corner_lons', &
               ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
         call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
@@ -1047,7 +1041,9 @@ module MAPL_GriddedIOMod
         _VERIFY(STATUS)
         if (.not.allocated(this%corner_lats)) allocate(this%corner_lats(size(ptr2d,1),size(ptr2d,2)))
         this%corner_lats=ptr2d*MAPL_RADIANS_TO_DEGREES
-        ref = ArrayReference(this%corner_lats)
+        associate (corner_lats => this%corner_lats)
+          ref = ArrayReference(corner_lats)
+        end associate
          call oClients%collective_stage_data(this%write_collection_id,trim(filename),'corner_lats', &
               ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
      end if
@@ -1221,6 +1217,7 @@ module MAPL_GriddedIOMod
      logical :: hasDE
      class(AbstractGridFactory), pointer :: factory
      integer :: regrid_hints
+     type(ESMF_Info) :: infoh
 
      collection => Datacollections%at(this%metadata_collection_id)
      this%current_file_metadata => collection%find(filename, _RC)
@@ -1236,7 +1233,7 @@ module MAPL_GriddedIOMod
      end if
      call MAPL_GridGet(filegrid,globalCellCountPerdim=dims,rc=status)
      _VERIFY(status)
-     call factory%generate_file_bounds(fileGrid,gridLocalStart,gridGlobalStart,gridGlobalCount,metadata=this%current_file_metadata%fileMetadata,rc=status)
+     call factory%generate_file_bounds(fileGrid,gridLocalStart,gridGlobalStart,gridGlobalCount,metadata=this%current_file_metadata%metadata,rc=status)
      _VERIFY(status)
      ! create input bundle
      call ESMF_FieldBundleGet(this%output_bundle,fieldCount=numVars,rc=status)
@@ -1280,7 +1277,7 @@ module MAPL_GriddedIOMod
               allocate(ptr3d(0,0,0),stat=status)
               _VERIFY(status)
            end if
-           ref=factory%generate_file_reference3D(ptr3d,metadata=this%current_file_metadata%filemetadata)
+           ref=factory%generate_file_reference3D(ptr3d,metadata=this%current_file_metadata%metadata)
            allocate(localStart,source=[gridLocalStart,1,timeIndex])
            allocate(globalStart,source=[gridGlobalStart,1,timeIndex])
            allocate(globalCount,source=[gridGlobalCount,lm,1])
@@ -1298,7 +1295,7 @@ module MAPL_GriddedIOMod
   end subroutine request_data_from_file
 
   subroutine process_data_from_file(this,rc)
-     class(mapl_GriddedIO), intent(inout) :: this
+     class(mapl_GriddedIO), target, intent(inout) :: this
      integer, intent(out), optional :: rc
 
      integer :: status
@@ -1356,6 +1353,7 @@ module MAPL_GriddedIOMod
      type(ESMF_Grid) :: gridIn
      logical :: hasDE_in
      real(REAL32) :: fill_value
+     type(ESMF_Info) :: infoh
 
      if ( .not. this%current_file_metadata%var_has_missing_value(fname) ) then
         _RETURN(_SUCCESS)

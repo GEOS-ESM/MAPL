@@ -6,7 +6,7 @@
 
 module collective_demo_CLI
    use MAPL_ExceptionHandling
-   use gFTL_StringVector
+   use gFTL2_StringVector
    implicit none
    private
 
@@ -121,7 +121,7 @@ module FakeExtDataMod_collective
    use MAPL_ExceptionHandling
    use collective_demo_CLI
    use pFIO
-   use gFTL_StringVector
+   use gFTL2_StringVector
    use, intrinsic :: iso_fortran_env, only: REAL32
    implicit none
    private
@@ -160,7 +160,7 @@ contains
    
 
    subroutine init(this, options, comm, d_s, port_name)
-      use gFTL_StringIntegerMap
+      use gFTL2_StringIntegerMap
       class (FakeExtData),target, intent(inout) :: this
       type (CommandLineOptions), intent(in) :: options
       integer, intent(in) :: comm
@@ -229,11 +229,11 @@ contains
       do i = 1,num_request
          tmp= ''
          write(tmp,'(I5.5)') i
-         collection_id = this%c%add_ext_collection('collection-name'//tmp)
+         collection_id = this%c%add_data_collection('collection-name'//tmp)
          !print*,"collection_id: ",collection_id
       enddo
       call system_clock(c2)
-      !print*," step  1 : add_ext_collection"
+      !print*," step  1 : add_data_collection"
 
       allocate(request_ids(this%vars%size(),num_request))      
 

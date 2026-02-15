@@ -1,0 +1,28 @@
+- component: A/<user>
+  export:
+    T: {status: complete, value: 5., rank: 2}
+
+- component: A
+  export:
+    T: {status: complete, value: 5., rank: 2}
+    T(1): {status: complete, value: 5000., rank: 2} # km --> m
+    T(2): {status: complete, value: 5000., rank: 2} # r4 --> r8
+
+- component: B/<user>
+  import:
+    T: {status: complete, value: 5000., rank: 2}
+
+- component: B
+  import:
+    T: {status: complete, value: 5000., rank: 2}
+
+- component: <user>
+  import: {}
+  export: {}
+  internal: {}
+
+- component: <root>
+  export:
+    A/T: {status: complete, value: 5., rank: 2}
+    A/T(1): {status: complete, value: 5000., rank: 2}
+    A/T(2): {status: complete, value: 5000., rank: 2}

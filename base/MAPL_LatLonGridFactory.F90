@@ -210,6 +210,7 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
+      type(ESMF_Info) :: infoh
       character(len=:), allocatable :: grid_name
       integer :: status
       type(ESMF_PoleKind_Flag) :: polekindflag(2)
@@ -223,7 +224,7 @@ contains
       endif
 
       if (this%periodic) then
-         if (this%pole == "XY") then 
+         if (this%pole == "XY") then
             polekindflag = ESMF_POLEKIND_NONE
          else
             polekindflag = ESMF_POLEKIND_MONOPOLE
@@ -258,13 +259,14 @@ contains
       call ESMF_GridAddCoord(grid, _RC)
       call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CORNER, _RC)
 
+      call ESMF_InfoGetFromHost(grid,infoh,_RC)
       if (this%lm /= MAPL_UNDEFINED_INTEGER) then
-         call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, _RC)
+         call ESMF_InfoSet(infoh,'GRID_LM',this%lm,_RC)
       end if
 
-      call ESMF_AttributeSet(grid, 'GridType', 'LatLon', _RC)
+      call ESMF_InfoSet(infoh,'GridType','LatLon',_RC)
       if (.not.this%periodic) then
-         call ESMF_AttributeSet(grid, 'Global', .false., _RC)
+         call ESMF_InfoSet(infoh,key='Global',value=.false.,_RC)
       end if
 
       _RETURN(_SUCCESS)
@@ -821,7 +823,7 @@ contains
             this%dateline = 'XY'
             this%lon_range = RealMinMax(this%lon_centers(1), this%lon_centers(jm))
          end if
-         
+
          if (.not. allocated(this%lat_corners)) then
             allocate(this%lat_corners(jm+1))
             this%lat_corners(1) = this%lat_centers(1) - (this%lat_centers(2)-this%lat_centers(1))/2
@@ -1882,7 +1884,7 @@ contains
       type(FileMetadata), intent(in) :: metadata
       character(len=*), intent(in) :: coord_name
       integer, optional, intent(out) :: rc
-      
+
       type(Variable), pointer :: var
       integer :: status
 
@@ -1897,7 +1899,7 @@ contains
       type(FileMetadata), intent(in) :: metadata
       character(len=*), intent(in) :: coord_name
       integer, optional, intent(out) :: rc
-      
+
       type(Variable), pointer :: var
       type(Attribute), pointer :: attr
       integer :: status
@@ -1920,7 +1922,7 @@ contains
       type(FileMetadata), intent(in) :: metadata
       character(len=*), intent(in) :: coord_name
       integer, optional, intent(out) :: rc
-      
+
       type(Variable), pointer :: var
       type(Attribute), pointer :: attr
       integer :: status, im, i
@@ -1928,7 +1930,7 @@ contains
       character(len=:), allocatable :: bnds_name, source_file
       real(kind=REAL64), allocatable :: file_bounds(:,:)
       type(NetCDF4_FileFormatter) :: file_formatter
-      
+
 
       var => metadata%get_variable(coord_name, _RC)
       attr => var%get_attribute("bounds", _RC)
@@ -1942,7 +1944,7 @@ contains
       im = metadata%get_dimension(coord_name, _RC)
       allocate(coord_bounds(im+1), _STAT)
       allocate(file_bounds(2,im), _STAT)
-      source_file = metadata%get_source_file() 
+      source_file = metadata%get_source_file()
 
       call file_formatter%open(source_file, PFIO_READ, _RC)
       call file_formatter%get_var(bnds_name, file_bounds, _RC)

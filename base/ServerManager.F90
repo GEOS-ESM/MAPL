@@ -63,8 +63,6 @@ contains
       type(ClientThread), pointer :: clientPtr
       logical :: isolated_
 
-      _UNUSED_DUMMY(unusable)
-
       if (present(application_size)) then
          npes_model = application_size
       else
@@ -180,13 +178,12 @@ contains
               write(*,'(A,I0,A)')" Starting pFIO output server on Clients"
            endif
         end if
-        call init_IO_ClientManager(client_comm, n_i = n_iserver_group, n_o = n_oserver_group, fast_oclient=fast_oclient, rc = status)
-        _VERIFY(status)
+        call init_IO_ClientManager(client_comm, n_i = n_iserver_group, n_o = n_oserver_group, fast_oclient=fast_oclient, _RC)
+
      endif
 
-     ! establish i_server group one by one
+    ! establish i_server group one by one
      do i = 1, n_iserver_group
-
         if ( trim(s_name) =='i_server'//trim(i_to_string(i)) ) then
            allocate(this%i_server, source = MpiServer(this%split_comm%get_subcommunicator(), s_name, with_profiler=with_profiler, rc=status), stat=stat_alloc)
            _VERIFY(status)
@@ -206,7 +203,7 @@ contains
         if ( index(s_name, 'model') /=0 ) then
            clientPtr => i_Clients%current()
            call this%directory_service%connect_to_server('i_server'//trim(i_to_string(i)), clientPtr, &
-                              this%split_comm%get_subcommunicator(), server_size = server_size)
+                this%split_comm%get_subcommunicator(), server_size = server_size)
            call i_Clients%set_server_size(server_size)
            call i_Clients%next()
         endif
@@ -217,7 +214,7 @@ contains
      enddo
 
      ! establish o_server group one by one
-     do i = 1, n_oserver_group
+    do i = 1, n_oserver_group
 
         if ( trim(s_name) =='o_server'//trim(i_to_string(i)) ) then
 
@@ -231,7 +228,7 @@ contains
                        npes_out_backend, './pfio_writer.x'))
 
            else if (oserver_type_ == 'multigroup' ) then
- 
+
               allocate(this%o_server, source = MultiGroupServer(this%split_comm%get_subcommunicator(), s_name, npes_out_backend, &
                                                                 with_profiler=with_profiler, rc=status), stat=stat_alloc)
               _VERIFY(status)

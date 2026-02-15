@@ -8,7 +8,7 @@ module mapl_BaseProfiler
    use mapl_MeterNode
    use mapl_MeterNodePtr
    use mapl_MeterNodeStack
-   use mapl_ExceptionHandling
+   use mapl_ErrorHandlingMod
    use mapl_KeywordEnforcerMod
    implicit none
    private
@@ -21,12 +21,12 @@ module mapl_BaseProfiler
    enum, bind(c)
       enumerator :: INCORRECTLY_NESTED_METERS=1
    end enum
-   
+
    type, abstract :: BaseProfiler
       private
       type(MeterNode) :: root_node
       type(MeterNodeStack) :: stack
-      integer :: status = 0
+      integer :: status
       integer :: comm_world
    contains
       procedure :: start_name
@@ -53,8 +53,6 @@ module mapl_BaseProfiler
       procedure :: get_root_node
       procedure :: get_status
       procedure :: copy_profiler
-      procedure(copy_profiler), deferred :: copy
-      generic :: assignment(=) => copy
 
       procedure :: reset
       procedure :: accumulate
@@ -63,7 +61,7 @@ module mapl_BaseProfiler
       procedure :: end => end_profiler
       procedure :: get_depth
       procedure :: set_comm_world
-      
+
    end type BaseProfiler
 
    type :: BaseProfilerIterator
@@ -88,7 +86,7 @@ module mapl_BaseProfiler
          class(AbstractMeter), allocatable :: meter
          class(BaseProfiler), intent(in) :: this
       end function i_make_meter
-      
+
    end interface
 
 
@@ -102,6 +100,7 @@ contains
 
       logical :: empty_stack
 
+      this%status = 0
       empty_stack = .true.
       !$omp master
       if (this%stack%size()/= 0) this%status = INCORRECTLY_NESTED_METERS
@@ -129,7 +128,7 @@ contains
       node_ptr%ptr => node
       call this%stack%push_back(node_ptr)
       deallocate(node_ptr)
-      
+
       t => node%get_meter()
       call t%start()
       !$omp end master
@@ -143,7 +142,7 @@ contains
 
       class(AbstractMeter), allocatable :: m
       type(MeterNodePtr), pointer :: node_ptr
-      class(AbstractMeterNode), pointer :: node
+      class(AbstractMeterNode), pointer :: node => null()
 
       logical :: stack_is_not_empty
 
@@ -164,7 +163,9 @@ contains
       end if
       !$omp end master
       _ASSERT_RC(stack_is_not_empty, "Timer <"//name// "> should not start when empty.",INCORRECTLY_NESTED_METERS)
+      !$omp master
       call this%start(node)
+      !$omp end master
 
       _RETURN(_SUCCESS)
    end subroutine start_name
@@ -176,7 +177,7 @@ contains
       integer, optional, intent(out) :: rc
 
       type(MeterNodePtr), pointer :: node_ptr
-      class(AbstractMeterNode), pointer :: node
+      class(AbstractMeterNode), pointer :: node => null()
 
       logical :: name_is_node_name
 
@@ -215,7 +216,7 @@ contains
         call this%stop(node)
       end if
       !$omp end master
-      _ASSERT_RC(stack_size_is_one,"Stack not empty when timer stopped.",INCORRECTLY_NESTED_METERS)
+      _ASSERT_RC(stack_size_is_one,"Stack not empty when timer stopped.  Active timer: " // node%get_name(),INCORRECTLY_NESTED_METERS)
       _RETURN(_SUCCESS)
    end subroutine stop_self
 
@@ -275,7 +276,7 @@ contains
       ! Stack always starts with root node of node
 
       if (.not. old%stack%empty()) then
- 
+
          iter = old%stack%begin()
          node_ptr%ptr => subnode
          call new%stack%push_back(node_ptr)
@@ -291,7 +292,7 @@ contains
          end do
       end if
       !$omp end master
-      
+
    end subroutine copy_profiler
 
 
@@ -333,7 +334,7 @@ contains
 
       call this%start()
       !$omp end master
-      
+
    end subroutine reset
 
 
@@ -347,7 +348,7 @@ contains
       !$omp master
       node_ptr => a%stack%back()
       node_a => node_ptr%ptr
-      
+
       node_b => b%get_root_node()
 
       call node_a%accumulate(node_b)
@@ -355,7 +356,7 @@ contains
 
    end subroutine accumulate
 
-   
+
    function begin_profiler(this) result(iterator)
       type (BaseProfilerIterator) :: iterator
       class (BaseProfiler), target, intent(in) :: this
@@ -388,7 +389,7 @@ contains
       class (BaseProfilerIterator), target, intent(in) :: this
 
       class (AbstractMeterNode), pointer :: abstract_node
-      
+
       !$omp master
       abstract_node => this%node_iterator%get()
       select type (q => abstract_node)
@@ -403,8 +404,8 @@ contains
 
 
    subroutine set_node(this, node)
-      class (BaseProfiler), intent(inout) :: this
-      type (MeterNode), intent(in) :: node
+      class(BaseProfiler), intent(inout) :: this
+      class(MeterNode), intent(in) :: node
       !$omp master
       this%root_node = node
       !$omp end master
@@ -493,8 +494,9 @@ contains
       print*,'---------------'
       print*
       !$omp end master
-        
+
    end subroutine print_stack
+
 end module mapl_BaseProfiler
 
 

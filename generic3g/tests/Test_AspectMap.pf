@@ -1,0 +1,51 @@
+module Test_AspectMap
+   use mapl3g_AspectId
+   use mapl3g_StateItemAspect
+   use mapl3g_GeomAspect
+   use mapl3g_UnitsAspect
+   use mapl3g_UngriddedDimsAspect
+   use mapl3g_TypekindAspect
+   use mapl3g_VerticalGridAspect
+   use mapl3g_AttributesAspect
+   use mapl3g_FrequencyAspect
+   use mapl3g_ClassAspect
+   use mapl3g_FieldClassAspect
+   use funit
+
+contains
+
+   
+   @test
+   ! Initial scenario testing revealed problems that appeared to
+   ! reflect a corrupt aspect map.   The test below attempts to replicate this in the
+   ! hopes of creating a reproducer and workaround.
+   subroutine test_copy()
+      type(AspectMap) :: m1
+      type(AspectMap) :: m2
+      type(GeomAspect) :: attributes_aspect
+      type(GeomAspect) :: geom_aspect
+      type(UnitsAspect) :: units_aspect
+      type(TypekindAspect) :: typekind_aspect
+      type(VerticalGridAspect) :: vertical_grid_aspect
+      type(UngriddedDimsAspect) :: ungridded_aspect
+      type(FrequencyAspect) :: frequency_aspect
+      type(FieldClassAspect) :: field_aspect
+      type (AspectMapIterator) :: iter, e
+
+      m1 = AspectMap()
+      call m1%insert(ATTRIBUTES_ASPECT_ID, attributes_aspect)
+      call m1%insert(GEOM_ASPECT_ID, geom_aspect)
+      call m1%insert(UNITS_ASPECT_ID, units_aspect)
+      call m1%insert(UNGRIDDED_DIMS_ASPECT_ID, ungridded_aspect)
+      call m1%insert(TYPEKIND_ASPECT_ID, typekind_aspect)
+      call m1%insert(VERTICAL_GRID_ASPECT_ID, vertical_grid_aspect)
+      call m1%insert(FREQUENCY_ASPECT_ID, frequency_aspect)
+      call m1%insert(CLASS_ASPECT_ID, field_aspect)
+
+      m2 = m1
+
+      e = m2%ftn_end()
+      
+   end subroutine test_copy
+
+end module Test_AspectMap

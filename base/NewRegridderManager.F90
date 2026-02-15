@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module mapl_NewRegridderManager_private
    use MAPL_GridManagerMod

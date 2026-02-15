@@ -7,6 +7,7 @@ set (TEST_SRCS
   test_PercentageColumn.pf
   test_TimeProfiler.pf
   test_ProfileReporter.pf
+  test_CsvProfileReporter.pf
   test_MeterNode.pf
   test_MeterNodeIterator.pf
   test_DistributedMeter.pf
@@ -23,6 +24,10 @@ add_pfunit_ctest (
   )
 set_target_properties(MAPL.profiler.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 set_tests_properties(MAPL.profiler.tests PROPERTIES LABELS "ESSENTIAL")
+
+if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
+  set_tests_properties(MAPL.profiler.tests PROPERTIES ENVIRONMENT "I_MPI_OFI_PROVIDER=psm3")
+endif()
 
 add_dependencies (build-tests MAPL.profiler.tests)
 

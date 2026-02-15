@@ -5,9 +5,9 @@
 module Test_FileMetadata
    use pfunit
    use pFIO_FileMetadataMod
-   use gFTL_StringIntegerMap
+   use gFTL2_StringIntegerMap
    use pFIO_StringAttributeMapMod
-   use gFTL_StringVector
+   use gFTL2_StringVector
 !   use pFIO_UnlimitedEntityMod
    use pFIO_AttributeMod
    use pFIO_ConstantsMod
@@ -48,6 +48,26 @@ contains
       @assertEqual(11, cf%get_dimension('y'))
       
    end subroutine test_get_dimension
+
+   @test
+   subroutine test_fail_add_existing_dim_with_mismatch()
+      type (FileMetadata) :: cf
+
+      call cf%add_dimension('x', 10)
+      call cf%add_dimension('x', 11)
+
+      @assertExceptionRaised('FileMetadata::add_dimension() - dimension already exists with different extent.')
+
+   end subroutine test_fail_add_existing_dim_with_mismatch
+
+   @test
+   subroutine test_add_duplicate_dimension()
+      type (FileMetadata) :: cf
+
+      call cf%add_dimension('x', 10)
+      call cf%add_dimension('x', 10)
+
+   end subroutine test_add_duplicate_dimension
 
    @test
    subroutine test_get_dimensions()

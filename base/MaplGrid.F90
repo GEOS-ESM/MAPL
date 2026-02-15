@@ -39,6 +39,11 @@ module mapl_MaplGrid
       procedure :: set
    end type MaplGrid
 
+   interface MAPL_GridGet
+      procedure :: GridGet
+   end interface MAPL_GridGet
+
+   
 
 contains
 
@@ -245,7 +250,7 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
 
  end subroutine GridCoordGet
 
-  subroutine MAPL_GridGet(GRID, globalCellCountPerDim, localCellCountPerDim, layout, RC)
+  subroutine GridGet(GRID, globalCellCountPerDim, localCellCountPerDim, layout, RC)
       type (ESMF_Grid), intent(IN) :: GRID
       integer, optional, intent(INout) :: globalCellCountPerDim(:)
       integer, optional, intent(INout) :: localCellCountPerDim(:)
@@ -267,15 +272,15 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
       integer, pointer :: ims(:),jms(:)
       integer, allocatable  :: global_grid_info(:)
       integer :: itemCount
+      type(ESMF_Info) :: infoh
 
       pglobal = present(globalCellCountPerDim)
       plocal  = present(localCellCountPerDim)
 
-      call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", isPresent=isPresent, _RC)
+      call ESMF_InfoGetFromHost(grid,infoh,_RC)
+      isPresent = ESMF_InfoIsPresent(infoh,'GLOBAL_GRID_INFO',_RC)
       if (isPresent) then
-        call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", itemCount=itemCount, _RC)
-        allocate(global_grid_info(itemCount), _STAT)
-        call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", valueList=global_grid_info, _RC)
+        call ESMF_InfoGetAlloc(infoh, key="GLOBAL_GRID_INFO", values=global_grid_info, _RC)
         if (pglobal) globalCellCountPerDim = global_grid_info(1:3)
         if (plocal)  localCellCountPerDim = global_grid_info(4:6)
         deallocate(global_grid_info, _STAT)
@@ -284,19 +289,20 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
 
       if (pglobal .or. plocal) then
          call ESMF_GridGet(grid, dimCount=gridRank, _RC)
+         call ESMF_InfoGetFromHost(grid,infoh,_RC)
 
 !ALT kludge
          lxtradim = .false.
          if (gridRank == 1) then
-            call ESMF_AttributeGet(grid, name='GRID_EXTRADIM', isPresent=isPresent, _RC)
+            isPresent = ESMF_InfoIsPresent(infoh,'GRID_EXTRADIM',_RC)
             if (isPresent) then
-               call ESMF_AttributeGet(grid, name='GRID_EXTRADIM', value=UNGRID, _RC)
+               call ESMF_InfoGet(infoh,'GRID_EXTRADIM',UNGRID,_RC)
                lxtradim = .true.
             end if
          else if (gridRank == 2) then
-            call ESMF_AttributeGet(grid, name='GRID_LM', isPresent=isPresent, _RC)
+            isPresent = ESMF_InfoIsPresent(infoh,'GRID_LM',_RC)
             if (isPresent) then
-               call ESMF_AttributeGet(grid, name='GRID_LM', value=UNGRID, _RC)
+               call ESMF_InfoGet(infoh,'GRID_LM',UNGRID,_RC)
                lxtradim = .true.
             end if
          end if
@@ -361,7 +367,7 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
 
       _RETURN(ESMF_SUCCESS)
 
-    end subroutine MAPL_GridGet
+   end subroutine GridGet
 
   subroutine MAPL_DistGridGet(distGrid,minIndex,maxIndex,rc)
 

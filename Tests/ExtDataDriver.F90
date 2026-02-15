@@ -1,6 +1,6 @@
 #define I_AM_MAIN
 
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 program ExtData_Driver
   use MPI
@@ -16,10 +16,8 @@ program ExtData_Driver
   character(len=*), parameter :: Iam="ExtData_Driver"
   type(ExtDataDriver) :: Driver
   type (MAPL_CapOptions) :: cap_options
-  type (MAPL_FargparseCLI) :: cli
 
-  cli = MAPL_FargparseCLI()
-  cap_options=MAPL_CapOptions(cli)
+  cap_options = FargparseCLI()
 
   driver = ExtDataDriver('ExtDataApp',Root_SetServices,cap_options=cap_options,_RC)
   call driver%run(_RC)

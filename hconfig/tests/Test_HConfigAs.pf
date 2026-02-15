@@ -1,0 +1,29 @@
+#include "MAPL_TestErr.h"
+
+module Test_HConfigAs
+   use mapl3g_HConfigAs
+   use esmf
+   use gftl2_StringVector
+   use pfunit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_as_stringvector()
+      type(StringVector) :: v
+      type(esmf_HConfig) :: hconfig
+      integer :: status
+      hconfig = esmf_HConfigCreate(content='[a, ab, abc]', _RC)
+      v = HConfigAsStringVector(hconfig, _RC)
+
+      @assert_that(int(v%size()), is(3))
+
+      @assertEqual(v%of(1), 'a')
+      @assertEqual(v%of(2), 'ab')
+      @assertEqual(v%of(3), 'abc')
+
+      call esmf_HConfigDestroy(hconfig, _RC)
+      
+   end subroutine test_as_stringvector
+end module Test_HConfigAs

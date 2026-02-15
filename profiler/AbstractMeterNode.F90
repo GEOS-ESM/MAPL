@@ -153,7 +153,7 @@ module MAPL_AbstractMeterNode
          use, intrinsic :: iso_fortran_env, only: REAL64
          import AbstractMeterNode
          real(kind=REAL64) :: inclusive
-         class(AbstractMeterNode), intent(in) :: this
+         class(AbstractMeterNode), target, intent(in) :: this
       end function i_get_inclusive
       
       subroutine i_reset(this)

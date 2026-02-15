@@ -2,6 +2,7 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.shared/tests")
 
 set (test_srcs
     test_String.pf
+    test_StringUtilities.pf
     test_TimeUtils.pf
     test_DSO_Utilities.pf
     test_FileSystemUtilities.pf
@@ -9,6 +10,7 @@ set (test_srcs
     test_MAPL_DateTime_Parsing.pf
     test_MAPL_CF_Time.pf
     Test_Partition.pf
+    test_OS.pf
   )
 
 

@@ -1,0 +1,36 @@
+geoms:
+  geom1: &geom1
+    class: latlon
+    im_world: 20
+    jm_world: 15
+    pole: PC
+    dateline: DC
+  geom2: &geom2
+    class: latlon
+    im_world: 12
+    jm_world: 13
+    pole: PC
+    dateline: DC
+
+
+active_collections:
+  - coll1
+  - coll2
+
+time_specs:
+  three_hour: &three_hour
+    frequency: PT3H
+
+collections:
+  coll1:
+    template: "%c_%y4%m2%d2.nc4"
+    geom: *geom1
+    time_spec: *three_hour
+    var_list:
+      E1: {expr: AGCM.EXP_1}
+  coll2:
+    template: "%c_%y4%m2%d2.nc4"
+    geom: *geom2
+    time_spec: *three_hour
+    var_list:
+      E2: {expr: AGCM.EXP_2}

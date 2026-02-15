@@ -16,6 +16,41 @@ exclude: **/EsmfRegridder.F90
          **/MaplGeom.F90
          **/Regridder.F90
          **/StateSupplement.F90
+         **/gridcomps/cap3g/ApplicationMode.F90
+         **/gridcomps/cap3g/MAPL_Framework.F90
+         **/gridcomps/cap3g/ModelMode.F90
+         **/gridcomps/cap3g/ServerMode.F90
+         **/gridcomps/cap3g/mit.F90
+         **/generic3g/CouplerComponentVector.F90
+         **/generic3g/GenericCouplerComponent.F90
+         **/generic3g/SetServices_smod.F90
+         **/generic3g/reproducer.F90
+         **/generic3g/couplers/BidirectionalObserver.F90
+         **/generic3g/couplers/HandlerMap.F90
+         **/generic3g/couplers/HandlerVector.F90
+         **/generic3g/couplers/ImportCoupler.F90
+         **/generic3g/couplers/Observable.F90
+         **/generic3g/couplers/ObservablePtrVector.F90
+         **/generic3g/couplers/Observed.F90
+         **/generic3g/couplers/Observer.F90
+         **/generic3g/couplers/ObserverPtrVector.F90
+         **/generic3g/couplers/outer.F90
+         **/generic3g/couplers/esmf-way/GenericCoupler.F90
+         **/generic3g/couplers/esmf-way/CouplerMetaComponent.F90
+         **/generic3g/SetServices_smod.F90
+         **/generic3g/actions/GenericExtension.F90
+         **/generic3g/actions/RegridExtension.F90
+         **/generic3g/actions/SequenceAction.F90
+         **/generic3g/actions/StateExtension.F90
+         **/generic3g/registry/ComponentRegistry.F90
+         **/generic3g/registry/ConnPtStateItemSpecMap.F90
+         **/generic3g/registry/ItemSpecRegistry.F90
+         **/generic3g/registry/PointExtensionsRegistry.F90
+         **/generic3g/registry/RelConnPtStateItemPtrMap.F90
+         **/generic3g/specs/DimSpec.F90
+         **/generic3g/specs/ServiceProviderSpec.F90
+         **/generic3g/specs/ServiceRequesterSpec.F90
+         **/generic3g/specs/StaggerSpec.F90
 exclude_dir: ../../docs
              ../../Doxygen
              ../../ESMA_cmake
@@ -29,7 +64,6 @@ exclude_dir: ../../docs
 macro: USE_MPI=1
        BUILD_WITH_PFLOGGER=1
        BUILD_WITH_EXTDATA2G=1
-       USE_FLAP=1
        H5_HAVE_PARALLEL=1
        TWO_SIDED_COMM=1
        MAPL_MODE=1

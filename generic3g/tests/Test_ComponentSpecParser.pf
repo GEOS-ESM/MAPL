@@ -1,0 +1,280 @@
+#if defined(MAKE_MESSAGE)
+#  undef MAKE_MESSAGE
+#endif
+#define MAKE_MESSAGE(V) 'Actual ' // V // ' does not match ' // V // '.'
+
+#include "MAPL_ErrLog.h"
+module Test_ComponentSpecParser
+   use funit
+   use mapl3g_StateItem
+   use mapl3g_UserSetServices
+   use mapl3g_ComponentSpecParser
+   use mapl3g_ChildSpec
+   use mapl3g_ChildSpecMap
+   use mapl_ErrorHandling
+   use MAPL_TimeStringConversion
+   use esmf
+   implicit none(type,external)
+
+contains
+
+
+   ! setServices:
+   !      sharedObj: <dso_name>
+   !      userRoutine: <user_routine>  
+   @test
+   subroutine test_parse_setServices()
+      type(ESMF_HConfig) :: config
+      class(DSOSetServices), allocatable :: ss_expected
+
+      config = ESMF_HConfigCreate(content='{sharedObj: libA, userRoutine: procB}')
+
+      ss_expected = DSOSetServices('libA', 'procB')
+      @assert_that(parse_setservices(config) == ss_expected, is(true()))
+      
+   end subroutine test_parse_setServices
+
+   @test
+   subroutine test_parse_setServices_default()
+      type(ESMF_HConfig) :: config
+      class(DSOSetServices), allocatable :: ss_expected
+
+      config = ESMF_HConfigCreate(content='{sharedObj: libA}')
+
+      ss_expected = DSOSetServices('libA', 'setservices_')
+      @assert_that(parse_setservices(config) == ss_expected, is(true()))
+      
+   end subroutine test_parse_setServices_default
+
+   @test
+   subroutine test_equal_child_spec_ss_differs()
+      class(AbstractUserSetServices), allocatable :: ss_A
+      class(AbstractUserSetServices), allocatable :: ss_B
+
+      type(ChildSpec) :: cs_a, cs_b
+      ss_A = user_setservices('libA', 'setservices_')
+      ss_B = user_setservices(gamma)
+
+      cs_a = ChildSpec(ss_A)
+      cs_b = ChildSpec(ss_B)
+
+      @assert_that('OPERATOR(==)', cs_a == cs_b, is(false()))
+
+   contains
+      subroutine gamma(gc, rc)
+         use esmf
+         type(ESMF_GridComp) :: gc
+         integer, intent(out) :: rc
+      end subroutine gamma
+      
+   end subroutine test_equal_child_spec_ss_differs
+
+   @test
+   subroutine test_equal_child_spec_cfg_differs()
+      class(AbstractUserSetServices), allocatable :: ss
+
+      type(ChildSpec) :: a, b
+      
+      ss = user_setservices('libA', 'setservices_')
+
+      a = ChildSpec(ss, hconfig=ESMF_HConfigCreate(content='{a: 5}'))
+
+      b = ChildSpec(ss)
+      @assert_that(a == b, is(false()))
+
+      b = ChildSpec(ss, hconfig=ESMF_HConfigCreate(content='{b: 7}'))
+      @assert_that(a == b, is(false()))
+
+      b = ChildSpec(ss)
+      @assert_that(a == b, is(false()))
+
+      b = ChildSpec(ss, hconfig=ESMF_HConfigCreate(content='{b: 7}'))
+      @assert_that(a == b, is(false()))
+          
+
+   contains
+      subroutine gamma(gc, rc)
+         use esmf
+         type(ESMF_GridComp) :: gc
+         integer, intent(out) :: rc
+      end subroutine gamma
+      
+   end subroutine test_equal_child_spec_cfg_differs
+
+   @test
+   subroutine test_parse_childSpec_basic()
+      type(ESMF_HConfig) :: config
+      type(ChildSpec) :: found
+      integer :: rc, status
+      type(ChildSpec) :: expected
+
+      config = ESMF_HConfigCreate(content='{sharedObj: libA, setServices: setservices_}')
+
+      expected = ChildSpec(user_setservices('libA', 'setservices_'))
+      found = parse_child(config, _RC)
+      @assert_that(expected == found, is(true()))
+
+   end subroutine test_parse_childSpec_basic
+
+
+   @test
+   subroutine test_parse_childSpec_with_config_file()
+      type(ESMF_HConfig) :: hconfig, child_hconfig
+      character(*), parameter :: CHILD_HCONFIG_CONTENT = '{a: 8}'
+      type(ChildSpec) :: found
+      integer :: status, rc
+
+      class(AbstractUserSetServices), allocatable :: ss
+      type(ChildSpec) :: expected
+      integer :: unit
+
+      open(newunit=unit,file='a.yml',form='formatted', status='unknown')
+      write(unit,'(a)')CHILD_HCONFIG_CONTENT
+      close(unit)
+
+      hconfig = ESMF_HConfigCreate(content='{setServices: setservices_, sharedObj: libA, config_file: a.yml}')
+      child_hconfig = ESMF_HConfigCreate(content=CHILD_HCONFIG_CONTENT)
+
+      ss = user_setservices('libA', 'setservices_')
+      expected = ChildSpec(ss, hconfig=child_hconfig)
+      found = parse_child(hconfig, _RC)
+      @assert_that(expected == found, is(true()))
+
+      open(newunit=unit,file='a.yml',form='formatted', status='unknown')
+      close(unit,status='delete')
+
+      call ESMF_HConfigDestroy(hconfig, _RC)
+      call ESMF_HConfigDestroy(child_hconfig, _RC)
+      
+
+   end subroutine test_parse_childSpec_with_config_file
+
+
+   @test
+   subroutine test_parse_ChildSpecMap_empty()
+      type(ChildSpecMap) :: expected, found
+      integer :: status, rc
+
+      type(ESMF_HConfig) :: hconfig
+
+      hconfig = ESMF_HConfigCreate(content='{}')
+
+      found = parse_children(hconfig, _RC)
+      @assert_that(found == expected, is(true()))
+
+      call ESMF_HConfigDestroy(hconfig)
+   end subroutine test_parse_ChildSpecMap_empty
+
+   @test
+   subroutine test_parse_ChildSpecMap_1()
+      type(ESMF_HConfig), target :: config
+      type(ESMF_HConfig), pointer :: config_ptr
+      type(ChildSpecMap) :: expected, found
+      integer :: status, rc
+
+      config = ESMF_HConfigCreate(content='children: {A: {sharedObj: libA}}')
+      config_ptr => config
+      call expected%insert('A', ChildSpec(user_setservices('libA', 'setservices_')))
+      found = parse_children(config_ptr, _RC)
+      @assert_that(found == expected, is(true()))
+      
+   end subroutine test_parse_ChildSpecMap_1
+
+   @test
+   subroutine test_parse_ChildSpecMap_2()
+      type(ESMF_HConfig), target :: config
+      type(ESMF_HConfig), pointer :: config_ptr
+      type(ChildSpecMap) :: expected, found
+      integer :: status, rc
+
+      config = ESMF_HConfigCreate(content='children: {' // &
+           'A: {sharedObj: libA},' // &
+           'B: {sharedObj: libB}}')
+      config_ptr => config
+
+      call expected%insert('A', ChildSpec(user_setservices('libA', 'setservices_')))
+      call expected%insert('B', ChildSpec(user_setservices('libB', 'setservices_')))
+      found = parse_children(config_ptr, _RC)
+
+      @assert_that(found%of('A') == expected%of('A'), is(true()))
+      @assert_that(found%of('B') == expected%of('B'), is(true()))
+      
+   end subroutine test_parse_ChildSpecMap_2
+
+   @test
+   subroutine test_parse_timespec()
+      type(ESMF_TimeInterval) :: expected_duration
+      type(ESMF_TimeInterval) :: expected_offset
+      character(len=*), parameter :: ISO_DURATION = 'P3M'
+      character(len=*), parameter :: ISO_OFFSET = 'P1D'
+      character(len=*), parameter :: NL = new_line('10')
+      character(len=:), allocatable :: content
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_TimeInterval), allocatable :: actual_duration
+      type(ESMF_TimeInterval), allocatable :: actual_offset
+      integer :: expected_mm
+      integer :: rc, status
+
+      ! Test with correct key for timestep
+      call ESMF_TimeIntervalSet(expected_duration, mm=3, _RC)
+      call ESMF_TimeIntervalSet(expected_offset, d=1, _RC)
+      content = 'timestep: ' // ISO_DURATION // NL // 'run_time_offset: ' // ISO_OFFSET
+      hconfig = ESMF_HConfigCreate(content=content, _RC)
+      call parse_timespec(hconfig, actual_duration, actual_offset, _RC)
+      @assert_that(allocated(actual_duration), is(true()))
+      @assertTrue(actual_duration == expected_duration, MAKE_MESSAGE('timestep'))
+      @assertTrue(actual_offset == expected_offset, MAKE_MESSAGE('reference time offset'))
+      call ESMF_HConfigDestroy(hconfig, _RC)
+      
+      ! Test with incorrect key for timestep; should return without allocating actual_duration (invalid)
+      expected_mm = 1
+      call ESMF_TimeIntervalSet(actual_duration, mm=expected_mm, _RC)
+      content = 'run_dmc: ' // ISO_DURATION
+      hconfig = ESMF_HConfigCreate(content=content, _RC)
+      call parse_timespec(hconfig, actual_duration, actual_offset, _RC)
+      @assert_that(allocated(actual_duration), is(false()))
+      @assert_that(allocated(actual_offset), is(false()))
+      call ESMF_HConfigDestroy(hconfig, _RC)
+
+   end subroutine test_parse_timespec
+
+   @test
+   subroutine test_to_itemType()
+      type(ESMF_StateItem_Flag) :: itemtype
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate(content='{}')
+      itemtype = to_ItemType(hconfig)
+      @assert_that(itemType == MAPL_STATEITEM_FIELD, is(true()))
+      call ESMF_HConfigDestroy(hconfig)
+      
+      hconfig = ESMF_HConfigCreate(content='{class: vector}')
+      itemtype = to_ItemType( hconfig)
+      @assert_that(itemType == MAPL_STATEITEM_VECTOR, is(true()))
+      call ESMF_HConfigDestroy(hconfig)
+
+      hconfig = ESMF_HConfigCreate(content='{expression: A+B}')
+      itemtype = to_ItemType(hconfig)
+      @assert_that(itemType == MAPL_STATEITEM_EXPRESSION, is(true()))
+      call ESMF_HConfigDestroy(hconfig)
+
+      hconfig = ESMF_HConfigCreate(content='{}')
+      itemtype = to_ItemType(hconfig)
+      @assert_that(itemType == MAPL_STATEITEM_FIELD, is(true()))
+      call ESMF_HConfigDestroy(hconfig)
+      
+      hconfig = ESMF_HConfigCreate(content='{class: vector}')
+      itemtype = to_ItemType( hconfig)
+      @assert_that(itemType == MAPL_STATEITEM_VECTOR, is(true()))
+      call ESMF_HConfigDestroy(hconfig)
+
+      ! We do NOT allow "expression + other classes
+      hconfig = ESMF_HConfigCreate(content='{class: bracket, expression: A+B}')
+      itemtype = to_ItemType(hconfig, rc=status)
+      @assertExceptionRaised("Subclass bracket does not support expressions.")
+      call ESMF_HConfigDestroy(hconfig)
+
+   end subroutine test_to_itemType
+
+end module Test_ComponentSpecParser

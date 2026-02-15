@@ -26,8 +26,8 @@ module NCIOMod
   use BinIOMod, only: GETFILE, READ_PARALLEL, FREE_FILE
   use MAPL_Constants
   !use pFIO_ClientManagerMod
-  use gFTL_StringIntegerMap
-  use gFTL_StringVector
+  use gFTL2_StringIntegerMap
+  use gFTL2_StringVector
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env
   use mpi
@@ -117,6 +117,7 @@ contains
     integer                            :: J, K, L
     integer, pointer                   :: mask(:)
     type (ESMF_DistGrid)               :: distGrid
+    type (ESMF_Info)                   :: infoh
 
     call ESMF_FieldGet(field, grid=grid, rc=status)
     _VERIFY(STATUS)
@@ -125,7 +126,9 @@ contains
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
     _VERIFY(STATUS)
 
-    call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
+    call ESMF_InfoGetFromHost(field,infoh,rc=status)
+    _VERIFY(STATUS)
+    call ESMF_InfoGet(infoh,'DIMS',DIMS,rc=status)
     _VERIFY(STATUS)
     if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
        if(present(HomePE)) then
@@ -324,6 +327,7 @@ contains
     integer :: size_1d
     logical :: have_oclients
     character(len=:), allocatable :: fname_by_writer
+    type (ESMF_Info)                   :: infoh
 
     call ESMF_FieldGet(field, grid=grid, rc=status)
     _VERIFY(STATUS)
@@ -335,7 +339,9 @@ contains
     have_oclients = present(oClients)
 
 
-    call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
+    call ESMF_InfoGetFromHost(field,infoh,rc=status)
+    _VERIFY(STATUS)
+    call ESMF_InfoGet(infoh,'DIMS',DIMS,rc=status)
     _VERIFY(STATUS)
     if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
        if(present(HomePE)) then
@@ -350,7 +356,10 @@ contains
     _VERIFY(STATUS)
     call ESMF_ArrayGet(array, typekind=tk, rank=rank, rc=status)
     _VERIFY(STATUS)
-    call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
+    call ESMF_InfoGetFromHost(field,infoh,rc=status)
+    _VERIFY(STATUS)
+    call ESMF_InfoGet(infoh,'DIMS',DIMS,rc=status)
+    _VERIFY(STATUS)
     if (rank == 1) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_1d, rc=status)
@@ -2964,6 +2973,7 @@ contains
     logical :: grid_file_match,flip, restore_export, isPresent
     type(ESMF_VM) :: vm
     integer :: comm
+    type(ESMF_INFO) :: infoh
 
     call ESMF_FieldBundleGet(Bundle,FieldCount=nVars,rc=STATUS)
     _VERIFY(STATUS)
@@ -3022,7 +3032,9 @@ contains
       end if
 
       if(.not.associated(MASK)) then
-         call ESMF_AttributeGet(field, name='DIMS', value=MAPL_DIMS, rc=status)
+         call ESMF_InfoGetFromHost(field,infoh,rc=status)
+         _VERIFY(STATUS)
+         call ESMF_InfoGet(infoh,'DIMS',MAPL_DIMS,rc=status)
          _VERIFY(STATUS)
          if (MAPL_DIMS == MAPL_DimsTileOnly .or. MAPL_DIMS == MAPL_DimsTileTile) then
             call ESMF_FieldGet   (field, grid=grid, rc=status)
@@ -3035,9 +3047,10 @@ contains
       endif
 
       restore_export = .false.
-      call ESMF_AttributeGet(bundle, name='MAPL_RestoreExport', isPresent=isPresent, _RC)
+      call ESMF_InfoGetFromHost(bundle, infoh, _RC)
+      isPresent = ESMF_InfoIsPresent(infoh, 'MAPL_RestoreExport', _RC)
       if (isPresent) then
-         call ESMF_AttributeGet(bundle, name='MAPL_RestoreExport', value=restore_export, _RC)
+         call ESMF_InfoGet(infoh, key='MAPL_RestoreExport', value=restore_export, _RC)
       end if
       if (restore_export) then
          call MAPL_AllocateCoupling(field, _RC)
@@ -3112,6 +3125,7 @@ contains
 ! Local vars
     type (ESMF_FieldBundle)              :: bundle
     type (ESMF_Field)                    :: field
+    type (ESMF_Info)                     :: infoh_bundle, infoh_state, infoh_field
     integer                              :: status
     integer                              :: I, K
     integer                              :: J, ITEMCOUNT
@@ -3216,10 +3230,12 @@ contains
              _VERIFY(STATUS)
 
              skipReading = .false.
-             call ESMF_AttributeGet(bundle, name='RESTART', isPresent=isPresent, rc=status)
+             call ESMF_InfoGetFromHost(bundle,infoh_bundle,rc=status)
+             _VERIFY(STATUS)
+             isPresent = ESMF_InfoIsPresent(infoh_bundle,'RESTART',rc=status)
              _VERIFY(STATUS)
              if (isPresent) then
-                call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
+                call ESMF_InfoGet(infoh_bundle,'RESTART',RST,rc=status)
                 _VERIFY(STATUS)
              else
                 RST = MAPL_RestartOptional
@@ -3227,9 +3243,10 @@ contains
              skipReading = (RST == MAPL_RestartSkip .or.   &
                             RST == MAPL_RestartSkipInitial)
 
-             call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
+             call ESMF_InfoGetFromHost(state, infoh_state, _RC)
+             isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_TestFramework', _RC)
              if (isPresent) then
-                call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=is_test_framework, _RC)
+                call ESMF_InfoGet(infoh_state, key='MAPL_TestFramework', value=is_test_framework, _RC)
                 if (is_test_framework) skipReading = .false.
              end if
 
@@ -3247,19 +3264,22 @@ contains
                _VERIFY(STATUS)
 
                skipReading = .false.
-               call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
+               call ESMF_InfoGetFromHost(field,infoh_field,rc=status)
+               _VERIFY(STATUS)
+               isPresent = ESMF_InfoIsPresent(infoh_field,'RESTART',rc=status)
                _VERIFY(STATUS)
                if (isPresent) then
-                  call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
+                  call ESMF_InfoGet(infoh_field,'RESTART',RST,rc=status)
                   _VERIFY(STATUS)
                else
                   RST = MAPL_RestartOptional
                end if
                skipReading = (RST == MAPL_RestartSkip)
 
-               call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
+               call ESMF_InfoGetFromHost(state, infoh_state, _RC)
+               isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_TestFramework', _RC)
                if (isPresent) then
-                  call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=is_test_framework, _RC)
+                  call ESMF_InfoGet(infoh_state, key='MAPL_TestFramework', value=is_test_framework, _RC)
                   if (is_test_framework) skipReading = .false.
                end if
 
@@ -3291,13 +3311,14 @@ contains
                else
                   if (bootStrapable_ .and. (RST == MAPL_RestartOptional)) then
                      call WRITE_PARALLEL("  Bootstrapping Variable: "//trim(FieldName)//" in "//trim(filename))
-                     call ESMF_AttributeSet ( field, name='RESTART', &
-                             value=MAPL_RestartBootstrap, rc=status)
+                     call ESMF_InfoGetFromHost(field,infoh_field,rc=status)
+                     call ESMF_InfoSet(infoh_field,'RESTART',MAPL_RestartBootstrap,rc=status)
                   else
                      restore_export = .false.
-                     call ESMF_AttributeGet(state, name='MAPL_RestoreExport', isPresent=isPresent, _RC)
+                     call ESMF_InfoGetFromHost(state, infoh_state, _RC)
+                     isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_RestoreExport', _RC)
                      if (isPresent) then
-                        call ESMF_AttributeGet(state, name='MAPL_RestoreExport', value=restore_export, _RC)
+                        call ESMF_InfoGet(infoh_state, key='MAPL_RestoreExport', value=restore_export, _RC)
                      end if
                      if (restore_export) then
                         if (mapl_am_i_root()) print*, trim(fieldName), " not found in ", trim(filename), ". Skipping reading..."
@@ -3319,34 +3340,38 @@ contains
                end if
 
              skipReading = .false.
-             call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
+             call ESMF_InfoGetFromHost(field,infoh_field,rc=status)
+             _VERIFY(STATUS)
+             isPresent = ESMF_InfoIsPresent(infoh_field,'RESTART',rc=status)
              _VERIFY(STATUS)
              if (isPresent) then
-                call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
+                call ESMF_InfoGet(infoh_field,'RESTART',RST,rc=status)
                 _VERIFY(STATUS)
              else
                 RST = MAPL_RestartOptional
              end if
              skipReading = (RST == MAPL_RestartSkip)
 
-             call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
+             call ESMF_InfoGetFromHost(state, infoh_state, _RC)
+             isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_TestFramework', _RC)
              if (isPresent) then
-                call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=is_test_framework, _RC)
+                call ESMF_InfoGet(infoh_state, key='MAPL_TestFramework', value=is_test_framework, _RC)
                 if (is_test_framework) skipReading = .false.
              end if
 
              if (skipReading) cycle
-             call ESMF_AttributeGet(field, name='doNotAllocate', isPresent=isPresent, rc=status)
+             isPresent = ESMF_InfoIsPresent(infoh_field,'doNotAllocate',rc=status)
              _VERIFY(STATUS)
              if (isPresent) then
-                call ESMF_AttributeGet(field, name='doNotAllocate', value=DNA, rc=status)
+                call ESMF_InfoGet(infoh_field,'doNotAllocate',DNA,rc=status)
                 _VERIFY(STATUS)
                 skipReading = (DNA /= 0)
              end if
 
-             call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
+             call ESMF_InfoGetFromHost(state, infoh_state, _RC)
+             isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_TestFramework', _RC)
              if (isPresent) then
-                call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=is_test_framework, _RC)
+                call ESMF_InfoGet(infoh_state, key='MAPL_TestFramework', value=is_test_framework, _RC)
                 if (is_test_framework) skipReading = .false.
              end if
 
@@ -3368,13 +3393,15 @@ contains
              else
                 if (bootStrapable .and. (RST == MAPL_RestartOptional)) then
                     call WRITE_PARALLEL("  Bootstrapping Variable: "//trim(FieldName)//" in "//trim(filename))
-                    call ESMF_AttributeSet ( field, name='RESTART', &
-                            value=MAPL_RestartBootstrap, rc=status)
+                    call ESMF_InfoGetFromHost(field,infoh_field,rc=status)
+                    _VERIFY(STATUS)
+                    call ESMF_InfoSet(infoh_field,'RESTART',MAPL_RestartBootstrap,rc=status)
                 else
                    restore_export = .false.
-                   call ESMF_AttributeGet(state, name='MAPL_RestoreExport', isPresent=isPresent, _RC)
+                   call ESMF_InfoGetFromHost(state, infoh_state, _RC)
+                   isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_RestoreExport', _RC)
                    if (isPresent) then
-                      call ESMF_AttributeGet(state, name='MAPL_RestoreExport', value=restore_export, _RC)
+                      call ESMF_InfoGet(infoh_state, key='MAPL_RestoreExport', value=restore_export, _RC)
                    end if
                    if (restore_export) then
                       if (mapl_am_i_root()) print*, trim(fieldName), " not found in ", trim(filename), ". Skipping reading..."
@@ -3392,10 +3419,12 @@ contains
 
     tile = arrdes%tile
 
-    call ESMF_AttributeGet(state, name='MAPL_RestoreExport', isPresent=isPresent, _RC)
+    call ESMF_InfoGetFromHost(state, infoh_state, _RC)
+    isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_RestoreExport', _RC)
     if (isPresent) then
-       call ESMF_AttributeGet(state, name='MAPL_RestoreExport', value=restore_export, _RC)
-       call ESMF_AttributeSet(bundle_read, name="MAPL_RestoreExport", value=restore_export, _RC)
+       call ESMF_InfoGet(infoh_state, key='MAPL_RestoreExport', value=restore_export, _RC)
+       call ESMF_InfoGetFromHost(bundle_read, infoh_bundle, _RC)
+       call ESMF_InfoSet(infoh_bundle, key="MAPL_RestoreExport", value=restore_export, _RC)
     end if
     call MAPL_VarReadNCPar(Bundle_Read, arrdes, filename, rc=status)
     _VERIFY(STATUS)
@@ -3420,12 +3449,15 @@ contains
   integer                               :: status
   type(ESMF_Field)                      :: field
   type(ESMF_FieldBundle)                :: bundle
+  type(ESMF_Info)                       :: infoh
 
   FIELD = ESMF_FieldCreate(grid=arrDes%grid, datacopyflag=ESMF_DATACOPY_VALUE, &
          farrayPtr=farrayPtr, name=trim(varn), RC=STATUS)
   _VERIFY(STATUS)
   if (arrDes%tile) then
-     call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsTileOnly,rc=status)
+     call ESMF_InfoGetFromHost(field,infoh,rc=status)
+     _VERIFY(STATUS)
+     call ESMF_InfoSet(infoh,'DIMS',MAPL_DimsTileOnly,rc=status)
      _VERIFY(STATUS)
   endif
   BUNDLE =  ESMF_FieldBundleCreate ( name=Iam, rc=STATUS )
@@ -3457,15 +3489,18 @@ contains
   integer                               :: status
   type(ESMF_Field)                      :: field
   type(ESMF_FieldBundle)                :: bundle
+  type(ESMF_Info)                       :: infoh
 
   FIELD = ESMF_FieldCreate(grid=arrDes%grid, datacopyflag=ESMF_DATACOPY_VALUE, &
          farrayPtr=farrayPtr, name=trim(varn), RC=STATUS)
   _VERIFY(STATUS)
+  call ESMF_InfoGetFromHost(field,infoh,rc=status)
+  _VERIFY(STATUS)
   if (arrDes%tile) then
-     call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsTileTile,rc=status)
+     call ESMF_InfoSet(infoh,'DIMS',MAPL_DimsTileTile,rc=status)
      _VERIFY(STATUS)
   else
-     call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsHorzOnly,rc=status)
+     call ESMF_InfoSet(infoh,'DIMS',MAPL_DimsHorzOnly,rc=status)
      _VERIFY(STATUS)
   endif
   BUNDLE =  ESMF_FieldBundleCreate ( name=Iam, rc=STATUS )
@@ -3497,11 +3532,14 @@ contains
   integer                               :: status
   type(ESMF_Field)                      :: field
   type(ESMF_FieldBundle)                :: bundle
+  type(ESMF_Info)                       :: infoh
 
   FIELD = ESMF_FieldCreate(grid=arrDes%grid, datacopyflag=ESMF_DATACOPY_VALUE, &
          farrayPtr=farrayPtr, name=trim(varn), RC=STATUS)
   _VERIFY(STATUS)
-  call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsHorzVert,rc=status)
+  call ESMF_InfoGetFromHost(field,infoh,rc=status)
+  _VERIFY(STATUS)
+  call ESMF_InfoSet(infoh,'DIMS',MAPL_DimsHorzVert,rc=status)
   _VERIFY(STATUS)
   BUNDLE =  ESMF_FieldBundleCreate ( name=Iam, rc=STATUS )
   _VERIFY(STATUS)
@@ -3589,6 +3627,7 @@ contains
     logical :: is_stretched
     character(len=ESMF_MAXSTR) :: positive
     type(StringVector) :: flip_vars
+    type(ESMF_Info) :: infoh, infoh_bundle, infoh_field
     type(ESMF_Field) :: lons_field, lats_field
     logical :: isGridCapture, have_oclients
     real(kind=ESMF_KIND_R8), pointer :: grid_lons(:,:), grid_lats(:,:), lons_field_ptr(:,:), lats_field_ptr(:,:)
@@ -3599,19 +3638,21 @@ contains
     call ESMF_FieldBundleGet(Bundle,FieldCount=nVars, name=BundleName, rc=STATUS)
     _VERIFY(STATUS)
 
-    call ESMF_AttributeGet(arrdes%grid,name="TARGET_LON",isPresent=have_target_lon,rc=status)
+    call ESMF_InfoGetFromHost(arrdes%grid,infoh,rc=status)
+    _VERIFY(STATUS)
+    have_target_lon = ESMF_InfoIsPresent(infoh,'TARGET_LON',rc=status)
     _VERIFY(status)
-    call ESMF_AttributeGet(arrdes%grid,name="TARGET_LAT",isPresent=have_target_lat,rc=status)
+    have_target_lat = ESMF_InfoIsPresent(infoh,'TARGET_LAT',rc=status)
     _VERIFY(status)
-    call ESMF_AttributeGet(arrdes%grid,name="STRETCH_FACTOR",isPresent=have_stretch_factor,rc=status)
+    have_stretch_factor = ESMF_InfoIsPresent(infoh,'STRETCH_FACTOR',rc=status)
     _VERIFY(status)
     if (have_target_lon .and. have_target_lat .and. have_stretch_factor) then
        is_stretched = .true.
-       call ESMF_AttributeGet(arrdes%grid,name="TARGET_LON",value=target_lon_degrees,rc=status)
+       call ESMF_InfoGet(infoh,'TARGET_LON',target_lon_degrees,rc=status)
        _VERIFY(status)
-       call ESMF_AttributeGet(arrdes%grid,name="TARGET_LAT",value=target_lat_degrees,rc=status)
+       call ESMF_InfoGet(infoh,'TARGET_LAT',target_lat_degrees,rc=status)
        _VERIFY(status)
-       call ESMF_AttributeGet(arrdes%grid,name="STRETCH_FACTOR",value=stretch_factor,rc=status)
+       call ESMF_InfoGet(infoh,'STRETCH_FACTOR',stretch_factor,rc=status)
        _VERIFY(status)
     else
        is_stretched = .false.
@@ -3640,9 +3681,11 @@ contains
 
        call ESMF_FieldBundleGet(Bundle,fieldIndex=I, field=field, rc=status)
        _VERIFY(STATUS)
-       call ESMF_AttributeGet(field, NAME='DIMS', VALUE=DIMS(I), rc=status)
+       call ESMF_InfoGetFromHost(field,infoh,rc=status)
        _VERIFY(STATUS)
-       call ESMF_AttributeGet(field, NAME='VLOCATION', VALUE=LOCATION(I), rc=status)
+       call ESMF_InfoGet(infoh,key='DIMS',value=DIMS(I),rc=status)
+       _VERIFY(STATUS)
+       call ESMF_InfoGet(infoh,key='VLOCATION',value=LOCATION(I),rc=status)
        _VERIFY(STATUS)
 
        ! now check if we have an ungridded dimension
@@ -3774,7 +3817,9 @@ contains
        call ArrDescrSet(arrdes, JM_WORLD=JM_WORLD)
     end if
 
-    call ESMF_AttributeGet(bundle,"POSITIVE",positive,rc=status)
+    call ESMF_InfoGetFromHost(bundle,infoh,rc=status)
+    _VERIFY(status)
+    call ESMF_InfoGet(infoh,'POSITIVE',positive,rc=status)
     _VERIFY(status)
     ! count dimensions for NCIO
     ndims = 0
@@ -3957,16 +4002,18 @@ contains
        do i=1,nVars
           call ESMF_FieldBundleGet(Bundle,fieldIndex=I, field=field, rc=status)
           _VERIFY(STATUS)
-          call ESMF_AttributeGet(FIELD, NAME='LONG_NAME'   , VALUE=LONG_NAME , rc=status)
+          call ESMF_InfoGetFromHost(field,infoh,rc=status)
           _VERIFY(STATUS)
-          call ESMF_AttributeGet(FIELD, NAME='UNITS'       , VALUE=UNITS     , rc=status)
+          call ESMF_InfoGet(infoh,key='LONG_NAME',value=LONG_NAME,rc=status)
           _VERIFY(STATUS)
-          call ESMF_AttributeGet(field, NAME='DIMS'        , VALUE=DIMS(1)      , rc=status)
+          call ESMF_InfoGet(infoh,key='UNITS',value=UNITS,rc=status)
           _VERIFY(STATUS)
-          call ESMF_AttributeGet(field, NAME="VLOCATION" , isPresent=isPresent, RC=STATUS)
+          call ESMF_InfoGet(infoh,key='DIMS',value=DIMS(1),rc=status)
+          _VERIFY(STATUS)
+          isPresent = ESMF_InfoIsPresent(infoh,key='VLOCATION',rc=status)
           _VERIFY(STATUS)
           if ( isPresent ) then
-             call ESMF_AttributeGet(field, NAME="VLOCATION" , VALUE=LOCATION(1)  , RC=STATUS)
+             call ESMF_InfoGet(infoh,key='VLOCATION',value=LOCATION(1),rc=status)
              _VERIFY(STATUS)
           else
              LOCATION(1) = MAPL_VLocationNone
@@ -4125,9 +4172,10 @@ contains
 
        enddo
 
-       call ESMF_AttributeGet(bundle, name='MAPL_GridCapture', isPresent=isPresent, _RC)
+       call ESMF_InfoGetFromHost(bundle, infoh_bundle, _RC)
+       isPresent = ESMF_InfoIsPresent(infoh_bundle, 'MAPL_GridCapture', _RC)
        if (isPresent) then
-          call ESMF_AttributeGet(bundle, name='MAPL_GridCapture', value=isGridCapture, _RC)
+          call ESMF_InfoGet(infoh_bundle, key='MAPL_GridCapture', value=isGridCapture, _RC)
        else
           isGridCapture = .false.
        end if
@@ -4161,10 +4209,10 @@ contains
              iter = RstCollections%find(trim(fname_by_writer))
              if (iter == RstCollections%end()) then
                 call cf%add_attribute("Split_Cubed_Sphere", i, _RC)
-                arrdes%collection_id(i) = oClients%add_hist_collection(cf)
+                arrdes%collection_id(i) = oClients%add_data_collection(cf)
                 call RstCollections%insert(trim(fname_by_writer), arrdes%collection_id(i))
              else
-                arrdes%collection_id(i) = iter%value()
+                arrdes%collection_id(i) = iter%second()
                 call oClients%modify_metadata(arrdes%collection_id(i), var_map = var_map, rc=status)
                 _VERIFY(status)
              endif
@@ -4174,10 +4222,10 @@ contains
           if (.not.allocated(arrdes%collection_id)) allocate(arrdes%collection_id(1))
           iter = RstCollections%find(trim(BundleName))
           if (iter == RstCollections%end()) then
-             arrdes%collection_id(1) = oClients%add_hist_collection(cf)
+             arrdes%collection_id(1) = oClients%add_data_collection(cf)
              call RstCollections%insert(trim(BundleName), arrdes%collection_id(1))
           else
-             arrdes%collection_id(1) = iter%value()
+             arrdes%collection_id(1) = iter%second()
              call oClients%modify_metadata(arrdes%collection_id(1), var_map = var_map, rc=status)
              _VERIFY(status)
           endif
@@ -4223,8 +4271,11 @@ contains
           FieldName = trim(FieldName(ind+2:))
        end if
 
+       call ESMF_InfoGetFromHost(field,infoh,rc=status)
+       _VERIFY(STATUS)
+
        if (.not.associated(MASK)) then
-          call ESMF_AttributeGet(field, name='DIMS', value=MAPL_DIMS, rc=status)
+          call ESMF_InfoGet(infoh,'DIMS',MAPL_DIMS,rc=status)
           _VERIFY(STATUS)
           if (MAPL_DIMS == MAPL_DimsTileOnly .or. MAPL_DIMS == MAPL_DimsTileTile) then
              call ESMF_FieldGet   (field, grid=grid, rc=status)
@@ -4237,9 +4288,9 @@ contains
        call MAPL_FieldWriteNCPar(formatter, fieldName, field, arrdes, HomePE=mask, oClients=oClients, rc=status)
        _VERIFY(STATUS)
 
-       call ESMF_AttributeGet(field,name="FLIPPED",isPresent=isPresent,rc=status)
+       isPresent = ESMF_InfoIsPresent(infoh,key='FLIPPED',rc=status)
        if (isPresent) then
-         call ESMF_AttributeGet(field,name="FLIPPED",value=fieldName,rc=status)
+         call ESMF_InfoGet(infoh,'FLIPPED',fieldName,rc=status)
          if (status == _SUCCESS) then
             call ESMF_FieldDestroy(field,noGarbage=.true.,rc=status)
             _VERIFY(status)
@@ -4248,9 +4299,10 @@ contains
 
     enddo
 
-    call ESMF_AttributeGet(bundle, name='MAPL_GridCapture', isPresent=isPresent, _RC)
+    call ESMF_InfoGetFromHost(bundle, infoh_bundle, _RC)
+    isPresent = ESMF_InfoIsPresent(infoh_bundle, 'MAPL_GridCapture', _RC)
     if (isPresent) then
-       call ESMF_AttributeGet(bundle, name='MAPL_GridCapture', value=isGridCapture, _RC)
+       call ESMF_InfoGet(infoh_bundle, key='MAPL_GridCapture', value=isGridCapture, _RC)
     else
        isGridCapture = .false.
     end if
@@ -4271,8 +4323,10 @@ contains
        lons_field_ptr = grid_lons
        lats_field_ptr = grid_lats
 
-       call ESMF_AttributeSet(lons_field, name="DIMS", value=MAPL_DimsHorzOnly, _RC)
-       call ESMF_AttributeSet(lats_field, name="DIMS", value=MAPL_DimsHorzOnly, _RC)
+       call ESMF_InfoGetFromHost(lons_field, infoh_field, _RC)
+       call ESMF_InfoSet(infoh_field, key="DIMS", value=MAPL_DimsHorzOnly, _RC)
+       call ESMF_InfoGetFromHost(lats_field, infoh_field, _RC)
+       call ESMF_InfoSet(infoh_field, key="DIMS", value=MAPL_DimsHorzOnly, _RC)
 
        call MAPL_FieldWriteNCPar(formatter, 'lons', lons_field, arrdes, HomePE=mask, oClients=oClients, rc=status)
        call MAPL_FieldWriteNCPar(formatter, 'lats', lats_field, arrdes, HomePE=mask, oClients=oClients, rc=status)
@@ -4335,6 +4389,7 @@ contains
 ! Local vars
     type (ESMF_FieldBundle)              :: bundle
     type (ESMF_Field)                    :: field
+    type (ESMF_Info)                     :: infoh_field, infoh_bundle, infoh_state
     integer                              :: status
     integer                              :: I, J, ITEMCOUNT
     type (ESMF_StateItem_Flag), pointer  :: ITEMTYPES(:)
@@ -4390,9 +4445,13 @@ contains
     call ESMF_FieldBundleSet(bundle_write,grid=arrdes%grid,rc=STATUS)
     _VERIFY(STATUS)
 
-    call ESMF_AttributeGet(state,name="POSITIVE",value=positive,rc=status)
+    call ESMF_InfoGetFromHost(state,infoh_state,rc=status)
+    _VERIFY(STATUS)
+    call ESMF_InfoGet(infoh_state,'POSITIVE',positive,rc=status)
     _VERIFY(status)
-    call ESMF_AttributeSet(bundle_write,name="POSITIVE",value=positive,rc=status)
+    call ESMF_InfoGetFromHost(bundle_write,infoh_bundle,rc=status)
+    _VERIFY(STATUS)
+    call ESMF_InfoSet(infoh_bundle,'POSITIVE',positive,rc=status)
     _VERIFY(status)
     flip = trim(positive)=="up"
 
@@ -4406,10 +4465,12 @@ contains
              _VERIFY(STATUS)
              skipWriting = .false.
              if (.not. forceWriteNoRestart_) then
-                call ESMF_AttributeGet(bundle, name='RESTART', isPresent=isPresent, rc=status)
+                call ESMF_InfoGetFromHost(bundle,infoh_bundle,rc=status)
+                _VERIFY(STATUS)
+                isPresent = ESMF_InfoIsPresent(infoh_bundle,'RESTART',rc=status)
                 _VERIFY(STATUS)
                 if (isPresent) then
-                   call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
+                   call ESMF_InfoGet(infoh_bundle,'RESTART',RST,rc=status)
                    _VERIFY(STATUS)
                    skipWriting = (RST == MAPL_RestartSkip)
                 end if
@@ -4417,9 +4478,10 @@ contains
                 skipWriting = .true.
              end if
 
-             call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
+             call ESMF_InfoGetFromHost(state, infoh_state, _RC)
+             isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_TestFramework', _RC)
              if (isPresent) then
-                call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=is_test_framework, _RC)
+                call ESMF_InfoSet(infoh_state, key='MAPL_TestFramework', value=is_test_framework, _RC)
                 if (is_test_framework) skipWriting = .false.
              end if
 
@@ -4450,10 +4512,12 @@ contains
 
                 skipWriting = .false.
                 if (.not. forceWriteNoRestart_) then
-                   call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
+                   call ESMF_InfoGetFromHost(field,infoh_field,rc=status)
+                   _VERIFY(STATUS)
+                   isPresent = ESMF_InfoIsPresent(infoh_field,'RESTART',rc=status)
                    _VERIFY(STATUS)
                    if (isPresent) then
-                      call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
+                      call ESMF_InfoGet(infoh_field, key='RESTART', value=RST, rc=status)
                       _VERIFY(STATUS)
                       skipWriting = (RST == MAPL_RestartSkip)
                    end if
@@ -4461,25 +4525,27 @@ contains
                    skipWriting = .true.
                 end if
 
-                call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
+                call ESMF_InfoGetFromHost(state, infoh_state, _RC)
+                isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_TestFramework', _RC)
                 if (isPresent) then
-                   call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=is_test_framework, _RC)
+                   call ESMF_InfoGet(infoh_state, key='MAPL_TestFramework', value=is_test_framework, _RC)
                    if (is_test_framework) skipWriting = .false.
                 end if
 
                 if (skipWriting) cycle
 
-                call ESMF_AttributeGet(field, name='doNotAllocate', isPresent=isPresent, rc=status)
-                _VERIFY(STATUS)
+                call ESMF_InfoGetFromHost(field, infoh_field, _RC)
+                isPresent = ESMF_InfoIsPresent(infoh_field, 'doNotAllocate', _RC)
                 if (isPresent) then
-                   call ESMF_AttributeGet(field, name='doNotAllocate', value=dna, rc=status)
+                   call ESMF_InfoGet(infoh_field, key='doNotAllocate', value=dna, rc=status)
                    _VERIFY(STATUS)
                    skipWriting = (dna /= 0)
                 endif
 
-                call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
+                call ESMF_InfoGetFromHost(state, infoh_state, _RC)
+                isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_TestFramework', _RC)
                 if (isPresent) then
-                   call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=is_test_framework, _RC)
+                   call ESMF_InfoGet(infoh_state, key='MAPL_TestFramework', value=is_test_framework, _RC)
                    if (is_test_framework) skipWriting = .false.
                 end if
 
@@ -4504,10 +4570,12 @@ contains
     deallocate(ITEMTYPES)
     deallocate(DOIT     )
 
-    call ESMF_AttributeGet(state, name='MAPL_GridCapture', isPresent=isPresent, _RC)
+    call ESMF_InfoGetFromHost(state, infoh_state, _RC)
+    isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_GridCapture', _RC)
     if (isPresent) then
-       call ESMF_AttributeGet(state, name='MAPL_GridCapture', value=isGridCapture, _RC)
-       call ESMF_AttributeSet(bundle_write, name="MAPL_GridCapture", value=isGridCapture, _RC)
+       call ESMF_InfoGet(infoh_state, key='MAPL_GridCapture', value=isGridCapture, _RC)
+       call ESMF_InfoGetFromHost(bundle_write, infoh_bundle, _RC)
+       call ESMF_InfoSet(infoh_bundle, key="MAPL_GridCapture", value=isGridCapture, _RC)
     end if
 
     call MAPL_BundleWriteNCPar(Bundle_Write, arrdes, CLOCK, filename, clobber=local_clobber, oClients=oClients, rc=status)
@@ -4623,7 +4691,7 @@ contains
 
          iter = dims%begin()
          do while (iter /= dims%end())
-            name => iter%key()
+            name => iter%first()
             newExtent => newDims%at(trim(name))
             if (associated(newExtent)) then
                call cfOut%modify_dimension(trim(name),newExtent,rc=status)
@@ -4638,6 +4706,7 @@ contains
 
       subroutine modify_coordinate_vars(rc)
          integer, optional, intent(out) :: rc
+
          integer :: status
          type(StringVariableMap), pointer :: vars
          type(StringVariableMapIterator) :: iter
@@ -4651,11 +4720,13 @@ contains
          class(*), pointer :: dim_var_values(:)
          class(*), allocatable :: coordinate_data(:)
 
-         vars => cfIn%get_variables()
+          vars => cfIn%get_variables(_RC)
 
-         iter = vars%begin()
-         do while (iter /= vars%end())
-            name => iter%key()
+         iter = vars%ftn_begin()
+         do while (iter /= vars%ftn_end())
+            call iter%next()
+
+            name => iter%first()
             newExtent => newDims%at(trim(name))
             if (associated(newExtent)) then
                cvar => cfOut%get_coordinate_variable(trim(name),rc=status)
@@ -4684,7 +4755,6 @@ contains
 
                nullify(newExtent)
             end if
-           call iter%next()
          enddo
 
          _RETURN(ESMF_SUCCESS)
@@ -4704,18 +4774,20 @@ contains
   integer, pointer :: dimsize => null()
   character(len=:), pointer :: name
 
+  integer :: status
+
   nvars = 0
   dims => cf%get_dimensions()
-  vars => cf%get_variables()
-  iter = vars%begin()
-  do while(iter/=vars%end())
+  vars => cf%get_variables(_RC)
+  iter = vars%ftn_begin()
+  do while(iter/=vars%ftn_end())
+     call iter%next()
 
-     name =>  iter%key()
+     name =>  iter%first()
      dimsize => dims%at(trim(name))
      if (.not.associated(dimsize)) nvars=nvars+1
      if (associated(dimsize)) nullify(dimsize)
 
-     call iter%next()
   end do
 
   _RETURN(ESMF_SUCCESS)
@@ -4733,17 +4805,18 @@ contains
   integer, pointer :: dimsize => null()
   character(len=:), pointer :: name
 
+  integer :: status
   dims => cf%get_dimensions()
-  vars => cf%get_variables()
-  iter = vars%begin()
-  do while(iter/=vars%end())
+  vars => cf%get_variables(_RC)
+  iter = vars%ftn_begin()
+  do while(iter/=vars%ftn_end())
+     call iter%next()
 
-     name =>  iter%key()
+     name =>  iter%first()
      dimsize => dims%at(trim(name))
      if (.not.associated(dimsize)) call nondim_vars%push_back(trim(name))
      if (associated(dimsize)) nullify(dimsize)
 
-     call iter%next()
   end do
 
   _RETURN(ESMF_SUCCESS)
@@ -4751,7 +4824,7 @@ contains
   end function MAPL_IOGetNonDimVars
 
   subroutine MAPL_IOCountLevels(cf,nlev,rc)
-  type(FileMetadata), intent(inout) :: cf
+  type(FileMetadata), target, intent(inout) :: cf
   integer, intent(out) :: nlev
   integer, intent(out), optional :: rc
 
@@ -4768,11 +4841,12 @@ contains
   nlev = 0
   dims => cf%get_dimensions()
   vars => cf%get_variables()
-  iter = vars%begin()
-  do while(iter/=vars%end())
+  iter = vars%ftn_begin()
+  do while(iter/=vars%ftn_end())
+     call iter%next()
 
-     name => iter%key()
-     var => iter%value()
+     name => iter%first()
+     var => iter%second()
      dimsize => dims%at(trim(name))
      if (.not.associated(dimsize)) then
         vdims => var%get_dimensions()
@@ -4790,7 +4864,6 @@ contains
      end if
      if (associated(dimsize)) nullify(dimsize)
 
-     call iter%next()
   end do
 
   _RETURN(ESMF_SUCCESS)
@@ -4934,9 +5007,10 @@ contains
 
    end function get_fname_by_rank
 
-   function check_flip(metadata,rc) result(flip)
-      type(FileMetadata), intent(inout) :: metadata
+   function check_flip(metadata, rc) result(flip)
+      type(FileMetadata), target, intent(inout) :: metadata
       integer, optional, intent(out) :: rc
+
       character(len=:), pointer :: positive
       type(CoordinateVariable), pointer :: var
       type (StringVariableMap), pointer :: vars
@@ -4947,11 +5021,15 @@ contains
       type(Attribute), pointer :: attr => null()
       class(*), pointer :: vpos
 
+      integer :: status
+
       flip = .false.
-      vars => metadata%get_variables()
-      var_iter = vars%begin()
-      do while(var_iter /=vars%end())
-         var_name => var_iter%key()
+      vars => metadata%get_variables(_RC)
+      var_iter = vars%ftn_begin()
+      do while(var_iter /=vars%ftn_end())
+         call var_iter%next()
+
+         var_name => var_iter%first()
          var => metadata%get_coordinate_variable(trim(var_name))
          if (associated(var)) then
             if (index(var_name,'lev') .ne. 0 .or. index(var_name,'edge') .ne. 0) then
@@ -4975,7 +5053,6 @@ contains
                end if
             end if
          end if
-         call var_iter%next()
       enddo
       _RETURN(_SUCCESS)
    end function check_flip
@@ -4991,13 +5068,16 @@ contains
       real(KIND=ESMF_KIND_R8), allocatable :: alloc_r8(:,:,:)
       type(ESMF_TypeKind_Flag) :: tk
       integer :: vloc,i,lb,ub,ii
+      type(ESMF_Info) :: infoh
 
       call ESMF_FieldGet(field,rank=rank,typeKind=tk,rc=status)
       _VERIFY(status)
       if (rank/=3) then
          _RETURN(_SUCCESS)
       else
-         call ESMF_AttributeGet(field,name="VLOCATION",value=vloc,rc=status)
+         call ESMF_InfoGetFromHost(field,infoh,rc=status)
+         _VERIFY(status)
+         call ESMF_InfoGet(infoh,'VLOCATION',vloc,rc=status)
          _VERIFY(status)
          if (vloc==MAPL_VLocationCenter .or. vloc==MAPL_VLocationEdge) then
             if (tk == ESMF_TYPEKIND_R4) then
@@ -5040,12 +5120,14 @@ contains
       type(ESMF_TYPEKIND_FLAG) :: tk
       real(KIND=ESMF_KIND_R4), pointer :: ptr_r4_in(:,:,:),ptr_r4_out(:,:,:)
       real(KIND=ESMF_KIND_R8), pointer :: ptr_r8_in(:,:,:),ptr_r8_out(:,:,:)
-
+      type(ESMF_Info) :: infoh
 
       call ESMF_FieldGet(field,rank=rank,name=fname,rc=status)
       _VERIFY(status)
       if (rank==3) then
-         call ESMF_AttributeGet(field,name="VLOCATION",value=vloc,rc=status)
+         call ESMF_InfoGetFromHost(field,infoh,rc=status)
+         _VERIFY(status)
+         call ESMF_InfoGet(infoh,'VLOCATION',vloc,rc=status)
          _VERIFY(status)
          if (vloc==MAPL_VLocationCenter .or. vloc==MAPL_VLocationEdge) then
             call ESMF_FieldGet(Field,grid=grid,ungriddedLbound=lb,ungriddedUBound=ub,typekind=tk,rc=status)
@@ -5069,7 +5151,9 @@ contains
             end if
             call flip_field(flipped_field,rc=status)
             _VERIFY(status)
-            call ESMF_AttributeSet(flipped_field,"FLIPPED","flipped",rc=status)
+            call ESMF_InfoGetFromHost(flipped_field,infoh,rc=status)
+            _VERIFY(status)
+            call ESMF_InfoSet(infoh,'FLIPPED',"flipped",rc=status)
             _VERIFY(status)
          else
             flipped_field=field

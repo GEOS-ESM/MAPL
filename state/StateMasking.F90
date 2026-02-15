@@ -1,13 +1,13 @@
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 module MAPL_StateMaskMod
    use ESMF
    use MAPL_KeywordEnforcerMod
    use ESMFL_Mod
    use MAPL_BaseMod
    use MAPL_ExceptionHandling
-   use gFTL_StringVector
+   use gFTL2_StringVector
    use MAPL_StateArithmeticParserMod
    use MAPL_Constants
    implicit none

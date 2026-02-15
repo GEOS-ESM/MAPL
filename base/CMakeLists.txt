@@ -60,10 +60,18 @@ endif()
 
 esma_add_library(
   ${this} SRCS ${srcs}
-  DEPENDENCIES MAPL.shared MAPL.constants MAPL.profiler MAPL.pfio MAPL_cfio_r4 MAPL.field_utils udunits2f PFLOGGER::pflogger
+  DEPENDENCIES MAPL.shared MAPL.constants MAPL.profiler MAPL.pfio MAPL_cfio_r4 MAPL.field udunits2f PFLOGGER::pflogger
                GFTL_SHARED::gftl-shared-v2 GFTL_SHARED::gftl-shared-v1  GFTL::gftl-v2 GFTL::gftl-v1
                ESMF::ESMF NetCDF::NetCDF_Fortran MPI::MPI_Fortran
-  TYPE ${MAPL_LIBRARY_TYPE})
+  TYPE SHARED)
+
+# We don't want to disable good NAG debugging flags everywhere, but we still need to do it for
+# interfaces (e.g. MPI) that allow multiple types for the same argument (eg buffer).
+if (DUSTY)
+  set_property( SOURCE MAPL_Comms.F90 FileIOShared.F90 BinIO.F90 NCIO.F90
+                PROPERTY COMPILE_FLAGS ${DUSTY})
+endif ()
+
 target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 
 if(DISABLE_GLOBAL_NAME_WARNING)

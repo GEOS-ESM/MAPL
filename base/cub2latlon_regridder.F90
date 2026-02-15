@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 !---------------------------
 ! Note - this module abuses global variables as a simple mechanism for
@@ -17,8 +17,8 @@ module SupportMod
    use MAPL_Constants
    use MAPL_RangeMod
    use MAPL_StringRouteHandleMapMod
-   use gFTL_StringVector
-   use gFTL_StringIntegerMap
+   use gFTL2_StringVector
+   use gFTL2_StringIntegerMap
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT64
    use mpi
    implicit none
@@ -287,9 +287,11 @@ contains
          associate ( ll => this%cfio_lat_lon, cs => this%cfio_cubed_sphere )
 
          variables => cs%get_variables()
-         var_iter = variables%begin()
-         do while (var_iter /= variables%end())
-            var_name => var_iter%key()
+         var_iter = variables%ftn_begin()
+         do while (var_iter /= variables%ftn_end())
+            call var_iter%next()
+
+            var_name => var_iter%first()
             select case (var_name)
                ! CS specific variables
             case ('nf', 'ncontact', 'cubed_sphere', &
@@ -301,7 +303,7 @@ contains
 
                if (keep_var(var_name, this%requested_variables)) then
 
-                  cs_variable => var_iter%value()
+                  cs_variable => var_iter%second()
 
                   cs_var_dimensions => cs_variable%get_dimensions()
                   ll_var_dimensions = make_dim_string(cs_var_dimensions)
@@ -323,7 +325,6 @@ contains
 
             end select
 
-            call var_iter%next()
          end do
 
          end associate
@@ -427,9 +428,11 @@ contains
          class (*), pointer :: a
 
          north_component = '' ! unless
-         var_iter = vars%begin()
-         do while (var_iter /= vars%end())
-            var => var_iter%value()
+         var_iter = vars%ftn_begin()
+         do while (var_iter /= vars%ftn_end())
+            call var_iter%next()
+
+            var => var_iter%second()
             attrs => var%get_attributes()
             attr => attrs%at('long_name')
 
@@ -447,11 +450,10 @@ contains
                if (idx /= 0) then
                   trial = trial(1:idx-1) // 'east' // trial(idx+5:)
                   if (trial == long_name) then ! success
-                     north_component = var_iter%key()
+                     north_component = var_iter%first()
                   end if
                end if
             end if
-            call var_iter%next()
          end do
 
       end function find_north_component
@@ -483,7 +485,7 @@ contains
          ll_dims = ''
          dim_iter = cs_dims%begin()
          do while (dim_iter /= cs_dims%end())
-            d => dim_iter%get()
+            d => dim_iter%of()
             select case (d)
             case ('Ydim')
                ll_dims = ll_dims // 'lat' // pFIO_DIMENSION_SEPARATOR
@@ -784,9 +786,11 @@ contains
         call ESMF_VMBarrier(global, rc=status)
       end block
       variables => this%cfio_cubed_sphere%get_variables()
-      var_iter = variables%begin()
-      do while (var_iter /= variables%end())
-         var_name => var_iter%key()
+      var_iter = variables%ftn_begin()
+      do while (var_iter /= variables%ftn_end())
+         call var_iter%next()
+
+         var_name => var_iter%first()
 
          select case (var_name)
          case ('nf', 'ncontact', 'cubed_sphere', &
@@ -800,7 +804,7 @@ contains
                print*, 'var = ', var_name
             end if
 
-            var => var_iter%value()
+            var => var_iter%second()
             missing_attr => var%get_attribute('missing_value')
             missing_ptr => missing_attr%get_values()
 
@@ -842,7 +846,6 @@ contains
             end if
 
             if (.not. (is_scalar .or. is_east_vector_component)) then
-               call var_iter%next()
                cycle
             end if
 
@@ -935,8 +938,7 @@ contains
                end do
             end do
          end select
-         call var_iter%next()
-      end do
+       end do
 
 
       call ll_fmtr%close()
@@ -1187,7 +1189,7 @@ end module SupportMod
 
 ! The main program.   Misleadingly simple.
 #define I_AM_MAIN
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 program main
    use ESMF
    use SupportMod
@@ -1253,7 +1255,7 @@ contains
 
 
 #undef I_AM_MAIN
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
    subroutine check_resources(rc)
       use SupportMod

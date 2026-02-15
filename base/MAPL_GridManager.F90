@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 !!!  NOTE: This class implements the Singleton pattern - there should
 !!!        be only one GridManager for the application.  However,
@@ -78,7 +78,7 @@ contains
       class (AbstractGridFactory), intent(in) :: prototype
 
       call this%prototypes%insert(grid_type, prototype)
-      
+
    end subroutine add_prototype
 
    ! Is prototype_name present in the prototypes map keys?
@@ -138,7 +138,7 @@ contains
       type (XYGridFactory) :: xy_factory
       type (SwathGridFactory) :: swath_factory
       type (EASEGridFactory)  :: ease_factory
-      
+
       ! This is a local variable to prevent the subroutine from running
       ! initialiazation twice. Calling functions have their own local variables
       ! to prevent calling this subroutine twice, but the initialization status
@@ -154,9 +154,9 @@ contains
          call this%prototypes%insert('llc',  llc_factory)
          call this%prototypes%insert('External', external_factory)
          call this%prototypes%insert('XY', xy_factory)
-         call this%prototypes%insert('Swath', swath_factory)         
-         call this%prototypes%insert('EASE', ease_factory)         
-         initialized = .true. 
+         call this%prototypes%insert('Swath', swath_factory)
+         call this%prototypes%insert('EASE', ease_factory)
+         initialized = .true.
       end if
 
       _RETURN(_SUCCESS)
@@ -197,9 +197,9 @@ contains
       end if
 
       _RETURN(_SUCCESS)
-      
+
    end function make_clone
-      
+
 
    subroutine add_factory(this, factory, id)
       class (GridManager), target, intent(inout) :: this
@@ -228,7 +228,7 @@ contains
       if (present(id)) then
          id = this%counter
       end if
-      
+
    end subroutine add_factory
 
 
@@ -236,11 +236,11 @@ contains
       integer(kind=INT64) :: id
       class (GridManager), intent(inout) :: this
       class (AbstractGridFactory), intent(in) :: factory
-      
+
       call this%add_factory(factory, id)
-      
+
    end function get_id
-      
+
 
    function make_grid_from_factory(this, factory, unusable, rc) result(grid)
 
@@ -255,11 +255,12 @@ contains
       character(len=*), parameter :: Iam= MOD_NAME // 'make_grid'
       integer(kind=INT64) :: factory_id
       class (AbstractGridFactory), pointer :: f
+      type(ESMF_Info) :: infoh
 
       _UNUSED_DUMMY(unusable)
 
       call this%add_factory(factory, factory_id)
-      
+
       f => this%factories%at(factory_id)
 
       grid = f%make_grid(rc=status)
@@ -267,7 +268,9 @@ contains
 
       ! TODO: this should only be done if the grid is new, rather than cached, in which case
       ! the attribute is already set.
-      call ESMF_AttributeSet(grid, factory_id_attribute, factory_id, rc=status)
+      call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+      _VERIFY(status)
+      call ESMF_InfoSet(infoh,factory_id_attribute,factory_id,rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
@@ -289,6 +292,7 @@ contains
       integer :: status
       character(len=*), parameter :: Iam= MOD_NAME // 'make_grid_from_config'
       character(len=ESMF_MAXSTR) :: grid_type
+      type(ESMF_Info) :: infoh
 
       character(len=:), allocatable :: label
 
@@ -312,7 +316,9 @@ contains
       _VERIFY(status)
 
       ! TLC: Using 'GridType' instead of 'GRID_TYPE' for legacy reasons.
-      call ESMF_AttributeSet(grid, 'GridType', grid_type, rc=status)
+      call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+      _VERIFY(status)
+      call ESMF_InfoSet(infoh,'GridType',grid_type,rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
@@ -332,6 +338,7 @@ contains
 
       class (AbstractGridFactory), allocatable :: factory
       integer :: status
+      type(ESMF_Info) :: infoh
       character(len=*), parameter :: Iam= MOD_NAME // 'make_grid_from_distGrid'
 
       _UNUSED_DUMMY(unusable)
@@ -343,7 +350,9 @@ contains
       _VERIFY(status)
 
       ! TLC: Using 'GridType' instead of 'GRID_TYPE' for legacy reasons.
-      call ESMF_AttributeSet(grid, 'GridType', grid_type, rc=status)
+      call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+      _VERIFY(status)
+      call ESMF_InfoSet(infoh,'GridType',grid_type,rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
@@ -417,8 +426,10 @@ contains
       integer (kind=ESMF_KIND_I8) :: id
       class(AbstractGridFactory), pointer :: factory
       type(Integer64GridFactoryMapIterator) :: iter
+      type(ESMF_Info) :: infoh
 
-      call ESMF_AttributeGet(grid, factory_id_attribute, id, _RC)
+      call ESMF_InfoGetFromHost(grid,infoh,_RC)
+      call ESMF_InfoGet(infoh, factory_id_attribute, id, _RC)
       factory => this%factories%at(id)
       call factory%destroy(_RC)
       iter = this%factories%find(id)
@@ -432,7 +443,7 @@ contains
    ! is no longer being used.
    ! If this implementation cache's grids, then the procedure should _not_
    ! invoke ESMF_GridDestroy ...
-   
+
    subroutine delete(this, grid, unusable, rc)
       use ESMF
       class (GridManager), intent(in) :: this
@@ -463,10 +474,13 @@ contains
       integer (kind=ESMF_KIND_I8) :: id
       integer :: status
       character(len=*), parameter :: Iam= MOD_NAME // 'get_factory'
+      type(ESMF_Info) :: infoh
 
       _UNUSED_DUMMY(unusable)
 
-      call ESMF_AttributeGet(grid, factory_id_attribute, id, rc=status)
+      call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+      _VERIFY(status)
+      call ESMF_InfoGet(infoh,factory_id_attribute,id,rc=status)
       _VERIFY(status)
 
       factory => this%factories%at(id)
@@ -486,11 +500,11 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unused
       logical, optional, intent(in) :: force_file_coordinates
       integer, optional, intent(out) :: rc
-      
+
       type (FileMetadata) :: file_metadata
       type (NetCDF4_FileFormatter) :: file_formatter
       integer :: im, jm
-      
+
       character(len=*), parameter :: Iam= MOD_NAME // 'make_factory_from_file()'
       integer :: status
 
@@ -505,7 +519,7 @@ contains
       logical :: hasLat       = .FALSE.
       logical :: hasLatitude  = .FALSE.
       logical :: SplitCubedSphere  = .FALSE.
- 
+
       _UNUSED_DUMMY(unused)
 
       call ESMF_VMGetCurrent(vm, rc=status)
@@ -526,7 +540,7 @@ contains
       hasXdim = file_metadata%has_dimension('Xdim')
       if (hasXdim) then
          im = file_metadata%get_dimension('Xdim',rc=status)
-         _VERIFY(status) 
+         _VERIFY(status)
       end if
 
       hasLon = file_metadata%has_dimension('lon')
@@ -548,15 +562,15 @@ contains
          type is (character(*))
             grid_type => attr_value
          class default
-            _FAIL("grid_type attribute must be stringwrap") 
+            _FAIL("grid_type attribute must be stringwrap")
          end select
          allocate(factory,source=this%make_clone(grid_type))
       else if (hasXdim) then
-         im = file_metadata%get_dimension('Xdim',rc=status) 
+         im = file_metadata%get_dimension('Xdim',rc=status)
          if (status == _SUCCESS) then
             jm = file_metadata%get_dimension('Ydim',rc=status)
             _VERIFY(status)
-            if (jm == 6*im .or. SplitCubedSphere) then 
+            if (jm == 6*im .or. SplitCubedSphere) then
                allocate(factory, source=this%make_clone('Cubed-Sphere'))
             else
                if (file_metadata%has_dimension('nf')) then
@@ -567,7 +581,7 @@ contains
       else if (hasLon .or. hasLongitude) then
 
          hasLat = file_metadata%has_dimension('lat')
-         if (hasLat) then 
+         if (hasLat) then
             jm = file_metadata%get_dimension('lat', rc=status)
             _VERIFY(status)
          else
@@ -592,7 +606,7 @@ contains
      _VERIFY(status)
 
      _RETURN(_SUCCESS)
-     
+
    end function make_factory_from_file
 
 end module MAPL_GridManager_private
@@ -620,7 +634,7 @@ module MAPL_GridManagerMod
 
 contains
 
-   
+
    function get_instance() result(instance)
       type (GridManager), pointer :: instance
       instance => grid_manager
@@ -635,10 +649,13 @@ contains
 
       integer :: status
       character(len=*), parameter :: Iam= MOD_NAME // 'get_factory_id'
+      type(ESMF_Info) :: infoh
 
       _UNUSED_DUMMY(unusable)
 
-      call ESMF_AttributeGet(grid, factory_id_attribute, id, rc=status)
+      call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+      _VERIFY(status)
+      call ESMF_InfoGet(infoh,factory_id_attribute,id,rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)

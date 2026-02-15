@@ -9,6 +9,7 @@ module pFIO_AbstractServerMod
    use pFIO_AbstractDataReferenceVectorMod
    use pFIO_ShmemReferenceMod
    use gFTL_StringInteger64Map
+   use gFTL2_StringVector
    use pFIO_AbstractMessageMod
    use pFIO_CollectiveStageDataMessageMod
    use pFIO_RDMAReferenceMod
@@ -430,10 +431,11 @@ contains
    subroutine report_profile(this, rc )
       class (AbstractServer), intent(inout) :: this
       integer, optional,   intent(  out) :: RC     ! Error code:
-      character(:), allocatable :: report_lines(:)
+      type(StringVector) :: report_lines
+      type(StringVectorIterator) :: iter
       type (ProfileReporter) :: reporter
       character(1) :: empty(0)
-      integer :: i, status
+      integer :: status
 
       if ( .not. associated(ioserver_profiler)) then
          _RETURN(_SUCCESS)
@@ -457,8 +459,10 @@ contains
       if (this%rank == 0) then
          write(*,'(a)')'Final io_server profile'
          write(*,'(a)')'============='
-         do i = 1, size(report_lines)
-            write(*,'(a)') report_lines(i)
+         iter = report_lines%begin()
+         do while (iter /= report_lines%end())
+            write(*,'(a)') iter%of()
+            call iter%next()
          end do
          write(*,'(a)') ''
       end if

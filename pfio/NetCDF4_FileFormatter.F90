@@ -13,8 +13,8 @@ module pFIO_NetCDF4_FileFormatterMod
    use pFIO_CoordinateVariableMod
    use pFIO_FileMetadataMod
    use mapl_KeywordEnforcerMod
-   use gFTL_StringVector
-   use gFTL_StringIntegerMap
+   use gFTL2_StringVector
+   use gFTL2_StringIntegerMap
    use pFIO_StringVariableMapMod
    use pFIO_StringAttributeMapMod
    use pfio_NetCDF_Supplement
@@ -327,24 +327,17 @@ contains
 
       integer :: status
 
-      call this%def_dimensions(cf, rc=status)
-      _VERIFY(status)
-
-      call this%def_variables(cf, rc=status)
-      _VERIFY(status)
-
-      call this%put_attributes(cf, NF90_GLOBAL, rc=status)
-      _VERIFY(status)
+      call this%def_dimensions(cf, _RC)
+      call this%def_variables(cf, _RC)
+      call this%put_attributes(cf, NF90_GLOBAL, _RC)
 
       !$omp critical
       status= nf90_enddef(this%ncid)
       !$omp end critical
       _VERIFY(status)
 
-      call this%write_coordinate_variables(cf, rc=status)
-      _VERIFY(status)
-      call this%write_const_variables(cf, rc=status)
-      _VERIFY(status)
+      call this%write_coordinate_variables(cf, _RC)
+      call this%write_const_variables(cf, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -368,8 +361,8 @@ contains
       dims => cf%get_dimensions()
       iter = dims%begin()
       do while (iter /= dims%end())
-         dim_name => iter%key()
-         dim_len => iter%value()
+         dim_name => iter%first()
+         dim_len => iter%second()
          select case (dim_len)
          case (pFIO_UNLIMITED)
             nf90_len = NF90_UNLIMITED
@@ -498,10 +491,12 @@ contains
 
       vars => cf%get_variables()
 
-      var_iter = vars%begin()
-      do while (var_iter /= vars%end())
-         var_name => var_iter%key()
-         var => var_iter%value()
+      var_iter = vars%ftn_begin()
+      do while (var_iter /= vars%ftn_end())
+         call var_iter%next()
+
+         var_name => var_iter%first()
+         var => var_iter%second()
          const_value_ptr => var%get_const_value()
          if ( .not. const_value_ptr%is_empty()) then
             shp = const_value_ptr%get_shape()
@@ -524,7 +519,6 @@ contains
                _VERIFY(status)
             end select
          end if
-         call var_iter%next()
       enddo
 
       _UNUSED_DUMMY(unusable)
@@ -551,9 +545,11 @@ contains
 
       vars => cf%get_variables()
 
-      var_iter = vars%begin()
-      do while (var_iter /= vars%end())
-         var_name => var_iter%key()
+      var_iter = vars%ftn_begin()
+      do while (var_iter /= vars%ftn_end())
+         call var_iter%next()
+
+         var_name => var_iter%first()
          var => cf%get_coordinate_variable(trim(var_name),rc=status)
          _VERIFY(status)
          if (associated(var))  then ! is a coordinate variable
@@ -575,7 +571,6 @@ contains
                status = _FAILURE
             end select
          end if
-         call var_iter%next()
 
       enddo
 
@@ -725,7 +720,7 @@ contains
       order = cf%get_order()
       var_iter = order%begin()
       do while (var_iter /= order%end())
-         var_name => var_iter%get()
+         var_name => var_iter%of()
          if ( present (varname)) then
            if (var_name /= varname) then
              call var_iter%next()
@@ -741,7 +736,7 @@ contains
          dim_iter = var_dims%begin()
          idim = 1
          do while (dim_iter /= var_dims%end())
-            dim_name => dim_iter%get()
+            dim_name => dim_iter%of()
             !$omp critical
             status = nf90_inq_dimid(this%ncid, dim_name, dimids(idim))
             !$omp end critical

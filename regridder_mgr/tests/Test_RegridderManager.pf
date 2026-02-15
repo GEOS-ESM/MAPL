@@ -1,0 +1,681 @@
+#include "MAPL_TestErr.h"
+
+module Test_RegridderManager
+   use pfunit
+   use mapl3g_FieldCreate
+   use mapl3g_VerticalStaggerLoc
+   use mapl3g_regridder_mgr
+   use mapl3g_Geom_API
+   use mapl3g_FieldBundle_API
+   use mapl_BaseMod, only: MAPL_UNDEF
+   use esmf_TestMethod_mod ! mapl
+   use esmf
+   implicit none(type,external)
+
+contains
+
+   ! Helper procedures
+   ! TODO add error handling to helper procedures
+   
+   function make_geom(geom_mgr, hconfig, rc) result(geom)
+      type(ESMF_Geom) :: geom
+      type(GeomManager), intent(inout) :: geom_mgr
+      type(ESMF_HConfig), optional, intent(in) :: hconfig
+      integer, optional, intent(out) :: rc
+
+      type(MaplGeom), pointer :: mapl_geom
+      integer :: status
+      type(ESMF_HConfig) :: hconfig_
+
+      hconfig_ = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", &
+           _RC)
+      if (present(hconfig)) hconfig_ = hconfig
+
+      mapl_geom => geom_mgr%get_mapl_geom(hconfig_, _RC)
+      geom = mapl_geom%get_geom()
+
+      if (present(rc)) rc = 0
+   end function make_geom
+
+   function make_field(geom, name, value, lm, rc) result(field)
+      type(ESMF_Field) :: field
+      type(ESMF_Geom), intent(in) :: geom
+      character(*), intent(in) :: name
+      real(kind=ESMF_KIND_R4), intent(in) :: value
+      integer, optional, intent(in) :: lm
+      integer, optional, intent(out) :: rc
+
+      real(kind=ESMF_KIND_R4), pointer :: x(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: x_3d(:,:,:)
+      integer :: status
+
+      
+      if (present(lm)) then
+         field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, num_levels=lm, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+         call ESMF_FieldGet(field, farrayptr=x_3d, _RC)
+         x_3d = value
+      else
+         field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, _RC)
+         call ESMF_FieldGet(field, farrayptr=x, _RC)
+         x = value
+      end if
+
+      if (present(rc)) rc = 0
+   end function make_field
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Just execute a series of plausible commands and ensure that no
+   ! failures are indicated Regrid a constant field onto identical
+   ! geometry should not change any values.
+   subroutine test_basic(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomManager), target :: geom_mgr
+      type(RegridderManager) :: regridder_mgr
+      type(RegridderSpec) :: regridder_spec
+      integer :: status
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom
+
+      type(ESMF_Field) :: f1, f2
+      real(kind=ESMF_KIND_R4), pointer :: x(:,:)
+
+
+      geom_mgr = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+
+      geom = make_geom(geom_mgr, _RC)
+
+      ! use default esmf regrid parameters: method, zero region, etc
+      regridder_spec = RegridderSpec(EsmfRegridderParam(), geom, geom)
+
+      my_regridder => regridder_mgr%get_regridder(regridder_spec, _RC)
+
+      f1 = make_field(geom, 'f1', value=3._ESMF_KIND_R4, _RC)
+      f2 = make_field(geom, 'f2', value=0._ESMF_KIND_R4, _RC)
+
+      call my_regridder%regrid(f1, f2, _RC)
+      call ESMF_FieldGet(f2, farrayptr=x, _RC)
+
+      @assert_that(x, every_item(is(equal_to(3._ESMF_KIND_R4))))
+
+   end subroutine test_basic
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Test that identical spec returns same regridder object.  I.e.,
+   ! that the manager is properly caching.
+   subroutine test_reuse_regridder(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomManager), target :: geom_mgr
+      type(RegridderManager), target :: regridder_mgr
+      type(RegridderSpec) :: regridder_spec
+      integer :: status
+      class(Regridder), pointer :: regridder_1, regridder_2
+      type(ESMF_Geom) :: geom
+
+      geom_mgr = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+
+      geom = make_geom(geom_mgr, _RC)
+
+      regridder_spec = RegridderSpec(EsmfRegridderParam(), geom, geom)
+
+      regridder_1 => regridder_mgr%get_regridder(regridder_spec, _RC)
+
+      regridder_2 => regridder_mgr%get_regridder(regridder_spec, _RC)
+
+      @assertTrue(associated(regridder_2, regridder_1))
+   end subroutine test_reuse_regridder
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Test that different spec returns different regridder object.  I.e.,
+   ! that the manager is properly caching.
+   subroutine test_do_not_reuse_regridder(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomManager), target :: geom_mgr
+      type(RegridderManager), target :: regridder_mgr
+      type(RegridderSpec) :: spec_1, spec_2
+      integer :: status
+      class(Regridder), pointer :: regridder_1, regridder_2
+      type(ESMF_Geom) :: geom_1, geom_2
+      type(ESMF_HConfig) :: hconfig
+
+      geom_mgr = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+
+      geom_1 = make_geom(geom_mgr, _RC)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 11, pole: PC, dateline: DC, nx: 1, ny: 1}", _RC)
+      geom_2 = make_geom(geom_mgr, hconfig, _RC) ! variant of geom_1
+
+      
+      spec_1 = RegridderSpec(EsmfRegridderParam(), geom_1, geom_1)
+      regridder_1 => regridder_mgr%get_regridder(spec_1, _RC)
+
+      spec_2 = RegridderSpec(EsmfRegridderParam(), geom_1, geom_2)
+      regridder_2 => regridder_mgr%get_regridder(spec_2, _RC)
+
+      @assertFalse(associated(regridder_1, regridder_2))
+   end subroutine test_do_not_reuse_regridder
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Test realistic regridding.  A checkerboard input field (in
+   ! longitude) with constant spacing should produce a constant output
+   ! grid with default bilinear regrid method.
+   subroutine test_regrid_values(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomManager), target :: geom_mgr
+      type(RegridderManager), target :: regridder_mgr
+      type(RegridderSpec) :: spec
+      integer :: status
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom_1, geom_2
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Field) :: f1, f2
+      real(kind=ESMF_KIND_R4), pointer :: x1(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: x2(:,:)
+
+      geom_mgr = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 11, pole: PC, dateline: DE, nx: 1, ny: 1}", _RC)
+      geom_1 = make_geom(geom_mgr, hconfig, _RC)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 6, jm_world: 5, pole: PC, dateline: DE, nx: 1, ny: 1}", _RC)
+      geom_2 = make_geom(geom_mgr, hconfig, _RC) ! variant of geom_1
+
+      spec = RegridderSpec(EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE), geom_1, geom_2)
+      my_regridder => regridder_mgr%get_regridder(spec, _RC)
+
+      f1 = make_field(geom_1, 'f1', value=2._ESMF_KIND_R4, _RC)
+      call ESMF_FieldGet(f1, farrayptr=x1, _RC)
+      x1(2::2,:) = 0 ! checkerboard
+      
+      f2 = make_field(geom_2, 'f2', value=0._ESMF_KIND_R4, _RC)
+
+      ! (0 + 2)/2 == 1
+      call my_regridder%regrid(f1, f2, _RC)
+      call ESMF_FieldGet(f2, farrayptr=x2, _RC)
+ 
+      @assert_that(x2, every_item(is(equal_to(1._ESMF_KIND_R4))))
+
+   end subroutine test_regrid_values
+
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Test regridding on fields with ungridded dimensions.  ESMF does
+   ! not directly support this case, and this test is to drive the
+   ! creation of a wrapper layer in MAPL.
+   subroutine test_regrid_3d(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomManager), target :: geom_mgr
+      type(RegridderManager), target :: regridder_mgr
+      type(RegridderSpec) :: spec
+      integer :: status
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom_1, geom_2
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Field) :: f1, f2
+      real(kind=ESMF_KIND_R4), pointer :: x1(:,:,:)
+      real(kind=ESMF_KIND_R4), pointer :: x2(:,:,:)
+
+      type(DynamicMask) :: dyn_mask
+      
+      geom_mgr = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 11, pole: PC, dateline: DE, nx: 1, ny: 1}", _RC)
+      geom_1 = make_geom(geom_mgr, hconfig, _RC)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 6, jm_world: 5, pole: PC, dateline: DE, nx: 1, ny: 1}", _RC)
+      geom_2 = make_geom(geom_mgr, hconfig, _RC) ! variant of geom_1
+
+      dyn_mask = DynamicMask(mask_type='missing_value', src_mask_value=real(MAPL_UNDEF,kind=ESMF_KIND_R8), handleAllElements=.true.,_RC)
+      
+      spec = RegridderSpec(EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE, dyn_mask=dyn_mask), geom_1, geom_2)
+      my_regridder => regridder_mgr%get_regridder(spec, _RC)
+
+      f1 = make_field(geom_1, 'f1', value=2._ESMF_KIND_R4, lm=2, _RC)
+      call ESMF_FieldGet(f1, farrayptr=x1, _RC)
+      x1(::4,6,1) = MAPL_UNDEF ! missing bits in level 1
+      x1(1::2,:,2) = 0 ! checkerboard on level 2
+      f2 = make_field(geom_2, 'f2', value=0._ESMF_KIND_R4, lm=2, _RC)
+
+      call my_regridder%regrid(f1, f2, _RC)
+
+      call ESMF_FieldGet(f2, farrayptr=x2, _RC)
+
+
+      ! Missing elements case
+      @assert_that(x2(1:2,:,1), every_item(is(equal_to(2._ESMF_KIND_R4))))
+      ! Non missing elements case
+
+      ! Weirdly this introduces roundoff that was not present in the
+      ! previous test.  This has been reported to the ESMF core team.
+      @assert_that(x2(:,:,2), every_item(is(near(1._ESMF_KIND_R4, 1.e-6))))
+
+   end subroutine test_regrid_3d
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Test regridding on field bundle representing a tangent vector
+   subroutine test_regrid_2d_vector(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomManager), target :: geom_mgr
+      type(RegridderManager), target :: regridder_mgr
+      type(RegridderSpec) :: spec
+      integer :: status
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom_1, geom_2
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Field) :: f1, f2, f3, f4
+      type(ESMF_Fieldbundle) :: uv1, uv2
+      real(kind=ESMF_KIND_R4), pointer :: u1(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: v1(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: u2(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: v2(:,:)
+
+      type(DynamicMask) :: dyn_mask
+      
+      geom_mgr = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
+      geom_1 = make_geom(geom_mgr, hconfig, _RC)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 6, jm_world: 5, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
+      geom_2 = make_geom(geom_mgr, hconfig, _RC) ! variant of geom_1
+
+      dyn_mask = DynamicMask(mask_type='missing_value', src_mask_value=real(MAPL_UNDEF,kind=ESMF_KIND_R8), handleAllElements=.true.,_RC)
+      
+      spec = RegridderSpec(EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_BILINEAR, dyn_mask=dyn_mask), geom_1, geom_2)
+      my_regridder => regridder_mgr%get_regridder(spec, _RC)
+
+      ! North-east field
+      f1 = make_field(geom_1, 'u', value=2._ESMF_KIND_R4, _RC)
+      f2 = make_field(geom_1, 'v', value=2._ESMF_KIND_R4, _RC)
+      uv1 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f1,f2], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
+
+      call ESMF_FieldGet(f1, farrayptr=u1, _RC)
+      u1(::4,6) = MAPL_UNDEF ! checkerboard
+
+      call ESMF_FieldGet(f2, farrayptr=v1, _RC)
+      v1(::4,6) = MAPL_UNDEF ! checkerboard
+      
+      f3 = make_field(geom_2, 'u', value=0._ESMF_KIND_R4, _RC)
+      f4 = make_field(geom_2, 'v', value=0._ESMF_KIND_R4, _RC)
+      uv2 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f3,f4], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
+
+      call my_regridder%regrid(uv1, uv2, _RC)
+
+      call ESMF_FieldGet(f3, farrayptr=u2, _RC)
+      call ESMF_FieldGet(f4, farrayptr=v2, _RC)
+
+      ! Still north-east?  Note we have a large tolerance due to
+      ! coarse grids and inherent issues with vector regridding.
+      ! Errors are much smaller at realistic resolutions.
+      @assert_that(u2, every_item(is(near(2._ESMF_KIND_R4, 1.e-1))))
+      @assert_that(v2, every_item(is(near(2._ESMF_KIND_R4, 1.e-1))))
+   end subroutine test_regrid_2d_vector
+
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Verify that LocStream geometries can be used as regrid
+   ! destinations and that a simple constant field regrids without
+   ! error.
+   subroutine test_locstream_as_destination(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomManager), target :: geom_mgr
+      type(RegridderManager), target :: regridder_mgr
+      type(RegridderSpec) :: spec
+      integer :: status
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom_grid, geom_loc
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Field) :: f_grid, f_loc
+      real(kind=ESMF_KIND_R4), pointer :: x_loc(:)
+
+      geom_mgr = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+
+      ! Source: simple latlon grid
+      geom_grid = make_geom(geom_mgr, _RC)
+
+      ! Destination: LocStream defined via HConfig
+      hconfig = ESMF_HConfigCreate(content="{class: locstream, lon: [0, 1, 2], lat: [10, 20, 30]}", _RC)
+      geom_loc = make_geom(geom_mgr, hconfig, _RC)
+
+      spec = RegridderSpec(EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_NEAREST_STOD), geom_grid, geom_loc)
+      my_regridder => regridder_mgr%get_regridder(spec, _RC)
+
+      ! Constant source field on grid and empty destination on locstream
+      f_grid = make_field(geom_grid, 'src', value=3._ESMF_KIND_R4, _RC)
+      f_loc  = ESMF_FieldCreate(geom_loc, typekind=ESMF_TYPEKIND_R4, gridToFieldMap=[1], _RC)
+
+      call my_regridder%regrid(f_grid, f_loc, _RC)
+
+      call ESMF_FieldGet(f_loc, farrayptr=x_loc, _RC)
+      @assert_that(x_loc, every_item(is(near(3._ESMF_KIND_R4, 1.e-6))))
+
+   end subroutine test_locstream_as_destination
+
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Verify that LocStream geometries are not allowed as regrid
+   ! sources (they are destination-only).
+   subroutine test_locstream_not_source(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomManager), target :: geom_mgr
+      type(RegridderManager), target :: regridder_mgr
+      type(RegridderSpec) :: spec
+      integer :: status
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom_grid, geom_loc
+      type(ESMF_HConfig) :: hconfig
+
+      geom_mgr = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+
+      ! Grid and LocStream geoms
+      geom_grid = make_geom(geom_mgr, _RC)
+      hconfig = ESMF_HConfigCreate(content="{class: locstream, lon: [0, 1, 2], lat: [10, 20, 30]}", _RC)
+      geom_loc = make_geom(geom_mgr, hconfig, _RC)
+
+      ! Attempt to use LocStream as source
+      spec = RegridderSpec(EsmfRegridderParam(), geom_loc, geom_grid)
+      nullify(my_regridder)
+      my_regridder => regridder_mgr%get_regridder(spec, rc=status)
+      @assertExceptionRaised('LocStream geometries are only supported as regrid destinations.')
+
+   end subroutine test_locstream_not_source
+
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Test vector regridding with explicit NS (North-South) basis kind.
+   ! Verifies that setting vector_basis_kind='NS' uses geographic coordinates.
+   subroutine test_regrid_vector_with_ns_basis(this)
+      use mapl3g_VectorBasisKind
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomManager), target :: geom_mgr
+      type(RegridderManager), target :: regridder_mgr
+      type(RegridderSpec) :: spec
+      integer :: status
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom_1, geom_2
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Field) :: f1, f2, f3, f4
+      type(ESMF_Fieldbundle) :: uv1, uv2
+      real(kind=ESMF_KIND_R4), pointer :: u2(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: v2(:,:)
+      
+      geom_mgr = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
+      geom_1 = make_geom(geom_mgr, hconfig, _RC)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 6, jm_world: 5, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
+      geom_2 = make_geom(geom_mgr, hconfig, _RC)
+
+      spec = RegridderSpec(EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_BILINEAR), geom_1, geom_2)
+      my_regridder => regridder_mgr%get_regridder(spec, _RC)
+
+      ! Create vector bundle with NS basis
+      f1 = make_field(geom_1, 'u', value=2._ESMF_KIND_R4, _RC)
+      f2 = make_field(geom_1, 'v', value=2._ESMF_KIND_R4, _RC)
+      uv1 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f1,f2], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
+      
+      ! Explicitly set NS basis kind
+      call MAPL_FieldBundleSet(uv1, vector_basis_kind=VECTOR_BASIS_KIND_NS, _RC)
+
+      f3 = make_field(geom_2, 'u', value=0._ESMF_KIND_R4, _RC)
+      f4 = make_field(geom_2, 'v', value=0._ESMF_KIND_R4, _RC)
+      uv2 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f3,f4], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
+      call MAPL_FieldBundleSet(uv2, vector_basis_kind=VECTOR_BASIS_KIND_NS, _RC)
+
+      call my_regridder%regrid(uv1, uv2, _RC)
+
+      call ESMF_FieldGet(f3, farrayptr=u2, _RC)
+      call ESMF_FieldGet(f4, farrayptr=v2, _RC)
+
+      ! With NS basis, the north-east vector should remain north-east
+      @assert_that(u2, every_item(is(near(2._ESMF_KIND_R4, 1.e-1))))
+      @assert_that(v2, every_item(is(near(2._ESMF_KIND_R4, 1.e-1))))
+
+   end subroutine test_regrid_vector_with_ns_basis
+
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Test vector regridding with explicit GRID basis kind.
+   ! Verifies that setting vector_basis_kind='GRID' uses grid-relative coordinates.
+   subroutine test_regrid_vector_with_grid_basis(this)
+      use mapl3g_VectorBasisKind
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomManager), target :: geom_mgr
+      type(RegridderManager), target :: regridder_mgr
+      type(RegridderSpec) :: spec
+      integer :: status
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom_1, geom_2
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Field) :: f1, f2, f3, f4
+      type(ESMF_Fieldbundle) :: uv1, uv2
+      real(kind=ESMF_KIND_R4), pointer :: u2(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: v2(:,:)
+      
+      geom_mgr = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
+      geom_1 = make_geom(geom_mgr, hconfig, _RC)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 6, jm_world: 5, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
+      geom_2 = make_geom(geom_mgr, hconfig, _RC)
+
+      spec = RegridderSpec(EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_BILINEAR), geom_1, geom_2)
+      my_regridder => regridder_mgr%get_regridder(spec, _RC)
+
+      ! Create vector bundle with GRID basis
+      f1 = make_field(geom_1, 'u', value=2._ESMF_KIND_R4, _RC)
+      f2 = make_field(geom_1, 'v', value=2._ESMF_KIND_R4, _RC)
+      uv1 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f1,f2], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
+      
+      ! Explicitly set GRID basis kind
+      call MAPL_FieldBundleSet(uv1, vector_basis_kind=VECTOR_BASIS_KIND_GRID, _RC)
+
+      f3 = make_field(geom_2, 'u', value=0._ESMF_KIND_R4, _RC)
+      f4 = make_field(geom_2, 'v', value=0._ESMF_KIND_R4, _RC)
+      uv2 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f3,f4], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
+      call MAPL_FieldBundleSet(uv2, vector_basis_kind=VECTOR_BASIS_KIND_GRID, _RC)
+
+      call my_regridder%regrid(uv1, uv2, _RC)
+
+      call ESMF_FieldGet(f3, farrayptr=u2, _RC)
+      call ESMF_FieldGet(f4, farrayptr=v2, _RC)
+
+      ! With GRID basis on LatLon->LatLon, the vector should remain unchanged
+      ! (grid axes are aligned with geographic axes for LatLon)
+      @assert_that(u2, every_item(is(near(2._ESMF_KIND_R4, 1.e-1))))
+      @assert_that(v2, every_item(is(near(2._ESMF_KIND_R4, 1.e-1))))
+
+   end subroutine test_regrid_vector_with_grid_basis
+
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Test that vector regridding defaults to NS basis when not explicitly set.
+   ! This verifies the default behavior from PR #4389.
+   subroutine test_regrid_vector_default_basis(this)
+      use mapl3g_VectorBasisKind
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomManager), target :: geom_mgr
+      type(RegridderManager), target :: regridder_mgr
+      type(RegridderSpec) :: spec
+      integer :: status
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom_1, geom_2
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Field) :: f1, f2, f3, f4
+      type(ESMF_Fieldbundle) :: uv1, uv2
+      real(kind=ESMF_KIND_R4), pointer :: u2(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: v2(:,:)
+      type(VectorBasisKind) :: basis_retrieved
+      
+      geom_mgr = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
+      geom_1 = make_geom(geom_mgr, hconfig, _RC)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 6, jm_world: 5, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
+      geom_2 = make_geom(geom_mgr, hconfig, _RC)
+
+      spec = RegridderSpec(EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_BILINEAR), geom_1, geom_2)
+      my_regridder => regridder_mgr%get_regridder(spec, _RC)
+
+      ! Create vector bundle WITHOUT setting basis kind
+      f1 = make_field(geom_1, 'u', value=2._ESMF_KIND_R4, _RC)
+      f2 = make_field(geom_1, 'v', value=2._ESMF_KIND_R4, _RC)
+      uv1 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f1,f2], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
+      ! Do NOT set vector_basis_kind - rely on default
+
+      f3 = make_field(geom_2, 'u', value=0._ESMF_KIND_R4, _RC)
+      f4 = make_field(geom_2, 'v', value=0._ESMF_KIND_R4, _RC)
+      uv2 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f3,f4], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
+
+      ! Verify that the default basis is NS
+      call MAPL_FieldBundleGet(uv1, vector_basis_kind=basis_retrieved, _RC)
+      @assertTrue(basis_retrieved == VECTOR_BASIS_KIND_NS)
+
+      call my_regridder%regrid(uv1, uv2, _RC)
+
+      call ESMF_FieldGet(f3, farrayptr=u2, _RC)
+      call ESMF_FieldGet(f4, farrayptr=v2, _RC)
+
+      ! With default (NS) basis, the north-east vector should remain north-east
+      @assert_that(u2, every_item(is(near(2._ESMF_KIND_R4, 1.e-1))))
+      @assert_that(v2, every_item(is(near(2._ESMF_KIND_R4, 1.e-1))))
+
+   end subroutine test_regrid_vector_default_basis
+
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Test VectorBracket regridding with vector_basis_kind.
+   ! Verifies that all vector pairs in a bracket use the specified basis.
+   subroutine test_regrid_vector_bracket_with_basis(this)
+      use mapl3g_VectorBasisKind
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomManager), target :: geom_mgr
+      type(RegridderManager), target :: regridder_mgr
+      type(RegridderSpec) :: spec
+      integer :: status
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom_1, geom_2
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Field) :: f1, f2, f3, f4, f5, f6, f7, f8
+      type(ESMF_Fieldbundle) :: bracket1, bracket2
+      real(kind=ESMF_KIND_R4), pointer :: x2(:,:), y2(:,:), u2(:,:), v2(:,:)
+      
+      geom_mgr = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
+      geom_1 = make_geom(geom_mgr, hconfig, _RC)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 6, jm_world: 5, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
+      geom_2 = make_geom(geom_mgr, hconfig, _RC)
+
+      spec = RegridderSpec(EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_BILINEAR), geom_1, geom_2)
+      my_regridder => regridder_mgr%get_regridder(spec, _RC)
+
+      ! Create vector bracket with 2 vector pairs (4 fields total)
+      f1 = make_field(geom_1, 'x', value=1._ESMF_KIND_R4, _RC)
+      f2 = make_field(geom_1, 'y', value=2._ESMF_KIND_R4, _RC)
+      f3 = make_field(geom_1, 'u', value=3._ESMF_KIND_R4, _RC)
+      f4 = make_field(geom_1, 'v', value=4._ESMF_KIND_R4, _RC)
+      bracket1 = MAPL_FieldBundleCreate(name='[(x,y),(u,v)]', fieldList=[f1,f2,f3,f4], &
+           fieldBundleType=FIELDBUNDLETYPE_VECTORBRACKET, _RC)
+      
+      ! Set NS basis for the bracket
+      call MAPL_FieldBundleSet(bracket1, vector_basis_kind=VECTOR_BASIS_KIND_NS, _RC)
+
+      f5 = make_field(geom_2, 'x', value=0._ESMF_KIND_R4, _RC)
+      f6 = make_field(geom_2, 'y', value=0._ESMF_KIND_R4, _RC)
+      f7 = make_field(geom_2, 'u', value=0._ESMF_KIND_R4, _RC)
+      f8 = make_field(geom_2, 'v', value=0._ESMF_KIND_R4, _RC)
+      bracket2 = MAPL_FieldBundleCreate(name='[(x,y),(u,v)]', fieldList=[f5,f6,f7,f8], &
+           fieldBundleType=FIELDBUNDLETYPE_VECTORBRACKET, _RC)
+      call MAPL_FieldBundleSet(bracket2, vector_basis_kind=VECTOR_BASIS_KIND_NS, _RC)
+
+      call my_regridder%regrid(bracket1, bracket2, _RC)
+
+      call ESMF_FieldGet(f5, farrayptr=x2, _RC)
+      call ESMF_FieldGet(f6, farrayptr=y2, _RC)
+      call ESMF_FieldGet(f7, farrayptr=u2, _RC)
+      call ESMF_FieldGet(f8, farrayptr=v2, _RC)
+
+      ! Both vector pairs should be regridded with NS basis
+      ! Tolerance increased to 0.15 to account for regridding interpolation errors
+      @assert_that(x2, every_item(is(near(1._ESMF_KIND_R4, 1.5e-1))))
+      @assert_that(y2, every_item(is(near(2._ESMF_KIND_R4, 1.5e-1))))
+      @assert_that(u2, every_item(is(near(3._ESMF_KIND_R4, 1.5e-1))))
+      @assert_that(v2, every_item(is(near(4._ESMF_KIND_R4, 1.5e-1))))
+
+   end subroutine test_regrid_vector_bracket_with_basis
+
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Test that regridder distinguishes flavors of FieldBundle
+   subroutine test_regrid_bracket(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomManager), target :: geom_mgr
+      type(RegridderManager), target :: regridder_mgr
+      type(RegridderSpec) :: spec
+      integer :: status
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom_1, geom_2
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Field) :: f1, f2, f3, f4
+      type(ESMF_Fieldbundle) :: xy1, xy2
+      real(kind=ESMF_KIND_R4), pointer :: x1(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: y1(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: x2(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: y2(:,:)
+
+      type(DynamicMask) :: dyn_mask
+      
+      geom_mgr = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
+      geom_1 = make_geom(geom_mgr, hconfig, _RC)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 6, jm_world: 5, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
+      geom_2 = make_geom(geom_mgr, hconfig, _RC) ! variant of geom_1
+
+      dyn_mask = DynamicMask(mask_type='missing_value', src_mask_value=real(MAPL_UNDEF,kind=ESMF_KIND_R8), handleAllElements=.true.,_RC)
+      
+      spec = RegridderSpec(EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_BILINEAR, dyn_mask=dyn_mask), geom_1, geom_2)
+      my_regridder => regridder_mgr%get_regridder(spec, _RC)
+
+      ! North-east field
+      f1 = make_field(geom_1, 'x', value=1._ESMF_KIND_R4, _RC)
+      f2 = make_field(geom_1, 'y', value=10._ESMF_KIND_R4, _RC)
+      xy1 = MAPL_FieldBundleCreate(name='[x,y]', fieldList=[f1,f2], fieldBundleType=FIELDBUNDLETYPE_BRACKET, _RC)
+
+      call ESMF_FieldGet(f1, farrayptr=x1, _RC)
+      call ESMF_FieldGet(f2, farrayptr=y1, _RC)
+      
+      f3 = make_field(geom_2, 'x', value=0._ESMF_KIND_R4, _RC)
+      f4 = make_field(geom_2, 'y', value=0._ESMF_KIND_R4, _RC)
+      xy2 = MAPL_FieldBundleCreate(name='[x,y]', fieldList=[f3,f4], fieldBundleType=FIELDBUNDLETYPE_BRACKET, _RC)
+
+      call my_regridder%regrid(xy1, xy2, _RC)
+
+      call ESMF_FieldGet(f3, farrayptr=x2, _RC)
+      call ESMF_FieldGet(f4, farrayptr=y2, _RC)
+
+      ! If treated as vector, the components would mix.  We check here that they do not.
+      @assert_that(x2, every_item(is(near(1._ESMF_KIND_R4, 1.e-5))))
+      @assert_that(y2, every_item(is(near(10._ESMF_KIND_R4, 1.e-5))))
+
+   end subroutine test_regrid_bracket
+
+end module Test_RegridderManager

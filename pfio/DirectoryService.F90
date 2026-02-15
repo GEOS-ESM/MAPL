@@ -256,7 +256,7 @@ contains
 
       end if
 
-      ! complete handshake
+     ! complete handshake
       if (rank_in_client == 0) then
          call MPI_Comm_size(client_comm, client_npes, ierror)
          _VERIFY(ierror)
