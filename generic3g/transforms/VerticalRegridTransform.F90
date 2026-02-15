@@ -14,16 +14,28 @@ module mapl3g_VerticalRegridTransform
    use mapl3g_VerticalLinearMap, only: compute_linear_map
    use mapl3g_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp, matmul
    use mapl3g_FieldCondensedArray, only: assign_fptr_condensed_array
+   use mapl3g_VerticalCoordinateDirection
    use esmf
 
    implicit none(type,external)
    private
 
    public :: VerticalRegridTransform
+   public :: VerticalRegridParam
    public :: VERTICAL_REGRID_UNKNOWN
    public :: VERTICAL_REGRID_LINEAR
    public :: VERTICAL_REGRID_CONSERVATIVE
    public :: operator(==), operator(/=)
+
+   ! Parameters for vertical regridding
+   type :: VerticalRegridParam
+      type(VerticalStaggerLoc) :: stagger_in
+      type(VerticalStaggerLoc) :: stagger_out
+      type(VerticalRegridMethod) :: method = VERTICAL_REGRID_UNKNOWN
+      type(VerticalCoordinateDirection) :: src_alignment = VCOORD_DIRECTION_DOWN
+      type(VerticalCoordinateDirection) :: dst_alignment = VCOORD_DIRECTION_DOWN
+      logical :: is_degenerate_case = .false.
+   end type VerticalRegridParam
 
    ! The interpolation matrix is real32. This type may need to be extended
    ! with a subtype for ESMF_KIND_R4 Fields and a subtype for ESMF_KIND_R8 Fields
@@ -36,6 +48,9 @@ module mapl3g_VerticalRegridTransform
       type(VerticalRegridMethod) :: method = VERTICAL_REGRID_UNKNOWN
       type(VerticalStaggerLoc) :: stagger_in
       type(VerticalStaggerLoc) :: stagger_out
+      type(VerticalCoordinateDirection) :: src_alignment
+      type(VerticalCoordinateDirection) :: dst_alignment
+      logical :: is_degenerate_case = .false.
    contains
       procedure :: initialize
       procedure :: update
@@ -50,15 +65,13 @@ module mapl3g_VerticalRegridTransform
 
 contains
 
-   function new_VerticalRegridTransform(v_in_coord, v_in_coupler, stagger_in, v_out_coord, v_out_coupler, stagger_out, method) result(transform)
+   function new_VerticalRegridTransform(v_in_coord, v_in_coupler, v_out_coord, v_out_coupler, regrid_param) result(transform)
       type(VerticalRegridTransform) :: transform
       type(ESMF_Field), intent(in) :: v_in_coord
       class(ComponentDriver), pointer, intent(in) :: v_in_coupler
-      type(VerticalStaggerLoc), intent(in) :: stagger_in
       type(ESMF_Field), intent(in) :: v_out_coord
       class(ComponentDriver), pointer, intent(in) :: v_out_coupler
-      type(VerticalStaggerLoc), intent(in) :: stagger_out
-      type(VerticalRegridMethod), optional, intent(in) :: method
+      type(VerticalRegridParam), intent(in) :: regrid_param
 
       transform%v_in_coord = v_in_coord
       transform%v_out_coord = v_out_coord
@@ -66,12 +79,12 @@ contains
       transform%v_in_coupler => v_in_coupler
       transform%v_out_coupler => v_out_coupler
 
-      transform%stagger_in = stagger_in
-      transform%stagger_out = stagger_out
-
-      if (present(method)) then
-         transform%method = method
-      end if
+      transform%stagger_in = regrid_param%stagger_in
+      transform%stagger_out = regrid_param%stagger_out
+      transform%method = regrid_param%method
+      transform%src_alignment = regrid_param%src_alignment
+      transform%dst_alignment = regrid_param%dst_alignment
+      transform%is_degenerate_case = regrid_param%is_degenerate_case
    end function new_VerticalRegridTransform
 
    subroutine initialize(this, importState, exportState, clock, rc)
@@ -82,6 +95,9 @@ contains
       integer, optional, intent(out) :: rc
 
       _ASSERT(this%method == VERTICAL_REGRID_LINEAR, "regrid method can only be linear")
+
+      ! Degenerate case is determined by VerticalGridAspect and passed to constructor
+      ! No need to re-check here
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(importState)
@@ -111,27 +127,55 @@ contains
       !    call this%v_out_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
       ! end if
 
-      _ASSERT(this%method == VERTICAL_REGRID_LINEAR, "conservative not supported (yet)")
-      call compute_interpolation_matrix_(this%v_in_coord, this%stagger_in, this%v_out_coord, this%stagger_out, this%matrix, _RC)
-
       call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, itemtype=itemtype_in, _RC)
       call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, itemtype=itemtype_out, _RC)
       _ASSERT(itemtype_out == itemtype_in, "Mismathed item types.")
 
-      if (itemtype_in == MAPL_STATEITEM_FIELD) then
-         call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=f_in, _RC)
-         call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=f_out, _RC)
-         call regrid_field_(this%matrix, f_in, f_out, _RC)
-      elseif (itemtype_in == MAPL_STATEITEM_FIELDBUNDLE) then
-         call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, fieldBundle=fb_in, _RC)
-         call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, fieldBundle=fb_out, _RC)
-         call MAPL_FieldBundleGet(fb_in, fieldlist=fieldlist_in, _RC)
-         call MAPL_FieldBundleGet(fb_out, fieldlist=fieldlist_out, _RC)
-         do i = 1, size(fieldlist_in)
-            call regrid_field_(this%matrix, fieldlist_in(i), fieldlist_out(i), _RC)
-         end do
+      if (this%is_degenerate_case) then
+         ! Same grid, just copy (with flip if needed)
+         if (itemtype_in == MAPL_STATEITEM_FIELD) then
+            call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=f_in, _RC)
+            call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=f_out, _RC)
+            if (this%src_alignment == this%dst_alignment) then
+               call copy_field_(f_in, f_out, _RC)
+            else
+               call copy_field_flipped_(f_in, f_out, _RC)
+            end if
+         elseif (itemtype_in == MAPL_STATEITEM_FIELDBUNDLE) then
+            call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, fieldBundle=fb_in, _RC)
+            call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, fieldBundle=fb_out, _RC)
+            call MAPL_FieldBundleGet(fb_in, fieldlist=fieldlist_in, _RC)
+            call MAPL_FieldBundleGet(fb_out, fieldlist=fieldlist_out, _RC)
+            do i = 1, size(fieldlist_in)
+               if (this%src_alignment == this%dst_alignment) then
+                  call copy_field_(fieldlist_in(i), fieldlist_out(i), _RC)
+               else
+                  call copy_field_flipped_(fieldlist_in(i), fieldlist_out(i), _RC)
+               end if
+            end do
+         else
+            _FAIL("Unsupported state item type.")
+         end if
       else
-         _FAIL("Unsupported state item type.")
+         ! Different grids, perform full regridding
+         _ASSERT(this%method == VERTICAL_REGRID_LINEAR, "conservative not supported (yet)")
+         call compute_interpolation_matrix_(this%v_in_coord, this%stagger_in, this%v_out_coord, this%stagger_out, this%matrix, _RC)
+
+         if (itemtype_in == MAPL_STATEITEM_FIELD) then
+            call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=f_in, _RC)
+            call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=f_out, _RC)
+            call regrid_field_(this%matrix, f_in, f_out, _RC)
+         elseif (itemtype_in == MAPL_STATEITEM_FIELDBUNDLE) then
+            call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, fieldBundle=fb_in, _RC)
+            call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, fieldBundle=fb_out, _RC)
+            call MAPL_FieldBundleGet(fb_in, fieldlist=fieldlist_in, _RC)
+            call MAPL_FieldBundleGet(fb_out, fieldlist=fieldlist_out, _RC)
+            do i = 1, size(fieldlist_in)
+               call regrid_field_(this%matrix, fieldlist_in(i), fieldlist_out(i), _RC)
+            end do
+         else
+            _FAIL("Unsupported state item type.")
+         end if
       end if
 
       _RETURN(_SUCCESS)
@@ -270,5 +314,37 @@ contains
 
       _UNUSED_DUMMY(this)
    end function get_transformId
+
+   subroutine copy_field_(f_in, f_out, rc)
+      type(ESMF_Field), intent(inout) :: f_in, f_out
+      integer, optional, intent(out) :: rc
+
+      real(ESMF_KIND_R4), pointer :: x_in(:,:,:), x_out(:,:,:)
+      integer :: status
+
+      call assign_fptr_condensed_array(f_in, x_in, _RC)
+      call assign_fptr_condensed_array(f_out, x_out, _RC)
+
+      x_out = x_in
+
+      _RETURN(_SUCCESS)
+   end subroutine copy_field_
+
+   subroutine copy_field_flipped_(f_in, f_out, rc)
+      type(ESMF_Field), intent(inout) :: f_in, f_out
+      integer, optional, intent(out) :: rc
+
+      real(ESMF_KIND_R4), pointer :: x_in(:,:,:), x_out(:,:,:)
+      integer :: nlev, status
+
+      call assign_fptr_condensed_array(f_in, x_in, _RC)
+      call assign_fptr_condensed_array(f_out, x_out, _RC)
+
+      nlev = size(x_in, 2)
+      ! Flip the vertical dimension: x_out(:,k,:) = x_in(:,nlev-k+1,:)
+      x_out(:, :, :) = x_in(:, nlev:1:-1, :)
+
+      _RETURN(_SUCCESS)
+   end subroutine copy_field_flipped_
 
 end module mapl3g_VerticalRegridTransform
