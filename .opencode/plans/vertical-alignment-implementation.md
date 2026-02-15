@@ -241,6 +241,16 @@ end if
 - Optionally: support both increasing and decreasing natively
 
 **Testing:**
+
+**Priority: "Almost Degenerate" Case (Primary Use Case)**
+- Two grids that are identical except coordinate direction is reversed
+- Fields aligned with their respective grids (one UP, one DOWN)
+- **Test 1:** Verify `matches()` returns false (different grids)
+- **Test 2:** Verify transform correctly flips values (dst reversed from src)
+- **Why prioritize:** Easiest to test, most relevant to primary use case
+- **Key insight:** Since grids are reverses, regridding should be identity + flip
+
+**Additional Test Cases:**
 - Unit test: `Test_VerticalRegridTransform_Alignment.pf`
   - Different grids, various alignment combinations
   - Verify correct flip behavior
@@ -309,6 +319,57 @@ Exports:
 3. Release notes: New feature
 
 **Estimated Effort:** 0.5 days
+
+---
+
+### TASK 9 (FUTURE): FlippedVerticalGrid Decorator (Optional Enhancement)
+
+**Purpose:** Simplify handling of reversed grids without duplicating grid data
+
+**Motivation:**
+- Current approach: Compare coordinate field values to detect same grid
+- Better approach: Grid IDs can identify exact same grid vs. reversed grid
+- Avoids tolerance-based comparisons since grids are constructed explicitly
+
+**Design:**
+
+**File:** `vertical_grid/FlippedVerticalGrid.F90`
+
+```fortran
+type, extends(VerticalGrid) :: FlippedVerticalGrid
+   class(VerticalGrid), allocatable :: base_grid
+contains
+   procedure :: get_coordinate_direction  ! Returns opposite of base_grid
+   procedure :: get_coordinate_field      ! Returns reversed coordinates
+   procedure :: get_base_grid            ! Access to underlying grid
+   procedure :: matches                   ! Special handling for flipped grids
+end type
+```
+
+**Key behaviors:**
+- `FlippedVerticalGrid(grid_A)%matches(grid_A)` → true (is reverse of base)
+- `FlippedVerticalGrid(grid_A)%matches(FlippedVerticalGrid(grid_A))` → true (same grid)
+- ID could be `base_grid_id + "_flipped"` or similar
+
+**Benefits:**
+1. Eliminate tolerance-based coordinate comparisons
+2. Explicit representation of grid relationships
+3. Cleaner degenerate case detection via ID comparison
+4. Memory efficient (shares base grid data)
+
+**Changes needed:**
+- Add `FlippedVerticalGrid` class
+- Update `VerticalGrid%matches()` to recognize flipped grids
+- Update `VerticalRegridTransform%initialize()` to use ID comparison
+- Consider factory function `make_flipped_grid(base)`
+
+**Testing:**
+- Verify flipped grid behavior
+- Ensure ID-based matching works
+- Check coordinate field reversal
+
+**Status:** DEFERRED - Nice to have but not critical for initial release
+**Estimated Effort:** 1-2 days
 
 ---
 
@@ -452,3 +513,4 @@ Break into discrete, self-contained sessions:
 - Geopotential height ignored
 - Plan designed for incremental progress with stable checkpoints
 - Each session should end with working, committable code
+TODO: Add unit tests for VerticalGridAspect update_payload() and update_from_payload() to verify alignment is properly serialized/deserialized

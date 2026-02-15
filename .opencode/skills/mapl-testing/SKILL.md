@@ -59,6 +59,23 @@ ctest --output-on-failure
 
 **IMPORTANT:** Running `ctest` at the top level rebuilds everything, which can be slow.
 
+### Test Logging (Recommended)
+
+**IMPORTANT:** Always log test output to track progress and diagnose issues:
+
+```bash
+cd <build-dir>
+ctest --output-on-failure 2>&1 | tee ctest.log
+```
+
+**Why log:**
+- `tail` can hide progress issues from user
+- Full log allows reviewing test output later
+- Logs persist in build directory for later review
+- Standard location: `<build-dir>/ctest.log`
+
+**AI Agents:** When running tests, ALWAYS use `tee` to create logs in the build directory.
+
 ### Run Tests in Parallel
 
 ```bash
@@ -115,6 +132,28 @@ export DYLD_LIBRARY_PATH=$PWD/gridcomps:$DYLD_LIBRARY_PATH
 mpirun -np 1 ./MAPL.generic3g.tests
 ```
 
+### Fast Workflow Test Logging (Recommended)
+
+**IMPORTANT:** Always log test output:
+
+```bash
+# Build with logging
+cd $BUILD/generic3g/tests
+make 2>&1 | tee build.log
+
+# Run tests with logging
+export DYLD_LIBRARY_PATH=$PWD/gridcomps:$DYLD_LIBRARY_PATH
+mpirun -np 1 ./MAPL.generic3g.tests 2>&1 | tee test-run.log
+```
+
+**Why log:**
+- `tail` can hide progress issues from user
+- Full log allows reviewing test output later
+- Logs persist in tests directory for later review
+- Standard locations: `$BUILD/generic3g/tests/build.log` and `test-run.log`
+
+**AI Agents:** When running generic3g tests, ALWAYS use `tee` to create logs.
+
 ### Why This Works
 
 - **make** rebuilds only generic3g tests, not entire MAPL
@@ -150,6 +189,11 @@ mpirun -np 1 ./MAPL.generic3g.tests -d
 - Test crashes without error message
 - Framework can't report which test failed
 - Need to identify crash location
+
+**Logging diagnostic output:**
+```bash
+mpirun -np 1 ./MAPL.generic3g.tests -d 2>&1 | tee test-diagnostic.log
+```
 
 **Output:**
 ```
@@ -377,22 +421,22 @@ When writing new tests:
 ### Standard Full Test Suite
 ```bash
 cd <build-dir>
-ctest --output-on-failure
+ctest --output-on-failure 2>&1 | tee ctest.log
 ```
 
 ### Fast generic3g Only
 ```bash
 cd $BUILD/generic3g/tests
-make
+make 2>&1 | tee build.log
 export DYLD_LIBRARY_PATH=$PWD/gridcomps:$DYLD_LIBRARY_PATH
-mpirun -np 1 ./MAPL.generic3g.tests
+mpirun -np 1 ./MAPL.generic3g.tests 2>&1 | tee test-run.log
 ```
 
 ### Debug Specific Test
 ```bash
 cd $BUILD/generic3g/tests
 export DYLD_LIBRARY_PATH=$PWD/gridcomps:$DYLD_LIBRARY_PATH
-mpirun -np 1 ./MAPL.generic3g.tests -d -f TestName
+mpirun -np 1 ./MAPL.generic3g.tests -d -f TestName 2>&1 | tee test-debug.log
 ```
 
 ## Related Skills

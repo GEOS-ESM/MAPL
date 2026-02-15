@@ -272,6 +272,13 @@ contains
          grids_match = src%vertical_grid%matches(dst_%vertical_grid)
       end if
       
+      ! If grids match AND alignments match, no transform needed
+      if (grids_match .and. (src_alignment == dst_alignment)) then
+         deallocate(transform)
+         allocate(transform, source=NullTransform())
+         _RETURN(_SUCCESS)
+      end if
+      
       ! Build regrid parameters
       regrid_param%stagger_in = src%vertical_stagger
       regrid_param%stagger_out = dst_%vertical_stagger

@@ -85,16 +85,29 @@ which nagfor
 ```
 
 ### Configure and Build
+**IMPORTANT:** Always log build output to track progress and diagnose issues:
 
 ```bash
-cmake -B nag -DCMAKE_BUILD_TYPE=Debug
-cmake --build nag
+module load nag mpi baselibs && cmake -B nag -DCMAKE_BUILD_TYPE=Debug 2>&1 | tee nag/cmake-config.log
+module load nag mpi baselibs && cmake --build nag -j 8 2>&1 | tee nag/build.log
+```
+### Testing
+
+**IMPORTANT:** Tests are no longer built automatically with the main build. You must explicitly build them first.
+
+```bash
+# Build all tests
+module load nag mpi baselibs && cmake --build nag -j 8 --target build-tests 2>&1 | tee nag/build-tests.log
+
+# Run all tests (from source directory)
+module load nag mpi baselibs && ctest --test-dir nag --output-on-failure 2>&1 | tee nag/ctest.log
+
+# Build and run a specific test target
+module load nag mpi baselibs && cmake --build nag -j 8 --target <target> 2>&1 | tee nag/build-target.log
+module load nag mpi baselibs && ctest --test-dir nag -R <test-name-pattern> --output-on-failure
 ```
 
-For parallel builds (faster):
-```bash
-cmake --build nag -j 8  # Use 8 cores
-```
+**AI Agents:** When building MAPL, ALWAYS use `tee` to create logs in the build directory.
 
 ### Build Times (M2 Max, -j 8)
 
@@ -142,6 +155,26 @@ Parallel build (recommended):
 ```bash
 cmake --build gfortran -j 8
 ```
+
+### Build Logging (Recommended)
+
+**IMPORTANT:** Always log build output to track progress and diagnose issues:
+
+```bash
+# Log configuration
+cmake -B gfortran -DCMAKE_BUILD_TYPE=Debug 2>&1 | tee gfortran/cmake-config.log
+
+# Log build
+cmake --build gfortran -j 8 2>&1 | tee gfortran/build.log
+```
+
+**Why log:**
+- `tail` can hide progress issues from user
+- Full log allows reviewing warnings and errors
+- Logs persist in build directory for later review
+- Standard locations: `gfortran/cmake-config.log` and `gfortran/build.log`
+
+**AI Agents:** When building MAPL, ALWAYS use `tee` to create logs in the build directory.
 
 ### Build Times (M2 Max, -j 8)
 
@@ -298,6 +331,16 @@ CMake automatically detects changed files and rebuilds only what's needed.
 
 **Typical incremental build times:** < 3 minutes
 
+### Incremental Build Logging
+
+For incremental builds, also use logging:
+
+```bash
+cmake --build nag -j 8 2>&1 | tee -a nag/build.log
+```
+
+Note: Using `-a` flag appends to existing log rather than overwriting.
+
 ### Fast Workflow for generic3g Development
 
 If working specifically on generic3g code, see the `mapl-testing` skill for a faster incremental build workflow that rebuilds only generic3g tests.
@@ -330,11 +373,16 @@ cmake --build nag
 
 ## Testing After Build
 
-After successful build, run tests with:
+**IMPORTANT:** Tests must be built explicitly before running (they are no longer auto-built).
+
+After successful build, build and run tests with:
 
 ```bash
-cd nag  # or gfortran, or intel
-ctest --output-on-failure
+# Build tests
+module load nag mpi baselibs && cmake --build nag -j 8 --target build-tests
+
+# Run tests (from source directory)
+module load nag mpi baselibs && ctest --test-dir nag --output-on-failure
 ```
 
 **See the `mapl-testing` skill** for detailed testing workflows, including the fast generic3g-only testing method.
@@ -369,17 +417,19 @@ For continuous integration:
 ### NAG on macOS
 ```bash
 module load nag mpi baselibs
-cmake -B nag -DCMAKE_BUILD_TYPE=Debug
-cmake --build nag -j 8
-cd nag && ctest --output-on-failure
+cmake -B nag -DCMAKE_BUILD_TYPE=Debug 2>&1 | tee nag/cmake-config.log
+cmake --build nag -j 8 2>&1 | tee nag/build.log
+cmake --build nag -j 8 --target build-tests 2>&1 | tee nag/build-tests.log
+ctest --test-dir nag --output-on-failure 2>&1 | tee nag/ctest.log
 ```
 
 ### gfortran on macOS
 ```bash
 module load gfortran mpi baselibs
-cmake -B gfortran -DCMAKE_BUILD_TYPE=Debug
-cmake --build gfortran -j 8
-cd gfortran && ctest --output-on-failure
+cmake -B gfortran -DCMAKE_BUILD_TYPE=Debug 2>&1 | tee gfortran/cmake-config.log
+cmake --build gfortran -j 8 2>&1 | tee gfortran/build.log
+cmake --build gfortran -j 8 --target build-tests 2>&1 | tee gfortran/build-tests.log
+ctest --test-dir gfortran --output-on-failure 2>&1 | tee gfortran/ctest.log
 ```
 
 ### Intel on bucy (remote)
