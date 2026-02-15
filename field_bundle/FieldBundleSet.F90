@@ -34,7 +34,7 @@ contains
         geom, vgrid, &
         fieldBundleType, typekind, interpolation_weights, &
         ungridded_dims, &
-        num_levels, vert_staggerloc, &
+        num_levels, vert_staggerloc, vert_alignment, &
         units, standard_name, long_name, &
         allocation_status, &
         bracket_updated, &
@@ -53,6 +53,7 @@ contains
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       integer, optional, intent(in) :: num_levels
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
+      type(VerticalAlignment), optional, intent(in) :: vert_alignment
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
@@ -98,10 +99,10 @@ contains
       end if
 
       ! Propagate vertical grid information to fields in bundle
-      if (present(num_levels) .or. present(vert_staggerloc) .or. present(vgrid)) then
+      if (present(num_levels) .or. present(vert_staggerloc) .or. present(vert_alignment) .or. present(vgrid)) then
          call FieldBundleGet(fieldBundle, fieldList=fieldList, _RC)
          do i = 1, size(fieldList)
-            call MAPL_FieldSet(fieldList(i), vgrid=vgrid, num_levels=num_levels, vert_staggerloc=vert_staggerloc, _RC)
+            call MAPL_FieldSet(fieldList(i), vgrid=vgrid, num_levels=num_levels, vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, _RC)
          end do
       end if
       

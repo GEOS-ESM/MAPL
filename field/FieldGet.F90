@@ -3,6 +3,7 @@
 module mapl3g_FieldGet
 
    use mapl3g_VerticalGrid_API
+   use mapl3g_VerticalAlignment
    use mapl3g_FieldInfo
    use mapl3g_StateItemAllocation
    use mapl_KeywordEnforcer
@@ -26,7 +27,7 @@ contains
    subroutine field_get(field, unusable, &
         short_name, typekind, &
         geom, horizontal_dims_spec, &
-        vgrid, num_levels, vert_staggerloc, num_vgrid_levels, &
+        vgrid, num_levels, vert_staggerloc, vert_alignment, num_vgrid_levels, &
         ungridded_dims, &
         units, standard_name, long_name, &
         allocation_status, &
@@ -42,6 +43,7 @@ contains
       class(VerticalGrid), pointer, optional, intent(out) :: vgrid
       integer, optional, intent(out) :: num_levels
       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
+      type(VerticalAlignment), optional, intent(out) :: vert_alignment
       integer, optional, intent(out) :: num_vgrid_levels
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       character(len=:), optional, allocatable, intent(out) :: units
@@ -86,6 +88,7 @@ contains
            vgrid_id=vgrid_id, &
            num_levels=num_levels, &
            vert_staggerloc=vert_staggerloc, &
+           vert_alignment=vert_alignment, &
            num_vgrid_levels=num_vgrid_levels, &
            ungridded_dims=ungridded_dims, &
            units=units, standard_name=standard_name, long_name=long_name, &

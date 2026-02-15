@@ -9,6 +9,7 @@ module mapl3g_FieldBundleInfo
    use mapl3g_UngriddedDims
    use mapl3g_FieldBundleType_Flag
    use mapl3g_VectorBasisKind
+   use mapl3g_VerticalAlignment
    use mapl3g_VerticalGrid_API
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
@@ -38,7 +39,7 @@ contains
         vgrid_id, &
         fieldBundleType, &
         typekind, interpolation_weights, &
-        ungridded_dims, num_levels, vert_staggerloc, num_vgrid_levels, &
+        ungridded_dims, num_levels, vert_staggerloc, vert_alignment, num_vgrid_levels, &
         units, long_name, standard_name, &
         allocation_status, &
         bracket_updated, &
@@ -58,6 +59,7 @@ contains
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       integer, optional, intent(out) :: num_levels
       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
+      type(VerticalAlignment), optional, intent(out) :: vert_alignment
       integer, optional, intent(out) :: num_vgrid_levels
       character(:), optional, allocatable, intent(out) :: units
       character(:), optional, allocatable, intent(out) :: long_name
@@ -115,7 +117,7 @@ contains
       call FieldInfoGetInternal(info, namespace = namespace_//KEY_FIELD_PROTOTYPE, &
            typekind=typekind, &
            ungridded_dims=ungridded_dims, &
-           num_levels=num_levels, vert_staggerloc=vert_staggerloc, num_vgrid_levels=num_vgrid_levels, &
+           num_levels=num_levels, vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, num_vgrid_levels=num_vgrid_levels, &
            units=units, long_name=long_name, standard_name=standard_name, &
            vgrid_id=vgrid_id, &
            has_deferred_aspects=has_deferred_aspects, &
@@ -131,7 +133,7 @@ contains
         namespace, &
         fieldBundleType, typekind, interpolation_weights, &
         ungridded_dims, &
-        num_levels, vert_staggerloc, &
+        num_levels, vert_staggerloc, vert_alignment, &
         units, standard_name, long_name, &
         allocation_status, &
         vgrid_id, &
@@ -151,6 +153,7 @@ contains
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       integer, optional, intent(in) :: num_levels
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
+      type(VerticalAlignment), optional, intent(in) :: vert_alignment
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
@@ -201,7 +204,7 @@ contains
        call FieldInfoSetInternal(info, namespace=namespace_ // KEY_FIELD_PROTOTYPE, &
            typekind=typekind, &
            ungridded_dims=ungridded_dims, &
-           num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
+           num_levels=num_levels, vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, &
            units=units, long_name=long_name, standard_name=standard_name, &
            vgrid_id=vgrid_id, &
            has_deferred_aspects=has_deferred_aspects, &

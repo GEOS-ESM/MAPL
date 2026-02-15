@@ -3,6 +3,7 @@
 module mapl3g_FieldSet
 
    use mapl3g_VerticalGrid_API
+   use mapl3g_VerticalAlignment
    use mapl3g_FieldInfo
    use mapl3g_FieldDelta
    use mapl3g_StateItemAllocation
@@ -28,7 +29,7 @@ contains
         geom, &
         horizontal_dims_spec, &
         vgrid, &
-        vert_staggerloc, &
+        vert_staggerloc, vert_alignment, &
         typekind, &
         unusable, &
         num_levels, &
@@ -45,6 +46,7 @@ contains
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
       class(VerticalGrid), optional, intent(in) :: vgrid
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
+      type(VerticalAlignment), optional, intent(in) :: vert_alignment
       type(esmf_TypeKind_Flag), optional, intent(in) :: typekind
       integer, optional, intent(in) :: num_levels
       character(len=*), optional, intent(in) :: units
@@ -83,6 +85,7 @@ contains
            horizontal_dims_spec=horizontal_dims_spec, &
            vgrid_id=vgrid_id, &
            vert_staggerloc=vert_staggerloc, &
+           vert_alignment=vert_alignment, &
            num_levels=num_levels, &
            typekind=typekind, &
            units=units, standard_name=standard_name, long_name=long_name, &
