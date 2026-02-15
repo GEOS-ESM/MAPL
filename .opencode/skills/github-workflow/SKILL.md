@@ -82,6 +82,15 @@ feature/#4376-support-rotated-vectors
 hotfix/#4390-memory-leak-gridcomp
 ```
 
+**For multi-task projects** (e.g., implementation plan with Task 1, Task 2, etc.):
+```
+feature/#ISSUE-task1-foundation
+feature/#ISSUE-task2-degenerate-case
+feature/#ISSUE-task6-extdata-yaml
+```
+
+See "Multi-Task Project Strategy" section below for details.
+
 ### Workflow: Create Feature Branch
 
 **Step 1: Create GitHub issue FIRST**
@@ -132,6 +141,123 @@ git commit -m "Add tests for rotated vectors"
 ```bash
 git push -u origin feature/#4376-support-rotated-vectors
 ```
+
+## Multi-Task Project Strategy
+
+When implementing a plan with multiple tasks (Task 1, Task 2, etc., such as an implementation plan):
+
+### One PR Per Task (RECOMMENDED)
+
+**Why:** Easier review, independent approval, can merge tasks incrementally
+
+**Branch naming pattern:**
+```bash
+feature/#ISSUE-task1-description
+feature/#ISSUE-task2-description  
+feature/#ISSUE-task3-description
+```
+
+**Example workflow:**
+```bash
+# Task 1
+git checkout develop
+git checkout -b feature/#4407-task1-foundation
+# ... do work ...
+git push -u origin feature/#4407-task1-foundation
+gh pr create --base develop --title "Task 1: Add foundation for vertical alignment"
+
+# Task 2 (can be based on develop or task1 branch)
+git checkout develop  # or feature/#4407-task1-foundation if dependent
+git checkout -b feature/#4407-task2-degenerate
+# ... do work ...
+git push -u origin feature/#4407-task2-degenerate
+gh pr create --base develop --title "Task 2: Add degenerate case handling"
+
+# Task 6 (independent task, much later)
+git checkout develop
+git checkout -b feature/#4407-task6-extdata-yaml
+# ... do work ...
+git push -u origin feature/#4407-task6-extdata-yaml
+gh pr create --base develop --title "Task 6: Add YAML parsing for ExtData"
+```
+
+### CRITICAL: Check Before Creating PR
+
+**⚠️ ALWAYS run these commands BEFORE `gh pr create`:**
+
+```bash
+# 1. What branch am I on?
+git branch --show-current
+
+# 2. Are there existing PRs for this branch?
+gh pr list --head $(git branch --show-current)
+
+# 3. What commits will be in this PR?
+git log --oneline origin/develop..HEAD
+
+# 4. Verify this is what you intend
+```
+
+**If existing PR found for this branch:**
+- ❌ **STOP!** You're likely on the wrong branch
+- ✓ Either create a new branch for your current work
+- ✓ Or confirm you intentionally want to add to the existing PR
+
+**Example of what NOT to do:**
+```bash
+# Session 1: Working on Task 3-4
+git checkout -b feature/#4407-degenerate-case
+# ... work ...
+gh pr create  # PR #4409 created
+
+# Session 2: Working on Task 6 - MISTAKE!
+# Forgot to create new branch, still on feature/#4407-degenerate-case
+# ... work ...
+gh pr create  # Creates PR #4410, but PR #4409 still exists!
+# NOW BOTH PRS POINT TO SAME BRANCH - CONFLICT!
+```
+
+**Correct approach for Session 2:**
+```bash
+# Session 2: Working on Task 6 - CORRECT
+git checkout develop
+git checkout -b feature/#4407-task6-extdata-yaml  # NEW BRANCH
+# ... work ...
+gh pr list --head $(git branch --show-current)  # Verify no existing PR
+gh pr create  # Safe to create PR
+```
+
+### When to Combine Tasks in One PR
+
+**Only combine tasks when:**
+- Tasks are tightly coupled and can't be reviewed separately
+- All tasks are tiny (< 100 lines total)
+- Tasks must be merged atomically (all or nothing)
+- Explicitly requested by team/user
+
+**Otherwise:** Create separate PRs per task for easier review and incremental progress
+
+### Multiple PRs from Same Base Branch
+
+**Allowed pattern:**
+```
+develop
+  ├── feature/#4407-task1-foundation  → PR #100
+  ├── feature/#4407-task2-degenerate  → PR #101
+  └── feature/#4407-task6-extdata     → PR #102
+```
+
+All three branches based on `develop`, all have independent PRs. This is fine!
+
+**Problem pattern:**
+```
+develop
+  └── feature/#4407-degenerate-case
+        ├── PR #4409 (created first)
+        └── PR #4410 (created second - CONFLICT!)
+```
+
+Same branch, two PRs. This is wrong!
 
 ## Commit Message Format
 
