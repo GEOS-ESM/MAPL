@@ -1127,6 +1127,7 @@ contains
       status = pfio_nf90_get_var_string_len(this%ncid, varid, length)
       _VERIFY(status)
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine inq_var_string_length
 
    subroutine inq_variables(this, cf, unusable, rc)
