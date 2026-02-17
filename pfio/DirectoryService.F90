@@ -130,7 +130,7 @@ contains
 #if !defined (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
       integer(kind=MPI_ADDRESS_KIND) :: baseaddr
 #endif
-      integer :: ierror, rank, rc, status
+      integer :: ierror, rank, rc
 
       call MPI_Comm_Rank(comm, rank, ierror)
       _VERIFY(ierror)
