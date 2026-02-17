@@ -8,11 +8,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- guarded against 32-bit integer overflow in QSswap
 
 ### Added
 
-- Introduced AGENTS.md to assist in using copilot for MAPL development
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.66.0] - 2026-02-13
+
+### Fixed
+
+- Guarded against 32-bit integer overflow in QSswap
+
+### Added
+
+- Added 9 modular OpenCode agent skills for MAPL development workflows (replaces AGENTS.md)
+  - mapl-setup: First-time environment configuration
+  - mapl-build: Building with NAG, gfortran, Intel compilers
+  - mapl-testing: Running and debugging tests with pFUnit
+  - fortran-style: MAPL Fortran coding standards
+  - mapl-error-handling: Error handling macros and best practices
+  - github-workflow: Git/GitHub conventions and PR process
+  - remote-build: Building on bucy with Intel compiler
+  - pfunit-troubleshooting: Debug pFUnit test failures
+  - compiler-switching: Switch between compilers safely
 - Added `.rgignore` to have ripgrep ignore common build directories
 
 ### Changed
@@ -36,10 +58,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Updates for f2py and f2py3 for running on macOS with Spack
     - Add Athena frontend nodes for NAS detection
     - Remove `ctest` pre-test build
-
-### Removed
-
-### Deprecated
 
 ## [2.65.0] - 2026-01-29
 
