@@ -277,6 +277,16 @@ end if
    - Uses same pattern as existing fields like `enable_vertical_regrid`
 
 3. **YAML format supported:**
+
+### TASK 6: ExtData Configuration Support
+
+**Files:**
+- `gridcomps/ExtData3G/ExtDataConfig.F90`
+- `gridcomps/ExtData3G/ExtDataRule.F90`
+
+**Changes:**
+
+1. Extend YAML parser:
 ```yaml
 Exports:
   FIELD_NAME:
@@ -285,11 +295,13 @@ Exports:
     vertical_alignment: upward  # "upward" | "downward" | "with_grid" (default)
 ```
 
+
 **Testing:**
 - All ExtData3G unit tests pass
 - Build successful with NAG compiler
 
 **Note:** The vertical_alignment field is now available in ExtDataRule for future use when connecting to field configuration. Direct propagation to VariableSpec via add_var_specs() was not implemented as it would require architectural changes beyond YAML parsing
+2. Store in ExtDataRule
 3. Pass to VariableSpec
 
 **Testing:**

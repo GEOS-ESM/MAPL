@@ -187,6 +187,7 @@ contains
       integer, optional, intent(out) :: rc
       ! do nothing on purpose
       _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(rc) ! pchakrab - should we have a _RETURN(_SUCCESS) here?
    end subroutine post_wait_all
 
 end module pFIO_FastClientThreadMod
