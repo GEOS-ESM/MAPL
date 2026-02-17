@@ -21,6 +21,7 @@ module mapl3g_VariableSpec
    use mapl3g_AttributesAspect
    use mapl3g_UngriddedDimsAspect
    use mapl3g_VerticalGridAspect
+   use mapl3g_VerticalAlignment
    use mapl3g_VerticalRegridMethod
    use mapl3g_FrequencyAspect
    use mapl3g_TypekindAspect
@@ -111,6 +112,7 @@ module mapl3g_VariableSpec
       !=====================
       class(VerticalGrid), allocatable :: vertical_grid
       type(VerticalStaggerLoc), allocatable :: vertical_stagger
+      character(:), allocatable :: vertical_alignment  ! "upward" | "downward" | "with_grid" (default)
 
       !=====================
       ! units aspect
@@ -167,6 +169,7 @@ contains
         typekind, &
         vertical_grid, &
         vertical_stagger, &
+        vertical_alignment, &
         ungridded_dims, &
         default_value, &
         service_items, &
@@ -198,6 +201,7 @@ contains
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       class(VerticalGrid), optional, intent(in) :: vertical_grid
       type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
+      character(*), optional, intent(in) :: vertical_alignment
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       real, optional, intent(in) :: default_value
       type(StringVector), optional :: service_items
@@ -233,6 +237,7 @@ contains
       _SET_OPTIONAL(typekind)
       _SET_OPTIONAL(vertical_grid)
       _SET_OPTIONAL(vertical_stagger)
+      _SET_OPTIONAL(vertical_alignment)
       _SET_OPTIONAL(ungridded_dims)
       _SET_OPTIONAL(default_value)
       _SET_OPTIONAL(service_items)
@@ -536,8 +541,8 @@ contains
          vgrid = vertical_grid
       end if
 
-      aspect = VerticalGridAspect(vertical_grid=vgrid, vertical_stagger=this%vertical_stagger, geom=geom_, &
-           typekind=this%typekind)
+      aspect = VerticalGridAspect(vertical_grid=vgrid, vertical_stagger=this%vertical_stagger, &
+           vertical_alignment=VerticalAlignment(this%vertical_alignment), geom=geom_, typekind=this%typekind)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(time_dependent)

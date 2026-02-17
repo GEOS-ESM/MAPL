@@ -117,6 +117,7 @@ contains
       vgrid%spec%num_levels = num_levels
       call vgrid%spec%names%push_back(short_name)
       call vgrid%spec%physical_dimensions%push_back(physical_dimension)
+      ! Default coordinate direction is already set to VCOORD_DIRECTION_DOWN in VerticalGrid
    end function new_ModelVerticalGrid_basic
 
 
@@ -291,6 +292,7 @@ contains
       type(ModelVerticalGridSpec), intent(in) :: spec
 
       this%spec = spec
+      ! Default coordinate direction is already set to VCOORD_DIRECTION_DOWN in VerticalGrid
    end subroutine initialize
 
    logical function matches(this, other)
