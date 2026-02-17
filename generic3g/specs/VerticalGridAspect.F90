@@ -408,20 +408,10 @@ contains
          direction = VCOORD_DIRECTION_INVALID
          return
       end if
-   function get_resolved_alignment(this, rc) result(direction)
-      class(VerticalGridAspect), intent(in) :: this
-      type(VerticalCoordinateDirection) :: direction
-      integer, optional, intent(out) :: rc
-      
-      type(VerticalCoordinateDirection) :: grid_direction
-      integer :: status
-      
-      _ASSERT(allocated(this%vertical_grid), "vertical_grid must be allocated to resolve alignment")
-      
+
       grid_direction = this%vertical_grid%get_coordinate_direction()
       direction = this%vertical_alignment%resolve(grid_direction)
 
-      _RETURN(_SUCCESS)
    end function get_resolved_alignment
 
    subroutine update_from_payload(this, field, bundle, state, rc)
