@@ -10,6 +10,7 @@ module mapl3g_FieldInfo
    use mapl3g_VerticalGrid_API
    use mapl3g_UngriddedDims
    use mapl3g_VerticalStaggerLoc
+   use mapl3g_VerticalAlignment
    use mapl3g_StateItemAllocation
    use mapl3g_RestartModes, only: RestartMode, MAPL_RESTART_REQUIRED
    use mapl3g_HorizontalDimsSpec, only: HorizontalDimsSpec, HORIZONTAL_DIMS_UNKNOWN, to_HorizontalDimsSpec
@@ -61,6 +62,7 @@ module mapl3g_FieldInfo
    character(*), parameter :: KEY_NUM_LEVELS = "/num_levels"
    character(*), parameter :: KEY_NUM_VGRID_LEVELS = "/num_vgrid_levels"
    character(*), parameter :: KEY_VERT_STAGGERLOC = "/vert_staggerloc"
+   character(*), parameter :: KEY_VERT_ALIGNMENT = "/vert_alignment"
    character(*), parameter :: KEY_VERT_DIM = "/vert_dim"
    character(*), parameter :: KEY_UNGRIDDED_DIMS = "/ungridded_dims"
    character(*), parameter :: KEY_ALLOCATION_STATUS = "/allocation_status"
@@ -80,7 +82,7 @@ contains
         namespace, &
         typekind, &
         horizontal_dims_spec, &
-        vgrid_id, num_levels, vert_staggerloc, &
+        vgrid_id, num_levels, vert_staggerloc, vert_alignment, &
         ungridded_dims, &
         units, long_name, standard_name, &
         allocation_status, &
@@ -95,6 +97,7 @@ contains
       integer, optional, intent(in) :: vgrid_id
       integer, optional, intent(in) :: num_levels
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
+      type(VerticalAlignment), optional, intent(in) :: vert_alignment
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: long_name
@@ -179,6 +182,10 @@ contains
 
       end if
 
+      if (present(vert_alignment)) then
+         call MAPL_InfoSet(info, namespace_ // KEY_VERT_ALIGNMENT, vert_alignment%to_string(), _RC)
+      end if
+
       if (present(allocation_status)) then
          call MAPL_InfoSet(info, namespace_ // KEY_ALLOCATION_STATUS, allocation_status%to_string(), _RC)
       end if
@@ -195,7 +202,7 @@ contains
         namespace, &
         typekind, &
         horizontal_dims_spec, &
-        vgrid_id, num_levels, vert_staggerloc, num_vgrid_levels, &
+        vgrid_id, num_levels, vert_staggerloc, vert_alignment, num_vgrid_levels, &
         units, &
         long_name, standard_name, &
         ungridded_dims, &
@@ -211,6 +218,7 @@ contains
       integer, optional, intent(out) :: vgrid_id
       integer, optional, intent(out) :: num_levels
       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
+      type(VerticalAlignment), optional, intent(out) :: vert_alignment
       integer, optional, intent(out) :: num_vgrid_levels
       character(:), optional, allocatable, intent(out) :: units
       character(:), optional, allocatable, intent(out) :: long_name
@@ -224,7 +232,7 @@ contains
       integer :: status
       integer :: num_levels_
       type(esmf_Info) :: ungridded_info
-      character(:), allocatable :: vert_staggerloc_str, allocation_status_str
+      character(:), allocatable :: vert_staggerloc_str, vert_alignment_str, allocation_status_str
       type(VerticalStaggerLoc) :: vert_staggerloc_
       character(:), allocatable :: namespace_
       character(:), allocatable :: str
@@ -297,6 +305,16 @@ contains
             num_vgrid_levels = num_levels_
          else
             _FAIL('unsupported vertical stagger')
+         end if
+      end if
+
+      if (present(vert_alignment)) then
+         is_present = esmf_InfoIsPresent(info, namespace_ // KEY_VERT_ALIGNMENT, _RC)
+         if (is_present) then
+            call MAPL_InfoGet(info, namespace_ // KEY_VERT_ALIGNMENT, vert_alignment_str, _RC)
+            vert_alignment = VerticalAlignment(vert_alignment_str)
+         else
+            vert_alignment = VALIGN_WITH_GRID  ! Default value
          end if
       end if
 

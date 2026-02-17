@@ -241,6 +241,16 @@ end if
 - Optionally: support both increasing and decreasing natively
 
 **Testing:**
+
+**Priority: "Almost Degenerate" Case (Primary Use Case)**
+- Two grids that are identical except coordinate direction is reversed
+- Fields aligned with their respective grids (one UP, one DOWN)
+- **Test 1:** Verify `matches()` returns false (different grids)
+- **Test 2:** Verify transform correctly flips values (dst reversed from src)
+- **Why prioritize:** Easiest to test, most relevant to primary use case
+- **Key insight:** Since grids are reverses, regridding should be identity + flip
+
+**Additional Test Cases:**
 - Unit test: `Test_VerticalRegridTransform_Alignment.pf`
   - Different grids, various alignment combinations
   - Verify correct flip behavior
@@ -249,6 +259,24 @@ end if
 **Estimated Effort:** 2-3 days
 
 ---
+
+### TASK 6: ExtData Configuration Support ✅ COMPLETED
+
+**Status:** Implemented in commit [hash pending]
+
+**Files:**
+- `gridcomps/ExtData3G/ExtDataRule.F90` - Added `vertical_alignment` field and YAML parsing
+
+**Changes:**
+
+1. **Added vertical_alignment field to ExtDataRule type** (line 24)
+   - Allocatable string field to store alignment specification from YAML
+
+2. **Implemented YAML parsing** (lines 123-128)
+   - Parses optional `vertical_alignment` field from configuration
+   - Uses same pattern as existing fields like `enable_vertical_regrid`
+
+3. **YAML format supported:**
 
 ### TASK 6: ExtData Configuration Support
 
@@ -267,6 +295,12 @@ Exports:
     vertical_alignment: upward  # "upward" | "downward" | "with_grid" (default)
 ```
 
+
+**Testing:**
+- All ExtData3G unit tests pass
+- Build successful with NAG compiler
+
+**Note:** The vertical_alignment field is now available in ExtDataRule for future use when connecting to field configuration. Direct propagation to VariableSpec via add_var_specs() was not implemented as it would require architectural changes beyond YAML parsing
 2. Store in ExtDataRule
 3. Pass to VariableSpec
 
@@ -309,6 +343,57 @@ Exports:
 3. Release notes: New feature
 
 **Estimated Effort:** 0.5 days
+
+---
+
+### TASK 9 (FUTURE): FlippedVerticalGrid Decorator (Optional Enhancement)
+
+**Purpose:** Simplify handling of reversed grids without duplicating grid data
+
+**Motivation:**
+- Current approach: Compare coordinate field values to detect same grid
+- Better approach: Grid IDs can identify exact same grid vs. reversed grid
+- Avoids tolerance-based comparisons since grids are constructed explicitly
+
+**Design:**
+
+**File:** `vertical_grid/FlippedVerticalGrid.F90`
+
+```fortran
+type, extends(VerticalGrid) :: FlippedVerticalGrid
+   class(VerticalGrid), allocatable :: base_grid
+contains
+   procedure :: get_coordinate_direction  ! Returns opposite of base_grid
+   procedure :: get_coordinate_field      ! Returns reversed coordinates
+   procedure :: get_base_grid            ! Access to underlying grid
+   procedure :: matches                   ! Special handling for flipped grids
+end type
+```
+
+**Key behaviors:**
+- `FlippedVerticalGrid(grid_A)%matches(grid_A)` → true (is reverse of base)
+- `FlippedVerticalGrid(grid_A)%matches(FlippedVerticalGrid(grid_A))` → true (same grid)
+- ID could be `base_grid_id + "_flipped"` or similar
+
+**Benefits:**
+1. Eliminate tolerance-based coordinate comparisons
+2. Explicit representation of grid relationships
+3. Cleaner degenerate case detection via ID comparison
+4. Memory efficient (shares base grid data)
+
+**Changes needed:**
+- Add `FlippedVerticalGrid` class
+- Update `VerticalGrid%matches()` to recognize flipped grids
+- Update `VerticalRegridTransform%initialize()` to use ID comparison
+- Consider factory function `make_flipped_grid(base)`
+
+**Testing:**
+- Verify flipped grid behavior
+- Ensure ID-based matching works
+- Check coordinate field reversal
+
+**Status:** DEFERRED - Nice to have but not critical for initial release
+**Estimated Effort:** 1-2 days
 
 ---
 
@@ -376,6 +461,74 @@ Break into discrete, self-contained sessions:
 - Commit frequently (checkpoint/restore)
 - Update plan if discoveries require changes
 - Use git history for reference
+
+---
+
+## Session Start Checklist (CRITICAL - DO THIS FIRST)
+
+**⚠️ BEFORE doing ANY work in a new session, complete this checklist:**
+
+1. [ ] **Identify which task(s)** you're working on (e.g., "Task 6")
+
+2. [ ] **Check git status and current branch**
+   ```bash
+   git status
+   git branch --show-current
+   ```
+
+3. [ ] **List existing PRs for current branch**
+   ```bash
+   gh pr list --head $(git branch --show-current)
+   ```
+
+4. [ ] **Determine if you need a NEW branch:**
+   - If current branch already has a PR for different tasks → **CREATE NEW BRANCH**
+   - If current branch is for this exact task → continue on current branch
+   - If unsure → **ASK USER**
+
+5. [ ] **If creating new branch:**
+   ```bash
+   # Format: feature/#ISSUE-taskN-description
+   # Example: feature/#4407-task6-extdata-yaml
+   git checkout develop  # or appropriate base branch
+   git checkout -b feature/#4407-taskN-description
+   ```
+
+6. [ ] **Verify you're on the correct branch**
+   ```bash
+   git branch --show-current  # Confirm branch name matches your task
+   ```
+
+7. [ ] **Confirm with user before proceeding with any work**
+
+**⚠️ DO NOT skip this checklist.**  
+**⚠️ DO NOT assume you're on the right branch.**  
+**⚠️ DO NOT create commits until checklist is complete.**
+
+### Pre-Session Verification Script
+
+Optional helper script to automate checks:
+
+```bash
+# Save as .opencode/scripts/pre-session-check.sh
+#!/bin/bash
+echo "=== Pre-Session Verification ==="
+echo "Current branch: $(git branch --show-current)"
+echo ""
+echo "Existing PRs for this branch:"
+gh pr list --head $(git branch --show-current)
+echo ""
+echo "Git status:"
+git status --short
+echo ""
+read -p "Create NEW branch for this session? (y/n) " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    read -p "Enter new branch name (feature/#ISSUE-taskN-desc): " branch_name
+    git checkout -b "$branch_name"
+    echo "Created and switched to: $branch_name"
+fi
+```
 
 ---
 
@@ -452,3 +605,4 @@ Break into discrete, self-contained sessions:
 - Geopotential height ignored
 - Plan designed for incremental progress with stable checkpoints
 - Each session should end with working, committable code
+TODO: Add unit tests for VerticalGridAspect update_payload() and update_from_payload() to verify alignment is properly serialized/deserialized

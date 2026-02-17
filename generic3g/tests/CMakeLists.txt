@@ -33,6 +33,7 @@ set (test_srcs
   
   Test_ModelVerticalGrid.pf
   Test_VerticalLinearMap.pf
+  Test_VerticalRegridTransform.pf
 
   Test_CSR_SparseMatrix.pf
   Test_AccumulatorTransform.pf

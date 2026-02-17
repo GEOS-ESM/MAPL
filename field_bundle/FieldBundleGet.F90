@@ -2,6 +2,7 @@
 
 module mapl3g_FieldBundleGet
    use mapl3g_VerticalGrid_API
+   use mapl3g_VerticalAlignment
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use mapl3g_Field_API
@@ -34,7 +35,7 @@ contains
         ! Bracket specific items
         typekind, interpolation_weights, &
         ! Bracket field-prototype items
-        ungridded_dims, num_levels, vert_staggerloc, num_vgrid_levels, &
+        ungridded_dims, num_levels, vert_staggerloc, vert_alignment, num_vgrid_levels, &
         units, standard_name, long_name, &
         allocation_status, &
         bracket_updated, &
@@ -55,6 +56,7 @@ contains
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       integer, optional, intent(out) :: num_levels
       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
+      type(VerticalAlignment), optional, intent(out) :: vert_alignment
       integer, optional, intent(out) :: num_vgrid_levels
       character(:), optional, allocatable, intent(out) :: units
       character(:), optional, allocatable, intent(out) :: standard_name
@@ -85,18 +87,18 @@ contains
          call ESMF_FieldBundleGet(fieldBundle, fieldList=fieldList, itemOrderflag=ESMF_ITEMORDER_ADDORDER, _RC)
       end if
 
-     ! Get these from FieldBundleInfo
+      ! Get these from FieldBundleInfo
       call ESMF_InfoGetFromHost(fieldBundle, bundle_info, _RC)
       call FieldBundleInfoGetInternal(bundle_info, &
+           vgrid_id=vgrid_id, &
            fieldBundleType=fieldBundleType, &
            typekind=typekind, interpolation_weights=interpolation_weights, &
            ungridded_dims=ungridded_dims, &
-           num_levels=num_levels, vert_staggerloc=vert_staggerloc, num_vgrid_levels=num_vgrid_levels, &
+           num_levels=num_levels, vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, num_vgrid_levels=num_vgrid_levels, &
            units=units, standard_name=standard_name, long_name=long_name, &
            allocation_status=allocation_status, &
            bracket_updated=bracket_updated, &
            has_geom=has_geom, &
-           vgrid_id=vgrid_id, &
            has_deferred_aspects=has_deferred_aspects, &
            regridder_param_info=regridder_param_info, &
            vector_basis_kind=vector_basis_kind, &

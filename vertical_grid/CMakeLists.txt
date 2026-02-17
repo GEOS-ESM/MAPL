@@ -5,6 +5,7 @@ set(srcs
   IntegerPair.F90
   VerticalStaggerLoc.F90
   VerticalCoordinateDirection.F90
+  VerticalAlignment.F90
   VerticalGridSpec.F90
   VerticalGrid.F90
   VerticalGridFactory.F90
