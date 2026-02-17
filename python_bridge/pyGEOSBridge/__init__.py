@@ -5,7 +5,7 @@ See README.md for informations.
 
 from .geos_interface_code import GEOSInterfaceCode  # isort: skip
 from .hooks import global_initialize
-from .hooks import named_init, named_run, named_finalize
+from .hooks import named_init, named_run, named_run_with_internal, named_finalize
 from .mapl import get_MAPLPy
 
 __all__ = [
@@ -13,6 +13,7 @@ __all__ = [
     #
     "named_init",
     "named_run",
+    "named_run_with_internal",
     "named_finalize",
     "get_fpy_converter",
     #
