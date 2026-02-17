@@ -2,6 +2,7 @@
 #include "unused_dummy.H"
 
 module pFIO_FileMetadataMod
+
    use mapl_KeywordEnforcerMod
    use gFTL2_StringIntegerMap
    use pFIO_StringIntegerMapUtilMod
@@ -17,6 +18,7 @@ module pFIO_FileMetadataMod
    use pFIO_StringAttributeMapMod
    use gFTL2_StringVector
    use pFIO_StringVectorUtilMod
+
    implicit none
    private
 
@@ -31,7 +33,6 @@ module pFIO_FileMetadataMod
       type (StringVector) :: order
       character(len=:), allocatable :: source_file
    contains
-
       procedure :: get_dimensions
       procedure :: get_global_var
       procedure :: add_dimension
@@ -70,7 +71,6 @@ module pFIO_FileMetadataMod
 
       procedure :: write_formatted
       generic :: write(formatted) => write_formatted
-
    end type FileMetadata
 
    interface FileMetadata
@@ -100,14 +100,13 @@ contains
      if (present(order)) fmd%order = order
 
      _UNUSED_DUMMY(unusable)
-  end function
+   end function
 
    function get_dimensions(this) result(dimensions)
       type (StringIntegerMap), pointer :: dimensions
       class (FileMetadata), target, intent(in) :: this
 
       dimensions => this%dimensions
-
    end function get_dimensions
 
    function get_global_var(this) result(global_var)
@@ -115,9 +114,7 @@ contains
       class (FileMetadata), target, intent(in) :: this
 
       global_var => this%global_var
-
    end function get_global_var
-
 
    subroutine add_dimension(this, dim_name, extent, unusable, rc)
       class (FileMetadata), target, intent(inout) :: this
@@ -150,9 +147,9 @@ contains
       integer, optional, intent(out) :: rc
 
       call this%dimensions%set(dim_name, extent)
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-
    end subroutine modify_dimension
 
    function has_dimension(this, dim_name, unusable, rc) result(isPresent)
@@ -166,9 +163,9 @@ contains
 
       iter = this%dimensions%find(dim_name)
       isPresent = (iter /=this%dimensions%end())
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-
    end function has_dimension
 
    integer function get_dimension(this, dim_name, unusable, rc) result(extent)
@@ -178,7 +175,6 @@ contains
       integer, optional, intent(out) :: rc
 
       type (StringIntegerMapIterator) :: iter
-
 
       iter = this%dimensions%find(dim_name)
 
@@ -193,7 +189,6 @@ contains
       _UNUSED_DUMMY(unusable)
    end function get_dimension
 
-
    subroutine add_attribute_0d(this, attr_name, attr_value, unusable, rc)
       class (FileMetadata), target, intent(inout) :: this
       character(len=*), intent(in) :: attr_name
@@ -202,6 +197,7 @@ contains
       integer, optional, intent(out) :: rc
 
       call this%global_var%add_attribute(attr_name, attr_value)
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine add_attribute_0d
@@ -215,10 +211,10 @@ contains
       integer, optional, intent(out) :: rc
 
       call this%global_var%add_attribute(attr_name, values)
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine add_attribute_1d
-
 
    function get_attribute(this, attr_name, unusable, rc) result(ref)
       type (Attribute), pointer :: ref
@@ -229,10 +225,10 @@ contains
 
       ref => this%global_var%get_attribute(attr_name)
       _ASSERT(associated(ref),'FileMetadata::get_attribute() - no such attribute <'//attr_name//'>.')
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function get_attribute
-
 
    ! No RC is necessary - no failure mode.
    logical function has_attribute(this, attr_name)
@@ -240,7 +236,6 @@ contains
       character(len=*), intent(in) :: attr_name
 
       has_attribute = this%global_var%is_attribute_present(attr_name)
-
    end function has_attribute
 
    subroutine remove_attribute(this, attr_name)
@@ -248,9 +243,7 @@ contains
       character(len=*), intent(in) :: attr_name
 
       call this%global_var%remove_attribute(attr_name)
-
    end subroutine
-
 
    function get_attributes(this, rc ) result(attributes)
       type (StringAttributeMap), pointer :: attributes
@@ -258,9 +251,9 @@ contains
       integer, optional, intent(out) :: rc
 
       attributes => this%global_var%get_attributes()
+
       _RETURN(_SUCCESS)
    end function get_attributes
-
 
    function get_variable(this, var_name, unusable, rc) result(var)
       class (Variable), pointer :: var
@@ -282,7 +275,6 @@ contains
       character(len=*), intent(in) :: var_name
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-      class (Variable), pointer :: var
 
       has = (this%variables%count(var_name) > 0)
 
@@ -316,7 +308,6 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-
    end function get_coordinate_variable
 
    logical function is_coordinate_variable(this, var_name, unusable, rc)
@@ -342,13 +333,13 @@ contains
       _UNUSED_DUMMY(unusable)
    end function is_coordinate_variable
 
-
    function get_variables(this, rc ) result(variables)
       type (StringVariableMap), pointer :: variables
       class (FileMetadata), target, intent(in) :: this
       integer, optional, intent(out) :: rc
 
       variables => this%variables
+
       _RETURN(_SUCCESS)
    end function get_variables
 
@@ -359,6 +350,7 @@ contains
       type (StringVector) :: order
 
       order = this%order
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function get_order
@@ -383,10 +375,10 @@ contains
          _ASSERT(associated(var),trim(var_name)//' not in metadata')
          call iter%next()
       enddo
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine set_order
-
 
    subroutine add_variable(this, var_name, var, unusable, rc)
       class (FileMetadata), target, intent(inout) :: this
@@ -424,9 +416,9 @@ contains
 
       call this%variables%insert(var_name, var)
       call this%order%push_back(var_name)
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-
    end subroutine add_variable
 
    subroutine modify_variable(this, var_name, var, unusable, rc)
@@ -440,7 +432,6 @@ contains
       type (StringVectorIterator) :: iter
       integer, pointer :: dim_this
       character(len=:), pointer :: dim_name
-
 
       ! ensure all of var's dimensions are defined
       dims => var%get_dimensions()
@@ -479,7 +470,6 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-
    end subroutine remove_variable
 
    subroutine add_var_attribute_0d(this, var_name, attr_name, value, unusable, rc)
@@ -498,7 +488,6 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-
    end subroutine add_var_attribute_0d
 
    subroutine add_var_attribute_1d(this, var_name, attr_name, values, unusable, rc)
@@ -514,6 +503,7 @@ contains
 
       var => this%get_variable(var_name, _RC)
       call var%add_attribute(attr_name, values)
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine add_var_attribute_1d
@@ -568,6 +558,7 @@ contains
    end subroutine merge
 
    logical function equal(a, b)
+
       class (FileMetadata), target, intent(in) :: a
       class (FileMetadata), target, intent(in) :: b
 
@@ -613,7 +604,6 @@ contains
          class (FileMetadata), target, intent(in) :: b
 
          equal = (a%global_var == b%global_var)
-
       end function same_attributes
 
       logical function same_variables(a, b) result(equal)
@@ -641,9 +631,7 @@ contains
             var_a => iter%second()
             equal = (var_a == var_b)
             if (.not. equal) return
-
          end do
-
       end function same_variables
 
    end function equal
@@ -680,6 +668,7 @@ contains
    end subroutine
 
    subroutine FileMetadata_deserialize(buffer, fmd, rc)
+
       integer, intent(in) :: buffer(:)
       type (FileMetadata), intent(inout) :: fmd
       integer, optional, intent(out) :: rc
@@ -718,8 +707,10 @@ contains
          n = n + length
          call StringVector_deserialize(buffer(n:), this%order, status)
          _VERIFY(status)
+
          _RETURN(_SUCCESS)
       end subroutine deserialize
+
    end subroutine FileMetadata_deserialize
 
    subroutine set_source_file(this,source_file,rc)
@@ -728,6 +719,7 @@ contains
       integer, optional, intent(out) :: rc
 
       this%source_file=source_file
+
       _RETURN(_SUCCESS)
    end subroutine
 
@@ -740,6 +732,7 @@ contains
          _FAIL("FileMetadata not created via a file, no source_file present")
       end if
       source_file=this%source_file
+
       _RETURN(_SUCCESS)
    end function
 
