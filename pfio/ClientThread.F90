@@ -410,7 +410,7 @@ contains
       if (this%isEmpty_RequestHandle()) then
         _RETURN(_SUCCESS)
       endif
-    
+
       connection=>this%get_connection()
       call connection%send(PrefetchDoneMessage(),_RC)
       _RETURN(_SUCCESS)
@@ -421,7 +421,7 @@ contains
       integer, optional, intent(out) :: rc
       class(AbstractSocket),pointer :: connection
       integer :: status
-  
+
       if (this%isEmpty_RequestHandle()) then
         _RETURN(_SUCCESS)
       endif
@@ -455,7 +455,7 @@ contains
       if (this%isEmpty_RequestHandle()) then
         _RETURN(_SUCCESS)
       endif
-     
+
       connection=>this%get_connection()
       call connection%send(CollectiveStageDoneMessage(),_RC)
       _RETURN(_SUCCESS)
@@ -466,7 +466,6 @@ contains
       class (ClientThread), target, intent(inout) :: this
       integer, intent(in) :: request_id
       integer, optional, intent(out) :: rc
-      integer :: status
       class(AbstractRequestHandle), pointer :: handle
 
       handle => this%get_RequestHandle(request_id)
@@ -474,7 +473,7 @@ contains
       call handle%data_reference%deallocate()
       call this%erase_RequestHandle(request_id)
       _RETURN(_SUCCESS)
-  
+
    end subroutine wait
 
    subroutine wait_all(this, rc)

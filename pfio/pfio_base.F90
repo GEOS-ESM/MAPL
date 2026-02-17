@@ -8,7 +8,7 @@ contains
    subroutine pfio_init()
       use MPI
       character(len=5) :: buf
-      integer :: rank, ierror, rc, status
+      integer :: rank, ierror, rc
 
       if (debug_unit == 0) then
          call MPI_Comm_rank(MPI_Comm_world, rank, ierror)
