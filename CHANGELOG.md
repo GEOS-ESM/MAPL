@@ -114,6 +114,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Added optional local_id to create a simple locstream
+
 ### Deprecated
 
 ## [2.66.0] - 2026-02-13

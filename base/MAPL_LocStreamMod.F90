@@ -2926,11 +2926,12 @@ end subroutine MAPL_GridCoordAdjust
 
 !A special subroutine for Nx1 Grid in river-routing grid comp
 !Some information in the locstream is not filled
-subroutine MAPL_LocstreamCreateSimple(Locstream, grid, rc)
+subroutine MAPL_LocstreamCreateSimple(Locstream, grid, local_id, rc)
    type(MAPL_LocStream), intent(OUT) :: LocStream
    type(ESMF_Grid), intent(inout)      :: grid
+   integer, optional, intent(in)       :: local_id(:)
    integer, optional, intent(out) :: rc
-   integer :: status, i, i1, i2, j1, j2
+   integer :: status, i, i1, i2, j1, j2, nt_local
    type(MAPL_LocStreamType), pointer :: STREAM
    integer :: globalCount(3)
 
@@ -2942,8 +2943,14 @@ subroutine MAPL_LocstreamCreateSimple(Locstream, grid, rc)
    stream%grid      = grid
    call MAPL_grid_interior(grid, i1, i2, j1, j2)
    _ASSERT( j1 == 1 .and. j2 ==1, "This simple Locstream is for Nx1 grid")
-   allocate(stream%local_id, source = [(i, i = i1, i2)])
-   stream%nt_local  = i2 - i1 + 1
+   nt_local = i2 - i1 + 1
+   if (present(local_id)) then
+     _ASSERT(size(local_id) == nt_local, 'local size should match the 1d grid')
+     allocate(stream%local_id, source = local_id)
+   else
+     allocate(stream%local_id, source = [(i, i = i1, i2)])
+   endif
+   stream%nt_local  = nt_local
    call MAPL_GridGet(grid,globalCellCountPerDim=globalCount,rc=status)
     _VERIFY(STATUS) 
    stream%nt_global = globalCount(1)
