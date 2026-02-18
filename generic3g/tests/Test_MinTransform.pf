@@ -32,6 +32,8 @@ contains
       call initialize_field(update_field, acc%accumulation_field, _RC)
       call assign_fptr(acc%accumulation_field, accPtr, _RC)
       call assign_fptr(update_field, upPtr, _RC)
+      accPtr = undef_value
+      upPtr  = undef_value
       n = size(upPtr)
       i = n - 3
       accPtr(i:n) = [undef_value, ACCUMULATED_VALUE, ACCUMULATED_VALUE, ACCUMULATED_VALUE]
