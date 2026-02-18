@@ -283,6 +283,7 @@ contains
       !!   (performs vertical flip without interpolation)
       !! - Different grids → VerticalRegridTransform with is_degenerate_case=.false.
       !!   (performs full regridding with alignment-aware coordinate canonicalization)
+      ! Check if grids are the same (degenerate case)
       grids_match = dst_%vertical_grid%get_id() == src%vertical_grid%get_id()
       if (.not. grids_match) then
          ! The following allows Basic to match to grids that have the same number of levels
@@ -426,6 +427,7 @@ contains
          return
       end if
       
+
       grid_direction = this%vertical_grid%get_coordinate_direction()
       direction = this%vertical_alignment%resolve(grid_direction)
 

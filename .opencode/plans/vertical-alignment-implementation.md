@@ -277,6 +277,16 @@ end if
    - Uses same pattern as existing fields like `enable_vertical_regrid`
 
 3. **YAML format supported:**
+
+### TASK 6: ExtData Configuration Support
+
+**Files:**
+- `gridcomps/ExtData3G/ExtDataConfig.F90`
+- `gridcomps/ExtData3G/ExtDataRule.F90`
+
+**Changes:**
+
+1. Extend YAML parser:
 ```yaml
 Exports:
   FIELD_NAME:
@@ -285,11 +295,13 @@ Exports:
     vertical_alignment: upward  # "upward" | "downward" | "with_grid" (default)
 ```
 
+
 **Testing:**
 - All ExtData3G unit tests pass
 - Build successful with NAG compiler
 
 **Note:** The vertical_alignment field is now available in ExtDataRule for future use when connecting to field configuration. Direct propagation to VariableSpec via add_var_specs() was not implemented as it would require architectural changes beyond YAML parsing
+2. Store in ExtDataRule
 3. Pass to VariableSpec
 
 **Testing:**
@@ -449,6 +461,74 @@ Break into discrete, self-contained sessions:
 - Commit frequently (checkpoint/restore)
 - Update plan if discoveries require changes
 - Use git history for reference
+
+---
+
+## Session Start Checklist (CRITICAL - DO THIS FIRST)
+
+**⚠️ BEFORE doing ANY work in a new session, complete this checklist:**
+
+1. [ ] **Identify which task(s)** you're working on (e.g., "Task 6")
+
+2. [ ] **Check git status and current branch**
+   ```bash
+   git status
+   git branch --show-current
+   ```
+
+3. [ ] **List existing PRs for current branch**
+   ```bash
+   gh pr list --head $(git branch --show-current)
+   ```
+
+4. [ ] **Determine if you need a NEW branch:**
+   - If current branch already has a PR for different tasks → **CREATE NEW BRANCH**
+   - If current branch is for this exact task → continue on current branch
+   - If unsure → **ASK USER**
+
+5. [ ] **If creating new branch:**
+   ```bash
+   # Format: feature/#ISSUE-taskN-description
+   # Example: feature/#4407-task6-extdata-yaml
+   git checkout develop  # or appropriate base branch
+   git checkout -b feature/#4407-taskN-description
+   ```
+
+6. [ ] **Verify you're on the correct branch**
+   ```bash
+   git branch --show-current  # Confirm branch name matches your task
+   ```
+
+7. [ ] **Confirm with user before proceeding with any work**
+
+**⚠️ DO NOT skip this checklist.**  
+**⚠️ DO NOT assume you're on the right branch.**  
+**⚠️ DO NOT create commits until checklist is complete.**
+
+### Pre-Session Verification Script
+
+Optional helper script to automate checks:
+
+```bash
+# Save as .opencode/scripts/pre-session-check.sh
+#!/bin/bash
+echo "=== Pre-Session Verification ==="
+echo "Current branch: $(git branch --show-current)"
+echo ""
+echo "Existing PRs for this branch:"
+gh pr list --head $(git branch --show-current)
+echo ""
+echo "Git status:"
+git status --short
+echo ""
+read -p "Create NEW branch for this session? (y/n) " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    read -p "Enter new branch name (feature/#ISSUE-taskN-desc): " branch_name
+    git checkout -b "$branch_name"
+    echo "Created and switched to: $branch_name"
+fi
+```
 
 ---
 
