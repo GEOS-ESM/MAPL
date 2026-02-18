@@ -270,15 +270,15 @@ contains
    !!   - Uses regrid_field_ with pre-computed interpolation matrix
    !!   - Regridding handles both interpolation and alignment adjustment
    !!
-   !! @param[in]    this   The transform object
-   !! @param[in]    f_in   Input field
-   !! @param[inout] f_out  Output field (modified in place)
+    !! @param[in]    this   The transform object
+    !! @param[inout] f_in   Input field (ESMF requires inout for pointer access)
+    !! @param[inout] f_out  Output field (modified in place)
    !! @param[out]   rc     Return code
-   subroutine process_field(this, f_in, f_out, rc)
-      class(VerticalRegridTransform), intent(in) :: this
-      type(ESMF_Field), intent(in) :: f_in
-      type(ESMF_Field), intent(inout) :: f_out
-      integer, optional, intent(out) :: rc
+    subroutine process_field(this, f_in, f_out, rc)
+       class(VerticalRegridTransform), intent(in) :: this
+       type(ESMF_Field), intent(inout) :: f_in
+       type(ESMF_Field), intent(inout) :: f_out
+       integer, optional, intent(out) :: rc
 
       integer :: status
 
