@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Added optional local_id to create a simple locstream
+
 ### Deprecated
 
 ## [2.66.0] - 2026-02-13
@@ -39,7 +41,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Added optional local_id to create a simple locstream
 - Update `components.yaml`
   - `ESMA_env` v5.17.0
     - Update to Baselibs 8.24.0
