@@ -11,6 +11,7 @@ module mapl3g_HistoryConstants
    public :: KEY_TYPEKIND
    public :: KEY_UNITS
    public :: KEY_EXPRESSION
+   public :: KEY_INSTANTANEOUS
 
    character(len=*), parameter :: VAR_LIST_KEY = 'var_list'
    character(len=*), parameter :: KEY_TIMESTEP = 'frequency'
@@ -20,6 +21,6 @@ module mapl3g_HistoryConstants
    character(len=*), parameter :: KEY_TYPEKIND = 'typekind'
    character(len=*), parameter :: KEY_UNITS = 'units'
    character(len=*), parameter :: KEY_EXPRESSION = 'expr'
-
+   character(len=*), parameter :: KEY_INSTANTANEOUS = 'instantaneous'
 
 end module mapl3g_HistoryConstants

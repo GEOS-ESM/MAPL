@@ -100,7 +100,7 @@ contains
       has_frequency = ESMF_HConfigIsDefined(time_hconfig, keyString='frequency', _RC)
       if (has_mode) then
          mode = ESMF_HConfigAsString(time_hconfig, keyString='mode', _RC)
-         _RETURN_IF(mode == 'instantenous')
+         _RETURN_IF(mode == 'instantaneous')
          _ASSERT(has_frequency, 'requested statitics performed on collection: '//child_name//' but did not provide frequency of the collection')
 
          stats_hconfig = ESMF_HConfigCreate(_RC)

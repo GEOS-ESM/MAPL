@@ -263,11 +263,10 @@ contains
       item_type=MAPL_STATEITEM_FIELD
       if (index(alias,'[') /= 0 .and. index(alias,']') /= 0 .and. index(alias,',') /= 0) item_type = MAPL_STATEITEM_VECTOR
       varspec_short_name = short_name
-      if (opts%accumulation_type .ne. 'instantaneous') then
+      if (opts%accumulation_type .ne. KEY_INSTANTANEOUS) then
          slash_loc = index(short_name, '/')
          varspec_short_name = short_name(slash_loc+1:)
       end if 
-      _HERE,' bmaa varspec short: '//trim(varspec_short_name)
       varspec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, varspec_short_name, &
            units=opts%units, typekind=opts%typekind, &
            !accumulation_type=opts%accumulation_type, timestep = opts%timestep, &
@@ -323,6 +322,7 @@ contains
       time_iter = ESMF_HConfigCreateAt(hconfig, keyString=KEY_TIME_SPEC, _RC)
 
       hasKey = ESMF_HConfigIsDefined(time_iter, keyString=KEY_ACCUMULATION_TYPE, _RC)
+      options%accumulation_type = KEY_INSTANTANEOUS
       if(hasKey) then
          options%accumulation_type = ESMF_HConfigAsString(time_iter, keyString=KEY_ACCUMULATION_TYPE, _RC)
       end if
@@ -498,12 +498,12 @@ contains
       is_instantaneous = .true.
       has_time_spec = ESMF_HConfigIsDefined(hconfig, keyString=KEY_TIME_SPEC, _RC)
       if (has_time_spec) then
-         mode = 'instantaneous'
+         mode = KEY_INSTANTANEOUS
          has_mode = ESMF_HConfigIsDefined(hconfig, keyString=KEY_ACCUMULATION_TYPE, _RC)
          if (has_mode) then
             mode = ESMF_HConfigAsString(hconfig, keyString=KEY_ACCUMULATION_TYPE, _RC)
          end if
-         is_instantaneous = mode .ne. 'instantaneous' 
+         is_instantaneous = mode .eq. KEY_INSTANTANEOUS
       end if
       _RETURN(_SUCCESS)
    end function
