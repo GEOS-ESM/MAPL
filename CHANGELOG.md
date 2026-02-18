@@ -21,6 +21,8 @@ make using Fortran-allocated memory transparent.
 
 ### Removed
 
+- Added optional local_id to create a simple locstream
+
 ### Deprecated
 
 ## [2.66.0] - 2026-02-13
