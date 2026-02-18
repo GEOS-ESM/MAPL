@@ -236,7 +236,7 @@ if (BUILD_WITH_FARGPARSE)
    add_subdirectory (docs)
    add_subdirectory (benchmarks)
 endif()
-add_subdirectory (python_bridge)
+add_subdirectory(Python)
 
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)
@@ -247,13 +247,6 @@ add_subdirectory (Tests)
 
 # @env will exist here if MAPL is built as itself but not as part of, say, GEOSgcm
 esma_add_subdirectory (ESMA_env FOUND ESMA_env_FOUND)
-
-# Install the Python directory
-install (
-   DIRECTORY Python
-   DESTINATION lib
-   USE_SOURCE_PERMISSIONS
-   )
 
 install (
    DIRECTORY cmake

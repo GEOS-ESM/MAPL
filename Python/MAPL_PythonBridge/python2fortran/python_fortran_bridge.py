@@ -1,6 +1,6 @@
 import cffi
 import os
-from pyGEOSBridge.types import CVoidPointer, FFI
+from MAPL_PythonBridge.types import CVoidPointer, FFI
 from typing import Any
 import numpy as np
 import numpy.typing as npt
@@ -9,7 +9,7 @@ import platform
 ESMF_MAXSTR = 256
 
 
-class MAPLBridge:
+class MAPLPythonFortranBridge:
     """Pure C bridge to Fortran forwarded MAPL API. See `backward_bridge_to_MAPL.F90`
     for Fortran exposure.
 
@@ -217,4 +217,4 @@ class MAPLBridge:
         )
 
 
-MAPL_BRIDGE = MAPLBridge(FFI)
+MAPL_PYHTON_FORTRAN_BRIDGE = MAPLPythonFortranBridge(FFI)

@@ -14,16 +14,16 @@ The target use case is:
 
 ### Define Python code
 
-Your Python code must a class deriving from `pyGEOSBridge.GEOSInterfaceCode` and redefine `init`, `run` and `finalize`. You then must instantiate this class in a `CODE` global variable for the system to properly find it.
+Your Python code must a class deriving from `MAPL_PythonBridge.UserCode` and redefine `init`, `run`, `run_with_internal` and `finalize`. You then must instantiate this class in a `CODE` global variable for the system to properly find it.
 
 E.g.
 
 ```python
 # This code would live in an hypothetical mypackage.my_code
-from pyGEOSBridge import GEOSInterfaceCode
+from MAPL_PythonBridge import UserCode
 
 
-class MyInterfacingCode(GEOSInterfaceCode):
+class MyInterfacingCode(UserCode):
     def __init__(self) -> None:
         pass
 
@@ -42,6 +42,9 @@ class MyInterfacingCode(GEOSInterfaceCode):
         # - if the pointer is "not associated" it will be returned as a None value
         T = MAPLPy.get_pointer("T", state=import_state, dtype=np.float32, dims=MAPLPy.grid_dims)
 
+    def run_with_internal(self, grid_comp, import_state, export_state) -> None:
+        print("Now running MyInterfacingCode.run_with_internal")
+
     def finalize(self, grid_comp, import_state, export_state) -> None:
         print("Now running MyInterfacingCode.finalize")
 
@@ -59,7 +62,7 @@ In the fortran, you can call your python code by giving:
 E.g.
 
 ```fortran
-    call MAPL_pybridge_gcinit( "mypackage.my_code", c_loc(GC), c_loc(IMPORT), c_loc(EXPORT) )
+    call MAPL_pybridge_gcinit( "mypackage.my_code", GC, IMPORT, EXPORT )
 ```
 
 ## Build

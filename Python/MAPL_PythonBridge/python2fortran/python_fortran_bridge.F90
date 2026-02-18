@@ -2,7 +2,7 @@
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLogMain.h"
 
-module C_BRIDGE_TO_MAPL
+module mapl_python_fortran_bridge
     
     use ESMFL_Mod
     use ESMF
@@ -486,4 +486,4 @@ module C_BRIDGE_TO_MAPL
     
     end function
 
-end module C_BRIDGE_TO_MAPL
+end module mapl_python_fortran_bridge

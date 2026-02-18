@@ -1,29 +1,27 @@
 import importlib
 import sys
-from pyGEOSBridge import GEOSInterfaceCode
+from MAPL_PythonBridge import UserCode
 
-from pyGEOSBridge.types import FFI, CVoidPointer
-from pyGEOSBridge.memory import get_fortran_python_converter
-from pyGEOSBridge.mapl import set_MAPLPy
+from MAPL_PythonBridge.types import FFI, CVoidPointer
+from MAPL_PythonBridge.memory import get_fortran_python_converter
+from MAPL_PythonBridge.python2fortran import set_MAPLPy
 
 # See file for explanation
-from pyGEOSBridge.ieee_import_bypass import *  # noqa: F403
+from MAPL_PythonBridge.ieee_import_bypass import *  # noqa: F403
 
 # - - - DSL Grid Comp Interfacing - - - #
 
 
 def global_initialize(IM, JM, LM):
     """Initialize the global MAPLPy object"""
-    from pyGEOSBridge.mapl.mapl_bridge import MAPL_BRIDGE  # Spin the MAPL backbridge
-
     fpy_converter = get_fortran_python_converter(IM, JM, LM)
-    set_MAPLPy(MAPL_BRIDGE, fpy_converter)
+    set_MAPLPy(fpy_converter)
 
 
 # - - - DSL Grid Comp Interfacing - - - #
 
 
-def _get_code_object_from_package_name(c_package_name: FFI.CData) -> GEOSInterfaceCode:
+def _get_code_object_from_package_name(c_package_name: FFI.CData) -> UserCode:
     """Dynamically load the user module and return the `CODE` variable.
 
     Args:
@@ -42,7 +40,7 @@ def _get_code_object_from_package_name(c_package_name: FFI.CData) -> GEOSInterfa
     except AttributeError:
         raise AttributeError(f"Module {package_name} doesn't have a CODE object")
 
-    if not isinstance(CODE, GEOSInterfaceCode):
+    if not isinstance(CODE, UserCode):
         raise TypeError(f"CODE object from module {package_name} does not derive from GridCompInterface")
 
     return CODE

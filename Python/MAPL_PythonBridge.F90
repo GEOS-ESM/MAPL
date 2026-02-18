@@ -14,7 +14,7 @@ module MAPL_PythonBridge
     use MAPL_GenericMod
     use MaplShared
 #ifdef PYTHONBRIDGE_INTEGRATION
-    use GEOS_PythonBridge_PyInterfaceMod
+    use mapl_fortran_python_bridge
     use ieee_exceptions, only: ieee_get_halting_mode, ieee_set_halting_mode, ieee_overflow, ieee_support_halting
     use iso_c_binding, only: c_loc, C_NULL_CHAR
 #endif
@@ -59,7 +59,7 @@ contains
             call ieee_get_halting_mode(ieee_overflow, halting_mode)
             call ieee_set_halting_mode(ieee_overflow, .false.)
         endif
-        call MAPL_PythonBridge_C_global_initialize(IM, JM, LM)
+        call mapl_fortran_python_bridge_global_initialize(IM, JM, LM)
         if (set_halting_allowed) then
             call ieee_set_halting_mode(ieee_overflow, halting_mode)
         endif
@@ -81,7 +81,7 @@ contains
     
 #ifdef PYTHONBRIDGE_INTEGRATION
         PYGEOSBRIDGE_NAME_BUFFER = PYPKG_NAME // C_NULL_CHAR
-        call pyGEOSBridge_C_init( c_loc(PYGEOSBRIDGE_NAME_BUFFER), c_loc(MAPL), c_loc(IMPORT), c_loc(EXPORT) )
+        call mapl_fortran_python_bridge_user_init( c_loc(PYGEOSBRIDGE_NAME_BUFFER), c_loc(MAPL), c_loc(IMPORT), c_loc(EXPORT) )
 #endif
     end subroutine
 
@@ -99,7 +99,7 @@ contains
     
 #ifdef PYTHONBRIDGE_INTEGRATION
         PYGEOSBRIDGE_NAME_BUFFER = PYPKG_NAME // C_NULL_CHAR
-        call pyGEOSBridge_C_run( c_loc(PYGEOSBRIDGE_NAME_BUFFER), c_loc(MAPL), c_loc(IMPORT), c_loc(EXPORT) )
+        call mapl_fortran_python_bridge_user_run( c_loc(PYGEOSBRIDGE_NAME_BUFFER), c_loc(MAPL), c_loc(IMPORT), c_loc(EXPORT) )
 #endif
     end subroutine
 
@@ -118,7 +118,7 @@ contains
     
 #ifdef PYTHONBRIDGE_INTEGRATION
         PYGEOSBRIDGE_NAME_BUFFER = PYPKG_NAME // C_NULL_CHAR
-        call pyGEOSBridge_C_run_with_internal( c_loc(PYGEOSBRIDGE_NAME_BUFFER), c_loc(MAPL), c_loc(IMPORT), c_loc(EXPORT), c_loc(INTERNAL) )
+        call mapl_fortran_python_bridge_user_run_with_internal( c_loc(PYGEOSBRIDGE_NAME_BUFFER), c_loc(MAPL), c_loc(IMPORT), c_loc(EXPORT), c_loc(INTERNAL) )
 #endif
     end subroutine
 
@@ -136,7 +136,7 @@ contains
     
 #ifdef PYTHONBRIDGE_INTEGRATION
         PYGEOSBRIDGE_NAME_BUFFER = PYPKG_NAME // C_NULL_CHAR
-        call pyGEOSBridge_C_finalize( c_loc(PYGEOSBRIDGE_NAME_BUFFER), c_loc(MAPL), c_loc(IMPORT), c_loc(EXPORT) )
+        call mapl_fortran_python_bridge_user_finalize( c_loc(PYGEOSBRIDGE_NAME_BUFFER), c_loc(MAPL), c_loc(IMPORT), c_loc(EXPORT) )
 #endif
     end subroutine
 end MODULE MAPL_PythonBridge

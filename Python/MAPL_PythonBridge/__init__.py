@@ -3,10 +3,10 @@
 See README.md for informations.
 """
 
-from .geos_interface_code import GEOSInterfaceCode  # isort: skip
+from .user_code import UserCode  # isort: skip
 from .hooks import global_initialize
 from .hooks import named_init, named_run, named_run_with_internal, named_finalize
-from .mapl import get_MAPLPy
+from .python2fortran import get_MAPLPy
 
 __all__ = [
     "global_initialize",
@@ -15,9 +15,8 @@ __all__ = [
     "named_run",
     "named_run_with_internal",
     "named_finalize",
-    "get_fpy_converter",
     #
-    "GEOSInterfaceCode",
+    "UserCode",
     #
     "get_MAPLPy",
 ]

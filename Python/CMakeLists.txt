@@ -6,11 +6,11 @@ set (srcs
 
 if (BUILD_PYTHONBRIDGE)
   list (APPEND srcs
-    pyGEOSBridge/interface/bridge.F90
-    pyGEOSBridge/interface/bridge.c
-    pyGEOSBridge/mapl/backward_bridge_to_MAPL.F90)
+    MAPL_PythonBridge/fortran2python/fortran_python_bridge.F90
+    MAPL_PythonBridge/fortran2python/fortran_python_bridge.c
+    MAPL_PythonBridge/python2fortran/python_fortran_bridge.F90)
 
-  message(STATUS "Building Python Bridge to interface with Python code")
+  message(STATUS "Building MAPL Python Bridge to interface Fortan code with Python")
 
   add_definitions(-DPYTHONBRIDGE_INTEGRATION)
   
@@ -20,10 +20,10 @@ if (BUILD_PYTHONBRIDGE)
   find_package(Python3 COMPONENTS Interpreter REQUIRED)
 
   # Set up some variables in case names change
-  set(PythonBridge_INTERFACE_LIBRARY          ${CMAKE_CURRENT_BINARY_DIR}/libPythonBridge_interface_py${CMAKE_SHARED_LIBRARY_SUFFIX})
-  set(PythonBridge_INTERFACE_HEADER_FILE      ${CMAKE_CURRENT_BINARY_DIR}/PythonBridge_interface_py.h)
-  set(PythonBridge_INTERFACE_FLAG_HEADER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/pyGEOSBridge/interface/bridge.h)
-  set(PythonBridge_INTERFACE_SRCS             ${CMAKE_CURRENT_SOURCE_DIR}/pyGEOSBridge/interface/bridge.py)
+  set(PythonBridge_INTERFACE_LIBRARY          ${CMAKE_CURRENT_BINARY_DIR}/libmapl_fortan_python_cffi_bridge${CMAKE_SHARED_LIBRARY_SUFFIX})
+  set(PythonBridge_INTERFACE_HEADER_FILE      ${CMAKE_CURRENT_BINARY_DIR}/mapl_fortan_python_cffi_bridge.h)
+  set(PythonBridge_INTERFACE_FLAG_HEADER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/MAPL_PythonBridge/fortran2python/fortran_python_bridge.h)
+  set(PythonBridge_INTERFACE_SRCS             ${CMAKE_CURRENT_SOURCE_DIR}/MAPL_PythonBridge/fortran2python/fortran_python_bridge.py)
 
   # This command creates the shared object library from Python
   add_custom_command(
@@ -91,5 +91,19 @@ if (BUILD_PYTHONBRIDGE)
 else ()
   set(dependencies MAPL.base MAPL.generic MAPL.shared ESMF::ESMF)
 endif()
+
+# Install the Python/MAPL directory
+install (
+  DIRECTORY MAPL
+  DESTINATION lib/Python
+  USE_SOURCE_PERMISSIONS
+  )
+
+# Install the Python/MAPL_PythonBridge directory
+install (
+  DIRECTORY MAPL_PythonBridge
+  DESTINATION lib/Python
+  USE_SOURCE_PERMISSIONS
+)
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES ${dependencies} TYPE SHARED)

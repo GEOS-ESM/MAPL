@@ -1,11 +1,14 @@
 import dataclasses
-from pyGEOSBridge.mapl.mapl_bridge import MAPLBridge
-from pyGEOSBridge.memory.fortran_python_converter import FortranPythonConverter
-from pyGEOSBridge.types import CVoidPointer
+from MAPL_PythonBridge.python2fortran.python_fortran_bridge import (
+    MAPLPythonFortranBridge,
+    MAPL_PYHTON_FORTRAN_BRIDGE,
+)
+from MAPL_PythonBridge.memory.fortran_python_converter import FortranPythonConverter
+from MAPL_PythonBridge.types import CVoidPointer
 
 import numpy as np
 import numpy.typing as npt
-from typing import Any, Tuple
+from typing import Any
 
 
 @dataclasses.dataclass(frozen=True)
@@ -20,7 +23,7 @@ class MAPLGridInfo:
 class MAPLPyAPI:
     """Public facing MAPL Python API of the original Fortran's MAPL."""
 
-    def __init__(self, mapl_bridge: MAPLBridge, fpy_converter: FortranPythonConverter) -> None:
+    def __init__(self, mapl_bridge: MAPLPythonFortranBridge, fpy_converter: FortranPythonConverter) -> None:
         self._mapl_bridge = mapl_bridge
         self._fpy_converter = fpy_converter
 
@@ -29,7 +32,7 @@ class MAPLPyAPI:
         name: str,
         state: CVoidPointer,
         dtype: npt.DTypeLike = np.float32,
-        dims: Tuple[int, ...] | None = None,
+        dims: list[int] | None = None,
         alloc: bool = False,
     ) -> np.ndarray | None:
         """Equivalent of Fortran's `MAPL_GetPointer`
@@ -85,19 +88,19 @@ class MAPLPyAPI:
         )
 
     @property
-    def grid_dims(self) -> Tuple[int, int, int]:
+    def grid_dims(self) -> list[int]:
         return [self._fpy_converter.im, self._fpy_converter.jm, self._fpy_converter.lm]
 
 
 MAPLPy: MAPLPyAPI | None = None
 
 
-def set_MAPLPy(mapl_bridge: MAPLBridge, fpy_converter: FortranPythonConverter) -> None:
+def set_MAPLPy(fpy_converter: FortranPythonConverter) -> None:
     """Initialization of the global MAPLPy accessor"""
     global MAPLPy
     if MAPLPy is not None:
         raise RuntimeError("[MAPLPy] Double initialization is forbidden")
-    MAPLPy = MAPLPyAPI(mapl_bridge, fpy_converter)
+    MAPLPy = MAPLPyAPI(MAPL_PYHTON_FORTRAN_BRIDGE, fpy_converter)
 
 
 def get_MAPLPy() -> MAPLPyAPI:

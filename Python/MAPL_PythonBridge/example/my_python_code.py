@@ -1,8 +1,8 @@
-from pyGEOSBridge import GEOSInterfaceCode, get_MAPLPy
+from MAPL_PythonBridge import UserCode, get_MAPLPy
 import numpy as np
 
 
-class MyInterfacingCode(GEOSInterfaceCode):
+class MyInterfacingCode(UserCode):
     def __init__(self) -> None:
         pass
 
