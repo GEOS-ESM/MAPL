@@ -408,6 +408,7 @@ contains
          direction = VCOORD_DIRECTION_INVALID
          return
       end if
+      
 
       grid_direction = this%vertical_grid%get_coordinate_direction()
       direction = this%vertical_alignment%resolve(grid_direction)

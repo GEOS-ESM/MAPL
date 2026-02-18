@@ -1,0 +1,13 @@
+# Scenario: Test "with_grid" default vertical alignment
+# Both components use vertical_alignment: with_grid (default)
+# Component A has downward grid (3 levels)
+# Component B has downward grid (2 levels)
+# Expected: Fields should use their respective grid's coordinate_direction (downward)
+
+- component: A
+  export:
+    E_A: {status: complete, typekind: R4, rank: 3, value: 15.}
+
+- component: B
+  import:
+    I_B: {status: complete, typekind: R4, rank: 3, value: 15.}
