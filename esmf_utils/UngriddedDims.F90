@@ -49,6 +49,7 @@ module mapl3g_UngriddedDims
       module procedure not_equal_to
    end interface operator(/=)
 
+   character(len=*), parameter :: KEY_IS_MIRROR = "/is_mirror"
 
 contains
 
@@ -193,6 +194,10 @@ contains
       character(:), allocatable :: dim_key
 
       info = ESMF_InfoCreate(_RC)
+
+      call MAPL_InfoSet(info, key=KEY_IS_MIRROR, value=this%is_mirror, _RC)
+      _RETURN_IF(this%is_mirror)
+
       call MAPL_InfoSet(info, key='/num_ungridded_dimensions', value=this%get_num_ungridded(), _RC)
 
       do i = 1, this%get_num_ungridded()
@@ -203,7 +208,6 @@ contains
          call ESMF_InfoSet(info, key=dim_key, value=dim_info, _RC)
          call ESMF_InfoDestroy(dim_info, _RC)
       end do
-
 
       _RETURN(_SUCCESS)
    end function make_info
@@ -221,8 +225,18 @@ contains
       character(:), allocatable :: dim_key
       type(UngriddedDim), allocatable :: dim_specs(:)
       character(:), allocatable :: full_key
+      logical :: is_mirror, key_is_present
+      
+      is_mirror = .FALSE.
+      full_key = KEY_IS_MIRROR
+      if (present(key)) full_key = key // full_key
+      key_is_present = ESMF_InfoIsPresent(info, key=full_key, _RC)
+      if(key_is_present) then
+         call MAPL_InfoGet(info, key=full_key, value=is_mirror, _RC)
+      end if
+      ungridded_dims = UngriddedDims(is_mirror)
+      _RETURN_IF(is_mirror)
 
-      ungridded_dims = UngriddedDims()
       full_key = KEY_NUM_UNGRIDDED_DIMS
       if (present(key)) then
          full_key = key // full_key

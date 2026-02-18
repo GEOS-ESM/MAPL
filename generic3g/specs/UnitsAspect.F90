@@ -232,7 +232,7 @@ contains
       character(len=:), allocatable :: units
 
       integer :: status
-      type(ESMF_Info) :: info
+!      type(ESMF_Info) :: info !wdb fixme deleteme 
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
 

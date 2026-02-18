@@ -54,7 +54,7 @@ contains
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
 
       call aspect%set_mirror(.true.)
-      aspect%ungridded_dims = UngriddedDims()
+      aspect%ungridded_dims = UngriddedDims(is_mirror=.true.)
 
       if (present(ungridded_dims)) then
          aspect%ungridded_dims = ungridded_dims
@@ -202,15 +202,18 @@ contains
       type(esmf_FieldBundle), optional, intent(inout) :: bundle
       type(esmf_State), optional, intent(inout) :: state
       integer, optional, intent(out) :: rc
+      type(UngriddedDims) :: ungridded_dims
 
       integer :: status
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
 
+      ungridded_dims = this%ungridded_dims
+      if(this%is_mirror()) ungridded_dims = UngriddedDims(is_mirror=.TRUE.)
       if (present(field)) then
-         call mapl_FieldSet(field, ungridded_dims=this%ungridded_dims, _RC)
+         call mapl_FieldSet(field, ungridded_dims=ungridded_dims, _RC)
       else if (present(bundle)) then
-         call mapl_FieldBundleSet(bundle, ungridded_dims=this%ungridded_dims, _RC)
+         call mapl_FieldBundleSet(bundle, ungridded_dims=ungridded_dims, _RC)
       end if
 
       _RETURN(_SUCCESS)
