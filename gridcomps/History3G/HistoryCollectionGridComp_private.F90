@@ -78,6 +78,7 @@ contains
       type(ESMF_FieldBundle) :: vector_bundle
       type(StringVector) :: alias_vector
       type(ESMF_Field), allocatable :: field_list(:)
+      logical :: instantaneous
 
       var_list = ESMF_HConfigCreateAt(hconfig, keystring=VAR_LIST_KEY, _RC)
       iter_begin = ESMF_HConfigIterBegin(var_list,_RC)
@@ -88,7 +89,8 @@ contains
       bundle = ESMF_FieldBundleCreate(_RC)
       do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
          call parse_item(iter, short_name=short_name, alias=alias, name_in_comp=name_in_comp, _RC)
-         short_name = name_in_comp !bmaa we need to only do this is the colleciton is not instantaneous
+         instantaneous = is_instantaneous(hconfig, _RC)
+         if (.not. instantaneous) short_name = name_in_comp 
          call MAPL_StateGet(import_state, short_name, item_type, _RC)
          if (item_type == MAPL_STATEITEM_FIELD) then
             call ESMF_StateGet(import_state, short_name, field, _RC)
@@ -484,5 +486,26 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine 
+
+   logical function is_instantaneous(hconfig, rc)
+      type(ESMF_HConfig), intent(in) :: hconfig
+      integer, optional, intent(out) :: rc
+
+      logical :: has_mode, has_time_spec
+      integer :: status
+      character(len=:), allocatable :: mode 
+
+      is_instantaneous = .true.
+      has_time_spec = ESMF_HConfigIsDefined(hconfig, keyString=KEY_TIME_SPEC, _RC)
+      if (has_time_spec) then
+         mode = 'instantaneous'
+         has_mode = ESMF_HConfigIsDefined(hconfig, keyString=KEY_ACCUMULATION_TYPE, _RC)
+         if (has_mode) then
+            mode = ESMF_HConfigAsString(hconfig, keyString=KEY_ACCUMULATION_TYPE, _RC)
+         end if
+         is_instantaneous = mode .ne. 'instantaneous' 
+      end if
+      _RETURN(_SUCCESS)
+   end function
 
 end module mapl3g_HistoryCollectionGridComp_private
