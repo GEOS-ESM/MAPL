@@ -1070,7 +1070,7 @@ contains
 
    ! Use "<SELF>" to indicate connection to gridcomp.
    ! src_name and dst_name can be comma-delimited strings for multiple connection
-   subroutine gridcomp_add_simple_connectivity(gridcomp, unusable, src_comp, src_names, dst_comp, dst_names, rc)
+   subroutine gridcomp_add_simple_connectivity(gridcomp, src_comp, src_names, dst_comp, unusable, dst_names, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), intent(in) :: src_comp
