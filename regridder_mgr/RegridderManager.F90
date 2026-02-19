@@ -1,18 +1,19 @@
 #include "MAPL.h"
+
 module mapl3g_RegridderManager
+
    use mapl3g_Geom_API, only: GeomManager, get_geom_manager
    use mapl3g_RegridderSpec
    use mapl3g_Regridder
    use mapl3g_NullRegridder
    use mapl3g_RegridderFactory
-
    use mapl3g_RegridderFactoryVector
    use mapl3g_RegridderSpecVector
    use mapl3g_RegridderVector
    use mapl3g_EsmfRegridderFactory
-
    use ESMF, only: ESMF_GeomGet, ESMF_GeomType_Flag, ESMF_GEOMTYPE_LOCSTREAM
    use mapl_ErrorHandlingMod
+
    implicit none
    private
 
@@ -53,12 +54,10 @@ contains
       if (present(geom_manager)) then
          mgr%geom_manager => geom_manager
       end if
-      
+
       call mgr%add_factory(EsmfRegridderFactory())
 !!$      call mgr%add_factory(horzHorzFluxRegridderFactory())
-
    end function new_RegridderManager
-
 
    ! TODO - do we need an RC here for duplicate name?
    subroutine add_factory(this, factory)
@@ -67,7 +66,6 @@ contains
       call this%factories%push_back(factory)
    end subroutine add_factory
 
-
    subroutine add_regridder(this, spec, regriddr)
       class(RegridderManager), intent(inout) :: this
       class(RegridderSpec), intent(in) :: spec
@@ -75,7 +73,6 @@ contains
 
       call this%specs%push_back(spec)
       call this%regridders%push_back(regriddr)
-     
    end subroutine add_regridder
 
    subroutine delete_regridder(this, spec, rc)
@@ -83,7 +80,6 @@ contains
       class(RegridderSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
 
-      integer :: status
       type(RegridderSpecVectorIterator) :: spec_iter
       type(RegridderVectorIterator) :: regridder_iter
 
@@ -115,7 +111,7 @@ contains
       type(ESMF_GeomType_Flag) :: geomtype_in
 
       regriddr => null() ! default in case of failure
-      
+
       ! Disallow LocStream geometries as regrid sources. If the caller
       ! provides an "rc" argument, return a clean non-zero status so
       ! they can test for it; otherwise raise a MAPL assertion with a
@@ -174,7 +170,6 @@ contains
       end if
 
       regridder_mgr => regridder_manager
-         
    end function get_regridder_manager
 
 end module mapl3g_RegridderManager

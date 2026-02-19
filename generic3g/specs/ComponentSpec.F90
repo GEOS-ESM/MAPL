@@ -51,9 +51,9 @@ module mapl3g_ComponentSpec
    contains
       procedure :: has_geom_hconfig
       procedure :: add_var_spec
-      procedure :: add_connection_conn
-      generic :: add_connection => add_connection_conn
-      procedure :: add_connectivity
+       procedure :: add_connection_conn
+       generic :: add_connection => add_connection_conn, add_connection_strings
+       procedure :: add_connection_strings
       procedure :: reexport
    end type ComponentSpec
 
@@ -90,7 +90,7 @@ contains
       call this%connections%push_back(conn)
    end subroutine add_connection_conn
 
-   subroutine add_connectivity(this, unusable, src_comp, src_names, dst_comp, dst_names, rc)
+   subroutine add_connection_strings(this, unusable, src_comp, src_names, dst_comp, dst_names, rc)
       class(ComponentSpec), intent(inout) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), intent(in) :: src_comp
@@ -121,7 +121,7 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end subroutine add_connectivity
+   end subroutine add_connection_strings
 
    subroutine reexport(this, unusable, src_comp, src_name, src_intent, new_name, rc)
       class(ComponentSpec), intent(inout) :: this

@@ -14,21 +14,22 @@ contains
 
       integer :: status
       integer :: im, jm
-      real(kind=ESMF_KIND_R8), pointer :: longitudes(:,:)
-      real(kind=ESMF_KIND_R8), pointer :: latitudes(:,:)
+      integer :: counts(3)
       real(kind=ESMF_KIND_R8), allocatable :: corner_lons(:,:)
       real(kind=ESMF_KIND_R8), allocatable :: corner_lats(:,:)
 
-      call GridGetCoords(grid, longitudes, latitudes, _RC)
-      im = size(longitudes,1)
-      jm = size(longitudes,2)
+      ! Get grid dimensions from exclusiveCount (without halos)
+      ! This must match how legacy_get_corners computes im and jm
+      call ESMF_GridGet(grid, localDe=0, staggerloc=ESMF_STAGGERLOC_CENTER, exclusiveCount=counts, _RC)
+      im = counts(1)
+      jm = counts(2)
 
       allocate(corner_lons(im+1,jm+1))
       allocate(corner_lats(im+1,jm+1))
 
       call legacy_get_corners(grid, corner_lons, corner_lats, _RC)
 
-      allocate(corners(size(longitudes,1),size(longitudes,2),2))
+      allocate(corners(im+1,jm+1,2))
       corners(:,:,1) = corner_lons
       corners(:,:,2) = corner_lats
 

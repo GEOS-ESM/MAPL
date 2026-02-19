@@ -4,6 +4,7 @@ module Test_FixedLevelsVerticalGrid
    use mapl3g_VerticalGridSpec, only: VerticalGridSpec
    use mapl3g_VerticalGrid, only: VerticalGrid
    use mapl3g_VerticalStaggerLoc, only: VERTICAL_STAGGER_CENTER, VERTICAL_STAGGER_EDGE
+   use mapl3g_VerticalCoordinateDirection
    use esmf, only: esmf_HConfig, ESMF_TYPEKIND_R4
    use esmf, only: esmf_HConfigCreate, esmf_HConfigDestroy
    implicit none
@@ -49,6 +50,46 @@ contains
       @assertEqual("pressure", grid%get_physical_dimension(), 'Physical dimension should match')
       @assertEqual("Pa", grid%get_units('pressure'), 'Units should match')
    end subroutine test_fixed_level_grid_initialization
+
+
+   @test
+   subroutine test_fixed_level_coordinate_direction_default()
+      type(FixedLevelsVerticalGridSpec) :: spec
+      type(FixedLevelsVerticalGrid) :: grid
+      real, parameter :: test_levels(3) = [1000.0, 500.0, 100.0]
+      type(VerticalCoordinateDirection) :: direction
+      
+      spec%levels = test_levels
+      spec%physical_dimension = "pressure"
+      spec%units = "Pa"
+      
+      call grid%initialize(spec)
+      direction = grid%get_coordinate_direction()
+      @assertEqual("downward", direction%to_string(), 'Default coordinate direction should be downward')
+   end subroutine test_fixed_level_coordinate_direction_default
+
+
+   @test
+   subroutine test_fixed_level_coordinate_direction_get_set()
+      type(FixedLevelsVerticalGridSpec) :: spec
+      type(FixedLevelsVerticalGrid) :: grid
+      real, parameter :: test_levels(3) = [1000.0, 500.0, 100.0]
+      type(VerticalCoordinateDirection) :: direction
+      
+      spec%levels = test_levels
+      spec%physical_dimension = "pressure"
+      spec%units = "Pa"
+      
+      call grid%initialize(spec)
+      
+      call grid%set_coordinate_direction(VCOORD_DIRECTION_UP)
+      direction = grid%get_coordinate_direction()
+      @assertEqual("upward", direction%to_string(), 'Should be able to set to upward')
+      
+      call grid%set_coordinate_direction(VCOORD_DIRECTION_DOWN)
+      direction = grid%get_coordinate_direction()
+      @assertEqual("downward", direction%to_string(), 'Should be able to set to downward')
+   end subroutine test_fixed_level_coordinate_direction_get_set
 
 
    @test

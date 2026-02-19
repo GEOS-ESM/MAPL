@@ -3,6 +3,7 @@
 module mapl3g_FieldCreate
 
    use mapl3g_VerticalStaggerLoc
+   use mapl3g_VerticalAlignment
    use mapl3g_FieldInfo
    use mapl3g_FieldGet
    use mapl3g_UngriddedDims
@@ -50,7 +51,7 @@ contains
         name, &
         gridToFieldMap, ungridded_dims, &
         ! Optional MAPL args
-        num_levels, vert_staggerloc, &
+        num_levels, vert_staggerloc, vert_alignment, &
         units, standard_name, long_name, &
         rc) result(field)
       type(ESMF_Field) :: field
@@ -62,6 +63,7 @@ contains
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       integer, optional, intent(in) :: num_levels
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
+      type(VerticalAlignment), optional, intent(in) :: vert_alignment
       character(len=*), optional, intent(in) :: units
       character(len=*), optional, intent(in) :: standard_name
       character(len=*), optional, intent(in) :: long_name
@@ -79,7 +81,7 @@ contains
       call ESMF_FieldEmptySet(field, geom=geom, _RC)
       call MAPL_FieldEmptyComplete(field, &
            typekind=typekind, gridToFieldMap=gridToFieldMap, ungridded_dims=ungrd, &
-           num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
+           num_levels=num_levels, vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, &
            units=units, standard_name=standard_name, long_name=long_name, &
            _RC)
 
@@ -177,7 +179,7 @@ contains
    subroutine field_empty_complete(field, &
         typekind, unusable, &
         gridToFieldMap, ungridded_dims, &
-        num_levels, vert_staggerloc, &
+        num_levels, vert_staggerloc, vert_alignment, &
         units, standard_name, &
         long_name, &
         rc)
@@ -188,6 +190,7 @@ contains
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       integer, optional, intent(in) :: num_levels
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
+      type(VerticalAlignment), optional, intent(in) :: vert_alignment
       character(len=*), optional, intent(in) :: units
       character(len=*), optional, intent(in) :: standard_name
       character(len=*), optional, intent(in) :: long_name
@@ -229,6 +232,7 @@ contains
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, &
            vert_staggerloc=vert_staggerloc_, &
+           vert_alignment=vert_alignment, &
            units=units, &
            standard_name=standard_name, &
            long_name=long_name, &

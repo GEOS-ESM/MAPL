@@ -2,6 +2,7 @@
 #include "unused_dummy.H"
 
 module pFIO_VariableMod
+
    use pFIO_UtilitiesMod
    use MAPL_ExceptionHandling
    use gFTL2_StringVector
@@ -13,6 +14,7 @@ module pFIO_VariableMod
    use pFIO_StringAttributeMapMod
    use pFIO_StringAttributeMapUtilMod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
+
    implicit none
    private
 
@@ -66,16 +68,13 @@ module pFIO_VariableMod
       procedure :: not_equal
 
       procedure :: serialize
-
    end type Variable
-
 
    interface Variable
       module procedure new_Variable
    end interface Variable
 
 contains
-
 
    function new_Variable(unusable, type, dimensions, chunksizes,const_value, deflation, quantize_algorithm, quantize_level, zstandard_level, rc) result(var)
       type (Variable) :: var
@@ -136,6 +135,7 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+
    contains
 
       subroutine parse_dimensions()
@@ -152,16 +152,13 @@ contains
          end do
       end subroutine parse_dimensions
 
-
    end function new_Variable
-
 
    integer function get_type(this) result(type)
       class (Variable), intent(in) :: this
 
       type = this%type
    end function get_type
-
 
    function get_ith_dimension(this, i, unusable, rc) result(dimension_name)
       character(len=:), pointer :: dimension_name
@@ -177,8 +174,8 @@ contains
          dimension_name => this%dimensions%at(i)
          _RETURN(_SUCCESS)
       end if
-      _UNUSED_DUMMY(unusable)
 
+      _UNUSED_DUMMY(unusable)
    end function get_ith_dimension
 
    function get_dimensions(this) result(dimensions)
@@ -186,16 +183,13 @@ contains
       type (StringVector), pointer :: dimensions
 
       dimensions => this%dimensions
-
    end function get_dimensions
-
 
    function get_attributes(this) result(attributes)
       class (Variable), target, intent(in) :: this
       type (StringAttributeMap), pointer :: attributes
 
       attributes => this%attributes
-
    end function get_attributes
 
    subroutine remove_attribute(this,attr_name,rc)
@@ -203,10 +197,10 @@ contains
       character(len=*), intent(in) :: attr_name
       integer, optional, intent(out) :: rc
       type(StringAttributeMapIterator) :: iter
-      integer :: status
 
       iter = this%attributes%find(attr_name)
       call this%attributes%erase(iter)
+
       _RETURN(_SUCCESS)
    end subroutine
 
@@ -239,7 +233,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_attribute_1d
 
-
    function is_attribute_present(this, attr_name, rc) result(isPresent)
       type (Attribute), pointer :: attr
       class (Variable), target, intent(in) :: this
@@ -249,8 +242,8 @@ contains
 
       attr => this%attributes%at(attr_name)
       isPresent = associated(attr)
-      _RETURN(_SUCCESS)
 
+      _RETURN(_SUCCESS)
    end function is_attribute_present
 
    function get_attribute(this, attr_name, rc) result(attr)
@@ -261,6 +254,7 @@ contains
 
       attr => this%attributes%at(attr_name)
       _ASSERT(associated(attr), "no such attribute : " // trim(attr_name))
+
       _RETURN(_SUCCESS)
    end function get_attribute
 
@@ -404,6 +398,7 @@ contains
       _ASSERT( dims == rank, "dimensions and rank don't match.  Add dimension first")
 
       this%const_value = const_value
+
       _RETURN(_SUCCESS)
    end subroutine add_const_value
 
@@ -412,7 +407,6 @@ contains
       type (UnlimitedEntity), pointer :: const_value
 
       const_value =>this%const_value
-
    end function get_const_value
 
    function get_chunksizes(this) result(chunksizes)
@@ -424,7 +418,6 @@ contains
       else
          nullify(chunksizes)
       end if
-
    end function get_chunksizes
 
    function get_deflation(this) result(deflateLevel)
@@ -504,8 +497,6 @@ contains
 
          call iter%next()
       end do
-
-
    end function equal
 
    logical function not_equal(a, b)
@@ -550,15 +541,19 @@ contains
    end subroutine
 
    subroutine Variable_deserialize(buffer, var, rc)
+
       integer, intent(in) :: buffer(:)
       type (Variable), intent(inout) :: var
       integer, optional, intent(out) :: rc
       integer :: status
       var = Variable()
       call deserialize(var, buffer, rc=status)
+
       _VERIFY(status)
       _RETURN(_SUCCESS)
+
    contains
+
       subroutine deserialize(this, buffer, rc)
          class (Variable), intent(inout) :: this
          integer,intent(in) :: buffer(:)
@@ -608,6 +603,7 @@ contains
          call deserialize_intrinsic(buffer(n:),this%chunksizes)
          _RETURN(_SUCCESS)
       end subroutine deserialize
-  end subroutine Variable_deserialize
+
+   end subroutine Variable_deserialize
 
 end module pFIO_VariableMod

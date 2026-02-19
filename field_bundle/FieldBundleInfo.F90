@@ -8,6 +8,8 @@ module mapl3g_FieldBundleInfo
    use mapl3g_FieldInfo
    use mapl3g_UngriddedDims
    use mapl3g_FieldBundleType_Flag
+   use mapl3g_VectorBasisKind
+   use mapl3g_VerticalAlignment
    use mapl3g_VerticalGrid_API
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
@@ -37,13 +39,14 @@ contains
         vgrid_id, &
         fieldBundleType, &
         typekind, interpolation_weights, &
-        ungridded_dims, num_levels, vert_staggerloc, num_vgrid_levels, &
+        ungridded_dims, num_levels, vert_staggerloc, vert_alignment, num_vgrid_levels, &
         units, long_name, standard_name, &
         allocation_status, &
         bracket_updated, &
         has_geom, &
         has_deferred_aspects, &
         regridder_param_info, &
+        vector_basis_kind, &
         rc)
 
       type(ESMF_Info), intent(in) :: info
@@ -56,6 +59,7 @@ contains
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       integer, optional, intent(out) :: num_levels
       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
+      type(VerticalAlignment), optional, intent(out) :: vert_alignment
       integer, optional, intent(out) :: num_vgrid_levels
       character(:), optional, allocatable, intent(out) :: units
       character(:), optional, allocatable, intent(out) :: long_name
@@ -65,10 +69,12 @@ contains
       logical, optional, intent(out) :: has_geom
       logical, optional, intent(out) :: has_deferred_aspects
       type(esmf_Info), optional, allocatable, intent(out) :: regridder_param_info
+      type(VectorBasisKind), optional, intent(out) :: vector_basis_kind
       integer, optional, intent(out) :: rc
 
       integer :: status
       character(:), allocatable :: fieldBundleType_str, allocation_status_str
+      character(:), allocatable :: basis_kind_str
       character(:), allocatable :: namespace_
 
       namespace_ = INFO_INTERNAL_NAMESPACE
@@ -98,11 +104,20 @@ contains
          call ESMF_InfoGet(info, key=namespace_//KEY_HAS_GEOM, value=has_geom, default=.false., _RC)
       end if
 
+      if (present(vector_basis_kind)) then
+         if (ESMF_InfoIsPresent(info, key=namespace_//KEY_VECTOR_BASIS_KIND)) then
+            call MAPL_InfoGet(info, key=namespace_//KEY_VECTOR_BASIS_KIND, value=basis_kind_str, _RC)
+            vector_basis_kind = VectorBasisKind(basis_kind_str)
+         else
+            vector_basis_kind = VECTOR_BASIS_KIND_NS  ! Default
+         end if
+      end if
+
       ! Field-prototype items that come from field-info (including typekind)
       call FieldInfoGetInternal(info, namespace = namespace_//KEY_FIELD_PROTOTYPE, &
            typekind=typekind, &
            ungridded_dims=ungridded_dims, &
-           num_levels=num_levels, vert_staggerloc=vert_staggerloc, num_vgrid_levels=num_vgrid_levels, &
+           num_levels=num_levels, vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, num_vgrid_levels=num_vgrid_levels, &
            units=units, long_name=long_name, standard_name=standard_name, &
            vgrid_id=vgrid_id, &
            has_deferred_aspects=has_deferred_aspects, &
@@ -118,7 +133,7 @@ contains
         namespace, &
         fieldBundleType, typekind, interpolation_weights, &
         ungridded_dims, &
-        num_levels, vert_staggerloc, &
+        num_levels, vert_staggerloc, vert_alignment, &
         units, standard_name, long_name, &
         allocation_status, &
         vgrid_id, &
@@ -126,6 +141,7 @@ contains
         has_geom, &
         has_deferred_aspects, &
         regridder_param_info, &
+        vector_basis_kind, &
         rc)
 
       type(ESMF_Info), intent(inout) :: info
@@ -137,6 +153,7 @@ contains
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       integer, optional, intent(in) :: num_levels
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
+      type(VerticalAlignment), optional, intent(in) :: vert_alignment
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
@@ -146,6 +163,7 @@ contains
       logical, optional, intent(in) :: has_geom
       logical, optional, intent(in) :: has_deferred_aspects
       type(esmf_info), optional, intent(in) :: regridder_param_info
+      type(VectorBasisKind), optional, intent(in) :: vector_basis_kind
       integer, optional, intent(out) :: rc
       
       integer :: status
@@ -178,10 +196,15 @@ contains
          call ESMF_InfoSet(info, key=namespace_ // KEY_HAS_GEOM, value=has_geom, _RC)
       end if
 
+      if (present(vector_basis_kind)) then
+         call ESMF_InfoSet(info, key=namespace_ // KEY_VECTOR_BASIS_KIND, &
+                           value=vector_basis_kind%to_string(), _RC)
+      end if
+
        call FieldInfoSetInternal(info, namespace=namespace_ // KEY_FIELD_PROTOTYPE, &
            typekind=typekind, &
            ungridded_dims=ungridded_dims, &
-           num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
+           num_levels=num_levels, vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, &
            units=units, long_name=long_name, standard_name=standard_name, &
            vgrid_id=vgrid_id, &
            has_deferred_aspects=has_deferred_aspects, &

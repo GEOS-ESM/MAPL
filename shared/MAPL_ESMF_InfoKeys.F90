@@ -27,10 +27,11 @@ module mapl3g_esmf_info_keys
    public :: KEY_UNGRIDDED_COORD
    public :: KEY_DIM_STRINGS
    public :: make_dim_key
-   public :: KEY_VERT_STAGGERLOC
-   public :: KEY_BRACKET_UPDATED
-   public :: KEY_MIRROR
-   private
+    public :: KEY_VERT_STAGGERLOC
+    public :: KEY_BRACKET_UPDATED
+    public :: KEY_VECTOR_BASIS_KIND
+    public :: KEY_MIRROR
+    private
 
    ! FieldSpec info keys
    character(len=*), parameter :: PREFIX = '/MAPL'
@@ -62,10 +63,11 @@ module mapl3g_esmf_info_keys
    character(len=*), parameter :: KEY_UNGRIDDED_UNITS = 'units'
    character(len=*), parameter :: KEY_UNGRIDDED_COORD = 'coordinates'
 
-   ! Regridding info keys
-   character(len=*), parameter :: KEY_BRACKET_UPDATED = '/bracket_updated'
+    ! Regridding info keys
+    character(len=*), parameter :: KEY_BRACKET_UPDATED = '/bracket_updated'
+    character(len=*), parameter :: KEY_VECTOR_BASIS_KIND = '/vector_basis_kind'
 
-   character(len=*), parameter :: KEY_DIM_STRINGS(9) = [ &
+    character(len=*), parameter :: KEY_DIM_STRINGS(9) = [ &
       KEYSTUB_DIM // '1', KEYSTUB_DIM // '2', KEYSTUB_DIM // '3', &
       KEYSTUB_DIM // '4', KEYSTUB_DIM // '5', KEYSTUB_DIM // '6', &
       KEYSTUB_DIM // '7', KEYSTUB_DIM // '8', KEYSTUB_DIM // '9']

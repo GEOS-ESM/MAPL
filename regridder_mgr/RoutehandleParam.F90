@@ -1,9 +1,11 @@
 #include "MAPL.h"
 
 module mapl3g_RoutehandleParam
+
    use esmf
    use mapl3g_Geom_API, only: MaplGeom, geom_manager, MAPL_SameGeom
    use mapl_ErrorHandlingMod
+
    implicit none
    private
 
@@ -49,7 +51,7 @@ module mapl3g_RoutehandleParam
    interface operator(==)
       procedure :: equal_to
    end interface operator(==)
-   
+
    type(ESMF_RegridMethod_Flag), parameter :: &
         CONSERVATIVE_METHODS(*) = [ESMF_REGRIDMETHOD_CONSERVE, ESMF_REGRIDMETHOD_CONSERVE_2ND]
    type(ESMF_RegridMethod_Flag), parameter :: &
@@ -62,7 +64,6 @@ module mapl3g_RoutehandleParam
    character(*), parameter :: BILINEAR = 'bilinear'
    character(*), parameter :: CONSERVE = 'conserve'
    character(*), parameter :: KEY_REGRID_METHOD = 'regrid_method'
-   
 
 contains
 
@@ -92,7 +93,7 @@ contains
       if (present(srcMaskValues)) param%srcMaskValues = srcMaskValues
       if (present(dstMaskValues)) param%dstMaskValues = dstMaskValues
 
-      ! Simple ESMF defaults listed here. 
+      ! Simple ESMF defaults listed here.
       param%regridmethod = ESMF_REGRIDMETHOD_BILINEAR
       param%normtype = ESMF_NORMTYPE_DSTAREA
       param%extrapmethod = ESMF_EXTRAPMETHOD_NONE
@@ -118,6 +119,7 @@ contains
       if (present(unmappedaction)) param%unmappedaction = unmappedaction
       if (present(ignoreDegenerate)) param%ignoreDegenerate = ignoreDegenerate
 !#      if (present(srcTermProcessing)) param%srcTermProcessing = srcTermProcessing
+      _UNUSED_DUMMY(srcTermProcessing)
 
    contains
 
@@ -131,9 +133,8 @@ contains
          else
             polemethod = ESMF_POLEMETHOD_ALLAVG
          end if
-            
-      end function get_default_polemethod
 
+      end function get_default_polemethod
 
       function get_default_linetype(regridmethod) result(linetype)
          type(ESMF_LineType_Flag) :: linetype
@@ -145,10 +146,8 @@ contains
          else
             linetype = ESMF_LINETYPE_CART
          end if
-            
-      end function get_default_linetype
 
-      
+      end function get_default_linetype
 
    end function new_RoutehandleParam
 
@@ -168,7 +167,7 @@ contains
       field_in = ESMF_FieldEmptyCreate(name='tmp', _RC)
       call ESMF_FieldEmptySet(field_in, geom_in, _RC)
       call ESMF_FieldEmptyComplete(field_in, typekind=ESMF_TypeKind_R4, _RC)
-      
+
       field_out = ESMF_FieldEmptyCreate(name='tmp', _RC)
       call ESMF_FieldEmptySet(field_out, geom_out, _RC)
       call ESMF_FieldEmptyComplete(field_out, typekind=ESMF_TypeKind_R4, _RC)
@@ -197,9 +196,9 @@ contains
       _RETURN(_SUCCESS)
    end function make_routehandle_from_param
 
-
-   ! Ignore routehandle component itself.  
+   ! Ignore routehandle component itself.
    logical function equal_to(a, b) result(eq)
+
       type(RoutehandleParam), intent(in) :: a
       type(RoutehandleParam), intent(in) :: b
 
@@ -259,7 +258,6 @@ contains
 
       end function same_mask_values
 
-
       logical function same_scalar_int(a, b) result(eq)
          integer, allocatable, intent(in) :: a
          integer, allocatable, intent(in) :: b
@@ -271,7 +269,6 @@ contains
          if (.not. allocated(a)) return
 
          eq = (a == b)
-
       end function same_scalar_int
 
    end function equal_to
@@ -311,8 +308,6 @@ contains
 
       integer :: status
       character(:), allocatable :: regrid_method_str
-      type(esmf_RegridMethod_Flag), allocatable :: regrid_method
-      logical :: is_present
 
       if (this%regridMethod == ESMF_REGRIDMETHOD_BILINEAR) then
          regrid_method_str = BILINEAR
