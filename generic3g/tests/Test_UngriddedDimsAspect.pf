@@ -14,12 +14,10 @@ module Test_UngriddedDimsAspect
    implicit none
 
    character(len=*), parameter :: MISMATCH = 'Retrived dims do not match test dims.'
+   character(len=*), parameter :: MIRRORED = 'is_mirror() should be '
 
 contains
 
-   !wdb fixme deleteme Check UngriddedDims equality.
-   !wdb fixme deleteme Check for redundant tests.
-   !wdb fixme deleteme Organize tests in logical order.
    ! Helper function to create a test field with given ungridded_dims
    function create_test_field(ungridded_dims) result(field)
       type(ESMF_Field) :: field
@@ -47,7 +45,7 @@ contains
    end function create_test_bundle
 
    ! ========================================================================
-   ! Tests for update_from_payload with ESMF_Field
+   ! ESMF_Field
    ! ========================================================================
 
    @test(type=ESMF_TestMethod, npes=[1])
@@ -59,19 +57,16 @@ contains
       type(UngriddedDims) :: retrieved_dims, test_dims
       integer :: status
 
-      test_dims = UngriddedDims()  ! Empty, not mirror
+      test_dims = UngriddedDims()  ! Empty, not mirror !wdb fixme deleteme is this mirror
       aspect = UngriddedDimsAspect(UngriddedDims([1,2,3]))
-      
       field = create_test_field(test_dims)
-      
       call aspect%update_from_payload(field=field, _RC)
-      
+      @assertFalse(aspect%is_mirror(), MIRRORED//'.FALSE..')
       retrieved_dims = aspect%get_ungridded_dims(_RC)
       @assertEqual(0, retrieved_dims%get_num_ungridded())
-      @assertFalse(aspect%is_mirror())
-      
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
       _UNUSED_DUMMY(this)
+
    end subroutine test_update_from_payload_field_empty
 
    @test(type=ESMF_TestMethod, npes=[1])
@@ -85,21 +80,15 @@ contains
 
       test_dims = UngriddedDims([72])
       aspect = UngriddedDimsAspect()
-      
       field = create_test_field(test_dims)
-      
+      call MAPL_FieldGet(field, ungridded_dims=retrieved_dims, _RC)
       call aspect%update_from_payload(field=field, _RC)
-      
+      @assertFalse(aspect%is_mirror(), MIRRORED//'.FALSE..')
       retrieved_dims = aspect%get_ungridded_dims(_RC)
-
-      !wdb fixme deleteme next line
-      @assertEqual(1, retrieved_dims%get_num_ungridded())
       @assertTrue(test_dims == retrieved_dims, MISMATCH)
-      ! Add check on UngriddedDims values
-      @assertFalse(aspect%is_mirror())
-      
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
       _UNUSED_DUMMY(this)
+
    end subroutine test_update_from_payload_field_single_dim
 
    @test(type=ESMF_TestMethod, npes=[1])
@@ -113,50 +102,33 @@ contains
 
       test_dims = UngriddedDims([72, 5, 10])
       aspect = UngriddedDimsAspect()
-      
       field = create_test_field(test_dims)
-      
       call aspect%update_from_payload(field=field, _RC)
-      
+      @assertFalse(aspect%is_mirror(), MIRRORED//'.FALSE..')
       retrieved_dims = aspect%get_ungridded_dims(_RC)
-      !wdb fixme deleteme next line
-      @assertEqual(3, retrieved_dims%get_num_ungridded())
       @assertTrue(test_dims == retrieved_dims, MISMATCH)
-      ! Add check on UngriddedDims values
-      @assertFalse(aspect%is_mirror())
-      
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
       _UNUSED_DUMMY(this)
+
    end subroutine test_update_from_payload_field_multiple_dims
 
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_update_from_payload_field_mirror(this)
       ! Test updating UngriddedDimsAspect from an ESMF_Field with mirror ungridded dims
       ! Mirror is represented by NO ungridded_dims entry in ESMF
-      ! NOTE: Currently FieldInfo may return an allocated UngriddedDims even when none was set
-      ! This test documents the expected behavior once that is fixed
       class(ESMF_TestMethod), intent(inout) :: this
       type(UngriddedDimsAspect) :: aspect
       type(ESMF_Field) :: field
-!      type(UngriddedDims) :: retrieved_dims
       integer :: status
 
-      ! Start with an aspect that has ungridded dims
       aspect = UngriddedDimsAspect(UngriddedDims([1,2,3]))
       @assertFalse(aspect%is_mirror())
-      
-      ! Create field without ungridded_dims (mirror representation)
-      ! Stash problem? !wdb fixme deleteme 
       field = create_test_field()
-      
       call aspect%update_from_payload(field=field, _RC)
-      
-      ! After update, should be mirror
-      ! TODO: This currently fails because FieldInfo returns allocated dims even when none set
-      ! @assertTrue(aspect%is_mirror())
-      
+      @assertTrue(aspect%is_mirror(), MIRRORED//'.TRUE..')
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
       _UNUSED_DUMMY(this)
+
    end subroutine test_update_from_payload_field_mirror
 
    @test(type=ESMF_TestMethod, npes=[1])
@@ -170,159 +142,16 @@ contains
 
       initial_dims = UngriddedDims([10])
       new_dims = UngriddedDims([72, 5])
-      
       aspect = UngriddedDimsAspect(initial_dims)
       field = create_test_field(new_dims)
-      
       call aspect%update_from_payload(field=field, _RC)
-      
+      @assertFalse(aspect%is_mirror(), MIRRORED//'.FALSE..')
       retrieved_dims = aspect%get_ungridded_dims(_RC)
-      ! Add check on UngriddedDims values
-      @assertEqual(2, retrieved_dims%get_num_ungridded())
       @assertTrue(new_dims == retrieved_dims, MISMATCH)
-      
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
       _UNUSED_DUMMY(this)
+
    end subroutine test_update_from_payload_overwrite_existing_field
-
-   ! ========================================================================
-   ! Tests for update_from_payload with ESMF_FieldBundle
-   ! ========================================================================
-
-   @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_update_from_payload_bundle_empty(this)
-      ! Test updating UngriddedDimsAspect from an ESMF_FieldBundle with empty ungridded dims
-      class(ESMF_TestMethod), intent(inout) :: this
-      type(UngriddedDimsAspect) :: aspect
-      type(ESMF_FieldBundle) :: bundle
-      type(UngriddedDims) :: retrieved_dims, test_dims
-      integer :: status
-
-      test_dims = UngriddedDims()  ! Empty, not mirror
-      aspect = UngriddedDimsAspect(UngriddedDims([5]))
-      
-      bundle = create_test_bundle(test_dims)
-      
-      call aspect%update_from_payload(bundle=bundle, _RC)
-      
-      retrieved_dims = aspect%get_ungridded_dims(_RC)
-      @assertEqual(0, retrieved_dims%get_num_ungridded())
-      @assertFalse(aspect%is_mirror())
-      
-      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
-      _UNUSED_DUMMY(this)
-   end subroutine test_update_from_payload_bundle_empty
-
-   @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_update_from_payload_bundle_single_dim(this)
-      ! Test updating UngriddedDimsAspect from an ESMF_FieldBundle with single ungridded dim
-      class(ESMF_TestMethod), intent(inout) :: this
-      type(UngriddedDimsAspect) :: aspect
-      type(ESMF_FieldBundle) :: bundle
-      type(UngriddedDims) :: retrieved_dims, test_dims
-      integer :: status
-
-      test_dims = UngriddedDims([36])
-      aspect = UngriddedDimsAspect()
-      
-      bundle = create_test_bundle(test_dims)
-      
-      call aspect%update_from_payload(bundle=bundle, _RC)
-      
-      retrieved_dims = aspect%get_ungridded_dims(_RC)
-      @assertEqual(1, retrieved_dims%get_num_ungridded())
-      @assertTrue(test_dims == retrieved_dims, MISMATCH)
-      ! Add check on UngriddedDims values
-      @assertFalse(aspect%is_mirror())
-      
-      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
-      _UNUSED_DUMMY(this)
-   end subroutine test_update_from_payload_bundle_single_dim
-
-   @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_update_from_payload_bundle_multiple_dims(this)
-      ! Test updating UngriddedDimsAspect from an ESMF_FieldBundle with multiple ungridded dims
-      class(ESMF_TestMethod), intent(inout) :: this
-      type(UngriddedDimsAspect) :: aspect
-      type(ESMF_FieldBundle) :: bundle
-      type(UngriddedDims) :: retrieved_dims, test_dims
-      integer :: status
-
-      test_dims = UngriddedDims([72, 8, 3])
-      aspect = UngriddedDimsAspect()
-      
-      bundle = create_test_bundle(test_dims)
-      
-      call aspect%update_from_payload(bundle=bundle, _RC)
-      
-      retrieved_dims = aspect%get_ungridded_dims(_RC)
-      @assertEqual(3, retrieved_dims%get_num_ungridded())
-      ! Add check on UngriddedDims values
-      @assertTrue(test_dims == retrieved_dims, MISMATCH)
-      @assertFalse(aspect%is_mirror())
-      
-      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
-      _UNUSED_DUMMY(this)
-   end subroutine test_update_from_payload_bundle_multiple_dims
-
-   @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_update_from_payload_bundle_mirror(this)
-      ! Test updating UngriddedDimsAspect from an ESMF_FieldBundle with mirror ungridded dims
-      ! Mirror is represented by NO ungridded_dims entry in ESMF
-      ! NOTE: Currently FieldInfo may return an allocated UngriddedDims even when none was set
-      ! This test documents the expected behavior once that is fixed
-      class(ESMF_TestMethod), intent(inout) :: this
-      type(UngriddedDimsAspect) :: aspect
-      type(ESMF_FieldBundle) :: bundle
-!      type(UngriddedDims) :: retrieved_dims
-      integer :: status
-
-      ! Start with an aspect that has ungridded dims
-      aspect = UngriddedDimsAspect(UngriddedDims([5]))
-      @assertFalse(aspect%is_mirror())
-      
-      ! Create bundle without ungridded_dims (mirror representation)
-      bundle = create_test_bundle()
-      
-      call aspect%update_from_payload(bundle=bundle, _RC)
-      
-      ! After update, should be mirror
-      ! TODO: This currently fails because FieldInfo returns allocated dims even when none set
-      ! @assertTrue(aspect%is_mirror())
-      
-      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
-      _UNUSED_DUMMY(this)
-   end subroutine test_update_from_payload_bundle_mirror
-
-   @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_update_from_payload_overwrite_existing_bundle(this)
-      ! Test that update_from_payload overwrites existing ungridded_dims
-      class(ESMF_TestMethod), intent(inout) :: this
-      type(UngriddedDimsAspect) :: aspect
-      type(ESMF_FieldBundle) :: bundle
-      type(UngriddedDims) :: retrieved_dims, initial_dims, new_dims
-      integer :: status
-
-      initial_dims = UngriddedDims([10])
-      new_dims = UngriddedDims([72, 5])
-      
-      aspect = UngriddedDimsAspect(initial_dims)
-      bundle = create_test_bundle(new_dims)
-      
-      call aspect%update_from_payload(bundle=bundle, _RC)
-      
-      retrieved_dims = aspect%get_ungridded_dims(_RC)
-      ! Add check on UngriddedDims values
-      @assertEqual(2, retrieved_dims%get_num_ungridded())
-      @assertTrue(new_dims == retrieved_dims, MISMATCH)
-      
-      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
-      _UNUSED_DUMMY(this)
-   end subroutine test_update_from_payload_overwrite_existing_bundle
-
-   ! ========================================================================
-   ! Tests for update_payload with ESMF_Field
-   ! ========================================================================
 
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_update_payload_field_empty(this)
@@ -335,16 +164,14 @@ contains
 
       test_dims = UngriddedDims()
       aspect = UngriddedDimsAspect(test_dims)
-      
       field = create_test_field(UngriddedDims([10]))
-      
       call aspect%update_payload(field=field, _RC)
-      
       call mapl_FieldGet(field, ungridded_dims=retrieved_dims, _RC)
+      @assertFalse(retrieved_dims%is_mirrored(), MIRRORED//'.FALSE..')
       @assertEqual(0, retrieved_dims%get_num_ungridded())
-      
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
       _UNUSED_DUMMY(this)
+
    end subroutine test_update_payload_field_empty
 
    @test(type=ESMF_TestMethod, npes=[1])
@@ -358,16 +185,14 @@ contains
 
       test_dims = UngriddedDims([72])
       aspect = UngriddedDimsAspect(test_dims)
-      
       field = create_test_field(UngriddedDims())
-      
       call aspect%update_payload(field=field, _RC)
-      
       call mapl_FieldGet(field, ungridded_dims=retrieved_dims, _RC)
+      @assertFalse(retrieved_dims%is_mirrored(), MIRRORED//'.FALSE..')
       @assertTrue(test_dims == retrieved_dims, MISMATCH)
-      
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
       _UNUSED_DUMMY(this)
+
    end subroutine test_update_payload_field_single_dim
 
    @test(type=ESMF_TestMethod, npes=[1])
@@ -381,16 +206,14 @@ contains
 
       test_dims = UngriddedDims([72, 5, 10])
       aspect = UngriddedDimsAspect(test_dims)
-      
       field = create_test_field(UngriddedDims())
-      
       call aspect%update_payload(field=field, _RC)
-      
       call mapl_FieldGet(field, ungridded_dims=retrieved_dims, _RC)
       @assertTrue(test_dims == retrieved_dims, MISMATCH)
-      
+      @assertFalse(retrieved_dims%is_mirrored(), MIRRORED//'.FALSE..')
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
       _UNUSED_DUMMY(this)
+
    end subroutine test_update_payload_field_multiple_dims
 
    @test(type=ESMF_TestMethod, npes=[1])
@@ -404,21 +227,144 @@ contains
 
       aspect = UngriddedDimsAspect()
       @assertTrue(aspect%is_mirror(), 'Aspect should be mirror.')
-      
       field = create_test_field(UngriddedDims([1]))
-      
       call aspect%update_payload(field=field, _RC)
-      
       call mapl_FieldGet(field, ungridded_dims=retrieved_dims, _RC)
-      @assertTrue(test_dims == retrieved_dims, MISMATCH)
-      
+      @assertTrue(retrieved_dims%is_mirrored(), MIRRORED//'.TRUE..')
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
       _UNUSED_DUMMY(this)
+
    end subroutine test_update_payload_field_mirror
 
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_roundtrip_field(this)
+      ! Test roundtrip: aspect -> field -> aspect
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UngriddedDimsAspect) :: aspect1, aspect2
+      type(ESMF_Field) :: field
+      type(UngriddedDims) :: original_dims, retrieved_dims
+      integer :: status
+
+      original_dims = UngriddedDims([72, 5])
+      aspect1 = UngriddedDimsAspect(original_dims)
+      field = create_test_field(UngriddedDims())
+      call aspect1%update_payload(field=field, _RC)
+      aspect2 = UngriddedDimsAspect()
+      call aspect2%update_from_payload(field=field, _RC)
+      retrieved_dims = aspect2%get_ungridded_dims(_RC)
+      @assertTrue(original_dims == retrieved_dims, MISMATCH)
+      @assertFalse(aspect2%is_mirror(), MIRRORED//'.FALSE..')
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_roundtrip_field
+
    ! ========================================================================
-   ! Tests for update_payload with ESMF_FieldBundle
+   ! ESMF_FieldBundle
    ! ========================================================================
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_bundle_empty(this)
+      ! Test updating UngriddedDimsAspect from an ESMF_FieldBundle with empty ungridded dims
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UngriddedDimsAspect) :: aspect
+      type(ESMF_FieldBundle) :: bundle
+      type(UngriddedDims) :: retrieved_dims, test_dims
+      integer :: status
+
+      test_dims = UngriddedDims()  ! Empty, not mirror
+      aspect = UngriddedDimsAspect(UngriddedDims([5]))
+      bundle = create_test_bundle(test_dims)
+      call aspect%update_from_payload(bundle=bundle, _RC)
+      retrieved_dims = aspect%get_ungridded_dims(_RC)
+      @assertEqual(0, retrieved_dims%get_num_ungridded())
+      @assertFalse(aspect%is_mirror(), MIRRORED//'.FALSE..')
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_from_payload_bundle_empty
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_bundle_single_dim(this)
+      ! Test updating UngriddedDimsAspect from an ESMF_FieldBundle with single ungridded dim
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UngriddedDimsAspect) :: aspect
+      type(ESMF_FieldBundle) :: bundle
+      type(UngriddedDims) :: retrieved_dims, test_dims
+      integer :: status
+
+      test_dims = UngriddedDims([36])
+      aspect = UngriddedDimsAspect()
+      bundle = create_test_bundle(test_dims)
+      call aspect%update_from_payload(bundle=bundle, _RC)
+      retrieved_dims = aspect%get_ungridded_dims(_RC)
+      @assertTrue(test_dims == retrieved_dims, MISMATCH)
+      @assertFalse(aspect%is_mirror(), MIRRORED//'.FALSE..')
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_from_payload_bundle_single_dim
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_bundle_multiple_dims(this)
+      ! Test updating UngriddedDimsAspect from an ESMF_FieldBundle with multiple ungridded dims
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UngriddedDimsAspect) :: aspect
+      type(ESMF_FieldBundle) :: bundle
+      type(UngriddedDims) :: retrieved_dims, test_dims
+      integer :: status
+
+      test_dims = UngriddedDims([72, 8, 3])
+      aspect = UngriddedDimsAspect()
+      bundle = create_test_bundle(test_dims)
+      call aspect%update_from_payload(bundle=bundle, _RC)
+      retrieved_dims = aspect%get_ungridded_dims(_RC)
+      @assertTrue(test_dims == retrieved_dims, MISMATCH)
+      @assertFalse(aspect%is_mirror(), MIRRORED//'.FALSE..')
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_from_payload_bundle_multiple_dims
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_bundle_mirror(this)
+      ! Test updating UngriddedDimsAspect from an ESMF_FieldBundle with mirror ungridded dims
+      ! Mirror is represented by NO ungridded_dims entry in ESMF
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UngriddedDimsAspect) :: aspect
+      type(ESMF_FieldBundle) :: bundle
+      integer :: status
+
+      aspect = UngriddedDimsAspect(UngriddedDims([5]))
+      @assertFalse(aspect%is_mirror())
+      bundle = create_test_bundle()
+      call aspect%update_from_payload(bundle=bundle, _RC)
+      @assertTrue(aspect%is_mirror(), MIRRORED//'.TRUE..')
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_from_payload_bundle_mirror
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_overwrite_existing_bundle(this)
+      ! Test that update_from_payload overwrites existing ungridded_dims
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(UngriddedDimsAspect) :: aspect
+      type(ESMF_FieldBundle) :: bundle
+      type(UngriddedDims) :: retrieved_dims, initial_dims, new_dims
+      integer :: status
+
+      initial_dims = UngriddedDims([10])
+      new_dims = UngriddedDims([72, 5])
+      aspect = UngriddedDimsAspect(initial_dims)
+      bundle = create_test_bundle(new_dims)
+      call aspect%update_from_payload(bundle=bundle, _RC)
+      retrieved_dims = aspect%get_ungridded_dims(_RC)
+      @assertTrue(new_dims == retrieved_dims, MISMATCH)
+      @assertFalse(aspect%is_mirror(), MIRRORED//'.FALSE..')
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_from_payload_overwrite_existing_bundle
 
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_update_payload_bundle_empty(this)
@@ -431,16 +377,14 @@ contains
 
       test_dims = UngriddedDims()
       aspect = UngriddedDimsAspect(test_dims)
-      
       bundle = create_test_bundle(UngriddedDims([5]))
-      
       call aspect%update_payload(bundle=bundle, _RC)
-      
       call mapl_FieldBundleGet(bundle, ungridded_dims=retrieved_dims, _RC)
+      @assertFalse(retrieved_dims%is_mirrored(), MIRRORED//'.FALSE..')
       @assertEqual(0, retrieved_dims%get_num_ungridded())
-      
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
       _UNUSED_DUMMY(this)
+
    end subroutine test_update_payload_bundle_empty
 
    @test(type=ESMF_TestMethod, npes=[1])
@@ -454,16 +398,14 @@ contains
 
       test_dims = UngriddedDims([36])
       aspect = UngriddedDimsAspect(test_dims)
-      
       bundle = create_test_bundle(UngriddedDims())
-      
       call aspect%update_payload(bundle=bundle, _RC)
-      
       call mapl_FieldBundleGet(bundle, ungridded_dims=retrieved_dims, _RC)
+      @assertFalse(retrieved_dims%is_mirrored(), MIRRORED//'.FALSE..')
       @assertTrue(test_dims == retrieved_dims, MISMATCH)
-      
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
       _UNUSED_DUMMY(this)
+
    end subroutine test_update_payload_bundle_single_dim
 
    @test(type=ESMF_TestMethod, npes=[1])
@@ -477,46 +419,38 @@ contains
 
       test_dims = UngriddedDims([72, 8, 3])
       aspect = UngriddedDimsAspect(test_dims)
-      
       bundle = create_test_bundle(UngriddedDims())
-      
       call aspect%update_payload(bundle=bundle, _RC)
-      
       call mapl_FieldBundleGet(bundle, ungridded_dims=retrieved_dims, _RC)
+      @assertFalse(retrieved_dims%is_mirrored(), MIRRORED//'.FALSE..')
       @assertTrue(test_dims == retrieved_dims, MISMATCH)
-      
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
       _UNUSED_DUMMY(this)
+
    end subroutine test_update_payload_bundle_multiple_dims
 
-   ! ========================================================================
-   ! Roundtrip tests
-   ! ========================================================================
-
    @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_roundtrip_field(this)
-      ! Test roundtrip: aspect -> field -> aspect
+   subroutine test_roundtrip_bundle(this)
+      ! Test roundtrip: aspect -> bundle -> aspect
       class(ESMF_TestMethod), intent(inout) :: this
       type(UngriddedDimsAspect) :: aspect1, aspect2
-      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
       type(UngriddedDims) :: original_dims, retrieved_dims
       integer :: status
 
       original_dims = UngriddedDims([72, 5])
       aspect1 = UngriddedDimsAspect(original_dims)
-      
-      field = create_test_field(UngriddedDims())
-      call aspect1%update_payload(field=field, _RC)
-      
+      bundle = create_test_bundle(UngriddedDims())
+      call aspect1%update_payload(bundle=bundle, _RC)
       aspect2 = UngriddedDimsAspect()
-      call aspect2%update_from_payload(field=field, _RC)
-      
+      call aspect2%update_from_payload(bundle=bundle, _RC)
+      @assertFalse(aspect2%is_mirror(), MIRRORED//'.FALSE..')
       retrieved_dims = aspect2%get_ungridded_dims(_RC)
       @assertTrue(original_dims == retrieved_dims, MISMATCH)
-      
-      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
       _UNUSED_DUMMY(this)
-   end subroutine test_roundtrip_field
+
+   end subroutine test_roundtrip_bundle
 
    ! ========================================================================
    ! Edge case tests
@@ -532,12 +466,11 @@ contains
 
       initial_dims = UngriddedDims([10])
       aspect = UngriddedDimsAspect(initial_dims)
-      
       call aspect%update_from_payload(_RC)
-      
       retrieved_dims = aspect%get_ungridded_dims(_RC)
       @assertTrue(initial_dims == retrieved_dims, MISMATCH)
       _UNUSED_DUMMY(this)
+
    end subroutine test_update_from_payload_no_field_or_bundle
 
    @test(type=ESMF_TestMethod, npes=[1])
@@ -550,11 +483,10 @@ contains
 
       test_dims = UngriddedDims([72])
       aspect = UngriddedDimsAspect(test_dims)
-      
       call aspect%update_payload(_RC)
-      
-      @assertTrue(.true., "Should not fail")
+      @assertTrue(.true.)
       _UNUSED_DUMMY(this)
+
    end subroutine test_update_payload_no_field_or_bundle
 
 end module Test_UngriddedDimsAspect

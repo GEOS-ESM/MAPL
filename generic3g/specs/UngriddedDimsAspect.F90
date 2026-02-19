@@ -58,6 +58,7 @@ contains
 
       if (present(ungridded_dims)) then
          aspect%ungridded_dims = ungridded_dims
+         ! What if ungridded_dims%is_mirrored()? !wdb fixme deleteme 
          call aspect%set_mirror(.false.)
       end if
 
@@ -178,22 +179,24 @@ contains
       type(esmf_FieldBundle), optional, intent(in) :: bundle
       type(esmf_State), optional, intent(in) :: state
       integer, optional, intent(out) :: rc
-
+      logical :: mirror
       integer :: status
+      type(UngriddedDims) :: ungridded_dims
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
 
       if (present(field)) then
-         call mapl_FieldGet(field, ungridded_dims=this%ungridded_dims, _RC)
+         call mapl_FieldGet(field, ungridded_dims=ungridded_dims, _RC)
       else if (present(bundle)) then
-         call mapl_FieldBundleGet(bundle, ungridded_dims=this%ungridded_dims, _RC)
+         call mapl_FieldBundleGet(bundle, ungridded_dims=ungridded_dims, _RC)
       end if
-
-      ! In practice there is no way that this can happen unless it was already mirror ...
-      call this%set_mirror(.not. allocated(this%ungridded_dims))
-
+      mirror = ungridded_dims%is_mirrored()
+      call this%set_mirror(mirror)
+      _RETURN_IF(mirror)
+      this%ungridded_dims = ungridded_dims
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(state)
+
    end subroutine update_from_payload
 
    subroutine update_payload(this, field, bundle, state, rc)
@@ -203,7 +206,6 @@ contains
       type(esmf_State), optional, intent(inout) :: state
       integer, optional, intent(out) :: rc
       type(UngriddedDims) :: ungridded_dims
-
       integer :: status
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
@@ -215,9 +217,9 @@ contains
       else if (present(bundle)) then
          call mapl_FieldBundleSet(bundle, ungridded_dims=ungridded_dims, _RC)
       end if
-
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(state)
+
    end subroutine update_payload
 
 end module mapl3g_UngriddedDimsAspect

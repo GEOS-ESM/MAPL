@@ -11,6 +11,7 @@ module mapl3g_UngriddedDims
    use esmf, only: ESMF_InfoCreate
    use esmf, only: ESMF_InfoSet
    use esmf, only: ESMF_InfoDestroy
+   use esmf, only: ESMF_InfoIsPresent
    implicit none
 
    private
@@ -32,6 +33,7 @@ module mapl3g_UngriddedDims
       procedure :: get_ith_dim_spec
       procedure :: get_bounds
       procedure :: make_info
+      procedure :: is_mirrored
    end type UngriddedDims
 
    interface UngriddedDims
@@ -173,7 +175,6 @@ contains
 
    end function equal_to
 
-
    logical function not_equal_to(a, b)
       type(UngriddedDims), intent(in) :: a
       type(UngriddedDims), intent(in) :: b
@@ -195,8 +196,8 @@ contains
 
       info = ESMF_InfoCreate(_RC)
 
-      call MAPL_InfoSet(info, key=KEY_IS_MIRROR, value=this%is_mirror, _RC)
-      _RETURN_IF(this%is_mirror)
+      call MAPL_InfoSet(info, key=KEY_IS_MIRROR, value=this%is_mirrored(), _RC)
+      _RETURN_IF(this%is_mirrored())
 
       call MAPL_InfoSet(info, key='/num_ungridded_dimensions', value=this%get_num_ungridded(), _RC)
 
@@ -225,17 +226,17 @@ contains
       character(:), allocatable :: dim_key
       type(UngriddedDim), allocatable :: dim_specs(:)
       character(:), allocatable :: full_key
-      logical :: is_mirror, key_is_present
+      logical :: mirror, key_is_present
       
-      is_mirror = .FALSE.
+      mirror = .FALSE.
       full_key = KEY_IS_MIRROR
       if (present(key)) full_key = key // full_key
       key_is_present = ESMF_InfoIsPresent(info, key=full_key, _RC)
       if(key_is_present) then
-         call MAPL_InfoGet(info, key=full_key, value=is_mirror, _RC)
+         call MAPL_InfoGet(info, key=full_key, value=mirror, _RC)
       end if
-      ungridded_dims = UngriddedDims(is_mirror)
-      _RETURN_IF(is_mirror)
+      ungridded_dims = UngriddedDims(mirror)
+      _RETURN_IF(mirror)
 
       full_key = KEY_NUM_UNGRIDDED_DIMS
       if (present(key)) then
@@ -259,6 +260,11 @@ contains
 
       _RETURN(_SUCCESS)
    end function make_ungriddedDims
+
+   logical function is_mirrored(this)
+      class(UngriddedDims), intent(in) :: this
+      is_mirrored = this%is_mirror
+   end function is_mirrored
 
 end module mapl3g_UngriddedDims
 
