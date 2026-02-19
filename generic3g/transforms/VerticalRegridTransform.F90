@@ -27,19 +27,58 @@ module mapl3g_VerticalRegridTransform
    public :: VERTICAL_REGRID_CONSERVATIVE
    public :: operator(==), operator(/=)
 
-   ! Parameters for vertical regridding
+   !> @brief Parameters for vertical regridding between components with different vertical grids or alignments
+   !!
+   !! Vertical regridding supports two key scenarios:
+   !! 1. **Different vertical grids**: Full interpolation required (e.g., 72 levels -> 48 levels)
+   !! 2. **Same grid, different alignments (degenerate case)**: Only array reversal needed
+   !!
+   !! The degenerate case is detected by VerticalGridAspect by comparing vertical coordinate values.
+   !! When detected, no interpolation matrix is computed; only alignment transformation is performed.
    type :: VerticalRegridParam
-      type(VerticalStaggerLoc) :: stagger_in
-      type(VerticalStaggerLoc) :: stagger_out
-      type(VerticalRegridMethod) :: method = VERTICAL_REGRID_UNKNOWN
-      type(VerticalCoordinateDirection) :: src_alignment = VCOORD_DIRECTION_DOWN
-      type(VerticalCoordinateDirection) :: dst_alignment = VCOORD_DIRECTION_DOWN
-      logical :: is_degenerate_case = .false.
+      type(VerticalStaggerLoc) :: stagger_in                               !< Source vertical stagger location
+      type(VerticalStaggerLoc) :: stagger_out                              !< Destination vertical stagger location
+      type(VerticalRegridMethod) :: method = VERTICAL_REGRID_UNKNOWN       !< Regridding method (currently only LINEAR)
+      type(VerticalCoordinateDirection) :: src_alignment = VCOORD_DIRECTION_DOWN  !< Source data storage convention
+      type(VerticalCoordinateDirection) :: dst_alignment = VCOORD_DIRECTION_DOWN  !< Destination data storage convention  
+      logical :: is_degenerate_case = .false.                              !< True if grids match, only alignment differs
    end type VerticalRegridParam
 
-   ! The interpolation matrix is real32. This type may need to be extended
-   ! with a subtype for ESMF_KIND_R4 Fields and a subtype for ESMF_KIND_R8 Fields
-   ! with real32 and real64 matrices, respectively.
+   !> @brief Vertical regridding transform with support for data alignment
+   !!
+   !! This transform handles vertical data exchange between components with:
+   !! - Different vertical grids (requires interpolation)
+   !! - Different vertical alignments (may require array reversal)
+   !! - Combination of both
+   !!
+   !! **Alignment Resolution Algorithm:**
+   !!
+   !! The transform determines whether to flip (reverse) source or destination arrays
+   !! based on their vertical_alignment relative to the grid's coordinate_direction:
+   !!
+   !! ```
+   !! src_needs_flip = (src_alignment != grid_coordinate_direction)
+   !! dst_needs_flip = (dst_alignment != grid_coordinate_direction)
+   !! ```
+   !!
+   !! **Degenerate Case (Same Grid, Different Alignments):**
+   !!
+   !! When source and destination have identical vertical coordinates but different
+   !! alignments, the transform:
+   !! 1. Skips interpolation matrix computation (is_degenerate_case = true)
+   !! 2. Performs only array reversal if `src_needs_flip XOR dst_needs_flip`
+   !! 3. Performs identity copy if both or neither need flipping
+   !!
+   !! **Full Regridding Case:**
+   !!
+   !! When grids differ (is_degenerate_case = false):
+   !! 1. Canonicalizes coordinates to monotonically decreasing order for interpolation
+   !! 2. Computes sparse interpolation matrix
+   !! 3. Applies alignment transformations before/after interpolation as needed
+   !!
+   !! The interpolation matrix is real32. This type may need to be extended
+   !! with a subtype for ESMF_KIND_R4 Fields and a subtype for ESMF_KIND_R8 Fields
+   !! with real32 and real64 matrices, respectively.
    type, extends(ExtensionTransform) :: VerticalRegridTransform
       type(ESMF_Field) :: v_in_coord, v_out_coord
       type(SparseMatrix_sp), allocatable :: matrix(:)
@@ -89,6 +128,17 @@ contains
       transform%is_degenerate_case = regrid_param%is_degenerate_case
    end function new_VerticalRegridTransform
 
+   !> Initialize the vertical regrid transform.
+   !!
+   !! This method validates the regridding method. The degenerate case detection
+   !! (same grid with different alignments) is performed upstream by VerticalGridAspect
+   !! during field matching and passed to the constructor via VerticalRegridParam.
+   !!
+   !! @param[inout] this            The transform object
+   !! @param[in]    importState     ESMF import state (unused)
+   !! @param[in]    exportState     ESMF export state (unused)
+   !! @param[in]    clock           ESMF clock (unused)
+   !! @param[out]   rc              Return code
    subroutine initialize(this, importState, exportState, clock, rc)
       class(VerticalRegridTransform), intent(inout) :: this
       type(ESMF_State) :: importState
@@ -107,6 +157,27 @@ contains
       _UNUSED_DUMMY(clock)
    end subroutine initialize
 
+   !> Update routine: performs vertical regridding or flipping.
+   !!
+   !! This is the main execution method called during the MAPL run phase.
+   !! It handles two distinct cases:
+   !!
+   !! 1. Degenerate case (same grid, different alignments):
+   !!    - No regridding needed
+   !!    - Simply flips the vertical dimension via copy_field_flipped_
+   !!
+   !! 2. Normal regridding case (different grids):
+   !!    - Computes interpolation matrix with alignment-aware coordinate canonicalization
+   !!    - Applies regridding via regrid_field_ (which handles output flipping if needed)
+   !!
+   !! The interpolation matrix is computed fresh on each update call. For time-varying
+   !! vertical coordinates, this ensures the matrix stays consistent with current coordinates.
+   !!
+   !! @param[inout] this         The transform object
+   !! @param[in]    importState  ESMF import state containing source field/bundle
+   !! @param[in]    exportState  ESMF export state containing destination field/bundle
+   !! @param[in]    clock        ESMF clock (unused)
+   !! @param[out]   rc           Return code
    subroutine update(this, importState, exportState, clock, rc)
       class(VerticalRegridTransform), intent(inout) :: this
       type(ESMF_State) :: importState
@@ -155,6 +226,16 @@ contains
       _UNUSED_DUMMY(clock)
    end subroutine update
 
+   !> Process all fields in a FieldBundle through vertical regridding/flipping.
+   !!
+   !! Extracts field lists from input and output bundles and processes each
+   !! field pair using process_field. Assumes matching field order between
+   !! input and output bundles.
+   !!
+   !! @param[in]    this     The transform object
+   !! @param[in]    fb_in    Input field bundle
+   !! @param[inout] fb_out   Output field bundle (modified in place)
+   !! @param[out]   rc       Return code
    subroutine process_fieldbundle(this, fb_in, fb_out, rc)
       class(VerticalRegridTransform), intent(in) :: this
       type(ESMF_FieldBundle), intent(in) :: fb_in
@@ -174,11 +255,30 @@ contains
       _RETURN(_SUCCESS)
    end subroutine process_fieldbundle
 
-   subroutine process_field(this, f_in, f_out, rc)
-      class(VerticalRegridTransform), intent(in) :: this
-      type(ESMF_Field), intent(inout) :: f_in
-      type(ESMF_Field), intent(inout) :: f_out
-      integer, optional, intent(out) :: rc
+   !> Process a single field through vertical regridding or flipping.
+   !!
+   !! This method dispatches to the appropriate operation based on whether
+   !! this is a degenerate case (same grid, different alignments):
+   !!
+   !! Degenerate case:
+   !!   - Same vertical grid, different alignments
+   !!   - No regridding needed, only vertical flip
+   !!   - Uses copy_field_flipped_ to reverse vertical dimension
+   !!
+   !! Normal case:
+   !!   - Different vertical grids (may have same or different alignments)
+   !!   - Uses regrid_field_ with pre-computed interpolation matrix
+   !!   - Regridding handles both interpolation and alignment adjustment
+   !!
+    !! @param[in]    this   The transform object
+    !! @param[inout] f_in   Input field (ESMF requires inout for pointer access)
+    !! @param[inout] f_out  Output field (modified in place)
+   !! @param[out]   rc     Return code
+    subroutine process_field(this, f_in, f_out, rc)
+       class(VerticalRegridTransform), intent(in) :: this
+       type(ESMF_Field), intent(inout) :: f_in
+       type(ESMF_Field), intent(inout) :: f_out
+       integer, optional, intent(out) :: rc
 
       integer :: status
 
@@ -226,6 +326,40 @@ contains
       _UNUSED_DUMMY(v_list)
    end subroutine write_formatted
 
+    !> Compute interpolation matrix for vertical regridding with alignment support.
+    !!
+    !! This subroutine performs alignment-aware coordinate canonicalization before
+    !! computing the interpolation matrix. The key insight is that MAPL's interpolation
+    !! algorithms assume coordinates are in a canonical DOWN orientation (traditional ESM
+    !! convention where vertical index increases downward from top-of-atmosphere).
+    !!
+    !! Alignment Canonicalization Algorithm:
+    !! --------------------------------------
+    !! 1. Adjust coordinates for stagger location (center vs. edge)
+    !! 2. Canonicalize to DOWN orientation for interpolation:
+    !!    - DOWN alignment: coordinates already in canonical form (no flip)
+    !!    - UP alignment: flip coordinates to DOWN orientation
+    !! 3. Compute interpolation matrix using canonicalized coordinates
+    !! 4. The matrix maps from canonical source to canonical destination
+    !!
+    !! The output flipping (if needed) is handled separately by regrid_field_, which
+    !! applies the matrix and then flips the output if dst_alignment is UP.
+    !!
+    !! Example: Ocean (UP) → Atmosphere (DOWN)
+    !! - Source coords (ocean): [0, 10, 20, 30] meters (depth increases down = UP)
+    !! - After flip:            [30, 20, 10, 0] meters (canonical DOWN for interpolation)
+    !! - Dest coords (atm):     [1000, 850, 500] hPa (pressure increases down = DOWN, no flip)
+    !! - Matrix computed using flipped ocean coords and atm coords
+    !! - regrid_field_ applies matrix (no output flip needed since dst is DOWN)
+    !!
+    !! @param[inout] v_in_coord    Source vertical coordinate field
+    !! @param[in]    stagger_in    Source stagger location
+    !! @param[in]    src_alignment Source coordinate direction (UP/DOWN)
+    !! @param[inout] v_out_coord   Destination vertical coordinate field
+    !! @param[in]    stagger_out   Destination stagger location
+    !! @param[in]    dst_alignment Destination coordinate direction (UP/DOWN)
+    !! @param[out]   matrix        Computed interpolation matrix array
+    !! @param[out]   rc            Return code
     subroutine compute_interpolation_matrix_(v_in_coord, stagger_in, src_alignment, &
          v_out_coord, stagger_out, dst_alignment, matrix, rc)
        type(ESMF_Field), intent(inout) :: v_in_coord
@@ -309,6 +443,37 @@ contains
       _FAIL("Cannot have edge variable on centered vertical grid.")
    end function adjust_coords
 
+    !> Apply vertical regridding with alignment-aware data transformation.
+    !!
+    !! This subroutine applies the pre-computed interpolation matrix to field data,
+    !! handling alignment transformations on both input and output.
+    !!
+    !! Data Flow:
+    !! ----------
+    !! 1. Canonicalize input data to DOWN orientation (if needed)
+    !!    - DOWN alignment: use data as-is
+    !!    - UP alignment: flip vertical dimension
+    !! 2. Apply interpolation matrix (operates on canonicalized data)
+    !! 3. Transform output to destination alignment
+    !!    - DOWN alignment: use result as-is
+    !!    - UP alignment: flip vertical dimension
+    !!
+    !! The matrix was computed using canonicalized coordinates (see compute_interpolation_matrix_),
+    !! so we must ensure the data is also canonicalized before applying the matrix.
+    !!
+    !! Example: Ocean (UP) → Atmosphere (DOWN)
+    !! - Input data (ocean): [T1, T2, T3, T4] aligned with UP coords
+    !! - After flip:         [T4, T3, T2, T1] (canonicalized to DOWN)
+    !! - Apply matrix:       [Ta, Tb, Tc] (interpolated result in DOWN)
+    !! - No output flip needed (dst is DOWN)
+    !! - Final output:       [Ta, Tb, Tc] aligned with DOWN coords
+    !!
+    !! @param[in]    matrix        Pre-computed interpolation matrix
+    !! @param[inout] f_in          Source field
+    !! @param[in]    src_alignment Source coordinate direction
+    !! @param[inout] f_out         Destination field (modified in place)
+    !! @param[in]    dst_alignment Destination coordinate direction
+    !! @param[out]   rc            Return code
     subroutine regrid_field_(matrix, f_in, src_alignment, f_out, dst_alignment, rc)
        type(SparseMatrix_sp), allocatable, intent(in) :: matrix(:)
        type(ESMF_Field), intent(inout) :: f_in, f_out
@@ -400,6 +565,21 @@ contains
       _RETURN(_SUCCESS)
    end subroutine copy_field_
 
+   !> Copy field data with vertical dimension flipped (for degenerate case).
+   !!
+   !! This is used when source and destination have the same vertical grid but
+   !! different alignments. No interpolation is needed - we simply reverse the
+   !! vertical dimension to convert between UP and DOWN orientations.
+   !!
+   !! Example: 72-level grid, DOWN → UP
+   !! - Input (DOWN):  [T1, T2, ..., T72] (surface at index 72)
+   !! - Output (UP):   [T72, ..., T2, T1] (surface at index 1)
+   !!
+   !! The flip operation is symmetric (DOWN→UP and UP→DOWN use same code).
+   !!
+   !! @param[in]    f_in   Source field
+   !! @param[inout] f_out  Destination field (modified in place)
+   !! @param[out]   rc     Return code
    subroutine copy_field_flipped_(f_in, f_out, rc)
       type(ESMF_Field), intent(inout) :: f_in, f_out
       integer, optional, intent(out) :: rc
