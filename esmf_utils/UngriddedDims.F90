@@ -25,7 +25,7 @@ module mapl3g_UngriddedDims
    ! before any other ungridded dim specs.
    type :: UngriddedDims
       private
-      logical :: is_mirror = .false.
+      logical :: is_mirror_ = .false.
       type(UngriddedDimVector) :: dim_specs
    contains
       procedure :: add_dim
@@ -33,7 +33,7 @@ module mapl3g_UngriddedDims
       procedure :: get_ith_dim_spec
       procedure :: get_bounds
       procedure :: make_info
-      procedure :: is_mirrored
+      procedure :: is_mirror
    end type UngriddedDims
 
    interface UngriddedDims
@@ -61,7 +61,7 @@ contains
 
       spec%dim_specs = UngriddedDimVector()
       if (present(is_mirror)) then
-         spec%is_mirror = is_mirror
+         spec%is_mirror_ = is_mirror
       end if
 
    end function new_UngriddedDims_empty
@@ -161,7 +161,7 @@ contains
 
       equal_to = .false.
 
-      if (a%is_mirror .neqv. b%is_mirror) return
+      if (a%is_mirror() .neqv. b%is_mirror()) return
       associate (n => a%dim_specs%size())
 
         if (b%dim_specs%size() /= n) return
@@ -196,8 +196,8 @@ contains
 
       info = ESMF_InfoCreate(_RC)
 
-      call MAPL_InfoSet(info, key=KEY_IS_MIRROR, value=this%is_mirrored(), _RC)
-      _RETURN_IF(this%is_mirrored())
+      call MAPL_InfoSet(info, key=KEY_IS_MIRROR, value=this%is_mirror(), _RC)
+      _RETURN_IF(this%is_mirror())
 
       call MAPL_InfoSet(info, key='/num_ungridded_dimensions', value=this%get_num_ungridded(), _RC)
 
@@ -226,17 +226,17 @@ contains
       character(:), allocatable :: dim_key
       type(UngriddedDim), allocatable :: dim_specs(:)
       character(:), allocatable :: full_key
-      logical :: mirror, key_is_present
+      logical :: is_mirror, key_is_present
       
-      mirror = .FALSE.
+      is_mirror = .FALSE.
       full_key = KEY_IS_MIRROR
       if (present(key)) full_key = key // full_key
       key_is_present = ESMF_InfoIsPresent(info, key=full_key, _RC)
       if(key_is_present) then
-         call MAPL_InfoGet(info, key=full_key, value=mirror, _RC)
+         call MAPL_InfoGet(info, key=full_key, value=is_mirror, _RC)
       end if
-      ungridded_dims = UngriddedDims(mirror)
-      _RETURN_IF(mirror)
+      ungridded_dims = UngriddedDims(is_mirror=is_mirror)
+      _RETURN_IF(is_mirror)
 
       full_key = KEY_NUM_UNGRIDDED_DIMS
       if (present(key)) then
@@ -261,10 +261,10 @@ contains
       _RETURN(_SUCCESS)
    end function make_ungriddedDims
 
-   logical function is_mirrored(this)
+   logical function is_mirror(this)
       class(UngriddedDims), intent(in) :: this
-      is_mirrored = this%is_mirror
-   end function is_mirrored
+      is_mirror = this%is_mirror_
+   end function is_mirror
 
 end module mapl3g_UngriddedDims
 
