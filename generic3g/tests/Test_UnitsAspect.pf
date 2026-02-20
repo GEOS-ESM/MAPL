@@ -7,7 +7,6 @@ module Test_UnitsAspect
    use mapl3g_Field_API
    use mapl3g_FieldBundle_API
    use mapl_ErrorHandling
-   use mapl3g_esmf_info_keys, only: KEY_MIRROR
    use esmf
    use ESMF_TestMethod_mod
    implicit none
@@ -209,7 +208,7 @@ contains
       field = create_test_field(UNITS1)
       call aspect%update_payload(field=field, _RC)
       call MAPL_FieldGet(field, units=retrieved_units, _RC)
-      @assertEqual(KEY_MIRROR, retrieved_units, 'units should not be set.')
+      @assertEqual(IS_MIRROR, retrieved_units, 'units should not be set.')
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
       _UNUSED_DUMMY(this)
 
@@ -228,7 +227,7 @@ contains
       bundle = create_test_bundle(UNITS1)
       call aspect%update_payload(bundle=bundle, _RC)
       call MAPL_FieldBundleGet(bundle, units=retrieved_units, _RC)
-      @assertEqual(KEY_MIRROR, retrieved_units, 'units should not be set.')
+      @assertEqual(IS_MIRROR, retrieved_units, 'units should not be set.')
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true., _RC)
       _UNUSED_DUMMY(this)
 
