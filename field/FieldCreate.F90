@@ -229,6 +229,7 @@ contains
       if (present(vert_staggerloc)) vert_staggerloc_ = vert_staggerloc
 
       call FieldInfoSetInternal(field_info, &
+           typekind=typekind, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, &
            vert_staggerloc=vert_staggerloc_, &
