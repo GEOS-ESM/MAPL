@@ -24,23 +24,23 @@
 ! !USES:
 !
    Use ESMF
-   Use MAPL_BaseMod, only: MAPL_FieldCreateEmpty, MAPL_GridGetCorners, MAPL_FieldAllocCommit
    use MAPL_MathConstantsMod, only: MAPL_PI, MAPL_DEGREES_TO_RADIANS_R8, &
        MAPL_RADIANS_TO_DEGREES
    use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL, MAPL_R4, MAPL_DimsHorzOnly, &
        MAPL_VLocationCenter
    use MAPL_ISO8601_DateTime, only: convert_ISO8601_to_integer_date, &
        convert_ISO8601_to_integer_time
+   use mapl3g_FieldCreate, only: MAPL_FieldCreate
    use mapl3g_FieldBundle_API, only: MAPL_FieldBundleAdd
    Use MAPL_CommsMod, only: MAPL_AM_I_ROOT
    Use MAPL_ErrorHandlingMod
    use mapl3g_generic, only: MAPL_GridCompGet
    use mapl3g_generic, only: MAPL_UserCompSetInternalState, MAPL_UserCompGetInternalState
    use mapl3g_generic, only: MAPL_GridCompAddSpec
-   use mapl3g_VerticalStaggerLoc, only: VERTICAL_STAGGER_NONE
+   use mapl3g_VerticalStaggerLoc, only: VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER
    use mapl3g_generic, only: MAPL_STATEITEM_FIELDBUNDLE
    use mapl3g_generic, only: MAPL_GridCompSetEntryPoint
-   use mapl3g_Geom_API, only: MAPL_GridGet, MAPL_GridGetCoordinates
+   use mapl3g_Geom_API, only: MAPL_GridGet, MAPL_GridGetCoordinates, mapl_GridGetCorners
    use mapl3g_State_API, only: MAPL_StateGetPointer
    use mapl3g_FieldBundle_API, only: MAPL_FieldBundleGetPointer
    use mapl3g_generic, only: MAPL_GridCompGetResource
@@ -194,15 +194,16 @@ CONTAINS
     type(ESMF_FIELDBUNDLE)                  :: BUNDLE
     type(Orb_state), pointer           :: self         ! Legacy state
 
-    integer :: KND, HW, DIMS, LOCATION
+    integer :: KND, DIMS, LOCATION
     integer :: i
 !   New stuff for lat-lon grid needed if doing cube-sphere
     character(len=ESMF_MAXSTR)    :: gridtype_default
     character(len=ESMF_MAXSTR)    :: gridtype
 !   extra things for cubed sphere
     integer                       :: IM, JM, face
-    real(ESMF_KIND_R8), pointer                 :: EdgeLons(:,:), EdgeLats(:,:)
+    real(kind=ESMF_KIND_R8), allocatable :: corners(:,:,:)
     type(ESMF_Info) :: infoh
+    type(ESMF_Geom) :: geom
 ! Begin...
 
 ! Get the target components name and set-up traceback handle.
@@ -219,13 +220,12 @@ CONTAINS
     call ESMF_StateGet(EXPORT,'SATORB',BUNDLE,_RC)
 
     ! set some info about the fields we will be adding . . .
-    HW=0
     DIMS=MAPL_DimsHorzOnly
     LOCATION=MAPL_VLocationCenter
     KND=MAPL_R4
+    geom = ESMF_GeomCreate(grid, _RC)
     do i = 1, self%no
-     field=mapl_FieldCreateEmpty(trim(self%Instrument(i)%str),Grid,_RC)
-     call MAPL_FieldAllocCommit(field, dims=dims, location=location, typekind=knd, hw=hw, _RC)
+     field=MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name=trim(self%Instrument(i)%str), vert_staggerloc=VERTICAL_STAGGER_CENTER)
      call MAPL_FieldBundleAdd(Bundle,[Field],_RC)
     enddo
 
@@ -237,15 +237,12 @@ CONTAINS
 
        call MAPL_GridGet(grid, im=im, jm=jm, _RC)
 
-       allocate(EdgeLons(IM+1,JM+1),_STAT)
-       allocate(EdgeLats(IM+1,JM+1),_STAT)
-       call MAPL_GridGetCorners(Grid,EdgeLons,EdgeLats,_RC)
-       call check_face(IM+1,JM+1,EdgeLons,EdgeLats,FACE)
+       call MAPL_GridGetCorners(Grid, corners, _RC)
+       ! EdgeLons => corners(:,:,1), EdgeLats => corners(:,:,2)
+       call check_face(IM+1,JM+1, corners(:,:,1), corners(:,:,2), FACE)
        self%face=face
        allocate(self%x(IM+1,JM+1),self%y(IM+1,JM+1))
-       call cube_xy(IM+1,JM+1,self%x,self%y,EdgeLons,EdgeLats,face)
-       deallocate(EdgeLons)
-       deallocate(EdgeLats)
+       call cube_xy(IM+1, JM+1, self%x, self%y, corners(:,:,1), corners(:,:,2), face)
 
     endif
 

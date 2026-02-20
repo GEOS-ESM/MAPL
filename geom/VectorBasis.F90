@@ -11,6 +11,7 @@ module mapl3g_VectorBasis
 
    public :: VectorBasis
    public :: GridGetCoords
+   public :: GridGetCorners
    ! Factory functions
    public :: NS_VectorBasis
    public :: GridVectorBasis
