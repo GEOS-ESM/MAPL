@@ -4,10 +4,9 @@
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
 !
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 !
 !>
-!### MODULE: `MAPL_OrbGridCompMod`
 !
 ! Author: GMAO SI-Team
 !
@@ -40,7 +39,7 @@
    use mapl3g_VerticalStaggerLoc, only: VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER
    use mapl3g_generic, only: MAPL_STATEITEM_FIELDBUNDLE
    use mapl3g_generic, only: MAPL_GridCompSetEntryPoint
-   use mapl3g_Geom_API, only: MAPL_GridGet, MAPL_GridGetCoordinates, mapl_GridGetCorners
+   use mapl3g_Geom_API, only: MAPL_GridGet, MAPL_GridGetCoordinates
    use mapl3g_State_API, only: MAPL_StateGetPointer
    use mapl3g_FieldBundle_API, only: MAPL_FieldBundleGetPointer
    use mapl3g_generic, only: MAPL_GridCompGetResource
@@ -235,9 +234,8 @@ CONTAINS
     call ESMF_InfoGet(infoh,key='GridType',value=gridtype,default=gridtype_default,_RC)
     if (gridtype=='Cubed-Sphere') then
 
-       call MAPL_GridGet(grid, im=im, jm=jm, _RC)
+       call MAPL_GridGet(grid, im=im, jm=jm, corners=corners, _RC)
 
-       call MAPL_GridGetCorners(Grid, corners, _RC)
        ! EdgeLons => corners(:,:,1), EdgeLats => corners(:,:,2)
        call check_face(IM+1,JM+1, corners(:,:,1), corners(:,:,2), FACE)
        self%face=face
