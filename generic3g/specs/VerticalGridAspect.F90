@@ -265,6 +265,24 @@ contains
       src_alignment = src%get_resolved_alignment()
       dst_alignment = dst_%get_resolved_alignment()
       
+      !> Degenerate Case Detection
+      !! ------------------------
+      !! A "degenerate case" occurs when source and destination have the same vertical
+      !! grid but different coordinate alignments (e.g., both use 72-level grid but
+      !! one is UP and the other is DOWN).
+      !!
+      !! Detection logic:
+      !! 1. First check: Compare grid IDs (fast path for identical grid objects)
+      !! 2. Fallback: Use vertical_grid%matches() for structural equality
+      !!    - BasicVerticalGrid matches any grid with same number of levels
+      !!    - Allows flexibility for runtime-defined grids
+      !!
+      !! Special handling based on alignment:
+      !! - Same grid + same alignment → NullTransform (no operation needed)
+      !! - Same grid + different alignment → VerticalRegridTransform with is_degenerate_case=.true.
+      !!   (performs vertical flip without interpolation)
+      !! - Different grids → VerticalRegridTransform with is_degenerate_case=.false.
+      !!   (performs full regridding with alignment-aware coordinate canonicalization)
       ! Check if grids are the same (degenerate case)
       grids_match = dst_%vertical_grid%get_id() == src%vertical_grid%get_id()
       if (.not. grids_match) then
