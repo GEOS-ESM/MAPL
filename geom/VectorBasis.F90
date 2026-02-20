@@ -11,6 +11,7 @@ module mapl3g_VectorBasis
 
    public :: VectorBasis
    public :: GridGetCoords
+   public :: GridGetCorners
    ! Factory functions
    public :: NS_VectorBasis
    public :: GridVectorBasis
@@ -132,7 +133,7 @@ module mapl3g_VectorBasis
       end subroutine grid_get_centers
 
       module subroutine grid_get_corners(grid, corners, rc)
-         type(ESMF_Grid), intent(inout) :: grid
+         type(ESMF_Grid), intent(in) :: grid
          real(kind=ESMF_KIND_R8), allocatable, intent(out) :: corners(:,:,:)
          integer, optional, intent(out) :: rc
       end subroutine grid_get_corners

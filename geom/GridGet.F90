@@ -5,6 +5,7 @@ module mapl3g_GridGet
    use esmf
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
+   use mapl3g_VectorBasis, only: GridGetCorners
 
    implicit none
    private
@@ -24,13 +25,14 @@ module mapl3g_GridGet
 
 contains
 
-   subroutine grid_get(grid, unusable, name, dimCount, coordDimCount, im, jm, rc)
+   subroutine grid_get(grid, unusable, name, dimCount, coordDimCount, im, jm, corners, rc)
       type(esmf_Grid), intent(in) :: grid
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(:), optional, allocatable, intent(out) :: name
       integer, optional, intent(out) :: dimCount
       integer, optional, allocatable, intent(out) :: coordDimCount(:)
       integer, optional, intent(out) :: im, jm
+      real(kind=ESMF_KIND_R8), optional, allocatable, intent(out) :: corners(:,:,:)
       integer, optional, intent(out) :: rc
 
       integer :: dimCount_
@@ -57,6 +59,10 @@ contains
          call esmf_GridGetCoord(grid, coordDim=1, farrayPtr=coords, _RC)
          if (present(im)) im = size(coords,1)
          if (present(jm)) jm = size(coords,2)
+      end if
+
+      if (present(corners)) then
+         call GridGetCorners(grid, corners, _RC)
       end if
 
       _RETURN(_SUCCESS)
