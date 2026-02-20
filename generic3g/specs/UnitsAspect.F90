@@ -13,7 +13,6 @@ module mapl3g_UnitsAspect
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use udunits2f, only: are_convertible
-   use mapl3g_esmf_info_keys, only: KEY_MIRROR
    use esmf
 
    implicit none
@@ -21,6 +20,7 @@ module mapl3g_UnitsAspect
 
    public :: UnitsAspect
    public :: to_UnitsAspect
+   public :: IS_MIRROR
 
    interface to_UnitsAspect
       procedure :: to_units_from_poly
@@ -49,6 +49,8 @@ module mapl3g_UnitsAspect
    interface UnitsAspect
       procedure new_UnitsAspect
    end interface
+
+   character(len=*), parameter :: IS_MIRROR = '/$MIRROR$'
 
 contains
 
@@ -216,7 +218,7 @@ contains
       end if
 
       mirror = .not. allocated(this%units)
-      if(.not. mirror) mirror = this%units == KEY_MIRROR
+      if(.not. mirror) mirror = this%units == IS_MIRROR
       call this%set_mirror(mirror)
 
       _RETURN(_SUCCESS)
@@ -232,11 +234,11 @@ contains
       character(len=:), allocatable :: units
 
       integer :: status
-      type(ESMF_Info) :: info
+!      type(ESMF_Info) :: info !wdb fixme deleteme 
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
 
-      units = KEY_MIRROR
+      units = IS_MIRROR
       if(.not. this%is_mirror()) units = this%units
 
       if (present(field)) then
