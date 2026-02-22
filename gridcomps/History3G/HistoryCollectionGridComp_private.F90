@@ -22,6 +22,7 @@ module mapl3g_HistoryCollectionGridComp_private
    public :: set_start_stop_time
    public :: get_real_time_vector 
    public :: get_frequency
+   public :: get_accumulation_mode
    ! These are public for testing.
    !public :: parse_item
    public :: get_expression_variables
@@ -455,6 +456,26 @@ contains
       _RETURN(_SUCCESS)
    end function get_frequency
 
+   function get_accumulation_mode(hconfig, rc) result(accumulation_mode)
+      character(len=:), allocatable :: accumulation_mode
+      type(ESMF_HConfig), intent(in) :: hconfig
+      integer, intent(out), optional :: rc
+
+      integer :: status
+      type(ESMF_HConfig) :: time_hconfig
+      logical :: hasKey
+      character(len=:), allocatable :: mapVal
+
+      accumulation_mode = KEY_INSTANTANEOUS
+      time_hconfig = ESMF_HConfigCreateAt(hconfig, keyString='time_spec', _RC)
+      hasKey = ESMF_HConfigIsDefined(time_hconfig, keyString=KEY_TIMESTEP, _RC)
+      _RETURN_UNLESS(hasKey)
+
+      accumulation_mode = ESMF_HConfigAsString(time_hconfig, keyString=KEY_ACCUMULATION_TYPE, _RC)
+
+      _RETURN(_SUCCESS)
+   end function get_accumulation_mode
+
    subroutine parse_compression_options(hconfig, compression_settings, rc)
       type(ESMF_HConfig), intent(in) :: hconfig
       type(CompressionSettings), intent(out) :: compression_settings
@@ -476,10 +497,10 @@ contains
       logical :: is_defined
       character(len=:), allocatable :: regrid_method_str
 
-      is_defined = ESMF_HConfigIsDefined(hconfig, keyString='regrid', _RC)
+      is_defined = ESMF_HConfigIsDefined(hconfig, keyString=KEY_REGRID, _RC)
       options%regrid_param = generate_esmf_regrid_param(REGRID_METHOD_BILINEAR, ESMF_TYPEKIND_R4, _RC)
       if (is_defined) then
-         regrid_method_str = ESMF_HConfigAsString(hconfig, keyString='regrid', _RC)
+         regrid_method_str = ESMF_HConfigAsString(hconfig, keyString=KEY_REGRID, _RC)
          regrid_method_int = regrid_method_string_to_int(regrid_method_str)
          options%regrid_param = generate_esmf_regrid_param(regrid_method_int, ESMF_TYPEKIND_R4, _RC)
       end if

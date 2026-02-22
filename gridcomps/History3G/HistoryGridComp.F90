@@ -60,9 +60,9 @@ contains
          call add_child_ref_time(child_hconfig, _RC)
 
          child_spec = ChildSpec(user_setservices(collection_setServices), hconfig=child_hconfig, timeStep=timeStep)
-         call MAPL_GridCompAddChild(gridcomp, child_name, child_spec,_RC)
 
          call add_stats_gc(gridcomp, child_name, child_hconfig, _RC)
+         call MAPL_GridCompAddChild(gridcomp, child_name, child_spec,_RC)
       end do
       
       _RETURN(_SUCCESS)

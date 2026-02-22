@@ -3,6 +3,7 @@
 module mapl3g_HistoryCollectionGridComp
    use mapl3
    use mapl3g_HistoryCollectionGridComp_private
+   use mapl3g_HistoryConstants
    use esmf
    use MAPL_StringTemplate, only: fill_grads_template_esmf
    use pFlogger, only: logger, logging
@@ -18,7 +19,8 @@ module mapl3g_HistoryCollectionGridComp
       type(ESMF_Time) :: start_stop_times(2)
       type(ESMF_Time) :: initial_file_time
       type(ESMF_TimeInterval) :: timeStep
-      type(ESMF_TimeInterval) :: time_offstep
+      type(ESMF_TimeInterval) :: time_offset
+      character(len=:), allocatable :: accumulation_mode
       character(len=:), allocatable :: template
       character(len=:), allocatable :: current_file
       type(ESMF_Time), allocatable :: time_vector(:)
@@ -80,6 +82,7 @@ contains
 
       collection_gridcomp%start_stop_times = set_start_stop_time(clock, hconfig, _RC)
       collection_gridcomp%timeStep = get_frequency(hconfig, _RC)
+      collection_gridcomp%accumulation_mode = get_accumulation_mode(hconfig, _RC)
       collection_gridcomp%current_file = null_file
       collection_gridcomp%template = ESMF_HConfigAsString(hconfig, keyString='template', _RC)
       collection_gridcomp%shift_back = ESMF_HConfigAsLogical(hconfig, keyString='shift_back', _RC)
@@ -144,6 +147,9 @@ contains
 
       _RETURN_UNLESS(run_collection)
 
+      if (collection_gridcomp%accumulation_mode /= KEY_INSTANTANEOUS) then
+         current_time = current_time - collection_gridcomp%timeStep/2
+      end if
       call fill_grads_template_esmf(current_file, collection_gridcomp%template, collection_id=name, time=current_time, _RC)
       if (trim(current_file) /= collection_gridcomp%current_file) then
          collection_gridcomp%current_file = current_file

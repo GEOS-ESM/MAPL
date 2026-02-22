@@ -12,6 +12,7 @@ module mapl3g_HistoryConstants
    public :: KEY_UNITS
    public :: KEY_EXPRESSION
    public :: KEY_INSTANTANEOUS
+   public :: KEY_REGRID
 
    character(len=*), parameter :: VAR_LIST_KEY = 'var_list'
    character(len=*), parameter :: KEY_TIMESTEP = 'frequency'
@@ -22,5 +23,6 @@ module mapl3g_HistoryConstants
    character(len=*), parameter :: KEY_UNITS = 'units'
    character(len=*), parameter :: KEY_EXPRESSION = 'expr'
    character(len=*), parameter :: KEY_INSTANTANEOUS = 'instantaneous'
+   character(len=*), parameter :: KEY_REGRID = 'regrid'
 
 end module mapl3g_HistoryConstants

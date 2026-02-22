@@ -151,7 +151,6 @@ contains
 
       if (present(regridder_param_info)) then
          call MAPL_InfoSet(info, namespace_ // KEY_REGRIDDER_PARAM, regridder_param_info, _RC)
-         _HERE
       end if
 
       if (present(vert_staggerloc)) then
