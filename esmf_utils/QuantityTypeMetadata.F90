@@ -220,9 +220,9 @@ contains
       integer :: status
       character(:), allocatable :: full_key, str_value
       character(:), allocatable :: dims_buffer, aux_field_buffer
-      logical, allocatable :: is_mirror_alloc, conservative_regridable_alloc
       logical :: is_mirror, is_present
-      real, allocatable :: mw_alloc, normalization_scale_alloc
+      logical :: conservative_regridable_buffer
+      real :: mw_buffer, normalization_scale_buffer
       
       ! Check for mirror
       is_mirror = .FALSE.
@@ -230,8 +230,7 @@ contains
       if (present(key)) full_key = key // full_key
       is_present = ESMF_InfoIsPresent(info, key=full_key, _RC)
       if (is_present) then
-         call MAPL_InfoGet(info, key=full_key, value=is_mirror_alloc, _RC)
-         is_mirror = is_mirror_alloc
+         call MAPL_InfoGet(info, key=full_key, value=is_mirror, _RC)
       end if
       
       if (is_mirror) then
@@ -265,16 +264,16 @@ contains
       if (present(key)) full_key = key // full_key
       is_present = ESMF_InfoIsPresent(info, key=full_key, _RC)
       if (is_present) then
-         call MAPL_InfoGet(info, full_key, mw_alloc, _RC)
+         call MAPL_InfoGet(info, full_key, mw_buffer, _RC)
          allocate(metadata%molecular_weight)
-         metadata%molecular_weight = mw_alloc
+         metadata%molecular_weight = mw_buffer
       end if
       
       ! Read derived properties
       full_key = KEY_CONSERVATIVE_REGRIDABLE
       if (present(key)) full_key = key // full_key
-      call MAPL_InfoGet(info, full_key, conservative_regridable_alloc, _RC)
-      metadata%conservative_regridable = conservative_regridable_alloc
+      call MAPL_InfoGet(info, full_key, conservative_regridable_buffer, _RC)
+      metadata%conservative_regridable = conservative_regridable_buffer
       
       full_key = KEY_NORMALIZATION_TYPE
       if (present(key)) full_key = key // full_key
@@ -283,8 +282,8 @@ contains
       
       full_key = KEY_NORMALIZATION_SCALE
       if (present(key)) full_key = key // full_key
-      call MAPL_InfoGet(info, full_key, normalization_scale_alloc, _RC)
-      metadata%normalization_scale = normalization_scale_alloc
+      call MAPL_InfoGet(info, full_key, normalization_scale_buffer, _RC)
+      metadata%normalization_scale = normalization_scale_buffer
       
       full_key = KEY_AUX_FIELD_NAME
       if (present(key)) full_key = key // full_key
