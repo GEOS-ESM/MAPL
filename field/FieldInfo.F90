@@ -9,6 +9,7 @@ module mapl3g_FieldInfo
    use mapl3g_InfoUtilities
    use mapl3g_VerticalGrid_API
    use mapl3g_UngriddedDims
+   use mapl3g_QuantityTypeMetadata
    use mapl3g_VerticalStaggerLoc
    use mapl3g_VerticalAlignment
    use mapl3g_StateItemAllocation
@@ -66,6 +67,7 @@ module mapl3g_FieldInfo
    character(*), parameter :: KEY_VERT_DIM = "/vert_dim"
    character(*), parameter :: KEY_UNGRIDDED_DIMS = "/ungridded_dims"
    character(*), parameter :: KEY_ALLOCATION_STATUS = "/allocation_status"
+   character(*), parameter :: KEY_QUANTITY_TYPE_METADATA = "/quantity_type_metadata"
    character(*), parameter :: KEY_REGRIDDER_PARAM = "/EsmfRegridderParam"
 
    character(*), parameter :: KEY_UNDEF_VALUE = "/undef_value"
@@ -84,6 +86,7 @@ contains
         horizontal_dims_spec, &
         vgrid_id, num_levels, vert_staggerloc, vert_alignment, &
         ungridded_dims, &
+        quantity_type_metadata, &
         units, long_name, standard_name, &
         allocation_status, &
         has_deferred_aspects, &
@@ -99,6 +102,7 @@ contains
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       type(VerticalAlignment), optional, intent(in) :: vert_alignment
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
+      type(QuantityTypeMetadata), optional, intent(in) :: quantity_type_metadata
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: long_name
       character(*), optional, intent(in) :: standard_name
@@ -108,7 +112,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_Info) :: ungridded_info
+      type(ESMF_Info) :: ungridded_info, quantity_info
       character(:), allocatable :: namespace_
       character(:), allocatable :: str
       logical :: isPresent
@@ -136,6 +140,12 @@ contains
          ungridded_info = ungridded_dims%make_info(_RC)
          call MAPL_InfoSet(info, namespace_ // KEY_UNGRIDDED_DIMS, ungridded_info, _RC)
          call esmf_InfoDestroy(ungridded_info, _RC)
+      end if
+
+      if (present(quantity_type_metadata)) then
+         quantity_info = quantity_type_metadata%make_info(_RC)
+         call MAPL_InfoSet(info, namespace_ // KEY_QUANTITY_TYPE_METADATA, quantity_info, _RC)
+         call esmf_InfoDestroy(quantity_info, _RC)
       end if
 
       if (present(units)) then
@@ -205,6 +215,7 @@ contains
         units, &
         long_name, standard_name, &
         ungridded_dims, &
+        quantity_type_metadata, &
         allocation_status, &
         has_deferred_aspects, &
         regridder_param_info, &
@@ -223,6 +234,7 @@ contains
       character(:), optional, allocatable, intent(out) :: long_name
       character(:), optional, allocatable, intent(out) :: standard_name
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
+      type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
       type(StateItemAllocation), optional, intent(out) :: allocation_status
       logical, optional, intent(out) :: has_deferred_aspects
       type(esmf_Info), allocatable, optional, intent(out) :: regridder_param_info
@@ -230,7 +242,7 @@ contains
 
       integer :: status
       integer :: num_levels_
-      type(esmf_Info) :: ungridded_info
+      type(esmf_Info) :: ungridded_info, quantity_info
       character(:), allocatable :: vert_staggerloc_str, vert_alignment_str, allocation_status_str
       type(VerticalStaggerLoc) :: vert_staggerloc_
       character(:), allocatable :: namespace_
@@ -265,6 +277,17 @@ contains
             call esmf_InfoDestroy(ungridded_info, _RC)
          else
             ungridded_dims = UngriddedDims(is_mirror=.true.)
+         end if
+      end if
+
+      if (present(quantity_type_metadata)) then
+         is_present = ESMF_InfoIsPresent(info, namespace_ // KEY_QUANTITY_TYPE_METADATA, _RC)
+         if (is_present) then
+            quantity_info = ESMF_InfoCreate(info, namespace_ // KEY_QUANTITY_TYPE_METADATA, _RC)
+            quantity_type_metadata = make_QuantityTypeMetadata(quantity_info, _RC)
+            call ESMF_InfoDestroy(quantity_info, _RC)
+         else
+            quantity_type_metadata = QuantityTypeMetadata()  ! mirror
          end if
       end if
 

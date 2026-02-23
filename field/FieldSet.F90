@@ -7,6 +7,7 @@ module mapl3g_FieldSet
    use mapl3g_FieldInfo
    use mapl3g_FieldDelta
    use mapl3g_StateItemAllocation
+   use mapl3g_QuantityTypeMetadata
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use mapl3g_UngriddedDims
@@ -35,6 +36,7 @@ contains
         num_levels, &
         units, standard_name, long_name, &
         ungridded_dims, &
+        quantity_type_metadata, &
         attributes, &
         allocation_status, &
         has_deferred_aspects, &
@@ -53,6 +55,7 @@ contains
       character(len=*), optional, intent(in) :: standard_name
       character(len=*), optional, intent(in) :: long_name
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
+      type(QuantityTypeMetadata), optional, intent(in) :: quantity_type_metadata
       type(StringVector), optional, intent(in) :: attributes
       type(StateItemAllocation), optional, intent(in) :: allocation_status
       logical, optional, intent(in) :: has_deferred_aspects
@@ -90,6 +93,7 @@ contains
            typekind=typekind, &
            units=units, standard_name=standard_name, long_name=long_name, &
            ungridded_dims=ungridded_dims, &
+           quantity_type_metadata=quantity_type_metadata, &
            allocation_status=allocation_status, &
            has_deferred_aspects=has_deferred_aspects, &
            regridder_param_info=regridder_param_info, &

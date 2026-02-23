@@ -1,0 +1,417 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_QuantityTypeAspect
+   use funit
+   use mapl3g_QuantityTypeAspect
+   use mapl3g_QuantityType
+   use mapl3g_NormalizationType
+   use mapl3g_Field_API
+   use mapl3g_FieldBundle_API
+   use mapl3g_ActualConnectionPt
+   use mapl_ErrorHandling
+   use esmf
+   use ESMF_TestMethod_mod
+   implicit none
+
+   real, parameter :: GRAV = 9.80665  ! m/s^2
+
+contains
+
+   ! Helper function to create a test field
+   function create_test_field() result(field)
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='test_field', _RC)
+
+   end function create_test_field
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_new_mixing_ratio_aspect(this)
+      ! Test creating a mixing ratio aspect and check derived properties
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(QuantityTypeAspect) :: aspect
+      type(NormalizationType) :: norm_type
+      real :: scale
+      character(:), allocatable :: aux_field
+      integer :: status
+
+      aspect = QuantityTypeAspect(quantity_type=QUANTITY_MIXING_RATIO, &
+                                   basis=BASIS_WET_MASS)
+
+      @assertFalse(aspect%is_mirror(), 'aspect should not be mirror')
+      @assertTrue(aspect%get_conservative_regridable(), 'mixing ratio should be conservative regridable')
+      
+      call aspect%get_normalization_info(normalization_type=norm_type, &
+                                         scale=scale, &
+                                         aux_field_name=aux_field, _RC)
+      
+      @assertTrue(norm_type == NORMALIZE_DELP, 'normalization type should be DELP')
+      @assertTrue(abs(scale - 1.0/GRAV) < 1.0e-6, 'scale should be 1/g')
+      @assertTrue(aux_field == 'DELP', 'aux field should be DELP')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_new_mixing_ratio_aspect
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_new_concentration_aspect(this)
+      ! Test creating a concentration aspect and check derived properties
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(QuantityTypeAspect) :: aspect
+      type(NormalizationType) :: norm_type
+      real :: scale
+      character(:), allocatable :: aux_field
+      integer :: status
+
+      aspect = QuantityTypeAspect(quantity_type=QUANTITY_CONCENTRATION)
+
+      @assertFalse(aspect%is_mirror(), 'aspect should not be mirror')
+      @assertTrue(aspect%get_conservative_regridable(), 'concentration should be conservative regridable')
+      
+      call aspect%get_normalization_info(normalization_type=norm_type, &
+                                         scale=scale, &
+                                         aux_field_name=aux_field, _RC)
+      
+      @assertTrue(norm_type == NORMALIZE_DZ, 'normalization type should be DZ')
+      @assertTrue(abs(scale - 1.0) < 1.0e-6, 'scale should be 1.0')
+      @assertTrue(aux_field == 'DZ', 'aux field should be DZ')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_new_concentration_aspect
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_new_temperature_aspect(this)
+      ! Test creating a temperature aspect (non-conservative)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(QuantityTypeAspect) :: aspect
+      type(NormalizationType) :: norm_type
+      integer :: status
+
+      aspect = QuantityTypeAspect(quantity_type=QUANTITY_TEMPERATURE)
+
+      @assertFalse(aspect%is_mirror(), 'aspect should not be mirror')
+      @assertFalse(aspect%get_conservative_regridable(), 'temperature should not be conservative regridable')
+      
+      call aspect%get_normalization_info(normalization_type=norm_type, _RC)
+      
+      @assertTrue(norm_type == NORMALIZE_NONE, 'normalization type should be NONE')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_new_temperature_aspect
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_new_extensive_aspect(this)
+      ! Test creating an extensive quantity aspect
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(QuantityTypeAspect) :: aspect
+      type(NormalizationType) :: norm_type
+      integer :: status
+
+      aspect = QuantityTypeAspect(quantity_type=QUANTITY_EXTENSIVE)
+
+      @assertFalse(aspect%is_mirror(), 'aspect should not be mirror')
+      @assertTrue(aspect%get_conservative_regridable(), 'extensive should be conservative regridable')
+      
+      call aspect%get_normalization_info(normalization_type=norm_type, _RC)
+      
+      @assertTrue(norm_type == NORMALIZE_NONE, 'normalization type should be NONE for extensive')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_new_extensive_aspect
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_default_aspect_is_mirror(this)
+      ! Test that default constructor creates mirror aspect
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(QuantityTypeAspect) :: aspect
+
+      aspect = QuantityTypeAspect()
+
+      @assertTrue(aspect%is_mirror(), 'default aspect should be mirror')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_default_aspect_is_mirror
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_matches_same_type(this)
+      ! Test that matching aspects return true
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(QuantityTypeAspect) :: aspect1, aspect2
+
+      aspect1 = QuantityTypeAspect(quantity_type=QUANTITY_MIXING_RATIO, basis=BASIS_WET_MASS)
+      aspect2 = QuantityTypeAspect(quantity_type=QUANTITY_MIXING_RATIO, basis=BASIS_WET_MASS)
+
+      @assertTrue(aspect1%matches(aspect2), 'same types should match')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_matches_same_type
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_does_not_match_different_type(this)
+      ! Test that different quantity types don't match
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(QuantityTypeAspect) :: aspect1, aspect2
+
+      aspect1 = QuantityTypeAspect(quantity_type=QUANTITY_MIXING_RATIO, basis=BASIS_WET_MASS)
+      aspect2 = QuantityTypeAspect(quantity_type=QUANTITY_CONCENTRATION)
+
+      @assertFalse(aspect1%matches(aspect2), 'different types should not match')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_does_not_match_different_type
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_does_not_match_different_basis(this)
+      ! Test that different bases don't match
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(QuantityTypeAspect) :: aspect1, aspect2
+
+      aspect1 = QuantityTypeAspect(quantity_type=QUANTITY_MIXING_RATIO, basis=BASIS_WET_MASS)
+      aspect2 = QuantityTypeAspect(quantity_type=QUANTITY_MIXING_RATIO, basis=BASIS_DRY_MASS)
+
+      @assertFalse(aspect1%matches(aspect2), 'different bases should not match')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_does_not_match_different_basis
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_matches_unknown_quantity_type(this)
+      ! Test that unknown quantity type matches anything
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(QuantityTypeAspect) :: aspect1, aspect2
+
+      aspect1 = QuantityTypeAspect(quantity_type=QUANTITY_UNKNOWN)
+      aspect2 = QuantityTypeAspect(quantity_type=QUANTITY_MIXING_RATIO, basis=BASIS_WET_MASS)
+
+      @assertTrue(aspect1%matches(aspect2), 'unknown should match any type')
+      @assertTrue(aspect2%matches(aspect1), 'any type should match unknown')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_matches_unknown_quantity_type
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_matches_none_basis(this)
+      ! Test that BASIS_NONE matches any basis
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(QuantityTypeAspect) :: aspect1, aspect2
+
+      aspect1 = QuantityTypeAspect(quantity_type=QUANTITY_MIXING_RATIO, basis=BASIS_NONE)
+      aspect2 = QuantityTypeAspect(quantity_type=QUANTITY_MIXING_RATIO, basis=BASIS_WET_MASS)
+
+      @assertTrue(aspect1%matches(aspect2), 'BASIS_NONE should match any basis')
+      @assertTrue(aspect2%matches(aspect1), 'any basis should match BASIS_NONE')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_matches_none_basis
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_field(this)
+      ! Test writing aspect to field info
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(QuantityTypeAspect) :: aspect_out, aspect_in
+      type(ESMF_Field) :: field
+      integer :: status
+
+      aspect_out = QuantityTypeAspect(quantity_type=QUANTITY_MIXING_RATIO, &
+                                      basis=BASIS_WET_MASS, &
+                                      dimensions='kg/kg')
+      field = create_test_field()
+      
+      call aspect_out%update_payload(field=field, _RC)
+      call aspect_in%update_from_payload(field=field, _RC)
+
+      @assertFalse(aspect_in%is_mirror(), 'read aspect should not be mirror')
+      @assertTrue(aspect_in%get_quantity_type() == QUANTITY_MIXING_RATIO, 'quantity type should match')
+      @assertTrue(aspect_in%get_basis() == BASIS_WET_MASS, 'basis should match')
+      @assertEqual('kg/kg', aspect_in%get_dimensions(), 'dimensions should match')
+      @assertTrue(aspect_in%get_conservative_regridable(), 'conservative flag should be set')
+
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_payload_field
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_empty_field(this)
+      ! Test reading from field without quantity type info
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(QuantityTypeAspect) :: aspect
+      type(ESMF_Field) :: field
+      integer :: status
+
+      aspect = QuantityTypeAspect(quantity_type=QUANTITY_MIXING_RATIO, basis=BASIS_WET_MASS)
+      field = create_test_field()
+      
+      call aspect%update_from_payload(field=field, _RC)
+
+      @assertTrue(aspect%is_mirror(), 'aspect should become mirror when reading empty field')
+
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_from_payload_empty_field
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_connect_to_export(this)
+      ! Test mirroring from export aspect
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(QuantityTypeAspect) :: import_aspect, export_aspect
+      type(ActualConnectionPt) :: actual_pt
+      integer :: status
+
+      export_aspect = QuantityTypeAspect(quantity_type=QUANTITY_CONCENTRATION, &
+                                         dimensions='kg/m3')
+      import_aspect = QuantityTypeAspect()  ! mirror
+
+      call import_aspect%connect_to_export(export_aspect, actual_pt, _RC)
+
+      @assertTrue(import_aspect%get_quantity_type() == QUANTITY_CONCENTRATION, 'should mirror quantity type')
+      @assertEqual('kg/m3', import_aspect%get_dimensions(), 'should mirror dimensions')
+      @assertTrue(import_aspect%get_conservative_regridable(), 'should mirror derived properties')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_connect_to_export
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_set_quantity_type_updates_derived(this)
+      ! Test that setting quantity type updates derived properties
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(QuantityTypeAspect) :: aspect
+      type(NormalizationType) :: norm_type
+      character(:), allocatable :: aux_field
+      integer :: status
+
+      aspect = QuantityTypeAspect(quantity_type=QUANTITY_TEMPERATURE)
+      @assertFalse(aspect%get_conservative_regridable(), 'temperature not conservative')
+
+      ! Change to mixing ratio
+      call aspect%set_quantity_type(QUANTITY_MIXING_RATIO, _RC)
+      call aspect%set_basis(BASIS_WET_MASS, _RC)
+
+      @assertTrue(aspect%get_conservative_regridable(), 'mixing ratio should be conservative')
+      call aspect%get_normalization_info(normalization_type=norm_type, aux_field_name=aux_field, _RC)
+      @assertTrue(norm_type == NORMALIZE_DELP, 'should update normalization type')
+      @assertTrue(aux_field == 'DELP', 'should update aux field')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_set_quantity_type_updates_derived
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_validate_mixing_ratio_requires_basis(this)
+      ! Test validation: mixing ratio must have basis
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(QuantityTypeAspect) :: aspect
+      integer :: status
+
+      aspect = QuantityTypeAspect(quantity_type=QUANTITY_MIXING_RATIO, basis=BASIS_NONE)
+      
+      ! This should fail validation
+      call aspect%validate(status)
+      @assertFalse(status == 0, 'validation should fail without basis')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_validate_mixing_ratio_requires_basis
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_validate_volume_basis_requires_molecular_weight(this)
+      ! Test validation: volume mixing ratio requires molecular weight
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(QuantityTypeAspect) :: aspect
+      integer :: status
+
+      aspect = QuantityTypeAspect(quantity_type=QUANTITY_MIXING_RATIO, basis=BASIS_VOLUME)
+      
+      ! This should fail validation (no molecular weight)
+      call aspect%validate(status)
+      @assertFalse(status == 0, 'validation should fail without molecular weight')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_validate_volume_basis_requires_molecular_weight
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_validate_volume_basis_with_molecular_weight(this)
+      ! Test validation: volume mixing ratio with molecular weight should pass
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(QuantityTypeAspect) :: aspect
+      integer :: status
+
+      aspect = QuantityTypeAspect(quantity_type=QUANTITY_MIXING_RATIO, &
+                                   basis=BASIS_VOLUME, &
+                                   molecular_weight=44.0)  ! CO2
+      
+      call aspect%validate(_RC)
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_validate_volume_basis_with_molecular_weight
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_getters_and_setters(this)
+      ! Test all getters and setters
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(QuantityTypeAspect) :: aspect
+      integer :: status
+
+      aspect = QuantityTypeAspect()
+
+      call aspect%set_quantity_type(QUANTITY_MIXING_RATIO, _RC)
+      @assertTrue(aspect%get_quantity_type() == QUANTITY_MIXING_RATIO, 'quantity type should be set')
+
+      call aspect%set_dimensions('kg/kg', _RC)
+      @assertEqual('kg/kg', aspect%get_dimensions(), 'dimensions should be set')
+
+      call aspect%set_basis(BASIS_DRY_MASS, _RC)
+      @assertTrue(aspect%get_basis() == BASIS_DRY_MASS, 'basis should be set')
+
+      call aspect%set_molecular_weight(28.0, _RC)  ! N2
+      @assertTrue(abs(aspect%get_molecular_weight() - 28.0) < 1.0e-6, 'molecular weight should be set')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_getters_and_setters
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_supports_conversion_same_type(this)
+      ! Test that conversion is supported for same type
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(QuantityTypeAspect) :: aspect1, aspect2
+
+      aspect1 = QuantityTypeAspect(quantity_type=QUANTITY_MIXING_RATIO, basis=BASIS_WET_MASS)
+      aspect2 = QuantityTypeAspect(quantity_type=QUANTITY_MIXING_RATIO, basis=BASIS_WET_MASS)
+
+      @assertTrue(aspect1%supports_conversion(aspect2), 'should support conversion for same type')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_supports_conversion_same_type
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_supports_conversion_general(this)
+      ! Test that general conversion is supported (for mirroring)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(QuantityTypeAspect) :: aspect
+
+      aspect = QuantityTypeAspect(quantity_type=QUANTITY_MIXING_RATIO, basis=BASIS_WET_MASS)
+
+      @assertTrue(aspect%supports_conversion(), 'should support general conversion')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_supports_conversion_general
+
+end module Test_QuantityTypeAspect
