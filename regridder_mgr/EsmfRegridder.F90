@@ -26,11 +26,12 @@ module mapl3g_EsmfRegridder
       type(ESMF_TermOrder_Flag) :: termorder
       logical :: checkflag
       type(DynamicMask) :: dyn_mask
-   contains
-      procedure :: equal_to
-      procedure :: get_routehandle_param
-      procedure :: make_info
-   end type EsmfRegridderParam
+    contains
+       procedure :: equal_to
+       procedure :: get_routehandle_param
+       procedure :: make_info
+       procedure :: is_conservative
+    end type EsmfRegridderParam
 
    type, extends(Regridder) :: EsmfRegridder
       private
@@ -292,7 +293,13 @@ contains
 
       call esmf_InfoDestroy(rh_info, _RC)
 
-      _RETURN(_SUCCESS)
-   end function make_regridder_param_from_info
+       _RETURN(_SUCCESS)
+    end function make_regridder_param_from_info
+
+    logical function is_conservative(this)
+       class(EsmfRegridderParam), intent(in) :: this
+
+       is_conservative = this%routehandle_param%is_conservative()
+    end function is_conservative
 
 end module mapl3g_EsmfRegridder

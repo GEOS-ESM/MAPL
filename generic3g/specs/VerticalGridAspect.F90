@@ -55,6 +55,7 @@ module mapl3g_VerticalGridAspect
       procedure :: get_vertical_alignment
       procedure :: set_vertical_alignment
       procedure :: get_resolved_alignment
+      procedure :: is_conservative
 
       procedure :: update_from_payload
       procedure :: update_payload
@@ -432,6 +433,12 @@ contains
       direction = this%vertical_alignment%resolve(grid_direction)
 
    end function get_resolved_alignment
+
+   logical function is_conservative(this)
+      class(VerticalGridAspect), intent(in) :: this
+      
+      is_conservative = (this%regrid_method == VERTICAL_REGRID_CONSERVATIVE)
+   end function is_conservative
 
    subroutine update_from_payload(this, field, bundle, state, rc)
       class(VerticalGridAspect), intent(inout) :: this

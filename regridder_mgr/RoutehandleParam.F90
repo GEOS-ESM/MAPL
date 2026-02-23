@@ -36,9 +36,10 @@ module mapl3g_RoutehandleParam
       type(ESMF_UnmappedAction_Flag) :: unmappedaction
       logical :: ignoreDegenerate
 !#      integer :: srcTermProcessing
-   contains
-      procedure :: make_info
-   end type RoutehandleParam
+    contains
+       procedure :: make_info
+       procedure :: is_conservative
+    end type RoutehandleParam
 
    interface make_RouteHandleParam
       procedure :: make_rh_param_from_info
@@ -320,7 +321,20 @@ contains
       info = esmf_InfoCreate(_RC)
       call esmf_InfoSet(info, key=KEY_REGRID_METHOD, value=regrid_method_str, _RC)
 
-      _RETURN(_SUCCESS)
-   end function make_info
+       _RETURN(_SUCCESS)
+    end function make_info
+
+    logical function is_conservative(this)
+       class(RoutehandleParam), intent(in) :: this
+       integer :: i
+
+       is_conservative = .false.
+       do i = 1, size(CONSERVATIVE_METHODS)
+          if (this%regridMethod == CONSERVATIVE_METHODS(i)) then
+             is_conservative = .true.
+             return
+          end if
+       end do
+    end function is_conservative
 
 end module mapl3g_RoutehandleParam
