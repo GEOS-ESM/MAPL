@@ -27,11 +27,10 @@ module mapl3g_esmf_info_keys
    public :: KEY_UNGRIDDED_COORD
    public :: KEY_DIM_STRINGS
    public :: make_dim_key
-    public :: KEY_VERT_STAGGERLOC
-    public :: KEY_BRACKET_UPDATED
-    public :: KEY_VECTOR_BASIS_KIND
-    public :: KEY_MIRROR
-    private
+   public :: KEY_VERT_STAGGERLOC
+   public :: KEY_BRACKET_UPDATED
+   public :: KEY_VECTOR_BASIS_KIND
+   private
 
    ! FieldSpec info keys
    character(len=*), parameter :: PREFIX = '/MAPL'
@@ -76,9 +75,6 @@ module mapl3g_esmf_info_keys
    character(len=*), parameter :: KEY_FIELD_PROTOTYPE = '/field_prototype'
    character(len=*), parameter :: KEY_INTERPOLATION_WEIGHTS = '/interpolation_weights'
    character(len=*), parameter :: KEY_FIELDBUNDLETYPE = '/fieldBundleType'
-
-   ! Aspect mirror key
-   character(len=*), parameter :: KEY_MIRROR = '/$MIRROR$'
 
 contains
 
