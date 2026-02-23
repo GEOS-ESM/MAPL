@@ -320,7 +320,7 @@ contains
       
       ! This should fail validation
       call aspect%validate(status)
-      @assertFalse(status == 0, 'validation should fail without basis')
+      @assertExceptionRaised('Mixing ratio requires basis specification')
 
       _UNUSED_DUMMY(this)
 
@@ -337,7 +337,7 @@ contains
       
       ! This should fail validation (no molecular weight)
       call aspect%validate(status)
-      @assertFalse(status == 0, 'validation should fail without molecular weight')
+      @assertExceptionRaised('Volume mixing ratio requires molecular weight')
 
       _UNUSED_DUMMY(this)
 
