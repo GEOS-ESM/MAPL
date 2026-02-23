@@ -1,0 +1,172 @@
+#include "MAPL_TestErr.h"
+
+module Test_2DConservativeRegrid
+   use mapl3g_QuantityType
+   use mapl3g_QuantityTypeMetadata
+   use mapl3g_NormalizationType
+   use mapl3g_Field_API
+   use mapl3g_regridder_mgr, only: EsmfRegridderParam
+   use mapl3g_RoutehandleParam
+   use mapl_ErrorHandling
+   use esmf
+   use funit
+   implicit none
+
+contains
+
+   !---------------------------------------------------------------------------
+   ! Test 1: Verify is_conservative() method works for regridder params
+   !---------------------------------------------------------------------------
+
+   @test
+   subroutine test_regridder_param_is_conservative()
+      type(EsmfRegridderParam) :: conservative_param, bilinear_param
+      
+      ! Create conservative regridder param
+      conservative_param = EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE)
+      @assertTrue(conservative_param%is_conservative())
+      
+      ! Create bilinear regridder param
+      bilinear_param = EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_BILINEAR)
+      @assertFalse(bilinear_param%is_conservative())
+      
+   end subroutine test_regridder_param_is_conservative
+
+
+   !---------------------------------------------------------------------------
+   ! Test 2: Create 2D field with QuantityTypeMetadata (extensive quantity)
+   !---------------------------------------------------------------------------
+
+   @test
+   subroutine test_create_2d_extensive_field()
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: field
+      type(QuantityTypeMetadata) :: qty_metadata
+      integer :: rc, status
+      
+      ! Create simple 2D grid (10x10)
+      grid = ESMF_GridCreateNoPeriDim( &
+         maxIndex=[10, 10], &
+         name='test_grid', _RC)
+      
+      ! Create quantity type metadata for extensive quantity (already in per-area units)
+      qty_metadata = QuantityTypeMetadata( &
+         quantity_type=QUANTITY_EXTENSIVE, &
+         dimensions='kg/m2')
+      
+      ! Create field
+      field = ESMF_FieldCreate(grid, typekind=ESMF_TYPEKIND_R8, name='test_field', _RC)
+      
+      ! Set quantity type metadata
+      call mapl_FieldSet(field, quantity_type_metadata=qty_metadata, _RC)
+      
+      ! Verify we can get it back
+      block
+         type(QuantityTypeMetadata) :: retrieved_metadata
+         call mapl_FieldGet(field, quantity_type_metadata=retrieved_metadata, _RC)
+         @assertTrue(retrieved_metadata%get_quantity_type() == QUANTITY_EXTENSIVE)
+      end block
+      
+      ! Cleanup
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+      
+   end subroutine test_create_2d_extensive_field
+
+
+   !---------------------------------------------------------------------------
+   ! Test 3: Verify QuantityTypeMetadata for pressure field
+   !---------------------------------------------------------------------------
+
+   @test
+   subroutine test_pressure_field_metadata()
+      type(QuantityTypeMetadata) :: pressure_metadata
+      integer :: rc, status
+      
+      ! Create metadata for surface pressure
+      pressure_metadata = QuantityTypeMetadata( &
+         quantity_type=QUANTITY_PRESSURE, &
+         dimensions='Pa')
+      
+      ! Pressure should be conservative regridable
+      @assertTrue(pressure_metadata%get_conservative_regridable())
+      
+      ! Should use DELP normalization
+      @assertTrue(pressure_metadata%get_normalization_type() == NORMALIZE_DELP)
+      
+   end subroutine test_pressure_field_metadata
+
+
+   !---------------------------------------------------------------------------
+   ! Test 4: Simple 2D conservative regrid test (extensive quantity)
+   !---------------------------------------------------------------------------
+
+   @test
+   subroutine test_simple_2d_conservative_regrid()
+      type(ESMF_Grid) :: src_grid, dst_grid
+      type(ESMF_Field) :: src_field, dst_field
+      type(ESMF_RouteHandle) :: routehandle
+      type(EsmfRegridderParam) :: regrid_param
+      real(ESMF_KIND_R8), pointer :: src_ptr(:,:), dst_ptr(:,:)
+      real(ESMF_KIND_R8) :: src_total, dst_total
+      integer :: rc, status, i, j
+      
+      ! Create source grid (10x10)
+      src_grid = ESMF_GridCreateNoPeriDim( &
+         maxIndex=[10, 10], &
+         coordSys=ESMF_COORDSYS_SPH_DEG, &
+         regDecomp=[1,1], &
+         name='src_grid', _RC)
+      
+      ! Add coordinates to source grid
+      call ESMF_GridAddCoord(src_grid, _RC)
+      
+      ! Create destination grid (5x5 - coarser)
+      dst_grid = ESMF_GridCreateNoPeriDim( &
+         maxIndex=[5, 5], &
+         coordSys=ESMF_COORDSYS_SPH_DEG, &
+         regDecomp=[1,1], &
+         name='dst_grid', _RC)
+      
+      ! Add coordinates to destination grid
+      call ESMF_GridAddCoord(dst_grid, _RC)
+      
+      ! Create fields
+      src_field = ESMF_FieldCreate(src_grid, typekind=ESMF_TYPEKIND_R8, name='src', _RC)
+      dst_field = ESMF_FieldCreate(dst_grid, typekind=ESMF_TYPEKIND_R8, name='dst', _RC)
+      
+      ! Initialize source field with uniform value (extensive quantity: kg/m²)
+      call ESMF_FieldGet(src_field, farrayPtr=src_ptr, _RC)
+      src_ptr = 1.0_ESMF_KIND_R8
+      
+      ! Initialize destination to zero
+      call ESMF_FieldGet(dst_field, farrayPtr=dst_ptr, _RC)
+      dst_ptr = 0.0_ESMF_KIND_R8
+      
+      ! Create conservative regridding routehandle
+      call ESMF_FieldRegridStore(src_field, dst_field, &
+         routehandle=routehandle, &
+         regridmethod=ESMF_REGRIDMETHOD_CONSERVE, _RC)
+      
+      ! Perform regridding
+      call ESMF_FieldRegrid(src_field, dst_field, routehandle, _RC)
+      
+      ! For uniform extensive field with conservative regridding,
+      ! values should remain uniform (within tolerance)
+      ! This is because each cell has same amount per unit area
+      do j = lbound(dst_ptr,2), ubound(dst_ptr,2)
+         do i = lbound(dst_ptr,1), ubound(dst_ptr,1)
+            @assertEqual(1.0_ESMF_KIND_R8, dst_ptr(i,j), tolerance=1.0e-10_ESMF_KIND_R8)
+         end do
+      end do
+      
+      ! Cleanup
+      call ESMF_FieldRegridRelease(routehandle, _RC)
+      call ESMF_FieldDestroy(src_field, _RC)
+      call ESMF_FieldDestroy(dst_field, _RC)
+      call ESMF_GridDestroy(src_grid, _RC)
+      call ESMF_GridDestroy(dst_grid, _RC)
+      
+   end subroutine test_simple_2d_conservative_regrid
+
+end module Test_2DConservativeRegrid
