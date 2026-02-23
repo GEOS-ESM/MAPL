@@ -1,14 +1,16 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_VectorBasis) grid_get_corners_smod
+
    use mapl_Constants
    use esmf
+
    implicit none(type,external)
+
 contains
 
-
    module subroutine grid_get_corners(grid, corners, rc)
-      type(ESMF_Grid), intent(inout) :: grid
+      type(ESMF_Grid), intent(in) :: grid
       real(kind=ESMF_KIND_R8), allocatable, intent(out) :: corners(:,:,:)
       integer, optional, intent(out) :: rc
 
@@ -36,12 +38,11 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine grid_get_corners
 
-
    subroutine legacy_get_corners(grid, gridCornerLons, gridCornerLats, rc)
-      type (ESMF_Grid), intent(INOUT) :: grid
-      real(ESMF_KIND_R8), intent(INOUT) :: gridCornerLons(:,:)
-      real(ESMF_KIND_R8), intent(INOUT) :: gridCornerLats(:,:)
-      integer, optional, intent(  OUT) :: RC
+      type(ESMF_Grid), intent(in) :: grid
+      real(ESMF_KIND_R8), intent(inout) :: gridCornerLons(:,:)
+      real(ESMF_KIND_R8), intent(inout) :: gridCornerLats(:,:)
+      integer, optional, intent(out) :: rc
 
       integer :: status
 
@@ -67,7 +68,9 @@ contains
       call ESMF_InfoGetFromHost(grid,infoh,_RC)
       hasLons = ESMF_InfoIsPresent(infoh,'GridCornerLons',_RC)
       hasLats = ESMF_InfoIsPresent(infoh,'GridCornerLats',_RC)
+
       if (hasLons .and. hasLats) then
+
          call ESMF_InfoGet(infoh,key='GridCornerLons',size=lsz,_RC)
          _ASSERT(size(gridCornerLons,1)*size(gridCornerLons,2)==lsz,"stored corner sizes to not match grid")
          call ESMF_InfoGet(infoh,key='GridCornerLats',size=lsz,_RC)
@@ -94,6 +97,7 @@ contains
             end do
          end do
          deallocate(r8ptr)
+
       else
 
          call ESMF_GridGetCoord(grid,localDE=0,coordDim=1,staggerloc=ESMF_STAGGERLOC_CORNER, &
@@ -139,11 +143,10 @@ contains
          call ESMF_InfoSet(infoh,key='GridCornerLons:',values=lons1d,_RC)
          call ESMF_InfoSet(infoh,key='GridCornerLats:',values=lats1d,_RC)
          deallocate(lons1d,lats1d)
+
       end if
 
       _RETURN(ESMF_SUCCESS)
-
    end subroutine Legacy_Get_Corners
-
 
 end submodule grid_get_corners_smod
