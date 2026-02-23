@@ -5,7 +5,8 @@ module Test_2DConservativeRegrid
    use mapl3g_QuantityTypeMetadata
    use mapl3g_NormalizationType
    use mapl3g_Field_API
-   use mapl3g_regridder_mgr, only: EsmfRegridderParam, RoutehandleParam
+   use mapl3g_regridder_mgr, only: EsmfRegridderParam
+   use mapl3g_RoutehandleParam, only: RoutehandleParam
    use mapl_ErrorHandling
    use esmf
    use funit
@@ -80,7 +81,6 @@ contains
    @test
    subroutine test_pressure_field_metadata()
       type(QuantityTypeMetadata) :: pressure_metadata
-      integer :: rc, status
       
       ! Create metadata for surface pressure with explicit conservative flag
       ! (automatic derivation from quantity type is in QuantityTypeAspect, Phase 2)
