@@ -7,6 +7,7 @@ module mapl3g_FieldBundleInfo
    use mapl3g_Field_API
    use mapl3g_FieldInfo
    use mapl3g_UngriddedDims
+   use mapl3g_QuantityTypeMetadata
    use mapl3g_FieldBundleType_Flag
    use mapl3g_VectorBasisKind
    use mapl3g_VerticalAlignment
@@ -31,6 +32,7 @@ module mapl3g_FieldBundleInfo
    character(*), parameter :: KEY_FIELDBUNDLETYPE_FLAG = '/FieldBundleType_Flag'
    character(*), parameter :: KEY_ALLOCATION_STATUS = "/allocation_status"
    character(*), parameter :: KEY_HAS_GEOM = "/has_geom"
+   character(*), parameter :: KEY_QUANTITY_TYPE_METADATA = "/quantity_type_metadata"
 
 contains
 
@@ -47,6 +49,7 @@ contains
         has_deferred_aspects, &
         regridder_param_info, &
         vector_basis_kind, &
+        quantity_type_metadata, &
         rc)
 
       type(ESMF_Info), intent(in) :: info
@@ -70,6 +73,7 @@ contains
       logical, optional, intent(out) :: has_deferred_aspects
       type(esmf_Info), optional, allocatable, intent(out) :: regridder_param_info
       type(VectorBasisKind), optional, intent(out) :: vector_basis_kind
+      type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -113,6 +117,17 @@ contains
          end if
       end if
 
+      if (present(quantity_type_metadata)) then
+         if (ESMF_InfoIsPresent(info, key=namespace_//KEY_QUANTITY_TYPE_METADATA)) then
+            block
+               type(ESMF_Info) :: quantity_info
+               quantity_info = ESMF_InfoCreate(info, namespace_//KEY_QUANTITY_TYPE_METADATA, _RC)
+               quantity_type_metadata = make_QuantityTypeMetadata(quantity_info, _RC)
+               call ESMF_InfoDestroy(quantity_info, _RC)
+            end block
+         end if
+      end if
+
       ! Field-prototype items that come from field-info (including typekind)
       call FieldInfoGetInternal(info, namespace = namespace_//KEY_FIELD_PROTOTYPE, &
            typekind=typekind, &
@@ -142,6 +157,7 @@ contains
         has_deferred_aspects, &
         regridder_param_info, &
         vector_basis_kind, &
+        quantity_type_metadata, &
         rc)
 
       type(ESMF_Info), intent(inout) :: info
@@ -164,6 +180,7 @@ contains
       logical, optional, intent(in) :: has_deferred_aspects
       type(esmf_info), optional, intent(in) :: regridder_param_info
       type(VectorBasisKind), optional, intent(in) :: vector_basis_kind
+      type(QuantityTypeMetadata), optional, intent(in) :: quantity_type_metadata
       integer, optional, intent(out) :: rc
       
       integer :: status
@@ -199,6 +216,15 @@ contains
       if (present(vector_basis_kind)) then
          call ESMF_InfoSet(info, key=namespace_ // KEY_VECTOR_BASIS_KIND, &
                            value=vector_basis_kind%to_string(), _RC)
+      end if
+
+      if (present(quantity_type_metadata)) then
+         block
+            type(ESMF_Info) :: quantity_info
+            quantity_info = quantity_type_metadata%make_info(_RC)
+            call MAPL_InfoSet(info, key=namespace_ // KEY_QUANTITY_TYPE_METADATA, value=quantity_info, _RC)
+            call ESMF_InfoDestroy(quantity_info, _RC)
+         end block
       end if
 
        call FieldInfoSetInternal(info, namespace=namespace_ // KEY_FIELD_PROTOTYPE, &

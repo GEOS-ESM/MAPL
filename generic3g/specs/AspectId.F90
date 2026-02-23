@@ -17,6 +17,7 @@ module mapl3g_AspectId
    public :: VERTICAL_GRID_ASPECT_ID
    public :: FREQUENCY_ASPECT_ID
    public :: TYPEKIND_ASPECT_ID
+   public :: QUANTITY_TYPE_ASPECT_ID
    public :: INVALID_ASPECT_ID
    public :: MOCK_ASPECT_ID
    
@@ -33,11 +34,12 @@ module mapl3g_AspectId
    type(AspectId), parameter :: UNITS_ASPECT_ID = AspectId(3)
    type(AspectId), parameter :: ATTRIBUTES_ASPECT_ID = AspectId(4)
    type(AspectId), parameter :: UNGRIDDED_DIMS_ASPECT_ID = AspectId(5)
-   type(AspectId), parameter :: VERTICAL_GRID_ASPECT_ID = AspectId(6)
-   type(AspectId), parameter :: FREQUENCY_ASPECT_ID = AspectId(7)
-   type(AspectId), parameter :: TYPEKIND_ASPECT_ID = AspectId(8)
+    type(AspectId), parameter :: VERTICAL_GRID_ASPECT_ID = AspectId(6)
+    type(AspectId), parameter :: FREQUENCY_ASPECT_ID = AspectId(7)
+    type(AspectId), parameter :: TYPEKIND_ASPECT_ID = AspectId(8)
+    type(AspectId), parameter :: QUANTITY_TYPE_ASPECT_ID = AspectId(9)
 
-   type(AspectId), parameter :: MOCK_ASPECT_ID = AspectId(99)
+    type(AspectId), parameter :: MOCK_ASPECT_ID = AspectId(99)
    
    interface operator(==)
       procedure equal
@@ -75,9 +77,11 @@ contains
          s = "VERTICAL_GRID"
       case (FREQUENCY_ASPECT_ID%id)
          s = "FREQUENCY"
-      case (TYPEKIND_ASPECT_ID%id)
-         s = "TYPEKIND"
-      case default
+       case (TYPEKIND_ASPECT_ID%id)
+          s = "TYPEKIND"
+       case (QUANTITY_TYPE_ASPECT_ID%id)
+          s = "QUANTITY_TYPE"
+       case default
          s = "UNKNOWN"
       end select
    end function to_string
