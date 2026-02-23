@@ -14,11 +14,11 @@ module mapl3g_AspectId
    public :: UNITS_ASPECT_ID
    public :: ATTRIBUTES_ASPECT_ID
    public :: UNGRIDDED_DIMS_ASPECT_ID
-    public :: VERTICAL_GRID_ASPECT_ID
-    public :: FREQUENCY_ASPECT_ID
-    public :: TYPEKIND_ASPECT_ID
-    public :: QUANTITY_TYPE_ASPECT_ID
-    public :: INVALID_ASPECT_ID
+   public :: VERTICAL_GRID_ASPECT_ID
+   public :: FREQUENCY_ASPECT_ID
+   public :: TYPEKIND_ASPECT_ID
+   public :: QUANTITY_TYPE_ASPECT_ID
+   public :: INVALID_ASPECT_ID
    public :: MOCK_ASPECT_ID
    
    type :: AspectId
