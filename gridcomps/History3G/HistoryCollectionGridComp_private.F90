@@ -23,6 +23,7 @@ module mapl3g_HistoryCollectionGridComp_private
    public :: get_real_time_vector 
    public :: get_frequency
    public :: get_accumulation_mode
+   public :: append_to_time_vec
    ! These are public for testing.
    !public :: parse_item
    public :: get_expression_variables
@@ -468,7 +469,7 @@ contains
 
       accumulation_mode = KEY_INSTANTANEOUS
       time_hconfig = ESMF_HConfigCreateAt(hconfig, keyString='time_spec', _RC)
-      hasKey = ESMF_HConfigIsDefined(time_hconfig, keyString=KEY_TIMESTEP, _RC)
+      hasKey = ESMF_HConfigIsDefined(time_hconfig, keyString=KEY_ACCUMULATION_TYPE, _RC)
       _RETURN_UNLESS(hasKey)
 
       accumulation_mode = ESMF_HConfigAsString(time_hconfig, keyString=KEY_ACCUMULATION_TYPE, _RC)
@@ -528,5 +529,20 @@ contains
       end if
       _RETURN(_SUCCESS)
    end function
+
+   function append_to_time_vec(time_vec, time, rc) result(new_time_vec)
+      type(ESMF_Time), allocatable :: new_time_vec(:)
+      type(ESMF_Time), intent(in) :: time_vec(:)
+      type(ESMF_Time), intent(in) :: time
+      integer, intent(out), optional :: rc
+
+      integer :: current_size, status
+
+      current_size = size(time_vec)
+      allocate(new_time_vec(current_size+1), _STAT)
+      new_time_vec(1:current_size) = time_vec
+      new_time_vec(current_size+1) = time
+      _RETURN(_SUCCESS)
+   end function append_to_time_vec
 
 end module mapl3g_HistoryCollectionGridComp_private

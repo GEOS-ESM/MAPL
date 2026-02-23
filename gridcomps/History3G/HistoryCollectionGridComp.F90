@@ -151,6 +151,7 @@ contains
          current_time = current_time - collection_gridcomp%timeStep/2
       end if
       call fill_grads_template_esmf(current_file, collection_gridcomp%template, collection_id=name, time=current_time, _RC)
+
       if (trim(current_file) /= collection_gridcomp%current_file) then
          collection_gridcomp%current_file = current_file
          call collection_gridcomp%writer%update_time_on_server(current_time, _RC)
@@ -159,14 +160,11 @@ contains
          allocate(collection_gridcomp%time_vector(0), _STAT)
       end if
 
-      time_index = size(collection_gridcomp%time_vector) + 1
-      allocate(esmf_time_vector(time_index), _STAT)
-      esmf_time_vector(1:time_index-1) = collection_gridcomp%time_vector
-      esmf_time_vector(time_index) = current_time
+      esmf_time_vector = append_to_time_vec(collection_gridcomp%time_vector, current_time, _RC)
       deallocate(collection_gridcomp%time_vector)
-      allocate(collection_gridcomp%time_vector(time_index), _STAT)
-      collection_gridcomp%time_vector = esmf_time_vector
-    
+      allocate(collection_gridcomp%time_vector, source=esmf_time_vector, _STAT)
+      time_index = size(collection_gridcomp%time_vector)
+      
       if (allocated(collection_gridcomp%real_time_vector))    deallocate(collection_gridcomp%real_time_vector)
       call get_real_time_vector(collection_gridcomp%initial_file_time, collection_gridcomp%time_vector, collection_gridcomp%real_time_vector, _RC)
       call collection_gridcomp%writer%stage_time_to_file(collection_gridcomp%current_file, collection_gridcomp%real_time_vector,  _RC)
