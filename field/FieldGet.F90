@@ -80,10 +80,6 @@ contains
          end if
       end if
 
-      if (present(typekind)) then
-!#         call ESMF_FieldGet(field, typekind=typekind, _RC)
-      end if
-
       call ESMF_InfoGetFromHost(field, field_info, _RC)
       call FieldInfoGetInternal(field_info, &
            typekind=typekind, &
