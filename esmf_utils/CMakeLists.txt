@@ -13,6 +13,7 @@ set(srcs
   NormalizationType.F90
   QuantityType.F90
   QuantityTypeMetadata.F90
+  NormalizationMetadata.F90
   )
 
 esma_add_library(${this}
