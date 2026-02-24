@@ -1,11 +1,11 @@
 #include "MAPL_ErrLog.h"
 
-submodule (mapl3g_VectorBasis) grid_get_corners_smod
+submodule (mapl3g_GridGet) grid_get_corners_smod
 
    use mapl_Constants
    use esmf
 
-   implicit none(type,external)
+   implicit none(type, external)
 
 contains
 
