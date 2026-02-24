@@ -59,6 +59,7 @@ set (test_srcs
   Test_2DConservativeRegrid.pf
   Test_GeomAspect.pf
   Test_2DConservativeRegrid.pf
+  Test_GeomAspect.pf
 )
 
 add_pfunit_ctest(
