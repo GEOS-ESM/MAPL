@@ -70,6 +70,7 @@ contains
 
       call esmf_FieldGet(field, status=fstatus, _RC)
       if (fstatus == ESMF_FIELDSTATUS_COMPLETE) then
+         !wdb fixme deleteme Need to check present(geom), present(num_levels), present(typekind), present(units)
          field_delta = FieldDelta(geom=geom, num_levels=num_levels, typekind=typekind, units=units)
          call field_delta%update_field(field, _RC)
       end if

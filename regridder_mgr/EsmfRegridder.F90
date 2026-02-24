@@ -66,6 +66,7 @@ contains
       logical, optional, intent(in) :: checkflag
       type(DynamicMask), optional, intent(in) :: dyn_mask
 
+      !wdb fixme deleteme The next line seems unnecessary.
       param%routehandle_param = RoutehandleParam(regridmethod=regridmethod)
       param = EsmfRegridderParam(RoutehandleParam(regridmethod=regridmethod), &
            zeroregion=zeroregion, termorder=termorder, checkflag=checkflag, &
