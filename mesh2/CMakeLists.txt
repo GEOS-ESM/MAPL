@@ -9,9 +9,9 @@ set(srcs
 find_package (GFTL REQUIRED)
 find_package (GFTL_SHARED REQUIRED)
 
-ecbuild_add_executable (TARGET to_mesh2.x SOURCES ${srcs} driver.F90)
+ecbuild_add_executable (TARGET gen_mesh.x SOURCES ${srcs} gen_mesh.F90)
 
-target_link_libraries(to_mesh2.x PRIVATE
+target_link_libraries(gen_mesh.x PRIVATE
     MAPL NetCDF::NetCDF_Fortran
     GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
     MPI::MPI_Fortran

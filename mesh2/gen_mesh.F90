@@ -11,8 +11,7 @@ program main
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64
    implicit none(type,external)
 
-   character(:), allocatable :: in_filename
-   character(:), allocatable :: out_filename
+   character(:), allocatable:: in_filename
 
    integer(kind=PIXEL_KIND), target, allocatable :: pixels(:,:)
    integer(kind=PIXEL_KIND), pointer :: pixels2(:,:)
@@ -31,17 +30,76 @@ program main
    integer :: catch_index
 
    integer(kind=INT64) :: c0, c1, crate
-   integer :: i, n
-   type(ESMF_Mesh) :: msh, msh2
-!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 2.0 ! C48
-!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0 ! C90
-!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/2 ! C180
-!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/4 ! C360
-!!   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/8 ! C720
-    real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/16 ! C1440
-!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/32 ! C2880
-!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 1.d0/64 ! C5760
-!#   real(kind=REAL64), parameter :: MIN_RESOLUTION = 0. ! fully resolved
+   integer :: i, n, nargs
+   type(ESMF_Mesh)   :: msh, msh2
+   real(kind=REAL64) :: MIN_RESOLUTION
+   character(len=16) :: arg
+   character(len=16) :: res
+   character(len=256):: outfile
+
+   nargs = command_argument_count()
+    
+   if (nargs == 0) then
+     call print_usage()
+     stop
+   end if
+   i = 1
+   do while ( i <= nargs)
+      call get_command_argument(i, arg, status=status)
+      if (status /=0) then
+        print*, "Error, cannot retrieve argument"
+         stop 1
+      endif
+      select case ( trim(arg))
+        case('-r', '--resolution')
+          i = i + 1
+          if (i > nargs) then
+             print *, 'Error: -r/--resolution requires CXXX'
+             stop 1
+          end if
+          call get_command_argument(i, res, status=status)
+        case('-o', '--output')
+          i = i + 1
+          if (i > nargs) then
+             print *, 'Error: -o/--optput requires filename '
+             stop 1
+          end if
+          call get_command_argument(i, outfile, status=status)
+        case ('-h', '--help')
+           call print_usage()
+           stop
+                
+        case default
+           print *, 'Error: Unknown option: ', trim(arg)
+           call print_usage()
+           stop 1
+        end select
+        i = i + 1
+   end do 
+
+   select case (trim(res))
+     case ('C48')
+        MIN_RESOLUTION = 2.0d0
+     case ('C90')
+        MIN_RESOLUTION = 1.0d0
+     case ('C180')
+        MIN_RESOLUTION = 1.0d0/2
+     case ('C360')
+        MIN_RESOLUTION = 1.0d0/4
+     case ('C720')
+        MIN_RESOLUTION = 1.0d0/8
+     case ('C1440')
+        MIN_RESOLUTION = 1.0d0/16
+     case ('C2880')
+        MIN_RESOLUTION = 1.0d0/32
+     case ('C5760')
+        MIN_RESOLUTION = 1.0d0/64
+     case ('C000')
+        MIN_RESOLUTION = 0.d0 !fully resolved
+     case default
+        print*, "not supported"
+        stop 1
+   end select
 
    call MPI_Init(status)
    _HERE
@@ -88,7 +146,7 @@ program main
 
    call ESMF_Initialize(_RC)
 
-   call m%to_netcdf('surface_mesh_1440.nc', _RC)
+   call m%to_netcdf( trim(outfile)//'.nc4', _RC)
 
    !call system_clock(c0)
    !msh = m%make_esmf_mesh(_RC)
@@ -97,7 +155,7 @@ program main
 
    call m%reorder_elements(_RC)
 
-   call m%to_netcdf('surface_mesh_1440_ordered.nc', _RC)
+   call m%to_netcdf(trim(outfile)//'_ordered.nc4', _RC)
 
   ! call system_clock(c0)
   ! msh = m%make_esmf_mesh_tri(connCount, _RC)
@@ -158,6 +216,16 @@ contains
       _RETURN(_SUCCESS)
    end subroutine fill_pixels
 
-
+   subroutine print_usage()
+        print *, 'Usage: generate the mesh [OPTIONS]'
+        print *, 'The file GEOS5_10arcsec_mask.nc should be with driver.x'
+        print *, 'Options:'
+        print *, '  -r, --resolution  CXX  Input minimum resolution to stop searching smaller area (required)'
+        print *, '  -o, --output FILE      Output file, no need suffix nc4 (require)'
+        print *, '  -h, --help             Display this help message'
+        print *, ''
+        print *, 'Example:'
+        print *, '  ./gen_mesh.x -r C1440 -o surface_meshC1440'
+   end subroutine print_usage
 
 end program main

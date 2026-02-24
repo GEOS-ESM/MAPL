@@ -28,25 +28,86 @@ program main
    type(MaplGeom), pointer :: mapl_geom
    type(ESMF_Geom) :: geom
 
+   integer           :: i, nargs
+   character(len=16) :: im_world, nx, ny, arg
+   character(len=256) :: infile
+   character(:), allocatable :: content
+
+   nargs = command_argument_count()
+
+   if (nargs == 0) then
+     call print_usage()
+     stop
+   end if
+   i = 1
+   do while ( i <= nargs)
+      call get_command_argument(i, arg, status=status)
+      if (status /=0) then
+        print*, "Error, cannot retrieve argument"
+         stop 1
+      endif
+      select case ( trim(arg))
+        case('-i', '--input')
+          i = i + 1
+          if (i > nargs) then
+             print *, 'Error: -i/--input requires filename '
+             stop 1
+          end if
+          call get_command_argument(i, infile, status=status)
+        case('-x', '--nx')
+          i = i + 1
+          if (i > nargs) then
+             print *, 'Error: -x/--nx requires nx'
+             stop 1
+          end if
+          call get_command_argument(i, nx, status=status)
+        case('-y', '--ny')
+          i = i + 1
+          if (i > nargs) then
+             print *, 'Error: -y/--ny requires ny'
+             stop 1
+          end if
+          call get_command_argument(i, ny, status=status)
+        case('-m', '--im_world')
+          i = i + 1
+          if (i > nargs) then
+             print *, 'Error: -m/--im_world requires target im_world'
+             stop 1
+          end if
+          call get_command_argument(i, im_world, status=status)
+        case ('-h', '--help')
+           call print_usage()
+           stop
+        case default
+           print *, 'Error: Unknown option: ', trim(arg)
+           call print_usage()
+           stop 1
+        end select
+        i = i + 1
+   end do
+
+
    call ESMF_Initialize(_RC)
+
+   call ESMF_VMGetGlobal(VM, _RC)
+   call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, _RC)
+
+   content = "{class: CubedSphere, im_world: "//trim(im_world)//", nx: "//trim(nx)// ", ny: "//trim(ny)//"}"
+
+   if (localPet == 0) then
+      print*, content
+      print*, trim(infile)
+   endif
+
    geom_mgr = GeomManager()
    call geom_mgr%initialize()
 
-   hconfig = ESMF_HConfigCreate(content="{class: CubedSphere, im_world: 720, nx: 4, ny: 24}", rc=status)
+   hconfig = ESMF_HConfigCreate(content=content, rc=status)
    mapl_geom => geom_mgr%get_mapl_geom(hconfig, _RC)
    atm_geom = mapl_geom%get_geom()
    call ESMF_GeomGet(atm_geom, grid=atm_grid, _RC)
 
-!#   hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 720, jm_world: 360, pole: PC, dateline: DC, nx: 12, ny: 8}", _RC)
-!#   hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 1440, jm_world: 720, pole: PC, dateline: DC, nx: 3, ny: 2}", _RC)
-!#   mapl_geom => geom_mgr%get_mapl_geom(hconfig, _RC)
-!#   out_geom = mapl_geom%get_geom()
-!#   call ESMF_GeomGet(out_geom, grid=out_grid, _RC)
-
-   call ESMF_VMGetGlobal(VM, _RC)
-   call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, _RC)
-    
-   surf_mesh = ESMF_MeshCreate('surface_types.nc', fileFormat=ESMF_FILEFORMAT_ESMFMESH, _RC)
+   surf_mesh = ESMF_MeshCreate( trim(infile), fileFormat=ESMF_FILEFORMAT_ESMFMESH, _RC)
    call ESMF_VMBarrier(vm, _RC)
    start_time = MPI_WTIME()
    surf_xgrd  = ESMF_XgridCreate(sideAGrid=[atm_grid], sideBMesh=[surf_mesh], storeOverlay=.true., _RC)
@@ -161,5 +222,22 @@ program main
    call ESMF_MeshDestroy(surf_mesh, _RC)
    call ESMF_FieldRegridRelease(routehandle=rh, _RC)
    call ESMF_Finalize(_RC)
+
+contains
+  subroutine print_usage()
+        print *, 'Usage: xgrid to benchmark performance'
+        print *, ''
+        print *, 'Options:'
+        print *, '  -i, --input    File        Input file that contains mesh info'
+        print *, '  -m, --im_world im_world    target grid resolution'
+        print *, '  -x, --nx       nx          nx distribution '
+        print *, '  -y, --ny       ny          ny distribution '
+        print *, '  -h, --help             Display this help message'
+        print *, ''
+        print *, 'Example:'
+        print *, 'mpirun -np 96 ./xgrid.x -i sufrace_mesh.nc4 -m 1440 -x 4 -y 24'
+   end subroutine print_usage
+
+
 end program main
 
