@@ -1,0 +1,145 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module
+   use pfunit
+   use ESMF_TestMethod_mod
+   implicit none(type, external)
+
+   type(ESMF_TypeKind_Flag), parameter :: TK4 = ESMF_TYPEKIND_R4
+
+contains
+
+   @Before
+   subroutine setUp(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+   end subroutine setUp
+   
+   @After
+   subroutine shutDown(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+   end subroutine shutDown
+
+   ! tests
+   
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+   end subroutine test_update_from_payload_field
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_no_geom_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+   end subroutine test_update_from_payload_no_geom_field
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_no_regridder_param_info_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+   end subroutine test_update_from_payload_no_regridder_param_info_field
+
+   
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_no_horizontal_dims_spec_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+   end subroutine test_update_from_payload_no_horizontal_dims_spec_field
+
+!===============================================================================
+! HELPERS
+!===============================================================================
+
+   subroutine get_geom(geom, grid, maxindex, rc)
+      type(ESMF_Geom), intent(out) :: geom
+      type(ESMF_Grid), optional, intent(in) :: grid
+      integer, optional, intent(in) :: maxindex(:)
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_Grid) :: grid_
+      integer, parameter :: MAXINDEX_(:) = [4, 4]
+      
+      grid_ = ESMF_GridCreate(MAXINDEX_, _RC)
+      if(present(grid)) then
+         grid_ = grid
+      else
+         if(present(maxindex)) then
+            grid_ = ESMF_GridCreate(maxindex=maxindex, _RC)
+         end if
+      end if
+      geom = ESMF_GeomCreate(grid=grid_, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine get_geom
+
+   subroutine destroy_geom(geom, rc)
+      type(ESMF_Geom), intent(inout) :: geom
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_Grid) :: grid
+
+      call ESMF_GeomGet(grid=grid, _RC)
+      call ESMF_GeomDestroy(geom, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine destroy_geom
+
+   subroutine get_field(field, geom, rc)
+      type(ESMF_Field), intent(out) :: field
+      type(ESMF_Geom), optional, intent(in) :: geom
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_Geom) :: geom_
+
+      call get_geom(geom_, _RC)
+      if(present(geom)) then
+         geom_ = geom
+      end if
+      field = ESMF_FieldCreate(geom_, TK4, _RC)
+      _RETURN(_SUCCESS)
+      
+   end subroutine get_field
+
+   subroutine destroy_field(field, _RC)
+      type(ESMF_Field), intent(inout) :: field
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_Geom) :: geom
+
+      call ESMF_FieldGet(geom=geom, _RC)
+      call ESMF_FieldDestroy(field, _RC)
+      call destroy_geom(geom, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine destroy_field
+   
+   subroutine destroy_bundle(bundle, _RC)
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_Geom) :: geom
+
+      call ESMF_FieldBundleGet(geom=geom, _RC)
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      call destroy_geom(geom, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine destroy_bundle
+   
+   subroutine destroy(field, bundle, geom, rc)
+      type(ESMF_Field), optional, intent(inout) :: field
+      type(ESMF_FieldBundle), optional, intent(inout) :: bundle
+      type(ESMF_Geom), optional, intent(in) :: geom
+
+      if(present(field)) then
+         call destroy_field(field, _RC)
+      end if
+      if(present(bundle)) then
+         call destroy_bundle(bundle, _RC)
+      end if
+      if(present(geom)) then
+         call destroy_geom(geom, _RC)
+      end if
+      _RETURN(_SUCCESS)
+
+   end subroutine destroy
+
+end module
