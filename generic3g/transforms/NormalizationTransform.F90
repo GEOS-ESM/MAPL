@@ -1,0 +1,170 @@
+#include "MAPL.h"
+#include "unused_dummy.H"
+
+module mapl3g_NormalizationTransform
+   use mapl3g_TransformId
+   use mapl3g_StateItem
+   use mapl3g_ExtensionTransform
+   use mapl3g_ExtensionTransformUtils, only: bundle_types_valid
+   use MAPL_FieldUtils
+   use mapl_ErrorHandling
+   use esmf
+
+   implicit none(type,external)
+   private
+
+   public :: NormalizationTransform
+
+   type, extends(ExtensionTransform) :: NormalizationTransform
+      private
+      character(:), allocatable :: aux_field_name
+      real :: scale_factor
+   contains
+      procedure :: initialize
+      procedure :: update
+      procedure :: get_transformId
+   end type NormalizationTransform
+
+
+   interface NormalizationTransform
+      procedure new_NormalizationTransform
+   end interface NormalizationTransform
+
+contains
+
+   function new_NormalizationTransform(aux_field_name, scale_factor) result(transform)
+      type(NormalizationTransform) :: transform
+      character(*), intent(in) :: aux_field_name
+      real, intent(in) :: scale_factor
+
+      transform%aux_field_name = aux_field_name
+      transform%scale_factor = scale_factor
+
+   end function new_NormalizationTransform
+
+   subroutine initialize(this, importState, exportState, clock, rc)
+      use esmf
+      class(NormalizationTransform), intent(inout) :: this
+      type(ESMF_State)      :: importState
+      type(ESMF_State)      :: exportState
+      type(ESMF_Clock)      :: clock      
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      ! No initialization needed - just validate aux field exists
+      ! This is checked during update()
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(clock)
+   end subroutine initialize
+
+   subroutine update_field(f_in, f_out, f_aux, scale_factor, rc)
+      type(ESMF_Field), intent(inout) :: f_in, f_out, f_aux
+      real, intent(in) :: scale_factor
+      integer, optional, intent(out) :: rc
+      integer :: status
+      real(kind=ESMF_KIND_R4), pointer :: x4_in(:), x4_out(:), x4_aux(:)
+      real(kind=ESMF_KIND_R8), pointer :: x8_in(:), x8_out(:), x8_aux(:)
+      type(ESMF_TypeKind_Flag) :: typekind
+
+      call ESMF_FieldGet(f_in, typekind=typekind, _RC)
+      
+      if (typekind == ESMF_TYPEKIND_R4) then
+         call assign_fptr(f_in, x4_in, _RC)
+         call assign_fptr(f_out, x4_out, _RC)
+         call assign_fptr(f_aux, x4_aux, _RC)
+         ! Normalize: out = in × (aux × scale)
+         x4_out = x4_in * x4_aux * scale_factor
+         _RETURN(_SUCCESS)
+      end if
+
+      if (typekind == ESMF_TYPEKIND_R8) then
+         call assign_fptr(f_in, x8_in, _RC)
+         call assign_fptr(f_out, x8_out, _RC)
+         call assign_fptr(f_aux, x8_aux, _RC)
+         ! Normalize: out = in × (aux × scale)
+         x8_out = x8_in * x8_aux * scale_factor
+         _RETURN(_SUCCESS)
+      end if
+
+      _FAIL('unsupported typekind')
+
+   end subroutine update_field
+      
+   subroutine update_field_bundle(fb_in, fb_out, f_aux, scale_factor, rc)
+      type(ESMF_FieldBundle), intent(inout) :: fb_in, fb_out
+      type(ESMF_Field), intent(inout) :: f_aux
+      real, intent(in) :: scale_factor
+      integer, optional, intent(out) :: rc
+      integer :: status
+      integer :: i, fieldCount
+      type(ESMF_Field), allocatable :: flist_in(:), flist_out(:)
+
+      call ESMF_FieldBundleGet(fb_out, fieldCount=fieldCount, _RC)
+      call ESMF_FieldBundleGet(fb_in, fieldCount=i, _RC)
+      _ASSERT(i==fieldCount, 'The number of ESMF_Field''s in the ESMF_Bundles'' do not match.')
+      allocate(flist_in(fieldCount))
+      allocate(flist_out(fieldCount))
+      call ESMF_FieldBundleGet(fb_in, fieldList=flist_in, _RC)
+      call ESMF_FieldBundleGet(fb_out, fieldList=flist_out, _RC)
+      _ASSERT(size(flist_in) == size(flist_out), 'The FieldBundles have different sizes.')
+      do i=1, size(flist_in)
+         call update_field(flist_in(i), flist_out(i), f_aux, scale_factor, _RC)
+      end do
+      _RETURN(_SUCCESS)
+
+   end subroutine update_field_bundle
+
+   subroutine update(this, importState, exportState, clock, rc)
+      use esmf
+      class(NormalizationTransform), intent(inout) :: this
+      type(ESMF_State)      :: importState
+      type(ESMF_State)      :: exportState
+      type(ESMF_Clock)      :: clock      
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Field) :: f_in, f_out, f_aux
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      type(ESMF_StateItem_Flag) :: itemtype_in, itemtype_out
+
+      ! Get the field or bundle to normalize
+      call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, itemtype=itemtype_in, _RC)
+      call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, itemtype=itemtype_out, _RC)
+      _ASSERT(itemtype_in == itemtype_out, "Mismatched item types.")
+
+      ! Get the auxiliary field (e.g., DELP or DZ)
+      call ESMF_StateGet(importState, itemName=this%aux_field_name, field=f_aux, _RC)
+
+      if(itemtype_in == MAPL_STATEITEM_FIELD) then
+         call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=f_in, _RC)
+         call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=f_out, _RC)
+         call update_field(f_in, f_out, f_aux, this%scale_factor, _RC)
+      elseif(itemType_in == MAPL_STATEITEM_FIELDBUNDLE) then
+         call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, fieldBundle=fb_in, _RC)
+         call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, fieldBundle=fb_out, _RC)
+         call bundle_types_valid(fb_in, fb_out, _RC)
+         call update_field_bundle(fb_in, fb_out, f_aux, this%scale_factor, _RC)
+      else
+         _FAIL("Unsupported state item type")
+      end if
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(clock)
+
+   end subroutine update
+
+   function get_transformId(this) result(id)
+      type(TransformId) :: id
+      class(NormalizationTransform), intent(in) :: this
+
+      id = NORMALIZATION_TRANSFORM_ID
+      _UNUSED_DUMMY(this)
+
+   end function get_transformId
+
+end module mapl3g_NormalizationTransform

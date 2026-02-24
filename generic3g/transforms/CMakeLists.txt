@@ -10,6 +10,7 @@ target_sources(MAPL.generic3g PRIVATE
   VerticalRegridTransform.F90
   CopyTransform.F90
   ConvertUnitsTransform.F90
+  NormalizationTransform.F90
 
   TimeInterpolateTransform.F90
   AccumulatorTransform.F90
