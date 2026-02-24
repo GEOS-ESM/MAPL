@@ -4,6 +4,7 @@ module Test_2DConservativeRegrid
    use mapl3g_QuantityType
    use mapl3g_QuantityTypeMetadata
    use mapl3g_NormalizationType
+   use mapl3g_NormalizationMetadata
    use mapl3g_Field_API
    use mapl3g_regridder_mgr, only: EsmfRegridderParam
    use mapl3g_RoutehandleParam, only: RoutehandleParam
@@ -75,26 +76,24 @@ contains
 
 
    !---------------------------------------------------------------------------
-   ! Test 3: Verify QuantityTypeMetadata for pressure field
+   ! Test 3: Verify NormalizationMetadata for pressure field
    !---------------------------------------------------------------------------
 
    @test
    subroutine test_pressure_field_metadata()
-      type(QuantityTypeMetadata) :: pressure_metadata
+      type(NormalizationMetadata) :: normalization_metadata
       
-      ! Create metadata for surface pressure with explicit conservative flag
-      ! (automatic derivation from quantity type is in QuantityTypeAspect, Phase 2)
-      pressure_metadata = QuantityTypeMetadata( &
-         quantity_type=QUANTITY_PRESSURE, &
-         dimensions='Pa', &
-         conservative_regridable=.true., &
-         normalization_type=NORMALIZE_DELP)
+      ! Create normalization metadata for surface pressure
+      ! (normalization parameters are derived from quantity type in QuantityTypeAspect)
+      normalization_metadata = NormalizationMetadata( &
+         normalization_type=NORMALIZE_DELP, &
+         conservative_regridable=.true.)
       
       ! Verify conservative regridable flag
-      @assertTrue(pressure_metadata%get_conservative_regridable())
+      @assertTrue(normalization_metadata%get_conservative_regridable())
       
       ! Verify normalization type
-      @assertTrue(pressure_metadata%get_normalization_type() == NORMALIZE_DELP)
+      @assertTrue(normalization_metadata%get_normalization_type() == NORMALIZE_DELP)
       
    end subroutine test_pressure_field_metadata
 
