@@ -6,11 +6,17 @@
 
 ## Implementation Progress
 
-- **Completed (2026-02-22):**
+- **Phase 1 - Completed (2026-02-22):**
   - ✅ Task 1.1: QuantityType enum types (`QuantityType.F90`)
   - ✅ Task 1.2: QuantityTypeAspect (`QuantityTypeAspect.F90`)
   - ✅ Unit tests for both components (12 tests for enums, 20 tests for aspect)
   - ✅ Successfully builds with NAG compiler
+
+- **Phase 2 - In Progress (started 2026-02-23):**
+  - ✅ Task 2.1: NormalizationAspect - COMPLETED & MERGED (PR #4449)
+  - ✅ Task 2.2: NormalizationTransform - COMPLETED & MERGED (PR #4452)
+    - ⚠️ Known issue: Auxiliary field access needs refactoring (Task 2.2b created)
+  - 🔄 **Next:** Task 2.2b - Refactor auxiliary field access to use coupler mechanism
 
 ## GitHub Issues
 
@@ -647,6 +653,110 @@ end subroutine
   - Verify units updated correctly
   - Test with 3D and 2D fields
   - Test error handling (aux field not found, etc.)
+
+**Status:** ✅ COMPLETED (2026-02-24) - Initial implementation merged to integration branch
+**Note:** Auxiliary field access pattern needs refactoring (see Task 2.2b)
+
+---
+
+#### Task 2.2b: Refactor NormalizationTransform Auxiliary Field Access
+**File:** `generic3g/transforms/NormalizationTransform.F90` (modify)  
+**File:** `generic3g/specs/NormalizationAspect.F90` (modify)  
+**Effort:** 16 hours
+
+**Description:**
+Refactor NormalizationTransform to use coupler mechanism for auxiliary field access,
+following the VerticalRegridTransform pattern. The current implementation violates
+the design constraint that couplers have ONE item in import and ONE item in export.
+
+**Problem:**
+Current implementation attempts to get auxiliary field (DELP/DZ) directly from 
+importState, but coupler states are tightly constrained to have exactly one item
+in import and one item in export.
+
+**Solution:**
+Follow VerticalGridAspect/VerticalRegridTransform pattern:
+1. NormalizationAspect creates a coupler for the auxiliary field
+2. Transform stores pointer to that coupler
+3. Transform runs coupler during update() to get auxiliary field values
+
+**Implementation Changes:**
+
+**NormalizationAspect updates:**
+```fortran
+function make_transform(src, dst, other_aspects, rc) result(transform)
+   ! Similar to VerticalGridAspect::make_transform (lines 260-263)
+   
+   class(ComponentDriver), pointer :: aux_field_coupler
+   type(ESMF_Field) :: aux_field
+   
+   ! Get auxiliary field from vertical grid (or other source)
+   ! Example: get DELP field with its coupler
+   aux_field = get_auxiliary_field(aux_field_name, geom_aspect%get_geom(), &
+                                   typekind_aspect%get_typekind(), &
+                                   coupler=aux_field_coupler, _RC)
+   
+   ! Create transform with coupler
+   transform = NormalizationTransform(aux_field_name, scale_factor, &
+                                      aux_field, aux_field_coupler)
+end function
+```
+
+**NormalizationTransform updates:**
+```fortran
+type, extends(ExtensionTransform) :: NormalizationTransform
+   private
+   character(:), allocatable :: aux_field_name
+   real :: scale_factor
+   type(ESMF_Field) :: aux_field                    ! NEW - auxiliary field
+   class(ComponentDriver), pointer :: aux_coupler => null()  ! NEW - coupler
+contains
+   procedure :: initialize
+   procedure :: update
+   procedure :: get_transformId
+end type
+
+subroutine update(this, importState, exportState, clock, rc)
+   ! Run auxiliary field coupler (if present) to update values
+   if (associated(this%aux_coupler)) then
+      call this%aux_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
+   end if
+   
+   ! Get the field to normalize (from coupler states)
+   call ESMF_StateGet(importState, COUPLER_IMPORT_NAME, field=f_in, _RC)
+   call ESMF_StateGet(exportState, COUPLER_EXPORT_NAME, field=f_out, _RC)
+   
+   ! Use stored auxiliary field (not from state)
+   f_aux = this%aux_field
+   
+   ! Get data pointers and perform normalization
+   ! ... rest of implementation ...
+end subroutine
+```
+
+**Reference Implementation:**
+See `VerticalGridAspect.F90`:
+- Lines 260-263: Get coordinate field with coupler
+- Lines 232-234: Coupler pointer declaration
+- Lines 310: Pass coupler to transform constructor
+
+See `VerticalRegridTransform.F90`:
+- Lines 85-86: Coupler pointers stored in transform
+- Lines 120-121: Constructor sets coupler pointers
+- Lines 193-199: Couplers run during update (currently commented out)
+
+**Tests:**
+Update `Test_NormalizationTransform.pf`:
+- Mock or create real coupler for auxiliary field
+- Verify coupler is called during update
+- Verify auxiliary field values correctly accessed
+- Test without coupler (static auxiliary field)
+
+**Acceptance Criteria:**
+- NormalizationTransform follows same pattern as VerticalRegridTransform
+- No direct access to importState for auxiliary fields
+- Coupler mechanism properly integrated
+- All existing tests still pass
 
 ---
 
@@ -1418,11 +1528,11 @@ aerosol_spec = FieldSpec( &
 | Phase | Total Effort | Major Components |
 |-------|-------------|------------------|
 | Phase 1 | ~80 hours | Infrastructure, QuantityTypeAspect, 2D tests |
-| Phase 2 | ~120 hours | Normalization aspects, fused vertical, 3D tests |
+| Phase 2 | ~136 hours | Normalization aspects, fused vertical, 3D tests (includes 2.2b refactor) |
 | Phase 3 | ~80 hours | Basis conversions, moisture handling |
 | Phase 4 | ~60 hours | Concentration support, dz handling |
 | Phase 5 | ~120 hours (deferred) | ExtData, advanced features |
-| **Total** | **~340 hours** | **Phases 1-4** |
+| **Total** | **~356 hours** | **Phases 1-4** |
 
 **Timeline estimate (1 FTE):**
 - Phase 1: 2-3 weeks
