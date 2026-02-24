@@ -1,7 +1,7 @@
 esma_set_this(OVERRIDE MAPL.python_bridge)
 
 set (srcs
-  MAPL_PythonBridge.F90
+  PythonBridge.F90
 )
 
 if (BUILD_PYTHONBRIDGE)
