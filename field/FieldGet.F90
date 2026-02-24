@@ -7,6 +7,7 @@ module mapl3g_FieldGet
    use mapl3g_FieldInfo
    use mapl3g_StateItemAllocation
    use mapl3g_QuantityTypeMetadata
+   use mapl3g_NormalizationMetadata
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use mapl3g_UngriddedDims
@@ -29,9 +30,10 @@ contains
         short_name, typekind, &
         geom, horizontal_dims_spec, &
         vgrid, num_levels, vert_staggerloc, vert_alignment, num_vgrid_levels, &
-        ungridded_dims, &
-        quantity_type_metadata, &
-        units, standard_name, long_name, &
+       ungridded_dims, &
+       quantity_type_metadata, &
+       normalization_metadata, &
+       units, standard_name, long_name, &
         allocation_status, &
         has_deferred_aspects, &
         regridder_param_info, &
@@ -47,9 +49,10 @@ contains
       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
       type(VerticalAlignment), optional, intent(out) :: vert_alignment
       integer, optional, intent(out) :: num_vgrid_levels
-      type(UngriddedDims), optional, intent(out) :: ungridded_dims
-      type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
-      character(len=:), optional, allocatable, intent(out) :: units
+       type(UngriddedDims), optional, intent(out) :: ungridded_dims
+       type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
+       type(NormalizationMetadata), optional, intent(out) :: normalization_metadata
+       character(len=:), optional, allocatable, intent(out) :: units
       character(len=:), optional, allocatable, intent(out) :: standard_name
       character(len=:), optional, allocatable, intent(out) :: long_name
       type(StateItemAllocation), optional, intent(out) :: allocation_status
@@ -91,6 +94,7 @@ contains
            num_vgrid_levels=num_vgrid_levels, &
            ungridded_dims=ungridded_dims, &
            quantity_type_metadata=quantity_type_metadata, &
+           normalization_metadata=normalization_metadata, &
            units=units, standard_name=standard_name, long_name=long_name, &
            allocation_status=allocation_status, &
            has_deferred_aspects=has_deferred_aspects, &

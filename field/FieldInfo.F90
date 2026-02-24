@@ -10,6 +10,7 @@ module mapl3g_FieldInfo
    use mapl3g_VerticalGrid_API
    use mapl3g_UngriddedDims
    use mapl3g_QuantityTypeMetadata
+   use mapl3g_NormalizationMetadata
    use mapl3g_VerticalStaggerLoc
    use mapl3g_VerticalAlignment
    use mapl3g_StateItemAllocation
@@ -68,6 +69,7 @@ module mapl3g_FieldInfo
    character(*), parameter :: KEY_UNGRIDDED_DIMS = "/ungridded_dims"
    character(*), parameter :: KEY_ALLOCATION_STATUS = "/allocation_status"
    character(*), parameter :: KEY_QUANTITY_TYPE_METADATA = "/quantity_type_metadata"
+   character(*), parameter :: KEY_NORMALIZATION_METADATA = "/normalization_metadata"
    character(*), parameter :: KEY_REGRIDDER_PARAM = "/EsmfRegridderParam"
 
    character(*), parameter :: KEY_UNDEF_VALUE = "/undef_value"
@@ -87,6 +89,7 @@ contains
         vgrid_id, num_levels, vert_staggerloc, vert_alignment, &
         ungridded_dims, &
         quantity_type_metadata, &
+        normalization_metadata, &
         units, long_name, standard_name, &
         allocation_status, &
         has_deferred_aspects, &
@@ -103,6 +106,7 @@ contains
       type(VerticalAlignment), optional, intent(in) :: vert_alignment
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       type(QuantityTypeMetadata), optional, intent(in) :: quantity_type_metadata
+      type(NormalizationMetadata), optional, intent(in) :: normalization_metadata
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: long_name
       character(*), optional, intent(in) :: standard_name
@@ -112,7 +116,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_Info) :: ungridded_info, quantity_info
+      type(ESMF_Info) :: ungridded_info, quantity_info, normalization_info
       character(:), allocatable :: namespace_
       character(:), allocatable :: str
       logical :: isPresent
@@ -146,6 +150,12 @@ contains
          quantity_info = quantity_type_metadata%make_info(_RC)
          call MAPL_InfoSet(info, namespace_ // KEY_QUANTITY_TYPE_METADATA, quantity_info, _RC)
          call esmf_InfoDestroy(quantity_info, _RC)
+      end if
+
+      if (present(normalization_metadata)) then
+         normalization_info = normalization_metadata%make_info(_RC)
+         call MAPL_InfoSet(info, namespace_ // KEY_NORMALIZATION_METADATA, normalization_info, _RC)
+         call esmf_InfoDestroy(normalization_info, _RC)
       end if
 
       if (present(units)) then
@@ -216,6 +226,7 @@ contains
         long_name, standard_name, &
         ungridded_dims, &
         quantity_type_metadata, &
+        normalization_metadata, &
         allocation_status, &
         has_deferred_aspects, &
         regridder_param_info, &
@@ -235,6 +246,7 @@ contains
       character(:), optional, allocatable, intent(out) :: standard_name
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
+      type(NormalizationMetadata), optional, intent(out) :: normalization_metadata
       type(StateItemAllocation), optional, intent(out) :: allocation_status
       logical, optional, intent(out) :: has_deferred_aspects
       type(esmf_Info), allocatable, optional, intent(out) :: regridder_param_info
@@ -242,7 +254,7 @@ contains
 
       integer :: status
       integer :: num_levels_
-      type(esmf_Info) :: ungridded_info, quantity_info
+      type(esmf_Info) :: ungridded_info, quantity_info, normalization_info
       character(:), allocatable :: vert_staggerloc_str, vert_alignment_str, allocation_status_str
       type(VerticalStaggerLoc) :: vert_staggerloc_
       character(:), allocatable :: namespace_
@@ -288,6 +300,17 @@ contains
             call ESMF_InfoDestroy(quantity_info, _RC)
          else
             quantity_type_metadata = QuantityTypeMetadata()  ! mirror
+         end if
+      end if
+
+      if (present(normalization_metadata)) then
+         is_present = ESMF_InfoIsPresent(info, namespace_ // KEY_NORMALIZATION_METADATA, _RC)
+         if (is_present) then
+            normalization_info = ESMF_InfoCreate(info, namespace_ // KEY_NORMALIZATION_METADATA, _RC)
+            normalization_metadata = make_NormalizationMetadata(normalization_info, _RC)
+            call ESMF_InfoDestroy(normalization_info, _RC)
+         else
+            normalization_metadata = NormalizationMetadata()  ! mirror
          end if
       end if
 
