@@ -40,6 +40,7 @@
    use mapl3g_generic, only: MAPL_STATEITEM_FIELDBUNDLE
    use mapl3g_generic, only: MAPL_GridCompSetEntryPoint
    use mapl3g_Geom_API, only: MAPL_GridGet, MAPL_GridGetCoordinates
+   use mapl3g_GridGetGlobal, only: GridGetGlobalCellCountPerDim
    use mapl3g_State_API, only: MAPL_StateGetPointer
    use mapl3g_FieldBundle_API, only: MAPL_FieldBundleGetPointer
    use mapl3g_generic, only: MAPL_GridCompGetResource
@@ -351,7 +352,7 @@ CONTAINS
 
 !  set swath to zero for now
    swath=0.
-   call MAPL_GridGet(GRID, globalCellCountPerDim=COUNTS, _RC)
+   call GridGetGlobalCellCountPerDim(GRID, globalCellCountPerDim=COUNTS, _RC)
    IM_world = counts(1)
    JM_world = counts(2)
    if (JM_world == 6*IM_world) then

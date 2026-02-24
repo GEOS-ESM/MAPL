@@ -1,11 +1,16 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 submodule (mapl3g_VectorBasis) new_GridVectorBasis_smod
-   implicit none(type,external)
+
+   use mapl3g_GridGet, only: GridGet
+
+   implicit none(type, external)
+
 contains
 
    ! Valid only for grids.
    module function new_GridVectorBasis(geom, inverse, rc) result(basis)
+
       type(VectorBasis) :: basis
       type(ESMF_Geom), intent(inout) :: geom
       logical, optional, intent(in) :: inverse
@@ -29,12 +34,11 @@ contains
        allocate(basis%elements(NI,NJ))
        call create_fields(basis%elements, geom, _RC)
 
-      call GridGetCoords(grid, centers, _RC)
-      call GridGetCorners(grid, corners, _RC)
-
+      call GridGet(grid, centers=centers, corners=corners, _RC)
       call fill_fields(basis, centers, corners, inverse_, _RC)
 
       _RETURN(ESMF_SUCCESS)
+
    contains
 
       subroutine fill_fields(basis, centers, corners, inverse, rc)
@@ -58,9 +62,8 @@ contains
             end do
          end do
 
-      do concurrent (i=1:im, j=1:jm)
-         associate (local_basis => fill_element(centers(i,j,:), corners(i:i+1,j:j+1,:), inverse) )
-              
+         do concurrent (i=1:im, j=1:jm)
+            associate (local_basis => fill_element(centers(i,j,:), corners(i:i+1,j:j+1,:), inverse) )
               do k2 = 1, NJ
                  do k1 = 1, NI
                     x(k1,k2)%ptr(i,j) = local_basis(k1,k2)
@@ -68,9 +71,10 @@ contains
               end do
             end associate
          end do
-       
+
          _RETURN(ESMF_SUCCESS)
       end subroutine fill_fields
+
       !--------------------------------------
       !
       !   ^ lat
@@ -117,7 +121,6 @@ contains
 
            end associate
          end associate
-
       end function fill_element
 
    end function new_GridVectorBasis
