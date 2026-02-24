@@ -52,14 +52,14 @@ contains
 
       integer :: status
 
-      ! No initialization needed - just validate aux field exists
-      ! This is checked during update()
+       ! No initialization needed - just validate aux field exists
+       ! This is checked during update()
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(exportState)
-      _UNUSED_DUMMY(importState)
-      _UNUSED_DUMMY(clock)
+       _UNUSED_DUMMY(this)
+       _UNUSED_DUMMY(exportState)
+       _UNUSED_DUMMY(importState)
+       _UNUSED_DUMMY(clock)
+       _RETURN(_SUCCESS)
    end subroutine initialize
 
    subroutine update_field(f_in, f_out, f_aux, scale_factor, rc)
@@ -149,22 +149,22 @@ contains
          call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, fieldBundle=fb_out, _RC)
          call bundle_types_valid(fb_in, fb_out, _RC)
          call update_field_bundle(fb_in, fb_out, f_aux, this%scale_factor, _RC)
-      else
-         _FAIL("Unsupported state item type")
-      end if
+       else
+          _FAIL("Unsupported state item type")
+       end if
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(clock)
+       _UNUSED_DUMMY(clock)
+       _RETURN(_SUCCESS)
 
-   end subroutine update
+    end subroutine update
 
-   function get_transformId(this) result(id)
-      type(TransformId) :: id
-      class(NormalizationTransform), intent(in) :: this
+    function get_transformId(this) result(id)
+       type(TransformId) :: id
+       class(NormalizationTransform), intent(in) :: this
 
-      id = NORMALIZATION_TRANSFORM_ID
-      _UNUSED_DUMMY(this)
+       _UNUSED_DUMMY(this)
+       id = NORMALIZATION_TRANSFORM_ID
 
-   end function get_transformId
+    end function get_transformId
 
 end module mapl3g_NormalizationTransform
