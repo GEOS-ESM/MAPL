@@ -19,6 +19,7 @@ module mapl3g_TransformId
    public :: TYPEKIND_TRANSFORM_ID
    public :: EVAL_TRANSFORM_ID
    public :: EXTEND_TRANSFORM_ID
+   public :: NORMALIZATION_TRANSFORM_ID
    
    type :: TransformId
       private
@@ -37,6 +38,7 @@ module mapl3g_TransformId
    type(TransformId), parameter :: TYPEKIND_TRANSFORM_ID = TransformId(6)
    type(TransformId), parameter :: EVAL_TRANSFORM_ID = TransformId(7)
    type(TransformId), parameter :: EXTEND_TRANSFORM_ID = TransformId(8)
+   type(TransformId), parameter :: NORMALIZATION_TRANSFORM_ID = TransformId(9)
    
    interface operator(==)
       procedure equal
@@ -78,6 +80,8 @@ contains
          s = "EVAL"
       case (EXTEND_TRANSFORM_ID%id)
          s = "EXTEND"
+      case (NORMALIZATION_TRANSFORM_ID%id)
+         s = "NORMALIZATION"
       case default
          s = "UNKNOWN"
       end select
