@@ -28,7 +28,7 @@ module mapl3g_NormalizationAspect
    end interface to_NormalizationAspect
 
    type, extends(StateItemAspect) :: NormalizationAspect
-      ! Note: Components cannot be private because InverseNormalizationAspect subclass needs access
+      private
       
       ! Normalization parameters
       character(:), allocatable :: aux_field_name     ! "DELP" or "DZ"
@@ -69,13 +69,14 @@ module mapl3g_NormalizationAspect
 
 contains
 
-   function new_NormalizationAspect(aux_field_name, scale_factor, source_units, target_units, is_time_dependent) result(aspect)
+   function new_NormalizationAspect(aux_field_name, scale_factor, source_units, target_units, is_time_dependent, is_inverse) result(aspect)
        type(NormalizationAspect) :: aspect
        character(*), optional, intent(in) :: aux_field_name
        real, optional, intent(in) :: scale_factor
        character(*), optional, intent(in) :: source_units
        character(*), optional, intent(in) :: target_units
        logical, optional, intent(in) :: is_time_dependent
+       logical, optional, intent(in) :: is_inverse
 
        call aspect%set_mirror(.true.)
        
@@ -94,6 +95,10 @@ contains
        
        if (present(target_units)) then
           aspect%target_units = target_units
+       end if
+
+       if (present(is_inverse)) then
+          aspect%is_inverse = is_inverse
        end if
 
        call aspect%set_time_dependent(is_time_dependent)

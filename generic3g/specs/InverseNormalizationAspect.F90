@@ -32,12 +32,10 @@ contains
       character(*), optional, intent(in) :: target_units
       logical, optional, intent(in) :: is_time_dependent
 
-      ! Call parent constructor
+      ! Call parent constructor with is_inverse=.true.
       aspect%NormalizationAspect = NormalizationAspect(aux_field_name, scale_factor, &
-                                                       source_units, target_units, is_time_dependent)
-      
-      ! Set is_inverse flag for this subclass
-      aspect%is_inverse = .true.
+                                                       source_units, target_units, is_time_dependent, &
+                                                       is_inverse=.true.)
 
    end function new_InverseNormalizationAspect
 
