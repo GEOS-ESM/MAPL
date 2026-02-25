@@ -640,9 +640,9 @@ contains
       ! and import for second transform
       midState = ESMF_StateCreate(name='midState', stateIntent=ESMF_STATEINTENT_EXPORT, _RC)
       field_mid = ESMF_FieldCreate(grid=grid, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, _RC)
-      call ESMF_StateAddReplace(midState, [field_mid], _RC)
-      ! Add same field with import name for second transform
-      call ESMF_StateAdd(midState, [field_mid], itemName=COUPLER_IMPORT_NAME, _RC)
+      call ESMF_StateAdd(midState, [field_mid], _RC)
+      ! Add same field with import name for second transform (without array syntax)
+      call ESMF_StateAdd(midState, field_mid, itemName=COUPLER_IMPORT_NAME, _RC)
       
       ! Get fields and set input values
       call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=field_in, _RC)
