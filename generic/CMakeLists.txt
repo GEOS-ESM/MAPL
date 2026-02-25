@@ -43,7 +43,7 @@ set (srcs
 
   MaplGeneric.F90
 
-  MAPL_Generic.F90
+  MAPL_Generic_Stubs.F90
 
   OpenMP_Support.F90
 
