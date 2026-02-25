@@ -28,7 +28,7 @@ module mapl3g_NormalizationAspect
    end interface to_NormalizationAspect
 
    type, extends(StateItemAspect) :: NormalizationAspect
-      private
+      ! Note: Components cannot be private because InverseNormalizationAspect subclass needs access
       
       ! Normalization parameters
       character(:), allocatable :: aux_field_name     ! "DELP" or "DZ"
