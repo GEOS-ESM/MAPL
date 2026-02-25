@@ -32,6 +32,10 @@ module Test_GeomAspect
    type(HorizontalDimsSpec), parameter :: ALT_HORZ_DIMS_SPEC = HORIZONTAL_DIMS_NONE
    character(len=*), parameter :: GEOM_MISMATCH = &
       & 'The actual_geom does not match expected_geom.' 
+   character(len=*), parameter :: HORZ_MISMATCH = &
+      & 'The actual HorizontalDimsSpec does not match the expected HorizontalDimsSpec.'
+   character(len=*), parameter :: REGRIDDER_MISMATCH = &
+      & 'The actual regridder_param_info does not match the expected regridder_param_info.'
 
 contains
 
@@ -42,11 +46,12 @@ contains
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_update_from_payload_field(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(ESMF_Field) :: field
+      type(ESMF_Field) :: field, field2
       type(GeomAspect) :: aspect
       type(ESMF_Geom) :: field_geom, aspect_geom, actual_geom
       type(EsmfRegridderParam) :: field_regridder_param
-      type(ESMF_Info) :: regridder_param_info
+      type(ESMF_Info) :: regridder_param_info, regridder_param_info2
+      type(HorizontalDimsSpec) :: actual_horizontal_dims_spec
       integer :: status
       logical :: is_match
 
@@ -63,15 +68,71 @@ contains
       aspect = GeomAspect(geom=aspect_geom,&
          & regridder_param=get_regridder_param(default=.FALSE.),&
          & horizontal_dims_spec=ALT_HORZ_DIMS_SPEC)
-      call aspect%update_from_payload(field=field, _RC)
-      actual_geom = aspect%get_geom(_RC)
 
+      call aspect%update_from_payload(field=field, _RC)
+
+      actual_geom = aspect%get_geom(_RC)
       is_match = field_geom == actual_geom
       @assertTrue(is_match, GEOM_MISMATCH)
+
+      call get_field(field2, _RC)
+      call aspect%update_payload(field=field2, _RC)
+      call MAPL_FieldGet(field2, regridder_param_info=regridder_param_info2, _RC)
+      is_match = regridder_param_info == regridder_param_info2
+      @assertTrue(is_match, REGRIDDER_MISMATCH)
+
+      actual_horizontal_dims_spec = aspect%get_horizontal_dims_spec(_RC)
+      is_match = actual_horizontal_dims_spec == actual_horizontal_dims_spec
+      @assertTrue(is_match, HORZ_MISMATCH)
+
       _UNUSED_DUMMY(this)
 
    end subroutine test_update_from_payload_field
 
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Field) :: field
+      type(GeomAspect) :: aspect
+      type(ESMF_Geom) :: field_geom, aspect_geom, actual_geom
+      type(EsmfRegridderParam) :: field_regridder_param
+      type(ESMF_Info) :: regridder_param_info, actual_regridder_param_info 
+      type(HorizontalDimsSpec) :: actual_horizontal_dims_spec
+      integer :: status
+      logical :: is_match
+
+      call get_geom(aspect_geom, maxindex=MAXINDEX_, _RC)
+      aspect = GeomAspect(geom=aspect_geom,&
+         & regridder_param=get_regridder_param(default=.TRUE.),&
+         & horizontal_dims_spec=HORZ_DIMS_SPEC)
+
+      call get_geom(field_geom, maxindex=ALTMAXINDEX_, _RC)
+      field_regridder_param = get_regridder_param(default=.FALSE.)
+      regridder_param_info = field_regridder_param%make_info(_RC)
+      call get_field(field, _RC)
+      call MAPL_FieldSet(field, geom=field_geom,&
+         & regridder_param_info=regridder_param_info, &
+         & horizontal_dims_spec=ALT_HORZ_DIMS_SPEC, &
+         & _RC)
+
+      call aspect%update_payload(field=field, _RC)
+
+      call MAPL_FieldGet(field, geom=actual_geom, &
+          & horizontal_dims_spec=actual_horizontal_dims_spec,&
+          & regridder_param_info=actual_regridder_param_info, _RC)
+
+      is_match = aspect_geom == actual_geom
+      @assertTrue(is_match, GEOM_MISMATCH)
+
+      is_match = actual_horizontal_dims_spec == HORZ_DIMS_SPEC
+      @assertTrue(is_match, HORZ_MISMATCH)
+
+      is_match = regridder_param_info == actual_regridder_param_info
+      @assertTrue(is_match, REGRIDDER_MISMATCH)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_payload_field
+   
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_update_from_payload_no_geom_field(this)
       class(ESMF_TestMethod), intent(inout) :: this
