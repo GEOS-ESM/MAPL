@@ -33,14 +33,11 @@ module mapl3g_NormalizationAspect
       ! Normalization parameters
       character(:), allocatable :: aux_field_name     ! "DELP" or "DZ"
       real :: scale_factor = 1.0                      ! e.g., 1/g for delp
-      character(:), allocatable :: source_units       ! e.g., "kg/kg" or "kg/m2"
-      character(:), allocatable :: target_units       ! e.g., "kg/m2" or "kg/kg"
+      character(:), allocatable :: source_units       ! e.g., "kg/kg"
+      character(:), allocatable :: target_units       ! e.g., "kg/m2"
       
-      ! Mode flag: false = normalize, true = denormalize
-      logical :: is_inverse = .false.
-      
-      ! Aspect ID (set based on is_inverse in constructor)
-      type(AspectId) :: aspect_id_value = NORMALIZATION_ASPECT_ID
+      ! Mode flag: false = normalize (default), true = denormalize (set by subclass)
+      logical, protected :: is_inverse = .false.
       
    contains
       ! StateItemAspect interface
@@ -60,13 +57,6 @@ module mapl3g_NormalizationAspect
       procedure :: set_source_units
        procedure :: get_target_units
        procedure :: set_target_units
-       
-       ! is_inverse getter/setter
-       procedure :: get_is_inverse
-       procedure :: set_is_inverse
-       
-       ! Instance aspect_id getter (returns the actual ID for this instance)
-       procedure :: get_instance_aspect_id
 
        procedure :: update_from_payload
       procedure :: update_payload
@@ -79,13 +69,12 @@ module mapl3g_NormalizationAspect
 
 contains
 
-   function new_NormalizationAspect(aux_field_name, scale_factor, source_units, target_units, is_inverse, is_time_dependent) result(aspect)
+   function new_NormalizationAspect(aux_field_name, scale_factor, source_units, target_units, is_time_dependent) result(aspect)
        type(NormalizationAspect) :: aspect
        character(*), optional, intent(in) :: aux_field_name
        real, optional, intent(in) :: scale_factor
        character(*), optional, intent(in) :: source_units
        character(*), optional, intent(in) :: target_units
-       logical, optional, intent(in) :: is_inverse
        logical, optional, intent(in) :: is_time_dependent
 
        call aspect%set_mirror(.true.)
@@ -105,17 +94,6 @@ contains
        
        if (present(target_units)) then
           aspect%target_units = target_units
-       end if
-       
-       if (present(is_inverse)) then
-          aspect%is_inverse = is_inverse
-       end if
-       
-       ! Set aspect_id based on is_inverse flag
-       if (aspect%is_inverse) then
-          aspect%aspect_id_value = INVERSE_NORMALIZATION_ASPECT_ID
-       else
-          aspect%aspect_id_value = NORMALIZATION_ASPECT_ID
        end if
 
        call aspect%set_time_dependent(is_time_dependent)
@@ -251,22 +229,8 @@ contains
 
    function get_aspect_id() result(aspect_id)
       type(AspectId) :: aspect_id
-      ! Return the default aspect ID for NormalizationAspect class
-      ! For instance-specific ID (which may be INVERSE_NORMALIZATION_ASPECT_ID),
-      ! use get_instance_aspect_id() instead
       aspect_id = NORMALIZATION_ASPECT_ID
    end function get_aspect_id
-   
-   function get_instance_aspect_id(this, rc) result(aspect_id)
-      type(AspectId) :: aspect_id
-      class(NormalizationAspect), intent(in) :: this
-      integer, optional, intent(out) :: rc
-      
-      ! Return the actual aspect ID for this instance
-      aspect_id = this%aspect_id_value
-      
-      _RETURN(_SUCCESS)
-   end function get_instance_aspect_id
 
    ! Getters/Setters
    
@@ -363,26 +327,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine set_target_units
 
-   function get_is_inverse(this, rc) result(is_inverse)
-      logical :: is_inverse
-      class(NormalizationAspect), intent(in) :: this
-      integer, optional, intent(out) :: rc
-
-      is_inverse = this%is_inverse
-
-      _RETURN(_SUCCESS)
-   end function get_is_inverse
-
-   subroutine set_is_inverse(this, is_inverse, rc)
-      class(NormalizationAspect), intent(inout) :: this
-      logical, intent(in) :: is_inverse
-      integer, optional, intent(out) :: rc
-
-      this%is_inverse = is_inverse
-
-      _RETURN(_SUCCESS)
-   end subroutine set_is_inverse
-
    subroutine update_from_payload(this, field, bundle, state, rc)
       class(NormalizationAspect), intent(inout) :: this
       type(esmf_Field), optional, intent(in) :: field
@@ -478,7 +422,6 @@ contains
       integer, optional, intent(out) :: rc
 
       _HERE, file, line, this%is_mirror()
-      _HERE, file, line, 'is_inverse:', this%is_inverse
       if (allocated(this%aux_field_name)) then
          _HERE, file, line, 'aux_field_name:', this%aux_field_name
       end if
