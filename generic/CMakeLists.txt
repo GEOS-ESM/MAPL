@@ -1,20 +1,20 @@
 esma_set_this (OVERRIDE MAPL.generic)
 
 set (srcs
-  # Abstract interfaces
-  SurrogateFrameworkComponent.F90
-  AbstractComponent.F90
-  AbstractFrameworkComponent.F90
-  AbstractComposite.F90
+  # # Abstract interfaces
+  # SurrogateFrameworkComponent.F90
+  # AbstractComponent.F90
+  # AbstractFrameworkComponent.F90
+  # AbstractComposite.F90
 
   StringCompositeMap.F90
   ConcreteComposite.F90
   CompositeComponent.F90
 
-  BaseComponent.F90
-  MaplComponent.F90
-  DecoratorComponent.F90
-  StubComponent.F90
+  # BaseComponent.F90
+  # MaplComponent.F90
+  # DecoratorComponent.F90
+  # StubComponent.F90
 
   # Specs
   VarSpecType.F90
@@ -29,19 +29,19 @@ set (srcs
   VarConnVector.F90
   VarConn.F90
   StateSpecification.F90
-  ComponentSpecification.F90
+  # ComponentSpecification.F90
   MAPL_ServiceConnectionItemVector.F90
   MAPL_ProvidedServiceItemVector.F90
   MAPL_RequestedServiceItemVector.F90
-  MAPL_ServiceServicesTypes.F90
-  MAPL_ServiceServices.F90
+  # MAPL_ServiceServicesTypes.F90
+  # MAPL_ServiceServices.F90
 
   BaseFrameworkComponent.F90
   MaplGenericComponent.F90
 
   GenericCplComp.F90
 
-  MaplGeneric.F90
+  # MaplGeneric.F90
 
   MAPL_Generic_Stubs.F90
 
@@ -75,6 +75,6 @@ if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()
 
-add_executable(demo driver.F90 UserComponent.F90)
-target_link_libraries(demo PRIVATE ${this})
-set_target_properties(demo PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
+# add_executable(demo driver.F90 UserComponent.F90)
+# target_link_libraries(demo PRIVATE ${this})
+# set_target_properties(demo PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
