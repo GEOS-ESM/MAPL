@@ -17,10 +17,11 @@ module mapl3g_AspectId
    public :: VERTICAL_GRID_ASPECT_ID
     public :: FREQUENCY_ASPECT_ID
     public :: TYPEKIND_ASPECT_ID
-    public :: QUANTITY_TYPE_ASPECT_ID
-    public :: NORMALIZATION_ASPECT_ID
-    public :: INVALID_ASPECT_ID
-    public :: MOCK_ASPECT_ID
+     public :: QUANTITY_TYPE_ASPECT_ID
+     public :: NORMALIZATION_ASPECT_ID
+     public :: INVERSE_NORMALIZATION_ASPECT_ID
+     public :: INVALID_ASPECT_ID
+     public :: MOCK_ASPECT_ID
    
    type :: AspectId
       private
@@ -38,10 +39,11 @@ module mapl3g_AspectId
     type(AspectId), parameter :: VERTICAL_GRID_ASPECT_ID = AspectId(6)
      type(AspectId), parameter :: FREQUENCY_ASPECT_ID = AspectId(7)
      type(AspectId), parameter :: TYPEKIND_ASPECT_ID = AspectId(8)
-     type(AspectId), parameter :: QUANTITY_TYPE_ASPECT_ID = AspectId(9)
-     type(AspectId), parameter :: NORMALIZATION_ASPECT_ID = AspectId(10)
+      type(AspectId), parameter :: QUANTITY_TYPE_ASPECT_ID = AspectId(9)
+      type(AspectId), parameter :: NORMALIZATION_ASPECT_ID = AspectId(10)
+      type(AspectId), parameter :: INVERSE_NORMALIZATION_ASPECT_ID = AspectId(11)
 
-     type(AspectId), parameter :: MOCK_ASPECT_ID = AspectId(99)
+      type(AspectId), parameter :: MOCK_ASPECT_ID = AspectId(99)
    
    interface operator(==)
       procedure equal
@@ -83,11 +85,13 @@ contains
           s = "TYPEKIND"
        case (QUANTITY_TYPE_ASPECT_ID%id)
           s = "QUANTITY_TYPE"
-       case (NORMALIZATION_ASPECT_ID%id)
-          s = "NORMALIZATION"
-       case default
-          s = "UNKNOWN"
-      end select
+        case (NORMALIZATION_ASPECT_ID%id)
+           s = "NORMALIZATION"
+        case (INVERSE_NORMALIZATION_ASPECT_ID%id)
+           s = "INVERSE_NORMALIZATION"
+        case default
+           s = "UNKNOWN"
+       end select
    end function to_string
 
 

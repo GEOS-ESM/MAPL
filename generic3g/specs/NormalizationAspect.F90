@@ -36,14 +36,17 @@ module mapl3g_NormalizationAspect
       character(:), allocatable :: source_units       ! e.g., "kg/kg"
       character(:), allocatable :: target_units       ! e.g., "kg/m2"
       
+      ! Mode flag: false = normalize (default), true = denormalize (set by subclass)
+      logical :: is_inverse = .false.
+      
    contains
       ! StateItemAspect interface
       procedure :: matches
       procedure :: make_transform
       procedure :: connect_to_export
-      procedure :: supports_conversion_general
-      procedure :: supports_conversion_specific
-      procedure, nopass :: get_aspect_id
+       procedure :: supports_conversion_general
+       procedure :: supports_conversion_specific
+       procedure, nopass :: get_aspect_id
 
       ! Getters/setters
       procedure :: get_aux_field_name
@@ -52,10 +55,10 @@ module mapl3g_NormalizationAspect
       procedure :: set_scale_factor
       procedure :: get_source_units
       procedure :: set_source_units
-      procedure :: get_target_units
-      procedure :: set_target_units
+       procedure :: get_target_units
+       procedure :: set_target_units
 
-      procedure :: update_from_payload
+       procedure :: update_from_payload
       procedure :: update_payload
       procedure :: print_aspect
    end type NormalizationAspect
@@ -66,13 +69,14 @@ module mapl3g_NormalizationAspect
 
 contains
 
-   function new_NormalizationAspect(aux_field_name, scale_factor, source_units, target_units, is_time_dependent) result(aspect)
+   function new_NormalizationAspect(aux_field_name, scale_factor, source_units, target_units, is_time_dependent, is_inverse) result(aspect)
        type(NormalizationAspect) :: aspect
        character(*), optional, intent(in) :: aux_field_name
        real, optional, intent(in) :: scale_factor
        character(*), optional, intent(in) :: source_units
        character(*), optional, intent(in) :: target_units
        logical, optional, intent(in) :: is_time_dependent
+       logical, optional, intent(in) :: is_inverse
 
        call aspect%set_mirror(.true.)
        
@@ -91,6 +95,10 @@ contains
        
        if (present(target_units)) then
           aspect%target_units = target_units
+       end if
+
+       if (present(is_inverse)) then
+          aspect%is_inverse = is_inverse
        end if
 
        call aspect%set_time_dependent(is_time_dependent)
@@ -201,15 +209,24 @@ contains
       _RETURN(_SUCCESS)
    end function to_normalization_from_poly
 
-   function to_normalization_from_map(map, rc) result(normalization_aspect)
+   function to_normalization_from_map(map, aspect_id, rc) result(normalization_aspect)
       type(NormalizationAspect) :: normalization_aspect
       type(AspectMap), target, intent(in) :: map
+      type(AspectId), optional, intent(in) :: aspect_id
       integer, optional, intent(out) :: rc
 
       integer :: status
       class(StateItemAspect), pointer :: poly
+      type(AspectId) :: id_to_use
 
-      poly => map%at(NORMALIZATION_ASPECT_ID, _RC)
+      ! Use provided aspect_id or default to NORMALIZATION_ASPECT_ID
+      if (present(aspect_id)) then
+         id_to_use = aspect_id
+      else
+         id_to_use = NORMALIZATION_ASPECT_ID
+      end if
+
+      poly => map%at(id_to_use, _RC)
       normalization_aspect = to_NormalizationAspect(poly, _RC)
 
       _RETURN(_SUCCESS)
@@ -346,7 +363,7 @@ contains
       norm_type = norm_metadata%get_normalization_type()
 
       if (norm_type /= NORMALIZE_NONE) then
-         ! Field needs normalization - extract parameters
+         ! Field needs normalization/denormalization - extract parameters
          this%aux_field_name = norm_metadata%get_aux_field_name()
          this%scale_factor = norm_metadata%get_normalization_scale()
          
@@ -358,13 +375,20 @@ contains
          end if
          this%source_units = units
          
-         ! Compute target units
-         call compute_normalized_units(this%source_units, this%aux_field_name, &
-                                      this%scale_factor, this%target_units, _RC)
+         ! Compute target units (depends on is_inverse flag)
+         if (this%is_inverse) then
+            ! Denormalization: compute original units from normalized units
+            call compute_denormalized_units(this%source_units, this%aux_field_name, &
+                                          this%scale_factor, this%target_units, _RC)
+         else
+            ! Normalization: compute normalized units from original units
+            call compute_normalized_units(this%source_units, this%aux_field_name, &
+                                        this%scale_factor, this%target_units, _RC)
+         end if
          
          call this%set_mirror(.false.)
       else
-         ! Field doesn't need normalization
+         ! Field doesn't need normalization/denormalization
          call this%set_mirror(.true.)
       end if
 
@@ -385,8 +409,10 @@ contains
       _RETURN_IF(this%is_mirror())
 
       ! For now, NormalizationAspect doesn't directly modify the payload
-      ! The normalization will be handled by NormalizationTransform (Task 2.2)
-      ! This aspect serves as metadata storage only in Phase 2, Task 2.1
+      ! The normalization/denormalization will be handled by transforms:
+      !   - NormalizationTransform (Task 2.2) for normalization
+      !   - InverseNormalizationTransform (Task 2.4) for denormalization
+      ! This aspect serves as metadata storage only in Phase 2
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(state)
@@ -453,5 +479,44 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(scale)
    end subroutine compute_normalized_units
+
+   ! Helper subroutine to compute denormalized (original) units
+   subroutine compute_denormalized_units(source_units, aux_field, scale, target_units, rc)
+      character(*), intent(in) :: source_units
+      character(*), intent(in) :: aux_field
+      real, intent(in) :: scale
+      character(:), allocatable, intent(out) :: target_units
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      ! For now, simple unit computation (inverse of normalization)
+      ! In full implementation, this would use UDUNITS
+      ! source_units ÷ (aux_field_units × scale) = target_units
+      
+      select case (trim(aux_field))
+      case ('DELP')
+         ! DELP is in Pa, with scale 1/g, inverse converts back
+         ! e.g., "kg/m2" ÷ ("Pa" × 1/g) = "kg/kg"
+         if (trim(source_units) == 'kg/m2') then
+            target_units = 'kg/kg'
+         else
+            target_units = source_units  ! Fallback
+         end if
+      case ('DZ')
+         ! DZ is in m, with scale 1.0, inverse converts back
+         ! e.g., "kg/m2" ÷ "m" = "kg/m3"
+         if (trim(source_units) == 'kg/m2') then
+            target_units = 'kg/m3'
+         else
+            target_units = source_units  ! Fallback
+         end if
+      case default
+         target_units = source_units  ! Fallback - no conversion
+      end select
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(scale)
+   end subroutine compute_denormalized_units
 
 end module mapl3g_NormalizationAspect
