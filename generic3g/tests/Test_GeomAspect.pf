@@ -3,43 +3,38 @@
 
 module Test_GeomAspect
    use mapl3g_GeomAspect, only: GeomAspect
+   use mapl3g_Field_API, only: MAPL_FieldSet
    use mapl3g_FieldBundle_API, only: MAPL_FieldBundleSet
    use mapl3g_HorizontalDimsSpec, only: HorizontalDimsSpec
    use mapl3g_HorizontalDimsSpec, only: HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_GEOM
+   use mapl3g_EsmfRegridder, only: EsmfRegridderParam
    use ESMF, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4
    use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_Grid, ESMF_Geom
    use ESMF, only: ESMF_GridCreate, ESMF_GeomCreate, ESMF_GridDestroy
-   use ESMF, only: ESMF_GeomGet, ESMF_GeomDestroy
+   use ESMF, only: ESMF_GeomGet, ESMF_GeomDestroy, operator(==)
    use ESMF, only: ESMF_FieldCreate, ESMF_FieldGet, ESMF_FieldDestroy
    use ESMF, only: ESMF_FieldBundleCreate, ESMF_FieldBundleAdd
    use ESMF, only: ESMF_FieldBundleGet, ESMF_FieldBundleDestroy
-   use ESMF, only: ESMF_RegridMethod_Flag, ESMF_REGRIDMETHOD_BILINEAR
-   use ESMF, only: ESMF_REGRIDMETHOD_CONSERVE
+   use ESMF, only: ESMF_RegridMethod_Flag
+   use ESMF, only: ESMF_REGRIDMETHOD_CONSERVE, ESMF_REGRIDMETHOD_BILINEAR
+   use ESMF, only: ESMF_Info
    use pfunit
    use ESMF_TestMethod_mod
    implicit none(type, external)
 
    type(ESMF_TypeKind_Flag), parameter :: TK4 = ESMF_TYPEKIND_R4
    integer, parameter :: MAXINDEX_(*) = [4, 4]
-   integer, parameter :: ALTMAXINDEX(*) = MAXINDEX + [1, 1]
+   integer, parameter :: ALTMAXINDEX(*) = MAXINDEX_ + [1, 1]
    character(len=*), parameter :: BASE_NAME = 'FIELD'
    type(ESMF_RegridMethod_Flag), parameter :: REGRID_METHOD = ESMF_REGRIDMETHOD_BILINEAR
    type(ESMF_RegridMethod_Flag), parameter :: ALT_REGRID_METHOD = ESMF_REGRIDMETHOD_CONSERVE
+   type(HorizontalDimsSpec), parameter :: HORZ_DIMS_SPEC = HORIZONTAL_DIMS_GEOM
+   type(HorizontalDimsSpec), parameter :: ALT_HORZ_DIMS_SPEC = HORIZONTAL_DIMS_NONE
+   character(len=*), parameter :: GEOM_MISMATCH = &
+      & 'The actual_geom does not match expected_geom.' 
 
 contains
 
-   @Before
-   subroutine setUp(this)
-      class(ESMF_TestMethod), intent(inout) :: this
-      _UNUSED_DUMMY(this)
-   end subroutine setUp
-   
-   @After
-   subroutine shutDown(this)
-      class(ESMF_TestMethod), intent(inout) :: this
-      _UNUSED_DUMMY(this)
-   end subroutine shutDown
-   
 !===============================================================================
 !TESTS
 !===============================================================================
@@ -49,13 +44,32 @@ contains
       class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_Field) :: field
       type(GeomAspect) :: aspect
-      type(ESMF_Geom) :: geom
+      type(ESMF_Geom) :: field_geom, aspect_geom, actual_geom
+      type(EsmfRegridderParam) :: field_regridder_param
+      type(ESMF_Info) :: regridder_param_info
+      integer :: status
+      logical :: is_match
 
+      call get_geom(field_geom, maxindex=MAXINDEX_, _RC)
+      field_regridder_param = get_regridder_param(default=.TRUE.)
+      regridder_param_info = field_regridder_param%make_info(_RC)
       call get_field(field, _RC)
-      call get_geom(geom, maxindex=ALTMAXINDEX, _RC)
-      aspect = GeomAspect(geom=geom)
+      call MAPL_FieldSet(field, geom=field_geom,&
+         & regridder_param_info=regridder_param_info, &
+         & horizontal_dims_spec=HORZ_DIMS_SPEC, &
+         & _RC)
 
+      call get_geom(aspect_geom, maxindex=ALTMAXINDEX, _RC)
+      aspect = GeomAspect(geom=aspect_geom,&
+         & regridder_param=get_regridder_param(default=.FALSE.),&
+         & horizontal_dims_spec=ALT_HORZ_DIMS_SPEC)
+      call aspect%update_from_payload(field=field, _RC)
+      actual_geom = aspect%get_geom(_RC)
+
+      is_match = field_geom == actual_geom
+      @assertTrue(is_match, GEOM_MISMATCH)
       _UNUSED_DUMMY(this)
+
    end subroutine test_update_from_payload_field
 
    @Test(type=ESMF_TestMethod, npes=[1])
@@ -79,6 +93,19 @@ contains
 !===============================================================================
 ! HELPERS
 !===============================================================================
+
+   function get_regridder_param(default) result(rp)
+      type(EsmfRegridderParam) :: rp
+      logical, optional, intent(in) :: default
+      type(ESMF_RegridMethod_Flag) :: regridmethod
+      
+      regridmethod = REGRID_METHOD
+      if(present(default)) then
+         if(.not. default) regridmethod = ALT_REGRID_METHOD
+      end if
+      rp = EsmfRegridderParam(regridmethod=regridmethod)
+
+   end function get_regridder_param
 
    subroutine get_geom(geom, grid, maxindex, rc)
       type(ESMF_Geom), intent(out) :: geom
@@ -255,4 +282,16 @@ contains
 
    end subroutine make_field_name
 
+   @Before
+   subroutine setUp(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      _UNUSED_DUMMY(this)
+   end subroutine setUp
+   
+   @After
+   subroutine shutDown(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      _UNUSED_DUMMY(this)
+   end subroutine shutDown
+   
 end module Test_GeomAspect
