@@ -37,7 +37,7 @@ module mapl3g_NormalizationAspect
       character(:), allocatable :: target_units       ! e.g., "kg/m2"
       
       ! Mode flag: false = normalize (default), true = denormalize (set by subclass)
-      logical, protected :: is_inverse = .false.
+      logical :: is_inverse = .false.
       
    contains
       ! StateItemAspect interface
