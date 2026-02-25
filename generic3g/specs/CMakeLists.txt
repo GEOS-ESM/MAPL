@@ -26,7 +26,6 @@ target_sources(MAPL.generic3g PRIVATE
   FrequencyAspect.F90
   QuantityTypeAspect.F90
   NormalizationAspect.F90
-  InverseNormalizationAspect.F90
 
   VariableSpec.F90
   StateItem.F90
