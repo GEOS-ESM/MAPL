@@ -39,6 +39,9 @@ module mapl3g_NormalizationAspect
       ! Mode flag: false = normalize, true = denormalize
       logical :: is_inverse = .false.
       
+      ! Aspect ID (set based on is_inverse in constructor)
+      type(AspectId) :: aspect_id_value = NORMALIZATION_ASPECT_ID
+      
    contains
       ! StateItemAspect interface
       procedure :: matches
@@ -46,7 +49,7 @@ module mapl3g_NormalizationAspect
       procedure :: connect_to_export
        procedure :: supports_conversion_general
        procedure :: supports_conversion_specific
-       procedure :: get_aspect_id
+       procedure, nopass :: get_aspect_id
 
       ! Getters/setters
       procedure :: get_aux_field_name
@@ -61,6 +64,9 @@ module mapl3g_NormalizationAspect
        ! is_inverse getter/setter
        procedure :: get_is_inverse
        procedure :: set_is_inverse
+       
+       ! Instance aspect_id getter (returns the actual ID for this instance)
+       procedure :: get_instance_aspect_id
 
        procedure :: update_from_payload
       procedure :: update_payload
@@ -103,6 +109,13 @@ contains
        
        if (present(is_inverse)) then
           aspect%is_inverse = is_inverse
+       end if
+       
+       ! Set aspect_id based on is_inverse flag
+       if (aspect%is_inverse) then
+          aspect%aspect_id_value = INVERSE_NORMALIZATION_ASPECT_ID
+       else
+          aspect%aspect_id_value = NORMALIZATION_ASPECT_ID
        end if
 
        call aspect%set_time_dependent(is_time_dependent)
@@ -236,16 +249,24 @@ contains
       _RETURN(_SUCCESS)
    end function to_normalization_from_map
 
-   function get_aspect_id(this) result(aspect_id)
+   function get_aspect_id() result(aspect_id)
+      type(AspectId) :: aspect_id
+      ! Return the default aspect ID for NormalizationAspect class
+      ! For instance-specific ID (which may be INVERSE_NORMALIZATION_ASPECT_ID),
+      ! use get_instance_aspect_id() instead
+      aspect_id = NORMALIZATION_ASPECT_ID
+   end function get_aspect_id
+   
+   function get_instance_aspect_id(this, rc) result(aspect_id)
       type(AspectId) :: aspect_id
       class(NormalizationAspect), intent(in) :: this
+      integer, optional, intent(out) :: rc
       
-      if (this%is_inverse) then
-         aspect_id = INVERSE_NORMALIZATION_ASPECT_ID
-      else
-         aspect_id = NORMALIZATION_ASPECT_ID
-      end if
-   end function get_aspect_id
+      ! Return the actual aspect ID for this instance
+      aspect_id = this%aspect_id_value
+      
+      _RETURN(_SUCCESS)
+   end function get_instance_aspect_id
 
    ! Getters/Setters
    
