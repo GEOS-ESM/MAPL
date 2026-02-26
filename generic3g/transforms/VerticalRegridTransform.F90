@@ -11,7 +11,8 @@ module mapl3g_VerticalRegridTransform
    use mapl3g_CouplerPhases, only: GENERIC_COUPLER_UPDATE
    use mapl3g_VerticalRegridMethod
    use mapl3g_VerticalStaggerLoc
-   use mapl3g_VerticalLinearMap, only: compute_linear_map, compute_conservative_map
+   use mapl3g_VerticalLinearMap, only: compute_linear_map
+   use mapl3g_VerticalConservativeMap, only: compute_conservative_map
    use mapl3g_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp, matmul
    use mapl3g_FieldCondensedArray, only: assign_fptr_condensed_array
    use mapl3g_VerticalCoordinateDirection
