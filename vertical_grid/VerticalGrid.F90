@@ -120,10 +120,9 @@ contains
       character(:), allocatable :: primary_coordinate
       class(VerticalGrid), intent(in) :: this
       
+      primary_coordinate = ""
       if (allocated(this%primary_coordinate)) then
          primary_coordinate = this%primary_coordinate
-      else
-         primary_coordinate = ""
       end if
    end function get_primary_coordinate
 
