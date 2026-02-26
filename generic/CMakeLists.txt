@@ -3,10 +3,6 @@ esma_set_this (OVERRIDE MAPL.generic)
 set (srcs
   AbstractComponent.F90
 
-  StringCompositeMap.F90
-  ConcreteComposite.F90
-  CompositeComponent.F90
-
   # Specs
   VarSpecType.F90
   VarSpec.F90
@@ -19,22 +15,13 @@ set (srcs
   VarConnVector.F90
   VarConn.F90
 
-  StateSpecification.F90
-
-  BaseFrameworkComponent.F90
-  MaplGenericComponent.F90
-
-  GenericCplComp.F90
-
   MaplGeneric.F90
 
   MAPL_Generic_Stubs.F90
 
   OpenMP_Support.F90
-
   RunEntryPoint.F90
   EntryPointVector.F90
-
   MAPL_ESMF_Interfaces.F90
   CallbackMap.F90
   )

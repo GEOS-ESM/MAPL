@@ -220,7 +220,7 @@ module MAPL_GenericMod
       integer :: INT_LEN
    end type MAPL_GenericRecordType
 
-   type, extends(MaplGenericComponent) :: MAPL_MetaComp
+   type MAPL_MetaComp
       character(len=ESMF_MAXSTR) :: COMPNAME
       type(ESMF_Config) :: CF
       character(:), allocatable :: full_name

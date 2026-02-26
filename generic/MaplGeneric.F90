@@ -5,7 +5,6 @@ module MaplGeneric
    use mapl_VarConnType
    use mapl_VarConnVector
    use mapl_VarConn
-   use mapl_maplgenericcomponent
 
    implicit none
 end module MaplGeneric
