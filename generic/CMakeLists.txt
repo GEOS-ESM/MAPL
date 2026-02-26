@@ -1,8 +1,8 @@
 esma_set_this (OVERRIDE MAPL.generic)
 
 set (srcs
-  AbstractComponent.F90
   SurrogateFrameworkComponent.F90
+  AbstractComponent.F90
 
   # Specs
   VarSpecType.F90
