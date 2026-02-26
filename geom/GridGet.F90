@@ -6,7 +6,7 @@ module mapl3g_GridGet
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
 
-   implicit none
+   implicit none(type, external)
    private
 
    public :: GridGet
@@ -22,15 +22,33 @@ module mapl3g_GridGet
       procedure :: grid_get_coordinates_r8ptr
    end interface GridGetCoordinates
 
+   interface
+
+      module subroutine grid_get_centers(grid, centers, rc)
+         type(ESMF_Grid), intent(in) :: grid
+         real(kind=ESMF_KIND_R8), allocatable, intent(out) :: centers(:,:,:)
+         integer, optional, intent(out) :: rc
+      end subroutine grid_get_centers
+
+      module subroutine grid_get_corners(grid, corners, rc)
+         type(ESMF_Grid), intent(in) :: grid
+         real(kind=ESMF_KIND_R8), allocatable, intent(out) :: corners(:,:,:)
+         integer, optional, intent(out) :: rc
+      end subroutine grid_get_corners
+
+   end interface
+
 contains
 
-   subroutine grid_get(grid, unusable, name, dimCount, coordDimCount, im, jm, rc)
+   subroutine grid_get(grid, unusable, name, dimCount, coordDimCount, im, jm, centers, corners, rc)
       type(esmf_Grid), intent(in) :: grid
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(:), optional, allocatable, intent(out) :: name
       integer, optional, intent(out) :: dimCount
       integer, optional, allocatable, intent(out) :: coordDimCount(:)
       integer, optional, intent(out) :: im, jm
+      real(kind=ESMF_KIND_R8), optional, allocatable, intent(out) :: centers(:,:,:)
+      real(kind=ESMF_KIND_R8), optional, allocatable, intent(out) :: corners(:,:,:)
       integer, optional, intent(out) :: rc
 
       integer :: dimCount_
@@ -55,8 +73,16 @@ contains
 
       if (present(im) .or. present(jm)) then
          call esmf_GridGetCoord(grid, coordDim=1, farrayPtr=coords, _RC)
-         if (present(im)) im = size(coords,1)
-         if (present(jm)) jm = size(coords,2)
+         if (present(im)) im = size(coords, 1)
+         if (present(jm)) jm = size(coords, 2)
+      end if
+
+      if (present(centers)) then
+         call grid_get_centers(grid, centers, _RC)
+      end if
+
+      if (present(corners)) then
+         call grid_get_corners(grid, corners, _RC)
       end if
 
       _RETURN(_SUCCESS)

@@ -24,6 +24,7 @@ target_sources(MAPL.generic3g PRIVATE
   UngriddedDimsAspect.F90
   UnitsAspect.F90
   FrequencyAspect.F90
+  QuantityTypeAspect.F90
 
   VariableSpec.F90
   StateItem.F90

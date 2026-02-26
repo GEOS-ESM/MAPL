@@ -7,6 +7,7 @@ module mapl3g_FieldBundleGet
    use mapl_ErrorHandling
    use mapl3g_Field_API
    use mapl3g_UngriddedDims
+   use mapl3g_QuantityTypeMetadata
    use mapl3g_FieldBundleType_Flag
    use mapl3g_VectorBasisKind
    use mapl3g_FieldBundleInfo
@@ -42,6 +43,7 @@ contains
         has_deferred_aspects, &
         regridder_param_info, &
         vector_basis_kind, &
+        quantity_type_metadata, &
         rc)
 
       type(ESMF_FieldBundle), intent(in) :: fieldBundle
@@ -66,6 +68,7 @@ contains
       logical, optional, intent(out) :: has_deferred_aspects
       type(esmf_Info), optional, allocatable, intent(out) :: regridder_param_info
       type(VectorBasisKind), optional, intent(out) :: vector_basis_kind
+      type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -102,6 +105,7 @@ contains
            has_deferred_aspects=has_deferred_aspects, &
            regridder_param_info=regridder_param_info, &
            vector_basis_kind=vector_basis_kind, &
+           quantity_type_metadata=quantity_type_metadata, &
            _RC)
 
       if (present(geom) .and. has_geom) then
