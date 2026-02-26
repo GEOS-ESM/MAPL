@@ -181,19 +181,6 @@ module MAPL_GenericMod
       module procedure MAPL_ESMFStateWriteToFile
    end interface MAPL_CheckpointState
 
-   interface
-      subroutine I_RUN(gc, import_state, export_state, clock, rc)
-         use MAPL_KeywordEnforcerMod
-         use ESMF
-         implicit none
-         type(ESMF_GridComp) :: gc
-         type(ESMF_State) :: import_state
-         type(ESMF_State) :: export_state
-         type(ESMF_Clock) :: clock
-         integer, intent(out) :: rc
-      end subroutine I_RUN
-   end interface
-
    type MAPL_InitialState
       integer :: FILETYPE = MAPL_Write2Ram
       character(len=:), allocatable :: IMP_FNAME
@@ -203,7 +190,6 @@ module MAPL_GenericMod
    type MAPL_Connectivity
       type(VarConn) :: CONNECT
       type(VarConn) :: DONOTCONN
-      type(ServiceConnectionItemVector) :: ServiceConnectionItems
    end type MAPL_Connectivity
 
    type MAPL_LinkType
@@ -235,7 +221,6 @@ module MAPL_GenericMod
    end type MAPL_GenericRecordType
 
    type, extends(MaplGenericComponent) :: MAPL_MetaComp
-
       character(len=ESMF_MAXSTR) :: COMPNAME
       type(ESMF_Config) :: CF
       character(:), allocatable :: full_name
@@ -254,7 +239,6 @@ module MAPL_GenericMod
       integer, pointer :: phase_record(:) => null()
       integer, pointer :: phase_coldstart(:) => null()
       integer, pointer :: phase_refresh(:) => null()
-      procedure(I_RUN), public, nopass, pointer :: customRefresh => null()
       type(ESMF_GridComp) :: RootGC
       type(ESMF_GridComp), pointer :: parentGC => null()
       type(ESMF_Alarm) :: ALARM(0:LAST_ALARM)
@@ -267,18 +251,6 @@ module MAPL_GenericMod
       type(MAPL_GenericRecordType), pointer :: RECORD => null()
       type(MAPL_InitialState) :: initial_state
       type(ESMF_State) :: FORCING
-      type(ProvidedServiceItemVector) :: provided_services
-      type(RequestedServiceItemVector) :: requested_services
-
-   contains
-
-      procedure :: get_ith_child
-      procedure :: get_child_idx
-      procedure :: get_child_gridcomp
-      procedure :: get_child_import_state
-      procedure :: get_child_export_state
-      procedure :: get_child_internal_state
-
    end type MAPL_MetaComp
 
 contains
@@ -1179,85 +1151,6 @@ contains
       _FAIL("Time to port to MAPL3")
    end subroutine MAPL_GenericStateGet
 
-   function get_ith_child(this, i) result(child)
-      class(MaplGenericComponent), pointer :: child
-      class(MAPL_MetaComp), target, intent(in) :: this
-      integer, intent(in) :: i
-
-      class(AbstractFrameworkComponent), pointer :: child_node
-
-      child_node => this%get_child(trim(this%GCNameList(i)))
-      select type (child_node)
-      class is (MaplGenericComponent)
-         child => child_node
-      end select
-
-   end function get_ith_child
-
-   integer function get_child_idx(this, child_name) result(idx)
-      class(MAPL_MetaComp), target, intent(in) :: this
-      character(*), intent(in) :: child_name
-
-      integer :: i
-
-      idx = -1
-      do i = 1, this%get_num_children()
-         if (this%GCNameList(i) == trim(child_name)) then
-            idx = i
-            return
-         end if
-      end do
-
-   end function get_child_idx
-
-   function get_child_gridcomp(this, i) result(gridcomp)
-      type(ESMF_GridComp), pointer :: gridcomp
-      class(MAPL_MetaComp), target, intent(in) :: this
-      integer, intent(in) :: i
-
-      class(MaplGenericComponent), pointer :: child
-
-      child => this%get_ith_child(i)
-      gridcomp => child%get_gridcomp()
-
-   end function get_child_gridcomp
-
-   function get_child_import_state(this, i) result(STATE)
-      type(ESMF_State), pointer :: STATE
-      class(MAPL_MetaComp), target, intent(in) :: this
-      integer, intent(in) :: i
-
-      class(MaplGenericComponent), pointer :: child
-
-      child => this%get_ith_child(i)
-      STATE => child%get_import_state()
-
-   end function get_child_import_state
-
-   function get_child_export_state(this, i) result(STATE)
-      type(ESMF_State), pointer :: STATE
-      class(MAPL_MetaComp), target, intent(in) :: this
-      integer, intent(in) :: i
-
-      class(MaplGenericComponent), pointer :: child
-
-      child => this%get_ith_child(i)
-      STATE => child%get_export_state()
-
-   end function get_child_export_state
-
-   function get_child_internal_state(this, i) result(STATE)
-      type(ESMF_State), pointer :: STATE
-      class(MAPL_MetaComp), target :: this
-      integer, intent(in) :: i
-
-      class(MaplGenericComponent), pointer :: child
-
-      child => this%get_ith_child(i)
-      STATE => child%get_internal_state()
-
-   end function get_child_internal_state
-
    subroutine MAPL_GenericStateClockOn(STATE, NAME, rc)
       type(MAPL_MetaComp), intent(inout) :: STATE
       character(len=*), intent(in) :: NAME
@@ -1601,5 +1494,3 @@ contains
    end subroutine MAPL_DoNotDeferExport
 
 end module MAPL_GenericMod
-
-
