@@ -11,7 +11,7 @@ module mapl3g_VerticalRegridTransform
    use mapl3g_CouplerPhases, only: GENERIC_COUPLER_UPDATE
    use mapl3g_VerticalRegridMethod
    use mapl3g_VerticalStaggerLoc
-   use mapl3g_VerticalLinearMap, only: compute_linear_map
+   use mapl3g_VerticalLinearMap, only: compute_linear_map, compute_conservative_map
    use mapl3g_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp, matmul
    use mapl3g_FieldCondensedArray, only: assign_fptr_condensed_array
    use mapl3g_VerticalCoordinateDirection
@@ -146,7 +146,7 @@ contains
       type(ESMF_Clock) :: clock
       integer, optional, intent(out) :: rc
 
-      _ASSERT(this%method == VERTICAL_REGRID_LINEAR, "regrid method can only be linear")
+      _ASSERT(this%method == VERTICAL_REGRID_LINEAR .or. this%method == VERTICAL_REGRID_CONSERVATIVE, "method must be LINEAR or CONSERVATIVE")
 
       ! Degenerate case is determined by VerticalGridAspect and passed to constructor
       ! No need to re-check here
@@ -204,8 +204,7 @@ contains
 
       ! Compute interpolation matrix once (if needed for regridding)
       if (.not. this%is_degenerate_case) then
-         _ASSERT(this%method == VERTICAL_REGRID_LINEAR, "conservative not supported (yet)")
-         call compute_interpolation_matrix_(this%v_in_coord, this%stagger_in, this%src_alignment, &
+         call compute_interpolation_matrix_(this%method, this%v_in_coord, this%stagger_in, this%src_alignment, &
               this%v_out_coord, this%stagger_out, this%dst_alignment, this%matrix, _RC)
       end if
 
@@ -352,6 +351,7 @@ contains
     !! - Matrix computed using flipped ocean coords and atm coords
     !! - regrid_field_ applies matrix (no output flip needed since dst is DOWN)
     !!
+    !! @param[in]    method        Regridding method (LINEAR or CONSERVATIVE)
     !! @param[inout] v_in_coord    Source vertical coordinate field
     !! @param[in]    stagger_in    Source stagger location
     !! @param[in]    src_alignment Source coordinate direction (UP/DOWN)
@@ -360,8 +360,9 @@ contains
     !! @param[in]    dst_alignment Destination coordinate direction (UP/DOWN)
     !! @param[out]   matrix        Computed interpolation matrix array
     !! @param[out]   rc            Return code
-    subroutine compute_interpolation_matrix_(v_in_coord, stagger_in, src_alignment, &
+    subroutine compute_interpolation_matrix_(method, v_in_coord, stagger_in, src_alignment, &
          v_out_coord, stagger_out, dst_alignment, matrix, rc)
+       type(VerticalRegridMethod), intent(in) :: method
        type(ESMF_Field), intent(inout) :: v_in_coord
        type(VerticalStaggerLoc), intent(in) :: stagger_in
        type(VerticalCoordinateDirection), intent(in) :: src_alignment
@@ -411,7 +412,13 @@ contains
        do horz = 1, n_horz
           do ungrd = 1, n_ungridded
              associate(src => vv_in(horz, :, ungrd), dst => vv_out(horz, :, ungrd))
-               call compute_linear_map(src, dst, matrix(horz), _RC)
+               if (method == VERTICAL_REGRID_LINEAR) then
+                  call compute_linear_map(src, dst, matrix(horz), _RC)
+               else if (method == VERTICAL_REGRID_CONSERVATIVE) then
+                  call compute_conservative_map(src, dst, matrix(horz), _RC)
+               else
+                  _FAIL("Unknown vertical regridding method")
+               end if
              end associate
           end do
        end do
