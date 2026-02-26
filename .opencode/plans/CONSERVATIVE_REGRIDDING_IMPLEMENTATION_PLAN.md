@@ -918,6 +918,104 @@ end subroutine
 
 ---
 
+#### Task 2.6b: Conservative Vertical Regridding Matrix Construction
+**File:** `generic3g/vertical/VerticalLinearMap.F90` (add new function)  
+**Effort:** 20 hours
+
+**Description:**
+Implement overlap-based conservative vertical regridding matrix construction. Currently `VerticalRegridTransform` only supports linear interpolation via `compute_linear_map()`. This task adds `compute_conservative_map()` for mass-conserving vertical regridding.
+
+**Current State:**
+- `compute_linear_map()` interpolates using layer centers
+- Works for intensive quantities (temperature, etc.)
+- Not mass-conserving for extensive quantities
+
+**New Algorithm: Overlap-Based Conservative Regridding**
+
+For each destination layer, compute weights from overlapping source layers:
+
+```fortran
+function compute_conservative_map(z_src_interfaces, z_dst_interfaces, &
+                                  coord_direction) result(matrix)
+   real, intent(in) :: z_src_interfaces(:)  ! nlev_src + 1
+   real, intent(in) :: z_dst_interfaces(:)  ! nlev_dst + 1  
+   type(VerticalCoordinateDirection), intent(in) :: coord_direction
+   type(SparseMatrix_sp) :: matrix
+   
+   ! For each destination layer j
+   do j = 1, nlev_dst
+      ! Find source layers that overlap with dst layer j
+      do k = 1, nlev_src
+         ! Compute overlap interval
+         overlap_bot = max(z_dst_interfaces(j), z_src_interfaces(k))
+         overlap_top = min(z_dst_interfaces(j+1), z_src_interfaces(k+1))
+         
+         if (overlap_top > overlap_bot) then
+            ! Compute weight: overlap fraction of source layer
+            overlap_thickness = overlap_top - overlap_bot
+            source_thickness = z_src_interfaces(k+1) - z_src_interfaces(k)
+            weight = overlap_thickness / source_thickness
+            
+            ! Add to sparse matrix: matrix(j, k) = weight
+            call matrix%add_element(j, k, weight)
+         end if
+      end do
+   end do
+   
+   ! Validate: sum of weights for each row should = 1.0
+   call validate_conservative_weights(matrix)
+end function
+```
+
+**Key Requirements:**
+
+1. **Layer Interfaces (Edges)**
+   - Need interfaces, not centers
+   - May require adding `get_layer_interfaces()` to VerticalGrid
+   - Or derive from layer centers and thicknesses
+
+2. **Coordinate Direction Handling**
+   - Pressure: typically decreasing (surface → TOA)
+   - Height: typically increasing
+   - Use `coordinate_direction` to interpret "top" vs "bottom"
+   - Handle monotonicity correctly
+
+3. **Conservation Validation**
+   - For each destination layer: Σ(weights) = 1.0
+   - Mass conservation: Σ(input × dp_src) = Σ(output × dp_dst)
+   - Add assertion checks
+
+4. **Integration with VerticalRegridTransform**
+   - Modify `VerticalRegridTransform%initialize()` to select method
+   - Use `VerticalRegridMethod` parameter:
+     - `VERTICAL_REGRID_LINEAR` → `compute_linear_map()`
+     - `VERTICAL_REGRID_CONSERVATIVE` → `compute_conservative_map()`
+   - Store in existing `SparseMatrix_sp` member
+
+**Implementation Steps:**
+
+1. Add `compute_conservative_map()` to `VerticalLinearMap.F90`
+2. Add `VERTICAL_REGRID_CONSERVATIVE` to `VerticalRegridMethod` enum
+3. Add `get_layer_interfaces()` or equivalent to VerticalGrid (if needed)
+4. Modify `VerticalRegridTransform%initialize()` to choose method
+5. Add validation for conservation
+
+**Tests:**
+- `Test_ConservativeVerticalMap.pf`:
+  - Conservation: `sum(output * dp_dst) == sum(input * dp_src)`
+  - Coarse → fine regridding (72 → 144 levels)
+  - Fine → coarse regridding (144 → 72 levels)
+  - Same grid → identity matrix
+  - Different coordinate systems (pressure vs height)
+  - Edge cases: partial overlaps, non-uniform grids
+
+**Distinction from Task 2.6:**
+- **Task 2.6b** (this task): Core conservative regrid algorithm and matrix
+- **Task 2.6**: Fused normalization workflow that uses the conservative matrix
+- Task 2.6 depends on Task 2.6b being completed first
+
+---
+
 #### Task 2.7: Update Aspect Ordering for Normalization
 **File:** `generic3g/specs/FieldClassAspect.F90`, `FieldBundleClassAspect.F90`  
 **Effort:** 4 hours
