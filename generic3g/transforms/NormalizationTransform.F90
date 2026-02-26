@@ -1,14 +1,16 @@
 #include "MAPL.h"
 #include "unused_dummy.H"
 
-!> @brief Transform that multiplies fields by auxiliary normalization fields
+!> @brief Transform that multiplies or divides fields by auxiliary normalization fields
 !!
 !! This transform normalizes fields for conservative regridding by multiplying
-!! with an auxiliary field (e.g., DELP, DZ) and a scale factor (e.g., 1/g).
-!! For example, mixing ratios [kg/kg] are converted to column masses [kg/m²]
-!! by multiplying with DELP/g.
+!! with an auxiliary field (e.g., DELP, DZ) and a scale factor (e.g., 1/g), or
+!! performs the inverse operation (division) to denormalize.
+!! 
+!! Forward (is_inverse=false): mixing ratios [kg/kg] → column masses [kg/m²]
+!! Inverse (is_inverse=true):  column masses [kg/m²] → mixing ratios [kg/kg]
 !!
-!! @par Limitation (Phase 2, Task 2.2):
+!! @par Limitation (Phase 2, Task 2.2-2.4):
 !! This is a simplified implementation for testing the core normalization logic.
 !! The auxiliary field must be provided at construction time and kept valid
 !! externally. The framework CANNOT use this in production form.
@@ -33,22 +35,24 @@ module mapl3g_NormalizationTransform
    private
 
    public :: NormalizationTransform
+   public :: new_NormalizationTransform
 
-    !> Transform that multiplies a field by an auxiliary normalization field
+    !> Transform that multiplies or divides a field by an auxiliary normalization field
     !!
     !! This transform normalizes fields by multiplying with an auxiliary field
-    !! (e.g., DELP, DZ) scaled by a constant factor (e.g., 1/g).
+    !! (e.g., DELP, DZ) scaled by a constant factor (e.g., 1/g), or performs
+    !! the inverse operation (division) for denormalization.
     !!
-    !! LIMITATION (Phase 2, Task 2.2):
+    !! LIMITATION (Phase 2, Task 2.2-2.4):
     !! - Auxiliary field is stored directly in the transform
     !! - No coupler support yet - auxiliary field must be passed at construction
     !! - Framework cannot use this in production form
     !! - Future work: Add coupler infrastructure to update auxiliary field values
     !!   (see VerticalRegridTransform pattern with v_in_coupler/v_out_coupler)
      type, extends(ExtensionTransform) :: NormalizationTransform
-        private
         character(:), allocatable :: aux_field_name     ! Name of auxiliary field (for debugging/logging)
         real :: scale_factor = 0.0                      ! Scaling factor (e.g., 1/g for DELP)
+        logical :: is_inverse = .false.                 ! false = multiply, true = divide
         type(ESMF_Field) :: aux_field                   ! Auxiliary field (DELP or DZ)
         ! TODO (future): Add coupler support
         ! class(ComponentDriver), pointer :: aux_coupler => null()
@@ -69,19 +73,22 @@ contains
     !!
     !! @param aux_field_name Name of auxiliary field (for debugging/logging)
     !! @param scale_factor   Scaling factor to apply (e.g., 1/g for DELP)
-    !! @param aux_field      Auxiliary field to multiply with
+    !! @param aux_field      Auxiliary field to multiply/divide with
+    !! @param is_inverse     If true, divide instead of multiply (denormalization)
     !!
     !! LIMITATION: aux_field must be provided and kept valid externally.
     !! Future work will add coupler support to update aux_field automatically.
-    function new_NormalizationTransform(aux_field_name, scale_factor, aux_field) result(transform)
+    function new_NormalizationTransform(aux_field_name, scale_factor, aux_field, is_inverse) result(transform)
        type(NormalizationTransform) :: transform
        character(*), intent(in) :: aux_field_name
        real, intent(in) :: scale_factor
        type(ESMF_Field), intent(in) :: aux_field
+       logical, optional, intent(in) :: is_inverse
 
        transform%aux_field_name = aux_field_name
        transform%scale_factor = scale_factor
        transform%aux_field = aux_field
+       if (present(is_inverse)) transform%is_inverse = is_inverse
 
     end function new_NormalizationTransform
 
@@ -105,14 +112,18 @@ contains
         _RETURN(_SUCCESS)
     end subroutine initialize
 
-   subroutine update_field(f_in, f_out, f_aux, scale_factor, rc)
+   subroutine update_field(f_in, f_out, f_aux, scale_factor, is_inverse, rc)
       type(ESMF_Field), intent(inout) :: f_in, f_out, f_aux
       real, intent(in) :: scale_factor
+      logical, intent(in) :: is_inverse
       integer, optional, intent(out) :: rc
       integer :: status
       real(kind=ESMF_KIND_R4), pointer :: x4_in(:), x4_out(:), x4_aux(:)
       real(kind=ESMF_KIND_R8), pointer :: x8_in(:), x8_out(:), x8_aux(:)
       type(ESMF_TypeKind_Flag) :: typekind
+      real(kind=ESMF_KIND_R4), parameter :: epsilon_r4 = 1.0e-30_ESMF_KIND_R4
+      real(kind=ESMF_KIND_R8), parameter :: epsilon_r8 = 1.0e-30_ESMF_KIND_R8
+      integer :: i
 
       call ESMF_FieldGet(f_in, typekind=typekind, _RC)
       
@@ -120,8 +131,20 @@ contains
          call assign_fptr(f_in, x4_in, _RC)
          call assign_fptr(f_out, x4_out, _RC)
          call assign_fptr(f_aux, x4_aux, _RC)
-         ! Normalize: out = in × (aux × scale)
-         x4_out = x4_in * x4_aux * scale_factor
+         if (is_inverse) then
+            ! Denormalize: out = in ÷ (aux × scale)
+            ! Handle division by zero: if denominator < epsilon, set output to 0
+            do i = 1, size(x4_in)
+               if (abs(x4_aux(i) * scale_factor) < epsilon_r4) then
+                  x4_out(i) = 0.0_ESMF_KIND_R4
+               else
+                  x4_out(i) = x4_in(i) / (x4_aux(i) * scale_factor)
+               end if
+            end do
+         else
+            ! Normalize: out = in × (aux × scale)
+            x4_out = x4_in * x4_aux * scale_factor
+         end if
          _RETURN(_SUCCESS)
       end if
 
@@ -129,8 +152,20 @@ contains
          call assign_fptr(f_in, x8_in, _RC)
          call assign_fptr(f_out, x8_out, _RC)
          call assign_fptr(f_aux, x8_aux, _RC)
-         ! Normalize: out = in × (aux × scale)
-         x8_out = x8_in * x8_aux * scale_factor
+         if (is_inverse) then
+            ! Denormalize: out = in ÷ (aux × scale)
+            ! Handle division by zero: if denominator < epsilon, set output to 0
+            do i = 1, size(x8_in)
+               if (abs(x8_aux(i) * scale_factor) < epsilon_r8) then
+                  x8_out(i) = 0.0_ESMF_KIND_R8
+               else
+                  x8_out(i) = x8_in(i) / (x8_aux(i) * scale_factor)
+               end if
+            end do
+         else
+            ! Normalize: out = in × (aux × scale)
+            x8_out = x8_in * x8_aux * scale_factor
+         end if
          _RETURN(_SUCCESS)
       end if
 
@@ -138,10 +173,11 @@ contains
 
    end subroutine update_field
       
-   subroutine update_field_bundle(fb_in, fb_out, f_aux, scale_factor, rc)
+   subroutine update_field_bundle(fb_in, fb_out, f_aux, scale_factor, is_inverse, rc)
       type(ESMF_FieldBundle), intent(inout) :: fb_in, fb_out
       type(ESMF_Field), intent(inout) :: f_aux
       real, intent(in) :: scale_factor
+      logical, intent(in) :: is_inverse
       integer, optional, intent(out) :: rc
       integer :: status
       integer :: i, fieldCount
@@ -156,7 +192,7 @@ contains
       call ESMF_FieldBundleGet(fb_out, fieldList=flist_out, _RC)
       _ASSERT(size(flist_in) == size(flist_out), 'The FieldBundles have different sizes.')
       do i=1, size(flist_in)
-         call update_field(flist_in(i), flist_out(i), f_aux, scale_factor, _RC)
+         call update_field(flist_in(i), flist_out(i), f_aux, scale_factor, is_inverse, _RC)
       end do
       _RETURN(_SUCCESS)
 
@@ -188,12 +224,12 @@ contains
        if(itemtype_in == MAPL_STATEITEM_FIELD) then
           call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=f_in, _RC)
           call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=f_out, _RC)
-          call update_field(f_in, f_out, this%aux_field, this%scale_factor, _RC)
+          call update_field(f_in, f_out, this%aux_field, this%scale_factor, this%is_inverse, _RC)
        elseif(itemType_in == MAPL_STATEITEM_FIELDBUNDLE) then
           call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, fieldBundle=fb_in, _RC)
           call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, fieldBundle=fb_out, _RC)
           call bundle_types_valid(fb_in, fb_out, _RC)
-          call update_field_bundle(fb_in, fb_out, this%aux_field, this%scale_factor, _RC)
+          call update_field_bundle(fb_in, fb_out, this%aux_field, this%scale_factor, this%is_inverse, _RC)
         else
            _FAIL("Unsupported state item type")
         end if
