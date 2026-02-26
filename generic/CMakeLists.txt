@@ -3,7 +3,6 @@ esma_set_this (OVERRIDE MAPL.generic)
 set (srcs
   SurrogateFrameworkComponent.F90
   AbstractComponent.F90
-  SurrogateFrameworkComponent.F90
 
   StringCompositeMap.F90
   ConcreteComposite.F90
