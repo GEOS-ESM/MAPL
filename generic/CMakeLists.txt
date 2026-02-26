@@ -1,15 +1,41 @@
 esma_set_this (OVERRIDE MAPL.generic)
 
 set (srcs
+<<<<<<< HEAD
   SurrogateFrameworkComponent.F90
   AbstractComponent.F90
 
+=======
+  AbstractComponent.F90
+
+  StringCompositeMap.F90
+  ConcreteComposite.F90
+  CompositeComponent.F90
+
+>>>>>>> 5a9b0039 (Building fewer files in generic/)
   # Specs
   VarSpecType.F90
   VarSpec.F90
   VarSpecPtr.F90
   VarSpecMiscMod.F90
   VarSpecVector.F90
+<<<<<<< HEAD
+=======
+
+  VarConnPoint.F90
+  VarConnType.F90
+  VarConnVector.F90
+  VarConn.F90
+
+  StateSpecification.F90
+
+  BaseFrameworkComponent.F90
+  MaplGenericComponent.F90
+
+  GenericCplComp.F90
+
+  MaplGeneric.F90
+>>>>>>> 5a9b0039 (Building fewer files in generic/)
 
   MaplGeneric.F90
   MAPL_Generic_Stubs.F90
