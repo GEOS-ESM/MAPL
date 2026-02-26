@@ -16,6 +16,7 @@ module MAPL
    use MAPL_Profiler, initialize_profiler => initialize, finalize_profiler => finalize
    use MAPL_FieldUtils
    use MAPL_StateUtils
+   use MAPL_PythonBridge
    implicit none
 end module MAPL
 
