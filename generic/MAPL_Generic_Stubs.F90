@@ -187,14 +187,6 @@ module MAPL_GenericMod
       character(len=:), allocatable :: INT_FNAME
    end type MAPL_InitialState
 
-<<<<<<< HEAD
-=======
-   type MAPL_Connectivity
-      type(VarConn) :: CONNECT
-      type(VarConn) :: DONOTCONN
-   end type MAPL_Connectivity
-
->>>>>>> 5a9b0039 (Building fewer files in generic/)
    type MAPL_LinkType
       type(ESMF_GridComp) :: gc
       integer :: StateType
@@ -223,11 +215,7 @@ module MAPL_GenericMod
       integer :: INT_LEN
    end type MAPL_GenericRecordType
 
-<<<<<<< HEAD
    type MAPL_MetaComp
-=======
-   type, extends(MaplGenericComponent) :: MAPL_MetaComp
->>>>>>> 5a9b0039 (Building fewer files in generic/)
       character(len=ESMF_MAXSTR) :: COMPNAME
       type(ESMF_Config) :: CF
       character(:), allocatable :: full_name
