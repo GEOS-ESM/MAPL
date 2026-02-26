@@ -1073,6 +1073,99 @@ contains
 
      end subroutine test_height_up_to_down_both_inc
 
+  ! Test that conservative regridding method can be instantiated and run
+  @Test(type=ESMF_TestMethod, npes=[1])
+  subroutine test_conservative_method_basic(this)
+     class(ESMF_TestMethod), intent(inout) :: this
+     type(VerticalRegridTransform) :: transform
+     type(VerticalRegridParam) :: regrid_param
+     type(ESMF_Field) :: v_coord_in, v_coord_out, f_in, f_out
+     type(ESMF_Geom) :: geom
+     real(ESMF_KIND_R4), pointer :: data_in(:,:,:), data_out(:,:,:)
+     real(ESMF_KIND_R4), pointer :: v_in(:,:,:), v_out(:,:,:)
+     integer, parameter :: NZ_IN = 4, NZ_OUT = 2
+     integer :: i, j, k, status
+     
+     ! Create ESMF_Geom from grid
+     geom = ESMF_GeomCreate(grid, _RC)
+     
+     ! Create edge-staggered vertical coordinates (required for conservative method)
+     ! Input: 4 layers = 5 edges
+     v_coord_in = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
+          num_levels=NZ_IN+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+     call ESMF_FieldGet(v_coord_in, farrayPtr=v_in, _RC)
+     do k = 1, NZ_IN+1
+        do j = 1, NY
+           do i = 1, NX
+              v_in(i,j,k) = real(k-1, ESMF_KIND_R4) * 10.0  ! 0, 10, 20, 30, 40
+           end do
+        end do
+     end do
+     
+     ! Output: 2 layers = 3 edges  
+     v_coord_out = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
+          num_levels=NZ_OUT+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+     call ESMF_FieldGet(v_coord_out, farrayPtr=v_out, _RC)
+     do k = 1, NZ_OUT+1
+        do j = 1, NY
+           do i = 1, NX
+              v_out(i,j,k) = real(k-1, ESMF_KIND_R4) * 20.0  ! 0, 20, 40
+           end do
+        end do
+     end do
+     
+     ! Create input and output data fields at CENTER (layer centers)
+     f_in = MAPL_FieldCreate(geom, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+          num_levels=NZ_IN, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+          vert_alignment=VALIGN_DOWN, _RC)
+     f_out = MAPL_FieldCreate(geom, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+          num_levels=NZ_OUT, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+          vert_alignment=VALIGN_DOWN, _RC)
+     
+     ! Fill input with uniform value
+     call ESMF_FieldGet(f_in, farrayPtr=data_in, _RC)
+     data_in = 100.0
+     
+     ! Initialize output
+     call ESMF_FieldGet(f_out, farrayPtr=data_out, _RC)
+     data_out = 0.0
+     
+     ! Create transform with CONSERVATIVE method
+     regrid_param%stagger_in = VERTICAL_STAGGER_EDGE
+     regrid_param%stagger_out = VERTICAL_STAGGER_EDGE
+     regrid_param%method = VERTICAL_REGRID_CONSERVATIVE
+     regrid_param%src_alignment = VCOORD_DIRECTION_DOWN
+     regrid_param%dst_alignment = VCOORD_DIRECTION_DOWN
+     regrid_param%is_degenerate_case = .false.
+     transform = VerticalRegridTransform(v_coord_in, null(), v_coord_out, null(), regrid_param)
+     
+     ! Add fields to states
+     call ESMF_StateAdd(importState, fieldList=[f_in], _RC)
+     call ESMF_StateAdd(exportState, fieldList=[f_out], _RC)
+     
+     ! Initialize and run transform
+     call transform%initialize(importState, exportState, clock, _RC)
+     @assertEqual(VERTICAL_REGRID_CONSERVATIVE, transform%method)
+     
+     call transform%update(importState, exportState, clock, _RC)
+     
+     ! Verify that output was computed (conservation: uniform input -> uniform output)
+     do k = 1, NZ_OUT
+        do j = 1, NY
+           do i = 1, NX
+              @assertEqual(100.0, data_out(i,j,k), tolerance=1.0e-5)
+           end do
+        end do
+     end do
+     
+     call ESMF_FieldDestroy(v_coord_in, rc=status)
+     call ESMF_FieldDestroy(v_coord_out, rc=status)
+     call ESMF_FieldDestroy(f_in, rc=status)
+     call ESMF_FieldDestroy(f_out, rc=status)
+     _UNUSED_DUMMY(this)
+     
+  end subroutine test_conservative_method_basic
+
      @Before
    subroutine set_up(this)
       class(ESMF_TestMethod), intent(inout) :: this
