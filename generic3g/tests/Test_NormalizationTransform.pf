@@ -621,9 +621,9 @@ contains
       ! Test that normalize → denormalize recovers original value
       class(ESMF_TestMethod), intent(inout) :: this
       integer :: status
-      type(ESMF_Field) :: field_in, field_mid, field_out, field_aux
-      type(ESMF_State) :: midState
-      real(kind=ESMF_KIND_R4), pointer :: fptr_in(:), fptr_mid(:), fptr_out(:), fptr_aux(:)
+      type(ESMF_Field) :: field_in, field_mid_export, field_mid_import, field_out, field_aux
+      type(ESMF_State) :: midState_export, midState_import
+      real(kind=ESMF_KIND_R4), pointer :: fptr_in(:), fptr_mid_exp(:), fptr_mid_imp(:), fptr_out(:), fptr_aux(:)
       real(kind=ESMF_KIND_R4), parameter :: INPUT_VALUE = 1.0e-3_R4  ! kg/kg (original)
       real(kind=ESMF_KIND_R4), parameter :: DELP_VALUE = 1000.0_R4   ! Pa
       integer :: i
@@ -635,23 +635,26 @@ contains
          & ESMF_NAMES, rc=status)
       @assertEqual(0, status, "Unable to initialize ESMF_State's")
       
-      ! Create middle state for storing normalized value
-      ! Need both IMPORT and EXPORT names since this state acts as export for first transform
-      ! and import for second transform
-      midState = ESMF_StateCreate(name='midState', stateIntent=ESMF_STATEINTENT_EXPORT, _RC)
-      field_mid = ESMF_FieldCreate(grid=grid, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, _RC)
-      call ESMF_StateAdd(midState, [field_mid], _RC)
-      ! Add same field with import name for second transform (without array syntax)
-      call ESMF_StateAdd(midState, field_mid, itemName=COUPLER_IMPORT_NAME, _RC)
+      ! Create middle states for normalized value
+      ! Export state for normalize transform (has COUPLER_EXPORT_NAME)
+      midState_export = ESMF_StateCreate(name='midState_export', stateIntent=ESMF_STATEINTENT_EXPORT, _RC)
+      field_mid_export = ESMF_FieldCreate(grid=grid, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, _RC)
+      call ESMF_StateAdd(midState_export, [field_mid_export], _RC)
+      ! Import state for denormalize transform (has COUPLER_IMPORT_NAME)
+      midState_import = ESMF_StateCreate(name='midState_import', stateIntent=ESMF_STATEINTENT_IMPORT, _RC)
+      field_mid_import = ESMF_FieldCreate(grid=grid, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, _RC)
+      call ESMF_StateAdd(midState_import, [field_mid_import], _RC)
       
       ! Get fields and set input values
       call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=field_in, _RC)
       call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=field_out, _RC)
       call assign_fptr(field_in, fptr_in, _RC)
-      call assign_fptr(field_mid, fptr_mid, _RC)
+      call assign_fptr(field_mid_export, fptr_mid_exp, _RC)
+      call assign_fptr(field_mid_import, fptr_mid_imp, _RC)
       call assign_fptr(field_out, fptr_out, _RC)
       fptr_in = INPUT_VALUE
-      fptr_mid = 0.0
+      fptr_mid_exp = 0.0
+      fptr_mid_imp = 0.0
       fptr_out = 0.0
       
       ! Create auxiliary field (DELP)
@@ -661,16 +664,20 @@ contains
       
       ! Step 1: Normalize (forward)
       normalize_transform = new_NormalizationTransform(AUX_FIELD_NAME, SCALE_FACTOR, field_aux, .false.)
-      call normalize_transform%initialize(importState, midState, clock, rc=status)
+      call normalize_transform%initialize(importState, midState_export, clock, rc=status)
       @assertEqual(_SUCCESS, status, 'Failed to initialize normalize transform')
-      call normalize_transform%update(importState, midState, clock, rc=status)
+      call normalize_transform%update(importState, midState_export, clock, rc=status)
       @assertEqual(_SUCCESS, status, 'Failed to normalize')
+      
+      ! Copy normalized data from export field to import field
+      ! (In production, a coupler would handle this)
+      fptr_mid_imp = fptr_mid_exp
       
       ! Step 2: Denormalize (inverse)
       denormalize_transform = new_NormalizationTransform(AUX_FIELD_NAME, SCALE_FACTOR, field_aux, .true.)
-      call denormalize_transform%initialize(midState, exportState, clock, rc=status)
+      call denormalize_transform%initialize(midState_import, exportState, clock, rc=status)
       @assertEqual(_SUCCESS, status, 'Failed to initialize denormalize transform')
-      call denormalize_transform%update(midState, exportState, clock, rc=status)
+      call denormalize_transform%update(midState_import, exportState, clock, rc=status)
       @assertEqual(_SUCCESS, status, 'Failed to denormalize')
       
        ! Verify round-trip: output should match original input
@@ -678,9 +685,11 @@ contains
           @assertEqual(INPUT_VALUE, fptr_out(i), tolerance=1.0e-6_R4, message='Round-trip should recover original value')
        end do
       
-      call ESMF_FieldDestroy(field_aux, _RC)
-      call ESMF_FieldDestroy(field_mid, _RC)
-      call ESMF_StateDestroy(midState, _RC)
+       call ESMF_FieldDestroy(field_aux, _RC)
+       call ESMF_FieldDestroy(field_mid_export, _RC)
+       call ESMF_FieldDestroy(field_mid_import, _RC)
+       call ESMF_StateDestroy(midState_export, _RC)
+       call ESMF_StateDestroy(midState_import, _RC)
 
    end subroutine test_roundtrip_R4
 
