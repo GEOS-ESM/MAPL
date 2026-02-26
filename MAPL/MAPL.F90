@@ -7,7 +7,6 @@ module MAPL
    use ESMF_CFIOMod
    use pFIO
    use MAPL_GridCompsMod
-   use mapl_StubComponent
    use MAPL_ESMFFieldBundleRead
    use MAPL_ESMFFieldBundleWrite
    use MAPL_OpenMP_Support, only : MAPL_get_current_thread => get_current_thread
