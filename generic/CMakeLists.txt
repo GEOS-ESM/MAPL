@@ -2,6 +2,7 @@ esma_set_this (OVERRIDE MAPL.generic)
 
 set (srcs
   AbstractComponent.F90
+  SurrogateFrameworkComponent.F90
 
   # Specs
   VarSpecType.F90
@@ -10,15 +11,10 @@ set (srcs
   VarSpecMiscMod.F90
   VarSpecVector.F90
 
-  VarConnPoint.F90
-  VarConnType.F90
-  VarConnVector.F90
-  VarConn.F90
-
   MaplGeneric.F90
-
   MAPL_Generic_Stubs.F90
 
+  # OpenMP support and its dependencies
   OpenMP_Support.F90
   RunEntryPoint.F90
   EntryPointVector.F90

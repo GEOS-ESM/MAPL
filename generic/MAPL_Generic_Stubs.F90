@@ -187,11 +187,6 @@ module MAPL_GenericMod
       character(len=:), allocatable :: INT_FNAME
    end type MAPL_InitialState
 
-   type MAPL_Connectivity
-      type(VarConn) :: CONNECT
-      type(VarConn) :: DONOTCONN
-   end type MAPL_Connectivity
-
    type MAPL_LinkType
       type(ESMF_GridComp) :: gc
       integer :: StateType
@@ -231,7 +226,6 @@ module MAPL_GenericMod
       type(ESMF_State), pointer :: CEX(:, :) => null()
       logical, pointer :: CCcreated(:, :) => null()
       type(MAPL_Link), pointer :: LINK(:) => null()
-      type(MAPL_Connectivity) :: connectList
       character(len=ESMF_MAXSTR), allocatable :: GCNameList(:)
       integer, pointer :: phase_init(:) => null()
       integer, public, pointer :: phase_run(:) => null()
@@ -1199,8 +1193,6 @@ contains
    subroutine MAPL_GenericStateSet(STATE, ORBIT, LM, RUNALARM, ChildInit, &
         LOCSTREAM, ExchangeGrid, clock, NAME, &
         CF, configFile, component, rc)
-      use mapl_AbstractComposite
-      use mapl_ConcreteComposite
 
       type(MAPL_MetaComp), intent(inout) :: STATE
       type(ESMF_Alarm), optional, intent(in) :: RUNALARM
