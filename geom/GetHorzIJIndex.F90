@@ -11,15 +11,19 @@
 
 module GetHorzIJIndex
 
-   use ESMF, only: ESMF_KIND_R8, ESMF_MAXSTR
+   use ESMF, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_MAXSTR
    use ESMF, only: ESMF_Grid, ESMF_GridGet, ESMF_GridGetCoord, ESMF_STAGGERLOC_CORNER
-   use ESMF, only: ESMF_CoordSys_Flag, ESMF_COORDSYS_SPH_DEG, ESMF_COORDSYS_CART
+   use ESMF, only: ESMF_CoordSys_Flag, ESMF_COORDSYS_SPH_DEG, ESMF_COORDSYS_CART, operator(==)
    use ESMF, only: ESMF_Info, ESMF_InfoGetFromHost, ESMF_InfoIsPresent, ESMF_InfoGet
-   use MAPL_Grid, only: MAPL_GridGet, MAPL_GridGetInterior, MAPL_GridGetCorners
-   use MAPL_Utils, only: _ASSERT, _FAIL, _RETURN, _RETURN_IF, _SUCCESS, _STAT
+   use mapl3g_Geom_API, only: MAPL_GridGet
+   use mapl3g_GridGetGlobal, only: GridGetGlobalCellCountPerDim
+   use MAPL_Base, only: MAPL2_GridGetInterior => MAPL_GridGetInterior
+   use MAPL_Constants, only: MAPL_PI, MAPL_PI_R8, MAPL_DEGREES_TO_RADIANS_R8
+   ! use MAPL_Grid, only: MAPL_GridGet, MAPL_GridGetInterior, MAPL_GridGetCorners
+   use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Assert, MAPL_Return
 
-   private
    implicit none
+   private
 
    public :: get_horz_ij_index
 
@@ -37,7 +41,8 @@ contains
       type(ESMF_Grid), optional, intent(inout) :: grid ! ESMF grid
       integer, optional, intent(out) :: rc ! return code
 
-      integer :: im, jm, im_world, jm_world, counts(3), dims(3)
+      integer :: im, jm, im_world, jm_world
+      integer, allocatable :: dims(:)
       real(kind=ESMF_KIND_R8), pointer :: lons(:, :)
       real(kind=ESMF_KIND_R8), pointer :: lats(:, :)
       real(kind=ESMF_KIND_R8), allocatable :: elons(:)
@@ -58,11 +63,10 @@ contains
       ! pass in the the dimensions of the grid and we must compute them
       ! and assume search on the global domain
       if (present(grid)) then
-         call MAPL_GridGet(grid, localCellCountPerDim=counts, globalCellCountPerDim=dims, _RC)
+         call MAPL_GridGet(grid, im=im, jm=jm, _RC)
+         call GridGetGlobalCellCountPerDim(grid, globalCellCountPerDim=dims, _RC)
          im_world = dims(1)
          jm_world = dims(2)
-         im = counts(1)
-         jm = counts(2)
          local_search = .true.
       else
          local_search = .false.
@@ -81,8 +85,8 @@ contains
       ! call ESMF_InfoGet(infoh, key='GridType', value=grid_type, _RC)
       ! if(trim(grid_type) == "Cubed-Sphere") then
       if (im_world * 6 == jm_world) then
-         call MAPL_GetGlobalHorzIJIndex(npts, ii, jj, lon=lon, lat=lat, lonR8=lonR8, latR8=latR8, grid=grid, _RC)
-         call MAPL_Grid_Interior(grid, i1, i2, j1, j2)
+         call get_global_horz_ij_index(npts, ii, jj, lon=lon, lat=lat, lonR8=lonR8, latR8=latR8, grid=grid, _RC)
+         call MAPL2_GridGetInterior(grid, i1, i2, j1, j2)
          ! convert index to local, if it is not in domain, set it to -1 just as the legacy code
          where (i1 <= ii .and. ii <= i2 .and. j1 <= jj .and. jj <= j2)
             ii = ii - i1 + 1
@@ -189,7 +193,8 @@ contains
       integer, optional, intent(out) :: rc ! return code
 
       integer :: status
-      integer :: dims(3), im_world, jm_world
+      integer :: im_world, jm_world
+      integer, allocatable :: dims(:)
       real(kind=ESMF_KIND_R8), allocatable, dimension(:, :) :: xyz
       real(kind=ESMF_KIND_R8), allocatable, dimension(:) :: x, y, z
       real(kind=ESMF_KIND_R8), allocatable :: max_abs(:)
@@ -206,7 +211,7 @@ contains
       if (.not.present(grid)) then
          _FAIL("need a cubed-sphere grid")
       end if
-      call MAPL_GridGet(grid, globalCellCountPerDim=dims, _RC)
+      call GridGetGlobalCellCountPerDim(grid, globalCellCountPerDim=dims, _RC)
       im_world = dims(1)
       jm_world = dims(2)
       _ASSERT(im_world * 6 == jm_world, "It only works for cubed-sphere grid")
@@ -311,31 +316,29 @@ contains
          type(ESMF_Grid), intent(inout) :: grid
          logical :: OK
          integer :: i1, i2, j1, j2, j
-         real(kind=ESMF_KIND_R8), allocatable :: corner_lons(:, :), corner_lats(:, :)
+         real(kind=ESMF_KIND_R8), allocatable :: corners(:, :, :), corner_lons(:, :), corner_lats(:, :)
          real(kind=ESMF_KIND_R8), allocatable :: lonRe(:), latRe(:)
          real(kind=ESMF_KIND_R8), allocatable :: accurate_lat(:), accurate_lon(:)
          real(kind=ESMF_KIND_R8) :: shift0
          real :: tolerance
-         integer :: local_dims(3)
+         integer :: im, jm
 
          tolerance = epsilon(1.0)
-         call MAPL_GridGetInterior(grid, i1, i2, j1, j2)
-         call MAPL_GridGet(grid, localCellCountPerDim=local_dims, _RC)
+         call MAPL2_GridGetInterior(grid, i1, i2, j1, j2)
+         call MAPL_GridGet(grid, im=im, jm=jm, _RC)
          OK = .true.
          ! check the edge of face 1 along longitude
          ! call ESMF_GridGetCoord(grid,localDE=0,coordDim=1,staggerloc=ESMF_STAGGERLOC_CORNER,farrayPtr=corner_lons,_RC)
          ! call ESMF_GridGetCoord(grid,localDE=0,coordDim=2,staggerloc=ESMF_STAGGERLOC_CORNER,farrayPtr=corner_lats,_RC)
-         allocate(corner_lons(local_dims(1) + 1, local_dims(2) + 1))
-         allocate(corner_lats(local_dims(1) + 1, local_dims(2) + 1))
-         call MAPL_GridGetCorners(grid, corner_lons, corner_lats, _RC)
+         call MAPL_GridGet(grid, corners=corners, _RC)
+         corner_lons = corners(:, :, 1)
+         corner_lats = corners(:, :, 2)
 
          if (i1 == 1 .and. j1 == 1) then
-            allocate(lonRe(local_dims(2)), latRe(local_dims(2)))
-            call reverse_schmidt( &
-                 grid, stretched, local_dims(2), &
-                 lonR8=corner_lons(1, 1:local_dims(2)), latR8=corner_lats(1, 1:local_dims(2)), &
-                 lonRe=lonRe, latRe=latRe, _RC)
-            allocate(accurate_lon(local_dims(2)), accurate_lat(local_dims(2)))
+            allocate(lonRe(jm), latRe(jm))
+            call reverse_schmidt(grid, stretched, jm, &
+                 lonR8=corner_lons, latR8=corner_lats, lonRe=lonRe, latRe=latRe, _RC)
+            allocate(accurate_lon(jm), accurate_lat(jm))
             shift0 = shift
             if (stretched) shift0 = 0
             accurate_lon = 1.750d0 * MAPL_PI_R8 - shift0
