@@ -1145,7 +1145,7 @@ contains
      
      ! Initialize and run transform
      call transform%initialize(importState, exportState, clock, _RC)
-     @assertEqual(VERTICAL_REGRID_CONSERVATIVE, transform%method)
+     @assert_that(VERTICAL_REGRID_CONSERVATIVE == transform%method, is(true()))
      
      call transform%update(importState, exportState, clock, _RC)
      
@@ -1153,7 +1153,7 @@ contains
      do k = 1, NZ_OUT
         do j = 1, NY
            do i = 1, NX
-              @assertEqual(100.0, data_out(i,j,k), tolerance=1.0e-5)
+	      @assert_that(data_out(i,j,k), is(near(100.0, tolerance=1.0e-5)))
            end do
         end do
      end do
