@@ -34,11 +34,10 @@ contains
       integer, optional, intent(out) :: rc
       
       integer :: nlev_src, nlev_dst
-      integer :: j, k, num_overlaps
+      integer :: j, k
       real(REAL32) :: overlap_bot, overlap_top, overlap_thickness
-      real(REAL32) :: source_thickness, weight
+      real(REAL32) :: source_thickness
       real(REAL32), allocatable :: row_weights(:)
-      integer, allocatable :: row_indices(:)
       real(REAL32), parameter :: epsilon_sp = tiny(1.0_REAL32)
       integer :: status
       
@@ -48,16 +47,16 @@ contains
       _ASSERT(nlev_src > 0, "Source must have at least one layer")
       _ASSERT(nlev_dst > 0, "Destination must have at least one layer")
       
-      ! Allocate temporary arrays for building each row
-      ! Worst case: all source layers overlap with one destination layer
-      allocate(row_weights(nlev_src), row_indices(nlev_src))
+      ! Allocate temporary array for building each row
+      allocate(row_weights(nlev_src))
       
-      ! Initialize sparse matrix (estimate ~3 overlaps per destination layer)
-      matrix = SparseMatrix_sp(nlev_dst, nlev_src, 3*nlev_dst)
+      ! Initialize sparse matrix - each row will contain all nlev_src columns
+      matrix = SparseMatrix_sp(nlev_dst, nlev_src, nlev_dst*nlev_src)
       
       ! For each destination layer
       do j = 1, nlev_dst
-         num_overlaps = 0
+         ! Initialize this row's weights to zero for all source layers
+         row_weights(:) = 0.0
          
          ! Find all source layers that overlap with this destination layer
          do k = 1, nlev_src
@@ -76,21 +75,15 @@ contains
                _ASSERT(source_thickness > epsilon_sp, "Source layer has zero thickness")
                
                ! Weight = fraction of source layer that overlaps with dest layer
-               weight = overlap_thickness / source_thickness
-               
-               num_overlaps = num_overlaps + 1
-               row_indices(num_overlaps) = k
-               row_weights(num_overlaps) = weight
+               row_weights(k) = overlap_thickness / source_thickness
             end if
          end do
          
-         _ASSERT(num_overlaps > 0, "Destination layer has no overlapping source layers")
-         
-         ! Add this row to the sparse matrix
-         call add_row(matrix, j, row_indices(1), row_weights(1:num_overlaps))
+         ! Add this row to the sparse matrix (all columns, starting from column 1)
+         call add_row(matrix, j, 1, row_weights(1:nlev_src))
       end do
       
-      deallocate(row_weights, row_indices)
+      deallocate(row_weights)
       
       _RETURN(_SUCCESS)
    end subroutine compute_conservative_map
