@@ -7,12 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Introduced AGENTS.md to assist in using copilot for MAPL development
-- Introdcing a two-way generic python bridge exposing limited MAPL feature down in Python. The system is opt-in and uses
-dynamic loading of py package based on a user given string. It also provides with _some_ tooling, to be expanded upon, to
-make using Fortran-allocated memory transparent.
-
-
 ### Fixed
 
 ### Added
@@ -21,9 +15,16 @@ make using Fortran-allocated memory transparent.
 
 ### Removed
 
-- Added optional local_id to create a simple locstream
-
 ### Deprecated
+
+## [2.67.0] - 2026-02-27
+
+### Added
+
+- Introducing a two-way generic python bridge exposing limited MAPL feature down in Python. The system is opt-in and uses
+dynamic loading of py package based on a user given string. It also provides with _some_ tooling, to be expanded upon, to
+make using Fortran-allocated memory transparent.
+- Added optional `local_id` to create a simple locstream
 
 ## [2.66.0] - 2026-02-13
 
