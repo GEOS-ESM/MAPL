@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Guard IEEE halting mode calls on macOS flang to avoid missing `fe*except` symbols when initializing MPI.
+
 ### Added
 Added a new feature: create a halo based on local displacement members, local-displacement-ensemble (LDE), requested some time ago by Arlindo da Silva
 	
