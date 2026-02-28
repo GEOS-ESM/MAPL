@@ -9,7 +9,7 @@
 
 #include "MAPL.h"
 
-module GetHorzIJIndex
+module mapl3g_GridGetHorzIJIndex
 
    use ESMF, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_MAXSTR
    use ESMF, only: ESMF_Grid, ESMF_GridGet, ESMF_GridGetCoord, ESMF_STAGGERLOC_CORNER
@@ -25,7 +25,11 @@ module GetHorzIJIndex
    implicit none
    private
 
-   public :: get_horz_ij_index
+   public :: GridGetHorzIJIndex
+
+   interface GridGetHorzIJIndex
+      module procedure get_horz_ij_index
+   end interface GridGetHorzIJIndex
 
 contains
 
@@ -452,4 +456,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine reverse_schmidt
 
-end module GetHorzIJIndex
+end module mapl3g_GridGetHorzIJIndex

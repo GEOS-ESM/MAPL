@@ -13,7 +13,7 @@ set(srcs
   NormalizationType.F90
   QuantityType.F90
   QuantityTypeMetadata.F90
-  DistGrid.F90
+  DistGridGet.F90
   )
 
 esma_add_library(${this}

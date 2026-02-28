@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl3g_DistGrid
+module mapl3g_DistGridGet
 
    use ESMF, only: ESMF_DistGrid, ESMF_DistGridGet
    use MAPL_ErrorHandlingMod
@@ -10,9 +10,13 @@ module mapl3g_DistGrid
 
    public :: DistGridGet
 
+   interface DistGridGet
+      module procedure dist_grid_get
+   end interface DistGridGet
+
 contains
 
-   subroutine DistGridGet(dist_grid, min_index, max_index, rc)
+   subroutine dist_grid_get(dist_grid, min_index, max_index, rc)
       type(ESMF_DistGrid), intent(inout) :: dist_grid
       integer, intent(inout) :: min_index(:, :)
       integer, intent(inout) :: max_index(:, :)
@@ -87,6 +91,6 @@ contains
       end if
 
       _RETURN(_SUCCESS)
-   end subroutine DistGridGet
+   end subroutine dist_grid_get
 
-end module mapl3g_DistGrid
+end module mapl3g_DistGridGet
