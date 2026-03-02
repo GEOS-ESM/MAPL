@@ -13,6 +13,8 @@ set (test_srcs
   Test_ComponentSpec.pf
   Test_ComponentSpecParser.pf
   Test_Aspects.pf
+  Test_TypekindAspect.pf
+  Test_UngriddedDimsAspect.pf
   Test_BracketClassAspect.pf
   Test_ExtensionFamily.pf
 
@@ -31,6 +33,7 @@ set (test_srcs
   
   Test_ModelVerticalGrid.pf
   Test_VerticalLinearMap.pf
+  Test_VerticalRegridTransform.pf
 
   Test_CSR_SparseMatrix.pf
   Test_AccumulatorTransform.pf
@@ -47,8 +50,13 @@ set (test_srcs
   Test_ConvertUnitsTransform.pf
   Test_CopyTransform.pf
   Test_VectorBracketClassAspect.pf
+  Test_VectorBasisKind.pf
   Test_ExtensionTransformUtils.pf
   Test_Couplers.pf
+  Test_UnitsAspect.pf
+  Test_QuantityType.pf
+  Test_QuantityTypeAspect.pf
+  Test_2DConservativeRegrid.pf
 )
 
 add_pfunit_ctest(

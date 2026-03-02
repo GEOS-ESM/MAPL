@@ -126,7 +126,6 @@ contains
       type(StateItemSpecPtr) :: extension_ptr
       type(StateItemSpec), pointer :: primary
       type(StateItemSpec), pointer :: spec
-      logical :: match
       type(AspectId), allocatable :: aspect_ids(:)
 
       class(StateItemAspect), pointer :: src_aspect, dst_aspect

@@ -224,7 +224,6 @@ contains
       class(StateItemAspect), intent(in) :: aspect
       integer, optional, intent(out) :: rc
 
-      integer :: status
       type(AspectId) :: id
       type(AspectMapIterator) :: iter
       type(AspectPair), pointer :: pair
@@ -266,6 +265,9 @@ contains
       class(StateItemSpec), intent(in) :: dst_spec
 
       order = ''
+
+      _UNUSED_DUMMY(src_spec)
+      _UNUSED_DUMMY(dst_spec)
    end function get_aspect_priorities
 
    ! Factory method to create a base for an extension
@@ -274,8 +276,6 @@ contains
       type(StateItemSpec) :: new_spec
       class(StateItemSpec), target, intent(in) :: this
       integer, optional, intent(out) :: rc
-
-      integer :: status
 
       ! Copy basic metadata using regular assignment
       ! This includes aspects, which will be copied by AspectMap's assignment
@@ -358,7 +358,6 @@ contains
 
       integer :: status
       class(ClassAspect), pointer :: class_aspect
-      integer, allocatable :: handle(:)
       type(esmf_Field), allocatable :: field
       type(esmf_FieldBundle), allocatable :: bundle
       type(esmf_State), allocatable :: state
@@ -616,6 +615,8 @@ contains
         end do
       end associate
       
+      _UNUSED_DUMMY(file)
+      _UNUSED_DUMMY(line)
    end subroutine check
 
    subroutine set_has_deferred_aspects(this, has_deferred_aspects)
@@ -648,9 +649,9 @@ contains
          call mapl_FieldBundleGet(bundle, has_deferred_aspects=has_deferred_aspects, _RC)
       end if
 
-      if (allocated(state)) then
-         _FAIL('unsupported use case')
-      end if
+      ! if (allocated(state)) then
+      !    _FAIL('unsupported use case')
+      ! end if
       
       _RETURN(_SUCCESS)
    end function has_deferred_aspects
@@ -664,9 +665,10 @@ contains
       class(ClassAspect), pointer :: class_aspect
       type(esmf_Field), allocatable :: field
       type(esmf_FieldBundle), allocatable :: bundle
+      type(esmf_State), allocatable :: state
 
       class_aspect => to_ClassAspect(this%aspects, _RC)
-      call class_aspect%get_payload(field=field, bundle=bundle, _RC)
+      call class_aspect%get_payload(field=field, bundle=bundle, state=state, _RC)
       
       if (allocated(field)) then
          call MAPL_FieldSet(field, allocation_status=allocation_status, _RC)
@@ -688,12 +690,13 @@ contains
       class(ClassAspect), pointer :: class_aspect
       type(esmf_Field), allocatable :: field
       type(esmf_FieldBundle), allocatable :: bundle
+      type(esmf_State), allocatable :: state
 
       ! Default to INVALID in case we can't get it from the payload
       allocation_status = STATEITEM_ALLOCATION_INVALID
 
       class_aspect => to_ClassAspect(this%aspects, _RC)
-      call class_aspect%get_payload(field=field, bundle=bundle, _RC)
+      call class_aspect%get_payload(field=field, bundle=bundle, state=state, _RC)
       
       if (allocated(field)) then
          call MAPL_FieldGet(field, allocation_status=allocation_status, _RC)

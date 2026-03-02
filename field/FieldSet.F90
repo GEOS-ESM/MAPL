@@ -3,9 +3,11 @@
 module mapl3g_FieldSet
 
    use mapl3g_VerticalGrid_API
+   use mapl3g_VerticalAlignment
    use mapl3g_FieldInfo
    use mapl3g_FieldDelta
    use mapl3g_StateItemAllocation
+   use mapl3g_QuantityTypeMetadata
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use mapl3g_UngriddedDims
@@ -24,34 +26,36 @@ module mapl3g_FieldSet
 
 contains
 
-
-subroutine field_set(field, &
-     geom, &
-     horizontal_dims_spec, &
-     vgrid, &
-     vert_staggerloc, &
-     typekind, &
-     unusable, &
-     num_levels, &
-     units, standard_name, long_name, &
-     ungridded_dims, &
-     attributes, &
-     allocation_status, &
-     has_deferred_aspects, &
-     regridder_param_info, &
-     rc)
+   subroutine field_set(field, &
+        geom, &
+        horizontal_dims_spec, &
+        vgrid, &
+        vert_staggerloc, vert_alignment, &
+        typekind, &
+        unusable, &
+        num_levels, &
+        units, standard_name, long_name, &
+        ungridded_dims, &
+        quantity_type_metadata, &
+        attributes, &
+        allocation_status, &
+        has_deferred_aspects, &
+        regridder_param_info, &
+        rc)
       type(ESMF_Field), intent(inout) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
       class(VerticalGrid), optional, intent(in) :: vgrid
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
+      type(VerticalAlignment), optional, intent(in) :: vert_alignment
       type(esmf_TypeKind_Flag), optional, intent(in) :: typekind
       integer, optional, intent(in) :: num_levels
       character(len=*), optional, intent(in) :: units
       character(len=*), optional, intent(in) :: standard_name
       character(len=*), optional, intent(in) :: long_name
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
+      type(QuantityTypeMetadata), optional, intent(in) :: quantity_type_metadata
       type(StringVector), optional, intent(in) :: attributes
       type(StateItemAllocation), optional, intent(in) :: allocation_status
       logical, optional, intent(in) :: has_deferred_aspects
@@ -84,10 +88,12 @@ subroutine field_set(field, &
            horizontal_dims_spec=horizontal_dims_spec, &
            vgrid_id=vgrid_id, &
            vert_staggerloc=vert_staggerloc, &
+           vert_alignment=vert_alignment, &
            num_levels=num_levels, &
            typekind=typekind, &
            units=units, standard_name=standard_name, long_name=long_name, &
            ungridded_dims=ungridded_dims, &
+           quantity_type_metadata=quantity_type_metadata, &
            allocation_status=allocation_status, &
            has_deferred_aspects=has_deferred_aspects, &
            regridder_param_info=regridder_param_info, &
@@ -95,6 +101,7 @@ subroutine field_set(field, &
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(attributes)
    end subroutine field_set
 
 end module mapl3g_FieldSet

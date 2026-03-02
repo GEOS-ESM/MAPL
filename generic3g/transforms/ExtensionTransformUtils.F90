@@ -20,7 +20,7 @@ contains
          & FIELDBUNDLETYPE_BASIC, &
          & FIELDBUNDLETYPE_BRACKET, &
          & FIELDBUNDLETYPE_VECTOR, &
-         & FIELDBUNDLETYPE_VECTOR_BRACKET&
+         & FIELDBUNDLETYPE_VECTORBRACKET&
          &]
       character(len=:), allocatable :: msg
 

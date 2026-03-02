@@ -1,4 +1,5 @@
 #include "MAPL.h"
+
 module mapl3g_HistoryGridComp_private
    use mapl3
    use mapl_ErrorHandlingMod
@@ -7,6 +8,7 @@ module mapl3g_HistoryGridComp_private
    use mapl3g_HistoryUtilities
    use mapl3g_StatisticsGridComp, only: statistics_setServices => setServices
    use esmf
+
    implicit none
    private
 
@@ -25,7 +27,6 @@ contains
       character(len=*), intent(in) :: collection_name
       integer, optional, intent(out) :: rc
 
-      integer :: status
       integer :: i
       character(*), parameter :: ESCAPE = '\'
 
@@ -65,19 +66,19 @@ contains
       type(ESMF_HConfig), intent(in) :: hconfig
       character(*), intent(in) :: keystring
       integer, optional, intent(out) :: rc
-      
+
       integer :: status
       logical :: has_key
       logical :: is_map
-      
+
       has_key = ESMF_HConfigIsDefined(hconfig, keyString=keyString, _RC)
       _ASSERT(has_key, 'Hconfig is expected to have '//keyString//' but does not.')
 
       is_map = ESMF_HConfigIsMap(hconfig, keyString=keyString, _RC)
       _ASSERT(is_map, 'HConfig expected a YAML mapping for '//keyString//'but does not.')
-      
+
       subconfig = ESMF_HConfigCreateAt(hconfig, keyString=keystring, _RC)
-      
+
       _RETURN(_SUCCESS)
    end function get_subconfig
 
@@ -115,7 +116,7 @@ contains
             call parse_item(iter, short_name=short_name, name_in_comp=name_in_comp, _RC)
             stat_item = create_stats_entry(short_name, mode, frequency, 'PT0H', _RC)
             call ESMF_HConfigAdd(stats_list, stat_item, _RC)
-            call MAPL_GridCompAddConnectivity(gridcomp, 'stats_'//child_name, short_name, child_name, dst_names=name_in_comp, _RC)
+            call MAPL_GridCompAddConnection(gridcomp, src_comp='stats_'//child_name, src_names=short_name, dst_comp=child_name, dst_names=name_in_comp, _RC)
          enddo
          call ESMF_HConfigAdd(stats_hconfig, stats_list, addKeyString='stats', _RC)
          child_spec = ChildSpec(user_setservices(statistics_setServices),hconfig=stats_hconfig)

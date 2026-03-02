@@ -4,7 +4,9 @@ module mapl3g_FieldBundleSet
    use mapl3g_VerticalGrid_API
    use mapl3g_Field_API
    use mapl3g_UngriddedDims
+   use mapl3g_QuantityTypeMetadata
    use mapl3g_FieldBundleType_Flag
+   use mapl3g_VectorBasisKind
    use mapl3g_FieldBundleInfo
    use mapl3g_InfoUtilities
    use mapl3g_FieldBundleGet
@@ -33,12 +35,14 @@ contains
         geom, vgrid, &
         fieldBundleType, typekind, interpolation_weights, &
         ungridded_dims, &
-        num_levels, vert_staggerloc, &
+        num_levels, vert_staggerloc, vert_alignment, &
         units, standard_name, long_name, &
         allocation_status, &
         bracket_updated, &
         has_deferred_aspects, &
         regridder_param_info, &
+        vector_basis_kind, &
+        quantity_type_metadata, &
         rc)
 
       type(ESMF_FieldBundle), intent(inout) :: fieldBundle
@@ -51,6 +55,7 @@ contains
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       integer, optional, intent(in) :: num_levels
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
+      type(VerticalAlignment), optional, intent(in) :: vert_alignment
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
@@ -58,6 +63,8 @@ contains
       logical, optional, intent(in) :: bracket_updated
       logical, optional, intent(in) :: has_deferred_aspects
       type(esmf_Info), optional, intent(in) :: regridder_param_info
+      type(VectorBasisKind), optional, intent(in) :: vector_basis_kind
+      type(QuantityTypeMetadata), optional, intent(in) :: quantity_type_metadata
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -68,6 +75,8 @@ contains
       type(ESMF_Field), allocatable :: fieldList(:)
       logical, allocatable :: has_geom
       integer, allocatable :: vgrid_id
+      type(FieldBundleType_Flag) :: bundle_type
+      logical :: has_bundle_type
 
       if (present(geom)) then
          ! ToDo - update when ESMF makes this interface public.
@@ -93,10 +102,10 @@ contains
       end if
 
       ! Propagate vertical grid information to fields in bundle
-      if (present(num_levels) .or. present(vert_staggerloc) .or. present(vgrid)) then
+      if (present(num_levels) .or. present(vert_staggerloc) .or. present(vert_alignment) .or. present(vgrid)) then
          call FieldBundleGet(fieldBundle, fieldList=fieldList, _RC)
          do i = 1, size(fieldList)
-            call MAPL_FieldSet(fieldList(i), vgrid=vgrid, num_levels=num_levels, vert_staggerloc=vert_staggerloc, _RC)
+            call MAPL_FieldSet(fieldList(i), vgrid=vgrid, num_levels=num_levels, vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, _RC)
          end do
       end if
       
@@ -105,6 +114,27 @@ contains
       ! present.
       if (present(geom)) then
          has_geom = .true.
+      end if
+
+      ! Validate vector_basis_kind is only used with vector bundles
+      if (present(vector_basis_kind)) then
+         if (present(fieldBundleType)) then
+            ! Use the fieldBundleType from this call
+            bundle_type = fieldBundleType
+            has_bundle_type = .true.
+         else
+            ! Check if bundle already has a type set
+            call ESMF_InfoGetFromHost(fieldBundle, bundle_info, _RC)
+            call FieldBundleInfoGetInternal(bundle_info, fieldBundleType=bundle_type, _RC)
+            has_bundle_type = .true.
+         end if
+
+         if (has_bundle_type) then
+            if (bundle_type /= FIELDBUNDLETYPE_VECTOR .and. &
+                bundle_type /= FIELDBUNDLETYPE_VECTORBRACKET) then
+               _FAIL('vector_basis_kind can only be set for vector field bundles')
+            end if
+         end if
       end if
 
       ! Some things are treated as field info:
@@ -121,6 +151,8 @@ contains
            has_geom=has_geom, &
            has_deferred_aspects=has_deferred_aspects, &
            regridder_param_info=regridder_param_info, &
+           vector_basis_kind=vector_basis_kind, &
+           quantity_type_metadata=quantity_type_metadata, &
           _RC)
 
       _RETURN(_SUCCESS)

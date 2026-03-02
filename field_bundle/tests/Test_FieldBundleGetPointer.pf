@@ -6,6 +6,7 @@
 module Test_FieldBundleGetPointer
 
    use mapl3g_FieldBundleGetPointer
+   use MAPL_ErrorHandling, only: MAPL_Verify
    use ESMF
    use pfunit
    use ESMF_TestMethod_mod
@@ -19,9 +20,10 @@ contains
    @Before
    subroutine setUp(this)
       class(ESMF_TestMethod), intent(inout) :: this
+
       type(ESMF_TypeKind_Flag), parameter :: TYPEKIND = ESMF_TYPEKIND_R4
       type(ESMF_Grid) :: grid
-      integer :: status
+      integer :: rc, status
       integer, parameter :: MAX_INDEX(2) = [10, 10]
       integer, parameter :: REG_DECOMP(2) = [1, 1]
 
@@ -29,14 +31,14 @@ contains
       original = ESMF_FieldCreate(grid=grid, typekind=typekind, _RC)
 
       _UNUSED_DUMMY(this)
-
    end subroutine setUp
 
    @After
    subroutine shutDown(this)
       class(ESMF_TestMethod), intent(inout) :: this
+
       type(ESMF_Grid) :: grid
-      integer :: status
+      integer :: rc, status
 
       call ESMF_FieldGet(original, grid=grid, _RC)
       call ESMF_FieldDestroy(original, _RC)
@@ -49,10 +51,11 @@ contains
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_GetPointerByIndex2D(this)
       class(ESMF_TestMethod), intent(inout) :: this
+
       type(ESMF_FieldBundle) :: bundle
       type(ESMF_Field) :: field1, field2
       real, pointer :: ptr(:,:)
-      integer :: status
+      integer :: rc, status
       integer, parameter :: N = 3
 
       ! Create fields and bundle
@@ -74,48 +77,18 @@ contains
       call ESMF_FieldDestroy(field2, _RC)
       call ESMF_FieldBundleDestroy(bundle, _RC)
 
+      _UNUSED_DUMMY(this)
    end subroutine test_GetPointerByIndex2D
-
-   ! Test getting pointer by index for 3D field
-   @Test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_GetPointerByIndex3D(this)
-      class(ESMF_TestMethod), intent(inout) :: this
-      type(ESMF_FieldBundle) :: bundle
-      type(ESMF_Field) :: field1, field2
-      real, pointer :: ptr(:,:,:)
-      real, pointer :: ptr2d(:,:)
-      integer :: status
-
-      ! Create 3D fields
-      field1 = ESMF_FieldCreate(original, gridToMesh=.true., _RC)
-      field2 = ESMF_FieldCreate(original, gridToMesh=.true., _RC)
-      bundle = ESMF_FieldBundleCreate(fieldList=[field1, field2], _RC)
-
-      ! Initialize field data
-      call ESMF_FieldGet(field1, 0, ptr2d, _RC)
-      ptr2d = 15.5
-
-      ! Try to get pointer as 3D (should fail or return null since it's 2D)
-      call FieldBundleGetPointerToData(bundle, 1, ptr, rc=status)
-      @assertTrue((status /= _SUCCESS) .or. (.not. associated(ptr)), &
-           'Should not get valid 3D pointer from 2D field')
-      nullify(ptr)
-      nullify(ptr2d)
-
-      call ESMF_FieldDestroy(field1, _RC)
-      call ESMF_FieldDestroy(field2, _RC)
-      call ESMF_FieldBundleDestroy(bundle, _RC)
-
-   end subroutine test_GetPointerByIndex3D
 
    ! Test getting pointer by name for 2D field
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_GetPointerByName2D(this)
       class(ESMF_TestMethod), intent(inout) :: this
+
       type(ESMF_FieldBundle) :: bundle
       type(ESMF_Field) :: field1, field2
       real, pointer :: ptr(:,:)
-      integer :: status
+      integer :: rc, status
 
       ! Create fields with names
       field1 = ESMF_FieldCreate(original, _RC)
@@ -138,50 +111,18 @@ contains
       call ESMF_FieldDestroy(field2, _RC)
       call ESMF_FieldBundleDestroy(bundle, _RC)
 
+      _UNUSED_DUMMY(this)
    end subroutine test_GetPointerByName2D
-
-   ! Test getting pointer by name for 3D field
-   @Test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_GetPointerByName3D(this)
-      class(ESMF_TestMethod), intent(inout) :: this
-      type(ESMF_FieldBundle) :: bundle
-      type(ESMF_Field) :: field1, field2
-      real, pointer :: ptr(:,:,:)
-      real, pointer :: ptr2d(:,:)
-      integer :: status
-
-      ! Create 3D fields with names
-      field1 = ESMF_FieldCreate(original, gridToMesh=.true., _RC)
-      call ESMF_FieldSet(field1, name='wind', _RC)
-      field2 = ESMF_FieldCreate(original, gridToMesh=.true., _RC)
-      call ESMF_FieldSet(field2, name='humidity', _RC)
-      bundle = ESMF_FieldBundleCreate(fieldList=[field1, field2], _RC)
-
-      ! Initialize field data
-      call ESMF_FieldGet(field1, 0, ptr2d, _RC)
-      ptr2d = 10.0
-
-      ! Try to get 3D pointer by name (should fail or return null)
-      call FieldBundleGetPointerToData(bundle, 'wind', ptr, rc=status)
-      @assertTrue(status /= _SUCCESS .or. .not. associated(ptr), &
-           'Should not get valid 3D pointer from 2D field')
-      nullify(ptr)
-      nullify(ptr2d)
-
-      call ESMF_FieldDestroy(field1, _RC)
-      call ESMF_FieldDestroy(field2, _RC)
-      call ESMF_FieldBundleDestroy(bundle, _RC)
-
-   end subroutine test_GetPointerByName3D
 
    ! Test getting pointer from incomplete field returns null
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_GetPointerIncompleteField(this)
       class(ESMF_TestMethod), intent(inout) :: this
+
       type(ESMF_FieldBundle) :: bundle
       type(ESMF_Field) :: field_incomplete, field_complete
       real, pointer :: ptr(:,:)
-      integer :: status
+      integer :: rc, status
 
       ! Create an incomplete field
       field_incomplete = ESMF_FieldEmptyCreate(_RC)
@@ -197,16 +138,18 @@ contains
       call ESMF_FieldDestroy(field_complete, _RC)
       call ESMF_FieldBundleDestroy(bundle, _RC)
 
+      _UNUSED_DUMMY(this)
    end subroutine test_GetPointerIncompleteField
 
    ! Test getting pointer from second field in bundle
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_GetPointerSecondField(this)
       class(ESMF_TestMethod), intent(inout) :: this
+
       type(ESMF_FieldBundle) :: bundle
       type(ESMF_Field) :: field1, field2, field3
       real, pointer :: ptr(:,:)
-      integer :: status
+      integer :: rc, status
 
       ! Create multiple fields
       field1 = ESMF_FieldCreate(original, _RC)
@@ -229,16 +172,18 @@ contains
       call ESMF_FieldDestroy(field3, _RC)
       call ESMF_FieldBundleDestroy(bundle, _RC)
 
+      _UNUSED_DUMMY(this)
    end subroutine test_GetPointerSecondField
 
    ! Test getting pointer with data verification
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_GetPointerDataValues(this)
       class(ESMF_TestMethod), intent(inout) :: this
+
       type(ESMF_FieldBundle) :: bundle
       type(ESMF_Field) :: field1, field2
       real, pointer :: ptr(:,:)
-      integer :: status
+      integer :: rc, status
       integer :: i, j
 
       ! Create fields
@@ -265,16 +210,18 @@ contains
       call ESMF_FieldDestroy(field2, _RC)
       call ESMF_FieldBundleDestroy(bundle, _RC)
 
+      _UNUSED_DUMMY(this)
    end subroutine test_GetPointerDataValues
 
    ! Test multiple get operations on same bundle
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_GetPointerMultipleOperations(this)
       class(ESMF_TestMethod), intent(inout) :: this
+
       type(ESMF_FieldBundle) :: bundle
       type(ESMF_Field) :: field1, field2, field3
       real, pointer :: ptr1(:,:), ptr2(:,:), ptr3(:,:)
-      integer :: status
+      integer :: rc, status
 
       ! Create fields
       field1 = ESMF_FieldCreate(original, _RC)
@@ -310,6 +257,79 @@ contains
       call ESMF_FieldDestroy(field3, _RC)
       call ESMF_FieldBundleDestroy(bundle, _RC)
 
+      _UNUSED_DUMMY(this)
    end subroutine test_GetPointerMultipleOperations
+
+   ! Test getting pointer by index for actual 3D field
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_GetPointerByIndex3D_Actual3D(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field) :: field1, field2
+      type(ESMF_Grid) :: grid
+      type(ESMF_TypeKind_Flag) :: typekind
+      real, pointer :: ptr(:,:,:)
+      integer :: rc, status
+
+      call ESMF_FieldGet(original, grid=grid, typekind=typekind, _RC)
+      ! Create actual 3D fields
+      field1 = ESMF_FieldCreate(grid, typekind, ungriddedLBound=[1], ungriddedUBound=[3], _RC)
+      field2 = ESMF_FieldCreate(grid, typekind, ungriddedLBound=[1], ungriddedUBound=[3], _RC)
+      bundle = ESMF_FieldBundleCreate(fieldList=[field1, field2], _RC)
+
+      ! Initialize field data
+      call ESMF_FieldGet(field1, 0, ptr, _RC)
+      ptr = 7.7
+
+      ! Get pointer by index
+      call FieldBundleGetPointerToData(bundle, 1, ptr, rc=status)
+      @assertEqual(status, _SUCCESS, 'Failed to get pointer by index for 3D field')
+      @assertEqual(ptr(1,1,1), 7.7, '3D pointer data does not match')
+      nullify(ptr)
+
+      call ESMF_FieldDestroy(field1, _RC)
+      call ESMF_FieldDestroy(field2, _RC)
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_GetPointerByIndex3D_Actual3D
+
+   ! Test getting pointer by name for actual 3D field
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_GetPointerByName3D_Actual3D(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field) :: field1, field2
+      type(ESMF_Grid) :: grid
+      type(ESMF_TypeKind_Flag) :: typekind
+      real, pointer :: ptr(:,:,:)
+      integer :: rc, status
+
+      call ESMF_FieldGet(original, grid=grid, typekind=typekind, _RC)
+      ! Create actual 3D fields with names
+      field1 = ESMF_FieldCreate(grid, typekind, ungriddedLBound=[1], ungriddedUBound=[2], _RC)
+      call ESMF_FieldSet(field1, name='velocity', _RC)
+      field2 = ESMF_FieldCreate(grid, typekind, ungriddedLBound=[1], ungriddedUBound=[2], _RC)
+      call ESMF_FieldSet(field2, name='density', _RC)
+      bundle = ESMF_FieldBundleCreate(fieldList=[field1, field2], _RC)
+
+      ! Initialize field data
+      call ESMF_FieldGet(field1, 0, ptr, _RC)
+      ptr = 12.5
+
+      ! Get pointer by name
+      call FieldBundleGetPointerToData(bundle, 'velocity', ptr, rc=status)
+      @assertEqual(status, _SUCCESS, 'Failed to get pointer by name for 3D field')
+      @assertEqual(ptr(1,1,1), 12.5, '3D pointer data by name does not match')
+      nullify(ptr)
+
+      call ESMF_FieldDestroy(field1, _RC)
+      call ESMF_FieldDestroy(field2, _RC)
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_GetPointerByName3D_Actual3D
 
  end module Test_FieldBundleGetPointer

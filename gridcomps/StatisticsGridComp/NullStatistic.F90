@@ -1,8 +1,11 @@
 #include "MAPL.h"
+
 module mapl3g_NullStatistic
+
    use mapl3g_AbstractTimeStatistic
    use mapl_ErrorHandling
    use esmf, only: esmf_State
+
    implicit none(type,external)
    private
 
@@ -26,15 +29,17 @@ contains
       integer, optional, intent(out) :: rc
 
       _FAIL('NullStatistic does not perform any operations')
-
+      _UNUSED_DUMMY(this)
    end subroutine noop
 
-    subroutine add_to_state(this, state, rc)
-        class(NullStatistic), intent(inout) :: this
-        type(esmf_State), intent(inout) :: state
-        integer, optional, intent(out) :: rc
-  
-        _FAIL('NullStatistic does not add anything to the state.')
-    end subroutine add_to_state
-   
+   subroutine add_to_state(this, state, rc)
+      class(NullStatistic), intent(inout) :: this
+      type(esmf_State), intent(inout) :: state
+      integer, optional, intent(out) :: rc
+
+      _FAIL('NullStatistic does not add anything to the state.')
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(state)
+   end subroutine add_to_state
+
 end module mapl3g_NullStatistic

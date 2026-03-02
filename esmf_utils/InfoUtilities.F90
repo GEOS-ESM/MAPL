@@ -5,6 +5,7 @@
 ! management and such.
 
 module mapl3g_InfoUtilities
+
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
 
@@ -36,7 +37,7 @@ module mapl3g_InfoUtilities
    public :: MAPL_InfoSet
 
    public :: MAPL_InfoCreateFromShared
-   
+
    public :: MAPL_InfoGetShared
    public :: MAPL_InfoSetShared
    public :: MAPL_InfoGetPrivate
@@ -81,7 +82,6 @@ module mapl3g_InfoUtilities
       procedure :: info_stateitem_set_shared_r4_1d
    end interface MAPL_InfoSetShared
 
-
    interface MAPL_InfoGetPrivate
       procedure :: info_stateitem_get_private_string
       procedure :: info_stateitem_get_private_logical
@@ -102,7 +102,6 @@ module mapl3g_InfoUtilities
       procedure :: info_stateitem_set_private_r4_1d
    end interface MAPL_InfoSetPrivate
 
-
    ! Control namespace in state
    interface MAPL_InfoSetNamespace
       procedure :: set_namespace
@@ -110,9 +109,7 @@ module mapl3g_InfoUtilities
 
 contains
 
-
    ! MAPL_InfoGet
-
    subroutine info_get_string(info, key, value, unusable, rc)
       type(ESMF_Info), intent(in) :: info
       character(*), intent(in) :: key
@@ -130,6 +127,7 @@ contains
       call ESMF_InfoGetCharAlloc(info, key=key, value=value, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine info_get_string
 
    subroutine info_get_logical(info, key, value, unusable, rc)
@@ -148,6 +146,7 @@ contains
       call ESMF_InfoGet(info, key=key, value=value, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine info_get_logical
 
    subroutine info_get_i4(info, key, value, unusable, rc)
@@ -167,6 +166,7 @@ contains
       call ESMF_InfoGet(info, key=key, value=value, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine info_get_i4
 
    subroutine info_get_r4(info, key, value, unusable, rc)
@@ -185,6 +185,7 @@ contains
       call ESMF_InfoGet(info, key=key, value=value, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine info_get_r4
 
    subroutine info_get_r8(info, key, value, unusable, rc)
@@ -203,6 +204,7 @@ contains
       call ESMF_InfoGet(info, key=key, value=value, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine info_get_r8
 
    subroutine info_get_i4_1d(info, key, values, unusable, rc)
@@ -221,6 +223,7 @@ contains
       call ESMF_InfoGetAlloc(info, key=key, values=values, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine info_get_i4_1d
 
    subroutine info_get_r4_1d(info, key, values, unusable, rc)
@@ -239,10 +242,9 @@ contains
       call ESMF_InfoGetAlloc(info, key=key, values=values, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine info_get_r4_1d
 
-
-   
    function info_field_create_from_shared(field, rc) result(info)
       type(ESMF_Info) :: info
       type(ESMF_Field), intent(in) :: field
@@ -250,13 +252,12 @@ contains
 
       integer :: status
       type(ESMF_Info) :: host_info
-      
+
       call ESMF_InfoGetFromHost(field, host_info, _RC)
       info = ESMF_InfoCreate(host_info, key=INFO_SHARED_NAMESPACE, _RC)
 
       _RETURN(_SUCCESS)
    end function info_field_create_from_shared
-
 
    ! MAPL_InfoGetShared
    subroutine info_state_get_shared_string(state, key, value, unusable, rc)
@@ -273,6 +274,7 @@ contains
       call MAPL_InfoGet(state_info, key=concat(INFO_SHARED_NAMESPACE,key), value=value, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine info_state_get_shared_string
 
    subroutine info_stateitem_get_shared_string(state, short_name, key, value, rc)
@@ -290,7 +292,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine info_stateitem_get_shared_string
-
 
    subroutine info_stateitem_get_shared_logical(state, short_name, key, value, rc)
       type(ESMF_State), intent(in) :: state
@@ -372,7 +373,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine info_stateitem_get_shared_i4_1d
 
-
    subroutine info_stateitem_get_shared_r4_1d(state, short_name, key, values, rc)
       type(ESMF_State), intent(in) :: state
       character(*), intent(in) :: short_name
@@ -390,7 +390,6 @@ contains
    end subroutine info_stateitem_get_shared_r4_1d
 
    ! MAPL_InfoSetShared
-
    subroutine info_state_set_shared_string(state, key, value, unusable, rc)
       type(ESMF_State), intent(in) :: state
       character(*), intent(in) :: key
@@ -405,6 +404,7 @@ contains
       call MAPL_InfoSet(state_info, key=concat(INFO_SHARED_NAMESPACE,key), value=value, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine info_state_set_shared_string
 
    subroutine info_stateitem_set_shared_string(state, short_name, key, value, rc)
@@ -518,7 +518,7 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine info_stateitem_set_shared_r4_1d
-   
+
    ! MAPL_InfoGetPrivate
 
    subroutine info_stateitem_get_private_string(state, short_name, key, value, rc)
@@ -687,7 +687,7 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine info_stateitem_set_private_string
-      
+
 
   subroutine info_stateitem_set_private_logical(state, short_name, key, value, rc)
       type(ESMF_State), intent(in) :: state
@@ -883,7 +883,7 @@ contains
       full_key = namespace // '/' //key
 
    end function concat
-   
+
 end module mapl3g_InfoUtilities
 
 

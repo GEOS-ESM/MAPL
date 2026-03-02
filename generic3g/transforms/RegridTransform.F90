@@ -43,8 +43,6 @@ contains
       type(ESMF_Geom), intent(in) :: dst_geom
       type(EsmfRegridderParam), intent(in) :: dst_param
 
-      type(RegridderManager), pointer :: regridder_manager
-
       transform%src_geom = src_geom
       transform%dst_geom = dst_geom
       transform%dst_param = dst_param
@@ -157,7 +155,7 @@ contains
          call this%update_transform(geom_in, geom_out)
          do_transform = .true.
          call MAPL_FieldBundleGet(fb_in, fieldBundleType= field_bundle_type, _RC)
-         if (field_bundle_type == FIELDBUNDLETYPE_BRACKET .or. field_bundle_type == FIELDBUNDLETYPE_VECTOR_BRACKET) then 
+         if (field_bundle_type == FIELDBUNDLETYPE_BRACKET .or. field_bundle_type == FIELDBUNDLETYPE_VECTORBRACKET) then 
             call MAPL_FieldBundleGet(fb_in, bracket_updated=do_transform, _RC)
          end if
          if (do_transform) then
@@ -197,6 +195,8 @@ contains
       class(ScalarRegridTransform), intent(in) :: this
 
       id = GEOM_TRANSFORM_ID
+
+      _UNUSED_DUMMY(this)
    end function get_transformId
 
 end module mapl3g_RegridTransform

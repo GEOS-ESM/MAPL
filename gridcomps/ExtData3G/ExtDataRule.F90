@@ -21,6 +21,7 @@ module mapl3g_ExtDataRule
       character(:), allocatable :: vector_partner
       character(:), allocatable :: vector_component
       character(:), allocatable :: vector_file_partner
+      character(:), allocatable :: vertical_alignment
       logical :: enable_vertical_regrid
       logical :: multi_rule
       logical :: fail_on_missing_file = .true.
@@ -117,6 +118,10 @@ contains
          rule%enable_vertical_regrid = ESMF_HConfigAsLogical(config,keyString="enable_vertical_regrid",_RC)
       else
          rule%enable_vertical_regrid = .false.
+      end if
+
+      if (ESMF_HConfigIsDefined(config,keyString="vertical_alignment")) then
+         rule%vertical_alignment = ESMF_HConfigAsString(config,keyString="vertical_alignment",_RC)
       end if
 
       rule%multi_rule=usable_multi_rule

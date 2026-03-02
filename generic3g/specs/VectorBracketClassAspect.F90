@@ -16,6 +16,7 @@ module mapl3g_VectorBracketClassAspect
    use mapl3g_TypekindAspect
    use mapl3g_UngriddedDimsAspect
    use mapl3g_FieldBundleInfo, only: FieldBundleInfoSetInternal
+   use mapl3g_VectorBasisKind
 
    use mapl3g_VerticalGrid
    use mapl3g_VerticalStaggerLoc
@@ -49,9 +50,10 @@ module mapl3g_VectorBracketClassAspect
       type(ESMF_FieldBundle) :: payload
       type(FieldClassAspect), allocatable :: field_aspect ! reference
 
-      integer :: bracket_size   ! allocate only if not time dependent
-      character(:), allocatable :: standard_name
-      character(:), allocatable :: long_name
+       integer :: bracket_size   ! allocate only if not time dependent
+       character(:), allocatable :: standard_name
+       character(:), allocatable :: long_name
+       type(VectorBasisKind) :: vector_basis_kind
 
    contains
       procedure :: get_aspect_order
@@ -77,20 +79,26 @@ module mapl3g_VectorBracketClassAspect
 
 contains
 
-   function new_VectorBracketClassAspect(bracket_size, standard_name, long_name) result(aspect)
+   function new_VectorBracketClassAspect(bracket_size, standard_name, long_name, vector_basis_kind) result(aspect)
       type(VectorBracketClassAspect) :: aspect
       integer, intent(in) :: bracket_size
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
+      type(VectorBasisKind), optional, intent(in) :: vector_basis_kind
 
-      aspect%field_aspect = FieldClassAspect(standard_name, long_name)
-      aspect%bracket_size = bracket_size
-      if (present(standard_name)) then
-         aspect%standard_name = standard_name
-      end if
-      if (present(long_name)) then
-         aspect%long_name = long_name
-      end if
+       aspect%field_aspect = FieldClassAspect(standard_name, long_name)
+       aspect%bracket_size = bracket_size
+       if (present(standard_name)) then
+          aspect%standard_name = standard_name
+       end if
+       if (present(long_name)) then
+          aspect%long_name = long_name
+       end if
+       
+       aspect%vector_basis_kind = VECTOR_BASIS_KIND_NS
+       if (present(vector_basis_kind)) then
+          aspect%vector_basis_kind = vector_basis_kind
+       end if
       
    end function new_VectorBracketClassAspect
 
@@ -119,6 +127,7 @@ contains
            ]
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
 
@@ -130,13 +139,17 @@ contains
      integer :: status
      type(ESMF_Info) :: info
 
-      this%payload = MAPL_FieldBundleCreate(fieldBundleType=FIELDBUNDLETYPE_VECTOR_BRACKET, _RC)
+      this%payload = MAPL_FieldBundleCreate(fieldBundleType=FIELDBUNDLETYPE_VECTORBRACKET, _RC)
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
       call FieldBundleInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, bracket_updated=.true.,  _RC)
-      call MAPL_FieldBundleSet(this%payload, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
+      call MAPL_FieldBundleSet(this%payload, &
+                               allocation_status=STATEITEM_ALLOCATION_CREATED, &
+                               vector_basis_kind=this%vector_basis_kind, &
+                               _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(other_aspects)
    end subroutine create
 
    subroutine activate(this, rc)
@@ -286,6 +299,9 @@ contains
       transform = TimeInterpolateTransform()
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
+      _UNUSED_DUMMY(other_aspects)
    end function make_transform
 
    ! Should only connect to FieldClassAspect and
@@ -296,11 +312,16 @@ contains
 
       matches = .false.
 
+      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
    end function matches
 
    logical function supports_conversion_general(src)
       class(VectorBracketClassAspect), intent(in) :: src
+
       supports_conversion_general = .true.
+
+      _UNUSED_DUMMY(src)
    end function supports_conversion_general
 
    ! Only can convert if import is VectorClassAspect.
@@ -314,7 +335,7 @@ contains
          supports_conversion_specific = .true.
       end select
 
-      _UNUSED_DUMMY(dst)
+      _UNUSED_DUMMY(src)
    end function supports_conversion_specific
 
    subroutine add_to_state(this, multi_state, actual_pt, rc)
@@ -362,7 +383,10 @@ contains
       bundle = this%payload
 
       _RETURN(_SUCCESS)
-
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(field)
+      _UNUSED_DUMMY(state)
    end subroutine get_payload
 
 end module mapl3g_VectorBracketClassAspect

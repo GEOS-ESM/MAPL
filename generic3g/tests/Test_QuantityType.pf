@@ -1,0 +1,215 @@
+#include "MAPL_TestErr.h"
+module Test_QuantityType
+   use mapl3g_QuantityType
+   use mapl3g_NormalizationType
+   use funit
+   implicit none
+
+contains
+
+   !---------------------------------------------------------------------------
+   ! QuantityType tests
+   !---------------------------------------------------------------------------
+
+   @test
+   subroutine test_quantity_type_to_string()
+      character(:), allocatable :: str
+      
+      str = QUANTITY_MIXING_RATIO%to_string()
+      @assertEqual('QUANTITY_MIXING_RATIO', str)
+      
+      str = QUANTITY_CONCENTRATION%to_string()
+      @assertEqual('QUANTITY_CONCENTRATION', str)
+      
+      str = QUANTITY_TEMPERATURE%to_string()
+      @assertEqual('QUANTITY_TEMPERATURE', str)
+      
+      str = QUANTITY_PRESSURE%to_string()
+      @assertEqual('QUANTITY_PRESSURE', str)
+      
+      str = QUANTITY_EXTENSIVE%to_string()
+      @assertEqual('QUANTITY_EXTENSIVE', str)
+      
+      str = QUANTITY_UNKNOWN%to_string()
+      @assertEqual('QUANTITY_UNKNOWN', str)
+      
+   end subroutine test_quantity_type_to_string
+
+
+   @test
+   subroutine test_quantity_type_from_string()
+      type(QuantityType) :: qtype
+      
+      qtype = QuantityType('QUANTITY_MIXING_RATIO')
+      @assertTrue(qtype == QUANTITY_MIXING_RATIO)
+      
+      qtype = QuantityType('QUANTITY_CONCENTRATION')
+      @assertTrue(qtype == QUANTITY_CONCENTRATION)
+      
+      qtype = QuantityType('QUANTITY_TEMPERATURE')
+      @assertTrue(qtype == QUANTITY_TEMPERATURE)
+      
+      qtype = QuantityType('QUANTITY_PRESSURE')
+      @assertTrue(qtype == QUANTITY_PRESSURE)
+      
+      qtype = QuantityType('QUANTITY_EXTENSIVE')
+      @assertTrue(qtype == QUANTITY_EXTENSIVE)
+      
+      ! Invalid string should return UNKNOWN
+      qtype = QuantityType('INVALID_VALUE')
+      @assertTrue(qtype == QUANTITY_UNKNOWN)
+      
+   end subroutine test_quantity_type_from_string
+
+
+   @test
+   subroutine test_quantity_type_equality()
+      @assertTrue(QUANTITY_MIXING_RATIO == QUANTITY_MIXING_RATIO)
+      @assertTrue(QUANTITY_CONCENTRATION == QUANTITY_CONCENTRATION)
+      @assertTrue(QUANTITY_UNKNOWN == QUANTITY_UNKNOWN)
+      
+      @assertFalse(QUANTITY_MIXING_RATIO == QUANTITY_CONCENTRATION)
+      @assertFalse(QUANTITY_TEMPERATURE == QUANTITY_PRESSURE)
+      
+   end subroutine test_quantity_type_equality
+
+
+   @test
+   subroutine test_quantity_type_inequality()
+      @assertTrue(QUANTITY_MIXING_RATIO /= QUANTITY_CONCENTRATION)
+      @assertTrue(QUANTITY_TEMPERATURE /= QUANTITY_PRESSURE)
+      
+      @assertFalse(QUANTITY_MIXING_RATIO /= QUANTITY_MIXING_RATIO)
+      @assertFalse(QUANTITY_CONCENTRATION /= QUANTITY_CONCENTRATION)
+      
+   end subroutine test_quantity_type_inequality
+
+
+   !---------------------------------------------------------------------------
+   ! MixingRatioBasis tests
+   !---------------------------------------------------------------------------
+
+   @test
+   subroutine test_basis_to_string()
+      character(:), allocatable :: str
+      
+      str = BASIS_WET_MASS%to_string()
+      @assertEqual('BASIS_WET_MASS', str)
+      
+      str = BASIS_DRY_MASS%to_string()
+      @assertEqual('BASIS_DRY_MASS', str)
+      
+      str = BASIS_VOLUME%to_string()
+      @assertEqual('BASIS_VOLUME', str)
+      
+      str = BASIS_NONE%to_string()
+      @assertEqual('BASIS_NONE', str)
+      
+   end subroutine test_basis_to_string
+
+
+   @test
+   subroutine test_basis_from_string()
+      type(MixingRatioBasis) :: basis
+      
+      basis = MixingRatioBasis('BASIS_WET_MASS')
+      @assertTrue(basis == BASIS_WET_MASS)
+      
+      basis = MixingRatioBasis('BASIS_DRY_MASS')
+      @assertTrue(basis == BASIS_DRY_MASS)
+      
+      basis = MixingRatioBasis('BASIS_VOLUME')
+      @assertTrue(basis == BASIS_VOLUME)
+      
+      ! Invalid string should return NONE
+      basis = MixingRatioBasis('INVALID_BASIS')
+      @assertTrue(basis == BASIS_NONE)
+      
+   end subroutine test_basis_from_string
+
+
+   @test
+   subroutine test_basis_equality()
+      @assertTrue(BASIS_WET_MASS == BASIS_WET_MASS)
+      @assertTrue(BASIS_DRY_MASS == BASIS_DRY_MASS)
+      @assertTrue(BASIS_VOLUME == BASIS_VOLUME)
+      @assertTrue(BASIS_NONE == BASIS_NONE)
+      
+      @assertFalse(BASIS_WET_MASS == BASIS_DRY_MASS)
+      @assertFalse(BASIS_DRY_MASS == BASIS_VOLUME)
+      
+   end subroutine test_basis_equality
+
+
+   @test
+   subroutine test_basis_inequality()
+      @assertTrue(BASIS_WET_MASS /= BASIS_DRY_MASS)
+      @assertTrue(BASIS_DRY_MASS /= BASIS_VOLUME)
+      
+      @assertFalse(BASIS_WET_MASS /= BASIS_WET_MASS)
+      @assertFalse(BASIS_VOLUME /= BASIS_VOLUME)
+      
+   end subroutine test_basis_inequality
+
+
+   !---------------------------------------------------------------------------
+   ! NormalizationType tests
+   !---------------------------------------------------------------------------
+
+   @test
+   subroutine test_normalization_type_to_string()
+      character(:), allocatable :: str
+      
+      str = NORMALIZE_DELP%to_string()
+      @assertEqual('NORMALIZE_DELP', str)
+      
+      str = NORMALIZE_DZ%to_string()
+      @assertEqual('NORMALIZE_DZ', str)
+      
+      str = NORMALIZE_NONE%to_string()
+      @assertEqual('NORMALIZE_NONE', str)
+      
+   end subroutine test_normalization_type_to_string
+
+
+   @test
+   subroutine test_normalization_type_from_string()
+      type(NormalizationType) :: ntype
+      
+      ntype = NormalizationType('NORMALIZE_DELP')
+      @assertTrue(ntype == NORMALIZE_DELP)
+      
+      ntype = NormalizationType('NORMALIZE_DZ')
+      @assertTrue(ntype == NORMALIZE_DZ)
+      
+      ! Invalid string should return NONE
+      ntype = NormalizationType('INVALID_NORMALIZATION')
+      @assertTrue(ntype == NORMALIZE_NONE)
+      
+   end subroutine test_normalization_type_from_string
+
+
+   @test
+   subroutine test_normalization_type_equality()
+      @assertTrue(NORMALIZE_DELP == NORMALIZE_DELP)
+      @assertTrue(NORMALIZE_DZ == NORMALIZE_DZ)
+      @assertTrue(NORMALIZE_NONE == NORMALIZE_NONE)
+      
+      @assertFalse(NORMALIZE_DELP == NORMALIZE_DZ)
+      @assertFalse(NORMALIZE_DZ == NORMALIZE_NONE)
+      
+   end subroutine test_normalization_type_equality
+
+
+   @test
+   subroutine test_normalization_type_inequality()
+      @assertTrue(NORMALIZE_DELP /= NORMALIZE_DZ)
+      @assertTrue(NORMALIZE_DZ /= NORMALIZE_NONE)
+      
+      @assertFalse(NORMALIZE_DELP /= NORMALIZE_DELP)
+      @assertFalse(NORMALIZE_DZ /= NORMALIZE_DZ)
+      
+   end subroutine test_normalization_type_inequality
+
+
+end module Test_QuantityType

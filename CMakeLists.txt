@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.65.0
+  VERSION 2.67.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
@@ -242,6 +242,7 @@ add_subdirectory (regridder_mgr)
 add_subdirectory (hconfig)
 add_subdirectory (hconfig_utils)
 add_subdirectory (utilities)
+add_subdirectory(Python)
 
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)
@@ -257,13 +258,6 @@ add_subdirectory (Tests)
 
 # @env will exist here if MAPL is built as itself but not as part of, say, GEOSgcm
 esma_add_subdirectory (ESMA_env FOUND ESMA_env_FOUND)
-
-# Install the Python directory
-install (
-   DIRECTORY Python
-   DESTINATION lib
-   USE_SOURCE_PERMISSIONS
-   )
 
 install (
    DIRECTORY cmake

@@ -1,5 +1,7 @@
 #include "MAPL.h"
+
 module mapl3g_StatisticsGridComp
+
    use mapl3
    use mapl3g_RestartHandler
    ! local modules
@@ -8,8 +10,10 @@ module mapl3g_StatisticsGridComp
    use mapl3g_NullStatistic
    use mapl3g_TimeAverage
    use pflogger, only: Logger
+
    implicit none(type,external)
    private
+
    public :: setServices
 
    type :: Statistics ! private state
@@ -106,8 +110,8 @@ contains
       _RETURN(_SUCCESS)
    end subroutine advertise_item
 
-
    subroutine modify_advertise(gridcomp, importState, exportState, clock, rc)
+
       type(esmf_GridComp) :: gridcomp
       type(esmf_State) :: importState
       type(esmf_State) :: exportState
@@ -134,6 +138,7 @@ contains
       call esmf_HConfigdestroy(items_hconfig, _RC)
 
       _RETURN(_SUCCESS)
+
    contains
 
       subroutine modify_advertise_item(iter, rc)
@@ -161,7 +166,7 @@ contains
          name = esmf_HConfigAsString(iter, keystring='name', _RC)
 
          call mapl_StateGet(importState, itemName=name, itemtype=itemtype, _RC)
-         _RETURN_IF(itemtype == ESMF_STATEITEM_NOTFOUND) 
+         _RETURN_IF(itemtype == ESMF_STATEITEM_NOTFOUND)
 
          call mapl_StateGet(importState, itemName=name, field=f_in, _RC)
          call mapl_FieldGet(f_in, allocation_status=allocation_status, _RC)
@@ -230,7 +235,7 @@ contains
 
          integer :: status
          type(esmf_Field) :: f_in, f_out
-         
+
          call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
          call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
 
@@ -286,6 +291,9 @@ contains
       end associate
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
    end subroutine initialize
 
    subroutine run(gridcomp, importState, exportState, clock, rc)
@@ -313,10 +321,14 @@ contains
       end associate
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(gridcomp)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
    end subroutine run
 
-   subroutine custom_read_restart(gridComp, importState, exportState, clock, rc)
-      type(esmf_GridComp) :: gridComp
+   subroutine custom_read_restart(gridcomp, importState, exportState, clock, rc)
+      type(esmf_GridComp) :: gridcomp
       type(esmf_State) :: importState
       type(esmf_State) :: exportState
       type(esmf_Clock) :: clock
@@ -353,8 +365,11 @@ contains
       call restart_handler%read(state, filename, _RC)
 
       call esmf_StateDestroy(state, _RC)
-      _RETURN(_SUCCESS)
 
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(gridcomp)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
    end subroutine custom_read_restart
 
    subroutine custom_write_restart(gridcomp, importState, exportState, clock, rc)
@@ -397,6 +412,8 @@ contains
       call esmf_StateDestroy(state, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
    end subroutine custom_write_restart
 
 end module mapl3g_StatisticsGridComp

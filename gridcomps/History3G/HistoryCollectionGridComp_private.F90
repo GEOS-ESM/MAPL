@@ -1,5 +1,7 @@
 #include "MAPL.h"
+
 module mapl3g_HistoryCollectionGridComp_private
+
    use mapl3
    use esmf
    use gFTL2_StringVector
@@ -20,7 +22,7 @@ module mapl3g_HistoryCollectionGridComp_private
    public :: register_imports
    public :: create_output_bundle
    public :: set_start_stop_time
-   public :: get_real_time_vector 
+   public :: get_real_time_vector
    public :: get_frequency
    public :: get_accumulation_mode
    public :: append_to_time_vec
@@ -139,7 +141,7 @@ contains
       character(len=*), intent(in) :: input_alias
       integer, intent(out), optional :: rc
 
-      integer :: start_bracket, end_bracket, comma, status
+      integer :: start_bracket, end_bracket, comma
 
       comma = index(input_alias, ',')
       start_bracket = index(input_alias, '[')
@@ -212,7 +214,7 @@ contains
       enddo
 
       _RETURN(_SUCCESS)
-   end subroutine get_real_time_vector 
+   end subroutine get_real_time_vector
 
    subroutine register_imports(gridcomp, hconfig, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
@@ -224,7 +226,6 @@ contains
       character(len=:), allocatable :: short_name
       type(HistoryOptions) :: options
       integer :: status
-      type(ESMF_StateItem_Flag) :: itemtype
 
       ! Get Options for collection
       call parse_options(hconfig, options, _RC)
@@ -278,8 +279,8 @@ contains
            itemtype=item_type, &
            _RC)
       call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
-      _RETURN(_SUCCESS)
 
+      _RETURN(_SUCCESS)
    end subroutine add_var_specs
 
    subroutine parse_options_hconfig(hconfig, options, rc)
@@ -292,8 +293,8 @@ contains
       call parse_units_aspect_options(hconfig, options, _RC)
       call parse_typekind_aspect_options(hconfig, options, _RC)
       call parse_regridder_option(hconfig, options, _RC)
-      _RETURN(_SUCCESS)
 
+      _RETURN(_SUCCESS)
    end subroutine parse_options_hconfig
 
    subroutine parse_options_iter(iter, options, rc)
@@ -307,6 +308,7 @@ contains
       call parse_options(hconfig, options, _RC)
       call ESMF_HConfigDestroy(hconfig)
 
+      _RETURN(_SUCCESS)
    end subroutine parse_options_iter
 
    subroutine parse_frequency_aspect_options(hconfig, options, rc)
@@ -344,8 +346,8 @@ contains
       end if
 
       call ESMF_HConfigDestroy(time_iter, _RC)
-      _RETURN(_SUCCESS)
 
+      _RETURN(_SUCCESS)
    end subroutine parse_frequency_aspect_options
 
    subroutine parse_units_aspect_options(hconfig, options, rc)
@@ -360,8 +362,8 @@ contains
       _RETURN_UNLESS(hasKey)
       mapVal = ESMF_HConfigAsString(hconfig, keyString=KEY_UNITS, _RC)
       options%units = mapVal
-      _RETURN(_SUCCESS)
 
+      _RETURN(_SUCCESS)
    end subroutine parse_units_aspect_options
 
    subroutine parse_typekind_aspect_options(hconfig, options, rc)
@@ -380,8 +382,8 @@ contains
       tk = get_typekind(mapVal, found, _RC)
       _ASSERT(found, 'Unknown typekind')
       options%typekind = tk
-      _RETURN(_SUCCESS)
 
+      _RETURN(_SUCCESS)
    end subroutine parse_typekind_aspect_options
 
    function get_typekind(tk_string, found, rc) result(typekind)
@@ -389,7 +391,6 @@ contains
       character(len=*), intent(in) :: tk_string
       logical, optional, intent(out) :: found
       integer, optional, intent(out) :: rc
-      integer :: status
       integer, parameter :: L = 10
       integer, parameter :: ML = 2
       character(len=L), parameter :: CODES(*) = [character(len=L) :: &
@@ -413,7 +414,6 @@ contains
       end if
 
       _ASSERT(tk_found, 'Typekind was not found.')
-
    end function get_typekind
 
    function detect_geom(bundle, collection_name, rc) result(geom)
@@ -431,9 +431,9 @@ contains
          geom_id = MAPL_GeomGetID(geom, _RC)
          if (i > 1) then
             _ASSERT(geom_id == last_id,"Items in collections "//trim(collection_name)//" have inconsistent geoms")
-         end if 
+         end if
          last_id=geom_id
-      enddo 
+      enddo
       _RETURN(_SUCCESS)
    end function detect_geom
 
@@ -507,7 +507,7 @@ contains
       end if
 
       _RETURN(_SUCCESS)
-   end subroutine 
+   end subroutine
 
    logical function is_instantaneous(hconfig, rc)
       type(ESMF_HConfig), intent(in) :: hconfig

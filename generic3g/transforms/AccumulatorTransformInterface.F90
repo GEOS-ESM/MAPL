@@ -51,8 +51,6 @@ contains
       class(ExtensionTransform), allocatable, intent(out) :: transform
       integer, optional, intent(out) :: rc 
 
-      integer :: status
-
       allocate(transform, source=NullTransform())
 
       if(typekind /= ESMF_TYPEKIND_R4) then

@@ -1,9 +1,11 @@
 #include "unused_dummy.H"
 
 module MAPL_MallocGauge
+
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64
    use, intrinsic :: iso_c_binding, only : C_INT
    use MAPL_AbstractGauge
+
    implicit none
    private
 
@@ -44,14 +46,11 @@ module MAPL_MallocGauge
 
 contains
 
-
    function new_MallocGauge() result(gauge)
       type (MallocGauge) :: gauge
 
       gauge%baseline = 0
-
    end function new_MallocGauge
-
 
    function get_measurement(this) result(mem_use)
       class (MallocGauge), intent(inout) :: this
@@ -62,6 +61,7 @@ contains
       info = mallinfo()
       mem_use = info%uordblks
 
+      _UNUSED_DUMMY(this)
    end function get_measurement
 
 #if !(!defined(sysDarwin) && (defined(__INTEL_COMPILER) || defined(__GFORTRAN)))

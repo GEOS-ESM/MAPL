@@ -3,8 +3,10 @@
 module mapl3g_FieldGet
 
    use mapl3g_VerticalGrid_API
+   use mapl3g_VerticalAlignment
    use mapl3g_FieldInfo
    use mapl3g_StateItemAllocation
+   use mapl3g_QuantityTypeMetadata
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use mapl3g_UngriddedDims
@@ -26,8 +28,9 @@ contains
    subroutine field_get(field, unusable, &
         short_name, typekind, &
         geom, horizontal_dims_spec, &
-        vgrid, num_levels, vert_staggerloc, num_vgrid_levels, &
+        vgrid, num_levels, vert_staggerloc, vert_alignment, num_vgrid_levels, &
         ungridded_dims, &
+        quantity_type_metadata, &
         units, standard_name, long_name, &
         allocation_status, &
         has_deferred_aspects, &
@@ -42,8 +45,10 @@ contains
       class(VerticalGrid), pointer, optional, intent(out) :: vgrid
       integer, optional, intent(out) :: num_levels
       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
+      type(VerticalAlignment), optional, intent(out) :: vert_alignment
       integer, optional, intent(out) :: num_vgrid_levels
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
+      type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
       character(len=:), optional, allocatable, intent(out) :: units
       character(len=:), optional, allocatable, intent(out) :: standard_name
       character(len=:), optional, allocatable, intent(out) :: long_name
@@ -75,10 +80,6 @@ contains
          end if
       end if
 
-      if (present(typekind)) then
-!#         call ESMF_FieldGet(field, typekind=typekind, _RC)
-      end if
-
       call ESMF_InfoGetFromHost(field, field_info, _RC)
       call FieldInfoGetInternal(field_info, &
            typekind=typekind, &
@@ -86,8 +87,10 @@ contains
            vgrid_id=vgrid_id, &
            num_levels=num_levels, &
            vert_staggerloc=vert_staggerloc, &
+           vert_alignment=vert_alignment, &
            num_vgrid_levels=num_vgrid_levels, &
            ungridded_dims=ungridded_dims, &
+           quantity_type_metadata=quantity_type_metadata, &
            units=units, standard_name=standard_name, long_name=long_name, &
            allocation_status=allocation_status, &
            has_deferred_aspects=has_deferred_aspects, &

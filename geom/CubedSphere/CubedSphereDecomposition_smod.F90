@@ -1,8 +1,10 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_CubedSphereDecomposition) CubedSphereDecomposition_smod
+
    use mapl_Partition
    use mapl_ErrorHandlingMod
+
    implicit none
 
 contains
@@ -14,7 +16,6 @@ contains
 
       decomp%x_distribution = x_distribution
       decomp%y_distribution = y_distribution
-
    end function new_CubedSphereDecomposition_basic
 
    module function new_CubedSphereDecomposition_petcount(dims, unusable, petCount) result(decomp)
@@ -36,6 +37,8 @@ contains
       end associate
 
       decomp = CubedSphereDecomposition(dims, topology=[nx, petCount/nx])
+
+      _UNUSED_DUMMY(unusable)
    end function new_CubedSphereDecomposition_petcount
 
    module function new_CubedSphereDecomposition_topo(dims, unusable, topology) result(decomp)
@@ -48,8 +51,8 @@ contains
       decomp%x_distribution = mapl_GetPartition(dims(1), k=topology(1), min_extent=2)
       decomp%y_distribution = mapl_GetPartition(dims(2), k=topology(2), min_extent=2)
 
+      _UNUSED_DUMMY(unusable)
    end function new_CubedSphereDecomposition_topo
-
 
    ! accessors
    module function get_x_distribution(decomp) result(x_distribution)
@@ -57,7 +60,7 @@ contains
       class(CubedSphereDecomposition), intent(in) :: decomp
       x_distribution = decomp%x_distribution
    end function get_x_distribution
-   
+
    module function get_y_distribution(decomp) result(y_distribution)
       integer, allocatable :: y_distribution(:)
       class(CubedSphereDecomposition), intent(in) :: decomp
@@ -96,7 +99,6 @@ contains
       _RETURN(_SUCCESS)
    end function make_CubedSphereDecomposition_vm
 
-
    elemental module function equal_to(decomp1, decomp2)
       logical :: equal_to
       type(CubedSphereDecomposition), intent(in) :: decomp1
@@ -112,7 +114,6 @@ contains
       if (.not. equal_to) return
 
       equal_to = all(decomp1%y_distribution == decomp2%y_distribution)
-
    end function equal_to
 
    elemental module function not_equal_to(decomp1, decomp2)
@@ -121,7 +122,6 @@ contains
       type(CubedSphereDecomposition), intent(in) :: decomp2
 
       not_equal_to = .not. (decomp1 == decomp2)
-
    end function not_equal_to
 
 end submodule CubedSphereDecomposition_smod

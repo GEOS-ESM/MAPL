@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_ExpressionClassAspect
+
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_ClassAspect
@@ -13,11 +14,6 @@ module mapl3g_ExpressionClassAspect
    use mapl3g_UngriddedDimsAspect
 
    use mapl3g_StateRegistry
-!#   use mapl3g_VerticalGrid
-!#   use mapl3g_VerticalStaggerLoc
-!#   use mapl3g_VerticalStaggerLoc
-!#   use mapl3g_UngriddedDims
-
    use mapl3g_EvalTransform
    use mapl3g_NullTransform
    use mapl3g_ComponentDriver
@@ -40,8 +36,9 @@ module mapl3g_ExpressionClassAspect
    use gftl2_StringVector
 
    use mapl_ErrorHandling
-    use mapl_KeywordEnforcer
-  use esmf
+   use mapl_KeywordEnforcer
+   use esmf
+
    implicit none(type,external)
    private
 
@@ -83,7 +80,6 @@ module mapl3g_ExpressionClassAspect
       procedure :: new_ExpressionClassAspect
    end interface ExpressionClassAspect
 
-
 contains
 
    function new_ExpressionClassAspect(expression, registry) result(aspect)
@@ -110,10 +106,9 @@ contains
            ]
 
       _RETURN(_SUCCESS)
-
+      _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
-
 
    ! No op
    subroutine create(this, other_aspects, rc)
@@ -126,6 +121,7 @@ contains
       this%payload = ESMF_FieldEmptyCreate(name='expression', _RC)
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(other_aspects)
    end subroutine create
 
    subroutine activate(this, rc)
@@ -150,7 +146,7 @@ contains
          call iter%next()
       enddo
       end associate
-          
+
       _RETURN(ESMF_SUCCESS)
    end subroutine activate
 
@@ -160,11 +156,10 @@ contains
       type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(out) :: rc
 
-      integer :: status
- 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(other_aspects)
    end subroutine allocate
-
 
    ! no op
    subroutine destroy(this, rc)
@@ -172,6 +167,7 @@ contains
       integer, optional, intent(out) :: rc
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(this)
    end subroutine destroy
 
    ! no op
@@ -181,6 +177,8 @@ contains
       integer, optional, intent(out) :: rc
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(import)
    end subroutine connect_to_import
 
    ! no op
@@ -190,9 +188,9 @@ contains
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(export)
       _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
@@ -244,7 +242,6 @@ contains
       type(StateItemSpec), pointer :: new_extension
       type(StateItemSpec), pointer :: new_spec
       type(StateItemSpec), target :: goal_spec
-      type(AspectMap), pointer :: aspects
       class(StateItemAspect), pointer :: class_aspect
       type(AspectMap), pointer :: goal_aspects
       type(ESMF_Field), allocatable :: field
@@ -262,7 +259,7 @@ contains
 
 
          expression_variables = parser_variables_in_expression(src%expression, _RC)
-         associate (b => expression_variables%begin(), e => expression_variables%end()) 
+         associate (b => expression_variables%begin(), e => expression_variables%end())
          iter = b
          do while (iter /= e)
             variable => iter%of()
@@ -308,7 +305,10 @@ contains
 
    logical function supports_conversion_general(src)
       class(ExpressionClassAspect), intent(in) :: src
+
       supports_conversion_general = .true.
+
+      _UNUSED_DUMMY(src)
    end function supports_conversion_general
 
    ! Expressions can only evaluate to fields
@@ -322,7 +322,7 @@ contains
          supports_conversion_specific = .true.
       end select
 
-      _UNUSED_DUMMY(dst)
+      _UNUSED_DUMMY(src)
    end function supports_conversion_specific
 
    ! No op
@@ -333,6 +333,9 @@ contains
       integer, optional, intent(out) :: rc
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(multi_state)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine add_to_state
 
    ! noop
@@ -341,9 +344,9 @@ contains
       type(ESMF_FieldBundle), intent(inout) :: field_bundle
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(field_bundle)
    end subroutine add_to_bundle
 
    function get_aspect_id() result(aspect_id)
@@ -352,16 +355,20 @@ contains
    end function get_aspect_id
 
   function matches(src, dst)
-     logical :: matches
+      logical :: matches
       class(ExpressionClassAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
 
       matches = .false.
+
 !#      select type(dst)
 !#      class is (FieldClassAspect)
 !#         _HERE
 !#         matches = .true.
 !#      end select
+
+      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
    end function matches
 
    subroutine get_payload(this, unusable, field, bundle, state, rc)
@@ -375,6 +382,9 @@ contains
       field = this%payload
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(bundle)
+      _UNUSED_DUMMY(state)
    end subroutine get_payload
-   
+
 end module mapl3g_ExpressionClassAspect

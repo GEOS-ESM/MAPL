@@ -1,12 +1,14 @@
 #include "MAPL.h"
 
 module mapl3g_StateSet
+
    use mapl3g_Field_API
    use mapl3g_UngriddedDims
    use mapl3g_VerticalStaggerLoc
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use esmf
+
    implicit none(type,external)
    private
 
@@ -43,6 +45,8 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(typekind)
+      _UNUSED_DUMMY(num_vgrid_levels)
    end subroutine state_set
 
 end module mapl3g_StateSet

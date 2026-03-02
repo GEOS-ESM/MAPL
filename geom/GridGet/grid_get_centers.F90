@@ -1,6 +1,11 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
-submodule (mapl3g_VectorBasis) grid_get_centers_smod
+submodule (mapl3g_GridGet) grid_get_centers_smod
+
+   use mapl3g_VectorBasis, only: GridGetCoords
+
+   implicit none(type, external)
+
 contains
 
    module subroutine grid_get_centers(grid, centers, rc)

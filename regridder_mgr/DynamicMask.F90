@@ -24,7 +24,6 @@ module mapl3g_DynamicMask
       real(kind=ESMF_KIND_R8), allocatable :: dst_mask_value_r8
    end type DynamicMaskSpec
 
-
    type DynamicMask
       type(DynamicMaskSpec) :: spec
       type(ESMF_DynamicMask), allocatable :: esmf_mask_r4
@@ -127,7 +126,6 @@ contains
       mask = DynamicMask(spec, _RC)
 
       _RETURN(_SUCCESS)
-
    end function new_DynamicMask_r8
 
    function new_DynamicMask_r4r8(spec, rc) result(mask)
@@ -166,8 +164,6 @@ contains
       character(*), intent(in) :: mask_type
       integer, intent(out), optional :: rc
 
-      integer :: status
-
       select case (mask_type)
       case ('missing_value')
          mask_routine => missing_r4r8r4v
@@ -190,8 +186,6 @@ contains
       character(*), intent(in) :: mask_type
       integer, intent(out), optional :: rc
 
-      integer :: status
-
       select case (mask_type)
       case ('missing_value')
          mask_routine => missing_r8r8r8v
@@ -208,7 +202,6 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_mask_routine_r8
-
 
    subroutine missing_r8r8r8v(dynamicMaskList, dynamicSrcMaskValue, dynamicDstMaskValue, rc)
       type(ESMF_DynamicMaskElementR8R8R8V), pointer        :: dynamicMaskList(:)
@@ -231,7 +224,7 @@ contains
                do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
                   if (.not. &
                        match(dynamicSrcMaskValue,dynamicMaskList(i)%srcElement(j)%ptr(k))) then
-                     dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) & 
+                     dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) &
                           + dynamicMaskList(i)%factor(j) &
                           * dynamicMaskList(i)%srcElement(j)%ptr(k)
                      renorm(k) = renorm(k) + dynamicMaskList(i)%factor(j)
@@ -271,7 +264,7 @@ contains
                do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
                   if (.not. &
                        match(dynamicSrcMaskValue,dynamicMaskList(i)%srcElement(j)%ptr(k))) then
-                     dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) & 
+                     dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) &
                           + dynamicMaskList(i)%factor(j) &
                           * dynamicMaskList(i)%srcElement(j)%ptr(k)
                      renorm(k) = renorm(k) + dynamicMaskList(i)%factor(j)
@@ -289,7 +282,6 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(dynamicDstMaskValue)
    end subroutine missing_r4r8r4v
-
 
    subroutine monotonic_r8r8r8V(dynamicMaskList, dynamicSrcMaskValue, &
         dynamicDstMaskValue, rc)
@@ -387,12 +379,11 @@ contains
             end where
          enddo
       endif
+
       ! return successfully
       rc = ESMF_SUCCESS
       _UNUSED_DUMMY(dynamicDstMaskValue)
-
    end subroutine monotonic_r4r8r4V
-
 
    subroutine vote_r8r8r8v(dynamicMaskList, dynamicSrcMaskValue, &
         dynamicDstMaskValue, rc)
@@ -402,7 +393,6 @@ contains
       integer,                       intent(out)          :: rc
       integer :: i, j, k, n
       real(ESMF_KIND_R8), allocatable  :: renorm(:)
-
 
       if (associated(dynamicMaskList)) then
          n = size(dynamicMaskList(1)%srcElement(1)%ptr)
@@ -429,11 +419,11 @@ contains
             end where
          enddo
       endif
+
       ! return successfully
       rc = ESMF_SUCCESS
       _UNUSED_DUMMY(dynamicDstMaskValue)
    end subroutine vote_r8r8r8v
-
 
    subroutine vote_r4r8r4v(dynamicMaskList, dynamicSrcMaskValue, &
         dynamicDstMaskValue, rc)
@@ -469,10 +459,10 @@ contains
             end where
          enddo
       endif
+
       ! return successfully
       rc = ESMF_SUCCESS
       _UNUSED_DUMMY(dynamicDstMaskValue)
-
    end subroutine vote_r4r8r4v
 
    subroutine fraction_r8r8r8v(dynamicMaskList, dynamicSrcMaskValue, &
@@ -502,10 +492,10 @@ contains
             end do
          enddo
       endif
+
       ! return successfully
       rc = ESMF_SUCCESS
       _UNUSED_DUMMY(dynamicDstMaskValue)
-
    end subroutine fraction_r8r8r8v
 
    subroutine fraction_r4r8r4v(dynamicMaskList, dynamicSrcMaskValue, &
@@ -535,12 +525,11 @@ contains
             end do
          enddo
       endif
+
       ! return successfully
       rc = ESMF_SUCCESS
       _UNUSED_DUMMY(dynamicDstMaskValue)
-
    end subroutine fraction_r4r8r4v
-
 
    impure elemental logical function equal_to(a, b)
       type(DynamicMask), intent(in) :: a
@@ -548,7 +537,6 @@ contains
 
       equal_to = a%spec == b%spec
       if (.not. equal_to) return
-
    end function equal_to
 
    impure elemental logical function not_equal_to(a, b)
@@ -557,7 +545,6 @@ contains
 
       not_equal_to = .not. (a == b)
    end function not_equal_to
-
 
    logical function equal_to_spec(a, b) result(equal_to)
       type(DynamicMaskSpec), intent(in) :: a
@@ -594,9 +581,7 @@ contains
       if (allocated(a%dst_mask_value_r8)) then
          equal_to = a%dst_mask_value_r8 == b%dst_mask_value_r8
       end if
-
    end function equal_to_spec
-
 
    logical function not_equal_to_spec(a, b) result(not_equal_to)
       type(DynamicMaskSpec), intent(in) :: a
@@ -605,15 +590,14 @@ contains
       not_equal_to = .not. (a == b)
    end function not_equal_to_spec
 
-
    logical function match_r4(missing,b)
       real(kind=ESMF_KIND_R4), intent(in) :: missing, b
-      match_r4 = (missing==b) 
+      match_r4 = (missing==b)
    end function match_r4
 
    logical function match_r8(missing,b)
       real(kind=ESMF_KIND_R8), intent(in) :: missing, b
-      match_r8 = (missing==b) 
+      match_r8 = (missing==b)
    end function match_r8
 
 end module mapl3g_DynamicMask

@@ -208,7 +208,6 @@ contains
       character(len=*), intent(in) :: attr_name
       integer, optional, intent(out) :: rc
 
-      integer :: status
       class(*), pointer :: attr_val(:)
       type(Attribute), pointer :: attr
 
@@ -278,6 +277,7 @@ contains
       _RETURN_UNLESS(supports)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function supports_hconfig_
 
    logical module function supports_metadata_(this, file_metadata, rc) result(supports)
@@ -292,6 +292,7 @@ contains
       _RETURN_UNLESS(supports)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function supports_metadata_
 
 end submodule CubedSphereGeomSpec_smod

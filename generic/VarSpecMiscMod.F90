@@ -16,13 +16,10 @@ module MAPL_VarSpecMiscMod
    use MAPL_Constants
    use MAPL_ExceptionHandling
    use mapl_VarSpecVector
-   use mapl_VarConnVector
    use MAPL_VarSpecTypeMod
    use MAPL_VarSpecMod
    use MAPL_VarSpecPtrMod
-   use MAPL_VarConnPoint
-   use MAPL_VarConnType
-   use MAPL_VarConn
+
 ! !PUBLIC MEMBER FUNCTIONS:
 
 implicit none
@@ -33,9 +30,6 @@ private
    public :: MAPL_VarSpecType
    public :: MAPL_VarSpec
    public :: MAPL_VarSpecPtr
-   public :: VarConnPoint
-   public :: VarConnType
-
    public :: MAPL_VarSpecCreateInList
    public :: MAPL_VarSpecAddToList
    public :: MAPL_VarSpecSet
@@ -57,5 +51,5 @@ contains
 
 
 
- 
+
 end module MAPL_VarSpecMiscMod

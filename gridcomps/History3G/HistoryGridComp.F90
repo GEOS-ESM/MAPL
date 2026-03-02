@@ -1,12 +1,14 @@
 #include "MAPL.h"
 
 module mapl3g_HistoryGridComp
+
    use mapl3
    use mapl3g_HistoryGridComp_private
    use mapl3g_HistoryCollectionGridComp, only: collection_setServices => setServices
    use MAPL_TimeStringConversion
    use mapl3g_StatisticsGridComp, only: statistics_setServices => setServices
    use pFlogger, only: logger
+
    implicit none(type,external)
    private
 
@@ -64,7 +66,7 @@ contains
          call add_stats_gc(gridcomp, child_name, child_hconfig, _RC)
          call MAPL_GridCompAddChild(gridcomp, child_name, child_spec,_RC)
       end do
-      
+
       _RETURN(_SUCCESS)
    end subroutine setServices
    
@@ -121,28 +123,29 @@ contains
       if (has_ref_time) then
          ref_time = ESMF_HConfigAsString(time_hconfig, keystring='ref_time', _RC)
       end if
-      call ESMF_HConfigAdd(hconfig, ref_time, addKeyString='ref_time', _RC) 
+      call ESMF_HConfigAdd(hconfig, ref_time, addKeyString='ref_time', _RC)
       _RETURN(_SUCCESS)
-   end subroutine add_child_ref_time 
+   end subroutine add_child_ref_time
 
    subroutine init(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp)   :: gridcomp
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
-      type(ESMF_Clock)      :: clock      
+      type(ESMF_Clock)      :: clock
       integer, intent(out)  :: rc
 
-      integer :: status
-      
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(gridcomp)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
    end subroutine init
-
 
    subroutine run(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp)   :: gridcomp
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
-      type(ESMF_Clock)      :: clock      
+      type(ESMF_Clock)      :: clock
       integer, intent(out)  :: rc
 
       integer :: status
@@ -151,7 +154,11 @@ contains
 
       call o_Clients%done_collective_stage()
       call o_Clients%post_wait()
+
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
    end subroutine run
 
 end module mapl3g_HistoryGridComp
@@ -159,14 +166,14 @@ end module mapl3g_HistoryGridComp
 subroutine setServices(gridcomp,rc)
    use ESMF
    use MAPL_ErrorHandlingMod
-   use mapl3g_HistoryGridComp, only: History_setServices => SetServices    
+   use mapl3g_HistoryGridComp, only: History_setServices => SetServices
    type(ESMF_GridComp)  :: gridcomp
    integer, intent(out) :: rc
 
    integer :: status
 
    call History_setServices(gridcomp,_RC)
-   _RETURN(_SUCCESS)
 
+   _RETURN(_SUCCESS)
 end subroutine
 

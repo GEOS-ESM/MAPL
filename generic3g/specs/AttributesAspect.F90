@@ -55,12 +55,17 @@ contains
    logical function supports_conversion_general(src)
       class(AttributesAspect), intent(in) :: src
       supports_conversion_general = .false.
+
+      _UNUSED_DUMMY(src)
    end function supports_conversion_general
 
    logical function supports_conversion_specific(src, dst)
       class(AttributesAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
       supports_conversion_specific = .false.
+
+      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
    end function supports_conversion_specific
 
    logical function matches(src, dst)
@@ -109,6 +114,9 @@ contains
       transform = NullTransform()
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
+      _UNUSED_DUMMY(other_aspects)
    end function make_transform
 
    function get_aspect_id() result(aspect_id)
@@ -136,14 +144,16 @@ contains
       type(esmf_State), optional, intent(in) :: state
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       ! no-op
       ! public attributes are shared across connections
       ! private attributes do not change and are
       ! set explicitly by the user.
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(field)
+      _UNUSED_DUMMY(bundle)
+      _UNUSED_DUMMY(state)
    end subroutine update_from_payload
 
    subroutine update_payload(this, field, bundle, state, rc)
@@ -153,11 +163,13 @@ contains
       type(esmf_State), optional, intent(inout) :: state
       integer, optional, intent(out) :: rc
 
-       integer :: status
-
       ! no-op; see above
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(field)
+      _UNUSED_DUMMY(bundle)
+      _UNUSED_DUMMY(state)
    end subroutine update_payload
 
 end module mapl3g_AttributesAspect

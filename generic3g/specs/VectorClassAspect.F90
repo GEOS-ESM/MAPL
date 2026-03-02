@@ -13,6 +13,7 @@ module mapl3g_VectorClassAspect
    use mapl3g_UnitsAspect
    use mapl3g_TypekindAspect
    use mapl3g_UngriddedDimsAspect
+   use mapl3g_VectorBasisKind
    use mapl3g_FieldBundleInfo, only: FieldBundleInfoSetInternal
 
    use mapl3g_VerticalGrid
@@ -49,6 +50,7 @@ module mapl3g_VectorClassAspect
       type(ESMF_FieldBundle) :: payload
       type(StringVector) :: short_names
       type(FieldClassAspect) :: component_specs(2)
+      type(VectorBasisKind) :: basis_kind
    contains
       procedure :: get_aspect_order
       procedure :: supports_conversion_general
@@ -75,13 +77,15 @@ module mapl3g_VectorClassAspect
 
 contains
 
-   function new_VectorClassAspect_basic(short_names, component_specs) result(aspect)
+   function new_VectorClassAspect_basic(short_names, component_specs, basis_kind) result(aspect)
       type(VectorClassAspect) :: aspect
       type(StringVector), intent(in) :: short_names
       type(FieldClassAspect), intent(in) :: component_specs(2)
+      type(VectorBasisKind), intent(in) :: basis_kind
 
       aspect%short_names = short_names
       aspect%component_specs = component_specs
+      aspect%basis_kind = basis_kind
       
    end function new_VectorClassAspect_basic
 
@@ -112,6 +116,8 @@ contains
       class is (VectorClassAspect)
          matches = .true.
       end select
+
+      _UNUSED_DUMMY(src)
    end function matches
 
    subroutine create(this, other_aspects, rc)
@@ -125,9 +131,13 @@ contains
       this%payload = MAPL_FieldBundleCreate(fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
       
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call MAPL_FieldBundleSet(this%payload, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
+      call MAPL_FieldBundleSet(this%payload, &
+                               allocation_status=STATEITEM_ALLOCATION_CREATED, &
+                               vector_basis_kind=this%basis_kind, &
+                               _RC)
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(other_aspects)
    end subroutine create
 
    subroutine activate(this, rc)
@@ -205,7 +215,6 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine destroy
 
-
    ! No-op
    subroutine connect_to_import(this, import, rc)
       class(VectorClassAspect), intent(inout) :: this
@@ -213,6 +222,8 @@ contains
       integer, optional, intent(out) :: rc
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(import)
    end subroutine connect_to_import
 
    subroutine connect_to_export(this, export, actual_pt, rc)
@@ -249,7 +260,6 @@ contains
            _HERE, 'WARNING: mismatched default values for ', actual_pt
            _HERE, '    src = ', src, '; dst = ',dst, ' (src value wins)'
         end if
-
       end subroutine mirror
       
    end subroutine connect_to_export
@@ -293,11 +303,17 @@ contains
       transform = NullTransform()
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
+      _UNUSED_DUMMY(other_aspects)
    end function make_transform
 
    logical function supports_conversion_general(src)
       class(VectorClassAspect), intent(in) :: src
+
       supports_conversion_general = .false.
+
+      _UNUSED_DUMMY(src)
    end function supports_conversion_general
 
    logical function supports_conversion_specific(src, dst)
@@ -306,6 +322,7 @@ contains
 
       supports_conversion_specific = .false.
 
+      _UNUSED_DUMMY(src)
       _UNUSED_DUMMY(dst)
    end function supports_conversion_specific
 
@@ -346,7 +363,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_state
 
-
    subroutine get_payload(this, unusable, field, bundle, state, rc)
       class(VectorClassAspect), intent(in) :: this
       class(KeywordEnforcer), optional, intent(out) :: unusable
@@ -358,7 +374,9 @@ contains
       bundle = this%payload
 
       _RETURN(_SUCCESS)
-
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(field)
+      _UNUSED_DUMMY(state)
    end subroutine get_payload
    
    function get_aspect_id() result(aspect_id)

@@ -6,7 +6,7 @@ contains
    module subroutine destroy_fields(this)
       type(VectorBasis), intent(inout) :: this
 
-      integer :: i, j
+!#      integer :: i, j
 
 !#      if (.not. allocated(this%elements)) return
 !#      do j = 1, size(this%elements,2)
@@ -15,6 +15,7 @@ contains
 !#         end do
 !#      end do
 
+      _UNUSED_DUMMY(this)
    end subroutine destroy_fields
-   
+
 end submodule destroy_field_smod
