@@ -59,6 +59,9 @@ module mapl3g_QuantityTypeAspect
       procedure :: set_molecular_weight
       procedure :: set_from_metadata
 
+      ! Query methods
+      procedure :: needs_vertical_normalization
+
       procedure :: update_from_payload
       procedure :: update_payload
       procedure :: print_aspect
@@ -341,6 +344,21 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine set_molecular_weight
+
+   !> Query whether this quantity type requires vertical normalization for conservative regridding
+   !!
+   !! Wet mass mixing ratios (kg/kg) need normalization by layer pressure thickness (delp)
+   !! for conservative vertical regridding to preserve mass.
+   !!
+   !! @return .true. if quantity requires normalization (divide by dp, regrid, multiply by dp)
+   logical function needs_vertical_normalization(this)
+      class(QuantityTypeAspect), intent(in) :: this
+
+      ! Wet mass mixing ratios need normalization for conservative vertical regridding
+      needs_vertical_normalization = &
+         (this%quantity_type == QUANTITY_MIXING_RATIO .and. this%basis == BASIS_WET_MASS)
+
+   end function needs_vertical_normalization
 
    subroutine set_from_metadata(this, metadata, rc)
       class(QuantityTypeAspect), intent(inout) :: this
